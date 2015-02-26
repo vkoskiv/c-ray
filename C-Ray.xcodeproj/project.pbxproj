@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8DDBB12A1A9F565A00274E0A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 8DDBB1291A9F565A00274E0A /* main.c */; };
+		8DDBB1321A9F566A00274E0A /* CRay.c in Sources */ = {isa = PBXBuildFile; fileRef = 8DDBB1301A9F566A00274E0A /* CRay.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,7 +24,8 @@
 
 /* Begin PBXFileReference section */
 		8DDBB1261A9F565A00274E0A /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
-		8DDBB1291A9F565A00274E0A /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		8DDBB1301A9F566A00274E0A /* CRay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CRay.c; sourceTree = "<group>"; };
+		8DDBB1311A9F566A00274E0A /* CRay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CRay.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +58,8 @@
 		8DDBB1281A9F565A00274E0A /* C-Ray */ = {
 			isa = PBXGroup;
 			children = (
-				8DDBB1291A9F565A00274E0A /* main.c */,
+				8DDBB1301A9F566A00274E0A /* CRay.c */,
+				8DDBB1311A9F566A00274E0A /* CRay.h */,
 			);
 			path = "C-Ray";
 			sourceTree = "<group>";
@@ -118,7 +120,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DDBB12A1A9F565A00274E0A /* main.c in Sources */,
+				8DDBB1321A9F566A00274E0A /* CRay.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
