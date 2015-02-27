@@ -136,18 +136,18 @@ color colorCoef(double coef, color *c) {
 }
 
 //Calculates intersection with a sphere and a light ray
-bool rayIntersectsWithSphere(lightRay *r, sphereObject *s, double *t) {
+bool rayIntersectsWithSphere(lightRay *ray, sphereObject *sphere, double *t) {
 	bool intersects = false;
 	
 	//Vector dot product of the direction
-	float A = scalarProduct(&r->direction, &r->direction);
+	float A = scalarProduct(&ray->direction, &ray->direction);
 	
 	//Distance between start of a lightRay and the sphere position
-	vector distance = subtractVectors(&r->start, &s->pos);
+	vector distance = subtractVectors(&ray->start, &sphere->pos);
 	
-	float B = 2 * scalarProduct(&r->direction, &distance);
+	float B = 2 * scalarProduct(&ray->direction, &distance);
 	
-	float C = scalarProduct(&distance, &distance) - (s->radius * s->radius);
+	float C = scalarProduct(&distance, &distance) - (sphere->radius * sphere->radius);
 	
 	float trigDiscriminant = B * B - 4 * A * C;
 	
@@ -209,7 +209,7 @@ bool rayIntersectsWithPolygon(lightRay *r, polygonObject *t, double *result, vec
 		return false;
 	}
 		
-		*result = temp - 0.005;
+		*result = temp - 0.002; //This is to fix floating point precision error artifacts
 		*normal = vectorCross(&edge2, &edge1);
 		
 		return true;
@@ -256,21 +256,21 @@ void saveBmpFromArray(char *filename, unsigned char *imgData, int width, int hei
 	bmpinfoheader[11] = (unsigned char)(height>>24);
 	
 	f = fopen(filename,"wb");
-	error = fwrite(bmpfileheader,1,14,f);
+	error = (unsigned int)fwrite(bmpfileheader,1,14,f);
 	if (error != 14) {
 		printf("Error writing BMP file header data\n");
 	}
-	error = fwrite(bmpinfoheader,1,40,f);
+	error = (unsigned int)fwrite(bmpinfoheader,1,40,f);
 	if (error != 40) {
 		printf("Error writing BMP info header data\n");
 	}
 	
 	for (i = 0; i < height; i++) {
-		error = fwrite(imgData+(width*(i)*3),3,width,f);
+		error = (unsigned int)fwrite(imgData+(width*(i)*3),3,width,f);
 		if (error != width) {
 			printf("Error writing image line to BMP\n");
 		}
-		error = fwrite(bmppadding,1,(4-(width*3)%4)%4,f);
+		error = (unsigned int)fwrite(bmppadding,1,(4-(width*3)%4)%4,f);
 		if (error != (4-(width*3)%4)%4) {
 			printf("Error writing BMP padding data\n");
 		}
@@ -281,6 +281,15 @@ void saveBmpFromArray(char *filename, unsigned char *imgData, int width, int hei
 float randRange(float a, float b)
 {
 	return ((b-a)*((float)rand()/RAND_MAX))+a;
+}
+
+float FastInvSqrt(float x) {
+	float xhalf = 0.5f * x;
+	int i = *(int*)&x;         // evil floating point bit level hacking
+	i = 0x5f3759df - (i >> 1);  // what the fuck?
+	x = *(float*)&i;
+	x = x*(1.5f-(xhalf*x*x));
+	return x;
 }
 
 #endif /* defined(____CRay__) */
