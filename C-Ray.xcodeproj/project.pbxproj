@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8D56E5851AA258CD00DBD0B6 /* vector.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D56E5831AA258CD00DBD0B6 /* vector.c */; };
+		8D56E5881AA258DC00DBD0B6 /* color.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D56E5861AA258DC00DBD0B6 /* color.c */; };
+		8D56E58B1AA258E700DBD0B6 /* scene.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D56E5891AA258E700DBD0B6 /* scene.c */; };
+		8D56E58E1AA258F300DBD0B6 /* poly.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D56E58C1AA258F300DBD0B6 /* poly.c */; };
+		8D56E5911AA25AAB00DBD0B6 /* sphere.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D56E58F1AA25AAB00DBD0B6 /* sphere.c */; };
+		8D56E5941AA25C8C00DBD0B6 /* filehandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D56E5921AA25C8C00DBD0B6 /* filehandler.c */; };
 		8DDBB1321A9F566A00274E0A /* CRay.c in Sources */ = {isa = PBXBuildFile; fileRef = 8DDBB1301A9F566A00274E0A /* CRay.c */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +29,19 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8D56E5831AA258CD00DBD0B6 /* vector.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vector.c; sourceTree = "<group>"; };
+		8D56E5841AA258CD00DBD0B6 /* vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector.h; sourceTree = "<group>"; };
+		8D56E5861AA258DC00DBD0B6 /* color.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = color.c; sourceTree = "<group>"; };
+		8D56E5871AA258DC00DBD0B6 /* color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = color.h; sourceTree = "<group>"; };
+		8D56E5891AA258E700DBD0B6 /* scene.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scene.c; sourceTree = "<group>"; };
+		8D56E58A1AA258E700DBD0B6 /* scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene.h; sourceTree = "<group>"; };
+		8D56E58C1AA258F300DBD0B6 /* poly.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = poly.c; sourceTree = "<group>"; };
+		8D56E58D1AA258F300DBD0B6 /* poly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poly.h; sourceTree = "<group>"; };
+		8D56E58F1AA25AAB00DBD0B6 /* sphere.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sphere.c; sourceTree = "<group>"; };
+		8D56E5901AA25AAB00DBD0B6 /* sphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sphere.h; sourceTree = "<group>"; };
+		8D56E5921AA25C8C00DBD0B6 /* filehandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = filehandler.c; sourceTree = "<group>"; };
+		8D56E5931AA25C8C00DBD0B6 /* filehandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filehandler.h; sourceTree = "<group>"; };
+		8D56E5951AA25D0900DBD0B6 /* includes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = includes.h; sourceTree = "<group>"; };
 		8DDBB1261A9F565A00274E0A /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DDBB1301A9F566A00274E0A /* CRay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CRay.c; sourceTree = "<group>"; };
 		8DDBB1311A9F566A00274E0A /* CRay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CRay.h; sourceTree = "<group>"; };
@@ -60,6 +79,19 @@
 			children = (
 				8DDBB1301A9F566A00274E0A /* CRay.c */,
 				8DDBB1311A9F566A00274E0A /* CRay.h */,
+				8D56E5831AA258CD00DBD0B6 /* vector.c */,
+				8D56E5841AA258CD00DBD0B6 /* vector.h */,
+				8D56E5861AA258DC00DBD0B6 /* color.c */,
+				8D56E5871AA258DC00DBD0B6 /* color.h */,
+				8D56E5891AA258E700DBD0B6 /* scene.c */,
+				8D56E58A1AA258E700DBD0B6 /* scene.h */,
+				8D56E58C1AA258F300DBD0B6 /* poly.c */,
+				8D56E58D1AA258F300DBD0B6 /* poly.h */,
+				8D56E58F1AA25AAB00DBD0B6 /* sphere.c */,
+				8D56E5901AA25AAB00DBD0B6 /* sphere.h */,
+				8D56E5921AA25C8C00DBD0B6 /* filehandler.c */,
+				8D56E5931AA25C8C00DBD0B6 /* filehandler.h */,
+				8D56E5951AA25D0900DBD0B6 /* includes.h */,
 			);
 			path = "C-Ray";
 			sourceTree = "<group>";
@@ -120,6 +152,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D56E5911AA25AAB00DBD0B6 /* sphere.c in Sources */,
+				8D56E58E1AA258F300DBD0B6 /* poly.c in Sources */,
+				8D56E5881AA258DC00DBD0B6 /* color.c in Sources */,
+				8D56E5851AA258CD00DBD0B6 /* vector.c in Sources */,
+				8D56E5941AA25C8C00DBD0B6 /* filehandler.c in Sources */,
+				8D56E58B1AA258E700DBD0B6 /* scene.c in Sources */,
 				8DDBB1321A9F566A00274E0A /* CRay.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -234,6 +272,7 @@
 				8DDBB12F1A9F565A00274E0A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

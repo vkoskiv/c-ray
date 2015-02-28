@@ -15,7 +15,7 @@
  Create 3D model format?
  */
 
-#include "CRay.h"
+#include "includes.h"
 
 //Global variables
 unsigned char *imgData = NULL;
@@ -34,7 +34,6 @@ int main(int argc, char *argv[]) {
 		//This is a timer to elapse how long a render takes
 		time(&start);
 		printf("Rendering at %i x %i\n",kImgWidth,kImgHeight);
-		printf("Building scene\n");
 		//Define the scene. Eventually read this from an input file
 		lightRay incidentRay;
 		
@@ -271,5 +270,51 @@ int main(int argc, char *argv[]) {
 
 	}
 	return 0;
+}
+
+bool rayIntersectsWithLight(lightRay *ray, lightSource *light, double *t) {
+	bool intersects = false;
+	
+	//Vector dot product of the direction
+	float A = scalarProduct(&ray->direction, &ray->direction);
+	//Distance between start of a bounced ray and the light pos
+	vector distance = subtractVectors(&ray->start, &light->pos);
+	float B = 2 * scalarProduct(&ray->direction, &distance);
+	float C = scalarProduct(&distance, &distance) - (light->radius * light->radius);
+	float trigDiscriminant = B * B - 4 * A * C;
+	
+	//If trigDiscriminant is negative, ray has missed the lightSource
+	if (trigDiscriminant < 0) {
+		intersects = false;
+	} else {
+		float sqrtOfDiscriminant = sqrtf(trigDiscriminant);
+		float t0 = (-B + sqrtOfDiscriminant)/(2);
+		float t1 = (-B - sqrtOfDiscriminant)/(2);
+		//Pick closest intersection
+		if (t0 > t1) {
+			t0 = t1;
+		}
+		if ((t0 > 0.001f) && (t0 < *t)) {
+			*t = t0;
+			intersects = true;
+		} else {
+			intersects = false;
+		}
+	}
+	return intersects;
+}
+
+float randRange(float a, float b)
+{
+	return ((b-a)*((float)rand()/RAND_MAX))+a;
+}
+
+float FastInvSqrt(float x) {
+	float xhalf = 0.5f * x;
+	int i = *(int*)&x;         // evil floating point bit level hacking
+	i = 0x5f3759df - (i >> 1);  // what the fuck?
+	x = *(float*)&i;
+	x = x*(1.5f-(xhalf*x*x));
+	return x;
 }
 
