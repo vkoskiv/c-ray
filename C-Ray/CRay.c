@@ -7,15 +7,11 @@
 //
 /*
  TODO:
- Add input file
- Add ambient color
+ Add input file tokenizer
  Add camera object
  */
 
 #include "CRay.h"
-
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#define invsqrtf(x) (1.0f / sqrtf(x))
 
 //Global variables
 unsigned char *imgData = NULL;
@@ -63,7 +59,6 @@ int main(int argc, char *argv[]) {
 		
 		//Start filling array with image data with ray tracing
 		int x, y;
-		
 		for (y = 0; y < kImgHeight; y++) {
 			for (x = 0; x < kImgWidth; x++) {
 				
@@ -72,14 +67,39 @@ int main(int argc, char *argv[]) {
 				int level = 0;
 				double coefficient = contrast;
 				
-				//Camera position (Kind of, no real camera yet)
-				incidentRay.start.x = x;
-				incidentRay.start.y = y ;
-				incidentRay.start.z = -2000;
-				
-				incidentRay.direction.x = 0;
-				incidentRay.direction.y = 0;
-				incidentRay.direction.z = 1;
+				if (worldScene->viewPerspective.projectionType == ortho) {
+					//Fix these
+					incidentRay.start.x = x;
+					incidentRay.start.y = y ;
+					incidentRay.start.z = -2000;
+					
+					incidentRay.direction.x = 0;
+					incidentRay.direction.y = 0;
+					incidentRay.direction.z = 1;
+				} else {
+					double focalLength = 0.0f;
+					if ((worldScene->viewPerspective.projectionType == conic)
+						&& worldScene->viewPerspective.FOV > 0.0f
+						&& worldScene->viewPerspective.FOV < 189.0f) {
+						focalLength = 0.5f * worldScene->width / tanf((double)(PIOVER180) * 0.5f * worldScene->viewPerspective.FOV);
+					}
+					
+					vector direction = {(x - 0.5f * worldScene->width)/focalLength, (y - 0.5f * worldScene->height)/focalLength, 1.0f};
+					double normal = scalarProduct(&direction, &direction);
+					if (normal == 0.0f)
+						break;
+					direction = vectorScale(invsqrtf(normal), &direction);
+					//Middle of the screen for conic projection
+					vector startPos = {0.5f * worldScene->width, 0.5f * worldScene->height, 0.0f};
+					
+					incidentRay.start.x = startPos.x;
+					incidentRay.start.y = startPos.y;
+					incidentRay.start.z = startPos.z;
+					
+					incidentRay.direction.x = direction.x;
+					incidentRay.direction.y = direction.y;
+					incidentRay.direction.z = direction.z;
+				}
 				
 				do {
 					
@@ -217,9 +237,8 @@ int main(int argc, char *argv[]) {
 				imgData[(x + y*kImgWidth)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);
 			}
 		}
-		printf("%lu light bounces\n",bounceCount);
+		printf("%lu light bounces total\n",bounceCount);
 		printf("Saving result\n");
-		
 		//Save image data to a file
 		//String manipulation is lovely in C
 		char buf[16];

@@ -16,11 +16,18 @@
 #include <math.h>
 #include <string.h>
 
+//Some macros
+#define PIOVER180 0.017453292519943295769236907684886
+#define PI        3.141592653589793238462643383279502
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define invsqrtf(x) (1.0f / sqrtf(x))
+
 //Image dimensions. Eventually get this from the input file
 #define kImgWidth 1920
 #define kImgHeight 1080
 #define kFrameCount 1
-#define bounces 2
+#define bounces 3
 #define contrast 1.0
 
 //Vector
@@ -78,8 +85,17 @@ typedef struct {
 	color intensity;
 }lightSource;
 
+typedef struct {
+#define conic 0
+#define ortho 1
+	unsigned char projectionType;
+	double FOV;
+}perspective;
+
 //World
 typedef struct {
+	perspective viewPerspective;
+	
 	color *ambientColor;
 	lightSource *lights;
 	material *materials;
@@ -270,6 +286,12 @@ float randRange(float a, float b)
 int buildScene(bool randomGenerator, world *scene) {
 	if (!randomGenerator) {
 		
+		scene->width = kImgWidth;
+		scene->height = kImgHeight;
+		
+		scene->viewPerspective.projectionType = conic;
+		scene->viewPerspective.FOV = 90.0f;
+		
 		scene->ambientColor = (color * )calloc(3, sizeof(color));
 		scene->ambientColor->red =   0.41;
 		scene->ambientColor->green = 0.41;
@@ -376,9 +398,9 @@ int buildScene(bool randomGenerator, world *scene) {
 		
 		scene->spheres = (sphereObject *)calloc(scene->sphereAmount, sizeof(sphereObject));
 		scene->spheres[0].pos.x = 400;
-		scene->spheres[0].pos.y = 260;
-		scene->spheres[0].pos.z = 0;
-		scene->spheres[0].radius = 200;
+		scene->spheres[0].pos.y = 570;
+		scene->spheres[0].pos.z = 760;
+		scene->spheres[0].radius = 100;
 		scene->spheres[0].material = 0;
 		
 		//green sphere
@@ -436,11 +458,13 @@ int buildScene(bool randomGenerator, world *scene) {
 		int i;
 		
 		for (i = 0; i < amount; i++) {
+			scene->materials = (material *)calloc(scene->materialAmount, sizeof(material));
 			scene->materials[i].diffuse.red = randRange(0,1);
 			scene->materials[i].diffuse.green = randRange(0,1);
 			scene->materials[i].diffuse.blue = randRange(0,1);
 			scene->materials[i].reflectivity = randRange(0,1);
 			
+			scene->spheres = (sphereObject *)calloc(scene->sphereAmount, sizeof(sphereObject));
 			scene->spheres[i].pos.x = rand()%kImgWidth;
 			scene->spheres[i].pos.y = rand()%kImgWidth;
 			scene->spheres[i].pos.z = rand()&4000-2000;
