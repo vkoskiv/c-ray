@@ -9,6 +9,10 @@
  TODO:
  Add input file tokenizer
  Add camera object
+ Add soft shadows (rayIntersectsWithLight)
+ Add programmatic textures (checker pattern)
+ Add refraction (Glass)
+ Create 3D model format?
  */
 
 #include "CRay.h"
@@ -54,13 +58,13 @@ int main(int argc, char *argv[]) {
 		if (imgData) {
 			free(imgData);
 		}
-		imgData = (unsigned char*)malloc(3*kImgWidth*kImgHeight);
-		memset(imgData, 0, 3*kImgWidth*kImgHeight);
+		imgData = (unsigned char*)malloc(3 * worldScene->width * worldScene->height);
+		memset(imgData, 0, 3 * worldScene->width * worldScene->height);
 		
 		//Start filling array with image data with ray tracing
 		int x, y;
-		for (y = 0; y < kImgHeight; y++) {
-			for (x = 0; x < kImgWidth; x++) {
+		for (y = 0; y < worldScene->height; y++) {
+			for (x = 0; x < worldScene->width; x++) {
 				
 				color output = {0.0f, 0.0f, 0.0f};
 				
@@ -90,7 +94,7 @@ int main(int argc, char *argv[]) {
 						break;
 					direction = vectorScale(invsqrtf(normal), &direction);
 					//Middle of the screen for conic projection
-					vector startPos = {0.5f * worldScene->width, 0.5f * worldScene->height, 0.0f};
+					vector startPos = {worldScene->width/2,worldScene->height/2, 0.0f};
 					
 					incidentRay.start.x = startPos.x;
 					incidentRay.start.y = startPos.y;
