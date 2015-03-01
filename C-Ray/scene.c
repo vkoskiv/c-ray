@@ -17,7 +17,7 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->height = kImgHeight;
 		
 		scene->viewPerspective.projectionType = conic;
-		scene->viewPerspective.FOV = 90.0f;
+		scene->viewPerspective.FOV = 80.0f;
 		
 		scene->ambientColor = (color * )calloc(3, sizeof(color));
 		scene->ambientColor->red =   0.41;
@@ -252,7 +252,7 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->spheres[3].material = 3;*/
 		
 		//Define lights to an array
-		scene->lightAmount = 1;
+		scene->lightAmount = 2;
 		
 		scene->lights = (lightSource *)calloc(scene->lightAmount, sizeof(lightSource));
 		scene->lights[0].pos.x = 960;
@@ -263,14 +263,14 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->lights[0].intensity.blue = 1;
 		scene->lights[0].radius = 1.0;
 		
-		/*lights[1].pos.x = 1280;
-		 lights[1].pos.y = 3000;
-		 lights[1].pos.z = -1000;
-		 lights[1].intensity.red = 0.4;
-		 lights[1].intensity.green = 0.4;
-		 lights[1].intensity.blue = 0.4;
+		scene->lights[1].pos.x = 960;
+		scene->lights[1].pos.y = 500;
+		scene->lights[1].pos.z = 0;
+		scene->lights[1].intensity.red = 0.4;
+		scene->lights[1].intensity.green = 0.4;
+		scene->lights[1].intensity.blue = 0.4;
 		 
-		 lights[2].pos.x = 1600;
+		 /*lights[2].pos.x = 1600;
 		 lights[2].pos.y = 1000;
 		 lights[2].pos.z = -1000;
 		 lights[2].intensity.red = 0.4;
