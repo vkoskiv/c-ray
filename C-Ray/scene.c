@@ -28,31 +28,36 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->materialAmount = 6;
 		
 		scene->materials = (material *)calloc(scene->materialAmount, sizeof(material));
+		//Red
 		scene->materials[0].diffuse.red = 1;
 		scene->materials[0].diffuse.green = 0;
 		scene->materials[0].diffuse.blue = 0;
 		scene->materials[0].reflectivity = 0.2;
 		
+		//Green
 		scene->materials[1].diffuse.red = 0;
 		scene->materials[1].diffuse.green = 1;
 		scene->materials[1].diffuse.blue = 0;
 		scene->materials[1].reflectivity = 0.5;
 		
+		//Blue
 		scene->materials[2].diffuse.red = 0;
 		scene->materials[2].diffuse.green = 0;
 		scene->materials[2].diffuse.blue = 1;
-		scene->materials[2].reflectivity = 0.2;
+		scene->materials[2].reflectivity = 1;
 		
+		//Gray
 		scene->materials[3].diffuse.red = 0.3;
 		scene->materials[3].diffuse.green = 0.3;
 		scene->materials[3].diffuse.blue = 0.3;
 		scene->materials[3].reflectivity = 1;
 		
+		//Blue-ish
 		scene->materials[4].diffuse.red = 0;
 		scene->materials[4].diffuse.green = 0.517647;
 		scene->materials[4].diffuse.blue = 1;
 		scene->materials[4].reflectivity = 1;
-		
+		//Another gray
 		scene->materials[5].diffuse.red = 0.3;
 		scene->materials[5].diffuse.green = 0.3;
 		scene->materials[5].diffuse.blue = 0.3;
@@ -124,6 +129,7 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->sphereAmount = 4;
 		
 		scene->spheres = (sphereObject *)calloc(scene->sphereAmount, sizeof(sphereObject));
+		//Red sphere
 		scene->spheres[0].pos.x = 400;
 		scene->spheres[0].pos.y = 260;
 		scene->spheres[0].pos.z = 0;

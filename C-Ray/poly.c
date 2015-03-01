@@ -8,13 +8,14 @@
 
 #include "includes.h"
 
-bool rayIntersectsWithPolygon(lightRay *r, polygonObject *t, double *result, vector *normal) {
+bool rayIntersectsWithPolygon(lightRay *ray, polygonObject *poly, double *result, vector *normal) {
 	double det, invdet;
-	vector edge1 = subtractVectors(&t->v2, &t->v1);
-	vector edge2 = subtractVectors(&t->v3, &t->v1);
+	vector edge1 = subtractVectors(&poly->v2, &poly->v1);
+	vector edge2 = subtractVectors(&poly->v3, &poly->v1);
 	
 	//Find the cross product of edge 2 and the current ray direction
-	vector s1 = vectorCross(&r->direction, &edge2);
+	//to find the surface normal at that point
+	vector s1 = vectorCross(&ray->direction, &edge2);
 	
 	det = scalarProduct(&edge1, &s1);
 	//Prepare for floating point precision errors, find a better way to fix these!
@@ -24,14 +25,14 @@ bool rayIntersectsWithPolygon(lightRay *r, polygonObject *t, double *result, vec
 	
 	invdet = 1/det;
 	
-	vector s2 = subtractVectors(&r->start, &t->v1);
+	vector s2 = subtractVectors(&ray->start, &poly->v1);
 	double u = scalarProduct(&s2, &s1) * invdet;
 	if (u < 0 || u > 1) {
 		return false;
 	}
 	
 	vector s3 = vectorCross(&s2, &edge1);
-	double v = scalarProduct(&r->direction, &s3) * invdet;
+	double v = scalarProduct(&ray->direction, &s3) * invdet;
 	if (v < 0 || (u+v) > 1) {
 		return false;
 	}

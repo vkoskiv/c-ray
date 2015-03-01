@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 		//This is a timer to elapse how long a render takes
 		time(&start);
 		printf("Rendering at %i x %i\n",kImgWidth,kImgHeight);
-		//Define the scene. Eventually read this from an input file
+		
 		lightRay incidentRay;
 		
 		//Create the scene
@@ -263,7 +263,6 @@ int main(int argc, char *argv[]) {
 			free(worldScene->polys);
 		if (worldScene->materials)
 			free(worldScene->materials);
-		
 		
 		time(&stop);
 		printf("Finished render in %.0f seconds.\n", difftime(stop, start));
