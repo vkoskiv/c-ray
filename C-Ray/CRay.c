@@ -166,9 +166,12 @@ int main(int argc, char *argv[]) {
 					
 					bool isInside;
 					
+					//Both return false
+					//FIXME: Find a way to fix this, true results in render errors
 					if (scalarProduct(&surfaceNormal, &incidentRay.direction) > 0.0f) {
 						surfaceNormal = vectorScale(-1.0f,&surfaceNormal);
-						isInside = true;
+						//isInside = true;
+						isInside = false;
 					} else {
 						isInside = false;
 					}
@@ -180,7 +183,6 @@ int main(int argc, char *argv[]) {
 						//Find the value of the light at this point (Scary!)
 						unsigned int j;
 						for (j = 0; j < lightSourceAmount; j++) {
-							//TODO: Implement rayIntersectsWithSphere here
 							lightSource currentLight = worldScene->lights[j];
 							bouncedRay.direction = subtractVectors(&currentLight.pos, &hitpoint);
 							

@@ -14,7 +14,6 @@ bool rayIntersectsWithPolygon(lightRay *ray, polygonObject *poly, double *result
 	vector edge2 = subtractVectors(&poly->v3, &poly->v1);
 	
 	//Find the cross product of edge 2 and the current ray direction
-	//to find the surface normal at that point
 	vector s1 = vectorCross(&ray->direction, &edge2);
 	
 	det = scalarProduct(&edge1, &s1);
@@ -39,11 +38,11 @@ bool rayIntersectsWithPolygon(lightRay *ray, polygonObject *poly, double *result
 	
 	double temp = scalarProduct(&edge2, &s3) * invdet;
 	
-	if (((temp < 0) || (temp > *result))) {
+	if ((temp < 0) || (temp > *result)) {
 		return false;
 	}
 	
-	*result = temp - 0.002; //This is to fix floating point precision error artifacts
+	*result = temp - 0.005; //This is to fix floating point precision error artifacts
 	*normal = vectorCross(&edge2, &edge1);
 	
 	return true;
