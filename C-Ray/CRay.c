@@ -90,15 +90,12 @@ int main(int argc, char *argv[]) {
 						focalLength = 0.5f * worldScene->camera.width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera.viewPerspective.FOV);
 					}
 					
-					//vector direction = {(x - 0.5f * worldScene->camera.width)/focalLength, (y - 0.5f * worldScene->camera.height)/focalLength, 1.0f};
 					vector direction = {((x - 0.5f * worldScene->camera.width)/focalLength) + worldScene->camera.lookAt.x, ((y - 0.5f * worldScene->camera.height)/focalLength) + worldScene->camera.lookAt.y, 1.0f};
 					
 					double normal = scalarProduct(&direction, &direction);
 					if (normal == 0.0f)
 						break;
 					direction = vectorScale(invsqrtf(normal), &direction);
-					//Middle of the screen for conic projection
-					//vector startPos = {worldScene->camera.width/2,worldScene->camera.height/2, 0.0f};
 					vector startPos = {worldScene->camera.pos.x, worldScene->camera.pos.y, worldScene->camera.pos.z};
 					
 					incidentRay.start.x = startPos.x;
@@ -125,13 +122,13 @@ int main(int argc, char *argv[]) {
 					vector polyNormal, hitpoint, surfaceNormal;
 					
 					unsigned int i;
-					for (i = 0; i < sphereAmount; i++) {
+					for (i = 0; i < sphereAmount; ++i) {
 						if (rayIntersectsWithSphere(&incidentRay, &worldScene->spheres[i], &t)) {
 							currentSphere = i;
 						}
 					}
 					
-					for (i = 0; i < polygonAmount; i++) {
+					for (i = 0; i < polygonAmount; ++i) {
 						if (rayIntersectsWithPolygon(&incidentRay, &worldScene->polys[i], &t, &polyNormal)) {
 							currentPolygon = i;
 							currentSphere = -1;
@@ -183,12 +180,11 @@ int main(int argc, char *argv[]) {
 					}
 
 					if (!isInside) {
-						
 						lightRay bouncedRay;
 						bouncedRay.start = hitpoint;
 						//Find the value of the light at this point (Scary!)
 						unsigned int j;
-						for (j = 0; j < lightSourceAmount; j++) {
+						for (j = 0; j < lightSourceAmount; ++j) {
 							lightSource currentLight = worldScene->lights[j];
 							bouncedRay.direction = subtractVectors(&currentLight.pos, &hitpoint);
 							
@@ -215,6 +211,7 @@ int main(int argc, char *argv[]) {
 							}
 							
 							for (k = 0; k < polygonAmount; ++k) {
+								//This causes the lighting bug
 								if (rayIntersectsWithPolygon(&bouncedRay, &worldScene->polys[k], &t, &polyNormal)) {
 									inShadow = true;
 									break;

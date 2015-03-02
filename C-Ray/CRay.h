@@ -27,8 +27,8 @@
 #define invsqrtf(x) (1.0f / sqrtf(x))
 
 //Image dimensions. Eventually get this from the input file
-#define kImgWidth 7680
-#define kImgHeight 4320
+#define kImgWidth 1920
+#define kImgHeight 1080
 #define kFrameCount 1
 #define bounces 3
 #define contrast 1.0

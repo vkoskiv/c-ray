@@ -13,10 +13,11 @@ int buildScene(bool randomGenerator, world *scene) {
 	if (!randomGenerator) {
 		printf("Building scene\n");
 		
+		//Final render resolution
 		scene->camera.width = kImgWidth;
 		scene->camera.height = kImgHeight;
 		
-		scene->camera.pos.x = 760;
+		scene->camera.pos.x = 940;
 		scene->camera.pos.y = 470;
 		scene->camera.pos.z = 0;
 		
@@ -73,7 +74,7 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->materials[5].reflectivity = 1;
 		
 		//Define polygons to an array
-		scene->polygonAmount = 10;
+		scene->polygonAmount = 11;
 		
 		scene->polys = (polygonObject *)calloc(scene->polygonAmount, sizeof(polygonObject));
 		//Floor plane
@@ -226,6 +227,20 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->polys[9].v3.z = 0;
 		scene->polys[9].material = 1;
 		
+		//Shadow test polygon
+		scene->polys[10].v1.x = 1000;
+		scene->polys[10].v1.y = 450;
+		scene->polys[10].v1.z = 1400;
+		
+		scene->polys[10].v2.x = 1300;
+		scene->polys[10].v2.y = 700;
+		scene->polys[10].v2.z = 1400;
+		
+		scene->polys[10].v3.x = 1000;
+		scene->polys[10].v3.y = 700;
+		scene->polys[10].v3.z = 1600;
+		scene->polys[10].material = 4;
+		
 		//define spheres to an array
 		//Red sphere
 		scene->sphereAmount = 1;
@@ -274,9 +289,9 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->lights[1].pos.x = 960;
 		scene->lights[1].pos.y = 500;
 		scene->lights[1].pos.z = 0;
-		scene->lights[1].intensity.red = 0.4;
-		scene->lights[1].intensity.green = 0.4;
-		scene->lights[1].intensity.blue = 0.4;
+		scene->lights[1].intensity.red = 0.8;
+		scene->lights[1].intensity.green = 0.8;
+		scene->lights[1].intensity.blue = 0.8;
 		 
 		 /*lights[2].pos.x = 1600;
 		 lights[2].pos.y = 1000;
