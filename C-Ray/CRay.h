@@ -17,6 +17,7 @@
 #include <string.h>
 #include "vector.h"
 #include "color.h"
+#include "camera.h"
 
 //Some macros
 #define PIOVER180 0.017453292519943295769236907684886
@@ -26,8 +27,8 @@
 #define invsqrtf(x) (1.0f / sqrtf(x))
 
 //Image dimensions. Eventually get this from the input file
-#define kImgWidth 1920
-#define kImgHeight 1080
+#define kImgWidth 7680
+#define kImgHeight 4320
 #define kFrameCount 1
 #define bounces 3
 #define contrast 1.0
@@ -57,13 +58,6 @@ typedef struct {
 	float radius;
 	color intensity;
 }lightSource;
-
-typedef struct {
-#define conic 0
-#define ortho 1
-	unsigned char projectionType;
-	double FOV;
-}perspective;
 
 //Generates a random value between a given range
 float randRange(float a, float b);

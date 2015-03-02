@@ -13,6 +13,7 @@
 		8D56E58E1AA258F300DBD0B6 /* poly.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D56E58C1AA258F300DBD0B6 /* poly.c */; };
 		8D56E5911AA25AAB00DBD0B6 /* sphere.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D56E58F1AA25AAB00DBD0B6 /* sphere.c */; };
 		8D56E5941AA25C8C00DBD0B6 /* filehandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D56E5921AA25C8C00DBD0B6 /* filehandler.c */; };
+		8D56E5981AA3E05C00DBD0B6 /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D56E5961AA3E05C00DBD0B6 /* camera.c */; };
 		8DDBB1321A9F566A00274E0A /* CRay.c in Sources */ = {isa = PBXBuildFile; fileRef = 8DDBB1301A9F566A00274E0A /* CRay.c */; };
 /* End PBXBuildFile section */
 
@@ -42,6 +43,8 @@
 		8D56E5921AA25C8C00DBD0B6 /* filehandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = filehandler.c; sourceTree = "<group>"; };
 		8D56E5931AA25C8C00DBD0B6 /* filehandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filehandler.h; sourceTree = "<group>"; };
 		8D56E5951AA25D0900DBD0B6 /* includes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = includes.h; sourceTree = "<group>"; };
+		8D56E5961AA3E05C00DBD0B6 /* camera.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = camera.c; sourceTree = "<group>"; };
+		8D56E5971AA3E05C00DBD0B6 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = camera.h; sourceTree = "<group>"; };
 		8DDBB1261A9F565A00274E0A /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DDBB1301A9F566A00274E0A /* CRay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CRay.c; sourceTree = "<group>"; };
 		8DDBB1311A9F566A00274E0A /* CRay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CRay.h; sourceTree = "<group>"; };
@@ -92,6 +95,8 @@
 				8D56E5921AA25C8C00DBD0B6 /* filehandler.c */,
 				8D56E5931AA25C8C00DBD0B6 /* filehandler.h */,
 				8D56E5951AA25D0900DBD0B6 /* includes.h */,
+				8D56E5961AA3E05C00DBD0B6 /* camera.c */,
+				8D56E5971AA3E05C00DBD0B6 /* camera.h */,
 			);
 			path = "C-Ray";
 			sourceTree = "<group>";
@@ -154,6 +159,7 @@
 			files = (
 				8D56E5911AA25AAB00DBD0B6 /* sphere.c in Sources */,
 				8D56E58E1AA258F300DBD0B6 /* poly.c in Sources */,
+				8D56E5981AA3E05C00DBD0B6 /* camera.c in Sources */,
 				8D56E5881AA258DC00DBD0B6 /* color.c in Sources */,
 				8D56E5851AA258CD00DBD0B6 /* vector.c in Sources */,
 				8D56E5941AA25C8C00DBD0B6 /* filehandler.c in Sources */,

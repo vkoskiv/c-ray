@@ -13,18 +13,16 @@
 #include "CRay.h"
 #include "sphere.h"
 #include "poly.h"
+#include "camera.h"
 
 //World
 typedef struct {
-	perspective viewPerspective;
-	
 	color *ambientColor;
 	lightSource *lights;
 	material *materials;
 	sphereObject *spheres;
 	polygonObject *polys;
-	
-	int height, width;
+	camera camera;
 	
 	int sphereAmount;
 	int polygonAmount;

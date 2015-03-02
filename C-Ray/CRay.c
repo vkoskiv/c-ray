@@ -7,8 +7,10 @@
 //
 /*
  TODO:
+ Add antialiasing
+ Multithreading?
  Add input file tokenizer
- Add camera object
+ Add total render time for animations
  Add soft shadows (rayIntersectsWithLight)
  Add programmatic textures (checker pattern)
  Add refraction (Glass)
@@ -22,6 +24,11 @@ unsigned char *imgData = NULL;
 unsigned long bounceCount = 0;
 
 int main(int argc, char *argv[]) {
+	
+	//Free image array for safety
+	if (imgData) {
+		free(imgData);
+	}
 	
 	time_t start, stop;
 	
@@ -52,25 +59,21 @@ int main(int argc, char *argv[]) {
 		
 		printf("Using %i light bounces\n",bounces);
 		printf("Raytracing...\n");
-		//Create array of pixels for image data
-		//Allocate memory for it, remember to free!
-		if (imgData) {
-			free(imgData);
-		}
-		imgData = (unsigned char*)malloc(3 * worldScene->width * worldScene->height);
-		memset(imgData, 0, 3 * worldScene->width * worldScene->height);
+		//Allocate memory and create array of pixels for image data
+		imgData = (unsigned char*)malloc(3 * worldScene->camera.width * worldScene->camera.height);
+		memset(imgData, 0, 3 * worldScene->camera.width * worldScene->camera.height);
 		
 		//Start filling array with image data with ray tracing
 		int x, y;
-		for (y = 0; y < worldScene->height; y++) {
-			for (x = 0; x < worldScene->width; x++) {
+		for (y = 0; y < worldScene->camera.height; y++) {
+			for (x = 0; x < worldScene->camera.width; x++) {
 				
 				color output = {0.0f, 0.0f, 0.0f};
 				
 				int level = 0;
 				double coefficient = contrast;
 				
-				if (worldScene->viewPerspective.projectionType == ortho) {
+				if (worldScene->camera.viewPerspective.projectionType == ortho) {
 					//Fix these
 					incidentRay.start.x = x;
 					incidentRay.start.y = y ;
@@ -81,19 +84,22 @@ int main(int argc, char *argv[]) {
 					incidentRay.direction.z = 1;
 				} else {
 					double focalLength = 0.0f;
-					if ((worldScene->viewPerspective.projectionType == conic)
-						&& worldScene->viewPerspective.FOV > 0.0f
-						&& worldScene->viewPerspective.FOV < 189.0f) {
-						focalLength = 0.5f * worldScene->width / tanf((double)(PIOVER180) * 0.5f * worldScene->viewPerspective.FOV);
+					if ((worldScene->camera.viewPerspective.projectionType == conic)
+						&& worldScene->camera.viewPerspective.FOV > 0.0f
+						&& worldScene->camera.viewPerspective.FOV < 189.0f) {
+						focalLength = 0.5f * worldScene->camera.width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera.viewPerspective.FOV);
 					}
 					
-					vector direction = {(x - 0.5f * worldScene->width)/focalLength, (y - 0.5f * worldScene->height)/focalLength, 1.0f};
+					//vector direction = {(x - 0.5f * worldScene->camera.width)/focalLength, (y - 0.5f * worldScene->camera.height)/focalLength, 1.0f};
+					vector direction = {((x - 0.5f * worldScene->camera.width)/focalLength) + worldScene->camera.lookAt.x, ((y - 0.5f * worldScene->camera.height)/focalLength) + worldScene->camera.lookAt.y, 1.0f};
+					
 					double normal = scalarProduct(&direction, &direction);
 					if (normal == 0.0f)
 						break;
 					direction = vectorScale(invsqrtf(normal), &direction);
 					//Middle of the screen for conic projection
-					vector startPos = {worldScene->width/2,worldScene->height/2, 0.0f};
+					//vector startPos = {worldScene->camera.width/2,worldScene->camera.height/2, 0.0f};
+					vector startPos = {worldScene->camera.pos.x, worldScene->camera.pos.y, worldScene->camera.pos.z};
 					
 					incidentRay.start.x = startPos.x;
 					incidentRay.start.y = startPos.y;
@@ -246,7 +252,16 @@ int main(int argc, char *argv[]) {
 		printf("Saving result\n");
 		//Save image data to a file
 		//String manipulation is lovely in C
-		char buf[16];
+		//FIXME: This crashes if frame count is over 9999
+		int bufSize;
+		if (currentFrame < 100) {
+			bufSize = 16;
+		} else if (currentFrame < 1000) {
+			bufSize = 17;
+		} else {
+			bufSize = 18;
+		}
+		char buf[bufSize];
 		sprintf(buf, "rendered_%d.bmp", currentFrame);
 		printf("%s\n", buf);
 		saveBmpFromArray(buf, imgData, kImgWidth, kImgHeight);

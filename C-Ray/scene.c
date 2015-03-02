@@ -13,11 +13,19 @@ int buildScene(bool randomGenerator, world *scene) {
 	if (!randomGenerator) {
 		printf("Building scene\n");
 		
-		scene->width = kImgWidth;
-		scene->height = kImgHeight;
+		scene->camera.width = kImgWidth;
+		scene->camera.height = kImgHeight;
 		
-		scene->viewPerspective.projectionType = conic;
-		scene->viewPerspective.FOV = 80.0f;
+		scene->camera.pos.x = 760;
+		scene->camera.pos.y = 470;
+		scene->camera.pos.z = 0;
+		
+		scene->camera.lookAt.x = 0;
+		scene->camera.lookAt.y = 0;
+		scene->camera.lookAt.z = 1;
+		
+		scene->camera.viewPerspective.projectionType = conic;
+		scene->camera.viewPerspective.FOV = 80.0f;
 		
 		scene->ambientColor = (color * )calloc(3, sizeof(color));
 		scene->ambientColor->red =   0.41;
@@ -296,8 +304,11 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->lights[0].intensity.blue = 0.9;
 		scene->lights[0].radius = 1.0;
 		
-		scene->viewPerspective.projectionType = conic;
-		scene->viewPerspective.FOV = 90.0f;
+		//scene->camera = (camera *)calloc(scene->camera, sizeof(camera));
+		scene->camera.viewPerspective.projectionType = conic;
+		scene->camera.viewPerspective.FOV = 90.0f;
+		scene->camera.height = kImgHeight;
+		scene->camera.width = kImgWidth;
 		
 		scene->ambientColor = (color * )calloc(3, sizeof(color));
 		scene->ambientColor->red =   0.41;
@@ -305,8 +316,6 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->ambientColor->blue =  0.41;
 		
 		scene->polygonAmount = -1;
-		scene->height = kImgHeight;
-		scene->width = kImgWidth;
 		scene->materialAmount = i;
 		scene->materials = (material *)calloc(scene->materialAmount, sizeof(material));
 		scene->sphereAmount = i;
