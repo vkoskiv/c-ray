@@ -18,7 +18,7 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->camera.height = kImgHeight;
 		
 		scene->camera.pos.x = 940;
-		scene->camera.pos.y = 470;
+		scene->camera.pos.y = 480;
 		scene->camera.pos.z = 0;
 		
 		scene->camera.lookAt.x = 0;
@@ -74,6 +74,7 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->materials[5].reflectivity = 1;
 		
 		//Define polygons to an array
+		//scene->polygonAmount = 11;
 		scene->polygonAmount = 11;
 		
 		scene->polys = (polygonObject *)calloc(scene->polygonAmount, sizeof(polygonObject));
@@ -279,8 +280,8 @@ int buildScene(bool randomGenerator, world *scene) {
 		
 		scene->lights = (lightSource *)calloc(scene->lightAmount, sizeof(lightSource));
 		scene->lights[0].pos.x = 960;
-		scene->lights[0].pos.y = 500;
-		scene->lights[0].pos.z = 500;
+		scene->lights[0].pos.y = 400;
+		scene->lights[0].pos.z = 0;
 		scene->lights[0].intensity.red = 1;
 		scene->lights[0].intensity.green = 1;
 		scene->lights[0].intensity.blue = 1;
