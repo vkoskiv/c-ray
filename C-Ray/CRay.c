@@ -18,15 +18,38 @@
  */
 
 #include "includes.h"
+#include <pthread.h>
+
+//These are for multi-platform physical core detection
+#ifdef MACOS
+#include <sys/param.h>
+#include <sys/sysctl.h>
+#elif _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 //Global variables
+world *worldScene = NULL;
 unsigned char *imgData = NULL;
 unsigned long bounceCount = 0;
+int sectionSize = 0;
 
 //Prototypes
+void *renderThread(void *arg);
 color rayTrace(lightRay *incidentRay, world *worldScene);
+int getSysCores();
+
+//Thread
+typedef struct {
+	pthread_t thread_id;
+	int thread_num;
+}threadInfo;
 
 int main(int argc, char *argv[]) {
+	
+	int renderThreads = getSysCores();
 	
 	//Free image array for safety
 	if (imgData) {
@@ -44,8 +67,7 @@ int main(int argc, char *argv[]) {
 		//This is a timer to elapse how long a render takes
 		time(&start);
 		printf("Rendering at %i x %i\n",kImgWidth,kImgHeight);
-		
-		lightRay incidentRay;
+		printf("Rendering with %d cores\n",renderThreads);
 		
 		//Create the scene
 		world sceneObject;
@@ -53,8 +75,20 @@ int main(int argc, char *argv[]) {
 		sceneObject.spheres = NULL;
 		sceneObject.polys = NULL;
 		sceneObject.lights = NULL;
-		world *worldScene = NULL;
 		worldScene = &sceneObject;
+		
+		//Create threads
+		threadInfo *tinfo;
+		pthread_attr_t attributes;
+		int t;
+		
+		//Alloc memory for pthread_create() args
+		tinfo = calloc(renderThreads, sizeof(threadInfo));
+		if (tinfo == NULL) {
+			printf("Error allocating memory for thread args!\n");
+			return -1;
+		}
+		
 		//Build the scene
 		if (buildScene(false, worldScene) == -1) {
 			printf("Error building worldScene\n");
@@ -65,50 +99,37 @@ int main(int argc, char *argv[]) {
 		//Allocate memory and create array of pixels for image data
 		imgData = (unsigned char*)malloc(3 * worldScene->camera.width * worldScene->camera.height);
 		memset(imgData, 0, 3 * worldScene->camera.width * worldScene->camera.height);
-		int x,y;
-		for (y = 0; y < worldScene->camera.height; y++) {
-			for (x = 0; x < worldScene->camera.width; x++) {
-				color output = {0.0f,0.0f,0.0f};
-				if (worldScene->camera.viewPerspective.projectionType == ortho) {
-					//Fix these
-					incidentRay.start.x = x;
-					incidentRay.start.y = y ;
-					incidentRay.start.z = -2000;
-					
-					incidentRay.direction.x = 0;
-					incidentRay.direction.y = 0;
-					incidentRay.direction.z = 1;
-					output = rayTrace(&incidentRay, worldScene);
-				} else {
-					double focalLength = 0.0f;
-					if ((worldScene->camera.viewPerspective.projectionType == conic)
-						&& worldScene->camera.viewPerspective.FOV > 0.0f
-						&& worldScene->camera.viewPerspective.FOV < 189.0f) {
-						focalLength = 0.5f * worldScene->camera.width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera.viewPerspective.FOV);
-					}
-					
-					vector direction = {((x - 0.5f * worldScene->camera.width)/focalLength) + worldScene->camera.lookAt.x, ((y - 0.5f * worldScene->camera.height)/focalLength) + worldScene->camera.lookAt.y, 1.0f};
-					
-					double normal = scalarProduct(&direction, &direction);
-					if (normal == 0.0f)
-						break;
-					direction = vectorScale(invsqrtf(normal), &direction);
-					vector startPos = {worldScene->camera.pos.x, worldScene->camera.pos.y, worldScene->camera.pos.z};
-					
-					incidentRay.start.x = startPos.x;
-					incidentRay.start.y = startPos.y;
-					incidentRay.start.z = startPos.z;
-					
-					incidentRay.direction.x = direction.x;
-					incidentRay.direction.y = direction.y;
-					incidentRay.direction.z = direction.z;
-					output = rayTrace(&incidentRay, worldScene);
-				}
-				imgData[(x + y*kImgWidth)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
-				imgData[(x + y*kImgWidth)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
-				imgData[(x + y*kImgWidth)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);
+		
+		//Calculate section sizes for every thread, multiple threads can't render the same portion of an image
+		sectionSize = worldScene->camera.height / renderThreads;
+		if ((sectionSize % 2) != 0) {
+			printf("Render sections and thread count are not even. Render will be corrupted (likely).\n");
+		}
+		pthread_attr_init(&attributes);
+		pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_JOINABLE);
+		
+		//Create render threads
+		for (t = 0; t < renderThreads; t++) {
+			tinfo[t].thread_num = t;
+			if (pthread_create(&tinfo[t].thread_id, &attributes, renderThread, &tinfo[t])) {
+				printf("Error creating thread %d\n",t);
+				exit(-1);
 			}
 		}
+		
+		if (pthread_attr_destroy(&attributes)) {
+			printf("Error destroying thread attributes");
+		}
+		
+		//Wait for render threads to finish (Render finished)
+		for (t = 0; t < renderThreads; t++) {
+			if (pthread_join(tinfo[t].thread_id, NULL)) {
+				printf("Error waiting for thread (Something bad has happened)");
+			}
+		}
+		
+		time(&stop);
+		printf("Finished render in %.0f seconds.\n", difftime(stop, start));
 		
 		printf("%lu light bounces total\n",bounceCount);
 		printf("Saving result\n");
@@ -142,10 +163,6 @@ int main(int argc, char *argv[]) {
 			free(worldScene->polys);
 		if (worldScene->materials)
 			free(worldScene->materials);
-		
-		time(&stop);
-		printf("Finished render in %.0f seconds.\n", difftime(stop, start));
-
 	}
 	return 0;
 }
@@ -289,6 +306,86 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 	} while ((coefficient > 0.0f) && (level < bounces));
 	
 	return output;
+}
+
+void *renderThread(void *arg) {
+	lightRay incidentRay;
+	int x,y;
+	
+	threadInfo *tinfo = (threadInfo*)arg;
+	//Figure out which part to render based on current thread ID
+	int limits[] = {(tinfo->thread_num*sectionSize), (tinfo->thread_num*sectionSize) + sectionSize};
+	
+	for (y = limits[0]; y < limits[1]; y++) {
+		for (x = 0; x < worldScene->camera.width; x++) {
+			color output = {0.0f,0.0f,0.0f};
+			if (worldScene->camera.viewPerspective.projectionType == ortho) {
+				//Fix these
+				incidentRay.start.x = x;
+				incidentRay.start.y = y ;
+				incidentRay.start.z = -2000;
+				
+				incidentRay.direction.x = 0;
+				incidentRay.direction.y = 0;
+				incidentRay.direction.z = 1;
+				output = rayTrace(&incidentRay, worldScene);
+			} else {
+				double focalLength = 0.0f;
+				if ((worldScene->camera.viewPerspective.projectionType == conic)
+					&& worldScene->camera.viewPerspective.FOV > 0.0f
+					&& worldScene->camera.viewPerspective.FOV < 189.0f) {
+					focalLength = 0.5f * worldScene->camera.width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera.viewPerspective.FOV);
+				}
+				
+				vector direction = {((x - 0.5f * worldScene->camera.width)/focalLength) + worldScene->camera.lookAt.x, ((y - 0.5f * worldScene->camera.height)/focalLength) + worldScene->camera.lookAt.y, 1.0f};
+				
+				double normal = scalarProduct(&direction, &direction);
+				if (normal == 0.0f)
+					break;
+				direction = vectorScale(invsqrtf(normal), &direction);
+				vector startPos = {worldScene->camera.pos.x, worldScene->camera.pos.y, worldScene->camera.pos.z};
+				
+				incidentRay.start.x = startPos.x;
+				incidentRay.start.y = startPos.y;
+				incidentRay.start.z = startPos.z;
+				
+				incidentRay.direction.x = direction.x;
+				incidentRay.direction.y = direction.y;
+				incidentRay.direction.z = direction.z;
+				output = rayTrace(&incidentRay, worldScene);
+			}
+			imgData[(x + y*kImgWidth)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
+			imgData[(x + y*kImgWidth)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
+			imgData[(x + y*kImgWidth)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);
+		}
+	}
+	pthread_exit((void*) arg);
+}
+
+int getSysCores() {
+#ifdef MACOS
+	int nm[2];
+	size_t len = 4;
+	uint32_t count;
+	
+	nm[0] = CTL_HW; nm[1] = HW_AVAILCPU;
+	sysctl(nm, 2, &count, &len, NULL, 0);
+	
+	if (count < 1) {
+		nm[1] = HW_NCPU;
+		sysctl(nm, 2, &count, &len, NULL, 0);
+		if (count < 1) {
+			count = 1;
+		}
+	}
+	return count;
+#elif WIN32
+	SYSTEM_INFO sysInfo;
+	GetSystemInfo(&sysInfo);
+	return sysinfo.dwNumberOfProcessors;
+#else
+	return (int)sysconf(_SC_NPROCESSORS_ONLN);
+#endif
 }
 
 bool rayIntersectsWithLight(lightRay *ray, lightSource *light, double *t) {
