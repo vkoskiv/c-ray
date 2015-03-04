@@ -8,7 +8,6 @@
 /*
  TODO:
  Add antialiasing
- Multithreading?
  Add input file tokenizer
  Add total render time for animations
  Add soft shadows (rayIntersectsWithLight)
@@ -67,9 +66,13 @@ int main(int argc, char *argv[]) {
 		//This is a timer to elapse how long a render takes
 		time(&start);
 		printf("Rendering at %i x %i\n",kImgWidth,kImgHeight);
-		printf("Rendering with %d cores\n",renderThreads);
+		if (renderThreads < 2) {
+			printf("Rendering with %d thread\n",renderThreads);
+		} else {
+			printf("Rendering with %d threads\n",renderThreads);
+		}
 		
-		//Create the scene
+		//Prepare the scene
 		world sceneObject;
 		sceneObject.materials = NULL;
 		sceneObject.spheres = NULL;
@@ -318,7 +321,7 @@ void *renderThread(void *arg) {
 	
 	for (y = limits[0]; y < limits[1]; y++) {
 		for (x = 0; x < worldScene->camera.width; x++) {
-			color output = {0.0f,0.0f,0.0f};
+			color output = {0.0f,0.0f,0.0f};			
 			if (worldScene->camera.viewPerspective.projectionType == ortho) {
 				//Fix these
 				incidentRay.start.x = x;
@@ -337,7 +340,9 @@ void *renderThread(void *arg) {
 					focalLength = 0.5f * worldScene->camera.width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera.viewPerspective.FOV);
 				}
 				
-				vector direction = {((x - 0.5f * worldScene->camera.width)/focalLength) + worldScene->camera.lookAt.x, ((y - 0.5f * worldScene->camera.height)/focalLength) + worldScene->camera.lookAt.y, 1.0f};
+				vector direction = {((x - 0.5f * worldScene->camera.width)/focalLength) +
+					worldScene->camera.lookAt.x, ((y - 0.5f * worldScene->camera.height)/focalLength) +
+					worldScene->camera.lookAt.y, 1.0f};
 				
 				double normal = scalarProduct(&direction, &direction);
 				if (normal == 0.0f)

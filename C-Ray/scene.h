@@ -14,6 +14,7 @@
 #include "sphere.h"
 #include "poly.h"
 #include "camera.h"
+#include "modeler.h"
 
 //World
 typedef struct {
