@@ -66,10 +66,17 @@ int main(int argc, char *argv[]) {
 		//This is a timer to elapse how long a render takes
 		time(&start);
 		printf("Rendering at %i x %i\n",kImgWidth,kImgHeight);
+		/*
 		if (renderThreads < 2) {
 			printf("Rendering with %d thread\n",renderThreads);
 		} else {
 			printf("Rendering with %d threads\n",renderThreads);
+		}*/
+		printf("Rendering with %d thread",renderThreads);
+		if (renderThreads < 2) {
+			printf("\n");
+		} else {
+			printf("s\n");
 		}
 		
 		//Prepare the scene
