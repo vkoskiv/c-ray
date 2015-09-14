@@ -42,7 +42,7 @@ bool rayIntersectsWithPolygon(lightRay *ray, polygonObject *poly, double *result
 		return false;
 	}
 	
-	*result = temp - 0.005; //This is to fix floating point precision error artifacts
+    *result = temp - 0.005; //This is to fix floating point precision error artifacts
 	*normal = vectorCross(&edge2, &edge1);
 	
 	return true;

@@ -26,6 +26,8 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->camera.lookAt.z = 1;
 		
 		scene->camera.viewPerspective.projectionType = conic;
+        scene->camera.antialiased = true;
+        scene->camera.supersampling = 10;
 		scene->camera.viewPerspective.FOV = 80.0f;
 		
 		scene->ambientColor = (color * )calloc(3, sizeof(color));
@@ -34,7 +36,7 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->ambientColor->blue =  0.41;
 		
 		//define materials to an array
-		scene->materialAmount = 6;
+		scene->materialAmount = 8;
 		
 		scene->materials = (material *)calloc(scene->materialAmount, sizeof(material));
 		//Matte Red
@@ -72,7 +74,23 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->materials[5].diffuse.green = 0.3;
 		scene->materials[5].diffuse.blue = 0.3;
 		scene->materials[5].reflectivity = 1;
-		
+        
+        //Reflective Red
+        scene->materials[6].diffuse.red = 0.3;
+        scene->materials[6].diffuse.green = 0;
+        scene->materials[6].diffuse.blue = 0;
+        scene->materials[6].reflectivity = 1;
+        //Reflective Green
+        scene->materials[7].diffuse.red = 0;
+        scene->materials[7].diffuse.green = 0.3;
+        scene->materials[7].diffuse.blue = 0;
+        scene->materials[7].reflectivity = 1;
+        //Reflective Blue
+        scene->materials[8].diffuse.red = 0;
+        scene->materials[8].diffuse.green = 0;
+        scene->materials[8].diffuse.blue = 0.3;
+        scene->materials[8].reflectivity = 1;
+        
 		//Define polygons to an array
 		//scene->polygonAmount = 11;
 		scene->polygonAmount = 11;
@@ -244,36 +262,37 @@ int buildScene(bool randomGenerator, world *scene) {
 		
 		//define spheres to an array
 		//Red sphere
-		scene->sphereAmount = 1;
+		scene->sphereAmount = 4;
 		
 		scene->spheres = (sphereObject *)calloc(scene->sphereAmount, sizeof(sphereObject));
-		//Red sphere
-		/*scene->spheres[0].pos.x = 400;
-		scene->spheres[0].pos.y = 260;
-		scene->spheres[0].pos.z = 0;
-		scene->spheres[0].radius = 200;
-		scene->spheres[0].material = 0;*/
 		
-		//green sphere
+		//Gray sphere
 		scene->spheres[0].pos.x = 650;
 		scene->spheres[0].pos.y = 450;
 		scene->spheres[0].pos.z = 1650;
 		scene->spheres[0].radius = 150;
 		scene->spheres[0].material = 5;
 		
-		//blue sphere
-		/*scene->spheres[2].pos.x = 1300;
-		scene->spheres[2].pos.y = 520;
-		scene->spheres[2].pos.z = 1000;
-		scene->spheres[2].radius = 220;
-		scene->spheres[2].material = 2;
+		//Red sphere
+        scene->spheres[1].pos.x = 750;
+		scene->spheres[1].pos.y = 450;
+		scene->spheres[1].pos.z = 1000;
+		scene->spheres[1].radius = 50;
+		scene->spheres[1].material = 6;
 		
-		//grey sphere
-		scene->spheres[3].pos.x = 970;
-		scene->spheres[3].pos.y = 250;
-		scene->spheres[3].pos.z = 400;
-		scene->spheres[3].radius = 100;
-		scene->spheres[3].material = 3;*/
+		//Green sphere
+		scene->spheres[2].pos.x = 850;
+		scene->spheres[2].pos.y = 450;
+		scene->spheres[2].pos.z = 400;
+		scene->spheres[2].radius = 50;
+		scene->spheres[2].material = 7;
+        
+        //Blue sphere
+        scene->spheres[3].pos.x = 1100;
+        scene->spheres[3].pos.y = 450;
+        scene->spheres[3].pos.z = 800;
+        scene->spheres[3].radius = 50;
+        scene->spheres[3].material = 8;
 		
 		//Define lights to an array
 		scene->lightAmount = 2;

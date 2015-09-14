@@ -48,7 +48,7 @@ typedef struct {
 
 int main(int argc, char *argv[]) {
 	
-	int renderThreads = getSysCores();
+    int renderThreads = getSysCores();
 	
 	//Free image array for safety
 	if (imgData) {
@@ -63,15 +63,9 @@ int main(int argc, char *argv[]) {
 	
 	//Animation
 	for (int currentFrame = 0; currentFrame < kFrameCount; currentFrame++) {
-		//This is a timer to elapse how long a render takes
+		//This is a timer to elapse how long a render takes per frame
 		time(&start);
 		printf("Rendering at %i x %i\n",kImgWidth,kImgHeight);
-		/*
-		if (renderThreads < 2) {
-			printf("Rendering with %d thread\n",renderThreads);
-		} else {
-			printf("Rendering with %d threads\n",renderThreads);
-		}*/
 		printf("Rendering with %d thread",renderThreads);
 		if (renderThreads < 2) {
 			printf("\n");
@@ -170,10 +164,13 @@ int main(int argc, char *argv[]) {
 		if (worldScene->spheres)
 			free(worldScene->spheres);
 		if (worldScene->polys)
-			free(worldScene->polys);
+			//free(worldScene->polys);
 		if (worldScene->materials)
 			free(worldScene->materials);
 	}
+    if (kFrameCount > 0) {
+        printf("Animation render finished\n");
+    }
 	return 0;
 }
 
@@ -234,11 +231,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			currentMaterial = worldScene->materials[worldScene->polys[currentPolygon].material];
 		} else {
 			//Ray didn't hit any object, set color to ambient
-			color back;
-			back.red = worldScene->ambientColor->red;
-			back.green = worldScene->ambientColor->green;
-			back.blue = worldScene->ambientColor->blue;
-			color temp = colorCoef(coefficient, &back);
+			color temp = colorCoef(coefficient, worldScene->ambientColor);
 			output = addColors(&output, &temp);
 			break;
 		}
@@ -328,7 +321,8 @@ void *renderThread(void *arg) {
 	
 	for (y = limits[0]; y < limits[1]; y++) {
 		for (x = 0; x < worldScene->camera.width; x++) {
-			color output = {0.0f,0.0f,0.0f};			
+			color output = {0.0f,0.0f,0.0f};
+            double fragX, fragY;
 			if (worldScene->camera.viewPerspective.projectionType == ortho) {
 				//Fix these
 				incidentRay.start.x = x;
@@ -339,7 +333,7 @@ void *renderThread(void *arg) {
 				incidentRay.direction.y = 0;
 				incidentRay.direction.z = 1;
 				output = rayTrace(&incidentRay, worldScene);
-			} else {
+			} else if (worldScene->camera.viewPerspective.projectionType == conic && worldScene->camera.antialiased == false) {
 				double focalLength = 0.0f;
 				if ((worldScene->camera.viewPerspective.projectionType == conic)
 					&& worldScene->camera.viewPerspective.FOV > 0.0f
@@ -356,16 +350,45 @@ void *renderThread(void *arg) {
 					break;
 				direction = vectorScale(invsqrtf(normal), &direction);
 				vector startPos = {worldScene->camera.pos.x, worldScene->camera.pos.y, worldScene->camera.pos.z};
-				
-				incidentRay.start.x = startPos.x;
-				incidentRay.start.y = startPos.y;
-				incidentRay.start.z = startPos.z;
+                incidentRay.start = startPos;
 				
 				incidentRay.direction.x = direction.x;
 				incidentRay.direction.y = direction.y;
 				incidentRay.direction.z = direction.z;
 				output = rayTrace(&incidentRay, worldScene);
-			}
+            } else if (worldScene->camera.viewPerspective.projectionType == conic && worldScene->camera.antialiased == true) {
+                for (fragX = x; fragX < x + 1.0f; fragX += 0.5) {
+                    for (fragY = y; fragY < y + 1.0f; fragY += 0.5f) {
+                        double samplingRatio = 0.25f;
+                        double focalLength = 0.0f;
+                        if ((worldScene->camera.viewPerspective.projectionType == conic)
+                            && worldScene->camera.viewPerspective.FOV > 0.0f
+                            && worldScene->camera.viewPerspective.FOV < 189.0f) {
+                            focalLength = 0.5f * worldScene->camera.width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera.viewPerspective.FOV);
+                            
+                            /*vector direction = {((x - 0.5f * worldScene->camera.width)/focalLength) +
+                                worldScene->camera.lookAt.x, ((y - 0.5f * worldScene->camera.height)/focalLength) +
+                                worldScene->camera.lookAt.y, 1.0f};*/
+                            vector direction = {((fragX - 0.5f * worldScene->camera.width) / focalLength) + worldScene->camera.lookAt.x,
+                                                ((fragY - 0.5f * worldScene->camera.height) / focalLength) + worldScene->camera.lookAt.y,
+                                                1.0f
+                                                };
+                            
+                            double normal = scalarProduct(&direction, &direction);
+                            if (normal == 0.0f)
+                                break;
+                            direction = vectorScale(invsqrtf(normal), &direction);
+                            vector startPos = {worldScene->camera.pos.x, worldScene->camera.pos.y, worldScene->camera.pos.z};
+                            incidentRay.start = startPos;
+                            
+                            incidentRay.direction.x = direction.x;
+                            incidentRay.direction.y = direction.y;
+                            incidentRay.direction.z = direction.z;
+                            output = rayTrace(&incidentRay, worldScene);
+                        }
+                    }
+                }
+            }
 			imgData[(x + y*kImgWidth)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
 			imgData[(x + y*kImgWidth)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
 			imgData[(x + y*kImgWidth)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);

@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "vector.h"
+#include <stdbool.h>
 
 typedef struct {
 #define conic 0
@@ -24,6 +25,8 @@ typedef struct {
 	perspective viewPerspective;
 	vector pos;
 	vector lookAt;
+    bool antialiased;
+    int supersampling;
 	float FOV;
 }camera;
 

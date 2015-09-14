@@ -18,7 +18,7 @@ vector addVectors(vector *v1, vector *v2) {
 
 //Subtract two vectors and return the resulting vector
 vector subtractVectors(vector *v1, vector *v2) {
-	vector result = {v1->x - v2->x, v1->y - v2->y, v1->z - v2->z };
+	vector result = {v1->x - v2->x, v1->y - v2->y, v1->z - v2->z};
 	return result;
 }
 
