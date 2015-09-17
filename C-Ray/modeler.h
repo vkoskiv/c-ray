@@ -11,5 +11,8 @@
 
 #include <stdio.h>
 #include "scene.h"
+#include "poly.h"
+
+polyMesh *buildPlane(vector *corner1, vector *corner2, vector *corner3, vector *corner4);
 
 #endif /* defined(__C_Ray__modeler__) */

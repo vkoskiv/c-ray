@@ -7,8 +7,17 @@
 //
 
 #include "scene.h"
+#include "errorhandler.h"
 
 //TODO: Turn this into a proper tokenizer
+
+/*int buildScene(bool random, world *scene, char *inputFileName) {
+    FILE *inputFile = fopen(inputFileName, "r");
+    if (!inputFile)
+        return -1;
+    return 0;
+}*/
+
 int buildScene(bool randomGenerator, world *scene) {
 	if (!randomGenerator) {
 		printf("Building scene\n");
@@ -312,14 +321,6 @@ int buildScene(bool randomGenerator, world *scene) {
 		scene->lights[1].intensity.red = 0.8;
 		scene->lights[1].intensity.green = 0.8;
 		scene->lights[1].intensity.blue = 0.8;
-		 
-		 /*lights[2].pos.x = 1600;
-		 lights[2].pos.y = 1000;
-		 lights[2].pos.z = -1000;
-		 lights[2].intensity.red = 0.4;
-		 lights[2].intensity.green = 0.4;
-		 lights[2].intensity.blue = 0.4;*/
-		
 		return 0;
 	} else {
 		//Define random scene

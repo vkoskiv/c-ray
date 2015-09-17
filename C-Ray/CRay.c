@@ -89,14 +89,17 @@ int main(int argc, char *argv[]) {
 		//Alloc memory for pthread_create() args
 		tinfo = calloc(renderThreads, sizeof(threadInfo));
 		if (tinfo == NULL) {
-			printf("Error allocating memory for thread args!\n");
+			errorHandler(threadMallocFailed);
 			return -1;
 		}
 		
 		//Build the scene
-		if (buildScene(false, worldScene) == -1) {
-			printf("Error building worldScene\n");
-		}
+        char *fileName = "input.txt";
+		/*if (buildScene(false, worldScene, fileName) == -1)
+			errorHandler(sceneBuildFailed);*/
+        if (buildScene(false, worldScene) == -1) {
+            errorHandler(sceneBuildFailed);
+        }
 		
 		printf("Using %i light bounces\n",bounces);
 		printf("Raytracing...\n");
@@ -104,10 +107,14 @@ int main(int argc, char *argv[]) {
 		imgData = (unsigned char*)malloc(3 * worldScene->camera.width * worldScene->camera.height);
 		memset(imgData, 0, 3 * worldScene->camera.width * worldScene->camera.height);
 		
+        if (!imgData) {
+            errorHandler(imageMallocFailed);
+        }
+        
 		//Calculate section sizes for every thread, multiple threads can't render the same portion of an image
 		sectionSize = worldScene->camera.height / renderThreads;
 		if ((sectionSize % 2) != 0) {
-			printf("Render sections and thread count are not even. Render will be corrupted (likely).\n");
+			errorHandler(invalidThreadCount);
 		}
 		pthread_attr_init(&attributes);
 		pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_JOINABLE);
@@ -116,19 +123,19 @@ int main(int argc, char *argv[]) {
 		for (t = 0; t < renderThreads; t++) {
 			tinfo[t].thread_num = t;
 			if (pthread_create(&tinfo[t].thread_id, &attributes, renderThread, &tinfo[t])) {
-				printf("Error creating thread %d\n",t);
+				errorHandler(threadCreateFailed);
 				exit(-1);
 			}
 		}
 		
 		if (pthread_attr_destroy(&attributes)) {
-			printf("Error destroying thread attributes");
+			errorHandler(threadRemoveFailed);
 		}
 		
 		//Wait for render threads to finish (Render finished)
 		for (t = 0; t < renderThreads; t++) {
 			if (pthread_join(tinfo[t].thread_id, NULL)) {
-				printf("Error waiting for thread (Something bad has happened)");
+				errorHandler(threadFrozen);
 			}
 		}
 		

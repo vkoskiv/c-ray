@@ -16,6 +16,7 @@
 		8D56E5981AA3E05C00DBD0B6 /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D56E5961AA3E05C00DBD0B6 /* camera.c */; };
 		8D5AD6C81AA6DC4600B4D3CA /* modeler.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D5AD6C61AA6DC4600B4D3CA /* modeler.c */; };
 		8DDBB1321A9F566A00274E0A /* CRay.c in Sources */ = {isa = PBXBuildFile; fileRef = 8DDBB1301A9F566A00274E0A /* CRay.c */; };
+		907363F21BA72CB40040863C /* errorhandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 907363F01BA72CB40040863C /* errorhandler.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -51,6 +52,8 @@
 		8DDBB1261A9F565A00274E0A /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DDBB1301A9F566A00274E0A /* CRay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CRay.c; sourceTree = "<group>"; };
 		8DDBB1311A9F566A00274E0A /* CRay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CRay.h; sourceTree = "<group>"; };
+		907363F01BA72CB40040863C /* errorhandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = errorhandler.c; sourceTree = "<group>"; };
+		907363F11BA72CB40040863C /* errorhandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = errorhandler.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +105,8 @@
 				8D56E5971AA3E05C00DBD0B6 /* camera.h */,
 				8D5AD6C61AA6DC4600B4D3CA /* modeler.c */,
 				8D5AD6C71AA6DC4600B4D3CA /* modeler.h */,
+				907363F01BA72CB40040863C /* errorhandler.c */,
+				907363F11BA72CB40040863C /* errorhandler.h */,
 			);
 			path = "C-Ray";
 			sourceTree = "<group>";
@@ -171,6 +176,7 @@
 				8D56E5941AA25C8C00DBD0B6 /* filehandler.c in Sources */,
 				8D56E58B1AA258E700DBD0B6 /* scene.c in Sources */,
 				8DDBB1321A9F566A00274E0A /* CRay.c in Sources */,
+				907363F21BA72CB40040863C /* errorhandler.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

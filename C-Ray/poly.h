@@ -17,6 +17,12 @@ typedef struct {
 	int material;
 }polygonObject;
 
+typedef struct {
+    int verticeCount;
+    vector *vertexArray;
+    int material;
+}polyMesh;
+
 //Calculates intersection and normal between a light ray and a polygon object.
 bool rayIntersectsWithPolygon(lightRay *r, polygonObject *t, double *result, vector *normal);
 

@@ -8,14 +8,21 @@
 
 #include "modeler.h"
 
-/*polygonObject *buildPlane(vector *corner1, vector *corner2) {
-	
-	//TODO: Implement
-
+polyMesh *buildPlane(vector *corner1, vector *corner2, vector *corner3, vector *corner4) {
+    polyMesh *mesh;
+    mesh->verticeCount = 4;
+    mesh->vertexArray = (vector*)malloc(sizeof(vector) * mesh->verticeCount);
+    mesh->vertexArray[0] = *corner1;
+    mesh->vertexArray[1] = *corner2;
+    mesh->vertexArray[2] = *corner3;
+    mesh->vertexArray[3] = *corner4;
+    return mesh;
 }
 
-polygonObject *buildCube(vector *corner1, vector *corner2) {
-	
-	//TODO: Implement
-	
-}*/
+int *translateMesh(polyMesh *mesh) {
+    return 0;
+}
+
+polyMesh *buildCube(vector *corner1, vector *corner2) {
+    return NULL;
+}

@@ -17,5 +17,6 @@
 #include "sphere.h"
 #include "scene.h"
 #include "poly.h"
+#include "errorhandler.h"
 
 #endif
