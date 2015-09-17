@@ -18,8 +18,8 @@ typedef struct {
 }polygonObject;
 
 typedef struct {
-    int verticeCount;
-    vector *vertexArray;
+    int polyCount;
+    polygonObject *polyArray;
     int material;
 }polyMesh;
 

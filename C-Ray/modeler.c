@@ -10,12 +10,15 @@
 
 polyMesh *buildPlane(vector *corner1, vector *corner2, vector *corner3, vector *corner4) {
     polyMesh *mesh;
-    mesh->verticeCount = 4;
-    mesh->vertexArray = (vector*)malloc(sizeof(vector) * mesh->verticeCount);
-    mesh->vertexArray[0] = *corner1;
-    mesh->vertexArray[1] = *corner2;
-    mesh->vertexArray[2] = *corner3;
-    mesh->vertexArray[3] = *corner4;
+    mesh->polyCount = 2;
+    mesh->polyArray = (polygonObject*)malloc(sizeof(polygonObject) * mesh->polyCount);
+    mesh->polyArray[0].v1 = *corner1;
+    mesh->polyArray[0].v2 = *corner2;
+    mesh->polyArray[0].v3 = *corner3;
+    
+    mesh->polyArray[1].v1 = *corner4;
+    mesh->polyArray[1].v2 = *corner2;
+    mesh->polyArray[1].v3 = *corner3;
     return mesh;
 }
 
