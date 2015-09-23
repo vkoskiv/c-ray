@@ -18,5 +18,6 @@
 #include "scene.h"
 #include "poly.h"
 #include "errorhandler.h"
+#include <stdlib.h>
 
 #endif

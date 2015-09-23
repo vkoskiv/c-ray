@@ -11,7 +11,6 @@
 
 #include <stdio.h>
 #include <time.h>
-#include <stdlib.h>
 #include <stdbool.h> //Need this for boolean data type
 #include <math.h>
 #include <string.h>

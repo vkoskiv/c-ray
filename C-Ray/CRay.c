@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 		sceneObject.spheres = NULL;
 		sceneObject.polys = NULL;
 		sceneObject.lights = NULL;
-		worldScene = &sceneObject;
+		worldScene = &sceneObject; //Assign to global variable
 		
 		//Create threads
 		threadInfo *tinfo;
@@ -89,17 +89,25 @@ int main(int argc, char *argv[]) {
 		//Alloc memory for pthread_create() args
 		tinfo = calloc(renderThreads, sizeof(threadInfo));
 		if (tinfo == NULL) {
-			errorHandler(threadMallocFailed);
+			logHandler(threadMallocFailed);
 			return -1;
 		}
 		
 		//Build the scene
-        char *fileName = "input.txt";
-		/*if (buildScene(false, worldScene, fileName) == -1)
-			errorHandler(sceneBuildFailed);*/
-        if (buildScene(false, worldScene) == -1) {
-            errorHandler(sceneBuildFailed);
+        char *fileName = "scene.txt";
+        int returnValue = buildScene(worldScene, fileName);
+        switch (returnValue) {
+            case -1:
+                logHandler(sceneBuildFailed);
+                break;
+            case 4:
+                logHandler(debugEnabled);
+                return 0;
+                break;
+            default:
+                break;
         }
+		
 		
 		printf("Using %i light bounces\n",bounces);
 		printf("Raytracing...\n");
@@ -108,13 +116,13 @@ int main(int argc, char *argv[]) {
 		memset(imgData, 0, 3 * worldScene->camera.width * worldScene->camera.height);
 		
         if (!imgData) {
-            errorHandler(imageMallocFailed);
+            logHandler(imageMallocFailed);
         }
         
 		//Calculate section sizes for every thread, multiple threads can't render the same portion of an image
 		sectionSize = worldScene->camera.height / renderThreads;
 		if ((sectionSize % 2) != 0) {
-			errorHandler(invalidThreadCount);
+			logHandler(invalidThreadCount);
 		}
 		pthread_attr_init(&attributes);
 		pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_JOINABLE);
@@ -123,19 +131,19 @@ int main(int argc, char *argv[]) {
 		for (t = 0; t < renderThreads; t++) {
 			tinfo[t].thread_num = t;
 			if (pthread_create(&tinfo[t].thread_id, &attributes, renderThread, &tinfo[t])) {
-				errorHandler(threadCreateFailed);
+				logHandler(threadCreateFailed);
 				exit(-1);
 			}
 		}
 		
 		if (pthread_attr_destroy(&attributes)) {
-			errorHandler(threadRemoveFailed);
+			logHandler(threadRemoveFailed);
 		}
 		
 		//Wait for render threads to finish (Render finished)
 		for (t = 0; t < renderThreads; t++) {
 			if (pthread_join(tinfo[t].thread_id, NULL)) {
-				errorHandler(threadFrozen);
+				logHandler(threadFrozen);
 			}
 		}
 		
@@ -366,7 +374,7 @@ void *renderThread(void *arg) {
             } else if (worldScene->camera.viewPerspective.projectionType == conic && worldScene->camera.antialiased == true) {
                 for (fragX = x; fragX < x + 1.0f; fragX += 0.5) {
                     for (fragY = y; fragY < y + 1.0f; fragY += 0.5f) {
-                        double samplingRatio = 0.25f;
+                        //double samplingRatio = 0.25f;
                         double focalLength = 0.0f;
                         if ((worldScene->camera.viewPerspective.projectionType == conic)
                             && worldScene->camera.viewPerspective.FOV > 0.0f

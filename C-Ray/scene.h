@@ -15,6 +15,7 @@
 #include "poly.h"
 #include "camera.h"
 #include "modeler.h"
+#include "includes.h"
 
 //World
 typedef struct {
@@ -32,7 +33,7 @@ typedef struct {
 }world;
 
 //This builds the scene. Will be replaced with a proper tokenizer 
-//int buildScene(bool random, world *scene, char *inputFileName);
-int buildScene(bool randomGenerator, world *scene);
+int buildScene(world *scene, char *inputFileName);
+//int buildScene(bool randomGenerator, world *scene);
 
 #endif /* defined(__C_Ray__scene__) */

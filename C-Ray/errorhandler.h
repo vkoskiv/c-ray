@@ -21,9 +21,26 @@ typedef enum {
     threadFrozen,
     threadCreateFailed,
     threadRemoveFailed,
+    debugEnabled,
+    sceneParseErrorScene,
+    sceneParseErrorCamera,
+    sceneParseErrorSphere,
+    sceneParseErrorPoly,
+    sceneParseErrorLight,
     defaultError
-}renderError;
+}renderLog;
 
-void errorHandler(renderError error);
+typedef enum {
+    renderer,
+    sceneBuilder,
+    vectorHandler,
+    colorHandler,
+    polyHandler,
+    sphereHandler,
+    fileHandler,
+    defaultSource
+}logSource;
+
+void logHandler(renderLog error);
 
 #endif /* defined(__C_Ray__errorhandler__) */

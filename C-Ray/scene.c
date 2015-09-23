@@ -8,17 +8,97 @@
 
 #include "scene.h"
 #include "errorhandler.h"
+#include <string.h>
+
+#define DEBUG_ENABLED true
 
 //TODO: Turn this into a proper tokenizer
 
-/*int buildScene(bool random, world *scene, char *inputFileName) {
+//Prototypes
+char *trim_whitespace(char *inputLine);
+char *find_in_char(char *inputLine, char *token);
+
+int buildScene(world *scene, char *inputFileName) {
+    printf("\nStarting C-ray Scene Parser 0.1\n");
     FILE *inputFile = fopen(inputFileName, "r");
     if (!inputFile)
         return -1;
-    return 0;
+    
+    char *error = NULL;
+    char *delimEquals = "=";
+    char *delimComma = ",", *delimPoint = ".";
+    char *openBlock = "{", *closeBlock = "}";
+    
+    char *token, *subtoken;
+    
+    int materialsCount = 0, spheresCount = 0, polyCount = 0, lightsCount = 0;
+    
+    char line[255];
+    
+    while (fgets(line, sizeof(line), inputFile) != NULL) {
+        //Remove whitespace from all lines
+        printf("%s",trim_whitespace(line));
+        if (*trim_whitespace(line) != '\n') {
+            printf("\n");
+        }
+        
+        //Discard comments
+        if (trim_whitespace(line)[0] == '#') {
+            printf("Found comment, ignoring.\n");
+        }
+        if (strcmp(trim_whitespace(line), "scene(){\n") == 0) {
+            printf("Found scene\n");
+            while (trim_whitespace(line)[0] != *closeBlock) {
+                error = fgets(trim_whitespace(line), sizeof(trim_whitespace(line)), inputFile);
+                if (!error)
+                    logHandler(sceneParseErrorSphere);
+                
+                if (trim_whitespace(line)[0] == 'a') {
+                    printf("found ambientColor\n");
+                }
+            }
+        }
+        
+    }
+    fclose(inputFile);
+    printf("\n");
+    
+    if (DEBUG_ENABLED) {
+        return 4; //Debug mode - Won't render anything
+    } else {
+        return 0;
+    }
+}
+
+//Removes tabs and spaces from a char byte array, terminates it and returns it.
+char *trim_whitespace(char *inputLine) {
+    int i, j;
+    char *outputLine = inputLine;
+    for (i = 0, j = 0; i < strlen(inputLine); i++, j++) {
+        if (inputLine[i] == ' ') { //Space
+            j--;
+        } else if (inputLine[i] == '\t') { //Tab
+            j--;
+        } else {
+            outputLine[j] = inputLine[i];
+        }
+    }
+    //Add null termination byte
+    outputLine[j] = '\0';
+    return outputLine;
+}
+
+/*char find_in_char(char *inputLine) {
+    int i, j;
+    char *outputLine = inputLine;
+    for (i = 0, j = 0; i < strlen(inputLine); i++, j++) {
+        if (true) {
+            <#statements#>
+        }
+    }
 }*/
 
-int buildScene(bool randomGenerator, world *scene) {
+/*int buildScene(bool randomGenerator, world *scene) {
 	if (!randomGenerator) {
 		printf("Building scene\n");
 		
@@ -371,4 +451,4 @@ int buildScene(bool randomGenerator, world *scene) {
 		}
 		return 0;
 	}
-}
+}*/

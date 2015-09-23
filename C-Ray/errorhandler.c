@@ -10,38 +10,84 @@
 
 //Prototype
 void print_trace(void);
+void logr(const char *log, logSource source);
 
-void errorHandler(renderError error) {
+void logHandler(renderLog error) {
     switch (error) {
         case threadMallocFailed:
-            printf("Failed to allocate memory for thread arguments, aborting.\n");
+            logr("Failed to allocate memory for thread args, aborting.", renderer);
             print_trace();
             break;
         case imageMallocFailed:
-            printf("Failed to allocate memory for image data, aborting.\n");
+            logr("Failed to allocate memory for image data, aborting.", renderer);
             print_trace();
             break;
         case sceneBuildFailed:
-            printf("Scene builder failed. (Missing scene file.) Aborting.\n");
-            print_trace();
+            logr("Scene builder failed. (Missing scene file.) Aborting.", sceneBuilder);
             break;
         case invalidThreadCount:
-            printf("Render sections and thread count are not even. Render will be corrupted (likely). Aborting.\n");
-            print_trace();
+            logr("Render sections and thread count are not even. Render will be corrupted (likely).", renderer);
             break;
         case threadFrozen:
-            printf("A thread has frozen. Aborting.\n");
+            logr("A thread has frozen. Aborting.", renderer);
             print_trace();
             break;
         case defaultError:
-            printf("Something went wrong. Aborting.\n");
-            print_trace();
+            logr("Something went wrong. Aborting.", defaultSource);
+            break;
+        case debugEnabled:
+            logr("SceneBuilder returned debug flag, won't render this.", sceneBuilder);
+            break;
+        case sceneParseErrorScene:
+            logr("SceneBuilder failed to parse the scene block.", sceneBuilder);
+            break;
+        case sceneParseErrorCamera:
+            logr("SceneBuilder failed to parse the camera block.", sceneBuilder);
+            break;
+        case sceneParseErrorSphere:
+            logr("SceneBuilder failed to parse the sphere block.", sceneBuilder);
+            break;
+        case sceneParseErrorPoly:
+            logr("SceneBuilder failed to parse the polygon block.", sceneBuilder);
+            break;
+        case sceneParseErrorLight:
+            logr("SceneBuilder failed to parse the light block.", sceneBuilder);
             break;
         default:
-            printf("Something went wrong. Aborting.\n");
+            logr("Something went wrong. Aborting.", defaultSource);
             print_trace();
             break;
     }
+}
+
+void logr(const char *log, logSource source) {
+    switch (source) {
+        case renderer:
+            printf("RENDERER: ");
+            break;
+        case sceneBuilder:
+            printf("SCNBUILDER: ");
+            break;
+        case vectorHandler:
+            printf("VECHANDLER: ");
+            break;
+        case colorHandler:
+            printf("COLRHANDLER: ");
+            break;
+        case polyHandler:
+            printf("POLYHANDLER: ");
+            break;
+        case sphereHandler:
+            printf("SPHRHANDLER: ");
+            break;
+        case fileHandler:
+            printf("FLHANDLER: ");
+            break;
+        default:
+            printf("LOG: ");
+            break;
+    }
+    printf("%s\n",log);
 }
 
 void print_trace(void) {
