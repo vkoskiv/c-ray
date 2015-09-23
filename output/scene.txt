@@ -1,0 +1,28 @@
+#Scene definition file for C-ray
+#Created by Valtteri Koskivuori on 17.9.2015
+
+scene() {
+	ambientColor = 0.41,0.41,0.41
+}
+
+camera(0) {
+	#Could be "conic" or "ortho"
+	perspective = conic
+	FOV = 80.0
+	contrast = 1.0	
+
+	#Camera view ray origin
+	posX = 940
+	posY = 480
+	posZ = 0
+
+	#Point in space where the camera is pointed
+	lookAtX = 0
+	lookAtY = 0
+	lookAtZ = 1
+
+	resolutionX = 1920
+	resolutionY = 1080
+
+	
+}
