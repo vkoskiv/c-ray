@@ -2,14 +2,21 @@
 #Created by Valtteri Koskivuori on 17.9.2015
 
 scene() {
-	ambientColor = 0.41,0.41,0.41
+	ambientColor = 0.41, 0.41, 0.41
+	#Defining these amounts here makes memory management easier
+	sphereAmount = 1
+	polygonAmount = 2
+	materialAmount = 3
+	lightAmount = 4
 }
 
-camera(0) {
+camera() {
 	#Could be "conic" or "ortho"
 	perspective = conic
 	FOV = 80.0
-	contrast = 1.0	
+	contrast = 1.0
+	antialiased = true
+	supersampling = 10	
 
 	#Camera view ray origin
 	posX = 940
@@ -25,4 +32,36 @@ camera(0) {
 	resolutionY = 1080
 
 	
+}
+
+material() {
+
+
+
+
+
+}
+
+light() {
+	
+
+
+
+
+}
+
+sphere() {
+
+
+
+
+
+}
+
+poly() {
+
+
+
+
+
 }

@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
                 logHandler(sceneBuildFailed);
                 break;
             case 4:
-                logHandler(debugEnabled);
+                logHandler(sceneDebugEnabled);
                 return 0;
                 break;
             default:
@@ -367,9 +367,7 @@ void *renderThread(void *arg) {
 				vector startPos = {worldScene->camera.pos.x, worldScene->camera.pos.y, worldScene->camera.pos.z};
                 incidentRay.start = startPos;
 				
-				incidentRay.direction.x = direction.x;
-				incidentRay.direction.y = direction.y;
-				incidentRay.direction.z = direction.z;
+				incidentRay.direction = direction;
 				output = rayTrace(&incidentRay, worldScene);
             } else if (worldScene->camera.viewPerspective.projectionType == conic && worldScene->camera.antialiased == true) {
                 for (fragX = x; fragX < x + 1.0f; fragX += 0.5) {
@@ -396,9 +394,7 @@ void *renderThread(void *arg) {
                             vector startPos = {worldScene->camera.pos.x, worldScene->camera.pos.y, worldScene->camera.pos.z};
                             incidentRay.start = startPos;
                             
-                            incidentRay.direction.x = direction.x;
-                            incidentRay.direction.y = direction.y;
-                            incidentRay.direction.z = direction.z;
+							incidentRay.direction = direction;
                             output = rayTrace(&incidentRay, worldScene);
                         }
                     }
@@ -470,8 +466,7 @@ bool rayIntersectsWithLight(lightRay *ray, lightSource *light, double *t) {
 	return intersects;
 }
 
-float randRange(float a, float b)
-{
+float randRange(float a, float b) {
 	return ((b-a)*((float)rand()/RAND_MAX))+a;
 }
 

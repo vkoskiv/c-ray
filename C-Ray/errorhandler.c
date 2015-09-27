@@ -35,8 +35,8 @@ void logHandler(renderLog error) {
         case defaultError:
             logr("Something went wrong. Aborting.", defaultSource);
             break;
-        case debugEnabled:
-            logr("SceneBuilder returned debug flag, won't render this.", sceneBuilder);
+        case sceneDebugEnabled:
+            logr("SceneBuilder returned debug flag, won't render this.", renderer);
             break;
         case sceneParseErrorScene:
             logr("SceneBuilder failed to parse the scene block.", sceneBuilder);
@@ -53,6 +53,9 @@ void logHandler(renderLog error) {
         case sceneParseErrorLight:
             logr("SceneBuilder failed to parse the light block.", sceneBuilder);
             break;
+		case sceneParseErrorMaterial:
+			logr("SceneBuilder failed to parse the material block.", sceneBuilder);
+			break;
         default:
             logr("Something went wrong. Aborting.", defaultSource);
             print_trace();

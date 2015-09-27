@@ -21,12 +21,13 @@ typedef enum {
     threadFrozen,
     threadCreateFailed,
     threadRemoveFailed,
-    debugEnabled,
+    sceneDebugEnabled,
     sceneParseErrorScene,
     sceneParseErrorCamera,
     sceneParseErrorSphere,
     sceneParseErrorPoly,
     sceneParseErrorLight,
+	sceneParseErrorMaterial,
     defaultError
 }renderLog;
 

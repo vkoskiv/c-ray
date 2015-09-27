@@ -10,7 +10,7 @@
 #include "errorhandler.h"
 #include <string.h>
 
-#define DEBUG_ENABLED true
+#define TOKEN_DEBUG_ENABLED true
 
 //TODO: Turn this into a proper tokenizer
 
@@ -30,8 +30,14 @@ int buildScene(world *scene, char *inputFileName) {
     char *openBlock = "{", *closeBlock = "}";
     
     char *token, *subtoken;
+	char *savePointer1, savePointer2;
     
     int materialsCount = 0, spheresCount = 0, polyCount = 0, lightsCount = 0;
+	
+	//Suppress obnoxious warnings
+	if (delimComma && delimPoint && openBlock && closeBlock && subtoken && savePointer2 && savePointer1 && token && materialsCount && spheresCount && polyCount && lightsCount) {
+		//Nope
+	}
     
     char line[255];
     
@@ -49,21 +55,119 @@ int buildScene(world *scene, char *inputFileName) {
         if (strcmp(trim_whitespace(line), "scene(){\n") == 0) {
             printf("Found scene\n");
             while (trim_whitespace(line)[0] != *closeBlock) {
-                error = fgets(trim_whitespace(line), sizeof(trim_whitespace(line)), inputFile);
+                error = fgets(trim_whitespace(line), sizeof(line), inputFile);
                 if (!error)
                     logHandler(sceneParseErrorSphere);
-                
-                if (trim_whitespace(line)[0] == 'a') {
-                    printf("found ambientColor\n");
-                }
+				
+				if (strncmp(trim_whitespace(line), "ambientColor", 12) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorScene);
+					scene->ambientColor = (color * )calloc(3, sizeof(color));
+					token = strtok_r(NULL, delimComma, &savePointer1);  //Red
+					float rgbValue = strtof(token, NULL);
+					scene->ambientColor->red = rgbValue;
+					token = strtok_r(NULL, delimComma, &savePointer1);  //Green
+					rgbValue = strtof(token, NULL);
+					scene->ambientColor->green = rgbValue;
+					token = strtok_r(NULL, delimComma, &savePointer1);  //Blue
+					rgbValue = strtof(token, NULL);
+					scene->ambientColor->blue = rgbValue;
+				}
+				
+				if (strncmp(trim_whitespace(line), "sphereAmount", 12) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorScene);
+					int amount = (int)strtol(savePointer1, (char**) NULL, 10);
+					scene->sphereAmount = amount;
+					scene->spheres = (sphereObject *)calloc(scene->sphereAmount, sizeof(sphereObject));
+				}
+				
+				if (strncmp(trim_whitespace(line), "polygonAmount", 13) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorScene);
+					int amount = (int)strtol(savePointer1, (char**) NULL, 10);
+					scene->polygonAmount = amount;
+					scene->polys = (polygonObject *)calloc(scene->polygonAmount, sizeof(polygonObject));
+				}
+				
+				if (strncmp(trim_whitespace(line), "materialAmount", 14) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorScene);
+					int amount = (int)strtol(savePointer1, (char**) NULL, 10);
+					scene->materialAmount = amount;
+					scene->materials = (material *)calloc(scene->materialAmount, sizeof(material));
+				}
+				
+				if (strncmp(trim_whitespace(line), "lightAmount", 11) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorScene);
+					int amount = (int)strtol(savePointer1, (char**) NULL, 10);
+					scene->lightAmount = amount;
+					scene->lights = (lightSource *)calloc(scene->lightAmount, sizeof(lightSource));
+				}
             }
         }
+		
+		if (strcmp(trim_whitespace(line), "camera(){\n") == 0) {
+			printf("Found camera\n");
+			while (trim_whitespace(line)[0] != *closeBlock) {
+				error = fgets(trim_whitespace(line), sizeof(line), inputFile);
+				if (!error)
+					logHandler(sceneParseErrorCamera);
+				
+			}
+		}
+		
+		if (strcmp(trim_whitespace(line), "material(){\n") == 0) {
+			printf("Found material\n");
+			while (trim_whitespace(line)[0] != *closeBlock) {
+				error = fgets(trim_whitespace(line), sizeof(line), inputFile);
+				if (!error)
+					logHandler(sceneParseErrorMaterial);
+				
+			}
+			
+		}
+		
+		if (strcmp(trim_whitespace(line), "light(){\n") == 0) {
+			printf("Found light\n");
+			while (trim_whitespace(line)[0] != *closeBlock) {
+				error = fgets(trim_whitespace(line), sizeof(line), inputFile);
+				if (!error)
+					logHandler(sceneParseErrorLight);
+				
+			}
+		}
+		
+		if (strcmp(trim_whitespace(line), "sphere(){\n") == 0) {
+			printf("Found sphere\n");
+			while (trim_whitespace(line)[0] != *closeBlock) {
+				error = fgets(trim_whitespace(line), sizeof(line), inputFile);
+				if (!error)
+					logHandler(sceneParseErrorSphere);
+				
+			}
+		}
+		if (strcmp(trim_whitespace(line), "poly(){\n") == 0) {
+			printf("Found poly\n");
+			while (trim_whitespace(line)[0] != *closeBlock) {
+				error = fgets(trim_whitespace(line), sizeof(line), inputFile);
+				if (!error)
+					logHandler(sceneParseErrorPoly);
+				
+			}
+		}
         
     }
     fclose(inputFile);
     printf("\n");
     
-    if (DEBUG_ENABLED) {
+    if (TOKEN_DEBUG_ENABLED) {
         return 4; //Debug mode - Won't render anything
     } else {
         return 0;
