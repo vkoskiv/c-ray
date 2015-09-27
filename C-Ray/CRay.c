@@ -65,13 +65,6 @@ int main(int argc, char *argv[]) {
 	for (int currentFrame = 0; currentFrame < kFrameCount; currentFrame++) {
 		//This is a timer to elapse how long a render takes per frame
 		time(&start);
-		printf("Rendering at %i x %i\n",kImgWidth,kImgHeight);
-		printf("Rendering with %d thread",renderThreads);
-		if (renderThreads < 2) {
-			printf("\n");
-		} else {
-			printf("s\n");
-		}
 		
 		//Prepare the scene
 		world sceneObject;
@@ -108,8 +101,15 @@ int main(int argc, char *argv[]) {
                 break;
         }
 		
+		printf("Rendering at %i x %i\n",worldScene->camera.width,worldScene->camera.height);
+		printf("Rendering with %d thread",renderThreads);
+		if (renderThreads < 2) {
+			printf("\n");
+		} else {
+			printf("s\n");
+		}
 		
-		printf("Using %i light bounces\n",bounces);
+		printf("Using %i light bounces\n",worldScene->camera.bounces);
 		printf("Raytracing...\n");
 		//Allocate memory and create array of pixels for image data
 		imgData = (unsigned char*)malloc(3 * worldScene->camera.width * worldScene->camera.height);
@@ -166,8 +166,8 @@ int main(int argc, char *argv[]) {
 		char buf[bufSize];
 		sprintf(buf, "rendered_%d.bmp", currentFrame);
 		printf("%s\n", buf);
-		saveBmpFromArray(buf, imgData, kImgWidth, kImgHeight);
-		long bytes = 3*kImgWidth*kImgHeight;
+		saveBmpFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+		long bytes = 3 * worldScene->camera.width * worldScene->camera.height;
 		long mBytes = (bytes / 1024) / 1024;
 		printf("Wrote %ld megabytes to file.\n",mBytes);
 		
@@ -193,7 +193,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
 	color output = {0.0f,0.0f,0.0f};
 	int level = 0;
-	double coefficient = contrast;
+	double coefficient = worldScene->camera.contrast;
 
 	do {
 		
@@ -321,7 +321,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		
 		level++;
 		
-	} while ((coefficient > 0.0f) && (level < bounces));
+	} while ((coefficient > 0.0f) && (level < worldScene->camera.bounces));
 	
 	return output;
 }
@@ -400,9 +400,9 @@ void *renderThread(void *arg) {
                     }
                 }
             }
-			imgData[(x + y*kImgWidth)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
-			imgData[(x + y*kImgWidth)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
-			imgData[(x + y*kImgWidth)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);
+			imgData[(x + y*worldScene->camera.width)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
+			imgData[(x + y*worldScene->camera.width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
+			imgData[(x + y*worldScene->camera.width)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);
 		}
 	}
 	pthread_exit((void*) arg);

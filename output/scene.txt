@@ -4,10 +4,10 @@
 scene() {
 	ambientColor = 0.41, 0.41, 0.41
 	#Defining these amounts here makes memory management easier
-	sphereAmount = 1
-	polygonAmount = 2
-	materialAmount = 3
-	lightAmount = 4
+	sphereAmount = 2
+	polygonAmount = 1
+	materialAmount = 1
+	lightAmount = 1
 }
 
 camera() {
@@ -16,7 +16,8 @@ camera() {
 	FOV = 80.0
 	contrast = 1.0
 	antialiased = true
-	supersampling = 10	
+	supersampling = 10
+	bounces = 3	
 
 	#Camera view ray origin
 	posX = 940
@@ -28,40 +29,61 @@ camera() {
 	lookAtY = 0
 	lookAtZ = 1
 
+	#7680x4320 for 8K
+	#4096x2160 for full-height 4K
 	resolutionX = 1920
-	resolutionY = 1080
-
-	
+	resolutionY = 1080	
 }
 
 material() {
-
-
-
-
-
+	#Matte red color
+	#Material index is 0 for this, depends on the order for now.
+	red = 0.8
+	green = 0.1
+	blue = 0.1
+	reflectivity = 0
 }
 
 light() {
-	
+	posX = 960
+	posY = 400
+	posZ = 0
 
-
-
-
+	red = 1.0
+	green = 1.0
+	blue = 1.0
+	#Radius is unused for now
+	radius = 1.0
 }
 
 sphere() {
+	posX = 650
+	posY = 450
+	posZ = 1650
+	radius = 150
+	material = 0
+}
 
-
-
-
-
+sphere() {
+	posX = 950
+	posY = 250
+	posZ = 1650
+	radius = 50
+	material = 0
 }
 
 poly() {
+	v1X = 1000
+	v1Y = 450
+	v1Z = 1400
 
+	v2X = 1300
+	v2Y = 700
+	v2Z = 1400
 
+	v3X = 1000
+	v3Y = 700
+	v3Z = 1600
 
-
-
+	material = 0
 }

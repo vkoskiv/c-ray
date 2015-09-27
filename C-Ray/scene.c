@@ -10,13 +10,10 @@
 #include "errorhandler.h"
 #include <string.h>
 
-#define TOKEN_DEBUG_ENABLED true
-
-//TODO: Turn this into a proper tokenizer
+#define TOKEN_DEBUG_ENABLED false
 
 //Prototypes
 char *trim_whitespace(char *inputLine);
-char *find_in_char(char *inputLine, char *token);
 
 int buildScene(world *scene, char *inputFileName) {
     printf("\nStarting C-ray Scene Parser 0.1\n");
@@ -31,18 +28,17 @@ int buildScene(world *scene, char *inputFileName) {
     
     char *token, *subtoken;
 	char *savePointer1, savePointer2;
-    
-    int materialsCount = 0, spheresCount = 0, polyCount = 0, lightsCount = 0;
+	
+	int materialIndex = 0, sphereIndex = 0, polyIndex = 0, lightIndex = 0;
 	
 	//Suppress obnoxious warnings
-	if (delimComma && delimPoint && openBlock && closeBlock && subtoken && savePointer2 && savePointer1 && token && materialsCount && spheresCount && polyCount && lightsCount) {
+	if (delimPoint && openBlock && subtoken && savePointer2 && token && materialIndex && sphereIndex && polyIndex && lightIndex) {
 		//Nope
 	}
     
     char line[255];
     
     while (fgets(line, sizeof(line), inputFile) != NULL) {
-        //Remove whitespace from all lines
         printf("%s",trim_whitespace(line));
         if (*trim_whitespace(line) != '\n') {
             printf("\n");
@@ -79,8 +75,8 @@ int buildScene(world *scene, char *inputFileName) {
 					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
 					if (token == NULL)
 						logHandler(sceneParseErrorScene);
-					int amount = (int)strtol(savePointer1, (char**) NULL, 10);
-					scene->sphereAmount = amount;
+					int sphereAmount = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->sphereAmount = sphereAmount;
 					scene->spheres = (sphereObject *)calloc(scene->sphereAmount, sizeof(sphereObject));
 				}
 				
@@ -88,8 +84,8 @@ int buildScene(world *scene, char *inputFileName) {
 					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
 					if (token == NULL)
 						logHandler(sceneParseErrorScene);
-					int amount = (int)strtol(savePointer1, (char**) NULL, 10);
-					scene->polygonAmount = amount;
+					int polygonAmount = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->polygonAmount = polygonAmount;
 					scene->polys = (polygonObject *)calloc(scene->polygonAmount, sizeof(polygonObject));
 				}
 				
@@ -97,8 +93,8 @@ int buildScene(world *scene, char *inputFileName) {
 					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
 					if (token == NULL)
 						logHandler(sceneParseErrorScene);
-					int amount = (int)strtol(savePointer1, (char**) NULL, 10);
-					scene->materialAmount = amount;
+					int materialAmount = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->materialAmount = materialAmount;
 					scene->materials = (material *)calloc(scene->materialAmount, sizeof(material));
 				}
 				
@@ -106,8 +102,8 @@ int buildScene(world *scene, char *inputFileName) {
 					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
 					if (token == NULL)
 						logHandler(sceneParseErrorScene);
-					int amount = (int)strtol(savePointer1, (char**) NULL, 10);
-					scene->lightAmount = amount;
+					int lightAmount = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->lightAmount = lightAmount;
 					scene->lights = (lightSource *)calloc(scene->lightAmount, sizeof(lightSource));
 				}
             }
@@ -120,6 +116,124 @@ int buildScene(world *scene, char *inputFileName) {
 				if (!error)
 					logHandler(sceneParseErrorCamera);
 				
+				if (strncmp(trim_whitespace(line), "perspective", 11) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					
+					if (strncmp(savePointer1, "conic", 5) == 0) {
+						scene->camera.viewPerspective.projectionType = conic;
+					} else if (strncmp(savePointer1, "ortho", 5) == 0){
+						scene->camera.viewPerspective.projectionType = ortho;
+					}
+				}
+				
+				if (strncmp(trim_whitespace(line), "FOV", 3) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					float FOV = strtof(savePointer1, NULL);
+					scene->camera.FOV = FOV;
+				}
+				
+				if (strncmp(trim_whitespace(line), "contrast", 8) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					float contrast = strtof(savePointer1, NULL);
+					scene->camera.contrast = contrast;
+				}
+				
+				if (strncmp(trim_whitespace(line), "antialiased", 11) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					if (strncmp(savePointer1, "true", 4) == 0) {
+						scene->camera.antialiased = true;
+					} else if (strncmp(savePointer1, "false", 5) == 0) {
+						scene->camera.antialiased = false;
+					}
+				}
+				
+				if (strncmp(trim_whitespace(line), "supersampling", 13) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					int supersampling = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->camera.supersampling = supersampling;
+				}
+				
+				if (strncmp(trim_whitespace(line), "bounces", 7) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					int bounces = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->camera.bounces = bounces;
+				}
+				
+				if (strncmp(trim_whitespace(line), "posX", 4) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					int posX = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->camera.pos.x = posX;
+				}
+				
+				if (strncmp(trim_whitespace(line), "posY", 4) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					int posY = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->camera.pos.y = posY;
+				}
+				
+				if (strncmp(trim_whitespace(line), "posZ", 4) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					int posZ = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->camera.pos.z = posZ;
+				}
+				
+				if (strncmp(trim_whitespace(line), "lookAtX", 7) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					int lookAtX = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->camera.lookAt.x = lookAtX;
+				}
+				
+				if (strncmp(trim_whitespace(line), "lookAtY", 7) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					int lookAtY = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->camera.lookAt.x = lookAtY;
+				}
+				
+				if (strncmp(trim_whitespace(line), "lookAtZ", 7) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					int lookAtZ = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->camera.lookAt.x = lookAtZ;
+				}
+				
+				if (strncmp(trim_whitespace(line), "resolutionX", 11) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					int resolutionX = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->camera.width = resolutionX;
+				}
+				
+				if (strncmp(trim_whitespace(line), "resolutionY", 11) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					int resolutionY = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->camera.height = resolutionY;
+				}
 			}
 		}
 		
@@ -130,8 +244,39 @@ int buildScene(world *scene, char *inputFileName) {
 				if (!error)
 					logHandler(sceneParseErrorMaterial);
 				
+				if (strncmp(trim_whitespace(line), "red", 3) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorMaterial);
+					float red = strtof(savePointer1, NULL);
+					scene->materials[materialIndex].diffuse.red = red;
+				}
+				
+				if (strncmp(trim_whitespace(line), "green", 5) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorMaterial);
+					float green = strtof(savePointer1, NULL);
+					scene->materials[materialIndex].diffuse.green = green;
+				}
+				
+				if (strncmp(trim_whitespace(line), "blue", 3) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorMaterial);
+					float blue = strtof(savePointer1, NULL);
+					scene->materials[materialIndex].diffuse.blue = blue;
+				}
+				
+				if (strncmp(trim_whitespace(line), "reflectivity", 12) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorMaterial);
+					float reflectivity = strtof(savePointer1, NULL);
+					scene->materials[materialIndex].reflectivity = reflectivity;
+				}
 			}
-			
+			materialIndex++;
 		}
 		
 		if (strcmp(trim_whitespace(line), "light(){\n") == 0) {
@@ -141,7 +286,63 @@ int buildScene(world *scene, char *inputFileName) {
 				if (!error)
 					logHandler(sceneParseErrorLight);
 				
+				if (strncmp(trim_whitespace(line), "posX", 4) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorLight);
+					int posX = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->lights[lightIndex].pos.x = posX;
+				}
+				
+				if (strncmp(trim_whitespace(line), "posY", 4) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorLight);
+					int posY = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->lights[lightIndex].pos.x = posY;
+				}
+				
+				if (strncmp(trim_whitespace(line), "posZ", 4) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorLight);
+					int posZ = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->lights[lightIndex].pos.x = posZ;
+				}
+				
+				if (strncmp(trim_whitespace(line), "red", 3) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorLight);
+					float red = strtof(savePointer1, NULL);
+					scene->lights[lightIndex].intensity.red = red;
+				}
+				
+				if (strncmp(trim_whitespace(line), "green", 5) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorLight);
+					float green = strtof(savePointer1, NULL);
+					scene->lights[lightIndex].intensity.green = green;
+				}
+				
+				if (strncmp(trim_whitespace(line), "blue", 4) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorLight);
+					float blue = strtof(savePointer1, NULL);
+					scene->lights[lightIndex].intensity.blue = blue;
+				}
+				
+				if (strncmp(trim_whitespace(line), "radius", 6) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorLight);
+					float radius = strtof(savePointer1, NULL);
+					scene->lights[lightIndex].radius = radius;
+				}
 			}
+			lightIndex++;
 		}
 		
 		if (strcmp(trim_whitespace(line), "sphere(){\n") == 0) {
@@ -151,7 +352,47 @@ int buildScene(world *scene, char *inputFileName) {
 				if (!error)
 					logHandler(sceneParseErrorSphere);
 				
+				if (strncmp(trim_whitespace(line), "posX", 4) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorSphere);
+					int posX = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->spheres[sphereIndex].pos.x = posX;
+				}
+				
+				if (strncmp(trim_whitespace(line), "posY", 4) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorSphere);
+					int posY = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->spheres[sphereIndex].pos.y = posY;
+				}
+				
+				if (strncmp(trim_whitespace(line), "posZ", 4) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorSphere);
+					int posZ = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->spheres[sphereIndex].pos.z = posZ;
+				}
+				
+				if (strncmp(trim_whitespace(line), "radius", 6) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorSphere);
+					float radius = strtof(savePointer1, NULL);
+					scene->spheres[sphereIndex].radius = radius;
+				}
+				
+				if (strncmp(trim_whitespace(line), "material", 8) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+					if (token == NULL)
+						logHandler(sceneParseErrorSphere);
+					int material = (int)strtol(savePointer1, (char**)NULL, 10);
+					scene->spheres[sphereIndex].material = material;
+				}
 			}
+			sphereIndex++;
 		}
 		if (strcmp(trim_whitespace(line), "poly(){\n") == 0) {
 			printf("Found poly\n");
@@ -161,8 +402,8 @@ int buildScene(world *scene, char *inputFileName) {
 					logHandler(sceneParseErrorPoly);
 				
 			}
+			polyIndex++;
 		}
-        
     }
     fclose(inputFile);
     printf("\n");
@@ -191,16 +432,6 @@ char *trim_whitespace(char *inputLine) {
     outputLine[j] = '\0';
     return outputLine;
 }
-
-/*char find_in_char(char *inputLine) {
-    int i, j;
-    char *outputLine = inputLine;
-    for (i = 0, j = 0; i < strlen(inputLine); i++, j++) {
-        if (true) {
-            <#statements#>
-        }
-    }
-}*/
 
 /*int buildScene(bool randomGenerator, world *scene) {
 	if (!randomGenerator) {

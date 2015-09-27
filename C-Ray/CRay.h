@@ -25,14 +25,7 @@
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define invsqrtf(x) (1.0f / sqrtf(x))
 
-//Image dimensions. Eventually get this from the input file
-// 7680 × 4320 for 8K
-// 4096 x 2160 for full height 4K
-#define kImgWidth 1920
-#define kImgHeight 1080
 #define kFrameCount 1
-#define bounces 3
-#define contrast 1.0
 
 //Object, a cube (WIP)
 typedef struct {

@@ -27,7 +27,9 @@ typedef struct {
 	vector lookAt;
     bool antialiased;
     int supersampling;
+	int bounces;
 	float FOV;
+	float contrast;
 }camera;
 
 #endif /* defined(__C_Ray__camera__) */
