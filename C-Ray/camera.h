@@ -28,7 +28,6 @@ typedef struct {
     bool antialiased;
     int supersampling;
 	int bounces;
-	float FOV;
 	float contrast;
 }camera;
 

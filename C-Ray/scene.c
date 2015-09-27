@@ -133,7 +133,7 @@ int buildScene(world *scene, char *inputFileName) {
 					if (token == NULL)
 						logHandler(sceneParseErrorCamera);
 					float FOV = strtof(savePointer1, NULL);
-					scene->camera.FOV = FOV;
+					scene->camera.viewPerspective.FOV = FOV;
 				}
 				
 				if (strncmp(trim_whitespace(line), "contrast", 8) == 0) {
@@ -400,7 +400,88 @@ int buildScene(world *scene, char *inputFileName) {
 				error = fgets(trim_whitespace(line), sizeof(line), inputFile);
 				if (!error)
 					logHandler(sceneParseErrorPoly);
-				
+                
+                if (strncmp(trim_whitespace(line), "v1X", 3) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorPoly);
+                    int v1X = (int)strtol(savePointer1, (char**)NULL, 10);
+                    scene->polys[polyIndex].v1.x = v1X;
+                }
+                
+                if (strncmp(trim_whitespace(line), "v1Y", 3) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorPoly);
+                    int v1Y = (int)strtol(savePointer1, (char**)NULL, 10);
+                    scene->polys[polyIndex].v1.y = v1Y;
+                }
+                
+                if (strncmp(trim_whitespace(line), "v1Z", 3) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorPoly);
+                    int v1Z = (int)strtol(savePointer1, (char**)NULL, 10);
+                    scene->polys[polyIndex].v1.z = v1Z;
+                }
+                
+                
+                if (strncmp(trim_whitespace(line), "v2X", 3) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorPoly);
+                    int v2X = (int)strtol(savePointer1, (char**)NULL, 10);
+                    scene->polys[polyIndex].v2.x = v2X;
+                }
+                
+                if (strncmp(trim_whitespace(line), "v2Y", 3) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorPoly);
+                    int v2Y = (int)strtol(savePointer1, (char**)NULL, 10);
+                    scene->polys[polyIndex].v2.y = v2Y;
+                }
+                
+                if (strncmp(trim_whitespace(line), "v2Z", 3) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorPoly);
+                    int v2Z = (int)strtol(savePointer1, (char**)NULL, 10);
+                    scene->polys[polyIndex].v2.z = v2Z;
+                }
+                
+                
+                if (strncmp(trim_whitespace(line), "v3X", 3) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorPoly);
+                    int v3X = (int)strtol(savePointer1, (char**)NULL, 10);
+                    scene->polys[polyIndex].v3.x = v3X;
+                }
+                
+                if (strncmp(trim_whitespace(line), "v3Y", 3) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorPoly);
+                    int v3Y = (int)strtol(savePointer1, (char**)NULL, 10);
+                    scene->polys[polyIndex].v3.y = v3Y;
+                }
+                
+                if (strncmp(trim_whitespace(line), "v3Z", 3) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorPoly);
+                    int v3Z = (int)strtol(savePointer1, (char**)NULL, 10);
+                    scene->polys[polyIndex].v3.z = v3Z;
+                }
+                
+                if (strncmp(trim_whitespace(line), "material", 8) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer1);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorPoly);
+                    int material = (int)strtol(savePointer1, (char**)NULL, 10);
+                    scene->polys[polyIndex].material = material;
+                }
 			}
 			polyIndex++;
 		}

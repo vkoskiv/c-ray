@@ -12,7 +12,7 @@ scene() {
 
 camera() {
 	#Could be "conic" or "ortho"
-	perspective = conic
+	perspective = ortho
 	FOV = 80.0
 	contrast = 1.0
 	antialiased = true

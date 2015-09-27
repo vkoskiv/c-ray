@@ -1,4 +1,4 @@
-//
+ //
 //  CRay.c
 //  
 //
@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
 		printf("%s\n", buf);
 		saveBmpFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
 		long bytes = 3 * worldScene->camera.width * worldScene->camera.height;
-		long mBytes = (bytes / 1024) / 1024;
+		long mBytes = (bytes / 1000) / 1000;
 		printf("Wrote %ld megabytes to file.\n",mBytes);
 		
 		//Free memory
@@ -179,7 +179,7 @@ int main(int argc, char *argv[]) {
 		if (worldScene->spheres)
 			free(worldScene->spheres);
 		if (worldScene->polys)
-			//free(worldScene->polys);
+			free(worldScene->polys);
 		if (worldScene->materials)
 			free(worldScene->materials);
 	}
