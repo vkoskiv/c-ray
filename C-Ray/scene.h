@@ -32,8 +32,7 @@ typedef struct {
 	int lightAmount;
 }world;
 
-//This builds the scene. Will be replaced with a proper tokenizer 
+//This takes an input file, tokenizes it and applies it to a world object.
 int buildScene(world *scene, char *inputFileName);
-//int buildScene(bool randomGenerator, world *scene);
 
 #endif /* defined(__C_Ray__scene__) */
