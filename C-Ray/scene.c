@@ -39,17 +39,11 @@ int buildScene(world *scene, char *inputFileName) {
     char line[255];
     
     while (fgets(line, sizeof(line), inputFile) != NULL) {
-        printf("%s",trim_whitespace(line));
-        if (*trim_whitespace(line) != '\n') {
-            printf("\n");
-        }
-        
         //Discard comments
         if (trim_whitespace(line)[0] == '#') {
-            printf("Found comment, ignoring.\n");
+            //Ignore
         }
         if (strcmp(trim_whitespace(line), "scene(){\n") == 0) {
-            printf("Found scene\n");
             while (trim_whitespace(line)[0] != *closeBlock) {
                 error = fgets(trim_whitespace(line), sizeof(line), inputFile);
                 if (!error)
@@ -110,7 +104,6 @@ int buildScene(world *scene, char *inputFileName) {
         }
 		
 		if (strcmp(trim_whitespace(line), "camera(){\n") == 0) {
-			printf("Found camera\n");
 			while (trim_whitespace(line)[0] != *closeBlock) {
 				error = fgets(trim_whitespace(line), sizeof(line), inputFile);
 				if (!error)
@@ -208,7 +201,7 @@ int buildScene(world *scene, char *inputFileName) {
 					if (token == NULL)
 						logHandler(sceneParseErrorCamera);
 					int lookAtY = (int)strtol(savePointer1, (char**)NULL, 10);
-					scene->camera.lookAt.x = lookAtY;
+					scene->camera.lookAt.y = lookAtY;
 				}
 				
 				if (strncmp(trim_whitespace(line), "lookAtZ", 7) == 0) {
@@ -216,7 +209,7 @@ int buildScene(world *scene, char *inputFileName) {
 					if (token == NULL)
 						logHandler(sceneParseErrorCamera);
 					int lookAtZ = (int)strtol(savePointer1, (char**)NULL, 10);
-					scene->camera.lookAt.x = lookAtZ;
+					scene->camera.lookAt.z = lookAtZ;
 				}
 				
 				if (strncmp(trim_whitespace(line), "resolutionX", 11) == 0) {
@@ -238,7 +231,6 @@ int buildScene(world *scene, char *inputFileName) {
 		}
 		
 		if (strcmp(trim_whitespace(line), "material(){\n") == 0) {
-			printf("Found material\n");
 			while (trim_whitespace(line)[0] != *closeBlock) {
 				error = fgets(trim_whitespace(line), sizeof(line), inputFile);
 				if (!error)
@@ -280,7 +272,6 @@ int buildScene(world *scene, char *inputFileName) {
 		}
 		
 		if (strcmp(trim_whitespace(line), "light(){\n") == 0) {
-			printf("Found light\n");
 			while (trim_whitespace(line)[0] != *closeBlock) {
 				error = fgets(trim_whitespace(line), sizeof(line), inputFile);
 				if (!error)
@@ -299,7 +290,7 @@ int buildScene(world *scene, char *inputFileName) {
 					if (token == NULL)
 						logHandler(sceneParseErrorLight);
 					int posY = (int)strtol(savePointer1, (char**)NULL, 10);
-					scene->lights[lightIndex].pos.x = posY;
+					scene->lights[lightIndex].pos.y = posY;
 				}
 				
 				if (strncmp(trim_whitespace(line), "posZ", 4) == 0) {
@@ -307,7 +298,7 @@ int buildScene(world *scene, char *inputFileName) {
 					if (token == NULL)
 						logHandler(sceneParseErrorLight);
 					int posZ = (int)strtol(savePointer1, (char**)NULL, 10);
-					scene->lights[lightIndex].pos.x = posZ;
+					scene->lights[lightIndex].pos.z = posZ;
 				}
 				
 				if (strncmp(trim_whitespace(line), "red", 3) == 0) {
@@ -346,7 +337,6 @@ int buildScene(world *scene, char *inputFileName) {
 		}
 		
 		if (strcmp(trim_whitespace(line), "sphere(){\n") == 0) {
-			printf("Found sphere\n");
 			while (trim_whitespace(line)[0] != *closeBlock) {
 				error = fgets(trim_whitespace(line), sizeof(line), inputFile);
 				if (!error)
@@ -395,7 +385,6 @@ int buildScene(world *scene, char *inputFileName) {
 			sphereIndex++;
 		}
 		if (strcmp(trim_whitespace(line), "poly(){\n") == 0) {
-			printf("Found poly\n");
 			while (trim_whitespace(line)[0] != *closeBlock) {
 				error = fgets(trim_whitespace(line), sizeof(line), inputFile);
 				if (!error)
@@ -488,6 +477,12 @@ int buildScene(world *scene, char *inputFileName) {
     }
     fclose(inputFile);
     printf("\n");
+    
+    printf("Finished parsing, found:\n");
+    printf("%i spheres\n", scene->sphereAmount);
+    printf("%i polygons\n", scene->polygonAmount);
+    printf("%i materials\n", scene->materialAmount);
+    printf("%i lights \n\n", scene->lightAmount);
     
     if (TOKEN_DEBUG_ENABLED) {
         return 4; //Debug mode - Won't render anything

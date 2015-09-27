@@ -100,7 +100,8 @@ int main(int argc, char *argv[]) {
             default:
                 break;
         }
-		
+        
+        printf("Starting C-ray renderer\n\n");
 		printf("Rendering at %i x %i\n",worldScene->camera.width,worldScene->camera.height);
 		printf("Rendering with %d thread",renderThreads);
 		if (renderThreads < 2) {
