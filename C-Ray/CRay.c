@@ -352,7 +352,7 @@ void *renderThread(void *arg) {
 				incidentRay.direction.y = 0;
 				incidentRay.direction.z = 1;
 				output = rayTrace(&incidentRay, worldScene);
-			} else if (worldScene->camera.viewPerspective.projectionType == conic && worldScene->camera.antialiased == false) {
+			} else if (worldScene->camera.antialiased == false && worldScene->camera.viewPerspective.projectionType == conic) {
 				double focalLength = 0.0f;
 				if ((worldScene->camera.viewPerspective.projectionType == conic)
 					&& worldScene->camera.viewPerspective.FOV > 0.0f
@@ -373,7 +373,7 @@ void *renderThread(void *arg) {
 				
 				incidentRay.direction = direction;
 				output = rayTrace(&incidentRay, worldScene);
-            } else if (worldScene->camera.viewPerspective.projectionType == conic && worldScene->camera.antialiased == true) {
+            } else if (worldScene->camera.antialiased == true && worldScene->camera.viewPerspective.projectionType == conic) {
                 for (fragX = x; fragX < x + 1.0f; fragX += 0.5) {
                     for (fragY = y; fragY < y + 1.0f; fragY += 0.5f) {
                         double focalLength = 0.0f;
