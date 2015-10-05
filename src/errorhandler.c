@@ -24,6 +24,7 @@ void logHandler(renderLog error) {
             break;
         case sceneBuildFailed:
             logr("Scene builder failed. (Missing scene file.) Aborting.", sceneBuilder);
+            print_trace();
             break;
         case invalidThreadCount:
             logr("Render sections and thread count are not even. Render will be corrupted (likely).", renderer);

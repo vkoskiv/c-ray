@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 		}
 		
 		//Build the scene
-        char *fileName = "scene.txt";
+        char *fileName = "output/scene.txt";
         int returnValue = buildScene(worldScene, fileName);
         switch (returnValue) {
             case -1:
@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
 			bufSize = 18;
 		}
 		char buf[bufSize];
-		sprintf(buf, "rendered_%d.bmp", currentFrame);
+		sprintf(buf, "output/rendered_%d.bmp", currentFrame);
 		printf("%s\n", buf);
 		saveBmpFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
 		long bytes = 3 * worldScene->camera.width * worldScene->camera.height;
