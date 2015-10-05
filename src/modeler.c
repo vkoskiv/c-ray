@@ -7,6 +7,8 @@
 //
 
 #include "modeler.h"
+#include "poly.h"
+#include "vector.h"
 
 polyMesh *buildPlane(vector *corner1, vector *corner2, vector *corner3, vector *corner4) {
     polyMesh *mesh;

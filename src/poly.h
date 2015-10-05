@@ -9,7 +9,7 @@
 #ifndef __C_Ray__poly__
 #define __C_Ray__poly__
 
-#include <stdio.h>
+#include "includes.h"
 #include "vector.h"
 
 typedef struct {

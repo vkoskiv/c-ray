@@ -9,9 +9,7 @@
 #ifndef __C_Ray__errorhandler__
 #define __C_Ray__errorhandler__
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <execinfo.h>
+#include "includes.h"
 
 typedef enum {
     threadMallocFailed,

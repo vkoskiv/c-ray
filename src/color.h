@@ -9,7 +9,7 @@
 #ifndef __C_Ray__color__
 #define __C_Ray__color__
 
-#include <stdio.h>
+#include "includes.h"
 
 //Color
 typedef struct {

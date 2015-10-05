@@ -7,8 +7,6 @@
 //
 
 #include "scene.h"
-#include "errorhandler.h"
-#include <string.h>
 
 #define TOKEN_DEBUG_ENABLED false
 

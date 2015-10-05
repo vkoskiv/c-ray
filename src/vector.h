@@ -9,12 +9,18 @@
 #ifndef __C_Ray__vector__
 #define __C_Ray__vector__
 
-#include <stdio.h>
+#include "includes.h"
 
 //Vector
 typedef struct {
 	float x, y, z;
 }vector;
+
+//Simulated light ray
+typedef struct {
+    vector start;
+    vector direction;
+}lightRay;
 
 //Add two vectors and return the resulting vector
 vector addVectors(vector *v1, vector *v2);

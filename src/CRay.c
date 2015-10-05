@@ -16,8 +16,8 @@
  Create 3D model format?
  */
 
-#include "includes.h"
 #include <pthread.h>
+#include "CRay.h"
 
 //These are for multi-platform physical core detection
 #ifdef MACOS

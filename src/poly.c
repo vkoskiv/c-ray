@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "poly.h"
 
 bool rayIntersectsWithPolygon(lightRay *ray, polygonObject *poly, double *result, vector *normal) {
 	double det, invdet;

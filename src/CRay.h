@@ -9,14 +9,13 @@
 #ifndef ____CRay__
 #define ____CRay__
 
-#include <stdio.h>
-#include <time.h>
-#include <stdbool.h> //Need this for boolean data type
-#include <math.h>
-#include <string.h>
+#include "includes.h"
+#include "filehandler.h"
+#include "errorhandler.h"
 #include "vector.h"
 #include "color.h"
-#include "camera.h"
+#include "sphere.h"
+#include "scene.h"
 
 //Some macros
 #define PIOVER180 0.017453292519943295769236907684886
@@ -26,32 +25,6 @@
 #define invsqrtf(x) (1.0f / sqrtf(x))
 
 #define kFrameCount 1
-
-//Object, a cube (WIP)
-typedef struct {
-	vector pos;
-	float edgeLength;
-	int material;
-}cubeObject;
-
-//Simulated light ray
-typedef struct {
-	vector start;
-	vector direction;
-}lightRay;
-
-//material
-typedef struct {
-	color diffuse;
-	float reflectivity;
-}material;
-
-//Light source
-typedef struct {
-	vector pos;
-	float radius;
-	color intensity;
-}lightSource;
 
 //Generates a random value between a given range
 float randRange(float a, float b);

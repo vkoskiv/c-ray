@@ -9,9 +9,8 @@
 #ifndef __C_Ray__camera__
 #define __C_Ray__camera__
 
-#include <stdio.h>
+#include "includes.h"
 #include "vector.h"
-#include <stdbool.h>
 
 typedef struct {
 #define conic 0

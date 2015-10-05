@@ -9,7 +9,7 @@
 #ifndef __C_Ray__filehandler__
 #define __C_Ray__filehandler__
 
-#include <stdio.h>
+#include "includes.h"
 
 //Saves the data from a given array to a PPM file.
 void saveImageFromArray(char *filename, unsigned char *imgdata, int width, int height);

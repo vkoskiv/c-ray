@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "sphere.h"
 
 //Calculates intersection with a sphere and a light ray
 bool rayIntersectsWithSphere(lightRay *ray, sphereObject *sphere, double *t) {

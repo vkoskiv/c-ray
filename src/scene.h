@@ -9,13 +9,25 @@
 #ifndef __C_Ray__scene__
 #define __C_Ray__scene__
 
-#include <stdio.h>
-#include "CRay.h"
+#include "includes.h"
+#include "errorhandler.h"
 #include "sphere.h"
 #include "poly.h"
 #include "camera.h"
-#include "modeler.h"
-#include "includes.h"
+#include "color.h"
+
+//material
+typedef struct {
+    color diffuse;
+    float reflectivity;
+}material;
+
+//Light source
+typedef struct {
+    vector pos;
+    float radius;
+    color intensity;
+}lightSource;
 
 //World
 typedef struct {

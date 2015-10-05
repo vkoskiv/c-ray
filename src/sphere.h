@@ -9,6 +9,9 @@
 #ifndef __C_Ray__sphere__
 #define __C_Ray__sphere__
 
+#include "includes.h"
+#include "vector.h"
+
 //Object, a sphere in this case
 typedef struct {
 	vector pos;

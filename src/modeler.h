@@ -9,9 +9,16 @@
 #ifndef __C_Ray__modeler__
 #define __C_Ray__modeler__
 
-#include <stdio.h>
-#include "scene.h"
+#include "includes.h"
+#include "vector.h"
 #include "poly.h"
+
+//Object, a cube (WIP)
+typedef struct {
+    vector pos;
+    float edgeLength;
+    int material;
+}cubeObject;
 
 polyMesh *buildPlane(vector *corner1, vector *corner2, vector *corner3, vector *corner4);
 
