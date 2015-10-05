@@ -23,7 +23,7 @@ typedef struct {
     int material;
 }polyMesh;
 
-//Calculates intersection and normal between a light ray and a polygon object.
+//Calculates intersection between a light ray and a polygon object. Returns true if intersection has happened.
 bool rayIntersectsWithPolygon(lightRay *r, polygonObject *t, double *result, vector *normal);
 
 #endif /* defined(__C_Ray__poly__) */

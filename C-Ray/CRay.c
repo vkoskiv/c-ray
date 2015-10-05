@@ -193,11 +193,10 @@ int main(int argc, char *argv[]) {
 color rayTrace(lightRay *incidentRay, world *worldScene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
 	color output = {0.0f,0.0f,0.0f};
-	int level = 0;
-	double coefficient = worldScene->camera.contrast;
+	int bounces = 0;
+	double contrast = worldScene->camera.contrast;
 
 	do {
-		
 		//Find the closest intersection first
 		double t = 20000.0f;
 		double temp;
@@ -247,82 +246,86 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			currentMaterial = worldScene->materials[worldScene->polys[currentPolygon].material];
 		} else {
 			//Ray didn't hit any object, set color to ambient
-			color temp = colorCoef(coefficient, worldScene->ambientColor);
+			color temp = colorCoef(contrast, worldScene->ambientColor);
 			output = addColors(&output, &temp);
 			break;
 		}
+        
+        if (scalarProduct(&surfaceNormal, &incidentRay->direction) < 0.0f) {
+            surfaceNormal = vectorScale(1.0f, &surfaceNormal);
+        } else if (scalarProduct(&surfaceNormal, &incidentRay->direction) > 0.0f) {
+            surfaceNormal = vectorScale(-1.0f, &surfaceNormal);
+        }
 		
-		bool isInside;
+        lightRay bouncedRay, cameraRay;
+        bouncedRay.start = hitpoint;
+        cameraRay.start = hitpoint;
+        cameraRay.direction = subtractVectors(&worldScene->camera.pos, &hitpoint);
+        double cameraProjection = scalarProduct(&cameraRay.direction, &hitpoint);
+        //if (cameraProjection <= 0.0f) continue;
+        double cameraDistance = scalarProduct(&cameraRay.direction, &cameraRay.direction);
+        double camTemp = cameraDistance;
+        //if (camTemp == 0.0f) continue;
+        camTemp = invsqrtf(camTemp);
+        cameraRay.direction = vectorScale(camTemp, &cameraRay.direction);
+        cameraProjection = camTemp * cameraProjection;
+        //Find the value of the light at this point (Scary!)
+        unsigned int j;
+        for (j = 0; j < lightSourceAmount; ++j) {
+            lightSource currentLight = worldScene->lights[j];
+            bouncedRay.direction = subtractVectors(&currentLight.pos, &hitpoint);
+            
+            double lightProjection = scalarProduct(&bouncedRay.direction, &surfaceNormal);
+            if (lightProjection <= 0.0f) continue;
+            
+            double lightDistance = scalarProduct(&bouncedRay.direction, &bouncedRay.direction);
+            double temp = lightDistance;
+            
+            if (temp == 0.0f) continue;
+            temp = invsqrtf(temp);
+            bouncedRay.direction = vectorScale(temp, &bouncedRay.direction);
+            lightProjection = temp * lightProjection;
+            
+            //Calculate shadows
+            bool inShadow = false;
+            double t = lightDistance;
+            unsigned int k;
+            for (k = 0; k < sphereAmount; ++k) {
+                if (rayIntersectsWithSphere(&bouncedRay, &worldScene->spheres[k], &t)) {
+                    inShadow = true;
+                    break;
+                }
+            }
+            
+            for (k = 0; k < polygonAmount; ++k) {
+                if (rayIntersectsWithPolygon(&bouncedRay, &worldScene->polys[k], &t, &polyNormal)) {
+                    inShadow = true;
+                    break;
+                }
+            }
+            if (!inShadow) {
+                //TODO: Calculate specular reflection
+                float specularFactor = 1.0; //scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
+                
+                //Calculate Lambert diffusion
+                float diffuseFactor = scalarProduct(&bouncedRay.direction, &surfaceNormal) * contrast;
+                output.red += specularFactor * diffuseFactor * currentLight.intensity.red * currentMaterial.diffuse.red;
+                output.green += specularFactor * diffuseFactor * currentLight.intensity.green * currentMaterial.diffuse.green;
+                output.blue += specularFactor * diffuseFactor * currentLight.intensity.blue * currentMaterial.diffuse.blue;
+            }
+        }
+        //Iterate over the reflection
+        contrast *= currentMaterial.reflectivity;
+        
+        //Calculate reflected ray start and direction
+        double reflect = 2.0f * scalarProduct(&incidentRay->direction, &surfaceNormal);
+        incidentRay->start = hitpoint;
+        vector tempVec = vectorScale(reflect, &surfaceNormal);
+        incidentRay->direction = subtractVectors(&incidentRay->direction, &tempVec);
 		
-		//Both return false
-		//FIXME: Find a way to fix this, true results in render errors
-		if (scalarProduct(&surfaceNormal, &incidentRay->direction) > 0.0f) {
-			surfaceNormal = vectorScale(-1.0f,&surfaceNormal);
-			//isInside = true;
-			isInside = false;
-		} else {
-			isInside = false;
-		}
+		bounces++;
 		
-		if (!isInside) {
-			lightRay bouncedRay;
-			bouncedRay.start = hitpoint;
-			//Find the value of the light at this point (Scary!)
-			unsigned int j;
-			for (j = 0; j < lightSourceAmount; ++j) {
-				lightSource currentLight = worldScene->lights[j];
-				bouncedRay.direction = subtractVectors(&currentLight.pos, &hitpoint);
-				
-				double lightProjection = scalarProduct(&bouncedRay.direction, &surfaceNormal);
-				if (lightProjection <= 0.0f) continue;
-				
-				double lightDistance = scalarProduct(&bouncedRay.direction, &bouncedRay.direction);
-				double temp = lightDistance;
-				
-				if (temp == 0.0f) continue;
-				temp = invsqrtf(temp);
-				bouncedRay.direction = vectorScale(temp, &bouncedRay.direction);
-				lightProjection = temp * lightProjection;
-				
-				//Calculate shadows
-				bool inShadow = false;
-				double t = lightDistance;
-				unsigned int k;
-				for (k = 0; k < sphereAmount; ++k) {
-					if (rayIntersectsWithSphere(&bouncedRay, &worldScene->spheres[k], &t)) {
-						inShadow = true;
-						break;
-					}
-				}
-				
-				for (k = 0; k < polygonAmount; ++k) {
-					//This causes the lighting bug
-					if (rayIntersectsWithPolygon(&bouncedRay, &worldScene->polys[k], &t, &polyNormal)) {
-						inShadow = true;
-						break;
-					}
-				}
-				if (!inShadow) {
-					//Calculate Lambert diffusion
-					float lambert = scalarProduct(&bouncedRay.direction, &surfaceNormal) * coefficient;
-					output.red += lambert * currentLight.intensity.red * currentMaterial.diffuse.red;
-					output.green += lambert * currentLight.intensity.green * currentMaterial.diffuse.green;
-					output.blue += lambert * currentLight.intensity.blue * currentMaterial.diffuse.blue;
-				}
-			}
-			//Iterate over the reflection
-			coefficient *= currentMaterial.reflectivity;
-			
-			//Calculate reflected ray start and direction
-			double reflect = 2.0f * scalarProduct(&incidentRay->direction, &surfaceNormal);
-			incidentRay->start = hitpoint;
-			vector temp = vectorScale(reflect, &surfaceNormal);
-			incidentRay->direction = subtractVectors(&incidentRay->direction, &temp);
-		}
-		
-		level++;
-		
-	} while ((coefficient > 0.0f) && (level < worldScene->camera.bounces));
+	} while ((contrast > 0.0f) && (bounces <= worldScene->camera.bounces));
 	
 	return output;
 }
@@ -333,7 +336,7 @@ void *renderThread(void *arg) {
 	
 	threadInfo *tinfo = (threadInfo*)arg;
 	//Figure out which part to render based on current thread ID
-	int limits[] = {(tinfo->thread_num*sectionSize), (tinfo->thread_num*sectionSize) + sectionSize};
+	int limits[] = {(tinfo->thread_num * sectionSize), (tinfo->thread_num * sectionSize) + sectionSize};
 	
 	for (y = limits[0]; y < limits[1]; y++) {
 		for (x = 0; x < worldScene->camera.width; x++) {
@@ -373,16 +376,12 @@ void *renderThread(void *arg) {
             } else if (worldScene->camera.viewPerspective.projectionType == conic && worldScene->camera.antialiased == true) {
                 for (fragX = x; fragX < x + 1.0f; fragX += 0.5) {
                     for (fragY = y; fragY < y + 1.0f; fragY += 0.5f) {
-                        //double samplingRatio = 0.25f;
                         double focalLength = 0.0f;
                         if ((worldScene->camera.viewPerspective.projectionType == conic)
                             && worldScene->camera.viewPerspective.FOV > 0.0f
                             && worldScene->camera.viewPerspective.FOV < 189.0f) {
                             focalLength = 0.5f * worldScene->camera.width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera.viewPerspective.FOV);
                             
-                            /*vector direction = {((x - 0.5f * worldScene->camera.width)/focalLength) +
-                                worldScene->camera.lookAt.x, ((y - 0.5f * worldScene->camera.height)/focalLength) +
-                                worldScene->camera.lookAt.y, 1.0f};*/
                             vector direction = {((fragX - 0.5f * worldScene->camera.width) / focalLength) + worldScene->camera.lookAt.x,
                                                 ((fragY - 0.5f * worldScene->camera.height) / focalLength) + worldScene->camera.lookAt.y,
                                                 1.0f
@@ -435,48 +434,6 @@ int getSysCores() {
 #endif
 }
 
-bool rayIntersectsWithLight(lightRay *ray, lightSource *light, double *t) {
-	bool intersects = false;
-	
-	//Vector dot product of the direction
-	float A = scalarProduct(&ray->direction, &ray->direction);
-	//Distance between start of a bounced ray and the light pos
-	vector distance = subtractVectors(&ray->start, &light->pos);
-	float B = 2 * scalarProduct(&ray->direction, &distance);
-	float C = scalarProduct(&distance, &distance) - (light->radius * light->radius);
-	float trigDiscriminant = B * B - 4 * A * C;
-	
-	//If trigDiscriminant is negative, ray has missed the lightSource
-	if (trigDiscriminant < 0) {
-		intersects = false;
-	} else {
-		float sqrtOfDiscriminant = sqrtf(trigDiscriminant);
-		float t0 = (-B + sqrtOfDiscriminant)/(2);
-		float t1 = (-B - sqrtOfDiscriminant)/(2);
-		//Pick closest intersection
-		if (t0 > t1) {
-			t0 = t1;
-		}
-		if ((t0 > 0.001f) && (t0 < *t)) {
-			*t = t0;
-			intersects = true;
-		} else {
-			intersects = false;
-		}
-	}
-	return intersects;
-}
-
 float randRange(float a, float b) {
 	return ((b-a)*((float)rand()/RAND_MAX))+a;
 }
-
-float FastInvSqrt(float x) {
-	float xhalf = 0.5f * x;
-	int i = *(int*)&x;         // evil floating point bit level hacking
-	i = 0x5f3759df - (i >> 1);  // what the fuck?
-	x = *(float*)&i;
-	x = x*(1.5f-(xhalf*x*x));
-	return x;
-}
-
