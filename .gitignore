@@ -5,3 +5,5 @@ xcschememanagement.plist
 *.bmp
 project.pbxproj
 contents.xcworkspacedata
+*.o
+cray
