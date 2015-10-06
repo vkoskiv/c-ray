@@ -158,11 +158,11 @@ int main(int argc, char *argv[]) {
 		//FIXME: This crashes if frame count is over 9999
 		int bufSize;
 		if (currentFrame < 100) {
-			bufSize = 16;
+			bufSize = 26;
 		} else if (currentFrame < 1000) {
-			bufSize = 17;
+			bufSize = 27;
 		} else {
-			bufSize = 18;
+			bufSize = 28;
 		}
 		char buf[bufSize];
 		sprintf(buf, "../output/rendered_%d.bmp", currentFrame);
