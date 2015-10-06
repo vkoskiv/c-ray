@@ -28,7 +28,5 @@
 
 //Generates a random value between a given range
 float randRange(float a, float b);
-//Calculates approximation of an inverse square root faster
-float FastInvSqrt(float x);
 
 #endif /* defined(____CRay__) */

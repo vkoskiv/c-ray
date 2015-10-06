@@ -1,4 +1,4 @@
- //
+//
 //  CRay.c
 //  
 //
@@ -8,7 +8,6 @@
 /*
  TODO:
  Add antialiasing
- Add input file tokenizer
  Add total render time for animations
  Add soft shadows (rayIntersectsWithLight)
  Add programmatic textures (checker pattern)
