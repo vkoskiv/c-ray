@@ -20,7 +20,11 @@ typedef struct {
 }perspective;
 
 typedef struct {
+#define ppm 0
+#define bmp 1
+#define png 2
 	int height, width;
+    unsigned char outputFileType;
 	perspective viewPerspective;
 	vector pos;
 	vector lookAt;

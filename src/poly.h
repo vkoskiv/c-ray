@@ -15,6 +15,7 @@
 typedef struct {
 	vector v1, v2, v3; //Three vertices
 	int material;
+    bool active;
 }polygonObject;
 
 typedef struct {

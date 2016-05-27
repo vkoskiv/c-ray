@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <execinfo.h>
+#include "lodepng.h"
 //Master include file
 
 #endif

@@ -11,10 +11,13 @@
 #define TOKEN_DEBUG_ENABLED false
 
 //Prototypes
+//Trims spaces and tabs from a char array
 char *trim_whitespace(char *inputLine);
+//Parses a scene file and allocates memory accordingly
+int allocMemory(world *scene, char *inputFileName);
 
 int buildScene(world *scene, char *inputFileName) {
-    printf("\nStarting C-ray Scene Parser 0.1\n");
+    printf("\nStarting C-ray Scene Parser 0.2\n");
     FILE *inputFile = fopen(inputFileName, "r");
     if (!inputFile)
         return -1;
@@ -23,6 +26,8 @@ int buildScene(world *scene, char *inputFileName) {
     char *token;
 	char *savePointer;
 	int materialIndex = 0, sphereIndex = 0, polyIndex = 0, lightIndex = 0;
+    if (allocMemory(scene, inputFileName) == -1)
+        return -2;
     char line[255];
     while (fgets(line, sizeof(line), inputFile) != NULL) {
         //Discard comments
@@ -49,42 +54,6 @@ int buildScene(world *scene, char *inputFileName) {
 					rgbValue = strtof(token, NULL);
 					scene->ambientColor->blue = rgbValue;
 				}
-				
-				if (strncmp(trim_whitespace(line), "sphereAmount", 12) == 0) {
-					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer);
-					if (token == NULL)
-						logHandler(sceneParseErrorScene);
-					int sphereAmount = (int)strtol(savePointer, (char**)NULL, 10);
-					scene->sphereAmount = sphereAmount;
-					scene->spheres = (sphereObject *)calloc(scene->sphereAmount, sizeof(sphereObject));
-				}
-				
-				if (strncmp(trim_whitespace(line), "polygonAmount", 13) == 0) {
-					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer);
-					if (token == NULL)
-						logHandler(sceneParseErrorScene);
-					int polygonAmount = (int)strtol(savePointer, (char**)NULL, 10);
-					scene->polygonAmount = polygonAmount;
-					scene->polys = (polygonObject *)calloc(scene->polygonAmount, sizeof(polygonObject));
-				}
-				
-				if (strncmp(trim_whitespace(line), "materialAmount", 14) == 0) {
-					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer);
-					if (token == NULL)
-						logHandler(sceneParseErrorScene);
-					int materialAmount = (int)strtol(savePointer, (char**)NULL, 10);
-					scene->materialAmount = materialAmount;
-					scene->materials = (material *)calloc(scene->materialAmount, sizeof(material));
-				}
-				
-				if (strncmp(trim_whitespace(line), "lightAmount", 11) == 0) {
-					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer);
-					if (token == NULL)
-						logHandler(sceneParseErrorScene);
-					int lightAmount = (int)strtol(savePointer, (char**)NULL, 10);
-					scene->lightAmount = lightAmount;
-					scene->lights = (lightSource *)calloc(scene->lightAmount, sizeof(lightSource));
-				}
             }
         }
 		
@@ -104,6 +73,31 @@ int buildScene(world *scene, char *inputFileName) {
 						scene->camera.viewPerspective.projectionType = ortho;
 					}
 				}
+                
+                if (strncmp(trim_whitespace(line), "fileFormat", 10) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorCamera);
+                    
+                    if (strncmp(savePointer, "bmp", 3) == 0) {
+                        scene->camera.outputFileType = bmp;
+                    } else if (strncmp(savePointer, "ppm", 3) == 0) {
+                        scene->camera.outputFileType = ppm;
+                    }else if (strncmp(savePointer, "png", 3) == 0) {
+                        scene->camera.outputFileType = png;
+                    }
+                }
+                //TODO: Here
+                if (strncmp(trim_whitespace(line), "forceSingleCore", 15) == 0) {
+                    token = strtok_r(trim_whitespace(line), delimEquals, &savePointer);
+                    if (token == NULL)
+                        logHandler(sceneParseErrorCamera);
+                    if (strncmp(savePointer, "true", 4) == 0) {
+                        //scene->camera.antialiased = true;
+                    } else if (strncmp(savePointer, "false", 5) == 0) {
+                        //scene->camera.antialiased = false;
+                    }
+                }
 				
 				if (strncmp(trim_whitespace(line), "FOV", 3) == 0) {
 					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer);
@@ -469,6 +463,39 @@ int buildScene(world *scene, char *inputFileName) {
     } else {
         return 0;
     }
+}
+
+int allocMemory(world *scene, char *inputFileName) {
+    int materialCount = 0, lightCount = 0, polyCount = 0, sphereCount = 0;
+    FILE *inputFile = fopen(inputFileName, "r");
+    if (!inputFile)
+        return -1;
+    char line[255];
+    while (fgets(line, sizeof(line), inputFile) != NULL) {
+        if (strcmp(trim_whitespace(line), "material(){\n") == 0) {
+            materialCount++;
+        }
+        if (strcmp(trim_whitespace(line), "light(){\n") == 0) {
+            lightCount++;
+        }
+        if (strcmp(trim_whitespace(line), "sphere(){\n") == 0) {
+            sphereCount++;
+        }
+        if (strcmp(trim_whitespace(line), "poly(){\n") == 0) {
+            polyCount++;
+        }
+    }
+    fclose(inputFile);
+    scene->materials = (material *)calloc(materialCount, sizeof(material));
+    scene->lights = (lightSphere *)calloc(lightCount, sizeof(lightSphere));
+    scene->spheres = (sphereObject*)calloc(sphereCount, sizeof(sphereObject));
+    scene->polys = (polygonObject*)calloc(polyCount, sizeof(polygonObject));
+    
+    scene->materialAmount = materialCount;
+    scene->lightAmount = lightCount;
+    scene->sphereAmount = sphereCount;
+    scene->polygonAmount = polyCount;
+    return 0;
 }
 
 //Removes tabs and spaces from a char byte array, terminates it and returns it.

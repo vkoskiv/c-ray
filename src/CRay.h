@@ -28,5 +28,7 @@
 
 //Generates a random value between a given range
 float randRange(float a, float b);
+//Converts degrees to radians
+double rads(double angle);
 
 #endif /* defined(____CRay__) */

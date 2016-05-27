@@ -3,11 +3,6 @@
 
 scene() {
 	ambientColor = 0.41, 0.41, 0.41
-	#Defining these amounts here makes memory management easier
-	sphereAmount = 3
-	polygonAmount = 11
-	materialAmount = 9
-	lightAmount = 2
 }
 
 camera() {
@@ -16,8 +11,11 @@ camera() {
 	FOV = 80.0
 	contrast = 1.0
 	antialiased = true
+	forceSingleCore = true
+	#bmp, png or ppm
+	fileFormat = png
 	supersampling = 10
-	bounces = 3	
+	bounces = 3
 
 	#Camera view ray origin
 	posX = 940
@@ -31,8 +29,8 @@ camera() {
 
 	#7680x4320 for 8K
 	#4096x2160 for full-height 4K
-	resolutionX = 1920
-	resolutionY = 1080	
+	resolutionX = 1280
+	resolutionY = 720
 }
 
 material() {
@@ -101,11 +99,19 @@ material() {
 }
 
 material() {
-	#Reflective blue
+	#Reflective blue 8
 	red = 0
 	green = 0
 	blue = 0.3
-	reflectivity = 1
+	reflectivity = 0
+}
+
+material() {
+	#Matte white 9
+	red = 0.9
+	green = 0.9
+	blue = 0.9
+	reflectivity = 0
 }
 
 light() {
@@ -141,8 +147,8 @@ sphere() {
 
 sphere() {
 	#Red sphere
-	posX = 750
-	posY = 450
+	posX = 950
+	posY = 350
 	posZ = 1000
 	radius = 50
 	material = 6
@@ -151,7 +157,7 @@ sphere() {
 sphere() {
 	#Blue sphere
 	posX = 1100
-	posY = 450
+	posY = 350
 	posZ = 800
 	radius = 50
 	material = 8
@@ -190,6 +196,41 @@ poly() {
         v3Z = 2000
 
         material = 3
+}
+
+#Mirror plane
+poly() {
+	#Bottom left
+	v1X = 1420
+	v1Y = 750
+	v1Z = 1800
+
+	v2X = 1420
+	v2Y = 300
+	v2Z = 1800
+
+	v3X = 1620
+	v3Y = 300
+	v3Z = 1700
+
+	material = 5
+}
+
+poly() {
+	#Top right
+	v1X = 1420
+	v1Y = 750
+	v1Z = 1800
+
+	v2X = 1620
+	v2Y = 750
+	v2Z = 1700
+
+	v3X = 1620
+	v3Y = 300
+	v3Z = 1700
+
+	material = 5
 }
 
 #Background plane (Red)

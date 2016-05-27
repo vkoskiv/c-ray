@@ -7,12 +7,14 @@
 //
 /*
  TODO:
- Add antialiasing
- Add total render time for animations
- Add soft shadows (rayIntersectsWithLight)
+ (Add antialiasing)
+ (Add total render time for animations)
  Add programmatic textures (checker pattern)
  Add refraction (Glass)
- Create 3D model format?
+ Soft shadows
+ Texture mapping
+ Tiled rendering
+ Per-thread progress log
  */
 
 #include <pthread.h>
@@ -30,6 +32,7 @@
 
 //Global variables
 world *worldScene = NULL;
+//Raw image data array
 unsigned char *imgData = NULL;
 unsigned long bounceCount = 0;
 int sectionSize = 0;
@@ -37,6 +40,7 @@ int sectionSize = 0;
 //Prototypes
 void *renderThread(void *arg);
 color rayTrace(lightRay *incidentRay, world *worldScene);
+color rayTrace2(lightRay *incidentRay, world *worldScene);
 int getSysCores();
 
 //Thread
@@ -50,9 +54,7 @@ int main(int argc, char *argv[]) {
     int renderThreads = getSysCores();
 	
 	//Free image array for safety
-	if (imgData) {
-		free(imgData);
-	}
+    if (imgData) free(imgData);
 	
 	time_t start, stop;
 	
@@ -92,6 +94,9 @@ int main(int argc, char *argv[]) {
             case -1:
                 logHandler(sceneBuildFailed);
                 break;
+            case -2:
+                logHandler(sceneParseErrorMalloc);
+                break;
             case 4:
                 logHandler(sceneDebugEnabled);
                 return 0;
@@ -112,18 +117,14 @@ int main(int argc, char *argv[]) {
 		printf("Using %i light bounces\n",worldScene->camera.bounces);
 		printf("Raytracing...\n");
 		//Allocate memory and create array of pixels for image data
-		imgData = (unsigned char*)malloc(3 * worldScene->camera.width * worldScene->camera.height);
-		memset(imgData, 0, 3 * worldScene->camera.width * worldScene->camera.height);
+		imgData = (unsigned char*)malloc(4 * worldScene->camera.width * worldScene->camera.height);
+		memset(imgData, 0, 4 * worldScene->camera.width * worldScene->camera.height);
 		
-        if (!imgData) {
-            logHandler(imageMallocFailed);
-        }
+        if (!imgData) logHandler(imageMallocFailed);
         
 		//Calculate section sizes for every thread, multiple threads can't render the same portion of an image
 		sectionSize = worldScene->camera.height / renderThreads;
-		if ((sectionSize % 2) != 0) {
-			logHandler(invalidThreadCount);
-		}
+		if ((sectionSize % 2) != 0) logHandler(invalidThreadCount);
 		pthread_attr_init(&attributes);
 		pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_JOINABLE);
 		
@@ -164,9 +165,21 @@ int main(int argc, char *argv[]) {
 			bufSize = 28;
 		}
 		char buf[bufSize];
-		sprintf(buf, "../output/rendered_%d.bmp", currentFrame);
-		printf("%s\n", buf);
-		saveBmpFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+        
+        if (worldScene->camera.outputFileType == ppm) {
+            sprintf(buf, "../output/rendered_%d.ppm", currentFrame);
+            printf("%s\n", buf);
+            saveImageFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+        } else if (worldScene->camera.outputFileType == bmp){
+            sprintf(buf, "../output/rendered_%d.bmp", currentFrame);
+            printf("%s\n", buf);
+            saveBmpFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+        } else {
+            sprintf(buf, "../output/rendered_%d.png", currentFrame);
+            printf("%s\n", buf);
+            encodePNG(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+        }
+        
 		long bytes = 3 * worldScene->camera.width * worldScene->camera.height;
 		long mBytes = (bytes / 1000) / 1000;
 		printf("Wrote %ld megabytes to file.\n",mBytes);
@@ -187,6 +200,72 @@ int main(int argc, char *argv[]) {
         printf("Animation render finished\n");
     }
 	return 0;
+}
+
+color rayTrace2(lightRay *viewRay, world *worldScene) {
+    color output = *worldScene->ambientColor;
+    int bounces = 0;
+    double contrast = worldScene->camera.contrast;
+    
+    while ((contrast > 0.0f) && (bounces <= worldScene->camera.bounces)) {
+        double maxDistance = 20000.0f;
+        double temp;
+        
+        sphereObject currentSphere;
+        polygonObject currentPoly;
+        //lightSphere currentLight;
+        material currentMaterial;
+        vector normal, hitPoint, surfaceNormal;
+        
+        currentSphere.active = false;
+        currentPoly.active = false;
+        
+        //Loop through objects in scene to see which one will be raytraced
+        unsigned int i;
+        
+        for (i = 0; i < worldScene->polygonAmount; ++i) {
+            if (rayIntersectsWithPolygon(viewRay, &worldScene->polys[i], &maxDistance, &normal)) {
+                currentPoly = worldScene->polys[i];
+                currentPoly.active = true;
+            }
+        }
+        
+        for (i = 0; i < worldScene->sphereAmount; ++i) {
+            if (rayIntersectsWithSphere(viewRay, &worldScene->spheres[i], &maxDistance)) {
+                currentSphere = worldScene->spheres[i];
+                currentSphere.active = true;
+            }
+        }
+        
+        //Calculate ray-object intersection point
+        if (currentPoly.active) {
+            bounceCount++;
+            vector scaled = vectorScale(maxDistance, &viewRay->direction);
+            hitPoint = addVectors(&viewRay->start, &scaled);
+            surfaceNormal = normal;
+            temp = scalarProduct(&surfaceNormal,&surfaceNormal);
+            if (temp == 0.0f) break;
+            temp = invsqrtf(temp);
+            surfaceNormal = vectorScale(temp, &surfaceNormal);
+            currentMaterial = worldScene->materials[currentPoly.material];
+        } else if (currentSphere.active) {
+            bounceCount++;
+            vector scaled = vectorScale(maxDistance, &viewRay->direction);
+            hitPoint = addVectors(&viewRay->start, &scaled);
+            surfaceNormal = subtractVectors(&hitPoint, &currentSphere.pos);
+            temp = scalarProduct(&surfaceNormal,&surfaceNormal);
+            if (temp == 0.0f) break;
+            temp = invsqrtf(temp);
+            surfaceNormal = vectorScale(temp, &surfaceNormal);
+            currentMaterial = worldScene->materials[currentSphere.material];
+        } else {
+            //Ray didn't hit anything, return ambient color.
+            color temp = colorCoef(contrast, &output);
+            return addColors(&output, &temp);
+        }
+        
+    }
+    return output;
 }
 
 color rayTrace(lightRay *incidentRay, world *worldScene) {
@@ -271,7 +350,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
         //Find the value of the light at this point (Scary!)
         unsigned int j;
         for (j = 0; j < lightSourceAmount; ++j) {
-            lightSource currentLight = worldScene->lights[j];
+            lightSphere currentLight = worldScene->lights[j];
             bouncedRay.direction = subtractVectors(&currentLight.pos, &hitpoint);
             
             double lightProjection = scalarProduct(&bouncedRay.direction, &surfaceNormal);
@@ -339,7 +418,7 @@ void *renderThread(void *arg) {
 	
 	for (y = limits[0]; y < limits[1]; y++) {
 		for (x = 0; x < worldScene->camera.width; x++) {
-			color output = {0.0f,0.0f,0.0f};
+			color output = {0.0f,0.0f,0.0f,0.0f};
             double fragX, fragY;
 			if (worldScene->camera.viewPerspective.projectionType == ortho) {
 				//Fix these
@@ -399,6 +478,7 @@ void *renderThread(void *arg) {
                     }
                 }
             }
+            //imgData[(x + y*worldScene->camera.width)*3 + 3] = (unsigned char)min(output.alpha*255.0f, 255.0f);
 			imgData[(x + y*worldScene->camera.width)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
 			imgData[(x + y*worldScene->camera.width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
 			imgData[(x + y*worldScene->camera.width)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);
@@ -435,4 +515,8 @@ int getSysCores() {
 
 float randRange(float a, float b) {
 	return ((b-a)*((float)rand()/RAND_MAX))+a;
+}
+
+double rads(double angle) {
+    return PIOVER180 * angle;
 }

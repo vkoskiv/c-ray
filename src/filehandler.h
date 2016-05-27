@@ -12,9 +12,12 @@
 #include "includes.h"
 
 //Saves the data from a given array to a PPM file.
-void saveImageFromArray(char *filename, unsigned char *imgdata, int width, int height);
+void saveImageFromArray(const char *filename, const unsigned char *imgdata, unsigned width, unsigned height);
 
 //Saves the data from a given array to a BMP file.
-void saveBmpFromArray(char *filename, unsigned char *imgData, int width, int height);
+void saveBmpFromArray(const char *filename, const unsigned char *imgData, unsigned width, unsigned height);
+
+//Encodes data from a given array to a BMP file.
+void encodePNG(const char *filename, const unsigned char *imgData, unsigned width, unsigned height);
 
 #endif /* defined(__C_Ray__filehandler__) */

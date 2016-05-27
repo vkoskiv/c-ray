@@ -8,7 +8,7 @@
 
 #include "filehandler.h"
 
-void saveImageFromArray(char *filename, unsigned char *imgdata, int width, int height) {
+void saveImageFromArray(const char *filename, const unsigned char *imgdata, unsigned width, unsigned height) {
 	//File pointer
 	FILE *f;
 	//Open the file
@@ -21,7 +21,7 @@ void saveImageFromArray(char *filename, unsigned char *imgdata, int width, int h
 	fclose(f);
 }
 
-void saveBmpFromArray(char *filename, unsigned char *imgData, int width, int height) {
+void saveBmpFromArray(const char *filename, const unsigned char *imgData, unsigned width, unsigned height) {
 	int i;
 	int error;
 	FILE *f;
@@ -69,4 +69,25 @@ void saveBmpFromArray(char *filename, unsigned char *imgData, int width, int hei
 		}
 	}
 	fclose(f);
+}
+
+void encodePNG(const char *filename, const unsigned char *imgData, unsigned width, unsigned height) {
+    unsigned char *flippedData = NULL;
+    flippedData = (unsigned char*)malloc(4 * width * height);
+    memset(flippedData, 0, 4 * width * height);
+    
+    int fy = height;
+    for (int y = 0; y < height; y++) {
+        if (fy > 0) fy--;
+        for (int x = 0; x < width; x++) {
+            //Note, PNG is big-endian, so we flip the color byte values (...*3+ X)
+            flippedData[(x + fy*width)*3 + 2] = imgData[(x + y*width)*3 + 0];
+            flippedData[(x + fy*width)*3 + 1] = imgData[(x + y*width)*3 + 1];
+            flippedData[(x + fy*width)*3 + 0] = imgData[(x + y*width)*3 + 2];
+        }
+    }
+    
+    unsigned error = lodepng_encode24_file(filename, flippedData, width, height);
+    free(flippedData);
+    if (error) printf("error %u: %s\n", error, lodepng_error_text(error));
 }

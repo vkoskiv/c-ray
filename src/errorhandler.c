@@ -57,6 +57,9 @@ void logHandler(renderLog error) {
 		case sceneParseErrorMaterial:
 			logr("SceneBuilder failed to parse the material block.", sceneBuilder);
 			break;
+        case sceneParseErrorMalloc:
+            logr("SceneBuilder failed to parse the scene for malloc", sceneBuilder);
+            break;
         default:
             logr("Something went wrong. Aborting.", defaultSource);
             print_trace();

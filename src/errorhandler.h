@@ -26,6 +26,7 @@ typedef enum {
     sceneParseErrorPoly,
     sceneParseErrorLight,
 	sceneParseErrorMaterial,
+    sceneParseErrorMalloc,
     defaultError
 }renderLog;
 

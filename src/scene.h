@@ -15,6 +15,7 @@
 #include "poly.h"
 #include "camera.h"
 #include "color.h"
+#include "light.h"
 
 //material
 typedef struct {
@@ -22,17 +23,10 @@ typedef struct {
     float reflectivity;
 }material;
 
-//Light source
-typedef struct {
-    vector pos;
-    float radius;
-    color intensity;
-}lightSource;
-
 //World
 typedef struct {
 	color *ambientColor;
-	lightSource *lights;
+	lightSphere *lights;
 	material *materials;
 	sphereObject *spheres;
 	polygonObject *polys;

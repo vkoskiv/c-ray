@@ -13,8 +13,15 @@
 
 //Color
 typedef struct {
-	float red, green, blue;
+	float red, green, blue, alpha;
 }color;
+
+//Some standard colours
+/*color redColor =   {1.0, 0.0, 0.0};
+color greenColor = {0.0, 1.0, 0.0};
+color blueColor =  {0.0, 0.0, 1.0};
+color blackColor = {0.0, 0.0, 0.0};
+color whiteColor = {1.0, 1.0, 1.0};*/
 
 //Multiply two colors and return the resulting color
 color multiplyColors(color *c1, color *c2);
