@@ -15,6 +15,8 @@
  Texture mapping
  Tiled rendering
  Per-thread progress log
+ Implement proper animation
+ Rewrite main function
  */
 
 #include <pthread.h>

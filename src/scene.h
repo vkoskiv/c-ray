@@ -41,4 +41,6 @@ typedef struct {
 //This takes an input file, tokenizes it and applies it to a world object.
 int buildScene(world *scene, char *inputFileName);
 
+int loadOBJ(world *scene, char *inputFileName);
+
 #endif /* defined(__C_Ray__scene__) */

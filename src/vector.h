@@ -13,7 +13,7 @@
 
 //Vector
 typedef struct {
-	float x, y, z;
+	double x, y, z;
 }vector;
 
 //Simulated light ray

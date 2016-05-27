@@ -29,8 +29,8 @@ camera() {
 
 	#7680x4320 for 8K
 	#4096x2160 for full-height 4K
-	resolutionX = 1280
-	resolutionY = 720
+	resolutionX = 640
+	resolutionY = 480
 }
 
 material() {

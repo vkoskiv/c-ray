@@ -465,6 +465,14 @@ int buildScene(world *scene, char *inputFileName) {
     }
 }
 
+int loadOBJ(world *scene, char *inputFileName) {
+    obj_scene_data sceneData;
+    if (!parse_obj_scene(&sceneData, "../output/test.obj")) {
+        return 0;
+    }
+    return 0;
+}
+
 int allocMemory(world *scene, char *inputFileName) {
     int materialCount = 0, lightCount = 0, polyCount = 0, sphereCount = 0;
     FILE *inputFile = fopen(inputFileName, "r");

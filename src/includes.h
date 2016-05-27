@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <execinfo.h>
 #include "lodepng.h"
+#include "obj_parser.h"
 //Master include file
 
 #endif
