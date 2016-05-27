@@ -60,6 +60,9 @@ void logHandler(renderLog error) {
         case sceneParseErrorMalloc:
             logr("SceneBuilder failed to parse the scene for malloc", sceneBuilder);
             break;
+        case sceneParseErrorNoPath:
+            logr("No input file path given!", sceneBuilder);
+            break;
         default:
             logr("Something went wrong. Aborting.", defaultSource);
             print_trace();

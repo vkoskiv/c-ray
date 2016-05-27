@@ -87,8 +87,13 @@ int main(int argc, char *argv[]) {
 			return -1;
 		}
 		
+        char *fileName;
 		//Build the scene
-        char *fileName = "../output/scene.txt";
+        if (argc == 2) {
+             fileName = argv[1];
+        } else {
+            logHandler(sceneParseErrorNoPath);
+        }
         int returnValue = buildScene(worldScene, fileName);
         switch (returnValue) {
             case -1:
@@ -424,7 +429,7 @@ void *renderThread(void *arg) {
 				//Fix these
 				incidentRay.start.x = x;
 				incidentRay.start.y = y ;
-				incidentRay.start.z = -2000;
+				incidentRay.start.z = worldScene->camera.pos.z;
 				
 				incidentRay.direction.x = 0;
 				incidentRay.direction.y = 0;
