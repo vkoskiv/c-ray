@@ -30,6 +30,8 @@ typedef struct {
 	vector lookAt;
     bool antialiased;
     int supersampling;
+    int frameCount;
+    int currentFrame;
 	int bounces;
 	float contrast;
 }camera;

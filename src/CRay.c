@@ -17,6 +17,7 @@
  Per-thread progress log
  Implement proper animation
  Rewrite main function
+ finish raytrace2
  */
 
 #include <pthread.h>
@@ -38,6 +39,7 @@ world *worldScene = NULL;
 unsigned char *imgData = NULL;
 unsigned long bounceCount = 0;
 int sectionSize = 0;
+int animationFrameCount = 0;
 
 //Prototypes
 void *renderThread(void *arg);
@@ -112,7 +114,7 @@ int main(int argc, char *argv[]) {
                 break;
         }
         
-        printf("Starting C-ray renderer\n\n");
+        printf("\nStarting C-ray renderer for frame %i\n\n", currentFrame);
 		printf("Rendering at %i x %i\n",worldScene->camera.width,worldScene->camera.height);
 		printf("Rendering with %d thread",renderThreads);
 		if (renderThreads < 2) {
@@ -203,8 +205,10 @@ int main(int argc, char *argv[]) {
 		if (worldScene->materials)
 			free(worldScene->materials);
 	}
-    if (kFrameCount > 0) {
+    if (kFrameCount > 1) {
         printf("Animation render finished\n");
+    } else {
+        printf("Render finished\n");
     }
 	return 0;
 }

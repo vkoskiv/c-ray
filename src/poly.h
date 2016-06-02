@@ -19,6 +19,12 @@ typedef struct {
 }polygonObject;
 
 typedef struct {
+    vector v1, v2, v3, v4;
+    int material;
+    bool active;
+}quadObject;
+
+typedef struct {
     int polyCount;
     polygonObject *polyArray;
     int material;
