@@ -11,7 +11,7 @@
 #include "vector.h"
 
 polyMesh *buildPlane(vector *corner1, vector *corner2, vector *corner3, vector *corner4) {
-    polyMesh *mesh;
+    polyMesh *mesh = NULL;
     mesh->polyCount = 2;
     mesh->polyArray = (polygonObject*)malloc(sizeof(polygonObject) * mesh->polyCount);
     mesh->polyArray[0].v1 = *corner1;

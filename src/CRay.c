@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
 			return -1;
 		}
 		
-        char *fileName;
+        char *fileName = NULL;
 		//Build the scene
         if (argc == 2) {
              fileName = argv[1];
