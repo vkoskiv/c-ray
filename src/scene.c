@@ -470,6 +470,9 @@ int loadOBJ(world *scene, char *inputFileName) {
     if (!parse_obj_scene(&sceneData, "../output/test.obj")) {
         return 0;
     }
+    scene->lightAmount = sceneData.light_point_count;
+    scene->sphereAmount = sceneData.sphere_count;
+    
     return 0;
 }
 

@@ -55,7 +55,7 @@ int list_add_item(list *listo, void *item, char *name)
 	listo->names[listo->item_count] = NULL;
 	if(name != NULL)
 	{
-		name_length = strlen(name);
+		name_length = (int)strlen(name);
 		new_name = (char*) malloc(sizeof(char) * name_length + 1);
 		strncpy(new_name, name, name_length);
 		listo->names[listo->item_count] = new_name;
@@ -150,7 +150,7 @@ void list_delete_name(list *listo, char *name)
 	
 	for(i=0; i < listo->item_count; i++)
 	{
-		item_name = strlen(name);
+		item_name = (int)strlen(name);
 				
 		if( name != NULL && (strncmp(listo->names[i], name, strlen(name)) == 0) )
 			list_delete_index(listo, i);
