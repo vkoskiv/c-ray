@@ -87,15 +87,15 @@ int buildScene(world *scene, char *inputFileName) {
                         scene->camera.outputFileType = png;
                     }
                 }
-                //TODO: Here
+				
                 if (strncmp(trim_whitespace(line), "forceSingleCore", 15) == 0) {
                     token = strtok_r(trim_whitespace(line), delimEquals, &savePointer);
                     if (token == NULL)
                         logHandler(sceneParseErrorCamera);
                     if (strncmp(savePointer, "true", 4) == 0) {
-                        //scene->camera.antialiased = true;
+						scene->camera.forceSingleCore = true;
                     } else if (strncmp(savePointer, "false", 5) == 0) {
-                        //scene->camera.antialiased = false;
+						scene->camera.forceSingleCore = false;
                     }
                 }
 				

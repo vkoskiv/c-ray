@@ -29,6 +29,7 @@ typedef struct {
 	vector pos;
 	vector lookAt;
     bool antialiased;
+	bool forceSingleCore;
     int supersampling;
     int frameCount;
     int currentFrame;

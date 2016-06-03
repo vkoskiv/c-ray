@@ -10,8 +10,8 @@ camera() {
 	perspective = conic
 	FOV = 80.0
 	contrast = 1.0
-	antialiased = true
-	forceSingleCore = true
+	antialiased = false
+	forceSingleCore = false
 	#bmp, png or ppm
 	fileFormat = png
 	supersampling = 10
@@ -29,8 +29,8 @@ camera() {
 
 	#7680x4320 for 8K
 	#4096x2160 for full-height 4K
-	resolutionX = 640
-	resolutionY = 480
+	resolutionX = 7680
+	resolutionY = 4320
 }
 
 material() {

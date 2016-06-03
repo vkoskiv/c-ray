@@ -14,7 +14,6 @@
  Soft shadows
  Texture mapping
  Tiled rendering
- Per-thread progress log
  Implement proper animation
  Rewrite main function
  finish raytrace2
@@ -43,6 +42,7 @@ int animationFrameCount = 0;
 
 //Prototypes
 void *renderThread(void *arg);
+void updateProgress(int y, int max, int min);
 color rayTrace(lightRay *incidentRay, world *worldScene);
 color rayTrace2(lightRay *incidentRay, world *worldScene);
 int getSysCores();
@@ -98,8 +98,9 @@ int main(int argc, char *argv[]) {
         } else {
             logHandler(sceneParseErrorNoPath);
         }
-        int returnValue = buildScene(worldScene, fileName);
-        switch (returnValue) {
+		
+		//Build the scene
+        switch (buildScene(worldScene, fileName)) {
             case -1:
                 logHandler(sceneBuildFailed);
                 break;
@@ -113,15 +114,18 @@ int main(int argc, char *argv[]) {
             default:
                 break;
         }
+		
+		if (worldScene->camera.forceSingleCore) renderThreads = 1;
         
         printf("\nStarting C-ray renderer for frame %i\n\n", currentFrame);
 		printf("Rendering at %i x %i\n",worldScene->camera.width,worldScene->camera.height);
 		printf("Rendering with %d thread",renderThreads);
-		if (renderThreads < 2) {
-			printf("\n");
-		} else {
-			printf("s\n");
+		if (renderThreads > 1) {
+			printf("s");
 		}
+		
+		if (worldScene->camera.forceSingleCore) printf(" (Forced single thread)\n");
+		else printf("\n");
 		
 		printf("Using %i light bounces\n",worldScene->camera.bounces);
 		printf("Raytracing...\n");
@@ -224,9 +228,8 @@ color rayTrace2(lightRay *viewRay, world *worldScene) {
         
         sphereObject currentSphere;
         polygonObject currentPoly;
-        //lightSphere currentLight;
         material currentMaterial;
-        vector normal, hitPoint, surfaceNormal;
+        vector polyNormal, hitPoint, surfaceNormal;
         
         currentSphere.active = false;
         currentPoly.active = false;
@@ -235,14 +238,14 @@ color rayTrace2(lightRay *viewRay, world *worldScene) {
         unsigned int i;
         
         for (i = 0; i < worldScene->polygonAmount; ++i) {
-            if (rayIntersectsWithPolygon(viewRay, &worldScene->polys[i], &maxDistance, &normal)) {
+            if (rayIntersectsWithPolygon(viewRay, &worldScene->polys[i], &maxDistance, &polyNormal)) {
                 currentPoly = worldScene->polys[i];
                 currentPoly.active = true;
             }
         }
         
         for (i = 0; i < worldScene->sphereAmount; ++i) {
-            if (rayIntersectsWithSphere(viewRay, &worldScene->spheres[i], &maxDistance)) {
+            if (currentPoly.active == false && rayIntersectsWithSphere(viewRay, &worldScene->spheres[i], &maxDistance)) {
                 currentSphere = worldScene->spheres[i];
                 currentSphere.active = true;
             }
@@ -253,7 +256,7 @@ color rayTrace2(lightRay *viewRay, world *worldScene) {
             bounceCount++;
             vector scaled = vectorScale(maxDistance, &viewRay->direction);
             hitPoint = addVectors(&viewRay->start, &scaled);
-            surfaceNormal = normal;
+            surfaceNormal = polyNormal;
             temp = scalarProduct(&surfaceNormal,&surfaceNormal);
             if (temp == 0.0f) break;
             temp = invsqrtf(temp);
@@ -274,6 +277,69 @@ color rayTrace2(lightRay *viewRay, world *worldScene) {
             color temp = colorCoef(contrast, &output);
             return addColors(&output, &temp);
         }
+		
+		if (scalarProduct(&surfaceNormal, &viewRay->direction) < 0.0f) {
+			surfaceNormal = vectorScale(1.0f, &surfaceNormal);
+		} else if (scalarProduct(&surfaceNormal, &viewRay->direction) > 0.0f) {
+			surfaceNormal = vectorScale(-1.0f, &surfaceNormal);
+		}
+		
+		lightRay bouncedRay, cameraRay;
+		bouncedRay.start = hitPoint;
+		cameraRay.start = hitPoint;
+		cameraRay.direction = subtractVectors(&worldScene->camera.pos, &hitPoint);
+		double cameraProjection = scalarProduct(&cameraRay.direction, &hitPoint);
+		double cameraDistance = scalarProduct(&cameraRay.direction, &cameraRay.direction);
+		double camTemp = cameraDistance;
+		camTemp = invsqrtf(camTemp);
+		cameraRay.direction = vectorScale(camTemp, &cameraRay.direction);
+		cameraProjection = camTemp * cameraProjection;
+		
+		unsigned int j;
+		for (j = 0; j < worldScene->lightAmount; ++j) {
+			lightSphere currentLight = worldScene->lights[j];
+			bouncedRay.direction = subtractVectors(&currentLight.pos, &hitPoint);
+			double lightProjection = scalarProduct(&bouncedRay.direction, &surfaceNormal);
+			if (lightProjection <= 0.0f) continue;
+			double lightDistance = scalarProduct(&bouncedRay.direction, &bouncedRay.direction);
+			double lightTemp = lightDistance;
+			if (temp == 0.0f) continue;
+			lightTemp = invsqrtf(lightTemp);
+			bouncedRay.direction = vectorScale(lightTemp, &bouncedRay.direction);
+			lightProjection = lightTemp * lightProjection;
+			
+			bool inShadow = false;
+			double tempDistance = lightDistance;
+			unsigned int k;
+			for (k = 0; k < worldScene->polygonAmount; ++k) {
+				if (rayIntersectsWithPolygon(&bouncedRay, &worldScene->polys[k], &tempDistance, &polyNormal)) {
+					inShadow = true;
+					break;
+				}
+			}
+			
+			for (k = 0; k < worldScene->sphereAmount; ++k) {
+				if (rayIntersectsWithSphere(&bouncedRay, &worldScene->spheres[k], &tempDistance)) {
+					inShadow = true;
+					break;
+				}
+			}
+			
+			if (!inShadow) {
+				float specularFactor = scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
+				float diffuseFactor = scalarProduct(&bouncedRay.direction, &surfaceNormal) * contrast;
+				
+				output.red += specularFactor * diffuseFactor * currentLight.intensity.red * currentMaterial.diffuse.red;
+				output.green += specularFactor * diffuseFactor * currentLight.intensity.green * currentMaterial.diffuse.green;
+				output.blue += specularFactor * diffuseFactor * currentLight.intensity.blue * currentMaterial.diffuse.blue;
+			}
+		}
+		contrast *= currentMaterial.reflectivity;
+		double reflect = 2.0f * scalarProduct(&viewRay->direction, &surfaceNormal);
+		viewRay->start = hitPoint;
+		vector tempVec = vectorScale(reflect, &surfaceNormal);
+		viewRay->direction = subtractVectors(&viewRay->direction, &tempVec);
+		bounces++;
         
     }
     return output;
@@ -428,6 +494,7 @@ void *renderThread(void *arg) {
 	int limits[] = {(tinfo->thread_num * sectionSize), (tinfo->thread_num * sectionSize) + sectionSize};
 	
 	for (y = limits[0]; y < limits[1]; y++) {
+		updateProgress(y, limits[1], limits[0]);
 		for (x = 0; x < worldScene->camera.width; x++) {
 			color output = {0.0f,0.0f,0.0f,0.0f};
             double fragX, fragY;
@@ -496,6 +563,30 @@ void *renderThread(void *arg) {
 		}
 	}
 	pthread_exit((void*) arg);
+}
+
+void updateProgress(int y, int max, int min) {
+	if (y == 0.1*(max - min)) {
+		printf("10%%\n");
+	} else if (y == 0.2*(max - min)) {
+		printf("20%%\n");
+	} else if (y == 0.3*(max - min)) {
+		printf("30%%\n");
+	} else if (y == 0.4*(max - min)) {
+		printf("40%%\n");
+	} else if (y == 0.5*(max - min)) {
+		printf("50%%\n");
+	} else if (y == 0.6*(max - min)) {
+		printf("60%%\n");
+	} else if (y == 0.7*(max - min)) {
+		printf("70%%\n");
+	} else if (y == 0.8*(max - min)) {
+		printf("80%%\n");
+	} else if (y == 0.9*(max - min)) {
+		printf("90%%\n");
+	} else if (y == (max - min)-1) {
+		printf("100%%\n");
+	}
 }
 
 int getSysCores() {
