@@ -71,7 +71,7 @@ void saveBmpFromArray(const char *filename, const unsigned char *imgData, unsign
 	fclose(f);
 }
 
-void encodePNG(const char *filename, const unsigned char *imgData, unsigned width, unsigned height) {
+void encodePNGFromArray(const char *filename, const unsigned char *imgData, unsigned width, unsigned height) {
     unsigned char *flippedData = NULL;
     flippedData = (unsigned char*)malloc(4 * width * height);
     memset(flippedData, 0, 4 * width * height);

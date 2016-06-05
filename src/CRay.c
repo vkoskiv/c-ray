@@ -17,6 +17,7 @@
  Implement proper animation
  Rewrite main function
  finish raytrace2
+ "targa"
  */
 
 #include <pthread.h>
@@ -43,6 +44,7 @@ int animationFrameCount = 0;
 //Prototypes
 void *renderThread(void *arg);
 void updateProgress(int y, int max, int min);
+void printDuration(double time);
 color rayTrace(lightRay *incidentRay, world *worldScene);
 color rayTrace2(lightRay *incidentRay, world *worldScene);
 int getSysCores();
@@ -162,7 +164,7 @@ int main(int argc, char *argv[]) {
 		}
 		
 		time(&stop);
-		printf("Finished render in %.0f seconds.\n", difftime(stop, start));
+		printDuration(difftime(stop, start));
 		
 		printf("%lu light bounces total\n",bounceCount);
 		printf("Saving result\n");
@@ -190,7 +192,7 @@ int main(int argc, char *argv[]) {
         } else {
             sprintf(buf, "../output/rendered_%d.png", currentFrame);
             printf("%s\n", buf);
-            encodePNG(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+            encodePNGFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
         }
         
 		long bytes = 3 * worldScene->camera.width * worldScene->camera.height;
@@ -586,6 +588,17 @@ void updateProgress(int y, int max, int min) {
 		printf("90%%\n");
 	} else if (y == (max - min)-1) {
 		printf("100%%\n");
+	}
+}
+
+void printDuration(double time) {
+	if (time <= 60) {
+		printf("Finished render in %.0f seconds.\n", time);
+	} else if (time <= 3600) {
+		printf("Finished render in %.0f minute", time/60);
+		if (time/60 > 1.9) printf("s.\n"); else printf(".\n");
+	} else {
+		printf("Finished render in %.0f hours.\n", (time/60)/60);
 	}
 }
 

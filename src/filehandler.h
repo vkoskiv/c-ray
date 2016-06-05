@@ -17,7 +17,7 @@ void saveImageFromArray(const char *filename, const unsigned char *imgdata, unsi
 //Saves the data from a given array to a BMP file.
 void saveBmpFromArray(const char *filename, const unsigned char *imgData, unsigned width, unsigned height);
 
-//Encodes data from a given array to a BMP file.
-void encodePNG(const char *filename, const unsigned char *imgData, unsigned width, unsigned height);
+//Encodes data from a given array to a PNG file.
+void encodePNGFromArray(const char *filename, const unsigned char *imgData, unsigned width, unsigned height);
 
 #endif /* defined(__C_Ray__filehandler__) */
