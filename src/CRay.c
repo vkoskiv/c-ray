@@ -596,7 +596,7 @@ void printDuration(double time) {
 		printf("Finished render in %.0f seconds.\n", time);
 	} else if (time <= 3600) {
 		printf("Finished render in %.0f minute", time/60);
-		if (time/60 > 1.9) printf("s.\n"); else printf(".\n");
+		if (time/60 > 1) printf("s.\n"); else printf(".\n");
 	} else {
 		printf("Finished render in %.0f hours.\n", (time/60)/60);
 	}
