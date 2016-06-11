@@ -18,6 +18,7 @@
  Rewrite main function
  finish raytrace2
  "targa"
+ Test
  */
 
 #include <pthread.h>
