@@ -142,6 +142,14 @@ int buildScene(world *scene, char *inputFileName) {
 					scene->camera.bounces = bounces;
 				}
 				
+				if (strncmp(trim_whitespace(line), "frameCount", 10) == 0) {
+					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer);
+					if (token == NULL)
+						logHandler(sceneParseErrorCamera);
+					int frameCount = (int)strtol(savePointer, (char**)NULL, 10);
+					scene->camera.frameCount = frameCount;
+				}
+				
 				if (strncmp(trim_whitespace(line), "posX", 4) == 0) {
 					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer);
 					if (token == NULL)

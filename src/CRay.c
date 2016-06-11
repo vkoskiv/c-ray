@@ -18,7 +18,6 @@
  Rewrite main function
  finish raytrace2
  "targa"
- Test
  */
 
 #include <pthread.h>
@@ -40,12 +39,13 @@ world *worldScene = NULL;
 unsigned char *imgData = NULL;
 unsigned long bounceCount = 0;
 int sectionSize = 0;
-int animationFrameCount = 0;
+int currentFrame;
 
 //Prototypes
 void *renderThread(void *arg);
 void updateProgress(int y, int max, int min);
 void printDuration(double time);
+int getFileSize(char *fileName);
 color rayTrace(lightRay *incidentRay, world *worldScene);
 color rayTrace2(lightRay *incidentRay, world *worldScene);
 int getSysCores();
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 	srand48(time(NULL));
 	
 	//Animation
-	for (int currentFrame = 0; currentFrame < kFrameCount; currentFrame++) {
+	do {
 		//This is a timer to elapse how long a render takes per frame
 		time(&start);
 		
@@ -81,6 +81,30 @@ int main(int argc, char *argv[]) {
 		sceneObject.polys = NULL;
 		sceneObject.lights = NULL;
 		worldScene = &sceneObject; //Assign to global variable
+		
+		char *fileName = NULL;
+		//Build the scene
+		if (argc == 2) {
+			fileName = argv[1];
+		} else {
+			logHandler(sceneParseErrorNoPath);
+		}
+		
+		//Build the scene
+		switch (buildScene(worldScene, fileName)) {
+			case -1:
+				logHandler(sceneBuildFailed);
+				break;
+			case -2:
+				logHandler(sceneParseErrorMalloc);
+				break;
+			case 4:
+				logHandler(sceneDebugEnabled);
+				return 0;
+				break;
+			default:
+				break;
+		}
 		
 		//Create threads
 		threadInfo *tinfo;
@@ -93,30 +117,6 @@ int main(int argc, char *argv[]) {
 			logHandler(threadMallocFailed);
 			return -1;
 		}
-		
-        char *fileName = NULL;
-		//Build the scene
-        if (argc == 2) {
-             fileName = argv[1];
-        } else {
-            logHandler(sceneParseErrorNoPath);
-        }
-		
-		//Build the scene
-        switch (buildScene(worldScene, fileName)) {
-            case -1:
-                logHandler(sceneBuildFailed);
-                break;
-            case -2:
-                logHandler(sceneParseErrorMalloc);
-                break;
-            case 4:
-                logHandler(sceneDebugEnabled);
-                return 0;
-                break;
-            default:
-                break;
-        }
 		
 		if (worldScene->camera.forceSingleCore) renderThreads = 1;
         
@@ -168,7 +168,6 @@ int main(int argc, char *argv[]) {
 		printDuration(difftime(stop, start));
 		
 		printf("%lu light bounces total\n",bounceCount);
-		printf("Saving result\n");
 		//Save image data to a file
 		//String manipulation is lovely in C
 		//FIXME: This crashes if frame count is over 9999
@@ -184,21 +183,40 @@ int main(int argc, char *argv[]) {
         
         if (worldScene->camera.outputFileType == ppm) {
             sprintf(buf, "../output/rendered_%d.ppm", currentFrame);
-            printf("%s\n", buf);
+            printf("Saving result in \"%s\"\n", buf);
             saveImageFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
         } else if (worldScene->camera.outputFileType == bmp){
             sprintf(buf, "../output/rendered_%d.bmp", currentFrame);
-            printf("%s\n", buf);
+            printf("Saving result in \"%s\"\n", buf);
             saveBmpFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
         } else {
             sprintf(buf, "../output/rendered_%d.png", currentFrame);
-            printf("%s\n", buf);
+            printf("Saving result in \"%s\"\n", buf);
             encodePNGFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
         }
-        
-		long bytes = 3 * worldScene->camera.width * worldScene->camera.height;
-		long mBytes = (bytes / 1000) / 1000;
-		printf("Wrote %ld megabytes to file.\n",mBytes);
+		
+		//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
+		//This will work for all three image formats
+		long bytes, kilobytes, megabytes, gigabytes, terabytes; // <- Futureproofing?!
+		bytes = getFileSize(buf);
+		kilobytes = bytes / 1000;
+		megabytes = kilobytes / 1000;
+		gigabytes = megabytes / 1000;
+		terabytes = gigabytes / 1000;
+		
+		if (gigabytes > 1000) {
+			printf("Wrote %ldTB to file.\n", terabytes);
+		} else if (megabytes > 1000) {
+			printf("Wrote %ldGB to file.\n", gigabytes);
+		} else if (kilobytes > 1000) {
+			printf("Wrote %ldMB to file.\n", megabytes);
+		} else if (bytes > 1000) {
+			printf("Wrote %ldKB to file.\n", kilobytes);
+		} else {
+			printf("Wrote %ldB to file.\n", bytes);
+		}
+		
+		currentFrame++;
 		
 		//Free memory
 		if (imgData)
@@ -211,7 +229,8 @@ int main(int argc, char *argv[]) {
 			free(worldScene->polys);
 		if (worldScene->materials)
 			free(worldScene->materials);
-	}
+	} while (currentFrame < worldScene->camera.frameCount);
+	
     if (kFrameCount > 1) {
         printf("Animation render finished\n");
     } else {
@@ -601,6 +620,15 @@ void printDuration(double time) {
 	} else {
 		printf("Finished render in %.0f hours.\n", (time/60)/60);
 	}
+}
+
+int getFileSize(char *fileName) {
+	FILE *file;
+	file = fopen(fileName, "r");
+	fseek(file, 0L, SEEK_END);
+	int size = (int)ftell(file);
+	fclose(file);
+	return size;
 }
 
 int getSysCores() {

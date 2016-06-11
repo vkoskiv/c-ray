@@ -10,12 +10,14 @@ camera() {
 	perspective = conic
 	FOV = 80.0
 	contrast = 1.0
+	#Antialiasing is not working currently, and it slows down renders. Keep at false.
 	antialiased = false
 	forceSingleCore = false
 	#bmp, png or ppm
 	fileFormat = png
 	supersampling = 10
 	bounces = 3
+	frameCount = 1
 
 	#Camera view ray origin
 	posX = 940
@@ -29,8 +31,8 @@ camera() {
 
 	#7680x4320 for 8K
 	#4096x2160 for full-height 4K
-	resolutionX = 7680
-	resolutionY = 4320
+	resolutionX = 2560
+	resolutionY = 1600
 }
 
 material() {
