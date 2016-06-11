@@ -169,8 +169,6 @@ int main(int argc, char *argv[]) {
 		
 		printf("%lu light bounces total\n",bounceCount);
 		//Save image data to a file
-		//String manipulation is lovely in C
-		//FIXME: This crashes if frame count is over 9999
 		int bufSize;
 		if (currentFrame < 100) {
 			bufSize = 26;
@@ -197,6 +195,7 @@ int main(int argc, char *argv[]) {
 		
 		//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
 		//This will work for all three image formats
+		//TODO: Maybe throw this into a function
 		long bytes, kilobytes, megabytes, gigabytes, terabytes; // <- Futureproofing?!
 		bytes = getFileSize(buf);
 		kilobytes = bytes / 1000;
@@ -589,23 +588,32 @@ void *renderThread(void *arg) {
 
 void updateProgress(int y, int max, int min) {
 	if (y == 0.1*(max - min)) {
-		printf("10%%\n");
+		printf("10%%\r");
+		fflush(stdout);
 	} else if (y == 0.2*(max - min)) {
-		printf("20%%\n");
+		printf("20%%\r");
+		fflush(stdout);
 	} else if (y == 0.3*(max - min)) {
-		printf("30%%\n");
+		printf("30%%\r");
+		fflush(stdout);
 	} else if (y == 0.4*(max - min)) {
-		printf("40%%\n");
+		printf("40%%\r");
+		fflush(stdout);
 	} else if (y == 0.5*(max - min)) {
-		printf("50%%\n");
+		printf("50%%\r");
+		fflush(stdout);
 	} else if (y == 0.6*(max - min)) {
-		printf("60%%\n");
+		printf("60%%\r");
+		fflush(stdout);
 	} else if (y == 0.7*(max - min)) {
-		printf("70%%\n");
+		printf("70%%\r");
+		fflush(stdout);
 	} else if (y == 0.8*(max - min)) {
-		printf("80%%\n");
+		printf("80%%\r");
+		fflush(stdout);
 	} else if (y == 0.9*(max - min)) {
-		printf("90%%\n");
+		printf("90%%\r");
+		fflush(stdout);
 	} else if (y == (max - min)-1) {
 		printf("100%%\n");
 	}
