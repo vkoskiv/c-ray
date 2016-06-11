@@ -588,34 +588,34 @@ void *renderThread(void *arg) {
 
 void updateProgress(int y, int max, int min) {
 	if (y == 0.1*(max - min)) {
-		printf("10%%\r");
+		printf(" [==>-----------------](10%%)\r");
 		fflush(stdout);
 	} else if (y == 0.2*(max - min)) {
-		printf("20%%\r");
+		printf(" [====>---------------](20%%)\r");
 		fflush(stdout);
 	} else if (y == 0.3*(max - min)) {
-		printf("30%%\r");
+		printf(" [======>-------------](30%%)\r");
 		fflush(stdout);
 	} else if (y == 0.4*(max - min)) {
-		printf("40%%\r");
+		printf(" [========>-----------](40%%)\r");
 		fflush(stdout);
 	} else if (y == 0.5*(max - min)) {
-		printf("50%%\r");
+		printf(" [==========>---------](50%%)\r");
 		fflush(stdout);
 	} else if (y == 0.6*(max - min)) {
-		printf("60%%\r");
+		printf(" [============>-------](60%%)\r");
 		fflush(stdout);
 	} else if (y == 0.7*(max - min)) {
-		printf("70%%\r");
+		printf(" [==============>-----](70%%)\r");
 		fflush(stdout);
 	} else if (y == 0.8*(max - min)) {
-		printf("80%%\r");
+		printf(" [================>---](80%%)\r");
 		fflush(stdout);
 	} else if (y == 0.9*(max - min)) {
-		printf("90%%\r");
+		printf(" [==================>-](90%%)\r");
 		fflush(stdout);
 	} else if (y == (max - min)-1) {
-		printf("100%%\n");
+		printf(" [====================](100%%)\n");
 	}
 }
 
