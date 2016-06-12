@@ -15,7 +15,8 @@ camera() {
 	forceSingleCore = false
 	#bmp, png or ppm
 	fileFormat = png
-	supersampling = 10
+	#MSAA sample count
+	sampleCount = 10
 	bounces = 3
 	frameCount = 1
 
@@ -31,7 +32,7 @@ camera() {
 
 	#7680x4320 for 8K
 	#4096x2160 for full-height 4K
-	resolutionX = 3840
+	resolutionX = 4096
 	resolutionY = 2160
 }
 

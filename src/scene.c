@@ -126,12 +126,12 @@ int buildScene(world *scene, char *inputFileName) {
 					}
 				}
 				
-				if (strncmp(trim_whitespace(line), "supersampling", 13) == 0) {
+				if (strncmp(trim_whitespace(line), "sampleCount", 11) == 0) {
 					token = strtok_r(trim_whitespace(line), delimEquals, &savePointer);
 					if (token == NULL)
 						logHandler(sceneParseErrorCamera);
-					int supersampling = (int)strtol(savePointer, (char**)NULL, 10);
-					scene->camera.supersampling = supersampling;
+					int sampleCount = (int)strtol(savePointer, (char**)NULL, 10);
+					scene->camera.sampleCount = sampleCount;
 				}
 				
 				if (strncmp(trim_whitespace(line), "bounces", 7) == 0) {

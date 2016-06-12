@@ -30,7 +30,7 @@ typedef struct {
 	vector lookAt;
     bool antialiased;
 	bool forceSingleCore;
-    int supersampling;
+    int sampleCount;
     int frameCount;
     int currentFrame;
 	int bounces;

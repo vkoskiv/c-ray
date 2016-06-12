@@ -28,6 +28,7 @@ typedef enum {
 	sceneParseErrorMaterial,
     sceneParseErrorMalloc,
     sceneParseErrorNoPath,
+	dontTurnOnTheAntialiasingYouDoofus,
     defaultError
 }renderLog;
 

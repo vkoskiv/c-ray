@@ -518,11 +518,9 @@ void *renderThread(void *arg) {
 		updateProgress(y, limits[1], limits[0]);
 		for (x = 0; x < worldScene->camera.width; x++) {
 			color output = {0.0f,0.0f,0.0f,0.0f};
-            double fragX, fragY;
 			if (worldScene->camera.viewPerspective.projectionType == ortho) {
-				//Fix these
-				incidentRay.start.x = x;
-				incidentRay.start.y = y ;
+				incidentRay.start.x = x/2;
+				incidentRay.start.y = y/2;
 				incidentRay.start.z = worldScene->camera.pos.z;
 				
 				incidentRay.direction.x = 0;
@@ -551,7 +549,19 @@ void *renderThread(void *arg) {
 				incidentRay.direction = direction;
 				output = rayTrace(&incidentRay, worldScene);
             } else if (worldScene->camera.antialiased == true && worldScene->camera.viewPerspective.projectionType == conic) {
-                for (fragX = x; fragX < x + 1.0f; fragX += 0.5) {
+				/*int factor = sqrt(worldScene->camera.sampleCount);
+				double xmin = -0.0175;
+				double ymin = -0.0175;
+				double xmax =  0.0175;
+				double ymax =  0.0175;
+				double focal = 0.05;*/
+				
+				logHandler(dontTurnOnTheAntialiasingYouDoofus);
+				
+				/*for (int s = 0; s < worldScene->camera.sampleCount; s++) {
+					
+				}*/
+                /*for (fragX = x; fragX < x + 1.0f; fragX += 0.5) {
                     for (fragY = y; fragY < y + 1.0f; fragY += 0.5f) {
                         double focalLength = 0.0f;
                         if ((worldScene->camera.viewPerspective.projectionType == conic)
@@ -575,9 +585,8 @@ void *renderThread(void *arg) {
                             output = rayTrace(&incidentRay, worldScene);
                         }
                     }
-                }
+                }*/
             }
-            //imgData[(x + y*worldScene->camera.width)*3 + 3] = (unsigned char)min(output.alpha*255.0f, 255.0f);
 			imgData[(x + y*worldScene->camera.width)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
 			imgData[(x + y*worldScene->camera.width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
 			imgData[(x + y*worldScene->camera.width)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);

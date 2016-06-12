@@ -63,6 +63,10 @@ void logHandler(renderLog error) {
         case sceneParseErrorNoPath:
             logr("No input file path given!", sceneBuilder);
             break;
+		case dontTurnOnTheAntialiasingYouDoofus:
+			logr("You fucked up.", renderer);
+			print_trace();
+			break;
         default:
             logr("Something went wrong. Aborting.", defaultSource);
             print_trace();
