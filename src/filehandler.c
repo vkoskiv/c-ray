@@ -8,6 +8,9 @@
 
 #include "filehandler.h"
 
+//Prototypes for internal functions
+int getFileSize(char *fileName);
+
 void saveImageFromArray(const char *filename, const unsigned char *imgdata, unsigned width, unsigned height) {
 	//File pointer
 	FILE *f;
@@ -90,4 +93,67 @@ void encodePNGFromArray(const char *filename, const unsigned char *imgData, unsi
     unsigned error = lodepng_encode24_file(filename, flippedData, width, height);
     free(flippedData);
     if (error) printf("error %u: %s\n", error, lodepng_error_text(error));
+}
+
+char *writeImage(int currentFrame, world *worldScene, unsigned char *imgData) {
+	//Save image data to a file
+	int bufSize;
+	if (currentFrame < 100) {
+		bufSize = 26;
+	} else if (currentFrame < 1000) {
+		bufSize = 27;
+	} else {
+		bufSize = 28;
+	}
+	char *buf = (char*)calloc(sizeof(char), bufSize);
+	
+	if (worldScene->camera.outputFileType == ppm) {
+		sprintf(buf, "../output/rendered_%d.ppm", currentFrame);
+		printf("Saving result in \"%s\"\n", buf);
+		saveImageFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+	} else if (worldScene->camera.outputFileType == bmp){
+		sprintf(buf, "../output/rendered_%d.bmp", currentFrame);
+		printf("Saving result in \"%s\"\n", buf);
+		saveBmpFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+	} else {
+		sprintf(buf, "../output/rendered_%d.png", currentFrame);
+		printf("Saving result in \"%s\"\n", buf);
+		encodePNGFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+	}
+	return buf;
+}
+
+void printFileSize(char *fileName) {
+	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
+	//This will work for all three image formats
+	long bytes, kilobytes, megabytes, gigabytes, terabytes; // <- Futureproofing?!
+	bytes = getFileSize(fileName);
+	free(fileName);
+	kilobytes = bytes / 1000;
+	megabytes = kilobytes / 1000;
+	gigabytes = megabytes / 1000;
+	terabytes = gigabytes / 1000;
+	
+	if (gigabytes > 1000) {
+		printf("Wrote %ldTB to file.\n", terabytes);
+	} else if (megabytes > 1000) {
+		printf("Wrote %ldGB to file.\n", gigabytes);
+	} else if (kilobytes > 1000) {
+		printf("Wrote %ldMB to file.\n", megabytes);
+	} else if (bytes > 1000) {
+		printf("Wrote %ldKB to file.\n", kilobytes);
+	} else {
+		printf("Wrote %ldB to file.\n", bytes);
+	}
+
+}
+
+int getFileSize(char *fileName) {
+	FILE *file;
+	file = fopen(fileName, "r");
+	if (!file) return 0;
+	fseek(file, 0L, SEEK_END);
+	int size = (int)ftell(file);
+	fclose(file);
+	return size;
 }

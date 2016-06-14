@@ -37,7 +37,6 @@
 world *worldScene = NULL;
 //Raw image data array
 unsigned char *imgData = NULL;
-unsigned long bounceCount = 0;
 int sectionSize = 0;
 int currentFrame;
 
@@ -166,55 +165,8 @@ int main(int argc, char *argv[]) {
 		
 		time(&stop);
 		printDuration(difftime(stop, start));
-		
-		printf("%lu light bounces total\n",bounceCount);
-		//Save image data to a file
-		int bufSize;
-		if (currentFrame < 100) {
-			bufSize = 26;
-		} else if (currentFrame < 1000) {
-			bufSize = 27;
-		} else {
-			bufSize = 28;
-		}
-		char buf[bufSize];
-        
-        if (worldScene->camera.outputFileType == ppm) {
-            sprintf(buf, "../output/rendered_%d.ppm", currentFrame);
-            printf("Saving result in \"%s\"\n", buf);
-            saveImageFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
-        } else if (worldScene->camera.outputFileType == bmp){
-            sprintf(buf, "../output/rendered_%d.bmp", currentFrame);
-            printf("Saving result in \"%s\"\n", buf);
-            saveBmpFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
-        } else {
-            sprintf(buf, "../output/rendered_%d.png", currentFrame);
-            printf("Saving result in \"%s\"\n", buf);
-            encodePNGFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
-        }
-		
-		//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
-		//This will work for all three image formats
-		//TODO: Maybe throw this into a function
-		long bytes, kilobytes, megabytes, gigabytes, terabytes; // <- Futureproofing?!
-		bytes = getFileSize(buf);
-		kilobytes = bytes / 1000;
-		megabytes = kilobytes / 1000;
-		gigabytes = megabytes / 1000;
-		terabytes = gigabytes / 1000;
-		
-		if (gigabytes > 1000) {
-			printf("Wrote %ldTB to file.\n", terabytes);
-		} else if (megabytes > 1000) {
-			printf("Wrote %ldGB to file.\n", gigabytes);
-		} else if (kilobytes > 1000) {
-			printf("Wrote %ldMB to file.\n", megabytes);
-		} else if (bytes > 1000) {
-			printf("Wrote %ldKB to file.\n", kilobytes);
-		} else {
-			printf("Wrote %ldB to file.\n", bytes);
-		}
-		
+		//Write to file
+		printFileSize(writeImage(currentFrame, worldScene, imgData));
 		currentFrame++;
 		
 		//Free memory
@@ -274,7 +226,6 @@ color rayTrace2(lightRay *viewRay, world *worldScene) {
         
         //Calculate ray-object intersection point
         if (currentPoly.active) {
-            bounceCount++;
             vector scaled = vectorScale(maxDistance, &viewRay->direction);
             hitPoint = addVectors(&viewRay->start, &scaled);
             surfaceNormal = polyNormal;
@@ -284,7 +235,6 @@ color rayTrace2(lightRay *viewRay, world *worldScene) {
             surfaceNormal = vectorScale(temp, &surfaceNormal);
             currentMaterial = worldScene->materials[currentPoly.material];
         } else if (currentSphere.active) {
-            bounceCount++;
             vector scaled = vectorScale(maxDistance, &viewRay->direction);
             hitPoint = addVectors(&viewRay->start, &scaled);
             surfaceNormal = subtractVectors(&hitPoint, &currentSphere.pos);
@@ -401,7 +351,6 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		
 		//Ray-object intersection detection
 		if (currentSphere != -1) {
-			bounceCount++;
 			vector scaled = vectorScale(t, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
 			surfaceNormal = subtractVectors(&hitpoint, &worldScene->spheres[currentSphere].pos);
@@ -411,7 +360,6 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
 			currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].material];
 		} else if (currentPolygon != -1) {
-			bounceCount++;
 			vector scaled = vectorScale(t, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
 			surfaceNormal = polyNormal;
@@ -637,15 +585,6 @@ void printDuration(double time) {
 	} else {
 		printf("Finished render in %.0f hours.\n", (time/60)/60);
 	}
-}
-
-int getFileSize(char *fileName) {
-	FILE *file;
-	file = fopen(fileName, "r");
-	fseek(file, 0L, SEEK_END);
-	int size = (int)ftell(file);
-	fclose(file);
-	return size;
 }
 
 int getSysCores() {
