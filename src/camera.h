@@ -20,7 +20,6 @@ typedef struct {
 }perspective;
 
 typedef enum {
-	ppm,
 	bmp,
 	png
 }fileType;
@@ -31,6 +30,7 @@ typedef struct {
 	perspective viewPerspective;
 	vector pos;
 	vector lookAt;
+	unsigned char *imgData;
     bool antialiased;
 	bool forceSingleCore;
     int sampleCount;

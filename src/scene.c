@@ -81,8 +81,6 @@ int buildScene(world *scene, char *inputFileName) {
                     
                     if (strncmp(savePointer, "bmp", 3) == 0) {
 						scene->camera.fileType = bmp;
-                    } else if (strncmp(savePointer, "ppm", 3) == 0) {
-                        scene->camera.fileType = ppm;
                     }else if (strncmp(savePointer, "png", 3) == 0) {
                         scene->camera.fileType = png;
                     }

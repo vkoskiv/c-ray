@@ -15,9 +15,10 @@
  Texture mapping
  Tiled rendering
  Implement proper animation
- Rewrite main function
  finish raytrace2
  "targa"
+ Switch to vertex array implementation
+ Switch to modern type convention
  put imgData into worldScene
  */
 
@@ -36,10 +37,7 @@
 
 //Global variables
 world *worldScene = NULL;
-//Raw image data array
-unsigned char *imgData = NULL;
 int sectionSize = 0;
-int currentFrame;
 
 //Prototypes
 void *renderThread(void *arg);
@@ -60,27 +58,26 @@ int main(int argc, char *argv[]) {
 	
     int renderThreads = getSysCores();
 	
-	//Free image array for safety
-    if (imgData) free(imgData);
-	
 	time_t start, stop;
 	
 	//Seed RNGs
 	srand((int)time(NULL));
 	srand48(time(NULL));
 	
+	//Prepare the scene
+	world sceneObject;
+	sceneObject.materials = NULL;
+	sceneObject.spheres = NULL;
+	sceneObject.polys = NULL;
+	sceneObject.lights = NULL;
+	worldScene = &sceneObject; //Assign to global variable
+	
+	worldScene->camera.currentFrame = 0;
+	
 	//Animation
 	do {
 		//This is a timer to elapse how long a render takes per frame
 		time(&start);
-		
-		//Prepare the scene
-		world sceneObject;
-		sceneObject.materials = NULL;
-		sceneObject.spheres = NULL;
-		sceneObject.polys = NULL;
-		sceneObject.lights = NULL;
-		worldScene = &sceneObject; //Assign to global variable
 		
 		char *fileName = NULL;
 		//Build the scene
@@ -120,7 +117,7 @@ int main(int argc, char *argv[]) {
 		
 		if (worldScene->camera.forceSingleCore) renderThreads = 1;
         
-        printf("\nStarting C-ray renderer for frame %i\n\n", currentFrame);
+        printf("\nStarting C-ray renderer for frame %i\n\n", worldScene->camera.currentFrame);
 		printf("Rendering at %i x %i\n",worldScene->camera.width,worldScene->camera.height);
 		printf("Rendering with %d thread",renderThreads);
 		if (renderThreads > 1) {
@@ -133,10 +130,10 @@ int main(int argc, char *argv[]) {
 		printf("Using %i light bounces\n",worldScene->camera.bounces);
 		printf("Raytracing...\n");
 		//Allocate memory and create array of pixels for image data
-		imgData = (unsigned char*)malloc(4 * worldScene->camera.width * worldScene->camera.height);
-		memset(imgData, 0, 4 * worldScene->camera.width * worldScene->camera.height);
+		worldScene->camera.imgData = (unsigned char*)malloc(4 * worldScene->camera.width * worldScene->camera.height);
+		memset(worldScene->camera.imgData, 0, 4 * worldScene->camera.width * worldScene->camera.height);
 		
-        if (!imgData) logHandler(imageMallocFailed);
+        if (!worldScene->camera.imgData) logHandler(imageMallocFailed);
         
 		//Calculate section sizes for every thread, multiple threads can't render the same portion of an image
 		sectionSize = worldScene->camera.height / renderThreads;
@@ -167,12 +164,12 @@ int main(int argc, char *argv[]) {
 		time(&stop);
 		printDuration(difftime(stop, start));
 		//Write to file
-		writeImage(currentFrame, worldScene, imgData);
-		currentFrame++;
+		writeImage(worldScene);
+		worldScene->camera.currentFrame++;
 		
 		//Free memory
-		if (imgData)
-			free(imgData);
+		if (worldScene->camera.imgData)
+			free(worldScene->camera.imgData);
 		if (worldScene->lights)
 			free(worldScene->lights);
 		if (worldScene->spheres)
@@ -181,7 +178,7 @@ int main(int argc, char *argv[]) {
 			free(worldScene->polys);
 		if (worldScene->materials)
 			free(worldScene->materials);
-	} while (currentFrame < worldScene->camera.frameCount);
+	} while (worldScene->camera.currentFrame < worldScene->camera.frameCount);
 	
     if (kFrameCount > 1) {
         printf("Animation render finished\n");
@@ -536,9 +533,9 @@ void *renderThread(void *arg) {
                     }
                 }*/
             }
-			imgData[(x + y*worldScene->camera.width)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
-			imgData[(x + y*worldScene->camera.width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
-			imgData[(x + y*worldScene->camera.width)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);
+			worldScene->camera.imgData[(x + y*worldScene->camera.width)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
+			worldScene->camera.imgData[(x + y*worldScene->camera.width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
+			worldScene->camera.imgData[(x + y*worldScene->camera.width)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);
 		}
 	}
 	pthread_exit((void*) arg);
