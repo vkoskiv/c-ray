@@ -18,8 +18,6 @@
  finish raytrace2
  "targa"
  Switch to vertex array implementation
- Switch to modern type convention
- put imgData into worldScene
  */
 
 #include <pthread.h>
