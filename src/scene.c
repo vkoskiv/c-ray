@@ -80,11 +80,11 @@ int buildScene(world *scene, char *inputFileName) {
                         logHandler(sceneParseErrorCamera);
                     
                     if (strncmp(savePointer, "bmp", 3) == 0) {
-                        scene->camera.outputFileType = bmp;
+						scene->camera.fileType = bmp;
                     } else if (strncmp(savePointer, "ppm", 3) == 0) {
-                        scene->camera.outputFileType = ppm;
+                        scene->camera.fileType = ppm;
                     }else if (strncmp(savePointer, "png", 3) == 0) {
-                        scene->camera.outputFileType = png;
+                        scene->camera.fileType = png;
                     }
                 }
 				

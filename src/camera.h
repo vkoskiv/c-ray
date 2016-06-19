@@ -19,12 +19,15 @@ typedef struct {
 	double FOV;
 }perspective;
 
+typedef enum {
+	ppm,
+	bmp,
+	png
+}fileType;
+
 typedef struct {
-#define ppm 0
-#define bmp 1
-#define png 2
 	int height, width;
-    unsigned char outputFileType;
+	fileType fileType;
 	perspective viewPerspective;
 	vector pos;
 	vector lookAt;

@@ -18,6 +18,7 @@
  Rewrite main function
  finish raytrace2
  "targa"
+ put imgData into worldScene
  */
 
 #include <pthread.h>
@@ -166,7 +167,7 @@ int main(int argc, char *argv[]) {
 		time(&stop);
 		printDuration(difftime(stop, start));
 		//Write to file
-		printFileSize(writeImage(currentFrame, worldScene, imgData));
+		writeImage(currentFrame, worldScene, imgData);
 		currentFrame++;
 		
 		//Free memory

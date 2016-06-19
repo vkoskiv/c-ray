@@ -75,7 +75,9 @@ void saveBmpFromArray(const char *filename, const unsigned char *imgData, unsign
 }
 
 void encodePNGFromArray(const char *filename, const unsigned char *imgData, unsigned width, unsigned height) {
-    unsigned char *flippedData = NULL;
+	//C-Ray saves image data into the matrix top-down, PNG renders it down-up, so we flip each
+	//vertical line before encoding it to file.
+	unsigned char *flippedData = NULL;
     flippedData = (unsigned char*)malloc(4 * width * height);
     memset(flippedData, 0, 4 * width * height);
     
@@ -89,38 +91,9 @@ void encodePNGFromArray(const char *filename, const unsigned char *imgData, unsi
             flippedData[(x + fy*width)*3 + 0] = imgData[(x + y*width)*3 + 2];
         }
     }
-    
     unsigned error = lodepng_encode24_file(filename, flippedData, width, height);
     free(flippedData);
     if (error) printf("error %u: %s\n", error, lodepng_error_text(error));
-}
-
-char *writeImage(int currentFrame, world *worldScene, unsigned char *imgData) {
-	//Save image data to a file
-	int bufSize;
-	if (currentFrame < 100) {
-		bufSize = 26;
-	} else if (currentFrame < 1000) {
-		bufSize = 27;
-	} else {
-		bufSize = 28;
-	}
-	char *buf = (char*)calloc(sizeof(char), bufSize);
-	
-	if (worldScene->camera.outputFileType == ppm) {
-		sprintf(buf, "../output/rendered_%d.ppm", currentFrame);
-		printf("Saving result in \"%s\"\n", buf);
-		saveImageFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
-	} else if (worldScene->camera.outputFileType == bmp){
-		sprintf(buf, "../output/rendered_%d.bmp", currentFrame);
-		printf("Saving result in \"%s\"\n", buf);
-		saveBmpFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
-	} else {
-		sprintf(buf, "../output/rendered_%d.png", currentFrame);
-		printf("Saving result in \"%s\"\n", buf);
-		encodePNGFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
-	}
-	return buf;
 }
 
 void printFileSize(char *fileName) {
@@ -128,7 +101,7 @@ void printFileSize(char *fileName) {
 	//This will work for all three image formats
 	long bytes, kilobytes, megabytes, gigabytes, terabytes; // <- Futureproofing?!
 	bytes = getFileSize(fileName);
-	free(fileName);
+	if (fileName) free(fileName);
 	kilobytes = bytes / 1000;
 	megabytes = kilobytes / 1000;
 	gigabytes = megabytes / 1000;
@@ -145,7 +118,35 @@ void printFileSize(char *fileName) {
 	} else {
 		printf("Wrote %ldB to file.\n", bytes);
 	}
+	
+}
 
+void writeImage(int currentFrame, world *worldScene, unsigned char *imgData) {
+	//Save image data to a file
+	int bufSize;
+	if (currentFrame < 100) {
+		bufSize = 26;
+	} else if (currentFrame < 1000) {
+		bufSize = 27;
+	} else {
+		bufSize = 28;
+	}
+	char *buf = (char*)calloc(sizeof(char), bufSize);
+	
+	if (worldScene->camera.fileType == ppm) {
+		sprintf(buf, "../output/rendered_%d.ppm", currentFrame);
+		printf("Saving result in \"%s\"\n", buf);
+		saveImageFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+	} else if (worldScene->camera.fileType == bmp){
+		sprintf(buf, "../output/rendered_%d.bmp", currentFrame);
+		printf("Saving result in \"%s\"\n", buf);
+		saveBmpFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+	} else {
+		sprintf(buf, "../output/rendered_%d.png", currentFrame);
+		printf("Saving result in \"%s\"\n", buf);
+		encodePNGFromArray(buf, imgData, worldScene->camera.width, worldScene->camera.height);
+	}
+	printFileSize(buf);
 }
 
 int getFileSize(char *fileName) {
