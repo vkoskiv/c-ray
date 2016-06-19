@@ -10,3 +10,4 @@ cray
 *.png
 .swp
 test.obj.txt
+*.ppm
