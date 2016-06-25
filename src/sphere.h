@@ -18,9 +18,9 @@ typedef struct {
 	float radius;
 	int material;
     bool active;
-}sphereObject;
+}sphere;
 
 //Calculates intersection between a light ray and a sphere object;
-bool rayIntersectsWithSphere(lightRay *ray, sphereObject *sphere, double *t);
+bool rayIntersectsWithSphere(lightRay *ray, sphere *sphere, double *t);
 
 #endif /* defined(__C_Ray__sphere__) */

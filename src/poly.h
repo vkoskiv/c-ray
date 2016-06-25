@@ -13,24 +13,15 @@
 #include "vector.h"
 
 typedef struct {
-	vector v1, v2, v3; //Three vertices
-	int material;
+	int vertexIndex[MAX_VERTEX_COUNT];
+	int normalIndex[MAX_VERTEX_COUNT];
+	int textureIndex[MAX_VERTEX_COUNT];
+	int materialIndex;
+	int vertexCount;
     bool active;
-}polygonObject;
-
-typedef struct {
-    vector v1, v2, v3, v4;
-    int material;
-    bool active;
-}quadObject;
-
-typedef struct {
-    int polyCount;
-    polygonObject *polyArray;
-    int material;
-}polyMesh;
+}poly;
 
 //Calculates intersection between a light ray and a polygon object. Returns true if intersection has happened.
-bool rayIntersectsWithPolygon(lightRay *r, polygonObject *t, double *result, vector *normal);
+bool rayIntersectsWithPolygon(lightRay *ray, poly *poly, double *result, vector *normal);
 
 #endif /* defined(__C_Ray__poly__) */

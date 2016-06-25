@@ -9,6 +9,9 @@
 #ifndef C_Ray_includes_h
 #define C_Ray_includes_h
 
+//Global constants
+#define MAX_VERTEX_COUNT 4
+
 //Master include file
 #include <stdio.h>
 #include <time.h>

@@ -8,10 +8,10 @@
 
 #include "poly.h"
 
-bool rayIntersectsWithPolygon(lightRay *ray, polygonObject *poly, double *result, vector *normal) {
+bool rayIntersectsWithPolygon(lightRay *ray, poly *poly, double *result, vector *normal) {
 	double det, invdet;
-	vector edge1 = subtractVectors(&poly->v2, &poly->v1);
-	vector edge2 = subtractVectors(&poly->v3, &poly->v1);
+	vector edge1 = subtractVectors(&vertexArray[poly->vertexIndex[1]], &vertexArray[poly->vertexIndex[0]]);
+	vector edge2 = subtractVectors(&vertexArray[poly->vertexIndex[2]], &vertexArray[poly->vertexIndex[0]]);
 	
 	//Find the cross product of edge 2 and the current ray direction
 	vector s1 = vectorCross(&ray->direction, &edge2);
@@ -24,7 +24,7 @@ bool rayIntersectsWithPolygon(lightRay *ray, polygonObject *poly, double *result
 	
 	invdet = 1/det;
 	
-	vector s2 = subtractVectors(&ray->start, &poly->v1);
+	vector s2 = subtractVectors(&ray->start, &vertexArray[poly->vertexIndex[0]]);
 	double u = scalarProduct(&s2, &s1) * invdet;
 	if (u < 0 || u > 1) {
 		return false;
@@ -42,7 +42,7 @@ bool rayIntersectsWithPolygon(lightRay *ray, polygonObject *poly, double *result
 		return false;
 	}
 	
-    *result = temp - 0.005; //This is to fix floating point precision error artifacts
+	*result = temp - 0.005; //This is to fix floating point precision error artifacts
 	*normal = vectorCross(&edge2, &edge1);
 	
 	return true;

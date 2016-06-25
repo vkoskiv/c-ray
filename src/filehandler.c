@@ -15,7 +15,7 @@ void saveBmpFromArray(const char *filename, world *worldScene) {
 	int i;
 	int error;
 	FILE *f;
-	int filesize = 54 + 3*worldScene->camera.width*worldScene->camera.height;
+	int filesize = 54 + 3*worldScene->camera->width*worldScene->camera->height;
 	
 	unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
 	unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
@@ -28,15 +28,15 @@ void saveBmpFromArray(const char *filename, world *worldScene) {
 	bmpfileheader[5] = (unsigned char)(filesize>>24);
 	
 	//create header width and height info
-	bmpinfoheader[ 4] = (unsigned char)(worldScene->camera.width    );
-	bmpinfoheader[ 5] = (unsigned char)(worldScene->camera.width>>8 );
-	bmpinfoheader[ 6] = (unsigned char)(worldScene->camera.width>>16);
-	bmpinfoheader[ 7] = (unsigned char)(worldScene->camera.width>>24);
+	bmpinfoheader[ 4] = (unsigned char)(worldScene->camera->width    );
+	bmpinfoheader[ 5] = (unsigned char)(worldScene->camera->width>>8 );
+	bmpinfoheader[ 6] = (unsigned char)(worldScene->camera->width>>16);
+	bmpinfoheader[ 7] = (unsigned char)(worldScene->camera->width>>24);
 	
-	bmpinfoheader[ 8] = (unsigned char)(worldScene->camera.height    );
-	bmpinfoheader[ 9] = (unsigned char)(worldScene->camera.height>>8 );
-	bmpinfoheader[10] = (unsigned char)(worldScene->camera.height>>16);
-	bmpinfoheader[11] = (unsigned char)(worldScene->camera.height>>24);
+	bmpinfoheader[ 8] = (unsigned char)(worldScene->camera->height    );
+	bmpinfoheader[ 9] = (unsigned char)(worldScene->camera->height>>8 );
+	bmpinfoheader[10] = (unsigned char)(worldScene->camera->height>>16);
+	bmpinfoheader[11] = (unsigned char)(worldScene->camera->height>>24);
 	
 	f = fopen(filename,"wb");
 	error = (unsigned int)fwrite(bmpfileheader,1,14,f);
@@ -48,13 +48,13 @@ void saveBmpFromArray(const char *filename, world *worldScene) {
 		printf("Error writing BMP info header data\n");
 	}
 	
-	for (i = 0; i < worldScene->camera.height; i++) {
-		error = (unsigned int)fwrite(worldScene->camera.imgData+(worldScene->camera.width*(i)*3),3,worldScene->camera.width,f);
-		if (error != worldScene->camera.width) {
+	for (i = 0; i < worldScene->camera->height; i++) {
+		error = (unsigned int)fwrite(worldScene->camera->imgData+(worldScene->camera->width*(i)*3),3,worldScene->camera->width,f);
+		if (error != worldScene->camera->width) {
 			printf("Error writing image line to BMP\n");
 		}
-		error = (unsigned int)fwrite(bmppadding,1,(4-(worldScene->camera.width*3)%4)%4,f);
-		if (error != (4-(worldScene->camera.width*3)%4)%4) {
+		error = (unsigned int)fwrite(bmppadding,1,(4-(worldScene->camera->width*3)%4)%4,f);
+		if (error != (4-(worldScene->camera->width*3)%4)%4) {
 			printf("Error writing BMP padding data\n");
 		}
 	}
@@ -65,20 +65,20 @@ void encodePNGFromArray(const char *filename, world *worldScene) {
 	//C-Ray saves image data into the matrix top-down, PNG renders it down-up, so we flip each
 	//vertical line before encoding it to file.
 	unsigned char *flippedData = NULL;
-    flippedData = (unsigned char*)malloc(4 * worldScene->camera.width * worldScene->camera.height);
-    memset(flippedData, 0, 4 * worldScene->camera.width	* worldScene->camera.height);
+    flippedData = (unsigned char*)malloc(4 * worldScene->camera->width * worldScene->camera->height);
+    memset(flippedData, 0, 4 * worldScene->camera->width	* worldScene->camera->height);
     
-    int fy = worldScene->camera.height;
-    for (int y = 0; y < worldScene->camera.height; y++) {
+    int fy = worldScene->camera->height;
+    for (int y = 0; y < worldScene->camera->height; y++) {
         if (fy > 0) fy--;
-        for (int x = 0; x < worldScene->camera.width; x++) {
+        for (int x = 0; x < worldScene->camera->width; x++) {
             //Note, PNG is big-endian, so we flip the color byte values (...*3+ X)
-            flippedData[(x + fy*worldScene->camera.width)*3 + 2] = worldScene->camera.imgData[(x + y*worldScene->camera.width)*3 + 0];
-            flippedData[(x + fy*worldScene->camera.width)*3 + 1] = worldScene->camera.imgData[(x + y*worldScene->camera.width)*3 + 1];
-            flippedData[(x + fy*worldScene->camera.width)*3 + 0] = worldScene->camera.imgData[(x + y*worldScene->camera.width)*3 + 2];
+            flippedData[(x + fy*worldScene->camera->width)*3 + 2] = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 0];
+            flippedData[(x + fy*worldScene->camera->width)*3 + 1] = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 1];
+            flippedData[(x + fy*worldScene->camera->width)*3 + 0] = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2];
         }
     }
-    unsigned error = lodepng_encode24_file(filename, flippedData, worldScene->camera.width, worldScene->camera.height);
+    unsigned error = lodepng_encode24_file(filename, flippedData, worldScene->camera->width, worldScene->camera->height);
     free(flippedData);
     if (error) printf("error %u: %s\n", error, lodepng_error_text(error));
 }
@@ -111,21 +111,21 @@ void printFileSize(char *fileName) {
 void writeImage(world *worldScene) {
 	//Save image data to a file
 	int bufSize;
-	if (worldScene->camera.currentFrame < 100) {
+	if (worldScene->camera->currentFrame < 100) {
 		bufSize = 26;
-	} else if (worldScene->camera.currentFrame < 1000) {
+	} else if (worldScene->camera->currentFrame < 1000) {
 		bufSize = 27;
 	} else {
 		bufSize = 28;
 	}
 	char *buf = (char*)calloc(sizeof(char), bufSize);
 	
-	if (worldScene->camera.fileType == bmp){
-		sprintf(buf, "../output/rendered_%d.bmp", worldScene->camera.currentFrame);
+	if (worldScene->camera->fileType == bmp){
+		sprintf(buf, "../output/rendered_%d.bmp", worldScene->camera->currentFrame);
 		printf("Saving result in \"%s\"\n", buf);
 		saveBmpFromArray(buf, worldScene);
-	} else  if (worldScene->camera.fileType == png){
-		sprintf(buf, "../output/rendered_%d.png", worldScene->camera.currentFrame);
+	} else  if (worldScene->camera->fileType == png){
+		sprintf(buf, "../output/rendered_%d.png", worldScene->camera->currentFrame);
 		printf("Saving result in \"%s\"\n", buf);
 		encodePNGFromArray(buf, worldScene);
 	}

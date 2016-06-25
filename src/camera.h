@@ -12,10 +12,13 @@
 #include "includes.h"
 #include "vector.h"
 
+typedef enum {
+	conic,
+	ortho
+}projectionType;
+
 typedef struct {
-#define conic 0
-#define ortho 1
-	unsigned char projectionType;
+	projectionType projectionType;
 	double FOV;
 }perspective;
 
@@ -28,8 +31,8 @@ typedef struct {
 	int height, width;
 	fileType fileType;
 	perspective viewPerspective;
-	vector pos;
-	vector lookAt;
+	int posIndex;
+	int lookAtIndex;
 	unsigned char *imgData;
     bool antialiased;
 	bool forceSingleCore;

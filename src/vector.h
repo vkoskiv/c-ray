@@ -16,11 +16,21 @@ typedef struct {
 	double x, y, z;
 }vector;
 
+extern int vertexCount;
+extern int normalCount;
+extern int textureCount;
+extern vector *vertexArray;
+extern vector *normalArray;
+extern vector *textureArray;
+
 //Simulated light ray
 typedef struct {
     vector start;
     vector direction;
 }lightRay;
+
+//Return a vector with given coordinates
+vector vectorWithPos(double x, double y, double z);
 
 //Add two vectors and return the resulting vector
 vector addVectors(vector *v1, vector *v2);

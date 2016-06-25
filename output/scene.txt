@@ -13,7 +13,7 @@ camera() {
 	#Antialiasing is not working currently, and it slows down renders. Keep at false.
 	antialiased = false
 	forceSingleCore = false
-	#bmp, png or ppm
+	#bmp or png
 	fileFormat = png
 	#MSAA sample count
 	sampleCount = 10
@@ -32,8 +32,8 @@ camera() {
 
 	#7680x4320 for 8K
 	#4096x2160 for full-height 4K
-	resolutionX = 1920
-	resolutionY = 1080
+	resolutionX = 2560
+	resolutionY = 1600
 }
 
 material() {

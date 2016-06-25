@@ -8,7 +8,20 @@
 
 #include "vector.h"
 
+int vertexCount;
+int normalCount;
+int textureCount;
+vector *vertexArray;
+vector *normalArray;
+vector *textureArray;
+
 /* Vector Functions */
+
+//Create and return a vector with position values. Useful for hard-coded arrays.
+vector vectorWithPos(double x, double y, double z) {
+	vector result = {x, y, z};
+	return result;
+}
 
 //Add two vectors and return the resulting vector
 vector addVectors(vector *v1, vector *v2) {

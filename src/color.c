@@ -8,7 +8,23 @@
 
 #include "color.h"
 
+//Some standard colours
+color redColor =   {1.0, 0.0, 0.0};
+color greenColor = {0.0, 1.0, 0.0};
+color blueColor =  {0.0, 0.0, 1.0};
+color blackColor = {0.0, 0.0, 0.0};
+color whiteColor = {1.0, 1.0, 1.0};
+
 //Color functions
+//Return a color with given values
+color colorWithValues(double red, double green, double blue, double alpha) {
+	color result;
+	result.red = red;
+	result.green = green;
+	result.blue = blue;
+	result.alpha = alpha;
+	return result;
+}
 
 //Multiply two colors
 color multiplyColors(color *c1, color *c2) {

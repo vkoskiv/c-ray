@@ -19,8 +19,17 @@
 
 //material
 typedef struct {
+	char name[MATERIAL_NAME_SIZE];
+	char textureFilename[OBJ_FILENAME_LENGTH];
+	color ambient;
     color diffuse;
-    float reflectivity;
+	color specular;
+	double reflectivity;
+	double refractivity;
+	double transparency;
+	double sharpness;
+	double glossiness;
+	double refractionIndex;
 }material;
 
 //World
@@ -28,18 +37,24 @@ typedef struct {
 	color *ambientColor;
 	lightSphere *lights;
 	material *materials;
-	sphereObject *spheres;
-	polygonObject *polys;
-	camera camera;
+	sphere *spheres;
+	camera *camera;
+	
+	poly *polys;
 	
 	int sphereAmount;
 	int polygonAmount;
 	int materialAmount;
 	int lightAmount;
+	int objCount;
 }world;
+
+int testBuild(world *scene, char *inputFileName);
 
 //This takes an input file, tokenizes it and applies it to a world object.
 int buildScene(world *scene, char *inputFileName);
+
+int vertexBuild(world *scene);
 
 int loadOBJ(world *scene, char *inputFileName);
 

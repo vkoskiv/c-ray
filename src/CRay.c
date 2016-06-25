@@ -17,6 +17,7 @@
  Implement proper animation
  finish raytrace2
  "targa"
+ Add multiple camera support
  Switch to vertex array implementation
  */
 
@@ -54,7 +55,7 @@ typedef struct {
 
 int main(int argc, char *argv[]) {
 	
-    int renderThreads = getSysCores();
+	int renderThreads = getSysCores();
 	
 	time_t start, stop;
 	
@@ -70,7 +71,7 @@ int main(int argc, char *argv[]) {
 	sceneObject.lights = NULL;
 	worldScene = &sceneObject; //Assign to global variable
 	
-	worldScene->camera.currentFrame = 0;
+	//worldScene->camera->currentFrame = 0;
 	
 	//Animation
 	do {
@@ -86,7 +87,7 @@ int main(int argc, char *argv[]) {
 		}
 		
 		//Build the scene
-		switch (buildScene(worldScene, fileName)) {
+		switch (testBuild(worldScene, "test")) {
 			case -1:
 				logHandler(sceneBuildFailed);
 				break;
@@ -113,28 +114,28 @@ int main(int argc, char *argv[]) {
 			return -1;
 		}
 		
-		if (worldScene->camera.forceSingleCore) renderThreads = 1;
-        
-        printf("\nStarting C-ray renderer for frame %i\n\n", worldScene->camera.currentFrame);
-		printf("Rendering at %i x %i\n",worldScene->camera.width,worldScene->camera.height);
+		if (worldScene->camera->forceSingleCore) renderThreads = 1;
+		
+		printf("\nStarting C-ray renderer for frame %i\n\n", worldScene->camera->currentFrame);
+		printf("Rendering at %i x %i\n",worldScene->camera->width,worldScene->camera->height);
 		printf("Rendering with %d thread",renderThreads);
 		if (renderThreads > 1) {
 			printf("s");
 		}
 		
-		if (worldScene->camera.forceSingleCore) printf(" (Forced single thread)\n");
+		if (worldScene->camera->forceSingleCore) printf(" (Forced single thread)\n");
 		else printf("\n");
 		
-		printf("Using %i light bounces\n",worldScene->camera.bounces);
+		printf("Using %i light bounces\n",worldScene->camera->bounces);
 		printf("Raytracing...\n");
 		//Allocate memory and create array of pixels for image data
-		worldScene->camera.imgData = (unsigned char*)malloc(4 * worldScene->camera.width * worldScene->camera.height);
-		memset(worldScene->camera.imgData, 0, 4 * worldScene->camera.width * worldScene->camera.height);
+		worldScene->camera->imgData = (unsigned char*)malloc(4 * worldScene->camera->width * worldScene->camera->height);
+		memset(worldScene->camera->imgData, 0, 4 * worldScene->camera->width * worldScene->camera->height);
 		
-        if (!worldScene->camera.imgData) logHandler(imageMallocFailed);
-        
+		if (!worldScene->camera->imgData) logHandler(imageMallocFailed);
+		
 		//Calculate section sizes for every thread, multiple threads can't render the same portion of an image
-		sectionSize = worldScene->camera.height / renderThreads;
+		sectionSize = worldScene->camera->height / renderThreads;
 		if ((sectionSize % 2) != 0) logHandler(invalidThreadCount);
 		pthread_attr_init(&attributes);
 		pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_JOINABLE);
@@ -163,11 +164,11 @@ int main(int argc, char *argv[]) {
 		printDuration(difftime(stop, start));
 		//Write to file
 		writeImage(worldScene);
-		worldScene->camera.currentFrame++;
+		worldScene->camera->currentFrame++;
 		
 		//Free memory
-		if (worldScene->camera.imgData)
-			free(worldScene->camera.imgData);
+		if (worldScene->camera->imgData)
+			free(worldScene->camera->imgData);
 		if (worldScene->lights)
 			free(worldScene->lights);
 		if (worldScene->spheres)
@@ -176,7 +177,7 @@ int main(int argc, char *argv[]) {
 			free(worldScene->polys);
 		if (worldScene->materials)
 			free(worldScene->materials);
-	} while (worldScene->camera.currentFrame < worldScene->camera.frameCount);
+	} while (worldScene->camera->currentFrame < worldScene->camera->frameCount);
 	
     if (kFrameCount > 1) {
         printf("Animation render finished\n");
@@ -186,17 +187,17 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-color rayTrace2(lightRay *viewRay, world *worldScene) {
+/*color rayTrace2(lightRay *viewRay, world *worldScene) {
     color output = *worldScene->ambientColor;
     int bounces = 0;
-    double contrast = worldScene->camera.contrast;
+    double contrast = worldScene->camera->contrast;
     
-    while ((contrast > 0.0f) && (bounces <= worldScene->camera.bounces)) {
+    while ((contrast > 0.0f) && (bounces <= worldScene->camera->bounces)) {
         double maxDistance = 20000.0f;
         double temp;
         
-        sphereObject currentSphere;
-        polygonObject currentPoly;
+        sphere currentSphere;
+        poly currentPoly;
         material currentMaterial;
         vector polyNormal, hitPoint, surfaceNormal;
         
@@ -229,7 +230,7 @@ color rayTrace2(lightRay *viewRay, world *worldScene) {
             if (temp == 0.0f) break;
             temp = invsqrtf(temp);
             surfaceNormal = vectorScale(temp, &surfaceNormal);
-            currentMaterial = worldScene->materials[currentPoly.material];
+            currentMaterial = worldScene->materials[currentPoly.materialIndex];
         } else if (currentSphere.active) {
             vector scaled = vectorScale(maxDistance, &viewRay->direction);
             hitPoint = addVectors(&viewRay->start, &scaled);
@@ -254,7 +255,7 @@ color rayTrace2(lightRay *viewRay, world *worldScene) {
 		lightRay bouncedRay, cameraRay;
 		bouncedRay.start = hitPoint;
 		cameraRay.start = hitPoint;
-		cameraRay.direction = subtractVectors(&worldScene->camera.pos, &hitPoint);
+		cameraRay.direction = subtractVectors(&vertexArray[worldScene->camera->posIndex], &hitPoint);
 		double cameraProjection = scalarProduct(&cameraRay.direction, &hitPoint);
 		double cameraDistance = scalarProduct(&cameraRay.direction, &cameraRay.direction);
 		double camTemp = cameraDistance;
@@ -310,13 +311,13 @@ color rayTrace2(lightRay *viewRay, world *worldScene) {
         
     }
     return output;
-}
+}*/
 
 color rayTrace(lightRay *incidentRay, world *worldScene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
 	color output = {0.0f,0.0f,0.0f};
 	int bounces = 0;
-	double contrast = worldScene->camera.contrast;
+	double contrast = worldScene->camera->contrast;
 
 	do {
 		//Find the closest intersection first
@@ -363,7 +364,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			if (temp == 0.0f) break;
 			temp = invsqrtf(temp);
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
-			currentMaterial = worldScene->materials[worldScene->polys[currentPolygon].material];
+			currentMaterial = worldScene->materials[worldScene->polys[currentPolygon].materialIndex];
 		} else {
 			//Ray didn't hit any object, set color to ambient
 			color temp = colorCoef(contrast, worldScene->ambientColor);
@@ -380,7 +381,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
         lightRay bouncedRay, cameraRay;
         bouncedRay.start = hitpoint;
         cameraRay.start = hitpoint;
-        cameraRay.direction = subtractVectors(&worldScene->camera.pos, &hitpoint);
+        cameraRay.direction = subtractVectors(&vertexArray[worldScene->camera->posIndex], &hitpoint);
         double cameraProjection = scalarProduct(&cameraRay.direction, &hitpoint);
         //if (cameraProjection <= 0.0f) continue;
         double cameraDistance = scalarProduct(&cameraRay.direction, &cameraRay.direction);
@@ -445,7 +446,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		
 		bounces++;
 		
-	} while ((contrast > 0.0f) && (bounces <= worldScene->camera.bounces));
+	} while ((contrast > 0.0f) && (bounces <= worldScene->camera->bounces));
 	
 	return output;
 }
@@ -460,40 +461,43 @@ void *renderThread(void *arg) {
 	
 	for (y = limits[0]; y < limits[1]; y++) {
 		updateProgress(y, limits[1], limits[0]);
-		for (x = 0; x < worldScene->camera.width; x++) {
+		for (x = 0; x < worldScene->camera->width; x++) {
 			color output = {0.0f,0.0f,0.0f,0.0f};
-			if (worldScene->camera.viewPerspective.projectionType == ortho) {
+			if (worldScene->camera->viewPerspective.projectionType == ortho) {
 				incidentRay.start.x = x/2;
 				incidentRay.start.y = y/2;
-				incidentRay.start.z = worldScene->camera.pos.z;
+				incidentRay.start.z = vertexArray[worldScene->camera->posIndex].z;
 				
 				incidentRay.direction.x = 0;
 				incidentRay.direction.y = 0;
 				incidentRay.direction.z = 1;
 				output = rayTrace(&incidentRay, worldScene);
-			} else if (worldScene->camera.antialiased == false && worldScene->camera.viewPerspective.projectionType == conic) {
+			} else if (worldScene->camera->antialiased == false && worldScene->camera->viewPerspective.projectionType == conic) {
 				double focalLength = 0.0f;
-				if ((worldScene->camera.viewPerspective.projectionType == conic)
-					&& worldScene->camera.viewPerspective.FOV > 0.0f
-					&& worldScene->camera.viewPerspective.FOV < 189.0f) {
-					focalLength = 0.5f * worldScene->camera.width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera.viewPerspective.FOV);
+				if ((worldScene->camera->viewPerspective.projectionType == conic)
+					&& worldScene->camera->viewPerspective.FOV > 0.0f
+					&& worldScene->camera->viewPerspective.FOV < 189.0f) {
+					focalLength = 0.5f * worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera->viewPerspective.FOV);
 				}
 				
-				vector direction = {((x - 0.5f * worldScene->camera.width)/focalLength) +
-					worldScene->camera.lookAt.x, ((y - 0.5f * worldScene->camera.height)/focalLength) +
-					worldScene->camera.lookAt.y, 1.0f};
+				/*vector direction = {((x - 0.5f * worldScene->camera->width)/focalLength) +
+					worldScene->camera->lookAt.x, ((y - 0.5f * worldScene->camera->height)/focalLength) +
+					worldScene->camera->lookAt.y, 1.0f};*/
+				
+				vector direction = {(x - 0.5f * worldScene->camera->width) / focalLength,
+									(y - 0.5f * worldScene->camera->height) / focalLength, 1.0f};
 				
 				double normal = scalarProduct(&direction, &direction);
 				if (normal == 0.0f)
 					break;
 				direction = vectorScale(invsqrtf(normal), &direction);
-				vector startPos = {worldScene->camera.pos.x, worldScene->camera.pos.y, worldScene->camera.pos.z};
+				vector startPos = vertexArray[worldScene->camera->posIndex];
                 incidentRay.start = startPos;
 				
 				incidentRay.direction = direction;
 				output = rayTrace(&incidentRay, worldScene);
-            } else if (worldScene->camera.antialiased == true && worldScene->camera.viewPerspective.projectionType == conic) {
-				/*int factor = sqrt(worldScene->camera.sampleCount);
+            } else if (worldScene->camera->antialiased == true && worldScene->camera->viewPerspective.projectionType == conic) {
+				/*int factor = sqrt(worldScene->camera->sampleCount);
 				double xmin = -0.0175;
 				double ymin = -0.0175;
 				double xmax =  0.0175;
@@ -502,19 +506,19 @@ void *renderThread(void *arg) {
 				
 				logHandler(dontTurnOnTheAntialiasingYouDoofus);
 				
-				/*for (int s = 0; s < worldScene->camera.sampleCount; s++) {
+				/*for (int s = 0; s < worldScene->camera->sampleCount; s++) {
 					
 				}*/
                 /*for (fragX = x; fragX < x + 1.0f; fragX += 0.5) {
                     for (fragY = y; fragY < y + 1.0f; fragY += 0.5f) {
                         double focalLength = 0.0f;
-                        if ((worldScene->camera.viewPerspective.projectionType == conic)
-                            && worldScene->camera.viewPerspective.FOV > 0.0f
-                            && worldScene->camera.viewPerspective.FOV < 189.0f) {
-                            focalLength = 0.5f * worldScene->camera.width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera.viewPerspective.FOV);
+                        if ((worldScene->camera->viewPerspective.projectionType == conic)
+                            && worldScene->camera->viewPerspective.FOV > 0.0f
+                            && worldScene->camera->viewPerspective.FOV < 189.0f) {
+                            focalLength = 0.5f * worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera->viewPerspective.FOV);
                             
-                            vector direction = {((fragX - 0.5f * worldScene->camera.width) / focalLength) + worldScene->camera.lookAt.x,
-                                                ((fragY - 0.5f * worldScene->camera.height) / focalLength) + worldScene->camera.lookAt.y,
+                            vector direction = {((fragX - 0.5f * worldScene->camera->width) / focalLength) + worldScene->camera->lookAt.x,
+                                                ((fragY - 0.5f * worldScene->camera->height) / focalLength) + worldScene->camera->lookAt.y,
                                                 1.0f
                                                 };
                             
@@ -522,7 +526,7 @@ void *renderThread(void *arg) {
                             if (normal == 0.0f)
                                 break;
                             direction = vectorScale(invsqrtf(normal), &direction);
-                            vector startPos = {worldScene->camera.pos.x, worldScene->camera.pos.y, worldScene->camera.pos.z};
+                            vector startPos = {worldScene->camera->pos.x, worldScene->camera->pos.y, worldScene->camera->pos.z};
                             incidentRay.start = startPos;
                             
 							incidentRay.direction = direction;
@@ -531,9 +535,9 @@ void *renderThread(void *arg) {
                     }
                 }*/
             }
-			worldScene->camera.imgData[(x + y*worldScene->camera.width)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
-			worldScene->camera.imgData[(x + y*worldScene->camera.width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
-			worldScene->camera.imgData[(x + y*worldScene->camera.width)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);
+			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
+			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
+			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);
 		}
 	}
 	pthread_exit((void*) arg);

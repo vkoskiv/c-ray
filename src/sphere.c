@@ -9,7 +9,7 @@
 #include "sphere.h"
 
 //Calculates intersection with a sphere and a light ray
-bool rayIntersectsWithSphere(lightRay *ray, sphereObject *sphere, double *t) {
+bool rayIntersectsWithSphere(lightRay *ray, sphere *sphere, double *t) {
 	bool intersects = false;
 	
 	//Vector dot product of the direction

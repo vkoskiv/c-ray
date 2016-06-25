@@ -10,7 +10,7 @@
 #include "poly.h"
 #include "vector.h"
 
-polyMesh *buildPlane(vector *corner1, vector *corner2, vector *corner3, vector *corner4) {
+/*polyMesh *buildPlane(vector *corner1, vector *corner2, vector *corner3, vector *corner4) {
     polyMesh *mesh = NULL;
     mesh->polyCount = 2;
     mesh->polyArray = (polygonObject*)malloc(sizeof(polygonObject) * mesh->polyCount);
@@ -30,4 +30,4 @@ int *translateMesh(polyMesh *mesh) {
 
 polyMesh *buildCube(vector *corner1, vector *corner2) {
     return NULL;
-}
+}*/

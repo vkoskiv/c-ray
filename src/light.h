@@ -10,14 +10,15 @@
 #define light_h
 
 #include "includes.h"
-#include "poly.h"
+//#include "poly.h"
+#include "vector.h"
 #include "color.h"
 
-typedef struct {
-    polygonObject p1;
-    polygonObject p2;
+/*typedef struct {
+    poly p1;
+    poly p2;
     color intensity;
-}lightPlane;
+}lightPlane;*/
 
 //Light source (point)
 typedef struct {
