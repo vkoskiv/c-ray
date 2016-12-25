@@ -17,7 +17,7 @@
 //Trims spaces and tabs from a char array
 char *trim_whitespace(char *inputLine);
 //Parses a scene file and allocates memory accordingly
-int allocMemory(world *scene, obj_scene_data objDATA,  char *inputFileName);
+int allocMemory(world *scene, char *inputFileName);
 
 /*int buildScene(world *scene, char *inputFileName) {
     printf("\nStarting C-ray Scene Parser 0.2\n");
@@ -31,6 +31,11 @@ int allocMemory(world *scene, obj_scene_data objDATA,  char *inputFileName);
 	int materialIndex = 0, sphereIndex = 0, polyIndex = 0, lightIndex = 0;
     if (allocMemory(scene, inputFileName) == -1)
         return -2;
+	
+	if (scene->objCount > 0) {
+		loadOBJ(scene, "filename here somehow -.-");
+	}
+	
     char line[255];
     while (fgets(line, sizeof(line), inputFile) != NULL) {
         //Discard comments
@@ -507,35 +512,35 @@ int testBuild(world *scene, char *inputFileName) {
 	//Hard coded vertices for this test
 	//Vertices
 	//FLOOR
-	vertexArray[0] = vectorWithPos(200, 300, 0);
-	vertexArray[1] = vectorWithPos(1720, 300, 0);
-	vertexArray[2] = vectorWithPos(200, 300, 2000);
-	vertexArray[3] = vectorWithPos(1720, 300, 2000);
+	vertexArray[0] = vectorWithPos(200,300,0);
+	vertexArray[1] = vectorWithPos(1720,300,0);
+	vertexArray[2] = vectorWithPos(200,300,2000);
+	vertexArray[3] = vectorWithPos(1720,300,2000);
 	//CEILING
-	vertexArray[4] = vectorWithPos(200, 840, 0);
-	vertexArray[5] = vectorWithPos(1720, 840, 0);
-	vertexArray[6] = vectorWithPos(200, 840, 2000);
-	vertexArray[7] = vectorWithPos(1720, 840, 2000);
+	vertexArray[4] = vectorWithPos(200,840,0);
+	vertexArray[5] = vectorWithPos(1720,840,0);
+	vertexArray[6] = vectorWithPos(200,840,2000);
+	vertexArray[7] = vectorWithPos(1720,840,2000);
 	
 	//MIRROR PLANE
-	vertexArray[8] = vectorWithPos(1420, 750, 1800);
-	vertexArray[9] = vectorWithPos(1420, 300, 1800);
-	vertexArray[10] = vectorWithPos(1620, 750, 1700);
-	vertexArray[11] = vectorWithPos(1620, 300, 1700);
+	vertexArray[8] = vectorWithPos(1420,750,1800);
+	vertexArray[9] = vectorWithPos(1420,300,1800);
+	vertexArray[10] = vectorWithPos(1620,750,1700);
+	vertexArray[11] = vectorWithPos(1620,300,1700);
 	//SHADOW TEST
-	vertexArray[12] = vectorWithPos(1000, 450, 1400);
-	vertexArray[13] = vectorWithPos(1300, 700, 1400);
-	vertexArray[14] = vectorWithPos(1000, 700, 1600);
+	vertexArray[12] = vectorWithPos(1000,450,1400);
+	vertexArray[13] = vectorWithPos(1300,700,1400);
+	vertexArray[14] = vectorWithPos(1000,700,1600);
 	//LIGHTS
-	vertexArray[15] = vectorWithPos(960, 400, 0);
-	vertexArray[16] = vectorWithPos(960, 500, 0);
+	vertexArray[15] = vectorWithPos(960,400,0);
+	vertexArray[16] = vectorWithPos(960,500,0);
 	//SPHERES
-	vertexArray[17] = vectorWithPos(650, 450, 1650);
-	vertexArray[18] = vectorWithPos(950, 350, 1000);
-	vertexArray[19] = vectorWithPos(1100, 350, 1000);
+	vertexArray[17] = vectorWithPos(650,450,1650);
+	vertexArray[18] = vectorWithPos(950,350,1000);
+	vertexArray[19] = vectorWithPos(1100,350,1000);
 	//CAMERA
-	vertexArray[20] = vectorWithPos(940, 480, 0);
-	vertexArray[21] = vectorWithPos(0, 0, 1);
+	vertexArray[20] = vectorWithPos(940,480,0);
+	vertexArray[21] = vectorWithPos(0,0,1);
 	
 	//1
 	//3
@@ -671,141 +676,7 @@ int testBuild(world *scene, char *inputFileName) {
 	return 0;
 }
 
-//Parse OBJ file into obj_parser lib data structure, then translate that to c-ray native data structures, then free memory.
-int loadOBJ(world *scene, char *inputFileName) {
-	
-	printf("\nStarting C-Ray OBJ converter 0.1\n");
-    obj_scene_data sceneData;
-    if (!parse_obj_scene(&sceneData, "../output/monkey.obj")) {
-        return 4;
-    }
-	printf("OBJ loaded, converting data structures");
-	
-	scene->sphereAmount = sceneData.sphere_count;
-	scene->polygonAmount = sceneData.face_count;
-	scene->materialAmount = sceneData.material_count;
-	scene->lightAmount = sceneData.light_point_count;
-	
-	vertexCount = sceneData.vertex_count;
-	vertexArray = (vector*)calloc(sceneData.vertex_count, sizeof(vector));
-	for (int i = 0; i < sceneData.vertex_count; i++) {
-		obj_vector *v = sceneData.vertex_list[i];
-		//FIXME: These are assuming the XYZ order of loadOBJ's vector.
-		vertexArray[i].x = v->e[0];
-		vertexArray[i].y = v->e[1];
-		vertexArray[i].z = v->e[2];
- 	}
-	
-	normalArray = (vector*)calloc(sceneData.vertex_normal_count, sizeof(vector));
-	for (int i = 0; i < sceneData.vertex_normal_count; i++) {
-		obj_vector *n = sceneData.vertex_normal_list[i];
-		//FIXME: These are assuming the XYZ order of loadOBJ's vector.
-		normalArray[i].x = n->e[0];
-		normalArray[i].y = n->e[1];
-		normalArray[i].z = n->e[2];
-	}
-	
-	textureArray = (vector*)calloc(sceneData.vertex_texture_count, sizeof(vector));
-	for (int i = 0; i < sceneData.vertex_texture_count; i++) {
-		obj_vector *t = sceneData.vertex_texture_list[i];
-		//FIXME: These are assuming the XYZ order of loadOBJ's vector.
-		textureArray[i].x = t->e[0];
-		textureArray[i].y = t->e[1];
-		textureArray[i].z = t->e[2];
-	}
-	
-	scene->materials = (material*)calloc(scene->materialAmount, sizeof(material));
-	for (int i = 0; i < sceneData.material_count; i++) {
-		obj_material *m = sceneData.material_list[i];
-		
-		//TODO: Add other material params here as we add them to the renderer. For now we only grab the color
-		scene->materials[i].diffuse.red = m->diff[0];
-		scene->materials[i].diffuse.green = m->diff[1];
-		scene->materials[i].diffuse.blue = m->diff[2];
-		
-		scene->materials[i].reflectivity = m->reflect;
-	}
-	
-	scene->polys = (poly*)calloc(scene->polygonAmount, sizeof(poly));
-	for (int i = 0; i < sceneData.face_count; i++) {
-		obj_face *f = sceneData.face_list[i];
-		scene->polys[i].vertexCount = f->vertex_count;
-		scene->polys[i].materialIndex = f->material_index;
-		for (int a = 0; a < MAX_VERTEX_COUNT; a++) {
-			scene->polys[i].vertexIndex[a] = f->vertex_index[a];
-		}
-		for (int b = 0; b < MAX_VERTEX_COUNT; b++) {
-			scene->polys[i].normalIndex[b] = f->normal_index[b];
-		}
-		for (int c = 0; c < MAX_VERTEX_COUNT; c++) {
-			scene->polys[i].textureIndex[c] = f->texture_index[c];
-		}
-	}
-	
-	scene->spheres = (sphere*)calloc(scene->sphereAmount, sizeof(sphere));
-	scene->sphereAmount = sceneData.sphere_count;
-	for (int i = 0; i < sceneData.sphere_count; i++) {
-		obj_sphere *s = sceneData.sphere_list[i];
-		//FIXME: Spheres aren't using new vertexArray format yet!
-		scene->spheres[i].pos.x = vertexArray[s->pos_index].x;
-		scene->spheres[i].pos.y = vertexArray[s->pos_index].y;
-		scene->spheres[i].pos.z = vertexArray[s->pos_index].z;
-		//scene->spheres[i].material;
-		//Calculate radius from length of 'up' normal
-		//FIXME: Very likely completely wrong and doesn't work!
-		vector pos, up;
-		pos = scene->spheres[i].pos;
-		up.x = vertexArray[sceneData.sphere_list[i]->up_normal_index].x;
-		up.y = vertexArray[sceneData.sphere_list[i]->up_normal_index].y;
-		up.z = vertexArray[sceneData.sphere_list[i]->up_normal_index].z;
-		vector sub = subtractVectors(&up, &pos);
-		double rad = sub.x + sub.y + sub.z;
-		scene->spheres[i].radius = rad;
-	}
-	
-	scene->lights = (lightSphere*)calloc(scene->lightAmount, sizeof(lightSphere));
-	scene->lightAmount = sceneData.light_point_count;
-	for (int i = 0; i < sceneData.light_point_count; i++) {
-		obj_light_point *l = sceneData.light_point_list[i];
-		scene->lights[i].pos.x = vertexArray[l->pos_index].x;
-		scene->lights[i].pos.y = vertexArray[l->pos_index].y;
-		scene->lights[i].pos.z = vertexArray[l->pos_index].z;
-		
-		//FIXME: Fix this temporary value
-		scene->lights[i].intensity.red = 1;
-		scene->lights[i].intensity.green = 1;
-		scene->lights[i].intensity.blue = 1;
-		
-	}
-	
-	scene->camera = (camera*)calloc(1, sizeof(camera));
-	obj_camera *c = sceneData.camera;
-	scene->camera->posIndex = c->camera_pos_index;
-	scene->camera->lookAtIndex = c->camera_look_point_index;
-	
-	//FIXME: Get these hard coded values from scene.txt, when it's a config file
-	scene->camera->width = 1280;
-	scene->camera->height = 720;
-	scene->camera->fileType = png;
-	scene->camera->viewPerspective.projectionType = conic ;
-	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->antialiased = false;
-	scene->camera->forceSingleCore = false;
-	scene->camera->sampleCount = 10; //Unused
-	scene->camera->frameCount = 1;
-	scene->camera->bounces = 3;
-	scene->camera->contrast = 1.0;
-	
-	scene->ambientColor = (color*)calloc(1, sizeof(color));
-	scene->ambientColor->red = 0.4;
-	scene->ambientColor->green = 0.6;
-	scene->ambientColor->blue = 0.6;
-	
-	delete_obj_data(&sceneData);
-    return 0;
-}
-
-int allocMemory(world *scene, obj_scene_data objDATA,  char *inputFileName) {
+int allocMemory(world *scene, char *inputFileName) {
     int materialCount = 0, lightCount = 0, polyCount = 0, sphereCount = 0, objCount = 0;
     FILE *inputFile = fopen(inputFileName, "r");
     if (!inputFile)
