@@ -487,19 +487,19 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 2560;
-	scene->camera->height = 1600;
+	scene->camera->width = 1920;
+	scene->camera->height = 1080;
 	scene->camera->fileType = png;
 	scene->camera->viewPerspective.projectionType = conic ;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->antialiased = false;
 	scene->camera->forceSingleCore = false;
+	scene->camera->showGUI = false;
 	scene->camera->sampleCount = 10; //Unused
 	scene->camera->frameCount = 1;
 	scene->camera->bounces = 3;
 	scene->camera->contrast = 1.0;
-	scene->camera->posIndex = 20;
-	scene->camera->lookAtIndex = 21;
+	scene->camera->pos = vectorWithPos(940, 480, 0);
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->red = 0.4;
@@ -539,13 +539,7 @@ int testBuild(world *scene, char *inputFileName) {
 	vertexArray[18] = vectorWithPos(950,350,1000);
 	vertexArray[19] = vectorWithPos(1100,350,1000);
 	//CAMERA
-	vertexArray[20] = vectorWithPos(940,480,0);
-	vertexArray[21] = vectorWithPos(0,0,1);
-	
-	//1
-	//3
-	//5
-	//7
+	//vertexArray[20] = vectorWithPos(940,480,0);
 	
 	//POLYGONS
 	

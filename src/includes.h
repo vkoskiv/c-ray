@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <execinfo.h>
+#include <SDL2/SDL.h>
 #include "lodepng.h"
 #include "obj_parser.h"
 

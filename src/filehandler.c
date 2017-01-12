@@ -8,6 +8,8 @@
 
 #include "filehandler.h"
 
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+
 //Prototypes for internal functions
 int getFileSize(char *fileName);
 
@@ -61,24 +63,24 @@ void saveBmpFromArray(const char *filename, world *worldScene) {
 	fclose(f);
 }
 
-void encodePNGFromArray(const char *filename, world *worldScene) {
+void encodePNGFromArray(const char *filename, unsigned char *imgData, int width, int height) {
 	//C-Ray saves image data into the matrix top-down, PNG renders it down-up, so we flip each
 	//vertical line before encoding it to file.
 	unsigned char *flippedData = NULL;
-    flippedData = (unsigned char*)malloc(4 * worldScene->camera->width * worldScene->camera->height);
-    memset(flippedData, 0, 4 * worldScene->camera->width	* worldScene->camera->height);
+    flippedData = (unsigned char*)malloc(4 * width * height);
+    memset(flippedData, 0, 4 * width	* height);
     
-    int fy = worldScene->camera->height;
-    for (int y = 0; y < worldScene->camera->height; y++) {
+    int fy = height;
+    for (int y = 0; y < height; y++) {
         if (fy > 0) fy--;
-        for (int x = 0; x < worldScene->camera->width; x++) {
+        for (int x = 0; x < width; x++) {
             //Note, PNG is big-endian, so we flip the color byte values (...*3+ X)
-            flippedData[(x + fy*worldScene->camera->width)*3 + 2] = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 0];
-            flippedData[(x + fy*worldScene->camera->width)*3 + 1] = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 1];
-            flippedData[(x + fy*worldScene->camera->width)*3 + 0] = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2];
+            flippedData[(x + fy*width)*3 + 2] = imgData[(x + y*width)*3 + 0];
+            flippedData[(x + fy*width)*3 + 1] = imgData[(x + y*width)*3 + 1];
+            flippedData[(x + fy*width)*3 + 0] = imgData[(x + y*width)*3 + 2];
         }
     }
-    unsigned error = lodepng_encode24_file(filename, flippedData, worldScene->camera->width, worldScene->camera->height);
+    unsigned error = lodepng_encode24_file(filename, flippedData, width, height);
     free(flippedData);
     if (error) printf("error %u: %s\n", error, lodepng_error_text(error));
 }
@@ -127,7 +129,11 @@ void writeImage(world *worldScene) {
 	} else  if (worldScene->camera->fileType == png){
 		sprintf(buf, "../output/rendered_%d.png", worldScene->camera->currentFrame);
 		printf("Saving result in \"%s\"\n", buf);
-		encodePNGFromArray(buf, worldScene);
+		if (worldScene->camera->antialiased) {
+			encodePNGFromArray(buf, worldScene->camera->scaledData, worldScene->camera->width, worldScene->camera->height);
+		} else {
+			encodePNGFromArray(buf, worldScene->camera->imgData, worldScene->camera->width, worldScene->camera->height);
+		}
 	}
 	printFileSize(buf);
 }

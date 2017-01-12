@@ -31,11 +31,13 @@ typedef struct {
 	int height, width;
 	fileType fileType;
 	perspective viewPerspective;
-	int posIndex;
-	int lookAtIndex;
+	vector pos;
+	vector lookAt;
 	unsigned char *imgData;
+	unsigned char *scaledData;
     bool antialiased;
 	bool forceSingleCore;
+	bool showGUI;
     int sampleCount;
     int frameCount;
     int currentFrame;
