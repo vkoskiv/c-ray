@@ -487,15 +487,16 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 1920;
-	scene->camera->height = 1080;
+	scene->camera->width = 1280;
+	scene->camera->height = 720;
 	scene->camera->fileType = png;
 	scene->camera->viewPerspective.projectionType = conic ;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->antialiased = false;
 	scene->camera->forceSingleCore = false;
 	scene->camera->showGUI = false;
-	scene->camera->sampleCount = 10; //Unused
+	scene->camera->sampleCount = 20;
+	scene->camera->areaLights = true;
 	scene->camera->frameCount = 1;
 	scene->camera->bounces = 3;
 	scene->camera->contrast = 1.0;
@@ -528,12 +529,12 @@ int testBuild(world *scene, char *inputFileName) {
 	vertexArray[10] = vectorWithPos(1620,750,1700);
 	vertexArray[11] = vectorWithPos(1620,300,1700);
 	//SHADOW TEST
-	vertexArray[12] = vectorWithPos(1000,450,1400);
-	vertexArray[13] = vectorWithPos(1300,700,1400);
-	vertexArray[14] = vectorWithPos(1000,700,1600);
+	vertexArray[12] = vectorWithPos(1000,450,1100);
+	vertexArray[13] = vectorWithPos(1300,700,1100);
+	vertexArray[14] = vectorWithPos(1000,700,1300);
 	//LIGHTS
-	vertexArray[15] = vectorWithPos(960,400,0);
-	vertexArray[16] = vectorWithPos(960,500,0);
+	vertexArray[15] = vectorWithPos(1160,400,0);
+	vertexArray[16] = vectorWithPos(760,500,0);
 	//SPHERES
 	vertexArray[17] = vectorWithPos(650,450,1650);
 	vertexArray[18] = vectorWithPos(950,350,1000);
@@ -650,9 +651,11 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->lights = (lightSphere*)calloc(scene->lightAmount, sizeof(lightSphere));
 	scene->lights[0].pos = vertexArray[15];
 	scene->lights[0].intensity = colorWithValues(1, 1, 1, 0);
+	scene->lights[0].radius = 13;
 	
 	scene->lights[1].pos = vertexArray[16];
 	scene->lights[1].intensity = colorWithValues(0.8, 0.8, 0.8, 0);
+	scene->lights[1].radius = 42;
 	
 	scene->spheres = (sphere*)calloc(scene->sphereAmount, sizeof(sphere));
 	scene->spheres[0].pos = vertexArray[17];

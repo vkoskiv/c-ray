@@ -36,6 +36,7 @@ typedef struct {
 	unsigned char *imgData;
 	unsigned char *scaledData;
     bool antialiased;
+	bool areaLights;
 	bool forceSingleCore;
 	bool showGUI;
     int sampleCount;

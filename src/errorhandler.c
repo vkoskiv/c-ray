@@ -67,6 +67,10 @@ void logHandler(renderLog error) {
 			logr("You fucked up.", renderer);
 			print_trace();
 			break;
+		case renderErrorInvalidSampleCount:
+			logr("Samples set to less than 1, aborting.", renderer);
+			print_trace();
+			break;
         default:
             logr("Something went wrong. Aborting.", defaultSource);
             print_trace();

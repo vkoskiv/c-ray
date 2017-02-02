@@ -46,6 +46,7 @@ int getFileSize(char *fileName);
 color rayTrace(lightRay *incidentRay, world *worldScene);
 color rayTrace2(lightRay *incidentRay, world *worldScene);
 int getSysCores();
+vector getRandomVecOnRadius(vector center, float radius);
 //Antialiasing
 color getPixel(world *worldScene, int x, int y);
 color avgColors(color c1, color c2, color c3, color c4);
@@ -156,13 +157,16 @@ int main(int argc, char *argv[]) {
 		}
 		
 		if (worldScene->camera->forceSingleCore) renderThreads = 1;
+		//Verify sample count
+		if (worldScene->camera->sampleCount < 1) logHandler(renderErrorInvalidSampleCount);
+		if (!worldScene->camera->areaLights) worldScene->camera->sampleCount = 1;
 		
 		worldScene->camera->currentFrame = frame;
 		frame++;
 		
 		printf("\nStarting C-ray renderer for frame %i\n\n", worldScene->camera->currentFrame);
 		printf("Rendering at %i x %i\n",worldScene->camera->width,worldScene->camera->height);
-		printf("Using antialiasing (MSAA 2x)\n");
+		printf("Rendering with %i samples", worldScene->camera->sampleCount);
 		printf("Rendering with %d thread",renderThreads);
 		if (renderThreads > 1) {
 			printf("s");
@@ -326,51 +330,56 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
         //Find the value of the light at this point (Scary!)
         unsigned int j;
         for (j = 0; j < lightSourceAmount; ++j) {
-            lightSphere currentLight = worldScene->lights[j];
-            bouncedRay.direction = subtractVectors(&currentLight.pos, &hitpoint);
-            
-            double lightProjection = scalarProduct(&bouncedRay.direction, &surfaceNormal);
-            if (lightProjection <= 0.0f) continue;
-            
-            double lightDistance = scalarProduct(&bouncedRay.direction, &bouncedRay.direction);
-            double temp = lightDistance;
-            
-            if (temp == 0.0f) continue;
-            temp = invsqrtf(temp);
-            bouncedRay.direction = vectorScale(temp, &bouncedRay.direction);
-            lightProjection = temp * lightProjection;
-            
-            //Calculate shadows
-            bool inShadow = false;
-            double t = lightDistance;
-            unsigned int k;
-            for (k = 0; k < sphereAmount; ++k) {
-                if (rayIntersectsWithSphere(&bouncedRay, &worldScene->spheres[k], &t)) {
-                    inShadow = true;
-                    break;
-                }
-            }
-            
-            for (k = 0; k < polygonAmount; ++k) {
-                if (rayIntersectsWithPolygon(&bouncedRay, &worldScene->polys[k], &t, &polyNormal)) {
-                    inShadow = true;
-                    break;
-                }
-            }
-            if (!inShadow) {
-                //TODO: Calculate specular reflection
-                float specularFactor = 1.0; //scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
-                
-                //Calculate Lambert diffusion
-                float diffuseFactor = scalarProduct(&bouncedRay.direction, &surfaceNormal) * contrast;
-                output.red += specularFactor * diffuseFactor * currentLight.intensity.red * currentMaterial.diffuse.red;
-                output.green += specularFactor * diffuseFactor * currentLight.intensity.green * currentMaterial.diffuse.green;
-                output.blue += specularFactor * diffuseFactor * currentLight.intensity.blue * currentMaterial.diffuse.blue;
-            }
+			lightSphere currentLight = worldScene->lights[j];
+			vector lightPos;
+			if (worldScene->camera->areaLights)
+				lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
+			else
+				lightPos = currentLight.pos;
+			bouncedRay.direction = subtractVectors(&lightPos, &hitpoint);
+			
+			double lightProjection = scalarProduct(&bouncedRay.direction, &surfaceNormal);
+			if (lightProjection <= 0.0f) continue;
+			
+			double lightDistance = scalarProduct(&bouncedRay.direction, &bouncedRay.direction);
+			double temp = lightDistance;
+			
+			if (temp == 0.0f) continue;
+			temp = invsqrtf(temp);
+			bouncedRay.direction = vectorScale(temp, &bouncedRay.direction);
+			lightProjection = temp * lightProjection;
+			
+			//Calculate shadows
+			bool inShadow = false;
+			double t = lightDistance;
+			unsigned int k;
+			for (k = 0; k < sphereAmount; ++k) {
+				if (rayIntersectsWithSphere(&bouncedRay, &worldScene->spheres[k], &t)) {
+					inShadow = true;
+					break;
+				}
+			}
+			
+			for (k = 0; k < polygonAmount; ++k) {
+				if (rayIntersectsWithPolygon(&bouncedRay, &worldScene->polys[k], &t, &polyNormal)) {
+					inShadow = true;
+					break;
+				}
+			}
+			if (!inShadow) {
+				//TODO: Calculate specular reflection
+				float specularFactor = 1.0; //scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
+				
+				//Calculate Lambert diffusion
+				float diffuseFactor = scalarProduct(&bouncedRay.direction, &surfaceNormal) * contrast;
+				output.red += specularFactor * diffuseFactor * currentLight.intensity.red * currentMaterial.diffuse.red;
+				output.green += specularFactor * diffuseFactor * currentLight.intensity.green * currentMaterial.diffuse.green;
+				output.blue += specularFactor * diffuseFactor * currentLight.intensity.blue * currentMaterial.diffuse.blue;
+			}
         }
         //Iterate over the reflection
         contrast *= currentMaterial.reflectivity;
-        
+		
         //Calculate reflected ray start and direction
         double reflect = 2.0f * scalarProduct(&incidentRay->direction, &surfaceNormal);
         incidentRay->start = hitpoint;
@@ -395,7 +404,9 @@ void *renderThread(void *arg) {
 	for (y = limits[0]; y < limits[1]; y++) {
 		updateProgress(y, limits[1], limits[0]);
 		for (x = 0; x < worldScene->camera->width; x++) {
+			color sample = {0.0f,0.0f,0.0f,0.0f};
 			color output = {0.0f,0.0f,0.0f,0.0f};
+			int completedSamples = 0;
 			if (worldScene->camera->viewPerspective.projectionType == ortho) {
 				incidentRay.start.x = x/2;
 				incidentRay.start.y = y/2;
@@ -404,7 +415,7 @@ void *renderThread(void *arg) {
 				incidentRay.direction.x = 0;
 				incidentRay.direction.y = 0;
 				incidentRay.direction.z = 1;
-				output = rayTrace(&incidentRay, worldScene);
+				sample = rayTrace(&incidentRay, worldScene);
 			} else if (worldScene->camera->viewPerspective.projectionType == conic) {
 				double focalLength = 0.0f;
 				if ((worldScene->camera->viewPerspective.projectionType == conic)
@@ -425,10 +436,17 @@ void *renderThread(void *arg) {
 					break;
 				direction = vectorScale(invsqrtf(normal), &direction);
 				vector startPos = worldScene->camera->pos;
-                incidentRay.start = startPos;
 				
-				incidentRay.direction = direction;
-				output = rayTrace(&incidentRay, worldScene);
+				while (completedSamples < worldScene->camera->sampleCount) {
+					incidentRay.start = startPos;
+					incidentRay.direction = direction;
+					sample = rayTrace(&incidentRay, worldScene);
+					output = addColors(&output, &sample);
+					completedSamples++;
+				}
+				output.red = output.red / worldScene->camera->sampleCount;
+				output.green = output.green / worldScene->camera->sampleCount;
+				output.blue = output.blue / worldScene->camera->sampleCount;
             }
 			
 			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
@@ -439,13 +457,41 @@ void *renderThread(void *arg) {
 	pthread_exit((void*) arg);
 }
 
+float GetRandomFloat(float Min, float Max) {
+	return ((((float)rand()) / (float)RAND_MAX) * (Max - Min)) + Min;
+}
+
+vector getRandomVecOnRadius(vector center, float radius) {
+	float x, y, z;
+	x = GetRandomFloat(-radius, radius);
+	y = GetRandomFloat(-radius, radius);
+	z = GetRandomFloat(-radius, radius);
+	return vectorWithPos(center.x + x, center.y + y, center.z + z);
+}
+
+vector getRandomVecOnHemisphere() {
+	float x, y, z, d;
+	do {
+		x = GetRandomFloat(-1, 1);
+		y = GetRandomFloat(-1, 1);
+		z = GetRandomFloat(-1, 1);
+		d = sqrtf(pow(x, 2)+pow(y, 2)+pow(z, 2));
+	} while(d>1);
+			
+	x=x/d;
+	y=y/d;
+	z=z/d;
+	return vectorWithPos(x, y, z);
+}
+
 //Antialiasing stuff
 
 color getPixel(world *worldScene, int x, int y) {
-	color output;
+	color output = {0.0f, 0.0f, 0.0f, 0.0f};
 	output.red = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2];
 	output.green = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 1];
 	output.blue = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 0];
+	output.alpha = 1.0f;
 	return output;
 }
 

@@ -29,6 +29,7 @@ typedef enum {
     sceneParseErrorMalloc,
     sceneParseErrorNoPath,
 	dontTurnOnTheAntialiasingYouDoofus,
+	renderErrorInvalidSampleCount,
     defaultError
 }renderLog;
 
