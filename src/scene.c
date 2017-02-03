@@ -481,21 +481,21 @@ int allocMemory(world *scene, char *inputFileName);
 
 int testBuild(world *scene, char *inputFileName) {
 	scene->  sphereAmount = 3;
-	scene-> polygonAmount = 13;//13;
+	scene-> polygonAmount = 13;
 	scene->materialAmount = 10;
-	scene->   lightAmount = 2;
+	scene->   lightAmount = 5;
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 1280;
-	scene->camera->height = 720;
+	scene->camera->width = 1920;
+	scene->camera->height = 1080;
 	scene->camera->fileType = png;
 	scene->camera->viewPerspective.projectionType = conic ;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->antialiased = false;
 	scene->camera->forceSingleCore = false;
 	scene->camera->showGUI = false;
-	scene->camera->sampleCount = 20;
+	scene->camera->sampleCount = 1000;
 	scene->camera->areaLights = true;
 	scene->camera->frameCount = 1;
 	scene->camera->bounces = 3;
@@ -507,7 +507,7 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	vertexCount = 22;
+	vertexCount = 23;
 	vertexArray = (vector*)calloc(vertexCount, sizeof(vector));
 	
 	//Hard coded vertices for this test
@@ -539,6 +539,12 @@ int testBuild(world *scene, char *inputFileName) {
 	vertexArray[17] = vectorWithPos(650,450,1650);
 	vertexArray[18] = vectorWithPos(950,350,1000);
 	vertexArray[19] = vectorWithPos(1100,350,1000);
+	//Extra RED
+	vertexArray[20] = vectorWithPos(640, 350, 600);
+	//Extra GREEN
+	vertexArray[21] = vectorWithPos(940, 350, 600);
+	//Extra BLUE
+	vertexArray[22] = vectorWithPos(1240, 350, 600);
 	//CAMERA
 	//vertexArray[20] = vectorWithPos(940,480,0);
 	
@@ -627,11 +633,11 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	//MATERIALS
 	scene->materials = (material*)calloc(scene->materialAmount, sizeof(material));
-	scene->materials[0].diffuse = colorWithValues(0.8, 0.1, 0.1, 0);
+	scene->materials[0].diffuse = colorWithValues(0.5, 0.1, 0.1, 0);
 	scene->materials[0].reflectivity = 0;
-	scene->materials[1].diffuse = colorWithValues(0.1, 0.8, 0.1, 0);
+	scene->materials[1].diffuse = colorWithValues(0.1, 0.5, 0.1, 0);
 	scene->materials[1].reflectivity = 0;
-	scene->materials[2].diffuse = colorWithValues(0.1, 0.1, 0.8, 0);
+	scene->materials[2].diffuse = colorWithValues(0.1, 0.1, 0.5, 0);
 	scene->materials[2].reflectivity = 0;
 	scene->materials[3].diffuse = colorWithValues(0.8, 0.8, 0.8, 0);
 	scene->materials[3].reflectivity = 0;
@@ -650,12 +656,25 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->lights = (lightSphere*)calloc(scene->lightAmount, sizeof(lightSphere));
 	scene->lights[0].pos = vertexArray[15];
-	scene->lights[0].intensity = colorWithValues(1, 1, 1, 0);
+	scene->lights[0].intensity = colorWithValues(0.2, 0.2, 0.2, 0);
 	scene->lights[0].radius = 13;
 	
 	scene->lights[1].pos = vertexArray[16];
-	scene->lights[1].intensity = colorWithValues(0.8, 0.8, 0.8, 0);
+	scene->lights[1].intensity = colorWithValues(0.2, 0.2, 0.2, 0);
 	scene->lights[1].radius = 42;
+	
+	//RED
+	scene->lights[2].pos = vertexArray[20];
+	scene->lights[2].intensity = colorWithValues(6.0, 0.0, 0.0, 0.0);
+	scene->lights[2].radius = 200;
+	//GREEN
+	scene->lights[3].pos = vertexArray[21];
+	scene->lights[3].intensity = colorWithValues(0.0, 6.0, 0.0, 0.0);
+	scene->lights[3].radius = 200;
+	//BLUE
+	scene->lights[4].pos = vertexArray[22];
+	scene->lights[4].intensity = colorWithValues(0.0, 0.0, 6.0, 0.0);
+	scene->lights[4].radius = 200;
 	
 	scene->spheres = (sphere*)calloc(scene->sphereAmount, sizeof(sphere));
 	scene->spheres[0].pos = vertexArray[17];

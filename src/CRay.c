@@ -10,15 +10,12 @@
  (Add antialiasing)
  (Add total render time for animations)
  Add programmatic textures (checker pattern)
- Add refraction (Glass)
- Soft shadows
+ Add refraction (Glass
  Texture mapping
  Tiled rendering
  Implement proper animation
- finish raytrace2
  "targa"
  Add multiple camera support
- Switch to vertex array implementation
  */
 
 #include <pthread.h>
@@ -166,12 +163,11 @@ int main(int argc, char *argv[]) {
 		
 		printf("\nStarting C-ray renderer for frame %i\n\n", worldScene->camera->currentFrame);
 		printf("Rendering at %i x %i\n",worldScene->camera->width,worldScene->camera->height);
-		printf("Rendering with %i samples", worldScene->camera->sampleCount);
+		printf("Rendering with %i samples\n", worldScene->camera->sampleCount);
 		printf("Rendering with %d thread",renderThreads);
 		if (renderThreads > 1) {
 			printf("s");
 		}
-		
 		if (worldScene->camera->forceSingleCore) printf(" (Forced single thread)\n");
 		else printf("\n");
 		
