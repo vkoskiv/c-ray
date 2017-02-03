@@ -44,10 +44,6 @@ color rayTrace(lightRay *incidentRay, world *worldScene);
 color rayTrace2(lightRay *incidentRay, world *worldScene);
 int getSysCores();
 vector getRandomVecOnRadius(vector center, float radius);
-//Antialiasing
-color getPixel(world *worldScene, int x, int y);
-color avgColors(color c1, color c2, color c3, color c4);
-void scaleImage(world *worldScene);
 
 //Thread
 typedef struct {
@@ -162,7 +158,7 @@ int main(int argc, char *argv[]) {
 		frame++;
 		
 		printf("\nStarting C-ray renderer for frame %i\n\n", worldScene->camera->currentFrame);
-		printf("Rendering at %i x %i\n",worldScene->camera->width,worldScene->camera->height);
+		printf("Rendering at %i x %i\n", worldScene->camera->width,worldScene->camera->height);
 		printf("Rendering with %i samples\n", worldScene->camera->sampleCount);
 		printf("Rendering with %d thread",renderThreads);
 		if (renderThreads > 1) {
@@ -171,14 +167,8 @@ int main(int argc, char *argv[]) {
 		if (worldScene->camera->forceSingleCore) printf(" (Forced single thread)\n");
 		else printf("\n");
 		
-		printf("Using %i light bounces\n",worldScene->camera->bounces);
+		printf("Using %i light bounces\n", worldScene->camera->bounces);
 		printf("Raytracing...\n");
-		
-		//If using antialiasing, double resolution
-		if (worldScene->camera->antialiased) {
-			worldScene->camera->width *= 2;
-			worldScene->camera->height *= 2;
-		}
 		
 		//Allocate memory and create array of pixels for image data
 		worldScene->camera->imgData = (unsigned char*)malloc(4 * worldScene->camera->width * worldScene->camera->height);
@@ -215,12 +205,6 @@ int main(int argc, char *argv[]) {
 		time(&stop);
 		printDuration(difftime(stop, start));
 		
-		if (worldScene->camera->antialiased) {
-			scaleImage(worldScene);
-			worldScene->camera->width = worldScene->camera->width / 2;
-			worldScene->camera->height = worldScene->camera->height / 2;
-		}
-		
 		//Write to file
 		writeImage(worldScene);
 		worldScene->camera->currentFrame++;
@@ -238,11 +222,11 @@ int main(int argc, char *argv[]) {
 			free(worldScene->materials);
 	} while (worldScene->camera->currentFrame < worldScene->camera->frameCount);
 	
-    if (kFrameCount > 1) {
-        printf("Animation render finished\n");
-    } else {
-        printf("Render finished\n");
-    }
+	if (kFrameCount > 1) {
+		printf("Animation render finished\n");
+	} else {
+		printf("Render finished\n");
+	}
 	return 0;
 }
 
@@ -304,28 +288,28 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			output = addColors(&output, &temp);
 			break;
 		}
-        
-        if (scalarProduct(&surfaceNormal, &incidentRay->direction) < 0.0f) {
-            surfaceNormal = vectorScale(1.0f, &surfaceNormal);
-        } else if (scalarProduct(&surfaceNormal, &incidentRay->direction) > 0.0f) {
-            surfaceNormal = vectorScale(-1.0f, &surfaceNormal);
-        }
 		
-        lightRay bouncedRay, cameraRay;
-        bouncedRay.start = hitpoint;
-        cameraRay.start = hitpoint;
-        cameraRay.direction = subtractVectors(&worldScene->camera->pos, &hitpoint);
-        double cameraProjection = scalarProduct(&cameraRay.direction, &hitpoint);
-        //if (cameraProjection <= 0.0f) continue;
-        double cameraDistance = scalarProduct(&cameraRay.direction, &cameraRay.direction);
-        double camTemp = cameraDistance;
-        //if (camTemp == 0.0f) continue;
-        camTemp = invsqrtf(camTemp);
-        cameraRay.direction = vectorScale(camTemp, &cameraRay.direction);
-        cameraProjection = camTemp * cameraProjection;
-        //Find the value of the light at this point (Scary!)
-        unsigned int j;
-        for (j = 0; j < lightSourceAmount; ++j) {
+		if (scalarProduct(&surfaceNormal, &incidentRay->direction) < 0.0f) {
+			surfaceNormal = vectorScale(1.0f, &surfaceNormal);
+		} else if (scalarProduct(&surfaceNormal, &incidentRay->direction) > 0.0f) {
+			surfaceNormal = vectorScale(-1.0f, &surfaceNormal);
+		}
+		
+		lightRay bouncedRay, cameraRay;
+		bouncedRay.start = hitpoint;
+		cameraRay.start = hitpoint;
+		cameraRay.direction = subtractVectors(&worldScene->camera->pos, &hitpoint);
+		double cameraProjection = scalarProduct(&cameraRay.direction, &hitpoint);
+		//if (cameraProjection <= 0.0f) continue;
+		double cameraDistance = scalarProduct(&cameraRay.direction, &cameraRay.direction);
+		double camTemp = cameraDistance;
+		//if (camTemp == 0.0f) continue;
+		camTemp = invsqrtf(camTemp);
+		cameraRay.direction = vectorScale(camTemp, &cameraRay.direction);
+		cameraProjection = camTemp * cameraProjection;
+		//Find the value of the light at this point (Scary!)
+		unsigned int j;
+		for (j = 0; j < lightSourceAmount; ++j) {
 			lightSphere currentLight = worldScene->lights[j];
 			vector lightPos;
 			if (worldScene->camera->areaLights)
@@ -372,15 +356,15 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 				output.green += specularFactor * diffuseFactor * currentLight.intensity.green * currentMaterial.diffuse.green;
 				output.blue += specularFactor * diffuseFactor * currentLight.intensity.blue * currentMaterial.diffuse.blue;
 			}
-        }
-        //Iterate over the reflection
-        contrast *= currentMaterial.reflectivity;
+		}
+		//Iterate over the reflection
+		contrast *= currentMaterial.reflectivity;
 		
-        //Calculate reflected ray start and direction
-        double reflect = 2.0f * scalarProduct(&incidentRay->direction, &surfaceNormal);
-        incidentRay->start = hitpoint;
-        vector tempVec = vectorScale(reflect, &surfaceNormal);
-        incidentRay->direction = subtractVectors(&incidentRay->direction, &tempVec);
+		//Calculate reflected ray start and direction
+		double reflect = 2.0f * scalarProduct(&incidentRay->direction, &surfaceNormal);
+		incidentRay->start = hitpoint;
+		vector tempVec = vectorScale(reflect, &surfaceNormal);
+		incidentRay->direction = subtractVectors(&incidentRay->direction, &tempVec);
 		
 		bounces++;
 		
@@ -443,7 +427,7 @@ void *renderThread(void *arg) {
 				output.red = output.red / worldScene->camera->sampleCount;
 				output.green = output.green / worldScene->camera->sampleCount;
 				output.blue = output.blue / worldScene->camera->sampleCount;
-            }
+			}
 			
 			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
 			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
@@ -453,24 +437,24 @@ void *renderThread(void *arg) {
 	pthread_exit((void*) arg);
 }
 
-float GetRandomFloat(float Min, float Max) {
-	return ((((float)rand()) / (float)RAND_MAX) * (Max - Min)) + Min;
+float getRandomFloat(float min, float max) {
+	return ((((float)rand()) / (float)RAND_MAX) * (max - min)) + min;
 }
 
 vector getRandomVecOnRadius(vector center, float radius) {
 	float x, y, z;
-	x = GetRandomFloat(-radius, radius);
-	y = GetRandomFloat(-radius, radius);
-	z = GetRandomFloat(-radius, radius);
+	x = getRandomFloat(-radius, radius);
+	y = getRandomFloat(-radius, radius);
+	z = getRandomFloat(-radius, radius);
 	return vectorWithPos(center.x + x, center.y + y, center.z + z);
 }
 
 vector getRandomVecOnHemisphere() {
 	float x, y, z, d;
 	do {
-		x = GetRandomFloat(-1, 1);
-		y = GetRandomFloat(-1, 1);
-		z = GetRandomFloat(-1, 1);
+		x = getRandomFloat(-1, 1);
+		y = getRandomFloat(-1, 1);
+		z = getRandomFloat(-1, 1);
 		d = sqrtf(pow(x, 2)+pow(y, 2)+pow(z, 2));
 	} while(d>1);
 			
@@ -478,53 +462,6 @@ vector getRandomVecOnHemisphere() {
 	y=y/d;
 	z=z/d;
 	return vectorWithPos(x, y, z);
-}
-
-//Antialiasing stuff
-
-color getPixel(world *worldScene, int x, int y) {
-	color output = {0.0f, 0.0f, 0.0f, 0.0f};
-	output.red = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2];
-	output.green = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 1];
-	output.blue = worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 0];
-	output.alpha = 1.0f;
-	return output;
-}
-
-color avgColors(color c1, color c2, color c3, color c4) {
-	color output;
-	
-	output.red = (c1.red + c2.red + c3.red + c4.red) / 4;
-	output.green = (c1.green + c2.green + c3.green + c4.green) / 4;
-	output.blue = (c1.blue + c2.blue + c3.blue + c4.blue) / 4;
-	output.alpha = (c1.alpha + c2.alpha + c3.alpha + c4.alpha) / 4;
-	
-	return output;
-}
-
-void scaleImage(world *worldScene) {
-	int origWidth = worldScene->camera->width;
-	int origHeight = worldScene->camera->height;
-	int scaledWidth = worldScene->camera->width / 2;
-	int scaledHeight = worldScene->camera->height / 2;
-	worldScene->camera->scaledData = (unsigned char*)malloc(4 * (origWidth / 2) * (origHeight / 2));
-	memset(worldScene->camera->scaledData, 0, 4 * (origWidth / 2) * (origHeight / 2));
-	
-	int scaleX = 0;
-	int scaleY = 0;
-	int origX = 0;
-	int origY = 0;
-	
-	for (scaleY = 0; scaleY < scaledHeight; scaleY++) {
-		if (scaleY != 0) scaleY += 2;
-		for (scaleX = 0; scaleX < scaledWidth; scaleX++) {
-			color avg = avgColors(getPixel(worldScene, origX, origY), getPixel(worldScene, origX+1, origY), getPixel(worldScene, origX, origY+1), getPixel(worldScene, origX+1, origY+1));
-			worldScene->camera->scaledData[(scaleX + scaleY*scaledWidth)*3 + 2] = (unsigned char)min(  avg.red*255.0f, 255.0f);
-			worldScene->camera->scaledData[(scaleX + scaleY*scaledWidth)*3 + 1] = (unsigned char)min(avg.green*255.0f, 255.0f);
-			worldScene->camera->scaledData[(scaleX + scaleY*scaledWidth)*3 + 0] = (unsigned char)min( avg.blue*255.0f, 255.0f);
-			if (scaleX != 0) origX += 2;
-		}
-	}
 }
 
 void updateProgress(int y, int max, int min) {
@@ -567,7 +504,7 @@ void printDuration(double time) {
 		printf("Finished render in %.0f minute", time/60);
 		if (time/60 > 1) printf("s.\n"); else printf(".\n");
 	} else {
-		printf("Finished render in %.0f hours.\n", (time/60)/60);
+		printf("Finished render in %.0f hours (%.0f min).\n", (time/60)/60, time/60);
 	}
 }
 
