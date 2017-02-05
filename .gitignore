@@ -11,3 +11,5 @@ cray
 .swp
 test.obj.txt
 *.ppm
+*.mtl
+*.obj
