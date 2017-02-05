@@ -452,7 +452,7 @@ void *renderThread(void *arg) {
 	//Figure out which part to render based on current thread ID
 	int limits[] = {(tinfo->thread_num * sectionSize), (tinfo->thread_num * sectionSize) + sectionSize};
 	
-	for (y = limits[0]; y < limits[1]; y++) {
+	for (y = limits[1]; y > limits[0]; y--) {
 		updateProgress(y, limits[1], limits[0]);
 		for (x = 0; x < worldScene->camera->width; x++) {
 			color sample = {0.0f,0.0f,0.0f,0.0f};
@@ -499,14 +499,10 @@ void *renderThread(void *arg) {
 				output.green = output.green / worldScene->camera->sampleCount;
 				output.blue = output.blue / worldScene->camera->sampleCount;
 			}
-			unsigned char red = (unsigned char)min(  output.red*255.0f, 255.0f);
-			unsigned char green = (unsigned char)min(output.green*255.0f, 255.0f);
-			unsigned char blue = (unsigned char)min( output.blue*255.0f, 255.0f);
-			//Add a UI draw task
-			//addDrawTask(tinfo, x, y, red, green, blue);
-			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 0] = red;
-			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 1] = green;
-			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2] = blue;
+			
+			worldScene->camera->imgData[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0] = (unsigned char)min(  output.red*255.0f, 255.0f);
+			worldScene->camera->imgData[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
+			worldScene->camera->imgData[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 2] = (unsigned char)min( output.blue*255.0f, 255.0f);
 		}
 	}
 	pthread_exit((void*) arg);
@@ -542,34 +538,34 @@ vector getRandomVecOnHemisphere() {
 #pragma mark Helper funcs
 void updateProgress(int y, int max, int min) {
 	if (y == 0.1*(max - min)) {
-		printf(" [==>-----------------](10%%)\r");
+		printf(" [====================](100%%)\n");
 		fflush(stdout);
 	} else if (y == 0.2*(max - min)) {
-		printf(" [====>---------------](20%%)\r");
-		fflush(stdout);
-	} else if (y == 0.3*(max - min)) {
-		printf(" [======>-------------](30%%)\r");
-		fflush(stdout);
-	} else if (y == 0.4*(max - min)) {
-		printf(" [========>-----------](40%%)\r");
-		fflush(stdout);
-	} else if (y == 0.5*(max - min)) {
-		printf(" [==========>---------](50%%)\r");
-		fflush(stdout);
-	} else if (y == 0.6*(max - min)) {
-		printf(" [============>-------](60%%)\r");
-		fflush(stdout);
-	} else if (y == 0.7*(max - min)) {
-		printf(" [==============>-----](70%%)\r");
-		fflush(stdout);
-	} else if (y == 0.8*(max - min)) {
-		printf(" [================>---](80%%)\r");
-		fflush(stdout);
-	} else if (y == 0.9*(max - min)) {
 		printf(" [==================>-](90%%)\r");
 		fflush(stdout);
+	} else if (y == 0.3*(max - min)) {
+		printf(" [================>---](80%%)\r");
+		fflush(stdout);
+	} else if (y == 0.4*(max - min)) {
+		printf(" [==============>-----](70%%)\r");
+		fflush(stdout);
+	} else if (y == 0.5*(max - min)) {
+		printf(" [============>-------](60%%)\r");
+		fflush(stdout);
+	} else if (y == 0.6*(max - min)) {
+		printf(" [==========>---------](50%%)\r");
+		fflush(stdout);
+	} else if (y == 0.7*(max - min)) {
+		printf(" [========>-----------](40%%)\r");
+		fflush(stdout);
+	} else if (y == 0.8*(max - min)) {
+		printf(" [======>-------------](30%%)\r");
+		fflush(stdout);
+	} else if (y == 0.9*(max - min)) {
+		printf(" [====>---------------](20%%)\r");
+		fflush(stdout);
 	} else if (y == (max - min)-1) {
-		printf(" [====================](100%%)\n");
+		printf(" [==>-----------------](10%%)\r");
 	}
 }
 

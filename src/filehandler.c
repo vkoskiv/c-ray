@@ -64,23 +64,7 @@ void saveBmpFromArray(const char *filename, world *worldScene) {
 }
 
 void encodePNGFromArray(const char *filename, unsigned char *imgData, int width, int height) {
-	//C-Ray saves image data into the matrix top-down, PNG renders it down-up, so we flip each
-	//vertical line before encoding it to file.
-	unsigned char *flippedData = NULL;
-    flippedData = (unsigned char*)malloc(4 * width * height);
-    memset(flippedData, 0, 4 * width	* height);
-    
-    int fy = height;
-    for (int y = 0; y < height; y++) {
-        if (fy > 0) fy--;
-        for (int x = 0; x < width; x++) {
-            flippedData[(x + fy*width)*3 + 0] = imgData[(x + y*width)*3 + 0];
-            flippedData[(x + fy*width)*3 + 1] = imgData[(x + y*width)*3 + 1];
-            flippedData[(x + fy*width)*3 + 2] = imgData[(x + y*width)*3 + 2];
-        }
-    }
-    unsigned error = lodepng_encode24_file(filename, flippedData, width, height);
-    free(flippedData);
+    unsigned error = lodepng_encode24_file(filename, imgData, width, height);
     if (error) printf("error %u: %s\n", error, lodepng_error_text(error));
 }
 
