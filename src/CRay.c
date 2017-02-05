@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
 			}
 			SDL_RenderSetScale(windowRenderer, windowScale, windowScale);
 			
-			texture = SDL_CreateTexture(windowRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, worldScene->camera->width, worldScene->camera->height);
+			texture = SDL_CreateTexture(windowRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STATIC, worldScene->camera->width, worldScene->camera->height);
 			if (texture == NULL) {
 				fprintf(stdout, "Texture couldn't be created, error %s\n", SDL_GetError());
 				return -1;
@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
 			
 		}
 		
-		//Delay so macOS can draw window border
+		//Delay so macOS can draw window border (Yeah...)
 		for(int i = 0; i < 1000; i++){
 			SDL_PumpEvents();
 			SDL_Delay(1);
@@ -421,27 +421,14 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 	SDL_SetRenderDrawColor(windowRenderer, 0x0, 0x0, 0x0, 0x0);
 	SDL_RenderClear(windowRenderer);
 	while (isRendering) {
-		for (int i = 0; i < renderThreadCount; i++) {
-			if (!drawTasks[i].isDrawn) {
-				SDL_SetRenderDrawColor(windowRenderer, drawTasks[i].red, drawTasks[i].green, drawTasks[i].blue, 1);
-				SDL_RenderDrawPoint(windowRenderer, drawTasks[i].x, drawTasks[i].y);
-				SDL_RenderPresent(windowRenderer);
-				drawTasks[i].isDrawn = true;
-			}
-		}
+		pthread_mutex_lock(&uimutex);
+		drawTask task = getTask();
+		SDL_SetRenderDrawColor(windowRenderer, task.red, task.green, task.blue, 1);
+		SDL_RenderDrawPoint(windowRenderer, task.x, task.y);
+		SDL_RenderPresent(windowRenderer);
+		pthread_mutex_unlock(&uimutex);
 	}
 	pthread_exit((void*) arg);
-}
-
-void addDrawTask(threadInfo *tinfo, int x, int y, unsigned char red, unsigned char green, unsigned char blue) {
-	if (drawTasks[tinfo->thread_num].isDrawn) {
-		drawTasks[tinfo->thread_num].x = x;
-		drawTasks[tinfo->thread_num].y = y;
-		drawTasks[tinfo->thread_num].red = red;
-		drawTasks[tinfo->thread_num].green = green;
-		drawTasks[tinfo->thread_num].blue = blue;
-		drawTasks[tinfo->thread_num].isDrawn = false;
-	}
 }*/
 
 void *drawThread(void *arg) {
@@ -449,10 +436,9 @@ void *drawThread(void *arg) {
 	SDL_RenderClear(windowRenderer);
 	while (isRendering) {
 		pthread_mutex_lock(&uimutex);
-		drawTask task = getTask();
-		SDL_SetRenderDrawColor(windowRenderer, task.red, task.green, task.blue, 1);
-		SDL_RenderDrawPoint(windowRenderer, task.x, task.y);
-		SDL_RenderPresent(windowRenderer);
+		SDL_UpdateTexture(texture, NULL, worldScene->camera->imgData, worldScene->camera->width * 3);
+		SDL_RenderCopy( windowRenderer, texture, NULL, NULL );
+		SDL_RenderPresent( windowRenderer );
 		pthread_mutex_unlock(&uimutex);
 	}
 	pthread_exit((void*) arg);
@@ -517,10 +503,10 @@ void *renderThread(void *arg) {
 			unsigned char green = (unsigned char)min(output.green*255.0f, 255.0f);
 			unsigned char blue = (unsigned char)min( output.blue*255.0f, 255.0f);
 			//Add a UI draw task
-			addDrawTask(tinfo, x, y, red, green, blue);
-			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2] = red;
+			//addDrawTask(tinfo, x, y, red, green, blue);
+			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 0] = red;
 			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 1] = green;
-			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 0] = blue;
+			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2] = blue;
 		}
 	}
 	pthread_exit((void*) arg);

@@ -65,16 +65,19 @@ drawTask getTask() {
 	return task;
 }
 
+drawTask newDrawTask(int x, int y, unsigned char red, unsigned char green, unsigned char blue) {
+	drawTask task;
+	task.x = x;
+	task.y = y;
+	task.red = red;
+	task.green = green;
+	task.blue = blue;
+	return task;
+}
+
 void addDrawTask(threadInfo *tinfo, int x, int y, unsigned char red, unsigned char green, unsigned char blue) {
 	if (!drawTasksFull()) {
-		drawTask task;
-		task.x = x;
-		task.y = y;
-		task.red = red;
-		task.green = green;
-		task.blue = blue;
-		task.isDrawn = false;
-		addTask(task);
+		addTask(newDrawTask(x, y, red, green, blue));
 	} else {
 		printf("Missed draw task, (%i),(%i)\n", x, y);
 	}

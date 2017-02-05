@@ -16,7 +16,6 @@ typedef struct {
 	unsigned char red;
 	unsigned char green;
 	unsigned char blue;
-	bool isDrawn;
 }drawTask;
 
 typedef struct {
@@ -27,7 +26,7 @@ typedef struct {
 void addDrawTask(threadInfo *tinfo, int x, int y, unsigned char red, unsigned char green, unsigned char blue);
 void *drawThread(void *arg);
 drawTask getTask();
-bool drawTasksEmpty();
+drawTask newDrawTask(int x, int y, unsigned char red, unsigned char green, unsigned char blue);
 void addTask(drawTask data);
 
 

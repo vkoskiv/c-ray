@@ -495,7 +495,7 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->antialiased = false;
 	scene->camera->forceSingleCore = false;
 	scene->camera->showGUI = true;
-	scene->camera->sampleCount = 50;
+	scene->camera->sampleCount = 20;
 	scene->camera->areaLights = true;
 	scene->camera->frameCount = 1;
 	scene->camera->bounces = 3;

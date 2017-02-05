@@ -74,10 +74,9 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
     for (int y = 0; y < height; y++) {
         if (fy > 0) fy--;
         for (int x = 0; x < width; x++) {
-            //Note, PNG is big-endian, so we flip the color byte values (...*3+ X)
-            flippedData[(x + fy*width)*3 + 2] = imgData[(x + y*width)*3 + 0];
+            flippedData[(x + fy*width)*3 + 0] = imgData[(x + y*width)*3 + 0];
             flippedData[(x + fy*width)*3 + 1] = imgData[(x + y*width)*3 + 1];
-            flippedData[(x + fy*width)*3 + 0] = imgData[(x + y*width)*3 + 2];
+            flippedData[(x + fy*width)*3 + 2] = imgData[(x + y*width)*3 + 2];
         }
     }
     unsigned error = lodepng_encode24_file(filename, flippedData, width, height);
