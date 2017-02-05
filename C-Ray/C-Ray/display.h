@@ -10,6 +10,26 @@
 #define display_h
 
 #include "includes.h"
-#include "color.h"
+
+typedef struct {
+	int x, y;
+	unsigned char red;
+	unsigned char green;
+	unsigned char blue;
+	bool isDrawn;
+}drawTask;
+
+typedef struct {
+	pthread_t thread_id;
+	int thread_num;
+}threadInfo;
+
+void addDrawTask(threadInfo *tinfo, int x, int y, unsigned char red, unsigned char green, unsigned char blue);
+void *drawThread(void *arg);
+drawTask getTask();
+bool drawTasksEmpty();
+void addTask(drawTask data);
+
+
 
 #endif /* display_h */

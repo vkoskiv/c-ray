@@ -18,7 +18,13 @@
  Add multiple camera support
  */
 
-#include <pthread.h>
+/*
+ FIXME:
+Output file dir is hard-coded
+ Processor groups aren't handled correctly
+ 
+ */
+
 #include "CRay.h"
 
 //These are for multi-platform physical core detection
@@ -34,6 +40,7 @@
 //Global variables
 world *worldScene = NULL;
 int sectionSize = 0;
+int renderThreadCount = 0;
 
 //Prototypes
 void *renderThread(void *arg);
@@ -41,19 +48,19 @@ void updateProgress(int y, int max, int min);
 void printDuration(double time);
 int getFileSize(char *fileName);
 color rayTrace(lightRay *incidentRay, world *worldScene);
-color rayTrace2(lightRay *incidentRay, world *worldScene);
 int getSysCores();
 vector getRandomVecOnRadius(vector center, float radius);
 
-//Thread
-typedef struct {
-	pthread_t thread_id;
-	int thread_num;
-}threadInfo;
+//SDL globals
+SDL_Window *window = NULL;
+SDL_Renderer *windowRenderer = NULL;
+SDL_Texture *texture = NULL;
+bool isRendering = false;
+pthread_mutex_t uimutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char *argv[]) {
 	
-	int renderThreads = getSysCores();
+	renderThreadCount = getSysCores();
 	
 	time_t start, stop;
 	
@@ -104,52 +111,65 @@ int main(int argc, char *argv[]) {
 		worldScene->camera->pos = vectorWithPos(940, 480, camPos);
 		camPos += 10;
 		
-		SDL_Window *window = NULL;
-		SDL_Renderer *renderer = NULL;
-		SDL_Texture *texture = NULL;
-		int windowScale = 1;
+		float windowScale = 0.8;
 		
 		//Initialize SDL if need be
 		if (worldScene->camera->showGUI) {
 			if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-				fprintf(stdout, "SDL couldn't initialize, error %s", SDL_GetError());
+				fprintf(stdout, "SDL couldn't initialize, error %s\n", SDL_GetError());
 				return -1;
 			}
 			//Init window
-			window = SDL_CreateWindow("C-ray by VKoskiv 2015", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, worldScene->camera->width * windowScale, worldScene->camera->height * windowScale, SDL_WINDOW_SHOWN);
+			window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, worldScene->camera->width * windowScale, worldScene->camera->height * windowScale, SDL_WINDOW_SHOWN);
 			if (window == NULL) {
-				fprintf(stdout, "Window couldn't be created, error %s", SDL_GetError());
+				fprintf(stdout, "Window couldn't be created, error %s\n", SDL_GetError());
 				return -1;
 			}
 			
-			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-			if (renderer == NULL) {
-				fprintf(stdout, "Renderer couldn't be created, error %s", SDL_GetError());
+			windowRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+			if (windowRenderer == NULL) {
+				fprintf(stdout, "Renderer couldn't be created, error %s\n", SDL_GetError());
 				return -1;
 			}
-			SDL_RenderSetScale(renderer, windowScale, windowScale);
+			SDL_RenderSetScale(windowRenderer, windowScale, windowScale);
 			
-			texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STATIC, worldScene->camera->width, worldScene->camera->height);
+			texture = SDL_CreateTexture(windowRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, worldScene->camera->width, worldScene->camera->height);
 			if (texture == NULL) {
-				fprintf(stdout, "Texture couldn't be created, error %s", SDL_GetError());
+				fprintf(stdout, "Texture couldn't be created, error %s\n", SDL_GetError());
 				return -1;
 			}
 			
 		}
 		
+		//Delay so macOS can draw window border
+		for(int i = 0; i < 1000; i++){
+			SDL_PumpEvents();
+			SDL_Delay(1);
+		}
+		
+		if (worldScene->camera->forceSingleCore) renderThreadCount = 1;
+		
 		//Create threads
 		threadInfo *tinfo;
+		threadInfo *uitinfo;
 		pthread_attr_t attributes;
+		pthread_attr_t uiattributes;
 		int t;
 		
 		//Alloc memory for pthread_create() args
-		tinfo = calloc(renderThreads, sizeof(threadInfo));
+		tinfo = calloc(renderThreadCount, sizeof(threadInfo));
 		if (tinfo == NULL) {
 			logHandler(threadMallocFailed);
 			return -1;
 		}
 		
-		if (worldScene->camera->forceSingleCore) renderThreads = 1;
+		//Alloc memory for uiThread args
+		uitinfo = calloc(1, sizeof(threadInfo));
+		if (uitinfo == NULL) {
+			logHandler(threadMallocFailed);
+			return -1;
+		}
+		
 		//Verify sample count
 		if (worldScene->camera->sampleCount < 1) logHandler(renderErrorInvalidSampleCount);
 		if (!worldScene->camera->areaLights) worldScene->camera->sampleCount = 1;
@@ -160,8 +180,8 @@ int main(int argc, char *argv[]) {
 		printf("\nStarting C-ray renderer for frame %i\n\n", worldScene->camera->currentFrame);
 		printf("Rendering at %i x %i\n", worldScene->camera->width,worldScene->camera->height);
 		printf("Rendering with %i samples\n", worldScene->camera->sampleCount);
-		printf("Rendering with %d thread",renderThreads);
-		if (renderThreads > 1) {
+		printf("Rendering with %d thread",renderThreadCount);
+		if (renderThreadCount > 1) {
 			printf("s");
 		}
 		if (worldScene->camera->forceSingleCore) printf(" (Forced single thread)\n");
@@ -177,15 +197,32 @@ int main(int argc, char *argv[]) {
 		if (!worldScene->camera->imgData) logHandler(imageMallocFailed);
 		
 		//Calculate section sizes for every thread, multiple threads can't render the same portion of an image
-		sectionSize = worldScene->camera->height / renderThreads;
+		sectionSize = worldScene->camera->height / renderThreadCount;
 		if ((sectionSize % 2) != 0) logHandler(invalidThreadCount);
+		isRendering = true;
 		pthread_attr_init(&attributes);
+		pthread_attr_init(&uiattributes);
 		pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_JOINABLE);
+		pthread_attr_setdetachstate(&uiattributes, PTHREAD_CREATE_JOINABLE);
 		
 		//Create render threads
-		for (t = 0; t < renderThreads; t++) {
+		for (t = 0; t < renderThreadCount; t++) {
 			tinfo[t].thread_num = t;
 			if (pthread_create(&tinfo[t].thread_id, &attributes, renderThread, &tinfo[t])) {
+				logHandler(threadCreateFailed);
+				exit(-1);
+			}
+		}
+		
+		//Create UI render thread
+		/*if (pthread_create(&uitinfo->thread_id, &uiattributes, drawThread, uitinfo)) {
+			logHandler(threadCreateFailed);
+			exit(-1);
+		}*/
+		//see if we can create more of these...
+		for (t = 0; t < renderThreadCount; t++) {
+			uitinfo[t].thread_num = t;
+			if (pthread_create(&uitinfo->thread_id, &uiattributes, drawThread, uitinfo)) {
 				logHandler(threadCreateFailed);
 				exit(-1);
 			}
@@ -196,10 +233,16 @@ int main(int argc, char *argv[]) {
 		}
 		
 		//Wait for render threads to finish (Render finished)
-		for (t = 0; t < renderThreads; t++) {
+		for (t = 0; t < renderThreadCount; t++) {
 			if (pthread_join(tinfo[t].thread_id, NULL)) {
 				logHandler(threadFrozen);
 			}
+		}
+		
+		isRendering = false;
+		//Wait for UI render thread to finish
+		if (pthread_join(uitinfo->thread_id, NULL)) {
+			logHandler(threadFrozen);
 		}
 		
 		time(&stop);
@@ -247,7 +290,8 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		int lightSourceAmount = worldScene->lightAmount;
 		
 		material currentMaterial;
-		vector polyNormal, hitpoint, surfaceNormal;
+		vector polyNormal = {0.0, 0.0, 0.0};
+		vector hitpoint, surfaceNormal;
 		
 		unsigned int i;
 		for (i = 0; i < sphereAmount; ++i) {
@@ -373,6 +417,47 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 	return output;
 }
 
+/*void *drawThread(void *arg) {
+	SDL_SetRenderDrawColor(windowRenderer, 0x0, 0x0, 0x0, 0x0);
+	SDL_RenderClear(windowRenderer);
+	while (isRendering) {
+		for (int i = 0; i < renderThreadCount; i++) {
+			if (!drawTasks[i].isDrawn) {
+				SDL_SetRenderDrawColor(windowRenderer, drawTasks[i].red, drawTasks[i].green, drawTasks[i].blue, 1);
+				SDL_RenderDrawPoint(windowRenderer, drawTasks[i].x, drawTasks[i].y);
+				SDL_RenderPresent(windowRenderer);
+				drawTasks[i].isDrawn = true;
+			}
+		}
+	}
+	pthread_exit((void*) arg);
+}
+
+void addDrawTask(threadInfo *tinfo, int x, int y, unsigned char red, unsigned char green, unsigned char blue) {
+	if (drawTasks[tinfo->thread_num].isDrawn) {
+		drawTasks[tinfo->thread_num].x = x;
+		drawTasks[tinfo->thread_num].y = y;
+		drawTasks[tinfo->thread_num].red = red;
+		drawTasks[tinfo->thread_num].green = green;
+		drawTasks[tinfo->thread_num].blue = blue;
+		drawTasks[tinfo->thread_num].isDrawn = false;
+	}
+}*/
+
+void *drawThread(void *arg) {
+	SDL_SetRenderDrawColor(windowRenderer, 0x0, 0x0, 0x0, 0x0);
+	SDL_RenderClear(windowRenderer);
+	while (isRendering) {
+		pthread_mutex_lock(&uimutex);
+		drawTask task = getTask();
+		SDL_SetRenderDrawColor(windowRenderer, task.red, task.green, task.blue, 1);
+		SDL_RenderDrawPoint(windowRenderer, task.x, task.y);
+		SDL_RenderPresent(windowRenderer);
+		pthread_mutex_unlock(&uimutex);
+	}
+	pthread_exit((void*) arg);
+}
+
 void *renderThread(void *arg) {
 	lightRay incidentRay;
 	int x,y;
@@ -428,10 +513,14 @@ void *renderThread(void *arg) {
 				output.green = output.green / worldScene->camera->sampleCount;
 				output.blue = output.blue / worldScene->camera->sampleCount;
 			}
-			
-			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2] = (unsigned char)min(  output.red*255.0f, 255.0f);
-			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
-			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 0] = (unsigned char)min( output.blue*255.0f, 255.0f);
+			unsigned char red = (unsigned char)min(  output.red*255.0f, 255.0f);
+			unsigned char green = (unsigned char)min(output.green*255.0f, 255.0f);
+			unsigned char blue = (unsigned char)min( output.blue*255.0f, 255.0f);
+			//Add a UI draw task
+			addDrawTask(tinfo, x, y, red, green, blue);
+			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 2] = red;
+			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 1] = green;
+			worldScene->camera->imgData[(x + y*worldScene->camera->width)*3 + 0] = blue;
 		}
 	}
 	pthread_exit((void*) arg);
@@ -464,6 +553,7 @@ vector getRandomVecOnHemisphere() {
 	return vectorWithPos(x, y, z);
 }
 
+#pragma mark Helper funcs
 void updateProgress(int y, int max, int min) {
 	if (y == 0.1*(max - min)) {
 		printf(" [==>-----------------](10%%)\r");

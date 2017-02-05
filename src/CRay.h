@@ -16,6 +16,7 @@
 #include "color.h"
 #include "sphere.h"
 #include "scene.h"
+#include "display.h"
 
 //Some macros
 #define PIOVER180 0.017453292519943295769236907684886

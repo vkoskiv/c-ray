@@ -487,15 +487,15 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 1920;
-	scene->camera->height = 1080;
+	scene->camera->width = 1280;
+	scene->camera->height = 720;
 	scene->camera->fileType = png;
 	scene->camera->viewPerspective.projectionType = conic ;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->antialiased = false;
 	scene->camera->forceSingleCore = false;
-	scene->camera->showGUI = false;
-	scene->camera->sampleCount = 100;
+	scene->camera->showGUI = true;
+	scene->camera->sampleCount = 50;
 	scene->camera->areaLights = true;
 	scene->camera->frameCount = 1;
 	scene->camera->bounces = 3;
@@ -600,24 +600,24 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->polys[7].vertexIndex[0] = 2;
 	scene->polys[7].vertexIndex[1] = 3;
 	scene->polys[7].vertexIndex[2] = 6;
-	scene->polys[7].materialIndex = 0;
+	scene->polys[7].materialIndex = 1;
 	scene->polys[8].vertexCount = MAX_VERTEX_COUNT;
 	scene->polys[8].vertexIndex[0] = 3;
 	scene->polys[8].vertexIndex[1] = 6;
 	scene->polys[8].vertexIndex[2] = 7;
-	scene->polys[8].materialIndex = 0;
+	scene->polys[8].materialIndex = 1;
 	
 	//LEFT WALL
 	scene->polys[9].vertexCount = MAX_VERTEX_COUNT;
 	scene->polys[9].vertexIndex[0] = 0;
 	scene->polys[9].vertexIndex[1] = 2;
 	scene->polys[9].vertexIndex[2] = 4;
-	scene->polys[9].materialIndex = 1;
+	scene->polys[9].materialIndex = 0;
 	scene->polys[10].vertexCount = MAX_VERTEX_COUNT;
 	scene->polys[10].vertexIndex[0] = 2;
 	scene->polys[10].vertexIndex[1] = 4;
 	scene->polys[10].vertexIndex[2] = 6;
-	scene->polys[10].materialIndex = 1;
+	scene->polys[10].materialIndex = 0;
 	
 	//RIGHT WALL
 	scene->polys[11].vertexCount = MAX_VERTEX_COUNT;

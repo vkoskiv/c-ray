@@ -71,6 +71,10 @@ void logHandler(renderLog error) {
 			logr("Samples set to less than 1, aborting.", renderer);
 			print_trace();
 			break;
+		case drawTaskMallocFailed:
+			logr("Failed to allocate memory for UI draw tasks", renderer);
+			print_trace();
+			break;
         default:
             logr("Something went wrong. Aborting.", defaultSource);
             print_trace();

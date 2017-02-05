@@ -8,36 +8,74 @@
 
 #include "display.h"
 
-void destroyWindow(SDL_Window *window) {
-	if (window != NULL) {
-		SDL_DestroyWindow(window);
-	}
+//UI Draw stuff
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+void *drawThread(void *arg);
+void addDrawTask(threadInfo *tinfo, int x, int y, unsigned char red, unsigned char green, unsigned char blue);
+void renderUI(int x, int y, unsigned char red, unsigned char green, unsigned char blue);
+
+#define UI_DRAW_BUFFERSIZE 32768
+
+drawTask drawTaskQueue[UI_DRAW_BUFFERSIZE];
+int front = 0;
+int rear = -1;
+int itemCount = 0;
+
+drawTask peek() {
+	return drawTaskQueue[front];
 }
 
-void destroyRenderer(SDL_Renderer *renderer) {
-	if (renderer != NULL) {
-		SDL_DestroyRenderer(renderer);
-	}
+bool drawTasksEmpty() {
+	return itemCount == 0;
 }
 
-void destroyTexture(SDL_Texture *texture) {
-	if (texture != NULL) {
-		SDL_DestroyTexture(texture);
-	}
+bool drawTasksFull() {
+	return itemCount == UI_DRAW_BUFFERSIZE;
 }
 
-/*void render(SDL_Renderer *renderer) {
-	//Clear the window first
-	SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0x0);
-	SDL_RenderClear(renderer);
+int drawTaskAmount() {
+	return itemCount;
+}
+
+void addTask(drawTask data) {
+	pthread_mutex_lock(&mutex);
+	if(!drawTasksFull()) {
+		
+		if(rear == UI_DRAW_BUFFERSIZE-1) {
+			rear = -1;
+		}
+		
+		drawTaskQueue[++rear] = data;
+		itemCount++;
+	}
+	pthread_mutex_unlock(&mutex);
+}
+
+drawTask getTask() {
+	pthread_mutex_lock(&mutex);
+	drawTask task = drawTaskQueue[front++];
 	
-	int width = 1280;
-	int height = 720;
-	//Render the current image data array
-	char data[width*height*3];
-	getFrameData(data);
-}*/
+	if(front == UI_DRAW_BUFFERSIZE) {
+		front = 0;
+	}
+	
+	itemCount--;
+	pthread_mutex_unlock(&mutex);
+	return task;
+}
 
-void renderPixel(int x, int y, color color) {
-	//Do stuff
+void addDrawTask(threadInfo *tinfo, int x, int y, unsigned char red, unsigned char green, unsigned char blue) {
+	if (!drawTasksFull()) {
+		drawTask task;
+		task.x = x;
+		task.y = y;
+		task.red = red;
+		task.green = green;
+		task.blue = blue;
+		task.isDrawn = false;
+		addTask(task);
+	} else {
+		printf("Missed draw task, (%i),(%i)\n", x, y);
+	}
 }

@@ -18,6 +18,7 @@
 #include <stdbool.h> //Needed for bool data type
 #include <math.h>
 #include <string.h>
+#include <pthread.h>
 #include <stdlib.h>
 #include <execinfo.h>
 #include <SDL2/SDL.h>
