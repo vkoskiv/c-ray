@@ -1,5 +1,5 @@
 //
-//  CRay.c
+//  main.c
 //  
 //
 //  Created by Valtteri Koskivuori on 12/02/15.
@@ -25,7 +25,7 @@ Output file dir is hard-coded
  
  */
 
-#include "CRay.h"
+#include "main.h"
 
 //These are for multi-platform physical core detection
 #ifdef MACOS

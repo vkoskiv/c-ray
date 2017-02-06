@@ -1,15 +1,32 @@
-BIN=./bin/
-SRC=./src/
-EXE_NAME = c-ray
-OBJS = CRay.o vector.o color.o scene.o poly.o light.o sphere.o filehandler.o camera.o modeler.o errorhandler.o obj_parser.o string_extra.o list.o lodepng.o
+TARGET = c-ray
 CC = gcc
-FLAGS = -Wall -O2
-LIBS = -lm -lpthread -lSDL2
+CFLAGS = -std=c99 -Wall -I
+LINKER = gcc -o
+LFLAGS = -nostartfiles -I. -lm -pthread -lSDL2
 
-.c.o:
-	$(CC) $< -c $(FLAGS) $(INC)
+SRCDIR = src
+OBJDIR = obj
+BINDIR = bin
 
-$(BIN)$(EXE_NAME): $(SRC)$(OBJS)
-	$(CC) -o $@ $(OBJS) $(FLAGS) $(LIBS)
+SOURCES := $(wildcard $(SRCDIR)/*.c)
+INCLUDES := $(wildcard $(SRCDIR)/*.h)
+OBJECTS := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+rm = rm -f
+
+$(BINDIR)/$(TARGET): $(OBJECTS)
+	@$(LINKER) $@ $(LFLAGS) $(OBJECTS)
+	@echo "Linking complete..."
+
+$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo "Compiled "$<" successfully"
+
+.PHONY: clean
 clean:
-	rm -f $(BIN)$(OBJS) $(BIN)$(EXE_NAME)
+	@$(rm) $(OBJECTS)
+	@echo "Cleanup done"
+
+.PHONY: remove
+remove: clean
+	@$(rm) $(BINDIR)/$(TARGET)
+	@echo "Binary removed"

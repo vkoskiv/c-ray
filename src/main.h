@@ -1,13 +1,13 @@
 //
-//  CRay.h
+//  main.h
 //  
 //
 //  Created by Valtteri Koskivuori on 12/02/15.
 //
 //
 
-#ifndef ____CRay__
-#define ____CRay__
+#ifndef ____main__
+#define ____main__
 
 #include "includes.h"
 #include "filehandler.h"
@@ -32,4 +32,4 @@ float randRange(float a, float b);
 //Converts degrees to radians
 double rads(double angle);
 
-#endif /* defined(____CRay__) */
+#endif /* defined(____main__) */
