@@ -59,7 +59,7 @@ typedef struct {
 //World
 typedef struct {
 	color *ambientColor;
-	lightSphere *lights;
+	light *lights;
 	material *materials;
 	sphere *spheres;
 	camera *camera;
@@ -74,12 +74,5 @@ typedef struct {
 }world;
 
 int testBuild(world *scene, char *inputFileName);
-
-//This takes an input file, tokenizes it and applies it to a world object.
-int buildScene(world *scene, char *inputFileName);
-
-int vertexBuild(world *scene);
-
-int loadOBJ(world *scene, char *inputFileName);
 
 #endif /* defined(__C_Ray__scene__) */

@@ -70,7 +70,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 
 void printFileSize(char *fileName) {
 	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
-	//This will work for all three image formats
+	//This will work for all image formats
 	long bytes, kilobytes, megabytes, gigabytes, terabytes; // <- Futureproofing?!
 	bytes = getFileSize(fileName);
 	if (fileName) free(fileName);
@@ -112,11 +112,7 @@ void writeImage(world *worldScene) {
 	} else  if (worldScene->camera->fileType == png){
 		sprintf(buf, "../output/rendered_%d.png", worldScene->camera->currentFrame);
 		printf("Saving result in \"%s\"\n", buf);
-		if (worldScene->camera->antialiased) {
-			encodePNGFromArray(buf, worldScene->camera->scaledData, worldScene->camera->width, worldScene->camera->height);
-		} else {
-			encodePNGFromArray(buf, worldScene->camera->imgData, worldScene->camera->width, worldScene->camera->height);
-		}
+		encodePNGFromArray(buf, worldScene->camera->imgData, worldScene->camera->width, worldScene->camera->height);
 	}
 	printFileSize(buf);
 }

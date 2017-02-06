@@ -12,7 +12,7 @@
 #include "includes.h"
 #include "vector.h"
 
-//Object, a sphere in this case
+//Sphere
 typedef struct {
 	vector pos;
 	float radius;
@@ -20,7 +20,7 @@ typedef struct {
     bool active;
 }sphere;
 
-//Calculates intersection between a light ray and a sphere object;
+//Calculates intersection between a light ray and a sphere
 bool rayIntersectsWithSphere(lightRay *ray, sphere *sphere, double *t);
 
 #endif /* defined(__C_Ray__sphere__) */

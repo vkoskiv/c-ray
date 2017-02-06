@@ -15,7 +15,7 @@
 //Master include file
 #include <stdio.h>
 #include <time.h>
-#include <stdbool.h> //Needed for bool data type
+#include <stdbool.h>
 #include <math.h>
 #include <string.h>
 #include <pthread.h>

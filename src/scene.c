@@ -490,13 +490,12 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->width = 1280;
 	scene->camera->height = 800;
 	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->sampleCount = 5;
+	scene->camera->sampleCount = 1;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.6;
 	scene->camera->   fileType = png;
 	scene->camera->viewPerspective.projectionType = conic ;
-	scene->camera->    antialiased = false;
 	scene->camera->forceSingleCore = false;
 	scene->camera->        showGUI = true;
 	scene->camera->     areaLights = true;
@@ -654,7 +653,7 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->materials[9].diffuse = colorWithValues(0.9, 0.9, 0.9, 0);
 	scene->materials[9].reflectivity = 0;
 	
-	scene->lights = (lightSphere*)calloc(scene->lightAmount, sizeof(lightSphere));
+	scene->lights = (light*)calloc(scene->lightAmount, sizeof(light));
 	scene->lights[0].pos = vertexArray[15];
 	scene->lights[0].intensity = colorWithValues(0.2, 0.2, 0.2, 0);
 	scene->lights[0].radius = 13;
@@ -717,7 +716,7 @@ int allocMemory(world *scene, char *inputFileName) {
     }
     fclose(inputFile);
     scene->materials = (material *)calloc(materialCount, sizeof(material));
-    scene->lights = (lightSphere *)calloc(lightCount, sizeof(lightSphere));
+    scene->lights = (light *)calloc(lightCount, sizeof(light));
     scene->spheres = (sphere*)calloc(sphereCount, sizeof(sphere));
     scene->polys = (poly*)calloc(polyCount, sizeof(poly));
     

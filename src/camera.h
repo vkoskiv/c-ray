@@ -34,8 +34,6 @@ typedef struct {
 	vector pos;
 	vector lookAt;
 	unsigned char *imgData;
-	unsigned char *scaledData;
-    bool antialiased;
 	bool areaLights;
 	bool forceSingleCore;
 	bool showGUI;

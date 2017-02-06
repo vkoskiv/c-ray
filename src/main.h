@@ -16,7 +16,16 @@
 #include "color.h"
 #include "sphere.h"
 #include "scene.h"
-#include "display.h"
+
+//These are for multi-platform physical core detection
+#ifdef MACOS
+#include <sys/param.h>
+#include <sys/sysctl.h>
+#elif _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 //Some macros
 #define PIOVER180 0.017453292519943295769236907684886
@@ -24,12 +33,5 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define invsqrtf(x) (1.0f / sqrtf(x))
-
-#define kFrameCount 1
-
-//Generates a random value between a given range
-float randRange(float a, float b);
-//Converts degrees to radians
-double rads(double angle);
 
 #endif /* defined(____main__) */
