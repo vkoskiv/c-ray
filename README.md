@@ -25,15 +25,15 @@ All other libraries are included as source
 ## Installation
 
 POSIX:
-	1. Install SDL2
-	2. Run 'make'
-	3. Suggest a fix to my makefile because it didn't link SDL2 on your platform.
-	4. Run binary in ./bin/
+1. Install SDL2
+2. Run 'make'
+3. Suggest a fix to my makefile because it didn't link SDL2 on your platform.
+4. Run binary in ./bin/
 WINDOWS:
-	1. Install Cygwin
-	2. Run 'make'
-	3. Suggest a fix to my makefile because it didn't link ??? on your platform.
-	4. Run bunary in ./bin/
+1. Install Cygwin
+2. Run 'make'
+3. Suggest a fix to my makefile because it didn't link ??? on your platform.
+4. Run bunary in ./bin/
 
 ## Tests
 
