@@ -18,13 +18,6 @@
  Add multiple camera support
  */
 
-/*
- FIXME:
-Output file dir is hard-coded
- Processor groups aren't handled correctly
- 
- */
-
 #include "main.h"
 
 //These are for multi-platform physical core detection
