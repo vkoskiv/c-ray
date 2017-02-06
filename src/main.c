@@ -57,6 +57,18 @@ color rayTrace(lightRay *incidentRay, world *worldScene);
 int getSysCores();
 vector getRandomVecOnRadius(vector center, float radius);
 
+//Signal handling
+void (*signal(int signo, void (*func )(int)))(int);
+typedef void sigfunc(int);
+sigfunc *signal(int, sigfunc*);
+
+void sigHandler(int sig) {
+	if (sig == SIGINT) {
+		printf("Received CTRL-C, aborting...\n");
+		exit(1);
+	}
+}
+
 int main(int argc, char *argv[]) {
 	
 	renderThreadCount = getSysCores();
@@ -422,6 +434,9 @@ void *drawThread(void *arg) {
 	SDL_SetRenderDrawColor(windowRenderer, 0x0, 0x0, 0x0, 0x0);
 	SDL_RenderClear(windowRenderer);
 	while (isRendering) {
+		//Check for CTRL-C
+		if (signal(SIGINT, sigHandler) == SIG_ERR)
+			fprintf(stderr, "Couldn't catch SIGINT\n");
 		pthread_mutex_lock(&uimutex);
 		SDL_UpdateTexture(texture, NULL, worldScene->camera->imgData, worldScene->camera->width * 3);
 		SDL_RenderCopy(windowRenderer, texture, NULL, NULL);
@@ -429,37 +444,6 @@ void *drawThread(void *arg) {
 		pthread_mutex_unlock(&uimutex);
 	}
 	pthread_exit((void*) arg);
-}
-
-void keyboardFunc( unsigned char key, int x, int y )
-{
-	switch ( key )
-	{
-		case 27: // Escape key
-			exit(0);
-			break;
-		case ' ':
-		{
-			Matrix4f eye = Matrix4f::identity();
-			camera.SetRotation(eye);
-			camera.SetCenter(Vector3f(0,0,0));
-			break;
-		}
-		case 'c':
-		case 'C':
-			gCurveMode = (gCurveMode+1)%3;
-			break;
-		case 's':
-		case 'S':
-			gSurfaceMode = (gSurfaceMode+1)%3;
-			break;
-		case 'p':
-		case 'P':
-			gPointMode = (gPointMode+1)%2;
-			break;
-		default:
-			cout << "Unhandled key press " << key << "." << endl;
-	}
 }
 
 #pragma mark Renderer
