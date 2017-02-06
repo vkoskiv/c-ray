@@ -9,29 +9,28 @@
 #include "errorhandler.h"
 
 //Prototype
-void print_trace(void);
 void logr(const char *log, logSource source);
 
 void logHandler(renderLog error) {
     switch (error) {
         case threadMallocFailed:
             logr("Failed to allocate memory for thread args, aborting.", renderer);
-            print_trace();
+			exit(-1);
             break;
         case imageMallocFailed:
             logr("Failed to allocate memory for image data, aborting.", renderer);
-            print_trace();
+            exit(-1);
             break;
         case sceneBuildFailed:
             logr("Scene builder failed. (Missing scene file.) Aborting.", sceneBuilder);
-            print_trace();
+            exit(-1);
             break;
         case invalidThreadCount:
             logr("Render sections and thread count are not even. Render will be corrupted (likely).", renderer);
             break;
         case threadFrozen:
             logr("A thread has frozen. Aborting.", renderer);
-            print_trace();
+            exit(-1);
             break;
         case defaultError:
             logr("Something went wrong. Aborting.", defaultSource);
@@ -65,19 +64,19 @@ void logHandler(renderLog error) {
             break;
 		case dontTurnOnTheAntialiasingYouDoofus:
 			logr("You fucked up.", renderer);
-			print_trace();
+			exit(-1);
 			break;
 		case renderErrorInvalidSampleCount:
 			logr("Samples set to less than 1, aborting.", renderer);
-			print_trace();
+			exit(-1);
 			break;
 		case drawTaskMallocFailed:
 			logr("Failed to allocate memory for UI draw tasks", renderer);
-			print_trace();
+			exit(-1);
 			break;
         default:
             logr("Something went wrong. Aborting.", defaultSource);
-            print_trace();
+            exit(-1);
             break;
     }
 }
@@ -110,22 +109,4 @@ void logr(const char *log, logSource source) {
             break;
     }
     printf("%s\n",log);
-}
-
-void print_trace(void) {
-    void *array[10];
-    size_t size;
-    char **strings;
-    size_t i;
-    
-    size = backtrace (array, 10);
-    strings = backtrace_symbols (array, (int)size);
-    
-    printf ("Obtained %zd stack frames.\n", size);
-    
-    for (i = 0; i < size; i++)
-        printf ("%s\n", strings[i]);
-    
-    free (strings);
-    abort();
 }

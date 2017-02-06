@@ -488,18 +488,18 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
 	scene->camera->width = 1280;
-	scene->camera->height = 720;
-	scene->camera->fileType = png;
-	scene->camera->viewPerspective.projectionType = conic ;
+	scene->camera->height = 800;
 	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->antialiased = false;
+	scene->camera->sampleCount = 5;
+	scene->camera-> frameCount = 1;
+	scene->camera->    bounces = 3;
+	scene->camera->   contrast = 0.6;
+	scene->camera->   fileType = png;
+	scene->camera->viewPerspective.projectionType = conic ;
+	scene->camera->    antialiased = false;
 	scene->camera->forceSingleCore = false;
-	scene->camera->showGUI = true;
-	scene->camera->sampleCount = 20;
-	scene->camera->areaLights = true;
-	scene->camera->frameCount = 1;
-	scene->camera->bounces = 3;
-	scene->camera->contrast = 1.0;
+	scene->camera->        showGUI = true;
+	scene->camera->     areaLights = true;
 	scene->camera->pos = vectorWithPos(940, 480, 0);
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));

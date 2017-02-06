@@ -41,8 +41,14 @@ Output file dir is hard-coded
 world *worldScene = NULL;
 int sectionSize = 0;
 int renderThreadCount = 0;
+//SDL globals
+SDL_Window *window = NULL;
+SDL_Renderer *windowRenderer = NULL;
+SDL_Texture *texture = NULL;
+bool isRendering = false;
+pthread_mutex_t uimutex = PTHREAD_MUTEX_INITIALIZER;
 
-//Prototypes
+//Function prototypes
 void *renderThread(void *arg);
 void updateProgress(int y, int max, int min);
 void printDuration(double time);
@@ -50,13 +56,6 @@ int getFileSize(char *fileName);
 color rayTrace(lightRay *incidentRay, world *worldScene);
 int getSysCores();
 vector getRandomVecOnRadius(vector center, float radius);
-
-//SDL globals
-SDL_Window *window = NULL;
-SDL_Renderer *windowRenderer = NULL;
-SDL_Texture *texture = NULL;
-bool isRendering = false;
-pthread_mutex_t uimutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char *argv[]) {
 	
@@ -111,7 +110,7 @@ int main(int argc, char *argv[]) {
 		worldScene->camera->pos = vectorWithPos(940, 480, camPos);
 		camPos += 10;
 		
-		float windowScale = 0.8;
+		float windowScale = 0.5;
 		
 		//Initialize SDL if need be
 		if (worldScene->camera->showGUI) {
@@ -417,19 +416,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 	return output;
 }
 
-/*void *drawThread(void *arg) {
-	SDL_SetRenderDrawColor(windowRenderer, 0x0, 0x0, 0x0, 0x0);
-	SDL_RenderClear(windowRenderer);
-	while (isRendering) {
-		pthread_mutex_lock(&uimutex);
-		drawTask task = getTask();
-		SDL_SetRenderDrawColor(windowRenderer, task.red, task.green, task.blue, 1);
-		SDL_RenderDrawPoint(windowRenderer, task.x, task.y);
-		SDL_RenderPresent(windowRenderer);
-		pthread_mutex_unlock(&uimutex);
-	}
-	pthread_exit((void*) arg);
-}*/
+#pragma mark UI
 
 void *drawThread(void *arg) {
 	SDL_SetRenderDrawColor(windowRenderer, 0x0, 0x0, 0x0, 0x0);
@@ -437,12 +424,45 @@ void *drawThread(void *arg) {
 	while (isRendering) {
 		pthread_mutex_lock(&uimutex);
 		SDL_UpdateTexture(texture, NULL, worldScene->camera->imgData, worldScene->camera->width * 3);
-		SDL_RenderCopy( windowRenderer, texture, NULL, NULL );
-		SDL_RenderPresent( windowRenderer );
+		SDL_RenderCopy(windowRenderer, texture, NULL, NULL);
+		SDL_RenderPresent(windowRenderer);
 		pthread_mutex_unlock(&uimutex);
 	}
 	pthread_exit((void*) arg);
 }
+
+void keyboardFunc( unsigned char key, int x, int y )
+{
+	switch ( key )
+	{
+		case 27: // Escape key
+			exit(0);
+			break;
+		case ' ':
+		{
+			Matrix4f eye = Matrix4f::identity();
+			camera.SetRotation(eye);
+			camera.SetCenter(Vector3f(0,0,0));
+			break;
+		}
+		case 'c':
+		case 'C':
+			gCurveMode = (gCurveMode+1)%3;
+			break;
+		case 's':
+		case 'S':
+			gSurfaceMode = (gSurfaceMode+1)%3;
+			break;
+		case 'p':
+		case 'P':
+			gPointMode = (gPointMode+1)%2;
+			break;
+		default:
+			cout << "Unhandled key press " << key << "." << endl;
+	}
+}
+
+#pragma mark Renderer
 
 void *renderThread(void *arg) {
 	lightRay incidentRay;
