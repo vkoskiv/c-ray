@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
 		worldScene->camera->pos = vectorWithPos(940, 480, camPos);
 		camPos += 10;
 		
-		float windowScale = 0.5;
+		float windowScale = worldScene->camera->windowScale;
 		
 		//Initialize SDL if need be
 		if (worldScene->camera->showGUI) {
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
 				return -1;
 			}
 			//Init window
-			window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, worldScene->camera->width * windowScale, worldScene->camera->height * windowScale, SDL_WINDOW_SHOWN);
+			window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, worldScene->camera->width * windowScale, worldScene->camera->height * windowScale, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
 			if (window == NULL) {
 				fprintf(stdout, "Window couldn't be created, error %s\n", SDL_GetError());
 				return -1;

@@ -42,6 +42,7 @@ typedef struct {
     int currentFrame;
 	int bounces;
 	float contrast;
+	float windowScale;
 }camera;
 
 #endif /* defined(__C_Ray__camera__) */

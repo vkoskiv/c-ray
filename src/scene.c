@@ -490,10 +490,11 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->width = 1280;
 	scene->camera->height = 800;
 	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->sampleCount = 1;
+	scene->camera->sampleCount = 100;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.6;
+	scene->camera->windowScale = 0.5;
 	scene->camera->   fileType = png;
 	scene->camera->viewPerspective.projectionType = conic ;
 	scene->camera->forceSingleCore = false;
