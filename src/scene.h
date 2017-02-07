@@ -16,45 +16,7 @@
 #include "camera.h"
 #include "color.h"
 #include "light.h"
-
-//material
-typedef struct {
-	char name[MATERIAL_NAME_SIZE];
-	char textureFilename[OBJ_FILENAME_LENGTH];
-	color ambient;
-    color diffuse;
-	color specular;
-	double reflectivity;
-	double refractivity;
-	double transparency;
-	double sharpness;
-	double glossiness;
-	double refractionIndex;
-}material;
-
-typedef enum {
-	transformTypeXRotate,
-	transformTypeYRotate,
-	transformTypeZRotate,
-	transformTypeTranslate,
-	transformTypeScale,
-	transformTypeMultiplication
-}transformType;
-
-//Reference: http://tinyurl.com/ho6h6mr
-typedef struct {
-	transformType type;
-	int a, b, c, d;
-	int e, f, g, h;
-	int i, j, k, l;
-	int m, n, o, p;
-}matrixTransform;
-
-typedef struct {
-	material material;
-	poly *polygons;
-	matrixTransform *transforms;
-}crayOBJ;
+#include "transforms.h"
 
 //World
 typedef struct {

@@ -16,6 +16,21 @@ typedef struct {
 	double red, green, blue, alpha;
 }color;
 
+//material
+typedef struct {
+	char name[MATERIAL_NAME_SIZE];
+	char textureFilename[OBJ_FILENAME_LENGTH];
+	color ambient;
+	color diffuse;
+	color specular;
+	double reflectivity;
+	double refractivity;
+	double transparency;
+	double sharpness;
+	double glossiness;
+	double refractionIndex;
+}material;
+
 //Some standard colours
 extern color redColor;
 extern color greenColor;
