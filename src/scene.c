@@ -479,18 +479,90 @@ int allocMemory(world *scene, char *inputFileName);
     }
 }*/
 
+vector vectorFromObj(obj_vector *vec) {
+	vector vector;
+	vector.x = vec->e[0];
+	vector.y = vec->e[1];
+	vector.z = vec->e[2];
+	return vector;
+}
+
+poly polyFromObj(obj_face *face) {
+	poly polygon = *(poly*)malloc(sizeof(poly));
+	polygon.vertexCount = face->vertex_count;
+	polygon.materialIndex = face->material_index;
+	for (int i = 0; i < polygon.vertexCount; i++) {
+		polygon.vertexIndex[i] = face->vertex_index[i];
+	}
+	for (int i = 0; i < polygon.vertexCount; i++)
+		polygon.normalIndex[i] = face->normal_index[i];
+	for (int i = 0; i < polygon.vertexCount; i++)
+		polygon.textureIndex[i] = face->texture_index[i];
+	return polygon;
+}
+
+light lightFromObj(obj_light_point *objLight) {
+	//FIXME
+	light light;
+	light.pos = vertexArray[objLight->pos_index];
+	light.intensity = colorWithValues(10, 10, 10, 0);
+	light.radius = 60;
+	return light;
+}
+
+void loadOBJ(world *scene, char *inputFileName) {
+	//FIXME: Handle inputFileName validation
+	obj_scene_data data;
+	parse_obj_scene(&data, inputFileName);
+	vertexCount = data.vertex_count;
+	
+	scene->sphereAmount += data.sphere_count;
+	scene->objCount++;
+	
+	//Convert vectors
+	vertexArray = (vector*)realloc(vertexArray, sizeof(vertexArray) + (data.vertex_count * sizeof(vector)));
+	for (int i = 0; i < data.vertex_count; i++) {
+		vertexArray[i] = vectorFromObj(data.vertex_list[i]);
+		vertexArray[i].isTransformed = false;
+	}
+	//Convert normals
+	normalArray = (vector*)realloc(normalArray, sizeof(normalArray) + (data.vertex_normal_count * sizeof(vector)));
+	for (int i = 0; i < data.vertex_normal_count; i++) {
+		normalArray[i] = vectorFromObj(data.vertex_normal_list[i]);
+	}
+	//Convert texture coords
+	textureArray = (vector*)realloc(textureArray, sizeof(textureArray) + (data.vertex_texture_count * sizeof(vector)));
+	for (int i = 0; i < data.vertex_texture_count; i++) {
+		textureArray[i] = vectorFromObj(data.vertex_texture_list[i]);
+	}
+	
+	scene->objs[0].polys = (poly*)calloc(data.face_count, sizeof(poly));
+	for (int i = 0; i < data.face_count; i++) {
+		scene->objs[0].polys[i] = polyFromObj(data.face_list[i]);
+		scene->objs[0].polys[i].materialIndex = 3;
+	}
+	
+	scene->objs[0].transforms = (matrixTransform*)calloc(3, sizeof(matrixTransform));
+	scene->objs[0].transforms[0] = emptyTransform();
+	scene->objs[0].transforms[1] = emptyTransform();
+	scene->objs[0].transforms[2] = emptyTransform();
+	scene->objs[0].polyCount = data.face_count;
+}
+
 int testBuild(world *scene, char *inputFileName) {
 	scene->  sphereAmount = 3;
 	scene-> polygonAmount = 13;
 	scene->materialAmount = 10;
 	scene->   lightAmount = 5;
+	scene->      objCount = 1;
+	scene->customVertexCount = 23;
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 1280;
-	scene->camera->height = 800;
+	scene->camera->width = 1920;
+	scene->camera->height = 1080;
 	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->sampleCount = 100;
+	scene->camera->sampleCount = 1000;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.6;
@@ -507,128 +579,136 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	vertexCount = 23;
-	vertexArray = (vector*)calloc(vertexCount, sizeof(vector));
+	scene->objs = (crayOBJ*)calloc(scene->objCount, sizeof(crayOBJ));
+	loadOBJ(scene, "../output/monkey.obj");
+	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
+	scene->objs[0].transforms[1] = newTransformRotateY(3.14);
+	scene->objs[0].transforms[2] = newTransformTranslate(640, 500, 700);
+	scene->objs[0].transformCount = 3;
+	
+	//Just transform here for now
+	transformMesh(&scene->objs[0]);
+	
+	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+24) * sizeof(vector)) + (23 * sizeof(vector)));
 	
 	//Hard coded vertices for this test
 	//Vertices
 	//FLOOR
-	vertexArray[0] = vectorWithPos(200,300,0);
-	vertexArray[1] = vectorWithPos(1720,300,0);
-	vertexArray[2] = vectorWithPos(200,300,2000);
-	vertexArray[3] = vectorWithPos(1720,300,2000);
+	vertexArray[vertexCount + 0] = vectorWithPos(200,300,0);
+	vertexArray[vertexCount + 1] = vectorWithPos(1720,300,0);
+	vertexArray[vertexCount + 2] = vectorWithPos(200,300,2000);
+	vertexArray[vertexCount + 3] = vectorWithPos(1720,300,2000);
 	//CEILING
-	vertexArray[4] = vectorWithPos(200,840,0);
-	vertexArray[5] = vectorWithPos(1720,840,0);
-	vertexArray[6] = vectorWithPos(200,840,2000);
-	vertexArray[7] = vectorWithPos(1720,840,2000);
+	vertexArray[vertexCount + 4] = vectorWithPos(200,840,0);
+	vertexArray[vertexCount + 5] = vectorWithPos(1720,840,0);
+	vertexArray[vertexCount + 6] = vectorWithPos(200,840,2000);
+	vertexArray[vertexCount + 7] = vectorWithPos(1720,840,2000);
 	
 	//MIRROR PLANE
-	vertexArray[8] = vectorWithPos(1420,750,1800);
-	vertexArray[9] = vectorWithPos(1420,300,1800);
-	vertexArray[10] = vectorWithPos(1620,750,1700);
-	vertexArray[11] = vectorWithPos(1620,300,1700);
+	vertexArray[vertexCount + 8] = vectorWithPos(1420,750,1800);
+	vertexArray[vertexCount + 9] = vectorWithPos(1420,300,1800);
+	vertexArray[vertexCount + 10] = vectorWithPos(1620,750,1700);
+	vertexArray[vertexCount + 11] = vectorWithPos(1620,300,1700);
 	//SHADOW TEST
-	vertexArray[12] = vectorWithPos(1000,450,1100);
-	vertexArray[13] = vectorWithPos(1300,700,1100);
-	vertexArray[14] = vectorWithPos(1000,700,1300);
+	vertexArray[vertexCount + 12] = vectorWithPos(1000,450,1100);
+	vertexArray[vertexCount + 13] = vectorWithPos(1300,700,1100);
+	vertexArray[vertexCount + 14] = vectorWithPos(1000,700,1300);
 	//LIGHTS
-	vertexArray[15] = vectorWithPos(1160,400,0);
-	vertexArray[16] = vectorWithPos(760,500,0);
+	vertexArray[vertexCount + 15] = vectorWithPos(1160,400,0);
+	vertexArray[vertexCount + 16] = vectorWithPos(760,500,0);
 	//SPHERES
-	vertexArray[17] = vectorWithPos(650,450,1650);
-	vertexArray[18] = vectorWithPos(950,350,1000);
-	vertexArray[19] = vectorWithPos(1100,350,1000);
+	vertexArray[vertexCount + 17] = vectorWithPos(650,450,1650);
+	vertexArray[vertexCount + 18] = vectorWithPos(950,350,1000);
+	vertexArray[vertexCount + 19] = vectorWithPos(1100,350,1000);
 	//Extra RED
-	vertexArray[20] = vectorWithPos(640, 350, 600);
+	vertexArray[vertexCount + 20] = vectorWithPos(640, 350, 600);
 	//Extra GREEN
-	vertexArray[21] = vectorWithPos(940, 350, 600);
+	vertexArray[vertexCount + 21] = vectorWithPos(940, 350, 600);
 	//Extra BLUE
-	vertexArray[22] = vectorWithPos(1240, 350, 600);
+	vertexArray[vertexCount + 22] = vectorWithPos(1240, 350, 600);
 	//CAMERA
 	//vertexArray[20] = vectorWithPos(940,480,0);
-	
 	//POLYGONS
 	
 	scene->polys = (poly*)calloc(scene->polygonAmount, sizeof(poly));
 	
 	//FLOOR
 	scene->polys[0].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[0].vertexIndex[0] = 0;
-	scene->polys[0].vertexIndex[1] = 1;
-	scene->polys[0].vertexIndex[2] = 2;
+	scene->polys[0].vertexIndex[0] = vertexCount + 0;
+	scene->polys[0].vertexIndex[1] = vertexCount + 1;
+	scene->polys[0].vertexIndex[2] = vertexCount + 2;
 	scene->polys[0].materialIndex = 3;
 	scene->polys[1].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[1].vertexIndex[0] = 1;
-	scene->polys[1].vertexIndex[1] = 2;
-	scene->polys[1].vertexIndex[2] = 3;
+	scene->polys[1].vertexIndex[0] = vertexCount + 1;
+	scene->polys[1].vertexIndex[1] = vertexCount + 2;
+	scene->polys[1].vertexIndex[2] = vertexCount + 3;
 	scene->polys[1].materialIndex = 3;
 	
 	//CEILING
 	scene->polys[2].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[2].vertexIndex[0] = 4;
-	scene->polys[2].vertexIndex[1] = 5;
-	scene->polys[2].vertexIndex[2] = 6;
+	scene->polys[2].vertexIndex[0] = vertexCount + 4;
+	scene->polys[2].vertexIndex[1] = vertexCount + 5;
+	scene->polys[2].vertexIndex[2] = vertexCount + 6;
 	scene->polys[2].materialIndex = 3;
 	scene->polys[3].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[3].vertexIndex[0] = 5;
-	scene->polys[3].vertexIndex[1] = 6;
-	scene->polys[3].vertexIndex[2] = 7;
+	scene->polys[3].vertexIndex[0] = vertexCount + 5;
+	scene->polys[3].vertexIndex[1] = vertexCount + 6;
+	scene->polys[3].vertexIndex[2] = vertexCount + 7;
 	scene->polys[3].materialIndex = 3;
 	
 	//MIRROR PLANE
 	scene->polys[4].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[4].vertexIndex[0] = 8;
-	scene->polys[4].vertexIndex[1] = 9;
-	scene->polys[4].vertexIndex[2] = 10;
+	scene->polys[4].vertexIndex[0] = vertexCount + 8;
+	scene->polys[4].vertexIndex[1] = vertexCount + 9;
+	scene->polys[4].vertexIndex[2] = vertexCount + 10;
 	scene->polys[4].materialIndex = 5;
 	scene->polys[5].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[5].vertexIndex[0] = 9;
-	scene->polys[5].vertexIndex[1] = 10;
-	scene->polys[5].vertexIndex[2] = 11;
+	scene->polys[5].vertexIndex[0] = vertexCount + 9;
+	scene->polys[5].vertexIndex[1] = vertexCount + 10;
+	scene->polys[5].vertexIndex[2] = vertexCount + 11;
 	scene->polys[5].materialIndex = 5;
 	
 	//SHADOW TEST POLY
 	scene->polys[6].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[6].vertexIndex[0] = 12;
-	scene->polys[6].vertexIndex[1] = 13;
-	scene->polys[6].vertexIndex[2] = 14;
+	scene->polys[6].vertexIndex[0] = vertexCount + 12;
+	scene->polys[6].vertexIndex[1] = vertexCount + 13;
+	scene->polys[6].vertexIndex[2] = vertexCount + 14;
 	scene->polys[6].materialIndex = 4;
 	
 	//REAR WALL
 	scene->polys[7].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[7].vertexIndex[0] = 2;
-	scene->polys[7].vertexIndex[1] = 3;
-	scene->polys[7].vertexIndex[2] = 6;
+	scene->polys[7].vertexIndex[0] = vertexCount + 2;
+	scene->polys[7].vertexIndex[1] = vertexCount + 3;
+	scene->polys[7].vertexIndex[2] = vertexCount + 6;
 	scene->polys[7].materialIndex = 1;
 	scene->polys[8].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[8].vertexIndex[0] = 3;
-	scene->polys[8].vertexIndex[1] = 6;
-	scene->polys[8].vertexIndex[2] = 7;
+	scene->polys[8].vertexIndex[0] = vertexCount + 3;
+	scene->polys[8].vertexIndex[1] = vertexCount + 6;
+	scene->polys[8].vertexIndex[2] = vertexCount + 7;
 	scene->polys[8].materialIndex = 1;
 	
 	//LEFT WALL
 	scene->polys[9].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[9].vertexIndex[0] = 0;
-	scene->polys[9].vertexIndex[1] = 2;
-	scene->polys[9].vertexIndex[2] = 4;
+	scene->polys[9].vertexIndex[0] = vertexCount + 0;
+	scene->polys[9].vertexIndex[1] = vertexCount + 2;
+	scene->polys[9].vertexIndex[2] = vertexCount + 4;
 	scene->polys[9].materialIndex = 0;
 	scene->polys[10].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[10].vertexIndex[0] = 2;
-	scene->polys[10].vertexIndex[1] = 4;
-	scene->polys[10].vertexIndex[2] = 6;
+	scene->polys[10].vertexIndex[0] = vertexCount + 2;
+	scene->polys[10].vertexIndex[1] = vertexCount + 4;
+	scene->polys[10].vertexIndex[2] = vertexCount + 6;
 	scene->polys[10].materialIndex = 0;
 	
 	//RIGHT WALL
 	scene->polys[11].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[11].vertexIndex[0] = 1;
-	scene->polys[11].vertexIndex[1] = 3;
-	scene->polys[11].vertexIndex[2] = 5;
+	scene->polys[11].vertexIndex[0] = vertexCount + 1;
+	scene->polys[11].vertexIndex[1] = vertexCount + 3;
+	scene->polys[11].vertexIndex[2] = vertexCount + 5;
 	scene->polys[11].materialIndex = 2;
 	scene->polys[12].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[12].vertexIndex[0] = 3;
-	scene->polys[12].vertexIndex[1] = 5;
-	scene->polys[12].vertexIndex[2] = 7;
+	scene->polys[12].vertexIndex[0] = vertexCount + 3;
+	scene->polys[12].vertexIndex[1] = vertexCount + 5;
+	scene->polys[12].vertexIndex[2] = vertexCount + 7;
 	scene->polys[12].materialIndex = 2;
 	
 	//MATERIALS
@@ -655,41 +735,45 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->materials[9].reflectivity = 0;
 	
 	scene->lights = (light*)calloc(scene->lightAmount, sizeof(light));
-	scene->lights[0].pos = vertexArray[15];
+	scene->lights[0].pos = vertexArray[vertexCount + 15];
 	scene->lights[0].intensity = colorWithValues(0.2, 0.2, 0.2, 0);
 	scene->lights[0].radius = 13;
 	
-	scene->lights[1].pos = vertexArray[16];
+	scene->lights[1].pos = vertexArray[vertexCount + 16];
 	scene->lights[1].intensity = colorWithValues(0.2, 0.2, 0.2, 0);
 	scene->lights[1].radius = 42;
 	
 	//RED
-	scene->lights[2].pos = vertexArray[20];
+	scene->lights[2].pos = vertexArray[vertexCount + 20];
 	scene->lights[2].intensity = colorWithValues(6.0, 0.0, 0.0, 0.0);
 	scene->lights[2].radius = 200;
 	//GREEN
-	scene->lights[3].pos = vertexArray[21];
+	scene->lights[3].pos = vertexArray[vertexCount + 21];
 	scene->lights[3].intensity = colorWithValues(0.0, 6.0, 0.0, 0.0);
 	scene->lights[3].radius = 200;
 	//BLUE
-	scene->lights[4].pos = vertexArray[22];
+	scene->lights[4].pos = vertexArray[vertexCount + 22];
 	scene->lights[4].intensity = colorWithValues(0.0, 0.0, 6.0, 0.0);
 	scene->lights[4].radius = 200;
 	
 	scene->spheres = (sphere*)calloc(scene->sphereAmount, sizeof(sphere));
-	scene->spheres[0].pos = vertexArray[17];
+	scene->spheres[0].pos = vertexArray[vertexCount + 17];
 	scene->spheres[0].material = 5;
 	scene->spheres[0].radius = 150;
 	
-	scene->spheres[1].pos = vertexArray[18];
+	scene->spheres[1].pos = vertexArray[vertexCount + 18];
 	scene->spheres[1].material = 6;
 	scene->spheres[1].radius = 50;
 	
-	scene->spheres[2].pos = vertexArray[19];
+	scene->spheres[2].pos = vertexArray[vertexCount + 19];
 	scene->spheres[2].material = 8;
 	scene->spheres[2].radius = 50;
 	
-	return 0;
+	if (TOKEN_DEBUG_ENABLED) {
+		return 4; //Debug mode - Won't render anything
+	} else {
+		return 0;
+	}
 }
 
 int allocMemory(world *scene, char *inputFileName) {

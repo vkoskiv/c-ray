@@ -14,6 +14,7 @@
 //Vector
 typedef struct {
 	double x, y, z;
+	bool isTransformed;
 }vector;
 
 extern int vertexCount;

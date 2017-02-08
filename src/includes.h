@@ -10,7 +10,7 @@
 #define C_Ray_includes_h
 
 //Global constants
-#define MAX_VERTEX_COUNT 4
+#define MAX_CRAY_VERTEX_COUNT 3
 
 //Master include file
 #include <stdio.h>

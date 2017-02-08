@@ -65,7 +65,6 @@ int main(int argc, char *argv[]) {
 	worldScene = &sceneObject; //Assign to global variable
 	
 	int frame = 0;
-	int camPos = 0;
 	
 	//Animation
 	do {
@@ -95,9 +94,6 @@ int main(int argc, char *argv[]) {
 			default:
 				break;
 		}
-		
-		worldScene->camera->pos = vectorWithPos(940, 480, camPos);
-		camPos += 10;
 		
 		float windowScale = worldScene->camera->windowScale;
 		
@@ -392,7 +388,9 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		int currentPolygon = -1;
 		int sphereAmount = worldScene->sphereAmount;
 		int polygonAmount = worldScene->polygonAmount;
+		int objPolyAmount = worldScene->objs[0].polyCount;
 		int lightSourceAmount = worldScene->lightAmount;
+		bool isOBJ = false;
 		
 		material currentMaterial;
 		vector polyNormal = {0.0, 0.0, 0.0};
@@ -402,6 +400,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		for (i = 0; i < sphereAmount; ++i) {
 			if (rayIntersectsWithSphere(incidentRay, &worldScene->spheres[i], &t)) {
 				currentSphere = i;
+				isOBJ = false;
 			}
 		}
 		
@@ -409,6 +408,15 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			if (rayIntersectsWithPolygon(incidentRay, &worldScene->polys[i], &t, &polyNormal)) {
 				currentPolygon = i;
 				currentSphere = -1;
+				isOBJ = false;
+			}
+		}
+		
+		for (int i = 0; i < objPolyAmount; i++) {
+			if (rayIntersectsWithPolygon(incidentRay, &worldScene->objs[0].polys[i], &t, &polyNormal)) {
+				currentPolygon = i;
+				currentSphere = -1;
+				isOBJ = true;
 			}
 		}
 		
@@ -430,7 +438,10 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			if (temp == 0.0f) break;
 			temp = invsqrtf(temp);
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
-			currentMaterial = worldScene->materials[worldScene->polys[currentPolygon].materialIndex];
+			if (isOBJ)
+				currentMaterial = worldScene->materials[worldScene->objs[0].polys[currentPolygon].materialIndex];
+			else
+				currentMaterial = worldScene->materials[worldScene->polys[currentPolygon].materialIndex];
 		} else {
 			//Ray didn't hit any object, set color to ambient
 			color temp = colorCoef(contrast, worldScene->ambientColor);

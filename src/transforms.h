@@ -23,22 +23,36 @@ typedef enum {
 	transformTypeZRotate,
 	transformTypeTranslate,
 	transformTypeScale,
-	transformTypeMultiplication
+	transformTypeMultiplication,
+	transformTypeNone
 }transformType;
 
 //Reference: http://tinyurl.com/ho6h6mr
 typedef struct {
 	transformType type;
-	int a, b, c, d;
-	int e, f, g, h;
-	int i, j, k, l;
-	int m, n, o, p;
+	double a, b, c, d;
+	double e, f, g, h;
+	double i, j, k, l;
+	double m, n, o, p;
 }matrixTransform;
 
 typedef struct {
+	int polyCount;
 	material material;
-	poly *polygons;
+	poly *polys;
 	matrixTransform *transforms;
+	int transformCount;
 }crayOBJ;
+
+//Transform types
+matrixTransform newTransformScale(double x, double y, double z);
+matrixTransform newTransformTranslate(double x, double y, double z);
+matrixTransform newTransformRotateX(float degrees);
+matrixTransform newTransformRotateY(float degrees);
+matrixTransform newTransformRotateZ(float degrees);
+matrixTransform emptyTransform();
+
+//Object transforms
+void transformMesh(crayOBJ *object);
 
 #endif /* transforms_h */

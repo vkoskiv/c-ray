@@ -20,11 +20,15 @@
 
 //World
 typedef struct {
+	crayOBJ *objs;
 	color *ambientColor;
 	light *lights;
 	material *materials;
 	sphere *spheres;
 	camera *camera;
+	
+	//Temporary
+	int customVertexCount;
 	
 	poly *polys;
 	

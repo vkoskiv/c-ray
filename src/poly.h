@@ -13,9 +13,9 @@
 #include "vector.h"
 
 typedef struct {
-	int vertexIndex[MAX_VERTEX_COUNT];
-	int normalIndex[MAX_VERTEX_COUNT];
-	int textureIndex[MAX_VERTEX_COUNT];
+	int vertexIndex[MAX_CRAY_VERTEX_COUNT];
+	int normalIndex[MAX_CRAY_VERTEX_COUNT];
+	int textureIndex[MAX_CRAY_VERTEX_COUNT];
 	int materialIndex;
 	int vertexCount;
     bool active;

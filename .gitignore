@@ -12,7 +12,6 @@ cray
 test.obj.txt
 *.ppm
 *.mtl
-*.obj
 sceneNew.txt
 monkey.mtl.txt
 monkey.obj.txt
