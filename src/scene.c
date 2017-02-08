@@ -512,6 +512,7 @@ light lightFromObj(obj_light_point *objLight) {
 
 void loadOBJ(world *scene, char *inputFileName) {
 	//FIXME: Handle inputFileName validation
+	printf("Loading OBJ %s\n", inputFileName);
 	obj_scene_data data;
 	parse_obj_scene(&data, inputFileName);
 	vertexCount = data.vertex_count;
@@ -521,35 +522,42 @@ void loadOBJ(world *scene, char *inputFileName) {
 	
 	//Convert vectors
 	vertexArray = (vector*)realloc(vertexArray, sizeof(vertexArray) + (data.vertex_count * sizeof(vector)));
+	printf("Converting vectors\n");
 	for (int i = 0; i < data.vertex_count; i++) {
 		vertexArray[i] = vectorFromObj(data.vertex_list[i]);
 		vertexArray[i].isTransformed = false;
 	}
 	//Convert normals
 	normalArray = (vector*)realloc(normalArray, sizeof(normalArray) + (data.vertex_normal_count * sizeof(vector)));
+	printf("Converting normals\n");
 	for (int i = 0; i < data.vertex_normal_count; i++) {
 		normalArray[i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture coords
 	textureArray = (vector*)realloc(textureArray, sizeof(textureArray) + (data.vertex_texture_count * sizeof(vector)));
+	printf("Converting texture coordinates\n");
 	for (int i = 0; i < data.vertex_texture_count; i++) {
 		textureArray[i] = vectorFromObj(data.vertex_texture_list[i]);
 	}
-	
+	printf("Translating faces\n");
 	scene->objs[0].polys = (poly*)calloc(data.face_count, sizeof(poly));
 	for (int i = 0; i < data.face_count; i++) {
 		scene->objs[0].polys[i] = polyFromObj(data.face_list[i]);
 		scene->objs[0].polys[i].materialIndex = 3;
 	}
-	
+	printf("Loading transforms\n");
 	scene->objs[0].transforms = (matrixTransform*)calloc(3, sizeof(matrixTransform));
 	scene->objs[0].transforms[0] = emptyTransform();
 	scene->objs[0].transforms[1] = emptyTransform();
 	scene->objs[0].transforms[2] = emptyTransform();
 	scene->objs[0].polyCount = data.face_count;
+	
+	printf("Loaded OBJ! Translated %i faces\n", data.face_count);
 }
 
 int testBuild(world *scene, char *inputFileName) {
+	printf("Starting SceneBuilder V0.2\n");
+	
 	scene->  sphereAmount = 3;
 	scene-> polygonAmount = 13;
 	scene->materialAmount = 10;
@@ -559,10 +567,10 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 1920;
-	scene->camera->height = 1080;
+	scene->camera->width = 1280;
+	scene->camera->height = 800;
 	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->sampleCount = 1000;
+	scene->camera->sampleCount = 100;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.6;
@@ -580,14 +588,16 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->blue = 0.6;
 	
 	scene->objs = (crayOBJ*)calloc(scene->objCount, sizeof(crayOBJ));
-	loadOBJ(scene, "../output/monkey.obj");
+	loadOBJ(scene, "../output/monkeyLF.obj");
 	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
 	scene->objs[0].transforms[1] = newTransformRotateY(3.14);
 	scene->objs[0].transforms[2] = newTransformTranslate(640, 500, 700);
 	scene->objs[0].transformCount = 3;
 	
 	//Just transform here for now
+	printf("Running transforms...\n");
 	transformMesh(&scene->objs[0]);
+	printf("Transforms done\n");
 	
 	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+24) * sizeof(vector)) + (23 * sizeof(vector)));
 	
