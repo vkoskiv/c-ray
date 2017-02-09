@@ -39,6 +39,16 @@ WINDOWS:
 
 You really thought I wrote tests...?
 
+## Credits
+
+3rd party libraries included in this project
+
+OBJ Loader library: http://www.kixor.net/dev/objloader/
+
+lodePNG PNG compression library: http://lodev.org/lodepng/
+
+SDL2: https://www.libsdl.org/index.php
+
 ## Contributors
 
 If you know more than me, please do get in touch at vkoskiv [at] gmail (dot) com!
