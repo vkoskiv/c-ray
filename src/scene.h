@@ -29,9 +29,7 @@ typedef struct {
 	
 	//Temporary
 	int customVertexCount;
-	
-	poly *polys;
-	
+
 	int sphereAmount;
 	int polygonAmount;
 	int materialAmount;

@@ -60,7 +60,6 @@ int main(int argc, char *argv[]) {
 	world sceneObject;
 	sceneObject.materials = NULL;
 	sceneObject.spheres = NULL;
-	sceneObject.polys = NULL;
 	sceneObject.lights = NULL;
 	worldScene = &sceneObject; //Assign to global variable
 	
@@ -235,8 +234,6 @@ int main(int argc, char *argv[]) {
 			free(worldScene->lights);
 		if (worldScene->spheres)
 			free(worldScene->spheres);
-		if (worldScene->polys)
-			free(worldScene->polys);
 		if (worldScene->materials)
 			free(worldScene->materials);
 	} while (worldScene->camera->currentFrame < worldScene->camera->frameCount);
@@ -387,10 +384,8 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		int currentSphere = -1;
 		int currentPolygon = -1;
 		int sphereAmount = worldScene->sphereAmount;
-		int polygonAmount = worldScene->polygonAmount;
-		int objPolyAmount = worldScene->objs[0].polyCount;
+		int polygonAmount = fullPolyCount;
 		int lightSourceAmount = worldScene->lightAmount;
-		bool isOBJ = false;
 		
 		material currentMaterial;
 		vector polyNormal = {0.0, 0.0, 0.0};
@@ -400,23 +395,13 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		for (i = 0; i < sphereAmount; ++i) {
 			if (rayIntersectsWithSphere(incidentRay, &worldScene->spheres[i], &t)) {
 				currentSphere = i;
-				isOBJ = false;
 			}
 		}
 		
 		for (i = 0; i < polygonAmount; ++i) {
-			if (rayIntersectsWithPolygon(incidentRay, &worldScene->polys[i], &t, &polyNormal)) {
+			if (rayIntersectsWithPolygon(incidentRay, &polygonArray[i], &t, &polyNormal)) {
 				currentPolygon = i;
 				currentSphere = -1;
-				isOBJ = false;
-			}
-		}
-		
-		for (int i = 0; i < objPolyAmount; i++) {
-			if (rayIntersectsWithPolygon(incidentRay, &worldScene->objs[0].polys[i], &t, &polyNormal)) {
-				currentPolygon = i;
-				currentSphere = -1;
-				isOBJ = true;
 			}
 		}
 		
@@ -438,10 +423,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			if (temp == 0.0f) break;
 			temp = invsqrtf(temp);
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
-			if (isOBJ)
-				currentMaterial = worldScene->materials[worldScene->objs[0].polys[currentPolygon].materialIndex];
-			else
-				currentMaterial = worldScene->materials[worldScene->polys[currentPolygon].materialIndex];
+			currentMaterial = worldScene->materials[polygonArray[currentPolygon].materialIndex];
 		} else {
 			//Ray didn't hit any object, set color to ambient
 			color temp = colorCoef(contrast, worldScene->ambientColor);
@@ -499,7 +481,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			}
 			
 			for (k = 0; k < polygonAmount; ++k) {
-				if (rayIntersectsWithPolygon(&bouncedRay, &worldScene->polys[k], &t, &polyNormal)) {
+				if (rayIntersectsWithPolygon(&bouncedRay, &polygonArray[k], &t, &polyNormal)) {
 					inShadow = true;
 					break;
 				}

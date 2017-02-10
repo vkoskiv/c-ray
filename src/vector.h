@@ -14,15 +14,20 @@
 //Vector
 typedef struct {
 	double x, y, z;
+	//Polygons can share vertexes, so when we perform transforms
+	//We want to avoid transforming a vector multiple times
+	//So we keep track of that with the isTransformed flag.
+	//This is reset after each transform, so all vertexes SHOULD
+	//have this as FALSE when render starts.
 	bool isTransformed;
 }vector;
 
-extern int vertexCount;
-extern int normalCount;
-extern int textureCount;
 extern vector *vertexArray;
+extern int vertexCount;
 extern vector *normalArray;
+extern int normalCount;
 extern vector *textureArray;
+extern int textureCount;
 
 //Simulated light ray
 typedef struct {

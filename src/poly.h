@@ -12,6 +12,7 @@
 #include "includes.h"
 #include "vector.h"
 
+
 typedef struct {
 	int vertexIndex[MAX_CRAY_VERTEX_COUNT];
 	int normalIndex[MAX_CRAY_VERTEX_COUNT];
@@ -20,6 +21,10 @@ typedef struct {
 	int vertexCount;
     bool active;
 }poly;
+
+//Main polygon array
+extern poly *polygonArray;
+extern int fullPolyCount;
 
 //Calculates intersection between a light ray and a polygon object. Returns true if intersection has happened.
 bool rayIntersectsWithPolygon(lightRay *ray, poly *poly, double *result, vector *normal);

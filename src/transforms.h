@@ -38,8 +38,7 @@ typedef struct {
 
 typedef struct {
 	int polyCount;
-	material material;
-	poly *polys;
+	int firstPolyIndex;
 	matrixTransform *transforms;
 	int transformCount;
 }crayOBJ;

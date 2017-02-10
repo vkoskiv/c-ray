@@ -8,12 +8,13 @@
 
 #include "vector.h"
 
-int vertexCount;
-int normalCount;
-int textureCount;
+//Main vertex arrays
 vector *vertexArray;
+int vertexCount;
 vector *normalArray;
+int normalCount;
 vector *textureArray;
+int textureCount;
 
 /* Vector Functions */
 

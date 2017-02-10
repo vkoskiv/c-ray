@@ -501,56 +501,56 @@ poly polyFromObj(obj_face *face) {
 	return polygon;
 }
 
-light lightFromObj(obj_light_point *objLight) {
-	//FIXME
-	light light;
-	light.pos = vertexArray[objLight->pos_index];
-	light.intensity = colorWithValues(10, 10, 10, 0);
-	light.radius = 60;
-	return light;
-}
-
-void loadOBJ(world *scene, char *inputFileName) {
+void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	//FIXME: Handle inputFileName validation
 	printf("Loading OBJ %s\n", inputFileName);
 	obj_scene_data data;
 	parse_obj_scene(&data, inputFileName);
-	vertexCount = data.vertex_count;
+	printf("OBJ loaded, converting\n");
 	
-	scene->sphereAmount += data.sphere_count;
+	//Update vector counts
+	vertexCount  += data.vertex_count;
+	normalCount  += data.vertex_normal_count;
+	textureCount += data.vertex_texture_count;
+	//And update polygon count
+	fullPolyCount += data.face_count;
+	
+	//Create crayOBJ to keep track of transforms
 	scene->objCount++;
+	scene->objs = (crayOBJ*)realloc(scene->objs, scene->objCount * sizeof(crayOBJ));
+	scene->objs[scene->objCount - 1].polyCount = data.face_count;
+	scene->objs[scene->objCount - 1].firstPolyIndex = fullPolyCount - data.face_count;
+	
+	scene->objs[scene->objCount - 1].polyCount = data.face_count;
 	
 	//Convert vectors
-	vertexArray = (vector*)realloc(vertexArray, sizeof(vertexArray) + (data.vertex_count * sizeof(vector)));
+	vertexArray = (vector*)realloc(vertexArray, vertexCount * sizeof(vector));
 	printf("Converting vectors\n");
-	for (int i = 0; i < data.vertex_count; i++) {
+	//vertexCount - data.vertex_count so we start from the end of old vecs, instead of beginning
+	for (int i = vertexCount - data.vertex_count; i < data.vertex_count; i++) {
 		vertexArray[i] = vectorFromObj(data.vertex_list[i]);
 		vertexArray[i].isTransformed = false;
 	}
 	//Convert normals
-	normalArray = (vector*)realloc(normalArray, sizeof(normalArray) + (data.vertex_normal_count * sizeof(vector)));
+	normalArray = (vector*)realloc(normalArray, normalCount * sizeof(vector));
 	printf("Converting normals\n");
-	for (int i = 0; i < data.vertex_normal_count; i++) {
+	for (int i = normalCount - data.vertex_normal_count; i < data.vertex_normal_count; i++) {
 		normalArray[i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture coords
-	textureArray = (vector*)realloc(textureArray, sizeof(textureArray) + (data.vertex_texture_count * sizeof(vector)));
+	textureArray = (vector*)realloc(textureArray, textureCount * sizeof(vector));
 	printf("Converting texture coordinates\n");
-	for (int i = 0; i < data.vertex_texture_count; i++) {
+	for (int i = textureCount - data.vertex_texture_count; i < data.vertex_texture_count; i++) {
 		textureArray[i] = vectorFromObj(data.vertex_texture_list[i]);
 	}
 	printf("Translating faces\n");
-	scene->objs[0].polys = (poly*)calloc(data.face_count, sizeof(poly));
-	for (int i = 0; i < data.face_count; i++) {
-		scene->objs[0].polys[i] = polyFromObj(data.face_list[i]);
-		scene->objs[0].polys[i].materialIndex = 3;
+	polygonArray = (poly*)realloc(polygonArray, fullPolyCount * sizeof(poly));
+	for (int i = fullPolyCount - data.face_count; i <  data.face_count; i++) {
+		polygonArray[i] = polyFromObj(data.face_list[i]);
+		polygonArray[i].materialIndex = materialIndex;
 	}
-	printf("Loading transforms\n");
-	scene->objs[0].transforms = (matrixTransform*)calloc(3, sizeof(matrixTransform));
-	scene->objs[0].transforms[0] = emptyTransform();
-	scene->objs[0].transforms[1] = emptyTransform();
-	scene->objs[0].transforms[2] = emptyTransform();
-	scene->objs[0].polyCount = data.face_count;
+	
+	delete_obj_data(&data);
 	
 	printf("Loaded OBJ! Translated %i faces\n", data.face_count);
 }
@@ -562,19 +562,19 @@ int testBuild(world *scene, char *inputFileName) {
 	scene-> polygonAmount = 13;
 	scene->materialAmount = 10;
 	scene->   lightAmount = 5;
-	scene->      objCount = 1;
+	scene-> objCount = 0;
 	scene->customVertexCount = 23;
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 1280;
-	scene->camera->height = 800;
+	scene->camera->width = 640;
+	scene->camera->height = 480;
 	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->sampleCount = 100;
+	scene->camera->sampleCount = 1;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.6;
-	scene->camera->windowScale = 0.5;
+	scene->camera->windowScale = 1.0;
 	scene->camera->   fileType = png;
 	scene->camera->viewPerspective.projectionType = conic ;
 	scene->camera->forceSingleCore = false;
@@ -587,12 +587,15 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	scene->objs = (crayOBJ*)calloc(scene->objCount, sizeof(crayOBJ));
-	loadOBJ(scene, "../output/monkeyLF.obj");
+	loadOBJ(scene, 3, "../output/monkeyLF.obj");
+	
+	printf("Loading transforms\n");
+	scene->objs[0].transformCount = 3;
+	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
+	
 	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
 	scene->objs[0].transforms[1] = newTransformRotateY(3.14);
 	scene->objs[0].transforms[2] = newTransformTranslate(640, 500, 700);
-	scene->objs[0].transformCount = 3;
 	
 	//Just transform here for now
 	printf("Running transforms...\n");
@@ -640,86 +643,88 @@ int testBuild(world *scene, char *inputFileName) {
 	//vertexArray[20] = vectorWithPos(940,480,0);
 	//POLYGONS
 	
-	scene->polys = (poly*)calloc(scene->polygonAmount, sizeof(poly));
+	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+24) * sizeof(vector)) + (23 * sizeof(vector)));
+	polygonArray = (poly*)realloc(polygonArray, (fullPolyCount+13) * sizeof(poly) + (13 * sizeof(vector)));
 	
 	//FLOOR
-	scene->polys[0].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[0].vertexIndex[0] = vertexCount + 0;
-	scene->polys[0].vertexIndex[1] = vertexCount + 1;
-	scene->polys[0].vertexIndex[2] = vertexCount + 2;
-	scene->polys[0].materialIndex = 3;
-	scene->polys[1].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[1].vertexIndex[0] = vertexCount + 1;
-	scene->polys[1].vertexIndex[1] = vertexCount + 2;
-	scene->polys[1].vertexIndex[2] = vertexCount + 3;
-	scene->polys[1].materialIndex = 3;
+	polygonArray[fullPolyCount + 0].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 0].vertexIndex[0] = vertexCount + 0;
+	polygonArray[fullPolyCount + 0].vertexIndex[1] = vertexCount + 1;
+	polygonArray[fullPolyCount + 0].vertexIndex[2] = vertexCount + 2;
+	polygonArray[fullPolyCount + 0].materialIndex = 3;
+	polygonArray[fullPolyCount + 1].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 1].vertexIndex[0] = vertexCount + 1;
+	polygonArray[fullPolyCount + 1].vertexIndex[1] = vertexCount + 2;
+	polygonArray[fullPolyCount + 1].vertexIndex[2] = vertexCount + 3;
+	polygonArray[fullPolyCount + 1].materialIndex = 3;
 	
 	//CEILING
-	scene->polys[2].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[2].vertexIndex[0] = vertexCount + 4;
-	scene->polys[2].vertexIndex[1] = vertexCount + 5;
-	scene->polys[2].vertexIndex[2] = vertexCount + 6;
-	scene->polys[2].materialIndex = 3;
-	scene->polys[3].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[3].vertexIndex[0] = vertexCount + 5;
-	scene->polys[3].vertexIndex[1] = vertexCount + 6;
-	scene->polys[3].vertexIndex[2] = vertexCount + 7;
-	scene->polys[3].materialIndex = 3;
+	polygonArray[fullPolyCount + 2].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 2].vertexIndex[0] = vertexCount + 4;
+	polygonArray[fullPolyCount + 2].vertexIndex[1] = vertexCount + 5;
+	polygonArray[fullPolyCount + 2].vertexIndex[2] = vertexCount + 6;
+	polygonArray[fullPolyCount + 2].materialIndex = 3;
+	polygonArray[fullPolyCount + 3].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 3].vertexIndex[0] = vertexCount + 5;
+	polygonArray[fullPolyCount + 3].vertexIndex[1] = vertexCount + 6;
+	polygonArray[fullPolyCount + 3].vertexIndex[2] = vertexCount + 7;
+	polygonArray[fullPolyCount + 3].materialIndex = 3;
 	
 	//MIRROR PLANE
-	scene->polys[4].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[4].vertexIndex[0] = vertexCount + 8;
-	scene->polys[4].vertexIndex[1] = vertexCount + 9;
-	scene->polys[4].vertexIndex[2] = vertexCount + 10;
-	scene->polys[4].materialIndex = 5;
-	scene->polys[5].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[5].vertexIndex[0] = vertexCount + 9;
-	scene->polys[5].vertexIndex[1] = vertexCount + 10;
-	scene->polys[5].vertexIndex[2] = vertexCount + 11;
-	scene->polys[5].materialIndex = 5;
+	polygonArray[fullPolyCount + 4].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 4].vertexIndex[0] = vertexCount + 8;
+	polygonArray[fullPolyCount + 4].vertexIndex[1] = vertexCount + 9;
+	polygonArray[fullPolyCount + 4].vertexIndex[2] = vertexCount + 10;
+	polygonArray[fullPolyCount + 4].materialIndex = 5;
+	polygonArray[fullPolyCount + 5].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 5].vertexIndex[0] = vertexCount + 9;
+	polygonArray[fullPolyCount + 5].vertexIndex[1] = vertexCount + 10;
+	polygonArray[fullPolyCount + 5].vertexIndex[2] = vertexCount + 11;
+	polygonArray[fullPolyCount + 5].materialIndex = 5;
 	
 	//SHADOW TEST POLY
-	scene->polys[6].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[6].vertexIndex[0] = vertexCount + 12;
-	scene->polys[6].vertexIndex[1] = vertexCount + 13;
-	scene->polys[6].vertexIndex[2] = vertexCount + 14;
-	scene->polys[6].materialIndex = 4;
+	polygonArray[fullPolyCount + 6].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 6].vertexIndex[0] = vertexCount + 12;
+	polygonArray[fullPolyCount + 6].vertexIndex[1] = vertexCount + 13;
+	polygonArray[fullPolyCount + 6].vertexIndex[2] = vertexCount + 14;
+	polygonArray[fullPolyCount + 6].materialIndex = 4;
 	
 	//REAR WALL
-	scene->polys[7].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[7].vertexIndex[0] = vertexCount + 2;
-	scene->polys[7].vertexIndex[1] = vertexCount + 3;
-	scene->polys[7].vertexIndex[2] = vertexCount + 6;
-	scene->polys[7].materialIndex = 1;
-	scene->polys[8].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[8].vertexIndex[0] = vertexCount + 3;
-	scene->polys[8].vertexIndex[1] = vertexCount + 6;
-	scene->polys[8].vertexIndex[2] = vertexCount + 7;
-	scene->polys[8].materialIndex = 1;
+	polygonArray[fullPolyCount + 7].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 7].vertexIndex[0] = vertexCount + 2;
+	polygonArray[fullPolyCount + 7].vertexIndex[1] = vertexCount + 3;
+	polygonArray[fullPolyCount + 7].vertexIndex[2] = vertexCount + 6;
+	polygonArray[fullPolyCount + 7].materialIndex = 1;
+	polygonArray[fullPolyCount + 8].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 8].vertexIndex[0] = vertexCount + 3;
+	polygonArray[fullPolyCount + 8].vertexIndex[1] = vertexCount + 6;
+	polygonArray[fullPolyCount + 8].vertexIndex[2] = vertexCount + 7;
+	polygonArray[fullPolyCount + 8].materialIndex = 1;
 	
 	//LEFT WALL
-	scene->polys[9].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[9].vertexIndex[0] = vertexCount + 0;
-	scene->polys[9].vertexIndex[1] = vertexCount + 2;
-	scene->polys[9].vertexIndex[2] = vertexCount + 4;
-	scene->polys[9].materialIndex = 0;
-	scene->polys[10].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[10].vertexIndex[0] = vertexCount + 2;
-	scene->polys[10].vertexIndex[1] = vertexCount + 4;
-	scene->polys[10].vertexIndex[2] = vertexCount + 6;
-	scene->polys[10].materialIndex = 0;
+	polygonArray[fullPolyCount + 9].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 9].vertexIndex[0] = vertexCount + 0;
+	polygonArray[fullPolyCount + 9].vertexIndex[1] = vertexCount + 2;
+	polygonArray[fullPolyCount + 9].vertexIndex[2] = vertexCount + 4;
+	polygonArray[fullPolyCount + 9].materialIndex = 0;
+	polygonArray[fullPolyCount + 10].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 10].vertexIndex[0] = vertexCount + 2;
+	polygonArray[fullPolyCount + 10].vertexIndex[1] = vertexCount + 4;
+	polygonArray[fullPolyCount + 10].vertexIndex[2] = vertexCount + 6;
+	polygonArray[fullPolyCount + 10].materialIndex = 0;
 	
 	//RIGHT WALL
-	scene->polys[11].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[11].vertexIndex[0] = vertexCount + 1;
-	scene->polys[11].vertexIndex[1] = vertexCount + 3;
-	scene->polys[11].vertexIndex[2] = vertexCount + 5;
-	scene->polys[11].materialIndex = 2;
-	scene->polys[12].vertexCount = MAX_VERTEX_COUNT;
-	scene->polys[12].vertexIndex[0] = vertexCount + 3;
-	scene->polys[12].vertexIndex[1] = vertexCount + 5;
-	scene->polys[12].vertexIndex[2] = vertexCount + 7;
-	scene->polys[12].materialIndex = 2;
+	polygonArray[fullPolyCount + 11].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 11].vertexIndex[0] = vertexCount + 1;
+	polygonArray[fullPolyCount + 11].vertexIndex[1] = vertexCount + 3;
+	polygonArray[fullPolyCount + 11].vertexIndex[2] = vertexCount + 5;
+	polygonArray[fullPolyCount + 11].materialIndex = 2;
+	polygonArray[fullPolyCount + 12].vertexCount = MAX_VERTEX_COUNT;
+	polygonArray[fullPolyCount + 12].vertexIndex[0] = vertexCount + 3;
+	polygonArray[fullPolyCount + 12].vertexIndex[1] = vertexCount + 5;
+	polygonArray[fullPolyCount + 12].vertexIndex[2] = vertexCount + 7;
+	polygonArray[fullPolyCount + 12].materialIndex = 2;
+	fullPolyCount += 13;
 	
 	//MATERIALS
 	scene->materials = (material*)calloc(scene->materialAmount, sizeof(material));
@@ -813,7 +818,7 @@ int allocMemory(world *scene, char *inputFileName) {
     scene->materials = (material *)calloc(materialCount, sizeof(material));
     scene->lights = (light *)calloc(lightCount, sizeof(light));
     scene->spheres = (sphere*)calloc(sphereCount, sizeof(sphere));
-    scene->polys = (poly*)calloc(polyCount, sizeof(poly));
+    //scene->polys = (poly*)calloc(polyCount, sizeof(poly));
     
     scene->materialAmount = materialCount;
     scene->lightAmount = lightCount;

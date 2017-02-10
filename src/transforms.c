@@ -28,17 +28,18 @@ void transformVector(vector *vec, matrixTransform tf) {
 	}
 }
 
-
 void transformMesh(crayOBJ *object) {
-	for (int t = 0; t < object->transformCount; t++) {
-		for (int i = 0; i < object->polyCount; i++) {
-			for (int j = 0; j < object->polys->vertexCount; j++) {
-				transformVector(&vertexArray[object->polys[i].vertexIndex[j]], object->transforms[t]);
+	for (int tf = 0; tf < object->transformCount; tf++) {
+		//Perform transforms
+		for (int p = object->firstPolyIndex; p < object->polyCount; p++) {
+			for (int v = 0; v < polygonArray->vertexCount; v++) {
+				transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], object->transforms[tf]);
 			}
 		}
-		for (int id = 0; id < object->polyCount; id++) {
-			for (int ij = 0; ij < object->polys->vertexCount; ij++) {
-				vertexArray[object->polys[id].vertexIndex[ij]].isTransformed = false;
+		//Clear isTransformed flags
+		for (int p = object->firstPolyIndex; p < object->polyCount; p++) {
+			for (int v = 0; v < polygonArray->vertexCount; v++) {
+				vertexArray[polygonArray[p].vertexIndex[v]].isTransformed = false;
 			}
 		}
 	}

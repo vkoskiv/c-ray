@@ -8,6 +8,10 @@
 
 #include "poly.h"
 
+//Main polygon array
+poly *polygonArray;
+int fullPolyCount;
+
 bool rayIntersectsWithPolygon(lightRay *ray, poly *poly, double *result, vector *normal) {
 	double det, invdet;
 	vector edge1 = subtractVectors(&vertexArray[poly->vertexIndex[1]], &vertexArray[poly->vertexIndex[0]]);
