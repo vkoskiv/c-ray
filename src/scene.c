@@ -567,14 +567,14 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 640;
-	scene->camera->height = 480;
+	scene->camera->width = 128;
+	scene->camera->height = 64;
 	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->sampleCount = 1;
+	scene->camera->sampleCount = 2000;
 	scene->camera-> frameCount = 1;
-	scene->camera->    bounces = 3;
+	scene->camera->    bounces = 5;
 	scene->camera->   contrast = 0.6;
-	scene->camera->windowScale = 1.0;
+	scene->camera->windowScale = 0.5;
 	scene->camera->   fileType = png;
 	scene->camera->viewPerspective.projectionType = conic ;
 	scene->camera->forceSingleCore = false;
@@ -587,14 +587,14 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	loadOBJ(scene, 3, "../output/monkeyLF.obj");
+	loadOBJ(scene, 3, "../output/MonkeyLF.obj");
 	
 	printf("Loading transforms\n");
 	scene->objs[0].transformCount = 3;
 	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
 	
 	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
-	scene->objs[0].transforms[1] = newTransformRotateY(3.14);
+	scene->objs[0].transforms[1] = newTransformRotateY(180);
 	scene->objs[0].transforms[2] = newTransformTranslate(640, 500, 700);
 	
 	//Just transform here for now

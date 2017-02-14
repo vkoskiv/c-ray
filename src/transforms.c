@@ -8,6 +8,11 @@
 
 #include "transforms.h"
 
+//For ease of use
+double toRadians(double degrees) {
+	return (degrees * M_PI) / 180;
+}
+
 matrixTransform emptyTransform() {
 	matrixTransform transform;
 	transform.type = transformTypeNone;
@@ -64,10 +69,10 @@ matrixTransform newTransformRotateX(float degrees) {
 	matrixTransform transform = emptyTransform();
 	transform.type = transformTypeXRotate;
 	transform.a = 1;
-	transform.f = cos(degrees);
-	transform.g = -sin(degrees);
-	transform.j = sin(degrees);
-	transform.k = cos(degrees);
+	transform.f = cos(toRadians(degrees));
+	transform.g = -sin(toRadians(degrees));
+	transform.j = sin(toRadians(degrees));
+	transform.k = cos(toRadians(degrees));
 	transform.p = 1;
 	return transform;
 }
@@ -75,11 +80,11 @@ matrixTransform newTransformRotateX(float degrees) {
 matrixTransform newTransformRotateY(float degrees) {
 	matrixTransform transform = emptyTransform();
 	transform.type = transformTypeYRotate;
-	transform.a = cos(degrees);
-	transform.c = sin(degrees);
+	transform.a = cos(toRadians(degrees));
+	transform.c = sin(toRadians(degrees));
 	transform.f = 1;
-	transform.i = -sin(degrees);
-	transform.k = cos(degrees);
+	transform.i = -sin(toRadians(degrees));
+	transform.k = cos(toRadians(degrees));
 	transform.p = 1;
 	return transform;
 }
@@ -87,10 +92,10 @@ matrixTransform newTransformRotateY(float degrees) {
 matrixTransform newTransformRotateZ(float degrees) {
 	matrixTransform transform = emptyTransform();
 	transform.type = transformTypeZRotate;
-	transform.a = cos(degrees);
-	transform.b = -sin(degrees);
-	transform.e = sin(degrees);
-	transform.f = cos(degrees);
+	transform.a = cos(toRadians(degrees));
+	transform.b = -sin(toRadians(degrees));
+	transform.e = sin(toRadians(degrees));
+	transform.f = cos(toRadians(degrees));
 	transform.k = 1;
 	transform.p = 1;
 	return transform;
