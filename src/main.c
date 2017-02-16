@@ -305,7 +305,7 @@ void *drawThread(void *arg) {
 }
 
 void updateProgress(int totalSamples, int completedSamples, int threadNum) {
-	printf("Thread %i rendering sample %i/%i\n", threadNum, completedSamples, totalSamples);
+	printf("Thread %i rendering sample %i/%i\r", threadNum, completedSamples, totalSamples);
 	fflush(stdout);
 }
 
