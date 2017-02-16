@@ -15,11 +15,40 @@
 
 //Prototypes
 //Trims spaces and tabs from a char array
-char *trim_whitespace(char *inputLine);
+char *trimSpaces(char *inputLine);
 //Parses a scene file and allocates memory accordingly
 int allocMemory(world *scene, char *inputFileName);
 
 /*int buildScene(world *scene, char *inputFileName) {
+	printf("\nStarting C-Ray Scene Parser 0.4\n");
+	FILE *inputFile = fopen(inputFileName, "r");
+	if (!inputFile)
+		return -1;
+	//Define delimiter character consts and other variables
+	const char *delimEquels = "=", *delimComma = ",", *closeBlock = "}";
+	char *error = NULL;
+	char *token;
+	char *savePointer;
+	int materialIndex = 0, sphereIndex = 0, polyIndex = 0, lightIndex = 0, objIndex = 0;
+	if (allocMemory(scene, inputFileName) == -1)
+		return -2;
+	
+	char currentLine[255];
+	while (fgets(currentLine, sizeof(currentLine), inputFile) != NULL) {
+		//Discard comments
+		if (trimSpaces(currentLine)[0] == '"')
+			continue;
+		if (strcmp(trimSpaces(currentLine), "scene(){\n") == 0) {
+			while (trimSpaces(currentLine)[0] != *closeBlock) {
+				error = fgets(trimSpaces(currentLine), sizeof(trimSpaces(currentLine)), inputFile);
+				if (error)
+					logHandler(sceneParseErrorScene);
+			}
+		}
+	}
+}*/
+
+/*int oldScene(world *scene, char *inputFileName) {
     printf("\nStarting C-ray Scene Parser 0.2\n");
     FILE *inputFile = fopen(inputFileName, "r");
     if (!inputFile)
@@ -567,14 +596,14 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 128;
-	scene->camera->height = 64;
+	scene->camera->width = 1280;
+	scene->camera->height = 800;
 	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->sampleCount = 2000;
+	scene->camera->sampleCount = 200;
 	scene->camera-> frameCount = 1;
-	scene->camera->    bounces = 5;
+	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.6;
-	scene->camera->windowScale = 0.5;
+	scene->camera->windowScale = 0.7;
 	scene->camera->   fileType = png;
 	scene->camera->viewPerspective.projectionType = conic ;
 	scene->camera->forceSingleCore = false;
@@ -587,7 +616,7 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	loadOBJ(scene, 3, "../output/MonkeyLF.obj");
+	/*loadOBJ(scene, 3, "../output/MonkeyLF.obj");
 	
 	printf("Loading transforms\n");
 	scene->objs[0].transformCount = 3;
@@ -600,7 +629,7 @@ int testBuild(world *scene, char *inputFileName) {
 	//Just transform here for now
 	printf("Running transforms...\n");
 	transformMesh(&scene->objs[0]);
-	printf("Transforms done\n");
+	printf("Transforms done\n");*/
 	
 	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+24) * sizeof(vector)) + (23 * sizeof(vector)));
 	
@@ -798,19 +827,19 @@ int allocMemory(world *scene, char *inputFileName) {
         return -1;
     char line[255];
     while (fgets(line, sizeof(line), inputFile) != NULL) {
-        if (strcmp(trim_whitespace(line), "material(){\n") == 0) {
+        if (strcmp(trimSpaces(line), "material(){\n") == 0) {
             materialCount++;
         }
-        if (strcmp(trim_whitespace(line), "light(){\n") == 0) {
+        if (strcmp(trimSpaces(line), "light(){\n") == 0) {
             lightCount++;
         }
-        if (strcmp(trim_whitespace(line), "sphere(){\n") == 0) {
+        if (strcmp(trimSpaces(line), "sphere(){\n") == 0) {
             sphereCount++;
         }
-        if (strcmp(trim_whitespace(line), "poly(){\n") == 0) {
+        if (strcmp(trimSpaces(line), "poly(){\n") == 0) {
             polyCount++;
         }
-		if (strcmp(trim_whitespace(line), "OBJ(){\n") == 0) {
+		if (strcmp(trimSpaces(line), "OBJ(){\n") == 0) {
 			objCount++;
 		}
     }
@@ -829,7 +858,7 @@ int allocMemory(world *scene, char *inputFileName) {
 }
 
 //Removes tabs and spaces from a char byte array, terminates it and returns it.
-char *trim_whitespace(char *inputLine) {
+char *trimSpaces(char *inputLine) {
     int i, j;
     char *outputLine = inputLine;
     for (i = 0, j = 0; i < strlen(inputLine); i++, j++) {
