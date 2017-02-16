@@ -8,8 +8,15 @@
 
 #include "main.h"
 
+typedef struct {
+	pthread_t thread_id;
+	int thread_num;
+	int completedSamples;
+}threadInfo;
+
 //Global variables
 world *worldScene = NULL;
+double *renderBuffer;
 int sectionSize = 0;
 int renderThreadCount = 0;
 //SDL globals
@@ -19,12 +26,20 @@ SDL_Texture *texture = NULL;
 bool isRendering = false;
 pthread_mutex_t uimutex = PTHREAD_MUTEX_INITIALIZER;
 
+//Thread globals
+threadInfo *tinfo;
+threadInfo *uitinfo;
+pthread_attr_t attributes;
+pthread_attr_t uiattributes;
+
 //Function prototypes
 void *renderThread(void *arg);
 void *drawThread(void *arg);
-void updateProgress(int y, int max, int min);
+//void updateProgress(int y, int max, int min);
+void updateProgress(int totalSamples, int completedSamples, int threadNum);
 void printDuration(double time);
 int getFileSize(char *fileName);
+color getPixel(world *worldScene, int x, int y);
 color rayTrace(lightRay *incidentRay, world *worldScene);
 int getSysCores();
 vector getRandomVecOnRadius(vector center, float radius);
@@ -40,11 +55,6 @@ void sigHandler(int sig) {
 		exit(1);
 	}
 }
-
-typedef struct {
-	pthread_t thread_id;
-	int thread_num;
-}threadInfo;
 
 int main(int argc, char *argv[]) {
 	
@@ -133,10 +143,6 @@ int main(int argc, char *argv[]) {
 		if (worldScene->camera->forceSingleCore) renderThreadCount = 1;
 		
 		//Create threads
-		threadInfo *tinfo;
-		threadInfo *uitinfo;
-		pthread_attr_t attributes;
-		pthread_attr_t uiattributes;
 		int t;
 		
 		//Alloc memory for pthread_create() args
@@ -174,8 +180,11 @@ int main(int argc, char *argv[]) {
 		printf("Raytracing...\n");
 		
 		//Allocate memory and create array of pixels for image data
-		worldScene->camera->imgData = (unsigned char*)malloc(4 * worldScene->camera->width * worldScene->camera->height);
-		memset(worldScene->camera->imgData, 0, 4 * worldScene->camera->width * worldScene->camera->height);
+		worldScene->camera->imgData = (unsigned char*)calloc(4 * worldScene->camera->width * worldScene->camera->height, sizeof(unsigned char));
+		
+		//Allocate memory for render buffer
+		//Render buffer is used to store accurate color values for the renderers' internal use
+		renderBuffer = (double*)calloc(4 * worldScene->camera->width * worldScene->camera->height, sizeof(double));
 		
 		if (!worldScene->camera->imgData) logHandler(imageMallocFailed);
 		
@@ -252,46 +261,23 @@ void *drawThread(void *arg) {
 		//Check for CTRL-C
 		if (signal(SIGINT, sigHandler) == SIG_ERR)
 			fprintf(stderr, "Couldn't catch SIGINT\n");
+		//Render frame
 		pthread_mutex_lock(&uimutex);
 		SDL_UpdateTexture(texture, NULL, worldScene->camera->imgData, worldScene->camera->width * 3);
 		SDL_RenderCopy(windowRenderer, texture, NULL, NULL);
 		SDL_RenderPresent(windowRenderer);
 		pthread_mutex_unlock(&uimutex);
+		//Print render status
+		for (int i = 0; i < renderThreadCount; i++) {
+			updateProgress(worldScene->camera->sampleCount, tinfo[i].completedSamples, tinfo[i].thread_num);
+		}
 	}
 	pthread_exit((void*) arg);
 }
 
-void updateProgress(int y, int max, int min) {
-	if (y == 0.1*(max - min)) {
-		printf(" [====================](100%%)\n");
-		fflush(stdout);
-	} else if (y == 0.2*(max - min)) {
-		printf(" [==================>-](90%%)\r");
-		fflush(stdout);
-	} else if (y == 0.3*(max - min)) {
-		printf(" [================>---](80%%)\r");
-		fflush(stdout);
-	} else if (y == 0.4*(max - min)) {
-		printf(" [==============>-----](70%%)\r");
-		fflush(stdout);
-	} else if (y == 0.5*(max - min)) {
-		printf(" [============>-------](60%%)\r");
-		fflush(stdout);
-	} else if (y == 0.6*(max - min)) {
-		printf(" [==========>---------](50%%)\r");
-		fflush(stdout);
-	} else if (y == 0.7*(max - min)) {
-		printf(" [========>-----------](40%%)\r");
-		fflush(stdout);
-	} else if (y == 0.8*(max - min)) {
-		printf(" [======>-------------](30%%)\r");
-		fflush(stdout);
-	} else if (y == 0.9*(max - min)) {
-		printf(" [====>---------------](20%%)\r");
-		fflush(stdout);
-	} else if (y == (max - min)-1) {
-		printf(" [==>-----------------](10%%)\r");
-	}
+void updateProgress(int totalSamples, int completedSamples, int threadNum) {
+	printf("Thread %i rendering sample %i/%i\n", threadNum, completedSamples, totalSamples);
+	fflush(stdout);
 }
 
 void printDuration(double time) {
@@ -314,60 +300,68 @@ void *renderThread(void *arg) {
 	threadInfo *tinfo = (threadInfo*)arg;
 	//Figure out which part to render based on current thread ID
 	int limits[] = {(tinfo->thread_num * sectionSize), (tinfo->thread_num * sectionSize) + sectionSize};
+	int completedSamples = 1;
 	
-	for (y = limits[1]; y > limits[0]; y--) {
-		updateProgress(y, limits[1], limits[0]);
-		for (x = 0; x < worldScene->camera->width; x++) {
-			color sample = {0.0f,0.0f,0.0f,0.0f};
-			color output = {0.0f,0.0f,0.0f,0.0f};
-			int completedSamples = 0;
-			if (worldScene->camera->viewPerspective.projectionType == ortho) {
-				incidentRay.start.x = x/2;
-				incidentRay.start.y = y/2;
-				incidentRay.start.z = worldScene->camera->pos.z;
-				
-				incidentRay.direction.x = 0;
-				incidentRay.direction.y = 0;
-				incidentRay.direction.z = 1;
-				sample = rayTrace(&incidentRay, worldScene);
-			} else if (worldScene->camera->viewPerspective.projectionType == conic) {
-				double focalLength = 0.0f;
-				if ((worldScene->camera->viewPerspective.projectionType == conic)
-					&& worldScene->camera->viewPerspective.FOV > 0.0f
-					&& worldScene->camera->viewPerspective.FOV < 189.0f) {
-					focalLength = 0.5f * worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera->viewPerspective.FOV);
-				}
-				
-				/*vector direction = {((x - 0.5f * worldScene->camera->width)/focalLength) +
-					worldScene->camera->lookAt.x, ((y - 0.5f * worldScene->camera->height)/focalLength) +
-					worldScene->camera->lookAt.y, 1.0f};*/
-				
-				vector direction = {(x - 0.5f * worldScene->camera->width) / focalLength,
-									(y - 0.5f * worldScene->camera->height) / focalLength, 1.0f};
-				
-				double normal = scalarProduct(&direction, &direction);
-				if (normal == 0.0f)
-					break;
-				direction = vectorScale(invsqrtf(normal), &direction);
-				vector startPos = worldScene->camera->pos;
-				
-				while (completedSamples < worldScene->camera->sampleCount) {
+	while (completedSamples < worldScene->camera->sampleCount+1) {
+		tinfo->completedSamples = completedSamples;
+		for (y = limits[1]; y > limits[0]; y--) {
+			for (x = 0; x < worldScene->camera->width; x++) {
+				color output = getPixel(worldScene, x, y);
+				color sample = {0.0f,0.0f,0.0f,0.0f};
+				if (worldScene->camera->viewPerspective.projectionType == ortho) {
+					incidentRay.start.x = x/2;
+					incidentRay.start.y = y/2;
+					incidentRay.start.z = worldScene->camera->pos.z;
+					
+					incidentRay.direction.x = 0;
+					incidentRay.direction.y = 0;
+					incidentRay.direction.z = 1;
+					sample = rayTrace(&incidentRay, worldScene);
+				} else if (worldScene->camera->viewPerspective.projectionType == conic) {
+					double focalLength = 0.0f;
+					if ((worldScene->camera->viewPerspective.projectionType == conic)
+						&& worldScene->camera->viewPerspective.FOV > 0.0f
+						&& worldScene->camera->viewPerspective.FOV < 189.0f) {
+						focalLength = 0.5f * worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * worldScene->camera->viewPerspective.FOV);
+					}
+					
+					vector direction = {(x - 0.5f * worldScene->camera->width) / focalLength,
+						(y - 0.5f * worldScene->camera->height) / focalLength, 1.0f};
+					
+					double normal = scalarProduct(&direction, &direction);
+					if (normal == 0.0f)
+						break;
+					direction = vectorScale(invsqrtf(normal), &direction);
+					vector startPos = worldScene->camera->pos;
+					
 					incidentRay.start = startPos;
 					incidentRay.direction = direction;
 					sample = rayTrace(&incidentRay, worldScene);
+					
+					output.red = output.red * (completedSamples - 1);
+					output.green = output.green * (completedSamples - 1);
+					output.blue = output.blue * (completedSamples - 1);
+					
 					output = addColors(&output, &sample);
-					completedSamples++;
+					
+					output.red = output.red / completedSamples;
+					output.green = output.green / completedSamples;
+					output.blue = output.blue / completedSamples;
+					
+					//Store render buffer
+					renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0] = output.red;
+					renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 1] = output.green;
+					renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 2] = output.blue;
 				}
-				output.red = output.red / worldScene->camera->sampleCount;
-				output.green = output.green / worldScene->camera->sampleCount;
-				output.blue = output.blue / worldScene->camera->sampleCount;
+				
+				worldScene->camera->imgData[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0] = (unsigned char)min(  output.red*255.0f, 255.0f);
+				worldScene->camera->imgData[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
+				worldScene->camera->imgData[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 2] = (unsigned char)min( output.blue*255.0f, 255.0f);
 			}
-			
-			worldScene->camera->imgData[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0] = (unsigned char)min(  output.red*255.0f, 255.0f);
-			worldScene->camera->imgData[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
-			worldScene->camera->imgData[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 2] = (unsigned char)min( output.blue*255.0f, 255.0f);
 		}
+		completedSamples++;
 	}
+	printf("Thread %i done\n", tinfo->thread_num);
 	pthread_exit((void*) arg);
 }
 
@@ -510,6 +504,15 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		
 	} while ((contrast > 0.0f) && (bounces <= worldScene->camera->bounces));
 	
+	return output;
+}
+
+color getPixel(world *worldScene, int x, int y) {
+	color output = {0.0f, 0.0f, 0.0f, 0.0f};
+	output.red = renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0];
+	output.green = renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 1];
+	output.blue = renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 2];
+	output.alpha = 1.0f;
 	return output;
 }
 
