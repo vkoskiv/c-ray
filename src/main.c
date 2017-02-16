@@ -12,6 +12,7 @@ typedef struct {
 	pthread_t thread_id;
 	int thread_num;
 	int completedSamples;
+	bool threadComplete;
 }threadInfo;
 
 //Global variables
@@ -19,6 +20,10 @@ world *worldScene = NULL;
 double *renderBuffer;
 int sectionSize = 0;
 int renderThreadCount = 0;
+int activeThreads = 0;
+bool renderAborted = false;
+bool shouldSave = true;
+
 //SDL globals
 SDL_Window *window = NULL;
 SDL_Renderer *windowRenderer = NULL;
@@ -43,6 +48,7 @@ color getPixel(world *worldScene, int x, int y);
 color rayTrace(lightRay *incidentRay, world *worldScene);
 int getSysCores();
 vector getRandomVecOnRadius(vector center, float radius);
+void getKeyboardInput();
 
 //Signal handling
 void (*signal(int signo, void (*func )(int)))(int);
@@ -197,43 +203,65 @@ int main(int argc, char *argv[]) {
 		pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_JOINABLE);
 		pthread_attr_setdetachstate(&uiattributes, PTHREAD_CREATE_JOINABLE);
 		
-		//Create render threads
-		for (t = 0; t < renderThreadCount; t++) {
-			tinfo[t].thread_num = t;
-			if (pthread_create(&tinfo[t].thread_id, &attributes, renderThread, &tinfo[t])) {
-				logHandler(threadCreateFailed);
-				exit(-1);
+		//Main loop (input)
+		bool threadsHaveStarted = false;
+		while (isRendering) {
+			getKeyboardInput();
+			if (renderAborted) {
+				isRendering = false;
 			}
-		}
-		
-		//Create UI render thread
-		if (pthread_create(&uitinfo->thread_id, &uiattributes, drawThread, uitinfo)) {
-			logHandler(threadCreateFailed);
-			exit(-1);
-		}
-		
-		if (pthread_attr_destroy(&attributes)) {
-			logHandler(threadRemoveFailed);
-		}
-		
-		//Wait for render threads to finish (Render finished)
-		for (t = 0; t < renderThreadCount; t++) {
-			if (pthread_join(tinfo[t].thread_id, NULL)) {
-				logHandler(threadFrozen);
+			
+			if (!threadsHaveStarted) {
+				threadsHaveStarted = true;
+				//Create render threads
+				for (t = 0; t < renderThreadCount; t++) {
+					tinfo[t].thread_num = t;
+					tinfo[t].threadComplete = false;
+					activeThreads++;
+					if (pthread_create(&tinfo[t].thread_id, &attributes, renderThread, &tinfo[t])) {
+						logHandler(threadCreateFailed);
+						exit(-1);
+					}
+				}
+				
+				uitinfo->threadComplete = false;
+				//Create UI render thread
+				if (pthread_create(&uitinfo->thread_id, &uiattributes, drawThread, uitinfo)) {
+					logHandler(threadCreateFailed);
+					exit(-1);
+				}
+				
+				if (pthread_attr_destroy(&attributes)) {
+					logHandler(threadRemoveFailed);
+				}
 			}
-		}
-		
-		isRendering = false;
-		//Wait for UI render thread to finish
-		if (pthread_join(uitinfo->thread_id, NULL)) {
-			logHandler(threadFrozen);
+			
+			//Wait for render threads to finish (Render finished)
+			for (t = 0; t < renderThreadCount; t++) {
+				if (tinfo[t].threadComplete && tinfo[t].thread_num != -1) {
+					activeThreads--;
+					tinfo[t].thread_num = -1;
+				}
+				if (activeThreads == 0) {
+					isRendering = false;
+				}
+			}
+			
+			//Wait for UI render thread to finish
+			if (uitinfo->threadComplete) {
+				isRendering = false;
+			}
 		}
 		
 		time(&stop);
 		printDuration(difftime(stop, start));
 		
 		//Write to file
-		writeImage(worldScene);
+		if (shouldSave)
+			writeImage(worldScene);
+		else
+			printf("Image won't be saved!");
+		
 		worldScene->camera->currentFrame++;
 		
 		//Free memory
@@ -272,6 +300,7 @@ void *drawThread(void *arg) {
 			updateProgress(worldScene->camera->sampleCount, tinfo[i].completedSamples, tinfo[i].thread_num);
 		}
 	}
+	uitinfo->threadComplete = true;
 	pthread_exit((void*) arg);
 }
 
@@ -291,6 +320,20 @@ void printDuration(double time) {
 	}
 }
 
+void getKeyboardInput() {
+	SDL_PumpEvents();
+	const Uint8 *keys = SDL_GetKeyboardState(NULL);
+	if (keys[SDL_SCANCODE_S]) {
+		printf("Aborting render, saving...\n");
+		renderAborted = true;
+	}
+	if (keys[SDL_SCANCODE_X]) {
+		printf("Aborting render without saving...\n");
+		shouldSave = false;
+		renderAborted = true;
+	}
+}
+
 #pragma mark Renderer
 
 void *renderThread(void *arg) {
@@ -303,6 +346,11 @@ void *renderThread(void *arg) {
 	int completedSamples = 1;
 	
 	while (completedSamples < worldScene->camera->sampleCount+1) {
+		//Check for render abort
+		if (renderAborted) {
+			tinfo->threadComplete = true;
+			pthread_exit((void*) arg);
+		}
 		tinfo->completedSamples = completedSamples;
 		for (y = limits[1]; y > limits[0]; y--) {
 			for (x = 0; x < worldScene->camera->width; x++) {
@@ -362,6 +410,7 @@ void *renderThread(void *arg) {
 		completedSamples++;
 	}
 	printf("Thread %i done\n", tinfo->thread_num);
+	tinfo->threadComplete = true;
 	pthread_exit((void*) arg);
 }
 
