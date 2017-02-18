@@ -14,7 +14,7 @@ OBJECTS := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm = rm -f
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
-	@$(LINKER) $@ $(LFLAGS) $(OBJECTS)
+	@$(LINKER) $@ $(LFLAGS) $(OBJECTS) -lm -lSDL2
 	@echo "Linking complete..."
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
