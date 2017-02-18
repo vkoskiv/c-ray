@@ -10,7 +10,7 @@
 
 //For ease of use
 double toRadians(double degrees) {
-	return (degrees * M_PI) / 180;
+	return (degrees * PI) / 180;
 }
 
 matrixTransform emptyTransform() {
