@@ -27,6 +27,8 @@ typedef struct {
 }threadInfo;
 
 typedef struct {
+	threadInfo *renderThreadInfo;
+	pthread_attr_t renderThreadAttributes;
 	world *worldScene;
 	double *renderBuffer;
 	int sectionSize; //Replace with array of renderTasks

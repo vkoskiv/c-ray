@@ -16,6 +16,7 @@
 #include "color.h"
 #include "sphere.h"
 #include "renderer.h"
+#include "ui.h"
 
 //These are for multi-platform physical core detection
 #ifdef MACOS
