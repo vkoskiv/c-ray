@@ -21,7 +21,6 @@ double *renderBuffer;
 int sectionSize = 0;
 int renderThreadCount = 0;
 int activeThreads = 0;
-bool renderAborted = false;
 bool shouldSave = true;
 
 //SDL globals
@@ -207,9 +206,6 @@ int main(int argc, char *argv[]) {
 		bool threadsHaveStarted = false;
 		while (isRendering) {
 			getKeyboardInput();
-			if (renderAborted) {
-				isRendering = false;
-			}
 			
 			if (!threadsHaveStarted) {
 				threadsHaveStarted = true;
@@ -260,7 +256,7 @@ int main(int argc, char *argv[]) {
 		if (shouldSave)
 			writeImage(worldScene);
 		else
-			printf("Image won't be saved!");
+			printf("Image won't be saved!\n");
 		
 		worldScene->camera->currentFrame++;
 		
@@ -325,12 +321,12 @@ void getKeyboardInput() {
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 	if (keys[SDL_SCANCODE_S]) {
 		printf("Aborting render, saving...\n");
-		renderAborted = true;
+		isRendering = false;
 	}
 	if (keys[SDL_SCANCODE_X]) {
 		printf("Aborting render without saving...\n");
 		shouldSave = false;
-		renderAborted = true;
+		isRendering = false;
 	}
 }
 
@@ -345,12 +341,7 @@ void *renderThread(void *arg) {
 	int limits[] = {(tinfo->thread_num * sectionSize), (tinfo->thread_num * sectionSize) + sectionSize};
 	int completedSamples = 1;
 	
-	while (completedSamples < worldScene->camera->sampleCount+1) {
-		//Check for render abort
-		if (renderAborted) {
-			tinfo->threadComplete = true;
-			pthread_exit((void*) arg);
-		}
+	while (completedSamples < worldScene->camera->sampleCount+1 && isRendering) {
 		tinfo->completedSamples = completedSamples;
 		for (y = limits[1]; y > limits[0]; y--) {
 			for (x = 0; x < worldScene->camera->width; x++) {
@@ -531,7 +522,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			}
 			if (!inShadow) {
 				//TODO: Calculate specular reflection
-				float specularFactor = 1.0; //scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
+				float specularFactor = 1.0;//scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
 				
 				//Calculate Lambert diffusion
 				float diffuseFactor = scalarProduct(&bouncedRay.direction, &surfaceNormal) * contrast;
