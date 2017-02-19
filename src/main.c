@@ -8,14 +8,8 @@
 
 #include "main.h"
 
-//Function prototypes
-void *drawThread(void *arg);
-//void updateProgress(int y, int max, int min);
-void updateProgress(int totalSamples, int completedSamples, int threadNum);
-void printDuration(double time);
 int getFileSize(char *fileName);
 int getSysCores();
-void getKeyboardInput();
 
 int main(int argc, char *argv[]) {
 	
@@ -196,19 +190,6 @@ int main(int argc, char *argv[]) {
 	printf("Render finished, exiting.\n");
 	
 	return 0;
-}
-
-#pragma mark UI
-
-void printDuration(double time) {
-	if (time <= 60) {
-		printf("Finished render in %.0f seconds.\n", time);
-	} else if (time <= 3600) {
-		printf("Finished render in %.0f minute", time/60);
-		if (time/60 > 1) printf("s.\n"); else printf(".\n");
-	} else {
-		printf("Finished render in %.0f hours (%.0f min).\n", (time/60)/60, time/60);
-	}
 }
 
 #pragma mark Helper funcs

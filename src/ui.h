@@ -22,6 +22,9 @@ typedef struct {
 }display;
 
 int initSDL();
+void printDuration(double time);
+void getKeyboardInput();
+void *drawThread(void *arg);
 
 extern display mainDisplay;
 
