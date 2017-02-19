@@ -14,11 +14,11 @@ void logr(const char *log, logSource source);
 void logHandler(renderLog error) {
     switch (error) {
         case threadMallocFailed:
-            logr("Failed to allocate memory for thread args, aborting.", renderer);
+            logr("Failed to allocate memory for thread args, aborting.", rendererSource);
 			exit(-1);
             break;
         case imageMallocFailed:
-            logr("Failed to allocate memory for image data, aborting.", renderer);
+            logr("Failed to allocate memory for image data, aborting.", rendererSource);
             exit(-1);
             break;
         case sceneBuildFailed:
@@ -26,17 +26,17 @@ void logHandler(renderLog error) {
             exit(-1);
             break;
         case invalidThreadCount:
-            logr("Render sections and thread count are not even. Render will be corrupted (likely).", renderer);
+            logr("Render sections and thread count are not even. Render will be corrupted (likely).", rendererSource);
             break;
         case threadFrozen:
-            logr("A thread has frozen. Aborting.", renderer);
+            logr("A thread has frozen. Aborting.", rendererSource);
             exit(-1);
             break;
         case defaultError:
             logr("Something went wrong. Aborting.", defaultSource);
             break;
         case sceneDebugEnabled:
-            logr("SceneBuilder returned debug flag, won't render this.", renderer);
+            logr("SceneBuilder returned debug flag, won't render this.", rendererSource);
             break;
         case sceneParseErrorScene:
             logr("SceneBuilder failed to parse the scene block.", sceneBuilder);
@@ -63,15 +63,15 @@ void logHandler(renderLog error) {
             logr("No input file path given!", sceneBuilder);
             break;
 		case dontTurnOnTheAntialiasingYouDoofus:
-			logr("You fucked up.", renderer);
+			logr("You fucked up.", rendererSource);
 			exit(-1);
 			break;
 		case renderErrorInvalidSampleCount:
-			logr("Samples set to less than 1, aborting.", renderer);
+			logr("Samples set to less than 1, aborting.", rendererSource);
 			exit(-1);
 			break;
 		case drawTaskMallocFailed:
-			logr("Failed to allocate memory for UI draw tasks", renderer);
+			logr("Failed to allocate memory for UI draw tasks", rendererSource);
 			exit(-1);
 			break;
         default:
@@ -83,7 +83,7 @@ void logHandler(renderLog error) {
 
 void logr(const char *log, logSource source) {
     switch (source) {
-        case renderer:
+        case rendererSource:
             printf("RENDERER: ");
             break;
         case sceneBuilder:

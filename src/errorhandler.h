@@ -35,7 +35,7 @@ typedef enum {
 }renderLog;
 
 typedef enum {
-    renderer,
+    rendererSource,
     sceneBuilder,
     vectorHandler,
     colorHandler,

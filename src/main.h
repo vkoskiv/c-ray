@@ -15,7 +15,7 @@
 #include "vector.h"
 #include "color.h"
 #include "sphere.h"
-#include "scene.h"
+#include "renderer.h"
 
 //These are for multi-platform physical core detection
 #ifdef MACOS
@@ -26,10 +26,5 @@
 #else
 #include <unistd.h>
 #endif
-
-//Some macros
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define invsqrtf(x) (1.0f / sqrtf(x))
 
 #endif /* defined(____main__) */
