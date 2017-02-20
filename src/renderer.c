@@ -13,6 +13,76 @@
 
 renderer mainRenderer;
 
+pthread_mutex_t tileMutex;
+
+int front = 0;
+int rear = -1;
+
+renderTile peek() {
+	return mainRenderer.renderTiles[front];
+}
+
+bool drawTasksEmpty() {
+	return mainRenderer.tileCount == 0;
+}
+
+int drawTaskAmount() {
+	return mainRenderer.tileCount;
+}
+
+void addTile(renderTile tile) {
+	pthread_mutex_lock(&tileMutex);
+	if(rear == mainRenderer.tileCount-1) {
+		rear = -1;
+	}
+	
+	mainRenderer.renderTiles[++rear] = tile;
+	mainRenderer.tileCount++;
+	
+	pthread_mutex_unlock(&tileMutex);
+}
+
+renderTile getTask() {
+	pthread_mutex_lock(&tileMutex);
+	renderTile tile = mainRenderer.renderTiles[front++];
+	
+	if(front == mainRenderer.tileCount) {
+		front = 0;
+	}
+	
+	mainRenderer.tileCount--;
+	pthread_mutex_unlock(&tileMutex);
+	return tile;
+}
+
+//Create tiles from image
+void quantizeImage(world *worldScene) {
+	int tilesX = worldScene->camera->width / worldScene->camera->tileWidth;
+	int tilesY = worldScene->camera->height / worldScene->camera->tileHeight;
+	
+	mainRenderer.renderTiles = (renderTile*)calloc(tilesX*tilesY, sizeof(renderTile));
+	
+	for (int y = 0; y < tilesY; y++) {
+		for (int x = 0; x < tilesX; x++) {
+			renderTile tile;
+			tile.width = worldScene->camera->tileWidth;
+			tile.height = worldScene->camera->tileHeight;
+			
+			tile.startX = x * worldScene->camera->tileWidth;
+			tile.endX = (x + 1) * worldScene->camera->tileWidth;
+			
+			tile.startY = y * worldScene->camera->tileHeight;
+			tile.endY = (y + 1) * worldScene->camera->tileHeight;
+			
+			tile.endX = min((x + 1) * worldScene->camera->tileWidth, worldScene->camera->width);
+			tile.endY = min((y + 1) * worldScene->camera->tileHeight, worldScene->camera->height);
+			
+			addTile(tile);
+		}
+	}
+	
+}
+
 color getPixel(world *worldScene, int x, int y) {
 	color output = {0.0f, 0.0f, 0.0f, 0.0f};
 	output.red = mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0];

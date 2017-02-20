@@ -20,8 +20,11 @@ int main(int argc, char *argv[]) {
 	srand48(time(NULL));
 	
 	//Initialize renderer
+	//FIXME: Put this in a function
 	mainRenderer.worldScene = NULL;
 	mainRenderer.renderBuffer = NULL;
+	mainRenderer.renderTiles = NULL;
+	mainRenderer.tileCount = 0;
 	mainRenderer.activeThreads = 0;
 	mainRenderer.sectionSize = 0;
 	mainRenderer.threadCount = getSysCores();
@@ -58,6 +61,8 @@ int main(int argc, char *argv[]) {
 		default:
 			break;
 	}
+	
+	quantizeImage(mainRenderer.worldScene);
 	
 	//Initialize SDL display
 	initSDL();
@@ -224,6 +229,7 @@ float randRange(float a, float b) {
 	return ((b-a)*((float)rand()/RAND_MAX))+a;
 }
 
+//FIXME: this may be a duplicate
 double rads(double angle) {
     return PIOVER180 * angle;
 }

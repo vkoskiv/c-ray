@@ -27,9 +27,20 @@ typedef struct {
 }threadInfo;
 
 typedef struct {
+	int width;
+	int height;
+	int startX, startY;
+	int endX, endY;
+	poly *polygons;
+	sphere *spheres;
+}renderTile;
+
+typedef struct {
 	threadInfo *renderThreadInfo;
 	pthread_attr_t renderThreadAttributes;
 	world *worldScene;
+	renderTile *renderTiles;
+	int tileCount;
 	double *renderBuffer;
 	int sectionSize; //Replace with array of renderTasks
 	int threadCount;
@@ -42,5 +53,6 @@ typedef struct {
 extern renderer mainRenderer;
 
 void *renderThread(void *arg);
+void quantizeImage(world *worldScene);
 
 #endif /* renderer_h */
