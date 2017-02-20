@@ -31,6 +31,7 @@ typedef struct {
 	int height;
 	int startX, startY;
 	int endX, endY;
+	int completedSamples;
 	poly *polygons;
 	sphere *spheres;
 }renderTile;
@@ -42,7 +43,6 @@ typedef struct {
 	renderTile *renderTiles;
 	int tileCount;
 	double *renderBuffer;
-	int sectionSize; //Replace with array of renderTasks
 	int threadCount;
 	int activeThreads;
 	bool shouldSave;

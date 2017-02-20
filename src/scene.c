@@ -596,10 +596,10 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 2560;
-	scene->camera->height = 1600;
+	scene->camera->width = 1280;
+	scene->camera->height = 800;
 	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->sampleCount = 3000;
+	scene->camera->sampleCount = 50;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 1.0;
@@ -610,15 +610,15 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->        showGUI = true;
 	scene->camera->     areaLights = true;
 	scene->camera->pos = vectorWithPos(940, 480, 0);
-	scene->camera->tileWidth = 256;
-	scene->camera->tileHeight = 256;
+	scene->camera->tileWidth  = 128;
+	scene->camera->tileHeight = 128;
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	loadOBJ(scene, 3, "../output/MonkeyLF.obj");
+	/*loadOBJ(scene, 3, "../output/MonkeyLF.obj");
 	
 	printf("Loading transforms\n");
 	scene->objs[0].transformCount = 3;
@@ -631,7 +631,7 @@ int testBuild(world *scene, char *inputFileName) {
 	//Just transform here for now
 	printf("Running transforms...\n");
 	transformMesh(&scene->objs[0]);
-	printf("Transforms done\n");
+	printf("Transforms done\n");*/
 	
 	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+24) * sizeof(vector)) + (23 * sizeof(vector)));
 	

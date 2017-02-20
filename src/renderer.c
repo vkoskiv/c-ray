@@ -15,42 +15,23 @@ renderer mainRenderer;
 
 pthread_mutex_t tileMutex;
 
-int front = 0;
-int rear = -1;
-
-renderTile peek() {
-	return mainRenderer.renderTiles[front];
-}
-
-bool drawTasksEmpty() {
-	return mainRenderer.tileCount == 0;
-}
-
-int drawTaskAmount() {
-	return mainRenderer.tileCount;
-}
-
 void addTile(renderTile tile) {
 	pthread_mutex_lock(&tileMutex);
-	if(rear == mainRenderer.tileCount-1) {
-		rear = -1;
-	}
 	
-	mainRenderer.renderTiles[++rear] = tile;
-	mainRenderer.tileCount++;
+	mainRenderer.renderTiles[++mainRenderer.tileCount] = tile;
 	
 	pthread_mutex_unlock(&tileMutex);
 }
 
-renderTile getTask() {
+bool renderTilesEmpty() {
+	return mainRenderer.tileCount == 0;
+}
+
+renderTile getTile() {
 	pthread_mutex_lock(&tileMutex);
-	renderTile tile = mainRenderer.renderTiles[front++];
 	
-	if(front == mainRenderer.tileCount) {
-		front = 0;
-	}
+	renderTile tile = mainRenderer.renderTiles[mainRenderer.tileCount--];
 	
-	mainRenderer.tileCount--;
 	pthread_mutex_unlock(&tileMutex);
 	return tile;
 }
@@ -59,6 +40,16 @@ renderTile getTask() {
 void quantizeImage(world *worldScene) {
 	int tilesX = worldScene->camera->width / worldScene->camera->tileWidth;
 	int tilesY = worldScene->camera->height / worldScene->camera->tileHeight;
+	
+	float tilesXf = (float)worldScene->camera->width / (float)worldScene->camera->tileWidth;
+	float tilesYf = (float)worldScene->camera->height / (float)worldScene->camera->tileHeight;
+	
+	if (tilesXf - (int)tilesXf != 0) {
+		tilesX++;
+	}
+	if (tilesYf - (int)tilesYf != 0) {
+		tilesY++;
+	}
 	
 	mainRenderer.renderTiles = (renderTile*)calloc(tilesX*tilesY, sizeof(renderTile));
 	
@@ -70,6 +61,7 @@ void quantizeImage(world *worldScene) {
 			
 			tile.startX = x * worldScene->camera->tileWidth;
 			tile.endX = (x + 1) * worldScene->camera->tileWidth;
+			if (tile.endX )
 			
 			tile.startY = y * worldScene->camera->tileHeight;
 			tile.endY = (y + 1) * worldScene->camera->tileHeight;
@@ -77,10 +69,11 @@ void quantizeImage(world *worldScene) {
 			tile.endX = min((x + 1) * worldScene->camera->tileWidth, worldScene->camera->width);
 			tile.endY = min((y + 1) * worldScene->camera->tileHeight, worldScene->camera->height);
 			
+			tile.completedSamples = 1;
+			
 			addTile(tile);
 		}
 	}
-	
 }
 
 color getPixel(world *worldScene, int x, int y) {
@@ -253,69 +246,72 @@ void *renderThread(void *arg) {
 	int x,y;
 	
 	threadInfo *tinfo = (threadInfo*)arg;
-	//Figure out which part to render based on current thread ID
-	int limits[] = {(tinfo->thread_num * mainRenderer.sectionSize), (tinfo->thread_num * mainRenderer.sectionSize) + mainRenderer.sectionSize};
-	int completedSamples = 1;
-	
-	while (completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
-		tinfo->completedSamples = completedSamples;
-		for (y = limits[1]; y > limits[0]; y--) {
-			for (x = 0; x < mainRenderer.worldScene->camera->width; x++) {
-				color output = getPixel(mainRenderer.worldScene, x, y);
-				color sample = {0.0f,0.0f,0.0f,0.0f};
-				if (mainRenderer.worldScene->camera->viewPerspective.projectionType == ortho) {
-					incidentRay.start.x = x/2;
-					incidentRay.start.y = y/2;
-					incidentRay.start.z = mainRenderer.worldScene->camera->pos.z;
-					
-					incidentRay.direction.x = 0;
-					incidentRay.direction.y = 0;
-					incidentRay.direction.z = 1;
-					sample = rayTrace(&incidentRay, mainRenderer.worldScene);
-				} else if (mainRenderer.worldScene->camera->viewPerspective.projectionType == conic) {
-					double focalLength = 0.0f;
-					if ((mainRenderer.worldScene->camera->viewPerspective.projectionType == conic)
-						&& mainRenderer.worldScene->camera->viewPerspective.FOV > 0.0f
-						&& mainRenderer.worldScene->camera->viewPerspective.FOV < 189.0f) {
-						focalLength = 0.5f * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * mainRenderer.worldScene->camera->viewPerspective.FOV);
+
+	while (!renderTilesEmpty()) {
+		x = 0; y = 0;
+		renderTile tile = getTile();
+		printf("Started tile %i\n", mainRenderer.tileCount);
+		while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
+			for (y = tile.endY; y > tile.startY; y--) {
+				for (x = tile.startX; x < tile.endX; x++) {
+					color output = getPixel(mainRenderer.worldScene, x, y);
+					color sample = {0.0f,0.0f,0.0f,0.0f};
+					if (mainRenderer.worldScene->camera->viewPerspective.projectionType == ortho) {
+						incidentRay.start.x = x/2;
+						incidentRay.start.y = y/2;
+						incidentRay.start.z = mainRenderer.worldScene->camera->pos.z;
+						
+						incidentRay.direction.x = 0;
+						incidentRay.direction.y = 0;
+						incidentRay.direction.z = 1;
+						sample = rayTrace(&incidentRay, mainRenderer.worldScene);
+					} else if (mainRenderer.worldScene->camera->viewPerspective.projectionType == conic) {
+						double focalLength = 0.0f;
+						if ((mainRenderer.worldScene->camera->viewPerspective.projectionType == conic)
+							&& mainRenderer.worldScene->camera->viewPerspective.FOV > 0.0f
+							&& mainRenderer.worldScene->camera->viewPerspective.FOV < 189.0f) {
+							focalLength = 0.5f * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * mainRenderer.worldScene->camera->viewPerspective.FOV);
+						}
+						
+						vector direction = {(x - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
+							(y - 0.5f * mainRenderer.worldScene->camera->height) / focalLength, 1.0f};
+						
+						double normal = scalarProduct(&direction, &direction);
+						if (normal == 0.0f)
+							break;
+						direction = vectorScale(invsqrtf(normal), &direction);
+						vector startPos = mainRenderer.worldScene->camera->pos;
+						
+						incidentRay.start = startPos;
+						incidentRay.direction = direction;
+						sample = rayTrace(&incidentRay, mainRenderer.worldScene);
+						
+						output.red = output.red * (tile.completedSamples - 1);
+						output.green = output.green * (tile.completedSamples - 1);
+						output.blue = output.blue * (tile.completedSamples - 1);
+						
+						output = addColors(&output, &sample);
+						
+						output.red = output.red / tile.completedSamples;
+						output.green = output.green / tile.completedSamples;
+						output.blue = output.blue / tile.completedSamples;
+						
+						//Store render buffer
+						mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 0] = output.red;
+						mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 1] = output.green;
+						mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 2] = output.blue;
 					}
 					
-					vector direction = {(x - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
-						(y - 0.5f * mainRenderer.worldScene->camera->height) / focalLength, 1.0f};
-					
-					double normal = scalarProduct(&direction, &direction);
-					if (normal == 0.0f)
-					break;
-					direction = vectorScale(invsqrtf(normal), &direction);
-					vector startPos = mainRenderer.worldScene->camera->pos;
-					
-					incidentRay.start = startPos;
-					incidentRay.direction = direction;
-					sample = rayTrace(&incidentRay, mainRenderer.worldScene);
-					
-					output.red = output.red * (completedSamples - 1);
-					output.green = output.green * (completedSamples - 1);
-					output.blue = output.blue * (completedSamples - 1);
-					
-					output = addColors(&output, &sample);
-					
-					output.red = output.red / completedSamples;
-					output.green = output.green / completedSamples;
-					output.blue = output.blue / completedSamples;
-					
-					//Store render buffer
-					mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 0] = output.red;
-					mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 1] = output.green;
-					mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 2] = output.blue;
+					mainRenderer.worldScene->camera->imgData[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 0] = (unsigned char)min(  output.red*255.0f, 255.0f);
+					mainRenderer.worldScene->camera->imgData[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
+					mainRenderer.worldScene->camera->imgData[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 2] = (unsigned char)min( output.blue*255.0f, 255.0f);
 				}
-				
-				mainRenderer.worldScene->camera->imgData[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 0] = (unsigned char)min(  output.red*255.0f, 255.0f);
-				mainRenderer.worldScene->camera->imgData[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
-				mainRenderer.worldScene->camera->imgData[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 2] = (unsigned char)min( output.blue*255.0f, 255.0f);
 			}
+			tile.completedSamples++;
 		}
-		completedSamples++;
+
 	}
+	
 	printf("Thread %i done\n", tinfo->thread_num);
 	tinfo->threadComplete = true;
 	pthread_exit((void*) arg);

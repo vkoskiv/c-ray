@@ -26,8 +26,7 @@ int main(int argc, char *argv[]) {
 	mainRenderer.renderTiles = NULL;
 	mainRenderer.tileCount = 0;
 	mainRenderer.activeThreads = 0;
-	mainRenderer.sectionSize = 0;
-	mainRenderer.threadCount = getSysCores();
+	mainRenderer.threadCount = 16;//getSysCores();
 	mainRenderer.shouldSave = true;
 	mainRenderer.isRendering = false;
 	
@@ -36,6 +35,7 @@ int main(int argc, char *argv[]) {
 	sceneObject.materials = NULL;
 	sceneObject.spheres = NULL;
 	sceneObject.lights = NULL;
+	sceneObject.objs = NULL;
 	mainRenderer.worldScene = &sceneObject; //Assign to global variable
 	
 	char *fileName = NULL;
@@ -115,9 +115,6 @@ int main(int argc, char *argv[]) {
 	
 	if (!mainRenderer.worldScene->camera->imgData) logHandler(imageMallocFailed);
 	
-	//Calculate section sizes for every thread, multiple threads can't render the same portion of an image
-	mainRenderer.sectionSize = mainRenderer.worldScene->camera->height / mainRenderer.threadCount;
-	if ((mainRenderer.sectionSize % 2) != 0) logHandler(invalidThreadCount);
 	mainRenderer.isRendering = true;
 	pthread_attr_init(&mainRenderer.renderThreadAttributes);
 	pthread_attr_init(&mainDisplay.uiThreadAttributes);
