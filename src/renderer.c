@@ -22,14 +22,14 @@ void addTile(renderTile tile) {
 }
 
 bool renderTilesEmpty() {
-	return (mainRenderer.tileCount + 1) == 0;
+	return mainRenderer.renderedTileCount - 1 == mainRenderer.tileCount;
 }
 
 renderTile getTile() {
 	pthread_mutex_lock(&tileMutex);
 	
 	renderTile tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount++];
-	mainRenderer.tileCount--;
+	//mainRenderer.tileCount--;
 	
 	pthread_mutex_unlock(&tileMutex);
 	return tile;

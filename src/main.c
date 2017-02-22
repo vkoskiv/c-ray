@@ -65,6 +65,10 @@ int main(int argc, char *argv[]) {
 	
 	quantizeImage(mainRenderer.worldScene);
 	
+	mainDisplay.window = NULL;
+	mainDisplay.renderer = NULL;
+	mainDisplay.texture = NULL;
+	
 	//Initialize SDL display
 	initSDL();
 	
