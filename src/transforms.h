@@ -39,6 +39,9 @@ typedef struct {
 typedef struct {
 	int polyCount;
 	int firstPolyIndex;
+	int vertexCount;
+	int firstVectorIndex;
+	sphere boundingVolume;
 	matrixTransform *transforms;
 	int transformCount;
 }crayOBJ;

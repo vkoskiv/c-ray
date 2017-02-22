@@ -14,6 +14,11 @@
 #define PIOVER180 0.017453292519943295769236907684886
 #define PI        3.141592653589793238462643383279502
 
+//Some macros
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define invsqrtf(x) (1.0f / sqrtf(x))
+
 //Master include file
 #include <stdio.h>
 #include <time.h>

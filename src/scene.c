@@ -530,6 +530,30 @@ poly polyFromObj(obj_face *face) {
 	return polygon;
 }
 
+//Compute the bounding volume for a given OBJ and save it to that OBJ.
+//This is used to optimize rendering, where we only loop thru all polygons
+//in an OBJ if we know the ray has entered its' bounding volume, a sphere in this case
+void computeBoundingVolume(crayOBJ *object) {
+	vector minPoint = vertexArray[object->firstVectorIndex];
+	vector maxPoint = vertexArray[object->firstVectorIndex];
+	for (int i = object->firstVectorIndex + 1; i < object->vertexCount; i++) {
+		minPoint = minVector(&minPoint, &vertexArray[i]);
+		maxPoint = maxVector(&maxPoint, &vertexArray[i]);
+	}
+	vector center = vectorWithPos(0.5 * (minPoint.x + maxPoint.x), 0.5 * (minPoint.y + maxPoint.y), 0.5 * (minPoint.z + maxPoint.z));
+	
+	float maxDistance = 0.0;
+	
+	for (int i = object->firstVectorIndex + 1; i < object->vertexCount; i++) {
+		vector fromCenter = subtractVectors(&vertexArray[i], &center);
+		maxDistance = max(maxDistance, pow(vectorLength(&fromCenter), 2));
+	}
+	float sphereRadius = sqrtf(maxDistance);
+	object->boundingVolume.pos = center;
+	object->boundingVolume.pos.isTransformed = false;
+	object->boundingVolume.radius = sphereRadius;
+}
+
 void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	//FIXME: Handle inputFileName validation
 	printf("Loading OBJ %s\n", inputFileName);
@@ -549,8 +573,14 @@ void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	scene->objs = (crayOBJ*)realloc(scene->objs, scene->objCount * sizeof(crayOBJ));
 	scene->objs[scene->objCount - 1].polyCount = data.face_count;
 	scene->objs[scene->objCount - 1].firstPolyIndex = fullPolyCount - data.face_count;
-	
 	scene->objs[scene->objCount - 1].polyCount = data.face_count;
+	
+	//Save vertex data
+	scene->objs[scene->objCount - 1].firstVectorIndex = vertexCount - data.vertex_count;
+	scene->objs[scene->objCount - 1].vertexCount = data.vertex_count;
+	
+	scene->objs[scene->objCount - 1].boundingVolume.pos = vectorWithPos(0, 0, 0);
+	scene->objs[scene->objCount - 1].boundingVolume.radius = 0;
 	
 	//Convert vectors
 	vertexArray = (vector*)realloc(vertexArray, vertexCount * sizeof(vector));
@@ -581,7 +611,7 @@ void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	
 	delete_obj_data(&data);
 	
-	printf("Loaded OBJ! Translated %i faces\n", data.face_count);
+	printf("Loaded OBJ! Translated %i faces and %i vectors\n", data.face_count, data.vertex_count);
 }
 
 int testBuild(world *scene, char *inputFileName) {
@@ -596,43 +626,49 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 2560;
-	scene->camera->height = 1600;
+	scene->camera->width = 1280;
+	scene->camera->height = 800;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->focalLength = 0;
-	scene->camera->sampleCount = 1;
+	scene->camera->sampleCount = 50;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.7;
-	scene->camera->windowScale = 0.5;
+	scene->camera->windowScale = 1.0;
 	scene->camera->   fileType = png;
 	scene->camera->viewPerspective.projectionType = conic;
 	scene->camera->forceSingleCore = false;
 	scene->camera->        showGUI = true;
 	scene->camera->     areaLights = true;
+	//True will result in MUCH faster renders, but OBJ shadows will appear spherical
+	scene->camera->approximateMeshShadows = true;
 	scene->camera->pos = vectorWithPos(940, 480, 0);
-	scene->camera->tileWidth  = 128;
-	scene->camera->tileHeight = 128;
+	scene->camera->tileWidth  = 16;
+	scene->camera->tileHeight = 16;
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	loadOBJ(scene, 3, "../output/MonkeyLF.obj");
+	loadOBJ(scene, 3, "../output/Nefertiti.obj");
 	
 	printf("Loading transforms\n");
-	scene->objs[0].transformCount = 3;
+	scene->objs[0].transformCount = 2;
 	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
 	
-	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
-	scene->objs[0].transforms[1] = newTransformRotateY(180);
-	scene->objs[0].transforms[2] = newTransformTranslate(640, 500, 700);
+	//scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
+	scene->objs[0].transforms[0] = newTransformRotateY(180);
+	scene->objs[0].transforms[1] = newTransformTranslate(640, 500, 700);
 	
 	//Just transform here for now
 	printf("Running transforms...\n");
 	transformMesh(&scene->objs[0]);
 	printf("Transforms done\n");
+	
+	//Compute bounding volume and apply to obj
+	computeBoundingVolume(&scene->objs[0]);
+	printf("Obj0 boundingVolume radius %f\n", scene->objs[0].boundingVolume.radius);
 	
 	/*loadOBJ(scene, 2, "../output/test.obj");
 	

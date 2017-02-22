@@ -35,6 +35,7 @@ typedef struct {
 	vector lookAt;
 	unsigned char *imgData;
 	bool areaLights;
+	bool approximateMeshShadows;
 	bool forceSingleCore;
 	bool showGUI;
 	float focalLength;

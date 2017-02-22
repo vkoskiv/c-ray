@@ -62,3 +62,23 @@ vector vectorCross(vector *v1, vector *v2) {
 	
 	return result;
 }
+
+vector minVector(vector *v1, vector *v2) {
+	vector result;
+	
+	result.x = min(v1->x, v2->x);
+	result.y = min(v1->y, v2->y);
+	result.z = min(v1->z, v2->z);
+	
+	return result;
+}
+
+vector maxVector(vector *v1, vector *v2) {
+	vector result;
+	
+	result.x = max(v1->x, v2->x);
+	result.y = max(v1->y, v2->y);
+	result.z = max(v1->z, v2->z);
+	
+	return result;
+}

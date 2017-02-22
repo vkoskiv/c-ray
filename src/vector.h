@@ -53,4 +53,13 @@ vector vectorScale(double c, vector *v);
 //Calculate the cross product of two vectors and return the resulting vector
 vector vectorCross(vector *v1, vector *v2);
 
+//Calculate min of 2 vectors
+vector minVector(vector *v1, vector *v2);
+
+//Calculate max of 2 vectors
+vector maxVector(vector *v1, vector *v2);
+
+//Calculate length of vector
+float vectorLength(vector *v);
+
 #endif /* defined(__C_Ray__vector__) */

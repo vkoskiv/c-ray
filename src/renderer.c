@@ -121,6 +121,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		int sphereAmount = worldScene->sphereAmount;
 		int polygonAmount = fullPolyCount;
 		int lightSourceAmount = worldScene->lightAmount;
+		int objCount = worldScene->objCount;
 		
 		material currentMaterial;
 		vector polyNormal = {0.0, 0.0, 0.0};
@@ -133,7 +134,21 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			}
 		}
 		
-		for (i = 0; i < polygonAmount; ++i) {
+		double fakeIntersection = 20000.0f;
+		unsigned int o;
+		unsigned int p;
+		for (o = 0; o < objCount; o++) {
+			if (rayIntersectsWithSphere(incidentRay, &worldScene->objs[o].boundingVolume, &fakeIntersection)) {
+				for (p = worldScene->objs[o].firstPolyIndex; p < worldScene->objs[o].polyCount; p++) {
+					if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &polyNormal)) {
+						currentPolygon = p;
+						currentSphere = -1;
+					}
+				}
+			}
+		}
+		
+		for (i = (fullPolyCount - worldScene->polygonAmount); i < polygonAmount; ++i) {
 			if (rayIntersectsWithPolygon(incidentRay, &polygonArray[i], &closestIntersection, &polyNormal)) {
 				currentPolygon = i;
 				currentSphere = -1;
@@ -215,12 +230,31 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 				}
 			}
 			
-			for (k = 0; k < polygonAmount; ++k) {
-				if (rayIntersectsWithPolygon(&bouncedRay, &polygonArray[k], &t, &polyNormal)) {
+			double fakeIntersection = 20000.0f;
+			for (o = 0; o < objCount; o++) {
+				if (rayIntersectsWithSphere(&bouncedRay, &worldScene->objs[o].boundingVolume, &fakeIntersection)) {
+					
+					if (worldScene->camera->approximateMeshShadows) {
+						inShadow = true;
+						break;
+					} else {
+						for (p = worldScene->objs[o].firstPolyIndex; p < worldScene->objs[o].polyCount; p++) {
+							if (rayIntersectsWithPolygon(&bouncedRay, &polygonArray[p], &t, &polyNormal)) {
+								inShadow = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			for (i = (fullPolyCount - worldScene->polygonAmount); i < polygonAmount; ++i) {
+				if (rayIntersectsWithPolygon(&bouncedRay, &polygonArray[i], &t, &polyNormal)) {
 					inShadow = true;
 					break;
 				}
 			}
+			
 			if (!inShadow) {
 				//TODO: Calculate specular reflection
 				float specularFactor = 1.0;//scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
@@ -257,7 +291,7 @@ void *renderThread(void *arg) {
 	while (!renderTilesEmpty()) {
 		x = 0; y = 0;
 		renderTile tile = getTile();
-		printf("Started tile %i\n", mainRenderer.renderedTileCount);
+		printf("Started tile %i/%i\r", mainRenderer.renderedTileCount, mainRenderer.tileCount);
 		while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
 			for (y = tile.endY; y > tile.startY; y--) {
 				for (x = tile.startX; x < tile.endX; x++) {

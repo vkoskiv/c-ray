@@ -15,11 +15,6 @@
 #include "scene.h"
 #include "poly.h"
 
-//Some macros
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define invsqrtf(x) (1.0f / sqrtf(x))
-
 typedef struct {
 	pthread_t thread_id;
 	int thread_num;
