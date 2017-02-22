@@ -13,6 +13,7 @@
 #include "vector.h"
 #include "color.h"
 #include "scene.h"
+#include "poly.h"
 
 //Some macros
 #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -32,8 +33,6 @@ typedef struct {
 	int startX, startY;
 	int endX, endY;
 	int completedSamples;
-	poly *polygons;
-	sphere *spheres;
 }renderTile;
 
 typedef struct {
@@ -42,6 +41,7 @@ typedef struct {
 	world *worldScene;
 	renderTile *renderTiles;
 	int tileCount;
+	int renderedTileCount;
 	double *renderBuffer;
 	int threadCount;
 	int activeThreads;

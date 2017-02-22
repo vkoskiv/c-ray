@@ -590,22 +590,23 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->  sphereAmount = 3;
 	scene-> polygonAmount = 13;
 	scene->materialAmount = 10;
-	scene->   lightAmount = 5;
+	scene->   lightAmount = 6;
 	scene-> objCount = 0;
 	scene->customVertexCount = 23;
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 1280;
-	scene->camera->height = 800;
+	scene->camera->width = 2560;
+	scene->camera->height = 1600;
 	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->sampleCount = 50;
+	scene->camera->focalLength = 0;
+	scene->camera->sampleCount = 1;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
-	scene->camera->   contrast = 1.0;
+	scene->camera->   contrast = 0.7;
 	scene->camera->windowScale = 0.5;
 	scene->camera->   fileType = png;
-	scene->camera->viewPerspective.projectionType = conic ;
+	scene->camera->viewPerspective.projectionType = conic;
 	scene->camera->forceSingleCore = false;
 	scene->camera->        showGUI = true;
 	scene->camera->     areaLights = true;
@@ -618,7 +619,7 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	/*loadOBJ(scene, 3, "../output/MonkeyLF.obj");
+	loadOBJ(scene, 3, "../output/MonkeyLF.obj");
 	
 	printf("Loading transforms\n");
 	scene->objs[0].transformCount = 3;
@@ -631,9 +632,25 @@ int testBuild(world *scene, char *inputFileName) {
 	//Just transform here for now
 	printf("Running transforms...\n");
 	transformMesh(&scene->objs[0]);
+	printf("Transforms done\n");
+	
+	/*loadOBJ(scene, 2, "../output/test.obj");
+	
+	printf("Loading transforms\n");
+	scene->objs[0].transformCount = 4;
+	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
+	
+	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
+	scene->objs[0].transforms[1] = newTransformRotateY(180);
+	scene->objs[0].transforms[2] = newTransformRotateX(-70);
+	scene->objs[0].transforms[3] = newTransformTranslate(1040, 480, 200);
+	
+	//Just transform here for now
+	printf("Running transforms...\n");
+	transformMesh(&scene->objs[0]);
 	printf("Transforms done\n");*/
 	
-	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+24) * sizeof(vector)) + (23 * sizeof(vector)));
+	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+25) * sizeof(vector)) + (25 * sizeof(vector)));
 	
 	//Hard coded vertices for this test
 	//Vertices
@@ -670,6 +687,8 @@ int testBuild(world *scene, char *inputFileName) {
 	vertexArray[vertexCount + 21] = vectorWithPos(940, 350, 600);
 	//Extra BLUE
 	vertexArray[vertexCount + 22] = vectorWithPos(1240, 350, 600);
+	//Extra foreground light for test.obj
+	vertexArray[vertexCount + 23] = vectorWithPos(940, 580, 50);
 	//CAMERA
 	//vertexArray[20] = vectorWithPos(940,480,0);
 	//POLYGONS
@@ -780,6 +799,7 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->materials[9].diffuse = colorWithValues(0.9, 0.9, 0.9, 0);
 	scene->materials[9].reflectivity = 0;
 	
+	//Foreground lights
 	scene->lights = (light*)calloc(scene->lightAmount, sizeof(light));
 	scene->lights[0].pos = vertexArray[vertexCount + 15];
 	scene->lights[0].intensity = colorWithValues(0.2, 0.2, 0.2, 0);
@@ -788,6 +808,10 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->lights[1].pos = vertexArray[vertexCount + 16];
 	scene->lights[1].intensity = colorWithValues(0.2, 0.2, 0.2, 0);
 	scene->lights[1].radius = 42;
+	
+	/*scene->lights[2].pos = vertexArray[vertexCount + 23];
+	scene->lights[2].intensity = colorWithValues(0.5, 0.5, 0.5, 0);
+	scene->lights[2].radius = 0;*/
 	
 	//RED
 	scene->lights[2].pos = vertexArray[vertexCount + 20];

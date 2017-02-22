@@ -8,12 +8,10 @@
 
 #include "renderer.h"
 
-#pragma mark Helper funcs
-#define let int
-
 renderer mainRenderer;
-
 pthread_mutex_t tileMutex;
+
+#pragma mark Helper funcs
 
 void addTile(renderTile tile) {
 	pthread_mutex_lock(&tileMutex);
@@ -24,13 +22,14 @@ void addTile(renderTile tile) {
 }
 
 bool renderTilesEmpty() {
-	return mainRenderer.tileCount == 0;
+	return (mainRenderer.tileCount + 1) == 0;
 }
 
 renderTile getTile() {
 	pthread_mutex_lock(&tileMutex);
 	
-	renderTile tile = mainRenderer.renderTiles[mainRenderer.tileCount--];
+	renderTile tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount++];
+	mainRenderer.tileCount--;
 	
 	pthread_mutex_unlock(&tileMutex);
 	return tile;
@@ -97,6 +96,14 @@ vector getRandomVecOnRadius(vector center, float radius) {
 	return vectorWithPos(center.x + x, center.y + y, center.z + z);
 }
 
+//For camera "sensor"
+vector getRandomVecOnPlane(vector center, float radius) {
+	float x, y;
+	x = getRandomFloat(-radius, radius);
+	y = getRandomFloat(-radius, radius);
+	return vectorWithPos(center.x + x, center.y + y, center.z);
+}
+
 #pragma mark Renderer
 
 color rayTrace(lightRay *incidentRay, world *worldScene) {
@@ -107,7 +114,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 	
 	do {
 		//Find the closest intersection first
-		double t = 20000.0f;
+		double closestIntersection = 20000.0f;
 		double temp;
 		int currentSphere = -1;
 		int currentPolygon = -1;
@@ -121,13 +128,13 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		
 		unsigned int i;
 		for (i = 0; i < sphereAmount; ++i) {
-			if (rayIntersectsWithSphere(incidentRay, &worldScene->spheres[i], &t)) {
+			if (rayIntersectsWithSphere(incidentRay, &worldScene->spheres[i], &closestIntersection)) {
 				currentSphere = i;
 			}
 		}
 		
 		for (i = 0; i < polygonAmount; ++i) {
-			if (rayIntersectsWithPolygon(incidentRay, &polygonArray[i], &t, &polyNormal)) {
+			if (rayIntersectsWithPolygon(incidentRay, &polygonArray[i], &closestIntersection, &polyNormal)) {
 				currentPolygon = i;
 				currentSphere = -1;
 			}
@@ -135,7 +142,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		
 		//Ray-object intersection detection
 		if (currentSphere != -1) {
-			vector scaled = vectorScale(t, &incidentRay->direction);
+			vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
 			surfaceNormal = subtractVectors(&hitpoint, &worldScene->spheres[currentSphere].pos);
 			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
@@ -144,7 +151,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
 			currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].material];
 		} else if (currentPolygon != -1) {
-			vector scaled = vectorScale(t, &incidentRay->direction);
+			vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
 			surfaceNormal = polyNormal;
 			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
@@ -250,7 +257,7 @@ void *renderThread(void *arg) {
 	while (!renderTilesEmpty()) {
 		x = 0; y = 0;
 		renderTile tile = getTile();
-		printf("Started tile %i\n", mainRenderer.tileCount);
+		printf("Started tile %i\n", mainRenderer.renderedTileCount);
 		while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
 			for (y = tile.endY; y > tile.startY; y--) {
 				for (x = tile.startX; x < tile.endX; x++) {
@@ -280,7 +287,7 @@ void *renderThread(void *arg) {
 						if (normal == 0.0f)
 							break;
 						direction = vectorScale(invsqrtf(normal), &direction);
-						vector startPos = mainRenderer.worldScene->camera->pos;
+						vector startPos = getRandomVecOnPlane(mainRenderer.worldScene->camera->pos, mainRenderer.worldScene->camera->focalLength);
 						
 						incidentRay.start = startPos;
 						incidentRay.direction = direction;

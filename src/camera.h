@@ -37,6 +37,7 @@ typedef struct {
 	bool areaLights;
 	bool forceSingleCore;
 	bool showGUI;
+	float focalLength;
     int sampleCount;
     int frameCount;
     int currentFrame;
