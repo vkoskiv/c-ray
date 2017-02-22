@@ -630,7 +630,7 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->height = 800;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->focalLength = 0;
-	scene->camera->sampleCount = 50;
+	scene->camera->sampleCount = 1;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.7;
@@ -643,23 +643,23 @@ int testBuild(world *scene, char *inputFileName) {
 	//True will result in MUCH faster renders, but OBJ shadows will appear spherical
 	scene->camera->approximateMeshShadows = true;
 	scene->camera->pos = vectorWithPos(940, 480, 0);
-	scene->camera->tileWidth  = 16;
-	scene->camera->tileHeight = 16;
+	scene->camera->tileWidth  = 128;
+	scene->camera->tileHeight = 128;
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	loadOBJ(scene, 3, "../output/Nefertiti.obj");
+	loadOBJ(scene, 3, "../output/NefertitiLF.obj");
 	
 	printf("Loading transforms\n");
-	scene->objs[0].transformCount = 2;
+	scene->objs[0].transformCount = 3;
 	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
 	
-	//scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
-	scene->objs[0].transforms[0] = newTransformRotateY(180);
-	scene->objs[0].transforms[1] = newTransformTranslate(640, 500, 700);
+	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
+	scene->objs[0].transforms[1] = newTransformRotateY(180);
+	scene->objs[0].transforms[2] = newTransformTranslate(640, 500, 700);
 	
 	//Just transform here for now
 	printf("Running transforms...\n");
@@ -686,7 +686,7 @@ int testBuild(world *scene, char *inputFileName) {
 	transformMesh(&scene->objs[0]);
 	printf("Transforms done\n");*/
 	
-	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+25) * sizeof(vector)) + (25 * sizeof(vector)));
+	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+25) * sizeof(vector)));
 	
 	//Hard coded vertices for this test
 	//Vertices
@@ -728,8 +728,7 @@ int testBuild(world *scene, char *inputFileName) {
 	//CAMERA
 	//vertexArray[20] = vectorWithPos(940,480,0);
 	//POLYGONS
-	
-	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+24) * sizeof(vector)) + (23 * sizeof(vector)));
+
 	polygonArray = (poly*)realloc(polygonArray, (fullPolyCount+13) * sizeof(poly) + (13 * sizeof(vector)));
 	
 	//FLOOR
