@@ -112,15 +112,20 @@ int main(int argc, char *argv[]) {
 	printf("Raytracing...\n");
 	
 	//Allocate memory and create array of pixels for image data
-	mainRenderer.worldScene->camera->imgData = (unsigned char*)calloc(4 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(unsigned char));
+	mainRenderer.worldScene->camera->imgData = (unsigned char*)calloc(3 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(unsigned char));
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
-	mainRenderer.renderBuffer = (double*)calloc(4 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(double));
+	mainRenderer.renderBuffer = (double*)calloc(3 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(double));
+	
+	//Allocate memory for render UI buffer
+	//This buffer is used for storing UI stuff like currently rendering tile highlights
+	mainRenderer.uiBuffer = (unsigned char*)calloc(4 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(unsigned char));
 	
 	if (!mainRenderer.worldScene->camera->imgData) logHandler(imageMallocFailed);
 	
 	mainRenderer.isRendering = true;
+	mainRenderer.renderAborted = false;
 	pthread_attr_init(&mainRenderer.renderThreadAttributes);
 	pthread_attr_init(&mainDisplay.uiThreadAttributes);
 	pthread_attr_setdetachstate(&mainRenderer.renderThreadAttributes, PTHREAD_CREATE_JOINABLE);
@@ -162,7 +167,7 @@ int main(int argc, char *argv[]) {
 				mainRenderer.activeThreads--;
 				mainRenderer.renderThreadInfo[t].thread_num = -1;
 			}
-			if (mainRenderer.activeThreads == 0) {
+			if (mainRenderer.activeThreads == 0 || mainRenderer.renderAborted) {
 				mainRenderer.isRendering = false;
 			}
 		}

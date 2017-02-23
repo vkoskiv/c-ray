@@ -16,6 +16,7 @@ typedef struct {
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	SDL_Texture *texture;
+	SDL_Texture *overlayTexture;
 	pthread_mutex_t uiMutex;
 	pthread_attr_t uiThreadAttributes;
 	threadInfo *uiThreadInfo;

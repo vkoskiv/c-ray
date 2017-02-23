@@ -29,7 +29,8 @@ renderTile getTile() {
 	pthread_mutex_lock(&tileMutex);
 	
 	renderTile tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount++];
-	//mainRenderer.tileCount--;
+	mainRenderer.renderTiles[mainRenderer.renderedTileCount - 1].isRendering = true;
+	tile.tileNum = mainRenderer.renderedTileCount - 1;
 	
 	pthread_mutex_unlock(&tileMutex);
 	return tile;
@@ -69,6 +70,7 @@ void quantizeImage(world *worldScene) {
 			tile.endY = min((y + 1) * worldScene->camera->tileHeight, worldScene->camera->height);
 			
 			tile.completedSamples = 1;
+			tile.isRendering = false;
 			
 			addTile(tile);
 		}
@@ -288,9 +290,12 @@ void *renderThread(void *arg) {
 	
 	threadInfo *tinfo = (threadInfo*)arg;
 
+	renderTile tile;
+	tile.tileNum = 0;
 	while (!renderTilesEmpty()) {
 		x = 0; y = 0;
-		renderTile tile = getTile();
+		mainRenderer.renderTiles[tile.tileNum].isRendering = false;
+		tile = getTile();
 		printf("Started tile %i/%i\r", mainRenderer.renderedTileCount, mainRenderer.tileCount);
 		while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
 			for (y = tile.endY; y > tile.startY; y--) {

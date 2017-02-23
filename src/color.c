@@ -14,6 +14,7 @@ color greenColor = {0.0, 1.0, 0.0};
 color blueColor =  {0.0, 0.0, 1.0};
 color blackColor = {0.0, 0.0, 0.0};
 color whiteColor = {1.0, 1.0, 1.0};
+color frameColor = {1.0, 0.5, 0.0};
 
 //Color functions
 //Return a color with given values

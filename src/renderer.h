@@ -18,7 +18,6 @@
 typedef struct {
 	pthread_t thread_id;
 	int thread_num;
-	int completedSamples;
 	bool threadComplete;
 }threadInfo;
 
@@ -28,6 +27,8 @@ typedef struct {
 	int startX, startY;
 	int endX, endY;
 	int completedSamples;
+	bool isRendering;
+	int tileNum;
 }renderTile;
 
 typedef struct {
@@ -38,10 +39,12 @@ typedef struct {
 	int tileCount;
 	int renderedTileCount;
 	double *renderBuffer;
+	unsigned char *uiBuffer;
 	int threadCount;
 	int activeThreads;
 	bool shouldSave;
 	bool isRendering;
+	bool renderAborted;
 }renderer;
 
 //Renderer

@@ -37,6 +37,7 @@ extern color greenColor;
 extern color blueColor;
 extern color blackColor;
 extern color whiteColor;
+extern color frameColor;
 
 //Return a color with given values
 color colorWithValues(double red, double green, double blue, double alpha);

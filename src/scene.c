@@ -626,15 +626,15 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 1280;
-	scene->camera->height = 800;
+	scene->camera->width = 2560;
+	scene->camera->height = 1600;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->focalLength = 0;
 	scene->camera->sampleCount = 1;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.7;
-	scene->camera->windowScale = 1.0;
+	scene->camera->windowScale = 0.5;
 	scene->camera->   fileType = png;
 	scene->camera->viewPerspective.projectionType = conic;
 	scene->camera->forceSingleCore = false;
@@ -643,23 +643,23 @@ int testBuild(world *scene, char *inputFileName) {
 	//True will result in MUCH faster renders, but OBJ shadows will appear spherical
 	scene->camera->approximateMeshShadows = true;
 	scene->camera->pos = vectorWithPos(940, 480, 0);
-	scene->camera->tileWidth  = 128;
-	scene->camera->tileHeight = 128;
+	scene->camera->tileWidth  = 32;
+	scene->camera->tileHeight = 32;
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	loadOBJ(scene, 3, "../output/NefertitiLF.obj");
+	loadOBJ(scene, 3, "../output/Nefertiti.obj");
 	
 	printf("Loading transforms\n");
 	scene->objs[0].transformCount = 3;
 	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
 	
-	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
+	scene->objs[0].transforms[0] = newTransformScale(5, 5, 5);
 	scene->objs[0].transforms[1] = newTransformRotateY(180);
-	scene->objs[0].transforms[2] = newTransformTranslate(640, 500, 700);
+	scene->objs[0].transforms[2] = newTransformTranslate(640, 500, 600);
 	
 	//Just transform here for now
 	printf("Running transforms...\n");
