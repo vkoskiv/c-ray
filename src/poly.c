@@ -13,34 +13,34 @@ poly *polygonArray;
 int fullPolyCount;
 
 bool rayIntersectsWithPolygon(lightRay *ray, poly *poly, double *result, vector *normal) {
-	double det, invdet;
+	double orientation, inverseOrientation;
 	vector edge1 = subtractVectors(&vertexArray[poly->vertexIndex[1]], &vertexArray[poly->vertexIndex[0]]);
 	vector edge2 = subtractVectors(&vertexArray[poly->vertexIndex[2]], &vertexArray[poly->vertexIndex[0]]);
 	
 	//Find the cross product of edge 2 and the current ray direction
 	vector s1 = vectorCross(&ray->direction, &edge2);
 	
-	det = scalarProduct(&edge1, &s1);
+	orientation = scalarProduct(&edge1, &s1);
 	//Prepare for floating point precision errors, find a better way to fix these!
-	if (det > -0.000001 && det < 0.000001) {
+	if (orientation > -0.000001 && orientation < 0.000001) {
 		return false;
 	}
 	
-	invdet = 1/det;
+	inverseOrientation = 1/orientation;
 	
 	vector s2 = subtractVectors(&ray->start, &vertexArray[poly->vertexIndex[0]]);
-	double u = scalarProduct(&s2, &s1) * invdet;
+	double u = scalarProduct(&s2, &s1) * inverseOrientation;
 	if (u < 0 || u > 1) {
 		return false;
 	}
 	
 	vector s3 = vectorCross(&s2, &edge1);
-	double v = scalarProduct(&ray->direction, &s3) * invdet;
+	double v = scalarProduct(&ray->direction, &s3) * inverseOrientation;
 	if (v < 0 || (u+v) > 1) {
 		return false;
 	}
 	
-	double temp = scalarProduct(&edge2, &s3) * invdet;
+	double temp = scalarProduct(&edge2, &s3) * inverseOrientation;
 	
 	if ((temp < 0) || (temp > *result)) {
 		return false;
