@@ -178,6 +178,13 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	
+	//Make sure render threads are finished before continuing
+	for (t = 0; t < mainRenderer.threadCount; t++) {
+		if (pthread_join(mainRenderer.renderThreadInfo[t].thread_id, NULL)) {
+			logHandler(threadFrozen);
+		}
+	}
+	
 	time(&stop);
 	printDuration(difftime(stop, start));
 	
