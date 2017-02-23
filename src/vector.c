@@ -20,14 +20,12 @@ int textureCount;
 
 //Create and return a vector with position values. Useful for hard-coded arrays.
 vector vectorWithPos(double x, double y, double z) {
-	vector result = {x, y, z};
-	return result;
+	return (vector){x, y, z};
 }
 
 //Add two vectors and return the resulting vector
 vector addVectors(vector *v1, vector *v2) {
-	vector result = {v1->x + v2->x, v1->y + v2->y, v1->z + v2->z};
-	return result;
+	return (vector){v1->x + v2->x, v1->y + v2->y, v1->z + v2->z};
 }
 
 //Compute length of a vector
@@ -37,8 +35,7 @@ float vectorLength(vector *v) {
 
 //Subtract two vectors and return the resulting vector
 vector subtractVectors(vector *v1, vector *v2) {
-	vector result = {v1->x - v2->x, v1->y - v2->y, v1->z - v2->z};
-	return result;
+	return (vector){v1->x - v2->x, v1->y - v2->y, v1->z - v2->z};
 }
 
 //Multiply two vectors and return the dot product
@@ -48,8 +45,7 @@ float scalarProduct(vector *v1, vector *v2) {
 
 //Multiply a vector by a scalar and return the resulting vector
 vector vectorScale(double c, vector *v) {
-	vector result = {v->x * c, v->y * c, v->z * c};
-	return result;
+	return (vector){v->x * c, v->y * c, v->z * c};
 }
 
 //Calculate cross product and return the resulting vector
@@ -64,21 +60,9 @@ vector vectorCross(vector *v1, vector *v2) {
 }
 
 vector minVector(vector *v1, vector *v2) {
-	vector result;
-	
-	result.x = min(v1->x, v2->x);
-	result.y = min(v1->y, v2->y);
-	result.z = min(v1->z, v2->z);
-	
-	return result;
+	return (vector){min(v1->x, v2->x), min(v1->y, v2->y), min(v1->z, v2->z)};
 }
 
 vector maxVector(vector *v1, vector *v2) {
-	vector result;
-	
-	result.x = max(v1->x, v2->x);
-	result.y = max(v1->y, v2->y);
-	result.z = max(v1->z, v2->z);
-	
-	return result;
+	return (vector){max(v1->x, v2->x), max(v1->y, v2->y), max(v1->z, v2->z)};
 }
