@@ -62,7 +62,7 @@ int initSDL() {
 			return -1;
 		}
 		//Init renderer
-		mainDisplay.renderer = SDL_CreateRenderer(mainDisplay.window, -1, SDL_RENDERER_SOFTWARE);
+		mainDisplay.renderer = SDL_CreateRenderer(mainDisplay.window, -1, SDL_RENDERER_ACCELERATED);
 		if (mainDisplay.renderer == NULL) {
 			fprintf(stdout, "Renderer couldn't be created, error %s\n", SDL_GetError());
 			return -1;
