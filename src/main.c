@@ -68,9 +68,7 @@ int main(int argc, char *argv[]) {
 	mainDisplay.window = NULL;
 	mainDisplay.renderer = NULL;
 	mainDisplay.texture = NULL;
-	
-	//Initialize SDL display
-	initSDL();
+	mainDisplay.overlayTexture = NULL;
 	
 	//This is a timer to elapse how long a render takes per frame
 	time(&start);
@@ -114,6 +112,9 @@ int main(int argc, char *argv[]) {
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
 	mainRenderer.uiBuffer = (unsigned char*)calloc(4 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(unsigned char));
+	
+	//Initialize SDL display
+	initSDL();
 	
 	if (!mainRenderer.worldScene->camera->imgData) logHandler(imageMallocFailed);
 	

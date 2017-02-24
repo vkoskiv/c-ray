@@ -111,8 +111,8 @@ void updateProgress(int totalSamples, int completedSamples, int threadNum) {
 }
 
 void drawPixel(int x, int y, bool on) {
-	if (y < 0) y = 0;
-	if (x < 0) x = 0;
+	if (y < 0) y = 1;
+	if (x < 0) x = 1;
 	
 	if (on) {
 		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y)
