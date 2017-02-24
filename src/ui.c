@@ -56,13 +56,13 @@ int initSDL() {
 			return -1;
 		}
 		//Init window
-		mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.worldScene->camera->width * windowScale, mainRenderer.worldScene->camera->height * windowScale, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS);
+		mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.worldScene->camera->width * windowScale, mainRenderer.worldScene->camera->height * windowScale, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
 		if (mainDisplay.window == NULL) {
 			fprintf(stdout, "Window couldn't be created, error %s\n", SDL_GetError());
 			return -1;
 		}
 		//Init renderer
-		mainDisplay.renderer = SDL_CreateRenderer(mainDisplay.window, -1, SDL_RENDERER_ACCELERATED);
+		mainDisplay.renderer = SDL_CreateRenderer(mainDisplay.window, -1, SDL_RENDERER_SOFTWARE);
 		if (mainDisplay.renderer == NULL) {
 			fprintf(stdout, "Renderer couldn't be created, error %s\n", SDL_GetError());
 			return -1;
@@ -205,23 +205,18 @@ void updateUI() {
 	}
 }
 
-void *drawThread(void *arg) {
+void drawWindow() {
 	SDL_SetRenderDrawColor(mainDisplay.renderer, 0x0, 0x0, 0x0, 0x0);
 	SDL_RenderClear(mainDisplay.renderer);
-	while (mainRenderer.isRendering) {
-		//Check for CTRL-C
-		if (signal(SIGINT, sigHandler) == SIG_ERR)
-			fprintf(stderr, "Couldn't catch SIGINT\n");
-		//Render frame
-		updateUI();
-		pthread_mutex_lock(&mainDisplay.uiMutex);
-		//Update image data
-		SDL_UpdateTexture(mainDisplay.texture, NULL, mainRenderer.worldScene->camera->imgData, mainRenderer.worldScene->camera->width * 3);
-		SDL_UpdateTexture(mainDisplay.overlayTexture, NULL, mainRenderer.uiBuffer, mainRenderer.worldScene->camera->width * 4);
-		SDL_RenderCopy(mainDisplay.renderer, mainDisplay.texture, NULL, NULL);
-		SDL_RenderCopy(mainDisplay.renderer, mainDisplay.overlayTexture, NULL, NULL);
-		SDL_RenderPresent(mainDisplay.renderer);
-	}
-	mainDisplay.uiThreadInfo->threadComplete = true;
-	pthread_exit((void*) arg);
+	//Check for CTRL-C
+	if (signal(SIGINT, sigHandler) == SIG_ERR)
+		fprintf(stderr, "Couldn't catch SIGINT\n");
+	//Render frame
+	updateUI();
+	//Update image data
+	SDL_UpdateTexture(mainDisplay.texture, NULL, mainRenderer.worldScene->camera->imgData, mainRenderer.worldScene->camera->width * 3);
+	SDL_UpdateTexture(mainDisplay.overlayTexture, NULL, mainRenderer.uiBuffer, mainRenderer.worldScene->camera->width * 4);
+	SDL_RenderCopy(mainDisplay.renderer, mainDisplay.texture, NULL, NULL);
+	SDL_RenderCopy(mainDisplay.renderer, mainDisplay.overlayTexture, NULL, NULL);
+	SDL_RenderPresent(mainDisplay.renderer);
 }

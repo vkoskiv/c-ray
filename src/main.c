@@ -81,15 +81,8 @@ int main(int argc, char *argv[]) {
 	int t;
 	
 	//Alloc memory for pthread_create() args
-	mainRenderer.renderThreadInfo = calloc(mainRenderer.threadCount, sizeof(threadInfo));
+	mainRenderer.renderThreadInfo = (threadInfo*)calloc(mainRenderer.threadCount, sizeof(threadInfo));
 	if (mainRenderer.renderThreadInfo == NULL) {
-		logHandler(threadMallocFailed);
-		return -1;
-	}
-	
-	//Alloc memory for uiThread args
-	mainDisplay.uiThreadInfo = calloc(1, sizeof(threadInfo));
-	if (mainDisplay.uiThreadInfo == NULL) {
 		logHandler(threadMallocFailed);
 		return -1;
 	}
@@ -127,14 +120,14 @@ int main(int argc, char *argv[]) {
 	mainRenderer.isRendering = true;
 	mainRenderer.renderAborted = false;
 	pthread_attr_init(&mainRenderer.renderThreadAttributes);
-	pthread_attr_init(&mainDisplay.uiThreadAttributes);
 	pthread_attr_setdetachstate(&mainRenderer.renderThreadAttributes, PTHREAD_CREATE_JOINABLE);
-	pthread_attr_setdetachstate(&mainDisplay.uiThreadAttributes, PTHREAD_CREATE_JOINABLE);
 	
 	//Main loop (input)
 	bool threadsHaveStarted = false;
 	while (mainRenderer.isRendering) {
 		getKeyboardInput();
+		drawWindow();
+		SDL_UpdateWindowSurface(mainDisplay.window);
 		
 		if (!threadsHaveStarted) {
 			threadsHaveStarted = true;
@@ -150,11 +143,6 @@ int main(int argc, char *argv[]) {
 			}
 			
 			mainRenderer.renderThreadInfo->threadComplete = false;
-			//Create UI render thread
-			if (pthread_create(&mainDisplay.uiThreadInfo->thread_id, &mainDisplay.uiThreadAttributes, drawThread, mainDisplay.uiThreadInfo)) {
-				logHandler(threadCreateFailed);
-				exit(-1);
-			}
 			
 			if (pthread_attr_destroy(&mainRenderer.renderThreadAttributes)) {
 				logHandler(threadRemoveFailed);
@@ -170,11 +158,6 @@ int main(int argc, char *argv[]) {
 			if (mainRenderer.activeThreads == 0 || mainRenderer.renderAborted) {
 				mainRenderer.isRendering = false;
 			}
-		}
-		
-		//Wait for UI render thread to finish
-		if (mainDisplay.uiThreadInfo->threadComplete) {
-			mainRenderer.isRendering = false;
 		}
 	}
 	

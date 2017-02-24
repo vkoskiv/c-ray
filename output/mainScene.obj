@@ -1,0 +1,131 @@
+# reference a material file
+# Objects in this file will reference materials in the material file
+#mtllib ../output/test.mtl
+
+##################
+# room
+##################
+# v defines a vertex point in 3space of x y z
+#Floor
+v  200 300 0
+v  1720 300 0
+v  200 300 2000
+v  1720 300 2000
+#Ceiling
+v  200 840 0
+v  1720 840 0
+v  200 840 2000
+v  1720 840 2000
+#Mirror plane
+v  1420 750 1800
+v  1420 300 1800
+v  1620 750 1700
+v  1620 300 1700
+#Shadow test
+v  1000 450 1100
+v  1300 700 1100
+v  1000 700 1300
+#Spheres
+v  650 450 1650
+v  950 350 1000
+v  1100 350 1000
+# 23 vertices
+
+# f v/vt/vn v/vt/vn v/vt/vn describes a face
+usemtl gray_mtl
+#Floor
+f 0 1 2
+f 1 2 3
+#Ceiling
+f 4 5 6
+f 5 6 7
+usemtl mirror_mtl
+#Mirror plane
+f 8 9 10
+f 9 10 11
+usemtl lightblue_mtl
+#Shadow test
+f 12 13 14
+usemtl green_mtl
+#Rear wall
+f 2 3 6
+f 3 6 7
+usemtl red_mtl
+#Left wall
+f 0 2 4
+f 2 4 6
+usemtl blue_mtl
+#Right wall
+f 1 3 5
+f 3 5 7
+
+##################
+# spheres
+##################
+v 10 10 10
+# vn defines a vertex normal in 3space of x y z
+vn 1 0 0
+vn 1 0 0
+# sp v vn vn describes a sphere in this format:
+#    position = v
+#    up normal = vn
+#    equator normal = vn
+# where v is a vertex index and vn is a vertex normal index
+# The radius of the sphere is the length of the up normal.
+#
+# You can use negative numbers to refer to relative indices
+# These indices point to the previous vertex and 2 previous normals
+sp -1 -1 -2
+
+usemtl blue_material
+
+##################
+# plane
+##################
+#v 0 0 -10
+#vn 0 0 1
+#vn 1 0 0
+# pl v vn vn defines a a plane in this format:
+#    position = v
+#    face normal = vn
+#    rotation normal = vn
+#pl 10 3 4
+
+
+##################
+# point lights
+##################
+#Lights
+v  1160 400 0
+v  760 500 0
+#rgb lights
+v  640 350 600
+v  940 350 600
+v  1240 350 600
+usemtl normallight_mtl
+# lp v describes a plane in this format:
+#    position = v
+lp 999
+lp 999
+usemtl redlight_mtl
+lp 999
+usemtl greenlight_mtl
+lp 999
+usemtl bluelight_mtl
+lp 999
+
+##################
+# camera
+##################
+v  0 20 45
+vn  0 1 0
+vn  0 0 -1
+# c v v vn describes a camera in this format:
+#    position = v
+#    focus point = v
+#    up normal vector = vn
+# Note that the focus point defines the direction the camera is facing
+# The up vector and the focus point are enough to orient the camera in 3space
+c 17 6 7
+
+

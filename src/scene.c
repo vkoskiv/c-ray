@@ -626,8 +626,8 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 2560;
-	scene->camera->height = 1600;
+	scene->camera->width = 1280;
+	scene->camera->height = 800;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->focalLength = 0;
 	scene->camera->sampleCount = 1;
@@ -651,7 +651,7 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	loadOBJ(scene, 3, "../output/Nefertiti.obj");
+	loadOBJ(scene, 3, "../output/monkeyLF.obj");
 	
 	printf("Loading transforms\n");
 	scene->objs[0].transformCount = 3;
