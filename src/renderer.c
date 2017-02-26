@@ -13,14 +13,6 @@ pthread_mutex_t tileMutex;
 
 #pragma mark Helper funcs
 
-void addTile(renderTile tile) {
-	pthread_mutex_lock(&tileMutex);
-	
-	mainRenderer.renderTiles[++mainRenderer.tileCount] = tile;
-	
-	pthread_mutex_unlock(&tileMutex);
-}
-
 bool renderTilesEmpty() {
 	return mainRenderer.renderedTileCount - 1 == mainRenderer.tileCount;
 }
@@ -55,24 +47,24 @@ void quantizeImage(world *worldScene) {
 	
 	for (int y = 0; y < tilesY; y++) {
 		for (int x = 0; x < tilesX; x++) {
-			renderTile tile;
-			tile.width = worldScene->camera->tileWidth;
-			tile.height = worldScene->camera->tileHeight;
+			renderTile *tile = &mainRenderer.renderTiles[x + y*tilesX];
+			tile->width = worldScene->camera->tileWidth;
+			tile->height = worldScene->camera->tileHeight;
 			
-			tile.startX = x * worldScene->camera->tileWidth;
-			tile.endX = (x + 1) * worldScene->camera->tileWidth;
-			if (tile.endX )
+			tile->startX = x * worldScene->camera->tileWidth;
+			tile->endX = (x + 1) * worldScene->camera->tileWidth;
+			if (tile->endX )
 			
-			tile.startY = y * worldScene->camera->tileHeight;
-			tile.endY = (y + 1) * worldScene->camera->tileHeight;
+			tile->startY = y * worldScene->camera->tileHeight;
+			tile->endY = (y + 1) * worldScene->camera->tileHeight;
 			
-			tile.endX = min((x + 1) * worldScene->camera->tileWidth, worldScene->camera->width);
-			tile.endY = min((y + 1) * worldScene->camera->tileHeight, worldScene->camera->height);
+			tile->endX = min((x + 1) * worldScene->camera->tileWidth, worldScene->camera->width);
+			tile->endY = min((y + 1) * worldScene->camera->tileHeight, worldScene->camera->height);
 			
-			tile.completedSamples = 1;
-			tile.isRendering = false;
+			tile->completedSamples = 1;
+			tile->isRendering = false;
 			
-			addTile(tile);
+			mainRenderer.tileCount++;
 		}
 	}
 }

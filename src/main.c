@@ -21,13 +21,12 @@ int main(int argc, char *argv[]) {
 	
 	//Initialize renderer
 	//FIXME: Put this in a function
-	mainRenderer.worldScene = NULL;
 	mainRenderer.renderBuffer = NULL;
 	mainRenderer.renderTiles = NULL;
 	mainRenderer.tileCount = 0;
 	mainRenderer.renderedTileCount = 0;
 	mainRenderer.activeThreads = 0;
-	mainRenderer.threadCount = 16;//getSysCores();
+	mainRenderer.threadCount = getSysCores();
 	mainRenderer.shouldSave = true;
 	mainRenderer.isRendering = false;
 	
