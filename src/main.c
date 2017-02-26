@@ -17,8 +17,10 @@ int main(int argc, char *argv[]) {
 	
 	//Seed RNGs
 	srand((int)time(NULL));
+#ifndef WINDOWS
 	srand48(time(NULL));
-	
+#endif
+
 	//Initialize renderer
 	//FIXME: Put this in a function
 	mainRenderer.renderBuffer = NULL;
@@ -30,13 +32,7 @@ int main(int argc, char *argv[]) {
 	mainRenderer.shouldSave = true;
 	mainRenderer.isRendering = false;
 	
-	//Prepare the scene
-	world sceneObject;
-	sceneObject.materials = NULL;
-	sceneObject.spheres = NULL;
-	sceneObject.lights = NULL;
-	sceneObject.objs = NULL;
-	mainRenderer.worldScene = &sceneObject; //Assign to global variable
+	mainRenderer.worldScene = (world*)calloc(1, sizeof(world));
 	
 	char *fileName = NULL;
 	//Build the scene
@@ -119,9 +115,10 @@ int main(int argc, char *argv[]) {
 	
 	mainRenderer.isRendering = true;
 	mainRenderer.renderAborted = false;
+#ifndef WINDOWS
 	pthread_attr_init(&mainRenderer.renderThreadAttributes);
 	pthread_attr_setdetachstate(&mainRenderer.renderThreadAttributes, PTHREAD_CREATE_JOINABLE);
-	
+#endif
 	//Main loop (input)
 	bool threadsHaveStarted = false;
 	while (mainRenderer.isRendering) {
@@ -136,17 +133,29 @@ int main(int argc, char *argv[]) {
 				mainRenderer.renderThreadInfo[t].thread_num = t;
 				mainRenderer.renderThreadInfo[t].threadComplete = false;
 				mainRenderer.activeThreads++;
+#ifdef WINDOWS
+				DWORD threadId;
+				mainRenderer.renderThreadInfo[t].thread_handle = CreateThread(NULL, 0, renderThread, &mainRenderer.renderThreadInfo[t], 0, &threadId);
+				if (mainRenderer.renderThreadInfo[t].thread_handle == NULL) {
+					logHandler(threadCreateFailed);
+					exit(-1);
+				}
+				mainRenderer.renderThreadInfo[t].thread_id = threadId;
+#else
 				if (pthread_create(&mainRenderer.renderThreadInfo[t].thread_id, &mainRenderer.renderThreadAttributes, renderThread, &mainRenderer.renderThreadInfo[t])) {
 					logHandler(threadCreateFailed);
 					exit(-1);
 				}
+#endif
 			}
 			
 			mainRenderer.renderThreadInfo->threadComplete = false;
 			
+#ifndef WINDOWS
 			if (pthread_attr_destroy(&mainRenderer.renderThreadAttributes)) {
 				logHandler(threadRemoveFailed);
 			}
+#endif
 		}
 		
 		//Wait for render threads to finish (Render finished)
@@ -162,10 +171,15 @@ int main(int argc, char *argv[]) {
 	}
 	
 	//Make sure render threads are finished before continuing
+
 	for (t = 0; t < mainRenderer.threadCount; t++) {
+#ifdef WINDOWS
+		WaitForSingleObjectEx(mainRenderer.renderThreadInfo[t].thread_handle, INFINITE, FALSE);
+#else
 		if (pthread_join(mainRenderer.renderThreadInfo[t].thread_id, NULL)) {
 			logHandler(threadFrozen);
 		}
+#endif
 	}
 	
 	time(&stop);
@@ -213,10 +227,10 @@ int getSysCores() {
 		}
 	}
 	return count;
-#elif WIN32
+#elif WINDOWS
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
-	return sysinfo.dwNumberOfProcessors;
+	return sysInfo.dwNumberOfProcessors;
 #else
 	return (int)sysconf(_SC_NPROCESSORS_ONLN);
 #endif

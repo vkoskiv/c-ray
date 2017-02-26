@@ -20,15 +20,20 @@
 #define invsqrtf(x) (1.0f / sqrtf(x))
 
 //Master include file
+#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdbool.h>
 #include <math.h>
 #include <signal.h>
 #include <string.h>
-#include <pthread.h>
-#include <stdlib.h>
-#include <SDL2/SDL.h>
+#ifdef WINDOWS
+	#include <Windows.h>
+	#include "SDL.h"
+#else
+	#include <pthread.h>
+	#include <SDL2/SDL.h>
+#endif
 #include "lodepng.h"
 #include "obj_parser.h"
 

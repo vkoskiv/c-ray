@@ -16,7 +16,12 @@
 #include "poly.h"
 
 typedef struct {
+#ifdef WINDOWS
+	HANDLE thread_handle;
+	DWORD thread_id;
+#else
 	pthread_t thread_id;
+#endif
 	int thread_num;
 	bool threadComplete;
 }threadInfo;
@@ -33,7 +38,9 @@ typedef struct {
 
 typedef struct {
 	threadInfo *renderThreadInfo;
+#ifndef WINDOWS
 	pthread_attr_t renderThreadAttributes;
+#endif
 	world *worldScene;
 	renderTile *renderTiles;
 	int tileCount;
@@ -49,8 +56,11 @@ typedef struct {
 
 //Renderer
 extern renderer mainRenderer;
-
-void *renderThread(void *arg);
+#ifdef WINDOWS
+	DWORD WINAPI renderThread(LPVOID arg);
+#else
+	void *renderThread(void *arg);
+#endif
 void quantizeImage(world *worldScene);
 
 #endif /* renderer_h */

@@ -9,7 +9,11 @@
 #include "renderer.h"
 
 renderer mainRenderer;
-pthread_mutex_t tileMutex;
+#ifdef WINDOWS
+	HANDLE tileMutex = INVALID_HANDLE_VALUE;
+#else
+	pthread_mutex_t tileMutex;
+#endif
 
 #pragma mark Helper funcs
 
@@ -18,18 +22,28 @@ bool renderTilesEmpty() {
 }
 
 renderTile getTile() {
+#ifdef WINDOWS
+	WaitForSingleObject(tileMutex, INFINITE);
+#else
 	pthread_mutex_lock(&tileMutex);
-	
+#endif
 	renderTile tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount++];
 	mainRenderer.renderTiles[mainRenderer.renderedTileCount - 1].isRendering = true;
 	tile.tileNum = mainRenderer.renderedTileCount - 1;
 	
+#ifdef WINDOWS
+	ReleaseMutex(tileMutex);
+#else
 	pthread_mutex_unlock(&tileMutex);
+#endif
 	return tile;
 }
 
 //Create tiles from image
 void quantizeImage(world *worldScene) {
+#ifdef WINDOWS
+	tileMutex = CreateMutex(NULL, FALSE, NULL);
+#endif
 	int tilesX = worldScene->camera->width / worldScene->camera->tileWidth;
 	int tilesY = worldScene->camera->height / worldScene->camera->tileHeight;
 	
@@ -276,7 +290,11 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 	return output;
 }
 
+#ifdef WINDOWS
+DWORD WINAPI renderThread(LPVOID arg) {
+#else
 void *renderThread(void *arg) {
+#endif
 	lightRay incidentRay;
 	int x,y;
 	
@@ -352,5 +370,10 @@ void *renderThread(void *arg) {
 	
 	printf("Thread %i done\n", tinfo->thread_num);
 	tinfo->threadComplete = true;
+#ifdef WINDOWS
+	//Return possible codes here
+	return 0;
+#else
 	pthread_exit((void*) arg);
+#endif
 }
