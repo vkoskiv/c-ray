@@ -1,7 +1,6 @@
 ## Synopsis
 
 C-Ray is a simple raytracer built for studying computer graphics. The implementation is by no means the best, the most efficient nor fully standard, but it's simple, and so is the syntax (hopefully!)
-I slowly began building it from bits I could find online two years ago, when I barely knew enough about the actual theory behind all this. I've learned a lot since then!
 
 It currently supports:
 - reflections
@@ -30,10 +29,9 @@ POSIX:
 3. Suggest a fix to my makefile because it didn't link SDL2 on your platform.
 4. Run binary in ./bin/
 WINDOWS:
-1. Install Cygwin
-2. Run 'make'
-3. Suggest a fix to my makefile because it didn't link ??? on your platform.
-4. Run bunary in ./bin/
+1. Open the VS project in CRayWindows
+2. CTRL+F5 to run without debugging
+3. VS places a binary under CRayWindows/bin/
 
 ## Tests
 

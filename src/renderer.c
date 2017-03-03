@@ -42,6 +42,7 @@ renderTile getTile() {
 //Create tiles from image
 void quantizeImage(world *worldScene) {
 #ifdef WINDOWS
+	//Create this here for now
 	tileMutex = CreateMutex(NULL, FALSE, NULL);
 #endif
 	int tilesX = worldScene->camera->width / worldScene->camera->tileWidth;
@@ -83,11 +84,30 @@ void quantizeImage(world *worldScene) {
 	}
 }
 
+//I want this here so we can control which order the tiles are rendered in
+void reorderTiles(renderOrder order) {
+	//TODO
+	switch (order) {
+		case renderOrderFromMiddle:
+			{
+				
+			}
+			break;
+		case renderOrderTopToBottom:
+			{
+			
+			}
+			break;
+		default:
+			break;
+	}
+}
+
 color getPixel(world *worldScene, int x, int y) {
 	color output = {0.0f, 0.0f, 0.0f, 0.0f};
-	output.red = mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0];
+	output.red =   mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0];
 	output.green = mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 1];
-	output.blue = mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 2];
+	output.blue =  mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 2];
 	output.alpha = 1.0f;
 	return output;
 }
@@ -176,6 +196,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		} else if (currentPolygon != -1) {
 			vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
+			//We get polyNormal from the intersection function
 			surfaceNormal = polyNormal;
 			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
 			if (temp == 0.0f) break;
@@ -320,6 +341,7 @@ void *renderThread(void *arg) {
 						incidentRay.direction.x = 0;
 						incidentRay.direction.y = 0;
 						incidentRay.direction.z = 1;
+						incidentRay.rayType = rayTypeIncident;
 						sample = rayTrace(&incidentRay, mainRenderer.worldScene);
 					} else if (mainRenderer.worldScene->camera->viewPerspective.projectionType == conic) {
 						double focalLength = 0.0f;
@@ -340,6 +362,7 @@ void *renderThread(void *arg) {
 						
 						incidentRay.start = startPos;
 						incidentRay.direction = direction;
+						incidentRay.rayType = rayTypeIncident;
 						sample = rayTrace(&incidentRay, mainRenderer.worldScene);
 						
 						output.red = output.red * (tile.completedSamples - 1);

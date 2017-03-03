@@ -29,10 +29,18 @@ extern int normalCount;
 extern vector *textureArray;
 extern int textureCount;
 
+typedef enum {
+	rayTypeIncident,
+	rayTypeReflected,
+	rayTypeRefracted,
+	rayTypeShadow
+}type;
+
 //Simulated light ray
 typedef struct {
     vector start;
     vector direction;
+	type rayType;
 }lightRay;
 
 //Return a vector with given coordinates

@@ -24,11 +24,11 @@ matrixTransform emptyTransform() {
 }
 
 //http://tinyurl.com/hte35pq
-void transformVector(vector *vec, matrixTransform tf) {
+void transformVector(vector *vec, matrixTransform *tf) {
 	if (!vec->isTransformed) {
-		vec->x = (tf.a * vec->x) + (tf.b * vec->y) + (tf.c * vec->z) + tf.d;
-		vec->y = (tf.e * vec->x) + (tf.f * vec->y) + (tf.g * vec->z) + tf.h;
-		vec->z = (tf.i * vec->x) + (tf.j * vec->y) + (tf.k * vec->z) + tf.l;
+		vec->x = (tf->a * vec->x) + (tf->b * vec->y) + (tf->c * vec->z) + tf->d;
+		vec->y = (tf->e * vec->x) + (tf->f * vec->y) + (tf->g * vec->z) + tf->h;
+		vec->z = (tf->i * vec->x) + (tf->j * vec->y) + (tf->k * vec->z) + tf->l;
 		vec->isTransformed = true;
 	}
 }
@@ -38,7 +38,7 @@ void transformMesh(crayOBJ *object) {
 		//Perform transforms
 		for (int p = object->firstPolyIndex; p < object->polyCount; p++) {
 			for (int v = 0; v < polygonArray->vertexCount; v++) {
-				transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], object->transforms[tf]);
+				transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], &object->transforms[tf]);
 			}
 		}
 		//Clear isTransformed flags

@@ -26,6 +26,11 @@ typedef struct {
 	bool threadComplete;
 }threadInfo;
 
+typedef enum {
+	renderOrderTopToBottom = 0,
+	renderOrderFromMiddle
+}renderOrder;
+
 typedef struct {
 	int width;
 	int height;
