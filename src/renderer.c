@@ -390,7 +390,7 @@ void *renderThread(void *arg) {
 		}
 
 	}
-	
+	mainRenderer.renderTiles[tile.tileNum].isRendering = false;
 	printf("Thread %i done\n", tinfo->thread_num);
 	tinfo->threadComplete = true;
 #ifdef WINDOWS

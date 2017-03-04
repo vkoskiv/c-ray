@@ -26,9 +26,13 @@ matrixTransform emptyTransform() {
 //http://tinyurl.com/hte35pq
 void transformVector(vector *vec, matrixTransform *tf) {
 	if (!vec->isTransformed) {
-		vec->x = (tf->a * vec->x) + (tf->b * vec->y) + (tf->c * vec->z) + tf->d;
-		vec->y = (tf->e * vec->x) + (tf->f * vec->y) + (tf->g * vec->z) + tf->h;
-		vec->z = (tf->i * vec->x) + (tf->j * vec->y) + (tf->k * vec->z) + tf->l;
+		vector temp;
+		temp.x = (tf->a * vec->x) + (tf->b * vec->y) + (tf->c * vec->z) + tf->d;
+		temp.y = (tf->e * vec->x) + (tf->f * vec->y) + (tf->g * vec->z) + tf->h;
+		temp.z = (tf->i * vec->x) + (tf->j * vec->y) + (tf->k * vec->z) + tf->l;
+		vec->x = temp.x;
+		vec->y = temp.y;
+		vec->z = temp.z;
 		vec->isTransformed = true;
 	}
 }
@@ -36,13 +40,13 @@ void transformVector(vector *vec, matrixTransform *tf) {
 void transformMesh(crayOBJ *object) {
 	for (int tf = 0; tf < object->transformCount; tf++) {
 		//Perform transforms
-		for (int p = object->firstPolyIndex; p < object->polyCount; p++) {
-			for (int v = 0; v < polygonArray->vertexCount; v++) {
+		for (int p = object->firstPolyIndex; p < (object->firstPolyIndex + object->polyCount); p++) {
+			for (int v = 0; v < polygonArray[p].vertexCount; v++) {
 				transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], &object->transforms[tf]);
 			}
 		}
 		//Clear isTransformed flags
-		for (int p = object->firstPolyIndex; p < object->polyCount; p++) {
+		for (int p = object->firstPolyIndex; p < object->firstPolyIndex + object->polyCount; p++) {
 			for (int v = 0; v < polygonArray->vertexCount; v++) {
 				vertexArray[polygonArray[p].vertexIndex[v]].isTransformed = false;
 			}
