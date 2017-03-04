@@ -619,18 +619,18 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->  sphereAmount = 3;
 	scene-> polygonAmount = 13;
-	scene->materialAmount = 10;
+	scene->materialAmount = 11;
 	scene->   lightAmount = 6;
 	scene-> objCount = 0;
 	scene->customVertexCount = 23;
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//General scene params
-	scene->camera->width = 1280;
-	scene->camera->height = 800;
+	scene->camera->width = 2560;
+	scene->camera->height = 1600;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->focalLength = 0;
-	scene->camera->sampleCount = 1;
+	scene->camera->sampleCount = 25;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.7;
@@ -641,50 +641,44 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->        showGUI = true;
 	scene->camera->     areaLights = true;
 	//True will result in MUCH faster renders, but OBJ shadows will appear spherical
-	scene->camera->approximateMeshShadows = true;
+	scene->camera->approximateMeshShadows = false;
 	scene->camera->pos = vectorWithPos(940, 480, 0);
-	scene->camera->tileWidth  = 32;
-	scene->camera->tileHeight = 32;
+	scene->camera->tileWidth  = 64;
+	scene->camera->tileHeight = 128;
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	loadOBJ(scene, 3, "../output/monkeyLF.obj");
+	//loadOBJ(scene, 10, "../output/torus.obj");
+	loadOBJ(scene, 2, "../output/wt_teapot.obj");
 	
 	printf("Loading transforms\n");
 	scene->objs[0].transformCount = 3;
 	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
 	
-	scene->objs[0].transforms[0] = newTransformScale(5, 5, 5);
+	scene->objs[0].transforms[0] = newTransformScale(100, 100, 100);
 	scene->objs[0].transforms[1] = newTransformRotateY(180);
-	scene->objs[0].transforms[2] = newTransformTranslate(640, 500, 600);
+	scene->objs[0].transforms[2] = newTransformTranslate(1400, 315, 1000);
+	
+	/*scene->objs[1].transformCount = 3;
+	scene->objs[1].transforms = (matrixTransform*)calloc(scene->objs[1].transformCount, sizeof(matrixTransform));
+	scene->objs[1].transforms[0] = newTransformScale(10, 10, 10);
+	scene->objs[1].transforms[1] = newTransformRotateX(0);
+	scene->objs[1].transforms[2] = newTransformTranslate(940, 500, 600);*/
 	
 	//Just transform here for now
 	printf("Running transforms...\n");
 	transformMesh(&scene->objs[0]);
+	//transformMesh(&scene->objs[1]);
 	printf("Transforms done\n");
 	
 	//Compute bounding volume and apply to obj
 	computeBoundingVolume(&scene->objs[0]);
+	//computeBoundingVolume(&scene->objs[1]);
 	printf("Obj0 boundingVolume radius %f\n", scene->objs[0].boundingVolume.radius);
-	
-	/*loadOBJ(scene, 2, "../output/test.obj");
-	
-	printf("Loading transforms\n");
-	scene->objs[0].transformCount = 4;
-	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
-	
-	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
-	scene->objs[0].transforms[1] = newTransformRotateY(180);
-	scene->objs[0].transforms[2] = newTransformRotateX(-70);
-	scene->objs[0].transforms[3] = newTransformTranslate(1040, 480, 200);
-	
-	//Just transform here for now
-	printf("Running transforms...\n");
-	transformMesh(&scene->objs[0]);
-	printf("Transforms done\n");*/
+	//printf("Obj1 boundingVolume radius %f\n", scene->objs[1].boundingVolume.radius);
 	
 	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+25) * sizeof(vector)));
 	
@@ -833,6 +827,8 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->materials[8].reflectivity = 0;
 	scene->materials[9].diffuse = colorWithValues(0.9, 0.9, 0.9, 0);
 	scene->materials[9].reflectivity = 0;
+	scene->materials[10].diffuse = colorWithValues(1.0, 0.0, 0.0, 0.0);
+	scene->materials[10].reflectivity = 0;
 	
 	//Foreground lights
 	scene->lights = (light*)calloc(scene->lightAmount, sizeof(light));

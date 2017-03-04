@@ -232,9 +232,10 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			light currentLight = worldScene->lights[j];
 			vector lightPos;
 			if (worldScene->camera->areaLights)
-			lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
+				lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
 			else
-			lightPos = currentLight.pos;
+				lightPos = currentLight.pos;
+			
 			bouncedRay.direction = subtractVectors(&lightPos, &hitpoint);
 			
 			double lightProjection = scalarProduct(&bouncedRay.direction, &surfaceNormal);
