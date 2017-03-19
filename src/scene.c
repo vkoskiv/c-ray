@@ -630,7 +630,7 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->height = 1600;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->focalLength = 0;
-	scene->camera->sampleCount = 25;
+	scene->camera->sampleCount = 1;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.7;
@@ -652,13 +652,13 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->blue = 0.6;
 	
 	//loadOBJ(scene, 10, "../output/torus.obj");
-	loadOBJ(scene, 2, "../output/wt_teapot.obj");
+	loadOBJ(scene, 2, "../output/torus.obj");
 	
 	printf("Loading transforms\n");
 	scene->objs[0].transformCount = 3;
 	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
 	
-	scene->objs[0].transforms[0] = newTransformScale(100, 100, 100);
+	scene->objs[0].transforms[0] = newTransformScale(50, 50, 50);
 	scene->objs[0].transforms[1] = newTransformRotateY(180);
 	scene->objs[0].transforms[2] = newTransformTranslate(1400, 315, 1000);
 	
