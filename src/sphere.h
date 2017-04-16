@@ -23,4 +23,7 @@ typedef struct {
 //Calculates intersection between a light ray and a sphere
 bool rayIntersectsWithSphere(lightRay *ray, sphere *sphere, double *t);
 
+//Just check for intersection, don't care about specifics
+bool rayIntersectsWithSphereFast(lightRay *ray, sphere *sphere);
+
 #endif /* defined(__C_Ray__sphere__) */

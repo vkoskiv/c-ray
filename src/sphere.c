@@ -8,6 +8,20 @@
 
 #include "sphere.h"
 
+//Just check for intersection, nothing else.
+bool rayIntersectsWithSphereFast(lightRay *ray, sphere *sphere) {
+	float A = scalarProduct(&ray->direction, &ray->direction);
+	vector distance = subtractVectors(&ray->start, &sphere->pos);
+	float B = 2 * scalarProduct(&ray->direction, &distance);
+	float C = scalarProduct(&distance, &distance) - (sphere->radius * sphere->radius);
+	float trigDiscriminant = B * B - 4 * A * C;
+	if (trigDiscriminant < 0) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 //Calculates intersection with a sphere and a light ray
 bool rayIntersectsWithSphere(lightRay *ray, sphere *sphere, double *t) {
 	bool intersects = false;
@@ -17,7 +31,7 @@ bool rayIntersectsWithSphere(lightRay *ray, sphere *sphere, double *t) {
 	
 	//Distance between start of a lightRay and the sphere position
 	vector distance = subtractVectors(&ray->start, &sphere->pos);
-	
+
 	float B = 2 * scalarProduct(&ray->direction, &distance);
 	
 	float C = scalarProduct(&distance, &distance) - (sphere->radius * sphere->radius);
