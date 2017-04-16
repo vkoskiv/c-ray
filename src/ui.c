@@ -27,7 +27,7 @@ void printDuration(double time) {
 		printf("Finished render in %.0f seconds.\n", time);
 	} else if (time <= 3600) {
 		printf("Finished render in %.0f minute", time/60);
-		if (time/60 > 1) printf("s.\n"); else printf(".\n");
+		if (time/60 > 1) printf("s. (%.0f seconds)\n", time); else printf(". (%.0f seconds)\n", time);
 	} else {
 		printf("Finished render in %.0f hours (%.0f min).\n", (time/60)/60, time/60);
 	}
@@ -43,12 +43,6 @@ void fillTexture(SDL_Renderer *renderer, SDL_Texture *texture, int r, int g, int
 int initSDL() {
 	float windowScale = mainRenderer.worldScene->camera->windowScale;
 	
-	//Delay so macOS can draw window border (Yeah...)
-	for(int i = 0; i < 50; i++){
-		SDL_PumpEvents();
-		SDL_Delay(1);
-	}
-	
 	//Initialize SDL if need be
 	if (mainRenderer.worldScene->camera->showGUI) {
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -56,7 +50,8 @@ int initSDL() {
 			return -1;
 		}
 		//Init window
-		mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.worldScene->camera->width * windowScale, mainRenderer.worldScene->camera->height * windowScale, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+		//TODO: Add settings for fullScreen + borderless
+		mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.worldScene->camera->width * windowScale, mainRenderer.worldScene->camera->height * windowScale, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN_DESKTOP);
 		if (mainDisplay.window == NULL) {
 			fprintf(stdout, "Window couldn't be created, error %s\n", SDL_GetError());
 			return -1;
