@@ -29,4 +29,7 @@ extern int fullPolyCount;
 //Calculates intersection between a light ray and a polygon object. Returns true if intersection has happened.
 bool rayIntersectsWithPolygon(lightRay *ray, poly *poly, double *result, vector *normal);
 
+//Just check for intersection
+bool rayIntersectsWithPolygonFast(lightRay *ray, poly *poly);
+
 #endif /* defined(__C_Ray__poly__) */
