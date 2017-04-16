@@ -17,6 +17,7 @@
 #include "color.h"
 #include "light.h"
 #include "transforms.h"
+#include "clRenderer.h"
 
 //World
 typedef struct {

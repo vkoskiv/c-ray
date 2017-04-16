@@ -513,16 +513,16 @@ vector vectorFromObj(obj_vector *vec) {
 	vector.x = vec->e[0];
 	vector.y = vec->e[1];
 	vector.z = vec->e[2];
+	vector.isTransformed = false;
 	return vector;
 }
 
 poly polyFromObj(obj_face *face) {
-	poly polygon = *(poly*)malloc(sizeof(poly));
+	poly polygon;
 	polygon.vertexCount = face->vertex_count;
 	polygon.materialIndex = face->material_index;
-	for (int i = 0; i < polygon.vertexCount; i++) {
+	for (int i = 0; i < polygon.vertexCount; i++)
 		polygon.vertexIndex[i] = face->vertex_index[i];
-	}
 	for (int i = 0; i < polygon.vertexCount; i++)
 		polygon.normalIndex[i] = face->normal_index[i];
 	for (int i = 0; i < polygon.vertexCount; i++)
@@ -574,6 +574,7 @@ void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	scene->objs[scene->objCount - 1].polyCount = data.face_count;
 	scene->objs[scene->objCount - 1].firstPolyIndex = fullPolyCount - data.face_count;
 	scene->objs[scene->objCount - 1].polyCount = data.face_count;
+	scene->objs[scene->objCount - 1].transformCount = 0;
 	
 	//Save vertex data
 	scene->objs[scene->objCount - 1].firstVectorIndex = vertexCount - data.vertex_count;
@@ -585,26 +586,29 @@ void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	//Convert vectors
 	vertexArray = (vector*)realloc(vertexArray, vertexCount * sizeof(vector));
 	printf("Converting vectors\n");
-	//vertexCount - data.vertex_count so we start from the end of old vecs, instead of beginning
-	for (int i = vertexCount - data.vertex_count; i < data.vertex_count; i++) {
-		vertexArray[i] = vectorFromObj(data.vertex_list[i]);
-		vertexArray[i].isTransformed = false;
+	for (int i = 0; i < data.vertex_count; i++) {
+		vertexArray[scene->objs[scene->objCount - 1].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
+		vertexArray[scene->objs[scene->objCount - 1].firstVectorIndex + i].isTransformed = false;
 	}
+	
 	//Convert normals
 	normalArray = (vector*)realloc(normalArray, normalCount * sizeof(vector));
 	printf("Converting normals\n");
 	for (int i = normalCount - data.vertex_normal_count; i < data.vertex_normal_count; i++) {
 		normalArray[i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
+	
 	//Convert texture coords
 	textureArray = (vector*)realloc(textureArray, textureCount * sizeof(vector));
 	printf("Converting texture coordinates\n");
 	for (int i = textureCount - data.vertex_texture_count; i < data.vertex_texture_count; i++) {
 		textureArray[i] = vectorFromObj(data.vertex_texture_list[i]);
 	}
-	printf("Translating faces\n");
+	
+	//Convert polygons
+	printf("Converting faces\n");
 	polygonArray = (poly*)realloc(polygonArray, fullPolyCount * sizeof(poly));
-	for (int i = fullPolyCount - data.face_count; i <  data.face_count; i++) {
+	for (int i = fullPolyCount - data.face_count; i < data.face_count; i++) {
 		polygonArray[i] = polyFromObj(data.face_list[i]);
 		polygonArray[i].materialIndex = materialIndex;
 	}
@@ -613,6 +617,75 @@ void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	
 	printf("Loaded OBJ! Translated %i faces and %i vectors\n", data.face_count, data.vertex_count);
 }
+
+void loadOBJ2(world *scene, int materialIndex, char *inputFileName) {
+	printf("\nLoading OBJ %s\n", inputFileName);
+	obj_scene_data data;
+	parse_obj_scene(&data, inputFileName);
+	printf("OBJ loaded, converting\n");
+	
+	//Create crayOBJ to keep track of objs
+	scene->objs = (crayOBJ*)realloc(scene->objs, (scene->objCount + 1) * sizeof(crayOBJ));
+	//Vertex data
+	scene->objs[scene->objCount].firstVectorIndex = vertexCount;
+	scene->objs[scene->objCount].vertexCount = data.vertex_count;
+	//Normal data
+	scene->objs[scene->objCount].firstNormalIndex = normalCount;
+	scene->objs[scene->objCount].normalCount = data.vertex_normal_count;
+	//Texture vector data
+	scene->objs[scene->objCount].firstTextureIndex = textureCount;
+	scene->objs[scene->objCount].textureCount = data.vertex_texture_count;
+	//Poly data
+	scene->objs[scene->objCount].firstPolyIndex = fullPolyCount;
+	scene->objs[scene->objCount].polyCount = data.face_count;
+	//BoundingVolume init
+	scene->objs[scene->objCount].boundingVolume.pos = vectorWithPos(0, 0, 0);
+	scene->objs[scene->objCount].boundingVolume.radius = 0;
+	//Transforms init
+	scene->objs[scene->objCount].transformCount = 0;
+	
+	//Update vector and poly counts
+	vertexCount += data.vertex_count;
+	normalCount += data.vertex_normal_count;
+	textureCount += data.vertex_texture_count;
+	fullPolyCount += data.face_count;
+	
+	//Data loaded, now convert everything
+	//Convert vectors
+	printf("Converting vectors\n");
+	vertexArray = (vector*)realloc(vertexArray, vertexCount * sizeof(vector));
+	for (int i = 0; i < data.vertex_count; i++) {
+		vertexArray[scene->objs[scene->objCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
+	}
+	
+	//Convert normals
+	printf("Converting normals\n");
+	normalArray = (vector*)realloc(normalArray, normalCount * sizeof(vector));
+	for (int i = 0; i < data.vertex_normal_count; i++) {
+		normalArray[scene->objs[scene->objCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
+	}
+	//Convert texture vectors
+	printf("Converting texture coordinates\n");
+	textureArray = (vector*)realloc(textureArray, textureCount * sizeof(vector));
+	for (int i = 0; i < data.vertex_texture_count; i++) {
+		textureArray[scene->objs[scene->objCount].firstTextureIndex + i] = vectorFromObj(data.vertex_texture_list[i]);
+	}
+	//Convert polygons
+	printf("Converting polygons\n");
+	polygonArray = (poly*)realloc(polygonArray, fullPolyCount * sizeof(poly));
+	for (int i = 0; i < data.face_count; i++) {
+		polygonArray[scene->objs[scene->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i]);
+		polygonArray[scene->objs[scene->objCount].firstPolyIndex + i].materialIndex = materialIndex;
+	}
+	
+	//Delete OBJ data
+	delete_obj_data(&data);
+	printf("Loaded OBJ! Translated %i faces and %i vectors\n\n", data.face_count, data.vertex_count);
+	
+	//Obj added, update count
+	scene->objCount++;
+}
+
 
 int testBuild(world *scene, char *inputFileName) {
 	printf("Starting SceneBuilder V0.2\n");
@@ -625,12 +698,14 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->customVertexCount = 23;
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
+	//Override renderer thead count, 0 defaults to physical core count
+	scene->camera->threadCount = 0;
 	//General scene params
 	scene->camera->width = 2560;
 	scene->camera->height = 1600;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->focalLength = 0;
-	scene->camera->sampleCount = 25;
+	scene->camera->sampleCount = 1;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.7;
@@ -641,44 +716,44 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->        showGUI = true;
 	scene->camera->     areaLights = true;
 	//True will result in MUCH faster renders, but OBJ shadows will appear spherical
-	scene->camera->approximateMeshShadows = false;
+	scene->camera->approximateMeshShadows = true;
 	scene->camera->pos = vectorWithPos(940, 480, 0);
-	scene->camera->tileWidth  = 64;
-	scene->camera->tileHeight = 128;
+	scene->camera->tileWidth  = 256;
+	scene->camera->tileHeight = 256;
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	//loadOBJ(scene, 10, "../output/torus.obj");
-	loadOBJ(scene, 2, "../output/wt_teapot.obj");
+	loadOBJ2(scene, 6, "../output/MonkeyLF.obj");
+	loadOBJ2(scene, 10, "../output/torus.obj");
 	
 	printf("Loading transforms\n");
 	scene->objs[0].transformCount = 3;
 	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
-	
-	scene->objs[0].transforms[0] = newTransformScale(100, 100, 100);
+	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
 	scene->objs[0].transforms[1] = newTransformRotateY(180);
-	scene->objs[0].transforms[2] = newTransformTranslate(1400, 315, 1000);
+	scene->objs[0].transforms[2] = newTransformTranslate(1400, 415, 1000);
 	
-	/*scene->objs[1].transformCount = 3;
+	scene->objs[1].transformCount = 3;
 	scene->objs[1].transforms = (matrixTransform*)calloc(scene->objs[1].transformCount, sizeof(matrixTransform));
-	scene->objs[1].transforms[0] = newTransformScale(10, 10, 10);
-	scene->objs[1].transforms[1] = newTransformRotateX(0);
-	scene->objs[1].transforms[2] = newTransformTranslate(940, 500, 600);*/
+	scene->objs[1].transforms[0] = newTransformScale(30, 30, 30);
+	scene->objs[1].transforms[1] = newTransformRotateX(45);
+	scene->objs[1].transforms[2] = newTransformTranslate(940, 420, 1000);
 	
 	//Just transform here for now
 	printf("Running transforms...\n");
 	transformMesh(&scene->objs[0]);
-	//transformMesh(&scene->objs[1]);
+	transformMesh(&scene->objs[1]);
 	printf("Transforms done\n");
 	
 	//Compute bounding volume and apply to obj
 	computeBoundingVolume(&scene->objs[0]);
-	//computeBoundingVolume(&scene->objs[1]);
+	computeBoundingVolume(&scene->objs[1]);
+	//scene->objs[1].boundingVolume.radius = 100;
 	printf("Obj0 boundingVolume radius %f\n", scene->objs[0].boundingVolume.radius);
-	//printf("Obj1 boundingVolume radius %f\n", scene->objs[1].boundingVolume.radius);
+	printf("Obj1 boundingVolume radius %f\n", scene->objs[1].boundingVolume.radius);
 	
 	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+25) * sizeof(vector)));
 	
@@ -869,6 +944,8 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->spheres[2].pos = vertexArray[vertexCount + 19];
 	scene->spheres[2].material = 8;
 	scene->spheres[2].radius = 50;
+	
+	//testCL();
 	
 	if (TOKEN_DEBUG_ENABLED) {
 		return 4; //Debug mode - Won't render anything
