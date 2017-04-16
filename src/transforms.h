@@ -37,10 +37,18 @@ typedef struct {
 }matrixTransform;
 
 typedef struct {
-	int polyCount;
-	int firstPolyIndex;
 	int vertexCount;
 	int firstVectorIndex;
+	
+	int normalCount;
+	int firstNormalIndex;
+	
+	int textureCount;
+	int firstTextureIndex;
+	
+	int polyCount;
+	int firstPolyIndex;
+	
 	sphere boundingVolume;
 	matrixTransform *transforms;
 	int transformCount;
