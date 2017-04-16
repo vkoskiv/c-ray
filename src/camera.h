@@ -33,6 +33,8 @@ typedef struct {
 	perspective viewPerspective;
 	vector pos;
 	vector lookAt;
+	vector up;
+	vector u, v, w;
 	unsigned char *imgData;
 	bool areaLights;
 	bool approximateMeshShadows;
@@ -40,6 +42,7 @@ typedef struct {
 	bool showGUI;
 	float focalLength;
     int sampleCount;
+	int threadCount;
     int frameCount;
     int currentFrame;
 	int bounces;
