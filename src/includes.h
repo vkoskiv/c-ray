@@ -36,5 +36,6 @@
 #endif
 #include "lodepng.h"
 #include "obj_parser.h"
+#include <OpenCL/OpenCL.h>
 
 #endif
