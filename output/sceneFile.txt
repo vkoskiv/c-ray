@@ -6,19 +6,25 @@ scene() {
 }
 
 camera() {
+	#7680x4320 for 8K
+	#4096x2160 for full-height 4K
+	width  = 2560
+	height = 1600
+	FOV = 80.0
+	sampleCount = 10
+	frameCount = 1
+	bounces = 3
+	contrast = 0.6
+	#SDL Window scale
+	windowScale = 0.5
 	#Could be "conic" or "ortho"
 	perspective = conic
-	FOV = 80.0
-	contrast = 1.0
 	#Antialiasing is not working currently, and it slows down renders. Keep at false.
 	antialiased = false
 	forceSingleCore = false
 	#bmp or png
 	fileFormat = png
 	#MSAA sample count
-	sampleCount = 10
-	bounces = 3
-	frameCount = 1
 
 	#Camera view ray origin
 	posX = 940
@@ -29,11 +35,6 @@ camera() {
 	lookAtX = 0
 	lookAtY = 0
 	lookAtZ = 1
-
-	#7680x4320 for 8K
-	#4096x2160 for full-height 4K
-	resolutionX = 2560
-	resolutionY = 1600
 }
 
 material() {
