@@ -70,4 +70,7 @@ vector maxVector(vector *v1, vector *v2);
 //Calculate length of vector
 float vectorLength(vector *v);
 
+//Normalize a vector
+vector normalizeVector(vector *v);
+
 #endif /* defined(__C_Ray__vector__) */
