@@ -18,7 +18,7 @@ renderer mainRenderer;
 #pragma mark Helper funcs
 
 bool renderTilesEmpty() {
-	return mainRenderer.renderedTileCount - 1 == mainRenderer.tileCount;
+	return mainRenderer.renderedTileCount >= mainRenderer.tileCount;
 }
 
 renderTile getTile() {
@@ -45,6 +45,7 @@ void quantizeImage(world *worldScene) {
 	//Create this here for now
 	tileMutex = CreateMutex(NULL, FALSE, NULL);
 #endif
+	printf("Quantizing render plane...\n");
 	int tilesX = worldScene->camera->width / worldScene->camera->tileWidth;
 	int tilesY = worldScene->camera->height / worldScene->camera->tileHeight;
 	
@@ -63,15 +64,14 @@ void quantizeImage(world *worldScene) {
 	for (int y = 0; y < tilesY; y++) {
 		for (int x = 0; x < tilesX; x++) {
 			renderTile *tile = &mainRenderer.renderTiles[x + y*tilesX];
-			tile->width = worldScene->camera->tileWidth;
+			tile->width  = worldScene->camera->tileWidth;
 			tile->height = worldScene->camera->tileHeight;
 			
-			tile->startX = x * worldScene->camera->tileWidth;
-			tile->endX = (x + 1) * worldScene->camera->tileWidth;
-			if (tile->endX )
+			tile->startX = x       * worldScene->camera->tileWidth;
+			tile->endX   = (x + 1) * worldScene->camera->tileWidth;
 			
-			tile->startY = y * worldScene->camera->tileHeight;
-			tile->endY = (y + 1) * worldScene->camera->tileHeight;
+			tile->startY = y       * worldScene->camera->tileHeight;
+			tile->endY   = (y + 1) * worldScene->camera->tileHeight;
 			
 			tile->endX = min((x + 1) * worldScene->camera->tileWidth, worldScene->camera->width);
 			tile->endY = min((y + 1) * worldScene->camera->tileHeight, worldScene->camera->height);
@@ -82,6 +82,7 @@ void quantizeImage(world *worldScene) {
 			mainRenderer.tileCount++;
 		}
 	}
+	printf("Quantized image into %i tiles. (%ix%i)", (tilesX*tilesY), tilesX, tilesY);
 }
 
 //I want this here so we can control which order the tiles are rendered in
@@ -117,19 +118,16 @@ float getRandomFloat(float min, float max) {
 }
 
 vector getRandomVecOnRadius(vector center, float radius) {
-	float x, y, z;
-	x = getRandomFloat(-radius, radius);
-	y = getRandomFloat(-radius, radius);
-	z = getRandomFloat(-radius, radius);
-	return vectorWithPos(center.x + x, center.y + y, center.z + z);
+	return vectorWithPos(center.x + getRandomFloat(-radius, radius),
+						 center.y + getRandomFloat(-radius, radius),
+						 center.z + getRandomFloat(-radius, radius));
 }
 
 //For camera "sensor"
 vector getRandomVecOnPlane(vector center, float radius) {
-	float x, y;
-	x = getRandomFloat(-radius, radius);
-	y = getRandomFloat(-radius, radius);
-	return vectorWithPos(center.x + x, center.y + y, center.z);
+	return vectorWithPos(center.x + getRandomFloat(-radius, radius),
+						 center.y + getRandomFloat(-radius, radius),
+						 center.z);
 }
 
 #pragma mark Renderer
@@ -162,11 +160,10 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			}
 		}
 		
-		double fakeIntersection = 20000.0f;
-		unsigned int o;
-		unsigned int p;
+		unsigned int o, p;
 		for (o = 0; o < objCount; o++) {
-			if (rayIntersectsWithSphere(incidentRay, &worldScene->objs[o].boundingVolume, &fakeIntersection)) {
+			if (rayIntersectsWithSphereFast(incidentRay, &worldScene->objs[o].boundingVolume)) {
+				//FIXME: p < firstIndex + polycount?
 				for (p = worldScene->objs[o].firstPolyIndex; p < worldScene->objs[o].polyCount; p++) {
 					if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &polyNormal)) {
 						currentPolygon = p;
