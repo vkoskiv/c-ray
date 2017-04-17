@@ -517,16 +517,16 @@ vector vectorFromObj(obj_vector *vec) {
 	return vector;
 }
 
-poly polyFromObj(obj_face *face) {
+poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex) {
 	poly polygon;
 	polygon.vertexCount = face->vertex_count;
 	polygon.materialIndex = face->material_index;
 	for (int i = 0; i < polygon.vertexCount; i++)
-		polygon.vertexIndex[i] = face->vertex_index[i];
+		polygon.vertexIndex[i] = firstVertexIndex + face->vertex_index[i];
 	for (int i = 0; i < polygon.vertexCount; i++)
-		polygon.normalIndex[i] = face->normal_index[i];
+		polygon.normalIndex[i] = firstNormalIndex + face->normal_index[i];
 	for (int i = 0; i < polygon.vertexCount; i++)
-		polygon.textureIndex[i] = face->texture_index[i];
+		polygon.textureIndex[i] = firstTextureIndex + face->texture_index[i];
 	return polygon;
 }
 
@@ -555,70 +555,6 @@ void computeBoundingVolume(crayOBJ *object) {
 }
 
 void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
-	//FIXME: Handle inputFileName validation
-	printf("Loading OBJ %s\n", inputFileName);
-	obj_scene_data data;
-	parse_obj_scene(&data, inputFileName);
-	printf("OBJ loaded, converting\n");
-	
-	//Update vector counts
-	vertexCount  += data.vertex_count;
-	normalCount  += data.vertex_normal_count;
-	textureCount += data.vertex_texture_count;
-	//And update polygon count
-	fullPolyCount += data.face_count;
-	
-	//Create crayOBJ to keep track of transforms
-	scene->objCount++;
-	scene->objs = (crayOBJ*)realloc(scene->objs, scene->objCount * sizeof(crayOBJ));
-	scene->objs[scene->objCount - 1].polyCount = data.face_count;
-	scene->objs[scene->objCount - 1].firstPolyIndex = fullPolyCount - data.face_count;
-	scene->objs[scene->objCount - 1].polyCount = data.face_count;
-	scene->objs[scene->objCount - 1].transformCount = 0;
-	
-	//Save vertex data
-	scene->objs[scene->objCount - 1].firstVectorIndex = vertexCount - data.vertex_count;
-	scene->objs[scene->objCount - 1].vertexCount = data.vertex_count;
-	
-	scene->objs[scene->objCount - 1].boundingVolume.pos = vectorWithPos(0, 0, 0);
-	scene->objs[scene->objCount - 1].boundingVolume.radius = 0;
-	
-	//Convert vectors
-	vertexArray = (vector*)realloc(vertexArray, vertexCount * sizeof(vector));
-	printf("Converting vectors\n");
-	for (int i = 0; i < data.vertex_count; i++) {
-		vertexArray[scene->objs[scene->objCount - 1].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
-		vertexArray[scene->objs[scene->objCount - 1].firstVectorIndex + i].isTransformed = false;
-	}
-	
-	//Convert normals
-	normalArray = (vector*)realloc(normalArray, normalCount * sizeof(vector));
-	printf("Converting normals\n");
-	for (int i = normalCount - data.vertex_normal_count; i < data.vertex_normal_count; i++) {
-		normalArray[i] = vectorFromObj(data.vertex_normal_list[i]);
-	}
-	
-	//Convert texture coords
-	textureArray = (vector*)realloc(textureArray, textureCount * sizeof(vector));
-	printf("Converting texture coordinates\n");
-	for (int i = textureCount - data.vertex_texture_count; i < data.vertex_texture_count; i++) {
-		textureArray[i] = vectorFromObj(data.vertex_texture_list[i]);
-	}
-	
-	//Convert polygons
-	printf("Converting faces\n");
-	polygonArray = (poly*)realloc(polygonArray, fullPolyCount * sizeof(poly));
-	for (int i = fullPolyCount - data.face_count; i < data.face_count; i++) {
-		polygonArray[i] = polyFromObj(data.face_list[i]);
-		polygonArray[i].materialIndex = materialIndex;
-	}
-	
-	delete_obj_data(&data);
-	
-	printf("Loaded OBJ! Translated %i faces and %i vectors\n", data.face_count, data.vertex_count);
-}
-
-void loadOBJ2(world *scene, int materialIndex, char *inputFileName) {
 	printf("\nLoading OBJ %s\n", inputFileName);
 	obj_scene_data data;
 	parse_obj_scene(&data, inputFileName);
@@ -674,7 +610,7 @@ void loadOBJ2(world *scene, int materialIndex, char *inputFileName) {
 	printf("Converting polygons\n");
 	polygonArray = (poly*)realloc(polygonArray, fullPolyCount * sizeof(poly));
 	for (int i = 0; i < data.face_count; i++) {
-		polygonArray[scene->objs[scene->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i]);
+		polygonArray[scene->objs[scene->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i], scene->objs[scene->objCount].firstVectorIndex, scene->objs[scene->objCount].firstNormalIndex, scene->objs[scene->objCount].firstTextureIndex);
 		polygonArray[scene->objs[scene->objCount].firstPolyIndex + i].materialIndex = materialIndex;
 	}
 	
@@ -705,7 +641,7 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->height = 1600;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->focalLength = 0;
-	scene->camera->sampleCount = 1;
+	scene->camera->sampleCount = 5;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.7;
@@ -726,8 +662,8 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	loadOBJ2(scene, 6, "../output/MonkeyLF.obj");
-	loadOBJ2(scene, 10, "../output/torus.obj");
+	loadOBJ(scene, 6, "../output/MonkeyLF.obj");
+	loadOBJ(scene, 10, "../output/torus.obj");
 	
 	printf("Loading transforms\n");
 	scene->objs[0].transformCount = 3;
