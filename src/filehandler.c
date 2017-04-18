@@ -64,8 +64,8 @@ void saveBmpFromArray(const char *filename, world *worldScene) {
 }
 
 void encodePNGFromArray(const char *filename, unsigned char *imgData, int width, int height) {
-    unsigned error = lodepng_encode24_file(filename, imgData, width, height);
-    if (error) printf("error %u: %s\n", error, lodepng_error_text(error));
+	unsigned error = lodepng_encode24_file(filename, imgData, width, height);
+	if (error) printf("error %u: %s\n", error, lodepng_error_text(error));
 }
 
 void printFileSize(char *fileName) {

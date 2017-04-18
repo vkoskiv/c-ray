@@ -17,7 +17,7 @@ typedef struct {
 	vector pos;
 	float radius;
 	int material;
-    bool active;
+	bool active;
 }sphere;
 
 //Calculates intersection between a light ray and a sphere

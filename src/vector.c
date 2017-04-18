@@ -30,7 +30,7 @@ vector addVectors(vector *v1, vector *v2) {
 
 //Compute length of a vector
 float vectorLength(vector *v) {
-    return sqrtf(v->x*v->x + v->y*v->y + v->z*v->z);
+	return sqrtf(v->x*v->x + v->y*v->y + v->z*v->z);
 }
 
 //Subtract two vectors and return the resulting vector
@@ -63,5 +63,5 @@ vector maxVector(vector *v1, vector *v2) {
 
 vector normalizeVector(vector *v) {
 	double length = vectorLength(v);
-	return (vector){v->x / length, v->y / length, v->z / length};	
+	return (vector){v->x / length, v->y / length, v->z / length};
 }

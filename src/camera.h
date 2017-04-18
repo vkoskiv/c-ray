@@ -41,10 +41,10 @@ typedef struct {
 	bool forceSingleCore;
 	bool showGUI;
 	float focalLength;
-    int sampleCount;
+	int sampleCount;
 	int threadCount;
-    int frameCount;
-    int currentFrame;
+	int frameCount;
+	int currentFrame;
 	int bounces;
 	float contrast;
 	float windowScale;

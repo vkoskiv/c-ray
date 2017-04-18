@@ -19,7 +19,7 @@ typedef struct {
 	int textureIndex[MAX_CRAY_VERTEX_COUNT];
 	int materialIndex;
 	int vertexCount;
-    bool active;
+	bool active;
 }poly;
 
 //Main polygon array

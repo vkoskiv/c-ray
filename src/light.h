@@ -15,9 +15,9 @@
 
 //Light source
 typedef struct {
-    vector pos;
-    float radius;
-    color intensity;
+	vector pos;
+	float radius;
+	color intensity;
 }light;
 
 #endif /* light_h */

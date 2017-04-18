@@ -38,8 +38,8 @@ typedef enum {
 
 //Simulated light ray
 typedef struct {
-    vector start;
-    vector direction;
+	vector start;
+	vector direction;
 	type rayType;
 }lightRay;
 

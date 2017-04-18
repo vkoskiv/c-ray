@@ -12,37 +12,37 @@
 #include "includes.h"
 
 typedef enum {
-    threadMallocFailed,
-    sceneBuildFailed,
-    imageMallocFailed,
-    invalidThreadCount,
-    threadFrozen,
-    threadCreateFailed,
-    threadRemoveFailed,
-    sceneDebugEnabled,
-    sceneParseErrorScene,
-    sceneParseErrorCamera,
-    sceneParseErrorSphere,
-    sceneParseErrorPoly,
-    sceneParseErrorLight,
+	threadMallocFailed,
+	sceneBuildFailed,
+	imageMallocFailed,
+	invalidThreadCount,
+	threadFrozen,
+	threadCreateFailed,
+	threadRemoveFailed,
+	sceneDebugEnabled,
+	sceneParseErrorScene,
+	sceneParseErrorCamera,
+	sceneParseErrorSphere,
+	sceneParseErrorPoly,
+	sceneParseErrorLight,
 	sceneParseErrorMaterial,
-    sceneParseErrorMalloc,
-    sceneParseErrorNoPath,
+	sceneParseErrorMalloc,
+	sceneParseErrorNoPath,
 	dontTurnOnTheAntialiasingYouDoofus,
 	renderErrorInvalidSampleCount,
 	drawTaskMallocFailed,
-    defaultError
+	defaultError
 }renderLog;
 
 typedef enum {
-    rendererSource,
-    sceneBuilder,
-    vectorHandler,
-    colorHandler,
-    polyHandler,
-    sphereHandler,
-    fileHandler,
-    defaultSource
+	rendererSource,
+	sceneBuilder,
+	vectorHandler,
+	colorHandler,
+	polyHandler,
+	sphereHandler,
+	fileHandler,
+	defaultSource
 }logSource;
 
 void logHandler(renderLog error);
