@@ -98,22 +98,58 @@ void quantizeImage(world *worldScene) {
 	printf("Quantized image into %i tiles. (%ix%i)", (tilesX*tilesY), tilesX, tilesY);
 }
 
+void reorderTopToBottom() {
+	int endIndex = mainRenderer.tileCount - 1;
+	
+	renderTile *tempArray = (renderTile*)calloc(mainRenderer.tileCount, sizeof(renderTile));
+	
+	for (int i = 0; i < mainRenderer.tileCount; i++) {
+		tempArray[i] = mainRenderer.renderTiles[endIndex--];
+	}
+	
+	free(mainRenderer.renderTiles);
+	mainRenderer.renderTiles = tempArray;
+}
+
+void reorderFromMiddle() {
+	int midLeft = 0;
+	int midRight = 0;
+	bool isRight = true;
+	
+	midRight = ceil(mainRenderer.tileCount / 2);
+	midLeft = midRight - 1;
+	
+	renderTile *tempArray = (renderTile*)calloc(mainRenderer.tileCount, sizeof(renderTile));
+	
+	for (int i = 0; i < mainRenderer.tileCount; i++) {
+		if (isRight) {
+			tempArray[i] = mainRenderer.renderTiles[midRight++];
+			isRight = false;
+		} else {
+			tempArray[i] = mainRenderer.renderTiles[midLeft--];
+			isRight = true;
+		}
+	}
+	
+	free(mainRenderer.renderTiles);
+	mainRenderer.renderTiles = tempArray;
+}
+
 /**
  Reorder renderTiles in given order
 
  @param order Render order to be applied
  */
 void reorderTiles(renderOrder order) {
-	//TODO: Create this
 	switch (order) {
 		case renderOrderFromMiddle:
 			{
-				
+				reorderFromMiddle();
 			}
 			break;
 		case renderOrderTopToBottom:
 			{
-			
+				reorderTopToBottom();
 			}
 			break;
 		default:

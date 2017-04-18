@@ -27,6 +27,12 @@ typedef enum {
 	png
 }fileType;
 
+typedef enum {
+	renderOrderTopToBottom = 0,
+	renderOrderFromMiddle,
+	renderOrderNormal
+}renderOrder;
+
 typedef struct {
 	int height, width;
 	fileType fileType;
@@ -43,6 +49,7 @@ typedef struct {
 	float focalLength;
 	int sampleCount;
 	int threadCount;
+	renderOrder tileOrder;
 	int frameCount;
 	int currentFrame;
 	int bounces;

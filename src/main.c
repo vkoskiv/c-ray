@@ -73,7 +73,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	quantizeImage(mainRenderer.worldScene);
-
+	reorderTiles(mainRenderer.worldScene->camera->tileOrder);
+	
 	mainDisplay.window = NULL;
 	mainDisplay.renderer = NULL;
 	mainDisplay.texture = NULL;

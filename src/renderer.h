@@ -26,11 +26,6 @@ typedef struct {
 	bool threadComplete;
 }threadInfo;
 
-typedef enum {
-	renderOrderTopToBottom = 0,
-	renderOrderFromMiddle
-}renderOrder;
-
 typedef struct {
 	int width;
 	int height;
@@ -67,5 +62,6 @@ extern renderer mainRenderer;
 	void *renderThread(void *arg);
 #endif
 void quantizeImage(world *worldScene);
+void reorderTiles(renderOrder order);
 
 #endif /* renderer_h */
