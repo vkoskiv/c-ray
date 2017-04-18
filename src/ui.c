@@ -106,6 +106,7 @@ void updateProgress(int totalSamples, int completedSamples, int threadNum) {
 }
 
 void drawPixel(int x, int y, bool on) {
+	//FIXME: this fails when tilesize is too small
 	if (y < 0) y = 1;
 	if (x < 0) x = 1;
 	

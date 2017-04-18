@@ -657,16 +657,17 @@ int testBuild(world *scene, char *inputFileName) {
 	//True will result in MUCH faster renders, but OBJ shadows will appear spherical
 	scene->camera->approximateMeshShadows = false;
 	scene->camera->pos = vectorWithPos(940, 480, 0);
-	scene->camera->tileWidth  = 64;
-	scene->camera->tileHeight = 256;
+	scene->camera->tileWidth  = 32;
+	scene->camera->tileHeight = 32;
+	scene->camera->tileOrder = renderOrderFromMiddle;
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	loadOBJ(scene, 0, "../output/monkeyLF.obj");
-	loadOBJ(scene, 0, "../output/torus.obj");
+	loadOBJ(scene, 4, "../output/monkeyLF.obj");
+	loadOBJ(scene, 6, "../output/torus.obj");
 	
 	printf("Loading transforms\n");
 	
