@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9005F1AE1EA570B9004CF72D /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9005F1AD1EA570B9004CF72D /* SDL2.framework */; };
 		900C4FDA1E59A566001695F6 /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = 900C4FD81E59A566001695F6 /* ui.c */; };
 		9021F8D11E47EDB8001737C0 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8CD1E47EDB8001737C0 /* list.c */; };
 		9021F8D21E47EDB8001737C0 /* lodepng.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8CF1E47EDB8001737C0 /* lodepng.c */; };
@@ -26,7 +27,6 @@
 		9052419D1E8103C9003E8A51 /* clRenderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052419B1E8103C9003E8A51 /* clRenderer.c */; };
 		9052419F1E810805003E8A51 /* renderKernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = 9052419E1E810805003E8A51 /* renderKernel.cl */; };
 		90FDF8B81E593E9200EE91FD /* renderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FDF8B61E593E9200EE91FD /* renderer.c */; };
-		90FDF8EF1E59858600EE91FD /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90FDF8EE1E59858600EE91FD /* SDL2.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -42,6 +42,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9005F1AD1EA570B9004CF72D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		900C4FD81E59A566001695F6 /* ui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ui.c; path = src/ui.c; sourceTree = SOURCE_ROOT; };
 		900C4FD91E59A566001695F6 /* ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ui.h; path = src/ui.h; sourceTree = SOURCE_ROOT; };
 		901E4C101E5382D800B2AF38 /* sceneFile.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = sceneFile.txt; path = output/sceneFile.txt; sourceTree = "<group>"; };
@@ -91,13 +92,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90FDF8EF1E59858600EE91FD /* SDL2.framework in Frameworks */,
+				9005F1AE1EA570B9004CF72D /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9005F1AC1EA570B9004CF72D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9005F1AD1EA570B9004CF72D /* SDL2.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		90D99AEB1D08ADB10015A854 = {
 			isa = PBXGroup;
 			children = (
@@ -106,6 +115,7 @@
 				90D99B321D0DBDF60015A854 /* Inputfiles */,
 				90D99AFE1D08ADBF0015A854 /* libs */,
 				90D99AF61D08ADB10015A854 /* src */,
+				9005F1AC1EA570B9004CF72D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -345,6 +355,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+					"$(USER_LIBRARY_DIR)/Frameworks",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -357,6 +368,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+					"$(USER_LIBRARY_DIR)/Frameworks",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = "$(TARGET_NAME)";

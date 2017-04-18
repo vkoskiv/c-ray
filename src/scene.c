@@ -610,7 +610,10 @@ void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	printf("Converting polygons\n");
 	polygonArray = (poly*)realloc(polygonArray, fullPolyCount * sizeof(poly));
 	for (int i = 0; i < data.face_count; i++) {
-		polygonArray[scene->objs[scene->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i], scene->objs[scene->objCount].firstVectorIndex, scene->objs[scene->objCount].firstNormalIndex, scene->objs[scene->objCount].firstTextureIndex);
+		polygonArray[scene->objs[scene->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
+                                                                                    scene->objs[scene->objCount].firstVectorIndex,
+                                                                                    scene->objs[scene->objCount].firstNormalIndex,
+                                                                                    scene->objs[scene->objCount].firstTextureIndex);
 		polygonArray[scene->objs[scene->objCount].firstPolyIndex + i].materialIndex = materialIndex;
 	}
 	
@@ -635,13 +638,13 @@ int testBuild(world *scene, char *inputFileName) {
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
 	//Override renderer thead count, 0 defaults to physical core count
-	scene->camera->threadCount = 0;
+	scene->camera->threadCount = 8;
 	//General scene params
-	scene->camera->width = 2560;
-	scene->camera->height = 1600;
+	scene->camera->width = 1680;
+	scene->camera->height = 1050;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->focalLength = 0;
-	scene->camera->sampleCount = 5;
+	scene->camera->sampleCount = 50;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.7;
@@ -662,21 +665,21 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
-	loadOBJ(scene, 6, "../output/MonkeyLF.obj");
 	loadOBJ(scene, 10, "../output/torus.obj");
+    loadOBJ(scene, 6, "../output/monkeyLF.obj");
 	
 	printf("Loading transforms\n");
-	scene->objs[0].transformCount = 3;
-	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
-	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
-	scene->objs[0].transforms[1] = newTransformRotateY(180);
-	scene->objs[0].transforms[2] = newTransformTranslate(1400, 415, 1000);
-	
 	scene->objs[1].transformCount = 3;
 	scene->objs[1].transforms = (matrixTransform*)calloc(scene->objs[1].transformCount, sizeof(matrixTransform));
-	scene->objs[1].transforms[0] = newTransformScale(30, 30, 30);
-	scene->objs[1].transforms[1] = newTransformRotateX(45);
-	scene->objs[1].transforms[2] = newTransformTranslate(940, 420, 1000);
+	scene->objs[1].transforms[0] = newTransformScale(10, 10, 10);
+	scene->objs[1].transforms[1] = newTransformRotateY(200);
+	scene->objs[1].transforms[2] = newTransformTranslate(1400, 415, 1000);
+	
+	scene->objs[0].transformCount = 3;
+	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
+	scene->objs[0].transforms[0] = newTransformScale(30, 30, 30);
+	scene->objs[0].transforms[1] = newTransformRotateX(45);
+	scene->objs[0].transforms[2] = newTransformTranslate(940, 420, 1000);
 	
 	//Just transform here for now
 	printf("Running transforms...\n");
