@@ -24,8 +24,6 @@
 		9021F8FF1E47EE0A001737C0 /* vector.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8FD1E47EE0A001737C0 /* vector.c */; };
 		9021F9031E480390001737C0 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F9011E480390001737C0 /* main.c */; };
 		9021F9091E494E3D001737C0 /* transforms.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F9071E494E3D001737C0 /* transforms.c */; };
-		9052419D1E8103C9003E8A51 /* clRenderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052419B1E8103C9003E8A51 /* clRenderer.c */; };
-		9052419F1E810805003E8A51 /* renderKernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = 9052419E1E810805003E8A51 /* renderKernel.cl */; };
 		90FDF8B81E593E9200EE91FD /* renderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FDF8B61E593E9200EE91FD /* renderer.c */; };
 /* End PBXBuildFile section */
 
@@ -78,9 +76,6 @@
 		9021F9021E480390001737C0 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = main.h; path = src/main.h; sourceTree = SOURCE_ROOT; };
 		9021F9071E494E3D001737C0 /* transforms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = transforms.c; path = src/transforms.c; sourceTree = SOURCE_ROOT; };
 		9021F9081E494E3D001737C0 /* transforms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = transforms.h; path = src/transforms.h; sourceTree = SOURCE_ROOT; };
-		9052419B1E8103C9003E8A51 /* clRenderer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = clRenderer.c; path = src/clRenderer.c; sourceTree = SOURCE_ROOT; };
-		9052419C1E8103C9003E8A51 /* clRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = clRenderer.h; path = src/clRenderer.h; sourceTree = SOURCE_ROOT; };
-		9052419E1E810805003E8A51 /* renderKernel.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; name = renderKernel.cl; path = src/renderKernel.cl; sourceTree = SOURCE_ROOT; };
 		90D99AF41D08ADB10015A854 /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90FDF8B61E593E9200EE91FD /* renderer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = renderer.c; path = src/renderer.c; sourceTree = SOURCE_ROOT; };
 		90FDF8B71E593E9200EE91FD /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = renderer.h; path = src/renderer.h; sourceTree = SOURCE_ROOT; };
@@ -130,11 +125,8 @@
 		90D99AF61D08ADB10015A854 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				9052419E1E810805003E8A51 /* renderKernel.cl */,
 				90FDF8B61E593E9200EE91FD /* renderer.c */,
 				90FDF8B71E593E9200EE91FD /* renderer.h */,
-				9052419B1E8103C9003E8A51 /* clRenderer.c */,
-				9052419C1E8103C9003E8A51 /* clRenderer.h */,
 				9021F9011E480390001737C0 /* main.c */,
 				9021F9021E480390001737C0 /* main.h */,
 				9021F8F61E47EE02001737C0 /* scene.c */,
@@ -247,7 +239,6 @@
 			files = (
 				900C4FDA1E59A566001695F6 /* ui.c in Sources */,
 				9021F8FC1E47EE02001737C0 /* sphere.c in Sources */,
-				9052419F1E810805003E8A51 /* renderKernel.cl in Sources */,
 				9021F9091E494E3D001737C0 /* transforms.c in Sources */,
 				90FDF8B81E593E9200EE91FD /* renderer.c in Sources */,
 				9021F8FA1E47EE02001737C0 /* poly.c in Sources */,
@@ -255,7 +246,6 @@
 				9021F8E81E47EDEE001737C0 /* camera.c in Sources */,
 				9021F8FB1E47EE02001737C0 /* scene.c in Sources */,
 				9021F9031E480390001737C0 /* main.c in Sources */,
-				9052419D1E8103C9003E8A51 /* clRenderer.c in Sources */,
 				9021F8EC1E47EDEE001737C0 /* errorhandler.c in Sources */,
 				9021F8D81E47EDD1001737C0 /* obj_parser.c in Sources */,
 				9021F8D11E47EDB8001737C0 /* list.c in Sources */,
