@@ -8,7 +8,11 @@
 
 #include "renderer.h"
 
+/*
+* Global renderer
+*/
 renderer mainRenderer;
+
 #ifdef WINDOWS
 	HANDLE tileMutex = INVALID_HANDLE_VALUE;
 #else
@@ -21,6 +25,11 @@ bool renderTilesEmpty() {
 	return mainRenderer.renderedTileCount >= mainRenderer.tileCount;
 }
 
+/**
+ Gets the next tile from renderTiles in mainRenderer
+
+ @return A renderTile to be rendered
+ */
 renderTile getTile() {
 #ifdef WINDOWS
 	WaitForSingleObject(tileMutex, INFINITE);
@@ -39,7 +48,11 @@ renderTile getTile() {
 	return tile;
 }
 
-//Create tiles from image
+/**
+ Create tiles from render plane, and add those to mainRenderer
+
+ @param worldScene worldScene object
+ */
 void quantizeImage(world *worldScene) {
 #ifdef WINDOWS
 	//Create this here for now
@@ -85,9 +98,13 @@ void quantizeImage(world *worldScene) {
 	printf("Quantized image into %i tiles. (%ix%i)", (tilesX*tilesY), tilesX, tilesY);
 }
 
-//I want this here so we can control which order the tiles are rendered in
+/**
+ Reorder renderTiles in given order
+
+ @param order Render order to be applied
+ */
 void reorderTiles(renderOrder order) {
-	//TODO
+	//TODO: Create this
 	switch (order) {
 		case renderOrderFromMiddle:
 			{
@@ -104,6 +121,14 @@ void reorderTiles(renderOrder order) {
 	}
 }
 
+/**
+ Gets a pixel from the render buffer
+
+ @param worldScene WorldScene to get image dimensions
+ @param x X coordinate of pixel
+ @param y Y coordinate of pixel
+ @return A color object, with full color precision intact (double)
+ */
 color getPixel(world *worldScene, int x, int y) {
 	color output = {0.0f, 0.0f, 0.0f, 0.0f};
 	output.red =   mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0];
@@ -113,18 +138,40 @@ color getPixel(world *worldScene, int x, int y) {
 	return output;
 }
 
+/**
+ Returns a random float between min and max
+
+ @param min Minimum value
+ @param max Maximum value
+ @return Random float between min and max
+ */
 float getRandomFloat(float min, float max) {
 	return ((((float)rand()) / (float)RAND_MAX) * (max - min)) + min;
 }
 
+
+/**
+ Returns a randomized position in a radius around a given point
+
+ @param center Center point for random distribution
+ @param radius Maximum distance from center point
+ @return Vector of a random position within a radius of center point
+ */
 vector getRandomVecOnRadius(vector center, float radius) {
 	return vectorWithPos(center.x + getRandomFloat(-radius, radius),
 						 center.y + getRandomFloat(-radius, radius),
 						 center.z + getRandomFloat(-radius, radius));
 }
 
-//For camera "sensor"
+/**
+ Returns a randomized position on a plane in a radius around a given point
+
+ @param center Center point for random distribution
+ @param radius Maximum distance from center point
+ @return Vector of a random position on a plane within a radius of center point
+ */
 vector getRandomVecOnPlane(vector center, float radius) {
+	//FIXME: This only works in one orientation!
 	return vectorWithPos(center.x + getRandomFloat(-radius, radius),
 						 center.y + getRandomFloat(-radius, radius),
 						 center.z);
@@ -132,6 +179,13 @@ vector getRandomVecOnPlane(vector center, float radius) {
 
 #pragma mark Renderer
 
+/**
+ Returns a computed color based on a given ray and world scene
+
+ @param incidentRay View ray to be cast into a scene
+ @param worldScene Scene the ray is cast into
+ @return Color value with full precision (double)
+ */
 color rayTrace(lightRay *incidentRay, world *worldScene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
 	color output = {0.0f,0.0f,0.0f};
@@ -163,7 +217,6 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		unsigned int o, p;
 		for (o = 0; o < objCount; o++) {
 			if (rayIntersectsWithSphereFast(incidentRay, &worldScene->objs[o].boundingVolume)) {
-				//FIXME: p < firstIndex + polycount?
 				for (p = worldScene->objs[o].firstPolyIndex; p < (worldScene->objs[o].firstPolyIndex + worldScene->objs[o].polyCount); p++) {
 					if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &polyNormal)) {
 						currentPolygon = p;
@@ -309,6 +362,12 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 	return output;
 }
 
+/**
+ A render thread
+
+ @param arg Thread information (see threadInfo struct)
+ @return Exits when thread is done
+ */
 #ifdef WINDOWS
 DWORD WINAPI renderThread(LPVOID arg) {
 #else
