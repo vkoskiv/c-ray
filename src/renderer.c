@@ -164,7 +164,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		for (o = 0; o < objCount; o++) {
 			if (rayIntersectsWithSphereFast(incidentRay, &worldScene->objs[o].boundingVolume)) {
 				//FIXME: p < firstIndex + polycount?
-				for (p = worldScene->objs[o].firstPolyIndex; p < worldScene->objs[o].polyCount; p++) {
+				for (p = worldScene->objs[o].firstPolyIndex; p < (worldScene->objs[o].firstPolyIndex + worldScene->objs[o].polyCount); p++) {
 					if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &polyNormal)) {
 						currentPolygon = p;
 						currentSphere = -1;
@@ -265,7 +265,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 						inShadow = true;
 						break;
 					} else {
-						for (p = worldScene->objs[o].firstPolyIndex; p < worldScene->objs[o].polyCount; p++) {
+						for (p = worldScene->objs[o].firstPolyIndex; p < (worldScene->objs[o].firstPolyIndex + worldScene->objs[o].polyCount); p++) {
 							if (rayIntersectsWithPolygon(&bouncedRay, &polygonArray[p], &t, &polyNormal)) {
 								inShadow = true;
 								break;
