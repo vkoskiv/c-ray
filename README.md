@@ -17,7 +17,7 @@ Things I'm looking to implement:
 
 ## Dependencies
 
-SDL2 (Optional, but you'll have to comment a bit of code to work without it)
+SDL2 (Optional, comment #define UI_ENABLED in ui.h to disable it)
 Standard C99/GNU99 with some standard libraries
 All other libraries are included as source
 
@@ -28,6 +28,7 @@ POSIX:
 2. Run 'make'
 3. Suggest a fix to my makefile because it didn't link SDL2 on your platform.
 4. Run binary in ./bin/
+
 WINDOWS:
 1. Open the VS project in CRayWindows
 2. CTRL+F5 to run without debugging

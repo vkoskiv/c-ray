@@ -75,11 +75,13 @@ int main(int argc, char *argv[]) {
 	quantizeImage(mainRenderer.worldScene);
 	reorderTiles(mainRenderer.worldScene->camera->tileOrder);
 	
+#ifdef UI_ENABLED
 	mainDisplay.window = NULL;
 	mainDisplay.renderer = NULL;
 	mainDisplay.texture = NULL;
 	mainDisplay.overlayTexture = NULL;
-
+#endif
+	
 	//This is a timer to elapse how long a render takes per frame
 	time(&start);
 
@@ -124,7 +126,9 @@ int main(int argc, char *argv[]) {
 	mainRenderer.uiBuffer = (unsigned char*)calloc(4 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(unsigned char));
 
 	//Initialize SDL display
+#ifdef UI_ENABLED
 	initSDL();
+#endif
 
 	if (!mainRenderer.worldScene->camera->imgData) logHandler(imageMallocFailed);
 
@@ -137,9 +141,11 @@ int main(int argc, char *argv[]) {
 	//Main loop (input)
 	bool threadsHaveStarted = false;
 	while (mainRenderer.isRendering) {
+#ifdef UI_ENABLED
 		getKeyboardInput();
 		drawWindow();
 		SDL_UpdateWindowSurface(mainDisplay.window);
+#endif
 
 		if (!threadsHaveStarted) {
 			threadsHaveStarted = true;

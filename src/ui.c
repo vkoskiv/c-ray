@@ -8,7 +8,9 @@
 
 #include "ui.h"
 
+#ifdef UI_ENABLED
 display mainDisplay;
+#endif
 
 //Signal handling
 void (*signal(int signo, void (*func )(int)))(int);
@@ -33,6 +35,7 @@ void printDuration(double time) {
 	}
 }
 
+#ifdef UI_ENABLED
 void fillTexture(SDL_Renderer *renderer, SDL_Texture *texture, int r, int g, int b, int a) {
 	SDL_SetRenderTarget(renderer, texture);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
@@ -98,11 +101,6 @@ void getKeyboardInput() {
 		mainRenderer.shouldSave = false;
 		mainRenderer.renderAborted = true;
 	}
-}
-
-void updateProgress(int totalSamples, int completedSamples, int threadNum) {
-	printf("Thread %i rendering sample %i/%i\r", threadNum, completedSamples, totalSamples);
-	fflush(stdout);
 }
 
 void drawPixel(int x, int y, bool on) {
@@ -215,4 +213,11 @@ void drawWindow() {
 	SDL_RenderCopy(mainDisplay.renderer, mainDisplay.texture, NULL, NULL);
 	SDL_RenderCopy(mainDisplay.renderer, mainDisplay.overlayTexture, NULL, NULL);
 	SDL_RenderPresent(mainDisplay.renderer);
+}
+
+#endif
+
+void updateProgress(int totalSamples, int completedSamples, int threadNum) {
+	printf("Thread %i rendering sample %i/%i\r", threadNum, completedSamples, totalSamples);
+	fflush(stdout);
 }
