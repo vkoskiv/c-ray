@@ -44,7 +44,6 @@ typedef struct {
 	unsigned char *imgData;
 	bool areaLights;
 	bool approximateMeshShadows;
-	bool showGUI;
 	float focalLength;
 	int sampleCount;
 	int threadCount;

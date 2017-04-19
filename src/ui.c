@@ -46,46 +46,44 @@ void fillTexture(SDL_Renderer *renderer, SDL_Texture *texture, int r, int g, int
 int initSDL() {
 	float windowScale = mainRenderer.worldScene->camera->windowScale;
 	
-	//Initialize SDL if need be
-	if (mainRenderer.worldScene->camera->showGUI) {
-		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-			fprintf(stdout, "SDL couldn't initialize, error %s\n", SDL_GetError());
-			return -1;
-		}
-		//Init window
-		//TODO: Add settings for fullScreen + borderless
-		mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.worldScene->camera->width * windowScale, mainRenderer.worldScene->camera->height * windowScale, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN_DESKTOP);
-		if (mainDisplay.window == NULL) {
-			fprintf(stdout, "Window couldn't be created, error %s\n", SDL_GetError());
-			return -1;
-		}
-		//Init renderer
-		mainDisplay.renderer = SDL_CreateRenderer(mainDisplay.window, -1, SDL_RENDERER_ACCELERATED);
-		if (mainDisplay.renderer == NULL) {
-			fprintf(stdout, "Renderer couldn't be created, error %s\n", SDL_GetError());
-			return -1;
-		}
-		//And set blend modes
-		SDL_SetRenderDrawBlendMode(mainDisplay.renderer, SDL_BLENDMODE_BLEND);
-		
-		SDL_RenderSetScale(mainDisplay.renderer, windowScale, windowScale);
-		//Init pixel texture
-		mainDisplay.texture = SDL_CreateTexture(mainDisplay.renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, mainRenderer.worldScene->camera->width, mainRenderer.worldScene->camera->height);
-		if (mainDisplay.texture == NULL) {
-			fprintf(stdout, "Texture couldn't be created, error %s\n", SDL_GetError());
-			return -1;
-		}
-		//Init overlay texture (for UI info)
-		mainDisplay.overlayTexture = SDL_CreateTexture(mainDisplay.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, mainRenderer.worldScene->camera->width, mainRenderer.worldScene->camera->height);
-		if (mainDisplay.overlayTexture == NULL) {
-			fprintf(stdout, "Overlay texture couldn't be created, error %s\n", SDL_GetError());
-			return -1;
-		}
-		
-		//And set blend modes for textures too
-		SDL_SetTextureBlendMode(mainDisplay.texture, SDL_BLENDMODE_BLEND);
-		SDL_SetTextureBlendMode(mainDisplay.overlayTexture, SDL_BLENDMODE_BLEND);
+	//Initialize SDL
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		fprintf(stdout, "SDL couldn't initialize, error %s\n", SDL_GetError());
+		return -1;
 	}
+	//Init window
+	//TODO: Add settings for fullScreen + borderless
+	mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.worldScene->camera->width * windowScale, mainRenderer.worldScene->camera->height * windowScale, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN_DESKTOP);
+	if (mainDisplay.window == NULL) {
+		fprintf(stdout, "Window couldn't be created, error %s\n", SDL_GetError());
+		return -1;
+	}
+	//Init renderer
+	mainDisplay.renderer = SDL_CreateRenderer(mainDisplay.window, -1, SDL_RENDERER_ACCELERATED);
+	if (mainDisplay.renderer == NULL) {
+		fprintf(stdout, "Renderer couldn't be created, error %s\n", SDL_GetError());
+		return -1;
+	}
+	//And set blend modes
+	SDL_SetRenderDrawBlendMode(mainDisplay.renderer, SDL_BLENDMODE_BLEND);
+	
+	SDL_RenderSetScale(mainDisplay.renderer, windowScale, windowScale);
+	//Init pixel texture
+	mainDisplay.texture = SDL_CreateTexture(mainDisplay.renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, mainRenderer.worldScene->camera->width, mainRenderer.worldScene->camera->height);
+	if (mainDisplay.texture == NULL) {
+		fprintf(stdout, "Texture couldn't be created, error %s\n", SDL_GetError());
+		return -1;
+	}
+	//Init overlay texture (for UI info)
+	mainDisplay.overlayTexture = SDL_CreateTexture(mainDisplay.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, mainRenderer.worldScene->camera->width, mainRenderer.worldScene->camera->height);
+	if (mainDisplay.overlayTexture == NULL) {
+		fprintf(stdout, "Overlay texture couldn't be created, error %s\n", SDL_GetError());
+		return -1;
+	}
+	
+	//And set blend modes for textures too
+	SDL_SetTextureBlendMode(mainDisplay.texture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(mainDisplay.overlayTexture, SDL_BLENDMODE_BLEND);
 	return 0;
 }
 

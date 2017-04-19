@@ -687,7 +687,6 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->windowScale = 0.5;
 	scene->camera->   fileType = png;
 	scene->camera->viewPerspective.projectionType = conic;
-	scene->camera->        showGUI = true;
 	scene->camera->     areaLights = true;
 	//True will result in MUCH faster renders, but OBJ shadows will appear spherical
 	scene->camera->approximateMeshShadows = false;
