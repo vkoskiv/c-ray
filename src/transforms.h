@@ -52,6 +52,8 @@ typedef struct {
 	sphere boundingVolume;
 	matrixTransform *transforms;
 	int transformCount;
+	
+	char *objName;
 }crayOBJ;
 
 //Transform types

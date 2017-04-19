@@ -552,6 +552,21 @@ void computeBoundingVolume(crayOBJ *object) {
 	object->boundingVolume.pos = center;
 	object->boundingVolume.pos.isTransformed = false;
 	object->boundingVolume.radius = sphereRadius;
+	
+	printf("%s boundingVolume radius %f\n", object->objName, object->boundingVolume.radius);
+}
+
+char *getFileName(char *input) {
+	char *fn;
+	
+	/* handle trailing '/' e.g.
+	 input == "/home/me/myprogram/" */
+	if (input[(strlen(input) - 1)] == '/')
+		input[(strlen(input) - 1)] = '\0';
+	
+	(fn = strrchr(input, '/')) ? ++fn : (fn = input);
+	
+	return fn;
 }
 
 void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
@@ -580,6 +595,9 @@ void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	//Transforms init
 	scene->objs[scene->objCount].transformCount = 0;
 	scene->objs[scene->objCount].transforms = (matrixTransform*)malloc(sizeof(matrixTransform));
+	
+	//Set name
+	scene->objs[scene->objCount].objName = getFileName(inputFileName);
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
@@ -688,8 +706,6 @@ int testBuild(world *scene, char *inputFileName) {
 	//Compute bounding volume and apply to obj
 	computeBoundingVolume(&scene->objs[0]);
 	computeBoundingVolume(&scene->objs[1]);
-	printf("Obj0 boundingVolume radius %f\n", scene->objs[0].boundingVolume.radius);
-	printf("Obj1 boundingVolume radius %f\n", scene->objs[1].boundingVolume.radius);
 	
 	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+25) * sizeof(vector)));
 	
