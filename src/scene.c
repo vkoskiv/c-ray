@@ -570,7 +570,7 @@ char *getFileName(char *input) {
 }
 
 void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
-	printf("\nLoading OBJ %s\n", inputFileName);
+	printf("Loading OBJ %s\n", inputFileName);
 	obj_scene_data data;
 	parse_obj_scene(&data, inputFileName);
 	printf("OBJ loaded, converting\n");
@@ -644,8 +644,26 @@ void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	scene->objCount++;
 }
 
+void transformMeshes(world *scene) {
+	printf("Running transforms...\n");
+	for (int i = 0; i < scene->objCount; ++i) {
+		printf("Transforming %s...\n", scene->objs[i].objName);
+		transformMesh(&scene->objs[i]);
+		printf("Transformed %s!\n", scene->objs[i].objName);
+	}
+	printf("Transforms done!\n");
+}
+
+void computeBoundingVolumes(world *scene) {
+	printf("\nComputing bounding volumes...\n");
+	for (int i = 0; i < scene->objCount; ++i) {
+		computeBoundingVolume(&scene->objs[i]);
+	}
+	printf("\n");
+}
+
 int testBuild(world *scene, char *inputFileName) {
-	printf("Starting SceneBuilder V0.2\n");
+	printf("Starting SceneBuilder V0.5\n\n");
 	
 	scene->  sphereAmount = 3;
 	scene-> polygonAmount = 13;
@@ -662,7 +680,7 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->height = 1600;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->focalLength = 0;
-	scene->camera->sampleCount = 1;
+	scene->camera->sampleCount = 25;
 	scene->camera-> frameCount = 1;
 	scene->camera->    bounces = 3;
 	scene->camera->   contrast = 0.7;
@@ -697,15 +715,25 @@ int testBuild(world *scene, char *inputFileName) {
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(105));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(640, 460, 800));
 	
-	//Just transform here for now
-	printf("Running transforms...\n");
-	transformMesh(&scene->objs[0]);
-	transformMesh(&scene->objs[1]);
-	printf("Transforms done\n");
 	
-	//Compute bounding volume and apply to obj
-	computeBoundingVolume(&scene->objs[0]);
-	computeBoundingVolume(&scene->objs[1]);
+	//R G B is 0 1 2
+	loadOBJ(scene, 0, "../output/wt_teapot.obj");
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 900));
+	
+	loadOBJ(scene, 1, "../output/wt_teapot.obj");
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(90));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 900));
+	
+	loadOBJ(scene, 2, "../output/wt_teapot.obj");
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,900));
+	
+	transformMeshes(scene);
+	computeBoundingVolumes(scene);
 	
 	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+25) * sizeof(vector)));
 	
@@ -736,8 +764,8 @@ int testBuild(world *scene, char *inputFileName) {
 	vertexArray[vertexCount + 16] = vectorWithPos(760,500,0);
 	//SPHERES
 	vertexArray[vertexCount + 17] = vectorWithPos(650,450,1650);
-	vertexArray[vertexCount + 18] = vectorWithPos(950,350,1000);
-	vertexArray[vertexCount + 19] = vectorWithPos(1100,350,1000);
+	vertexArray[vertexCount + 18] = vectorWithPos(950,350,1500);
+	vertexArray[vertexCount + 19] = vectorWithPos(1100,350,1500);
 	//Extra RED
 	vertexArray[vertexCount + 20] = vectorWithPos(640, 350, 600);
 	//Extra GREEN
