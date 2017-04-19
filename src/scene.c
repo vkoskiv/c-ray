@@ -579,6 +579,7 @@ void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	scene->objs[scene->objCount].boundingVolume.radius = 0;
 	//Transforms init
 	scene->objs[scene->objCount].transformCount = 0;
+	scene->objs[scene->objCount].transforms = (matrixTransform*)malloc(sizeof(matrixTransform));
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
@@ -625,7 +626,6 @@ void loadOBJ(world *scene, int materialIndex, char *inputFileName) {
 	scene->objCount++;
 }
 
-
 int testBuild(world *scene, char *inputFileName) {
 	printf("Starting SceneBuilder V0.2\n");
 	
@@ -666,23 +666,17 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor->blue = 0.6;
 	
+	//NOTE: Translates have to come last!
 	loadOBJ(scene, 4, "../output/monkeyLF.obj");
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(10, 10, 10));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(200));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1400, 415, 1000));
+	
 	loadOBJ(scene, 6, "../output/torus.obj");
-	
-	printf("Loading transforms\n");
-	
-	scene->objs[1].transformCount = 4;
-	scene->objs[1].transforms = (matrixTransform*)calloc(scene->objs[1].transformCount, sizeof(matrixTransform));
-	scene->objs[1].transforms[0] = newTransformScale(90, 90, 90);
-	scene->objs[1].transforms[1] = newTransformRotateX(45);
-	scene->objs[1].transforms[2] = newTransformRotateY(105);
-	scene->objs[1].transforms[3] = newTransformTranslate(640, 460, 800);
-	
-	scene->objs[0].transformCount = 3;
-	scene->objs[0].transforms = (matrixTransform*)calloc(scene->objs[0].transformCount, sizeof(matrixTransform));
-	scene->objs[0].transforms[0] = newTransformScale(10, 10, 10);
-	scene->objs[0].transforms[1] = newTransformRotateY(200);
-	scene->objs[0].transforms[2] = newTransformTranslate(1400, 415, 1000);
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(90, 90, 90));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateX(45));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(105));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(640, 460, 800));
 	
 	//Just transform here for now
 	printf("Running transforms...\n");

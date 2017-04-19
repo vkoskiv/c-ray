@@ -13,6 +13,17 @@ double toRadians(double degrees) {
 	return (degrees * PI) / 180;
 }
 
+void addTransform(crayOBJ *obj, matrixTransform transform) {
+	if (obj->transformCount == 0) {
+		obj->transforms = (matrixTransform*)calloc(1, sizeof(matrixTransform));
+	} else {
+		obj->transforms = (matrixTransform*)realloc(obj->transforms, (obj->transformCount + 1) * sizeof(matrixTransform));
+	}
+	
+	obj->transforms[obj->transformCount] = transform;
+	obj->transformCount++;
+}
+
 matrixTransform emptyTransform() {
 	matrixTransform transform;
 	transform.type = transformTypeNone;

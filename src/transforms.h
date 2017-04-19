@@ -65,4 +65,7 @@ matrixTransform emptyTransform();
 //Object transforms
 void transformMesh(crayOBJ *object);
 
+//Scene builder
+void addTransform(crayOBJ *obj, matrixTransform transform);
+
 #endif /* transforms_h */
