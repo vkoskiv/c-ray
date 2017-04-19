@@ -536,7 +536,7 @@ poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int
 void computeBoundingVolume(crayOBJ *object) {
 	vector minPoint = vertexArray[object->firstVectorIndex];
 	vector maxPoint = vertexArray[object->firstVectorIndex];
-	for (int i = object->firstVectorIndex + 1; i < object->vertexCount; i++) {
+	for (int i = object->firstVectorIndex + 1; i < (object->firstVectorIndex + object->vertexCount); i++) {
 		minPoint = minVector(&minPoint, &vertexArray[i]);
 		maxPoint = maxVector(&maxPoint, &vertexArray[i]);
 	}
@@ -544,7 +544,7 @@ void computeBoundingVolume(crayOBJ *object) {
 	
 	float maxDistance = 0.0;
 	
-	for (int i = object->firstVectorIndex + 1; i < object->vertexCount; i++) {
+	for (int i = object->firstVectorIndex + 1; i < (object->firstVectorIndex + object->vertexCount); i++) {
 		vector fromCenter = subtractVectors(&vertexArray[i], &center);
 		maxDistance = max(maxDistance, pow(vectorLength(&fromCenter), 2));
 	}
@@ -667,9 +667,10 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->ambientColor->blue = 0.6;
 	
 	//NOTE: Translates have to come last!
-	loadOBJ(scene, 4, "../output/monkeyLF.obj");
+	loadOBJ(scene, 4, "../output/monkeyHD.obj");
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(10, 10, 10));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(200));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateZ(45));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1400, 415, 1000));
 	
 	loadOBJ(scene, 6, "../output/torus.obj");
@@ -687,7 +688,6 @@ int testBuild(world *scene, char *inputFileName) {
 	//Compute bounding volume and apply to obj
 	computeBoundingVolume(&scene->objs[0]);
 	computeBoundingVolume(&scene->objs[1]);
-	//scene->objs[1].boundingVolume.radius = 100;
 	printf("Obj0 boundingVolume radius %f\n", scene->objs[0].boundingVolume.radius);
 	printf("Obj1 boundingVolume radius %f\n", scene->objs[1].boundingVolume.radius);
 	
