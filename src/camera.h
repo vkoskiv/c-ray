@@ -54,6 +54,9 @@ typedef struct {
 	float contrast;
 	float windowScale;
 	
+	bool isFullScreen;
+	bool isBorderless;
+	
 	bool useTiles;
 	int tileWidth;
 	int tileHeight;

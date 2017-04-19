@@ -20,6 +20,8 @@ typedef struct {
 	SDL_Renderer *renderer;
 	SDL_Texture *texture;
 	SDL_Texture *overlayTexture;
+	bool isBorderless;
+	bool isFullScreen;
 }display;
 
 int initSDL();

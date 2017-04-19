@@ -53,7 +53,11 @@ int initSDL() {
 	}
 	//Init window
 	//TODO: Add settings for fullScreen + borderless
-	mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.worldScene->camera->width * windowScale, mainRenderer.worldScene->camera->height * windowScale, SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN_DESKTOP);
+	SDL_WindowFlags flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
+	if (mainDisplay.isFullScreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	if (mainDisplay.isBorderless) flags |= SDL_WINDOW_BORDERLESS;
+	
+	mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.worldScene->camera->width * windowScale, mainRenderer.worldScene->camera->height * windowScale, flags);
 	if (mainDisplay.window == NULL) {
 		fprintf(stdout, "Window couldn't be created, error %s\n", SDL_GetError());
 		return -1;

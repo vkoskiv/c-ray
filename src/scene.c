@@ -678,6 +678,8 @@ int testBuild(world *scene, char *inputFileName) {
 	//General scene params
 	scene->camera->width = 2560;
 	scene->camera->height = 1600;
+	scene->camera->isFullScreen = false;
+	scene->camera->isBorderless = false;
 	scene->camera->viewPerspective.FOV = 80.0;
 	scene->camera->focalLength = 0;
 	scene->camera->sampleCount = 25;

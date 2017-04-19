@@ -80,6 +80,9 @@ int main(int argc, char *argv[]) {
 	mainDisplay.renderer = NULL;
 	mainDisplay.texture = NULL;
 	mainDisplay.overlayTexture = NULL;
+	
+	mainDisplay.isBorderless = mainRenderer.worldScene->camera->isBorderless;
+	mainDisplay.isFullScreen = mainRenderer.worldScene->camera->isFullScreen;
 #endif
 	
 	//This is a timer to elapse how long a render takes per frame
