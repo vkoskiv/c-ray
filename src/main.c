@@ -85,8 +85,6 @@ int main(int argc, char *argv[]) {
 	//This is a timer to elapse how long a render takes per frame
 	time(&start);
 
-	if (mainRenderer.worldScene->camera->forceSingleCore) mainRenderer.threadCount = 1;
-
 	//Create threads
 	int t;
 
@@ -106,10 +104,10 @@ int main(int argc, char *argv[]) {
 	printf("Rendering with %i samples\n", mainRenderer.worldScene->camera->sampleCount);
 	printf("Rendering with %d thread",mainRenderer.threadCount);
 	if (mainRenderer.threadCount > 1) {
-		printf("s");
+		printf("s\n");
+	} else {
+		printf("\n");
 	}
-	if (mainRenderer.worldScene->camera->forceSingleCore) printf(" (Forced single thread)\n");
-	else printf("\n");
 
 	printf("Using %i light bounces\n", mainRenderer.worldScene->camera->bounces);
 	printf("Raytracing...\n");
