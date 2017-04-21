@@ -2,7 +2,7 @@ TARGET = c-ray
 CC = gcc
 CFLAGS = -std=c99 -Wall
 LINKER = gcc -o
-LFLAGS = -I. -lm -pthread -lSDL2
+LFLAGS = -I. -lm -pthread
 
 SRCDIR = src
 OBJDIR = obj
@@ -14,7 +14,7 @@ OBJECTS := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm = rm -f
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
-	@$(LINKER) $@ $(LFLAGS) $(OBJECTS) -lm -lSDL2
+	@$(LINKER) $@ $(LFLAGS) $(OBJECTS) -lm
 	@echo "Linking complete..."
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
