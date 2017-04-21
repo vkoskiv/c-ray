@@ -676,8 +676,8 @@ int testBuild(world *scene, char *inputFileName) {
 	//Override renderer thread count, 0 defaults to physical core count
 	scene->camera-> threadCount = 8;
 	//General scene params
-	scene->camera->       width = 2560;
-	scene->camera->      height = 1600;
+	scene->camera->       width = 1280;
+	scene->camera->      height = 800;
 	scene->camera->isFullScreen = false;
 	scene->camera->isBorderless = false;
 	scene->camera->         FOV = 80.0;
@@ -686,13 +686,13 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->camera->  frameCount = 1;
 	scene->camera->     bounces = 3;
 	scene->camera->    contrast = 0.7;
-	scene->camera-> windowScale = 0.5;
+	scene->camera-> windowScale = 1.0;
 	scene->camera->    fileType = png;
-	scene->camera->  areaLights = false;
-	scene->camera-> aprxShadows = true; //Approximate mesh shadows, true is faster but results in inaccurate shadows
+	scene->camera->  areaLights = true;
+	scene->camera-> aprxShadows = false; //Approximate mesh shadows, true is faster but results in inaccurate shadows
 	scene->camera->         pos = vectorWithPos(940, 480, 0);
-	scene->camera->  tileWidth  = 32;
-	scene->camera->  tileHeight = 32;
+	scene->camera->  tileWidth  = 64;
+	scene->camera->  tileHeight = 64;
 	scene->camera->   tileOrder = renderOrderFromMiddle;
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
