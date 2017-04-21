@@ -216,14 +216,14 @@ vector getRandomVecOnPlane(vector center, float radius) {
 
 #pragma mark Renderer
 
-color rayTrace2(lightRay *incidentRay, world *worldScene) {
+/*color rayTrace2(lightRay *incidentRay, world *worldScene) {
 	color output = {0.0f,0.0f,0.0f};
 	int bounces = 0;
 	double contrast = worldScene->camera->contrast;
 	vector hitpoint, hitpointNormal;
 	
 	do{
-		/* Find closest intersection */
+		// Find closest intersection 
 		double closestIntersection = 20000.0f;
 		int currentSphere = -1;
 		int currentPolygon = -1;
@@ -260,7 +260,7 @@ color rayTrace2(lightRay *incidentRay, world *worldScene) {
 			vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
 			
-			/* Find the normal for this new vector at the point of intersection */
+			// Find the normal for this new vector at the point of intersection
 			hitpointNormal = subtractVectors(&hitpoint, &worldScene->spheres[currentSphere].pos);
 			float temp = scalarProduct(&hitpointNormal, &hitpointNormal);
 			if(temp == 0) break;
@@ -268,7 +268,7 @@ color rayTrace2(lightRay *incidentRay, world *worldScene) {
 			temp = 1.0f / sqrtf(temp);
 			hitpointNormal = vectorScale(temp, &hitpointNormal);
 			
-			/* Find the material to determine the colour */
+			// Find the material to determine the colour
 			currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].material];
 		} else if (currentPolygon != -1) {
 			vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
@@ -287,7 +287,7 @@ color rayTrace2(lightRay *incidentRay, world *worldScene) {
 			break;
 		}
 		
-		/* Find the value of the light at this point */
+		// Find the value of the light at this point
 		unsigned int j;
 		for(j=0; j < 3; j++){
 			light currentLight = worldScene->lights[j];
@@ -300,7 +300,7 @@ color rayTrace2(lightRay *incidentRay, world *worldScene) {
 			bouncedRay.start = hitpoint;
 			bouncedRay.direction = vectorScale((1/t), &dist);
 			
-			/* Calculate shadows */
+			// Calculate shadows
 			bool inShadow = false;
 			unsigned int k;
 			for (k = 0; k < 3; ++k) {
@@ -310,17 +310,17 @@ color rayTrace2(lightRay *incidentRay, world *worldScene) {
 				}
 			}
 			if (!inShadow){
-				/* Lambert diffusion */
+				// Lambert diffusion
 				float lambert = scalarProduct(&bouncedRay.direction, &hitpointNormal) * contrast;
 				output.red += lambert * currentLight.intensity.red * currentMaterial.diffuse.red;
 				output.green += lambert * currentLight.intensity.green * currentMaterial.diffuse.green;
 				output.blue += lambert * currentLight.intensity.blue * currentMaterial.diffuse.blue;
 			}
 		}
-		/* Iterate over the reflection */
+		// Iterate over the reflection
 		contrast *= currentMaterial.reflectivity;
 		
-		/* The reflected ray start and direction */
+		// The reflected ray start and direction
 		incidentRay->start = hitpoint;
 		float reflect = 2.0f * scalarProduct(&incidentRay->direction, &hitpointNormal);
 		vector tmp = vectorScale(reflect, &hitpointNormal);
@@ -330,7 +330,7 @@ color rayTrace2(lightRay *incidentRay, world *worldScene) {
 		
 	} while((contrast > 0.0f) && (bounces < 15));
 	return output;
-}
+}*/
 
 /**
  Returns a computed color based on a given ray and world scene
@@ -569,7 +569,7 @@ void *renderThread(void *arg) {
 					incidentRay.direction = direction;
 					incidentRay.rayType = rayTypeIncident;
 					//Get sample
-					sample = rayTrace2(&incidentRay, mainRenderer.worldScene);
+					sample = rayTrace(&incidentRay, mainRenderer.worldScene);
 					
 					//And process the running average
 					output.red = output.red * (tile.completedSamples - 1);
