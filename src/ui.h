@@ -12,9 +12,6 @@
 #include "includes.h"
 #include "renderer.h"
 
-//Comment this to disable SDL
-//#define UI_ENABLED
-
 #ifdef UI_ENABLED
 typedef struct {
 	SDL_Window *window;

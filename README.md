@@ -21,7 +21,7 @@ Things I'm looking to implement:
 
 ## Dependencies
 
-SDL2 (Optional, comment #define UI_ENABLED in ui.h to disable it)
+SDL2 (Optional, comment #define UI_ENABLED in includes.h to disable it)
 Standard C99/GNU99 with some standard libraries
 All other libraries are included as source
 
