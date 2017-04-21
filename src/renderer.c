@@ -216,6 +216,122 @@ vector getRandomVecOnPlane(vector center, float radius) {
 
 #pragma mark Renderer
 
+color rayTrace2(lightRay *incidentRay, world *worldScene) {
+	color output = {0.0f,0.0f,0.0f};
+	int bounces = 0;
+	double contrast = worldScene->camera->contrast;
+	vector hitpoint, hitpointNormal;
+	
+	do{
+		/* Find closest intersection */
+		double closestIntersection = 20000.0f;
+		int currentSphere = -1;
+		int currentPolygon = -1;
+		int sphereAmount = worldScene->sphereAmount;
+		int polygonAmount = fullPolyCount;
+		int lightSourceAmount = worldScene->lightAmount;
+		int objCount = worldScene->objCount;
+		
+		material currentMaterial;
+		vector polyNormal = {0.0, 0.0, 0.0};
+		
+		//Sphere handling
+		unsigned int i;
+		for(i = 0; i < sphereAmount; i++){
+			if(rayIntersectsWithSphere(incidentRay, &worldScene->spheres[i], &closestIntersection))
+				currentSphere = i;
+		}
+		
+		//OBJ handling
+		double fakeIntersection = 20000.0f;
+		unsigned int o, p;
+		for (o = 0; o < objCount; o++) {
+			if (rayIntersectsWithSphere(incidentRay, &worldScene->objs[o].boundingVolume, &fakeIntersection)) {
+				for (p = worldScene->objs[0].firstPolyIndex; p < (worldScene->objs[o].firstPolyIndex + worldScene->objs[0].polyCount); p++) {
+					if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &polyNormal)) {
+						currentPolygon = p;
+						currentSphere = -1;
+					}
+				}
+			}
+		}
+		
+		if(currentSphere != -1) {
+			vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
+			hitpoint = addVectors(&incidentRay->start, &scaled);
+			
+			/* Find the normal for this new vector at the point of intersection */
+			hitpointNormal = subtractVectors(&hitpoint, &worldScene->spheres[currentSphere].pos);
+			float temp = scalarProduct(&hitpointNormal, &hitpointNormal);
+			if(temp == 0) break;
+			
+			temp = 1.0f / sqrtf(temp);
+			hitpointNormal = vectorScale(temp, &hitpointNormal);
+			
+			/* Find the material to determine the colour */
+			currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].material];
+		} else if (currentPolygon != -1) {
+			vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
+			hitpoint = addVectors(&incidentRay->start, &scaled);
+			//FIXME: Get this from OBJ?
+			hitpointNormal = polyNormal;
+			float temp = scalarProduct(&hitpointNormal, &hitpointNormal);
+			if (temp == 0) break;
+			temp = 1.0f / sqrtf(temp);
+			hitpointNormal = vectorScale(temp, &hitpointNormal);
+			currentMaterial = worldScene->materials[polygonArray[currentPolygon].materialIndex];
+		} else {
+			//Ray missed everything, set to background.
+			color temp = colorCoef(contrast, worldScene->ambientColor);
+			output = addColors(&output, &temp);
+			break;
+		}
+		
+		/* Find the value of the light at this point */
+		unsigned int j;
+		for(j=0; j < 3; j++){
+			light currentLight = worldScene->lights[j];
+			vector dist = subtractVectors(&currentLight.pos, &hitpoint);
+			if(scalarProduct(&hitpointNormal, &dist) <= 0.0f) continue;
+			double t = sqrtf(scalarProduct(&dist,&dist));
+			if(t <= 0.0f) continue;
+			
+			lightRay bouncedRay;
+			bouncedRay.start = hitpoint;
+			bouncedRay.direction = vectorScale((1/t), &dist);
+			
+			/* Calculate shadows */
+			bool inShadow = false;
+			unsigned int k;
+			for (k = 0; k < 3; ++k) {
+				if (rayIntersectsWithSphere(&bouncedRay, &worldScene->spheres[k], &t)){
+					inShadow = true;
+					break;
+				}
+			}
+			if (!inShadow){
+				/* Lambert diffusion */
+				float lambert = scalarProduct(&bouncedRay.direction, &hitpointNormal) * contrast;
+				output.red += lambert * currentLight.intensity.red * currentMaterial.diffuse.red;
+				output.green += lambert * currentLight.intensity.green * currentMaterial.diffuse.green;
+				output.blue += lambert * currentLight.intensity.blue * currentMaterial.diffuse.blue;
+			}
+		}
+		/* Iterate over the reflection */
+		contrast *= currentMaterial.reflectivity;
+		
+		/* The reflected ray start and direction */
+		incidentRay->start = hitpoint;
+		float reflect = 2.0f * scalarProduct(&incidentRay->direction, &hitpointNormal);
+		vector tmp = vectorScale(reflect, &hitpointNormal);
+		incidentRay->direction = subtractVectors(&incidentRay->direction, &tmp);
+		
+		bounces++;
+		
+	} while((contrast > 0.0f) && (bounces < 15));
+	return output;
+}
+
 /**
  Returns a computed color based on a given ray and world scene
 
@@ -251,9 +367,10 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			}
 		}
 		
+		double fakeIntersection = 20000.0f;
 		unsigned int o, p;
 		for (o = 0; o < objCount; o++) {
-			if (rayIntersectsWithSphereFast(incidentRay, &worldScene->objs[o].boundingVolume)) {
+			if (rayIntersectsWithSphere(incidentRay, &worldScene->objs[o].boundingVolume, &fakeIntersection)) {
 				for (p = worldScene->objs[o].firstPolyIndex; p < (worldScene->objs[o].firstPolyIndex + worldScene->objs[o].polyCount); p++) {
 					if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &polyNormal)) {
 						currentPolygon = p;
@@ -288,6 +405,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
 			if (temp == 0.0f) break;
 			temp = invsqrtf(temp);
+			//FIXME: Possibly get existing normal here
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
 			currentMaterial = worldScene->materials[polygonArray[currentPolygon].materialIndex];
 		} else {
@@ -331,7 +449,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			double lightDistance = scalarProduct(&bouncedRay.direction, &bouncedRay.direction);
 			double temp = lightDistance;
 			
-			if (temp == 0.0f) continue;
+			if (temp <= 0.0f) continue;
 			temp = invsqrtf(temp);
 			bouncedRay.direction = vectorScale(temp, &bouncedRay.direction);
 			lightProjection = temp * lightProjection;
@@ -351,7 +469,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			for (o = 0; o < objCount; o++) {
 				if (rayIntersectsWithSphere(&bouncedRay, &worldScene->objs[o].boundingVolume, &fakeIntersection)) {
 					
-					if (worldScene->camera->approximateMeshShadows) {
+					if (worldScene->camera->aprxShadows) {
 						inShadow = true;
 						break;
 					} else {
@@ -432,10 +550,9 @@ void *renderThread(void *arg) {
 					int width = mainRenderer.worldScene->camera->width;
 					
 					double focalLength = 0.0f;
-					if ((mainRenderer.worldScene->camera->viewPerspective.projectionType == conic)
-						&& mainRenderer.worldScene->camera->viewPerspective.FOV > 0.0f
-						&& mainRenderer.worldScene->camera->viewPerspective.FOV < 189.0f) {
-						focalLength = 0.5f * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * mainRenderer.worldScene->camera->viewPerspective.FOV);
+					if (mainRenderer.worldScene->camera->FOV > 0.0f
+						&& mainRenderer.worldScene->camera->FOV < 189.0f) {
+						focalLength = 0.5f * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * mainRenderer.worldScene->camera->FOV);
 					}
 					
 					vector direction = {(x - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
@@ -452,7 +569,7 @@ void *renderThread(void *arg) {
 					incidentRay.direction = direction;
 					incidentRay.rayType = rayTypeIncident;
 					//Get sample
-					sample = rayTrace(&incidentRay, mainRenderer.worldScene);
+					sample = rayTrace2(&incidentRay, mainRenderer.worldScene);
 					
 					//And process the running average
 					output.red = output.red * (tile.completedSamples - 1);
