@@ -29,10 +29,14 @@
 #include <string.h>
 #ifdef WINDOWS
 	#include <Windows.h>
+#ifdef UI_ENABLED
 	#include "SDL.h"
+#endif
 #else
 	#include <pthread.h>
+#ifdef UI_ENABLED
 	#include <SDL2/SDL.h>
+#endif
 #endif
 #include "lodepng.h"
 #include "obj_parser.h"
