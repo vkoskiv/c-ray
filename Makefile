@@ -9,7 +9,7 @@ else
 endif
 
 ifeq ($(usesdl),no)
-	undefine FRAMEWORKS
+	FRAMEWORKS = -I/usr/local/include
 endif
 
 CFLAGS = -std=c99 -Wall
