@@ -8,6 +8,10 @@ else
 	FRAMEWORKS = -I/usr/local/include -L/usr/local/lib -lSDL2
 endif
 
+ifeq ($(usesdl),no)
+	undefine FRAMEWORKS
+endif
+
 CFLAGS = -std=c99 -Wall
 LINKER = gcc -o
 LFLAGS = -I. -lm -pthread $(FRAMEWORKS)
