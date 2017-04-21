@@ -10,7 +10,7 @@
 #define C_Ray_includes_h
 
 //Comment this to disable SDL
-#define UI_ENABLED
+//#define UI_ENABLED
 
 //Global constants
 #define MAX_CRAY_VERTEX_COUNT 3
