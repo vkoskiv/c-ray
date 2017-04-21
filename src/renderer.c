@@ -36,6 +36,7 @@ renderTile getTile() {
 #else
 	pthread_mutex_lock(&tileMutex);
 #endif
+	//FIXME: This could be optimized
 	renderTile tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount++];
 	mainRenderer.renderTiles[mainRenderer.renderedTileCount - 1].isRendering = true;
 	tile.tileNum = mainRenderer.renderedTileCount - 1;
@@ -426,57 +427,53 @@ void *renderThread(void *arg) {
 				for (x = tile.startX; x < tile.endX; x++) {
 					color output = getPixel(mainRenderer.worldScene, x, y);
 					color sample = {0.0f,0.0f,0.0f,0.0f};
-					if (mainRenderer.worldScene->camera->viewPerspective.projectionType == ortho) {
-						incidentRay.start.x = x/2;
-						incidentRay.start.y = y/2;
-						incidentRay.start.z = mainRenderer.worldScene->camera->pos.z;
-						
-						incidentRay.direction.x = 0;
-						incidentRay.direction.y = 0;
-						incidentRay.direction.z = 1;
-						incidentRay.rayType = rayTypeIncident;
-						sample = rayTrace(&incidentRay, mainRenderer.worldScene);
-					} else if (mainRenderer.worldScene->camera->viewPerspective.projectionType == conic) {
-						double focalLength = 0.0f;
-						if ((mainRenderer.worldScene->camera->viewPerspective.projectionType == conic)
-							&& mainRenderer.worldScene->camera->viewPerspective.FOV > 0.0f
-							&& mainRenderer.worldScene->camera->viewPerspective.FOV < 189.0f) {
-							focalLength = 0.5f * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * mainRenderer.worldScene->camera->viewPerspective.FOV);
-						}
-						
-						vector direction = {(x - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
-							(y - 0.5f * mainRenderer.worldScene->camera->height) / focalLength, 1.0f};
-						
-						double normal = scalarProduct(&direction, &direction);
-						if (normal == 0.0f)
-							break;
-						direction = vectorScale(invsqrtf(normal), &direction);
-						vector startPos = getRandomVecOnPlane(mainRenderer.worldScene->camera->pos, mainRenderer.worldScene->camera->focalLength);
-						
-						incidentRay.start = startPos;
-						incidentRay.direction = direction;
-						incidentRay.rayType = rayTypeIncident;
-						sample = rayTrace(&incidentRay, mainRenderer.worldScene);
-						
-						output.red = output.red * (tile.completedSamples - 1);
-						output.green = output.green * (tile.completedSamples - 1);
-						output.blue = output.blue * (tile.completedSamples - 1);
-						
-						output = addColors(&output, &sample);
-						
-						output.red = output.red / tile.completedSamples;
-						output.green = output.green / tile.completedSamples;
-						output.blue = output.blue / tile.completedSamples;
-						
-						//Store render buffer
-						mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 0] = output.red;
-						mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 1] = output.green;
-						mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 2] = output.blue;
+					
+					int height = mainRenderer.worldScene->camera->height;
+					int width = mainRenderer.worldScene->camera->width;
+					
+					double focalLength = 0.0f;
+					if ((mainRenderer.worldScene->camera->viewPerspective.projectionType == conic)
+						&& mainRenderer.worldScene->camera->viewPerspective.FOV > 0.0f
+						&& mainRenderer.worldScene->camera->viewPerspective.FOV < 189.0f) {
+						focalLength = 0.5f * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * mainRenderer.worldScene->camera->viewPerspective.FOV);
 					}
 					
-					mainRenderer.worldScene->camera->imgData[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 0] = (unsigned char)min(  output.red*255.0f, 255.0f);
-					mainRenderer.worldScene->camera->imgData[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
-					mainRenderer.worldScene->camera->imgData[(x + (mainRenderer.worldScene->camera->height - y)*mainRenderer.worldScene->camera->width)*3 + 2] = (unsigned char)min( output.blue*255.0f, 255.0f);
+					vector direction = {(x - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
+						(y - 0.5f * mainRenderer.worldScene->camera->height) / focalLength, 1.0f};
+					
+					double normal = scalarProduct(&direction, &direction);
+					if (normal == 0.0f)
+						break;
+					direction = vectorScale(invsqrtf(normal), &direction);
+					vector startPos = getRandomVecOnPlane(mainRenderer.worldScene->camera->pos, mainRenderer.worldScene->camera->focalLength);
+					
+					//Set up ray
+					incidentRay.start = startPos;
+					incidentRay.direction = direction;
+					incidentRay.rayType = rayTypeIncident;
+					//Get sample
+					sample = rayTrace(&incidentRay, mainRenderer.worldScene);
+					
+					//And process the running average
+					output.red = output.red * (tile.completedSamples - 1);
+					output.green = output.green * (tile.completedSamples - 1);
+					output.blue = output.blue * (tile.completedSamples - 1);
+					
+					output = addColors(&output, &sample);
+					
+					output.red = output.red / tile.completedSamples;
+					output.green = output.green / tile.completedSamples;
+					output.blue = output.blue / tile.completedSamples;
+					
+					//Store render buffer
+					mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 0] = output.red;
+					mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 1] = output.green;
+					mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 2] = output.blue;
+					
+					//And store the image data
+					mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 0] = (unsigned char)min(  output.red*255.0f, 255.0f);
+					mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
+					mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 2] = (unsigned char)min( output.blue*255.0f, 255.0f);
 				}
 			}
 			tile.completedSamples++;
