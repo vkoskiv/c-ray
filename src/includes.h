@@ -9,6 +9,9 @@
 #ifndef C_Ray_includes_h
 #define C_Ray_includes_h
 
+//Comment this to disable SDL
+//#define UI_ENABLED
+
 //Global constants
 #define MAX_CRAY_VERTEX_COUNT 3
 #define PIOVER180 0.017453292519943295769236907684886
@@ -29,10 +32,14 @@
 #include <string.h>
 #ifdef WINDOWS
 	#include <Windows.h>
+#ifdef UI_ENABLED
 	#include "SDL.h"
+#endif
 #else
 	#include <pthread.h>
+#ifdef UI_ENABLED
 	#include <SDL2/SDL.h>
+#endif
 #endif
 #include "lodepng.h"
 #include "obj_parser.h"

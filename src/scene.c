@@ -673,34 +673,32 @@ int testBuild(world *scene, char *inputFileName) {
 	scene->customVertexCount = 23;
 	
 	scene->camera = (camera*)calloc(1, sizeof(camera));
-	//Override renderer thead count, 0 defaults to physical core count
-	scene->camera->threadCount = 0;
+	//Override renderer thread count, 0 defaults to physical core count
+	scene->camera-> threadCount = 8;
 	//General scene params
-	scene->camera->width = 2560;
-	scene->camera->height = 1600;
+	scene->camera->       width = 1280;
+	scene->camera->      height = 800;
 	scene->camera->isFullScreen = false;
 	scene->camera->isBorderless = false;
-	scene->camera->viewPerspective.FOV = 80.0;
-	scene->camera->focalLength = 0;
-	scene->camera->sampleCount = 25;
-	scene->camera-> frameCount = 1;
-	scene->camera->    bounces = 3;
-	scene->camera->   contrast = 0.7;
-	scene->camera->windowScale = 0.5;
-	scene->camera->   fileType = png;
-	scene->camera->viewPerspective.projectionType = conic;
-	scene->camera->     areaLights = true;
-	//True will result in MUCH faster renders, but OBJ shadows will appear spherical
-	scene->camera->approximateMeshShadows = false;
-	scene->camera->pos = vectorWithPos(940, 480, 0);
-	scene->camera->tileWidth  = 32;
-	scene->camera->tileHeight = 32;
-	scene->camera->tileOrder = renderOrderFromMiddle;
+	scene->camera->         FOV = 80.0;
+	scene->camera-> focalLength = 0;
+	scene->camera-> sampleCount = 1;
+	scene->camera->  frameCount = 1;
+	scene->camera->     bounces = 3;
+	scene->camera->    contrast = 0.7;
+	scene->camera-> windowScale = 1.0;
+	scene->camera->    fileType = png;
+	scene->camera->  areaLights = true;
+	scene->camera-> aprxShadows = false; //Approximate mesh shadows, true is faster but results in inaccurate shadows
+	scene->camera->         pos = vectorWithPos(940, 480, 0);
+	scene->camera->  tileWidth  = 64;
+	scene->camera->  tileHeight = 64;
+	scene->camera->   tileOrder = renderOrderFromMiddle;
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
-	scene->ambientColor->red = 0.4;
+	scene->ambientColor->  red = 0.4;
 	scene->ambientColor->green = 0.6;
-	scene->ambientColor->blue = 0.6;
+	scene->ambientColor-> blue = 0.6;
 	
 	//NOTE: Translates have to come last!
 	loadOBJ(scene, 4, "../output/monkeyHD.obj");

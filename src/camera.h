@@ -13,16 +13,6 @@
 #include "vector.h"
 
 typedef enum {
-	conic,
-	ortho
-}projectionType;
-
-typedef struct {
-	projectionType projectionType;
-	double FOV;
-}perspective;
-
-typedef enum {
 	bmp,
 	png
 }fileType;
@@ -36,14 +26,14 @@ typedef enum {
 typedef struct {
 	int height, width;
 	fileType fileType;
-	perspective viewPerspective;
+	double FOV;
 	vector pos;
 	vector lookAt;
 	vector up;
 	vector u, v, w;
 	unsigned char *imgData;
 	bool areaLights;
-	bool approximateMeshShadows;
+	bool aprxShadows;
 	float focalLength;
 	int sampleCount;
 	int threadCount;

@@ -1,3 +1,7 @@
+## Status
+
+[![Build Status](https://semaphoreci.com/api/v1/vkoskiv/c-ray/branches/master/badge.svg)](https://semaphoreci.com/vkoskiv/c-ray)
+
 ## Synopsis
 
 C-Ray is a simple raytracer built for studying computer graphics. The implementation is by no means the best, the most efficient nor fully standard, but it's simple, and so is the syntax (hopefully!)
@@ -17,7 +21,7 @@ Things I'm looking to implement:
 
 ## Dependencies
 
-SDL2 (Optional, comment #define UI_ENABLED in ui.h to disable it)
+SDL2 (Optional, comment #define UI_ENABLED in includes.h to disable it)
 Standard C99/GNU99 with some standard libraries
 All other libraries are included as source
 
