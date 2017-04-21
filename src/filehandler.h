@@ -10,7 +10,18 @@
 #define __C_Ray__filehandler__
 
 #include "includes.h"
-#include "scene.h"
+#include "renderer.h"
+
+typedef enum {
+    loadModeNormal,
+    loadModeTarga
+}loadMode;
+
+typedef enum {
+    saveModeNormal,
+    saveModeTarga,
+    saveModeNone
+}saveMode;
 
 //Prints the file size of a given file to the console in a user-readable format
 void printFileSize(char *fileName);
