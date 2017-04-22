@@ -20,4 +20,6 @@ typedef struct {
 	color intensity;
 }light;
 
+light newLight(vector pos, float radius, color intensity);
+
 #endif /* light_h */

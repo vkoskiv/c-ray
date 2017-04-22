@@ -27,6 +27,6 @@ typedef enum {
 void printFileSize(char *fileName);
 
 //Writes an outputfile and returns the path it was written to
-void writeImage(world *worldScene);
+void writeImage(scene *worldScene);
 
 #endif /* defined(__C_Ray__filehandler__) */

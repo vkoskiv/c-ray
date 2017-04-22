@@ -16,9 +16,11 @@
 typedef struct {
 	vector pos;
 	float radius;
-	int material;
-	bool active;
+	int materialIndex;
 }sphere;
+
+//New sphere with given params
+sphere newSphere(vector pos, float radius, int materialIndex);
 
 //Calculates intersection between a light ray and a sphere
 bool rayIntersectsWithSphere(lightRay *ray, sphere *sphere, double *t);

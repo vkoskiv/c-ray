@@ -8,6 +8,10 @@
 
 #include "sphere.h"
 
+sphere newSphere(vector pos, float radius, int materialIndex) {
+    return (sphere){pos, radius, materialIndex};
+}
+
 //Just check for intersection, nothing else.
 bool rayIntersectsWithSphereFast(lightRay *ray, sphere *sphere) {
 	float A = scalarProduct(&ray->direction, &ray->direction);

@@ -22,10 +22,13 @@ typedef struct {
 	bool isTransformed;
 }vector;
 
+//Main vector arrays
 extern vector *vertexArray;
 extern int vertexCount;
+
 extern vector *normalArray;
 extern int normalCount;
+
 extern vector *textureArray;
 extern int textureCount;
 

@@ -41,7 +41,7 @@ typedef struct {
 #ifndef WINDOWS
 	pthread_attr_t renderThreadAttributes;
 #endif
-	world *worldScene;
+	scene *worldScene;
 	renderTile *renderTiles;
 	int tileCount;
 	int renderedTileCount;
@@ -61,7 +61,7 @@ extern renderer mainRenderer;
 #else
 	void *renderThread(void *arg);
 #endif
-void quantizeImage(world *worldScene);
+void quantizeImage(scene *worldScene);
 void reorderTiles(renderOrder order);
 
 #endif /* renderer_h */

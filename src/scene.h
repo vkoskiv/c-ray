@@ -20,23 +20,31 @@
 
 //World
 typedef struct {
+    color *ambientColor;
+    
 	crayOBJ *objs;
-	color *ambientColor;
+    int objCount;
+    
 	light *lights;
+    int lightCount;
+    
 	material *materials;
+    int materialCount;
+    
 	sphere *spheres;
+    int sphereCount;
+    
+    //Currently only one camera supported
 	camera *camera;
+    int cameraCount;
+    
+    //FIXME: TEMPORARY
+    poly *customPolys;
+    int customPolyCount;
 	
-	//Temporary
-	int customVertexCount;
+}scene;
 
-	int sphereAmount;
-	int polygonAmount;
-	int materialAmount;
-	int lightAmount;
-	int objCount;
-}world;
-
-int testBuild(world *scene, char *inputFileName);
+int testBuild(scene *scene, char *inputFileName);
+scene *newScene();
 
 #endif /* defined(__C_Ray__scene__) */

@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
 	mainRenderer.shouldSave = true;
 	mainRenderer.isRendering = false;
 
-	mainRenderer.worldScene = (world*)calloc(1, sizeof(world));
-
+    mainRenderer.worldScene = newScene();
+    
 	char *fileName = NULL;
 	//Build the scene
 	if (argc == 2) {

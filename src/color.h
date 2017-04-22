@@ -51,4 +51,7 @@ color addColors(color *c1, color *c2);
 //Multiply a color by a coefficient and return the resulting color
 color colorCoef(double coef, color *c);
 
+//temporary newMaterial func
+material newMaterial(color diffuse, double reflectivity);
+
 #endif /* defined(__C_Ray__color__) */

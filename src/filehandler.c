@@ -13,7 +13,7 @@
 //Prototypes for internal functions
 int getFileSize(char *fileName);
 
-void saveBmpFromArray(const char *filename, world *worldScene) {
+void saveBmpFromArray(const char *filename, scene *worldScene) {
 	int i;
 	int error;
 	FILE *f;
@@ -93,7 +93,7 @@ void printFileSize(char *fileName) {
 	
 }
 
-void writeImage(world *worldScene) {
+void writeImage(scene *worldScene) {
 	//Save image data to a file
 	int bufSize;
 	if (worldScene->camera->currentFrame < 100) {

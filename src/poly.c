@@ -10,7 +10,7 @@
 
 //Main polygon array
 poly *polygonArray;
-int fullPolyCount;
+int polyCount;
 
 bool rayIntersectsWithPolygonFast(lightRay *ray, poly *poly) {
 	double orientation, inverseOrientation;

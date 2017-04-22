@@ -19,12 +19,11 @@ typedef struct {
 	int textureIndex[MAX_CRAY_VERTEX_COUNT];
 	int materialIndex;
 	int vertexCount;
-	bool active;
 }poly;
 
 //Main polygon array
 extern poly *polygonArray;
-extern int fullPolyCount;
+extern int polyCount;
 
 //Calculates intersection between a light ray and a polygon object. Returns true if intersection has happened.
 bool rayIntersectsWithPolygon(lightRay *ray, poly *poly, double *result, vector *normal);

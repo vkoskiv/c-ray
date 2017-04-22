@@ -54,7 +54,7 @@ renderTile getTile() {
 
  @param worldScene worldScene object
  */
-void quantizeImage(world *worldScene) {
+void quantizeImage(scene *worldScene) {
 #ifdef WINDOWS
 	//Create this here for now
 	tileMutex = CreateMutex(NULL, FALSE, NULL);
@@ -166,7 +166,7 @@ void reorderTiles(renderOrder order) {
  @param y Y coordinate of pixel
  @return A color object, with full color precision intact (double)
  */
-color getPixel(world *worldScene, int x, int y) {
+color getPixel(scene *worldScene, int x, int y) {
 	color output = {0.0f, 0.0f, 0.0f, 0.0f};
 	output.red =   mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0];
 	output.green = mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 1];
@@ -339,7 +339,7 @@ vector getRandomVecOnPlane(vector center, float radius) {
  @param worldScene Scene the ray is cast into
  @return Color value with full precision (double)
  */
-color rayTrace(lightRay *incidentRay, world *worldScene) {
+color rayTrace(lightRay *incidentRay, scene *worldScene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
 	color output = {0.0f,0.0f,0.0f};
 	int bounces = 0;
@@ -351,14 +351,15 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 		double temp;
 		int currentSphere = -1;
 		int currentPolygon = -1;
-		int sphereAmount = worldScene->sphereAmount;
-		int polygonAmount = fullPolyCount;
-		int lightSourceAmount = worldScene->lightAmount;
+        int sphereAmount = worldScene->sphereCount;
+        int lightSourceAmount = worldScene->lightCount;
 		int objCount = worldScene->objCount;
 		
 		material currentMaterial;
 		vector polyNormal = {0.0, 0.0, 0.0};
 		vector hitpoint, surfaceNormal;
+        
+        bool isCustomPoly = false;
 		
 		unsigned int i;
 		for (i = 0; i < sphereAmount; ++i) {
@@ -375,15 +376,18 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 					if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &polyNormal)) {
 						currentPolygon = p;
 						currentSphere = -1;
+                        isCustomPoly = false;
 					}
 				}
 			}
 		}
 		
-		for (i = (fullPolyCount - worldScene->polygonAmount); i < polygonAmount; ++i) {
-			if (rayIntersectsWithPolygon(incidentRay, &polygonArray[i], &closestIntersection, &polyNormal)) {
+        //FIXME: TEMPORARY
+		for (i = 0; i < worldScene->customPolyCount; ++i) {
+			if (rayIntersectsWithPolygon(incidentRay, &worldScene->customPolys[i], &closestIntersection, &polyNormal)) {
 				currentPolygon = i;
 				currentSphere = -1;
+                isCustomPoly = true;
 			}
 		}
 		
@@ -396,7 +400,7 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			if (temp == 0.0f) break;
 			temp = invsqrtf(temp);
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
-			currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].material];
+			currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].materialIndex];
 		} else if (currentPolygon != -1) {
 			vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
@@ -407,7 +411,12 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 			temp = invsqrtf(temp);
 			//FIXME: Possibly get existing normal here
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
-			currentMaterial = worldScene->materials[polygonArray[currentPolygon].materialIndex];
+            //FIXME: TEMPORARY
+            if (isCustomPoly) {
+                currentMaterial = worldScene->materials[worldScene->customPolys[currentPolygon].materialIndex];
+            } else {
+                currentMaterial = worldScene->materials[polygonArray[currentPolygon].materialIndex];
+            }
 		} else {
 			//Ray didn't hit any object, set color to ambient
 			color temp = colorCoef(contrast, worldScene->ambientColor);
@@ -483,8 +492,9 @@ color rayTrace(lightRay *incidentRay, world *worldScene) {
 				}
 			}
 			
-			for (i = (fullPolyCount - worldScene->polygonAmount); i < polygonAmount; ++i) {
-				if (rayIntersectsWithPolygon(&bouncedRay, &polygonArray[i], &t, &polyNormal)) {
+            //FIXME: TEMPORARY
+			for (i = 0; i < worldScene->customPolyCount; ++i) {
+				if (rayIntersectsWithPolygon(&bouncedRay, &worldScene->customPolys[i], &t, &polyNormal)) {
 					inShadow = true;
 					break;
 				}
