@@ -24,17 +24,20 @@ typedef enum {
 }renderOrder;
 
 typedef struct {
-	int height, width;
+	int height, width; // Image dimensions
 	fileType fileType;
+    
 	double FOV;
+    double focalLength;
+    double aperture;
 	vector pos;
 	vector lookAt;
 	vector up;
 	vector u, v, w;
+    
 	unsigned char *imgData;
 	bool areaLights;
 	bool aprxShadows;
-	float focalLength;
 	int sampleCount;
 	int threadCount;
 	renderOrder tileOrder;
