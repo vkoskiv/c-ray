@@ -375,6 +375,7 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
 				for (p = worldScene->objs[o].firstPolyIndex; p < (worldScene->objs[o].firstPolyIndex + worldScene->objs[o].polyCount); p++) {
 					if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &polyNormal)) {
 						currentPolygon = p;
+                        currentMaterial = *worldScene->objs[0].material;
 						currentSphere = -1;
                         isCustomPoly = false;
 					}
@@ -414,8 +415,6 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
             //FIXME: TEMPORARY
             if (isCustomPoly) {
                 currentMaterial = worldScene->materials[worldScene->customPolys[currentPolygon].materialIndex];
-            } else {
-                currentMaterial = worldScene->materials[polygonArray[currentPolygon].materialIndex];
             }
 		} else {
 			//Ray didn't hit any object, set color to ambient

@@ -41,6 +41,15 @@ poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int
 	return polygon;
 }
 
+material *materialFromObj(obj_material *mat) {
+    material *newMat = (material*)calloc(1, sizeof(material));
+    newMat->diffuse.red   = mat->diff[0];
+    newMat->diffuse.green = mat->diff[1];
+    newMat->diffuse.blue  = mat->diff[2];
+    newMat->reflectivity  = mat->reflect;
+    return newMat;
+}
+
 //Compute the bounding volume for a given OBJ and save it to that OBJ.
 //This is used to optimize rendering, where we only loop thru all polygons
 //in an OBJ if we know the ray has entered its' bounding volume, a sphere in this case
@@ -80,7 +89,7 @@ char *getFileName(char *input) {
 	return fn;
 }
 
-void addOBJ(scene *scene, int materialIndex, char *inputFileName) {
+void addOBJ(scene *sceneData, char *inputFileName) {
 	printf("Loading OBJ %s\n", inputFileName);
 	obj_scene_data data;
     if (parse_obj_scene(&data, inputFileName) == 0) {
@@ -90,28 +99,28 @@ void addOBJ(scene *scene, int materialIndex, char *inputFileName) {
 	printf("OBJ loaded, converting\n");
 	
 	//Create crayOBJ to keep track of objs
-	scene->objs = (crayOBJ*)realloc(scene->objs, (scene->objCount + 1) * sizeof(crayOBJ));
+	sceneData->objs = (crayOBJ*)realloc(sceneData->objs, (sceneData->objCount + 1) * sizeof(crayOBJ));
 	//Vertex data
-	scene->objs[scene->objCount].firstVectorIndex = vertexCount;
-	scene->objs[scene->objCount].vertexCount = data.vertex_count;
+	sceneData->objs[sceneData->objCount].firstVectorIndex = vertexCount;
+	sceneData->objs[sceneData->objCount].vertexCount = data.vertex_count;
 	//Normal data
-	scene->objs[scene->objCount].firstNormalIndex = normalCount;
-	scene->objs[scene->objCount].normalCount = data.vertex_normal_count;
+	sceneData->objs[sceneData->objCount].firstNormalIndex = normalCount;
+	sceneData->objs[sceneData->objCount].normalCount = data.vertex_normal_count;
 	//Texture vector data
-	scene->objs[scene->objCount].firstTextureIndex = textureCount;
-	scene->objs[scene->objCount].textureCount = data.vertex_texture_count;
+	sceneData->objs[sceneData->objCount].firstTextureIndex = textureCount;
+	sceneData->objs[sceneData->objCount].textureCount = data.vertex_texture_count;
 	//Poly data
-	scene->objs[scene->objCount].firstPolyIndex = polyCount;
-	scene->objs[scene->objCount].polyCount = data.face_count;
+	sceneData->objs[sceneData->objCount].firstPolyIndex = polyCount;
+	sceneData->objs[sceneData->objCount].polyCount = data.face_count;
 	//BoundingVolume init
-	scene->objs[scene->objCount].boundingVolume.pos = vectorWithPos(0, 0, 0);
-	scene->objs[scene->objCount].boundingVolume.radius = 0;
+	sceneData->objs[sceneData->objCount].boundingVolume.pos = vectorWithPos(0, 0, 0);
+	sceneData->objs[sceneData->objCount].boundingVolume.radius = 0;
 	//Transforms init
-	scene->objs[scene->objCount].transformCount = 0;
-	scene->objs[scene->objCount].transforms = (matrixTransform*)malloc(sizeof(matrixTransform));
+	sceneData->objs[sceneData->objCount].transformCount = 0;
+	sceneData->objs[sceneData->objCount].transforms = (matrixTransform*)malloc(sizeof(matrixTransform));
 	
 	//Set name
-	scene->objs[scene->objCount].objName = getFileName(inputFileName);
+	sceneData->objs[sceneData->objCount].objName = getFileName(inputFileName);
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
@@ -124,38 +133,54 @@ void addOBJ(scene *scene, int materialIndex, char *inputFileName) {
 	printf("Converting vectors\n");
 	vertexArray = (vector*)realloc(vertexArray, vertexCount * sizeof(vector));
 	for (int i = 0; i < data.vertex_count; i++) {
-		vertexArray[scene->objs[scene->objCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
+		vertexArray[sceneData->objs[sceneData->objCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
 	}
 	
 	//Convert normals
 	printf("Converting normals\n");
 	normalArray = (vector*)realloc(normalArray, normalCount * sizeof(vector));
 	for (int i = 0; i < data.vertex_normal_count; i++) {
-		normalArray[scene->objs[scene->objCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
+		normalArray[sceneData->objs[sceneData->objCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture vectors
 	printf("Converting texture coordinates\n");
 	textureArray = (vector*)realloc(textureArray, textureCount * sizeof(vector));
 	for (int i = 0; i < data.vertex_texture_count; i++) {
-		textureArray[scene->objs[scene->objCount].firstTextureIndex + i] = vectorFromObj(data.vertex_texture_list[i]);
+		textureArray[sceneData->objs[sceneData->objCount].firstTextureIndex + i] = vectorFromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
 	printf("Converting polygons\n");
 	polygonArray = (poly*)realloc(polygonArray, polyCount * sizeof(poly));
 	for (int i = 0; i < data.face_count; i++) {
-		polygonArray[scene->objs[scene->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
-                                                                                    scene->objs[scene->objCount].firstVectorIndex,
-                                                                                    scene->objs[scene->objCount].firstNormalIndex,
-                                                                                    scene->objs[scene->objCount].firstTextureIndex);
-		polygonArray[scene->objs[scene->objCount].firstPolyIndex + i].materialIndex = materialIndex;
+		polygonArray[sceneData->objs[sceneData->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
+                                                                                    sceneData->objs[sceneData->objCount].firstVectorIndex,
+                                                                                    sceneData->objs[sceneData->objCount].firstNormalIndex,
+                                                                                    sceneData->objs[sceneData->objCount].firstTextureIndex);
+		//polygonArray[sceneData->objs[sceneData->objCount].firstPolyIndex + i].materialIndex = materialIndex;
 	}
+    
+    //Parse materials
+    if (data.material_count == 0) {
+        //No material, set to something obscene to make it noticeable
+        sceneData->objs[sceneData->objCount].material = (material*)calloc(1, sizeof(material));
+        *sceneData->objs[sceneData->objCount].material = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
+    } else {
+        //Material found, set it
+        sceneData->objs[sceneData->objCount].material = (material*)calloc(1, sizeof(material));
+        sceneData->objs[sceneData->objCount].material = materialFromObj(data.material_list[0]);
+    }
 	
 	//Delete OBJ data
 	delete_obj_data(&data);
 	printf("Loaded OBJ! Translated %i faces and %i vectors\n\n", data.face_count, data.vertex_count);
 	
 	//Obj added, update count
-	scene->objCount++;
+	sceneData->objCount++;
+}
+
+//FIXME: Temporary
+void overrideMaterial(scene *world, crayOBJ *obj, int materialIndex) {
+    obj->material = &world->materials[materialIndex];
 }
 
 //In the future, maybe just pass a list and size and copy at once to save time (large counts)
@@ -174,9 +199,9 @@ void addLight(scene *scene, light newLight) {
     scene->lights[scene->lightCount++] = newLight;
 }
 
-void addCamera(scene *scene, camera newCamera) {
+void addCamera(scene *scene, camera *newCamera) {
     scene->camera = (camera*)realloc(scene->camera, (scene->cameraCount + 1) * sizeof(camera));
-    scene->camera[scene->cameraCount++] = newCamera;
+    scene->camera[scene->cameraCount++] = *newCamera;
 }
 
 void transformMeshes(scene *scene) {
@@ -206,28 +231,41 @@ scene *newScene() {
 
 int testBuild(scene *scene, char *inputFileName) {
 	printf("Starting SceneBuilder V0.5\n\n");
+    
+    //MATERIALS
+    addMaterial(scene, newMaterial(colorWithValues(0.6, 0.1, 0.1, 0.0), 0.0)); //Matte red
+    addMaterial(scene, newMaterial(colorWithValues(0.1, 0.5, 0.1, 0.0), 0.0)); //Matte green
+    addMaterial(scene, newMaterial(colorWithValues(0.1, 0.1, 0.5, 0.0), 0.0)); //Matte blue
+    addMaterial(scene, newMaterial(colorWithValues(0.8, 0.8, 0.8, 0.0), 0.0));
+    addMaterial(scene, newMaterial(colorWithValues(0.0, 0.5, 1.0, 0.0), 1.0)); //0.517647
+    addMaterial(scene, newMaterial(colorWithValues(0.3, 0.3, 0.3, 0.0), 1.0));
+    addMaterial(scene, newMaterial(colorWithValues(0.3, 0.0, 0.0, 0.0), 1.0));
+    addMaterial(scene, newMaterial(colorWithValues(0.0, 0.3, 0.0, 0.0), 1.0));
+    addMaterial(scene, newMaterial(colorWithValues(0.0, 0.0, 0.3, 0.0), 0.0));
+    addMaterial(scene, newMaterial(colorWithValues(0.9, 0.9, 0.9, 0.0), 0.0));
+    addMaterial(scene, newMaterial(colorWithValues(1.0, 0.0, 0.0, 0.0), 0.0));
 	
-    camera cam;
+    camera *cam = (camera*)calloc(1, sizeof(camera));
 	//Override renderer thread count, 0 defaults to physical core count
-	cam. threadCount = 8;
-	cam.       width = 1280;
-	cam.      height = 800;
-	cam.isFullScreen = false;
-	cam.isBorderless = false;
-	cam.         FOV = 80.0;
-	cam. focalLength = 0;
-	cam. sampleCount = 15;
-	cam.  frameCount = 1;
-	cam.     bounces = 3;
-	cam.    contrast = 0.7;
-	cam. windowScale = 1.0;
-	cam.    fileType = png;
-	cam.  areaLights = true;
-	cam. aprxShadows = false; //Approximate mesh shadows, true is faster but results in inaccurate shadows
-	cam.         pos = vectorWithPos(940, 480, 0);
-	cam.  tileWidth  = 64;
-	cam.  tileHeight = 64;
-	cam.   tileOrder = renderOrderFromMiddle;
+	cam-> threadCount = 8;
+	cam->       width = 1280;
+	cam->      height = 800;
+	cam->isFullScreen = false;
+	cam->isBorderless = false;
+	cam->         FOV = 80.0;
+	cam-> focalLength = 0;
+	cam-> sampleCount = 45;
+	cam->  frameCount = 1;
+	cam->     bounces = 3;
+	cam->    contrast = 0.7;
+	cam-> windowScale = 1.0;
+	cam->    fileType = png;
+	cam->  areaLights = true;
+	cam-> aprxShadows = false; //Approximate mesh shadows, true is faster but results in inaccurate shadows
+	cam->         pos = vectorWithPos(940, 480, 0);
+	cam->  tileWidth  = 64;
+	cam->  tileHeight = 64;
+	cam->   tileOrder = renderOrderFromMiddle;
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->  red = 0.4;
@@ -237,13 +275,13 @@ int testBuild(scene *scene, char *inputFileName) {
     addCamera(scene, cam);
 	
 	//NOTE: Translates have to come last!
-	addOBJ(scene, 4, "../output/monkeyHD.obj");
+	addOBJ(scene, "../output/monkeyHD.obj");
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(10, 10, 10));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(200));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateZ(45));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1400, 415, 1000));
 	
-	addOBJ(scene, 6, "../output/torus.obj");
+	addOBJ(scene, "../output/torus.obj");
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(90, 90, 90));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateX(45));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(105));
@@ -251,21 +289,24 @@ int testBuild(scene *scene, char *inputFileName) {
 	
 	
 	//R G B is 0 1 2
-	addOBJ(scene, 0, "../output/wt_teapot.obj");
+	addOBJ(scene, "../output/wt_teapot.obj");
+    overrideMaterial(scene, &scene->objs[2], 0);
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 900));
 	
-	addOBJ(scene, 1, "../output/wt_teapot.obj");
+	addOBJ(scene, "../output/wt_teapot.obj");
+    overrideMaterial(scene, &scene->objs[3], 1);
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(90));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 900));
 	
-	addOBJ(scene, 2, "../output/wt_teapot.obj");
+	addOBJ(scene, "../output/wt_teapot.obj");
+    overrideMaterial(scene, &scene->objs[4], 2);
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,900));
-	
+    
 	transformMeshes(scene);
 	computeBoundingVolumes(scene);
 	
@@ -377,19 +418,6 @@ int testBuild(scene *scene, char *inputFileName) {
 	scene->customPolys[12].vertexIndex[1] = vertexCount + 5;
 	scene->customPolys[12].vertexIndex[2] = vertexCount + 7;
 	scene->customPolys[12].materialIndex = 2;
-	
-	//MATERIALS
-    addMaterial(scene, newMaterial(colorWithValues(0.6, 0.1, 0.1, 0.0), 0.0)); //Matte red
-    addMaterial(scene, newMaterial(colorWithValues(0.1, 0.5, 0.1, 0.0), 0.0)); //Matte green
-    addMaterial(scene, newMaterial(colorWithValues(0.1, 0.1, 0.5, 0.0), 0.0)); //Matte blue
-    addMaterial(scene, newMaterial(colorWithValues(0.8, 0.8, 0.8, 0.0), 0.0));
-    addMaterial(scene, newMaterial(colorWithValues(0.0, 0.5, 1.0, 0.0), 1.0)); //0.517647
-    addMaterial(scene, newMaterial(colorWithValues(0.3, 0.3, 0.3, 0.0), 1.0));
-    addMaterial(scene, newMaterial(colorWithValues(0.3, 0.0, 0.0, 0.0), 1.0));
-    addMaterial(scene, newMaterial(colorWithValues(0.0, 0.3, 0.0, 0.0), 1.0));
-    addMaterial(scene, newMaterial(colorWithValues(0.0, 0.0, 0.3, 0.0), 0.0));
-    addMaterial(scene, newMaterial(colorWithValues(0.9, 0.9, 0.9, 0.0), 0.0));
-    addMaterial(scene, newMaterial(colorWithValues(1.0, 0.0, 0.0, 0.0), 0.0));
     
 	//LIGHTS
     addLight(scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));
