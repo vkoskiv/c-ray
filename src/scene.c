@@ -83,7 +83,10 @@ char *getFileName(char *input) {
 void addOBJ(scene *scene, int materialIndex, char *inputFileName) {
 	printf("Loading OBJ %s\n", inputFileName);
 	obj_scene_data data;
-	parse_obj_scene(&data, inputFileName);
+    if (parse_obj_scene(&data, inputFileName) == 0) {
+        printf("OBJ %s file not found!\n", getFileName(inputFileName));
+        return;
+    }
 	printf("OBJ loaded, converting\n");
 	
 	//Create crayOBJ to keep track of objs
@@ -204,40 +207,34 @@ scene *newScene() {
 int testBuild(scene *scene, char *inputFileName) {
 	printf("Starting SceneBuilder V0.5\n\n");
 	
-	/*scene->  sphereAmount = 3;
-	scene-> polygonAmount = 13;
-	scene->materialAmount = 11;
-	scene->   lightAmount = 6;
-	scene-> objCount = 0;
-	scene->customVertexCount = 23;*/
-	
-	scene->camera = (camera*)calloc(1, sizeof(camera));
+    camera cam;
 	//Override renderer thread count, 0 defaults to physical core count
-	scene->camera-> threadCount = 8;
-	//General scene params
-	scene->camera->       width = 1280;
-	scene->camera->      height = 800;
-	scene->camera->isFullScreen = false;
-	scene->camera->isBorderless = false;
-	scene->camera->         FOV = 80.0;
-	scene->camera-> focalLength = 0;
-	scene->camera-> sampleCount = 1;
-	scene->camera->  frameCount = 1;
-	scene->camera->     bounces = 3;
-	scene->camera->    contrast = 0.7;
-	scene->camera-> windowScale = 1.0;
-	scene->camera->    fileType = png;
-	scene->camera->  areaLights = true;
-	scene->camera-> aprxShadows = false; //Approximate mesh shadows, true is faster but results in inaccurate shadows
-	scene->camera->         pos = vectorWithPos(940, 480, 0);
-	scene->camera->  tileWidth  = 64;
-	scene->camera->  tileHeight = 64;
-	scene->camera->   tileOrder = renderOrderFromMiddle;
+	cam. threadCount = 8;
+	cam.       width = 1280;
+	cam.      height = 800;
+	cam.isFullScreen = false;
+	cam.isBorderless = false;
+	cam.         FOV = 80.0;
+	cam. focalLength = 0;
+	cam. sampleCount = 15;
+	cam.  frameCount = 1;
+	cam.     bounces = 3;
+	cam.    contrast = 0.7;
+	cam. windowScale = 1.0;
+	cam.    fileType = png;
+	cam.  areaLights = true;
+	cam. aprxShadows = false; //Approximate mesh shadows, true is faster but results in inaccurate shadows
+	cam.         pos = vectorWithPos(940, 480, 0);
+	cam.  tileWidth  = 64;
+	cam.  tileHeight = 64;
+	cam.   tileOrder = renderOrderFromMiddle;
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->  red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor-> blue = 0.6;
+    
+    addCamera(scene, cam);
 	
 	//NOTE: Translates have to come last!
 	addOBJ(scene, 4, "../output/monkeyHD.obj");
