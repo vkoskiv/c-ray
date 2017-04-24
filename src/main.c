@@ -18,6 +18,7 @@
 
 int getFileSize(char *fileName);
 int getSysCores();
+void freeMem();
 
 int main(int argc, char *argv[]) {
 
@@ -193,7 +194,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	//Make sure render threads are finished before continuing
-
 	for (t = 0; t < mainRenderer.threadCount; t++) {
 #ifdef WINDOWS
 		WaitForSingleObjectEx(mainRenderer.renderThreadInfo[t].thread_handle, INFINITE, FALSE);
@@ -214,16 +214,8 @@ int main(int argc, char *argv[]) {
 		printf("Image won't be saved!\n");
 
 	mainRenderer.worldScene->camera->currentFrame++;
-
-	//Free memory
-	if (mainRenderer.worldScene->camera->imgData)
-		free(mainRenderer.worldScene->camera->imgData);
-	if (mainRenderer.worldScene->lights)
-		free(mainRenderer.worldScene->lights);
-	if (mainRenderer.worldScene->spheres)
-		free(mainRenderer.worldScene->spheres);
-	if (mainRenderer.worldScene->materials)
-		free(mainRenderer.worldScene->materials);
+	
+	freeMem();
 
 	printf("Render finished, exiting.\n");
 
@@ -231,6 +223,30 @@ int main(int argc, char *argv[]) {
 }
 
 #pragma mark Helper funcs
+
+void freeMem() {
+	//Free memory
+	if (mainRenderer.worldScene->camera->imgData)
+		free(mainRenderer.worldScene->camera->imgData);
+	if (mainRenderer.renderBuffer)
+		free(mainRenderer.renderBuffer);
+	if (mainRenderer.uiBuffer)
+		free(mainRenderer.uiBuffer);
+	if (mainRenderer.worldScene->lights)
+		free(mainRenderer.worldScene->lights);
+	if (mainRenderer.worldScene->spheres)
+		free(mainRenderer.worldScene->spheres);
+	if (mainRenderer.worldScene->materials)
+		free(mainRenderer.worldScene->materials);
+	if (vertexArray)
+		free(vertexArray);
+	if (normalArray)
+		free(normalArray);
+	if (textureArray)
+		free(textureArray);
+	if (polygonArray)
+		free(polygonArray);
+}
 
 int getSysCores() {
 #ifdef MACOS
