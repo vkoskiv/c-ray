@@ -9,7 +9,6 @@
 #include "camera.h"
 
 //find vectorLength and see if normalize could be used there!
-
 void calculateUVW(camera *camera) {
 	vector t = subtractVectors(&camera->lookAt, &camera->pos);
 	camera->w = normalizeVector(&t);

@@ -8,14 +8,6 @@
 
 #include "light.h"
 
-/*light newLight(vector pos, float radius, color intensity) {
-    light newLight;
-    newLight.pos = pos;
-    newLight.radius = radius;
-    newLight.intensity = intensity;
-    return newLight;
-}*/
-
 light newLight(vector pos, float radius, color intensity) {
     return (light){pos, radius, intensity};
 }

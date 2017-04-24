@@ -19,12 +19,7 @@ color frameColor = {1.0, 0.5, 0.0};
 //Color functions
 //Return a color with given values
 color colorWithValues(double red, double green, double blue, double alpha) {
-	color result;
-	result.red = red;
-	result.green = green;
-	result.blue = blue;
-	result.alpha = alpha;
-	return result;
+	return (color){red, green, blue, alpha};
 }
 
 //Multiply two colors
