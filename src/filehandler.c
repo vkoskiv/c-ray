@@ -144,7 +144,7 @@ int writeTarga(struct renderer *renderer, char *fileName) {
 struct renderer *readTarga(char *fileName) {
 	FILE *file;
 	file = fopen(fileName, "r");
-    struct renderer *renderer = malloc(sizeof(renderer));
+	struct renderer *renderer = malloc(sizeof(renderer));
 	fread(&renderer, sizeof(renderer), 1, file);
 	return renderer;
 }

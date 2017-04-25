@@ -38,8 +38,8 @@ enum type {
 
 //Simulated light ray
 struct lightRay {
-    struct vector start;
-    struct vector direction;
+	struct vector start;
+	struct vector direction;
 	enum type rayType;
 };
 

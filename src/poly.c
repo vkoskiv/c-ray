@@ -15,11 +15,11 @@ int polyCount;
 
 bool rayIntersectsWithPolygonFast(struct lightRay *ray, struct poly *poly) {
 	double orientation, inverseOrientation;
-    struct vector edge1 = subtractVectors(&vertexArray[poly->vertexIndex[1]], &vertexArray[poly->vertexIndex[0]]);
-    struct vector edge2 = subtractVectors(&vertexArray[poly->vertexIndex[2]], &vertexArray[poly->vertexIndex[0]]);
+	struct vector edge1 = subtractVectors(&vertexArray[poly->vertexIndex[1]], &vertexArray[poly->vertexIndex[0]]);
+	struct vector edge2 = subtractVectors(&vertexArray[poly->vertexIndex[2]], &vertexArray[poly->vertexIndex[0]]);
 	
 	//Find the cross product of edge 2 and the current ray direction
-    struct vector s1 = vectorCross(&ray->direction, &edge2);
+	struct vector s1 = vectorCross(&ray->direction, &edge2);
 	
 	orientation = scalarProduct(&edge1, &s1);
 	//Prepare for floating point precision errors, find a better way to fix these!
@@ -29,13 +29,13 @@ bool rayIntersectsWithPolygonFast(struct lightRay *ray, struct poly *poly) {
 	
 	inverseOrientation = 1/orientation;
 	
-    struct vector s2 = subtractVectors(&ray->start, &vertexArray[poly->vertexIndex[0]]);
+	struct vector s2 = subtractVectors(&ray->start, &vertexArray[poly->vertexIndex[0]]);
 	double u = scalarProduct(&s2, &s1) * inverseOrientation;
 	if (u < 0 || u > 1) {
 		return false;
 	}
 	
-    struct vector s3 = vectorCross(&s2, &edge1);
+	struct vector s3 = vectorCross(&s2, &edge1);
 	double v = scalarProduct(&ray->direction, &s3) * inverseOrientation;
 	if (v < 0 || (u+v) > 1) {
 		return false;
@@ -52,11 +52,11 @@ bool rayIntersectsWithPolygonFast(struct lightRay *ray, struct poly *poly) {
 
 bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, double *result, struct vector *normal) {
 	double orientation, inverseOrientation;
-    struct vector edge1 = subtractVectors(&vertexArray[poly->vertexIndex[1]], &vertexArray[poly->vertexIndex[0]]);
-    struct vector edge2 = subtractVectors(&vertexArray[poly->vertexIndex[2]], &vertexArray[poly->vertexIndex[0]]);
+	struct vector edge1 = subtractVectors(&vertexArray[poly->vertexIndex[1]], &vertexArray[poly->vertexIndex[0]]);
+	struct vector edge2 = subtractVectors(&vertexArray[poly->vertexIndex[2]], &vertexArray[poly->vertexIndex[0]]);
 	
 	//Find the cross product of edge 2 and the current ray direction
-    struct vector s1 = vectorCross(&ray->direction, &edge2);
+	struct vector s1 = vectorCross(&ray->direction, &edge2);
 	
 	orientation = scalarProduct(&edge1, &s1);
 	//Prepare for floating point precision errors, find a better way to fix these!
@@ -66,13 +66,13 @@ bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, double *r
 	
 	inverseOrientation = 1/orientation;
 	
-    struct vector s2 = subtractVectors(&ray->start, &vertexArray[poly->vertexIndex[0]]);
+	struct vector s2 = subtractVectors(&ray->start, &vertexArray[poly->vertexIndex[0]]);
 	double u = scalarProduct(&s2, &s1) * inverseOrientation;
 	if (u < 0 || u > 1) {
 		return false;
 	}
 	
-    struct vector s3 = vectorCross(&s2, &edge1);
+	struct vector s3 = vectorCross(&s2, &edge1);
 	double v = scalarProduct(&ray->direction, &s3) * inverseOrientation;
 	if (v < 0 || (u+v) > 1) {
 		return false;

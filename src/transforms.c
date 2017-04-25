@@ -29,7 +29,7 @@ void addTransform(struct crayOBJ *obj, struct matrixTransform transform) {
 }
 
 struct matrixTransform emptyTransform() {
-    struct matrixTransform transform;
+	struct matrixTransform transform;
 	transform.type = transformTypeNone;
 	transform.a = 0;transform.b = 0;transform.c = 0;transform.d = 0;
 	transform.e = 0;transform.f = 0;transform.g = 0;transform.h = 0;
@@ -41,7 +41,7 @@ struct matrixTransform emptyTransform() {
 //http://tinyurl.com/hte35pq
 void transformVector(struct vector *vec, struct matrixTransform *tf) {
 	if (!vec->isTransformed) {
-        struct vector temp;
+		struct vector temp;
 		temp.x = (tf->a * vec->x) + (tf->b * vec->y) + (tf->c * vec->z) + tf->d;
 		temp.y = (tf->e * vec->x) + (tf->f * vec->y) + (tf->g * vec->z) + tf->h;
 		temp.z = (tf->i * vec->x) + (tf->j * vec->y) + (tf->k * vec->z) + tf->l;
@@ -80,7 +80,7 @@ struct light transformLight(struct light inputLight, struct matrixTransform tf) 
 }
 
 struct matrixTransform newTransformRotateX(float degrees) {
-    struct matrixTransform transform = emptyTransform();
+	struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeXRotate;
 	transform.a = 1;
 	transform.f = cos(toRadians(degrees));
@@ -92,7 +92,7 @@ struct matrixTransform newTransformRotateX(float degrees) {
 }
 
 struct matrixTransform newTransformRotateY(float degrees) {
-    struct matrixTransform transform = emptyTransform();
+	struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeYRotate;
 	transform.a = cos(toRadians(degrees));
 	transform.c = sin(toRadians(degrees));
@@ -104,7 +104,7 @@ struct matrixTransform newTransformRotateY(float degrees) {
 }
 
 struct matrixTransform newTransformRotateZ(float degrees) {
-    struct matrixTransform transform = emptyTransform();
+	struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeZRotate;
 	transform.a = cos(toRadians(degrees));
 	transform.b = -sin(toRadians(degrees));
@@ -116,7 +116,7 @@ struct matrixTransform newTransformRotateZ(float degrees) {
 }
 
 struct matrixTransform newTransformTranslate(double x, double y, double z) {
-    struct matrixTransform transform = emptyTransform();
+	struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeTranslate;
 	transform.a = 1;
 	transform.f = 1;
@@ -129,7 +129,7 @@ struct matrixTransform newTransformTranslate(double x, double y, double z) {
 }
 
 struct matrixTransform newTransformScale(double x, double y, double z) {
-    struct matrixTransform transform = emptyTransform();
+	struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeScale;
 	transform.a = x;
 	transform.f = y;

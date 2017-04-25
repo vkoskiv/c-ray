@@ -20,27 +20,27 @@ struct poly;
 struct scene {
 	struct color *ambientColor;
 	
-    struct crayOBJ *objs;
+	struct crayOBJ *objs;
 	int objCount;
 	
-    struct light *lights;
+	struct light *lights;
 	int lightCount;
 	
-    struct material *materials;
+	struct material *materials;
 	int materialCount;
 	
-    struct sphere *spheres;
+	struct sphere *spheres;
 	int sphereCount;
 	
 	//Currently only one camera supported
-    struct camera *camera;
+	struct camera *camera;
 	int cameraCount;
 	//FIXME: Store these in camera
-    struct matrixTransform *camTransforms;
+	struct matrixTransform *camTransforms;
 	int camTransformCount;
 	
 	//FIXME: TEMPORARY
-    struct poly *customPolys;
+	struct poly *customPolys;
 	int customPolyCount;
 	
 };

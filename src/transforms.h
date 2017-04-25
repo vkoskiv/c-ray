@@ -43,10 +43,10 @@ struct crayOBJ {
 	int firstPolyIndex;
 	
 	struct sphere boundingVolume;
-    struct matrixTransform *transforms;
+	struct matrixTransform *transforms;
 	int transformCount;
 	
-    struct material *material;
+	struct material *material;
 	
 	char *objName;
 };

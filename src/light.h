@@ -12,7 +12,7 @@
 struct light {
 	struct vector pos;
 	float radius;
-    struct color intensity;
+	struct color intensity;
 };
 
 struct light newLight(struct vector pos, float radius, struct color intensity);

@@ -16,7 +16,7 @@ struct sphere newSphere(struct vector pos, float radius, int materialIndex) {
 //Just check for intersection, nothing else.
 bool rayIntersectsWithSphereFast(struct lightRay *ray, struct sphere *sphere) {
 	float A = scalarProduct(&ray->direction, &ray->direction);
-    struct vector distance = subtractVectors(&ray->start, &sphere->pos);
+	struct vector distance = subtractVectors(&ray->start, &sphere->pos);
 	float B = 2 * scalarProduct(&ray->direction, &distance);
 	float C = scalarProduct(&distance, &distance) - (sphere->radius * sphere->radius);
 	float trigDiscriminant = B * B - 4 * A * C;
@@ -35,7 +35,7 @@ bool rayIntersectsWithSphere(struct lightRay *ray, struct sphere *sphere, double
 	float A = scalarProduct(&ray->direction, &ray->direction);
 	
 	//Distance between start of a lightRay and the sphere position
-    struct vector distance = subtractVectors(&ray->start, &sphere->pos);
+	struct vector distance = subtractVectors(&ray->start, &sphere->pos);
 	
 	float B = 2 * scalarProduct(&ray->direction, &distance);
 	

@@ -17,8 +17,8 @@ struct material {
 	char name[MATERIAL_NAME_SIZE];
 	char textureFilename[OBJ_FILENAME_LENGTH];
 	struct color ambient;
-    struct color diffuse;
-    struct color specular;
+	struct color diffuse;
+	struct color specular;
 	double reflectivity;
 	double refractivity;
 	double transparency;

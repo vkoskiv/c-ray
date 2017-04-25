@@ -26,7 +26,7 @@ char *trimSpaces(char *inputLine);
 int allocMemory(struct scene *scene, char *inputFileName);
 
 struct vector vectorFromObj(obj_vector *vec) {
-    struct vector vector;
+	struct vector vector;
 	vector.x = vec->e[0];
 	vector.y = vec->e[1];
 	vector.z = vec->e[2];
@@ -35,20 +35,20 @@ struct vector vectorFromObj(obj_vector *vec) {
 }
 
 struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex) {
-    struct poly polygon;
+	struct poly polygon;
 	polygon.vertexCount = face->vertex_count;
 	polygon.materialIndex = face->material_index;
 	for (int i = 0; i < polygon.vertexCount; i++)
 		polygon.vertexIndex[i] = firstVertexIndex + face->vertex_index[i];
-	for (int i = 0; i < polygon.vertexCount; i++)
-		polygon.normalIndex[i] = firstNormalIndex + face->normal_index[i];
-	for (int i = 0; i < polygon.vertexCount; i++)
-		polygon.textureIndex[i] = firstTextureIndex + face->texture_index[i];
-	return polygon;
+		for (int i = 0; i < polygon.vertexCount; i++)
+			polygon.normalIndex[i] = firstNormalIndex + face->normal_index[i];
+			for (int i = 0; i < polygon.vertexCount; i++)
+				polygon.textureIndex[i] = firstTextureIndex + face->texture_index[i];
+				return polygon;
 }
 
 struct material *materialFromObj(obj_material *mat) {
-    struct material *newMat = (struct material*)calloc(1, sizeof(struct material));
+	struct material *newMat = (struct material*)calloc(1, sizeof(struct material));
 	newMat->diffuse.red   = mat->diff[0];
 	newMat->diffuse.green = mat->diff[1];
 	newMat->diffuse.blue  = mat->diff[2];
@@ -60,18 +60,18 @@ struct material *materialFromObj(obj_material *mat) {
 //This is used to optimize rendering, where we only loop thru all polygons
 //in an OBJ if we know the ray has entered its' bounding volume, a sphere in this case
 void computeBoundingVolume(struct crayOBJ *object) {
-    struct vector minPoint = vertexArray[object->firstVectorIndex];
-    struct vector maxPoint = vertexArray[object->firstVectorIndex];
+	struct vector minPoint = vertexArray[object->firstVectorIndex];
+	struct vector maxPoint = vertexArray[object->firstVectorIndex];
 	for (int i = object->firstVectorIndex + 1; i < (object->firstVectorIndex + object->vertexCount); i++) {
 		minPoint = minVector(&minPoint, &vertexArray[i]);
 		maxPoint = maxVector(&maxPoint, &vertexArray[i]);
 	}
-    struct vector center = vectorWithPos(0.5 * (minPoint.x + maxPoint.x), 0.5 * (minPoint.y + maxPoint.y), 0.5 * (minPoint.z + maxPoint.z));
+	struct vector center = vectorWithPos(0.5 * (minPoint.x + maxPoint.x), 0.5 * (minPoint.y + maxPoint.y), 0.5 * (minPoint.z + maxPoint.z));
 	
 	float maxDistance = 0.0;
 	
 	for (int i = object->firstVectorIndex + 1; i < (object->firstVectorIndex + object->vertexCount); i++) {
-        struct vector fromCenter = subtractVectors(&vertexArray[i], &center);
+		struct vector fromCenter = subtractVectors(&vertexArray[i], &center);
 		maxDistance = max(maxDistance, pow(vectorLength(&fromCenter), 2));
 	}
 	float sphereRadius = sqrtf(maxDistance);
@@ -97,7 +97,7 @@ char *getFileName(char *input) {
 
 void addOBJ(struct scene *sceneData, char *inputFileName) {
 	printf("Loading OBJ %s\n", inputFileName);
-    obj_scene_data data;
+	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFileName) == 0) {
 		printf("OBJ %s file not found!\n", getFileName(inputFileName));
 		return;
@@ -229,7 +229,7 @@ void computeBoundingVolumes(struct scene *scene) {
 }
 
 struct scene *newScene() {
-    struct scene *newScene;
+	struct scene *newScene;
 	newScene = (struct scene*)calloc(1, sizeof(struct scene));
 	
 	return newScene;
@@ -263,7 +263,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	addMaterial(scene, newMaterial(colorWithValues(0.9, 0.9, 0.9, 0.0), 0.0));
 	addMaterial(scene, newMaterial(colorWithValues(1.0, 0.0, 0.0, 0.0), 0.0));
 	
-    struct camera *cam = (struct camera*)calloc(1, sizeof(struct camera));
+	struct camera *cam = (struct camera*)calloc(1, sizeof(struct camera));
 	//Override renderer thread count, 0 defaults to physical core count
 	cam-> threadCount = 0;
 	cam->       width = 1280;
