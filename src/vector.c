@@ -20,7 +20,7 @@ int textureCount;
 
 //Create and return a vector with position values. Useful for hard-coded arrays.
 vector vectorWithPos(double x, double y, double z) {
-	return (vector){x, y, z};
+	return (vector){x, y, z, false};
 }
 
 //Add two vectors and return the resulting vector
