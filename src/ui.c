@@ -129,64 +129,36 @@ void drawPixel(int x, int y, bool on) {
 
 void drawFrame(renderTile tile, bool on) {
 	//top left
-	drawPixel(tile.startX+1, tile.startY+1, on);
-	drawPixel(tile.startX+2, tile.startY+1, on);
-	drawPixel(tile.startX+3, tile.startY+1, on);
-	drawPixel(tile.startX+4, tile.startY+1, on);
-	drawPixel(tile.startX+5, tile.startY+1, on);
-	drawPixel(tile.startX+6, tile.startY+1, on);
-	
-	drawPixel(tile.startX+1, tile.startY+1, on);
-	drawPixel(tile.startX+1, tile.startY+2, on);
-	drawPixel(tile.startX+1, tile.startY+3, on);
-	drawPixel(tile.startX+1, tile.startY+4, on);
-	drawPixel(tile.startX+1, tile.startY+5, on);
-	drawPixel(tile.startX+1, tile.startY+6, on);
+	for (int i = 1; i < 7; i++) {
+		drawPixel(tile.startX+i, tile.startY+1, on);
+	}
+	for (int i = 1; i < 7; i++) {
+		drawPixel(tile.startX+1, tile.startY+i, on);
+	}
 	
 	//top right
-	drawPixel(tile.endX-1, tile.startY+1, on);
-	drawPixel(tile.endX-2, tile.startY+1, on);
-	drawPixel(tile.endX-3, tile.startY+1, on);
-	drawPixel(tile.endX-4, tile.startY+1, on);
-	drawPixel(tile.endX-5, tile.startY+1, on);
-	drawPixel(tile.endX-6, tile.startY+1, on);
-	
-	drawPixel(tile.endX-1, tile.startY+1, on);
-	drawPixel(tile.endX-1, tile.startY+2, on);
-	drawPixel(tile.endX-1, tile.startY+3, on);
-	drawPixel(tile.endX-1, tile.startY+4, on);
-	drawPixel(tile.endX-1, tile.startY+5, on);
-	drawPixel(tile.endX-1, tile.startY+6, on);
+	for (int i = 1; i < 7; i++) {
+		drawPixel(tile.endX-i, tile.startY+1, on);
+	}
+	for (int i = 1; i < 7; i++) {
+		drawPixel(tile.endX-1, tile.startY+i, on);
+	}
 	
 	//Bottom left
-	drawPixel(tile.startX+1, tile.endY-1, on);
-	drawPixel(tile.startX+2, tile.endY-1, on);
-	drawPixel(tile.startX+3, tile.endY-1, on);
-	drawPixel(tile.startX+4, tile.endY-1, on);
-	drawPixel(tile.startX+5, tile.endY-1, on);
-	drawPixel(tile.startX+6, tile.endY-1, on);
-	
-	drawPixel(tile.startX+1, tile.endY-1, on);
-	drawPixel(tile.startX+1, tile.endY-2, on);
-	drawPixel(tile.startX+1, tile.endY-3, on);
-	drawPixel(tile.startX+1, tile.endY-4, on);
-	drawPixel(tile.startX+1, tile.endY-5, on);
-	drawPixel(tile.startX+1, tile.endY-6, on);
+	for (int i = 1; i < 7; i++) {
+		drawPixel(tile.startX+i, tile.endY-1, on);
+	}
+	for (int i = 1; i < 7; i++) {
+		drawPixel(tile.startX+1, tile.endY-i, on);
+	}
 	
 	//bottom right
-	drawPixel(tile.endX-1, tile.endY-1, on);
-	drawPixel(tile.endX-2, tile.endY-1, on);
-	drawPixel(tile.endX-3, tile.endY-1, on);
-	drawPixel(tile.endX-4, tile.endY-1, on);
-	drawPixel(tile.endX-5, tile.endY-1, on);
-	drawPixel(tile.endX-6, tile.endY-1, on);
-	
-	drawPixel(tile.endX-1, tile.endY-1, on);
-	drawPixel(tile.endX-1, tile.endY-2, on);
-	drawPixel(tile.endX-1, tile.endY-3, on);
-	drawPixel(tile.endX-1, tile.endY-4, on);
-	drawPixel(tile.endX-1, tile.endY-5, on);
-	drawPixel(tile.endX-1, tile.endY-6, on);
+	for (int i = 1; i < 7; i++) {
+		drawPixel(tile.endX-i, tile.endY-1, on);
+	}
+	for (int i = 1; i < 7; i++) {
+		drawPixel(tile.endX-1, tile.endY-i, on);
+	}
 }
 
 void updateUI() {

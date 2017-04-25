@@ -554,6 +554,7 @@ void *renderThread(void *arg) {
 	tile.tileNum = 0;
 	while (!renderTilesEmpty()) {
 		x = 0; y = 0;
+		//FIXME: First tile on first thread doesn't show frame, probably because of this.
 		mainRenderer.renderTiles[tile.tileNum].isRendering = false;
 		tile = getTile();
 		printf("Started tile %i/%i\r", mainRenderer.renderedTileCount, mainRenderer.tileCount);
