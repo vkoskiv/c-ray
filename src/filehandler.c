@@ -11,6 +11,7 @@
 
 #include "camera.h"
 #include "scene.h"
+#include "renderer.h"
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
