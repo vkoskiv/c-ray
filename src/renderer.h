@@ -8,13 +8,10 @@
 
 #pragma once
 
-#include "includes.h"
-#include "vector.h"
-#include "color.h"
-#include "scene.h"
-#include "poly.h"
+struct scene;
+enum renderOrder;
 
-typedef struct {
+struct threadInfo {
 #ifdef WINDOWS
 	HANDLE thread_handle;
 	DWORD thread_id;
@@ -23,9 +20,9 @@ typedef struct {
 #endif
 	int thread_num;
 	bool threadComplete;
-}threadInfo;
+};
 
-typedef struct {
+struct renderTile {
 	int width;
 	int height;
 	int startX, startY;
@@ -33,15 +30,15 @@ typedef struct {
 	int completedSamples;
 	bool isRendering;
 	int tileNum;
-}renderTile;
+};
 
-typedef struct {
-	threadInfo *renderThreadInfo;
+struct renderer {
+	struct threadInfo *renderThreadInfo;
 #ifndef WINDOWS
 	pthread_attr_t renderThreadAttributes;
 #endif
-	scene *worldScene;
-	renderTile *renderTiles;
+	struct scene *worldScene;
+	struct renderTile *renderTiles;
 	int tileCount;
 	int renderedTileCount;
 	double *renderBuffer;
@@ -51,14 +48,13 @@ typedef struct {
 	bool shouldSave;
 	bool isRendering;
 	bool renderAborted;
-}renderer;
+};
 
 //Renderer
-extern renderer mainRenderer;
 #ifdef WINDOWS
 DWORD WINAPI renderThread(LPVOID arg);
 #else
 void *renderThread(void *arg);
 #endif
-void quantizeImage(scene *worldScene);
-void reorderTiles(renderOrder order);
+void quantizeImage(struct scene *worldScene);
+void reorderTiles(enum renderOrder order);

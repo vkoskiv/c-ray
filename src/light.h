@@ -8,15 +8,11 @@
 
 #pragma once
 
-#include "includes.h"
-#include "vector.h"
-#include "color.h"
-
 //Light source
-typedef struct {
-	vector pos;
+struct light {
+	struct vector pos;
 	float radius;
-	color intensity;
-}light;
+    struct color intensity;
+};
 
-light newLight(vector pos, float radius, color intensity);
+struct light newLight(struct vector pos, float radius, struct color intensity);

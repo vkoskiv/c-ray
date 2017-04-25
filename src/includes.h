@@ -29,6 +29,7 @@
 #include <math.h>
 #include <signal.h>
 #include <string.h>
+
 #ifdef WINDOWS
 #include <Windows.h>
 #ifdef UI_ENABLED
@@ -41,4 +42,23 @@
 #endif
 #endif
 #include "lodepng.h"
-#include "obj_parser.h"
+
+//These are for multi-platform physical core detection
+#ifdef MACOS
+#include <sys/param.h>
+#include <sys/sysctl.h>
+#elif _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
+//Project includes
+#define MATERIAL_NAME_SIZE 255
+#define OBJ_FILENAME_LENGTH 500
+
+#include "color.h"
+#include "vector.h"
+#include "list.h"
+#include "sphere.h"
+#include "transforms.h"

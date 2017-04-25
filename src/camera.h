@@ -8,35 +8,32 @@
 
 #pragma once
 
-#include "includes.h"
-#include "vector.h"
-
-typedef enum {
+enum fileType {
 	bmp,
 	png
-}fileType;
+};
 
-typedef enum {
+enum renderOrder {
 	renderOrderTopToBottom = 0,
 	renderOrderFromMiddle,
 	renderOrderNormal
-}renderOrder;
+};
 
-typedef struct {
+struct camera {
 	int height, width; // Image dimensions
-	fileType fileType;
+	enum fileType fileType;
 	
 	double FOV;
 	double focalLength;
 	double aperture;
-	vector pos;
+	struct vector pos;
 	
 	unsigned char *imgData;
 	bool areaLights;
 	bool aprxShadows;
 	int sampleCount;
 	int threadCount;
-	renderOrder tileOrder;
+	enum renderOrder tileOrder;
 	int frameCount;
 	int currentFrame;
 	int bounces;
@@ -49,7 +46,7 @@ typedef struct {
 	bool useTiles;
 	int tileWidth;
 	int tileHeight;
-}camera;
+};
 
 //Calculate camera view plane
-void calculateUVW(camera *camera);
+void calculateUVW(struct camera *camera);

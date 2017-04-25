@@ -6,26 +6,30 @@
 //  Copyright © 2017 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "includes.h"
 #include "transforms.h"
+
+#include "light.h"
+#include "poly.h"
 
 //For ease of use
 double toRadians(double degrees) {
 	return (degrees * PI) / 180;
 }
 
-void addTransform(crayOBJ *obj, matrixTransform transform) {
+void addTransform(struct crayOBJ *obj, struct matrixTransform transform) {
 	if (obj->transformCount == 0) {
-		obj->transforms = (matrixTransform*)calloc(1, sizeof(matrixTransform));
+		obj->transforms = (struct matrixTransform*)calloc(1, sizeof(struct matrixTransform));
 	} else {
-		obj->transforms = (matrixTransform*)realloc(obj->transforms, (obj->transformCount + 1) * sizeof(matrixTransform));
+		obj->transforms = (struct matrixTransform*)realloc(obj->transforms, (obj->transformCount + 1) * sizeof(struct matrixTransform));
 	}
 	
 	obj->transforms[obj->transformCount] = transform;
 	obj->transformCount++;
 }
 
-matrixTransform emptyTransform() {
-	matrixTransform transform;
+struct matrixTransform emptyTransform() {
+    struct matrixTransform transform;
 	transform.type = transformTypeNone;
 	transform.a = 0;transform.b = 0;transform.c = 0;transform.d = 0;
 	transform.e = 0;transform.f = 0;transform.g = 0;transform.h = 0;
@@ -35,9 +39,9 @@ matrixTransform emptyTransform() {
 }
 
 //http://tinyurl.com/hte35pq
-void transformVector(vector *vec, matrixTransform *tf) {
+void transformVector(struct vector *vec, struct matrixTransform *tf) {
 	if (!vec->isTransformed) {
-		vector temp;
+        struct vector temp;
 		temp.x = (tf->a * vec->x) + (tf->b * vec->y) + (tf->c * vec->z) + tf->d;
 		temp.y = (tf->e * vec->x) + (tf->f * vec->y) + (tf->g * vec->z) + tf->h;
 		temp.z = (tf->i * vec->x) + (tf->j * vec->y) + (tf->k * vec->z) + tf->l;
@@ -48,7 +52,7 @@ void transformVector(vector *vec, matrixTransform *tf) {
 	}
 }
 
-void transformMesh(crayOBJ *object) {
+void transformMesh(struct crayOBJ *object) {
 	for (int tf = 0; tf < object->transformCount; tf++) {
 		//Perform transforms
 		for (int p = object->firstPolyIndex; p < (object->firstPolyIndex + object->polyCount); p++) {
@@ -65,18 +69,18 @@ void transformMesh(crayOBJ *object) {
 	}
 }
 
-sphere transformSphere(sphere inputSphere, matrixTransform transform) {
+struct sphere transformSphere(struct sphere inputSphere, struct matrixTransform transform) {
 	//TODO
 	return inputSphere;
 }
 
-light transformLight(light inputLight, matrixTransform tf) {
+struct light transformLight(struct light inputLight, struct matrixTransform tf) {
 	//TODO
 	return inputLight;
 }
 
-matrixTransform newTransformRotateX(float degrees) {
-	matrixTransform transform = emptyTransform();
+struct matrixTransform newTransformRotateX(float degrees) {
+    struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeXRotate;
 	transform.a = 1;
 	transform.f = cos(toRadians(degrees));
@@ -87,8 +91,8 @@ matrixTransform newTransformRotateX(float degrees) {
 	return transform;
 }
 
-matrixTransform newTransformRotateY(float degrees) {
-	matrixTransform transform = emptyTransform();
+struct matrixTransform newTransformRotateY(float degrees) {
+    struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeYRotate;
 	transform.a = cos(toRadians(degrees));
 	transform.c = sin(toRadians(degrees));
@@ -99,8 +103,8 @@ matrixTransform newTransformRotateY(float degrees) {
 	return transform;
 }
 
-matrixTransform newTransformRotateZ(float degrees) {
-	matrixTransform transform = emptyTransform();
+struct matrixTransform newTransformRotateZ(float degrees) {
+    struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeZRotate;
 	transform.a = cos(toRadians(degrees));
 	transform.b = -sin(toRadians(degrees));
@@ -111,8 +115,8 @@ matrixTransform newTransformRotateZ(float degrees) {
 	return transform;
 }
 
-matrixTransform newTransformTranslate(double x, double y, double z) {
-	matrixTransform transform = emptyTransform();
+struct matrixTransform newTransformTranslate(double x, double y, double z) {
+    struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeTranslate;
 	transform.a = 1;
 	transform.f = 1;
@@ -124,8 +128,8 @@ matrixTransform newTransformTranslate(double x, double y, double z) {
 	return transform;
 }
 
-matrixTransform newTransformScale(double x, double y, double z) {
-	matrixTransform transform = emptyTransform();
+struct matrixTransform newTransformScale(double x, double y, double z) {
+    struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeScale;
 	transform.a = x;
 	transform.f = y;

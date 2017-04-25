@@ -8,15 +8,7 @@
 
 #pragma once
 
-#include "includes.h"
-#include "vector.h"
-#include "color.h"
-#include "poly.h"
-#include "camera.h"
-#include "sphere.h"
-#include "light.h"
-
-typedef enum {
+enum transformType {
 	transformTypeXRotate,
 	transformTypeYRotate,
 	transformTypeZRotate,
@@ -24,18 +16,20 @@ typedef enum {
 	transformTypeScale,
 	transformTypeMultiplication,
 	transformTypeNone
-}transformType;
+};
 
 //Reference: http://tinyurl.com/ho6h6mr
-typedef struct {
-	transformType type;
+struct matrixTransform {
+	enum transformType type;
 	double a, b, c, d;
 	double e, f, g, h;
 	double i, j, k, l;
 	double m, n, o, p;
-}matrixTransform;
+};
 
-typedef struct {
+struct material;
+
+struct crayOBJ {
 	int vertexCount;
 	int firstVectorIndex;
 	
@@ -48,27 +42,27 @@ typedef struct {
 	int polyCount;
 	int firstPolyIndex;
 	
-	sphere boundingVolume;
-	matrixTransform *transforms;
+	struct sphere boundingVolume;
+    struct matrixTransform *transforms;
 	int transformCount;
 	
-	material *material;
+    struct material *material;
 	
 	char *objName;
-}crayOBJ;
+};
 
 //Transform types
-matrixTransform newTransformScale(double x, double y, double z);
-matrixTransform newTransformTranslate(double x, double y, double z);
-matrixTransform newTransformRotateX(float degrees);
-matrixTransform newTransformRotateY(float degrees);
-matrixTransform newTransformRotateZ(float degrees);
-matrixTransform emptyTransform();
+struct matrixTransform newTransformScale(double x, double y, double z);
+struct matrixTransform newTransformTranslate(double x, double y, double z);
+struct matrixTransform newTransformRotateX(float degrees);
+struct matrixTransform newTransformRotateY(float degrees);
+struct matrixTransform newTransformRotateZ(float degrees);
+struct matrixTransform emptyTransform();
 
 //Object transforms
-void transformMesh(crayOBJ *object);
+void transformMesh(struct crayOBJ *object);
 
-void transformVector(vector *vec, matrixTransform *tf); //Expose for renderer
+void transformVector(struct vector *vec, struct matrixTransform *tf); //Expose for renderer
 
 //Scene builder
-void addTransform(crayOBJ *obj, matrixTransform transform);
+void addTransform(struct crayOBJ *obj, struct matrixTransform transform);

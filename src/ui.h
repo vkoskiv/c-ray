@@ -8,22 +8,19 @@
 
 #pragma once
 
-#include "includes.h"
-#include "renderer.h"
-
 #ifdef UI_ENABLED
-typedef struct {
+struct display {
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	SDL_Texture *texture;
 	SDL_Texture *overlayTexture;
 	bool isBorderless;
 	bool isFullScreen;
-}display;
+};
 
 int initSDL();
 void drawWindow();
-extern display mainDisplay;
+extern struct display mainDisplay;
 #endif
 
 void printDuration(double time);

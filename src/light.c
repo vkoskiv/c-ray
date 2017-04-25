@@ -6,8 +6,9 @@
 //  Copyright © 2015 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "includes.h"
 #include "light.h"
 
-light newLight(vector pos, float radius, color intensity) {
-	return (light){pos, radius, intensity};
+struct light newLight(struct vector pos, float radius, struct color intensity) {
+	return (struct light){pos, radius, intensity};
 }

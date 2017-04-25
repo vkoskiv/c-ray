@@ -6,12 +6,18 @@
 //  Copyright © 2017 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "includes.h"
 #include "renderer.h"
+
+#include "camera.h"
+#include "light.h"
+#include "poly.h"
+#include "scene.h"
 
 /*
  * Global renderer
  */
-renderer mainRenderer;
+struct renderer mainRenderer;
 
 #ifdef WINDOWS
 HANDLE tileMutex = INVALID_HANDLE_VALUE;
@@ -30,14 +36,14 @@ bool renderTilesEmpty() {
  
  @return A renderTile to be rendered
  */
-renderTile getTile() {
+struct renderTile getTile() {
 #ifdef WINDOWS
 	WaitForSingleObject(tileMutex, INFINITE);
 #else
 	pthread_mutex_lock(&tileMutex);
 #endif
 	//FIXME: This could be optimized
-	renderTile tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount++];
+    struct renderTile tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount++];
 	mainRenderer.renderTiles[mainRenderer.renderedTileCount - 1].isRendering = true;
 	tile.tileNum = mainRenderer.renderedTileCount - 1;
 	
@@ -54,7 +60,7 @@ renderTile getTile() {
  
  @param worldScene worldScene object
  */
-void quantizeImage(scene *worldScene) {
+void quantizeImage(struct scene *worldScene) {
 #ifdef WINDOWS
 	//Create this here for now
 	tileMutex = CreateMutex(NULL, FALSE, NULL);
@@ -73,11 +79,11 @@ void quantizeImage(scene *worldScene) {
 		tilesY++;
 	}
 	
-	mainRenderer.renderTiles = (renderTile*)calloc(tilesX*tilesY, sizeof(renderTile));
+	mainRenderer.renderTiles = (struct renderTile*)calloc(tilesX*tilesY, sizeof(struct renderTile));
 	
 	for (int y = 0; y < tilesY; y++) {
 		for (int x = 0; x < tilesX; x++) {
-			renderTile *tile = &mainRenderer.renderTiles[x + y*tilesX];
+            struct renderTile *tile = &mainRenderer.renderTiles[x + y*tilesX];
 			tile->width  = worldScene->camera->tileWidth;
 			tile->height = worldScene->camera->tileHeight;
 			
@@ -102,7 +108,7 @@ void quantizeImage(scene *worldScene) {
 void reorderTopToBottom() {
 	int endIndex = mainRenderer.tileCount - 1;
 	
-	renderTile *tempArray = (renderTile*)calloc(mainRenderer.tileCount, sizeof(renderTile));
+    struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount, sizeof(struct renderTile));
 	
 	for (int i = 0; i < mainRenderer.tileCount; i++) {
 		tempArray[i] = mainRenderer.renderTiles[endIndex--];
@@ -120,7 +126,7 @@ void reorderFromMiddle() {
 	midRight = ceil(mainRenderer.tileCount / 2);
 	midLeft = midRight - 1;
 	
-	renderTile *tempArray = (renderTile*)calloc(mainRenderer.tileCount, sizeof(renderTile));
+    struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount, sizeof(struct renderTile));
 	
 	for (int i = 0; i < mainRenderer.tileCount; i++) {
 		if (isRight) {
@@ -141,7 +147,7 @@ void reorderFromMiddle() {
  
  @param order Render order to be applied
  */
-void reorderTiles(renderOrder order) {
+void reorderTiles(enum renderOrder order) {
 	switch (order) {
 		case renderOrderFromMiddle:
 		{
@@ -166,8 +172,8 @@ void reorderTiles(renderOrder order) {
  @param y Y coordinate of pixel
  @return A color object, with full color precision intact (double)
  */
-color getPixel(scene *worldScene, int x, int y) {
-	color output = {0.0f, 0.0f, 0.0f, 0.0f};
+struct color getPixel(struct scene *worldScene, int x, int y) {
+    struct color output = {0.0f, 0.0f, 0.0f, 0.0f};
 	output.red =   mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0];
 	output.green = mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 1];
 	output.blue =  mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 2];
@@ -194,7 +200,7 @@ float getRandomFloat(float min, float max) {
  @param radius Maximum distance from center point
  @return Vector of a random position within a radius of center point
  */
-vector getRandomVecOnRadius(vector center, float radius) {
+struct vector getRandomVecOnRadius(struct vector center, float radius) {
 	return vectorWithPos(center.x + getRandomFloat(-radius, radius),
 						 center.y + getRandomFloat(-radius, radius),
 						 center.z + getRandomFloat(-radius, radius));
@@ -207,7 +213,7 @@ vector getRandomVecOnRadius(vector center, float radius) {
  @param radius Maximum distance from center point
  @return Vector of a random position on a plane within a radius of center point
  */
-vector getRandomVecOnPlane(vector center, float radius) {
+struct vector getRandomVecOnPlane(struct vector center, float radius) {
 	//FIXME: This only works in one orientation!
 	return vectorWithPos(center.x + getRandomFloat(-radius, radius),
 						 center.y + getRandomFloat(-radius, radius),
@@ -339,9 +345,9 @@ vector getRandomVecOnPlane(vector center, float radius) {
  @param worldScene Scene the ray is cast into
  @return Color value with full precision (double)
  */
-color rayTrace(lightRay *incidentRay, scene *worldScene) {
+struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
-	color output = {0.0f,0.0f,0.0f};
+    struct color output = {0.0f,0.0f,0.0f};
 	int bounces = 0;
 	double contrast = worldScene->camera->contrast;
 	
@@ -355,9 +361,9 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
 		int lightSourceAmount = worldScene->lightCount;
 		int objCount = worldScene->objCount;
 		
-		material currentMaterial;
-		vector polyNormal = {0.0, 0.0, 0.0};
-		vector hitpoint, surfaceNormal;
+        struct material currentMaterial;
+        struct vector polyNormal = {0.0, 0.0, 0.0};
+        struct vector hitpoint, surfaceNormal;
 		
 		bool isCustomPoly = false;
 		
@@ -394,7 +400,7 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
 		
 		//Ray-object intersection detection
 		if (currentSphere != -1) {
-			vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
+            struct vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
 			surfaceNormal = subtractVectors(&hitpoint, &worldScene->spheres[currentSphere].pos);
 			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
@@ -403,7 +409,7 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
 			currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].materialIndex];
 		} else if (currentPolygon != -1) {
-			vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
+            struct vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
 			//We get polyNormal from the intersection function
 			surfaceNormal = polyNormal;
@@ -418,7 +424,7 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
 			}
 		} else {
 			//Ray didn't hit any object, set color to ambient
-			color temp = colorCoef(contrast, worldScene->ambientColor);
+            struct color temp = colorCoef(contrast, worldScene->ambientColor);
 			output = addColors(&output, &temp);
 			break;
 		}
@@ -429,7 +435,7 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
 			surfaceNormal = vectorScale(-1.0f, &surfaceNormal);
 		}
 		
-		lightRay bouncedRay, cameraRay;
+        struct lightRay bouncedRay, cameraRay;
 		bouncedRay.start = hitpoint;
 		cameraRay.start = hitpoint;
 		cameraRay.direction = subtractVectors(&worldScene->camera->pos, &hitpoint);
@@ -442,8 +448,8 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
 		//Find the value of the light at this point
 		unsigned int j;
 		for (j = 0; j < lightSourceAmount; ++j) {
-			light currentLight = worldScene->lights[j];
-			vector lightPos;
+            struct light currentLight = worldScene->lights[j];
+            struct vector lightPos;
 			if (worldScene->camera->areaLights)
 				lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
 			else
@@ -516,7 +522,7 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
 		//Calculate reflected ray start and direction
 		double reflect = 2.0f * scalarProduct(&incidentRay->direction, &surfaceNormal);
 		incidentRay->start = hitpoint;
-		vector tempVec = vectorScale(reflect, &surfaceNormal);
+		struct vector tempVec = vectorScale(reflect, &surfaceNormal);
 		incidentRay->direction = subtractVectors(&incidentRay->direction, &tempVec);
 		
 		bounces++;
@@ -527,7 +533,7 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
 }
 
 //Compute view direction transforms
-void transformCameraView(vector *direction) {
+void transformCameraView(struct vector *direction) {
 	for (int i = 1; i < mainRenderer.worldScene->camTransformCount; i++) {
 		transformVector(direction, &mainRenderer.worldScene->camTransforms[i]);
 		direction->isTransformed = false;
@@ -545,12 +551,12 @@ DWORD WINAPI renderThread(LPVOID arg) {
 #else
 	void *renderThread(void *arg) {
 #endif
-		lightRay incidentRay;
+        struct lightRay incidentRay;
 		int x,y;
 		
-		threadInfo *tinfo = (threadInfo*)arg;
+        struct threadInfo *tinfo = (struct threadInfo*)arg;
 		
-		renderTile tile;
+        struct renderTile tile;
 		tile.tileNum = 0;
 		while (!renderTilesEmpty()) {
 			x = 0; y = 0;
@@ -561,8 +567,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 			while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
 				for (y = tile.endY; y > tile.startY; y--) {
 					for (x = tile.startX; x < tile.endX; x++) {
-						color output = getPixel(mainRenderer.worldScene, x, y);
-						color sample = {0.0f,0.0f,0.0f,0.0f};
+                        struct color output = getPixel(mainRenderer.worldScene, x, y);
+                        struct color sample = {0.0f,0.0f,0.0f,0.0f};
 						
 						int height = mainRenderer.worldScene->camera->height;
 						int width = mainRenderer.worldScene->camera->width;
@@ -573,11 +579,11 @@ DWORD WINAPI renderThread(LPVOID arg) {
 							focalLength = 0.5f * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * mainRenderer.worldScene->camera->FOV);
 						}
 						
-						vector direction = {(x - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
+                        struct vector direction = {(x - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
 							(y - 0.5f * mainRenderer.worldScene->camera->height) / focalLength, 1.0f};
 						
 						direction = normalizeVector(&direction);
-						vector startPos = mainRenderer.worldScene->camera->pos;
+                        struct vector startPos = mainRenderer.worldScene->camera->pos;
 						
 						//And now compute transforms for position
 						transformVector(&startPos, &mainRenderer.worldScene->camTransforms[0]);
