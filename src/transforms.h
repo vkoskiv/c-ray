@@ -6,8 +6,7 @@
 //  Copyright © 2017 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef transforms_h
-#define transforms_h
+#pragma once
 
 #include "includes.h"
 #include "vector.h"
@@ -73,5 +72,3 @@ void transformVector(vector *vec, matrixTransform *tf); //Expose for renderer
 
 //Scene builder
 void addTransform(crayOBJ *obj, matrixTransform transform);
-
-#endif /* transforms_h */

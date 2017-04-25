@@ -6,8 +6,7 @@
 //  Copyright © 2017 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef renderer_h
-#define renderer_h
+#pragma once
 
 #include "includes.h"
 #include "vector.h"
@@ -63,5 +62,3 @@ void *renderThread(void *arg);
 #endif
 void quantizeImage(scene *worldScene);
 void reorderTiles(renderOrder order);
-
-#endif /* renderer_h */

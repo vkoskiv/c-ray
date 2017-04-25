@@ -6,8 +6,7 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef __C_Ray__color__
-#define __C_Ray__color__
+#pragma once
 
 #include "includes.h"
 
@@ -53,5 +52,3 @@ color colorCoef(double coef, color *c);
 
 //temporary newMaterial func
 material newMaterial(color diffuse, double reflectivity);
-
-#endif /* defined(__C_Ray__color__) */

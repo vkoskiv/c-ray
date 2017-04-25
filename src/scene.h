@@ -6,9 +6,7 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef __C_Ray__scene__
-#define __C_Ray__scene__
-
+#pragma once
 #include "includes.h"
 #include "errorhandler.h"
 #include "sphere.h"
@@ -49,5 +47,3 @@ typedef struct {
 
 int testBuild(scene *scene, char *inputFileName);
 scene *newScene();
-
-#endif /* defined(__C_Ray__scene__) */

@@ -6,8 +6,7 @@
 //  Copyright © 2017 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef ui_h
-#define ui_h
+#pragma once
 
 #include "includes.h"
 #include "renderer.h"
@@ -29,5 +28,3 @@ extern display mainDisplay;
 
 void printDuration(double time);
 void getKeyboardInput();
-
-#endif /* ui_h */

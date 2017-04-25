@@ -6,8 +6,7 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef __C_Ray__errorhandler__
-#define __C_Ray__errorhandler__
+#pragma once
 
 #include "includes.h"
 
@@ -46,5 +45,3 @@ typedef enum {
 }logSource;
 
 void logHandler(renderLog error);
-
-#endif /* defined(__C_Ray__errorhandler__) */

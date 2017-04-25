@@ -6,8 +6,7 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef C_Ray_includes_h
-#define C_Ray_includes_h
+#pragma once
 
 //Comment this to disable SDL
 //#define UI_ENABLED
@@ -43,5 +42,3 @@
 #endif
 #include "lodepng.h"
 #include "obj_parser.h"
-
-#endif

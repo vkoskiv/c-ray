@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef ____main__
-#define ____main__
+#pragma once
 
 #include "includes.h"
 #include "filehandler.h"
@@ -27,5 +26,3 @@
 #else
 #include <unistd.h>
 #endif
-
-#endif /* defined(____main__) */

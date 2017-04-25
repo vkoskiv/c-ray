@@ -6,8 +6,7 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef __C_Ray__vector__
-#define __C_Ray__vector__
+#pragma once
 
 #include "includes.h"
 
@@ -75,5 +74,3 @@ float vectorLength(vector *v);
 
 //Normalize a vector
 vector normalizeVector(vector *v);
-
-#endif /* defined(__C_Ray__vector__) */

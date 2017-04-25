@@ -6,8 +6,7 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef __C_Ray__sphere__
-#define __C_Ray__sphere__
+#pragma once
 
 #include "includes.h"
 #include "vector.h"
@@ -27,5 +26,3 @@ bool rayIntersectsWithSphere(lightRay *ray, sphere *sphere, double *t);
 
 //Just check for intersection, don't care about specifics
 bool rayIntersectsWithSphereFast(lightRay *ray, sphere *sphere);
-
-#endif /* defined(__C_Ray__sphere__) */

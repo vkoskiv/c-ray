@@ -6,8 +6,7 @@
 //  Copyright © 2015 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef light_h
-#define light_h
+#pragma once
 
 #include "includes.h"
 #include "vector.h"
@@ -21,5 +20,3 @@ typedef struct {
 }light;
 
 light newLight(vector pos, float radius, color intensity);
-
-#endif /* light_h */

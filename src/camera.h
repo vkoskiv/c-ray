@@ -6,8 +6,7 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef __C_Ray__camera__
-#define __C_Ray__camera__
+#pragma once
 
 #include "includes.h"
 #include "vector.h"
@@ -54,5 +53,3 @@ typedef struct {
 
 //Calculate camera view plane
 void calculateUVW(camera *camera);
-
-#endif /* defined(__C_Ray__camera__) */

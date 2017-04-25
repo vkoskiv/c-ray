@@ -6,8 +6,7 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifndef __C_Ray__poly__
-#define __C_Ray__poly__
+#pragma once
 
 #include "includes.h"
 #include "vector.h"
@@ -30,5 +29,3 @@ bool rayIntersectsWithPolygon(lightRay *ray, poly *poly, double *result, vector 
 
 //Just check for intersection
 bool rayIntersectsWithPolygonFast(lightRay *ray, poly *poly);
-
-#endif /* defined(__C_Ray__poly__) */
