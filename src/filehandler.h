@@ -8,6 +8,8 @@
 
 #pragma once
 
+struct scene;
+
 typedef enum {
 	loadModeNormal,
 	loadModeTarga

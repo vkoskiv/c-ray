@@ -9,6 +9,7 @@
 #pragma once
 
 struct scene;
+enum renderOrder;
 
 struct threadInfo {
 #ifdef WINDOWS

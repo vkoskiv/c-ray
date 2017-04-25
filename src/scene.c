@@ -25,7 +25,7 @@ char *trimSpaces(char *inputLine);
 //Parses a scene file and allocates memory accordingly
 int allocMemory(struct scene *scene, char *inputFileName);
 
-struct vector vectorFromObj(struct obj_vector *vec) {
+struct vector vectorFromObj(obj_vector *vec) {
     struct vector vector;
 	vector.x = vec->e[0];
 	vector.y = vec->e[1];
@@ -34,7 +34,7 @@ struct vector vectorFromObj(struct obj_vector *vec) {
 	return vector;
 }
 
-struct poly polyFromObj(struct obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex) {
+struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex) {
     struct poly polygon;
 	polygon.vertexCount = face->vertex_count;
 	polygon.materialIndex = face->material_index;
@@ -47,7 +47,7 @@ struct poly polyFromObj(struct obj_face *face, int firstVertexIndex, int firstNo
 	return polygon;
 }
 
-struct material *materialFromObj(struct obj_material *mat) {
+struct material *materialFromObj(obj_material *mat) {
     struct material *newMat = (struct material*)calloc(1, sizeof(struct material));
 	newMat->diffuse.red   = mat->diff[0];
 	newMat->diffuse.green = mat->diff[1];
@@ -97,7 +97,7 @@ char *getFileName(char *input) {
 
 void addOBJ(struct scene *sceneData, char *inputFileName) {
 	printf("Loading OBJ %s\n", inputFileName);
-    struct obj_scene_data data;
+    obj_scene_data data;
 	if (parse_obj_scene(&data, inputFileName) == 0) {
 		printf("OBJ %s file not found!\n", getFileName(inputFileName));
 		return;
