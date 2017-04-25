@@ -375,7 +375,7 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
 				for (p = worldScene->objs[o].firstPolyIndex; p < (worldScene->objs[o].firstPolyIndex + worldScene->objs[o].polyCount); p++) {
 					if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &polyNormal)) {
 						currentPolygon = p;
-                        currentMaterial = *worldScene->objs[0].material;
+                        currentMaterial = *worldScene->objs[o].material;
 						currentSphere = -1;
                         isCustomPoly = false;
 					}

@@ -259,14 +259,14 @@ int testBuild(scene *scene, char *inputFileName) {
 	
     camera *cam = (camera*)calloc(1, sizeof(camera));
 	//Override renderer thread count, 0 defaults to physical core count
-	cam-> threadCount = 8;
+	cam-> threadCount = 0;
 	cam->       width = 1280;
 	cam->      height = 800;
 	cam->isFullScreen = false;
 	cam->isBorderless = false;
 	cam->         FOV = 80.0;
 	cam-> focalLength = 0;
-	cam-> sampleCount = 20;
+	cam-> sampleCount = 25;
 	cam->  frameCount = 1;
 	cam->     bounces = 3;
 	cam->    contrast = 0.7;
@@ -279,9 +279,9 @@ int testBuild(scene *scene, char *inputFileName) {
 	cam->   tileOrder = renderOrderFromMiddle;
 	cam->pos = vectorWithPos(0, 0, 0); //Don't change
 	
-	addCamTransform(scene, newTransformTranslate(940, 480, 0)); //Set pos here
-	addCamTransform(scene, newTransformRotateZ(14));//And add as many rotations as you want!
-	addCamTransform(scene, newTransformRotateZ(-14)); //Don't scale or translate!
+	addCamTransform(scene, newTransformTranslate(970, 400, 600)); //Set pos here
+	addCamTransform(scene, newTransformRotateX(11));//And add as many rotations as you want!
+	addCamTransform(scene, newTransformRotateZ(9)); //Don't scale or translate!
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->  red = 0.4;
@@ -305,20 +305,17 @@ int testBuild(scene *scene, char *inputFileName) {
 	
 	
 	//R G B is 0 1 2
-	addOBJ(scene, "../output/wt_teapot.obj");
-    overrideMaterial(scene, &scene->objs[2], 0);
+	addOBJ(scene, "../output/teapot_red.obj");
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 900));
 	
-	addOBJ(scene, "../output/wt_teapot.obj");
-    overrideMaterial(scene, &scene->objs[3], 1);
+	addOBJ(scene, "../output/teapot_green.obj");
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(90));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 900));
 	
-	addOBJ(scene, "../output/wt_teapot.obj");
-    overrideMaterial(scene, &scene->objs[4], 2);
+	addOBJ(scene, "../output/teapot_blue.obj");
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,900));
