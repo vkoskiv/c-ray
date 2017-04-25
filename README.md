@@ -37,18 +37,18 @@ macOS:
 3. Edit scheme by clicking 'C-Ray' in top right, make sure 'Use custom working directory' is ticked and set it to the 'output' directory of this project.
 4. Build&Run with CMD+R
 
-POSIX:
+Linux:
 1. Install SDL2 (See installing SDL below)
 2. Run 'make'
 3. Suggest a fix to my makefile because it didn't link SDL2 on your platform.
 4. Run binary in ./bin/
 
-WINDOWS:
+Windows:
 1. Open the VS project in CRayWindows
 2. CTRL+F5 to run without debugging
 3. VS places a binary under CRayWindows/bin/
 
-#Installing SDL
+##Installing SDL
 
 On macOS, download the SDL2 runtime framework from https://www.libsdl.org/download-2.0.php and place in /Library/Frameworks/
 If you don't have root access, place under ~/Library/Frameworks
