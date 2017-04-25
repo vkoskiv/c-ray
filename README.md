@@ -14,9 +14,13 @@ It currently supports:
 - Lambertian diffuse shading
 - Very crude, hard-coded animations (simple do-while loop)
 - Scene definition files (Currently disabled)
+- Full support for triangulated OBJ model loading, including matrix transforms to composite a scene.
 
 Things I'm looking to implement:
-- Full support for triangulated OBJ model loading, including matrix transforms to composite a scene.
+- Better material support (Currently only color and reflectivity)
+- Procedural textures
+- Depth of field
+- Antialiasing
 - Refractive materials (Glass)
 
 ## Dependencies
