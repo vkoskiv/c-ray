@@ -9,5 +9,5 @@
 #include "light.h"
 
 light newLight(vector pos, float radius, color intensity) {
-    return (light){pos, radius, intensity};
+	return (light){pos, radius, intensity};
 }

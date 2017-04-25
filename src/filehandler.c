@@ -128,18 +128,18 @@ int getFileSize(char *fileName) {
 }
 
 int writeTarga(renderer *renderer, char *fileName) {
-    //We can just write the renderer to memory
-    FILE *file;
-    file = fopen(fileName, "wb");
-    fwrite(&renderer, sizeof(renderer), 1, file);
-    fclose(file);
-    return 0;
+	//We can just write the renderer to memory
+	FILE *file;
+	file = fopen(fileName, "wb");
+	fwrite(&renderer, sizeof(renderer), 1, file);
+	fclose(file);
+	return 0;
 }
 
 renderer *readTarga(char *fileName) {
-    FILE *file;
-    file = fopen(fileName, "r");
-    renderer *renderer = malloc(sizeof(renderer));
-    fread(&renderer, sizeof(renderer), 1, file);
-    return renderer;
+	FILE *file;
+	file = fopen(fileName, "r");
+	renderer *renderer = malloc(sizeof(renderer));
+	fread(&renderer, sizeof(renderer), 1, file);
+	return renderer;
 }

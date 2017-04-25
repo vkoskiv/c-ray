@@ -21,15 +21,15 @@ int getSysCores();
 void freeMem();
 
 int main(int argc, char *argv[]) {
-
+	
 	time_t start, stop;
-
+	
 	//Seed RNGs
 	srand((int)time(NULL));
 #ifndef WINDOWS
 	srand48(time(NULL));
 #endif
-
+	
 	//Initialize renderer
 	//FIXME: Put this in a function
 	mainRenderer.renderBuffer = NULL;
@@ -40,9 +40,9 @@ int main(int argc, char *argv[]) {
 	mainRenderer.threadCount = getSysCores();
 	mainRenderer.shouldSave = true;
 	mainRenderer.isRendering = false;
-
-    mainRenderer.worldScene = newScene();
-    
+	
+	mainRenderer.worldScene = newScene();
+	
 	char *fileName = NULL;
 	//Build the scene
 	if (argc == 2) {
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 	} else {
 		logHandler(sceneParseErrorNoPath);
 	}
-
+	
 	//Build the scene
 	switch (testBuild(mainRenderer.worldScene, "test")) {
 		case -1:
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
 	if (usrThreadCount > 0) {
 		mainRenderer.threadCount = usrThreadCount;
 	}
-
+	
 	quantizeImage(mainRenderer.worldScene);
 	reorderTiles(mainRenderer.worldScene->camera->tileOrder);
 	
@@ -88,21 +88,21 @@ int main(int argc, char *argv[]) {
 	
 	//This is a timer to elapse how long a render takes per frame
 	time(&start);
-
+	
 	//Create threads
 	int t;
-
+	
 	//Alloc memory for pthread_create() args
 	mainRenderer.renderThreadInfo = (threadInfo*)calloc(mainRenderer.threadCount, sizeof(threadInfo));
 	if (mainRenderer.renderThreadInfo == NULL) {
 		logHandler(threadMallocFailed);
 		return -1;
 	}
-
+	
 	//Verify sample count
 	if (mainRenderer.worldScene->camera->sampleCount < 1) logHandler(renderErrorInvalidSampleCount);
 	if (!mainRenderer.worldScene->camera->areaLights) mainRenderer.worldScene->camera->sampleCount = 1;
-
+	
 	printf("\nStarting C-ray renderer for frame %i\n\n", mainRenderer.worldScene->camera->currentFrame);
 	printf("Rendering at %i x %i\n", mainRenderer.worldScene->camera->width,mainRenderer.worldScene->camera->height);
 	printf("Rendering with %i samples\n", mainRenderer.worldScene->camera->sampleCount);
@@ -112,28 +112,28 @@ int main(int argc, char *argv[]) {
 	} else {
 		printf("\n");
 	}
-
+	
 	printf("Using %i light bounces\n", mainRenderer.worldScene->camera->bounces);
 	printf("Raytracing...\n");
-
+	
 	//Allocate memory and create array of pixels for image data
 	mainRenderer.worldScene->camera->imgData = (unsigned char*)calloc(3 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(unsigned char));
-
+	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
 	mainRenderer.renderBuffer = (double*)calloc(3 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(double));
-
+	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
 	mainRenderer.uiBuffer = (unsigned char*)calloc(4 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(unsigned char));
-
+	
 	//Initialize SDL display
 #ifdef UI_ENABLED
 	initSDL();
 #endif
-
+	
 	if (!mainRenderer.worldScene->camera->imgData) logHandler(imageMallocFailed);
-
+	
 	mainRenderer.isRendering = true;
 	mainRenderer.renderAborted = false;
 #ifndef WINDOWS
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
 		drawWindow();
 		SDL_UpdateWindowSurface(mainDisplay.window);
 #endif
-
+		
 		if (!threadsHaveStarted) {
 			threadsHaveStarted = true;
 			//Create render threads
@@ -171,16 +171,16 @@ int main(int argc, char *argv[]) {
 				}
 #endif
 			}
-
+			
 			mainRenderer.renderThreadInfo->threadComplete = false;
-
+			
 #ifndef WINDOWS
 			if (pthread_attr_destroy(&mainRenderer.renderThreadAttributes)) {
 				logHandler(threadRemoveFailed);
 			}
 #endif
 		}
-
+		
 		//Wait for render threads to finish (Render finished)
 		for (t = 0; t < mainRenderer.threadCount; t++) {
 			if (mainRenderer.renderThreadInfo[t].threadComplete && mainRenderer.renderThreadInfo[t].thread_num != -1) {
@@ -192,7 +192,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
-
+	
 	//Make sure render threads are finished before continuing
 	for (t = 0; t < mainRenderer.threadCount; t++) {
 #ifdef WINDOWS
@@ -203,22 +203,22 @@ int main(int argc, char *argv[]) {
 		}
 #endif
 	}
-
+	
 	time(&stop);
 	printDuration(difftime(stop, start));
-
+	
 	//Write to file
 	if (mainRenderer.shouldSave)
 		writeImage(mainRenderer.worldScene);
 	else
 		printf("Image won't be saved!\n");
-
+	
 	mainRenderer.worldScene->camera->currentFrame++;
 	
 	freeMem();
-
+	
 	printf("Render finished, exiting.\n");
-
+	
 	return 0;
 }
 
@@ -253,10 +253,10 @@ int getSysCores() {
 	int nm[2];
 	size_t len = 4;
 	uint32_t count;
-
+	
 	nm[0] = CTL_HW; nm[1] = HW_AVAILCPU;
 	sysctl(nm, 2, &count, &len, NULL, 0);
-
+	
 	if (count < 1) {
 		nm[1] = HW_NCPU;
 		sysctl(nm, 2, &count, &len, NULL, 0);

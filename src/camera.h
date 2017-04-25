@@ -26,12 +26,12 @@ typedef enum {
 typedef struct {
 	int height, width; // Image dimensions
 	fileType fileType;
-    
+	
 	double FOV;
-    double focalLength;
-    double aperture;
+	double focalLength;
+	double aperture;
 	vector pos;
-    
+	
 	unsigned char *imgData;
 	bool areaLights;
 	bool aprxShadows;

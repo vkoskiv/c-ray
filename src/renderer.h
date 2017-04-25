@@ -57,9 +57,9 @@ typedef struct {
 //Renderer
 extern renderer mainRenderer;
 #ifdef WINDOWS
-	DWORD WINAPI renderThread(LPVOID arg);
+DWORD WINAPI renderThread(LPVOID arg);
 #else
-	void *renderThread(void *arg);
+void *renderThread(void *arg);
 #endif
 void quantizeImage(scene *worldScene);
 void reorderTiles(renderOrder order);

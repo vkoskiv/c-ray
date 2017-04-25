@@ -42,8 +42,8 @@ color colorCoef(double coef, color *c) {
 
 //FIXME: Temporary, eventually support full OBJ spec
 material newMaterial(color diffuse, double reflectivity) {
-    material newMaterial;
-    newMaterial.reflectivity = reflectivity;
-    newMaterial.diffuse = diffuse;
-    return newMaterial;
+	material newMaterial;
+	newMaterial.reflectivity = reflectivity;
+	newMaterial.diffuse = diffuse;
+	return newMaterial;
 }

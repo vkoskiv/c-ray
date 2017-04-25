@@ -20,30 +20,30 @@
 
 //World
 typedef struct {
-    color *ambientColor;
-    
+	color *ambientColor;
+	
 	crayOBJ *objs;
-    int objCount;
-    
+	int objCount;
+	
 	light *lights;
-    int lightCount;
-    
+	int lightCount;
+	
 	material *materials;
-    int materialCount;
-    
+	int materialCount;
+	
 	sphere *spheres;
-    int sphereCount;
-    
-    //Currently only one camera supported
+	int sphereCount;
+	
+	//Currently only one camera supported
 	camera *camera;
-    int cameraCount;
+	int cameraCount;
 	//FIXME: Store these in camera
 	matrixTransform *camTransforms;
 	int camTransformCount;
-    
-    //FIXME: TEMPORARY
-    poly *customPolys;
-    int customPolyCount;
+	
+	//FIXME: TEMPORARY
+	poly *customPolys;
+	int customPolyCount;
 	
 }scene;
 

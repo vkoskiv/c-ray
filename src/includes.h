@@ -31,14 +31,14 @@
 #include <signal.h>
 #include <string.h>
 #ifdef WINDOWS
-	#include <Windows.h>
+#include <Windows.h>
 #ifdef UI_ENABLED
-	#include "SDL.h"
+#include "SDL.h"
 #endif
 #else
-	#include <pthread.h>
+#include <pthread.h>
 #ifdef UI_ENABLED
-	#include <SDL2/SDL.h>
+#include <SDL2/SDL.h>
 #endif
 #endif
 #include "lodepng.h"

@@ -42,12 +42,12 @@ poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int
 }
 
 material *materialFromObj(obj_material *mat) {
-    material *newMat = (material*)calloc(1, sizeof(material));
-    newMat->diffuse.red   = mat->diff[0];
-    newMat->diffuse.green = mat->diff[1];
-    newMat->diffuse.blue  = mat->diff[2];
-    newMat->reflectivity  = mat->reflect;
-    return newMat;
+	material *newMat = (material*)calloc(1, sizeof(material));
+	newMat->diffuse.red   = mat->diff[0];
+	newMat->diffuse.green = mat->diff[1];
+	newMat->diffuse.blue  = mat->diff[2];
+	newMat->reflectivity  = mat->reflect;
+	return newMat;
 }
 
 //Compute the bounding volume for a given OBJ and save it to that OBJ.
@@ -92,10 +92,10 @@ char *getFileName(char *input) {
 void addOBJ(scene *sceneData, char *inputFileName) {
 	printf("Loading OBJ %s\n", inputFileName);
 	obj_scene_data data;
-    if (parse_obj_scene(&data, inputFileName) == 0) {
-        printf("OBJ %s file not found!\n", getFileName(inputFileName));
-        return;
-    }
+	if (parse_obj_scene(&data, inputFileName) == 0) {
+		printf("OBJ %s file not found!\n", getFileName(inputFileName));
+		return;
+	}
 	printf("OBJ loaded, converting\n");
 	
 	//Create crayOBJ to keep track of objs
@@ -153,22 +153,22 @@ void addOBJ(scene *sceneData, char *inputFileName) {
 	polygonArray = (poly*)realloc(polygonArray, polyCount * sizeof(poly));
 	for (int i = 0; i < data.face_count; i++) {
 		polygonArray[sceneData->objs[sceneData->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
-                                                                                    sceneData->objs[sceneData->objCount].firstVectorIndex,
-                                                                                    sceneData->objs[sceneData->objCount].firstNormalIndex,
-                                                                                    sceneData->objs[sceneData->objCount].firstTextureIndex);
+																							sceneData->objs[sceneData->objCount].firstVectorIndex,
+																							sceneData->objs[sceneData->objCount].firstNormalIndex,
+																							sceneData->objs[sceneData->objCount].firstTextureIndex);
 		//polygonArray[sceneData->objs[sceneData->objCount].firstPolyIndex + i].materialIndex = materialIndex;
 	}
-    
-    //Parse materials
-    if (data.material_count == 0) {
-        //No material, set to something obscene to make it noticeable
-        sceneData->objs[sceneData->objCount].material = (material*)calloc(1, sizeof(material));
-        *sceneData->objs[sceneData->objCount].material = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
-    } else {
-        //Material found, set it
-        sceneData->objs[sceneData->objCount].material = (material*)calloc(1, sizeof(material));
-        sceneData->objs[sceneData->objCount].material = materialFromObj(data.material_list[0]);
-    }
+	
+	//Parse materials
+	if (data.material_count == 0) {
+		//No material, set to something obscene to make it noticeable
+		sceneData->objs[sceneData->objCount].material = (material*)calloc(1, sizeof(material));
+		*sceneData->objs[sceneData->objCount].material = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
+	} else {
+		//Material found, set it
+		sceneData->objs[sceneData->objCount].material = (material*)calloc(1, sizeof(material));
+		sceneData->objs[sceneData->objCount].material = materialFromObj(data.material_list[0]);
+	}
 	
 	//Delete OBJ data
 	delete_obj_data(&data);
@@ -180,28 +180,28 @@ void addOBJ(scene *sceneData, char *inputFileName) {
 
 //FIXME: Temporary
 void overrideMaterial(scene *world, crayOBJ *obj, int materialIndex) {
-    obj->material = &world->materials[materialIndex];
+	obj->material = &world->materials[materialIndex];
 }
 
 //In the future, maybe just pass a list and size and copy at once to save time (large counts)
 void addSphere(scene *scene, sphere newSphere) {
-    scene->spheres = (sphere*)realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(sphere));
-    scene->spheres[scene->sphereCount++] = newSphere;
+	scene->spheres = (sphere*)realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(sphere));
+	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
 void addMaterial(scene *scene, material newMaterial) {
-    scene->materials = (material*)realloc(scene->materials, (scene->materialCount + 1) * sizeof(material));
-    scene->materials[scene->materialCount++] = newMaterial;
+	scene->materials = (material*)realloc(scene->materials, (scene->materialCount + 1) * sizeof(material));
+	scene->materials[scene->materialCount++] = newMaterial;
 }
 
 void addLight(scene *scene, light newLight) {
-    scene->lights = (light*)realloc(scene->lights, (scene->lightCount + 1) * sizeof(light));
-    scene->lights[scene->lightCount++] = newLight;
+	scene->lights = (light*)realloc(scene->lights, (scene->lightCount + 1) * sizeof(light));
+	scene->lights[scene->lightCount++] = newLight;
 }
 
 void addCamera(scene *scene, camera *newCamera) {
-    scene->camera = (camera*)realloc(scene->camera, (scene->cameraCount + 1) * sizeof(camera));
-    scene->camera[scene->cameraCount++] = *newCamera;
+	scene->camera = (camera*)realloc(scene->camera, (scene->cameraCount + 1) * sizeof(camera));
+	scene->camera[scene->cameraCount++] = *newCamera;
 }
 
 void transformMeshes(scene *scene) {
@@ -223,10 +223,10 @@ void computeBoundingVolumes(scene *scene) {
 }
 
 scene *newScene() {
-    scene *newScene;
-    newScene = (scene*)calloc(1, sizeof(scene));
-    
-    return newScene;
+	scene *newScene;
+	newScene = (scene*)calloc(1, sizeof(scene));
+	
+	return newScene;
 }
 
 //FIXME: Move this to transforms.c
@@ -243,21 +243,21 @@ void addCamTransform(scene *world, matrixTransform transform) {
 
 int testBuild(scene *scene, char *inputFileName) {
 	printf("Starting SceneBuilder V0.5\n\n");
-    
-    //MATERIALS
-    addMaterial(scene, newMaterial(colorWithValues(0.6, 0.1, 0.1, 0.0), 0.0)); //Matte red
-    addMaterial(scene, newMaterial(colorWithValues(0.1, 0.5, 0.1, 0.0), 0.0)); //Matte green
-    addMaterial(scene, newMaterial(colorWithValues(0.1, 0.1, 0.5, 0.0), 0.0)); //Matte blue
-    addMaterial(scene, newMaterial(colorWithValues(0.8, 0.8, 0.8, 0.0), 0.0));
-    addMaterial(scene, newMaterial(colorWithValues(0.0, 0.5, 1.0, 0.0), 1.0)); //0.517647
-    addMaterial(scene, newMaterial(colorWithValues(0.3, 0.3, 0.3, 0.0), 1.0));
-    addMaterial(scene, newMaterial(colorWithValues(0.3, 0.0, 0.0, 0.0), 1.0));
-    addMaterial(scene, newMaterial(colorWithValues(0.0, 0.3, 0.0, 0.0), 1.0));
-    addMaterial(scene, newMaterial(colorWithValues(0.0, 0.0, 0.3, 0.0), 0.0));
-    addMaterial(scene, newMaterial(colorWithValues(0.9, 0.9, 0.9, 0.0), 0.0));
-    addMaterial(scene, newMaterial(colorWithValues(1.0, 0.0, 0.0, 0.0), 0.0));
 	
-    camera *cam = (camera*)calloc(1, sizeof(camera));
+	//MATERIALS
+	addMaterial(scene, newMaterial(colorWithValues(0.6, 0.1, 0.1, 0.0), 0.0)); //Matte red
+	addMaterial(scene, newMaterial(colorWithValues(0.1, 0.5, 0.1, 0.0), 0.0)); //Matte green
+	addMaterial(scene, newMaterial(colorWithValues(0.1, 0.1, 0.5, 0.0), 0.0)); //Matte blue
+	addMaterial(scene, newMaterial(colorWithValues(0.8, 0.8, 0.8, 0.0), 0.0));
+	addMaterial(scene, newMaterial(colorWithValues(0.0, 0.5, 1.0, 0.0), 1.0)); //0.517647
+	addMaterial(scene, newMaterial(colorWithValues(0.3, 0.3, 0.3, 0.0), 1.0));
+	addMaterial(scene, newMaterial(colorWithValues(0.3, 0.0, 0.0, 0.0), 1.0));
+	addMaterial(scene, newMaterial(colorWithValues(0.0, 0.3, 0.0, 0.0), 1.0));
+	addMaterial(scene, newMaterial(colorWithValues(0.0, 0.0, 0.3, 0.0), 0.0));
+	addMaterial(scene, newMaterial(colorWithValues(0.9, 0.9, 0.9, 0.0), 0.0));
+	addMaterial(scene, newMaterial(colorWithValues(1.0, 0.0, 0.0, 0.0), 0.0));
+	
+	camera *cam = (camera*)calloc(1, sizeof(camera));
 	//Override renderer thread count, 0 defaults to physical core count
 	cam-> threadCount = 0;
 	cam->       width = 1280;
@@ -287,8 +287,8 @@ int testBuild(scene *scene, char *inputFileName) {
 	scene->ambientColor->  red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor-> blue = 0.6;
-    
-    addCamera(scene, cam);
+	
+	addCamera(scene, cam);
 	
 	//NOTE: Translates have to come last!
 	addOBJ(scene, "../output/monkeyHD.obj");
@@ -319,12 +319,12 @@ int testBuild(scene *scene, char *inputFileName) {
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,900));
-    
+	
 	transformMeshes(scene);
 	computeBoundingVolumes(scene);
 	
-    
-    //FIXME: TEMPORARY
+	
+	//FIXME: TEMPORARY
 	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+15) * sizeof(vector)));
 	//Hard coded vertices for this test
 	//Vertices
@@ -348,11 +348,11 @@ int testBuild(scene *scene, char *inputFileName) {
 	vertexArray[vertexCount + 12] = vectorWithPos(1000,450,1100);
 	vertexArray[vertexCount + 13] = vectorWithPos(1300,700,1100);
 	vertexArray[vertexCount + 14] = vectorWithPos(1000,700,1300);
-    
+	
 	//FIXME: TEMPORARY polygons
-    scene->customPolyCount = 13;
-    scene->customPolys = (poly*)calloc(scene->customPolyCount, sizeof(poly));
-    
+	scene->customPolyCount = 13;
+	scene->customPolys = (poly*)calloc(scene->customPolyCount, sizeof(poly));
+	
 	//FLOOR
 	scene->customPolys[0].vertexCount = MAX_VERTEX_COUNT;
 	scene->customPolys[0].vertexIndex[0] = vertexCount + 0;
@@ -431,17 +431,17 @@ int testBuild(scene *scene, char *inputFileName) {
 	scene->customPolys[12].vertexIndex[1] = vertexCount + 5;
 	scene->customPolys[12].vertexIndex[2] = vertexCount + 7;
 	scene->customPolys[12].materialIndex = 2;
-    
-	//LIGHTS
-    addLight(scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));
-    addLight(scene, newLight(vectorWithPos(760 , 500, 0),    42, colorWithValues(0.2, 0.2, 0.2, 0.0)));
-    addLight(scene, newLight(vectorWithPos(640 , 350, 600), 200, colorWithValues(6.0, 0.0, 0.0, 0.0)));
-    addLight(scene, newLight(vectorWithPos(940 , 350, 600), 200, colorWithValues(0.0, 6.0, 0.0, 0.0)));
-    addLight(scene, newLight(vectorWithPos(1240, 350, 600), 200, colorWithValues(0.0, 0.0, 6.0, 0.0)));
 	
-    addSphere(scene, newSphere(vectorWithPos(650, 450, 1650), 150, 5));
-    addSphere(scene, newSphere(vectorWithPos(950, 350, 1500), 50, 6));
-    addSphere(scene, newSphere(vectorWithPos(1100, 350, 1500), 50, 8));
+	//LIGHTS
+	addLight(scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));
+	addLight(scene, newLight(vectorWithPos(760 , 500, 0),    42, colorWithValues(0.2, 0.2, 0.2, 0.0)));
+	addLight(scene, newLight(vectorWithPos(640 , 350, 600), 200, colorWithValues(6.0, 0.0, 0.0, 0.0)));
+	addLight(scene, newLight(vectorWithPos(940 , 350, 600), 200, colorWithValues(0.0, 6.0, 0.0, 0.0)));
+	addLight(scene, newLight(vectorWithPos(1240, 350, 600), 200, colorWithValues(0.0, 0.0, 6.0, 0.0)));
+	
+	addSphere(scene, newSphere(vectorWithPos(650, 450, 1650), 150, 5));
+	addSphere(scene, newSphere(vectorWithPos(950, 350, 1500), 50, 6));
+	addSphere(scene, newSphere(vectorWithPos(1100, 350, 1500), 50, 8));
 	
 	if (TOKEN_DEBUG_ENABLED) {
 		return 4; //Debug mode - Won't render anything
@@ -454,24 +454,24 @@ int testBuild(scene *scene, char *inputFileName) {
 	int materialCount = 0, lightCount = 0, polyCount = 0, sphereCount = 0, objCount = 0;
 	FILE *inputFile = fopen(inputFileName, "r");
 	if (!inputFile)
-		return -1;
+ return -1;
 	char line[255];
 	while (fgets(line, sizeof(line), inputFile) != NULL) {
-		if (strcmp(trimSpaces(line), "material(){\n") == 0) {
-			materialCount++;
-		}
-		if (strcmp(trimSpaces(line), "light(){\n") == 0) {
-			lightCount++;
-		}
-		if (strcmp(trimSpaces(line), "sphere(){\n") == 0) {
-			sphereCount++;
-		}
-		if (strcmp(trimSpaces(line), "poly(){\n") == 0) {
-			polyCount++;
-		}
-		if (strcmp(trimSpaces(line), "OBJ(){\n") == 0) {
-			objCount++;
-		}
+ if (strcmp(trimSpaces(line), "material(){\n") == 0) {
+ materialCount++;
+ }
+ if (strcmp(trimSpaces(line), "light(){\n") == 0) {
+ lightCount++;
+ }
+ if (strcmp(trimSpaces(line), "sphere(){\n") == 0) {
+ sphereCount++;
+ }
+ if (strcmp(trimSpaces(line), "poly(){\n") == 0) {
+ polyCount++;
+ }
+ if (strcmp(trimSpaces(line), "OBJ(){\n") == 0) {
+ objCount++;
+ }
 	}
 	fclose(inputFile);
 	scene->materials = (material *)calloc(materialCount, sizeof(material));
@@ -485,7 +485,7 @@ int testBuild(scene *scene, char *inputFileName) {
 	scene->polygonAmount = polyCount;
 	scene->objCount = objCount;
 	return 0;
-}*/
+ }*/
 
 //Removes tabs and spaces from a char byte array, terminates it and returns it.
 char *trimSpaces(char *inputLine) {

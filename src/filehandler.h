@@ -13,14 +13,14 @@
 #include "renderer.h"
 
 typedef enum {
-    loadModeNormal,
-    loadModeTarga
+	loadModeNormal,
+	loadModeTarga
 }loadMode;
 
 typedef enum {
-    saveModeNormal,
-    saveModeTarga,
-    saveModeNone
+	saveModeNormal,
+	saveModeTarga,
+	saveModeNone
 }saveMode;
 
 //Prints the file size of a given file to the console in a user-readable format
