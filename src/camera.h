@@ -31,9 +31,6 @@ typedef struct {
     double focalLength;
     double aperture;
 	vector pos;
-	vector lookAt;
-	vector up;
-	vector u, v, w;
     
 	unsigned char *imgData;
 	bool areaLights;
@@ -54,5 +51,8 @@ typedef struct {
 	int tileWidth;
 	int tileHeight;
 }camera;
+
+//Calculate camera view plane
+void calculateUVW(camera *camera);
 
 #endif /* defined(__C_Ray__camera__) */

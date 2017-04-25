@@ -65,11 +65,6 @@ void transformMesh(crayOBJ *object) {
 	}
 }
 
-camera transformCamera(camera camera, matrixTransform transform) {
-	//TODO
-	return camera;
-}
-
 sphere transformSphere(sphere inputSphere, matrixTransform transform) {
 	//TODO
 	return inputSphere;

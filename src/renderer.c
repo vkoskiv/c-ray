@@ -526,6 +526,14 @@ color rayTrace(lightRay *incidentRay, scene *worldScene) {
 	return output;
 }
 
+//Compute view direction transforms
+void transformCameraView(vector *direction) {
+	for (int i = 1; i < mainRenderer.worldScene->camTransformCount; i++) {
+		transformVector(direction, &mainRenderer.worldScene->camTransforms[i]);
+		direction->isTransformed = false;
+	}
+}
+
 /**
  A render thread
 
@@ -567,11 +575,14 @@ void *renderThread(void *arg) {
 					vector direction = {(x - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
 						(y - 0.5f * mainRenderer.worldScene->camera->height) / focalLength, 1.0f};
 					
-					double normal = scalarProduct(&direction, &direction);
-					if (normal == 0.0f)
-						break;
-					direction = vectorScale(invsqrtf(normal), &direction);
-					vector startPos = getRandomVecOnPlane(mainRenderer.worldScene->camera->pos, mainRenderer.worldScene->camera->focalLength);
+					direction = normalizeVector(&direction);
+					vector startPos = mainRenderer.worldScene->camera->pos;
+					
+					//And now compute transforms for position
+					transformVector(&startPos, &mainRenderer.worldScene->camTransforms[0]);
+					//...and compute rotation transforms for camera orientation
+					transformCameraView(&direction);
+					//Easy!
 					
 					//Set up ray
 					incidentRay.start = startPos;
@@ -616,3 +627,20 @@ void *renderThread(void *arg) {
 	pthread_exit((void*) arg);
 #endif
 }
+
+/*
+ Vector RayTracer::refractVector(const Vector& normal, const Vector& incident,
+ double n1, double n2) {
+ double n = n1 / n2;
+ double cosI = -normal.dot(incident);
+ double sinT2 = n * n * (1.0 - cosI * cosI);
+ 
+ if (sinT2 > 1.0) {
+ cerr << "Bad refraction vector!" << endl;
+ exit(EXIT_FAILURE);
+ }
+ 
+ double cosT = sqrt(1.0 - sinT2);
+ return incident * n + normal * (n * cosI - cosT);
+ }
+ */

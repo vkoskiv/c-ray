@@ -37,6 +37,9 @@ typedef struct {
     //Currently only one camera supported
 	camera *camera;
     int cameraCount;
+	//FIXME: Store these in camera
+	matrixTransform *camTransforms;
+	int camTransformCount;
     
     //FIXME: TEMPORARY
     poly *customPolys;

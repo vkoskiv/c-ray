@@ -69,6 +69,8 @@ matrixTransform emptyTransform();
 //Object transforms
 void transformMesh(crayOBJ *object);
 
+void transformVector(vector *vec, matrixTransform *tf); //Expose for renderer
+
 //Scene builder
 void addTransform(crayOBJ *obj, matrixTransform transform);
 

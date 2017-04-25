@@ -229,6 +229,18 @@ scene *newScene() {
     return newScene;
 }
 
+//FIXME: Move this to transforms.c
+void addCamTransform(scene *world, matrixTransform transform) {
+	if (world->camTransformCount == 0) {
+		world->camTransforms = (matrixTransform*)calloc(1, sizeof(matrixTransform));
+	} else {
+		world->camTransforms = (matrixTransform*)realloc(world->camTransforms, (world->camTransformCount + 1) * sizeof(matrixTransform));
+	}
+	
+	world->camTransforms[world->camTransformCount] = transform;
+	world->camTransformCount++;
+}
+
 int testBuild(scene *scene, char *inputFileName) {
 	printf("Starting SceneBuilder V0.5\n\n");
     
@@ -254,7 +266,7 @@ int testBuild(scene *scene, char *inputFileName) {
 	cam->isBorderless = false;
 	cam->         FOV = 80.0;
 	cam-> focalLength = 0;
-	cam-> sampleCount = 45;
+	cam-> sampleCount = 20;
 	cam->  frameCount = 1;
 	cam->     bounces = 3;
 	cam->    contrast = 0.7;
@@ -262,10 +274,14 @@ int testBuild(scene *scene, char *inputFileName) {
 	cam->    fileType = png;
 	cam->  areaLights = true;
 	cam-> aprxShadows = false; //Approximate mesh shadows, true is faster but results in inaccurate shadows
-	cam->         pos = vectorWithPos(940, 480, 0);
 	cam->  tileWidth  = 64;
 	cam->  tileHeight = 64;
 	cam->   tileOrder = renderOrderFromMiddle;
+	cam->pos = vectorWithPos(0, 0, 0); //Don't change
+	
+	addCamTransform(scene, newTransformTranslate(940, 480, 0)); //Set pos here
+	addCamTransform(scene, newTransformRotateZ(14));//And add as many rotations as you want!
+	addCamTransform(scene, newTransformRotateZ(-14)); //Don't scale or translate!
 	
 	scene->ambientColor = (color*)calloc(1, sizeof(color));
 	scene->ambientColor->  red = 0.4;
