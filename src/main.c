@@ -14,11 +14,22 @@
  camera orientation
  */
 
+#include "includes.h"
 #include "main.h"
+
+#include "camera.h"
+#include "errorhandler.h"
+#include "filehandler.h"
+#include "renderer.h"
+#include "scene.h"
+#include "ui.h"
 
 int getFileSize(char *fileName);
 int getSysCores();
 void freeMem();
+
+extern struct renderer mainRenderer;
+extern struct poly *polygonArray;
 
 int main(int argc, char *argv[]) {
 	
@@ -93,7 +104,7 @@ int main(int argc, char *argv[]) {
 	int t;
 	
 	//Alloc memory for pthread_create() args
-	mainRenderer.renderThreadInfo = (threadInfo*)calloc(mainRenderer.threadCount, sizeof(threadInfo));
+	mainRenderer.renderThreadInfo = (struct threadInfo*)calloc(mainRenderer.threadCount, sizeof(struct threadInfo));
 	if (mainRenderer.renderThreadInfo == NULL) {
 		logHandler(threadMallocFailed);
 		return -1;

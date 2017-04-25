@@ -6,14 +6,18 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "includes.h"
 #include "filehandler.h"
+
+#include "camera.h"
+#include "scene.h"
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
 //Prototypes for internal functions
 int getFileSize(char *fileName);
 
-void saveBmpFromArray(const char *filename, scene *worldScene) {
+void saveBmpFromArray(const char *filename, struct scene *worldScene) {
 	int i;
 	int error;
 	FILE *f;
@@ -93,7 +97,7 @@ void printFileSize(char *fileName) {
 	
 }
 
-void writeImage(scene *worldScene) {
+void writeImage(struct scene *worldScene) {
 	//Save image data to a file
 	int bufSize;
 	if (worldScene->camera->currentFrame < 100) {
@@ -127,7 +131,7 @@ int getFileSize(char *fileName) {
 	return size;
 }
 
-int writeTarga(renderer *renderer, char *fileName) {
+int writeTarga(struct renderer *renderer, char *fileName) {
 	//We can just write the renderer to memory
 	FILE *file;
 	file = fopen(fileName, "wb");
@@ -136,10 +140,10 @@ int writeTarga(renderer *renderer, char *fileName) {
 	return 0;
 }
 
-renderer *readTarga(char *fileName) {
+struct renderer *readTarga(char *fileName) {
 	FILE *file;
 	file = fopen(fileName, "r");
-	renderer *renderer = malloc(sizeof(renderer));
+    struct renderer *renderer = malloc(sizeof(renderer));
 	fread(&renderer, sizeof(renderer), 1, file);
 	return renderer;
 }

@@ -6,16 +6,17 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "includes.h"
 #include "sphere.h"
 
-sphere newSphere(vector pos, float radius, int materialIndex) {
-	return (sphere){pos, radius, materialIndex};
+struct sphere newSphere(struct vector pos, float radius, int materialIndex) {
+	return (struct sphere){pos, radius, materialIndex};
 }
 
 //Just check for intersection, nothing else.
-bool rayIntersectsWithSphereFast(lightRay *ray, sphere *sphere) {
+bool rayIntersectsWithSphereFast(struct lightRay *ray, struct sphere *sphere) {
 	float A = scalarProduct(&ray->direction, &ray->direction);
-	vector distance = subtractVectors(&ray->start, &sphere->pos);
+    struct vector distance = subtractVectors(&ray->start, &sphere->pos);
 	float B = 2 * scalarProduct(&ray->direction, &distance);
 	float C = scalarProduct(&distance, &distance) - (sphere->radius * sphere->radius);
 	float trigDiscriminant = B * B - 4 * A * C;
@@ -27,14 +28,14 @@ bool rayIntersectsWithSphereFast(lightRay *ray, sphere *sphere) {
 }
 
 //Calculates intersection with a sphere and a light ray
-bool rayIntersectsWithSphere(lightRay *ray, sphere *sphere, double *t) {
+bool rayIntersectsWithSphere(struct lightRay *ray, struct sphere *sphere, double *t) {
 	bool intersects = false;
 	
 	//Vector dot product of the direction
 	float A = scalarProduct(&ray->direction, &ray->direction);
 	
 	//Distance between start of a lightRay and the sphere position
-	vector distance = subtractVectors(&ray->start, &sphere->pos);
+    struct vector distance = subtractVectors(&ray->start, &sphere->pos);
 	
 	float B = 2 * scalarProduct(&ray->direction, &distance);
 	

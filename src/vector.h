@@ -8,10 +8,8 @@
 
 #pragma once
 
-#include "includes.h"
-
 //Vector
-typedef struct {
+struct vector {
 	double x, y, z;
 	//Polygons can share vertexes, so when we perform transforms
 	//We want to avoid transforming a vector multiple times
@@ -19,58 +17,58 @@ typedef struct {
 	//This is reset after each transform, so all vertexes SHOULD
 	//have this as FALSE when render starts.
 	bool isTransformed;
-}vector;
+};
 
 //Main vector arrays
-extern vector *vertexArray;
+extern struct vector *vertexArray;
 extern int vertexCount;
 
-extern vector *normalArray;
+extern struct vector *normalArray;
 extern int normalCount;
 
-extern vector *textureArray;
+extern struct vector *textureArray;
 extern int textureCount;
 
-typedef enum {
+enum type {
 	rayTypeIncident,
 	rayTypeReflected,
 	rayTypeRefracted,
 	rayTypeShadow
-}type;
+};
 
 //Simulated light ray
-typedef struct {
-	vector start;
-	vector direction;
-	type rayType;
-}lightRay;
+struct lightRay {
+    struct vector start;
+    struct vector direction;
+	enum type rayType;
+};
 
 //Return a vector with given coordinates
-vector vectorWithPos(double x, double y, double z);
+struct vector vectorWithPos(double x, double y, double z);
 
 //Add two vectors and return the resulting vector
-vector addVectors(vector *v1, vector *v2);
+struct vector addVectors(struct vector *v1, struct vector *v2);
 
 //Subtract two vectors and return the resulting vector
-vector subtractVectors(vector *v1, vector *v2);
+struct vector subtractVectors(struct vector *v1, struct vector *v2);
 
 //Multiply two vectors and return the dot product
-float scalarProduct(vector *v1, vector *v2);
+float scalarProduct(struct vector *v1, struct vector *v2);
 
 //Multiply a vector by a coefficient and return the resulting vector
-vector vectorScale(double c, vector *v);
+struct vector vectorScale(double c, struct vector *v);
 
 //Calculate the cross product of two vectors and return the resulting vector
-vector vectorCross(vector *v1, vector *v2);
+struct vector vectorCross(struct vector *v1, struct vector *v2);
 
 //Calculate min of 2 vectors
-vector minVector(vector *v1, vector *v2);
+struct vector minVector(struct vector *v1, struct vector *v2);
 
 //Calculate max of 2 vectors
-vector maxVector(vector *v1, vector *v2);
+struct vector maxVector(struct vector *v1, struct vector *v2);
 
 //Calculate length of vector
-float vectorLength(vector *v);
+float vectorLength(struct vector *v);
 
 //Normalize a vector
-vector normalizeVector(vector *v);
+struct vector normalizeVector(struct vector *v);

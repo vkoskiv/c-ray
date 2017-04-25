@@ -8,9 +8,6 @@
 
 #pragma once
 
-#include "includes.h"
-#include "renderer.h"
-
 typedef enum {
 	loadModeNormal,
 	loadModeTarga
@@ -26,4 +23,4 @@ typedef enum {
 void printFileSize(char *fileName);
 
 //Writes an outputfile and returns the path it was written to
-void writeImage(scene *worldScene);
+void writeImage(struct scene *worldScene);

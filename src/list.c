@@ -1,7 +1,5 @@
+#include "includes.h"
 #include "list.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 // internal helper functions
 char list_is_full(list *listo)

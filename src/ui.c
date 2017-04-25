@@ -6,11 +6,18 @@
 //  Copyright © 2017 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "includes.h"
 #include "ui.h"
 
+#include "camera.h"
+#include "renderer.h"
+#include "scene.h"
+
 #ifdef UI_ENABLED
-display mainDisplay;
+struct display mainDisplay;
 #endif
+
+extern struct renderer mainRenderer;
 
 //Signal handling
 void (*signal(int signo, void (*func )(int)))(int);
@@ -127,7 +134,7 @@ void drawPixel(int x, int y, bool on) {
 	}
 }
 
-void drawFrame(renderTile tile, bool on) {
+void drawFrame(struct renderTile tile, bool on) {
 	//top left
 	for (int i = 1; i < 7; i++) {
 		drawPixel(tile.startX+i, tile.startY+1, on);

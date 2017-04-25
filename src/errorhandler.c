@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "includes.h"
 #include "errorhandler.h"
 
 //Prototype

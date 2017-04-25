@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include "includes.h"
-
 typedef enum {
 	threadMallocFailed,
 	sceneBuildFailed,

@@ -7,43 +7,43 @@
 //
 
 #pragma once
-#include "includes.h"
-#include "errorhandler.h"
-#include "sphere.h"
-#include "poly.h"
-#include "camera.h"
-#include "color.h"
-#include "light.h"
-#include "transforms.h"
+
+struct crayOBJ;
+struct light;
+struct material;
+struct sphere;
+struct camera;
+struct matrixTransform;
+struct poly;
 
 //World
-typedef struct {
-	color *ambientColor;
+struct scene {
+	struct color *ambientColor;
 	
-	crayOBJ *objs;
+    struct crayOBJ *objs;
 	int objCount;
 	
-	light *lights;
+    struct light *lights;
 	int lightCount;
 	
-	material *materials;
+    struct material *materials;
 	int materialCount;
 	
-	sphere *spheres;
+    struct sphere *spheres;
 	int sphereCount;
 	
 	//Currently only one camera supported
-	camera *camera;
+    struct camera *camera;
 	int cameraCount;
 	//FIXME: Store these in camera
-	matrixTransform *camTransforms;
+    struct matrixTransform *camTransforms;
 	int camTransformCount;
 	
 	//FIXME: TEMPORARY
-	poly *customPolys;
+    struct poly *customPolys;
 	int customPolyCount;
 	
-}scene;
+};
 
-int testBuild(scene *scene, char *inputFileName);
-scene *newScene();
+int testBuild(struct scene *scene, char *inputFileName);
+struct scene *newScene();

@@ -6,7 +6,13 @@
 //  Copyright (c) 2015 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "includes.h"
 #include "scene.h"
+
+#include "camera.h"
+#include "light.h"
+#include "obj_parser.h"
+#include "poly.h"
 
 #define TOKEN_DEBUG_ENABLED false
 
@@ -17,10 +23,10 @@
 //Trims spaces and tabs from a char array
 char *trimSpaces(char *inputLine);
 //Parses a scene file and allocates memory accordingly
-int allocMemory(scene *scene, char *inputFileName);
+int allocMemory(struct scene *scene, char *inputFileName);
 
-vector vectorFromObj(obj_vector *vec) {
-	vector vector;
+struct vector vectorFromObj(struct obj_vector *vec) {
+    struct vector vector;
 	vector.x = vec->e[0];
 	vector.y = vec->e[1];
 	vector.z = vec->e[2];
@@ -28,8 +34,8 @@ vector vectorFromObj(obj_vector *vec) {
 	return vector;
 }
 
-poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex) {
-	poly polygon;
+struct poly polyFromObj(struct obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex) {
+    struct poly polygon;
 	polygon.vertexCount = face->vertex_count;
 	polygon.materialIndex = face->material_index;
 	for (int i = 0; i < polygon.vertexCount; i++)
@@ -41,8 +47,8 @@ poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int
 	return polygon;
 }
 
-material *materialFromObj(obj_material *mat) {
-	material *newMat = (material*)calloc(1, sizeof(material));
+struct material *materialFromObj(struct obj_material *mat) {
+    struct material *newMat = (struct material*)calloc(1, sizeof(struct material));
 	newMat->diffuse.red   = mat->diff[0];
 	newMat->diffuse.green = mat->diff[1];
 	newMat->diffuse.blue  = mat->diff[2];
@@ -53,19 +59,19 @@ material *materialFromObj(obj_material *mat) {
 //Compute the bounding volume for a given OBJ and save it to that OBJ.
 //This is used to optimize rendering, where we only loop thru all polygons
 //in an OBJ if we know the ray has entered its' bounding volume, a sphere in this case
-void computeBoundingVolume(crayOBJ *object) {
-	vector minPoint = vertexArray[object->firstVectorIndex];
-	vector maxPoint = vertexArray[object->firstVectorIndex];
+void computeBoundingVolume(struct crayOBJ *object) {
+    struct vector minPoint = vertexArray[object->firstVectorIndex];
+    struct vector maxPoint = vertexArray[object->firstVectorIndex];
 	for (int i = object->firstVectorIndex + 1; i < (object->firstVectorIndex + object->vertexCount); i++) {
 		minPoint = minVector(&minPoint, &vertexArray[i]);
 		maxPoint = maxVector(&maxPoint, &vertexArray[i]);
 	}
-	vector center = vectorWithPos(0.5 * (minPoint.x + maxPoint.x), 0.5 * (minPoint.y + maxPoint.y), 0.5 * (minPoint.z + maxPoint.z));
+    struct vector center = vectorWithPos(0.5 * (minPoint.x + maxPoint.x), 0.5 * (minPoint.y + maxPoint.y), 0.5 * (minPoint.z + maxPoint.z));
 	
 	float maxDistance = 0.0;
 	
 	for (int i = object->firstVectorIndex + 1; i < (object->firstVectorIndex + object->vertexCount); i++) {
-		vector fromCenter = subtractVectors(&vertexArray[i], &center);
+        struct vector fromCenter = subtractVectors(&vertexArray[i], &center);
 		maxDistance = max(maxDistance, pow(vectorLength(&fromCenter), 2));
 	}
 	float sphereRadius = sqrtf(maxDistance);
@@ -89,9 +95,9 @@ char *getFileName(char *input) {
 	return fn;
 }
 
-void addOBJ(scene *sceneData, char *inputFileName) {
+void addOBJ(struct scene *sceneData, char *inputFileName) {
 	printf("Loading OBJ %s\n", inputFileName);
-	obj_scene_data data;
+    struct obj_scene_data data;
 	if (parse_obj_scene(&data, inputFileName) == 0) {
 		printf("OBJ %s file not found!\n", getFileName(inputFileName));
 		return;
@@ -99,7 +105,7 @@ void addOBJ(scene *sceneData, char *inputFileName) {
 	printf("OBJ loaded, converting\n");
 	
 	//Create crayOBJ to keep track of objs
-	sceneData->objs = (crayOBJ*)realloc(sceneData->objs, (sceneData->objCount + 1) * sizeof(crayOBJ));
+	sceneData->objs = (struct crayOBJ*)realloc(sceneData->objs, (sceneData->objCount + 1) * sizeof(struct crayOBJ));
 	//Vertex data
 	sceneData->objs[sceneData->objCount].firstVectorIndex = vertexCount;
 	sceneData->objs[sceneData->objCount].vertexCount = data.vertex_count;
@@ -117,7 +123,7 @@ void addOBJ(scene *sceneData, char *inputFileName) {
 	sceneData->objs[sceneData->objCount].boundingVolume.radius = 0;
 	//Transforms init
 	sceneData->objs[sceneData->objCount].transformCount = 0;
-	sceneData->objs[sceneData->objCount].transforms = (matrixTransform*)malloc(sizeof(matrixTransform));
+	sceneData->objs[sceneData->objCount].transforms = (struct matrixTransform*)malloc(sizeof(struct matrixTransform));
 	
 	//Set name
 	sceneData->objs[sceneData->objCount].objName = getFileName(inputFileName);
@@ -131,26 +137,26 @@ void addOBJ(scene *sceneData, char *inputFileName) {
 	//Data loaded, now convert everything
 	//Convert vectors
 	printf("Converting vectors\n");
-	vertexArray = (vector*)realloc(vertexArray, vertexCount * sizeof(vector));
+	vertexArray = (struct vector*)realloc(vertexArray, vertexCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_count; i++) {
 		vertexArray[sceneData->objs[sceneData->objCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
 	}
 	
 	//Convert normals
 	printf("Converting normals\n");
-	normalArray = (vector*)realloc(normalArray, normalCount * sizeof(vector));
+	normalArray = (struct vector*)realloc(normalArray, normalCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_normal_count; i++) {
 		normalArray[sceneData->objs[sceneData->objCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture vectors
 	printf("Converting texture coordinates\n");
-	textureArray = (vector*)realloc(textureArray, textureCount * sizeof(vector));
+	textureArray = (struct vector*)realloc(textureArray, textureCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_texture_count; i++) {
 		textureArray[sceneData->objs[sceneData->objCount].firstTextureIndex + i] = vectorFromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
 	printf("Converting polygons\n");
-	polygonArray = (poly*)realloc(polygonArray, polyCount * sizeof(poly));
+	polygonArray = (struct poly*)realloc(polygonArray, polyCount * sizeof(struct poly));
 	for (int i = 0; i < data.face_count; i++) {
 		polygonArray[sceneData->objs[sceneData->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
 																							sceneData->objs[sceneData->objCount].firstVectorIndex,
@@ -162,11 +168,11 @@ void addOBJ(scene *sceneData, char *inputFileName) {
 	//Parse materials
 	if (data.material_count == 0) {
 		//No material, set to something obscene to make it noticeable
-		sceneData->objs[sceneData->objCount].material = (material*)calloc(1, sizeof(material));
+		sceneData->objs[sceneData->objCount].material = (struct material*)calloc(1, sizeof(struct material));
 		*sceneData->objs[sceneData->objCount].material = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
 	} else {
 		//Material found, set it
-		sceneData->objs[sceneData->objCount].material = (material*)calloc(1, sizeof(material));
+		sceneData->objs[sceneData->objCount].material = (struct material*)calloc(1, sizeof(struct material));
 		sceneData->objs[sceneData->objCount].material = materialFromObj(data.material_list[0]);
 	}
 	
@@ -179,32 +185,32 @@ void addOBJ(scene *sceneData, char *inputFileName) {
 }
 
 //FIXME: Temporary
-void overrideMaterial(scene *world, crayOBJ *obj, int materialIndex) {
+void overrideMaterial(struct scene *world, struct crayOBJ *obj, int materialIndex) {
 	obj->material = &world->materials[materialIndex];
 }
 
 //In the future, maybe just pass a list and size and copy at once to save time (large counts)
-void addSphere(scene *scene, sphere newSphere) {
-	scene->spheres = (sphere*)realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(sphere));
+void addSphere(struct scene *scene, struct sphere newSphere) {
+	scene->spheres = (struct sphere*)realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(struct sphere));
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
-void addMaterial(scene *scene, material newMaterial) {
-	scene->materials = (material*)realloc(scene->materials, (scene->materialCount + 1) * sizeof(material));
+void addMaterial(struct scene *scene, struct material newMaterial) {
+	scene->materials = (struct material*)realloc(scene->materials, (scene->materialCount + 1) * sizeof(struct material));
 	scene->materials[scene->materialCount++] = newMaterial;
 }
 
-void addLight(scene *scene, light newLight) {
-	scene->lights = (light*)realloc(scene->lights, (scene->lightCount + 1) * sizeof(light));
+void addLight(struct scene *scene, struct light newLight) {
+	scene->lights = (struct light*)realloc(scene->lights, (scene->lightCount + 1) * sizeof(struct light));
 	scene->lights[scene->lightCount++] = newLight;
 }
 
-void addCamera(scene *scene, camera *newCamera) {
-	scene->camera = (camera*)realloc(scene->camera, (scene->cameraCount + 1) * sizeof(camera));
+void addCamera(struct scene *scene, struct camera *newCamera) {
+	scene->camera = (struct camera*)realloc(scene->camera, (scene->cameraCount + 1) * sizeof(struct camera));
 	scene->camera[scene->cameraCount++] = *newCamera;
 }
 
-void transformMeshes(scene *scene) {
+void transformMeshes(struct scene *scene) {
 	printf("Running transforms...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
 		printf("Transforming %s...\n", scene->objs[i].objName);
@@ -214,7 +220,7 @@ void transformMeshes(scene *scene) {
 	printf("Transforms done!\n");
 }
 
-void computeBoundingVolumes(scene *scene) {
+void computeBoundingVolumes(struct scene *scene) {
 	printf("\nComputing bounding volumes...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
 		computeBoundingVolume(&scene->objs[i]);
@@ -222,26 +228,26 @@ void computeBoundingVolumes(scene *scene) {
 	printf("\n");
 }
 
-scene *newScene() {
-	scene *newScene;
-	newScene = (scene*)calloc(1, sizeof(scene));
+struct scene *newScene() {
+    struct scene *newScene;
+	newScene = (struct scene*)calloc(1, sizeof(struct scene));
 	
 	return newScene;
 }
 
 //FIXME: Move this to transforms.c
-void addCamTransform(scene *world, matrixTransform transform) {
+void addCamTransform(struct scene *world, struct matrixTransform transform) {
 	if (world->camTransformCount == 0) {
-		world->camTransforms = (matrixTransform*)calloc(1, sizeof(matrixTransform));
+		world->camTransforms = (struct matrixTransform*)calloc(1, sizeof(struct matrixTransform));
 	} else {
-		world->camTransforms = (matrixTransform*)realloc(world->camTransforms, (world->camTransformCount + 1) * sizeof(matrixTransform));
+		world->camTransforms = (struct matrixTransform*)realloc(world->camTransforms, (world->camTransformCount + 1) * sizeof(struct matrixTransform));
 	}
 	
 	world->camTransforms[world->camTransformCount] = transform;
 	world->camTransformCount++;
 }
 
-int testBuild(scene *scene, char *inputFileName) {
+int testBuild(struct scene *scene, char *inputFileName) {
 	printf("Starting SceneBuilder V0.5\n\n");
 	
 	//MATERIALS
@@ -257,7 +263,7 @@ int testBuild(scene *scene, char *inputFileName) {
 	addMaterial(scene, newMaterial(colorWithValues(0.9, 0.9, 0.9, 0.0), 0.0));
 	addMaterial(scene, newMaterial(colorWithValues(1.0, 0.0, 0.0, 0.0), 0.0));
 	
-	camera *cam = (camera*)calloc(1, sizeof(camera));
+    struct camera *cam = (struct camera*)calloc(1, sizeof(struct camera));
 	//Override renderer thread count, 0 defaults to physical core count
 	cam-> threadCount = 0;
 	cam->       width = 1280;
@@ -283,7 +289,7 @@ int testBuild(scene *scene, char *inputFileName) {
 	addCamTransform(scene, newTransformRotateX(11));//And add as many rotations as you want!
 	addCamTransform(scene, newTransformRotateZ(9)); //Don't scale or translate!
 	
-	scene->ambientColor = (color*)calloc(1, sizeof(color));
+	scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
 	scene->ambientColor->  red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor-> blue = 0.6;
@@ -325,7 +331,7 @@ int testBuild(scene *scene, char *inputFileName) {
 	
 	
 	//FIXME: TEMPORARY
-	vertexArray = (vector*)realloc(vertexArray, ((vertexCount+15) * sizeof(vector)));
+	vertexArray = (struct vector*)realloc(vertexArray, ((vertexCount+15) * sizeof(struct vector)));
 	//Hard coded vertices for this test
 	//Vertices
 	//FLOOR
@@ -351,7 +357,7 @@ int testBuild(scene *scene, char *inputFileName) {
 	
 	//FIXME: TEMPORARY polygons
 	scene->customPolyCount = 13;
-	scene->customPolys = (poly*)calloc(scene->customPolyCount, sizeof(poly));
+	scene->customPolys = (struct poly*)calloc(scene->customPolyCount, sizeof(struct poly));
 	
 	//FLOOR
 	scene->customPolys[0].vertexCount = MAX_VERTEX_COUNT;

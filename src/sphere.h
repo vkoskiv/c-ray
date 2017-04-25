@@ -8,21 +8,20 @@
 
 #pragma once
 
-#include "includes.h"
-#include "vector.h"
-
 //Sphere
-typedef struct {
-	vector pos;
+struct sphere {
+	struct vector pos;
 	float radius;
 	int materialIndex;
-}sphere;
+};
+
+struct lightRay;
 
 //New sphere with given params
-sphere newSphere(vector pos, float radius, int materialIndex);
+struct sphere newSphere(struct vector pos, float radius, int materialIndex);
 
 //Calculates intersection between a light ray and a sphere
-bool rayIntersectsWithSphere(lightRay *ray, sphere *sphere, double *t);
+bool rayIntersectsWithSphere(struct lightRay *ray, struct sphere *sphere, double *t);
 
 //Just check for intersection, don't care about specifics
-bool rayIntersectsWithSphereFast(lightRay *ray, sphere *sphere);
+bool rayIntersectsWithSphereFast(struct lightRay *ray, struct sphere *sphere);

@@ -8,24 +8,22 @@
 
 #pragma once
 
-#include "includes.h"
-#include "vector.h"
-
-
-typedef struct {
+struct poly {
 	int vertexIndex[MAX_CRAY_VERTEX_COUNT];
 	int normalIndex[MAX_CRAY_VERTEX_COUNT];
 	int textureIndex[MAX_CRAY_VERTEX_COUNT];
 	int materialIndex;
 	int vertexCount;
-}poly;
+};
 
 //Main polygon array
-extern poly *polygonArray;
+extern struct poly *polygonArray;
 extern int polyCount;
 
+struct lightRay;
+
 //Calculates intersection between a light ray and a polygon object. Returns true if intersection has happened.
-bool rayIntersectsWithPolygon(lightRay *ray, poly *poly, double *result, vector *normal);
+bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, double *result, struct vector *normal);
 
 //Just check for intersection
-bool rayIntersectsWithPolygonFast(lightRay *ray, poly *poly);
+bool rayIntersectsWithPolygonFast(struct lightRay *ray, struct poly *poly);

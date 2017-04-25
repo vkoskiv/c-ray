@@ -1,5 +1,4 @@
-#ifndef __LIST_H
-#define __LIST_H
+#pragma once
 
 typedef struct
 {
@@ -26,4 +25,3 @@ void list_print_list(list *listo);
 void list_free(list *listo);
 
 void test_list();
-#endif
