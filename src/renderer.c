@@ -479,9 +479,10 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 				}
 			}
 			
-			double fakeIntersection = 20000.0f;
+			
 			for (o = 0; o < objCount; o++) {
-				if (rayIntersectsWithSphere(&bouncedRay, &worldScene->objs[o].boundingVolume, &fakeIntersection)) {
+				//Note, rayIntersectsWithSphereFast has to be used here since bounced rays may originate from within a boundingVolume
+				if (rayIntersectsWithSphereFast(&bouncedRay, &worldScene->objs[o].boundingVolume)) {
 					
 					if (worldScene->camera->aprxShadows) {
 						inShadow = true;
