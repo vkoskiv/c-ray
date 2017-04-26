@@ -16,9 +16,6 @@
 
 #define TOKEN_DEBUG_ENABLED false
 
-//FIXME: Spheres and lights don't use vertex indices yet
-//FIXME: lightSphere->pointLight, sphereAmount->sphereCount etc
-
 //Prototypes
 //Trims spaces and tabs from a char array
 char *trimSpaces(char *inputLine);
@@ -455,43 +452,6 @@ int testBuild(struct scene *scene, char *inputFileName) {
 		return 0;
 	}
 }
-
-/*int allocMemory(scene *scene, char *inputFileName) {
-	int materialCount = 0, lightCount = 0, polyCount = 0, sphereCount = 0, objCount = 0;
-	FILE *inputFile = fopen(inputFileName, "r");
-	if (!inputFile)
- return -1;
-	char line[255];
-	while (fgets(line, sizeof(line), inputFile) != NULL) {
- if (strcmp(trimSpaces(line), "material(){\n") == 0) {
- materialCount++;
- }
- if (strcmp(trimSpaces(line), "light(){\n") == 0) {
- lightCount++;
- }
- if (strcmp(trimSpaces(line), "sphere(){\n") == 0) {
- sphereCount++;
- }
- if (strcmp(trimSpaces(line), "poly(){\n") == 0) {
- polyCount++;
- }
- if (strcmp(trimSpaces(line), "OBJ(){\n") == 0) {
- objCount++;
- }
-	}
-	fclose(inputFile);
-	scene->materials = (material *)calloc(materialCount, sizeof(material));
-	scene->lights = (light *)calloc(lightCount, sizeof(light));
-	scene->spheres = (sphere*)calloc(sphereCount, sizeof(sphere));
-	//scene->polys = (poly*)calloc(polyCount, sizeof(poly));
-	
-	scene->materialAmount = materialCount;
-	scene->lightAmount = lightCount;
-	scene->sphereAmount = sphereCount;
-	scene->polygonAmount = polyCount;
-	scene->objCount = objCount;
-	return 0;
- }*/
 
 //Removes tabs and spaces from a char byte array, terminates it and returns it.
 char *trimSpaces(char *inputLine) {
