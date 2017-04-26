@@ -244,6 +244,16 @@ void addCamTransform(struct scene *world, struct matrixTransform transform) {
 	world->camTransformCount++;
 }
 
+void printSceneStats(struct scene *scene) {
+	printf("SceneBuilder done!\n");
+	printf("Totals: %i vectors, %i normals, %i polygons, %i spheres and %i lights\n\n",
+		   vertexCount,
+		   normalCount,
+		   polyCount,
+		   scene->sphereCount,
+		   scene->lightCount);
+}
+
 int testBuild(struct scene *scene, char *inputFileName) {
 	printf("Starting SceneBuilder V0.5\n\n");
 	
@@ -269,7 +279,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam->isBorderless = false;
 	cam->         FOV = 80.0;
 	cam-> focalLength = 0;
-	cam-> sampleCount = 25;
+	cam-> sampleCount = 10;
 	cam->  frameCount = 1;
 	cam->     bounces = 3;
 	cam->    contrast = 0.7;
@@ -445,6 +455,8 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	addSphere(scene, newSphere(vectorWithPos(650, 450, 1650), 150, 5));
 	addSphere(scene, newSphere(vectorWithPos(950, 350, 1500), 50, 6));
 	addSphere(scene, newSphere(vectorWithPos(1100, 350, 1500), 50, 8));
+	
+	printSceneStats(scene);
 	
 	if (TOKEN_DEBUG_ENABLED) {
 		return 4; //Debug mode - Won't render anything
