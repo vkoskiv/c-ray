@@ -40,11 +40,11 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
 	polygon.materialIndex = face->material_index;
 	for (int i = 0; i < polygon.vertexCount; i++)
 		polygon.vertexIndex[i] = firstVertexIndex + face->vertex_index[i];
-		for (int i = 0; i < polygon.vertexCount; i++)
-			polygon.normalIndex[i] = firstNormalIndex + face->normal_index[i];
-			for (int i = 0; i < polygon.vertexCount; i++)
-				polygon.textureIndex[i] = firstTextureIndex + face->texture_index[i];
-				return polygon;
+	for (int i = 0; i < polygon.vertexCount; i++)
+		polygon.normalIndex[i] = firstNormalIndex + face->normal_index[i];
+	for (int i = 0; i < polygon.vertexCount; i++)
+		polygon.textureIndex[i] = firstTextureIndex + face->texture_index[i];
+	return polygon;
 }
 
 struct material *materialFromObj(obj_material *mat) {
