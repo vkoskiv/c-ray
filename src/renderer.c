@@ -98,6 +98,7 @@ void quantizeImage(struct scene *worldScene) {
 			
 			tile->completedSamples = 1;
 			tile->isRendering = false;
+			tile->tileNum = mainRenderer.tileCount;
 			
 			mainRenderer.tileCount++;
 		}
@@ -541,6 +542,22 @@ void transformCameraView(struct vector *direction) {
 	}
 }
 
+void printRunningAverage(const time_t avgTime, int remainingTileCount) {
+	time_t remainingTime = remainingTileCount * avgTime;
+	//First print avg tile time
+	printf("Avg tile time is: %li min (%li sec)", avgTime / 60, avgTime);
+	printf(", render time remaining: %li min (%li sec)\n", remainingTime / 60, remainingTime);
+}
+
+void computeTimeAverage(struct renderTile tile) {
+	mainRenderer.avgTileTime = mainRenderer.avgTileTime * (mainRenderer.timeSampleCount - 1);
+	mainRenderer.avgTileTime += difftime(tile.stop, tile.start);
+	mainRenderer.avgTileTime = mainRenderer.avgTileTime / mainRenderer.timeSampleCount;
+	mainRenderer.timeSampleCount++;
+	int remainingTileCount = mainRenderer.tileCount - mainRenderer.renderedTileCount;
+	printRunningAverage(mainRenderer.avgTileTime, remainingTileCount);
+}
+
 /**
  A render thread
  
@@ -554,16 +571,30 @@ DWORD WINAPI renderThread(LPVOID arg) {
 #endif
 		struct lightRay incidentRay;
 		int x,y;
-		
+		bool first = true;
 		struct threadInfo *tinfo = (struct threadInfo*)arg;
 		
-		struct renderTile tile;
-		tile.tileNum = 0;
+		//First time setup for each thread
+		struct renderTile tile = getTile();
+		time(&tile.start);
+		
 		while (!renderTilesEmpty()) {
 			x = 0; y = 0;
-			//FIXME: First tile on first thread doesn't show frame, probably because of this.
-			mainRenderer.renderTiles[tile.tileNum].isRendering = false;
-			tile = getTile();
+			
+			if (first) {
+				//This is the first round, don't stop a previous tile
+				first = false;
+			} else {
+				//Not first tile, deal with accordingly
+				//Stop current tile
+				mainRenderer.renderTiles[tile.tileNum].isRendering = false;
+				time(&tile.stop);
+				computeTimeAverage(tile);
+				
+				tile = getTile();
+				time(&tile.start);
+			}
+			
 			printf("Started tile %i/%i\r", mainRenderer.renderedTileCount, mainRenderer.tileCount);
 			while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
 				for (y = tile.endY; y > tile.startY; y--) {

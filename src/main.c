@@ -51,6 +51,8 @@ int main(int argc, char *argv[]) {
 	mainRenderer.threadCount = getSysCores();
 	mainRenderer.shouldSave = true;
 	mainRenderer.isRendering = false;
+	mainRenderer.avgTileTime = (time_t)1;
+	mainRenderer.timeSampleCount = 1;
 	
 	mainRenderer.worldScene = newScene();
 	

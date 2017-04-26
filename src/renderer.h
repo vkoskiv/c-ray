@@ -30,6 +30,7 @@ struct renderTile {
 	int completedSamples;
 	bool isRendering;
 	int tileNum;
+	time_t start, stop;
 };
 
 struct renderer {
@@ -48,6 +49,8 @@ struct renderer {
 	bool shouldSave;
 	bool isRendering;
 	bool renderAborted;
+	time_t avgTileTime;
+	int timeSampleCount;
 };
 
 //Renderer
