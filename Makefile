@@ -28,7 +28,7 @@ OBJECTS := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 rm = rm -f
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
-	@$(LINKER) $@ $(LFLAGS) $(OBJECTS) -lm
+	@$(LINKER) $@ $(LFLAGS) $(OBJECTS) $(FRAMEWORKS) -lm
 	@echo "Linking complete..."
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
