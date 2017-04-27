@@ -226,7 +226,8 @@ int main(int argc, char *argv[]) {
 	
 	switch (mainRenderer.mode) {
 		case saveModeNormal:
-			writeImage(mainRenderer.worldScene->camera->imgData,
+			writeImage(mainRenderer.worldScene->camera->filePath,
+					   mainRenderer.worldScene->camera->imgData,
 					   mainRenderer.worldScene->camera->fileType,
 					   mainRenderer.worldScene->camera->currentFrame,
 					   mainRenderer.worldScene->camera->width,

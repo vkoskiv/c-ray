@@ -23,6 +23,7 @@ enum renderOrder {
 struct camera {
 	int height, width; // Image dimensions
 	enum fileType fileType;
+	char *filePath;
 	
 	double FOV;
 	double focalLength;

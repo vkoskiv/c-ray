@@ -15,4 +15,4 @@ enum fileType;
 void printFileSize(char *fileName);
 
 //Writes image data to file
-void writeImage(unsigned char *imgData, enum fileType type, int currentFrame, int width, int height);
+void writeImage(const char *filePath, unsigned char *imgData, enum fileType type, int currentFrame, int width, int height);

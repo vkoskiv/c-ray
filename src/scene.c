@@ -267,6 +267,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	struct camera *cam = (struct camera*)calloc(1, sizeof(struct camera));
 	//Override renderer thread count, 0 defaults to physical core count
 	cam-> threadCount = 0;
+	cam->filePath     = "../output/";
 	cam->       width = 1280;
 	cam->      height = 800;
 	cam->isFullScreen = false;
