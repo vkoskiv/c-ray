@@ -27,6 +27,7 @@
 int getFileSize(char *fileName);
 int getSysCores();
 void freeMem();
+void sleepNanosec(int ms);
 
 extern struct renderer mainRenderer;
 extern struct poly *polygonArray;
@@ -204,12 +205,7 @@ int main(int argc, char *argv[]) {
 				mainRenderer.isRendering = false;
 			}
 		}
-		//Sleep for a bit
-		struct timespec ts;
-		int ms = 16;
-		ts.tv_sec = ms / 1000;
-		ts.tv_nsec = (ms % 1000) * 1000000;
-		nanosleep(&ts, NULL);
+		sleepNanosec(16);
 	}
 	
 	//Make sure render threads are finished before continuing
@@ -265,6 +261,18 @@ void freeMem() {
 		free(textureArray);
 	if (polygonArray)
 		free(polygonArray);
+}
+
+void sleepNanosec(int ms) {
+	//Sleep for a bit
+	struct timespec ts;
+	ts.tv_sec = ms / 1000;
+	ts.tv_nsec = (ms % 1000) * 1000000;
+#ifdef WINDOWS
+	Sleep(ms);
+#else
+	nanosleep(&ts, NULL);
+#endif
 }
 
 int getSysCores() {
