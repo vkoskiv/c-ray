@@ -275,11 +275,13 @@ void freeMem() {
 void sleepNanosec(int ms) {
 #ifdef WINDOWS
 	Sleep(ms);
-#else
+#elif MACOS
 	struct timespec ts;
 	ts.tv_sec = ms / 1000;
 	ts.tv_nsec = (ms % 1000) * 1000000;
 	nanosleep(&ts, NULL);
+#else
+	usleep(ms * 1000);
 #endif
 }
 
