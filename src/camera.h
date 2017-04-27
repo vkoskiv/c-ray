@@ -16,6 +16,7 @@ enum fileType {
 enum renderOrder {
 	renderOrderTopToBottom = 0,
 	renderOrderFromMiddle,
+	renderOrderToMiddle,
 	renderOrderNormal
 };
 

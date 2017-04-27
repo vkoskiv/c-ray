@@ -142,6 +142,29 @@ void reorderFromMiddle() {
 	mainRenderer.renderTiles = tempArray;
 }
 
+void reorderToMiddle() {
+	int left = 0;
+	int right = 0;
+	bool isRight = true;
+	
+	right = mainRenderer.tileCount - 1;
+	
+	struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount, sizeof(struct renderTile));
+	
+	for (int i = 0; i < mainRenderer.tileCount; i++) {
+		if (isRight) {
+			tempArray[i] = mainRenderer.renderTiles[right--];
+			isRight = false;
+		} else {
+			tempArray[i] = mainRenderer.renderTiles[left++];
+			isRight = true;
+		}
+	}
+	
+	free(mainRenderer.renderTiles);
+	mainRenderer.renderTiles = tempArray;
+}
+
 /**
  Reorder renderTiles in given order
  
@@ -152,6 +175,11 @@ void reorderTiles(enum renderOrder order) {
 		case renderOrderFromMiddle:
 		{
 			reorderFromMiddle();
+		}
+			break;
+		case renderOrderToMiddle:
+		{
+			reorderToMiddle();
 		}
 			break;
 		case renderOrderTopToBottom:
