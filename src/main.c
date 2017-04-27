@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 	mainRenderer.renderedTileCount = 0;
 	mainRenderer.activeThreads = 0;
 	mainRenderer.threadCount = getSysCores();
-	mainRenderer.shouldSave = true;
+	mainRenderer.mode = saveModeNormal;
 	mainRenderer.isRendering = false;
 	mainRenderer.avgTileTime = (time_t)1;
 	mainRenderer.timeSampleCount = 1;
@@ -223,10 +223,21 @@ int main(int argc, char *argv[]) {
 	printDuration(difftime(stop, start));
 	
 	//Write to file
-	if (mainRenderer.shouldSave)
-		writeImage(mainRenderer.worldScene);
-	else
-		printf("Image won't be saved!\n");
+	
+	switch (mainRenderer.mode) {
+		case saveModeNormal:
+			writeImage(mainRenderer.worldScene->camera->imgData,
+					   mainRenderer.worldScene->camera->fileType,
+					   mainRenderer.worldScene->camera->currentFrame,
+					   mainRenderer.worldScene->camera->width,
+					   mainRenderer.worldScene->camera->height);
+			break;
+		case saveModeNone:
+			printf("Image won't be saved!\n");
+			break;
+		default:
+			break;
+	}
 	
 	mainRenderer.worldScene->camera->currentFrame++;
 	

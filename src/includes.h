@@ -62,3 +62,11 @@
 #include "list.h"
 #include "sphere.h"
 #include "transforms.h"
+
+enum fileMode {
+	loadModeNormal,//Load scene def normally
+	loadModeTarga, //Load previous render state
+	saveModeNormal,//Save image
+	saveModeTarga, //Save current render state
+	saveModeNone   //Don't save
+};

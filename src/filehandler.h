@@ -9,20 +9,10 @@
 #pragma once
 
 struct scene;
-
-typedef enum {
-	loadModeNormal,
-	loadModeTarga
-}loadMode;
-
-typedef enum {
-	saveModeNormal,
-	saveModeTarga,
-	saveModeNone
-}saveMode;
+enum fileType;
 
 //Prints the file size of a given file to the console in a user-readable format
 void printFileSize(char *fileName);
 
-//Writes an outputfile and returns the path it was written to
-void writeImage(struct scene *worldScene);
+//Writes image data to file
+void writeImage(unsigned char *imgData, enum fileType type, int currentFrame, int width, int height);

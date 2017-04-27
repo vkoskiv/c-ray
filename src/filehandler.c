@@ -18,11 +18,11 @@
 //Prototypes for internal functions
 int getFileSize(char *fileName);
 
-void saveBmpFromArray(const char *filename, struct scene *worldScene) {
+void saveBmpFromArray(const char *filename, unsigned char *imgData, int currentFrame, int width, int height) {
 	int i;
 	int error;
 	FILE *f;
-	int filesize = 54 + 3*worldScene->camera->width*worldScene->camera->height;
+	int filesize = 54 + 3 * width * height;
 	
 	unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
 	unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
@@ -35,15 +35,15 @@ void saveBmpFromArray(const char *filename, struct scene *worldScene) {
 	bmpfileheader[5] = (unsigned char)(filesize>>24);
 	
 	//create header width and height info
-	bmpinfoheader[ 4] = (unsigned char)(worldScene->camera->width    );
-	bmpinfoheader[ 5] = (unsigned char)(worldScene->camera->width>>8 );
-	bmpinfoheader[ 6] = (unsigned char)(worldScene->camera->width>>16);
-	bmpinfoheader[ 7] = (unsigned char)(worldScene->camera->width>>24);
+	bmpinfoheader[ 4] = (unsigned char)(width    );
+	bmpinfoheader[ 5] = (unsigned char)(width>>8 );
+	bmpinfoheader[ 6] = (unsigned char)(width>>16);
+	bmpinfoheader[ 7] = (unsigned char)(width>>24);
 	
-	bmpinfoheader[ 8] = (unsigned char)(worldScene->camera->height    );
-	bmpinfoheader[ 9] = (unsigned char)(worldScene->camera->height>>8 );
-	bmpinfoheader[10] = (unsigned char)(worldScene->camera->height>>16);
-	bmpinfoheader[11] = (unsigned char)(worldScene->camera->height>>24);
+	bmpinfoheader[ 8] = (unsigned char)(height    );
+	bmpinfoheader[ 9] = (unsigned char)(height>>8 );
+	bmpinfoheader[10] = (unsigned char)(height>>16);
+	bmpinfoheader[11] = (unsigned char)(height>>24);
 	
 	f = fopen(filename,"wb");
 	error = (unsigned int)fwrite(bmpfileheader,1,14,f);
@@ -55,13 +55,13 @@ void saveBmpFromArray(const char *filename, struct scene *worldScene) {
 		printf("Error writing BMP info header data\n");
 	}
 	
-	for (i = 0; i < worldScene->camera->height; i++) {
-		error = (unsigned int)fwrite(worldScene->camera->imgData+(worldScene->camera->width*(i)*3),3,worldScene->camera->width,f);
-		if (error != worldScene->camera->width) {
+	for (i = 0; i < height; i++) {
+		error = (unsigned int)fwrite(imgData+(width*(i)*3),3,width,f);
+		if (error != width) {
 			printf("Error writing image line to BMP\n");
 		}
-		error = (unsigned int)fwrite(bmppadding,1,(4-(worldScene->camera->width*3)%4)%4,f);
-		if (error != (4-(worldScene->camera->width*3)%4)%4) {
+		error = (unsigned int)fwrite(bmppadding,1,(4-(width*3)%4)%4,f);
+		if (error != (4-(width*3)%4)%4) {
 			printf("Error writing BMP padding data\n");
 		}
 	}
@@ -98,26 +98,26 @@ void printFileSize(char *fileName) {
 	
 }
 
-void writeImage(struct scene *worldScene) {
+void writeImage(unsigned char *imgData, enum fileType type, int currentFrame, int width, int height) {
 	//Save image data to a file
 	int bufSize;
-	if (worldScene->camera->currentFrame < 100) {
+	if (currentFrame < 100) {
 		bufSize = 26;
-	} else if (worldScene->camera->currentFrame < 1000) {
+	} else if (currentFrame < 1000) {
 		bufSize = 27;
 	} else {
 		bufSize = 28;
 	}
 	char *buf = (char*)calloc(sizeof(char), bufSize);
 	
-	if (worldScene->camera->fileType == bmp){
-		sprintf(buf, "../output/rendered_%d.bmp", worldScene->camera->currentFrame);
+	if (type == bmp){
+		sprintf(buf, "../output/rendered_%d.bmp", currentFrame);
 		printf("Saving result in \"%s\"\n", buf);
-		saveBmpFromArray(buf, worldScene);
-	} else  if (worldScene->camera->fileType == png){
-		sprintf(buf, "../output/rendered_%d.png", worldScene->camera->currentFrame);
+		saveBmpFromArray(buf, imgData, currentFrame, width, height);
+	} else  if (type == png){
+		sprintf(buf, "../output/rendered_%d.png", currentFrame);
 		printf("Saving result in \"%s\"\n", buf);
-		encodePNGFromArray(buf, worldScene->camera->imgData, worldScene->camera->width, worldScene->camera->height);
+		encodePNGFromArray(buf, imgData, width, height);
 	}
 	printFileSize(buf);
 }

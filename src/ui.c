@@ -107,7 +107,7 @@ void getKeyboardInput() {
 	}
 	if (keys[SDL_SCANCODE_X]) {
 		printf("Aborting render without saving...\n");
-		mainRenderer.shouldSave = false;
+		mainRenderer.mode = saveModeNone;
 		mainRenderer.renderAborted = true;
 	}
 }

@@ -40,13 +40,13 @@ struct renderer {
 #endif
 	struct scene *worldScene;
 	struct renderTile *renderTiles;
+	enum fileMode mode;
 	int tileCount;
 	int renderedTileCount;
 	double *renderBuffer;
 	unsigned char *uiBuffer;
 	int threadCount;
 	int activeThreads;
-	bool shouldSave;
 	bool isRendering;
 	bool renderAborted;
 	time_t avgTileTime;
