@@ -45,12 +45,12 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
 	return polygon;
 }
 
-struct material *materialFromObj(obj_material *mat) {
-	struct material *newMat = (struct material*)calloc(1, sizeof(struct material));
-	newMat->diffuse.red   = mat->diff[0];
-	newMat->diffuse.green = mat->diff[1];
-	newMat->diffuse.blue  = mat->diff[2];
-	newMat->reflectivity  = mat->reflect;
+struct material materialFromObj(obj_material *mat) {
+	struct material newMat;
+	newMat.diffuse.red   = mat->diff[0];
+	newMat.diffuse.green = mat->diff[1];
+	newMat.diffuse.blue  = mat->diff[2];
+	newMat.reflectivity  = mat->reflect;
 	return newMat;
 }
 
@@ -171,7 +171,7 @@ void addOBJ(struct scene *sceneData, char *inputFileName) {
 	} else {
 		//Material found, set it
 		sceneData->objs[sceneData->objCount].material = (struct material*)calloc(1, sizeof(struct material));
-		sceneData->objs[sceneData->objCount].material = materialFromObj(data.material_list[0]);
+		*sceneData->objs[sceneData->objCount].material = materialFromObj(data.material_list[0]);
 	}
 	
 	//Delete OBJ data
@@ -226,13 +226,6 @@ void computeBoundingVolumes(struct scene *scene) {
 	printf("\n");
 }
 
-struct scene *newScene() {
-	struct scene *newScene;
-	newScene = (struct scene*)calloc(1, sizeof(struct scene));
-	
-	return newScene;
-}
-
 //FIXME: Move this to transforms.c
 void addCamTransform(struct scene *world, struct matrixTransform transform) {
 	if (world->camTransformCount == 0) {
@@ -280,7 +273,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam->isBorderless = false;
 	cam->         FOV = 80.0;
 	cam-> focalLength = 0;
-	cam-> sampleCount = 10;
+	cam-> sampleCount = 25;
 	cam->  frameCount = 1;
 	cam->     bounces = 3;
 	cam->    contrast = 0.7;
@@ -290,7 +283,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam-> aprxShadows = false; //Approximate mesh shadows, true is faster but results in inaccurate shadows
 	cam->  tileWidth  = 64;
 	cam->  tileHeight = 64;
-	cam->   tileOrder = renderOrderFromMiddle;
+	cam->   tileOrder = renderOrderToMiddle;
 	cam->pos = vectorWithPos(0, 0, 0); //Don't change
 	
 	addCamTransform(scene, newTransformTranslate(970, 400, 600)); //Set pos here

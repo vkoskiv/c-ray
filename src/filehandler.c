@@ -108,7 +108,7 @@ void writeImage(unsigned char *imgData, enum fileType type, int currentFrame, in
 	} else {
 		bufSize = 28;
 	}
-	char *buf = (char*)calloc(sizeof(char), bufSize);
+	char *buf = (char*)calloc(bufSize, sizeof(char));
 	
 	if (type == bmp){
 		sprintf(buf, "../output/rendered_%d.bmp", currentFrame);

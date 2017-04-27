@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
 	mainRenderer.avgTileTime = (time_t)1;
 	mainRenderer.timeSampleCount = 1;
 	
-	mainRenderer.worldScene = newScene();
+	mainRenderer.worldScene = (struct scene*)calloc(1, sizeof(struct scene));
 	
 	char *fileName = NULL;
 	//Build the scene
@@ -252,6 +252,8 @@ void freeMem() {
 	//Free memory
 	if (mainRenderer.worldScene->camera->imgData)
 		free(mainRenderer.worldScene->camera->imgData);
+	if (mainRenderer.renderThreadInfo)
+		free(mainRenderer.renderThreadInfo);
 	if (mainRenderer.renderBuffer)
 		free(mainRenderer.renderBuffer);
 	if (mainRenderer.uiBuffer)
@@ -262,6 +264,10 @@ void freeMem() {
 		free(mainRenderer.worldScene->spheres);
 	if (mainRenderer.worldScene->materials)
 		free(mainRenderer.worldScene->materials);
+	if (mainRenderer.renderTiles)
+		free(mainRenderer.renderTiles);
+	if (mainRenderer.worldScene)
+		free(mainRenderer.worldScene);
 	if (vertexArray)
 		free(vertexArray);
 	if (normalArray)

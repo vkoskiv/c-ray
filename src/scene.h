@@ -46,4 +46,3 @@ struct scene {
 };
 
 int testBuild(struct scene *scene, char *inputFileName);
-struct scene *newScene();
