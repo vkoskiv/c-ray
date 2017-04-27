@@ -23,5 +23,3 @@ void list_delete_item(list *listo, void *item);
 void list_delete_all(list *listo);
 void list_print_list(list *listo);
 void list_free(list *listo);
-
-void test_list();
