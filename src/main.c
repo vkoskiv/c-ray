@@ -204,6 +204,12 @@ int main(int argc, char *argv[]) {
 				mainRenderer.isRendering = false;
 			}
 		}
+		//Sleep for a bit
+		struct timespec ts;
+		int ms = 16;
+		ts.tv_sec = ms / 1000;
+		ts.tv_nsec = (ms % 1000) * 1000000;
+		nanosleep(&ts, NULL);
 	}
 	
 	//Make sure render threads are finished before continuing
