@@ -237,8 +237,6 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-#pragma mark Helper funcs
-
 void freeMem() {
 	//Free memory
 	if (mainRenderer.worldScene->camera->imgData)

@@ -26,8 +26,6 @@ HANDLE tileMutex = INVALID_HANDLE_VALUE;
 pthread_mutex_t tileMutex;
 #endif
 
-#pragma mark Helper funcs
-
 bool renderTilesEmpty() {
 	return mainRenderer.renderedTileCount >= mainRenderer.tileCount;
 }
@@ -182,8 +180,6 @@ struct color getPixel(struct scene *worldScene, int x, int y) {
 	output.alpha = 1.0f;
 	return output;
 }
-
-#pragma mark Renderer
 
 //Compute view direction transforms
 void transformCameraView(struct vector *direction) {
