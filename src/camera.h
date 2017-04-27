@@ -47,6 +47,3 @@ struct camera {
 	int tileWidth;
 	int tileHeight;
 };
-
-//Calculate camera view plane
-void calculateUVW(struct camera *camera);
