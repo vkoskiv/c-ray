@@ -10,9 +10,9 @@
 #include "errorhandler.h"
 
 //Prototype
-void logr(const char *log, logSource source);
+void logr(const char *log, enum logSource source);
 
-void logHandler(renderLog error) {
+void logHandler(enum renderLog error) {
 	switch (error) {
 		case threadMallocFailed:
 			logr("Failed to allocate memory for thread args, aborting.", rendererSource);
@@ -82,7 +82,7 @@ void logHandler(renderLog error) {
 	}
 }
 
-void logr(const char *log, logSource source) {
+void logr(const char *log, enum logSource source) {
 	switch (source) {
 		case rendererSource:
 			printf("RENDERER: ");

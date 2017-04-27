@@ -8,7 +8,7 @@
 
 #pragma once
 
-typedef enum {
+enum renderLog {
 	threadMallocFailed,
 	sceneBuildFailed,
 	imageMallocFailed,
@@ -29,9 +29,9 @@ typedef enum {
 	renderErrorInvalidSampleCount,
 	drawTaskMallocFailed,
 	defaultError
-}renderLog;
+};
 
-typedef enum {
+enum logSource {
 	rendererSource,
 	sceneBuilder,
 	vectorHandler,
@@ -40,6 +40,6 @@ typedef enum {
 	sphereHandler,
 	fileHandler,
 	defaultSource
-}logSource;
+};
 
-void logHandler(renderLog error);
+void logHandler(enum renderLog error);
