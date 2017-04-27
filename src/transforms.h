@@ -29,28 +29,6 @@ struct matrixTransform {
 
 struct material;
 
-struct crayOBJ {
-	int vertexCount;
-	int firstVectorIndex;
-	
-	int normalCount;
-	int firstNormalIndex;
-	
-	int textureCount;
-	int firstTextureIndex;
-	
-	int polyCount;
-	int firstPolyIndex;
-	
-	struct sphere boundingVolume;
-	struct matrixTransform *transforms;
-	int transformCount;
-	
-	struct material *material;
-	
-	char *objName;
-};
-
 //Transform types
 struct matrixTransform newTransformScale(double x, double y, double z);
 struct matrixTransform newTransformTranslate(double x, double y, double z);
@@ -59,10 +37,4 @@ struct matrixTransform newTransformRotateY(float degrees);
 struct matrixTransform newTransformRotateZ(float degrees);
 struct matrixTransform emptyTransform();
 
-//Object transforms
-void transformMesh(struct crayOBJ *object);
-
 void transformVector(struct vector *vec, struct matrixTransform *tf); //Expose for renderer
-
-//Scene builder
-void addTransform(struct crayOBJ *obj, struct matrixTransform transform);

@@ -13,6 +13,7 @@
 #include "light.h"
 #include "obj_parser.h"
 #include "poly.h"
+#include "obj.h"
 
 #define TOKEN_DEBUG_ENABLED false
 

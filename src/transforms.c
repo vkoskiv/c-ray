@@ -17,17 +17,6 @@ double toRadians(double degrees) {
 	return (degrees * PI) / 180;
 }
 
-void addTransform(struct crayOBJ *obj, struct matrixTransform transform) {
-	if (obj->transformCount == 0) {
-		obj->transforms = (struct matrixTransform*)calloc(1, sizeof(struct matrixTransform));
-	} else {
-		obj->transforms = (struct matrixTransform*)realloc(obj->transforms, (obj->transformCount + 1) * sizeof(struct matrixTransform));
-	}
-	
-	obj->transforms[obj->transformCount] = transform;
-	obj->transformCount++;
-}
-
 struct matrixTransform emptyTransform() {
 	struct matrixTransform transform;
 	transform.type = transformTypeNone;
@@ -49,23 +38,6 @@ void transformVector(struct vector *vec, struct matrixTransform *tf) {
 		vec->y = temp.y;
 		vec->z = temp.z;
 		vec->isTransformed = true;
-	}
-}
-
-void transformMesh(struct crayOBJ *object) {
-	for (int tf = 0; tf < object->transformCount; tf++) {
-		//Perform transforms
-		for (int p = object->firstPolyIndex; p < (object->firstPolyIndex + object->polyCount); p++) {
-			for (int v = 0; v < polygonArray[p].vertexCount; v++) {
-				transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], &object->transforms[tf]);
-			}
-		}
-		//Clear isTransformed flags
-		for (int p = object->firstPolyIndex; p < object->firstPolyIndex + object->polyCount; p++) {
-			for (int v = 0; v < polygonArray->vertexCount; v++) {
-				vertexArray[polygonArray[p].vertexIndex[v]].isTransformed = false;
-			}
-		}
 	}
 }
 

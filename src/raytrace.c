@@ -13,6 +13,7 @@
 #include "camera.h"
 #include "poly.h"
 #include "light.h"
+#include "obj.h"
 
 struct vector getRandomVecOnRadius(struct vector center, float radius);
 
