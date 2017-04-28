@@ -7,6 +7,7 @@
 C-Ray is a simple raytracer built for studying computer graphics. The implementation is by no means the best, the most efficient nor fully standard, but it's simple, and so is the syntax (hopefully!)
 
 It currently supports:
+- Real-time render preview using SDL
 - reflections
 - lights with radius (soft shadows)
 - triangles and spheres
@@ -48,7 +49,7 @@ Windows:
 2. CTRL+F5 to run without debugging
 3. VS places a binary under CRayWindows/bin/
 
-##Installing SDL
+## Installing SDL
 
 On macOS, download the SDL2 runtime framework from https://www.libsdl.org/download-2.0.php and place in /Library/Frameworks/
 If you don't have root access, place under ~/Library/Frameworks
