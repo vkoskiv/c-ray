@@ -9,7 +9,5 @@
 #pragma once
 
 struct boundingBox {
-	double startX, endX;
-	double startY, endY;
-	double startZ, endZ;
+	struct vector start, end;
 };
