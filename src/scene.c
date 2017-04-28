@@ -14,6 +14,7 @@
 #include "obj_parser.h"
 #include "poly.h"
 #include "obj.h"
+#include "kdtree.h"
 
 #define TOKEN_DEBUG_ENABLED false
 

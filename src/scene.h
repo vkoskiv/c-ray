@@ -15,9 +15,13 @@ struct sphere;
 struct camera;
 struct matrixTransform;
 struct poly;
+struct kdTreeNode;
 
 //World
 struct scene {
+	//Root k-d tree node
+	struct kdTreeNode *rootNode;
+	
 	struct color *ambientColor;
 	
 	struct crayOBJ *objs;
