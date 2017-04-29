@@ -43,10 +43,6 @@ struct scene {
 	struct matrixTransform *camTransforms;
 	int camTransformCount;
 	
-	//FIXME: TEMPORARY
-	struct poly *customPolys;
-	int customPolyCount;
-	
 };
 
 int testBuild(struct scene *scene, char *inputFileName);

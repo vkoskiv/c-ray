@@ -50,30 +50,21 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		for (i = 0; i < sphereAmount; ++i) {
 			if (rayIntersectsWithSphere(incidentRay, &worldScene->spheres[i], &closestIntersection)) {
 				currentSphere = i;
+				currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].materialIndex];
 			}
 		}
 		
-		double fakeIntersection = 20000.0f;
 		unsigned int o, p;
 		for (o = 0; o < objCount; o++) {
-			if (rayIntersectsWithSphere(incidentRay, &worldScene->objs[o].boundingVolume, &fakeIntersection)) {
+			if (rayIntersectsWithSphereFast(incidentRay, &worldScene->objs[o].boundingVolume)) {
 				for (p = worldScene->objs[o].firstPolyIndex; p < (worldScene->objs[o].firstPolyIndex + worldScene->objs[o].polyCount); p++) {
 					if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &polyNormal)) {
 						currentPolygon = p;
-						currentMaterial = *worldScene->objs[o].material;
+						currentMaterial = worldScene->objs[o].materials[polygonArray[p].materialIndex];
 						currentSphere = -1;
 						isCustomPoly = false;
 					}
 				}
-			}
-		}
-		
-		//FIXME: TEMPORARY
-		for (i = 0; i < worldScene->customPolyCount; ++i) {
-			if (rayIntersectsWithPolygon(incidentRay, &worldScene->customPolys[i], &closestIntersection, &polyNormal)) {
-				currentPolygon = i;
-				currentSphere = -1;
-				isCustomPoly = true;
 			}
 		}
 		
@@ -86,7 +77,6 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			if (temp == 0.0f) break;
 			temp = invsqrtf(temp);
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
-			currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].materialIndex];
 		} else if (currentPolygon != -1) {
 			struct vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
@@ -97,10 +87,6 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			temp = invsqrtf(temp);
 			//FIXME: Possibly get existing normal here
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
-			//FIXME: TEMPORARY
-			if (isCustomPoly) {
-				currentMaterial = worldScene->materials[worldScene->customPolys[currentPolygon].materialIndex];
-			}
 		} else {
 			//Ray didn't hit any object, set color to ambient
 			struct color temp = colorCoef(contrast, worldScene->ambientColor);
@@ -174,14 +160,6 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 							}
 						}
 					}
-				}
-			}
-			
-			//FIXME: TEMPORARY
-			for (i = 0; i < worldScene->customPolyCount; ++i) {
-				if (rayIntersectsWithPolygon(&bouncedRay, &worldScene->customPolys[i], &t, &polyNormal)) {
-					inShadow = true;
-					break;
 				}
 			}
 			

@@ -94,6 +94,8 @@ char *getFileName(char *input) {
 	return fn;
 }
 
+void addMaterialOBJ(struct crayOBJ *obj, struct material newMaterial);
+
 void addOBJ(struct scene *sceneData, char *inputFileName) {
 	printf("Loading OBJ %s\n", inputFileName);
 	obj_scene_data data;
@@ -161,18 +163,19 @@ void addOBJ(struct scene *sceneData, char *inputFileName) {
 																							sceneData->objs[sceneData->objCount].firstVectorIndex,
 																							sceneData->objs[sceneData->objCount].firstNormalIndex,
 																							sceneData->objs[sceneData->objCount].firstTextureIndex);
-		//polygonArray[sceneData->objs[sceneData->objCount].firstPolyIndex + i].materialIndex = materialIndex;
 	}
 	
+	sceneData->objs[sceneData->objCount].materials = (struct material*)calloc(1, sizeof(struct material));
 	//Parse materials
 	if (data.material_count == 0) {
 		//No material, set to something obscene to make it noticeable
-		sceneData->objs[sceneData->objCount].material = (struct material*)calloc(1, sizeof(struct material));
-		*sceneData->objs[sceneData->objCount].material = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
+		sceneData->objs[sceneData->objCount].materials = (struct material*)calloc(1, sizeof(struct material));
+		*sceneData->objs[sceneData->objCount].materials = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
 	} else {
-		//Material found, set it
-		sceneData->objs[sceneData->objCount].material = (struct material*)calloc(1, sizeof(struct material));
-		*sceneData->objs[sceneData->objCount].material = materialFromObj(data.material_list[0]);
+		//Loop to add materials to obj (We already set the material indices in polyFromObj)
+		for (int i = 0; i < data.material_count; i++) {
+			addMaterialOBJ(&sceneData->objs[sceneData->objCount], materialFromObj(data.material_list[i]));
+		}
 	}
 	
 	//Delete OBJ data
@@ -185,9 +188,10 @@ void addOBJ(struct scene *sceneData, char *inputFileName) {
 
 //FIXME: Temporary
 void overrideMaterial(struct scene *world, struct crayOBJ *obj, int materialIndex) {
-	obj->material = &world->materials[materialIndex];
+	obj->materials = &world->materials[materialIndex];
 }
 
+//FIXME: change + 1 to ++scene->someCount and just pass the count to array access
 //In the future, maybe just pass a list and size and copy at once to save time (large counts)
 void addSphere(struct scene *scene, struct sphere newSphere) {
 	scene->spheres = (struct sphere*)realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(struct sphere));
@@ -197,6 +201,11 @@ void addSphere(struct scene *scene, struct sphere newSphere) {
 void addMaterial(struct scene *scene, struct material newMaterial) {
 	scene->materials = (struct material*)realloc(scene->materials, (scene->materialCount + 1) * sizeof(struct material));
 	scene->materials[scene->materialCount++] = newMaterial;
+}
+
+void addMaterialOBJ(struct crayOBJ *obj, struct material newMaterial) {
+	obj->materials = (struct material*)realloc(obj->materials, (obj->materialCount + 1) * sizeof(struct material));
+	obj->materials[obj->materialCount++] = newMaterial;
 }
 
 void addLight(struct scene *scene, struct light newLight) {
@@ -275,7 +284,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam->isBorderless = false;
 	cam->         FOV = 80.0;
 	cam-> focalLength = 0;
-	cam-> sampleCount = 25;
+	cam-> sampleCount = 1;
 	cam->  frameCount = 1;
 	cam->     bounces = 3;
 	cam->    contrast = 0.7;
@@ -300,6 +309,9 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	addCamera(scene, cam);
 	
 	//NOTE: Translates have to come last!
+	
+	addOBJ(scene, "../output/mainScene.obj");
+	
 	addOBJ(scene, "../output/monkeyHD.obj");
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(10, 10, 10));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(200));
@@ -331,115 +343,6 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	
 	transformMeshes(scene);
 	computeBoundingVolumes(scene);
-	
-	
-	//FIXME: TEMPORARY
-	vertexArray = (struct vector*)realloc(vertexArray, ((vertexCount+15) * sizeof(struct vector)));
-	//Hard coded vertices for this test
-	//Vertices
-	//FLOOR
-	vertexArray[vertexCount + 0] = vectorWithPos(200,300,0);
-	vertexArray[vertexCount + 1] = vectorWithPos(1720,300,0);
-	vertexArray[vertexCount + 2] = vectorWithPos(200,300,2000);
-	vertexArray[vertexCount + 3] = vectorWithPos(1720,300,2000);
-	//CEILING
-	vertexArray[vertexCount + 4] = vectorWithPos(200,840,0);
-	vertexArray[vertexCount + 5] = vectorWithPos(1720,840,0);
-	vertexArray[vertexCount + 6] = vectorWithPos(200,840,2000);
-	vertexArray[vertexCount + 7] = vectorWithPos(1720,840,2000);
-	
-	//MIRROR PLANE
-	vertexArray[vertexCount + 8] = vectorWithPos(1420,750,1800);
-	vertexArray[vertexCount + 9] = vectorWithPos(1420,300,1800);
-	vertexArray[vertexCount + 10] = vectorWithPos(1620,750,1700);
-	vertexArray[vertexCount + 11] = vectorWithPos(1620,300,1700);
-	//SHADOW TEST
-	vertexArray[vertexCount + 12] = vectorWithPos(1000,450,1100);
-	vertexArray[vertexCount + 13] = vectorWithPos(1300,700,1100);
-	vertexArray[vertexCount + 14] = vectorWithPos(1000,700,1300);
-	
-	//FIXME: TEMPORARY polygons
-	scene->customPolyCount = 13;
-	scene->customPolys = (struct poly*)calloc(scene->customPolyCount, sizeof(struct poly));
-	
-	//FLOOR
-	scene->customPolys[0].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[0].vertexIndex[0] = vertexCount + 0;
-	scene->customPolys[0].vertexIndex[1] = vertexCount + 1;
-	scene->customPolys[0].vertexIndex[2] = vertexCount + 2;
-	scene->customPolys[0].materialIndex = 3;
-	scene->customPolys[1].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[1].vertexIndex[0] = vertexCount + 1;
-	scene->customPolys[1].vertexIndex[1] = vertexCount + 2;
-	scene->customPolys[1].vertexIndex[2] = vertexCount + 3;
-	scene->customPolys[1].materialIndex = 3;
-	
-	//CEILING
-	scene->customPolys[2].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[2].vertexIndex[0] = vertexCount + 4;
-	scene->customPolys[2].vertexIndex[1] = vertexCount + 5;
-	scene->customPolys[2].vertexIndex[2] = vertexCount + 6;
-	scene->customPolys[2].materialIndex = 3;
-	scene->customPolys[3].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[3].vertexIndex[0] = vertexCount + 5;
-	scene->customPolys[3].vertexIndex[1] = vertexCount + 6;
-	scene->customPolys[3].vertexIndex[2] = vertexCount + 7;
-	scene->customPolys[3].materialIndex = 3;
-	
-	//MIRROR PLANE
-	scene->customPolys[4].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[4].vertexIndex[0] = vertexCount + 8;
-	scene->customPolys[4].vertexIndex[1] = vertexCount + 9;
-	scene->customPolys[4].vertexIndex[2] = vertexCount + 10;
-	scene->customPolys[4].materialIndex = 5;
-	scene->customPolys[5].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[5].vertexIndex[0] = vertexCount + 9;
-	scene->customPolys[5].vertexIndex[1] = vertexCount + 10;
-	scene->customPolys[5].vertexIndex[2] = vertexCount + 11;
-	scene->customPolys[5].materialIndex = 5;
-	
-	//SHADOW TEST POLY
-	scene->customPolys[6].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[6].vertexIndex[0] = vertexCount + 12;
-	scene->customPolys[6].vertexIndex[1] = vertexCount + 13;
-	scene->customPolys[6].vertexIndex[2] = vertexCount + 14;
-	scene->customPolys[6].materialIndex = 4;
-	
-	//REAR WALL
-	scene->customPolys[7].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[7].vertexIndex[0] = vertexCount + 2;
-	scene->customPolys[7].vertexIndex[1] = vertexCount + 3;
-	scene->customPolys[7].vertexIndex[2] = vertexCount + 6;
-	scene->customPolys[7].materialIndex = 1;
-	scene->customPolys[8].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[8].vertexIndex[0] = vertexCount + 3;
-	scene->customPolys[8].vertexIndex[1] = vertexCount + 6;
-	scene->customPolys[8].vertexIndex[2] = vertexCount + 7;
-	scene->customPolys[8].materialIndex = 1;
-	
-	//LEFT WALL
-	scene->customPolys[9].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[9].vertexIndex[0] = vertexCount + 0;
-	scene->customPolys[9].vertexIndex[1] = vertexCount + 2;
-	scene->customPolys[9].vertexIndex[2] = vertexCount + 4;
-	scene->customPolys[9].materialIndex = 0;
-	scene->customPolys[10].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[10].vertexIndex[0] = vertexCount + 2;
-	scene->customPolys[10].vertexIndex[1] = vertexCount + 4;
-	scene->customPolys[10].vertexIndex[2] = vertexCount + 6;
-	scene->customPolys[10].materialIndex = 0;
-	
-	//RIGHT WALL
-	scene->customPolys[11].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[11].vertexIndex[0] = vertexCount + 1;
-	scene->customPolys[11].vertexIndex[1] = vertexCount + 3;
-	scene->customPolys[11].vertexIndex[2] = vertexCount + 5;
-	scene->customPolys[11].materialIndex = 2;
-	scene->customPolys[12].vertexCount = MAX_VERTEX_COUNT;
-	scene->customPolys[12].vertexIndex[0] = vertexCount + 3;
-	scene->customPolys[12].vertexIndex[1] = vertexCount + 5;
-	scene->customPolys[12].vertexIndex[2] = vertexCount + 7;
-	scene->customPolys[12].materialIndex = 2;
 	
 	//LIGHTS
 	addLight(scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));

@@ -10,6 +10,7 @@
 #include "obj.h"
 
 #include "poly.h"
+#include "bbox.h"
 
 
 void addTransform(struct crayOBJ *obj, struct matrixTransform transform) {

@@ -8,6 +8,8 @@
 
 #pragma once
 
+struct boundingBox;
+
 struct crayOBJ {
 	int vertexCount;
 	int firstVectorIndex;
@@ -25,7 +27,10 @@ struct crayOBJ {
 	struct matrixTransform *transforms;
 	int transformCount;
 	
-	struct material *material;
+	struct material *materials;
+	int materialCount;
+	
+	struct boundingBox *bbox;
 	
 	char *objName;
 };
