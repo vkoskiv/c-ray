@@ -225,6 +225,9 @@ void transformMeshes(struct scene *scene) {
 		printf("Transforming %s...\n", scene->objs[i].objName);
 		transformMesh(&scene->objs[i]);
 		printf("Transformed %s!\n", scene->objs[i].objName);
+		printf("Computing KD-tree...\n");
+		//scene->objs[i].tree = buildTree(&scene->objs[i], 0);
+		printf("Tree finished\n");
 	}
 	printf("Transforms done!\n");
 }

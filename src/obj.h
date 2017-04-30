@@ -30,7 +30,8 @@ struct crayOBJ {
 	struct material *materials;
 	int materialCount;
 	
-	struct boundingBox *bbox;
+	//struct boundingBox *bbox;
+	struct kdTreeNode *tree;
 	
 	char *objName;
 };

@@ -38,8 +38,28 @@ struct kdTreeNode *getNewNode() {
 	return node;
 }
 
-void addPolyToArray(struct poly *array, struct poly *polygon) {
-	//TODO:
+void addPolyToArray(struct poly *array, struct poly polygon, int count) {
+	array = (struct poly*)realloc(array, (count + 1) * sizeof(struct poly));
+	array[count++] = polygon;
+}
+
+//Check if the two are same
+bool comparePolygons(struct poly *p1, struct poly *p2) {
+	bool areSame = true;
+	
+	for (int i = 0; i < 3; i++) {
+		if (p1->vertexIndex[i] != p2->vertexIndex[i]) {
+			areSame = false;
+		}
+		if (p1->normalIndex[i] != p2->normalIndex[i]) {
+			areSame = false;
+		}
+		if (p1->textureIndex[i] != p2->normalIndex[i]) {
+			areSame = false;
+		}
+	}
+	
+	return areSame;
 }
 
 struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth) {
@@ -63,8 +83,10 @@ struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth) {
 	
 	struct vector midPoint = node->bbox->midPoint;
 	
-	struct poly leftPolys;
-	struct poly rightPolys;
+	struct poly *leftPolys = malloc(sizeof(struct poly));
+	int leftPolyCount = 0;
+	struct poly *rightPolys = malloc(sizeof(struct poly));
+	int rightPolyCount = 0;
 	
 	//TODO: Enum axis
 	int axis = getLongestAxis(node->bbox);
@@ -75,17 +97,53 @@ struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth) {
 									   &vertexArray[node->polygons[i].vertexIndex[2]]);
 		switch (axis) {
 			case 0:
-				midPoint.x >= polyMidPoint.x ? addPolyToArray(&rightPolys, &node->polygons[i]) : addPolyToArray(&leftPolys, &node->polygons[i]);
+				if (midPoint.x >= polyMidPoint.x) {
+					addPolyToArray(rightPolys, node->polygons[i], node->polyCount); rightPolyCount++;
+				} else {
+					addPolyToArray(leftPolys, node->polygons[i], node->polyCount);  leftPolyCount++;
+				}
 				break;
 				
 			case 1:
-				midPoint.y >= polyMidPoint.y ? addPolyToArray(&rightPolys, &node->polygons[i]) : addPolyToArray(&leftPolys, &node->polygons[i]);
+				if (midPoint.y >= polyMidPoint.y) {
+					addPolyToArray(rightPolys, node->polygons[i], node->polyCount); rightPolyCount++;
+				} else {
+					addPolyToArray(leftPolys, node->polygons[i], node->polyCount);  leftPolyCount++;
+				}
 				break;
 				
 			case 2:
-				midPoint.z >= polyMidPoint.z ? addPolyToArray(&rightPolys, &node->polygons[i]) : addPolyToArray(&leftPolys, &node->polygons[i]);
+				if (midPoint.z >= polyMidPoint.z) {
+					addPolyToArray(rightPolys, node->polygons[i], node->polyCount); rightPolyCount++;
+				} else {
+					addPolyToArray(leftPolys, node->polygons[i], node->polyCount);  leftPolyCount++;
+				}
 				break;
 		}
+	}
+	
+	if (leftPolyCount == 0 && rightPolyCount > 0) leftPolys = rightPolys;
+	if (rightPolyCount == 0 && leftPolyCount > 0) rightPolys = leftPolys;
+	
+	//If more than 50% of polys match, stop subdividing
+	int matches = 0;
+	for (int i = 0; i < leftPolyCount; i++) {
+		for (int j = 0; j < rightPolyCount; j++) {
+			if (comparePolygons(&leftPolys[i], &rightPolys[j]))
+				matches++;
+		}
+	}
+	
+	if ((float)matches / leftPolyCount < 0.5 && (float)matches / rightPolyCount < 0.5) {
+		//Recurse down both left and right sides
+		node->left = buildTree(obj, depth + 1);
+		node->right = buildTree(obj, depth + 1);
+	} else {
+		//Stop here
+		node->left = getNewNode();
+		node->right = getNewNode();
+		node->left->polygons = NULL;
+		node->right->polygons = NULL;
 	}
 	
 	return node;
