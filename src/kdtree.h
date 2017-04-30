@@ -17,8 +17,8 @@ struct kdTreeNode {
 	struct kdTreeNode *left; //Pointer to left child
 	struct kdTreeNode *right;//Pointer to right child
 	struct poly *polygons;   //Polygons within the bounding box
-	//Would it make sense to have that IN the boundingBox struct?
+	int polyCount;           //Amount of polygons
 };
 
 //Builds a k-d tree and returns the root node
-struct kdTreeNode *buildTree(struct poly *polys, int depth);
+struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth);

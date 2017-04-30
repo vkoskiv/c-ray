@@ -19,7 +19,6 @@ void addTransform(struct crayOBJ *obj, struct matrixTransform transform) {
 	} else {
 		obj->transforms = (struct matrixTransform*)realloc(obj->transforms, (obj->transformCount + 1) * sizeof(struct matrixTransform));
 	}
-	
 	obj->transforms[obj->transformCount] = transform;
 	obj->transformCount++;
 }

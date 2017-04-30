@@ -10,6 +10,7 @@
 #include "obj.h"
 #include "kdtree.h"
 #include "bbox.h"
+#include "poly.h"
 
 //Tree funcs
 
@@ -28,13 +29,14 @@
  if greater, push to right child
  */
 
-struct kdTreeNode *buildTree(struct poly *polys, int depth) {
+struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth) {
 	//TODO
 	struct kdTreeNode *node = (struct kdTreeNode*)calloc(1, sizeof(struct kdTreeNode));
-	node->polygons = polys;
+	node->polygons = &polygonArray[obj->firstPolyIndex];
+	node->polyCount = obj->polyCount;
 	node->left = NULL;
 	node->right = NULL;
-	node->bbox = NULL;
+	node->bbox = computeBoundingBox(node->polygons, node->polyCount);
 	
 	return node;
 }
