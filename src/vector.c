@@ -66,3 +66,9 @@ struct vector normalizeVector(struct vector *v) {
 	double length = vectorLength(v);
 	return (struct vector){v->x / length, v->y / length, v->z / length};
 }
+
+struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v3) {
+	struct vector temp = addVectors(v1, v2);
+	temp = addVectors(&temp, v3);
+	return vectorScale(1.0/3.0, &temp);
+}

@@ -73,3 +73,5 @@ float vectorLength(struct vector *v);
 
 //Normalize a vector
 struct vector normalizeVector(struct vector *v);
+
+struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v3);

@@ -11,7 +11,9 @@
 struct poly;
 
 struct boundingBox {
-	struct vector start, end;
+	struct vector start, end, midPoint;
 };
 
 struct boundingBox *computeBoundingBox(struct poly *polys, int count);
+
+int getLongestAxis(struct boundingBox *bbox);

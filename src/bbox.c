@@ -12,6 +12,15 @@
 #include "obj.h"
 #include "poly.h"
 
+//Return 0 if x, 1 if y, 2 if z
+int getLongestAxis(struct boundingBox *bbox) {
+	int x = fabs(bbox->start.x - bbox->end.x);
+	int y = fabs(bbox->start.y - bbox->end.y);
+	int z = fabs(bbox->start.z - bbox->end.z);
+
+	return x > y && x > z ? 0 : y > z ? 1 : 2;
+}
+
 struct boundingBox *computeBoundingBox(struct poly *polys, int count) {
 	struct boundingBox *bbox = (struct boundingBox*)calloc(1, sizeof(struct boundingBox));
 	struct vector minPoint = vertexArray[polys[0].vertexIndex[0]];
@@ -33,5 +42,6 @@ struct boundingBox *computeBoundingBox(struct poly *polys, int count) {
 	}
 	bbox->start = minPoint;
 	bbox->end = maxPoint;
+	bbox->midPoint = center;
 	return bbox;
 }
