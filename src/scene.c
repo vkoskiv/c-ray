@@ -126,6 +126,7 @@ void addOBJ(struct scene *sceneData, char *inputFileName) {
 	sceneData->objs[sceneData->objCount].transformCount = 0;
 	sceneData->objs[sceneData->objCount].transforms = (struct matrixTransform*)malloc(sizeof(struct matrixTransform));
 	
+	sceneData->objs[sceneData->objCount].materialCount = 0;
 	//Set name
 	sceneData->objs[sceneData->objCount].objName = getFileName(inputFileName);
 	
