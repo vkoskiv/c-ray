@@ -66,11 +66,6 @@ struct kdTreeNode *getNewNode() {
 	return node;
 }
 
-void addPolyToArray(struct poly *array, struct poly polygon, int count) {
-	array = (struct poly*)realloc(array, (count + 1) * sizeof(struct poly));
-	array[count + 1] = polygon;
-}
-
 //Check if the two are same
 bool comparePolygons(struct poly *p1, struct poly *p2) {
 	bool areSame = true;

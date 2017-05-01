@@ -45,3 +45,39 @@ struct boundingBox *computeBoundingBox(struct poly *polys, int count) {
 	bbox->midPoint = center;
 	return bbox;
 }
+
+bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, double *t) {
+	struct vector dirfrac;
+	// r.dir is unit direction vector of ray
+	dirfrac.x = 1.0f / ray->direction.x;
+	dirfrac.y = 1.0f / ray->direction.y;
+	dirfrac.z = 1.0f / ray->direction.z;
+	// lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
+	// r.org is origin of ray
+	float t1 = (box->start.x - ray->start.x)*dirfrac.x;
+	float t2 = (box->  end.x - ray->start.x)*dirfrac.x;
+	float t3 = (box->start.y - ray->start.y)*dirfrac.y;
+	float t4 = (box->  end.y - ray->start.y)*dirfrac.y;
+	float t5 = (box->start.z - ray->start.z)*dirfrac.z;
+	float t6 = (box->  end.z - ray->start.z)*dirfrac.z;
+	
+	double tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
+	double tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
+	
+	// if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
+	if (tmax < 0)
+	{
+		t = &tmax;
+		return false;
+	}
+	
+	// if tmin > tmax, ray doesn't intersect AABB
+	if (tmin > tmax)
+	{
+		t = &tmax;
+		return false;
+	}
+	
+	t = &tmin;
+	return true;
+}
