@@ -98,7 +98,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WINDOWS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -150,17 +150,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\bbox.h" />
     <ClInclude Include="..\src\camera.h" />
     <ClInclude Include="..\src\color.h" />
     <ClInclude Include="..\src\errorhandler.h" />
     <ClInclude Include="..\src\filehandler.h" />
     <ClInclude Include="..\src\includes.h" />
+    <ClInclude Include="..\src\kdtree.h" />
     <ClInclude Include="..\src\light.h" />
     <ClInclude Include="..\src\list.h" />
     <ClInclude Include="..\src\lodepng.h" />
     <ClInclude Include="..\src\main.h" />
+    <ClInclude Include="..\src\obj.h" />
     <ClInclude Include="..\src\obj_parser.h" />
     <ClInclude Include="..\src\poly.h" />
+    <ClInclude Include="..\src\raytrace.h" />
     <ClInclude Include="..\src\renderer.h" />
     <ClInclude Include="..\src\scene.h" />
     <ClInclude Include="..\src\sphere.h" />
@@ -170,18 +174,22 @@
     <ClInclude Include="..\src\vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\bbox.c" />
     <ClCompile Include="..\src\camera.c" />
     <ClCompile Include="..\src\color.c" />
     <ClCompile Include="..\src\errorhandler.c" />
     <ClCompile Include="..\src\filehandler.c" />
+    <ClCompile Include="..\src\kdtree.c" />
     <ClCompile Include="..\src\light.c" />
     <ClCompile Include="..\src\list.c" />
     <ClCompile Include="..\src\lodepng.c" />
     <ClCompile Include="..\src\main.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\src\obj.c" />
     <ClCompile Include="..\src\obj_parser.c" />
     <ClCompile Include="..\src\poly.c" />
+    <ClCompile Include="..\src\raytrace.c" />
     <ClCompile Include="..\src\renderer.c" />
     <ClCompile Include="..\src\scene.c" />
     <ClCompile Include="..\src\sphere.c" />
