@@ -28,6 +28,34 @@
  if greater, push to right child
  */
 
+struct Array {
+	struct poly *array;
+	size_t used;
+	size_t size;
+};
+
+void initArray(struct Array *a, size_t initialSize) {
+	a->array = (struct poly *)malloc(initialSize * sizeof(struct poly));
+	a->used = 0;
+	a->size = initialSize;
+}
+
+void insertArray(struct Array *a, struct poly element) {
+	// a->used is the number of used entries, because a->array[a->used++] updates a->used only *after* the array has been accessed.
+	// Therefore a->used can go up to a->size
+	if (a->used == a->size) {
+		a->size *= 2;
+		a->array = (struct poly *)realloc(a->array, a->size * sizeof(struct poly));
+	}
+	a->array[a->used++] = element;
+}
+
+void freeArray(struct Array *a) {
+	free(a->array);
+	a->array = NULL;
+	a->used = a->size = 0;
+}
+
 struct kdTreeNode *getNewNode() {
 	struct kdTreeNode *node = (struct kdTreeNode*)calloc(1, sizeof(struct kdTreeNode));
 	node->bbox = NULL;
@@ -40,7 +68,7 @@ struct kdTreeNode *getNewNode() {
 
 void addPolyToArray(struct poly *array, struct poly polygon, int count) {
 	array = (struct poly*)realloc(array, (count + 1) * sizeof(struct poly));
-	array[count++] = polygon;
+	array[count + 1] = polygon;
 }
 
 //Check if the two are same
@@ -83,9 +111,11 @@ struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth) {
 	
 	struct vector midPoint = node->bbox->midPoint;
 	
-	struct poly *leftPolys = malloc(sizeof(struct poly));
+	struct Array leftPolys;
+	initArray(&leftPolys, 5);
 	int leftPolyCount = 0;
-	struct poly *rightPolys = malloc(sizeof(struct poly));
+	struct Array rightPolys;
+	initArray(&rightPolys, 5);
 	int rightPolyCount = 0;
 	
 	//TODO: Enum axis
@@ -98,25 +128,25 @@ struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth) {
 		switch (axis) {
 			case 0:
 				if (midPoint.x >= polyMidPoint.x) {
-					addPolyToArray(rightPolys, node->polygons[i], node->polyCount); rightPolyCount++;
+					insertArray(&rightPolys, node->polygons[i]);
 				} else {
-					addPolyToArray(leftPolys, node->polygons[i], node->polyCount);  leftPolyCount++;
+					insertArray(&leftPolys, node->polygons[i]);
 				}
 				break;
 				
 			case 1:
 				if (midPoint.y >= polyMidPoint.y) {
-					addPolyToArray(rightPolys, node->polygons[i], node->polyCount); rightPolyCount++;
+					insertArray(&rightPolys, node->polygons[i]);
 				} else {
-					addPolyToArray(leftPolys, node->polygons[i], node->polyCount);  leftPolyCount++;
+					insertArray(&leftPolys, node->polygons[i]);
 				}
 				break;
 				
 			case 2:
 				if (midPoint.z >= polyMidPoint.z) {
-					addPolyToArray(rightPolys, node->polygons[i], node->polyCount); rightPolyCount++;
+					insertArray(&rightPolys, node->polygons[i]);
 				} else {
-					addPolyToArray(leftPolys, node->polygons[i], node->polyCount);  leftPolyCount++;
+					insertArray(&leftPolys, node->polygons[i]);
 				}
 				break;
 		}
@@ -129,7 +159,7 @@ struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth) {
 	int matches = 0;
 	for (int i = 0; i < leftPolyCount; i++) {
 		for (int j = 0; j < rightPolyCount; j++) {
-			if (comparePolygons(&leftPolys[i], &rightPolys[j]))
+			if (comparePolygons(&leftPolys.array[i], &rightPolys.array[j]))
 				matches++;
 		}
 	}
