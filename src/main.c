@@ -205,7 +205,7 @@ int main(int argc, char *argv[]) {
 				mainRenderer.isRendering = false;
 			}
 		}
-		sleepNanosec(16);
+		sleepNanosec(33);
 	}
 	
 	//Make sure render threads are finished before continuing
