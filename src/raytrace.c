@@ -14,8 +14,45 @@
 #include "poly.h"
 #include "light.h"
 #include "obj.h"
+#include "bbox.h"
+#include "kdtree.h"
+
+#define trulse true && false
 
 struct vector getRandomVecOnRadius(struct vector center, float radius);
+
+bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct shadeInfo *info) {
+	double closestIntersection = 20000.0f;
+	if (rayIntersectWithAABB(node->bbox, ray, &closestIntersection)) {
+		struct vector normal;
+		bool hasHit = false;
+		
+		if (node->left->polyCount > 0 || node->right->polyCount > 0) {
+			//Recurse down both sides
+			bool hitLeft  = rayIntersectsWithNode(node->left, ray, info);
+			bool hitRight = rayIntersectsWithNode(node->right, ray, info);
+			
+			return hitLeft || hitRight;
+		} else {
+			//This is a leaf, so check all polys
+			for (int i = 0; i < node->polyCount; i++) {
+				if (rayIntersectsWithPolygon(ray, &node->polygons[i], &closestIntersection, &normal)) {
+					hasHit = true;
+					info->type = polygon;
+					info->normal = normal;
+					info->objIndex = node->firstPolyIndex + i;
+				}
+			}
+			if (hasHit) {
+				info->hasHit = true;
+				info->isectDistance = closestIntersection;
+				return true;
+			}
+			return false;
+		}
+	}
+	return false;
+}
 
 /**
  Returns a computed color based on a given ray and world scene
@@ -29,6 +66,9 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 	struct color output = {0.0f,0.0f,0.0f};
 	int bounces = 0;
 	double contrast = worldScene->camera->contrast;
+	
+	struct shadeInfo *isectInfo = (struct shadeInfo*)calloc(1, sizeof(struct shadeInfo));
+	struct shadeInfo *shadowInfo = (struct shadeInfo*)calloc(1, sizeof(struct shadeInfo));
 	
 	do {
 		//Find the closest intersection first
@@ -44,8 +84,6 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		struct vector polyNormal = {0.0, 0.0, 0.0};
 		struct vector hitpoint, surfaceNormal;
 		
-		bool isCustomPoly = false;
-		
 		unsigned int i;
 		for (i = 0; i < sphereAmount; ++i) {
 			if (rayIntersectsWithSphere(incidentRay, &worldScene->spheres[i], &closestIntersection)) {
@@ -53,7 +91,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 				currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].materialIndex];
 			}
 		}
-		
+#ifdef USE_OLD_RENDERER
 		unsigned int o, p;
 		for (o = 0; o < objCount; o++) {
 			if (rayIntersectsWithSphereFast(incidentRay, &worldScene->objs[o].boundingVolume)) {
@@ -62,12 +100,24 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 						currentPolygon = p;
 						currentMaterial = worldScene->objs[o].materials[polygonArray[p].materialIndex];
 						currentSphere = -1;
-						isCustomPoly = false;
 					}
 				}
 			}
 		}
-		
+#else
+		isectInfo->isectDistance = closestIntersection;
+		isectInfo->normal = polyNormal;
+		unsigned int o;
+		for (o = 0; o < objCount; o++) {
+			if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, isectInfo)) {
+				currentPolygon = isectInfo->objIndex;
+				closestIntersection = isectInfo->isectDistance;
+				polyNormal = isectInfo->normal;
+				currentMaterial = worldScene->materials[polygonArray[currentPolygon].materialIndex];
+				currentSphere = -1;
+			}
+		}
+#endif
 		//Ray-object intersection detection
 		if (currentSphere != -1) {
 			struct vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
@@ -144,7 +194,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 				}
 			}
 			
-			
+#ifdef USE_OLD_RENDERER
 			for (o = 0; o < objCount; o++) {
 				//Note, rayIntersectsWithSphereFast has to be used here since bounced rays may originate from within a boundingVolume
 				if (rayIntersectsWithSphereFast(&bouncedRay, &worldScene->objs[o].boundingVolume)) {
@@ -162,7 +212,18 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 					}
 				}
 			}
-			
+#else
+			shadowInfo->isectDistance = t;
+			shadowInfo->normal = polyNormal;
+			for (o = 0; o < objCount; o++) {
+				if (rayIntersectsWithNode(worldScene->objs[o].tree, &bouncedRay, shadowInfo)) {
+					t = shadowInfo->isectDistance;
+					polyNormal = shadowInfo->normal;
+					inShadow = true;
+					break;
+				}
+			}
+#endif
 			if (!inShadow) {
 				//TODO: Calculate specular reflection
 				float specularFactor = 1.0;//scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
@@ -186,6 +247,9 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		bounces++;
 		
 	} while ((contrast > 0.0f) && (bounces <= worldScene->camera->bounces));
+	
+	free(isectInfo);
+	free(shadowInfo);
 	
 	return output;
 }

@@ -17,8 +17,10 @@ struct kdTreeNode {
 	struct kdTreeNode *left; //Pointer to left child
 	struct kdTreeNode *right;//Pointer to right child
 	struct poly *polygons;   //Polygons within the bounding box
+	int firstPolyIndex;      //For offset
 	int polyCount;           //Amount of polygons
+	int depth;
 };
 
 //Builds a k-d tree and returns the root node
-struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth);
+struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyIndex, int depth);

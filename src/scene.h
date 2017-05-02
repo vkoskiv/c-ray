@@ -19,8 +19,6 @@ struct kdTreeNode;
 
 //World
 struct scene {
-	//Root k-d tree node
-	struct kdTreeNode *rootNode;
 	
 	struct color *ambientColor;
 	

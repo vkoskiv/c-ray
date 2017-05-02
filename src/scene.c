@@ -226,7 +226,7 @@ void transformMeshes(struct scene *scene) {
 		transformMesh(&scene->objs[i]);
 		printf("Transformed %s!\n", scene->objs[i].objName);
 		printf("Computing KD-tree...\n");
-		//scene->objs[i].tree = buildTree(&scene->objs[i], 0);
+		scene->objs[i].tree = buildTree(&polygonArray[scene->objs[i].firstPolyIndex], scene->objs[i].polyCount, scene->objs[i].firstPolyIndex, 0);
 		printf("Tree finished\n");
 	}
 	printf("Transforms done!\n");
@@ -288,7 +288,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam->isBorderless = false;
 	cam->         FOV = 80.0;
 	cam-> focalLength = 0;
-	cam-> sampleCount = 1;
+	cam-> sampleCount = 25;
 	cam->  frameCount = 1;
 	cam->     bounces = 3;
 	cam->    contrast = 0.7;

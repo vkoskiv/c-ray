@@ -46,6 +46,7 @@ struct boundingBox *computeBoundingBox(struct poly *polys, int count) {
 	return bbox;
 }
 
+//Check if a ray intersects with an axis-aligned bounding box
 bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, double *t) {
 	struct vector dirfrac;
 	// r.dir is unit direction vector of ray
@@ -64,7 +65,7 @@ bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, double 
 	double tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
 	double tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
 	
-	// if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
+	// if tmax < 0, ray is intersecting AABB, but the whole AABB is behind us
 	if (tmax < 0)
 	{
 		t = &tmax;

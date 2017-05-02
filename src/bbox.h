@@ -17,3 +17,5 @@ struct boundingBox {
 struct boundingBox *computeBoundingBox(struct poly *polys, int count);
 
 int getLongestAxis(struct boundingBox *bbox);
+
+bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, double *t);

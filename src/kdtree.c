@@ -77,7 +77,7 @@ bool comparePolygons(struct poly *p1, struct poly *p2) {
 		if (p1->normalIndex[i] != p2->normalIndex[i]) {
 			areSame = false;
 		}
-		if (p1->textureIndex[i] != p2->normalIndex[i]) {
+		if (p1->textureIndex[i] != p2->textureIndex[i]) {
 			areSame = false;
 		}
 	}
@@ -85,17 +85,19 @@ bool comparePolygons(struct poly *p1, struct poly *p2) {
 	return areSame;
 }
 
-struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth) {
+struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyIndex, int depth) {
 	struct kdTreeNode *node = (struct kdTreeNode*)calloc(1, sizeof(struct kdTreeNode));
-	node->polygons = &polygonArray[obj->firstPolyIndex];
-	node->polyCount = obj->polyCount;
+	node->polygons = polys;
+	node->firstPolyIndex = firstPolyIndex;
+	node->polyCount = polyCount;
 	node->left = NULL;
 	node->right = NULL;
 	node->bbox = NULL;
+	node->depth = depth;
 	
-	if (obj->polyCount == 0)
+	if (polyCount == 0)
 		return node;
-	if (obj->polyCount == 1) {
+	if (polyCount == 1) {
 		node->bbox = computeBoundingBox(&node->polygons[0], 1);
 		node->left = getNewNode();
 		node->right = getNewNode();
@@ -108,10 +110,8 @@ struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth) {
 	
 	struct Array leftPolys;
 	initArray(&leftPolys, 5);
-	int leftPolyCount = 0;
 	struct Array rightPolys;
 	initArray(&rightPolys, 5);
-	int rightPolyCount = 0;
 	
 	//TODO: Enum axis
 	int axis = getLongestAxis(node->bbox);
@@ -147,22 +147,23 @@ struct kdTreeNode *buildTree(struct crayOBJ *obj, int depth) {
 		}
 	}
 	
-	if (leftPolyCount == 0 && rightPolyCount > 0) leftPolys = rightPolys;
-	if (rightPolyCount == 0 && leftPolyCount > 0) rightPolys = leftPolys;
+	if (leftPolys.used == 0 && rightPolys.used > 0) leftPolys = rightPolys;
+	if (leftPolys.used == 0 && rightPolys.used > 0) rightPolys = leftPolys;
 	
 	//If more than 50% of polys match, stop subdividing
 	int matches = 0;
-	for (int i = 0; i < leftPolyCount; i++) {
-		for (int j = 0; j < rightPolyCount; j++) {
-			if (comparePolygons(&leftPolys.array[i], &rightPolys.array[j]))
+	for (int i = 0; i < leftPolys.used; i++) {
+		for (int j = 0; j < rightPolys.used; j++) {
+			if (comparePolygons(&leftPolys.array[i], &rightPolys.array[j])) {
 				matches++;
+			}
 		}
 	}
 	
-	if ((float)matches / leftPolyCount < 0.5 && (float)matches / rightPolyCount < 0.5) {
+	if ((float)matches / leftPolys.used < 0.5 && (float)matches / rightPolys.used < 0.5) {
 		//Recurse down both left and right sides
-		node->left = buildTree(obj, depth + 1);
-		node->right = buildTree(obj, depth + 1);
+		node->left = buildTree(leftPolys.array, (int)leftPolys.used, firstPolyIndex, depth + 1);
+		node->right = buildTree(rightPolys.array, (int)rightPolys.used, firstPolyIndex, depth + 1);
 	} else {
 		//Stop here
 		node->left = getNewNode();
