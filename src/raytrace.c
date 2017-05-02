@@ -40,7 +40,8 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 					hasHit = true;
 					info->type = polygon;
 					info->normal = normal;
-					info->objIndex = node->firstPolyIndex + i;
+					info->objIndex = node->polygons[i].polyIndex;
+					info->mtlIndex = node->polygons[i].materialIndex;
 				}
 			}
 			if (hasHit) {
@@ -113,7 +114,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 				currentPolygon = isectInfo->objIndex;
 				closestIntersection = isectInfo->isectDistance;
 				polyNormal = isectInfo->normal;
-				currentMaterial = worldScene->materials[polygonArray[currentPolygon].materialIndex];
+				currentMaterial = worldScene->objs[o].materials[isectInfo->mtlIndex];
 				currentSphere = -1;
 			}
 		}

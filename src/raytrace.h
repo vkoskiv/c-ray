@@ -21,6 +21,7 @@ struct shadeInfo {
 	struct material currentMaterial;
 	enum currentType type;
 	bool hasHit;
+	int mtlIndex;
 	int objIndex;
 	double isectDistance;
 };

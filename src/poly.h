@@ -13,6 +13,7 @@ struct poly {
 	int normalIndex[MAX_CRAY_VERTEX_COUNT];
 	int textureIndex[MAX_CRAY_VERTEX_COUNT];
 	int materialIndex;
+	int polyIndex;
 	int vertexCount;
 };
 

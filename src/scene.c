@@ -33,10 +33,11 @@ struct vector vectorFromObj(obj_vector *vec) {
 	return vector;
 }
 
-struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex) {
+struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex, int polyIndex) {
 	struct poly polygon;
 	polygon.vertexCount = face->vertex_count;
 	polygon.materialIndex = face->material_index;
+	polygon.polyIndex = polyIndex;
 	for (int i = 0; i < polygon.vertexCount; i++)
 		polygon.vertexIndex[i] = firstVertexIndex + face->vertex_index[i];
 	for (int i = 0; i < polygon.vertexCount; i++)
@@ -163,7 +164,8 @@ void addOBJ(struct scene *sceneData, char *inputFileName) {
 		polygonArray[sceneData->objs[sceneData->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
 																							sceneData->objs[sceneData->objCount].firstVectorIndex,
 																							sceneData->objs[sceneData->objCount].firstNormalIndex,
-																							sceneData->objs[sceneData->objCount].firstTextureIndex);
+																							sceneData->objs[sceneData->objCount].firstTextureIndex,
+																							sceneData->objs[sceneData->objCount].firstPolyIndex + i);
 	}
 	
 	sceneData->objs[sceneData->objCount].materials = (struct material*)calloc(1, sizeof(struct material));
