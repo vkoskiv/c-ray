@@ -1,0 +1,62 @@
+newmtl red_material
+# ambient values
+Ka  0.1 0 0
+# diffues values
+Kd  1 0 0 
+# specular values
+Ks  1 1 1
+# sharpness of specular reflection
+Ns  10
+# texture map filename
+map_Ka not_a_real_file.png
+
+newmtl green_material
+Ka  0 0.1 0
+Kd  0 1 0 
+Ks  0 1 0 
+# reflection amount
+r 0.5
+# sharpness of reflection
+sharpness 30
+
+newmtl blue_material
+Ka  0 0 0.5
+Kd  0 0 1
+Ks  1 1 1
+# transparency amount
+d  0.5
+# index of refraction
+Ni  1.33
+Ns  0
+
+# Actual materials we'll use, mtl suffix
+# floor and ceiling
+newmtl gray_mtl
+Kd 0.8 0.8 0.8
+r 0.0
+# Mirror plane
+newmtl mirror_mtl
+Kd 0.3 0.3 0.3
+r 1.0
+# Shadow test
+newmtl lightblue_mtl
+Kd 0.0 0.5 1.0
+r 1.0
+# left wall
+newmtl red_mtl
+Kd 0.6 0.1 0.1
+r 0.0
+# Rear wall
+newmtl green_mtl
+Kd 0.1 0.5 0.1
+r 0.0
+# Right wall
+newmtl blue_mtl
+Kd 0.1 0.1 0.5
+r 0.0
+
+# you will need to cook up your own values for the light output
+newmtl light_material
+Ka  1 1 1
+Kd  1 1 1
+Ks  1 1 1
