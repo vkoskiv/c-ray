@@ -151,6 +151,7 @@ struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyInd
 	if (leftPolys.used == 0 && rightPolys.used > 0) rightPolys = leftPolys;
 	
 	//If more than 50% of polys match, stop subdividing
+	//TODO: Find a non-O(n^2) way of stopping the subdivide
 	int matches = 0;
 	for (int i = 0; i < leftPolys.used; i++) {
 		for (int j = 0; j < rightPolys.used; j++) {

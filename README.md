@@ -16,6 +16,7 @@ It currently supports:
 - Very crude, hard-coded animations (simple do-while loop)
 - Scene definition files (Currently disabled)
 - Full support for triangulated OBJ model loading, including matrix transforms to composite a scene.
+- k-d trees
 
 Things I'm looking to implement:
 - Better material support (Currently only color and reflectivity)
