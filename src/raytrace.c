@@ -137,16 +137,9 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			surfaceNormal = vectorScale(-1.0f, &surfaceNormal);
 		}
 		
-		struct lightRay bouncedRay, cameraRay;
+		struct lightRay bouncedRay;
 		bouncedRay.start = hitpoint;
-		cameraRay.start = hitpoint;
-		cameraRay.direction = subtractVectors(&worldScene->camera->pos, &hitpoint);
-		double cameraProjection = scalarProduct(&cameraRay.direction, &hitpoint);
-		double cameraDistance = scalarProduct(&cameraRay.direction, &cameraRay.direction);
-		double camTemp = cameraDistance;
-		camTemp = invsqrtf(camTemp);
-		cameraRay.direction = vectorScale(camTemp, &cameraRay.direction);
-		cameraProjection = camTemp * cameraProjection;
+		
 		//Find the value of the light at this point
 		unsigned int j;
 		for (j = 0; j < lightSourceAmount; ++j) {
