@@ -65,6 +65,12 @@ int main(int argc, char *argv[]) {
 		logHandler(sceneParseErrorNoPath);
 	}
 	
+#ifndef UI_ENABLED
+	printf("**************************************************************************\n");
+	printf("*UI is DISABLED! Enable by uncommenting #define UI_ENABLED in includes.h!*\n");
+	printf("**************************************************************************\n");
+#endif
+	
 	//Build the scene
 	switch (testBuild(mainRenderer.worldScene, "test")) {
 		case -1:
