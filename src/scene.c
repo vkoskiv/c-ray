@@ -205,7 +205,7 @@ void transformMeshes(struct scene *scene) {
 void computeKDTrees(struct scene *scene) {
 	printf("Computing KD-trees...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
-		printf("Computing tree for %s...\n", scene->objs[i].objName);
+		printf("Computing tree for %s...", scene->objs[i].objName);
 		scene->objs[i].tree = buildTree(&polygonArray[scene->objs[i].firstPolyIndex],
 										scene->objs[i].polyCount,
 										scene->objs[i].firstPolyIndex, 0);
@@ -261,7 +261,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam->isBorderless = false;
 	cam->         FOV = 80.0;
 	cam-> focalLength = 0;
-	cam-> sampleCount = 25;
+	cam-> sampleCount = 100;
 	cam->  frameCount = 1;
 	cam->     bounces = 3;
 	cam->    contrast = 0.7;
@@ -273,8 +273,8 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam->   tileOrder = renderOrderFromMiddle;
 	cam->pos = vectorWithPos(0, 0, 0); //Don't change
 	
-	addCamTransform(scene, newTransformTranslate(970, 400, 600)); //Set pos here
-	addCamTransform(scene, newTransformRotateX(11));//And add as many rotations as you want!
+	addCamTransform(scene, newTransformTranslate(970, 480, 600)); //Set pos here
+	addCamTransform(scene, newTransformRotateX(21));//And add as many rotations as you want!
 	addCamTransform(scene, newTransformRotateZ(9)); //Don't scale or translate!
 	
 	scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
@@ -287,17 +287,11 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	//NOTE: Translates have to come last!
 	addOBJ(scene, "../output/mainScene.obj");
 	
-	addOBJ(scene, "../output/monkeyHD.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(10, 10, 10));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(200));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateZ(45));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1400, 415, 1000));
-	
 	addOBJ(scene, "../output/torus.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(90, 90, 90));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateX(45));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(105));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(640, 460, 800));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(40, 40, 40));
+	//addTransform(&scene->objs[scene->objCount - 1], newTransformRotateX(45));
+	//addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(105));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1070, 320, 820));
 	
 	
 	//R G B is 0 1 2
@@ -306,15 +300,45 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 900));
 	
+	addOBJ(scene, "../output/teapot_red.obj");
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 1050));
+	
+	addOBJ(scene, "../output/teapot_red.obj");
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 1200));
+	
 	addOBJ(scene, "../output/teapot_green.obj");
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 900));
 	
+	addOBJ(scene, "../output/teapot_green.obj");
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 1050));
+	
+	addOBJ(scene, "../output/teapot_green.obj");
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 1200));
+	
 	addOBJ(scene, "../output/teapot_blue.obj");
 	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,900));
+	
+	addOBJ(scene, "../output/teapot_blue.obj");
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,1050));
+	
+	addOBJ(scene, "../output/teapot_blue.obj");
+	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
+	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,1200));
 	
 	//Transform all meshes
 	transformMeshes(scene);
