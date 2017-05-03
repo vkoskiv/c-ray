@@ -113,15 +113,14 @@ struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyInd
 	struct Array rightPolys;
 	initArray(&rightPolys, 5);
 	
-	//TODO: Enum axis
-	int axis = getLongestAxis(node->bbox);
+	enum bboxAxis axis = getLongestAxis(node->bbox);
 	
 	for (int i = 0; i < node->polyCount; i++) {
 		struct vector polyMidPoint = getMidPoint(&vertexArray[node->polygons[i].vertexIndex[0]],
 									   &vertexArray[node->polygons[i].vertexIndex[1]],
 									   &vertexArray[node->polygons[i].vertexIndex[2]]);
 		switch (axis) {
-			case 0:
+			case X:
 				if (midPoint.x >= polyMidPoint.x) {
 					insertArray(&rightPolys, node->polygons[i]);
 				} else {
@@ -129,7 +128,7 @@ struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyInd
 				}
 				break;
 				
-			case 1:
+			case Y:
 				if (midPoint.y >= polyMidPoint.y) {
 					insertArray(&rightPolys, node->polygons[i]);
 				} else {
@@ -137,7 +136,7 @@ struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyInd
 				}
 				break;
 				
-			case 2:
+			case Z:
 				if (midPoint.z >= polyMidPoint.z) {
 					insertArray(&rightPolys, node->polygons[i]);
 				} else {

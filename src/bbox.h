@@ -10,12 +10,18 @@
 
 struct poly;
 
+enum bboxAxis {
+	X,
+	Y,
+	Z
+};
+
 struct boundingBox {
 	struct vector start, end, midPoint;
 };
 
 struct boundingBox *computeBoundingBox(struct poly *polys, int count);
 
-int getLongestAxis(struct boundingBox *bbox);
+enum bboxAxis getLongestAxis(struct boundingBox *bbox);
 
 bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, double *t);

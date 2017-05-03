@@ -13,12 +13,12 @@
 #include "poly.h"
 
 //Return 0 if x, 1 if y, 2 if z
-int getLongestAxis(struct boundingBox *bbox) {
+enum bboxAxis getLongestAxis(struct boundingBox *bbox) {
 	int x = fabs(bbox->start.x - bbox->end.x);
 	int y = fabs(bbox->start.y - bbox->end.y);
 	int z = fabs(bbox->start.z - bbox->end.z);
 
-	return x > y && x > z ? 0 : y > z ? 1 : 2;
+	return x > y && x > z ? X : y > z ? Y : Z;
 }
 
 struct boundingBox *computeBoundingBox(struct poly *polys, int count) {
@@ -49,12 +49,10 @@ struct boundingBox *computeBoundingBox(struct poly *polys, int count) {
 //Check if a ray intersects with an axis-aligned bounding box
 bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, double *t) {
 	struct vector dirfrac;
-	// r.dir is unit direction vector of ray
 	dirfrac.x = 1.0f / ray->direction.x;
 	dirfrac.y = 1.0f / ray->direction.y;
 	dirfrac.z = 1.0f / ray->direction.z;
-	// lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
-	// r.org is origin of ray
+
 	float t1 = (box->start.x - ray->start.x)*dirfrac.x;
 	float t2 = (box->  end.x - ray->start.x)*dirfrac.x;
 	float t3 = (box->start.y - ray->start.y)*dirfrac.y;
