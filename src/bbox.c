@@ -12,7 +12,6 @@
 #include "obj.h"
 #include "poly.h"
 
-//Return 0 if x, 1 if y, 2 if z
 enum bboxAxis getLongestAxis(struct boundingBox *bbox) {
 	int x = fabs(bbox->start.x - bbox->end.x);
 	int y = fabs(bbox->start.y - bbox->end.y);
