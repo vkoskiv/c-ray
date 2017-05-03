@@ -56,32 +56,6 @@ struct material materialFromObj(obj_material *mat) {
 	return newMat;
 }
 
-//Compute the bounding volume for a given OBJ and save it to that OBJ.
-//This is used to optimize rendering, where we only loop thru all polygons
-//in an OBJ if we know the ray has entered its' bounding volume, a sphere in this case
-void computeBoundingVolume(struct crayOBJ *object) {
-	struct vector minPoint = vertexArray[object->firstVectorIndex];
-	struct vector maxPoint = vertexArray[object->firstVectorIndex];
-	for (int i = object->firstVectorIndex + 1; i < (object->firstVectorIndex + object->vertexCount); i++) {
-		minPoint = minVector(&minPoint, &vertexArray[i]);
-		maxPoint = maxVector(&maxPoint, &vertexArray[i]);
-	}
-	struct vector center = vectorWithPos(0.5 * (minPoint.x + maxPoint.x), 0.5 * (minPoint.y + maxPoint.y), 0.5 * (minPoint.z + maxPoint.z));
-	
-	float maxDistance = 0.0;
-	
-	for (int i = object->firstVectorIndex + 1; i < (object->firstVectorIndex + object->vertexCount); i++) {
-		struct vector fromCenter = subtractVectors(&vertexArray[i], &center);
-		maxDistance = max(maxDistance, pow(vectorLength(&fromCenter), 2));
-	}
-	float sphereRadius = sqrtf(maxDistance);
-	object->boundingVolume.pos = center;
-	object->boundingVolume.pos.isTransformed = false;
-	object->boundingVolume.radius = sphereRadius;
-	
-	printf("%s boundingVolume radius %f\n", object->objName, object->boundingVolume.radius);
-}
-
 char *getFileName(char *input) {
 	char *fn;
 	
@@ -120,9 +94,6 @@ void addOBJ(struct scene *sceneData, char *inputFileName) {
 	//Poly data
 	sceneData->objs[sceneData->objCount].firstPolyIndex = polyCount;
 	sceneData->objs[sceneData->objCount].polyCount = data.face_count;
-	//BoundingVolume init
-	sceneData->objs[sceneData->objCount].boundingVolume.pos = vectorWithPos(0, 0, 0);
-	sceneData->objs[sceneData->objCount].boundingVolume.radius = 0;
 	//Transforms init
 	sceneData->objs[sceneData->objCount].transformCount = 0;
 	sceneData->objs[sceneData->objCount].transforms = (struct matrixTransform*)malloc(sizeof(struct matrixTransform));
@@ -224,22 +195,22 @@ void addCamera(struct scene *scene, struct camera *newCamera) {
 void transformMeshes(struct scene *scene) {
 	printf("Running transforms...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
-		printf("Transforming %s...\n", scene->objs[i].objName);
+		printf("Transforming %s...", scene->objs[i].objName);
 		transformMesh(&scene->objs[i]);
 		printf("Transformed %s!\n", scene->objs[i].objName);
-		printf("Computing KD-tree...\n");
-		scene->objs[i].tree = buildTree(&polygonArray[scene->objs[i].firstPolyIndex], scene->objs[i].polyCount, scene->objs[i].firstPolyIndex, 0);
-		printf("Tree finished\n");
 	}
 	printf("Transforms done!\n");
 }
 
-void computeBoundingVolumes(struct scene *scene) {
-	printf("\nComputing bounding volumes...\n");
+void computeKDTrees(struct scene *scene) {
+	printf("Computing KD-trees...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
-		computeBoundingVolume(&scene->objs[i]);
+		printf("Computing tree for %s...\n", scene->objs[i].objName);
+		scene->objs[i].tree = buildTree(&polygonArray[scene->objs[i].firstPolyIndex],
+										scene->objs[i].polyCount,
+										scene->objs[i].firstPolyIndex, 0);
+		printf(" Done!\n");
 	}
-	printf("\n");
 }
 
 //FIXME: Move this to transforms.c
@@ -297,10 +268,9 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam-> windowScale = 1.0;
 	cam->    fileType = png;
 	cam->  areaLights = true;
-	cam-> aprxShadows = false; //Approximate mesh shadows, true is faster but results in inaccurate shadows
 	cam->  tileWidth  = 64;
 	cam->  tileHeight = 64;
-	cam->   tileOrder = renderOrderToMiddle;
+	cam->   tileOrder = renderOrderFromMiddle;
 	cam->pos = vectorWithPos(0, 0, 0); //Don't change
 	
 	addCamTransform(scene, newTransformTranslate(970, 400, 600)); //Set pos here
@@ -315,7 +285,6 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	addCamera(scene, cam);
 	
 	//NOTE: Translates have to come last!
-	
 	addOBJ(scene, "../output/mainScene.obj");
 	
 	addOBJ(scene, "../output/monkeyHD.obj");
@@ -347,8 +316,10 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
 	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,900));
 	
+	//Transform all meshes
 	transformMeshes(scene);
-	computeBoundingVolumes(scene);
+	//And compute the k-d trees for each mesh
+	computeKDTrees(scene);
 	
 	//LIGHTS
 	addLight(scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));

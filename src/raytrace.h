@@ -11,8 +11,9 @@
 struct scene;
 
 enum currentType {
-	polygon,
-	sphere
+	hitTypePolygon,
+	hitTypeSphere,
+	hitTypeNone
 };
 
 struct shadeInfo {
@@ -23,7 +24,7 @@ struct shadeInfo {
 	bool hasHit;
 	int mtlIndex;
 	int objIndex;
-	double isectDistance;
+	double closestIntersection;
 };
 
 struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene);

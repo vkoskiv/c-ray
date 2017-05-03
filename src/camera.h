@@ -32,7 +32,6 @@ struct camera {
 	
 	unsigned char *imgData;
 	bool areaLights;
-	bool aprxShadows;
 	int sampleCount;
 	int threadCount;
 	enum renderOrder tileOrder;

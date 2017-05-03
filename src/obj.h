@@ -23,7 +23,6 @@ struct crayOBJ {
 	int polyCount;
 	int firstPolyIndex;
 	
-	struct sphere boundingVolume;
 	struct matrixTransform *transforms;
 	int transformCount;
 	

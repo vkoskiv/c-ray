@@ -10,7 +10,6 @@
 
 //Comment this to disable SDL
 //#define UI_ENABLED
-#define USE_OLD_RENDERER
 
 //Global constants
 #define MAX_CRAY_VERTEX_COUNT 3
