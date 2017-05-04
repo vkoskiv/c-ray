@@ -62,11 +62,11 @@ f 4 6 8
 ##################
 # spheres
 ##################i
-v 10 10 10
+# v 10 10 10
 # vn defines a vertex normal in 3space of x y z
-vn 150 150 0
-vn 50 50 0
-vn 50 50 0
+# vn 150 150 0
+# vn 50 50 0
+# vn 50 50 0
 # sp v vn vn describes a sphere in this format:
 #    position = v
 #    up normal = vn
@@ -76,9 +76,9 @@ vn 50 50 0
 #
 # You can use negative numbers to refer to relative indices
 # These indices point to the previous vertex and 2 previous normals
-sp 15 -3 -1
-sp 16 -2 -1
-sp 17 -1 -1
+# sp 15 -3 -1
+# sp 16 -2 -1
+# sp 17 -1 -1
 
 usemtl blue_material
 
