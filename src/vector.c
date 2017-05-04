@@ -72,3 +72,7 @@ struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v
 	temp = addVectors(&temp, v3);
 	return vectorScale(1.0/3.0, &temp);
 }
+
+struct coord uvFromValues(double u, double v) {
+	return (struct coord){u, v};
+}
