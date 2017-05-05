@@ -24,6 +24,13 @@ char *trimSpaces(char *inputLine);
 //Parses a scene file and allocates memory accordingly
 int allocMemory(struct scene *scene, char *inputFileName);
 
+
+/**
+ Convert a given OBJ loader vector into a c-ray vector
+
+ @param vec OBJ loader vector
+ @return c-ray vector
+ */
 struct vector vectorFromObj(obj_vector *vec) {
 	struct vector vector;
 	vector.x = vec->e[0];
@@ -33,6 +40,17 @@ struct vector vectorFromObj(obj_vector *vec) {
 	return vector;
 }
 
+
+/**
+ Convert a given OBJ loader polygon into a c-ray polygon
+
+ @param face OBJ loader polygon
+ @param firstVertexIndex First vertex index of the new polygon
+ @param firstNormalIndex First normal index of the new polygon
+ @param firstTextureIndex First texture index of the new polygon
+ @param polyIndex polygonArray index offset
+ @return c-ray polygon
+ */
 struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex, int polyIndex) {
 	struct poly polygon;
 	polygon.vertexCount = face->vertex_count;
@@ -47,6 +65,13 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
 	return polygon;
 }
 
+
+/**
+ Convert a given OBJ loader material into a c-ray material
+
+ @param mat OBJ loader material
+ @return c-ray material
+ */
 struct material materialFromObj(obj_material *mat) {
 	struct material newMat;
 	newMat.diffuse.red   = mat->diff[0];
@@ -56,6 +81,13 @@ struct material materialFromObj(obj_material *mat) {
 	return newMat;
 }
 
+
+/**
+ Extract the filename from a given file path
+
+ @param input File path to be processed
+ @return Filename string, including file type extension
+ */
 char *getFileName(char *input) {
 	char *fn;
 	

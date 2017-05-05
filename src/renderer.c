@@ -26,6 +26,12 @@ HANDLE tileMutex = INVALID_HANDLE_VALUE;
 pthread_mutex_t tileMutex;
 #endif
 
+
+/**
+ Returns true if there are no more renderTiles
+
+ @return boolean, true if no renderTiles remaining
+ */
 bool renderTilesEmpty() {
 	return mainRenderer.renderedTileCount >= mainRenderer.tileCount;
 }
@@ -105,6 +111,10 @@ void quantizeImage(struct scene *worldScene) {
 	printf("Quantized image into %i tiles. (%ix%i)", (tilesX*tilesY), tilesX, tilesY);
 }
 
+
+/**
+ Reorder renderTiles to start from top
+ */
 void reorderTopToBottom() {
 	int endIndex = mainRenderer.tileCount - 1;
 	
@@ -118,6 +128,10 @@ void reorderTopToBottom() {
 	mainRenderer.renderTiles = tempArray;
 }
 
+
+/**
+ Reorder renderTiles to start from middle
+ */
 void reorderFromMiddle() {
 	int midLeft = 0;
 	int midRight = 0;
@@ -142,6 +156,10 @@ void reorderFromMiddle() {
 	mainRenderer.renderTiles = tempArray;
 }
 
+
+/**
+ Reorder renderTiles to start from ends, towards the middle
+ */
 void reorderToMiddle() {
 	int left = 0;
 	int right = 0;
@@ -209,7 +227,12 @@ struct color getPixel(struct scene *worldScene, int x, int y) {
 	return output;
 }
 
-//Compute view direction transforms
+
+/**
+ Compute view direction transforms
+
+ @param direction Direction vector to be transformed
+ */
 void transformCameraView(struct vector *direction) {
 	for (int i = 1; i < mainRenderer.worldScene->camTransformCount; i++) {
 		transformVector(direction, &mainRenderer.worldScene->camTransforms[i]);
@@ -217,6 +240,13 @@ void transformCameraView(struct vector *direction) {
 	}
 }
 
+
+/**
+ Print running average duration of tiles rendered
+
+ @param avgTime Current computed average time
+ @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
+ */
 void printRunningAverage(const time_t avgTime, int remainingTileCount) {
 	time_t remainingTime = remainingTileCount * avgTime;
 	//First print avg tile time
@@ -224,6 +254,12 @@ void printRunningAverage(const time_t avgTime, int remainingTileCount) {
 	printf(", render time remaining: %li min (%li sec)\n", remainingTime / 60, remainingTime);
 }
 
+
+/**
+ Compute the running average time from a given tile's render duration
+
+ @param tile Tile to get the duration from
+ */
 void computeTimeAverage(struct renderTile tile) {
 	mainRenderer.avgTileTime = mainRenderer.avgTileTime * (mainRenderer.timeSampleCount - 1);
 	mainRenderer.avgTileTime += difftime(tile.stop, tile.start);

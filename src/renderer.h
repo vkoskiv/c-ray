@@ -11,6 +11,10 @@
 struct scene;
 enum renderOrder;
 
+
+/**
+ Thread information struct to communicate with main thread
+ */
 struct threadInfo {
 #ifdef WINDOWS
 	HANDLE thread_handle;
@@ -22,6 +26,10 @@ struct threadInfo {
 	bool threadComplete;
 };
 
+
+/**
+ Render tile, contains needed information for the renderer
+ */
 struct renderTile {
 	int width;
 	int height;
@@ -33,6 +41,11 @@ struct renderTile {
 	time_t start, stop;
 };
 
+
+/**
+ Main renderer. Stores needed information to keep track of render status,
+ as well as information needed for the rendering routines.
+ */
 struct renderer {
 	struct threadInfo *renderThreadInfo;
 #ifndef WINDOWS
