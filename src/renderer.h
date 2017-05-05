@@ -49,6 +49,7 @@ struct renderer {
 	int activeThreads;
 	bool isRendering;
 	bool renderAborted;
+	bool smoothShading;
 	time_t avgTileTime;
 	int timeSampleCount;
 };

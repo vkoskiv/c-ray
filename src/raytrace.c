@@ -21,9 +21,11 @@
 
 struct vector getRandomVecOnRadius(struct vector center, float radius);
 
+//TODO: Move this to kdtree.c
 bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct shadeInfo *info) {
 	if (rayIntersectWithAABB(node->bbox, ray, &info->closestIntersection)) {
 		struct vector normal;
+		struct coord uv;
 		bool hasHit = false;
 		
 		if (node->left->polyCount > 0 || node->right->polyCount > 0) {
@@ -35,10 +37,11 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 		} else {
 			//This is a leaf, so check all polys
 			for (int i = 0; i < node->polyCount; i++) {
-				if (rayIntersectsWithPolygon(ray, &node->polygons[i], &info->closestIntersection, &normal)) {
+				if (rayIntersectsWithPolygon(ray, &node->polygons[i], &info->closestIntersection, &normal, &uv)) {
 					hasHit = true;
 					info->type = hitTypePolygon;
 					info->normal = normal;
+					info->uv = uv;
 					info->objIndex = node->polygons[i].polyIndex;
 					info->mtlIndex = node->polygons[i].materialIndex;
 				}
@@ -51,6 +54,52 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 		}
 	}
 	return false;
+}
+
+//#define SMOOTH
+//#define UV
+
+void getSurfaceProperties(int polyIndex,
+					  const struct coord uv,
+					  struct vector *calculatedNormal,
+					  struct coord *textureCoord) {
+#ifdef SMOOTH
+	//If smooth shading enabled
+	struct vector n0 = normalArray[polygonArray[polyIndex].normalIndex[0]];
+	struct vector n1 = normalArray[polygonArray[polyIndex].normalIndex[1]];
+	struct vector n2 = normalArray[polygonArray[polyIndex].normalIndex[2]];
+	
+	// (1 - uv.x - uv.y) * n0
+	//+ uv.x * n1
+	//+ uv.y * n2;
+	
+	struct vector scaled0 = vectorScale((1 - uv.x - uv.y), &n0);
+	struct vector scaled1 = vectorScale(uv.x, &n1);
+	
+	struct vector add0 = addVectors(&scaled0, &scaled1);
+	struct vector add1 = vectorScale(uv.y, &n2);
+	
+	*calculatedNormal = addVectors(&add0, &add1);
+#endif
+
+#ifdef UV
+	*calculatedNormal = normalizeVector(calculatedNormal);
+	//Texture coords
+	struct vector s0 = textureArray[polygonArray[polyIndex].textureIndex[0]];
+	struct vector s1 = textureArray[polygonArray[polyIndex].textureIndex[1]];
+	struct vector s2 = textureArray[polygonArray[polyIndex].textureIndex[2]];
+	
+	// (1 - uv.x - uv.y) * st0 + uv.x * st1 + uv.y * st2;
+	
+	double u = (1 - uv.x - uv.y);
+	u = u * s0.x;
+	u = u * s0.y;
+	u = u * s0.z;
+	
+	//double v = vectorScale(uv.x, &s1), vectorScale(uv.y, s2);
+	
+	//textureCoord = uvFromValues(u, <#double v#>)
+#endif
 }
 
 /**
@@ -81,7 +130,9 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		int objCount = worldScene->objCount;
 		
 		struct material currentMaterial;
-		struct vector polyNormal = {0.0, 0.0, 0.0};
+		struct vector polyNormal  = {0.0, 0.0, 0.0};
+		struct coord  uv          = {0.0, 0.0};
+		struct coord textureCoord = {0.0, 0.0};
 		struct vector hitpoint, surfaceNormal;
 		
 		unsigned int i;
@@ -97,9 +148,11 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		unsigned int o;
 		for (o = 0; o < objCount; o++) {
 			if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, isectInfo)) {
-				currentPolygon = isectInfo->objIndex;
+				currentPolygon      = isectInfo->objIndex;
 				closestIntersection = isectInfo->closestIntersection;
-				polyNormal = isectInfo->normal;
+				polyNormal          = isectInfo->normal;
+				//getSurfaceProperties(isectInfo->objIndex, uv, &polyNormal, &textureCoord);
+				uv                  = isectInfo->uv;
 				currentMaterial = worldScene->objs[o].materials[isectInfo->mtlIndex];
 				currentSphere = -1;
 			}

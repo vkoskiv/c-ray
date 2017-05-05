@@ -19,6 +19,7 @@ enum currentType {
 struct shadeInfo {
 	struct vector hitPoint;
 	struct vector normal;
+	struct coord uv;
 	struct material currentMaterial;
 	enum currentType type;
 	bool hasHit;

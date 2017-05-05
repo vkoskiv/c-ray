@@ -50,7 +50,7 @@ bool rayIntersectsWithPolygonFast(struct lightRay *ray, struct poly *poly) {
 	return true;
 }
 
-bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, double *result, struct vector *normal) {
+bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, double *result, struct vector *normal, struct coord *uv) {
 	double orientation, inverseOrientation;
 	struct vector edge1 = subtractVectors(&vertexArray[poly->vertexIndex[1]], &vertexArray[poly->vertexIndex[0]]);
 	struct vector edge2 = subtractVectors(&vertexArray[poly->vertexIndex[2]], &vertexArray[poly->vertexIndex[0]]);
@@ -83,6 +83,10 @@ bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, double *r
 	if ((temp < 0) || (temp > *result)) {
 		return false;
 	}
+	
+	//For barycentric coordinates
+	//Used for texturing and smooth shading
+	*uv = uvFromValues(u, v);
 	
 	*result = temp - 0.005; //This is to fix floating point precision error artifacts
 	*normal = vectorCross(&edge2, &edge1);
