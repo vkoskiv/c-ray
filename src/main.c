@@ -32,6 +32,14 @@ void sleepNanosec(int ms);
 extern struct renderer mainRenderer;
 extern struct poly *polygonArray;
 
+
+/**
+ Main entry point
+
+ @param argc Argument count
+ @param argv Arguments
+ @return Error codes, 0 if exited normally
+ */
 int main(int argc, char *argv[]) {
 	
 	time_t start, stop;
@@ -255,6 +263,10 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
+
+/**
+ Free dynamically allocated memory
+ */
 void freeMem() {
 	//Free memory
 	if (mainRenderer.worldScene->camera->imgData)
@@ -285,6 +297,12 @@ void freeMem() {
 		free(polygonArray);
 }
 
+
+/**
+ Sleep for a given amount of milliseconds
+
+ @param ms Milliseconds to sleep for
+ */
 void sleepNanosec(int ms) {
 #ifdef WINDOWS
 	Sleep(ms);
@@ -298,6 +316,12 @@ void sleepNanosec(int ms) {
 #endif
 }
 
+
+/**
+ Get amount of logical processing cores on the system
+
+ @return Amount of logical processing cores
+ */
 int getSysCores() {
 #ifdef MACOS
 	int nm[2];
@@ -322,13 +346,4 @@ int getSysCores() {
 #else
 	return (int)sysconf(_SC_NPROCESSORS_ONLN);
 #endif
-}
-
-float randRange(float a, float b) {
-	return ((b-a)*((float)rand()/RAND_MAX))+a;
-}
-
-//FIXME: this may be a duplicate
-double rads(double angle) {
-	return PIOVER180 * angle;
 }

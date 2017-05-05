@@ -10,12 +10,19 @@
 
 struct scene;
 
+/**
+ Ray intersection type enum
+ */
 enum currentType {
 	hitTypePolygon,
 	hitTypeSphere,
 	hitTypeNone
 };
 
+
+/**
+ Shading information, usually computed and stored by a ray intersection function
+ */
 struct shadeInfo {
 	struct vector hitPoint;
 	struct vector normal;
