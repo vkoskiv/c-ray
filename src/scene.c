@@ -268,6 +268,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam-> windowScale = 1.0;
 	cam->    fileType = png;
 	cam->  areaLights = true;
+	cam->antialiasing = true;
 	cam->  tileWidth  = 64;
 	cam->  tileHeight = 64;
 	cam->   tileOrder = renderOrderFromMiddle;

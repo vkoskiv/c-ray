@@ -310,8 +310,6 @@ DWORD WINAPI renderThread(LPVOID arg) {
 			while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
 				for (y = tile.endY; y > tile.startY; y--) {
 					for (x = tile.startX; x < tile.endX; x++) {
-						struct color output = getPixel(mainRenderer.worldScene, x, y);
-						struct color sample = {0.0f,0.0f,0.0f,0.0f};
 						
 						int height = mainRenderer.worldScene->camera->height;
 						int width = mainRenderer.worldScene->camera->width;
@@ -322,8 +320,16 @@ DWORD WINAPI renderThread(LPVOID arg) {
 							focalLength = 0.5f * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * mainRenderer.worldScene->camera->FOV);
 						}
 						
-						struct vector direction = {(x - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
-							(y - 0.5f * mainRenderer.worldScene->camera->height) / focalLength, 1.0f};
+						float fracX = (float)x;
+						float fracY = (float)y;
+						
+						if (mainRenderer.worldScene->camera->antialiasing) {
+							fracX = getRandomFloat(fracX - 0.25f, fracX + 0.25f);
+							fracY = getRandomFloat(fracY - 0.25f, fracY + 0.25f);
+						}
+						
+						struct vector direction = {(fracX - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
+							(fracY - 0.5f * mainRenderer.worldScene->camera->height) / focalLength, 1.0f};
 						
 						direction = normalizeVector(&direction);
 						struct vector startPos = mainRenderer.worldScene->camera->pos;
@@ -338,6 +344,11 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						incidentRay.start = startPos;
 						incidentRay.direction = direction;
 						incidentRay.rayType = rayTypeIncident;
+						
+						//Get previous color value from render buffer
+						struct color output = getPixel(mainRenderer.worldScene, x, y);
+						struct color sample = {0.0f,0.0f,0.0f,0.0f};
+						
 						//Get sample
 						sample = rayTrace(&incidentRay, mainRenderer.worldScene);
 						

@@ -20,6 +20,10 @@ struct vector {
 	bool isTransformed;
 };
 
+struct coord {
+	double x, y;
+};
+
 //Main vector arrays
 extern struct vector *vertexArray;
 extern int vertexCount;
@@ -74,4 +78,12 @@ float vectorLength(struct vector *v);
 //Normalize a vector
 struct vector normalizeVector(struct vector *v);
 
+struct coord uvFromValues(double u, double v);
+
 struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v3);
+
+struct vector getRandomVecOnRadius(struct vector center, float radius);
+
+struct vector getRandomVecOnPlane(struct vector center, float radius);
+
+float getRandomFloat(float min, float max);
