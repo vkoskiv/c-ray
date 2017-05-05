@@ -76,3 +76,41 @@ struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v
 struct coord uvFromValues(double u, double v) {
 	return (struct coord){u, v};
 }
+
+/**
+ Returns a random float between min and max
+ 
+ @param min Minimum value
+ @param max Maximum value
+ @return Random float between min and max
+ */
+float getRandomFloat(float min, float max) {
+	return ((((float)rand()) / (float)RAND_MAX) * (max - min)) + min;
+}
+
+/**
+ Returns a randomized position in a radius around a given point
+ 
+ @param center Center point for random distribution
+ @param radius Maximum distance from center point
+ @return Vector of a random position within a radius of center point
+ */
+struct vector getRandomVecOnRadius(struct vector center, float radius) {
+	return vectorWithPos(center.x + getRandomFloat(-radius, radius),
+						 center.y + getRandomFloat(-radius, radius),
+						 center.z + getRandomFloat(-radius, radius));
+}
+
+/**
+ Returns a randomized position on a plane in a radius around a given point
+ 
+ @param center Center point for random distribution
+ @param radius Maximum distance from center point
+ @return Vector of a random position on a plane within a radius of center point
+ */
+struct vector getRandomVecOnPlane(struct vector center, float radius) {
+	//FIXME: This only works in one orientation!
+	return vectorWithPos(center.x + getRandomFloat(-radius, radius),
+						 center.y + getRandomFloat(-radius, radius),
+						 center.z);
+}
