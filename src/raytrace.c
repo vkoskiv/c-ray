@@ -60,7 +60,7 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 	return false;
 }
 
-//#define SMOOTH
+#define SMOOTH
 //#define UV
 
 void getSurfaceProperties(int polyIndex,
@@ -69,25 +69,33 @@ void getSurfaceProperties(int polyIndex,
 					  struct coord *textureCoord) {
 #ifdef SMOOTH
 	//If smooth shading enabled
-	struct vector n0 = normalArray[polygonArray[polyIndex].normalIndex[0]];
-	struct vector n1 = normalArray[polygonArray[polyIndex].normalIndex[1]];
-	struct vector n2 = normalArray[polygonArray[polyIndex].normalIndex[2]];
-	
-	// (1 - uv.x - uv.y) * n0
-	//+ uv.x * n1
-	//+ uv.y * n2;
-	
-	struct vector scaled0 = vectorScale((1 - uv.x - uv.y), &n0);
-	struct vector scaled1 = vectorScale(uv.x, &n1);
-	
-	struct vector add0 = addVectors(&scaled0, &scaled1);
-	struct vector add1 = vectorScale(uv.y, &n2);
-	
-	*calculatedNormal = addVectors(&add0, &add1);
+	//FIXME: Temporary hack to fix mainScene.obj lacking normals
+	if (polygonArray[polyIndex].hasNormals) {
+		struct vector n0 = normalArray[polygonArray[polyIndex].normalIndex[0]];
+		struct vector n1 = normalArray[polygonArray[polyIndex].normalIndex[1]];
+		struct vector n2 = normalArray[polygonArray[polyIndex].normalIndex[2]];
+		
+		// (1 - uv.x - uv.y) * n0 + uv.x * n1 + uv.y * n2;
+		
+		struct vector scaled0 = vectorScale((1 - uv.x - uv.y), &n0);
+		struct vector scaled1 = vectorScale(uv.x, &n1);
+		struct vector scaled2 = vectorScale(uv.y, &n2);
+		
+		struct vector add0 = addVectors(&scaled0, &scaled1);
+		struct vector add1 = addVectors(&add0, &scaled2);
+		
+		*calculatedNormal = add1;
+		
+		/*struct vector add0 = addVectors(&scaled0, &scaled1);
+		struct vector add1 = vectorScale(uv.y, &n2);
+		
+		*calculatedNormal = addVectors(&add0, &add1);*/
+	}
 #endif
 
-#ifdef UV
 	*calculatedNormal = normalizeVector(calculatedNormal);
+	
+#ifdef UV
 	//Texture coords
 	struct vector s0 = textureArray[polygonArray[polyIndex].textureIndex[0]];
 	struct vector s1 = textureArray[polygonArray[polyIndex].textureIndex[1]];
@@ -155,8 +163,8 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 				currentPolygon      = isectInfo->objIndex;
 				closestIntersection = isectInfo->closestIntersection;
 				polyNormal          = isectInfo->normal;
-				//getSurfaceProperties(isectInfo->objIndex, uv, &polyNormal, &textureCoord);
 				uv                  = isectInfo->uv;
+				getSurfaceProperties(isectInfo->objIndex, uv, &polyNormal, &textureCoord);
 				currentMaterial = worldScene->objs[o].materials[isectInfo->mtlIndex];
 				currentSphere = -1;
 			}

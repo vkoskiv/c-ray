@@ -15,6 +15,7 @@ struct poly {
 	int materialIndex;
 	int polyIndex;
 	int vertexCount;
+	bool hasNormals;
 };
 
 //Main polygon array
