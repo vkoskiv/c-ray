@@ -46,6 +46,7 @@ struct lightRay {
 	struct vector start;
 	struct vector direction;
 	enum type rayType;
+	struct material currentMedium;
 };
 
 //Return a vector with given coordinates

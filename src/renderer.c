@@ -344,6 +344,9 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						incidentRay.start = startPos;
 						incidentRay.direction = direction;
 						incidentRay.rayType = rayTypeIncident;
+						struct material *air = (struct material*)calloc(1, sizeof(struct material));
+						air->IOR = AIR_IOR;
+						incidentRay.currentMedium = *air;
 						
 						//Get previous color value from render buffer
 						struct color output = getPixel(mainRenderer.worldScene, x, y);

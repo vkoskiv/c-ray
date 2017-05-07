@@ -17,6 +17,16 @@
 #include "bbox.h"
 #include "kdtree.h"
 
+struct intersection {
+	struct lightRay *ray;
+	struct material *start;
+	struct material *end;
+	struct vector *hitPoint;
+	struct vector *surfaceNormal;
+	bool didIntersect;
+	double distance;
+};
+
 
 /**
  Traverse a k-d tree and see if a ray collides with a polygon.
@@ -50,6 +60,7 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 					info->mtlIndex = node->polygons[i].materialIndex;
 				}
 			}
+			//TODO: Clean this up
 			if (hasHit) {
 				info->hasHit = true;
 				return true;
@@ -58,6 +69,24 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 		}
 	}
 	return false;
+}
+
+bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, struct shadeInfo *info) {
+	if (rayIntersectsWithSphere(ray, sphere, &info->closestIntersection)) {
+		info->type = hitTypeSphere;
+		//Compute normal
+		struct vector scaled = vectorScale(info->closestIntersection, &ray->direction);
+		struct vector hitpoint = addVectors(&ray->start, &scaled);
+		struct vector surfaceNormal = subtractVectors(&hitpoint, &sphere->pos);
+		double temp = scalarProduct(&surfaceNormal,&surfaceNormal);
+		if (temp == 0.0f) return false; //FIXME: Check this later
+		temp = invsqrtf(temp);
+		info->normal = vectorScale(temp, &surfaceNormal);
+		return true;
+	} else {
+		info->type = hitTypeNone;
+		return false;
+	}
 }
 
 #define SMOOTH
@@ -110,8 +139,146 @@ void getSurfaceProperties(int polyIndex,
 	
 	//double v = vectorScale(uv.x, &s1), vectorScale(uv.y, s2);
 	
-	//textureCoord = uvFromValues(u, <#double v#>)
+	//textureCoord = uvFromValues(u, v);
 #endif
+}
+
+struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *worldScene) {
+	struct intersection isect;
+	struct shadeInfo info;
+	
+	isect.ray = incidentRay;
+	isect.start = &incidentRay->currentMedium;
+	isect.didIntersect = false;
+	isect.distance = 20000.0f;
+	int objCount = worldScene->objCount;
+	int sphereCount = worldScene->sphereCount;
+	
+	for (int i = 0; i < sphereCount; i++) {
+		if (rayIntersectsWithSphereTemp(&worldScene->spheres[i], incidentRay, &info)) {
+			isect.end = &worldScene->materials[worldScene->spheres[i].materialIndex];
+			isect.surfaceNormal = &info.normal;
+			isect.didIntersect = true;
+			isect.distance = info.closestIntersection;
+			
+			struct vector scaled = vectorScale(info.closestIntersection, &incidentRay->direction);
+			struct vector hitPoint = addVectors(&incidentRay->start, &scaled);
+			isect.hitPoint = &hitPoint;
+		}
+	}
+	
+	//Note: rayIntersectsWithNode makes sure this isect is closer than a possible sphere
+	//intersect that happened in the previous check^.
+	for (int o = 0; o < objCount; o++) {
+		if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, &info)) {
+			isect.end = &worldScene->objs[o].materials[info.mtlIndex];
+			isect.surfaceNormal = &info.normal;
+			isect.didIntersect = true;
+			isect.distance = info.closestIntersection;
+			
+			struct vector scaled = vectorScale(info.closestIntersection, &incidentRay->direction);
+			struct vector hitPoint = addVectors(&incidentRay->start, &scaled);
+			isect.hitPoint = &hitPoint;
+		}
+	}
+	
+	return isect;
+}
+
+struct color getAmbient(struct intersection *isect, struct color *color) {
+	return colorCoef(0.25, color);
+}
+
+bool isInShadow(struct lightRay *ray, double distance, struct scene *world) {
+	
+	struct intersection isect = getClosestIsect(ray, world);
+	
+	return isect.didIntersect && isect.distance < distance;
+}
+
+struct color getSpecular(struct intersection *isect, struct light *light) {
+	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
+	double gloss = isect->end->glossiness;
+	
+	if (gloss == 0.0f) {
+		//Not glossy, abort early
+		return specular;
+	}
+	
+	
+	
+	return specular;
+}
+
+struct color getHighlights(struct intersection *isect, struct color *color, struct scene *world) {
+	//diffuse and specular highlights
+	struct color diffuse = (struct color){0.0, 0.0, 0.0, 0.0};
+	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
+	
+	for (int i = 0; i < world->lightCount; i++) {
+		struct light currentLight = world->lights[i];
+		struct vector lightPos;
+		lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
+		struct vector lightDir = subtractVectors(&lightPos, isect->hitPoint);
+		double distanceToLight = vectorLength(&lightDir);
+		double dotProduct = scalarProduct(isect->surfaceNormal, &lightDir);
+		
+		if (dotProduct >= 0.0f) {
+			//Intersection point is facing this light
+			//Check if there are objects in the way to get shadows
+			
+			struct lightRay shadowRay;
+			shadowRay.rayType = rayTypeShadow;
+			shadowRay.start = *isect->hitPoint;
+			shadowRay.direction = lightDir;
+			shadowRay.currentMedium = isect->ray->currentMedium;
+			
+			if (isInShadow(&shadowRay, distanceToLight, world)) {
+				//Something is in the way, stop here and test other lights
+				continue;
+			}
+			
+			struct color temp = colorCoef(dotProduct, color);
+			struct color tempDiff = addColors(&diffuse, &temp);
+			diffuse = multiplyColors(&currentLight.intensity, &tempDiff);
+			
+			struct color specTemp = getSpecular(isect, &currentLight);
+			specular = addColors(&specular, &specTemp);
+		}
+		
+	}
+	
+	return addColors(&diffuse, &specular);
+}
+
+struct color getReflectsAndRefracts(struct intersection *isect, struct color *color) {
+	//Interacted light, so refracted and reflected rays
+	
+	
+	return (struct color){};
+}
+
+struct color getLighting(struct intersection *isect, struct scene *world) {
+	struct color output = output = isect->end->diffuse;
+	
+	struct color ambientColor = getAmbient(isect, &output);
+	struct color highlights = getHighlights(isect, &output, world);
+	struct color interacted = getReflectsAndRefracts(isect, &output);
+	
+	struct color temp = addColors(&ambientColor, &highlights);
+	return addColors(&temp, &interacted);
+}
+
+struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene) {
+	
+	struct intersection closestIsect = getClosestIsect(incidentRay, worldScene);
+	
+	if (closestIsect.didIntersect) {
+		return getLighting(&closestIsect, worldScene);
+	} else {
+		return *worldScene->ambientColor;
+	}
+	
 }
 
 /**

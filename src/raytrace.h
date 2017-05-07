@@ -36,3 +36,6 @@ struct shadeInfo {
 };
 
 struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene);
+
+//New, experimental rayTracer
+struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene);
