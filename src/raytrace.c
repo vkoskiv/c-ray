@@ -142,10 +142,10 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		int objCount = worldScene->objCount;
 		
 		struct material currentMaterial;
-		struct vector polyNormal  = {0.0, 0.0, 0.0};
+		struct vector surfaceNormal = {0.0, 0.0, 0.0};
 		struct coord  uv          = {0.0, 0.0};
 		struct coord textureCoord = {0.0, 0.0};
-		struct vector hitpoint, surfaceNormal;
+		struct vector hitpoint;
 		
 		unsigned int i;
 		for (i = 0; i < sphereAmount; ++i) {
@@ -156,15 +156,15 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		}
 		
 		isectInfo->closestIntersection = closestIntersection;
-		isectInfo->normal = polyNormal;
+		isectInfo->normal = surfaceNormal;
 		unsigned int o;
 		for (o = 0; o < objCount; o++) {
 			if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, isectInfo)) {
 				currentPolygon      = isectInfo->objIndex;
 				closestIntersection = isectInfo->closestIntersection;
-				polyNormal          = isectInfo->normal;
+				surfaceNormal          = isectInfo->normal;
 				uv                  = isectInfo->uv;
-				getSurfaceProperties(isectInfo->objIndex, uv, &polyNormal, &textureCoord);
+				getSurfaceProperties(isectInfo->objIndex, uv, &surfaceNormal, &textureCoord);
 				currentMaterial = worldScene->objs[o].materials[isectInfo->mtlIndex];
 				currentSphere = -1;
 			}
@@ -182,8 +182,6 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		} else if (currentPolygon != -1) {
 			struct vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
-			//We get polyNormal from the intersection function
-			surfaceNormal = polyNormal;
 			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
 			if (temp == 0.0f) break;
 			temp = invsqrtf(temp);
@@ -240,11 +238,10 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			}
 			
 			shadowInfo->closestIntersection = t;
-			shadowInfo->normal = polyNormal;
+			shadowInfo->normal = surfaceNormal;
 			for (o = 0; o < objCount; o++) {
 				if (rayIntersectsWithNode(worldScene->objs[o].tree, &bouncedRay, shadowInfo)) {
 					t = shadowInfo->closestIntersection;
-					polyNormal = shadowInfo->normal;
 					inShadow = true;
 					break;
 				}
