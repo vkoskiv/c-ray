@@ -107,12 +107,12 @@ char *getFileName(char *input) {
 
 void addMaterialOBJ(struct crayOBJ *obj, struct material newMaterial);
 
-void addOBJ(struct scene *sceneData, char *inputFileName) {
+bool addOBJ(struct scene *sceneData, char *inputFileName) {
 	printf("Loading OBJ %s\n", inputFileName);
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFileName) == 0) {
 		printf("OBJ %s file not found!\n", getFileName(inputFileName));
-		return;
+		return false;
 	}
 	printf("OBJ loaded, converting\n");
 	
@@ -194,6 +194,7 @@ void addOBJ(struct scene *sceneData, char *inputFileName) {
 	
 	//Obj added, update count
 	sceneData->objCount++;
+	return true;
 }
 
 //FIXME: Temporary
@@ -300,7 +301,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam-> sampleCount = 100;
 	cam->  frameCount = 1;
 	cam->     bounces = 3;
-	cam->    contrast = 0.7;
+	cam->    contrast = 0.5;
 	cam-> windowScale = 1.0;
 	cam->    fileType = png;
 	cam->  areaLights = true;
@@ -322,60 +323,69 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	addCamera(scene, cam);
 	
 	//NOTE: Translates have to come last!
-	addOBJ(scene, "../output/mainScene.obj");
+	if (addOBJ(scene, "../output/mainScene.obj")) {
+		//Add transforms here
+	}
 	
-	addOBJ(scene, "../output/torus.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(40, 40, 40));
-	//addTransform(&scene->objs[scene->objCount - 1], newTransformRotateX(45));
-	//addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(105));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1070, 320, 820));
-	
+	if (addOBJ(scene, "../output/torus.obj")) {
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(40, 40, 40));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1070, 320, 820));
+	}
 	
 	//R G B is 0 1 2
-	addOBJ(scene, "../output/teapot_red.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 900));
+	if (addOBJ(scene, "../output/teapot_red.obj")) {
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 900));
+	}
 	
-	addOBJ(scene, "../output/teapot_red.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 1050));
+	if (addOBJ(scene, "../output/teapot_red.obj")) {
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 1050));
+	}
 	
-	addOBJ(scene, "../output/teapot_red.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 1200));
+	if (addOBJ(scene, "../output/teapot_red.obj")) {
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 1200));
+	}
 	
-	addOBJ(scene, "../output/teapot_green.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 900));
+	if (addOBJ(scene, "../output/teapot_green.obj")) {
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 900));
+	}
 	
-	addOBJ(scene, "../output/teapot_green.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 1050));
+	if (addOBJ(scene, "../output/teapot_green.obj")) {
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 1050));
+	}
 	
-	addOBJ(scene, "../output/teapot_green.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 1200));
+	if (addOBJ(scene, "../output/teapot_green.obj")) {
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 1200));
+	}
 	
-	addOBJ(scene, "../output/teapot_blue.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,900));
+	if (addOBJ(scene, "../output/teapot_blue.obj")) {
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,900));
+	}
 	
-	addOBJ(scene, "../output/teapot_blue.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,1050));
+	if (addOBJ(scene, "../output/teapot_blue.obj")) {
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,1050));
+	}
 	
-	addOBJ(scene, "../output/teapot_blue.obj");
-	addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
-	addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,1200));
+	if (addOBJ(scene, "../output/teapot_blue.obj")) {
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,1200));
+	}
 	
 	//Transform all meshes
 	transformMeshes(scene);
