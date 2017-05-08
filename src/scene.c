@@ -306,6 +306,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam->    fileType = png;
 	cam->  areaLights = true;
 	cam->antialiasing = true;
+	cam->newRenderer  = false; //New, recursive rayTracing algorighm (buggy!)
 	cam->  tileWidth  = 64;
 	cam->  tileHeight = 64;
 	cam->   tileOrder = renderOrderFromMiddle;
@@ -333,19 +334,19 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	}
 	
 	//R G B is 0 1 2
-	if (addOBJ(scene, "../output/teapot_red.obj")) {
+	if (addOBJ(scene, "../output/teapot_test.obj")) {
 		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 900));
 	}
 	
-	if (addOBJ(scene, "../output/teapot_red.obj")) {
+	if (addOBJ(scene, "../output/teapot_test.obj")) {
 		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 1050));
 	}
 	
-	if (addOBJ(scene, "../output/teapot_red.obj")) {
+	if (addOBJ(scene, "../output/teapot_test.obj")) {
 		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 1200));

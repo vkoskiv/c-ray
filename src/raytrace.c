@@ -213,7 +213,7 @@ struct vector refractVec(struct vector *incident, struct vector *normal, double 
 		exit(-19);
 	}
 	
-	double cosT = sqrt(1.0 - sinT2);
+	double cosT = sqrtf(1.0 - sinT2);
 	struct vector temp1 = vectorScale(ratio, incident);
 	struct vector temp2 = vectorScale((ratio * cosI - cosT), normal);
 	
@@ -300,7 +300,7 @@ double getReflectance(struct vector *normal, struct vector *dir, double startIOR
 		return 1.0;
 	}
 	
-	double cosT = sqrt(1.0 - sinT2);
+	double cosT = sqrtf(1.0 - sinT2);
 	double r0rth = (startIOR * cosI - endIOR * cosT) / (startIOR * cosI + endIOR * cosT);
 	double rPar = (endIOR * cosI - startIOR * cosT) / (endIOR * cosI + startIOR * cosT);
 	

@@ -45,6 +45,8 @@ struct camera {
 	bool isFullScreen;
 	bool isBorderless;
 	
+	bool newRenderer;
+	
 	bool useTiles;
 	int tileWidth;
 	int tileHeight;

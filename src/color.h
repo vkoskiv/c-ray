@@ -64,7 +64,6 @@ struct material {
 	double transparency;
 	double sharpness;
 	double glossiness;
-	double refractionIndex;
 };
 
 //Some standard colours
@@ -89,3 +88,14 @@ struct color colorCoef(double coef, struct color *c);
 
 //temporary newMaterial func
 struct material newMaterial(struct color diffuse, double reflectivity);
+
+//Full obj spec
+struct material newMaterialFull(struct color ambient,
+								struct color diffuse,
+								struct color specular,
+								double reflectivity,
+								double refractivity,
+								double IOR, double
+								transparency, double
+								sharpness, double
+								glossiness);

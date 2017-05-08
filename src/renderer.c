@@ -352,7 +352,11 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						struct color sample = {0.0f,0.0f,0.0f,0.0f};
 						
 						//Get sample
-						sample = rayTrace(&incidentRay, mainRenderer.worldScene);
+						if (mainRenderer.worldScene->camera->newRenderer) {
+							sample = newTrace(&incidentRay, mainRenderer.worldScene);
+						} else {
+							sample = rayTrace(&incidentRay, mainRenderer.worldScene);
+						}
 						
 						//And process the running average
 						output.red = output.red * (tile.completedSamples - 1);
