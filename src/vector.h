@@ -47,6 +47,7 @@ struct lightRay {
 	struct vector direction;
 	enum type rayType;
 	struct material currentMedium;
+	int remainingInteractions; //Reflections or refractions
 };
 
 //Return a vector with given coordinates

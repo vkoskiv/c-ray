@@ -147,10 +147,11 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 	struct intersection isect;
 	struct shadeInfo info;
 	
+	info.closestIntersection = 20000.0f;
+	
 	isect.ray = incidentRay;
 	isect.start = &incidentRay->currentMedium;
 	isect.didIntersect = false;
-	isect.distance = 20000.0f;
 	int objCount = worldScene->objCount;
 	int sphereCount = worldScene->sphereCount;
 	
@@ -196,7 +197,31 @@ bool isInShadow(struct lightRay *ray, double distance, struct scene *world) {
 	return isect.didIntersect && isect.distance < distance;
 }
 
-struct color getSpecular(struct intersection *isect, struct light *light) {
+struct vector reflectVec(struct vector *vec, struct vector *normal) {
+	double reflect = 2.0f * scalarProduct(vec, normal);
+	struct vector temp = vectorScale(reflect, normal);
+	return subtractVectors(vec, &temp);
+}
+
+struct vector refractVec(struct vector *incident, struct vector *normal, double startIOR, double endIOR) {
+	double ratio = startIOR / endIOR;
+	double cosI = -scalarProduct(normal, incident);
+	double sinT2 = ratio * ratio * (1.0 - cosI * cosI);
+	
+	if (sinT2 > 1.0) {
+		printf("Bad refraction encountered.\n");
+		exit(-19);
+	}
+	
+	double cosT = sqrt(1.0 - sinT2);
+	struct vector temp1 = vectorScale(ratio, incident);
+	struct vector temp2 = vectorScale((ratio * cosI - cosT), normal);
+	
+	return addVectors(&temp1, &temp2);
+	
+}
+
+struct color getSpecular(struct intersection *isect, struct light *light, struct vector *lightPos) {
 	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
 	double gloss = isect->end->glossiness;
 	
@@ -205,7 +230,22 @@ struct color getSpecular(struct intersection *isect, struct light *light) {
 		return specular;
 	}
 	
+	struct vector viewTemp = subtractVectors(&isect->ray->start, isect->hitPoint);
+	struct vector view = normalizeVector(&viewTemp);
 	
+	struct vector lightDir = subtractVectors(lightPos, isect->hitPoint);
+	struct vector lightDirNormal = normalizeVector(&lightDir);
+	struct vector reflected = reflectVec(&lightDirNormal, isect->surfaceNormal);
+	
+	double dotProduct = scalarProduct(&view, &reflected);
+	if (dotProduct <= 0) {
+		return specular;
+	}
+	
+	specular.red   = pow(dotProduct, gloss) * light->intensity.red;
+	specular.green = pow(dotProduct, gloss) * light->intensity.green;
+	specular.blue  = pow(dotProduct, gloss) * light->intensity.blue;
+	specular.alpha = pow(dotProduct, gloss) * light->intensity.alpha;
 	
 	return specular;
 }
@@ -242,7 +282,7 @@ struct color getHighlights(struct intersection *isect, struct color *color, stru
 			struct color tempDiff = addColors(&diffuse, &temp);
 			diffuse = multiplyColors(&currentLight.intensity, &tempDiff);
 			
-			struct color specTemp = getSpecular(isect, &currentLight);
+			struct color specTemp = getSpecular(isect, &currentLight, &lightPos);
 			specular = addColors(&specular, &specTemp);
 		}
 		
@@ -251,19 +291,85 @@ struct color getHighlights(struct intersection *isect, struct color *color, stru
 	return addColors(&diffuse, &specular);
 }
 
-struct color getReflectsAndRefracts(struct intersection *isect, struct color *color) {
+double getReflectance(struct vector *normal, struct vector *dir, double startIOR, double endIOR) {
+	double ratio = startIOR / endIOR;
+	double cosI = -scalarProduct(normal, dir);
+	double sinT2 = ratio * ratio * (1.0 - cosI * cosI);
+	
+	if (sinT2 > 1.0) {
+		return 1.0;
+	}
+	
+	double cosT = sqrt(1.0 - sinT2);
+	double r0rth = (startIOR * cosI - endIOR * cosT) / (startIOR * cosI + endIOR * cosT);
+	double rPar = (endIOR * cosI - startIOR * cosT) / (endIOR * cosI + startIOR * cosT);
+	
+	return (r0rth * r0rth + rPar * rPar) / 2.0;
+}
+
+struct color getReflectsAndRefracts(struct intersection *isect, struct color *color, struct scene *world) {
 	//Interacted light, so refracted and reflected rays
+	double reflectivity = isect->end->reflectivity;
+	double startIOR     = isect->start->IOR;
+	double   endIOR     = isect->end  ->IOR;
+	int remainingInteractions = isect->ray->remainingInteractions;
 	
+	if ((reflectivity == NOT_REFLECTIVE && endIOR == NOT_REFRACTIVE) || remainingInteractions <= 0) {
+		return (struct color){0.0, 0.0, 0.0, 0.0};
+	}
 	
-	return (struct color){};
+	double reflectivePercentage = reflectivity;
+	double refractivePercentage = 0;
+	
+	//Get ratio of reflection/refraction
+	if (endIOR != NOT_REFRACTIVE) {
+		reflectivePercentage = getReflectance(isect->surfaceNormal, &isect->ray->direction, isect->start->IOR, isect->end->IOR);
+		refractivePercentage = 1 - reflectivePercentage;
+	}
+	
+	//End early if no interactive properties
+	if (refractivePercentage <= 0 && reflectivePercentage <= 0) {
+		return (struct color){0.0, 0.0, 0.0, 0.0};
+	}
+	
+	struct color reflectiveColor = (struct color){0.0, 0.0, 0.0, 0.0};
+	struct color refractiveColor = (struct color){0.0, 0.0, 0.0, 0.0};
+	
+	//Recursively trace new rays to reflect and refract
+	
+	if (reflectivePercentage > 0) {
+		struct vector reflected = reflectVec(&isect->ray->start, isect->surfaceNormal);
+		struct lightRay reflectedRay;
+		reflectedRay.start = *isect->hitPoint;
+		reflectedRay.direction = reflected;
+		reflectedRay.remainingInteractions = remainingInteractions - 1;
+		reflectedRay.currentMedium = isect->ray->currentMedium;
+		//And recurse!
+		struct color temp = newTrace(&reflectedRay, world);
+		reflectiveColor = colorCoef(reflectivePercentage, &temp);
+	}
+	
+	if (refractivePercentage > 0) {
+		struct vector refracted = refractVec(&isect->ray->direction, isect->surfaceNormal, startIOR, endIOR);
+		struct lightRay refractedRay;
+		refractedRay.start = *isect->hitPoint;
+		refractedRay.direction = refracted;
+		refractedRay.remainingInteractions = 1;
+		refractedRay.currentMedium = *isect->end;
+		//Recurse here too
+		struct color temp = newTrace(&refractedRay, world);
+		refractiveColor = colorCoef(refractivePercentage, &temp);
+	}
+	
+	return addColors(&reflectiveColor, &refractiveColor);
 }
 
 struct color getLighting(struct intersection *isect, struct scene *world) {
 	struct color output = output = isect->end->diffuse;
 	
-	struct color ambientColor = getAmbient(isect, &output);
-	struct color highlights = getHighlights(isect, &output, world);
-	struct color interacted = getReflectsAndRefracts(isect, &output);
+	struct color ambientColor = getAmbient(isect, &output); //done
+	struct color highlights = getHighlights(isect, &output, world); //done
+	struct color interacted = getReflectsAndRefracts(isect, &output, world); //todo
 	
 	struct color temp = addColors(&ambientColor, &highlights);
 	return addColors(&temp, &interacted);
