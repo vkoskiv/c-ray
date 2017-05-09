@@ -261,6 +261,7 @@ struct color getHighlights(struct intersection *isect, struct color *color, stru
 		lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
 		struct vector lightDir = subtractVectors(&lightPos, isect->hitPoint);
 		double distanceToLight = vectorLength(&lightDir);
+		lightDir = normalizeVector(&lightDir);
 		double dotProduct = scalarProduct(isect->surfaceNormal, &lightDir);
 		
 		if (dotProduct >= 0.0f) {
@@ -365,7 +366,7 @@ struct color getReflectsAndRefracts(struct intersection *isect, struct color *co
 }
 
 struct color getLighting(struct intersection *isect, struct scene *world) {
-	struct color output = output = isect->end->diffuse;
+	struct color output = isect->end->diffuse;
 	
 	struct color ambientColor = getAmbient(isect, &output); //done
 	struct color highlights = getHighlights(isect, &output, world); //done

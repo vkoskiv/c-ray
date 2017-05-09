@@ -324,7 +324,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	addCamera(scene, cam);
 	
 	//NOTE: Translates have to come last!
-	if (addOBJ(scene, "../output/mainScene.obj")) {
+	if (addOBJ(scene, "../output/newScene.obj")) {
 		//Add transforms here
 	}
 	
