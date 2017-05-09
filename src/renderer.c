@@ -51,10 +51,10 @@ struct renderTile getTile() {
 	pthread_mutex_lock(&tileMutex);
 #endif
 	//FIXME: This could be optimized
-	struct renderTile tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount++];
-	mainRenderer.renderTiles[mainRenderer.renderedTileCount - 1].isRendering = true;
-	tile.tileNum = mainRenderer.renderedTileCount - 1;
-	
+	struct renderTile tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount];
+	mainRenderer.renderTiles[mainRenderer.renderedTileCount].isRendering = true;
+	tile.tileNum = mainRenderer.renderedTileCount;
+	mainRenderer.renderedTileCount++;
 #ifdef WINDOWS
 	ReleaseMutex(tileMutex);
 #else
