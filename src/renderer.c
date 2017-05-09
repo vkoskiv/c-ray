@@ -329,7 +329,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						}
 						
 						struct vector direction = {(fracX - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
-							(fracY - 0.5f * mainRenderer.worldScene->camera->height) / focalLength, 1.0f};
+							(fracY - 0.5f * mainRenderer.worldScene->camera->height) / focalLength, 1.0f, false};
 						
 						direction = normalizeVector(&direction);
 						struct vector startPos = mainRenderer.worldScene->camera->pos;

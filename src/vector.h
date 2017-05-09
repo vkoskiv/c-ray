@@ -17,6 +17,7 @@
 //Vector
 struct vector {
 	double x, y, z;
+	//FIXME: Shouldn't need this here
 	bool isTransformed;
 };
 

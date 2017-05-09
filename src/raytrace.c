@@ -149,8 +149,10 @@ void getSurfaceProperties(int polyIndex,
 }
 
 struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *worldScene) {
-	struct intersection isect = {0};
-	struct shadeInfo info = {0};
+	struct intersection isect;
+	memset(&isect, 0, sizeof(isect));
+	struct shadeInfo info;
+	memset(&info, 0, sizeof(info));
 	
 	info.closestIntersection = 20000.0f;
 	
@@ -397,7 +399,7 @@ struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene) {
  */
 struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
-	struct color output = {0.0f,0.0f,0.0f};
+	struct color output = {0.0f,0.0f,0.0f,0.0f};
 	int bounces = 0;
 	double contrast = worldScene->camera->contrast;
 	
@@ -416,7 +418,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		int objCount = worldScene->objCount;
 		
 		struct material currentMaterial;
-		struct vector surfaceNormal = {0.0, 0.0, 0.0};
+		struct vector surfaceNormal = {0.0, 0.0, 0.0, false};
 		struct coord  uv          = {0.0, 0.0};
 		struct coord textureCoord = {0.0, 0.0};
 		struct vector hitpoint;

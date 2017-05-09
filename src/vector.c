@@ -26,7 +26,7 @@ struct vector vectorWithPos(double x, double y, double z) {
 
 //Add two vectors and return the resulting vector
 struct vector addVectors(struct vector *v1, struct vector *v2) {
-	return (struct vector){v1->x + v2->x, v1->y + v2->y, v1->z + v2->z};
+	return (struct vector){v1->x + v2->x, v1->y + v2->y, v1->z + v2->z, false};
 }
 
 //Compute length of a vector
@@ -36,7 +36,7 @@ float vectorLength(struct vector *v) {
 
 //Subtract two vectors and return the resulting vector
 struct vector subtractVectors(struct vector *v1, struct vector *v2) {
-	return (struct vector){v1->x - v2->x, v1->y - v2->y, v1->z - v2->z};
+	return (struct vector){v1->x - v2->x, v1->y - v2->y, v1->z - v2->z, false};
 }
 
 //Multiply two vectors and return the dot product
@@ -46,25 +46,27 @@ float scalarProduct(struct vector *v1, struct vector *v2) {
 
 //Multiply a vector by a scalar and return the resulting vector
 struct vector vectorScale(double c, struct vector *v) {
-	return (struct vector){v->x * c, v->y * c, v->z * c};
+	return (struct vector){v->x * c, v->y * c, v->z * c, false};
 }
 
 //Calculate cross product and return the resulting vector
 struct vector vectorCross(struct vector *v1, struct vector *v2) {
-	return (struct vector){((v1->y * v2->z) - (v1->z * v2->y)), ((v1->z * v2->x) - (v1->x * v2->z)), ((v1->x * v2->y) - (v1->y * v2->x))};
+	return (struct vector){((v1->y * v2->z) - (v1->z * v2->y)),
+		((v1->z * v2->x) - (v1->x * v2->z)),
+		((v1->x * v2->y) - (v1->y * v2->x)), false};
 }
 
 struct vector minVector(struct vector *v1, struct vector *v2) {
-	return (struct vector){min(v1->x, v2->x), min(v1->y, v2->y), min(v1->z, v2->z)};
+	return (struct vector){min(v1->x, v2->x), min(v1->y, v2->y), min(v1->z, v2->z), false};
 }
 
 struct vector maxVector(struct vector *v1, struct vector *v2) {
-	return (struct vector){max(v1->x, v2->x), max(v1->y, v2->y), max(v1->z, v2->z)};
+	return (struct vector){max(v1->x, v2->x), max(v1->y, v2->y), max(v1->z, v2->z), false};
 }
 
 struct vector normalizeVector(struct vector *v) {
 	double length = vectorLength(v);
-	return (struct vector){v->x / length, v->y / length, v->z / length};
+	return (struct vector){v->x / length, v->y / length, v->z / length, false};
 }
 
 struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v3) {
