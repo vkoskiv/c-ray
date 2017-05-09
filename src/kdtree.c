@@ -143,7 +143,7 @@ struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyInd
 		}
 	}
 	
-	if ((float)matches / leftPolys.used < 0.5 && (float)matches / rightPolys.used < 0.5) {
+	if (((float)matches < 0.5 * leftPolys.used) && ((float)matches < 0.5 * rightPolys.used)) {
 		//Recurse down both left and right sides
 		node->left = buildTree(leftPolys.array, (int)leftPolys.used, firstPolyIndex, depth + 1);
 		node->right = buildTree(rightPolys.array, (int)rightPolys.used, firstPolyIndex, depth + 1);
