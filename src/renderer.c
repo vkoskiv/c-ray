@@ -33,7 +33,10 @@ pthread_mutex_t tileMutex;
  @return boolean, true if no renderTiles remaining
  */
 bool renderTilesEmpty() {
-	return mainRenderer.renderedTileCount >= mainRenderer.tileCount;
+	pthread_mutex_lock(&tileMutex);
+	int renderedCount = mainRenderer.renderedTileCount;
+	pthread_mutex_unlock(&tileMutex);
+	return renderedCount >= mainRenderer.tileCount;
 }
 
 /**
