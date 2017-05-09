@@ -281,7 +281,6 @@ DWORD WINAPI renderThread(LPVOID arg) {
 	void *renderThread(void *arg) {
 #endif
 		struct lightRay incidentRay;
-		int x,y;
 		bool first = true;
 		struct threadInfo *tinfo = (struct threadInfo*)arg;
 		
@@ -290,7 +289,6 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		time(&tile.start);
 		
 		while (!renderTilesEmpty()) {
-			x = 0; y = 0;
 			
 			if (first) {
 				//This is the first round, don't stop a previous tile
@@ -308,8 +306,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 			
 			printf("Started tile %i/%i\r", mainRenderer.renderedTileCount, mainRenderer.tileCount);
 			while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
-				for (y = tile.endY; y > tile.startY; y--) {
-					for (x = tile.startX; x < tile.endX; x++) {
+				for (int y = tile.endY; y > tile.startY; y--) {
+					for (int x = tile.startX; x < tile.endX; x++) {
 						
 						int height = mainRenderer.worldScene->camera->height;
 						int width = mainRenderer.worldScene->camera->width;
