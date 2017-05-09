@@ -58,6 +58,9 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 					info->uv = uv;
 					info->objIndex = node->polygons[i].polyIndex;
 					info->mtlIndex = node->polygons[i].materialIndex;
+					struct vector scaled = vectorScale(info->closestIntersection, &ray->direction);
+					struct vector hitPoint = addVectors(&ray->start, &scaled);
+					info->hitPoint = hitPoint;
 				}
 			}
 			//TODO: Clean this up
@@ -82,6 +85,8 @@ bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, st
 		if (temp == 0.0f) return false; //FIXME: Check this later
 		temp = invsqrtf(temp);
 		info->normal = vectorScale(temp, &surfaceNormal);
+		info->hitPoint = hitpoint;
+		info->normal = surfaceNormal;
 		return true;
 	} else {
 		info->type = hitTypeNone;
@@ -144,8 +149,8 @@ void getSurfaceProperties(int polyIndex,
 }
 
 struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *worldScene) {
-	struct intersection isect;
-	struct shadeInfo info;
+	struct intersection isect = {0};
+	struct shadeInfo info = {0};
 	
 	info.closestIntersection = 20000.0f;
 	
@@ -161,10 +166,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 			isect.surfaceNormal = &info.normal;
 			isect.didIntersect = true;
 			isect.distance = info.closestIntersection;
-			
-			struct vector scaled = vectorScale(info.closestIntersection, &incidentRay->direction);
-			struct vector hitPoint = addVectors(&incidentRay->start, &scaled);
-			isect.hitPoint = &hitPoint;
+			isect.hitPoint = &info.hitPoint;
 		}
 	}
 	
@@ -176,10 +178,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 			isect.surfaceNormal = &info.normal;
 			isect.didIntersect = true;
 			isect.distance = info.closestIntersection;
-			
-			struct vector scaled = vectorScale(info.closestIntersection, &incidentRay->direction);
-			struct vector hitPoint = addVectors(&incidentRay->start, &scaled);
-			isect.hitPoint = &hitPoint;
+			isect.hitPoint = &info.hitPoint;
 		}
 	}
 	
@@ -187,6 +186,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 }
 
 struct color getAmbient(struct intersection *isect, struct color *color) {
+	//Very cheap ambient occlusion
 	return colorCoef(0.25, color);
 }
 
