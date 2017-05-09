@@ -172,7 +172,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 	//intersect that happened in the previous check^.
 	for (int o = 0; o < objCount; o++) {
 		if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, &info)) {
-			isect.end = &worldScene->objs[o].materials[info.mtlIndex];
+			isect.end = &worldScene->objs[o].materials[polygonArray[info.objIndex].materialIndex];
 			isect.surfaceNormal = &info.normal;
 			isect.didIntersect = true;
 			isect.distance = info.closestIntersection;
@@ -369,7 +369,7 @@ struct color getLighting(struct intersection *isect, struct scene *world) {
 	
 	struct color ambientColor = getAmbient(isect, &output); //done
 	struct color highlights = getHighlights(isect, &output, world); //done
-	struct color interacted = getReflectsAndRefracts(isect, &output, world); //todo
+	struct color interacted = getReflectsAndRefracts(isect, &output, world); //done
 	
 	struct color temp = addColors(&ambientColor, &highlights);
 	return addColors(&temp, &interacted);
