@@ -33,9 +33,17 @@ pthread_mutex_t tileMutex;
  @return boolean, true if no renderTiles remaining
  */
 bool renderTilesEmpty() {
+#ifdef WINDOWS
+	WaitForSingleObject(tileMutex, INFINITE);
+#else
 	pthread_mutex_lock(&tileMutex);
+#endif
 	int renderedCount = mainRenderer.renderedTileCount;
+#ifdef WINDOWS
+	ReleaseMutex(tileMutex);
+#else
 	pthread_mutex_unlock(&tileMutex);
+#endif
 	return renderedCount >= mainRenderer.tileCount;
 }
 
