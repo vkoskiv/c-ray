@@ -249,7 +249,6 @@ struct color getSpecular(struct intersection *isect, struct light *light, struct
 	specular.red   = pow(dotProduct, gloss) * light->intensity.red;
 	specular.green = pow(dotProduct, gloss) * light->intensity.green;
 	specular.blue  = pow(dotProduct, gloss) * light->intensity.blue;
-	specular.alpha = pow(dotProduct, gloss) * light->intensity.alpha;
 	
 	return specular;
 }
