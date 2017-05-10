@@ -37,8 +37,10 @@ struct intersection {
  @return True if ray hits a polygon in a leaf node, otherwise false
  */
 bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct shadeInfo *info) {
-	if (rayIntersectWithAABB(node->bbox, ray, &info->closestIntersection)) {
-		struct vector normal;
+	//A bit of a hack, but it does work...!
+	double fakeIsect = 20000.0f;
+	if (rayIntersectWithAABB(node->bbox, ray, &fakeIsect)) {
+		struct vector normal = vectorWithPos(0, 0, 0);
 		struct coord uv;
 		bool hasHit = false;
 		
