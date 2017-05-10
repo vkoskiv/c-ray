@@ -260,7 +260,7 @@ struct color getHighlights(struct intersection *isect, struct color *color, stru
 	
 	for (int i = 0; i < world->lightCount; i++) {
 		struct light currentLight = world->lights[i];
-		struct vector lightPos;
+		struct vector lightPos = vectorWithPos(0, 0, 0);
 		lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
 		struct vector lightDir = subtractVectors(&lightPos, isect->hitPoint);
 		double distanceToLight = vectorLength(&lightDir);
@@ -276,6 +276,7 @@ struct color getHighlights(struct intersection *isect, struct color *color, stru
 			shadowRay.start = *isect->hitPoint;
 			shadowRay.direction = lightDir;
 			shadowRay.currentMedium = isect->ray->currentMedium;
+			shadowRay.remainingInteractions = 1;
 			
 			if (isInShadow(&shadowRay, distanceToLight, world)) {
 				//Something is in the way, stop here and test other lights
