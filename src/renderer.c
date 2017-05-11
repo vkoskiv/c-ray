@@ -26,43 +26,26 @@ HANDLE tileMutex = INVALID_HANDLE_VALUE;
 pthread_mutex_t tileMutex;
 #endif
 
-
-/**
- Returns true if there are no more renderTiles
-
- @return boolean, true if no renderTiles remaining
- */
-bool renderTilesEmpty() {
-#ifdef WINDOWS
-	WaitForSingleObject(tileMutex, INFINITE);
-#else
-	pthread_mutex_lock(&tileMutex);
-#endif
-	int renderedCount = mainRenderer.renderedTileCount;
-#ifdef WINDOWS
-	ReleaseMutex(tileMutex);
-#else
-	pthread_mutex_unlock(&tileMutex);
-#endif
-	return renderedCount >= mainRenderer.tileCount;
-}
-
 /**
  Gets the next tile from renderTiles in mainRenderer
  
  @return A renderTile to be rendered
  */
 struct renderTile getTile() {
+	struct renderTile tile;
+	memset(&tile, 0, sizeof(tile));
+	tile.tileNum = -1;
 #ifdef WINDOWS
 	WaitForSingleObject(tileMutex, INFINITE);
 #else
 	pthread_mutex_lock(&tileMutex);
 #endif
-	//FIXME: This could be optimized
-	struct renderTile tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount];
-	mainRenderer.renderTiles[mainRenderer.renderedTileCount].isRendering = true;
-	tile.tileNum = mainRenderer.renderedTileCount;
-	mainRenderer.renderedTileCount++;
+	if (mainRenderer.renderedTileCount < mainRenderer.tileCount) {
+		tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount];
+		mainRenderer.renderTiles[mainRenderer.renderedTileCount].isRendering = true;
+		tile.tileNum = mainRenderer.renderedTileCount;
+		mainRenderer.renderedTileCount++;
+	}
 #ifdef WINDOWS
 	ReleaseMutex(tileMutex);
 #else
@@ -292,28 +275,13 @@ DWORD WINAPI renderThread(LPVOID arg) {
 	void *renderThread(void *arg) {
 #endif
 		struct lightRay incidentRay;
-		bool first = true;
 		struct threadInfo *tinfo = (struct threadInfo*)arg;
 		
 		//First time setup for each thread
 		struct renderTile tile = getTile();
-		time(&tile.start);
 		
-		while (!renderTilesEmpty()) {
-			
-			if (first) {
-				//This is the first round, don't stop a previous tile
-				first = false;
-			} else {
-				//Not first tile, deal with accordingly
-				//Stop current tile
-				mainRenderer.renderTiles[tile.tileNum].isRendering = false;
-				time(&tile.stop);
-				computeTimeAverage(tile);
-				
-				tile = getTile();
-				time(&tile.start);
-			}
+		while (tile.tileNum != -1) {
+			time(&tile.start);
 			
 			printf("Started tile %i/%i\r", mainRenderer.renderedTileCount, mainRenderer.tileCount);
 			while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
@@ -391,9 +359,11 @@ DWORD WINAPI renderThread(LPVOID arg) {
 				}
 				tile.completedSamples++;
 			}
-			
+			mainRenderer.renderTiles[tile.tileNum].isRendering = false;
+			time(&tile.stop);
+			computeTimeAverage(tile);
+			tile = getTile();
 		}
-		mainRenderer.renderTiles[tile.tileNum].isRendering = false;
 		printf("Thread %i done\n", tinfo->thread_num);
 		tinfo->threadComplete = true;
 #ifdef WINDOWS
