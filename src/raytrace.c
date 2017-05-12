@@ -498,7 +498,6 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			if (temp <= 0.0) continue;
 			temp = invsqrt(temp);
 			bouncedRay.direction = vectorScale(temp, &bouncedRay.direction);
-			lightProjection = temp * lightProjection;
 			
 			//Calculate shadows
 			bool inShadow = false;
