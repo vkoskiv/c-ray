@@ -32,9 +32,9 @@ struct material;
 //Transform types
 struct matrixTransform newTransformScale(double x, double y, double z);
 struct matrixTransform newTransformTranslate(double x, double y, double z);
-struct matrixTransform newTransformRotateX(float degrees);
-struct matrixTransform newTransformRotateY(float degrees);
-struct matrixTransform newTransformRotateZ(float degrees);
+struct matrixTransform newTransformRotateX(double degrees);
+struct matrixTransform newTransformRotateY(double degrees);
+struct matrixTransform newTransformRotateZ(double degrees);
 struct matrixTransform emptyTransform();
 
 void transformVector(struct vector *vec, struct matrixTransform *tf); //Expose for renderer

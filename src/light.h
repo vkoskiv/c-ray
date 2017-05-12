@@ -11,8 +11,8 @@
 //Light source
 struct light {
 	struct vector pos;
-	float radius;
+	double radius;
 	struct color intensity;
 };
 
-struct light newLight(struct vector pos, float radius, struct color intensity);
+struct light newLight(struct vector pos, double radius, struct color intensity);

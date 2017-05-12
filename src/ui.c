@@ -51,7 +51,7 @@ void fillTexture(SDL_Renderer *renderer, SDL_Texture *texture, int r, int g, int
 }
 
 int initSDL() {
-	float windowScale = mainRenderer.worldScene->camera->windowScale;
+	double windowScale = mainRenderer.worldScene->camera->windowScale;
 	
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {

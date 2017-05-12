@@ -61,7 +61,7 @@ struct vector addVectors(struct vector *v1, struct vector *v2);
 struct vector subtractVectors(struct vector *v1, struct vector *v2);
 
 //Multiply two vectors and return the dot product
-float scalarProduct(struct vector *v1, struct vector *v2);
+double scalarProduct(struct vector *v1, struct vector *v2);
 
 //Multiply a vector by a coefficient and return the resulting vector
 struct vector vectorScale(double c, struct vector *v);
@@ -76,7 +76,7 @@ struct vector minVector(struct vector *v1, struct vector *v2);
 struct vector maxVector(struct vector *v1, struct vector *v2);
 
 //Calculate length of vector
-float vectorLength(struct vector *v);
+double vectorLength(struct vector *v);
 
 //Normalize a vector
 struct vector normalizeVector(struct vector *v);
@@ -85,8 +85,8 @@ struct coord uvFromValues(double u, double v);
 
 struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v3);
 
-struct vector getRandomVecOnRadius(struct vector center, float radius);
+struct vector getRandomVecOnRadius(struct vector center, double radius);
 
-struct vector getRandomVecOnPlane(struct vector center, float radius);
+struct vector getRandomVecOnPlane(struct vector center, double radius);
 
-float getRandomFloat(float min, float max);
+double getRandomDouble(double min, double max);

@@ -9,17 +9,17 @@
 #include "includes.h"
 #include "sphere.h"
 
-struct sphere newSphere(struct vector pos, float radius, int materialIndex) {
+struct sphere newSphere(struct vector pos, double radius, int materialIndex) {
 	return (struct sphere){pos, radius, materialIndex};
 }
 
 //Just check for intersection, nothing else.
 bool rayIntersectsWithSphereFast(struct lightRay *ray, struct sphere *sphere) {
-	float A = scalarProduct(&ray->direction, &ray->direction);
+	double A = scalarProduct(&ray->direction, &ray->direction);
 	struct vector distance = subtractVectors(&ray->start, &sphere->pos);
-	float B = 2 * scalarProduct(&ray->direction, &distance);
-	float C = scalarProduct(&distance, &distance) - (sphere->radius * sphere->radius);
-	float trigDiscriminant = B * B - 4 * A * C;
+	double B = 2 * scalarProduct(&ray->direction, &distance);
+	double C = scalarProduct(&distance, &distance) - (sphere->radius * sphere->radius);
+	double trigDiscriminant = B * B - 4 * A * C;
 	if (trigDiscriminant < 0) {
 		return false;
 	} else {
@@ -32,24 +32,24 @@ bool rayIntersectsWithSphere(struct lightRay *ray, struct sphere *sphere, double
 	bool intersects = false;
 	
 	//Vector dot product of the direction
-	float A = scalarProduct(&ray->direction, &ray->direction);
+	double A = scalarProduct(&ray->direction, &ray->direction);
 	
 	//Distance between start of a lightRay and the sphere position
 	struct vector distance = subtractVectors(&ray->start, &sphere->pos);
 	
-	float B = 2 * scalarProduct(&ray->direction, &distance);
+	double B = 2 * scalarProduct(&ray->direction, &distance);
 	
-	float C = scalarProduct(&distance, &distance) - (sphere->radius * sphere->radius);
+	double C = scalarProduct(&distance, &distance) - (sphere->radius * sphere->radius);
 	
-	float trigDiscriminant = B * B - 4 * A * C;
+	double trigDiscriminant = B * B - 4 * A * C;
 	
 	//If discriminant is negative, no real roots and the ray has missed the sphere
 	if (trigDiscriminant < 0) {
 		intersects = false;
 	} else {
-		float sqrtOfDiscriminant = sqrtf(trigDiscriminant);
-		float t0 = (-B + sqrtOfDiscriminant)/(2);
-		float t1 = (-B - sqrtOfDiscriminant)/(2);
+		double sqrtOfDiscriminant = sqrtf(trigDiscriminant);
+		double t0 = (-B + sqrtOfDiscriminant)/(2);
+		double t1 = (-B - sqrtOfDiscriminant)/(2);
 		
 		//Pick closest intersection
 		if (t0 > t1) {

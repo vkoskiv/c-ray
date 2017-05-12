@@ -51,7 +51,7 @@ struct light transformLight(struct light inputLight, struct matrixTransform tf) 
 	return inputLight;
 }
 
-struct matrixTransform newTransformRotateX(float degrees) {
+struct matrixTransform newTransformRotateX(double degrees) {
 	struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeXRotate;
 	transform.a = 1;
@@ -63,7 +63,7 @@ struct matrixTransform newTransformRotateX(float degrees) {
 	return transform;
 }
 
-struct matrixTransform newTransformRotateY(float degrees) {
+struct matrixTransform newTransformRotateY(double degrees) {
 	struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeYRotate;
 	transform.a = cos(toRadians(degrees));
@@ -75,7 +75,7 @@ struct matrixTransform newTransformRotateY(float degrees) {
 	return transform;
 }
 
-struct matrixTransform newTransformRotateZ(float degrees) {
+struct matrixTransform newTransformRotateZ(double degrees) {
 	struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeZRotate;
 	transform.a = cos(toRadians(degrees));

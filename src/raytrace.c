@@ -38,7 +38,7 @@ struct intersection {
  */
 bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct shadeInfo *info) {
 	//A bit of a hack, but it does work...!
-	double fakeIsect = 20000.0f;
+	double fakeIsect = 20000.0;
 	if (rayIntersectWithAABB(node->bbox, ray, &fakeIsect)) {
 		struct vector normal = vectorWithPos(0, 0, 0);
 		struct coord uv;
@@ -156,7 +156,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 	struct shadeInfo info;
 	memset(&info, 0, sizeof(info));
 	
-	info.closestIntersection = 20000.0f;
+	info.closestIntersection = 20000.0;
 	
 	isect.ray = incidentRay;
 	isect.start = &incidentRay->currentMedium;
@@ -411,7 +411,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 	do {
 		//closestIntersection, also often called 't', distance to closest intersection
 		//Used to figure out the nearest intersection
-		double closestIntersection = 20000.0f;
+		double closestIntersection = 20000.0;
 		double temp;
 		int currentSphere = -1;
 		int currentPolygon = -1;
@@ -527,10 +527,10 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			
 			if (!inShadow) {
 				//TODO: Calculate specular reflection
-				float specularFactor = 1.0;//scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
+				double specularFactor = 1.0;//scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
 				
 				//Calculate Lambert diffusion
-				float diffuseFactor = scalarProduct(&bouncedRay.direction, &surfaceNormal) * contrast;
+				double diffuseFactor = scalarProduct(&bouncedRay.direction, &surfaceNormal) * contrast;
 				output.red += specularFactor * diffuseFactor * currentLight.intensity.red * currentMaterial.diffuse.red;
 				output.green += specularFactor * diffuseFactor * currentLight.intensity.green * currentMaterial.diffuse.green;
 				output.blue += specularFactor * diffuseFactor * currentLight.intensity.blue * currentMaterial.diffuse.blue;

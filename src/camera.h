@@ -39,8 +39,8 @@ struct camera {
 	int frameCount;
 	int currentFrame;
 	int bounces;
-	float contrast;
-	float windowScale;
+	double contrast;
+	double windowScale;
 	
 	bool isFullScreen;
 	bool isBorderless;

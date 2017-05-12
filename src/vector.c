@@ -30,7 +30,7 @@ struct vector addVectors(struct vector *v1, struct vector *v2) {
 }
 
 //Compute length of a vector
-float vectorLength(struct vector *v) {
+double vectorLength(struct vector *v) {
 	return sqrtf(v->x*v->x + v->y*v->y + v->z*v->z);
 }
 
@@ -40,7 +40,7 @@ struct vector subtractVectors(struct vector *v1, struct vector *v2) {
 }
 
 //Multiply two vectors and return the dot product
-float scalarProduct(struct vector *v1, struct vector *v2) {
+double scalarProduct(struct vector *v1, struct vector *v2) {
 	return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
 }
 
@@ -80,14 +80,14 @@ struct coord uvFromValues(double u, double v) {
 }
 
 /**
- Returns a random float between min and max
+ Returns a random double between min and max
  
  @param min Minimum value
  @param max Maximum value
- @return Random float between min and max
+ @return Random double between min and max
  */
-float getRandomFloat(float min, float max) {
-	return ((((float)rand()) / (float)RAND_MAX) * (max - min)) + min;
+double getRandomDouble(double min, double max) {
+	return ((((double)rand()) / (double)RAND_MAX) * (max - min)) + min;
 }
 
 /**
@@ -97,10 +97,10 @@ float getRandomFloat(float min, float max) {
  @param radius Maximum distance from center point
  @return Vector of a random position within a radius of center point
  */
-struct vector getRandomVecOnRadius(struct vector center, float radius) {
-	return vectorWithPos(center.x + getRandomFloat(-radius, radius),
-						 center.y + getRandomFloat(-radius, radius),
-						 center.z + getRandomFloat(-radius, radius));
+struct vector getRandomVecOnRadius(struct vector center, double radius) {
+	return vectorWithPos(center.x + getRandomDouble(-radius, radius),
+						 center.y + getRandomDouble(-radius, radius),
+						 center.z + getRandomDouble(-radius, radius));
 }
 
 /**
@@ -110,9 +110,9 @@ struct vector getRandomVecOnRadius(struct vector center, float radius) {
  @param radius Maximum distance from center point
  @return Vector of a random position on a plane within a radius of center point
  */
-struct vector getRandomVecOnPlane(struct vector center, float radius) {
+struct vector getRandomVecOnPlane(struct vector center, double radius) {
 	//FIXME: This only works in one orientation!
-	return vectorWithPos(center.x + getRandomFloat(-radius, radius),
-						 center.y + getRandomFloat(-radius, radius),
+	return vectorWithPos(center.x + getRandomDouble(-radius, radius),
+						 center.y + getRandomDouble(-radius, radius),
 						 center.z);
 }

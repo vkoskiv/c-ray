@@ -11,14 +11,14 @@
 //Sphere
 struct sphere {
 	struct vector pos;
-	float radius;
+	double radius;
 	int materialIndex;
 };
 
 struct lightRay;
 
 //New sphere with given params
-struct sphere newSphere(struct vector pos, float radius, int materialIndex);
+struct sphere newSphere(struct vector pos, double radius, int materialIndex);
 
 //Calculates intersection between a light ray and a sphere
 bool rayIntersectsWithSphere(struct lightRay *ray, struct sphere *sphere, double *t);

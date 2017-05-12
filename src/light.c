@@ -9,6 +9,6 @@
 #include "includes.h"
 #include "light.h"
 
-struct light newLight(struct vector pos, float radius, struct color intensity) {
+struct light newLight(struct vector pos, double radius, struct color intensity) {
 	return (struct light){pos, radius, intensity};
 }

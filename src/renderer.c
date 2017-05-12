@@ -68,8 +68,8 @@ void quantizeImage(struct scene *worldScene) {
 	int tilesX = worldScene->camera->width / worldScene->camera->tileWidth;
 	int tilesY = worldScene->camera->height / worldScene->camera->tileHeight;
 	
-	float tilesXf = (float)worldScene->camera->width / (float)worldScene->camera->tileWidth;
-	float tilesYf = (float)worldScene->camera->height / (float)worldScene->camera->tileHeight;
+	double tilesXf = (double)worldScene->camera->width / (double)worldScene->camera->tileWidth;
+	double tilesYf = (double)worldScene->camera->height / (double)worldScene->camera->tileHeight;
 	
 	if (tilesXf - (int)tilesXf != 0) {
 		tilesX++;
@@ -217,7 +217,7 @@ struct color getPixel(struct scene *worldScene, int x, int y) {
 	output.red =   mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0];
 	output.green = mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 1];
 	output.blue =  mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 2];
-	output.alpha = 1.0f;
+	output.alpha = 1.0;
 	return output;
 }
 
@@ -291,18 +291,18 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						int height = mainRenderer.worldScene->camera->height;
 						int width = mainRenderer.worldScene->camera->width;
 						
-						double focalLength = 0.0f;
+						double focalLength = 0.0;
 						if (mainRenderer.worldScene->camera->FOV > 0.0f
 							&& mainRenderer.worldScene->camera->FOV < 189.0f) {
 							focalLength = 0.5f * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * mainRenderer.worldScene->camera->FOV);
 						}
 						
-						float fracX = (float)x;
-						float fracY = (float)y;
+						double fracX = (double)x;
+						double fracY = (double)y;
 						
 						if (mainRenderer.worldScene->camera->antialiasing) {
-							fracX = getRandomFloat(fracX - 0.25f, fracX + 0.25f);
-							fracY = getRandomFloat(fracY - 0.25f, fracY + 0.25f);
+							fracX = getRandomDouble(fracX - 0.25f, fracX + 0.25f);
+							fracY = getRandomDouble(fracY - 0.25f, fracY + 0.25f);
 						}
 						
 						struct vector direction = {(fracX - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
