@@ -18,11 +18,11 @@
 #include "kdtree.h"
 
 struct intersection {
-	struct lightRay *ray;
-	struct material *start;
-	struct material *end;
-	struct vector *hitPoint;
-	struct vector *surfaceNormal;
+	struct lightRay ray;
+	struct material start;
+	struct material end;
+	struct vector hitPoint;
+	struct vector surfaceNormal;
 	bool didIntersect;
 	double distance;
 };
@@ -158,19 +158,19 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 	
 	info.closestIntersection = 20000.0;
 	
-	isect.ray = incidentRay;
-	isect.start = &incidentRay->currentMedium;
+	isect.ray = *incidentRay;
+	isect.start = incidentRay->currentMedium;
 	isect.didIntersect = false;
 	int objCount = worldScene->objCount;
 	int sphereCount = worldScene->sphereCount;
 	
 	for (int i = 0; i < sphereCount; i++) {
 		if (rayIntersectsWithSphereTemp(&worldScene->spheres[i], incidentRay, &info)) {
-			isect.end = &worldScene->materials[worldScene->spheres[i].materialIndex];
-			isect.surfaceNormal = &info.normal;
+			isect.end = worldScene->materials[worldScene->spheres[i].materialIndex];
+			isect.surfaceNormal = info.normal;
 			isect.didIntersect = true;
 			isect.distance = info.closestIntersection;
-			isect.hitPoint = &info.hitPoint;
+			isect.hitPoint = info.hitPoint;
 		}
 	}
 	
@@ -178,11 +178,11 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 	//intersect that happened in the previous check^.
 	for (int o = 0; o < objCount; o++) {
 		if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, &info)) {
-			isect.end = &worldScene->objs[o].materials[polygonArray[info.objIndex].materialIndex];
-			isect.surfaceNormal = &info.normal;
+			isect.end = worldScene->objs[o].materials[polygonArray[info.objIndex].materialIndex];
+			isect.surfaceNormal = info.normal;
 			isect.didIntersect = true;
 			isect.distance = info.closestIntersection;
-			isect.hitPoint = &info.hitPoint;
+			isect.hitPoint = info.hitPoint;
 		}
 	}
 	
@@ -227,19 +227,19 @@ struct vector refractVec(struct vector *incident, struct vector *normal, double 
 
 struct color getSpecular(struct intersection *isect, struct light *light, struct vector *lightPos) {
 	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
-	double gloss = isect->end->glossiness;
+	double gloss = isect->end.glossiness;
 	
 	if (gloss == 0.0f) {
 		//Not glossy, abort early
 		return specular;
 	}
 	
-	struct vector viewTemp = subtractVectors(&isect->ray->start, isect->hitPoint);
+	struct vector viewTemp = subtractVectors(&isect->ray.start, &isect->hitPoint);
 	struct vector view = normalizeVector(&viewTemp);
 	
-	struct vector lightDir = subtractVectors(lightPos, isect->hitPoint);
+	struct vector lightDir = subtractVectors(lightPos, &isect->hitPoint);
 	struct vector lightDirNormal = normalizeVector(&lightDir);
-	struct vector reflected = reflectVec(&lightDirNormal, isect->surfaceNormal);
+	struct vector reflected = reflectVec(&lightDirNormal, &isect->surfaceNormal);
 	
 	double dotProduct = scalarProduct(&view, &reflected);
 	if (dotProduct <= 0) {
@@ -262,10 +262,10 @@ struct color getHighlights(struct intersection *isect, struct color *color, stru
 		struct light currentLight = world->lights[i];
 		struct vector lightPos = vectorWithPos(0, 0, 0);
 		lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
-		struct vector lightDir = subtractVectors(&lightPos, isect->hitPoint);
+		struct vector lightDir = subtractVectors(&lightPos, &isect->hitPoint);
 		double distanceToLight = vectorLength(&lightDir);
 		lightDir = normalizeVector(&lightDir);
-		double dotProduct = scalarProduct(isect->surfaceNormal, &lightDir);
+		double dotProduct = scalarProduct(&isect->surfaceNormal, &lightDir);
 		
 		if (dotProduct >= 0.0f) {
 			//Intersection point is facing this light
@@ -273,9 +273,9 @@ struct color getHighlights(struct intersection *isect, struct color *color, stru
 			
 			struct lightRay shadowRay;
 			shadowRay.rayType = rayTypeShadow;
-			shadowRay.start = *isect->hitPoint;
+			shadowRay.start = isect->hitPoint;
 			shadowRay.direction = lightDir;
-			shadowRay.currentMedium = isect->ray->currentMedium;
+			shadowRay.currentMedium = isect->ray.currentMedium;
 			shadowRay.remainingInteractions = 1;
 			
 			if (isInShadow(&shadowRay, distanceToLight, world)) {
@@ -314,10 +314,10 @@ double getReflectance(struct vector *normal, struct vector *dir, double startIOR
 
 struct color getReflectsAndRefracts(struct intersection *isect, struct color *color, struct scene *world) {
 	//Interacted light, so refracted and reflected rays
-	double reflectivity = isect->end->reflectivity;
-	double startIOR     = isect->start->IOR;
-	double   endIOR     = isect->end  ->IOR;
-	int remainingInteractions = isect->ray->remainingInteractions;
+	double reflectivity = isect->end.reflectivity;
+	double startIOR     = isect->start.IOR;
+	double   endIOR     = isect->end  .IOR;
+	int remainingInteractions = isect->ray.remainingInteractions;
 	
 	if ((reflectivity == NOT_REFLECTIVE && endIOR == NOT_REFRACTIVE) || remainingInteractions <= 0) {
 		return (struct color){0.0, 0.0, 0.0, 0.0};
@@ -328,7 +328,7 @@ struct color getReflectsAndRefracts(struct intersection *isect, struct color *co
 	
 	//Get ratio of reflection/refraction
 	if (endIOR != NOT_REFRACTIVE) {
-		reflectivePercentage = getReflectance(isect->surfaceNormal, &isect->ray->direction, isect->start->IOR, isect->end->IOR);
+		reflectivePercentage = getReflectance(&isect->surfaceNormal, &isect->ray.direction, isect->start.IOR, isect->end.IOR);
 		refractivePercentage = 1 - reflectivePercentage;
 	}
 	
@@ -343,24 +343,24 @@ struct color getReflectsAndRefracts(struct intersection *isect, struct color *co
 	//Recursively trace new rays to reflect and refract
 	
 	if (reflectivePercentage > 0) {
-		struct vector reflected = reflectVec(&isect->ray->start, isect->surfaceNormal);
+		struct vector reflected = reflectVec(&isect->ray.start, &isect->surfaceNormal);
 		struct lightRay reflectedRay;
-		reflectedRay.start = *isect->hitPoint;
+		reflectedRay.start = isect->hitPoint;
 		reflectedRay.direction = reflected;
 		reflectedRay.remainingInteractions = remainingInteractions - 1;
-		reflectedRay.currentMedium = isect->ray->currentMedium;
+		reflectedRay.currentMedium = isect->ray.currentMedium;
 		//And recurse!
 		struct color temp = newTrace(&reflectedRay, world);
 		reflectiveColor = colorCoef(reflectivePercentage, &temp);
 	}
 	
 	if (refractivePercentage > 0) {
-		struct vector refracted = refractVec(&isect->ray->direction, isect->surfaceNormal, startIOR, endIOR);
+		struct vector refracted = refractVec(&isect->ray.direction, &isect->surfaceNormal, startIOR, endIOR);
 		struct lightRay refractedRay;
-		refractedRay.start = *isect->hitPoint;
+		refractedRay.start = isect->hitPoint;
 		refractedRay.direction = refracted;
 		refractedRay.remainingInteractions = 1;
-		refractedRay.currentMedium = *isect->end;
+		refractedRay.currentMedium = isect->end;
 		//Recurse here too
 		struct color temp = newTrace(&refractedRay, world);
 		refractiveColor = colorCoef(refractivePercentage, &temp);
@@ -370,7 +370,7 @@ struct color getReflectsAndRefracts(struct intersection *isect, struct color *co
 }
 
 struct color getLighting(struct intersection *isect, struct scene *world) {
-	struct color output = isect->end->diffuse;
+	struct color output = isect->end.diffuse;
 	
 	struct color ambientColor = getAmbient(isect, &output); //done
 	struct color highlights = getHighlights(isect, &output, world); //done
