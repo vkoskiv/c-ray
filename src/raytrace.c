@@ -414,9 +414,9 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		double temp;
 		int currentSphere = -1;
 		int currentPolygon = -1;
-		int sphereAmount = worldScene->sphereCount;
-		int lightSourceAmount = worldScene->lightCount;
-		int objCount = worldScene->objCount;
+		unsigned sphereAmount = worldScene->sphereCount;
+		unsigned lightSourceAmount = worldScene->lightCount;
+		unsigned objCount = worldScene->objCount;
 		
 		struct material currentMaterial;
 		struct vector surfaceNormal = {0.0, 0.0, 0.0, false};
@@ -424,8 +424,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		struct coord textureCoord = {0.0, 0.0};
 		struct vector hitpoint;
 		
-		unsigned int i;
-		for (i = 0; i < sphereAmount; ++i) {
+		for (unsigned i = 0; i < sphereAmount; ++i) {
 			if (rayIntersectsWithSphere(incidentRay, &worldScene->spheres[i], &closestIntersection)) {
 				currentSphere = i;
 				currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].materialIndex];
@@ -434,8 +433,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		
 		isectInfo->closestIntersection = closestIntersection;
 		isectInfo->normal = surfaceNormal;
-		unsigned int o;
-		for (o = 0; o < objCount; o++) {
+		for (unsigned o = 0; o < objCount; o++) {
 			if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, isectInfo)) {
 				currentPolygon      = isectInfo->objIndex;
 				closestIntersection = isectInfo->closestIntersection;
@@ -481,8 +479,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		bouncedRay.start = hitpoint;
 		
 		//Find the value of the light at this point
-		unsigned int j;
-		for (j = 0; j < lightSourceAmount; ++j) {
+		for (unsigned j = 0; j < lightSourceAmount; ++j) {
 			struct light currentLight = worldScene->lights[j];
 			struct vector lightPos;
 			if (worldScene->camera->areaLights)
@@ -516,7 +513,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			
 			shadowInfo->closestIntersection = t;
 			shadowInfo->normal = surfaceNormal;
-			for (o = 0; o < objCount; o++) {
+			for (unsigned o = 0; o < objCount; o++) {
 				if (rayIntersectsWithNode(worldScene->objs[o].tree, &bouncedRay, shadowInfo)) {
 					t = shadowInfo->closestIntersection;
 					inShadow = true;
