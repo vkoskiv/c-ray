@@ -84,7 +84,7 @@ bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, st
 		struct vector hitpoint = addVectors(&ray->start, &scaled);
 		struct vector surfaceNormal = subtractVectors(&hitpoint, &sphere->pos);
 		double temp = scalarProduct(&surfaceNormal,&surfaceNormal);
-		if (temp == 0.0f) return false; //FIXME: Check this later
+		if (temp == 0.0) return false; //FIXME: Check this later
 		temp = invsqrt(temp);
 		info->normal = vectorScale(temp, &surfaceNormal);
 		info->hitPoint = hitpoint;
@@ -201,7 +201,7 @@ bool isInShadow(struct lightRay *ray, double distance, struct scene *world) {
 }
 
 struct vector reflectVec(struct vector *vec, struct vector *normal) {
-	double reflect = 2.0f * scalarProduct(vec, normal);
+	double reflect = 2.0 * scalarProduct(vec, normal);
 	struct vector temp = vectorScale(reflect, normal);
 	return subtractVectors(vec, &temp);
 }
@@ -228,7 +228,7 @@ struct color getSpecular(struct intersection *isect, struct light *light, struct
 	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
 	double gloss = isect->end.glossiness;
 	
-	if (gloss == 0.0f) {
+	if (gloss == 0.0) {
 		//Not glossy, abort early
 		return specular;
 	}
@@ -266,7 +266,7 @@ struct color getHighlights(struct intersection *isect, struct color *color, stru
 		lightDir = normalizeVector(&lightDir);
 		double dotProduct = scalarProduct(&isect->surfaceNormal, &lightDir);
 		
-		if (dotProduct >= 0.0f) {
+		if (dotProduct >= 0.0) {
 			//Intersection point is facing this light
 			//Check if there are objects in the way to get shadows
 			
@@ -400,7 +400,7 @@ struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene) {
  */
 struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
-	struct color output = {0.0f,0.0f,0.0f,0.0f};
+	struct color output = {0.0,0.0,0.0,0.0};
 	int bounces = 0;
 	double contrast = worldScene->camera->contrast;
 	
@@ -453,14 +453,14 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			hitpoint = addVectors(&incidentRay->start, &scaled);
 			surfaceNormal = subtractVectors(&hitpoint, &worldScene->spheres[currentSphere].pos);
 			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
-			if (temp == 0.0f) break;
+			if (temp == 0.0) break;
 			temp = invsqrt(temp);
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
 		} else if (currentPolygon != -1) {
 			struct vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
 			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
-			if (temp == 0.0f) break;
+			if (temp == 0.0) break;
 			temp = invsqrt(temp);
 			//FIXME: Possibly get existing normal here
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
@@ -471,10 +471,10 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			break;
 		}
 		
-		if (scalarProduct(&surfaceNormal, &incidentRay->direction) < 0.0f) {
-			surfaceNormal = vectorScale(1.0f, &surfaceNormal);
-		} else if (scalarProduct(&surfaceNormal, &incidentRay->direction) > 0.0f) {
-			surfaceNormal = vectorScale(-1.0f, &surfaceNormal);
+		if (scalarProduct(&surfaceNormal, &incidentRay->direction) < 0.0) {
+			surfaceNormal = vectorScale(1.0, &surfaceNormal);
+		} else if (scalarProduct(&surfaceNormal, &incidentRay->direction) > 0.0) {
+			surfaceNormal = vectorScale(-1.0, &surfaceNormal);
 		}
 		
 		struct lightRay bouncedRay;
@@ -493,12 +493,12 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			bouncedRay.direction = subtractVectors(&lightPos, &hitpoint);
 			
 			double lightProjection = scalarProduct(&bouncedRay.direction, &surfaceNormal);
-			if (lightProjection <= 0.0f) continue;
+			if (lightProjection <= 0.0) continue;
 			
 			double lightDistance = scalarProduct(&bouncedRay.direction, &bouncedRay.direction);
 			double temp = lightDistance;
 			
-			if (temp <= 0.0f) continue;
+			if (temp <= 0.0) continue;
 			temp = invsqrt(temp);
 			bouncedRay.direction = vectorScale(temp, &bouncedRay.direction);
 			lightProjection = temp * lightProjection;
@@ -539,14 +539,14 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		contrast *= currentMaterial.reflectivity;
 		
 		//Calculate reflected ray start and direction
-		double reflect = 2.0f * scalarProduct(&incidentRay->direction, &surfaceNormal);
+		double reflect = 2.0 * scalarProduct(&incidentRay->direction, &surfaceNormal);
 		incidentRay->start = hitpoint;
 		struct vector tempVec = vectorScale(reflect, &surfaceNormal);
 		incidentRay->direction = subtractVectors(&incidentRay->direction, &tempVec);
 		
 		bounces++;
 		
-	} while ((contrast > 0.0f) && (bounces <= worldScene->camera->bounces));
+	} while ((contrast > 0.0) && (bounces <= worldScene->camera->bounces));
 	
 	free(isectInfo);
 	free(shadowInfo);

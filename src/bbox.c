@@ -48,9 +48,9 @@ struct boundingBox *computeBoundingBox(struct poly *polys, int count) {
 //Check if a ray intersects with an axis-aligned bounding box
 bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, double *t) {
 	struct vector dirfrac;
-	dirfrac.x = 1.0f / ray->direction.x;
-	dirfrac.y = 1.0f / ray->direction.y;
-	dirfrac.z = 1.0f / ray->direction.z;
+	dirfrac.x = 1.0 / ray->direction.x;
+	dirfrac.y = 1.0 / ray->direction.y;
+	dirfrac.z = 1.0 / ray->direction.z;
 
 	double t1 = (box->start.x - ray->start.x)*dirfrac.x;
 	double t2 = (box->  end.x - ray->start.x)*dirfrac.x;

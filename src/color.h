@@ -7,7 +7,7 @@
 //
 #pragma once
 
-#define AIR_IOR 1.0f
+#define AIR_IOR 1.0
 
 #define NOT_REFRACTIVE 0
 #define NOT_REFLECTIVE 0

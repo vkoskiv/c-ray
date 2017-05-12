@@ -119,13 +119,13 @@ void drawPixel(int x, int y, bool on) {
 	
 	if (on) {
 		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y)
-							   * mainRenderer.worldScene->camera->width) * 4 + 3] = (unsigned char)min(frameColor.red*255.0f, 255.0f);
+							   * mainRenderer.worldScene->camera->width) * 4 + 3] = (unsigned char)min(frameColor.red*255.0, 255.0);
 		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y)
-							   * mainRenderer.worldScene->camera->width) * 4 + 2] = (unsigned char)min(frameColor.green*255.0f, 255.0f);
+							   * mainRenderer.worldScene->camera->width) * 4 + 2] = (unsigned char)min(frameColor.green*255.0, 255.0);
 		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y)
-							   * mainRenderer.worldScene->camera->width) * 4 + 1] = (unsigned char)min(frameColor.blue*255.0f, 255.0f);
+							   * mainRenderer.worldScene->camera->width) * 4 + 1] = (unsigned char)min(frameColor.blue*255.0, 255.0);
 		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y)
-							   * mainRenderer.worldScene->camera->width) * 4 + 0] = (unsigned char)min(255.0f, 255.0f);
+							   * mainRenderer.worldScene->camera->width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
 	} else {
 		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y) * mainRenderer.worldScene->camera->width) * 4 + 0] = (unsigned char)0;
 		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y) * mainRenderer.worldScene->camera->width) * 4 + 1] = (unsigned char)0;

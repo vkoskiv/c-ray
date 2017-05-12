@@ -213,7 +213,7 @@ void reorderTiles(enum renderOrder order) {
  @return A color object, with full color precision intact (double)
  */
 struct color getPixel(struct scene *worldScene, int x, int y) {
-	struct color output = {0.0f, 0.0f, 0.0f, 0.0f};
+	struct color output = {0.0, 0.0, 0.0, 0.0};
 	output.red =   mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0];
 	output.green = mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 1];
 	output.blue =  mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 2];
@@ -292,21 +292,21 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						int width = mainRenderer.worldScene->camera->width;
 						
 						double focalLength = 0.0;
-						if (mainRenderer.worldScene->camera->FOV > 0.0f
-							&& mainRenderer.worldScene->camera->FOV < 189.0f) {
-							focalLength = 0.5f * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5f * mainRenderer.worldScene->camera->FOV);
+						if (mainRenderer.worldScene->camera->FOV > 0.0
+							&& mainRenderer.worldScene->camera->FOV < 189.0) {
+							focalLength = 0.5 * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5 * mainRenderer.worldScene->camera->FOV);
 						}
 						
 						double fracX = (double)x;
 						double fracY = (double)y;
 						
 						if (mainRenderer.worldScene->camera->antialiasing) {
-							fracX = getRandomDouble(fracX - 0.25f, fracX + 0.25f);
-							fracY = getRandomDouble(fracY - 0.25f, fracY + 0.25f);
+							fracX = getRandomDouble(fracX - 0.25, fracX + 0.25);
+							fracY = getRandomDouble(fracY - 0.25, fracY + 0.25);
 						}
 						
-						struct vector direction = {(fracX - 0.5f * mainRenderer.worldScene->camera->width) / focalLength,
-							(fracY - 0.5f * mainRenderer.worldScene->camera->height) / focalLength, 1.0f, false};
+						struct vector direction = {(fracX - 0.5 * mainRenderer.worldScene->camera->width) / focalLength,
+							(fracY - 0.5 * mainRenderer.worldScene->camera->height) / focalLength, 1.0, false};
 						
 						direction = normalizeVector(&direction);
 						struct vector startPos = mainRenderer.worldScene->camera->pos;
@@ -326,7 +326,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						
 						//Get previous color value from render buffer
 						struct color output = getPixel(mainRenderer.worldScene, x, y);
-						struct color sample = {0.0f,0.0f,0.0f,0.0f};
+						struct color sample = {0.0,0.0,0.0,0.0};
 						
 						//Get sample
 						if (mainRenderer.worldScene->camera->newRenderer) {
@@ -352,9 +352,12 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 2] = output.blue;
 						
 						//And store the image data
-						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 0] = (unsigned char)min(  output.red*255.0f, 255.0f);
-						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 1] = (unsigned char)min(output.green*255.0f, 255.0f);
-						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 2] = (unsigned char)min( output.blue*255.0f, 255.0f);
+						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 0] =
+						(unsigned char)min(  output.red*255.0, 255.0);
+						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 1] =
+						(unsigned char)min(output.green*255.0, 255.0);
+						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 2] =
+						(unsigned char)min( output.blue*255.0, 255.0);
 					}
 				}
 				tile.completedSamples++;
