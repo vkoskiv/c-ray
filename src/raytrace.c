@@ -88,7 +88,6 @@ bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, st
 		temp = invsqrtf(temp);
 		info->normal = vectorScale(temp, &surfaceNormal);
 		info->hitPoint = hitpoint;
-		info->normal = surfaceNormal;
 		return true;
 	} else {
 		info->type = hitTypeNone;
