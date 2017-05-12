@@ -31,7 +31,7 @@ struct vector addVectors(struct vector *v1, struct vector *v2) {
 
 //Compute length of a vector
 double vectorLength(struct vector *v) {
-	return sqrtf(v->x*v->x + v->y*v->y + v->z*v->z);
+	return sqrt(v->x*v->x + v->y*v->y + v->z*v->z);
 }
 
 //Subtract two vectors and return the resulting vector

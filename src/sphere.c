@@ -47,7 +47,7 @@ bool rayIntersectsWithSphere(struct lightRay *ray, struct sphere *sphere, double
 	if (trigDiscriminant < 0) {
 		intersects = false;
 	} else {
-		double sqrtOfDiscriminant = sqrtf(trigDiscriminant);
+		double sqrtOfDiscriminant = sqrt(trigDiscriminant);
 		double t0 = (-B + sqrtOfDiscriminant)/(2);
 		double t1 = (-B - sqrtOfDiscriminant)/(2);
 		

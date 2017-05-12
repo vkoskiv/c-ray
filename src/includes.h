@@ -19,7 +19,7 @@
 //Some macros
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
-#define invsqrtf(x) (1.0f / sqrtf(x))
+#define invsqrt(x) (1.0 / sqrt(x))
 
 //Master include file
 #include <stdlib.h>

@@ -85,7 +85,7 @@ bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, st
 		struct vector surfaceNormal = subtractVectors(&hitpoint, &sphere->pos);
 		double temp = scalarProduct(&surfaceNormal,&surfaceNormal);
 		if (temp == 0.0f) return false; //FIXME: Check this later
-		temp = invsqrtf(temp);
+		temp = invsqrt(temp);
 		info->normal = vectorScale(temp, &surfaceNormal);
 		info->hitPoint = hitpoint;
 		return true;
@@ -216,7 +216,7 @@ struct vector refractVec(struct vector *incident, struct vector *normal, double 
 		exit(-19);
 	}
 	
-	double cosT = sqrtf(1.0 - sinT2);
+	double cosT = sqrt(1.0 - sinT2);
 	struct vector temp1 = vectorScale(ratio, incident);
 	struct vector temp2 = vectorScale((ratio * cosI - cosT), normal);
 	
@@ -304,7 +304,7 @@ double getReflectance(struct vector *normal, struct vector *dir, double startIOR
 		return 1.0;
 	}
 	
-	double cosT = sqrtf(1.0 - sinT2);
+	double cosT = sqrt(1.0 - sinT2);
 	double r0rth = (startIOR * cosI - endIOR * cosT) / (startIOR * cosI + endIOR * cosT);
 	double rPar = (endIOR * cosI - startIOR * cosT) / (endIOR * cosI + startIOR * cosT);
 	
@@ -454,14 +454,14 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			surfaceNormal = subtractVectors(&hitpoint, &worldScene->spheres[currentSphere].pos);
 			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
 			if (temp == 0.0f) break;
-			temp = invsqrtf(temp);
+			temp = invsqrt(temp);
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
 		} else if (currentPolygon != -1) {
 			struct vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
 			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
 			if (temp == 0.0f) break;
-			temp = invsqrtf(temp);
+			temp = invsqrt(temp);
 			//FIXME: Possibly get existing normal here
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
 		} else {
@@ -499,7 +499,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			double temp = lightDistance;
 			
 			if (temp <= 0.0f) continue;
-			temp = invsqrtf(temp);
+			temp = invsqrt(temp);
 			bouncedRay.direction = vectorScale(temp, &bouncedRay.direction);
 			lightProjection = temp * lightProjection;
 			
