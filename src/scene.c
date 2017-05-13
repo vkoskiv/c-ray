@@ -322,6 +322,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	scene->ambientColor-> blue = 0.6;
 	
 	addCamera(scene, cam);
+	free(cam);
 	
 	//NOTE: Translates have to come last!
 	if (addOBJ(scene, "../output/newScene.obj")) {
@@ -394,6 +395,9 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	computeKDTrees(scene);
 	
 	//LIGHTS
+	
+	//addLight(scene, newLight(vectorWithPos(970, 420, 150), 13, colorWithValues(100, 100, 100, 0)));
+	
 	addLight(scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));
 	addLight(scene, newLight(vectorWithPos(760 , 500, 0),    42, colorWithValues(0.2, 0.2, 0.2, 0.0)));
 	addLight(scene, newLight(vectorWithPos(640 , 350, 600), 200, colorWithValues(6.0, 0.0, 0.0, 0.0)));
