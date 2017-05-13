@@ -17,17 +17,6 @@
 #include "bbox.h"
 #include "kdtree.h"
 
-struct intersection {
-	struct lightRay ray;
-	struct material start;
-	struct material end;
-	struct vector hitPoint;
-	struct vector surfaceNormal;
-	bool didIntersect;
-	double distance;
-};
-
-
 /**
  Traverse a k-d tree and see if a ray collides with a polygon.
 
@@ -36,7 +25,7 @@ struct intersection {
  @param info Shading information
  @return True if ray hits a polygon in a leaf node, otherwise false
  */
-bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct shadeInfo *info) {
+bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect) {
 	//A bit of a hack, but it does work...!
 	double fakeIsect = 20000.0;
 	if (rayIntersectWithAABB(node->bbox, ray, &fakeIsect)) {
@@ -46,28 +35,28 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 		
 		if (node->left->polyCount > 0 || node->right->polyCount > 0) {
 			//Recurse down both sides
-			bool hitLeft  = rayIntersectsWithNode(node->left, ray, info);
-			bool hitRight = rayIntersectsWithNode(node->right, ray, info);
+			bool hitLeft  = rayIntersectsWithNode(node->left, ray, isect);
+			bool hitRight = rayIntersectsWithNode(node->right, ray, isect);
 			
 			return hitLeft || hitRight;
 		} else {
 			//This is a leaf, so check all polys
 			for (int i = 0; i < node->polyCount; i++) {
-				if (rayIntersectsWithPolygon(ray, &node->polygons[i], &info->closestIntersection, &normal, &uv)) {
+				if (rayIntersectsWithPolygon(ray, &node->polygons[i], &isect->distance, &normal, &uv)) {
 					hasHit = true;
-					info->type = hitTypePolygon;
-					info->normal = normal;
-					info->uv = uv;
-					info->objIndex = node->polygons[i].polyIndex;
-					info->mtlIndex = node->polygons[i].materialIndex;
-					struct vector scaled = vectorScale(info->closestIntersection, &ray->direction);
+					isect->type = hitTypePolygon;
+					isect->surfaceNormal = normal;
+					isect->uv = uv;
+					isect->polyIndex = node->polygons[i].polyIndex;
+					isect->mtlIndex = node->polygons[i].materialIndex;
+					struct vector scaled = vectorScale(isect->distance, &ray->direction);
 					struct vector hitPoint = addVectors(&ray->start, &scaled);
-					info->hitPoint = hitPoint;
+					isect->hitPoint = hitPoint;
 				}
 			}
 			//TODO: Clean this up
 			if (hasHit) {
-				info->hasHit = true;
+				isect->didIntersect = true;
 				return true;
 			}
 			return false;
@@ -76,21 +65,21 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 	return false;
 }
 
-bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, struct shadeInfo *info) {
-	if (rayIntersectsWithSphere(ray, sphere, &info->closestIntersection)) {
-		info->type = hitTypeSphere;
+bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, struct intersection *isect) {
+	if (rayIntersectsWithSphere(ray, sphere, &isect->distance)) {
+		isect->type = hitTypeSphere;
 		//Compute normal
-		struct vector scaled = vectorScale(info->closestIntersection, &ray->direction);
+		struct vector scaled = vectorScale(isect->distance, &ray->direction);
 		struct vector hitpoint = addVectors(&ray->start, &scaled);
 		struct vector surfaceNormal = subtractVectors(&hitpoint, &sphere->pos);
 		double temp = scalarProduct(&surfaceNormal,&surfaceNormal);
 		if (temp == 0.0) return false; //FIXME: Check this later
 		temp = invsqrt(temp);
-		info->normal = vectorScale(temp, &surfaceNormal);
-		info->hitPoint = hitpoint;
+		isect->surfaceNormal = vectorScale(temp, &surfaceNormal);
+		isect->hitPoint = hitpoint;
 		return true;
 	} else {
-		info->type = hitTypeNone;
+		isect->type = hitTypeNone;
 		return false;
 	}
 }
@@ -152,10 +141,8 @@ void getSurfaceProperties(int polyIndex,
 struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *worldScene) {
 	struct intersection isect;
 	memset(&isect, 0, sizeof(isect));
-	struct shadeInfo info;
-	memset(&info, 0, sizeof(info));
 	
-	info.closestIntersection = 20000.0;
+	isect.distance = 20000.0;
 	
 	isect.ray = *incidentRay;
 	isect.start = incidentRay->currentMedium;
@@ -164,24 +151,18 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 	int sphereCount = worldScene->sphereCount;
 	
 	for (int i = 0; i < sphereCount; i++) {
-		if (rayIntersectsWithSphereTemp(&worldScene->spheres[i], incidentRay, &info)) {
+		if (rayIntersectsWithSphereTemp(&worldScene->spheres[i], incidentRay, &isect)) {
 			isect.end = worldScene->materials[worldScene->spheres[i].materialIndex];
-			isect.surfaceNormal = info.normal;
 			isect.didIntersect = true;
-			isect.distance = info.closestIntersection;
-			isect.hitPoint = info.hitPoint;
 		}
 	}
 	
 	//Note: rayIntersectsWithNode makes sure this isect is closer than a possible sphere
 	//intersect that happened in the previous check^.
 	for (int o = 0; o < objCount; o++) {
-		if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, &info)) {
-			isect.end = worldScene->objs[o].materials[polygonArray[info.objIndex].materialIndex];
-			isect.surfaceNormal = info.normal;
+		if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, &isect)) {
+			isect.end = worldScene->objs[o].materials[polygonArray[isect.polyIndex].materialIndex];
 			isect.didIntersect = true;
-			isect.distance = info.closestIntersection;
-			isect.hitPoint = info.hitPoint;
 		}
 	}
 	
@@ -404,8 +385,8 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 	int bounces = 0;
 	double contrast = worldScene->camera->contrast;
 	
-	struct shadeInfo *isectInfo = (struct shadeInfo*)calloc(1, sizeof(struct shadeInfo));
-	struct shadeInfo *shadowInfo = (struct shadeInfo*)calloc(1, sizeof(struct shadeInfo));
+	struct intersection *isectInfo = (struct intersection*)calloc(1, sizeof(struct intersection));
+	struct intersection *shadowInfo = (struct intersection*)calloc(1, sizeof(struct intersection));
 	
 	do {
 		//closestIntersection, also often called 't', distance to closest intersection
@@ -431,15 +412,15 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			}
 		}
 		
-		isectInfo->closestIntersection = closestIntersection;
-		isectInfo->normal = surfaceNormal;
+		isectInfo->distance = closestIntersection;
+		isectInfo->surfaceNormal = surfaceNormal;
 		for (unsigned o = 0; o < objCount; o++) {
 			if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, isectInfo)) {
-				currentPolygon      = isectInfo->objIndex;
-				closestIntersection = isectInfo->closestIntersection;
-				surfaceNormal          = isectInfo->normal;
+				currentPolygon      = isectInfo->polyIndex;
+				closestIntersection = isectInfo->distance;
+				surfaceNormal          = isectInfo->surfaceNormal;
 				uv                  = isectInfo->uv;
-				getSurfaceProperties(isectInfo->objIndex, uv, &surfaceNormal, &textureCoord);
+				getSurfaceProperties(isectInfo->polyIndex, uv, &surfaceNormal, &textureCoord);
 				currentMaterial = worldScene->objs[o].materials[isectInfo->mtlIndex];
 				currentSphere = -1;
 			}
@@ -510,11 +491,11 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 				}
 			}
 			
-			shadowInfo->closestIntersection = t;
-			shadowInfo->normal = surfaceNormal;
+			shadowInfo->distance = t;
+			shadowInfo->surfaceNormal = surfaceNormal;
 			for (unsigned o = 0; o < objCount; o++) {
 				if (rayIntersectsWithNode(worldScene->objs[o].tree, &bouncedRay, shadowInfo)) {
-					t = shadowInfo->closestIntersection;
+					t = shadowInfo->distance;
 					inShadow = true;
 					break;
 				}
