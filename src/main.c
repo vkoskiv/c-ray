@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 #endif
 	
 	//Build the scene
-	switch (testBuild(mainRenderer.worldScene, "test")) {
+	switch (testBuild(mainRenderer.worldScene, fileName)) {
 		case -1:
 			logHandler(sceneBuildFailed);
 			break;
