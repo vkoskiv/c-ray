@@ -58,13 +58,13 @@ struct vector vectorWithPos(double x, double y, double z);
 struct vector addVectors(struct vector *v1, struct vector *v2);
 
 //Subtract two vectors and return the resulting vector
-struct vector subtractVectors(struct vector *v1, struct vector *v2);
+struct vector subtractVectors(const struct vector *v1, const struct vector *v2);
 
 //Multiply two vectors and return the dot product
-double scalarProduct(struct vector *v1, struct vector *v2);
+double scalarProduct(const struct vector *v1, const struct vector *v2);
 
 //Multiply a vector by a coefficient and return the resulting vector
-struct vector vectorScale(double c, struct vector *v);
+struct vector vectorScale(const double c, const struct vector *v);
 
 //Calculate the cross product of two vectors and return the resulting vector
 struct vector vectorCross(struct vector *v1, struct vector *v2);

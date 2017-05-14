@@ -35,17 +35,17 @@ double vectorLength(struct vector *v) {
 }
 
 //Subtract two vectors and return the resulting vector
-struct vector subtractVectors(struct vector *v1, struct vector *v2) {
+struct vector subtractVectors(const struct vector *v1, const struct vector *v2) {
 	return (struct vector){v1->x - v2->x, v1->y - v2->y, v1->z - v2->z, false};
 }
 
 //Multiply two vectors and return the dot product
-double scalarProduct(struct vector *v1, struct vector *v2) {
+double scalarProduct(const struct vector *v1, const struct vector *v2) {
 	return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
 }
 
 //Multiply a vector by a scalar and return the resulting vector
-struct vector vectorScale(double c, struct vector *v) {
+struct vector vectorScale(const double c, const struct vector *v) {
 	return (struct vector){v->x * c, v->y * c, v->z * c, false};
 }
 

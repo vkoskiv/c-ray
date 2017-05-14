@@ -169,7 +169,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 	return isect;
 }
 
-struct color getAmbient(struct intersection *isect, struct color *color) {
+struct color getAmbient(const struct intersection *isect, struct color *color) {
 	//Very cheap ambient occlusion
 	return colorCoef(0.25, color);
 }
@@ -181,13 +181,13 @@ bool isInShadow(struct lightRay *ray, double distance, struct scene *world) {
 	return isect.didIntersect && isect.distance < distance;
 }
 
-struct vector reflectVec(struct vector *vec, struct vector *normal) {
+struct vector reflectVec(const struct vector *vec, const struct vector *normal) {
 	double reflect = 2.0 * scalarProduct(vec, normal);
 	struct vector temp = vectorScale(reflect, normal);
 	return subtractVectors(vec, &temp);
 }
 
-struct vector refractVec(struct vector *incident, struct vector *normal, double startIOR, double endIOR) {
+struct vector refractVec(const struct vector *incident, const struct vector *normal, const double startIOR, const double endIOR) {
 	double ratio = startIOR / endIOR;
 	double cosI = -scalarProduct(normal, incident);
 	double sinT2 = ratio * ratio * (1.0 - cosI * cosI);
@@ -205,7 +205,7 @@ struct vector refractVec(struct vector *incident, struct vector *normal, double 
 	
 }
 
-struct color getSpecular(struct intersection *isect, struct light *light, struct vector *lightPos) {
+struct color getSpecular(const struct intersection *isect, struct light *light, struct vector *lightPos) {
 	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
 	double gloss = isect->end.glossiness;
 	
@@ -233,7 +233,7 @@ struct color getSpecular(struct intersection *isect, struct light *light, struct
 	return specular;
 }
 
-struct color getHighlights(struct intersection *isect, struct color *color, struct scene *world) {
+struct color getHighlights(const struct intersection *isect, struct color *color, struct scene *world) {
 	//diffuse and specular highlights
 	struct color diffuse = (struct color){0.0, 0.0, 0.0, 0.0};
 	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
@@ -276,7 +276,45 @@ struct color getHighlights(struct intersection *isect, struct color *color, stru
 	return addColors(&diffuse, &specular);
 }
 
-double getReflectance(struct vector *normal, struct vector *dir, double startIOR, double endIOR) {
+/*struct color getHighlights(struct intersection *isect, struct color *color, struct scene *world) {
+	struct color output  = (struct color){0.0, 0.0, 0.0, 0.0};
+	//struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
+	
+	for (int i = 0; i < world->lightCount; i++) {
+		struct light currentLight = world->lights[i];
+		
+		struct vector lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
+		struct lightRay shadowRay;
+		
+		shadowRay.direction = subtractVectors(&lightPos, &isect->hitPoint);
+		double lightProj = scalarProduct(&isect->ray.direction, &isect->surfaceNormal);
+		if (lightProj <= 0.0) continue;
+		
+		double distance = scalarProduct(&isect->ray.direction, &isect->ray.direction);
+		
+		double temp = distance;
+		
+		if (temp <= 0.0) continue;
+		temp = invsqrt(temp);
+		
+		shadowRay.rayType = rayTypeShadow;
+		shadowRay.start = isect->hitPoint;
+		shadowRay.direction = vectorScale(temp, &shadowRay.direction);
+		shadowRay.currentMedium = isect->ray.currentMedium;
+		shadowRay.remainingInteractions = 1;
+		
+		if (!isInShadow(&shadowRay, distance, world)) {
+			double specularFactor = getSpecular(isect, &currentLight, &lightPos);
+			double diffuseFactor = scalarProduct(&shadowRay.direction, &isect->surfaceNormal);
+			output.red += specularFactor * diffuseFactor * currentLight.intensity.red * isect->end.diffuse.red;
+			output.green += specularFactor * diffuseFactor * currentLight.intensity.green * isect->end.diffuse.green;
+			output.blue += specularFactor * diffuseFactor * currentLight.intensity.blue * isect->end.diffuse.blue;
+		}
+	}
+	return output;
+}*/
+
+double getReflectance(const struct vector *normal, const struct vector *dir, double startIOR, double endIOR) {
 	double ratio = startIOR / endIOR;
 	double cosI = -scalarProduct(normal, dir);
 	double sinT2 = ratio * ratio * (1.0 - cosI * cosI);
@@ -292,14 +330,14 @@ double getReflectance(struct vector *normal, struct vector *dir, double startIOR
 	return (r0rth * r0rth + rPar * rPar) / 2.0;
 }
 
-struct color getReflectsAndRefracts(struct intersection *isect, struct color *color, struct scene *world) {
+struct color getReflectsAndRefracts(const struct intersection *isect, struct color *color, struct scene *world) {
 	//Interacted light, so refracted and reflected rays
 	double reflectivity = isect->end.reflectivity;
 	double startIOR     = isect->start.IOR;
 	double   endIOR     = isect->end  .IOR;
 	int remainingInteractions = isect->ray.remainingInteractions;
 	
-	if ((reflectivity == NOT_REFLECTIVE && endIOR == NOT_REFRACTIVE) || remainingInteractions <= 0) {
+	if ((reflectivity < 0.000001 && endIOR < 0.000001) || remainingInteractions <= 0) {
 		return (struct color){0.0, 0.0, 0.0, 0.0};
 	}
 	
@@ -349,7 +387,7 @@ struct color getReflectsAndRefracts(struct intersection *isect, struct color *co
 	return addColors(&reflectiveColor, &refractiveColor);
 }
 
-struct color getLighting(struct intersection *isect, struct scene *world) {
+struct color getLighting(const struct intersection *isect, struct scene *world) {
 	struct color output = isect->end.diffuse;
 	
 	struct color ambientColor = getAmbient(isect, &output); //done
