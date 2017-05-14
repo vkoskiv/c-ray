@@ -323,7 +323,7 @@ struct color getReflectsAndRefracts(struct intersection *isect, struct color *co
 	//Recursively trace new rays to reflect and refract
 	
 	if (reflectivePercentage > 0) {
-		struct vector reflected = reflectVec(&isect->ray.start, &isect->surfaceNormal);
+		struct vector reflected = reflectVec(&isect->ray.direction, &isect->surfaceNormal);
 		struct lightRay reflectedRay;
 		reflectedRay.start = isect->hitPoint;
 		reflectedRay.direction = reflected;
