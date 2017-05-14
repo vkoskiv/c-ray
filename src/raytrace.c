@@ -29,8 +29,6 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 	//A bit of a hack, but it does work...!
 	double fakeIsect = 20000.0;
 	if (rayIntersectWithAABB(node->bbox, ray, &fakeIsect)) {
-		struct vector normal = vectorWithPos(0, 0, 0);
-		struct coord uv;
 		bool hasHit = false;
 		
 		if (node->left->polyCount > 0 || node->right->polyCount > 0) {
@@ -42,11 +40,9 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 		} else {
 			//This is a leaf, so check all polys
 			for (int i = 0; i < node->polyCount; i++) {
-				if (rayIntersectsWithPolygon(ray, &node->polygons[i], &isect->distance, &normal, &uv)) {
+				if (rayIntersectsWithPolygon(ray, &node->polygons[i], &isect->distance, &isect->surfaceNormal, &isect->uv)) {
 					hasHit = true;
 					isect->type = hitTypePolygon;
-					isect->surfaceNormal = normal;
-					isect->uv = uv;
 					isect->polyIndex = node->polygons[i].polyIndex;
 					isect->mtlIndex = node->polygons[i].materialIndex;
 					struct vector scaled = vectorScale(isect->distance, &ray->direction);
@@ -242,9 +238,10 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 		struct light currentLight = world->lights[i];
 		struct vector lightPos = vectorWithPos(0, 0, 0);
 		lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
-		struct vector lightDir = subtractVectors(&lightPos, &isect->hitPoint);
-		double distanceToLight = vectorLength(&lightDir);
-		lightDir = normalizeVector(&lightDir);
+		
+		struct vector lightOffset = subtractVectors(&lightPos, &isect->hitPoint);
+		double distance = vectorLength(&lightOffset);
+		struct vector lightDir = normalizeVector(&lightOffset);
 		double dotProduct = scalarProduct(&isect->surfaceNormal, &lightDir);
 		
 		if (dotProduct >= 0.0) {
@@ -258,14 +255,14 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 			shadowRay.currentMedium = isect->ray.currentMedium;
 			shadowRay.remainingInteractions = 1;
 			
-			if (isInShadow(&shadowRay, distanceToLight, world)) {
+			if (isInShadow(&shadowRay, distance, world)) {
 				//Something is in the way, stop here and test other lights
 				continue;
 			}
 			
-			struct color temp = colorCoef(dotProduct, color);
-			struct color tempDiff = addColors(&diffuse, &temp);
-			diffuse = multiplyColors(&currentLight.intensity, &tempDiff);
+			struct color coef = colorCoef(dotProduct, color);
+			struct color diffuseCoef = addColors(&diffuse, &coef);
+			diffuse = multiplyColors(&diffuseCoef, &currentLight.intensity);
 			
 			struct color specTemp = getSpecular(isect, &currentLight, &lightPos);
 			specular = addColors(&specular, &specTemp);
@@ -275,44 +272,6 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 	
 	return addColors(&diffuse, &specular);
 }
-
-/*struct color getHighlights(struct intersection *isect, struct color *color, struct scene *world) {
-	struct color output  = (struct color){0.0, 0.0, 0.0, 0.0};
-	//struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
-	
-	for (int i = 0; i < world->lightCount; i++) {
-		struct light currentLight = world->lights[i];
-		
-		struct vector lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
-		struct lightRay shadowRay;
-		
-		shadowRay.direction = subtractVectors(&lightPos, &isect->hitPoint);
-		double lightProj = scalarProduct(&isect->ray.direction, &isect->surfaceNormal);
-		if (lightProj <= 0.0) continue;
-		
-		double distance = scalarProduct(&isect->ray.direction, &isect->ray.direction);
-		
-		double temp = distance;
-		
-		if (temp <= 0.0) continue;
-		temp = invsqrt(temp);
-		
-		shadowRay.rayType = rayTypeShadow;
-		shadowRay.start = isect->hitPoint;
-		shadowRay.direction = vectorScale(temp, &shadowRay.direction);
-		shadowRay.currentMedium = isect->ray.currentMedium;
-		shadowRay.remainingInteractions = 1;
-		
-		if (!isInShadow(&shadowRay, distance, world)) {
-			double specularFactor = getSpecular(isect, &currentLight, &lightPos);
-			double diffuseFactor = scalarProduct(&shadowRay.direction, &isect->surfaceNormal);
-			output.red += specularFactor * diffuseFactor * currentLight.intensity.red * isect->end.diffuse.red;
-			output.green += specularFactor * diffuseFactor * currentLight.intensity.green * isect->end.diffuse.green;
-			output.blue += specularFactor * diffuseFactor * currentLight.intensity.blue * isect->end.diffuse.blue;
-		}
-	}
-	return output;
-}*/
 
 double getReflectance(const struct vector *normal, const struct vector *dir, double startIOR, double endIOR) {
 	double ratio = startIOR / endIOR;
