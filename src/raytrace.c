@@ -351,10 +351,10 @@ struct color getLighting(const struct intersection *isect, struct scene *world) 
 	
 	struct color ambientColor = getAmbient(isect, &output); //done
 	struct color highlights = getHighlights(isect, &output, world); //done
-	struct color interacted = getReflectsAndRefracts(isect, &output, world); //done
+	//struct color interacted = getReflectsAndRefracts(isect, &output, world); //Not working currently
 	
 	struct color temp = addColors(&ambientColor, &highlights);
-	return addColors(&temp, &interacted);
+	return temp;//addColors(&temp, &interacted);
 }
 
 struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene) {
