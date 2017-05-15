@@ -291,6 +291,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						int height = mainRenderer.worldScene->camera->height;
 						int width = mainRenderer.worldScene->camera->width;
 						
+						//Focal length is calculated based on the camera FOV value
 						double focalLength = 0.0;
 						if (mainRenderer.worldScene->camera->FOV > 0.0
 							&& mainRenderer.worldScene->camera->FOV < 189.0) {
@@ -300,20 +301,29 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						double fracX = (double)x;
 						double fracY = (double)y;
 						
+						//A cheap 'antialiasing' of sorts. The more samples, the better this works
 						if (mainRenderer.worldScene->camera->antialiasing) {
 							fracX = getRandomDouble(fracX - 0.25, fracX + 0.25);
 							fracY = getRandomDouble(fracY - 0.25, fracY + 0.25);
 						}
 						
-						struct vector direction = {(fracX - 0.5 * mainRenderer.worldScene->camera->width) / focalLength,
-							(fracY - 0.5 * mainRenderer.worldScene->camera->height) / focalLength, 1.0, false};
+						//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
+						//imaginary plane in front of the origin. startPos is just the camera position.
+						struct vector direction = {(fracX - 0.5 * mainRenderer.worldScene->camera->width)  / focalLength,
+												   (fracY - 0.5 * mainRenderer.worldScene->camera->height) / focalLength,
+													1.0,
+													false};
 						
+						//Normalize direction
 						direction = normalizeVector(&direction);
 						struct vector startPos = mainRenderer.worldScene->camera->pos;
 						
-						//And now compute transforms for position
+						//This is my implementation of camera transforms. It's probably not the conventional
+						//way to do it, but it works quite well.
+						
+						//Compute transforms for position (place the camera in the scene)
 						transformVector(&startPos, &mainRenderer.worldScene->camTransforms[0]);
-						//...and compute rotation transforms for camera orientation
+						//...and compute rotation transforms for camera orientation (point the camera)
 						transformCameraView(&direction);
 						//Easy!
 						
@@ -324,11 +334,14 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						incidentRay.remainingInteractions = mainRenderer.worldScene->camera->bounces;
 						incidentRay.currentMedium.IOR = AIR_IOR;
 						
+						//For multi-sample rendering, we keep a running average of color values for each pixel
+						//The next block of code does this
+						
 						//Get previous color value from render buffer
 						struct color output = getPixel(mainRenderer.worldScene, x, y);
 						struct color sample = {0.0,0.0,0.0,0.0};
 						
-						//Get sample
+						//Get new sample (raytracing is initiated here)
 						if (mainRenderer.worldScene->camera->newRenderer) {
 							sample = newTrace(&incidentRay, mainRenderer.worldScene);
 						} else {
@@ -352,6 +365,9 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 2] = output.blue;
 						
 						//And store the image data
+						//Note how imageData only stores 8-bit precision for each color channel.
+						//This is why we use the renderBuffer for the running average as it just contains
+						//the full precision color values
 						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 0] =
 						(unsigned char)min(  output.red*255.0, 255.0);
 						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 1] =
@@ -362,11 +378,13 @@ DWORD WINAPI renderThread(LPVOID arg) {
 				}
 				tile.completedSamples++;
 			}
+			//Tile has finished rendering, get a new one and start rendering it.
 			mainRenderer.renderTiles[tile.tileNum].isRendering = false;
 			time(&tile.stop);
 			computeTimeAverage(tile);
 			tile = getTile();
 		}
+		//No more tiles to render, exit thread. (render done)
 		printf("Thread %i done\n", tinfo->thread_num);
 		tinfo->threadComplete = true;
 #ifdef WINDOWS
