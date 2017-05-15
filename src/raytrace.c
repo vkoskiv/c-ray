@@ -62,6 +62,7 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 }
 
 bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, struct intersection *isect) {
+	//Pass the distance value to rayIntersectsWithSphere, where it's set
 	if (rayIntersectsWithSphere(ray, sphere, &isect->distance)) {
 		isect->type = hitTypeSphere;
 		//Compute normal
@@ -134,18 +135,30 @@ void getSurfaceProperties(int polyIndex,
 #endif
 }
 
+
+/**
+ Calculate the closest intersection point, and other relevant information based on a given lightRay and worldScene
+ See the intersection struct for documentation of what this function calculates.
+
+ @param incidentRay Given light ray (set up in renderThread())
+ @param worldScene  Given worldScene to cast that ray into
+ @return intersection struct with the appropriate values set
+ */
 struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *worldScene) {
 	struct intersection isect;
 	memset(&isect, 0, sizeof(isect));
 	
+	//Initial distance. This could be some 'max' value, but 20k is enough in most cases.
+	//This is used to keep track of the 'closest' intersection point
 	isect.distance = 20000.0;
-	
 	isect.ray = *incidentRay;
 	isect.start = incidentRay->currentMedium;
 	isect.didIntersect = false;
 	int objCount = worldScene->objCount;
 	int sphereCount = worldScene->sphereCount;
 	
+	//First check all spheres to see if this ray intersects with them
+	//We pass isect to rayIntersectsWithSphereTemp, which sets stuff like hitPoint, normal and distance
 	for (int i = 0; i < sphereCount; i++) {
 		if (rayIntersectsWithSphereTemp(&worldScene->spheres[i], incidentRay, &isect)) {
 			isect.end = worldScene->materials[worldScene->spheres[i].materialIndex];
@@ -154,6 +167,9 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 	}
 	
 	//Note: rayIntersectsWithNode makes sure this isect is closer than a possible sphere
+	//So if it finds an intersection that is farther away than the intersection we found above with
+	//a sphere, it will return false
+	//This is how most raytracers solve the visibility problem.
 	//intersect that happened in the previous check^.
 	for (int o = 0; o < objCount; o++) {
 		if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, &isect)) {
@@ -231,7 +247,7 @@ struct color getSpecular(const struct intersection *isect, struct light *light, 
 
 struct color getHighlights(const struct intersection *isect, struct color *color, struct scene *world) {
 	//diffuse and specular highlights
-	struct color diffuse = (struct color){0.0, 0.0, 0.0, 0.0};
+	struct color  diffuse = (struct color){0.0, 0.0, 0.0, 0.0};
 	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
 	
 	for (int i = 0; i < world->lightCount; i++) {
