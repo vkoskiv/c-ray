@@ -283,7 +283,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		while (tile.tileNum != -1) {
 			time(&tile.start);
 			
-			printf("Started tile %i/%i\r", mainRenderer.renderedTileCount, mainRenderer.tileCount);
+			printf("Started tile %i/%i\r", tile.tileNum, mainRenderer.tileCount);
 			while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
 				for (int y = tile.endY; y > tile.startY; y--) {
 					for (int x = tile.startX; x < tile.endX; x++) {
