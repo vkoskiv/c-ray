@@ -23,7 +23,7 @@ struct renderer mainRenderer;
 #ifdef WINDOWS
 HANDLE tileMutex = INVALID_HANDLE_VALUE;
 #else
-pthread_mutex_t tileMutex;
+pthread_mutex_t tileMutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 /**
