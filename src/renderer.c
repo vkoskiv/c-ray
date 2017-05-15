@@ -245,7 +245,7 @@ void printRunningAverage(const time_t avgTime, int remainingTileCount) {
 	time_t remainingTime = remainingTileCount * avgTime;
 	//First print avg tile time
 	printf("Avg tile time is: %li min (%li sec)", avgTime / 60, avgTime);
-	printf(", render time remaining: %li min (%li sec)\n", remainingTime / 60, remainingTime);
+	printf(", render time remaining: %li min (%li sec)\r", remainingTime / 60, remainingTime);
 }
 
 
