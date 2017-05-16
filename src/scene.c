@@ -259,6 +259,13 @@ void computeKDTrees(struct scene *scene) {
 	}
 }
 
+void computeFocalLength(struct scene *world) {
+	//Focal length is calculated based on the camera FOV value
+	if (world->camera->FOV > 0.0 && world->camera->FOV < 189.0) {
+		world->camera->focalLength = 0.5 * world->camera->width / tanf((double)(PIOVER180) * 0.5 * world->camera->FOV);
+	}
+}
+
 //FIXME: Move this to transforms.c
 void addCamTransform(struct scene *world, struct matrixTransform transform) {
 	if (world->camTransformCount == 0) {
@@ -331,6 +338,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	scene->ambientColor-> blue = 0.6;
 	
 	addCamera(scene, cam);
+	computeFocalLength(scene);
 	free(cam);
 	
 	//NOTE: Translates have to come last!

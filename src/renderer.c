@@ -291,13 +291,6 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						int height = mainRenderer.worldScene->camera->height;
 						int width = mainRenderer.worldScene->camera->width;
 						
-						//Focal length is calculated based on the camera FOV value
-						double focalLength = 0.0;
-						if (mainRenderer.worldScene->camera->FOV > 0.0
-							&& mainRenderer.worldScene->camera->FOV < 189.0) {
-							focalLength = 0.5 * mainRenderer.worldScene->camera->width / tanf((double)(PIOVER180) * 0.5 * mainRenderer.worldScene->camera->FOV);
-						}
-						
 						double fracX = (double)x;
 						double fracY = (double)y;
 						
@@ -309,8 +302,10 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						
 						//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 						//imaginary plane in front of the origin. startPos is just the camera position.
-						struct vector direction = {(fracX - 0.5 * mainRenderer.worldScene->camera->width)  / focalLength,
-												   (fracY - 0.5 * mainRenderer.worldScene->camera->height) / focalLength,
+						struct vector direction = {(fracX - 0.5 * mainRenderer.worldScene->camera->width)
+													/ mainRenderer.worldScene->camera->focalLength,
+												   (fracY - 0.5 * mainRenderer.worldScene->camera->height)
+													/ mainRenderer.worldScene->camera->focalLength,
 													1.0,
 													false};
 						
