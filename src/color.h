@@ -53,8 +53,8 @@ struct color {
 
 //material
 struct material {
-	char name[MATERIAL_NAME_SIZE];
-	char textureFilename[OBJ_FILENAME_LENGTH];
+	//char name[MATERIAL_NAME_SIZE];
+	//char textureFilename[OBJ_FILENAME_LENGTH];
 	struct color ambient;
 	struct color diffuse;
 	struct color specular;
