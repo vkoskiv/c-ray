@@ -417,13 +417,13 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	
 	//LIGHTS
 	
-	//addLight(scene, newLight(vectorWithPos(970, 420, 150), 13, colorWithValues(100, 100, 100, 0)));
+	addLight(scene, newLight(vectorWithPos(970, 350, 500), 13, colorWithValues(2, 2, 4, 0)));
 	
-	addLight(scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));
+	/*addLight(scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));
 	addLight(scene, newLight(vectorWithPos(760 , 500, 0),    42, colorWithValues(0.2, 0.2, 0.2, 0.0)));
 	addLight(scene, newLight(vectorWithPos(640 , 350, 600), 200, colorWithValues(6.0, 0.0, 0.0, 0.0)));
 	addLight(scene, newLight(vectorWithPos(940 , 350, 600), 200, colorWithValues(0.0, 6.0, 0.0, 0.0)));
-	addLight(scene, newLight(vectorWithPos(1240, 350, 600), 200, colorWithValues(0.0, 0.0, 6.0, 0.0)));
+	addLight(scene, newLight(vectorWithPos(1240, 350, 600), 200, colorWithValues(0.0, 0.0, 6.0, 0.0)));*/
 	
 	addSphere(scene, newSphere(vectorWithPos(650, 450, 1650), 150, 5));
 	addSphere(scene, newSphere(vectorWithPos(950, 350, 1500), 50, 6));
