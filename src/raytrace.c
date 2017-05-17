@@ -312,7 +312,7 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
 	double   endIOR     = isect->end  .IOR;
 	int remainingInteractions = isect->ray.remainingInteractions;
 	
-	if ((reflectivity < 0.000001 && endIOR < 0.000001) || remainingInteractions <= 0) {
+	if ((reflectivity == NOT_REFLECTIVE && endIOR == NOT_REFRACTIVE) || remainingInteractions <= 0) {
 		return (struct color){0.0, 0.0, 0.0, 0.0};
 	}
 	
@@ -320,7 +320,8 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
 	double refractivePercentage = 0;
 	
 	//Get ratio of reflection/refraction
-	if (endIOR != NOT_REFRACTIVE) {
+	if (isect->end.IOR != NOT_REFRACTIVE) {
+		//FIXME: getReflectance returns +inf
 		reflectivePercentage = getReflectance(&isect->surfaceNormal, &isect->ray.direction, isect->start.IOR, isect->end.IOR);
 		refractivePercentage = 1 - reflectivePercentage;
 	}
@@ -367,10 +368,10 @@ struct color getLighting(const struct intersection *isect, struct scene *world) 
 	
 	struct color ambientColor = getAmbient(isect, &output); //done
 	struct color highlights = getHighlights(isect, &output, world); //done
-	//struct color interacted = getReflectsAndRefracts(isect, &output, world); //Not working currently
+	struct color interacted = getReflectsAndRefracts(isect, &output, world); //Not working currently
 	
 	struct color temp = addColors(&ambientColor, &highlights);
-	return temp;//addColors(&temp, &interacted);
+	return addColors(&temp, &interacted);
 }
 
 struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene) {

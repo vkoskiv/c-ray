@@ -81,19 +81,23 @@ struct material materialFromObj(obj_material *mat) {
 	newMat.diffuse.red   = mat->diff[0];
 	newMat.diffuse.green = mat->diff[1];
 	newMat.diffuse.blue  = mat->diff[2];
+	newMat.diffuse.alpha = 0;
 	newMat.ambient.red   = mat->amb[0];
 	newMat.ambient.green = mat->amb[1];
 	newMat.ambient.blue  = mat->amb[2];
+	newMat.ambient.alpha = 0;
 	newMat.specular.red  = mat->spec[0];
 	newMat.specular.green= mat->spec[1];
 	newMat.specular.blue = mat->spec[2];
+	newMat.specular.alpha= 0;
 	newMat.reflectivity  = mat->reflect;
 	newMat.refractivity  = mat->refract;
 	newMat.IOR           = mat->refract_index;
 	newMat.glossiness    = mat->glossy;
+	newMat.transparency  = mat->trans;
+	newMat.sharpness     = 0;
 	return newMat;
 }
-
 
 /**
  Extract the filename from a given file path

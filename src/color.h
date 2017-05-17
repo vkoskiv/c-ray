@@ -9,8 +9,8 @@
 
 #define AIR_IOR 1.0
 
-#define NOT_REFRACTIVE 0
-#define NOT_REFLECTIVE 0
+#define NOT_REFRACTIVE 1
+#define NOT_REFLECTIVE -1
 
 /*
  From: https://blenderartists.org/forum/showthread.php?71202-Material-IOR-Value-reference
