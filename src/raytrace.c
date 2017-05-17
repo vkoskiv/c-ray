@@ -46,8 +46,7 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 					isect->polyIndex = node->polygons[i].polyIndex;
 					isect->mtlIndex = node->polygons[i].materialIndex;
 					struct vector scaled = vectorScale(isect->distance, &ray->direction);
-					struct vector hitPoint = addVectors(&ray->start, &scaled);
-					isect->hitPoint = hitPoint;
+					isect->hitPoint = addVectors(&ray->start, &scaled);
 				}
 			}
 			//TODO: Clean this up
@@ -65,7 +64,7 @@ bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, st
 	//Pass the distance value to rayIntersectsWithSphere, where it's set
 	if (rayIntersectsWithSphere(ray, sphere, &isect->distance)) {
 		isect->type = hitTypeSphere;
-		//Compute normal
+		//Compute normal and store it to isect
 		struct vector scaled = vectorScale(isect->distance, &ray->direction);
 		struct vector hitpoint = addVectors(&ray->start, &scaled);
 		struct vector surfaceNormal = subtractVectors(&hitpoint, &sphere->pos);
@@ -73,6 +72,7 @@ bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, st
 		if (temp == 0.0) return false; //FIXME: Check this later
 		temp = invsqrt(temp);
 		isect->surfaceNormal = vectorScale(temp, &surfaceNormal);
+		//Also store hitpoint
 		isect->hitPoint = hitpoint;
 		return true;
 	} else {
@@ -353,7 +353,7 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
 		struct lightRay refractedRay;
 		refractedRay.start = isect->hitPoint;
 		refractedRay.direction = refracted;
-		refractedRay.remainingInteractions = 1;
+		refractedRay.remainingInteractions = remainingInteractions - 1;
 		refractedRay.currentMedium = isect->end;
 		//Recurse here too
 		struct color temp = newTrace(&refractedRay, world);
@@ -376,11 +376,16 @@ struct color getLighting(const struct intersection *isect, struct scene *world) 
 
 struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 	
+	//This is the start of the new rayTracer.
+	//Start by getting the closest intersection point in worldScene for this given incidentRay.
 	struct intersection closestIsect = getClosestIsect(incidentRay, worldScene);
 	
+	//Check if it hit something
 	if (closestIsect.didIntersect) {
+		//Ray has hit an object or a sphere, calculate the lighting
 		return getLighting(&closestIsect, worldScene);
 	} else {
+		//Ray didn't hit anything, just return the ambientColor of this scene (set in scene.c)
 		return *worldScene->ambientColor;
 	}
 	
