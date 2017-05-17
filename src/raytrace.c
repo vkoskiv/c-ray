@@ -245,6 +245,15 @@ struct color getSpecular(const struct intersection *isect, struct light *light, 
 	return specular;
 }
 
+
+/**
+ Calculate the diffuse and specular components of lighting, as well as shadows
+
+ @param isect Intersection information
+ @param color Base color of the object
+ @param world Scene to get lighting information
+ @return Highlighted color
+ */
 struct color getHighlights(const struct intersection *isect, struct color *color, struct scene *world) {
 	//diffuse and specular highlights
 	struct color  diffuse = (struct color){0.0, 0.0, 0.0, 0.0};
@@ -289,6 +298,18 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 	return addColors(&diffuse, &specular);
 }
 
+
+/**
+ Calculate ratio of reflection/refraction based on the angle of intersection and IORs
+ Imagine light reflecting off a surface of a glass object vs the light showing through
+ at that point.
+
+ @param normal Surface normal
+ @param dir Direction of intersected vector (light ray hitting object)
+ @param startIOR Index of refraction of the material the ray was cast from
+ @param endIOR   Index of refraction of the material the ray intersected with
+ @return Reflectance "percentage", from which the refractance amount can be calculated
+ */
 double getReflectance(const struct vector *normal, const struct vector *dir, double startIOR, double endIOR) {
 	double ratio = startIOR / endIOR;
 	double cosI = -scalarProduct(normal, dir);
@@ -363,19 +384,43 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
 	return addColors(&reflectiveColor, &refractiveColor);
 }
 
+
+/**
+ Get the lighting for a given intersection point.
+ getReflectsAndRefracts handles the recursive sending of reflection and refraction rays
+
+ @param isect Intersection struct that stores information used to calculate shading
+ @param world worldScene to get additional material and lighting information
+ @return (Hopefully) correct color based on the given information.
+ */
 struct color getLighting(const struct intersection *isect, struct scene *world) {
+	//Grab the 'base' diffuse color of the intersected object, and pass that to the
+	//additional functions to add shading to it.
 	struct color output = isect->end.diffuse;
 	
-	struct color ambientColor = getAmbient(isect, &output); //done
-	struct color highlights = getHighlights(isect, &output, world); //done
-	struct color interacted = getReflectsAndRefracts(isect, &output, world); //Not working currently
+	//getAmbient is a simple 'ambient occlusion' hack, works fine.
+	struct color ambientColor = getAmbient(isect, &output);
+	//getHighlights doesn't seem to work at all. Supposed to produce surface shading (shadows and whatnot)
+	struct color highlights = getHighlights(isect, &output, world);
+	//Reflections seem to work okay, but refractions need to be fixed
+	//Sphere reflections get a weird white band around the edges on optimized builds.
+	struct color interacted = getReflectsAndRefracts(isect, &output, world);
 	
+	//Just add these colors together to get the final result
 	struct color temp = addColors(&ambientColor, &highlights);
 	return addColors(&temp, &interacted);
 }
 
+
+/**
+ New, recursive raytracer. (Unfinished)
+ Should support refractions, and will be easier to expand in the future.
+
+ @param incidentRay Given light ray to cast into a scene
+ @param worldScene Given scene to cast ray into
+ @return Color based on the given ray and scene.
+ */
 struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene) {
-	
 	//This is the start of the new rayTracer.
 	//Start by getting the closest intersection point in worldScene for this given incidentRay.
 	struct intersection closestIsect = getClosestIsect(incidentRay, worldScene);
@@ -388,7 +433,6 @@ struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		//Ray didn't hit anything, just return the ambientColor of this scene (set in scene.c)
 		return *worldScene->ambientColor;
 	}
-	
 }
 
 /**
