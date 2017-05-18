@@ -62,6 +62,7 @@
 #include "list.h"
 #include "sphere.h"
 #include "transforms.h"
+#include "lightRay.h"
 
 enum fileMode {
 	loadModeNormal,//Load scene def normally

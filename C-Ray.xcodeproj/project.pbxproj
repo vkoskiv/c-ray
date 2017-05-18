@@ -28,6 +28,7 @@
 		90B988EE1EB33DAB000E22CF /* bbox.c in Sources */ = {isa = PBXBuildFile; fileRef = 90B988EC1EB33DAB000E22CF /* bbox.c */; };
 		90BBA5351EB18D43001AE07B /* raytrace.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BBA5331EB18D43001AE07B /* raytrace.c */; };
 		90BBA5381EB18FAB001AE07B /* obj.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BBA5361EB18FAB001AE07B /* obj.c */; };
+		90F843931ECE3FF700C5567C /* lightRay.c in Sources */ = {isa = PBXBuildFile; fileRef = 90F843911ECE3FF700C5567C /* lightRay.c */; };
 		90FDF8B81E593E9200EE91FD /* renderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FDF8B61E593E9200EE91FD /* renderer.c */; };
 /* End PBXBuildFile section */
 
@@ -89,6 +90,8 @@
 		90BBA5361EB18FAB001AE07B /* obj.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj.c; path = src/obj.c; sourceTree = SOURCE_ROOT; };
 		90BBA5371EB18FAB001AE07B /* obj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = obj.h; path = src/obj.h; sourceTree = SOURCE_ROOT; };
 		90D99AF41D08ADB10015A854 /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
+		90F843911ECE3FF700C5567C /* lightRay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lightRay.c; path = src/lightRay.c; sourceTree = SOURCE_ROOT; };
+		90F843921ECE3FF700C5567C /* lightRay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lightRay.h; path = src/lightRay.h; sourceTree = SOURCE_ROOT; };
 		90FDF8B61E593E9200EE91FD /* renderer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = renderer.c; path = src/renderer.c; sourceTree = SOURCE_ROOT; };
 		90FDF8B71E593E9200EE91FD /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = renderer.h; path = src/renderer.h; sourceTree = SOURCE_ROOT; };
 		90FDF8EE1E59858600EE91FD /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../System/Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
@@ -172,6 +175,8 @@
 				90B988EA1EB33774000E22CF /* kdtree.h */,
 				90B988EC1EB33DAB000E22CF /* bbox.c */,
 				90B988ED1EB33DAB000E22CF /* bbox.h */,
+				90F843911ECE3FF700C5567C /* lightRay.c */,
+				90F843921ECE3FF700C5567C /* lightRay.h */,
 			);
 			name = src;
 			path = "C-Ray";
@@ -278,6 +283,7 @@
 				9021F8EE1E47EDEE001737C0 /* light.c in Sources */,
 				90B988EE1EB33DAB000E22CF /* bbox.c in Sources */,
 				9021F8D51E47EDC6001737C0 /* string_extra.c in Sources */,
+				90F843931ECE3FF700C5567C /* lightRay.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -390,7 +396,7 @@
 				GCC_WARN_SHADOW = NO;
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				RUN_CLANG_STATIC_ANALYZER = YES;
+				RUN_CLANG_STATIC_ANALYZER = NO;
 			};
 			name = Debug;
 		};
@@ -416,7 +422,7 @@
 				GCC_WARN_SHADOW = NO;
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				RUN_CLANG_STATIC_ANALYZER = YES;
+				RUN_CLANG_STATIC_ANALYZER = NO;
 			};
 			name = Release;
 		};

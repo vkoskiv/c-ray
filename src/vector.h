@@ -35,22 +35,6 @@ extern int normalCount;
 extern struct vector *textureArray;
 extern int textureCount;
 
-enum type {
-	rayTypeIncident,
-	rayTypeReflected,
-	rayTypeRefracted,
-	rayTypeShadow
-};
-
-//Simulated light ray
-struct lightRay {
-	struct vector start;
-	struct vector direction;
-	enum type rayType;
-	struct material currentMedium;
-	int remainingInteractions; //Reflections or refractions
-};
-
 //Return a vector with given coordinates
 struct vector vectorWithPos(double x, double y, double z);
 
