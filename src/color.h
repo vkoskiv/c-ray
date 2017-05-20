@@ -51,21 +51,6 @@ struct color {
 	double red, green, blue, alpha;
 };
 
-//material
-struct material {
-	//char name[MATERIAL_NAME_SIZE];
-	//char textureFilename[OBJ_FILENAME_LENGTH];
-	struct color ambient;
-	struct color diffuse;
-	struct color specular;
-	double reflectivity;
-	double refractivity;
-	double IOR;
-	double transparency;
-	double sharpness;
-	double glossiness;
-};
-
 //Some standard colours
 extern struct color redColor;
 extern struct color greenColor;
@@ -85,17 +70,3 @@ struct color addColors(struct color *c1, struct color *c2);
 
 //Multiply a color by a coefficient and return the resulting color
 struct color colorCoef(double coef, struct color *c);
-
-//temporary newMaterial func
-struct material newMaterial(struct color diffuse, double reflectivity);
-
-//Full obj spec
-struct material newMaterialFull(struct color ambient,
-								struct color diffuse,
-								struct color specular,
-								double reflectivity,
-								double refractivity,
-								double IOR, double
-								transparency, double
-								sharpness, double
-								glossiness);

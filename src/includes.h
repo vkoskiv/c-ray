@@ -58,6 +58,7 @@
 #define OBJ_FILENAME_LENGTH 500
 
 #include "color.h"
+#include "material.h"
 #include "vector.h"
 #include "list.h"
 #include "sphere.h"
