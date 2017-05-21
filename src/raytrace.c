@@ -186,6 +186,15 @@ struct color getAmbient(const struct intersection *isect, struct color *color) {
 	return colorCoef(0.25, color);
 }
 
+
+/**
+ Check if this spot is in shadow
+
+ @param ray Bounced light ray (oriented towards light)
+ @param distance Distance to light, if a possible intersection is closer than this, the spot is in shadow
+ @param world World scene for scene data
+ @return Boolean if spot is in shadow or not.
+ */
 bool isInShadow(struct lightRay *ray, double distance, struct scene *world) {
 	
 	struct intersection isect = getClosestIsect(ray, world);
@@ -193,12 +202,30 @@ bool isInShadow(struct lightRay *ray, double distance, struct scene *world) {
 	return isect.didIntersect && isect.distance < distance;
 }
 
-struct vector reflectVec(const struct vector *vec, const struct vector *normal) {
-	double reflect = 2.0 * scalarProduct(vec, normal);
+
+/**
+ Compute reflection vector from a given vector and surface normal
+
+ @param vec Incident ray to reflect
+ @param normal Surface normal at point of reflection
+ @return Reflected vector
+ */
+struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
+	double reflect = 2.0 * scalarProduct(incident, normal);
 	struct vector temp = vectorScale(reflect, normal);
-	return subtractVectors(vec, &temp);
+	return subtractVectors(incident, &temp);
 }
 
+
+/**
+ Compute refraction vector from a given vector and surface normal
+
+ @param incident Given light ray
+ @param normal Surface normal at point of intersection
+ @param startIOR Starting material index of refraction
+ @param endIOR Intersected object index of refraction
+ @return Refracted vector
+ */
 struct vector refractVec(const struct vector *incident, const struct vector *normal, const double startIOR, const double endIOR) {
 	double ratio = startIOR / endIOR;
 	double cosI = -scalarProduct(normal, incident);
@@ -217,6 +244,15 @@ struct vector refractVec(const struct vector *incident, const struct vector *nor
 	
 }
 
+
+/**
+ Compute specular highlights for an intersection point
+
+ @param isect Intersection point
+ @param light Given light that casts a highlight
+ @param lightPos The randomized distribution (temporary) light position for given light.
+ @return Specular highlight color
+ */
 struct color getSpecular(const struct intersection *isect, struct light *light, struct vector *lightPos) {
 	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
 	double gloss = isect->end.glossiness;
