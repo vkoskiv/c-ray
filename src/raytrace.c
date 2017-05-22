@@ -49,12 +49,12 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 					isect->hitPoint = addVectors(&ray->start, &scaled);
 				}
 			}
-			//TODO: Clean this up
 			if (hasHit) {
 				isect->didIntersect = true;
 				return true;
+			} else {
+				return false;
 			}
-			return false;
 		}
 	}
 	return false;
@@ -362,6 +362,15 @@ double getReflectance(const struct vector *normal, const struct vector *dir, dou
 	return (r0rth * r0rth + rPar * rPar) / 2.0;
 }
 
+
+/**
+ Compute reflected and refracted effects
+
+ @param isect Intersection point
+ @param color Base color
+ @param world World scene for recursion
+ @return Reflect/refract color
+ */
 struct color getReflectsAndRefracts(const struct intersection *isect, struct color *color, struct scene *world) {
 	//Interacted light, so refracted and reflected rays
 	double reflectivity = isect->end.reflectivity;
