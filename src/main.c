@@ -32,6 +32,20 @@ void sleepNanosec(int ms);
 extern struct renderer mainRenderer;
 extern struct poly *polygonArray;
 
+void initRenderer(struct renderer *renderer) {
+	renderer->renderBuffer = NULL;
+	renderer->renderTiles = NULL;
+	renderer->tileCount = 0;
+	renderer->renderedTileCount = 0;
+	renderer->activeThreads = 0;
+	renderer->threadCount = getSysCores();
+	renderer->mode = saveModeNormal;
+	renderer->isRendering = false;
+	renderer->avgTileTime = (time_t)1;
+	renderer->timeSampleCount = 1;
+	
+	renderer->worldScene = (struct scene*)calloc(1, sizeof(struct scene));
+}
 
 /**
  Main entry point
@@ -51,19 +65,7 @@ int main(int argc, char *argv[]) {
 #endif
 	
 	//Initialize renderer
-	//FIXME: Put this in a function
-	mainRenderer.renderBuffer = NULL;
-	mainRenderer.renderTiles = NULL;
-	mainRenderer.tileCount = 0;
-	mainRenderer.renderedTileCount = 0;
-	mainRenderer.activeThreads = 0;
-	mainRenderer.threadCount = getSysCores();
-	mainRenderer.mode = saveModeNormal;
-	mainRenderer.isRendering = false;
-	mainRenderer.avgTileTime = (time_t)1;
-	mainRenderer.timeSampleCount = 1;
-	
-	mainRenderer.worldScene = (struct scene*)calloc(1, sizeof(struct scene));
+	initRenderer(&mainRenderer);
 	
 	char *fileName = NULL;
 	//Build the scene
