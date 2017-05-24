@@ -182,11 +182,13 @@
     <ClCompile Include="..\src\filehandler.c" />
     <ClCompile Include="..\src\kdtree.c" />
     <ClCompile Include="..\src\light.c" />
+    <ClCompile Include="..\src\lightRay.c" />
     <ClCompile Include="..\src\list.c" />
     <ClCompile Include="..\src\lodepng.c" />
     <ClCompile Include="..\src\main.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\src\material.c" />
     <ClCompile Include="..\src\obj.c" />
     <ClCompile Include="..\src\obj_parser.c" />
     <ClCompile Include="..\src\poly.c" />
