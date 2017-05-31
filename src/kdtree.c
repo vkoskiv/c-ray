@@ -14,8 +14,6 @@
 
 //Tree funcs
 
-//TODO: A func for bbox-ray intersection? May not be needed.
-
 /*
  Nodes are built per-object
  Start at root node that contains all tris, and a bounding box for the obj

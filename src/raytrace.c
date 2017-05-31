@@ -135,7 +135,6 @@ void getSurfaceProperties(int polyIndex,
 #endif
 }
 
-
 /**
  Calculate the closest intersection point, and other relevant information based on a given lightRay and worldScene
  See the intersection struct for documentation of what this function calculates.
@@ -186,7 +185,6 @@ struct color getAmbient(const struct intersection *isect, struct color *color) {
 	return colorCoef(0.25, color);
 }
 
-
 /**
  Check if this spot is in shadow
 
@@ -202,7 +200,6 @@ bool isInShadow(struct lightRay *ray, double distance, struct scene *world) {
 	return isect.didIntersect && isect.distance < distance;
 }
 
-
 /**
  Compute reflection vector from a given vector and surface normal
 
@@ -215,7 +212,6 @@ struct vector reflectVec(const struct vector *incident, const struct vector *nor
 	struct vector temp = vectorScale(reflect, normal);
 	return subtractVectors(incident, &temp);
 }
-
 
 /**
  Compute refraction vector from a given vector and surface normal
@@ -243,7 +239,6 @@ struct vector refractVec(const struct vector *incident, const struct vector *nor
 	return addVectors(&temp1, &temp2);
 	
 }
-
 
 /**
  Compute specular highlights for an intersection point
@@ -280,7 +275,6 @@ struct color getSpecular(const struct intersection *isect, struct light *light, 
 	
 	return specular;
 }
-
 
 /**
  Calculate the diffuse and specular components of lighting, as well as shadows
@@ -334,7 +328,6 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 	return addColors(&diffuse, &specular);
 }
 
-
 /**
  Calculate ratio of reflection/refraction based on the angle of intersection and IORs
  Imagine light reflecting off a surface of a glass object vs the light showing through
@@ -376,8 +369,10 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
 	double reflectivity = isect->end.reflectivity;
 	double startIOR     = isect->start.IOR;
 	double   endIOR     = isect->end  .IOR;
+	//An interaction is either a reflection or refraction
 	int remainingInteractions = isect->ray.remainingInteractions;
 	
+	//If it won't reflect or refract, don't bother calculating and stop here
 	if ((reflectivity == NOT_REFLECTIVE && endIOR == NOT_REFRACTIVE) || remainingInteractions <= 0) {
 		return (struct color){0.0, 0.0, 0.0, 0.0};
 	}
@@ -429,7 +424,6 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
 	return addColors(&reflectiveColor, &refractiveColor);
 }
 
-
 /**
  Get the lighting for a given intersection point.
  getReflectsAndRefracts handles the recursive sending of reflection and refraction rays
@@ -455,7 +449,6 @@ struct color getLighting(const struct intersection *isect, struct scene *world) 
 	struct color temp = addColors(&ambientColor, &highlights);
 	return addColors(&temp, &interacted);
 }
-
 
 /**
  New, recursive raytracer. (Unfinished)
