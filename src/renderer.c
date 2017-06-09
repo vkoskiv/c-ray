@@ -234,18 +234,19 @@ void transformCameraView(struct vector *direction) {
 	}
 }
 
-
 /**
  Print running average duration of tiles rendered
 
  @param avgTime Current computed average time
  @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
  */
-void printRunningAverage(const time_t avgTime, int remainingTileCount) {
+void printRunningAverage(const time_t avgTime, struct renderTile tile) {
+	int remainingTileCount = mainRenderer.tileCount - mainRenderer.renderedTileCount;
 	time_t remainingTime = remainingTileCount * avgTime;
 	//First print avg tile time
-	printf("Avg tile time is: %li min (%li sec)", avgTime / 60, avgTime);
-	printf(", render time remaining: %li min (%li sec)\r", remainingTime / 60, remainingTime);
+	printf("Finished tile %i/%i", tile.tileNum, mainRenderer.tileCount);
+	printf(", avgtime: %li min (%li sec)", avgTime / 60, avgTime);
+	printf(", remaining: %li min (%li sec)\r", remainingTime / 60, remainingTime);
 }
 
 
@@ -259,8 +260,7 @@ void computeTimeAverage(struct renderTile tile) {
 	mainRenderer.avgTileTime += difftime(tile.stop, tile.start);
 	mainRenderer.avgTileTime = mainRenderer.avgTileTime / mainRenderer.timeSampleCount;
 	mainRenderer.timeSampleCount++;
-	int remainingTileCount = mainRenderer.tileCount - mainRenderer.renderedTileCount;
-	printRunningAverage(mainRenderer.avgTileTime, remainingTileCount);
+	printRunningAverage(mainRenderer.avgTileTime, tile);
 }
 
 /**
@@ -283,7 +283,6 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		while (tile.tileNum != -1) {
 			time(&tile.start);
 			
-			printf("Started tile %i/%i\r", tile.tileNum, mainRenderer.tileCount);
 			while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
 				for (int y = tile.endY; y > tile.startY; y--) {
 					for (int x = tile.startX; x < tile.endX; x++) {
