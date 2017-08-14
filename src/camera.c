@@ -7,4 +7,5 @@
 //
 
 #include "includes.h"
+#include "filehandler.h"
 #include "camera.h"

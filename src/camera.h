@@ -8,11 +8,6 @@
 
 #pragma once
 
-enum fileType {
-	bmp,
-	png
-};
-
 enum renderOrder {
 	renderOrderTopToBottom = 0,
 	renderOrderFromMiddle,
@@ -21,16 +16,11 @@ enum renderOrder {
 };
 
 struct camera {
-	int height, width; // Image dimensions
-	enum fileType fileType;
-	char *filePath;
-	
 	double FOV;
 	double focalLength;
 	double aperture;
 	struct vector pos;
 	
-	unsigned char *imgData;
 	bool areaLights;
 	bool antialiasing;
 	int sampleCount;

@@ -16,27 +16,37 @@ struct camera;
 struct matrixTransform;
 struct poly;
 struct kdTreeNode;
+struct outputImage;
 
 //World
 struct scene {
 	
+	//Ambient background color.
 	struct color *ambientColor;
 	
+	//OBJ 3D models
 	struct crayOBJ *objs;
 	int objCount;
 	
+	//Lights
 	struct light *lights;
 	int lightCount;
 	
+	//Materials
 	struct material *materials;
 	int materialCount;
 	
+	//Spheres
 	struct sphere *spheres;
 	int sphereCount;
 	
 	//Currently only one camera supported
 	struct camera *camera;
 	int cameraCount;
+	
+	//Output image data
+	struct outputImage *image;
+	
 	//FIXME: Store these in camera
 	struct matrixTransform *camTransforms;
 	int camTransformCount;

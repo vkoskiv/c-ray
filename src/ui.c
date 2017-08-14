@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "renderer.h"
 #include "scene.h"
+#include "filehandler.h"
 
 #ifdef UI_ENABLED
 struct display mainDisplay;
@@ -64,7 +65,7 @@ int initSDL() {
 	if (mainDisplay.isFullScreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	if (mainDisplay.isBorderless) flags |= SDL_WINDOW_BORDERLESS;
 	
-	mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.worldScene->camera->width * windowScale, mainRenderer.worldScene->camera->height * windowScale, flags);
+	mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.worldScene->image->size.width * windowScale, mainRenderer.worldScene->image->size.height * windowScale, flags);
 	if (mainDisplay.window == NULL) {
 		fprintf(stdout, "Window couldn't be created, error %s\n", SDL_GetError());
 		return -1;
@@ -80,13 +81,13 @@ int initSDL() {
 	
 	SDL_RenderSetScale(mainDisplay.renderer, windowScale, windowScale);
 	//Init pixel texture
-	mainDisplay.texture = SDL_CreateTexture(mainDisplay.renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, mainRenderer.worldScene->camera->width, mainRenderer.worldScene->camera->height);
+	mainDisplay.texture = SDL_CreateTexture(mainDisplay.renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, mainRenderer.worldScene->image->size.width, mainRenderer.worldScene->image->size.height);
 	if (mainDisplay.texture == NULL) {
 		fprintf(stdout, "Texture couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	//Init overlay texture (for UI info)
-	mainDisplay.overlayTexture = SDL_CreateTexture(mainDisplay.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, mainRenderer.worldScene->camera->width, mainRenderer.worldScene->camera->height);
+	mainDisplay.overlayTexture = SDL_CreateTexture(mainDisplay.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, mainRenderer.worldScene->image->size.width, mainRenderer.worldScene->image->size.height);
 	if (mainDisplay.overlayTexture == NULL) {
 		fprintf(stdout, "Overlay texture couldn't be created, error %s\n", SDL_GetError());
 		return -1;
@@ -118,19 +119,19 @@ void drawPixel(int x, int y, bool on) {
 	if (x < 0) x = 1;
 	
 	if (on) {
-		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y)
-							   * mainRenderer.worldScene->camera->width) * 4 + 3] = (unsigned char)min(frameColor.red*255.0, 255.0);
-		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y)
-							   * mainRenderer.worldScene->camera->width) * 4 + 2] = (unsigned char)min(frameColor.green*255.0, 255.0);
-		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y)
-							   * mainRenderer.worldScene->camera->width) * 4 + 1] = (unsigned char)min(frameColor.blue*255.0, 255.0);
-		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y)
-							   * mainRenderer.worldScene->camera->width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
+		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->image->size.height - y)
+							   * mainRenderer.worldScene->image->size.width) * 4 + 3] = (unsigned char)min(frameColor.red*255.0, 255.0);
+		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->image->size.height - y)
+							   * mainRenderer.worldScene->image->size.width) * 4 + 2] = (unsigned char)min(frameColor.green*255.0, 255.0);
+		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->image->size.height - y)
+							   * mainRenderer.worldScene->image->size.width) * 4 + 1] = (unsigned char)min(frameColor.blue*255.0, 255.0);
+		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->image->size.height - y)
+							   * mainRenderer.worldScene->image->size.width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
 	} else {
-		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y) * mainRenderer.worldScene->camera->width) * 4 + 0] = (unsigned char)0;
-		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y) * mainRenderer.worldScene->camera->width) * 4 + 1] = (unsigned char)0;
-		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y) * mainRenderer.worldScene->camera->width) * 4 + 2] = (unsigned char)0;
-		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->camera->height - y) * mainRenderer.worldScene->camera->width) * 4 + 3] = (unsigned char)0;
+		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->image->size.height - y) * mainRenderer.worldScene->image->size.width) * 4 + 0] = (unsigned char)0;
+		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->image->size.height - y) * mainRenderer.worldScene->image->size.width) * 4 + 1] = (unsigned char)0;
+		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->image->size.height - y) * mainRenderer.worldScene->image->size.width) * 4 + 2] = (unsigned char)0;
+		mainRenderer.uiBuffer[(x + (mainRenderer.worldScene->image->size.height - y) * mainRenderer.worldScene->image->size.width) * 4 + 3] = (unsigned char)0;
 	}
 }
 
@@ -189,8 +190,8 @@ void drawWindow() {
 	//Render frame
 	updateUI();
 	//Update image data
-	SDL_UpdateTexture(mainDisplay.texture, NULL, mainRenderer.worldScene->camera->imgData, mainRenderer.worldScene->camera->width * 3);
-	SDL_UpdateTexture(mainDisplay.overlayTexture, NULL, mainRenderer.uiBuffer, mainRenderer.worldScene->camera->width * 4);
+	SDL_UpdateTexture(mainDisplay.texture, NULL, mainRenderer.worldScene->image->imgData, mainRenderer.worldScene->image->size.width * 3);
+	SDL_UpdateTexture(mainDisplay.overlayTexture, NULL, mainRenderer.uiBuffer, mainRenderer.worldScene->image->size.width * 4);
 	SDL_RenderCopy(mainDisplay.renderer, mainDisplay.texture, NULL, NULL);
 	SDL_RenderCopy(mainDisplay.renderer, mainDisplay.overlayTexture, NULL, NULL);
 	SDL_RenderPresent(mainDisplay.renderer);

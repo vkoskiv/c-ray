@@ -98,7 +98,7 @@ void printFileSize(char *fileName) {
 	
 }
 
-void writeImage(const char *filePath, unsigned char *imgData, enum fileType type, int currentFrame, int width, int height) {
+void writeImage(const char *filePath, unsigned char *imgData, enum fileType type, int currentFrame, struct dimensions imgSize) {
 	//Save image data to a file
 	int bufSize;
 	if (currentFrame < 100) {
@@ -113,11 +113,11 @@ void writeImage(const char *filePath, unsigned char *imgData, enum fileType type
 	if (type == bmp){
 		sprintf(buf, "%srendered_%d.bmp", filePath, currentFrame);
 		printf("Saving result in \"%s\"\n", buf);
-		saveBmpFromArray(buf, imgData, currentFrame, width, height);
+		saveBmpFromArray(buf, imgData, currentFrame, imgSize.width, imgSize.height);
 	} else  if (type == png){
 		sprintf(buf, "%srendered_%d.png", filePath, currentFrame);
 		printf("Saving result in \"%s\"\n", buf);
-		encodePNGFromArray(buf, imgData, width, height);
+		encodePNGFromArray(buf, imgData, imgSize.width, imgSize.height);
 	}
 	printFileSize(buf);
 }

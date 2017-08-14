@@ -15,6 +15,7 @@
 #include "poly.h"
 #include "obj.h"
 #include "kdtree.h"
+#include "filehandler.h"
 
 #define TOKEN_DEBUG_ENABLED false
 
@@ -242,6 +243,11 @@ void addCamera(struct scene *scene, struct camera *newCamera) {
 	scene->camera[scene->cameraCount++] = *newCamera;
 }
 
+void addImage(struct scene *scene, struct outputImage *img) {
+	scene->image = (struct outputImage*)realloc(scene->image, 1 * sizeof(struct outputImage));
+	scene->image = img;
+}
+
 void transformMeshes(struct scene *scene) {
 	printf("Running transforms...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
@@ -263,10 +269,10 @@ void computeKDTrees(struct scene *scene) {
 	}
 }
 
-void computeFocalLength(struct scene *world) {
+void computeFocalLength(struct scene *scene) {
 	//Focal length is calculated based on the camera FOV value
-	if (world->camera->FOV > 0.0 && world->camera->FOV < 189.0) {
-		world->camera->focalLength = 0.5 * world->camera->width / tanf((double)(PIOVER180) * 0.5 * world->camera->FOV);
+	if (scene->camera->FOV > 0.0 && scene->camera->FOV < 189.0) {
+		scene->camera->focalLength = 0.5 * scene->image->size.width / tanf((double)(PIOVER180) * 0.5 * scene->camera->FOV);
 	}
 }
 
@@ -310,20 +316,24 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	
 	struct camera *cam = (struct camera*)calloc(1, sizeof(struct camera));
 	//Override renderer thread count, 0 defaults to physical core count
+	
+	//Output image specs
+	struct outputImage *img = (struct outputImage*)calloc(1, sizeof(struct outputImage));
+	img->filePath = "../output/";
+	img->size.width = 2560;
+	img->size.height = 1600;
+	img->fileType = png;
+	
 	cam-> threadCount = 0;
-	cam->filePath     = "../output/";
-	cam->       width = 1280;
-	cam->      height = 800;
-	cam->isFullScreen = false;
+	cam->isFullScreen = true;
 	cam->isBorderless = false;
 	cam->         FOV = 80.0;
 	cam-> focalLength = 0;
-	cam-> sampleCount = 100;
+	cam-> sampleCount = 1;
 	cam->  frameCount = 1;
 	cam->     bounces = 3;
 	cam->    contrast = 0.5;
 	cam-> windowScale = 1.0;
-	cam->    fileType = png;
 	cam->  areaLights = true;
 	cam->antialiasing = true;
 	cam->newRenderer  = false; //New, recursive rayTracing algorighm (buggy!)
@@ -342,6 +352,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	scene->ambientColor-> blue = 0.6;
 	
 	addCamera(scene, cam);
+	addImage(scene, img);
 	computeFocalLength(scene);
 	free(cam);
 	
@@ -417,7 +428,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	
 	//LIGHTS
 	
-	addLight(scene, newLight(vectorWithPos(970, 350, 500), 13, colorWithValues(2, 2, 4, 0)));
+	addLight(scene, newLight(vectorWithPos(970, 370, 500), 13, colorWithValues(2, 2, 4, 0)));
 	
 	/*addLight(scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));
 	addLight(scene, newLight(vectorWithPos(760 , 500, 0),    42, colorWithValues(0.2, 0.2, 0.2, 0.0)));

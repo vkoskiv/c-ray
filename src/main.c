@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 	if (!mainRenderer.worldScene->camera->areaLights) mainRenderer.worldScene->camera->sampleCount = 1;
 	
 	printf("\nStarting C-ray renderer for frame %i\n\n", mainRenderer.worldScene->camera->currentFrame);
-	printf("Rendering at %i x %i\n", mainRenderer.worldScene->camera->width,mainRenderer.worldScene->camera->height);
+	printf("Rendering at %i x %i\n", mainRenderer.worldScene->image->size.width,mainRenderer.worldScene->image->size.height);
 	printf("Rendering with %i samples\n", mainRenderer.worldScene->camera->sampleCount);
 	printf("Rendering with %d thread",mainRenderer.threadCount);
 	if (mainRenderer.threadCount > 1) {
@@ -147,22 +147,22 @@ int main(int argc, char *argv[]) {
 	printf("Raytracing...\n");
 	
 	//Allocate memory and create array of pixels for image data
-	mainRenderer.worldScene->camera->imgData = (unsigned char*)calloc(3 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(unsigned char));
+	mainRenderer.worldScene->image->imgData = (unsigned char*)calloc(3 * mainRenderer.worldScene->image->size.width * mainRenderer.worldScene->image->size.height, sizeof(unsigned char));
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
-	mainRenderer.renderBuffer = (double*)calloc(3 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(double));
+	mainRenderer.renderBuffer = (double*)calloc(3 * mainRenderer.worldScene->image->size.width * mainRenderer.worldScene->image->size.height, sizeof(double));
 	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
-	mainRenderer.uiBuffer = (unsigned char*)calloc(4 * mainRenderer.worldScene->camera->width * mainRenderer.worldScene->camera->height, sizeof(unsigned char));
+	mainRenderer.uiBuffer = (unsigned char*)calloc(4 * mainRenderer.worldScene->image->size.width * mainRenderer.worldScene->image->size.height, sizeof(unsigned char));
 	
 	//Initialize SDL display
 #ifdef UI_ENABLED
 	initSDL();
 #endif
 	
-	if (!mainRenderer.worldScene->camera->imgData) logHandler(imageMallocFailed);
+	if (!mainRenderer.worldScene->image->imgData) logHandler(imageMallocFailed);
 	
 	mainRenderer.isRendering = true;
 	mainRenderer.renderAborted = false;
@@ -242,12 +242,11 @@ int main(int argc, char *argv[]) {
 	
 	switch (mainRenderer.mode) {
 		case saveModeNormal:
-			writeImage(mainRenderer.worldScene->camera->filePath,
-					   mainRenderer.worldScene->camera->imgData,
-					   mainRenderer.worldScene->camera->fileType,
+			writeImage(mainRenderer.worldScene->image->filePath,
+					   mainRenderer.worldScene->image->imgData,
+					   mainRenderer.worldScene->image->fileType,
 					   mainRenderer.worldScene->camera->currentFrame,
-					   mainRenderer.worldScene->camera->width,
-					   mainRenderer.worldScene->camera->height);
+					   mainRenderer.worldScene->image->size);
 			break;
 		case saveModeNone:
 			printf("Image won't be saved!\n");
@@ -271,8 +270,8 @@ int main(int argc, char *argv[]) {
  */
 void freeMem() {
 	//Free memory
-	if (mainRenderer.worldScene->camera->imgData)
-		free(mainRenderer.worldScene->camera->imgData);
+	if (mainRenderer.worldScene->image->imgData)
+		free(mainRenderer.worldScene->image->imgData);
 	if (mainRenderer.renderThreadInfo)
 		free(mainRenderer.renderThreadInfo);
 	if (mainRenderer.renderBuffer)
