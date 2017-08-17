@@ -230,7 +230,7 @@ struct color getPixel(struct scene *worldScene, int x, int y) {
  */
 void transformCameraView(struct vector *direction) {
 	for (int i = 1; i < mainRenderer.worldScene->camera->transformCount; i++) {
-		transformVector(direction, &mainRenderer.worldScene->camera->transformsFI[i]);
+		transformVector(direction, &mainRenderer.worldScene->camera->transforms[i]);
 		direction->isTransformed = false;
 	}
 }
