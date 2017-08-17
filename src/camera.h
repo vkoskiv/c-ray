@@ -35,8 +35,12 @@ struct camera {
 	bool isFullScreen;
 	bool isBorderless;
 	
+	struct matrixTransform *transforms;
+	int transformCount;
+	
 	bool newRenderer;
 	
+	//FIXME: Tiles should be a renderer property
 	bool useTiles;
 	int tileWidth;
 	int tileHeight;

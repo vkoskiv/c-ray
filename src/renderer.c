@@ -229,8 +229,8 @@ struct color getPixel(struct scene *worldScene, int x, int y) {
  @param direction Direction vector to be transformed
  */
 void transformCameraView(struct vector *direction) {
-	for (int i = 1; i < mainRenderer.worldScene->camTransformCount; i++) {
-		transformVector(direction, &mainRenderer.worldScene->camTransforms[i]);
+	for (int i = 1; i < mainRenderer.worldScene->camera->transformCount; i++) {
+		transformVector(direction, &mainRenderer.worldScene->camera->transformsFI[i]);
 		direction->isTransformed = false;
 	}
 }
@@ -317,7 +317,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						//way to do it, but it works quite well.
 						
 						//Compute transforms for position (place the camera in the scene)
-						transformVector(&startPos, &mainRenderer.worldScene->camTransforms[0]);
+						transformVector(&startPos, &mainRenderer.worldScene->camera->transforms[0]);
 						//...and compute rotation transforms for camera orientation (point the camera)
 						transformCameraView(&direction);
 						//Easy!

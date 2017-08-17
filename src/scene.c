@@ -277,15 +277,15 @@ void computeFocalLength(struct scene *scene) {
 }
 
 //FIXME: Move this to transforms.c
-void addCamTransform(struct scene *world, struct matrixTransform transform) {
-	if (world->camTransformCount == 0) {
-		world->camTransforms = (struct matrixTransform*)calloc(1, sizeof(struct matrixTransform));
+void addCamTransform(struct camera *cam, struct matrixTransform transform) {
+	if (cam->transformCount == 0) {
+		cam->transforms = (struct matrixTransform*)calloc(1, sizeof(struct matrixTransform));
 	} else {
-		world->camTransforms = (struct matrixTransform*)realloc(world->camTransforms, (world->camTransformCount + 1) * sizeof(struct matrixTransform));
+		cam->transforms = (struct matrixTransform*)realloc(cam->transforms, (cam->transformCount + 1) * sizeof(struct matrixTransform));
 	}
 	
-	world->camTransforms[world->camTransformCount] = transform;
-	world->camTransformCount++;
+	cam->transforms[cam->transformCount] = transform;
+	cam->transformCount++;
 }
 
 void printSceneStats(struct scene *scene) {
@@ -342,9 +342,9 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam->   tileOrder = renderOrderFromMiddle;
 	cam->pos = vectorWithPos(0, 0, 0); //Don't change
 	
-	addCamTransform(scene, newTransformTranslate(970, 480, 600)); //Set pos here
-	addCamTransform(scene, newTransformRotateX(21));//And add as many rotations as you want!
-	addCamTransform(scene, newTransformRotateZ(9)); //Don't scale or translate!
+	addCamTransform(cam, newTransformTranslate(970, 480, 600)); //Set pos here
+	addCamTransform(cam, newTransformRotateX(21));//And add as many rotations as you want!
+	addCamTransform(cam, newTransformRotateZ(9)); //Don't scale or translate!
 	
 	scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
 	scene->ambientColor->  red = 0.4;

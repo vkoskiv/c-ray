@@ -47,10 +47,6 @@ struct scene {
 	//Output image data
 	struct outputImage *image;
 	
-	//FIXME: Store these in camera
-	struct matrixTransform *camTransforms;
-	int camTransformCount;
-	
 };
 
 int testBuild(struct scene *scene, char *inputFileName);
