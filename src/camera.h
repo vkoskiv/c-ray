@@ -40,8 +40,6 @@ struct camera {
 	
 	bool newRenderer;
 	
-	//FIXME: Tiles should be a renderer property
-	bool useTiles;
 	int tileWidth;
 	int tileHeight;
 };

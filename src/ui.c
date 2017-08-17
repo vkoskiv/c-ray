@@ -60,7 +60,6 @@ int initSDL() {
 		return -1;
 	}
 	//Init window
-	//TODO: Add settings for fullScreen + borderless
 	SDL_WindowFlags flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
 	if (mainDisplay.isFullScreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	if (mainDisplay.isBorderless) flags |= SDL_WINDOW_BORDERLESS;

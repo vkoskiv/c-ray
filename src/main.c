@@ -6,14 +6,6 @@
 //
 //
 
-/*
- TODO:
- Full OBJ
- Refraction
- parser
- camera orientation
- */
-
 #include "includes.h"
 #include "main.h"
 

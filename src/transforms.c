@@ -41,16 +41,6 @@ void transformVector(struct vector *vec, struct matrixTransform *tf) {
 	}
 }
 
-struct sphere transformSphere(struct sphere inputSphere, struct matrixTransform transform) {
-	//TODO
-	return inputSphere;
-}
-
-struct light transformLight(struct light inputLight, struct matrixTransform tf) {
-	//TODO
-	return inputLight;
-}
-
 struct matrixTransform newTransformRotateX(double degrees) {
 	struct matrixTransform transform = emptyTransform();
 	transform.type = transformTypeXRotate;

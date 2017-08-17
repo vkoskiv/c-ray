@@ -25,7 +25,6 @@ char *trimSpaces(char *inputLine);
 //Parses a scene file and allocates memory accordingly
 int allocMemory(struct scene *scene, char *inputFileName);
 
-
 /**
  Convert a given OBJ loader vector into a c-ray vector
 
@@ -209,11 +208,6 @@ bool addOBJ(struct scene *sceneData, char *inputFileName) {
 	//Obj added, update count
 	sceneData->objCount++;
 	return true;
-}
-
-//FIXME: Temporary
-void overrideMaterial(struct scene *world, struct crayOBJ *obj, int materialIndex) {
-	obj->materials = &world->materials[materialIndex];
 }
 
 //FIXME: change + 1 to ++scene->someCount and just pass the count to array access
