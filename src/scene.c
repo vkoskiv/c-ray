@@ -245,7 +245,7 @@ void addCamera(struct scene *scene, struct camera *newCamera) {
 
 void addImage(struct scene *scene, struct outputImage *img) {
 	scene->image = (struct outputImage*)realloc(scene->image, 1 * sizeof(struct outputImage));
-	scene->image = img;
+	scene->image[0] = *img;
 }
 
 void transformMeshes(struct scene *scene) {
@@ -320,8 +320,8 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	//Output image specs
 	struct outputImage *img = (struct outputImage*)calloc(1, sizeof(struct outputImage));
 	img->filePath = "../output/";
-	img->size.width = 2560;
-	img->size.height = 1600;
+	img->size.width = 1280;
+	img->size.height = 800;
 	img->fileType = png;
 	
 	cam-> threadCount = 0;
@@ -329,7 +329,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	cam->isBorderless = false;
 	cam->         FOV = 80.0;
 	cam-> focalLength = 0;
-	cam-> sampleCount = 1;
+	cam-> sampleCount = 100;
 	cam->  frameCount = 1;
 	cam->     bounces = 3;
 	cam->    contrast = 0.5;
@@ -355,6 +355,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	addImage(scene, img);
 	computeFocalLength(scene);
 	free(cam);
+	free(img);
 	
 	//NOTE: Translates have to come last!
 	if (addOBJ(scene, "../output/newScene.obj")) {
