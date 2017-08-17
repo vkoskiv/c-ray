@@ -238,16 +238,6 @@ void addLight(struct scene *scene, struct light newLight) {
 	scene->lights[scene->lightCount++] = newLight;
 }
 
-void addCamera(struct scene *scene, struct camera *newCamera) {
-	scene->camera = (struct camera*)realloc(scene->camera, (scene->cameraCount + 1) * sizeof(struct camera));
-	scene->camera[scene->cameraCount++] = *newCamera;
-}
-
-void addImage(struct scene *scene, struct outputImage *img) {
-	scene->image = (struct outputImage*)realloc(scene->image, 1 * sizeof(struct outputImage));
-	scene->image[0] = *img;
-}
-
 void transformMeshes(struct scene *scene) {
 	printf("Running transforms...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
@@ -314,48 +304,43 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	addMaterial(scene, newMaterial(colorWithValues(0.9, 0.9, 0.9, 0.0), 0.0));
 	addMaterial(scene, newMaterial(colorWithValues(1.0, 0.0, 0.0, 0.0), 0.0));
 	
-	struct camera *cam = (struct camera*)calloc(1, sizeof(struct camera));
-	//Override renderer thread count, 0 defaults to physical core count
-	
 	//Output image specs
-	struct outputImage *img = (struct outputImage*)calloc(1, sizeof(struct outputImage));
-	img->filePath = "../output/";
-	img->size.width = 1280;
-	img->size.height = 800;
-	img->fileType = png;
+	scene->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
+	scene->image->filePath = "../output/";
+	scene->image->size.width = 1280;
+	scene->image->size.height = 800;
+	scene->image->fileType = png;
 	
-	cam-> threadCount = 0;
-	cam->isFullScreen = true;
-	cam->isBorderless = false;
-	cam->         FOV = 80.0;
-	cam-> focalLength = 0;
-	cam-> sampleCount = 100;
-	cam->  frameCount = 1;
-	cam->     bounces = 3;
-	cam->    contrast = 0.5;
-	cam-> windowScale = 1.0;
-	cam->  areaLights = true;
-	cam->antialiasing = true;
-	cam->newRenderer  = false; //New, recursive rayTracing algorighm (buggy!)
-	cam->  tileWidth  = 64;
-	cam->  tileHeight = 64;
-	cam->   tileOrder = renderOrderFromMiddle;
-	cam->pos = vectorWithPos(0, 0, 0); //Don't change
+	scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
+	//Override renderer thread count, 0 defaults to physical core count
+	scene->camera-> threadCount = 0;
+	scene->camera->isFullScreen = true;
+	scene->camera->isBorderless = false;
+	scene->camera->         FOV = 80.0;
+	scene->camera-> focalLength = 0;
+	scene->camera-> sampleCount = 100;
+	scene->camera->  frameCount = 1;
+	scene->camera->     bounces = 3;
+	scene->camera->    contrast = 0.5;
+	scene->camera-> windowScale = 1.0;
+	scene->camera->  areaLights = true;
+	scene->camera->antialiasing = true;
+	scene->camera->newRenderer  = false; //New, recursive rayTracing algorighm (buggy!)
+	scene->camera->  tileWidth  = 64;
+	scene->camera->  tileHeight = 64;
+	scene->camera->   tileOrder = renderOrderFromMiddle;
+	scene->camera->pos = vectorWithPos(0, 0, 0); //Don't change
 	
-	addCamTransform(cam, newTransformTranslate(970, 480, 600)); //Set pos here
-	addCamTransform(cam, newTransformRotateX(21));//And add as many rotations as you want!
-	addCamTransform(cam, newTransformRotateZ(9)); //Don't scale or translate!
+	addCamTransform(scene->camera, newTransformTranslate(970, 480, 600)); //Set pos here
+	addCamTransform(scene->camera, newTransformRotateX(21));//And add as many rotations as you want!
+	addCamTransform(scene->camera, newTransformRotateZ(9)); //Don't scale or translate!
 	
 	scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
 	scene->ambientColor->  red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor-> blue = 0.6;
 	
-	addCamera(scene, cam);
-	addImage(scene, img);
 	computeFocalLength(scene);
-	free(cam);
-	free(img);
 	
 	//NOTE: Translates have to come last!
 	if (addOBJ(scene, "../output/newScene.obj")) {
