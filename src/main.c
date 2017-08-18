@@ -95,8 +95,12 @@ int main(int argc, char *argv[]) {
 		mainRenderer.threadCount = usrThreadCount;
 	}
 	
+	//Quantize image into renderTiles
 	quantizeImage(mainRenderer.worldScene);
+	//Reorder those tiles
 	reorderTiles(mainRenderer.worldScene->camera->tileOrder);
+	//Compute the focal length for the camera
+	computeFocalLength(mainRenderer.worldScene);
 	
 #ifdef UI_ENABLED
 	mainDisplay.window = NULL;
