@@ -172,7 +172,8 @@
     <ClInclude Include="..\src\string_extra.h" />
     <ClInclude Include="..\src\transforms.h" />
     <ClInclude Include="..\src\ui.h" />
-    <ClInclude Include="..\src\vector.h" />
+	<ClInclude Include="..\src\vector.h" />
+	<ClInclude Include="..\src\converter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\bbox.c" />
@@ -199,7 +200,8 @@
     <ClCompile Include="..\src\string_extra.c" />
     <ClCompile Include="..\src\transforms.c" />
     <ClCompile Include="..\src\ui.c" />
-    <ClCompile Include="..\src\vector.c" />
+	<ClCompile Include="..\src\vector.c" />
+	<ClCompile Include="..\src\converter.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
