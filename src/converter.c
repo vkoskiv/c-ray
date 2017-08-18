@@ -48,11 +48,11 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
 			polygon.polyIndex = polyIndex;
 			for (int i = 0; i < polygon.vertexCount; i++)
 				polygon.vertexIndex[i] = firstVertexIndex + face->vertex_index[i];
-				for (int i = 0; i < polygon.vertexCount; i++)
-					polygon.normalIndex[i] = firstNormalIndex + face->normal_index[i];
-					for (int i = 0; i < polygon.vertexCount; i++)
-						polygon.textureIndex[i] = firstTextureIndex + face->texture_index[i];
-						return polygon;
+			for (int i = 0; i < polygon.vertexCount; i++)
+				polygon.normalIndex[i] = firstNormalIndex + face->normal_index[i];
+			for (int i = 0; i < polygon.vertexCount; i++)
+				polygon.textureIndex[i] = firstTextureIndex + face->texture_index[i];
+	return polygon;
 }
 
 
