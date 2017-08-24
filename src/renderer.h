@@ -33,6 +33,7 @@ struct threadInfo {
 struct renderTile {
 	int width;
 	int height;
+	//TODO: Consider position struct for these
 	int startX, startY;
 	int endX, endY;
 	int completedSamples;
@@ -47,17 +48,17 @@ struct renderTile {
  as well as information needed for the rendering routines.
  */
 struct renderer {
-	struct threadInfo *renderThreadInfo;
+	struct threadInfo *renderThreadInfo; //Info about threads
 #ifndef WINDOWS
 	pthread_attr_t renderThreadAttributes;
 #endif
-	struct scene *worldScene;
-	struct renderTile *renderTiles;
+	struct scene *worldScene; //Scene to render
+	struct renderTile *renderTiles; //Array of renderTiles to render
+	int tileCount; //Total amount of render tiles
 	enum fileMode mode;
-	int tileCount;
-	int renderedTileCount;
-	double *renderBuffer;
-	unsigned char *uiBuffer;
+	int renderedTileCount; //Completed render tiles
+	double *renderBuffer;  //Double-precision buffer for multisampling
+	unsigned char *uiBuffer;//UI element buffer
 	int threadCount;
 	int activeThreads;
 	bool isRendering;

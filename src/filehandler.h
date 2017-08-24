@@ -9,10 +9,26 @@
 #pragma once
 
 struct scene;
-enum fileType;
+
+enum fileType {
+	bmp,
+	png
+};
+
+struct dimensions {
+	int height;
+	int width;
+};
+
+struct outputImage {
+	struct dimensions size;
+	enum fileType fileType;
+	char *filePath;
+	unsigned char *imgData;
+};
 
 //Prints the file size of a given file to the console in a user-readable format
 void printFileSize(char *fileName);
 
 //Writes image data to file
-void writeImage(const char *filePath, unsigned char *imgData, enum fileType type, int currentFrame, int width, int height);
+void writeImage(const char *filePath, unsigned char *imgData, enum fileType type, int currentFrame, struct dimensions imgSize);

@@ -14,6 +14,7 @@
 #include "poly.h"
 #include "scene.h"
 #include "raytrace.h"
+#include "filehandler.h"
 
 /*
  * Global renderer
@@ -66,11 +67,11 @@ void quantizeImage(struct scene *worldScene) {
 #endif
 	printf("Quantizing render plane...\n");
 	
-	int tilesX = worldScene->camera->width / worldScene->camera->tileWidth;
-	int tilesY = worldScene->camera->height / worldScene->camera->tileHeight;
+	int tilesX = worldScene->image->size.width / worldScene->camera->tileWidth;
+	int tilesY = worldScene->image->size.height / worldScene->camera->tileHeight;
 	
-	tilesX = (worldScene->camera->width % worldScene->camera->tileWidth) != 0 ? tilesX + 1: tilesX;
-	tilesY = (worldScene->camera->height % worldScene->camera->tileHeight) != 0 ? tilesY + 1: tilesY;
+	tilesX = (worldScene->image->size.width % worldScene->camera->tileWidth) != 0 ? tilesX + 1: tilesX;
+	tilesY = (worldScene->image->size.height % worldScene->camera->tileHeight) != 0 ? tilesY + 1: tilesY;
 	
 	mainRenderer.renderTiles = (struct renderTile*)calloc(tilesX*tilesY, sizeof(struct renderTile));
 	
@@ -86,8 +87,8 @@ void quantizeImage(struct scene *worldScene) {
 			tile->startY = y       * worldScene->camera->tileHeight;
 			tile->endY   = (y + 1) * worldScene->camera->tileHeight;
 			
-			tile->endX = min((x + 1) * worldScene->camera->tileWidth, worldScene->camera->width);
-			tile->endY = min((y + 1) * worldScene->camera->tileHeight, worldScene->camera->height);
+			tile->endX = min((x + 1) * worldScene->camera->tileWidth, worldScene->image->size.width);
+			tile->endY = min((y + 1) * worldScene->camera->tileHeight, worldScene->image->size.height);
 			
 			tile->completedSamples = 1;
 			tile->isRendering = false;
@@ -208,9 +209,9 @@ void reorderTiles(enum renderOrder order) {
  */
 struct color getPixel(struct scene *worldScene, int x, int y) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
-	output.red =   mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 0];
-	output.green = mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 1];
-	output.blue =  mainRenderer.renderBuffer[(x + (worldScene->camera->height - y)*worldScene->camera->width)*3 + 2];
+	output.red =   mainRenderer.renderBuffer[(x + (worldScene->image->size.height - y)*worldScene->image->size.width)*3 + 0];
+	output.green = mainRenderer.renderBuffer[(x + (worldScene->image->size.height - y)*worldScene->image->size.width)*3 + 1];
+	output.blue =  mainRenderer.renderBuffer[(x + (worldScene->image->size.height - y)*worldScene->image->size.width)*3 + 2];
 	output.alpha = 1.0;
 	return output;
 }
@@ -222,12 +223,11 @@ struct color getPixel(struct scene *worldScene, int x, int y) {
  @param direction Direction vector to be transformed
  */
 void transformCameraView(struct vector *direction) {
-	for (int i = 1; i < mainRenderer.worldScene->camTransformCount; i++) {
-		transformVector(direction, &mainRenderer.worldScene->camTransforms[i]);
+	for (int i = 1; i < mainRenderer.worldScene->camera->transformCount; i++) {
+		transformVector(direction, &mainRenderer.worldScene->camera->transforms[i]);
 		direction->isTransformed = false;
 	}
 }
-
 
 /**
  Print running average duration of tiles rendered
@@ -235,11 +235,13 @@ void transformCameraView(struct vector *direction) {
  @param avgTime Current computed average time
  @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
  */
-void printRunningAverage(const time_t avgTime, int remainingTileCount) {
+void printRunningAverage(const time_t avgTime, struct renderTile tile) {
+	int remainingTileCount = mainRenderer.tileCount - mainRenderer.renderedTileCount;
 	time_t remainingTime = remainingTileCount * avgTime;
 	//First print avg tile time
-	printf("Avg tile time is: %li min (%li sec)", avgTime / 60, avgTime);
-	printf(", render time remaining: %li min (%li sec)\r", remainingTime / 60, remainingTime);
+	printf("Finished tile %i/%i", tile.tileNum, mainRenderer.tileCount);
+	printf(", avgtime: %li min (%li sec)", avgTime / 60, avgTime);
+	printf(", remaining: %li min (%li sec)\r", remainingTime / 60, remainingTime);
 }
 
 
@@ -253,8 +255,7 @@ void computeTimeAverage(struct renderTile tile) {
 	mainRenderer.avgTileTime += difftime(tile.stop, tile.start);
 	mainRenderer.avgTileTime = mainRenderer.avgTileTime / mainRenderer.timeSampleCount;
 	mainRenderer.timeSampleCount++;
-	int remainingTileCount = mainRenderer.tileCount - mainRenderer.renderedTileCount;
-	printRunningAverage(mainRenderer.avgTileTime, remainingTileCount);
+	printRunningAverage(mainRenderer.avgTileTime, tile);
 }
 
 
@@ -278,13 +279,12 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		while (tile.tileNum != -1) {
 			time(&tile.start);
 			
-			printf("Started tile %i/%i\r", tile.tileNum, mainRenderer.tileCount);
 			while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
 				for (int y = tile.endY; y > tile.startY; y--) {
 					for (int x = tile.startX; x < tile.endX; x++) {
 						
-						int height = mainRenderer.worldScene->camera->height;
-						int width = mainRenderer.worldScene->camera->width;
+						int height = mainRenderer.worldScene->image->size.height;
+						int width = mainRenderer.worldScene->image->size.width;
 						
 						double fracX = (double)x;
 						double fracY = (double)y;
@@ -297,9 +297,9 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						
 						//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 						//imaginary plane in front of the origin. startPos is just the camera position.
-						struct vector direction = {(fracX - 0.5 * mainRenderer.worldScene->camera->width)
+						struct vector direction = {(fracX - 0.5 * mainRenderer.worldScene->image->size.width)
 													/ mainRenderer.worldScene->camera->focalLength,
-												   (fracY - 0.5 * mainRenderer.worldScene->camera->height)
+												   (fracY - 0.5 * mainRenderer.worldScene->image->size.height)
 													/ mainRenderer.worldScene->camera->focalLength,
 													1.0,
 													false};
@@ -312,7 +312,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						//way to do it, but it works quite well.
 						
 						//Compute transforms for position (place the camera in the scene)
-						transformVector(&startPos, &mainRenderer.worldScene->camTransforms[0]);
+						transformVector(&startPos, &mainRenderer.worldScene->camera->transforms[0]);
 						//...and compute rotation transforms for camera orientation (point the camera)
 						transformCameraView(&direction);
 						//Easy!
@@ -358,11 +358,11 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						//Note how imageData only stores 8-bit precision for each color channel.
 						//This is why we use the renderBuffer for the running average as it just contains
 						//the full precision color values
-						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 0] =
+						mainRenderer.worldScene->image->imgData[(x + (height - y)*width)*3 + 0] =
 						(unsigned char)min(  output.red*255.0, 255.0);
-						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 1] =
+						mainRenderer.worldScene->image->imgData[(x + (height - y)*width)*3 + 1] =
 						(unsigned char)min(output.green*255.0, 255.0);
-						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 2] =
+						mainRenderer.worldScene->image->imgData[(x + (height - y)*width)*3 + 2] =
 						(unsigned char)min( output.blue*255.0, 255.0);
 					}
 				}

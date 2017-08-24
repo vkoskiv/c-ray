@@ -15,89 +15,10 @@
 #include "poly.h"
 #include "obj.h"
 #include "kdtree.h"
+#include "filehandler.h"
+#include "converter.h"
 
 #define TOKEN_DEBUG_ENABLED false
-
-//Prototypes
-//Trims spaces and tabs from a char array
-char *trimSpaces(char *inputLine);
-//Parses a scene file and allocates memory accordingly
-int allocMemory(struct scene *scene, char *inputFileName);
-
-
-/**
- Convert a given OBJ loader vector into a c-ray vector
-
- @param vec OBJ loader vector
- @return c-ray vector
- */
-struct vector vectorFromObj(obj_vector *vec) {
-	struct vector vector;
-	vector.x = vec->e[0];
-	vector.y = vec->e[1];
-	vector.z = vec->e[2];
-	vector.isTransformed = false;
-	return vector;
-}
-
-
-/**
- Convert a given OBJ loader polygon into a c-ray polygon
-
- @param face OBJ loader polygon
- @param firstVertexIndex First vertex index of the new polygon
- @param firstNormalIndex First normal index of the new polygon
- @param firstTextureIndex First texture index of the new polygon
- @param polyIndex polygonArray index offset
- @return c-ray polygon
- */
-struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex, int polyIndex) {
-	struct poly polygon;
-	if (face->normal_index[0] == -1)
-		polygon.hasNormals = false;
-	else
-		polygon.hasNormals = true;
-	polygon.vertexCount = face->vertex_count;
-	polygon.materialIndex = face->material_index;
-	polygon.polyIndex = polyIndex;
-	for (int i = 0; i < polygon.vertexCount; i++)
-		polygon.vertexIndex[i] = firstVertexIndex + face->vertex_index[i];
-	for (int i = 0; i < polygon.vertexCount; i++)
-		polygon.normalIndex[i] = firstNormalIndex + face->normal_index[i];
-	for (int i = 0; i < polygon.vertexCount; i++)
-		polygon.textureIndex[i] = firstTextureIndex + face->texture_index[i];
-	return polygon;
-}
-
-
-/**
- Convert a given OBJ loader material into a c-ray material
-
- @param mat OBJ loader material
- @return c-ray material
- */
-struct material materialFromObj(obj_material *mat) {
-	struct material newMat;
-	newMat.diffuse.red   = mat->diff[0];
-	newMat.diffuse.green = mat->diff[1];
-	newMat.diffuse.blue  = mat->diff[2];
-	newMat.diffuse.alpha = 0;
-	newMat.ambient.red   = mat->amb[0];
-	newMat.ambient.green = mat->amb[1];
-	newMat.ambient.blue  = mat->amb[2];
-	newMat.ambient.alpha = 0;
-	newMat.specular.red  = mat->spec[0];
-	newMat.specular.green= mat->spec[1];
-	newMat.specular.blue = mat->spec[2];
-	newMat.specular.alpha= 0;
-	newMat.reflectivity  = mat->reflect;
-	newMat.refractivity  = mat->refract;
-	newMat.IOR           = mat->refract_index;
-	newMat.glossiness    = mat->glossy;
-	newMat.transparency  = mat->trans;
-	newMat.sharpness     = 0;
-	return newMat;
-}
 
 /**
  Extract the filename from a given file path
@@ -210,11 +131,6 @@ bool addOBJ(struct scene *sceneData, char *inputFileName) {
 	return true;
 }
 
-//FIXME: Temporary
-void overrideMaterial(struct scene *world, struct crayOBJ *obj, int materialIndex) {
-	obj->materials = &world->materials[materialIndex];
-}
-
 //FIXME: change + 1 to ++scene->someCount and just pass the count to array access
 //In the future, maybe just pass a list and size and copy at once to save time (large counts)
 void addSphere(struct scene *scene, struct sphere newSphere) {
@@ -235,11 +151,6 @@ void addMaterialOBJ(struct crayOBJ *obj, struct material newMaterial) {
 void addLight(struct scene *scene, struct light newLight) {
 	scene->lights = (struct light*)realloc(scene->lights, (scene->lightCount + 1) * sizeof(struct light));
 	scene->lights[scene->lightCount++] = newLight;
-}
-
-void addCamera(struct scene *scene, struct camera *newCamera) {
-	scene->camera = (struct camera*)realloc(scene->camera, (scene->cameraCount + 1) * sizeof(struct camera));
-	scene->camera[scene->cameraCount++] = *newCamera;
 }
 
 void transformMeshes(struct scene *scene) {
@@ -263,23 +174,23 @@ void computeKDTrees(struct scene *scene) {
 	}
 }
 
-void computeFocalLength(struct scene *world) {
+void computeFocalLength(struct scene *scene) {
 	//Focal length is calculated based on the camera FOV value
-	if (world->camera->FOV > 0.0 && world->camera->FOV < 189.0) {
-		world->camera->focalLength = 0.5 * world->camera->width / tanf((double)(PIOVER180) * 0.5 * world->camera->FOV);
+	if (scene->camera->FOV > 0.0 && scene->camera->FOV < 189.0) {
+		scene->camera->focalLength = 0.5 * scene->image->size.width / tanf((double)(PIOVER180) * 0.5 * scene->camera->FOV);
 	}
 }
 
 //FIXME: Move this to transforms.c
-void addCamTransform(struct scene *world, struct matrixTransform transform) {
-	if (world->camTransformCount == 0) {
-		world->camTransforms = (struct matrixTransform*)calloc(1, sizeof(struct matrixTransform));
+void addCamTransform(struct camera *cam, struct matrixTransform transform) {
+	if (cam->transformCount == 0) {
+		cam->transforms = (struct matrixTransform*)calloc(1, sizeof(struct matrixTransform));
 	} else {
-		world->camTransforms = (struct matrixTransform*)realloc(world->camTransforms, (world->camTransformCount + 1) * sizeof(struct matrixTransform));
+		cam->transforms = (struct matrixTransform*)realloc(cam->transforms, (cam->transformCount + 1) * sizeof(struct matrixTransform));
 	}
 	
-	world->camTransforms[world->camTransformCount] = transform;
-	world->camTransformCount++;
+	cam->transforms[cam->transformCount] = transform;
+	cam->transformCount++;
 }
 
 void printSceneStats(struct scene *scene) {
@@ -308,42 +219,43 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	addMaterial(scene, newMaterial(colorWithValues(0.9, 0.9, 0.9, 0.0), 0.0));
 	addMaterial(scene, newMaterial(colorWithValues(1.0, 0.0, 0.0, 0.0), 0.0));
 	
-	struct camera *cam = (struct camera*)calloc(1, sizeof(struct camera));
-	//Override renderer thread count, 0 defaults to physical core count
-	cam-> threadCount = 0;
-	cam->filePath     = "../output/";
-	cam->       width = 1280;
-	cam->      height = 800;
-	cam->isFullScreen = false;
-	cam->isBorderless = false;
-	cam->         FOV = 80.0;
-	cam-> focalLength = 0;
-	cam-> sampleCount = 100;
-	cam->  frameCount = 1;
-	cam->     bounces = 3;
-	cam->    contrast = 0.5;
-	cam-> windowScale = 1.0;
-	cam->    fileType = png;
-	cam->  areaLights = true;
-	cam->antialiasing = true;
-	cam->newRenderer  = false; //New, recursive rayTracing algorighm (buggy!)
-	cam->  tileWidth  = 64;
-	cam->  tileHeight = 64;
-	cam->   tileOrder = renderOrderFromMiddle;
-	cam->pos = vectorWithPos(0, 0, 0); //Don't change
+	//Output image specs
+	scene->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
+	scene->image->filePath = "../output/";
+	scene->image->size.width = 1280;
+	scene->image->size.height = 800;
+	scene->image->fileType = png;
 	
-	addCamTransform(scene, newTransformTranslate(970, 480, 600)); //Set pos here
-	addCamTransform(scene, newTransformRotateX(21));//And add as many rotations as you want!
-	addCamTransform(scene, newTransformRotateZ(9)); //Don't scale or translate!
+	scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
+	//Override renderer thread count, 0 defaults to physical core count
+	scene->camera-> threadCount = 0;
+	scene->camera->isFullScreen = true;
+	scene->camera->isBorderless = false;
+	scene->camera->         FOV = 80.0;
+	scene->camera-> focalLength = 0;
+	scene->camera-> sampleCount = 100;
+	scene->camera->  frameCount = 1;
+	scene->camera->     bounces = 3;
+	scene->camera->    contrast = 0.5;
+	scene->camera-> windowScale = 1.0;
+	scene->camera->  areaLights = true;
+	scene->camera->antialiasing = true;
+	scene->camera->newRenderer  = false; //New, recursive rayTracing algorighm (buggy!)
+	scene->camera->  tileWidth  = 64;
+	scene->camera->  tileHeight = 64;
+	scene->camera->   tileOrder = renderOrderFromMiddle;
+	scene->camera->pos = vectorWithPos(0, 0, 0); //Don't change
+	
+	addCamTransform(scene->camera, newTransformTranslate(970, 480, 600)); //Set pos here
+	addCamTransform(scene->camera, newTransformRotateX(21));//And add as many rotations as you want!
+	addCamTransform(scene->camera, newTransformRotateZ(9)); //Don't scale or translate!
 	
 	scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
 	scene->ambientColor->  red = 0.4;
 	scene->ambientColor->green = 0.6;
 	scene->ambientColor-> blue = 0.6;
 	
-	addCamera(scene, cam);
 	computeFocalLength(scene);
-	free(cam);
 	
 	//NOTE: Translates have to come last!
 	if (addOBJ(scene, "../output/newScene.obj")) {
@@ -417,7 +329,7 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	
 	//LIGHTS
 	
-	addLight(scene, newLight(vectorWithPos(970, 350, 500), 13, colorWithValues(2, 2, 4, 0)));
+	addLight(scene, newLight(vectorWithPos(970, 370, 500), 13, colorWithValues(2, 2, 4, 0)));
 	
 	/*addLight(scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));
 	addLight(scene, newLight(vectorWithPos(760 , 500, 0),    42, colorWithValues(0.2, 0.2, 0.2, 0.0)));
