@@ -65,18 +65,12 @@ void quantizeImage(struct scene *worldScene) {
 	tileMutex = CreateMutex(NULL, FALSE, NULL);
 #endif
 	printf("Quantizing render plane...\n");
+	
 	int tilesX = worldScene->camera->width / worldScene->camera->tileWidth;
 	int tilesY = worldScene->camera->height / worldScene->camera->tileHeight;
 	
-	double tilesXf = (double)worldScene->camera->width / (double)worldScene->camera->tileWidth;
-	double tilesYf = (double)worldScene->camera->height / (double)worldScene->camera->tileHeight;
-	
-	if (tilesXf - (int)tilesXf != 0) {
-		tilesX++;
-	}
-	if (tilesYf - (int)tilesYf != 0) {
-		tilesY++;
-	}
+	tilesX = (worldScene->camera->width % worldScene->camera->tileWidth) != 0 ? tilesX + 1: tilesX;
+	tilesY = (worldScene->camera->height % worldScene->camera->tileHeight) != 0 ? tilesY + 1: tilesY;
 	
 	mainRenderer.renderTiles = (struct renderTile*)calloc(tilesX*tilesY, sizeof(struct renderTile));
 	
@@ -263,6 +257,7 @@ void computeTimeAverage(struct renderTile tile) {
 	printRunningAverage(mainRenderer.avgTileTime, remainingTileCount);
 }
 
+
 /**
  A render thread
  
@@ -388,4 +383,127 @@ DWORD WINAPI renderThread(LPVOID arg) {
 #else
 		pthread_exit((void*) arg);
 #endif
-	}
+}
+
+/**
+ A render thread
+ 
+ @param arg Thread information (see threadInfo struct)
+ @return Exits when thread is done
+ */
+/*#ifdef WINDOWS
+DWORD WINAPI renderThread(LPVOID arg) {
+#else
+	void *renderThread(void *arg) {
+#endif
+		struct lightRay incidentRay;
+		struct threadInfo *tinfo = (struct threadInfo*)arg;
+		
+		//First time setup for each thread
+		struct renderTile tile = getTile();
+		
+		while (tile.tileNum != -1) {
+			time(&tile.start);
+			
+			int width = mainRenderer.worldScene->camera->width;
+			int height = mainRenderer.worldScene->camera->height;
+			
+			for (int y = tile.endY; y > tile.startY; y--) {
+				for (int x = tile.startX; x < tile.endX; x++) {
+					double fracX = (double)x;
+					double fracY = (double)y;
+					
+					//Set up ray
+					struct vector startPos = mainRenderer.worldScene->camera->pos;
+					struct vector direction = {0,0,0,false};
+					transformVector(&startPos, &mainRenderer.worldScene->camTransforms[0]);
+					
+					printf("Started tile %i/%i\r", tile.tileNum, mainRenderer.tileCount);
+					
+					//Start getting samples
+					while ((tile.completedSamples < mainRenderer.worldScene->camera->sampleCount + 1) && mainRenderer.isRendering) {
+						
+						//A cheap 'antialiasing' of sorts. The more samples, the better this works
+						if (mainRenderer.worldScene->camera->antialiasing) {
+							fracX = getRandomDouble(fracX - 0.25, fracX + 0.25);
+							fracY = getRandomDouble(fracY - 0.25, fracY + 0.25);
+						}
+						
+						//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
+						//imaginary plane in front of the origin. startPos is just the camera position.
+						direction = vectorWithPos((fracX - 0.5 * mainRenderer.worldScene->camera->width)
+												  / mainRenderer.worldScene->camera->focalLength,
+												  (fracY - 0.5 * mainRenderer.worldScene->camera->height)
+												  / mainRenderer.worldScene->camera->focalLength, 1.0);
+						direction = normalizeVector(&direction);
+						transformCameraView(&direction);
+						
+						//Set up ray
+						incidentRay.start = startPos;
+						incidentRay.direction = direction;
+						incidentRay.rayType = rayTypeIncident;
+						incidentRay.remainingInteractions = mainRenderer.worldScene->camera->bounces;
+						incidentRay.currentMedium.IOR = AIR_IOR;
+						
+						//For multi-sample rendering, we keep a running average of color values for each pixel
+						//The next block of code does this
+						
+						//Get previous color value from render buffer
+						struct color output = getPixel(mainRenderer.worldScene, x, y);
+						struct color sample = {0.0,0.0,0.0,0.0};
+						
+						//Get new sample (raytracing is initiated here)
+						if (mainRenderer.worldScene->camera->newRenderer) {
+							sample = newTrace(&incidentRay, mainRenderer.worldScene);
+						} else {
+							sample = rayTrace(&incidentRay, mainRenderer.worldScene);
+						}
+						
+						//And process the running average
+						output.red = output.red * (tile.completedSamples - 1);
+						output.green = output.green * (tile.completedSamples - 1);
+						output.blue = output.blue * (tile.completedSamples - 1);
+						
+						output = addColors(&output, &sample);
+						
+						output.red = output.red / tile.completedSamples;
+						output.green = output.green / tile.completedSamples;
+						output.blue = output.blue / tile.completedSamples;
+						
+						//Store render buffer
+						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 0] = output.red;
+						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 1] = output.green;
+						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 2] = output.blue;
+						
+						//And store the image data
+						//Note how imageData only stores 8-bit precision for each color channel.
+						//This is why we use the renderBuffer for the running average as it just contains
+						//the full precision color values
+						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 0] =
+						(unsigned char)min(  output.red*255.0, 255.0);
+						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 1] =
+						(unsigned char)min(output.green*255.0, 255.0);
+						mainRenderer.worldScene->camera->imgData[(x + (height - y)*width)*3 + 2] =
+						(unsigned char)min( output.blue*255.0, 255.0);
+						
+						tile.completedSamples++;
+					}
+				}
+			}
+			
+			//Tile has finished rendering, get a new one and start rendering it.
+			mainRenderer.renderTiles[tile.tileNum].isRendering = false;
+			time(&tile.stop);
+			computeTimeAverage(tile);
+			tile = getTile();
+		}
+		//No more tiles to render, exit thread. (render done)
+		printf("Thread %i done\n", tinfo->thread_num);
+		tinfo->threadComplete = true;
+#ifdef WINDOWS
+		//Return possible codes here
+		return 0;
+#else
+		pthread_exit((void*) arg);
+#endif
+ }*/
