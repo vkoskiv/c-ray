@@ -36,7 +36,7 @@ void initRenderer(struct renderer *renderer) {
 	renderer->avgTileTime = (time_t)1;
 	renderer->timeSampleCount = 1;
 	
-	renderer->worldScene = (struct scene*)calloc(1, sizeof(struct scene));
+	renderer->scene = (struct world*)calloc(1, sizeof(struct world));
 }
 
 /**
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
 #endif
 	
 	//Build the scene
-	switch (testBuild(mainRenderer.worldScene, fileName)) {
+	switch (testBuild(&mainRenderer, fileName)) {
 		case -1:
 			logHandler(sceneBuildFailed);
 			break;
@@ -90,17 +90,17 @@ int main(int argc, char *argv[]) {
 	}
 	
 	//Check and set threadCount
-	int usrThreadCount = mainRenderer.worldScene->camera->threadCount;
+	int usrThreadCount = mainRenderer.scene->camera->threadCount;
 	if (usrThreadCount > 0) {
 		mainRenderer.threadCount = usrThreadCount;
 	}
 	
 	//Quantize image into renderTiles
-	quantizeImage(mainRenderer.worldScene);
+	quantizeImage(mainRenderer.scene);
 	//Reorder those tiles
-	reorderTiles(mainRenderer.worldScene->camera->tileOrder);
+	reorderTiles(mainRenderer.scene->camera->tileOrder);
 	//Compute the focal length for the camera
-	computeFocalLength(mainRenderer.worldScene);
+	computeFocalLength(&mainRenderer);
 	
 #ifdef UI_ENABLED
 	mainDisplay.window = NULL;
@@ -108,8 +108,8 @@ int main(int argc, char *argv[]) {
 	mainDisplay.texture = NULL;
 	mainDisplay.overlayTexture = NULL;
 	
-	mainDisplay.isBorderless = mainRenderer.worldScene->camera->isBorderless;
-	mainDisplay.isFullScreen = mainRenderer.worldScene->camera->isFullScreen;
+	mainDisplay.isBorderless = mainRenderer.scene->camera->isBorderless;
+	mainDisplay.isFullScreen = mainRenderer.scene->camera->isFullScreen;
 #endif
 	
 	//This is a timer to elapse how long a render takes per frame
@@ -126,12 +126,12 @@ int main(int argc, char *argv[]) {
 	}
 	
 	//Verify sample count
-	if (mainRenderer.worldScene->camera->sampleCount < 1) logHandler(renderErrorInvalidSampleCount);
-	if (!mainRenderer.worldScene->camera->areaLights) mainRenderer.worldScene->camera->sampleCount = 1;
+	if (mainRenderer.scene->camera->sampleCount < 1) logHandler(renderErrorInvalidSampleCount);
+	if (!mainRenderer.scene->camera->areaLights) mainRenderer.scene->camera->sampleCount = 1;
 	
-	printf("\nStarting C-ray renderer for frame %i\n\n", mainRenderer.worldScene->camera->currentFrame);
-	printf("Rendering at %i x %i\n", mainRenderer.worldScene->image->size.width,mainRenderer.worldScene->image->size.height);
-	printf("Rendering with %i samples\n", mainRenderer.worldScene->camera->sampleCount);
+	printf("\nStarting C-ray renderer for frame %i\n\n", mainRenderer.scene->camera->currentFrame);
+	printf("Rendering at %i x %i\n", mainRenderer.image->size.width,mainRenderer.image->size.height);
+	printf("Rendering with %i samples\n", mainRenderer.scene->camera->sampleCount);
 	printf("Rendering with %d thread",mainRenderer.threadCount);
 	if (mainRenderer.threadCount > 1) {
 		printf("s\n");
@@ -139,26 +139,26 @@ int main(int argc, char *argv[]) {
 		printf("\n");
 	}
 	
-	printf("Using %i light bounces\n", mainRenderer.worldScene->camera->bounces);
+	printf("Using %i light bounces\n", mainRenderer.scene->camera->bounces);
 	printf("Raytracing...\n");
 	
 	//Allocate memory and create array of pixels for image data
-	mainRenderer.worldScene->image->imgData = (unsigned char*)calloc(3 * mainRenderer.worldScene->image->size.width * mainRenderer.worldScene->image->size.height, sizeof(unsigned char));
+	mainRenderer.image->imgData = (unsigned char*)calloc(3 * mainRenderer.image->size.width * mainRenderer.image->size.height, sizeof(unsigned char));
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
-	mainRenderer.renderBuffer = (double*)calloc(3 * mainRenderer.worldScene->image->size.width * mainRenderer.worldScene->image->size.height, sizeof(double));
+	mainRenderer.renderBuffer = (double*)calloc(3 * mainRenderer.image->size.width * mainRenderer.image->size.height, sizeof(double));
 	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
-	mainRenderer.uiBuffer = (unsigned char*)calloc(4 * mainRenderer.worldScene->image->size.width * mainRenderer.worldScene->image->size.height, sizeof(unsigned char));
+	mainRenderer.uiBuffer = (unsigned char*)calloc(4 * mainRenderer.image->size.width * mainRenderer.image->size.height, sizeof(unsigned char));
 	
 	//Initialize SDL display
 #ifdef UI_ENABLED
 	initSDL();
 #endif
 	
-	if (!mainRenderer.worldScene->image->imgData) logHandler(imageMallocFailed);
+	if (!mainRenderer.image->imgData) logHandler(imageMallocFailed);
 	
 	mainRenderer.isRendering = true;
 	mainRenderer.renderAborted = false;
@@ -238,11 +238,11 @@ int main(int argc, char *argv[]) {
 	
 	switch (mainRenderer.mode) {
 		case saveModeNormal:
-			writeImage(mainRenderer.worldScene->image->filePath,
-					   mainRenderer.worldScene->image->imgData,
-					   mainRenderer.worldScene->image->fileType,
-					   mainRenderer.worldScene->camera->currentFrame,
-					   mainRenderer.worldScene->image->size);
+			writeImage(mainRenderer.image->filePath,
+					   mainRenderer.image->imgData,
+					   mainRenderer.image->fileType,
+					   mainRenderer.scene->camera->currentFrame,
+					   mainRenderer.image->size);
 			break;
 		case saveModeNone:
 			printf("Image won't be saved!\n");
@@ -251,7 +251,7 @@ int main(int argc, char *argv[]) {
 			break;
 	}
 	
-	mainRenderer.worldScene->camera->currentFrame++;
+	mainRenderer.scene->camera->currentFrame++;
 	
 	freeMem();
 	
@@ -266,24 +266,24 @@ int main(int argc, char *argv[]) {
  */
 void freeMem() {
 	//Free memory
-	if (mainRenderer.worldScene->image->imgData)
-		free(mainRenderer.worldScene->image->imgData);
+	if (mainRenderer.image->imgData)
+		free(mainRenderer.image->imgData);
 	if (mainRenderer.renderThreadInfo)
 		free(mainRenderer.renderThreadInfo);
 	if (mainRenderer.renderBuffer)
 		free(mainRenderer.renderBuffer);
 	if (mainRenderer.uiBuffer)
 		free(mainRenderer.uiBuffer);
-	if (mainRenderer.worldScene->lights)
-		free(mainRenderer.worldScene->lights);
-	if (mainRenderer.worldScene->spheres)
-		free(mainRenderer.worldScene->spheres);
-	if (mainRenderer.worldScene->materials)
-		free(mainRenderer.worldScene->materials);
+	if (mainRenderer.scene->lights)
+		free(mainRenderer.scene->lights);
+	if (mainRenderer.scene->spheres)
+		free(mainRenderer.scene->spheres);
+	if (mainRenderer.scene->materials)
+		free(mainRenderer.scene->materials);
 	if (mainRenderer.renderTiles)
 		free(mainRenderer.renderTiles);
-	if (mainRenderer.worldScene)
-		free(mainRenderer.worldScene);
+	if (mainRenderer.scene)
+		free(mainRenderer.scene);
 	if (vertexArray)
 		free(vertexArray);
 	if (normalArray)

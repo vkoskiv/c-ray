@@ -8,7 +8,7 @@
 
 #pragma once
 
-struct scene;
+struct world;
 
 /**
  Ray intersection type enum
@@ -38,7 +38,7 @@ struct intersection {
 	int polyIndex;					//OBJ polygon index
 };
 
-struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene);
+struct color rayTrace(struct lightRay *incidentRay, struct world *scene);
 
 //New, experimental rayTracer
-struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene);
+struct color newTrace(struct lightRay *incidentRay, struct world *scene);

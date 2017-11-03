@@ -8,7 +8,7 @@
 
 #pragma once
 
-struct scene;
+struct renderer;
 
 enum renderOrder {
 	renderOrderTopToBottom = 0,
@@ -47,4 +47,4 @@ struct camera {
 };
 
 //Compute focal length for camera
-void computeFocalLength(struct scene *scene);
+void computeFocalLength(struct renderer *renderer);

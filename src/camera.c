@@ -10,11 +10,12 @@
 #include "camera.h"
 
 #include "filehandler.h"
+#include "renderer.h"
 #include "scene.h"
 
-void computeFocalLength(struct scene *scene) {
+void computeFocalLength(struct renderer *renderer) {
 	//Focal length is calculated based on the camera FOV value
-	if (scene->camera->FOV > 0.0 && scene->camera->FOV < 189.0) {
-		scene->camera->focalLength = 0.5 * scene->image->size.width / tanf((double)(PIOVER180) * 0.5 * scene->camera->FOV);
+	if (renderer->scene->camera->FOV > 0.0 && renderer->scene->camera->FOV < 189.0) {
+		renderer->scene->camera->focalLength = 0.5 * renderer->image->size.width / tanf((double)(PIOVER180) * 0.5 * renderer->scene->camera->FOV);
 	}
 }

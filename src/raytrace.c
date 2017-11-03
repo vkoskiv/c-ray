@@ -136,14 +136,14 @@ void getSurfaceProperties(int polyIndex,
 }
 
 /**
- Calculate the closest intersection point, and other relevant information based on a given lightRay and worldScene
+ Calculate the closest intersection point, and other relevant information based on a given lightRay and scene
  See the intersection struct for documentation of what this function calculates.
 
  @param incidentRay Given light ray (set up in renderThread())
- @param worldScene  Given worldScene to cast that ray into
+ @param scene  Given scene to cast that ray into
  @return intersection struct with the appropriate values set
  */
-struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *worldScene) {
+struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *scene) {
 	struct intersection isect;
 	memset(&isect, 0, sizeof(isect));
 	
@@ -153,14 +153,14 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 	isect.ray = *incidentRay;
 	isect.start = incidentRay->currentMedium;
 	isect.didIntersect = false;
-	int objCount = worldScene->objCount;
-	int sphereCount = worldScene->sphereCount;
+	int objCount = scene->objCount;
+	int sphereCount = scene->sphereCount;
 	
 	//First check all spheres to see if this ray intersects with them
 	//We pass isect to rayIntersectsWithSphereTemp, which sets stuff like hitPoint, normal and distance
 	for (int i = 0; i < sphereCount; i++) {
-		if (rayIntersectsWithSphereTemp(&worldScene->spheres[i], incidentRay, &isect)) {
-			isect.end = worldScene->materials[worldScene->spheres[i].materialIndex];
+		if (rayIntersectsWithSphereTemp(&scene->spheres[i], incidentRay, &isect)) {
+			isect.end = scene->materials[scene->spheres[i].materialIndex];
 			isect.didIntersect = true;
 		}
 	}
@@ -171,8 +171,8 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct scene *
 	//This is how most raytracers solve the visibility problem.
 	//intersect that happened in the previous check^.
 	for (int o = 0; o < objCount; o++) {
-		if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, &isect)) {
-			isect.end = worldScene->objs[o].materials[polygonArray[isect.polyIndex].materialIndex];
+		if (rayIntersectsWithNode(scene->objs[o].tree, incidentRay, &isect)) {
+			isect.end = scene->objs[o].materials[polygonArray[isect.polyIndex].materialIndex];
 			isect.didIntersect = true;
 		}
 	}
@@ -193,9 +193,9 @@ struct color getAmbient(const struct intersection *isect, struct color *color) {
  @param world World scene for scene data
  @return Boolean if spot is in shadow or not.
  */
-bool isInShadow(struct lightRay *ray, double distance, struct scene *world) {
+bool isInShadow(struct lightRay *ray, double distance, struct world *scene) {
 	
-	struct intersection isect = getClosestIsect(ray, world);
+	struct intersection isect = getClosestIsect(ray, scene);
 	
 	return isect.didIntersect && isect.distance < distance;
 }
@@ -284,13 +284,13 @@ struct color getSpecular(const struct intersection *isect, struct light *light, 
  @param world Scene to get lighting information
  @return Highlighted color
  */
-struct color getHighlights(const struct intersection *isect, struct color *color, struct scene *world) {
+struct color getHighlights(const struct intersection *isect, struct color *color, struct world *scene) {
 	//diffuse and specular highlights
 	struct color  diffuse = (struct color){0.0, 0.0, 0.0, 0.0};
 	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
 	
-	for (int i = 0; i < world->lightCount; i++) {
-		struct light currentLight = world->lights[i];
+	for (int i = 0; i < scene->lightCount; i++) {
+		struct light currentLight = scene->lights[i];
 		struct vector lightPos = vectorWithPos(0, 0, 0);
 		lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
 		
@@ -310,7 +310,7 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 			shadowRay.currentMedium = isect->ray.currentMedium;
 			shadowRay.remainingInteractions = 1;
 			
-			if (isInShadow(&shadowRay, distance, world)) {
+			if (isInShadow(&shadowRay, distance, scene)) {
 				//Something is in the way, stop here and test other lights
 				continue;
 			}
@@ -361,10 +361,10 @@ double getReflectance(const struct vector *normal, const struct vector *dir, dou
 
  @param isect Intersection point
  @param color Base color
- @param world World scene for recursion
+ @param scene scene scene for recursion
  @return Reflect/refract color
  */
-struct color getReflectsAndRefracts(const struct intersection *isect, struct color *color, struct scene *world) {
+struct color getReflectsAndRefracts(const struct intersection *isect, struct color *color, struct world *scene) {
 	//Interacted light, so refracted and reflected rays
 	double reflectivity = isect->end.reflectivity;
 	double startIOR     = isect->start.IOR;
@@ -405,7 +405,7 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
 		reflectedRay.remainingInteractions = remainingInteractions - 1;
 		reflectedRay.currentMedium = isect->ray.currentMedium;
 		//And recurse!
-		struct color temp = newTrace(&reflectedRay, world);
+		struct color temp = newTrace(&reflectedRay, scene);
 		reflectiveColor = colorCoef(reflectivePercentage, &temp);
 	}
 	
@@ -417,7 +417,7 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
 		refractedRay.remainingInteractions = remainingInteractions - 1;
 		refractedRay.currentMedium = isect->end;
 		//Recurse here too
-		struct color temp = newTrace(&refractedRay, world);
+		struct color temp = newTrace(&refractedRay, scene);
 		refractiveColor = colorCoef(refractivePercentage, &temp);
 	}
 	
@@ -429,10 +429,10 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
  getReflectsAndRefracts handles the recursive sending of reflection and refraction rays
 
  @param isect Intersection struct that stores information used to calculate shading
- @param world worldScene to get additional material and lighting information
+ @param scene scene to get additional material and lighting information
  @return (Hopefully) correct color based on the given information.
  */
-struct color getLighting(const struct intersection *isect, struct scene *world) {
+struct color getLighting(const struct intersection *isect, struct world *scene) {
 	//Grab the 'base' diffuse color of the intersected object, and pass that to the
 	//additional functions to add shading to it.
 	struct color output = isect->end.diffuse;
@@ -440,10 +440,10 @@ struct color getLighting(const struct intersection *isect, struct scene *world) 
 	//getAmbient is a simple 'ambient occlusion' hack, works fine.
 	struct color ambientColor = getAmbient(isect, &output);
 	//getHighlights doesn't seem to work at all. Supposed to produce surface shading (shadows and whatnot)
-	struct color highlights = getHighlights(isect, &output, world);
+	struct color highlights = getHighlights(isect, &output, scene);
 	//Reflections seem to work okay, but refractions need to be fixed
 	//Sphere reflections get a weird white band around the edges on optimized builds.
-	struct color interacted = getReflectsAndRefracts(isect, &output, world);
+	struct color interacted = getReflectsAndRefracts(isect, &output, scene);
 	
 	//Just add these colors together to get the final result
 	struct color temp = addColors(&ambientColor, &highlights);
@@ -455,21 +455,21 @@ struct color getLighting(const struct intersection *isect, struct scene *world) 
  Should support refractions, and will be easier to expand in the future.
 
  @param incidentRay Given light ray to cast into a scene
- @param worldScene Given scene to cast ray into
+ @param scene Given scene to cast ray into
  @return Color based on the given ray and scene.
  */
-struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene) {
+struct color newTrace(struct lightRay *incidentRay, struct world *scene) {
 	//This is the start of the new rayTracer.
-	//Start by getting the closest intersection point in worldScene for this given incidentRay.
-	struct intersection closestIsect = getClosestIsect(incidentRay, worldScene);
+	//Start by getting the closest intersection point in scene for this given incidentRay.
+	struct intersection closestIsect = getClosestIsect(incidentRay, scene);
 	
 	//Check if it hit something
 	if (closestIsect.didIntersect) {
 		//Ray has hit an object or a sphere, calculate the lighting
-		return getLighting(&closestIsect, worldScene);
+		return getLighting(&closestIsect, scene);
 	} else {
 		//Ray didn't hit anything, just return the ambientColor of this scene (set in scene.c)
-		return *worldScene->ambientColor;
+		return *scene->ambientColor;
 	}
 }
 
@@ -477,14 +477,14 @@ struct color newTrace(struct lightRay *incidentRay, struct scene *worldScene) {
  Returns a computed color based on a given ray and world scene
  
  @param incidentRay View ray to be cast into a scene
- @param worldScene Scene the ray is cast into
+ @param scene Scene the ray is cast into
  @return Color value with full precision (double)
  */
-struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
+struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
 	struct color output = {0.0,0.0,0.0,0.0};
 	int bounces = 0;
-	double contrast = worldScene->camera->contrast;
+	double contrast = scene->camera->contrast;
 	
 	struct intersection *isectInfo = (struct intersection*)calloc(1, sizeof(struct intersection));
 	struct intersection *shadowInfo = (struct intersection*)calloc(1, sizeof(struct intersection));
@@ -496,9 +496,9 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		double temp;
 		int currentSphere = -1;
 		int currentPolygon = -1;
-		unsigned sphereAmount = worldScene->sphereCount;
-		unsigned lightSourceAmount = worldScene->lightCount;
-		unsigned objCount = worldScene->objCount;
+		unsigned sphereAmount = scene->sphereCount;
+		unsigned lightSourceAmount = scene->lightCount;
+		unsigned objCount = scene->objCount;
 		
 		struct material currentMaterial;
 		struct vector surfaceNormal = {0.0, 0.0, 0.0, false};
@@ -507,31 +507,42 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		struct vector hitpoint;
 		
 		for (unsigned i = 0; i < sphereAmount; ++i) {
-			if (rayIntersectsWithSphere(incidentRay, &worldScene->spheres[i], &closestIntersection)) {
+			if (rayIntersectsWithSphere(incidentRay, &scene->spheres[i], &closestIntersection)) {
 				currentSphere = i;
-				currentMaterial = worldScene->materials[worldScene->spheres[currentSphere].materialIndex];
+				currentMaterial = scene->materials[scene->spheres[currentSphere].materialIndex];
 			}
 		}
 		
 		isectInfo->distance = closestIntersection;
 		isectInfo->surfaceNormal = surfaceNormal;
 		for (unsigned o = 0; o < objCount; o++) {
-			if (rayIntersectsWithNode(worldScene->objs[o].tree, incidentRay, isectInfo)) {
+			if (rayIntersectsWithNode(scene->objs[o].tree, incidentRay, isectInfo)) {
 				currentPolygon      = isectInfo->polyIndex;
 				closestIntersection = isectInfo->distance;
 				surfaceNormal          = isectInfo->surfaceNormal;
 				uv                  = isectInfo->uv;
 				getSurfaceProperties(isectInfo->polyIndex, uv, &surfaceNormal, &textureCoord);
-				currentMaterial = worldScene->objs[o].materials[isectInfo->mtlIndex];
+				currentMaterial = scene->objs[o].materials[isectInfo->mtlIndex];
 				currentSphere = -1;
 			}
 		}
+		
+		/*unsigned o, p;
+		for (o = 0; o < objCount; o++) {
+			for (p = scene->objs[o].firstPolyIndex; p < (scene->objs[o].firstPolyIndex + scene->objs[o].polyCount); p++) {
+				if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &surfaceNormal, &uv)) {
+					currentPolygon = p;
+					currentMaterial = scene->objs[o].materials[polygonArray[p].materialIndex];
+					currentSphere = -1;
+				}
+			}
+		}*/
 		
 		//Ray-object intersection detection
 		if (currentSphere != -1) {
 			struct vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
 			hitpoint = addVectors(&incidentRay->start, &scaled);
-			surfaceNormal = subtractVectors(&hitpoint, &worldScene->spheres[currentSphere].pos);
+			surfaceNormal = subtractVectors(&hitpoint, &scene->spheres[currentSphere].pos);
 			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
 			if (temp == 0.0) break;
 			temp = invsqrt(temp);
@@ -546,7 +557,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
 		} else {
 			//Ray didn't hit any object, set color to ambient
-			struct color temp = colorCoef(contrast, worldScene->ambientColor);
+			struct color temp = colorCoef(contrast, scene->ambientColor);
 			output = addColors(&output, &temp);
 			break;
 		}
@@ -562,9 +573,9 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		
 		//Find the value of the light at this point
 		for (unsigned j = 0; j < lightSourceAmount; ++j) {
-			struct light currentLight = worldScene->lights[j];
+			struct light currentLight = scene->lights[j];
 			struct vector lightPos;
-			if (worldScene->camera->areaLights)
+			if (scene->camera->areaLights)
 				lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
 			else
 				lightPos = currentLight.pos;
@@ -586,7 +597,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			double t = lightDistance;
 			unsigned int k;
 			for (k = 0; k < sphereAmount; ++k) {
-				if (rayIntersectsWithSphere(&bouncedRay, &worldScene->spheres[k], &t)) {
+				if (rayIntersectsWithSphere(&bouncedRay, &scene->spheres[k], &t)) {
 					inShadow = true;
 					break;
 				}
@@ -595,7 +606,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 			shadowInfo->distance = t;
 			shadowInfo->surfaceNormal = surfaceNormal;
 			for (unsigned o = 0; o < objCount; o++) {
-				if (rayIntersectsWithNode(worldScene->objs[o].tree, &bouncedRay, shadowInfo)) {
+				if (rayIntersectsWithNode(scene->objs[o].tree, &bouncedRay, shadowInfo)) {
 					t = shadowInfo->distance;
 					inShadow = true;
 					break;
@@ -624,7 +635,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct scene *worldScene) {
 		
 		bounces++;
 		
-	} while ((contrast > 0.0) && (bounces <= worldScene->camera->bounces));
+	} while ((contrast > 0.0) && (bounces <= scene->camera->bounces));
 	
 	free(isectInfo);
 	free(shadowInfo);

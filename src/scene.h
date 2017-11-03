@@ -16,10 +16,10 @@ struct camera;
 struct matrixTransform;
 struct poly;
 struct kdTreeNode;
-struct outputImage;
+struct renderer;
 
 //World
-struct scene {
+struct world {
 	
 	//Ambient background color.
 	struct color *ambientColor;
@@ -44,9 +44,6 @@ struct scene {
 	struct camera *camera;
 	int cameraCount;
 	
-	//Output image data
-	struct outputImage *image;
-	
 };
 
-int testBuild(struct scene *scene, char *inputFileName);
+int testBuild(struct renderer *renderer, char *inputFileName);

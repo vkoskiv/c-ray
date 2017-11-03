@@ -8,9 +8,9 @@
 
 #pragma once
 
-struct scene;
+struct world;
 enum renderOrder;
-
+struct outputImage;
 
 /**
  Thread information struct to communicate with main thread
@@ -52,7 +52,9 @@ struct renderer {
 #ifndef WINDOWS
 	pthread_attr_t renderThreadAttributes;
 #endif
-	struct scene *worldScene; //Scene to render
+	struct world *scene; //Scene to render
+	//Output image data
+	struct outputImage *image;
 	struct renderTile *renderTiles; //Array of renderTiles to render
 	int tileCount; //Total amount of render tiles
 	enum fileMode mode;
@@ -74,5 +76,5 @@ DWORD WINAPI renderThread(LPVOID arg);
 #else
 void *renderThread(void *arg);
 #endif
-void quantizeImage(struct scene *worldScene);
+void quantizeImage();
 void reorderTiles(enum renderOrder order);

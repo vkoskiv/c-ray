@@ -58,37 +58,37 @@ struct renderTile getTile() {
 /**
  Create tiles from render plane, and add those to mainRenderer
  
- @param worldScene worldScene object
+ @param scene scene object
  */
-void quantizeImage(struct scene *worldScene) {
+void quantizeImage() {
 #ifdef WINDOWS
 	//Create this here for now
 	tileMutex = CreateMutex(NULL, FALSE, NULL);
 #endif
 	printf("Quantizing render plane...\n");
 	
-	int tilesX = worldScene->image->size.width / worldScene->camera->tileWidth;
-	int tilesY = worldScene->image->size.height / worldScene->camera->tileHeight;
+	int tilesX = mainRenderer.image->size.width / mainRenderer.scene->camera->tileWidth;
+	int tilesY = mainRenderer.image->size.height / mainRenderer.scene->camera->tileHeight;
 	
-	tilesX = (worldScene->image->size.width % worldScene->camera->tileWidth) != 0 ? tilesX + 1: tilesX;
-	tilesY = (worldScene->image->size.height % worldScene->camera->tileHeight) != 0 ? tilesY + 1: tilesY;
+	tilesX = (mainRenderer.image->size.width % mainRenderer.scene->camera->tileWidth) != 0 ? tilesX + 1: tilesX;
+	tilesY = (mainRenderer.image->size.height % mainRenderer.scene->camera->tileHeight) != 0 ? tilesY + 1: tilesY;
 	
 	mainRenderer.renderTiles = (struct renderTile*)calloc(tilesX*tilesY, sizeof(struct renderTile));
 	
 	for (int y = 0; y < tilesY; y++) {
 		for (int x = 0; x < tilesX; x++) {
 			struct renderTile *tile = &mainRenderer.renderTiles[x + y*tilesX];
-			tile->width  = worldScene->camera->tileWidth;
-			tile->height = worldScene->camera->tileHeight;
+			tile->width  = mainRenderer.scene->camera->tileWidth;
+			tile->height = mainRenderer.scene->camera->tileHeight;
 			
-			tile->startX = x       * worldScene->camera->tileWidth;
-			tile->endX   = (x + 1) * worldScene->camera->tileWidth;
+			tile->startX = x       * mainRenderer.scene->camera->tileWidth;
+			tile->endX   = (x + 1) * mainRenderer.scene->camera->tileWidth;
 			
-			tile->startY = y       * worldScene->camera->tileHeight;
-			tile->endY   = (y + 1) * worldScene->camera->tileHeight;
+			tile->startY = y       * mainRenderer.scene->camera->tileHeight;
+			tile->endY   = (y + 1) * mainRenderer.scene->camera->tileHeight;
 			
-			tile->endX = min((x + 1) * worldScene->camera->tileWidth, worldScene->image->size.width);
-			tile->endY = min((y + 1) * worldScene->camera->tileHeight, worldScene->image->size.height);
+			tile->endX = min((x + 1) * mainRenderer.scene->camera->tileWidth, mainRenderer.image->size.width);
+			tile->endY = min((y + 1) * mainRenderer.scene->camera->tileHeight, mainRenderer.image->size.height);
 			
 			tile->completedSamples = 1;
 			tile->isRendering = false;
@@ -208,9 +208,9 @@ void reorderTiles(enum renderOrder order) {
  */
 struct color getPixel(int x, int y) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
-	output.red = mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->image->size.height - y) * mainRenderer.worldScene->image->size.width)*3 + 0];
-	output.green = mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->image->size.height - y) * mainRenderer.worldScene->image->size.width)*3 + 1];
-	output.blue = mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->image->size.height - y) * mainRenderer.worldScene->image->size.width)*3 + 2];
+	output.red = mainRenderer.renderBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width)*3 + 0];
+	output.green = mainRenderer.renderBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width)*3 + 1];
+	output.blue = mainRenderer.renderBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width)*3 + 2];
 	output.alpha = 1.0;
 	return output;
 }
@@ -221,8 +221,8 @@ struct color getPixel(int x, int y) {
  @param direction Direction vector to be transformed
  */
 void transformCameraView(struct vector *direction) {
-	for (int i = 1; i < mainRenderer.worldScene->camera->transformCount; i++) {
-		transformVector(direction, &mainRenderer.worldScene->camera->transforms[i]);
+	for (int i = 1; i < mainRenderer.scene->camera->transformCount; i++) {
+		transformVector(direction, &mainRenderer.scene->camera->transforms[i]);
 		direction->isTransformed = false;
 	}
 }
@@ -277,40 +277,40 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		while (tile.tileNum != -1) {
 			time(&tile.start);
 			
-			while (tile.completedSamples < mainRenderer.worldScene->camera->sampleCount+1 && mainRenderer.isRendering) {
+			while (tile.completedSamples < mainRenderer.scene->camera->sampleCount+1 && mainRenderer.isRendering) {
 				for (int y = tile.endY; y > tile.startY; y--) {
 					for (int x = tile.startX; x < tile.endX; x++) {
 						
-						int height = mainRenderer.worldScene->image->size.height;
-						int width = mainRenderer.worldScene->image->size.width;
+						int height = mainRenderer.image->size.height;
+						int width = mainRenderer.image->size.width;
 						
 						double fracX = (double)x;
 						double fracY = (double)y;
 						
 						//A cheap 'antialiasing' of sorts. The more samples, the better this works
-						if (mainRenderer.worldScene->camera->antialiasing) {
+						if (mainRenderer.scene->camera->antialiasing) {
 							fracX = getRandomDouble(fracX - 0.25, fracX + 0.25);
 							fracY = getRandomDouble(fracY - 0.25, fracY + 0.25);
 						}
 						
 						//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 						//imaginary plane in front of the origin. startPos is just the camera position.
-						struct vector direction = {(fracX - 0.5 * mainRenderer.worldScene->image->size.width)
-													/ mainRenderer.worldScene->camera->focalLength,
-												   (fracY - 0.5 * mainRenderer.worldScene->image->size.height)
-													/ mainRenderer.worldScene->camera->focalLength,
+						struct vector direction = {(fracX - 0.5 * mainRenderer.image->size.width)
+													/ mainRenderer.scene->camera->focalLength,
+												   (fracY - 0.5 * mainRenderer.image->size.height)
+													/ mainRenderer.scene->camera->focalLength,
 													1.0,
 													false};
 						
 						//Normalize direction
 						direction = normalizeVector(&direction);
-						struct vector startPos = mainRenderer.worldScene->camera->pos;
+						struct vector startPos = mainRenderer.scene->camera->pos;
 						
 						//This is my implementation of camera transforms. It's probably not the conventional
 						//way to do it, but it works quite well.
 						
 						//Compute transforms for position (place the camera in the scene)
-						transformVector(&startPos, &mainRenderer.worldScene->camera->transforms[0]);
+						transformVector(&startPos, &mainRenderer.scene->camera->transforms[0]);
 						//...and compute rotation transforms for camera orientation (point the camera)
 						transformCameraView(&direction);
 						//Easy!
@@ -319,7 +319,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						incidentRay.start = startPos;
 						incidentRay.direction = direction;
 						incidentRay.rayType = rayTypeIncident;
-						incidentRay.remainingInteractions = mainRenderer.worldScene->camera->bounces;
+						incidentRay.remainingInteractions = mainRenderer.scene->camera->bounces;
 						incidentRay.currentMedium.IOR = AIR_IOR;
 						
 						//For multi-sample rendering, we keep a running average of color values for each pixel
@@ -330,10 +330,10 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						struct color sample = {0.0,0.0,0.0,0.0};
 						
 						//Get new sample (raytracing is initiated here)
-						if (mainRenderer.worldScene->camera->newRenderer) {
-							sample = newTrace(&incidentRay, mainRenderer.worldScene);
+						if (mainRenderer.scene->camera->newRenderer) {
+							sample = newTrace(&incidentRay, mainRenderer.scene);
 						} else {
-							sample = rayTrace(&incidentRay, mainRenderer.worldScene);
+							sample = rayTrace(&incidentRay, mainRenderer.scene);
 						}
 						
 						//And process the running average
@@ -356,11 +356,11 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						//Note how imageData only stores 8-bit precision for each color channel.
 						//This is why we use the renderBuffer for the running average as it just contains
 						//the full precision color values
-						mainRenderer.worldScene->image->imgData[(x + (height - y)*width)*3 + 0] =
+						mainRenderer.image->imgData[(x + (height - y)*width)*3 + 0] =
 						(unsigned char)min(  output.red*255.0, 255.0);
-						mainRenderer.worldScene->image->imgData[(x + (height - y)*width)*3 + 1] =
+						mainRenderer.image->imgData[(x + (height - y)*width)*3 + 1] =
 						(unsigned char)min(output.green*255.0, 255.0);
-						mainRenderer.worldScene->image->imgData[(x + (height - y)*width)*3 + 2] =
+						mainRenderer.image->imgData[(x + (height - y)*width)*3 + 2] =
 						(unsigned char)min( output.blue*255.0, 255.0);
 					}
 				}
