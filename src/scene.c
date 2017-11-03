@@ -223,7 +223,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	r->scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
 	//Override renderer thread count, 0 defaults to physical core count
 	r->scene->camera-> threadCount = 0;
-	r->scene->camera->isFullScreen = true;
+	r->scene->camera->isFullScreen = false;
 	r->scene->camera->isBorderless = false;
 	r->scene->camera->         FOV = 80.0;
 	r->scene->camera-> focalLength = 0;
@@ -235,14 +235,20 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	r->scene->camera->  areaLights = true;
 	r->scene->camera->antialiasing = true;
 	r->scene->camera->newRenderer  = false; //New, recursive rayTracing algorighm (buggy!)
-	r->scene->camera->  tileWidth  = 64;
-	r->scene->camera->  tileHeight = 64;
+	r->scene->camera->  tileWidth  = 128;
+	r->scene->camera->  tileHeight = 128;
 	r->scene->camera->   tileOrder = renderOrderFromMiddle;
 	r->scene->camera->pos = vectorWithPos(0, 0, 0); //Don't change
 	
+	//comment this block, and uncomment the next block below to toggle the detailed view of the lighting bug
 	addCamTransform(r->scene->camera, newTransformTranslate(970, 480, 600)); //Set pos here
 	addCamTransform(r->scene->camera, newTransformRotateX(21));//And add as many rotations as you want!
 	addCamTransform(r->scene->camera, newTransformRotateZ(9)); //Don't scale or translate!
+	
+	//Comment above block, and uncomment this to toggle the detailed view
+	/*addCamTransform(r->scene->camera, newTransformTranslate(750, 550, 1500)); //Set pos here
+	addCamTransform(r->scene->camera, newTransformRotateX(21));//And add as many rotations as you want!
+	addCamTransform(r->scene->camera, newTransformRotateY(90));*/
 	
 	r->scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
 	r->scene->ambientColor->  red = 0.4;
