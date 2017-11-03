@@ -202,20 +202,18 @@ void reorderTiles(enum renderOrder order) {
 /**
  Gets a pixel from the render buffer
  
- @param worldScene WorldScene to get image dimensions
  @param x X coordinate of pixel
  @param y Y coordinate of pixel
  @return A color object, with full color precision intact (double)
  */
-struct color getPixel(struct scene *worldScene, int x, int y) {
+struct color getPixel(int x, int y) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
-	output.red =   mainRenderer.renderBuffer[(x + (worldScene->image->size.height - y)*worldScene->image->size.width)*3 + 0];
-	output.green = mainRenderer.renderBuffer[(x + (worldScene->image->size.height - y)*worldScene->image->size.width)*3 + 1];
-	output.blue =  mainRenderer.renderBuffer[(x + (worldScene->image->size.height - y)*worldScene->image->size.width)*3 + 2];
+	output.red = mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->image->size.height - y) * mainRenderer.worldScene->image->size.width)*3 + 0];
+	output.green = mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->image->size.height - y) * mainRenderer.worldScene->image->size.width)*3 + 1];
+	output.blue = mainRenderer.renderBuffer[(x + (mainRenderer.worldScene->image->size.height - y) * mainRenderer.worldScene->image->size.width)*3 + 2];
 	output.alpha = 1.0;
 	return output;
 }
-
 
 /**
  Compute view direction transforms
@@ -328,7 +326,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						//The next block of code does this
 						
 						//Get previous color value from render buffer
-						struct color output = getPixel(mainRenderer.worldScene, x, y);
+						struct color output = getPixel(x, y);
 						struct color sample = {0.0,0.0,0.0,0.0};
 						
 						//Get new sample (raytracing is initiated here)
