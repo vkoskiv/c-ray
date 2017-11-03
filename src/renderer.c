@@ -41,11 +41,10 @@ struct renderTile getTile() {
 #else
 	pthread_mutex_lock(&tileMutex);
 #endif
-	if (mainRenderer.renderedTileCount < mainRenderer.tileCount) {
+	if (mainRenderer.renderedTileCount <= mainRenderer.tileCount) {
 		tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount];
 		mainRenderer.renderTiles[mainRenderer.renderedTileCount].isRendering = true;
-		tile.tileNum = mainRenderer.renderedTileCount;
-		mainRenderer.renderedTileCount++;
+		tile.tileNum = mainRenderer.renderedTileCount++;
 	}
 #ifdef WINDOWS
 	ReleaseMutex(tileMutex);
@@ -117,6 +116,54 @@ void reorderTopToBottom() {
 	mainRenderer.renderTiles = tempArray;
 }
 
+unsigned int rand_interval(unsigned int min, unsigned int max)
+{
+	int r;
+	const unsigned int range = 1 + max - min;
+	const unsigned int buckets = RAND_MAX / range;
+	const unsigned int limit = buckets * range;
+	
+	/* Create equal size buckets all in a row, then fire randomly towards
+	 * the buckets until you land in one of them. All buckets are equally
+	 * likely. If you land off the end of the line of buckets, try again. */
+	do
+	{
+		r = rand();
+	} while (r >= limit);
+	
+	return min + (r / buckets);
+}
+
+void reorderRandom() {
+	struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount, sizeof(struct renderTile));
+	
+	//Generate premade random index array
+	int indices[mainRenderer.tileCount+1];
+	int random;
+	int uniqueflag;
+	int i, j;
+	
+	//We need to generate random indices, but each only once
+	for(i = 0; i < mainRenderer.tileCount + 1; i++) {
+		do {
+			uniqueflag = 1;
+			random = rand_interval(0, mainRenderer.tileCount);
+			for (j = 0; j < i && uniqueflag == 1; j++) {
+				if (indices[j] == random) {
+					uniqueflag = 0;
+				}
+			}
+		} while (uniqueflag != 1);
+		indices[i] = random;
+	}
+	
+	for (int i = 0; i < mainRenderer.tileCount+1; i++) {
+		tempArray[i] = mainRenderer.renderTiles[indices[i]];
+	}
+	
+	free(mainRenderer.renderTiles);
+	mainRenderer.renderTiles = tempArray;
+}
 
 /**
  Reorder renderTiles to start from middle
@@ -192,6 +239,11 @@ void reorderTiles(enum renderOrder order) {
 		case renderOrderTopToBottom:
 		{
 			reorderTopToBottom();
+		}
+			break;
+		case renderOrderRandom:
+		{
+			reorderRandom();
 		}
 			break;
 		default:

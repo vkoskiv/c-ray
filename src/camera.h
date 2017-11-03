@@ -14,7 +14,8 @@ enum renderOrder {
 	renderOrderTopToBottom = 0,
 	renderOrderFromMiddle,
 	renderOrderToMiddle,
-	renderOrderNormal
+	renderOrderNormal,
+	renderOrderRandom
 };
 
 struct camera {
