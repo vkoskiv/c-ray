@@ -31,6 +31,7 @@ struct material;
 
 //Transform types
 struct matrixTransform newTransformScale(double x, double y, double z);
+struct matrixTransform newTransformScaleUniform(double scale);
 struct matrixTransform newTransformTranslate(double x, double y, double z);
 struct matrixTransform newTransformRotateX(double degrees);
 struct matrixTransform newTransformRotateY(double degrees);

@@ -99,3 +99,13 @@ struct matrixTransform newTransformScale(double x, double y, double z) {
 	transform.p = 1;
 	return transform;
 }
+
+struct matrixTransform newTransformScaleUniform(double scale) {
+	struct matrixTransform transform = emptyTransform();
+	transform.type = transformTypeScale;
+	transform.a = scale;
+	transform.f = scale;
+	transform.k = scale;
+	transform.p = 1;
+	return transform;
+}
