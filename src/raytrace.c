@@ -603,7 +603,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 				}
 			}
 			
-			shadowInfo->distance = t;
+			shadowInfo->distance = lightDistance;
 			shadowInfo->surfaceNormal = surfaceNormal;
 			for (unsigned o = 0; o < objCount; o++) {
 				if (rayIntersectsWithNode(scene->objs[o].tree, &bouncedRay, shadowInfo)) {
