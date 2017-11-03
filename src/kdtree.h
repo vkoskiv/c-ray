@@ -17,7 +17,7 @@ struct kdTreeNode {
 	struct kdTreeNode *left; //Pointer to left child
 	struct kdTreeNode *right;//Pointer to right child
 	struct poly *polygons;   //Polygons within the bounding box
-	int firstPolyIndex;      //For offset
+	int firstPolyIndex;      //For offset (C-Ray uses a global polygon array)
 	int polyCount;           //Amount of polygons
 	int depth;
 };
