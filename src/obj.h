@@ -10,6 +10,13 @@
 
 struct boundingBox;
 
+/*
+ C-Ray stores all vectors and polygons in shared arrays, so these
+ data structures just keep track of 'first-index offsets'
+ These offsets are the element index of the first vector/polygon for this object
+ The 'count' values are then used to keep track of where the vectors/polygons stop.
+ */
+
 struct crayOBJ {
 	int vertexCount;
 	int firstVectorIndex;
@@ -29,7 +36,7 @@ struct crayOBJ {
 	struct material *materials;
 	int materialCount;
 	
-	//struct boundingBox *bbox;
+	//Root node of the kd-tree for this obj
 	struct kdTreeNode *tree;
 	
 	char *objName;
