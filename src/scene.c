@@ -254,61 +254,68 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	}
 	
 	if (addOBJ(scene, "../output/torus.obj")) {
-		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(40, 40, 40));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScaleUniform(40));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1070, 320, 820));
 	}
 	
 	//R G B is 0 1 2
 	if (addOBJ(scene, "../output/teapot_test.obj")) {
-		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 900));
 	}
 	
 	if (addOBJ(scene, "../output/teapot_test.obj")) {
-		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 1050));
 	}
 	
 	if (addOBJ(scene, "../output/teapot_test.obj")) {
-		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(740, 300, 1200));
 	}
 	
+	//White reflective 'ceramic' teapot
+	if (addOBJ(scene, "../output/teapot_white.obj")) {
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScaleUniform(80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(45));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(855, 300, 1125));
+	}
+	
 	if (addOBJ(scene, "../output/teapot_green.obj")) {
-		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 900));
 	}
 	
 	if (addOBJ(scene, "../output/teapot_green.obj")) {
-		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 1050));
 	}
 	
 	if (addOBJ(scene, "../output/teapot_green.obj")) {
-		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(20));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(970, 300, 1200));
 	}
 	
 	if (addOBJ(scene, "../output/teapot_blue.obj")) {
-		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,900));
 	}
 	
 	if (addOBJ(scene, "../output/teapot_blue.obj")) {
-		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,1050));
 	}
 	
 	if (addOBJ(scene, "../output/teapot_blue.obj")) {
-		addTransform(&scene->objs[scene->objCount - 1], newTransformScale(80, 80, 80));
+		addTransform(&scene->objs[scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformRotateY(155));
 		addTransform(&scene->objs[scene->objCount - 1], newTransformTranslate(1210, 300,1200));
 	}
@@ -320,7 +327,8 @@ int testBuild(struct scene *scene, char *inputFileName) {
 	
 	//LIGHTS
 	
-	addLight(scene, newLight(vectorWithPos(970, 370, 500), 13, colorWithValues(2, 2, 4, 0)));
+	addLight(scene, newLight(vectorWithPos(970, 450, 500), 13, colorWithValues(2, 2, 4, 0)));
+	addLight(scene, newLight(vectorWithPos(1210, 390,1050), 2, colorWithValues(5, 0, 0, 0)));
 	
 	/*addLight(scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));
 	addLight(scene, newLight(vectorWithPos(760 , 500, 0),    42, colorWithValues(0.2, 0.2, 0.2, 0.0)));
