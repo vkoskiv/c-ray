@@ -23,6 +23,10 @@ struct color colorWithValues(double red, double green, double blue, double alpha
 	return (struct color){red, green, blue, alpha};
 }
 
+struct color colorWithRGBAValues(int R, int G, int B, int A) {
+	return (struct color){R / 255.0, G / 255.0, B / 255.0, A / 255.0};
+}
+
 //Multiply two colors
 struct color multiplyColors(struct color *c1, struct color *c2) {
 	struct color result = {c1->red * c2->red, c1->green * c2->green, c1->blue * c2->blue, 0.0};
