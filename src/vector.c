@@ -10,6 +10,13 @@
 #include "vector.h"
 
 //Main vertex arrays
+
+/*
+ Note:
+ C-Ray stores all vectors and polygons in shared arrays, and uses data structures
+ to keep track of them.
+ */
+
 struct vector *vertexArray;
 int vertexCount;
 struct vector *normalArray;
@@ -19,62 +26,142 @@ int textureCount;
 
 /* Vector Functions */
 
-//Create and return a vector with position values. Useful for hard-coded arrays.
+/**
+ Create a vector with given position values and return it.
+
+ @param x X component
+ @param y Y component
+ @param z Z component
+ @return Vector with given values
+ */
 struct vector vectorWithPos(double x, double y, double z) {
 	return (struct vector){x, y, z, false};
 }
 
-//Add two vectors and return the resulting vector
+/**
+ Add two vectors and return the resulting vector
+
+ @param v1 Vector 1
+ @param v2 Vector 2
+ @return Resulting vector
+ */
 struct vector addVectors(struct vector *v1, struct vector *v2) {
 	return (struct vector){v1->x + v2->x, v1->y + v2->y, v1->z + v2->z, false};
 }
 
-//Compute length of a vector
+/**
+ Compute the length of a vector
+
+ @param v Vector to compute the length for
+ @return Length of given vector
+ */
 double vectorLength(struct vector *v) {
 	return sqrt(v->x*v->x + v->y*v->y + v->z*v->z);
 }
 
-//Subtract two vectors and return the resulting vector
+/**
+ Subtract a vector from another and return the resulting vector
+
+ @param v1 Vector to be subtracted from
+ @param v2 Vector to be subtracted
+ @return Resulting vector
+ */
 struct vector subtractVectors(const struct vector *v1, const struct vector *v2) {
 	return (struct vector){v1->x - v2->x, v1->y - v2->y, v1->z - v2->z, false};
 }
 
-//Multiply two vectors and return the dot product
+/**
+ Multiply two vectors and return the 'dot product'
+
+ @param v1 Vector 1
+ @param v2 Vector 2
+ @return Resulting vector
+ */
 double scalarProduct(const struct vector *v1, const struct vector *v2) {
 	return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
 }
 
-//Multiply a vector by a scalar and return the resulting vector
+/**
+ Multiply a vector by a given scalar and return the resulting vector
+
+ @param c Scalar to multiply the vector by
+ @param v Vector to be multiplied
+ @return Multiplied vector
+ */
 struct vector vectorScale(const double c, const struct vector *v) {
 	return (struct vector){v->x * c, v->y * c, v->z * c, false};
 }
 
-//Calculate cross product and return the resulting vector
+/**
+ Calculate cross product and return the resulting vector
+
+ @param v1 Vector 1
+ @param v2 Vector 2
+ @return Cross product of given vectors
+ */
 struct vector vectorCross(struct vector *v1, struct vector *v2) {
 	return (struct vector){((v1->y * v2->z) - (v1->z * v2->y)),
 		((v1->z * v2->x) - (v1->x * v2->z)),
 		((v1->x * v2->y) - (v1->y * v2->x)), false};
 }
 
+/**
+ Return a vector containing the smallest components of given vectors
+
+ @param v1 Vector 1
+ @param v2 Vector 2
+ @return Smallest vector
+ */
 struct vector minVector(struct vector *v1, struct vector *v2) {
 	return (struct vector){min(v1->x, v2->x), min(v1->y, v2->y), min(v1->z, v2->z), false};
 }
 
+/**
+ Return a vector containing the largest components of given vectors
+
+ @param v1 Vector 1
+ @param v2 Vector 2
+ @return Largest vector
+ */
 struct vector maxVector(struct vector *v1, struct vector *v2) {
 	return (struct vector){max(v1->x, v2->x), max(v1->y, v2->y), max(v1->z, v2->z), false};
 }
 
+
+/**
+ Normalize a given vector
+
+ @param v Vector to normalize
+ @return normalized vector
+ */
 struct vector normalizeVector(struct vector *v) {
 	double length = vectorLength(v);
 	return (struct vector){v->x / length, v->y / length, v->z / length, false};
 }
 
+
+//TODO: Consider just passing polygons to here instead of individual vectors
+/**
+ Get the mid-point for three given vectors
+
+ @param v1 Vector 1
+ @param v2 Vector 2
+ @param v3 Vector 3
+ @return Mid-point of given vectors
+ */
 struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v3) {
 	struct vector temp = addVectors(v1, v2);
 	temp = addVectors(&temp, v3);
 	return vectorScale(1.0/3.0, &temp);
 }
 
+/**
+ Construct and return a UV coordinate from given values
+
+ @param u U component
+ @param v V component
+ @return coordinate object
+ */
 struct coord uvFromValues(double u, double v) {
 	return (struct coord){u, v};
 }
