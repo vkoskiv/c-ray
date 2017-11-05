@@ -44,8 +44,7 @@ Linux:
 1. Install SDL2 (See installing SDL below)
 2. Run 'make'
 3. Suggest a fix to my makefile because it didn't link SDL2 on your platform.
-4. Check that the inputFile path in scene.c has ../
-4. Run binary in ./bin/
+4. Run binary: ./bin/c-ray (Making sure the working dir is the root directory)
 
 Windows:
 1. Open the VS project in CRayWindows
