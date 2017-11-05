@@ -29,6 +29,7 @@ Things I'm looking to implement:
 
 SDL2 (Optional, comment #define UI_ENABLED in includes.h to disable it)
 Standard C99/GNU99 with some standard libraries
+
 All other libraries are included as source
 
 ## Installation
@@ -36,13 +37,14 @@ All other libraries are included as source
 macOS:
 1. Install SDL2
 2. Open the .xcodeproj file in Xcode
-3. Edit scheme by clicking 'C-Ray' in top right, make sure 'Use custom working directory' is ticked and set it to the 'output' directory of this project.
+3. Edit scheme by clicking 'C-Ray' in top right, make sure 'Use custom working directory' is ticked and set it to the root directory of this project.
 4. Build&Run with CMD+R
 
 Linux:
 1. Install SDL2 (See installing SDL below)
 2. Run 'make'
 3. Suggest a fix to my makefile because it didn't link SDL2 on your platform.
+4. Check that the inputFile path in scene.c has ../
 4. Run binary in ./bin/
 
 Windows:
