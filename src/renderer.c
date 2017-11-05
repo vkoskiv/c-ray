@@ -89,6 +89,7 @@ void quantizeImage() {
 			tile->endX = min((x + 1) * mainRenderer.scene->camera->tileWidth, mainRenderer.image->size.width);
 			tile->endY = min((y + 1) * mainRenderer.scene->camera->tileHeight, mainRenderer.image->size.height);
 			
+			//Samples have to start at 1, so the running average works
 			tile->completedSamples = 1;
 			tile->isRendering = false;
 			tile->tileNum = mainRenderer.tileCount;
