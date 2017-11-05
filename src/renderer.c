@@ -89,6 +89,7 @@ void quantizeImage() {
 			tile->endX = min((x + 1) * mainRenderer.scene->camera->tileWidth, mainRenderer.image->size.width);
 			tile->endY = min((y + 1) * mainRenderer.scene->camera->tileHeight, mainRenderer.image->size.height);
 			
+			//Samples have to start at 1, so the running average works
 			tile->completedSamples = 1;
 			tile->isRendering = false;
 			tile->tileNum = mainRenderer.tileCount;
@@ -135,20 +136,19 @@ unsigned int rand_interval(unsigned int min, unsigned int max)
 }
 
 void reorderRandom() {
-	struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount + 1, sizeof(struct renderTile));
 	
 	//Generate premade random index array
-	int indices[mainRenderer.tileCount+1];
+	int indices[mainRenderer.tileCount];
 	int random;
 	int uniqueflag;
-	int i, j;
 	
 	//We need to generate random indices, but each only once
-	for(i = 0; i < mainRenderer.tileCount + 1; i++) {
+	for(int i = 0; i <= mainRenderer.tileCount; i++) {
 		do {
 			uniqueflag = 1;
 			random = rand_interval(0, mainRenderer.tileCount);
-			for (j = 0; j < i && uniqueflag == 1; j++) {
+			for (int j = 0; j < i && uniqueflag == 1; j++) {
 				if (indices[j] == random) {
 					uniqueflag = 0;
 				}
@@ -157,7 +157,7 @@ void reorderRandom() {
 		indices[i] = random;
 	}
 	
-	for (int i = 0; i < mainRenderer.tileCount+1; i++) {
+	for (int i = 0; i <= mainRenderer.tileCount; i++) {
 		tempArray[i] = mainRenderer.renderTiles[indices[i]];
 	}
 	

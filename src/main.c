@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 	}
 	
 	//Quantize image into renderTiles
-	quantizeImage(mainRenderer.scene);
+	quantizeImage();
 	//Reorder those tiles
 	reorderTiles(mainRenderer.scene->camera->tileOrder);
 	//Compute the focal length for the camera
