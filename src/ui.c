@@ -110,6 +110,15 @@ void getKeyboardInput() {
 		mainRenderer.mode = saveModeNone;
 		mainRenderer.renderAborted = true;
 	}
+	if (keys[SDL_SCANCODE_P]) {
+		if (mainRenderer.renderPaused) {
+			printf("Resuming render...\n");
+			mainRenderer.renderPaused = false;
+		} else {
+			printf("Pausing render...\n");
+			mainRenderer.renderPaused = true;
+		}
+	}
 }
 
 void drawPixel(int x, int y, bool on) {

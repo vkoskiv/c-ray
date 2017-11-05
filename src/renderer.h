@@ -66,6 +66,7 @@ struct renderer {
 	int threadCount;
 	int activeThreads;
 	bool isRendering;
+	bool renderPaused;
 	bool renderAborted;
 	bool smoothShading;
 	time_t avgTileTime;

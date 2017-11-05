@@ -19,7 +19,6 @@
 int getFileSize(char *fileName);
 int getSysCores();
 void freeMem();
-void sleepNanosec(int ms);
 
 extern struct renderer mainRenderer;
 extern struct poly *polygonArray;
@@ -33,6 +32,7 @@ void initRenderer(struct renderer *renderer) {
 	renderer->threadCount = getSysCores();
 	renderer->mode = saveModeNormal;
 	renderer->isRendering = false;
+	renderer->renderPaused = false;
 	renderer->avgTileTime = (time_t)1;
 	renderer->timeSampleCount = 1;
 	
@@ -217,7 +217,7 @@ int main(int argc, char *argv[]) {
 				mainRenderer.isRendering = false;
 			}
 		}
-		sleepNanosec(33);
+		sleepMSec(100);
 	}
 	
 	//Make sure render threads are finished before continuing
@@ -300,7 +300,7 @@ void freeMem() {
 
  @param ms Milliseconds to sleep for
  */
-void sleepNanosec(int ms) {
+void sleepMSec(int ms) {
 #ifdef WINDOWS
 	Sleep(ms);
 #elif MACOS
