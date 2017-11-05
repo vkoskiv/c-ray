@@ -4,7 +4,7 @@
 # there are non-standard definitions at the bottom for
 # the camera and light data
 
-mtllib ../output/cornell_box.mtl
+mtllib cornell_box.mtl
 
 #floor
 v 552.8 0.0   0.0   

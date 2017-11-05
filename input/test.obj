@@ -1,6 +1,6 @@
 # reference a material file
 # Objects in this file will reference materials in the material file
-mtllib ../output/test.mtl
+mtllib test.mtl
 
 # vt describes a texture coordinate of x y z (or less, as needed)
 vt 1.337 13.37 133.7

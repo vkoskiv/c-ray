@@ -1,6 +1,6 @@
 # reference a material file
 # Objects in this file will reference materials in the material file
-mtllib ../output/mainScene.mtl
+mtllib mainScene.mtl
 
 ##################
 # room

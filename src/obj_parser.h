@@ -75,6 +75,7 @@ typedef struct {
 typedef struct {
 //	vector extreme_dimensions[2];
 	char scene_filename[OBJ_FILENAME_LENGTH];
+	char scene_filepath[OBJ_FILENAME_LENGTH];
 	char material_filename[OBJ_FILENAME_LENGTH];
 	
 	list vertex_list;
@@ -126,7 +127,7 @@ typedef struct {
 	obj_camera *camera;
 }obj_scene_data;
 
-int parse_obj_scene(obj_scene_data *data_out, char *filename);
+int parse_obj_scene(obj_scene_data *data_out, char *filename, char *path);
 void delete_obj_data(obj_scene_data *data_out);
 
 #endif

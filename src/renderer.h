@@ -53,6 +53,8 @@ struct renderer {
 	pthread_attr_t renderThreadAttributes;
 #endif
 	struct world *scene; //Scene to render
+	//The directory that contains input files
+	char *inputFilePath;
 	//Output image data
 	struct outputImage *image;
 	struct renderTile *renderTiles; //Array of renderTiles to render

@@ -298,18 +298,22 @@ int obj_parse_mtl_file(char *filename, list *material_list)
 
 }
 
-int obj_parse_obj_file(obj_growable_scene_data *growable_data, char *filename)
+int obj_parse_obj_file(obj_growable_scene_data *growable_data, char *filename, char *path)
 {
 	FILE* obj_file_stream;
 	int current_material = -1; 
 	char *current_token = NULL;
 	char current_line[OBJ_LINE_SIZE];
 	int line_number = 0;
+	
+	char *fullPath = (char*)calloc(1024, sizeof(char));
+	sprintf(fullPath, "%s%s", path, filename);
+	
 	// open scene
-	obj_file_stream = fopen( filename, "r");
+	obj_file_stream = fopen( fullPath, "r");
 	if(obj_file_stream == 0)
 	{
-		fprintf(stderr, "Error reading file: %s\n", filename);
+		fprintf(stderr, "Error reading file: %s\n", fullPath);
 		return 0;
 	}
 
@@ -412,7 +416,10 @@ int obj_parse_obj_file(obj_growable_scene_data *growable_data, char *filename)
 		else if( strequal(current_token, "mtllib") ) // mtllib
 		{
 			strncpy(growable_data->material_filename, strtok(NULL, WHITESPACE), OBJ_FILENAME_LENGTH);
-			obj_parse_mtl_file(growable_data->material_filename, &growable_data->material_list);
+			//Add path
+			char *temp = (char*)calloc(1024, sizeof(char));
+			sprintf(temp, "%s%s", path, growable_data->material_filename);
+			obj_parse_mtl_file(temp, &growable_data->material_list);
 			continue;
 		}
 		
@@ -546,12 +553,12 @@ void obj_copy_to_out_storage(obj_scene_data *data_out, obj_growable_scene_data *
 	data_out->camera = growable_data->camera;
 }
 
-int parse_obj_scene(obj_scene_data *data_out, char *filename)
+int parse_obj_scene(obj_scene_data *data_out, char *filename, char *path)
 {
 	obj_growable_scene_data growable_data;
 
 	obj_init_temp_storage(&growable_data);
-	if( obj_parse_obj_file(&growable_data, filename) == 0)
+	if( obj_parse_obj_file(&growable_data, filename, path) == 0)
 		return 0;
 	
 	//print_vector(NORMAL, "Max bounds are: ", &growable_data->extreme_dimensions[1]);

@@ -42,36 +42,37 @@ char *getFileName(char *input) {
 
 void addMaterialOBJ(struct crayOBJ *obj, struct material newMaterial);
 
-bool addOBJ(struct world *scene, char *inputFileName) {
-	printf("Loading OBJ %s\n", inputFileName);
+bool loadOBJ(struct renderer *r, char *inputFileName) {
+	printf("Loading OBJ %s%s\n", r->inputFilePath, inputFileName);
+	
 	obj_scene_data data;
-	if (parse_obj_scene(&data, inputFileName) == 0) {
+	if (parse_obj_scene(&data, inputFileName, r->inputFilePath) == 0) {
 		printf("OBJ %s file not found!\n", getFileName(inputFileName));
 		return false;
 	}
 	printf("OBJ loaded, converting\n");
 	
 	//Create crayOBJ to keep track of objs
-	scene->objs = (struct crayOBJ*)realloc(scene->objs, (scene->objCount + 1) * sizeof(struct crayOBJ));
+	r->scene->objs = (struct crayOBJ*)realloc(r->scene->objs, (r->scene->objCount + 1) * sizeof(struct crayOBJ));
 	//Vertex data
-	scene->objs[scene->objCount].firstVectorIndex = vertexCount;
-	scene->objs[scene->objCount].vertexCount = data.vertex_count;
+	r->scene->objs[r->scene->objCount].firstVectorIndex = vertexCount;
+	r->scene->objs[r->scene->objCount].vertexCount = data.vertex_count;
 	//Normal data
-	scene->objs[scene->objCount].firstNormalIndex = normalCount;
-	scene->objs[scene->objCount].normalCount = data.vertex_normal_count;
+	r->scene->objs[r->scene->objCount].firstNormalIndex = normalCount;
+	r->scene->objs[r->scene->objCount].normalCount = data.vertex_normal_count;
 	//Texture vector data
-	scene->objs[scene->objCount].firstTextureIndex = textureCount;
-	scene->objs[scene->objCount].textureCount = data.vertex_texture_count;
+	r->scene->objs[r->scene->objCount].firstTextureIndex = textureCount;
+	r->scene->objs[r->scene->objCount].textureCount = data.vertex_texture_count;
 	//Poly data
-	scene->objs[scene->objCount].firstPolyIndex = polyCount;
-	scene->objs[scene->objCount].polyCount = data.face_count;
+	r->scene->objs[r->scene->objCount].firstPolyIndex = polyCount;
+	r->scene->objs[r->scene->objCount].polyCount = data.face_count;
 	//Transforms init
-	scene->objs[scene->objCount].transformCount = 0;
-	scene->objs[scene->objCount].transforms = (struct matrixTransform*)malloc(sizeof(struct matrixTransform));
+	r->scene->objs[r->scene->objCount].transformCount = 0;
+	r->scene->objs[r->scene->objCount].transforms = (struct matrixTransform*)malloc(sizeof(struct matrixTransform));
 	
-	scene->objs[scene->objCount].materialCount = 0;
+	r->scene->objs[r->scene->objCount].materialCount = 0;
 	//Set name
-	scene->objs[scene->objCount].objName = getFileName(inputFileName);
+	r->scene->objs[r->scene->objCount].objName = getFileName(inputFileName);
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
@@ -84,42 +85,42 @@ bool addOBJ(struct world *scene, char *inputFileName) {
 	printf("Converting vectors\n");
 	vertexArray = (struct vector*)realloc(vertexArray, vertexCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_count; i++) {
-		vertexArray[scene->objs[scene->objCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
+		vertexArray[r->scene->objs[r->scene->objCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
 	}
 	
 	//Convert normals
 	printf("Converting normals\n");
 	normalArray = (struct vector*)realloc(normalArray, normalCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_normal_count; i++) {
-		normalArray[scene->objs[scene->objCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
+		normalArray[r->scene->objs[r->scene->objCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture vectors
 	printf("Converting texture coordinates\n");
 	textureArray = (struct vector*)realloc(textureArray, textureCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_texture_count; i++) {
-		textureArray[scene->objs[scene->objCount].firstTextureIndex + i] = vectorFromObj(data.vertex_texture_list[i]);
+		textureArray[r->scene->objs[r->scene->objCount].firstTextureIndex + i] = vectorFromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
 	printf("Converting polygons\n");
 	polygonArray = (struct poly*)realloc(polygonArray, polyCount * sizeof(struct poly));
 	for (int i = 0; i < data.face_count; i++) {
-		polygonArray[scene->objs[scene->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
-																							scene->objs[scene->objCount].firstVectorIndex,
-																							scene->objs[scene->objCount].firstNormalIndex,
-																							scene->objs[scene->objCount].firstTextureIndex,
-																							scene->objs[scene->objCount].firstPolyIndex + i);
+		polygonArray[r->scene->objs[r->scene->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
+																							r->scene->objs[r->scene->objCount].firstVectorIndex,
+																							r->scene->objs[r->scene->objCount].firstNormalIndex,
+																							r->scene->objs[r->scene->objCount].firstTextureIndex,
+																							r->scene->objs[r->scene->objCount].firstPolyIndex + i);
 	}
 	
-	scene->objs[scene->objCount].materials = (struct material*)calloc(1, sizeof(struct material));
+	r->scene->objs[r->scene->objCount].materials = (struct material*)calloc(1, sizeof(struct material));
 	//Parse materials
 	if (data.material_count == 0) {
 		//No material, set to something obscene to make it noticeable
-		scene->objs[scene->objCount].materials = (struct material*)calloc(1, sizeof(struct material));
-		*scene->objs[scene->objCount].materials = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
+		r->scene->objs[r->scene->objCount].materials = (struct material*)calloc(1, sizeof(struct material));
+		*r->scene->objs[r->scene->objCount].materials = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
 	} else {
 		//Loop to add materials to obj (We already set the material indices in polyFromObj)
 		for (int i = 0; i < data.material_count; i++) {
-			addMaterialOBJ(&scene->objs[scene->objCount], materialFromObj(data.material_list[i]));
+			addMaterialOBJ(&r->scene->objs[r->scene->objCount], materialFromObj(data.material_list[i]));
 		}
 	}
 	
@@ -128,7 +129,7 @@ bool addOBJ(struct world *scene, char *inputFileName) {
 	printf("Loaded OBJ! Translated %i faces and %i vectors\n\n", data.face_count, data.vertex_count);
 	
 	//Obj added, update count
-	scene->objCount++;
+	r->scene->objCount++;
 	return true;
 }
 
@@ -215,7 +216,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	
 	//Output image specs
 	r->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
-	r->image->filePath = "../output/";
+	r->image->filePath = "output/";
 	r->image->size.width = 1280;
 	r->image->size.height = 800;
 	r->image->fileType = png;
@@ -227,7 +228,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	r->scene->camera->isBorderless = false;
 	r->scene->camera->         FOV = 80.0;
 	r->scene->camera-> focalLength = 0;
-	r->scene->camera-> sampleCount = 10;
+	r->scene->camera-> sampleCount = 25;
 	r->scene->camera->  frameCount = 1;
 	r->scene->camera->     bounces = 3;
 	r->scene->camera->    contrast = 0.5;
@@ -255,81 +256,82 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	r->scene->ambientColor->green = 0.6;
 	r->scene->ambientColor-> blue = 0.6;
 	
+	r->inputFilePath = "input/";
+	
 	//NOTE: Translates have to come last!
-	if (addOBJ(r->scene, "../output/newScene.obj")) {
+	if (loadOBJ(r, "newScene.obj")) {
 		//Add transforms here
 	}
 	
-	if (addOBJ(r->scene, "../output/teht1.obj")) {
-		printf("Onnistui\n");
+	if (loadOBJ(r, "teht1.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(40));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateX(90));
 		//addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(-45));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(870, 350, 800));
 	}
 	
-	if (addOBJ(r->scene, "../output/torus.obj")) {
+	if (loadOBJ(r, "torus.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(40));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(1070, 320, 820));
 	}
 	
 	//R G B is 0 1 2
-	if (addOBJ(r->scene, "../output/teapot_test.obj")) {
+	if (loadOBJ(r, "teapot_test.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(45));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(740, 300, 900));
 	}
 	
-	if (addOBJ(r->scene, "../output/teapot_test.obj")) {
+	if (loadOBJ(r, "teapot_test.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(45));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(740, 300, 1050));
 	}
 	
-	if (addOBJ(r->scene, "../output/teapot_test.obj")) {
+	if (loadOBJ(r, "teapot_test.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(45));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(740, 300, 1200));
 	}
 	
 	//White reflective 'ceramic' teapot
-	if (addOBJ(r->scene, "../output/teapot_white.obj")) {
+	if (loadOBJ(r, "teapot_white.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(45));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(855, 300, 1125));
 	}
 	
-	if (addOBJ(r->scene, "../output/teapot_green.obj")) {
+	if (loadOBJ(r, "teapot_green.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(20));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(970, 300, 900));
 	}
 	
-	if (addOBJ(r->scene, "../output/teapot_green.obj")) {
+	if (loadOBJ(r, "teapot_green.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(20));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(970, 300, 1050));
 	}
 	
-	if (addOBJ(r->scene, "../output/teapot_green.obj")) {
+	if (loadOBJ(r, "teapot_green.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(20));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(970, 300, 1200));
 	}
 	
-	if (addOBJ(r->scene, "../output/teapot_blue.obj")) {
+	if (loadOBJ(r, "teapot_blue.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(155));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(1210, 300,900));
 	}
 	
-	if (addOBJ(r->scene, "../output/teapot_blue.obj")) {
+	if (loadOBJ(r, "teapot_blue.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(155));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(1210, 300,1050));
 	}
 	
-	if (addOBJ(r->scene, "../output/teapot_blue.obj")) {
+	if (loadOBJ(r, "teapot_blue.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(155));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(1210, 300,1200));

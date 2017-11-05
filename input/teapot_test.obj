@@ -1,6 +1,6 @@
 # Blender v2.78 (sub 0) OBJ File: ''
 # www.blender.org
-mtllib ../output/teapot_test.mtl
+mtllib teapot_test.mtl
 o teapot.005
 v -0.508714 0.682112 0.071712
 v -0.517593 0.664661 0.063813

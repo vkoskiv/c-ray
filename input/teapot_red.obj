@@ -1,6 +1,6 @@
 # Blender v2.65 (sub 0) OBJ File
 # www.blender.org
-mtllib ../output/teapot_red.mtl
+mtllib teapot_red.mtl
 usemtl red
 o teapot.005
 v -0.498530 0.712498 -0.039883
