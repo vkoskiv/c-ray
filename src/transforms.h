@@ -29,6 +29,8 @@ struct matrixTransform {
 
 struct material;
 
+double toRadians(double degrees);
+
 //Transform types
 struct matrixTransform newTransformScale(double x, double y, double z);
 struct matrixTransform newTransformScaleUniform(double scale);
