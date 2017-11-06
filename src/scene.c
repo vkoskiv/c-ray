@@ -227,7 +227,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	r->scene->camera->isFullScreen = false;
 	r->scene->camera->isBorderless = false;
 	r->scene->camera->         FOV = 80.0;
-	r->scene->camera-> focalLength = 0;
+	r->scene->camera->    aperture = 0.0;
 	r->scene->camera-> sampleCount = 25;
 	r->scene->camera->  frameCount = 1;
 	r->scene->camera->     bounces = 3;
@@ -240,6 +240,8 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	r->scene->camera->  tileHeight = 128;
 	r->scene->camera->   tileOrder = renderOrderFromMiddle;
 	r->scene->camera->pos = vectorWithPos(0, 0, 0); //Don't change
+	r->scene->camera->up = vectorWithPos(0, 1, 0);
+	r->scene->camera->left = vectorWithPos(-1, 0, 0);
 	
 	//comment this block, and uncomment the next block below to toggle the detailed view of the lighting bug
 	addCamTransform(r->scene->camera, newTransformTranslate(970, 480, 600)); //Set pos here

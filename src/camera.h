@@ -22,7 +22,10 @@ struct camera {
 	double FOV;
 	double focalLength;
 	double aperture;
+	
 	struct vector pos;
+	struct vector up;
+	struct vector left;
 	
 	bool areaLights;
 	bool antialiasing;

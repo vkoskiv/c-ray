@@ -358,18 +358,39 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						//Normalize direction
 						direction = normalizeVector(&direction);
 						struct vector startPos = mainRenderer.scene->camera->pos;
+						struct vector left = mainRenderer.scene->camera->left;
+						struct vector up = mainRenderer.scene->camera->up;
 						
 						//This is my implementation of camera transforms. It's probably not the conventional
 						//way to do it, but it works quite well.
 						
 						//Compute transforms for position (place the camera in the scene)
 						transformVector(&startPos, &mainRenderer.scene->camera->transforms[0]);
+						//transformVector(&left, &mainRenderer.scene->camera->transforms[0]);
+						//transformVector(&up, &mainRenderer.scene->camera->transforms[0]);
 						//...and compute rotation transforms for camera orientation (point the camera)
+						transformCameraView(&left);
+						transformCameraView(&up);
 						transformCameraView(&direction);
 						//Easy!
 						
-						//Set up ray
-						incidentRay.start = startPos;
+						//Now handle aperture
+						//FIXME: This is a 'square' aperture
+						double aperture = mainRenderer.scene->camera->aperture;
+						if (aperture <= 0.0) {
+							incidentRay.start = startPos;
+						} else {
+							double randY = getRandomDouble(-aperture, aperture);
+							double randX = getRandomDouble(-aperture, aperture);
+							
+							struct vector upTemp = vectorScale(randY, &up);
+							struct vector temp = addVectors(&startPos, &upTemp);
+							struct vector leftTemp = vectorScale(randX, &left);
+							struct vector randomStart = addVectors(&temp, &leftTemp);
+							
+							incidentRay.start = randomStart;
+						}
+						
 						incidentRay.direction = direction;
 						incidentRay.rayType = rayTypeIncident;
 						incidentRay.remainingInteractions = mainRenderer.scene->camera->bounces;
