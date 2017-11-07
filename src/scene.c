@@ -217,6 +217,8 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	//Output image specs
 	r->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
 	r->image->filePath = "output/";
+	r->image->fileName = "rendered";
+	r->image->count = 0;
 	r->image->size.width = 1280;
 	r->image->size.height = 800;
 	r->image->fileType = png;

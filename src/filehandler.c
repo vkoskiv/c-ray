@@ -18,7 +18,7 @@
 //Prototypes for internal functions
 int getFileSize(char *fileName);
 
-void saveBmpFromArray(const char *filename, unsigned char *imgData, int currentFrame, int width, int height) {
+void saveBmpFromArray(const char *filename, unsigned char *imgData, int width, int height) {
 	int i;
 	int error;
 	FILE *f;
@@ -98,26 +98,26 @@ void printFileSize(char *fileName) {
 	
 }
 
-void writeImage(const char *filePath, unsigned char *imgData, enum fileType type, int currentFrame, struct dimensions imgSize) {
+void writeImage(struct outputImage *img) {
 	//Save image data to a file
 	int bufSize;
-	if (currentFrame < 100) {
+	if (img->count < 100) {
 		bufSize = 26;
-	} else if (currentFrame < 1000) {
+	} else if (img->count < 1000) {
 		bufSize = 27;
 	} else {
 		bufSize = 28;
 	}
 	char *buf = (char*)calloc(bufSize, sizeof(char));
 	
-	if (type == bmp){
-		sprintf(buf, "%srendered_%d.bmp", filePath, currentFrame);
+	if (img->fileType == bmp){
+		sprintf(buf, "%s%s_%d.bmp", img->filePath, img->fileName, img->count);
 		printf("Saving result in \"%s\"\n", buf);
-		saveBmpFromArray(buf, imgData, currentFrame, imgSize.width, imgSize.height);
-	} else  if (type == png){
-		sprintf(buf, "%srendered_%d.png", filePath, currentFrame);
+		saveBmpFromArray(buf, img->data, img->size.width, img->size.height);
+	} else  if (img->fileType == png){
+		sprintf(buf, "%s%s_%d.png", img->filePath, img->fileName, img->count);
 		printf("Saving result in \"%s\"\n", buf);
-		encodePNGFromArray(buf, imgData, imgSize.width, imgSize.height);
+		encodePNGFromArray(buf, img->data, img->size.width, img->size.height);
 	}
 	printFileSize(buf);
 }

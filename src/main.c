@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
 	printf("Raytracing...\n");
 	
 	//Allocate memory and create array of pixels for image data
-	mainRenderer.image->imgData = (unsigned char*)calloc(3 * mainRenderer.image->size.width * mainRenderer.image->size.height, sizeof(unsigned char));
+	mainRenderer.image->data = (unsigned char*)calloc(3 * mainRenderer.image->size.width * mainRenderer.image->size.height, sizeof(unsigned char));
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
 	initSDL();
 #endif
 	
-	if (!mainRenderer.image->imgData) logHandler(imageMallocFailed);
+	if (!mainRenderer.image->data) logHandler(imageMallocFailed);
 	
 	mainRenderer.isRendering = true;
 	mainRenderer.renderAborted = false;
@@ -238,11 +238,7 @@ int main(int argc, char *argv[]) {
 	
 	switch (mainRenderer.mode) {
 		case saveModeNormal:
-			writeImage(mainRenderer.image->filePath,
-					   mainRenderer.image->imgData,
-					   mainRenderer.image->fileType,
-					   mainRenderer.scene->camera->currentFrame,
-					   mainRenderer.image->size);
+			writeImage(mainRenderer.image);
 			break;
 		case saveModeNone:
 			printf("Image won't be saved!\n");
@@ -266,8 +262,8 @@ int main(int argc, char *argv[]) {
  */
 void freeMem() {
 	//Free memory
-	if (mainRenderer.image->imgData)
-		free(mainRenderer.image->imgData);
+	if (mainRenderer.image->data)
+		free(mainRenderer.image->data);
 	if (mainRenderer.renderThreadInfo)
 		free(mainRenderer.renderThreadInfo);
 	if (mainRenderer.renderBuffer)

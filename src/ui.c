@@ -198,7 +198,7 @@ void drawWindow() {
 	//Render frame
 	updateUI();
 	//Update image data
-	SDL_UpdateTexture(mainDisplay.texture, NULL, mainRenderer.image->imgData, mainRenderer.image->size.width * 3);
+	SDL_UpdateTexture(mainDisplay.texture, NULL, mainRenderer.image->data, mainRenderer.image->size.width * 3);
 	SDL_UpdateTexture(mainDisplay.overlayTexture, NULL, mainRenderer.uiBuffer, mainRenderer.image->size.width * 4);
 	SDL_RenderCopy(mainDisplay.renderer, mainDisplay.texture, NULL, NULL);
 	SDL_RenderCopy(mainDisplay.renderer, mainDisplay.overlayTexture, NULL, NULL);

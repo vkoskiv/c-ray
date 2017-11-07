@@ -24,11 +24,13 @@ struct outputImage {
 	struct dimensions size;
 	enum fileType fileType;
 	char *filePath;
-	unsigned char *imgData;
+	char *fileName;
+	int count;
+	unsigned char *data;
 };
 
 //Prints the file size of a given file to the console in a user-readable format
 void printFileSize(char *fileName);
 
 //Writes image data to file
-void writeImage(const char *filePath, unsigned char *imgData, enum fileType type, int currentFrame, struct dimensions imgSize);
+void writeImage(struct outputImage *img);
