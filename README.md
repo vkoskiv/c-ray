@@ -17,18 +17,18 @@ It currently supports:
 - Scene definition files (Currently disabled)
 - Full support for triangulated OBJ model loading, including matrix transforms to composite a scene.
 - k-d trees
+- Antialiasing
+- Depth of field
 
 Things I'm looking to implement:
 - Better material support (Currently only color and reflectivity)
 - Procedural textures
-- Depth of field
-- Antialiasing
 - Refractive materials (Glass)
 
 ## Dependencies
 
-SDL2 (Optional, comment #define UI_ENABLED in includes.h to disable it)
-Standard C99/GNU99 with some standard libraries
+- SDL2 (Optional, comment #define UI_ENABLED in includes.h to disable it)
+- Standard C99/GNU99 with some standard libraries
 
 All other libraries are included as source
 
@@ -54,6 +54,7 @@ Windows:
 ## Installing SDL
 
 On macOS, download the SDL2 runtime framework from https://www.libsdl.org/download-2.0.php and place in /Library/Frameworks/
+
 If you don't have root access, place under ~/Library/Frameworks
 
 On Windows, Visual Studio should include SDL automatically
