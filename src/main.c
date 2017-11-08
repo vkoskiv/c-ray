@@ -89,16 +89,15 @@ int main(int argc, char *argv[]) {
 			break;
 	}
 	
-	//Check and set threadCount
-	int usrThreadCount = mainRenderer.scene->camera->threadCount;
-	if (usrThreadCount > 0) {
-		mainRenderer.threadCount = usrThreadCount;
+	//Check and set threadCount	
+	if (mainRenderer.threadCount <= 0) {
+		mainRenderer.threadCount = getSysCores();
 	}
 	
 	//Quantize image into renderTiles
 	quantizeImage();
 	//Reorder those tiles
-	reorderTiles(mainRenderer.scene->camera->tileOrder);
+	reorderTiles(mainRenderer.tileOrder);
 	//Compute the focal length for the camera
 	computeFocalLength(&mainRenderer);
 	
@@ -126,12 +125,12 @@ int main(int argc, char *argv[]) {
 	}
 	
 	//Verify sample count
-	if (mainRenderer.scene->camera->sampleCount < 1) logHandler(renderErrorInvalidSampleCount);
-	if (!mainRenderer.scene->camera->areaLights) mainRenderer.scene->camera->sampleCount = 1;
+	if (mainRenderer.sampleCount < 1) logHandler(renderErrorInvalidSampleCount);
+	if (!mainRenderer.scene->camera->areaLights) mainRenderer.sampleCount = 1;
 	
 	printf("\nStarting C-ray renderer for frame %i\n\n", mainRenderer.scene->camera->currentFrame);
 	printf("Rendering at %i x %i\n", mainRenderer.image->size.width,mainRenderer.image->size.height);
-	printf("Rendering with %i samples\n", mainRenderer.scene->camera->sampleCount);
+	printf("Rendering with %i samples\n", mainRenderer.sampleCount);
 	printf("Rendering with %d thread",mainRenderer.threadCount);
 	if (mainRenderer.threadCount > 1) {
 		printf("s\n");

@@ -26,7 +26,6 @@ struct threadInfo {
 	bool threadComplete;
 };
 
-
 /**
  Render tile, contains needed information for the renderer
  */
@@ -42,6 +41,13 @@ struct renderTile {
 	time_t start, stop;
 };
 
+enum renderOrder {
+	renderOrderTopToBottom = 0,
+	renderOrderFromMiddle,
+	renderOrderToMiddle,
+	renderOrderNormal,
+	renderOrderRandom
+};
 
 /**
  Main renderer. Stores needed information to keep track of render status,
@@ -53,25 +59,40 @@ struct renderer {
 	pthread_attr_t renderThreadAttributes;
 #endif
 	struct world *scene; //Scene to render
-	//The directory that contains input files
-	char *inputFilePath;
-	//Output image data
-	struct outputImage *image;
+	char *inputFilePath; //Directory to load input files from
+	struct outputImage *image; //Output image
 	struct renderTile *renderTiles; //Array of renderTiles to render
 	int tileCount; //Total amount of render tiles
 	enum fileMode mode;
 	int renderedTileCount; //Completed render tiles
 	double *renderBuffer;  //Double-precision buffer for multisampling
-	unsigned char *uiBuffer;//UI element buffer
-	int threadCount;
-	int activeThreads;
+	unsigned char *uiBuffer; //UI element buffer
+	int activeThreads; //Amount of threads currently rendering
 	bool isRendering;
-	bool renderPaused;
-	bool renderAborted;
-	bool smoothShading;
-	time_t avgTileTime;
-	int timeSampleCount;
+	bool renderPaused; //SDL listens for P key pressed, which sets this
+	bool renderAborted;//SDL listens for X key pressed, which sets this
+	bool smoothShading;//Unused
+	time_t avgTileTime;//Used for render duration estimation
+	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
+	
+	//Prefs
+	int threadCount; //Amount of threads to render with
+	int sampleCount;
+	bool antialiasing;
+	bool newRenderer;
+	int tileWidth;
+	int tileHeight;
+	enum renderOrder tileOrder;
 };
+
+/*
+ Move to renderer:
+ 
+ Move to UI:
+ isFullScreen
+ isBorderless
+ windowScale
+ */
 
 //Renderer
 #ifdef WINDOWS

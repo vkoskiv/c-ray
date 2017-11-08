@@ -67,28 +67,28 @@ void quantizeImage() {
 #endif
 	printf("Quantizing render plane...\n");
 	
-	int tilesX = mainRenderer.image->size.width / mainRenderer.scene->camera->tileWidth;
-	int tilesY = mainRenderer.image->size.height / mainRenderer.scene->camera->tileHeight;
+	int tilesX = mainRenderer.image->size.width / mainRenderer.tileWidth;
+	int tilesY = mainRenderer.image->size.height / mainRenderer.tileHeight;
 	
-	tilesX = (mainRenderer.image->size.width % mainRenderer.scene->camera->tileWidth) != 0 ? tilesX + 1: tilesX;
-	tilesY = (mainRenderer.image->size.height % mainRenderer.scene->camera->tileHeight) != 0 ? tilesY + 1: tilesY;
+	tilesX = (mainRenderer.image->size.width % mainRenderer.tileWidth) != 0 ? tilesX + 1: tilesX;
+	tilesY = (mainRenderer.image->size.height % mainRenderer.tileHeight) != 0 ? tilesY + 1: tilesY;
 	
 	mainRenderer.renderTiles = (struct renderTile*)calloc(tilesX*tilesY, sizeof(struct renderTile));
 	
 	for (int y = 0; y < tilesY; y++) {
 		for (int x = 0; x < tilesX; x++) {
 			struct renderTile *tile = &mainRenderer.renderTiles[x + y*tilesX];
-			tile->width  = mainRenderer.scene->camera->tileWidth;
-			tile->height = mainRenderer.scene->camera->tileHeight;
+			tile->width  = mainRenderer.tileWidth;
+			tile->height = mainRenderer.tileHeight;
 			
-			tile->startX = x       * mainRenderer.scene->camera->tileWidth;
-			tile->endX   = (x + 1) * mainRenderer.scene->camera->tileWidth;
+			tile->startX = x       * mainRenderer.tileWidth;
+			tile->endX   = (x + 1) * mainRenderer.tileWidth;
 			
-			tile->startY = y       * mainRenderer.scene->camera->tileHeight;
-			tile->endY   = (y + 1) * mainRenderer.scene->camera->tileHeight;
+			tile->startY = y       * mainRenderer.tileHeight;
+			tile->endY   = (y + 1) * mainRenderer.tileHeight;
 			
-			tile->endX = min((x + 1) * mainRenderer.scene->camera->tileWidth, mainRenderer.image->size.width);
-			tile->endY = min((y + 1) * mainRenderer.scene->camera->tileHeight, mainRenderer.image->size.height);
+			tile->endX = min((x + 1) * mainRenderer.tileWidth, mainRenderer.image->size.width);
+			tile->endY = min((y + 1) * mainRenderer.tileHeight, mainRenderer.image->size.height);
 			
 			//Samples have to start at 1, so the running average works
 			tile->completedSamples = 1;
@@ -330,7 +330,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		while (tile.tileNum != -1) {
 			time(&tile.start);
 			
-			while (tile.completedSamples < mainRenderer.scene->camera->sampleCount+1 && mainRenderer.isRendering) {
+			while (tile.completedSamples < mainRenderer.sampleCount+1 && mainRenderer.isRendering) {
 				for (int y = tile.endY; y > tile.startY; y--) {
 					for (int x = tile.startX; x < tile.endX; x++) {
 						
@@ -341,7 +341,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						double fracY = (double)y;
 						
 						//A cheap 'antialiasing' of sorts. The more samples, the better this works
-						if (mainRenderer.scene->camera->antialiasing) {
+						if (mainRenderer.antialiasing) {
 							fracX = getRandomDouble(fracX - 0.25, fracX + 0.25);
 							fracY = getRandomDouble(fracY - 0.25, fracY + 0.25);
 						}
@@ -404,7 +404,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						struct color sample = {0.0,0.0,0.0,0.0};
 						
 						//Get new sample (raytracing is initiated here)
-						if (mainRenderer.scene->camera->newRenderer) {
+						if (mainRenderer.newRenderer) {
 							sample = newTrace(&incidentRay, mainRenderer.scene);
 						} else {
 							sample = rayTrace(&incidentRay, mainRenderer.scene);

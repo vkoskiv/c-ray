@@ -10,14 +10,6 @@
 
 struct renderer;
 
-enum renderOrder {
-	renderOrderTopToBottom = 0,
-	renderOrderFromMiddle,
-	renderOrderToMiddle,
-	renderOrderNormal,
-	renderOrderRandom
-};
-
 struct camera {
 	double FOV;
 	double focalLength;
@@ -27,14 +19,7 @@ struct camera {
 	struct vector up;
 	struct vector left;
 	
-	bool areaLights;
-	bool antialiasing;
-	int sampleCount;
-	int threadCount;
-	enum renderOrder tileOrder;
-	int frameCount;
 	int currentFrame;
-	int bounces;
 	double contrast;
 	double windowScale;
 	
@@ -44,11 +29,10 @@ struct camera {
 	struct matrixTransform *transforms;
 	int transformCount;
 	
-	bool newRenderer;
-	
-	int tileWidth;
-	int tileHeight;
+	bool areaLights;
+	int bounces;
 };
 
 //Compute focal length for camera
 void computeFocalLength(struct renderer *renderer);
+void initCamera(struct camera *cam);

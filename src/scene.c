@@ -214,7 +214,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	addMaterial(r->scene, newMaterial(colorWithValues(0.9, 0.9, 0.9, 0.0), 0.0));
 	addMaterial(r->scene, newMaterial(colorWithValues(1.0, 0.0, 0.0, 0.0), 0.0));
 	
-	//Output image specs
+	//Output image prefs
 	r->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
 	r->image->filePath = "output/";
 	r->image->fileName = "rendered";
@@ -223,27 +223,28 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	r->image->size.height = 800;
 	r->image->fileType = png;
 	
+	//Renderer prefs
+	r->threadCount = 0; //Override, 0 defaults to physical core count
+	r->sampleCount = 25;
+	r->antialiasing = true;
+	r->newRenderer = false; //New, recursive rayTracing algorighm (buggy!)
+	r->tileWidth = 128;
+	r->tileHeight = 128;
+	r->tileOrder = renderOrderFromMiddle;
+	
+	//Camera prefs
+	//TODO: Move camera to renderer
 	r->scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
-	//Override renderer thread count, 0 defaults to physical core count
-	r->scene->camera-> threadCount = 0;
+	initCamera(r->scene->camera);
 	r->scene->camera->isFullScreen = false;
 	r->scene->camera->isBorderless = false;
+	r->scene->camera-> windowScale = 1.0;
+	
 	r->scene->camera->         FOV = 80.0;
 	r->scene->camera->    aperture = 0.0;
-	r->scene->camera-> sampleCount = 25;
-	r->scene->camera->  frameCount = 1;
-	r->scene->camera->     bounces = 3;
 	r->scene->camera->    contrast = 0.5;
-	r->scene->camera-> windowScale = 1.0;
-	r->scene->camera->  areaLights = true;
-	r->scene->camera->antialiasing = true;
-	r->scene->camera->newRenderer  = false; //New, recursive rayTracing algorighm (buggy!)
-	r->scene->camera->  tileWidth  = 128;
-	r->scene->camera->  tileHeight = 128;
-	r->scene->camera->   tileOrder = renderOrderFromMiddle;
-	r->scene->camera->pos = vectorWithPos(0, 0, 0); //Don't change
-	r->scene->camera->up = vectorWithPos(0, 1, 0);
-	r->scene->camera->left = vectorWithPos(-1, 0, 0);
+	r->scene->camera->bounces = 3;
+	r->scene->camera->areaLights = true;
 	
 	//comment this block, and uncomment the next block below to toggle the detailed view of the lighting bug
 	addCamTransform(r->scene->camera, newTransformTranslate(970, 480, 600)); //Set pos here

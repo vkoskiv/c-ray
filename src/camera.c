@@ -20,3 +20,9 @@ void computeFocalLength(struct renderer *renderer) {
 		renderer->scene->camera->focalLength = 0.5 * renderer->image->size.width / toRadians(0.5 * renderer->scene->camera->FOV);
 	}
 }
+
+void initCamera(struct camera *cam) {
+	cam->pos = vectorWithPos(0, 0, 0);
+	cam->up = vectorWithPos(0, 1, 0);
+	cam->left = vectorWithPos(-1, 0, 0);
+}
