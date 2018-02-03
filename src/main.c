@@ -234,17 +234,7 @@ int main(int argc, char *argv[]) {
 	printDuration(difftime(stop, start));
 	
 	//Write to file
-	
-	switch (mainRenderer.mode) {
-		case saveModeNormal:
-			writeImage(mainRenderer.image);
-			break;
-		case saveModeNone:
-			printf("Image won't be saved!\n");
-			break;
-		default:
-			break;
-	}
+	writeImage(mainRenderer.image);
 	
 	mainRenderer.scene->camera->currentFrame++;
 	
