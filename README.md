@@ -24,10 +24,11 @@ Things I'm looking to implement:
 - Better material support (Currently only color and reflectivity)
 - Procedural textures
 - Refractive materials (Glass)
+- Eventually expand into a path tracer
 
 ## Dependencies
 
-- SDL2 (Optional, comment #define UI_ENABLED in includes.h to disable it)
+- SDL2 (Disabled by default. uncomment #define UI_ENABLED in includes.h:12 to enable it)
 - Standard C99/GNU99 with some standard libraries
 
 All other libraries are included as source
@@ -35,31 +36,31 @@ All other libraries are included as source
 ## Installation
 
 macOS:
-1. Install SDL2
+1. Install SDL2 (See installing SDL below)
 2. Open the .xcodeproj file in Xcode
-3. Edit scheme by clicking 'C-Ray' in top right, make sure 'Use custom working directory' is ticked and set it to the root directory of this project.
-4. Build&Run with CMD+R
+3. Edit scheme by clicking `C-Ray` in top left, make sure 'Use custom working directory' is ticked and set it to the root directory of this project.
+4. Build&Run with `CMD+R`
 
 Linux:
 1. Install SDL2 (See installing SDL below)
-2. Run 'make'
+2. Run `make`
 3. Suggest a fix to my makefile because it didn't link SDL2 on your platform.
-4. Run binary: ./bin/c-ray (Making sure the working dir is the root directory)
+4. Run binary: `./bin/c-ray` (Making sure the working dir is the root directory)
 
 Windows:
 1. Open the VS project in CRayWindows
-2. CTRL+F5 to run without debugging
-3. VS places a binary under CRayWindows/bin/
-
+2. `CTRL+F5` to run without debugging
+3. VS places a binary under `CRayWindows\bin\`
+i
 ## Installing SDL
 
-On macOS, download the SDL2 runtime framework from https://www.libsdl.org/download-2.0.php and place in /Library/Frameworks/
+On macOS, download the SDL2 runtime framework from https://www.libsdl.org/download-2.0.php and place in `/Library/Frameworks/`
 
-If you don't have root access, place under ~/Library/Frameworks
+If you don't have root access, place under `~/Library/Frameworks`
 
 On Windows, Visual Studio should include SDL automatically
 
-On Linux, run 'sudo apt install libsdl2-dev'
+On Linux using APT, run `sudo apt install libsdl2-dev`
 
 ## Tests
 
