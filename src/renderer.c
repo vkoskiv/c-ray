@@ -431,11 +431,11 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						//This is why we use the renderBuffer for the running average as it just contains
 						//the full precision color values
 						mainRenderer.image->data[(x + (height - y)*width)*3 + 0] =
-						(unsigned char)min(  output.red*255.0, 255.0);
+						(unsigned char)min( max(output.red*255.0,0), 255.0);
 						mainRenderer.image->data[(x + (height - y)*width)*3 + 1] =
-						(unsigned char)min(output.green*255.0, 255.0);
+						(unsigned char)min( max(output.green*255.0,0), 255.0);
 						mainRenderer.image->data[(x + (height - y)*width)*3 + 2] =
-						(unsigned char)min( output.blue*255.0, 255.0);
+						(unsigned char)min( max(output.blue*255.0,0), 255.0);
 					}
 				}
 				tile.completedSamples++;
