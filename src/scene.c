@@ -228,7 +228,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	
 	//Renderer prefs
 	r->threadCount = 0; //Override, 0 defaults to physical core count
-	r->sampleCount = 25;
+	r->sampleCount = 1;
 	r->antialiasing = true;
 	r->newRenderer = true; //New, recursive rayTracing algorighm (buggy!)
 	r->tileWidth = 128;

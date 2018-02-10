@@ -71,7 +71,7 @@ struct vector subtractVectors(const struct vector *v1, const struct vector *v2) 
 }
 
 struct vector vectorSubtract(const struct vector* v, double n) {
-	struct vector rv = {v->x - n, v->y - n};
+	struct vector rv = {v->x - n, v->y - n, v->z - n, false};
 	return rv;
 }
 
@@ -210,11 +210,11 @@ struct vector getRandomVecOnPlane(struct vector center, double radius) {
 }
 
 struct vector multiplyVectors(struct vector v1, struct vector v2) {
-	return (struct vector){v1.x * v2.x, v1.y * v2.y, v1.z * v2.z};
+	return (struct vector){v1.x * v2.x, v1.y * v2.y, v1.z * v2.z, false};
 }
 
 struct vector vectorMultiply(struct vector v, double c) {
-	return (struct vector){v.x * c, v.y * c, v.z * c};
+	return (struct vector){v.x * c, v.y * c, v.z * c, false};
 }
 
 /**
