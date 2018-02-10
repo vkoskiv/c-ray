@@ -196,7 +196,7 @@ void drawWindow() {
 	if (signal(SIGINT, sigHandler) == SIG_ERR)
 		fprintf(stderr, "Couldn't catch SIGINT\n");
 	//Render frame
-	updateUI();
+	//updateUI();
 	//Update image data
 	SDL_UpdateTexture(mainDisplay.texture, NULL, mainRenderer.image->data, mainRenderer.image->size.width * 3);
 	SDL_UpdateTexture(mainDisplay.overlayTexture, NULL, mainRenderer.uiBuffer, mainRenderer.image->size.width * 4);
