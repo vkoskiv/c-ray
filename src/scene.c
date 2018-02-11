@@ -228,7 +228,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	
 	//Renderer prefs
 	r->threadCount = 0; //Override, 0 defaults to physical core count
-	r->sampleCount = 1;
+	r->sampleCount = 25;
 	r->antialiasing = true;
 	r->newRenderer = true; //New, recursive rayTracing algorighm (buggy!)
 	r->tileWidth = 128;
@@ -243,7 +243,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	r->scene->camera->isBorderless = false;
 	r->scene->camera-> windowScale = 1.0;
 	
-	r->scene->camera->         FOV = 75.0;
+	r->scene->camera->         FOV = 80.0;
 	r->scene->camera->    aperture = 0.0;
 	r->scene->camera->    contrast = 0.5;
 	r->scene->camera->bounces = 3;
@@ -253,6 +253,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	addCamTransform(r->scene->camera, newTransformTranslate(970, 480, 600)); //Set pos here
 	addCamTransform(r->scene->camera, newTransformRotateX(21));//And add as many rotations as you want!
 	addCamTransform(r->scene->camera, newTransformRotateZ(9)); //Don't scale or translate!
+	transformCameraIntoView(r->scene->camera);
 	
 	//Comment above block, and uncomment this to toggle the detailed view
 	/*addCamTransform(r->scene->camera, newTransformTranslate(750, 550, 1500)); //Set pos here

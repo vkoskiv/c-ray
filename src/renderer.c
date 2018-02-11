@@ -269,18 +269,6 @@ struct color getPixel(int x, int y) {
 }
 
 /**
- Compute view direction transforms
-
- @param direction Direction vector to be transformed
- */
-void transformCameraView(struct vector *direction) {
-	for (int i = 1; i < mainRenderer.scene->camera->transformCount; i++) {
-		transformVector(direction, &mainRenderer.scene->camera->transforms[i]);
-		direction->isTransformed = false;
-	}
-}
-
-/**
  Print running average duration of tiles rendered
 
  @param avgTime Current computed average time
@@ -361,18 +349,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						struct vector left = mainRenderer.scene->camera->left;
 						struct vector up = mainRenderer.scene->camera->up;
 						
-						//This is my implementation of camera transforms. It's probably not the conventional
-						//way to do it, but it works quite well.
-						
-						//Compute transforms for position (place the camera in the scene)
-						transformVector(&startPos, &mainRenderer.scene->camera->transforms[0]);
-						//transformVector(&left, &mainRenderer.scene->camera->transforms[0]);
-						//transformVector(&up, &mainRenderer.scene->camera->transforms[0]);
-						//...and compute rotation transforms for camera orientation (point the camera)
-						transformCameraView(&left);
-						transformCameraView(&up);
-						transformCameraView(&direction);
-						//Easy!
+						//Run camera tranforms on direction vector
+						transformCameraView(mainRenderer.scene->camera, &direction);
 						
 						//Now handle aperture
 						//FIXME: This is a 'square' aperture
