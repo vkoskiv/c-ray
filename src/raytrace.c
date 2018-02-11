@@ -293,7 +293,13 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 
 	for (int i = 0; i < scene->lightCount; ++i) {
 		struct light currentLight = scene->lights[i];
-		struct vector lightPos = currentLight.pos;
+		struct vector lightPos;
+		
+		if (scene->camera->areaLights)
+			lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.power);
+		else
+			lightPos = currentLight.pos;
+		
 		struct vector lightOffset = subtractVectors(&lightPos, &isect->hitPoint);
 		double distance = vectorLength(&lightOffset);
 		struct vector L = normalizeVector(&lightOffset);
