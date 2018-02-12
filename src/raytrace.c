@@ -458,17 +458,21 @@ struct color getLighting(const struct intersection *isect, struct world *scene) 
 	struct color ambientColor = getAmbient(isect, &output);
 	//getHighlights doesn't seem to work at all. Supposed to produce surface shading (shadows and whatnot)
 	struct color highlights = getHighlights(isect, &output, scene);
-	//struct color highlights = {0.0, 0.0, 0.0, 0.0};
 
 	//Reflections seem to work okay, but refractions need to be fixed
 	//Sphere reflections get a weird white band around the edges on optimized builds.
 	
 	struct color interacted = getReflectsAndRefracts(isect, &output, scene);
-	//struct color interacted = {0.0, 0.0, 0.0, 0.0};
 
 	//Just add these colors together to get the final result
-	struct color temp = addColors(&ambientColor, &interacted);
-	return addColors(&temp, &highlights);
+	//struct color temp = addColors(&ambientColor, &interacted);
+	
+	//return mix(&diffuse,&reflection, isect->begin.reflectance);
+	
+	struct color temp = mixColors(highlights, interacted, isect->end.reflectivity);
+	return addColors(&temp, &ambientColor);
+	
+	//return addColors(&temp, &highlights);
 }
 
 /**
