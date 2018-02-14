@@ -122,9 +122,10 @@ void getKeyboardInput() {
 }
 
 void drawPixel(int x, int y, bool on) {
-	//FIXME: this fails when tilesize is too small
-	if (y < 0) y = 1;
-	if (x < 0) x = 1;
+	if (y <= 0) y = 1;
+	if (x <= 0) x = 1;
+	if (x >= mainRenderer.image->size.width) x = mainRenderer.image->size.width - 1;
+	if (y >= mainRenderer.image->size.height) y = mainRenderer.image->size.height - 1;
 	
 	if (on) {
 		mainRenderer.uiBuffer[(x + (mainRenderer.image->size.height - y)
@@ -143,36 +144,29 @@ void drawPixel(int x, int y, bool on) {
 	}
 }
 
+
+/**
+ Draw highlight frame to show which tiles are rendering
+
+ @param tile Given renderTile
+ @param on Draw frame if true, erase if false
+ */
 void drawFrame(struct renderTile tile, bool on) {
-	//top left
 	for (int i = 1; i < 7; i++) {
+		//top left
 		drawPixel(tile.startX+i, tile.startY+1, on);
-	}
-	for (int i = 1; i < 7; i++) {
 		drawPixel(tile.startX+1, tile.startY+i, on);
-	}
-	
-	//top right
-	for (int i = 1; i < 7; i++) {
+		
+		//top right
 		drawPixel(tile.endX-i, tile.startY+1, on);
-	}
-	for (int i = 1; i < 7; i++) {
 		drawPixel(tile.endX-1, tile.startY+i, on);
-	}
-	
-	//Bottom left
-	for (int i = 1; i < 7; i++) {
+		
+		//Bottom left
 		drawPixel(tile.startX+i, tile.endY-1, on);
-	}
-	for (int i = 1; i < 7; i++) {
 		drawPixel(tile.startX+1, tile.endY-i, on);
-	}
-	
-	//bottom right
-	for (int i = 1; i < 7; i++) {
+		
+		//bottom right
 		drawPixel(tile.endX-i, tile.endY-1, on);
-	}
-	for (int i = 1; i < 7; i++) {
 		drawPixel(tile.endX-1, tile.endY-i, on);
 	}
 }
@@ -196,7 +190,7 @@ void drawWindow() {
 	if (signal(SIGINT, sigHandler) == SIG_ERR)
 		fprintf(stderr, "Couldn't catch SIGINT\n");
 	//Render frame
-	//updateUI();
+	updateUI();
 	//Update image data
 	SDL_UpdateTexture(mainDisplay.texture, NULL, mainRenderer.image->data, mainRenderer.image->size.width * 3);
 	SDL_UpdateTexture(mainDisplay.overlayTexture, NULL, mainRenderer.uiBuffer, mainRenderer.image->size.width * 4);
