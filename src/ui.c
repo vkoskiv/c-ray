@@ -172,7 +172,7 @@ void drawFrame(struct renderTile tile, bool on) {
 }
 
 void updateUI() {
-	for (int i = 0; i <= mainRenderer.tileCount; i++) {
+	for (int i = 0; i < mainRenderer.tileCount; i++) {
 		//For every tile, if it's currently rendering, draw the frame
 		//If it is NOT rendering, clear any frame present
 		if (mainRenderer.renderTiles[i].isRendering) {
