@@ -80,6 +80,10 @@ void quantizeImage() {
 	tilesY = (mainRenderer.image->size.height % mainRenderer.tileHeight) != 0 ? tilesY + 1: tilesY;
 	
 	mainRenderer.renderTiles = (struct renderTile*)calloc(tilesX*tilesY, sizeof(struct renderTile));
+	if (mainRenderer.renderTiles == NULL) {
+		printf("Failed to allocate renderTiles array!\n");
+		abort();
+	}
 	
 	for (int y = 0; y < tilesY; y++) {
 		for (int x = 0; x < tilesX; x++) {
@@ -124,8 +128,7 @@ void reorderTopToBottom() {
 	mainRenderer.renderTiles = tempArray;
 }
 
-unsigned int rand_interval(unsigned int min, unsigned int max)
-{
+unsigned int rand_interval(unsigned int min, unsigned int max) {
 	int r;
 	const unsigned int range = 1 + max - min;
 	const unsigned int buckets = RAND_MAX / range;
@@ -142,34 +145,17 @@ unsigned int rand_interval(unsigned int min, unsigned int max)
 	return min + (r / buckets);
 }
 
+/**
+ Shuffle renderTiles into a random order
+ */
 void reorderRandom() {
-	//Generate premade random index array
-	int indices[mainRenderer.tileCount];
-	int random;
-	int uniqueflag;
-	
-	//We need to generate random indices, but each only once
-	for(int i = 0; i <= mainRenderer.tileCount; i++) {
-		do {
-			uniqueflag = 1;
-			random = rand_interval(0, mainRenderer.tileCount);
-			for (int j = 0; j < i && uniqueflag == 1; j++) {
-				if (indices[j] == random) {
-					uniqueflag = 0;
-				}
-			}
-		} while (uniqueflag != 1);
-		indices[i] = random;
+	for (int i = 0; i < mainRenderer.tileCount; i++) {
+		unsigned int random = rand_interval(0, mainRenderer.tileCount - 1);
+		
+		struct renderTile temp = mainRenderer.renderTiles[i];
+		mainRenderer.renderTiles[i] = mainRenderer.renderTiles[random];
+		mainRenderer.renderTiles[random] = temp;
 	}
-	
-	struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount + 1, sizeof(struct renderTile));
-	
-	for (int i = 0; i <= mainRenderer.tileCount; i++) {
-		tempArray[i] = mainRenderer.renderTiles[indices[i]];
-	}
-	
-	free(mainRenderer.renderTiles);
-	mainRenderer.renderTiles = tempArray;
 }
 
 /**
