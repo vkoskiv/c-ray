@@ -64,7 +64,7 @@ int initSDL() {
 	if (mainDisplay.isFullScreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	if (mainDisplay.isBorderless) flags |= SDL_WINDOW_BORDERLESS;
 	
-	mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2017", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.image->size.width * windowScale, mainRenderer.image->size.height * windowScale, flags);
+	mainDisplay.window = SDL_CreateWindow("C-ray © VKoskiv 2015-2018", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.image->size.width * windowScale, mainRenderer.image->size.height * windowScale, flags);
 	if (mainDisplay.window == NULL) {
 		fprintf(stdout, "Window couldn't be created, error %s\n", SDL_GetError());
 		return -1;
