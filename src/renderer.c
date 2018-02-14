@@ -67,6 +67,12 @@ void quantizeImage() {
 #endif
 	printf("Quantizing render plane...\n");
 	
+	//Sanity check on tilesizes
+	if (mainRenderer.tileWidth >= mainRenderer.image->size.width) mainRenderer.tileWidth = mainRenderer.image->size.width;
+	if (mainRenderer.tileHeight >= mainRenderer.image->size.height) mainRenderer.tileHeight = mainRenderer.image->size.height;
+	if (mainRenderer.tileWidth <= 0) mainRenderer.tileWidth = 1;
+	if (mainRenderer.tileHeight <= 0) mainRenderer.tileHeight = 1;
+	
 	int tilesX = mainRenderer.image->size.width / mainRenderer.tileWidth;
 	int tilesY = mainRenderer.image->size.height / mainRenderer.tileHeight;
 	

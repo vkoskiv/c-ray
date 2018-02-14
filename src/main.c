@@ -129,6 +129,15 @@ int main(int argc, char *argv[]) {
 	if (!mainRenderer.scene->camera->areaLights) mainRenderer.sampleCount = 1;
 	
 	printf("\nStarting C-ray renderer for frame %i\n\n", mainRenderer.scene->camera->currentFrame);
+	
+	//Print a useful warning to user if the defined tile size results in less renderThreads
+	if (mainRenderer.tileCount < mainRenderer.threadCount) {
+		printf("WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
+		printf("Reducing thread count from %i to ", mainRenderer.threadCount);
+		mainRenderer.threadCount = mainRenderer.tileCount;
+		printf("%i\n", mainRenderer.threadCount);
+	}
+	
 	printf("Rendering at %i x %i\n", mainRenderer.image->size.width,mainRenderer.image->size.height);
 	printf("Rendering with %i samples\n", mainRenderer.sampleCount);
 	printf("Rendering with %d thread",mainRenderer.threadCount);
