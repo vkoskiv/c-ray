@@ -42,7 +42,7 @@ struct renderTile getTile() {
 #else
 	pthread_mutex_lock(&tileMutex);
 #endif
-	if (mainRenderer.renderedTileCount <= mainRenderer.tileCount) {
+	if (mainRenderer.renderedTileCount < mainRenderer.tileCount) {
 		tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount];
 		mainRenderer.renderTiles[mainRenderer.renderedTileCount].isRendering = true;
 		tile.tileNum = mainRenderer.renderedTileCount++;
