@@ -137,8 +137,6 @@ unsigned int rand_interval(unsigned int min, unsigned int max)
 }
 
 void reorderRandom() {
-	struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount + 1, sizeof(struct renderTile));
-	
 	//Generate premade random index array
 	int indices[mainRenderer.tileCount];
 	int random;
@@ -157,6 +155,8 @@ void reorderRandom() {
 		} while (uniqueflag != 1);
 		indices[i] = random;
 	}
+	
+	struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount + 1, sizeof(struct renderTile));
 	
 	for (int i = 0; i <= mainRenderer.tileCount; i++) {
 		tempArray[i] = mainRenderer.renderTiles[indices[i]];
