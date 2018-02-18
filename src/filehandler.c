@@ -56,8 +56,8 @@ void saveBmpFromArray(const char *filename, unsigned char *imgData, int width, i
 		printf("Error writing BMP info header data\n");
 	}
 	
-	for (i = 0; i < height; i++) {
-		error = (unsigned int)fwrite(imgData+(width*(i)*3),3,width,f);
+	for (i = 1; i <= height; i++) {
+		error = (unsigned int)fwrite(imgData+(width*(height - i)*3),3,width,f);
 		if (error != width) {
 			printf("Error writing image line to BMP\n");
 		}
