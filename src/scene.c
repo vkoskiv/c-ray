@@ -21,6 +21,8 @@
 
 #define TOKEN_DEBUG_ENABLED false
 
+char *trimSpaces(char *inputLine);
+
 /**
  Extract the filename from a given file path
 
@@ -197,6 +199,90 @@ void printSceneStats(struct world *scene) {
 		   scene->sphereCount,
 		   scene->lightCount);
 }
+
+/*int buildScene(struct renderer *r, char *inputFile) {
+	printf("Starting C-Ray Scene Tokenizer\n\n");
+	
+	FILE *file = fopen(inputFile, "r");
+	if (!inputFile) {
+		return -1;
+	}
+	
+	//Costants
+	const char *equals = "=", *comma = ",", *closeBlock = "}";
+	char *err = NULL;
+	char *token;
+	char *savePointer;
+	int materialIndex = 0, sphereIndex = 0, objIndex = 0, lightIndex = 0;
+	
+	char line[255];
+	
+	while (fgets(line, sizeof(line), file) != NULL) {
+		//Trim comments
+		if (trimSpaces(line)[0] == '#') {
+			//Ignore
+		}
+		
+		//output image params
+		if (strcmp(trimSpaces(line), "output(){\n") == 0) {
+ 
+			 r->image->filePath = "output/";
+			 r->image->fileName = "rendered";
+			 r->image->count = 0;
+			 r->image->size.width = 1280;
+			 r->image->size.height = 800;
+			 r->image->fileType = png;
+ 
+			
+			while (trimSpaces(line)[0] != *closeBlock) {
+				err = fgets(trimSpaces(line), sizeof(line), file);
+				if (!err) {
+					printf("Failed to parse image params\n");
+				}
+				if (strncmp(trimSpaces(line), "outputFilePath", 14) == 0) {
+					token = strtok_r(trimSpaces(line), equals, &savePointer);
+					
+				}
+			}
+		}
+		
+		//renderer params
+		if (strcmp(trimSpaces(line), "renderer(){\n") == 0) {
+ 
+			 r->threadCount = 0; //Override, 0 defaults to physical core count
+			 r->sampleCount = 25;
+			 r->antialiasing = true;
+			 r->newRenderer = false; //New, recursive rayTracing algorighm (buggy!)
+			 r->tileWidth = 128;
+			 r->tileHeight = 128;
+			 r->tileOrder = renderOrderFromMiddle;
+ 
+		}
+		
+		//camera params
+		if (strcmp(trimSpaces(line), "camera(){\n") == 0) {
+ 
+			 r->scene->camera->isFullScreen = false;
+			 r->scene->camera->isBorderless = false;
+			 r->scene->camera-> windowScale = 1.0;
+			 
+			 r->scene->camera->         FOV = 80.0;
+			 r->scene->camera->    aperture = 0.0;
+			 r->scene->camera->    contrast = 0.5;
+			 r->scene->camera->bounces = 3;
+			 r->scene->camera->areaLights = true;
+			 And pos + rotations
+ 
+		}
+		
+		//Scene, OBJs + transforms
+		if (strcmp(trimSpaces(line), "scene(){\n") == 0) {
+			<#statements#>
+		}
+	}
+	
+	return 0;
+}*/
 
 int testBuild(struct renderer *r, char *inputFileName) {
 	printf("Starting SceneBuilder V0.5\n\n");
