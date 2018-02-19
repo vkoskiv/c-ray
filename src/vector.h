@@ -74,3 +74,9 @@ struct vector getRandomVecOnRadius(struct vector center, double radius);
 struct vector getRandomVecOnPlane(struct vector center, double radius);
 
 double getRandomDouble(double min, double max);
+
+struct vector vectorMultiply(struct vector v, const double c);
+
+struct vector multiplyVectors(struct vector v1, struct vector v2);
+
+struct vector reflect(const struct vector* I, const struct vector* N);

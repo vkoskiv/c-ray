@@ -42,7 +42,7 @@ struct renderTile getTile() {
 #else
 	pthread_mutex_lock(&tileMutex);
 #endif
-	if (mainRenderer.renderedTileCount <= mainRenderer.tileCount) {
+	if (mainRenderer.renderedTileCount < mainRenderer.tileCount) {
 		tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount];
 		mainRenderer.renderTiles[mainRenderer.renderedTileCount].isRendering = true;
 		tile.tileNum = mainRenderer.renderedTileCount++;
@@ -67,6 +67,12 @@ void quantizeImage() {
 #endif
 	printf("Quantizing render plane...\n");
 	
+	//Sanity check on tilesizes
+	if (mainRenderer.tileWidth >= mainRenderer.image->size.width) mainRenderer.tileWidth = mainRenderer.image->size.width;
+	if (mainRenderer.tileHeight >= mainRenderer.image->size.height) mainRenderer.tileHeight = mainRenderer.image->size.height;
+	if (mainRenderer.tileWidth <= 0) mainRenderer.tileWidth = 1;
+	if (mainRenderer.tileHeight <= 0) mainRenderer.tileHeight = 1;
+	
 	int tilesX = mainRenderer.image->size.width / mainRenderer.tileWidth;
 	int tilesY = mainRenderer.image->size.height / mainRenderer.tileHeight;
 	
@@ -74,6 +80,10 @@ void quantizeImage() {
 	tilesY = (mainRenderer.image->size.height % mainRenderer.tileHeight) != 0 ? tilesY + 1: tilesY;
 	
 	mainRenderer.renderTiles = (struct renderTile*)calloc(tilesX*tilesY, sizeof(struct renderTile));
+	if (mainRenderer.renderTiles == NULL) {
+		printf("Failed to allocate renderTiles array!\n");
+		abort();
+	}
 	
 	for (int y = 0; y < tilesY; y++) {
 		for (int x = 0; x < tilesX; x++) {
@@ -118,8 +128,7 @@ void reorderTopToBottom() {
 	mainRenderer.renderTiles = tempArray;
 }
 
-unsigned int rand_interval(unsigned int min, unsigned int max)
-{
+unsigned int rand_interval(unsigned int min, unsigned int max) {
 	int r;
 	const unsigned int range = 1 + max - min;
 	const unsigned int buckets = RAND_MAX / range;
@@ -136,34 +145,17 @@ unsigned int rand_interval(unsigned int min, unsigned int max)
 	return min + (r / buckets);
 }
 
+/**
+ Shuffle renderTiles into a random order
+ */
 void reorderRandom() {
-	struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount + 1, sizeof(struct renderTile));
-	
-	//Generate premade random index array
-	int indices[mainRenderer.tileCount];
-	int random;
-	int uniqueflag;
-	
-	//We need to generate random indices, but each only once
-	for(int i = 0; i <= mainRenderer.tileCount; i++) {
-		do {
-			uniqueflag = 1;
-			random = rand_interval(0, mainRenderer.tileCount);
-			for (int j = 0; j < i && uniqueflag == 1; j++) {
-				if (indices[j] == random) {
-					uniqueflag = 0;
-				}
-			}
-		} while (uniqueflag != 1);
-		indices[i] = random;
+	for (int i = 0; i < mainRenderer.tileCount; i++) {
+		unsigned int random = rand_interval(0, mainRenderer.tileCount - 1);
+		
+		struct renderTile temp = mainRenderer.renderTiles[i];
+		mainRenderer.renderTiles[i] = mainRenderer.renderTiles[random];
+		mainRenderer.renderTiles[random] = temp;
 	}
-	
-	for (int i = 0; i <= mainRenderer.tileCount; i++) {
-		tempArray[i] = mainRenderer.renderTiles[indices[i]];
-	}
-	
-	free(mainRenderer.renderTiles);
-	mainRenderer.renderTiles = tempArray;
 }
 
 /**
@@ -269,18 +261,6 @@ struct color getPixel(int x, int y) {
 }
 
 /**
- Compute view direction transforms
-
- @param direction Direction vector to be transformed
- */
-void transformCameraView(struct vector *direction) {
-	for (int i = 1; i < mainRenderer.scene->camera->transformCount; i++) {
-		transformVector(direction, &mainRenderer.scene->camera->transforms[i]);
-		direction->isTransformed = false;
-	}
-}
-
-/**
  Print running average duration of tiles rendered
 
  @param avgTime Current computed average time
@@ -361,18 +341,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						struct vector left = mainRenderer.scene->camera->left;
 						struct vector up = mainRenderer.scene->camera->up;
 						
-						//This is my implementation of camera transforms. It's probably not the conventional
-						//way to do it, but it works quite well.
-						
-						//Compute transforms for position (place the camera in the scene)
-						transformVector(&startPos, &mainRenderer.scene->camera->transforms[0]);
-						//transformVector(&left, &mainRenderer.scene->camera->transforms[0]);
-						//transformVector(&up, &mainRenderer.scene->camera->transforms[0]);
-						//...and compute rotation transforms for camera orientation (point the camera)
-						transformCameraView(&left);
-						transformCameraView(&up);
-						transformCameraView(&direction);
-						//Easy!
+						//Run camera tranforms on direction vector
+						transformCameraView(mainRenderer.scene->camera, &direction);
 						
 						//Now handle aperture
 						//FIXME: This is a 'square' aperture
@@ -431,11 +401,11 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						//This is why we use the renderBuffer for the running average as it just contains
 						//the full precision color values
 						mainRenderer.image->data[(x + (height - y)*width)*3 + 0] =
-						(unsigned char)min(  output.red*255.0, 255.0);
+						(unsigned char)min( max(output.red*255.0,0), 255.0);
 						mainRenderer.image->data[(x + (height - y)*width)*3 + 1] =
-						(unsigned char)min(output.green*255.0, 255.0);
+						(unsigned char)min( max(output.green*255.0,0), 255.0);
 						mainRenderer.image->data[(x + (height - y)*width)*3 + 2] =
-						(unsigned char)min( output.blue*255.0, 255.0);
+						(unsigned char)min( max(output.blue*255.0,0), 255.0);
 					}
 				}
 				tile.completedSamples++;

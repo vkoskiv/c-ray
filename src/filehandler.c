@@ -20,6 +20,21 @@ extern struct renderer mainRenderer;
 int getFileSize(char *fileName);
 
 void saveBmpFromArray(const char *filename, unsigned char *imgData, int width, int height) {
+	
+	//Apparently BMP is BGR, whereas C-Ray's internal buffer is RGB (Like it should be)
+	//So we need to convert the image data before writing to file.
+	
+	unsigned char *bgrData = (unsigned char*)calloc(3 * width * height, sizeof(unsigned char));
+	
+	//FIXME: For some reason we can't access the 0 of X and Y on imgdata. So now BMP images have 1 black row on left and top edges...
+	for (int y = 1; y < height; y++) {
+		for (int x = 1; x < width; x++) {
+			bgrData[(x + (height - y) * width) * 3 + 0] = imgData[(x + (height - y) * width) * 3 + 2];
+			bgrData[(x + (height - y) * width) * 3 + 1] = imgData[(x + (height - y) * width) * 3 + 1];
+			bgrData[(x + (height - y) * width) * 3 + 2] = imgData[(x + (height - y) * width) * 3 + 0];
+		}
+	}
+	
 	int i;
 	int error;
 	FILE *f;
@@ -56,8 +71,8 @@ void saveBmpFromArray(const char *filename, unsigned char *imgData, int width, i
 		printf("Error writing BMP info header data\n");
 	}
 	
-	for (i = 0; i < height; i++) {
-		error = (unsigned int)fwrite(imgData+(width*(i)*3),3,width,f);
+	for (i = 1; i <= height; i++) {
+		error = (unsigned int)fwrite(bgrData+(width*(height - i)*3),3,width,f);
 		if (error != width) {
 			printf("Error writing image line to BMP\n");
 		}

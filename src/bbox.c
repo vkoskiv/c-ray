@@ -12,6 +12,12 @@
 #include "obj.h"
 #include "poly.h"
 
+/**
+ Get the longest axis of an axis-aligned bounding box
+ 
+ @param bbox Bounding box to compute longest axis for
+ @return Longest axis as an enum
+ */
 enum bboxAxis getLongestAxis(struct boundingBox *bbox) {
 	int x = fabs(bbox->start.x - bbox->end.x);
 	int y = fabs(bbox->start.y - bbox->end.y);
@@ -20,6 +26,14 @@ enum bboxAxis getLongestAxis(struct boundingBox *bbox) {
 	return x > y && x > z ? X : y > z ? Y : Z;
 }
 
+
+/**
+ Compute the bounding box for a given array of polygons
+
+ @param polys Polygons to compute bounding box for
+ @param count Amount of polygons given
+ @return Axis-aligned bounding box
+ */
 struct boundingBox *computeBoundingBox(struct poly *polys, int count) {
 	struct boundingBox *bbox = (struct boundingBox*)calloc(1, sizeof(struct boundingBox));
 	struct vector minPoint = vertexArray[polys[0].vertexIndex[0]];
@@ -45,7 +59,15 @@ struct boundingBox *computeBoundingBox(struct poly *polys, int count) {
 	return bbox;
 }
 
-//Check if a ray intersects with an axis-aligned bounding box
+
+/**
+ Check if a ray intersects with an axis-aligned bounding box
+
+ @param box Given bounding box to check against
+ @param ray Given light ray to intersect
+ @param t Current max t value for the ray
+ @return true if intersected, false otherwise
+ */
 bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, double *t) {
 	struct vector dirfrac;
 	dirfrac.x = 1.0 / ray->direction.x;

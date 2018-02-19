@@ -269,9 +269,9 @@ struct color getSpecular(const struct intersection *isect, struct light *light, 
 		return specular;
 	}
 	
-	specular.red   = pow(dotProduct, gloss) * light->intensity.red;
-	specular.green = pow(dotProduct, gloss) * light->intensity.green;
-	specular.blue  = pow(dotProduct, gloss) * light->intensity.blue;
+	specular.red   = pow(dotProduct, gloss) * light->diffuse.red;
+	specular.green = pow(dotProduct, gloss) * light->diffuse.green;
+	specular.blue  = pow(dotProduct, gloss) * light->diffuse.blue;
 	
 	return specular;
 }
@@ -289,24 +289,30 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 	struct color  diffuse = (struct color){0.0, 0.0, 0.0, 0.0};
 	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
 	
-	for (int i = 0; i < scene->lightCount; i++) {
+	struct vector N = isect->surfaceNormal;
+
+	for (int i = 0; i < scene->lightCount; ++i) {
 		struct light currentLight = scene->lights[i];
-		struct vector lightPos = vectorWithPos(0, 0, 0);
-		lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
+		struct vector lightPos;
+		
+		if (scene->camera->areaLights)
+			lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.power);
+		else
+			lightPos = currentLight.pos;
 		
 		struct vector lightOffset = subtractVectors(&lightPos, &isect->hitPoint);
 		double distance = vectorLength(&lightOffset);
-		struct vector lightDir = normalizeVector(&lightOffset);
-		double dotProduct = scalarProduct(&isect->surfaceNormal, &lightDir);
-		
-		if (dotProduct >= 0.0) {
+		struct vector L = normalizeVector(&lightOffset);
+		double NdotL = scalarProduct(&N, &L);
+
+		if (NdotL >= 0.0) {
 			//Intersection point is facing this light
 			//Check if there are objects in the way to get shadows
 			
 			struct lightRay shadowRay;
 			shadowRay.rayType = rayTypeShadow;
 			shadowRay.start = isect->hitPoint;
-			shadowRay.direction = lightDir;
+			shadowRay.direction = L;
 			shadowRay.currentMedium = isect->ray.currentMedium;
 			shadowRay.remainingInteractions = 1;
 			
@@ -314,17 +320,23 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 				//Something is in the way, stop here and test other lights
 				continue;
 			}
-			
-			struct color coef = colorCoef(dotProduct, color);
-			struct color diffuseCoef = addColors(&diffuse, &coef);
-			diffuse = multiplyColors(&diffuseCoef, &currentLight.intensity);
-			
-			struct color specTemp = getSpecular(isect, &currentLight, &lightPos);
-			specular = addColors(&specular, &specTemp);
-		}
+
+			double intensity = min(max(NdotL,0),1);
+			struct color diffTmp = colorCoef(intensity*(currentLight.power/distance), color);
+			diffuse = addColors(&diffuse, &diffTmp);
 		
+			struct vector forward = vectorCross(&scene->camera->left, &scene->camera->up);
+			struct vector H = addVectors(&L, &forward);
+			H = normalizeVector(&H);
+
+			double NdotH = scalarProduct(&N, &H);
+			double specAngle = max(NdotH, 0.0);
+			double specVal = pow(specAngle, isect->end.glossiness);
+
+			struct color specTmp = colorCoef(specVal*(currentLight.power/distance), &isect->end.specular);
+			specular = addColors(&specular, &specTmp);
+		}
 	}
-	
 	return addColors(&diffuse, &specular);
 }
 
@@ -352,7 +364,7 @@ double getReflectance(const struct vector *normal, const struct vector *dir, dou
 	double r0rth = (startIOR * cosI - endIOR * cosT) / (startIOR * cosI + endIOR * cosT);
 	double rPar = (endIOR * cosI - startIOR * cosT) / (endIOR * cosI + startIOR * cosT);
 	
-	return (r0rth * r0rth + rPar * rPar) / 2.0;
+	return min(max((r0rth * r0rth + rPar * rPar) / 2.0,0.0), 1.0);
 }
 
 
@@ -433,21 +445,34 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
  @return (Hopefully) correct color based on the given information.
  */
 struct color getLighting(const struct intersection *isect, struct world *scene) {
+	struct coord textureCoord = {0.0, 0.0};
+	if(isect->type == hitTypePolygon) {
+		getSurfaceProperties(isect->polyIndex, isect->uv, &isect->surfaceNormal, &textureCoord);
+	}
+
 	//Grab the 'base' diffuse color of the intersected object, and pass that to the
 	//additional functions to add shading to it.
 	struct color output = isect->end.diffuse;
-	
+
 	//getAmbient is a simple 'ambient occlusion' hack, works fine.
 	struct color ambientColor = getAmbient(isect, &output);
 	//getHighlights doesn't seem to work at all. Supposed to produce surface shading (shadows and whatnot)
 	struct color highlights = getHighlights(isect, &output, scene);
+
 	//Reflections seem to work okay, but refractions need to be fixed
 	//Sphere reflections get a weird white band around the edges on optimized builds.
-	struct color interacted = getReflectsAndRefracts(isect, &output, scene);
 	
+	struct color interacted = getReflectsAndRefracts(isect, &output, scene);
+
 	//Just add these colors together to get the final result
-	struct color temp = addColors(&ambientColor, &highlights);
-	return addColors(&temp, &interacted);
+	//struct color temp = addColors(&ambientColor, &interacted);
+	
+	//return mix(&diffuse,&reflection, isect->begin.reflectance);
+	
+	struct color temp = mixColors(highlights, interacted, isect->end.reflectivity);
+	return addColors(&temp, &ambientColor);
+	
+	//return addColors(&temp, &highlights);
 }
 
 /**
@@ -462,16 +487,16 @@ struct color newTrace(struct lightRay *incidentRay, struct world *scene) {
 	//This is the start of the new rayTracer.
 	//Start by getting the closest intersection point in scene for this given incidentRay.
 	struct intersection closestIsect = getClosestIsect(incidentRay, scene);
-	
+
 	//Check if it hit something
 	if (closestIsect.didIntersect) {
-		//Ray has hit an object or a sphere, calculate the lighting
 		return getLighting(&closestIsect, scene);
 	} else {
 		//Ray didn't hit anything, just return the ambientColor of this scene (set in scene.c)
 		return *scene->ambientColor;
 	}
 }
+
 
 /**
  Returns a computed color based on a given ray and world scene
@@ -480,6 +505,7 @@ struct color newTrace(struct lightRay *incidentRay, struct world *scene) {
  @param scene Scene the ray is cast into
  @return Color value with full precision (double)
  */
+
 struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
 	struct color output = {0.0,0.0,0.0,0.0};
@@ -536,8 +562,8 @@ struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 					currentSphere = -1;
 				}
 			}
-		}*/
-		
+		}
+		*/
 		//Ray-object intersection detection
 		if (currentSphere != -1) {
 			struct vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
@@ -576,7 +602,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 			struct light currentLight = scene->lights[j];
 			struct vector lightPos;
 			if (scene->camera->areaLights)
-				lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
+				lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.power);
 			else
 				lightPos = currentLight.pos;
 			
@@ -619,9 +645,9 @@ struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 				
 				//Calculate Lambert diffusion
 				double diffuseFactor = scalarProduct(&bouncedRay.direction, &surfaceNormal) * contrast;
-				output.red += specularFactor * diffuseFactor * currentLight.intensity.red * currentMaterial.diffuse.red;
-				output.green += specularFactor * diffuseFactor * currentLight.intensity.green * currentMaterial.diffuse.green;
-				output.blue += specularFactor * diffuseFactor * currentLight.intensity.blue * currentMaterial.diffuse.blue;
+				output.red += specularFactor * diffuseFactor * currentLight.diffuse.red * currentMaterial.diffuse.red;
+				output.green += specularFactor * diffuseFactor * currentLight.diffuse.green * currentMaterial.diffuse.green;
+				output.blue += specularFactor * diffuseFactor * currentLight.diffuse.blue * currentMaterial.diffuse.blue;
 			}
 		}
 		//Iterate over the reflection

@@ -36,3 +36,5 @@ struct camera {
 //Compute focal length for camera
 void computeFocalLength(struct renderer *renderer);
 void initCamera(struct camera *cam);
+void transformCameraView(struct camera *cam, struct vector *direction); //For transforming direction in renderer
+void transformCameraIntoView(struct camera *cam); //Run once in scene.c to calculate pos, up, left

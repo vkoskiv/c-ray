@@ -70,6 +70,11 @@ struct vector subtractVectors(const struct vector *v1, const struct vector *v2) 
 	return (struct vector){v1->x - v2->x, v1->y - v2->y, v1->z - v2->z, false};
 }
 
+struct vector vectorSubtract(const struct vector* v, double n) {
+	struct vector rv = {v->x - n, v->y - n, v->z - n, false};
+	return rv;
+}
+
 /**
  Multiply two vectors and return the 'dot product'
 
@@ -202,4 +207,24 @@ struct vector getRandomVecOnPlane(struct vector center, double radius) {
 	return vectorWithPos(center.x + getRandomDouble(-radius, radius),
 						 center.y + getRandomDouble(-radius, radius),
 						 center.z);
+}
+
+struct vector multiplyVectors(struct vector v1, struct vector v2) {
+	return (struct vector){v1.x * v2.x, v1.y * v2.y, v1.z * v2.z, false};
+}
+
+struct vector vectorMultiply(struct vector v, double c) {
+	return (struct vector){v.x * c, v.y * c, v.z * c, false};
+}
+
+/**
+Returns the reflected ray vector from a surface
+
+@param I Incident vector normalized
+@param N Normal vector normalized
+@return Vector of the reflected ray vector from a surface
+*/
+struct vector reflect(const struct vector* I, const struct vector* N) {
+	struct vector Imin2dotNI = vectorSubtract(I, scalarProduct(N, I) * 2.0);
+	return multiplyVectors(*N, Imin2dotNI);
 }

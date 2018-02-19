@@ -70,3 +70,5 @@ struct color addColors(struct color *c1, struct color *c2);
 
 //Multiply a color by a coefficient and return the resulting color
 struct color colorCoef(double coef, struct color *c);
+
+struct color mixColors(struct color c1, struct color c2, float coeff);

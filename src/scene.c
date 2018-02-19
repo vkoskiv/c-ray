@@ -288,9 +288,12 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	printf("Starting SceneBuilder V0.5\n\n");
 	
 	//MATERIALS
-	addMaterial(r->scene, newMaterial(colorWithValues(0.6, 0.1, 0.1, 0.0), 0.0)); //Matte red
-	addMaterial(r->scene, newMaterial(colorWithValues(0.1, 0.5, 0.1, 0.0), 0.0)); //Matte green
-	addMaterial(r->scene, newMaterial(colorWithValues(0.1, 0.1, 0.5, 0.0), 0.0)); //Matte blue
+	addMaterial(r->scene, newMaterialFull(colorWithValues(0.1, 0.05, 0.05, 0.0),
+										colorWithValues(0.6, 0.1, 0.1, 0.0),
+										colorWithValues(1, 0.2, 0.2, 0.0), .2, .1, 0, 0, 0, 20.)); //Matte red
+
+	addMaterial(r->scene, newMaterial(colorWithValues(0.1, 0.1, 0.1, 0.0), 0.0)); //Matte green
+	addMaterial(r->scene, newMaterial(colorWithValues(0.1, 0.1, 0.2, 0.0), 0.0)); //Matte blue
 	addMaterial(r->scene, newMaterial(colorWithValues(0.8, 0.8, 0.8, 0.0), 0.0));
 	addMaterial(r->scene, newMaterial(colorWithValues(0.0, 0.5, 1.0, 0.0), 1.0)); //0.517647
 	addMaterial(r->scene, newMaterial(colorWithValues(0.3, 0.3, 0.3, 0.0), 1.0));
@@ -313,7 +316,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	r->threadCount = 0; //Override, 0 defaults to physical core count
 	r->sampleCount = 25;
 	r->antialiasing = true;
-	r->newRenderer = false; //New, recursive rayTracing algorighm (buggy!)
+	r->newRenderer = true; //New, recursive rayTracing algorighm (buggy!)
 	r->tileWidth = 128;
 	r->tileHeight = 128;
 	r->tileOrder = renderOrderFromMiddle;
@@ -336,6 +339,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	addCamTransform(r->scene->camera, newTransformTranslate(970, 480, 600)); //Set pos here
 	addCamTransform(r->scene->camera, newTransformRotateX(21));//And add as many rotations as you want!
 	addCamTransform(r->scene->camera, newTransformRotateZ(9)); //Don't scale or translate!
+	transformCameraIntoView(r->scene->camera);
 	
 	//Comment above block, and uncomment this to toggle the detailed view
 	/*addCamTransform(r->scene->camera, newTransformTranslate(750, 550, 1500)); //Set pos here
@@ -435,9 +439,9 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	
 	//LIGHTS
 	
-	addLight(r->scene, newLight(vectorWithPos(970, 450, 500), 13, colorWithValues(2, 2, 4, 0)));
-	addLight(r->scene, newLight(vectorWithPos(1210, 390,1050), 2, colorWithValues(5, 0, 0, 0)));
-	
+	addLight(r->scene, newLight(vectorWithPos(970, 450, 500), 50, colorWithValues(2, 2, 4, 0)));
+	addLight(r->scene, newLight(vectorWithPos(1210, 450,1050), 100, colorWithValues(5, 0, 0, 0)));
+
 	/*addLight(r->scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));
 	addLight(r->scene, newLight(vectorWithPos(760 , 500, 0),    42, colorWithValues(0.2, 0.2, 0.2, 0.0)));
 	addLight(r->scene, newLight(vectorWithPos(640 , 350, 600), 200, colorWithValues(6.0, 0.0, 0.0, 0.0)));

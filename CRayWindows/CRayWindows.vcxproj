@@ -184,7 +184,6 @@
     <ClCompile Include="..\src\kdtree.c" />
     <ClCompile Include="..\src\light.c" />
     <ClCompile Include="..\src\lightRay.c" />
-    <ClCompile Include="..\src\netrender.c" />
     <ClCompile Include="..\src\list.c" />
     <ClCompile Include="..\src\lodepng.c" />
     <ClCompile Include="..\src\main.c">
