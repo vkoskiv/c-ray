@@ -60,6 +60,7 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 	return false;
 }
 
+//TODO: Merge this functionality into rayIntersectsWithSphere
 bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, struct intersection *isect) {
 	//Pass the distance value to rayIntersectsWithSphere, where it's set
 	if (rayIntersectsWithSphere(ray, sphere, &isect->distance)) {
@@ -367,7 +368,6 @@ double getReflectance(const struct vector *normal, const struct vector *dir, dou
 	return min(max((r0rth * r0rth + rPar * rPar) / 2.0,0.0), 1.0);
 }
 
-
 /**
  Compute reflected and refracted effects
 
@@ -456,23 +456,14 @@ struct color getLighting(const struct intersection *isect, struct world *scene) 
 
 	//getAmbient is a simple 'ambient occlusion' hack, works fine.
 	struct color ambientColor = getAmbient(isect, &output);
-	//getHighlights doesn't seem to work at all. Supposed to produce surface shading (shadows and whatnot)
+	//getHighlights does specular + diffuse component
 	struct color highlights = getHighlights(isect, &output, scene);
 
-	//Reflections seem to work okay, but refractions need to be fixed
-	//Sphere reflections get a weird white band around the edges on optimized builds.
-	
+	//GetReflectsAndRefracts does just that
 	struct color interacted = getReflectsAndRefracts(isect, &output, scene);
-
-	//Just add these colors together to get the final result
-	//struct color temp = addColors(&ambientColor, &interacted);
-	
-	//return mix(&diffuse,&reflection, isect->begin.reflectance);
 	
 	struct color temp = mixColors(highlights, interacted, isect->end.reflectivity);
 	return addColors(&temp, &ambientColor);
-	
-	//return addColors(&temp, &highlights);
 }
 
 /**
@@ -505,7 +496,6 @@ struct color newTrace(struct lightRay *incidentRay, struct world *scene) {
  @param scene Scene the ray is cast into
  @return Color value with full precision (double)
  */
-
 struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
 	struct color output = {0.0,0.0,0.0,0.0};
