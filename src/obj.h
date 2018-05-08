@@ -15,26 +15,34 @@ struct boundingBox;
  data structures just keep track of 'first-index offsets'
  These offsets are the element index of the first vector/polygon for this object
  The 'count' values are then used to keep track of where the vectors/polygons stop.
+ 
+ Materials are stored within the crayOBJ struct in *materials
  */
 
 struct crayOBJ {
+	//Vertices
 	int vertexCount;
 	int firstVectorIndex;
 	
+	//Normals
 	int normalCount;
 	int firstNormalIndex;
 	
+	//Texture coordinates
 	int textureCount;
 	int firstTextureIndex;
 	
+	//Faces
 	int polyCount;
 	int firstPolyIndex;
 	
-	struct matrixTransform *transforms;
+	//Transforms to perform before rendering
 	int transformCount;
+	struct matrixTransform *transforms;
 	
-	struct material *materials;
+	//Materials
 	int materialCount;
+	struct material *materials;
 	
 	//Root node of the kd-tree for this obj
 	struct kdTreeNode *tree;
