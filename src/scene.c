@@ -22,6 +22,8 @@
 
 #define TOKEN_DEBUG_ENABLED false
 
+char *trimSpaces(char *inputLine);
+
 /**
  Extract the filename from a given file path
 
@@ -212,8 +214,6 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	 scene prefs
 	 	inputFilePath, OBJs + transforms, lights, spheres
 	 */
-	
-	
 	
 	return -1;
 }
