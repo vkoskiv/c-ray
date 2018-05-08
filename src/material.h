@@ -8,10 +8,10 @@
 
 #pragma once
 
-//material
+//Non-PBR blinn-phong material
 struct material {
-	//char name[MATERIAL_NAME_SIZE];
-	//char textureFilename[OBJ_FILENAME_LENGTH];
+	char name[MATERIAL_NAME_SIZE];
+	char textureFilename[OBJ_FILENAME_LENGTH];
 	struct color ambient;
 	struct color diffuse;
 	struct color specular;
@@ -21,6 +21,21 @@ struct material {
 	double transparency;
 	double sharpness;
 	double glossiness;
+};
+
+enum bsdfType {
+	emission = 0,
+	diffuse,
+	glass,
+	glossy,
+	refraction,
+	translucent,
+	transparent
+};
+
+//TODO: Different BSDF materials
+struct BSDF {
+	enum bsdfType *type;
 };
 
 //temporary newMaterial func
