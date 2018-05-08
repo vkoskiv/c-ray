@@ -161,7 +161,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 	//We pass isect to rayIntersectsWithSphereTemp, which sets stuff like hitPoint, normal and distance
 	for (int i = 0; i < sphereCount; i++) {
 		if (rayIntersectsWithSphereTemp(&scene->spheres[i], incidentRay, &isect)) {
-			isect.end = scene->materials[scene->spheres[i].materialIndex];
+			isect.end = scene->spheres[i].material;
 			isect.didIntersect = true;
 		}
 	}
@@ -525,7 +525,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 		for (unsigned i = 0; i < sphereAmount; ++i) {
 			if (rayIntersectsWithSphere(incidentRay, &scene->spheres[i], &closestIntersection)) {
 				currentSphere = i;
-				currentMaterial = scene->materials[scene->spheres[currentSphere].materialIndex];
+				currentMaterial = scene->spheres[currentSphere].material;
 			}
 		}
 		

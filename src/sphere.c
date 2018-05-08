@@ -9,8 +9,8 @@
 #include "includes.h"
 #include "sphere.h"
 
-struct sphere newSphere(struct vector pos, double radius, int materialIndex) {
-	return (struct sphere){pos, radius, materialIndex};
+struct sphere newSphere(struct vector pos, double radius, struct material material) {
+	return (struct sphere){pos, radius, material};
 }
 
 //Just check for intersection, nothing else.

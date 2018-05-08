@@ -18,6 +18,7 @@
 #include "filehandler.h"
 #include "converter.h"
 #include "renderer.h"
+#include "cJSON.h"
 
 #define TOKEN_DEBUG_ENABLED false
 
@@ -198,24 +199,27 @@ void printSceneStats(struct world *scene) {
 		   scene->lightCount);
 }
 
+int parseJSON(struct renderer *r, char *inputFileName) {
+	
+	/*
+	 TODO:
+	 image prefs
+	 	filepath, name, count, width, height, type
+	 render prefs
+	 	threadCount, sampleCount, antialiasing, newRenderer, tileWidth, tileHeight, tileOrder
+	 camera prefs
+	 	isFullscreen, isBorderless, windowScale, FOV, Aperture, contrast, bounces, areaLights, transforms
+	 scene prefs
+	 	inputFilePath, OBJs + transforms, lights, spheres
+	 */
+	
+	
+	
+	return -1;
+}
+
 int testBuild(struct renderer *r, char *inputFileName) {
 	printf("Starting SceneBuilder V0.5\n\n");
-	
-	//MATERIALS
-	addMaterial(r->scene, newMaterialFull(colorWithValues(0.1, 0.05, 0.05, 0.0),
-										colorWithValues(0.6, 0.1, 0.1, 0.0),
-										colorWithValues(1, 0.2, 0.2, 0.0), .2, .1, 0, 0, 0, 20.)); //Matte red
-
-	addMaterial(r->scene, newMaterial(colorWithValues(0.1, 0.1, 0.1, 0.0), 0.0)); //Matte green
-	addMaterial(r->scene, newMaterial(colorWithValues(0.1, 0.1, 0.2, 0.0), 0.0)); //Matte blue
-	addMaterial(r->scene, newMaterial(colorWithValues(0.8, 0.8, 0.8, 0.0), 0.0));
-	addMaterial(r->scene, newMaterial(colorWithValues(0.0, 0.5, 1.0, 0.0), 1.0)); //0.517647
-	addMaterial(r->scene, newMaterial(colorWithValues(0.3, 0.3, 0.3, 0.0), 1.0));
-	addMaterial(r->scene, newMaterial(colorWithValues(0.3, 0.0, 0.0, 0.0), 1.0));
-	addMaterial(r->scene, newMaterial(colorWithValues(0.0, 0.3, 0.0, 0.0), 1.0));
-	addMaterial(r->scene, newMaterial(colorWithValues(0.0, 0.0, 0.3, 0.0), 0.0));
-	addMaterial(r->scene, newMaterial(colorWithValues(0.9, 0.9, 0.9, 0.0), 0.0));
-	addMaterial(r->scene, newMaterial(colorWithValues(1.0, 0.0, 0.0, 0.0), 0.0));
 	
 	//Output image prefs
 	r->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
@@ -331,7 +335,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	if (loadOBJ(r, "teapot_blue.obj")) {
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformScaleUniform(80));
 		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformRotateY(155));
-		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(1210, 300,900));
+		addTransform(&r->scene->objs[r->scene->objCount - 1], newTransformTranslate(1210, 300, 900));
 	}
 	
 	if (loadOBJ(r, "teapot_blue.obj")) {
@@ -355,16 +359,10 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	
 	addLight(r->scene, newLight(vectorWithPos(970, 450, 500), 50, colorWithValues(2, 2, 4, 0)));
 	addLight(r->scene, newLight(vectorWithPos(1210, 450,1050), 100, colorWithValues(5, 0, 0, 0)));
-
-	/*addLight(r->scene, newLight(vectorWithPos(1160, 400, 0),    13, colorWithValues(0.2, 0.2, 0.2, 0.0)));
-	addLight(r->scene, newLight(vectorWithPos(760 , 500, 0),    42, colorWithValues(0.2, 0.2, 0.2, 0.0)));
-	addLight(r->scene, newLight(vectorWithPos(640 , 350, 600), 200, colorWithValues(6.0, 0.0, 0.0, 0.0)));
-	addLight(r->scene, newLight(vectorWithPos(940 , 350, 600), 200, colorWithValues(0.0, 6.0, 0.0, 0.0)));
-	addLight(r->scene, newLight(vectorWithPos(1240, 350, 600), 200, colorWithValues(0.0, 0.0, 6.0, 0.0)));*/
 	
-	addSphere(r->scene, newSphere(vectorWithPos(650, 450, 1650), 150, 5));
-	addSphere(r->scene, newSphere(vectorWithPos(950, 350, 1500), 50, 6));
-	addSphere(r->scene, newSphere(vectorWithPos(1100, 350, 1500), 50, 8));
+	addSphere(r->scene, newSphere(vectorWithPos(650, 450, 1650), 150, newMaterial(colorWithValues(0.3, 0.3, 0.3, 0.0), 1.0)));
+	addSphere(r->scene, newSphere(vectorWithPos(950, 350, 1500), 50, newMaterial(colorWithValues(0.3, 0.3, 0.3, 0.0), 1.0)));
+	addSphere(r->scene, newSphere(vectorWithPos(1100, 350, 1500), 50, newMaterial(colorWithValues(0.0, 0.0, 0.3, 0.0), 0.0)));
 	
 	printSceneStats(r->scene);
 	
