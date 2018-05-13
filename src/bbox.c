@@ -85,15 +85,13 @@ bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, double 
 	double tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
 	
 	// if tmax < 0, ray is intersecting AABB, but the whole AABB is behind us
-	if (tmax < 0)
-	{
+	if (tmax < 0) {
 		*t = tmax;
 		return false;
 	}
 	
 	// if tmin > tmax, ray doesn't intersect AABB
-	if (tmin > tmax)
-	{
+	if (tmin > tmax) {
 		*t = tmax;
 		return false;
 	}
