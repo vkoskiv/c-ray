@@ -131,9 +131,11 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 		}
 	}
 	
+	
+	printf("Loaded OBJ! Translated %i faces, %i vectors and %i materials\n\n", data.face_count, data.vertex_count, data.material_count);
+	
 	//Delete OBJ data
 	delete_obj_data(&data);
-	printf("Loaded OBJ! Translated %i faces and %i vectors\n\n", data.face_count, data.vertex_count);
 	
 	//Obj added, update count
 	r->scene->objCount++;
