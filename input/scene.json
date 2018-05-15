@@ -1,13 +1,5 @@
 {
-	"scene": [
-		"filePath": "output/",
-		"fileName": "rendered",
-		"count": 0,
-		"width": 1280,
-		"height": 800,
-		"fileType": "png"
-	],
-	"renderer": [
+	"renderer": {
 		"threadCount": 0,
 		"sampleCount": 25,
 		"antialiasing": "true",
@@ -15,8 +7,8 @@
 		"tileWidth": 128,
 		"tileHeight": 128,
 		"tileOrder": "fromMiddle"
-	],
-	"camera": [
+	},
+	"camera": {
 		"isFullscreen": "false",
 		"isBorderless": "false",
 		"windowScale": 1.0,
@@ -41,13 +33,19 @@
 				"degrees": 9
 			}
 		]
-	]
-	"scene": [
-		"ambientColor": [
+	},
+	"scene": {
+		"filePath": "output/",
+		"fileName": "rendered",
+		"count": 0,
+		"width": 1280,
+		"height": 800,
+		"fileType": "png",
+		"ambientColor": {
 			"r": 0.4,
 			"g": 0.6,
 			"b": 0.6
-		],
+		},
 		"inputFilePath": "input/",
 		"OBJs": [
 			{
@@ -279,5 +277,5 @@
 				]
 			}
 		]
-	]
+	}
 }
