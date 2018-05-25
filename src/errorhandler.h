@@ -17,6 +17,7 @@ enum renderLog {
 	threadCreateFailed,
 	threadRemoveFailed,
 	sceneDebugEnabled,
+	sceneParseErrorJSON,
 	sceneParseErrorScene,
 	sceneParseErrorCamera,
 	sceneParseErrorSphere,

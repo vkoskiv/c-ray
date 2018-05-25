@@ -39,6 +39,10 @@ void logHandler(enum renderLog error) {
 		case sceneDebugEnabled:
 			logr("SceneBuilder returned debug flag, won't render this.", rendererSource);
 			break;
+		case sceneParseErrorJSON:
+			logr("SceneBuilder returned a JSON parse error. Aborting.", sceneBuilder);
+			exit(-1);
+			break;
 		case sceneParseErrorScene:
 			logr("SceneBuilder failed to parse the scene block.", sceneBuilder);
 			break;

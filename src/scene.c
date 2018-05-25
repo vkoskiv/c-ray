@@ -186,6 +186,12 @@ void computeKDTrees(struct world *scene) {
 }
 
 //FIXME: Move this to transforms.c
+
+void addCamTransforms(struct camera *cam, struct matrixTransform *transforms) {
+	int tformCount = sizeof(transforms) / sizeof(struct matrixTransform*);
+	printf("Adding %i tforms to camera\n", tformCount);
+}
+
 void addCamTransform(struct camera *cam, struct matrixTransform transform) {
 	if (cam->transformCount == 0) {
 		cam->transforms = (struct matrixTransform*)calloc(1, sizeof(struct matrixTransform));
@@ -207,21 +213,444 @@ void printSceneStats(struct world *scene) {
 		   scene->lightCount);
 }
 
+char *loadFile(char *inputFileName) {
+	FILE *f = fopen(inputFileName, "rb");
+	if (!f) {
+		printf("No file found at %s", inputFileName);
+		return NULL;
+	}
+	char *buf = NULL;
+	size_t len;
+	ssize_t bytesRead = getdelim(&buf, &len, '\0', f);
+	if (bytesRead != -1) {
+		printf("%zi bytes of input JSON loaded, parsing...\n", bytesRead);
+	} else {
+		printf("Failed to read input JSON from %s", inputFileName);
+		return NULL;
+	}
+	return buf;
+}
+
+struct matrixTransform parseTransform(const cJSON *data) {
+	
+	cJSON *type = cJSON_GetObjectItem(data, "type");
+	if (!cJSON_IsString(type)) {
+		printf("Failed to parse transform! No type found\n");
+		printf("Transform data: %s\n", cJSON_Print(data));
+	}
+	
+	cJSON *degrees = NULL;
+	cJSON *scale = NULL;
+	cJSON *X = NULL;
+	cJSON *Y = NULL;
+	cJSON *Z = NULL;
+	
+	bool validDegrees = false;
+	bool validScale = false;
+	bool validCoords = false;
+	
+	degrees = cJSON_GetObjectItem(data, "degrees");
+	scale = cJSON_GetObjectItem(data, "scale");
+	X = cJSON_GetObjectItem(data, "X");
+	Y = cJSON_GetObjectItem(data, "Y");
+	Z = cJSON_GetObjectItem(data, "Z");
+	
+	if (degrees != NULL && cJSON_IsNumber(degrees)) {
+		validDegrees = true;
+	}
+	if (scale != NULL && cJSON_IsNumber(scale)) {
+		validScale = true;
+	}
+	if (X != NULL && Y != NULL && Z != NULL) {
+		if (cJSON_IsNumber(X) && cJSON_IsNumber(Y) && cJSON_IsNumber(Z)) {
+			validCoords = true;
+		}
+	}
+	
+	if (strcmp(type->valuestring, "rotateX")) {
+		if (validDegrees) {
+			return newTransformRotateX(degrees->valuedouble);
+		} else {
+			printf("Found rotateX transform with no valid degrees value given.\n");
+		}
+	} else if (strcmp(type->valuestring, "rotateY")) {
+		if (validDegrees) {
+			return newTransformRotateY(degrees->valuedouble);
+		} else {
+			printf("Found rotateY transform with no valid degrees value given.\n");
+		}
+	} else if (strcmp(type->valuestring, "rotateZ")) {
+		if (validDegrees) {
+			return newTransformRotateZ(degrees->valuedouble);
+		} else {
+			printf("Found rotateZ transform with no valid degrees value given.\n");
+		}
+	} else if (strcmp(type->valuestring, "translate")) {
+		if (validCoords) {
+			return newTransformTranslate(X->valuedouble, Y->valuedouble, Z->valuedouble);
+		} else {
+			printf("Found translate transform with no valid coords given.\n");
+		}
+	} else if (strcmp(type->valuestring, "scale")) {
+		if (validCoords) {
+			return newTransformScale(X->valuedouble, Y->valuedouble, Z->valuedouble);
+		} else {
+			printf("Found scale transform with no valid scale value given.\n");
+		}
+	} else if (strcmp(type->valuestring, "scaleuniform")) {
+		if (validScale) {
+			return newTransformScaleUniform(scale->valuedouble);
+		} else {
+			printf("Found scaleUniform transform with no valid scale value given.\n");
+		}
+	} else {
+		printf("Found an invalid transform\n");
+	}
+	
+	return (struct matrixTransform){};
+}
+
+//Parse JSON array of transforms, and return a pointer to an array of corresponding matrixTransforms
+struct matrixTransform *parseTransforms(const cJSON *data) {
+	
+	int transformCount = cJSON_GetArraySize(data);
+	struct matrixTransform *transforms = (struct matrixTransform*)calloc(transformCount, sizeof(struct matrixTransform));
+	
+	cJSON *transform = NULL;
+	
+	for (int i = 0; i < transformCount; i++) {
+		transform = cJSON_GetArrayItem(data, i);
+		transforms[i] = parseTransform(transform);
+	}
+	return transforms;
+}
+
+int parseRenderer(struct renderer *r, const cJSON *data) {
+	const cJSON *threadCount = NULL;
+	const cJSON *sampleCount = NULL;
+	const cJSON *antialiasing = NULL;
+	const cJSON *newRenderer = NULL;
+	const cJSON *tileWidth = NULL;
+	const cJSON *tileHeight = NULL;
+	const cJSON *tileOrder = NULL;
+	
+	threadCount = cJSON_GetObjectItem(data, "threadCount");
+	if (cJSON_IsNumber(threadCount)) {
+		if (threadCount->valueint >= 0) {
+			r->threadCount = threadCount->valueint;
+		} else {
+			r->threadCount = 0;
+		}
+	} else {
+		printf("Invalid threadCount while parsing renderer\n");
+		return -1;
+	}
+	
+	sampleCount = cJSON_GetObjectItem(data, "sampleCount");
+	if (cJSON_IsNumber(sampleCount)) {
+		if (sampleCount->valueint >= 1) {
+			r->sampleCount = sampleCount->valueint;
+		} else {
+			r->sampleCount = 1;
+		}
+	} else {
+		printf("Invalid sampleCount while parsing renderer\n");
+		return -1;
+	}
+	
+	antialiasing = cJSON_GetObjectItem(data, "antialiasing");
+	if (cJSON_IsBool(antialiasing)) {
+		r->antialiasing = cJSON_IsTrue(antialiasing);
+	} else {
+		printf("Invalid antialiasing bool while parsing renderer\n");
+		return -1;
+	}
+	
+	newRenderer = cJSON_GetObjectItem(data, "newRenderer");
+	if (cJSON_IsBool(newRenderer)) {
+		r->newRenderer = cJSON_IsTrue(newRenderer);
+	} else {
+		printf("Invalid newRenderer bool while parsing renderer\n");
+		return -1;
+	}
+	
+	tileWidth = cJSON_GetObjectItem(data, "tileWidth");
+	if (cJSON_IsNumber(tileWidth)) {
+		if (tileWidth->valueint >= 1) {
+			r->tileWidth = tileWidth->valueint;
+		} else {
+			r->tileWidth = 1;
+		}
+	} else {
+		printf("Invalid tileWidth while parsing renderer\n");
+		return -1;
+	}
+	
+	tileHeight = cJSON_GetObjectItem(data, "tileHeight");
+	if (cJSON_IsNumber(tileHeight)) {
+		if (tileHeight->valueint >= 1) {
+			r->tileHeight = tileHeight->valueint;
+		} else {
+			r->tileHeight = 1;
+		}
+	} else {
+		printf("Invalid tileHeight while parsing renderer\n");
+		return -1;
+	}
+	
+	tileOrder = cJSON_GetObjectItem(data, "tileOrder");
+	if (cJSON_IsString(tileOrder)) {
+		if (strcmp(tileOrder->valuestring, "normal")) {
+			r->tileOrder = renderOrderNormal;
+		} else if (strcmp(tileOrder->valuestring, "random")) {
+			r->tileOrder = renderOrderRandom;
+		} else if (strcmp(tileOrder->valuestring, "topToBottom")) {
+			r->tileOrder = renderOrderTopToBottom;
+		} else if (strcmp(tileOrder->valuestring, "fromMiddle")) {
+			r->tileOrder = renderOrderFromMiddle;
+		} else if (strcmp(tileOrder->valuestring, "toMiddle")) {
+			r->tileOrder = renderOrderToMiddle;
+		} else {
+			r->tileOrder = renderOrderNormal;
+		}
+	} else {
+		printf("Invalid tileOrder while parsing renderer\n");
+		return -1;
+	}
+	
+	return 0;
+}
+
+int parseCamera(struct renderer *r, const cJSON *data) {
+	
+	const cJSON *isFullscreen = NULL;
+	const cJSON *isBorderless = NULL;
+	const cJSON *windowScale = NULL;
+	const cJSON *FOV = NULL;
+	const cJSON *aperture = NULL;
+	const cJSON *contrast = NULL;
+	const cJSON *bounces = NULL;
+	const cJSON *areaLights = NULL;
+	const cJSON *transforms = NULL;
+	
+	isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
+	if (cJSON_IsBool(isFullscreen)) {
+		r->scene->camera->isFullScreen = cJSON_IsTrue(isFullscreen);
+	}
+	
+	isBorderless = cJSON_GetObjectItem(data, "isBorderless");
+	if (cJSON_IsBool(isBorderless)) {
+		r->scene->camera->isBorderless = cJSON_IsTrue(isBorderless);
+	}
+	
+	windowScale = cJSON_GetObjectItem(data, "windowScale");
+	if (cJSON_IsNumber(windowScale)) {
+		if (windowScale->valuedouble >= 0) {
+			r->scene->camera->windowScale = windowScale->valuedouble;
+		} else {
+			r->scene->camera->windowScale = 0.5;
+		}
+	}
+	
+	FOV = cJSON_GetObjectItem(data, "FOV");
+	if (cJSON_IsNumber(FOV)) {
+		if (FOV->valuedouble >= 0.0) {
+			r->scene->camera->FOV = FOV->valuedouble;
+		} else {
+			r->scene->camera->FOV = 80.0;
+		}
+	}
+	
+	aperture = cJSON_GetObjectItem(data, "aperture");
+	if (cJSON_IsNumber(aperture)) {
+		if (aperture->valuedouble >= 0.0) {
+			r->scene->camera->aperture = aperture->valuedouble;
+		} else {
+			r->scene->camera->aperture = 0.0;
+		}
+	}
+	
+	contrast = cJSON_GetObjectItem(data, "contrast");
+	if (cJSON_IsNumber(contrast)) {
+		if (contrast->valuedouble >= 0.0) {
+			r->scene->camera->contrast = contrast->valuedouble;
+		} else {
+			r->scene->camera->contrast = 0.5;
+		}
+	}
+	
+	bounces = cJSON_GetObjectItem(data, "bounces");
+	if (cJSON_IsNumber(bounces)) {
+		if (bounces->valueint >= 1) {
+			r->scene->camera->bounces = bounces->valueint;
+		} else {
+			r->scene->camera->bounces = 1;
+		}
+	}
+	
+	areaLights = cJSON_GetObjectItem(data, "areaLights");
+	if (cJSON_IsBool(areaLights)) {
+		r->scene->camera->areaLights = cJSON_IsTrue(areaLights);
+	}
+	
+	transforms = cJSON_GetObjectItem(data, "transforms");
+	if (cJSON_IsArray(transforms)) {
+		struct matrixTransform *tforms;
+		tforms = parseTransforms(transforms);
+		//TODO: Apply these transforms
+		addCamTransforms(r->scene->camera, tforms);
+	}
+	
+	return 0;
+}
+
+int parseAmbientColor(struct renderer *r, const cJSON *data) {
+	return -1;
+}
+
+int parseOBJs(struct renderer *r, const cJSON *data) {
+	return -1;
+}
+
+int parseScene(struct renderer *r, const cJSON *data) {
+	
+	/*
+	 "fileName": "rendered",
+	 "count": 0,
+	 "width": 1280,
+	 "height": 800,
+	 "fileType": "png",
+	 "ambientColor": {
+	 "r": 0.4,
+	 "g": 0.6,
+	 "b": 0.6
+	 },
+	 "inputFilePath": "input/",
+	 "OBJs": [
+	 */
+	
+	const cJSON *filePath = NULL;
+	const cJSON *inputFilePath = NULL;
+	const cJSON *count = NULL;
+	const cJSON *width = NULL;
+	const cJSON *height = NULL;
+	const cJSON *fileType = NULL;
+	const cJSON *ambientColor = NULL;
+	const cJSON *OBJs = NULL;
+	
+	filePath = cJSON_GetObjectItem(data, "filePath");
+	if (cJSON_IsString(filePath)) {
+		r->image->filePath = filePath->valuestring;
+	}
+	
+	inputFilePath = cJSON_GetObjectItem(data, "inputFilePath");
+	if (cJSON_IsString(inputFilePath)) {
+		r->inputFilePath = inputFilePath->valuestring;
+	}
+	
+	count = cJSON_GetObjectItem(data, "count");
+	if (cJSON_IsNumber(count)) {
+		if (count->valueint >= 0) {
+			r->image->count = count->valueint;
+		} else {
+			r->image->count = 0;
+		}
+	}
+	
+	width = cJSON_GetObjectItem(data, "width");
+	if (cJSON_IsNumber(width)) {
+		if (width->valueint >= 0) {
+			r->image->size.width = width->valueint;
+		} else {
+			r->image->size.width = 640;
+		}
+	}
+	
+	height = cJSON_GetObjectItem(data, "height");
+	if (cJSON_IsNumber(height)) {
+		if (height->valueint >= 0) {
+			r->image->size.height = height->valueint;
+		} else {
+			r->image->size.height = 640;
+		}
+	}
+	
+	fileType = cJSON_GetObjectItem(data, "fileType");
+	if (cJSON_IsString(fileType)) {
+		if (strcmp(fileType->valuestring, "png")) {
+			r->image->fileType = png;
+		} else if (strcmp(fileType->valuestring, "bmp")) {
+			r->image->fileType = bmp;
+		} else {
+			r->image->fileType = png;
+		}
+	}
+	
+	ambientColor = cJSON_GetObjectItem(data, "ambientColor");
+	if (cJSON_IsObject(ambientColor)) {
+		if (parseAmbientColor(r, data) == -1) {
+			return -1;
+		}
+	}
+	
+	OBJs = cJSON_GetObjectItem(data, "OBJs");
+	if (cJSON_IsArray(OBJs)) {
+		if (parseOBJs(r, data) == -1) {
+			return -1;
+		}
+	}
+	
+	return 0;
+}
+
 int parseJSON(struct renderer *r, char *inputFileName) {
 	
 	/*
 	 TODO:
-	 image prefs
-	 	filepath, name, count, width, height, type
-	 render prefs
-	 	threadCount, sampleCount, antialiasing, newRenderer, tileWidth, tileHeight, tileOrder
-	 camera prefs
-	 	isFullscreen, isBorderless, windowScale, FOV, Aperture, contrast, bounces, areaLights, transforms
 	 scene prefs
 	 	inputFilePath, OBJs + transforms, lights, spheres
 	 */
 	
-	return -1;
+	//Allocate dynamic props
+	r->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
+	r->scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
+	r->scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
+	
+	char *buf = loadFile(inputFileName);
+	
+	cJSON *json = cJSON_Parse(buf);
+	if (json == NULL) {
+		printf("Failed to parse JSON\n");
+		const char *errptr = cJSON_GetErrorPtr();
+		if (errptr != NULL) {
+			printf("Error before: %s\n", errptr);
+		}
+		return -1;
+	}
+	
+	const cJSON *renderer = NULL;
+	const cJSON *camera = NULL;
+	const cJSON *scene = NULL;
+	
+	renderer = cJSON_GetObjectItemCaseSensitive(json, "renderer");
+	if (renderer != NULL) {
+		printf("Parsing renderer prefs...\n");
+		if (parseRenderer(r, renderer) == -1) {
+			return -2;
+		}
+	}
+	
+	camera = cJSON_GetObjectItem(json, "camera");
+	if (camera != NULL) {
+		printf("Parsing camera prefs...\n");
+		if (parseCamera(r, camera) == -1) {
+			return -2;
+		}
+	}
+	
+	cJSON_Delete(json);
+	
+	return -2;
 }
 
 int testBuild(struct renderer *r, char *inputFileName) {
