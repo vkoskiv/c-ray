@@ -2,21 +2,21 @@
 	"renderer": {
 		"threadCount": 0,
 		"sampleCount": 25,
-		"antialiasing": "true",
-		"newRenderer": "true",
+		"antialiasing": true,
+		"newRenderer": true,
 		"tileWidth": 128,
 		"tileHeight": 128,
 		"tileOrder": "fromMiddle"
 	},
 	"camera": {
-		"isFullscreen": "false",
-		"isBorderless": "false",
+		"isFullscreen": false,
+		"isBorderless": false,
 		"windowScale": 1.0,
 		"FOV": 80.0,
 		"aperture": 0.0,
 		"contrast": 0.5,
 		"bounces": 3,
-		"areaLights": "true",
+		"areaLights": true,
 		"transforms": [
 			{
 				"type": "translate",
