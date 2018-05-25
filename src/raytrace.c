@@ -444,7 +444,7 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
  @param scene scene to get additional material and lighting information
  @return (Hopefully) correct color based on the given information.
  */
-struct color getLighting(const struct intersection *isect, struct world *scene) {
+struct color getLighting(struct intersection *isect, struct world *scene) {
 	struct coord textureCoord = {0.0, 0.0};
 	if(isect->type == hitTypePolygon) {
 		getSurfaceProperties(isect->polyIndex, isect->uv, &isect->surfaceNormal, &textureCoord);

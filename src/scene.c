@@ -712,7 +712,7 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	}
 	
 	if (loadOBJ(r, "teht1.obj")) {
-		//addTransform(lastObj(r), newTransformScaleUniform(40));
+		addTransform(lastObj(r), newTransformScaleUniform(40));
 		addTransform(lastObj(r), newTransformRotateX(90));
 		//addTransform(lastObj(r), newTransformRotateY(-45));
 		addTransform(lastObj(r), newTransformTranslate(870, 350, 800));
