@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="https://i.imgur.com/qr98yK8.png" width="256">
+	<img src="https://i.imgur.com/fPBuCTG.png" width="256">
 </p>
 
 ## Status
