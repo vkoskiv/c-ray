@@ -1,6 +1,7 @@
 <p align="center">
 	<img src="https://i.imgur.com/qr98yK8.png" width="256">
 </p>
+
 ## Status
 
 [![Build Status](https://semaphoreci.com/api/v1/vkoskiv/c-ray/branches/master/badge.svg)](https://semaphoreci.com/vkoskiv/c-ray)
