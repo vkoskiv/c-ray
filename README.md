@@ -1,3 +1,4 @@
+[![C-ray](https://i.imgur.com/qr98yK8.png)](https://github.com/VKoskiv/c-ray)
 ## Status
 
 [![Build Status](https://semaphoreci.com/api/v1/vkoskiv/c-ray/branches/master/badge.svg)](https://semaphoreci.com/vkoskiv/c-ray)
