@@ -51,6 +51,32 @@ void fillTexture(SDL_Renderer *renderer, SDL_Texture *texture, int r, int g, int
 	SDL_RenderFillRect(renderer, NULL);
 }
 
+static void setWindowIcon(SDL_Window *window) {
+	//For logo bitmap
+	#include "logo.c"
+	
+	Uint32 rmask;
+	Uint32 gmask;
+	Uint32 bmask;
+	Uint32 amask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	int shift = (crayIcon.bytes_per_pixel == 3) ? 8 : 0;
+	rmask = 0xff000000 >> shift;
+	gmask = 0x00ff0000 >> shift;
+	bmask = 0x0000ff00 >> shift;
+	amask = 0x000000ff >> shift;
+#else
+	rmask = 0x000000ff;
+	gmask = 0x0000ff00;
+	bmask = 0x00ff0000;
+	amask = (crayIcon.bytes_per_pixel == 3) ? 0 : 0xff000000;
+#endif
+	
+	SDL_Surface *icon = SDL_CreateRGBSurfaceFrom((void*)crayIcon.pixel_data, crayIcon.width, crayIcon.height, crayIcon.bytes_per_pixel*8, crayIcon.bytes_per_pixel*crayIcon.width, rmask, gmask, bmask, amask);
+	SDL_SetWindowIcon(window, icon);
+	SDL_FreeSurface(icon);
+}
+
 int initSDL() {
 	double windowScale = mainRenderer.scene->camera->windowScale;
 	
@@ -95,6 +121,10 @@ int initSDL() {
 	//And set blend modes for textures too
 	SDL_SetTextureBlendMode(mainDisplay.texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(mainDisplay.overlayTexture, SDL_BLENDMODE_BLEND);
+	
+	//Set window icon
+	setWindowIcon(mainDisplay.window);
+	
 	return 0;
 }
 

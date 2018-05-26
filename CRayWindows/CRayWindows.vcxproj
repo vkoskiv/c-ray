@@ -174,6 +174,7 @@
     <ClInclude Include="..\src\ui.h" />
 	<ClInclude Include="..\src\vector.h" />
 	<ClInclude Include="..\src\converter.h" />
+	<ClInclude Include="..\src\logo.c" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\bbox.c" />

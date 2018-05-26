@@ -32,6 +32,7 @@
 		90BBA5351EB18D43001AE07B /* raytrace.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BBA5331EB18D43001AE07B /* raytrace.c */; };
 		90BBA5381EB18FAB001AE07B /* obj.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BBA5361EB18FAB001AE07B /* obj.c */; };
 		90F843931ECE3FF700C5567C /* lightRay.c in Sources */ = {isa = PBXBuildFile; fileRef = 90F843911ECE3FF700C5567C /* lightRay.c */; };
+		90FC983120B9B4F4005A3308 /* logo.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FC983020B9B4F4005A3308 /* logo.c */; };
 		90FDF8B81E593E9200EE91FD /* renderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FDF8B61E593E9200EE91FD /* renderer.c */; };
 /* End PBXBuildFile section */
 
@@ -101,6 +102,7 @@
 		90D99AF41D08ADB10015A854 /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90F843911ECE3FF700C5567C /* lightRay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lightRay.c; path = src/lightRay.c; sourceTree = SOURCE_ROOT; };
 		90F843921ECE3FF700C5567C /* lightRay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lightRay.h; path = src/lightRay.h; sourceTree = SOURCE_ROOT; };
+		90FC983020B9B4F4005A3308 /* logo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logo.c; path = src/logo.c; sourceTree = SOURCE_ROOT; };
 		90FDF8B61E593E9200EE91FD /* renderer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = renderer.c; path = src/renderer.c; sourceTree = SOURCE_ROOT; };
 		90FDF8B71E593E9200EE91FD /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = renderer.h; path = src/renderer.h; sourceTree = SOURCE_ROOT; };
 		90FDF8EE1E59858600EE91FD /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../System/Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 				90B988ED1EB33DAB000E22CF /* bbox.h */,
 				90F843911ECE3FF700C5567C /* lightRay.c */,
 				90F843921ECE3FF700C5567C /* lightRay.h */,
+				90FC983020B9B4F4005A3308 /* logo.c */,
 			);
 			name = src;
 			path = "C-Ray";
@@ -277,6 +280,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90FC983120B9B4F4005A3308 /* logo.c in Sources */,
 				900C4FDA1E59A566001695F6 /* ui.c in Sources */,
 				9021F8FC1E47EE02001737C0 /* sphere.c in Sources */,
 				9021F9091E494E3D001737C0 /* transforms.c in Sources */,
