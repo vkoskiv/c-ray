@@ -23,11 +23,6 @@
 #ifndef cJSON__h
 #define cJSON__h
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 /* project version */
 #define CJSON_VERSION_MAJOR 1
 #define CJSON_VERSION_MINOR 7
@@ -269,9 +264,5 @@ CJSON_PUBLIC(double) cJSON_SetNumberHelper(cJSON *object, double number);
 /* malloc/free objects using the malloc/free functions that have been set with cJSON_InitHooks */
 CJSON_PUBLIC(void *) cJSON_malloc(size_t size);
 CJSON_PUBLIC(void) cJSON_free(void *object);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
