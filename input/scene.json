@@ -1,4 +1,5 @@
 {
+	"version": 1.0,
 	"renderer": {
 		"threadCount": 0,
 		"sampleCount": 25,
@@ -47,6 +48,35 @@
 			"b": 0.6
 		},
 		"inputFilePath": "input/",
+		"lights": [
+			{
+				"pos": {
+					"x": 970,
+					"y": 450,
+					"z": 500
+				},
+				"radius": 50,
+				"color": {
+					"r": 2.0,
+					"g": 2.0,
+					"b": 4.0
+				}
+			},
+			{
+				"pos": {
+					"x": 1210,
+					"y": 450,
+					"z": 1050
+				},
+				"radius": 100,
+				"color": {
+					"r": 5.0,
+					"g": 0.0,
+					"b": 0.0
+				}
+			}
+		],
+		"spheres": [],
 		"OBJs": [
 			{
 				"fileName": "newScene.obj",
