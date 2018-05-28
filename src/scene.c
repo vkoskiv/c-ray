@@ -505,29 +505,21 @@ int parseCamera(struct renderer *r, const cJSON *data) {
 }
 
 int parseAmbientColor(struct renderer *r, const cJSON *data) {
+	//TODO
 	return -1;
 }
 
 int parseOBJs(struct renderer *r, const cJSON *data) {
+	//TODO
+	return -1;
+}
+
+int parseLights(struct renderer *r, const cJSON *data) {
+	//TODO
 	return -1;
 }
 
 int parseScene(struct renderer *r, const cJSON *data) {
-	
-	/*
-	 "fileName": "rendered",
-	 "count": 0,
-	 "width": 1280,
-	 "height": 800,
-	 "fileType": "png",
-	 "ambientColor": {
-	 "r": 0.4,
-	 "g": 0.6,
-	 "b": 0.6
-	 },
-	 "inputFilePath": "input/",
-	 "OBJs": [
-	 */
 	
 	const cJSON *filePath = NULL;
 	const cJSON *inputFilePath = NULL;
@@ -536,6 +528,8 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	const cJSON *height = NULL;
 	const cJSON *fileType = NULL;
 	const cJSON *ambientColor = NULL;
+	const cJSON *lights = NULL;
+	const cJSON *spheres = NULL;
 	const cJSON *OBJs = NULL;
 	
 	filePath = cJSON_GetObjectItem(data, "filePath");
@@ -593,6 +587,18 @@ int parseScene(struct renderer *r, const cJSON *data) {
 		}
 	}
 	
+	lights = cJSON_GetObjectItem(data, "lights");
+	if (cJSON_IsArray(lights)) {
+		if (parseLights(r, lights) == -1) {
+			return -1;
+		}
+	}
+	
+	spheres = cJSON_GetObjectItem(data, "spheres");
+	if (cJSON_IsArray(spheres)) {
+		//TODO
+	}
+	
 	OBJs = cJSON_GetObjectItem(data, "OBJs");
 	if (cJSON_IsArray(OBJs)) {
 		if (parseOBJs(r, data) == -1) {
@@ -607,8 +613,7 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	
 	/*
 	 TODO:
-	 scene prefs
-	 	inputFilePath, OBJs + transforms, lights, spheres
+	 	LIGHTS, SPHERES
 	 */
 	
 	//Allocate dynamic props
@@ -636,6 +641,7 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	if (renderer != NULL) {
 		printf("Parsing renderer prefs...\n");
 		if (parseRenderer(r, renderer) == -1) {
+			printf("Renderer parse failed!\n");
 			return -2;
 		}
 	}
@@ -644,11 +650,26 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	if (camera != NULL) {
 		printf("Parsing camera prefs...\n");
 		if (parseCamera(r, camera) == -1) {
+			printf("Camera parse failed!\n");
+			return -2;
+		}
+	}
+	
+	scene = cJSON_GetObjectItem(json, "scene");
+	if (scene != NULL) {
+		printf("Parsing scene...\n");
+		if (parseScene(r, scene) == -1) {
+			printf("Scene parse failed!\n");
 			return -2;
 		}
 	}
 	
 	cJSON_Delete(json);
+	
+	transformMeshes(r->scene);
+	computeKDTrees(r->scene);
+	
+	printSceneStats(r->scene);
 	
 	return -2;
 }
