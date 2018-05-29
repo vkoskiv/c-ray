@@ -57,7 +57,7 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 		printf("OBJ %s file not found!\n", getFileName(inputFileName));
 		return false;
 	}
-	printf("OBJ loaded, converting\n");
+	printf("OBJ loaded, converting...\n");
 	
 	//Create crayOBJ to keep track of objs
 	r->scene->objs = (struct crayOBJ*)realloc(r->scene->objs, (r->scene->objCount + 1) * sizeof(struct crayOBJ));
@@ -89,26 +89,22 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 	
 	//Data loaded, now convert everything
 	//Convert vectors
-	printf("Converting vectors\n");
 	vertexArray = (struct vector*)realloc(vertexArray, vertexCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_count; i++) {
 		vertexArray[r->scene->objs[r->scene->objCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
 	}
 	
 	//Convert normals
-	printf("Converting normals\n");
 	normalArray = (struct vector*)realloc(normalArray, normalCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_normal_count; i++) {
 		normalArray[r->scene->objs[r->scene->objCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture vectors
-	printf("Converting texture coordinates\n");
 	textureArray = (struct vector*)realloc(textureArray, textureCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_texture_count; i++) {
 		textureArray[r->scene->objs[r->scene->objCount].firstTextureIndex + i] = vectorFromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
-	printf("Converting polygons\n");
 	polygonArray = (struct poly*)realloc(polygonArray, polyCount * sizeof(struct poly));
 	for (int i = 0; i < data.face_count; i++) {
 		polygonArray[r->scene->objs[r->scene->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
@@ -132,7 +128,7 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 	}
 	
 	
-	printf("Loaded OBJ! Translated %i faces, %i vectors and %i materials\n\n", data.face_count, data.vertex_count, data.material_count);
+	printf("Converted OBJ! Translated %i faces, %i vectors and %i materials\n\n", data.face_count, data.vertex_count, data.material_count);
 	
 	//Delete OBJ data
 	delete_obj_data(&data);
@@ -185,13 +181,6 @@ void computeKDTrees(struct world *scene) {
 	}
 }
 
-//FIXME: Move this to transforms.c
-
-void addCamTransforms(struct camera *cam, struct matrixTransform *transforms) {
-	int tformCount = sizeof(transforms) / sizeof(struct matrixTransform*);
-	printf("Adding %i tforms to camera\n", tformCount);
-}
-
 void addCamTransform(struct camera *cam, struct matrixTransform transform) {
 	if (cam->transformCount == 0) {
 		cam->transforms = (struct matrixTransform*)calloc(1, sizeof(struct matrixTransform));
@@ -201,6 +190,13 @@ void addCamTransform(struct camera *cam, struct matrixTransform transform) {
 	
 	cam->transforms[cam->transformCount] = transform;
 	cam->transformCount++;
+}
+
+void addCamTransforms(struct camera *cam, struct matrixTransform *transforms, int count) {
+	printf("Adding %i transforms to camera\n", count);
+	for (int i = 0; i < count; i++) {
+		addCamTransform(cam, transforms[i]);
+	}
 }
 
 void printSceneStats(struct world *scene) {
@@ -267,37 +263,37 @@ struct matrixTransform parseTransform(const cJSON *data) {
 		}
 	}
 	
-	if (strcmp(type->valuestring, "rotateX")) {
+	if (strcmp(type->valuestring, "rotateX") == 0) {
 		if (validDegrees) {
 			return newTransformRotateX(degrees->valuedouble);
 		} else {
 			printf("Found rotateX transform with no valid degrees value given.\n");
 		}
-	} else if (strcmp(type->valuestring, "rotateY")) {
+	} else if (strcmp(type->valuestring, "rotateY") == 0) {
 		if (validDegrees) {
 			return newTransformRotateY(degrees->valuedouble);
 		} else {
 			printf("Found rotateY transform with no valid degrees value given.\n");
 		}
-	} else if (strcmp(type->valuestring, "rotateZ")) {
+	} else if (strcmp(type->valuestring, "rotateZ") == 0) {
 		if (validDegrees) {
 			return newTransformRotateZ(degrees->valuedouble);
 		} else {
 			printf("Found rotateZ transform with no valid degrees value given.\n");
 		}
-	} else if (strcmp(type->valuestring, "translate")) {
+	} else if (strcmp(type->valuestring, "translate") == 0) {
 		if (validCoords) {
 			return newTransformTranslate(X->valuedouble, Y->valuedouble, Z->valuedouble);
 		} else {
 			printf("Found translate transform with no valid coords given.\n");
 		}
-	} else if (strcmp(type->valuestring, "scale")) {
+	} else if (strcmp(type->valuestring, "scale") == 0) {
 		if (validCoords) {
 			return newTransformScale(X->valuedouble, Y->valuedouble, Z->valuedouble);
 		} else {
 			printf("Found scale transform with no valid scale value given.\n");
 		}
-	} else if (strcmp(type->valuestring, "scaleuniform")) {
+	} else if (strcmp(type->valuestring, "scaleUniform") == 0) {
 		if (validScale) {
 			return newTransformScaleUniform(scale->valuedouble);
 		} else {
@@ -400,15 +396,15 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	
 	tileOrder = cJSON_GetObjectItem(data, "tileOrder");
 	if (cJSON_IsString(tileOrder)) {
-		if (strcmp(tileOrder->valuestring, "normal")) {
+		if (strcmp(tileOrder->valuestring, "normal") == 0) {
 			r->tileOrder = renderOrderNormal;
-		} else if (strcmp(tileOrder->valuestring, "random")) {
+		} else if (strcmp(tileOrder->valuestring, "random") == 0) {
 			r->tileOrder = renderOrderRandom;
-		} else if (strcmp(tileOrder->valuestring, "topToBottom")) {
+		} else if (strcmp(tileOrder->valuestring, "topToBottom") == 0) {
 			r->tileOrder = renderOrderTopToBottom;
-		} else if (strcmp(tileOrder->valuestring, "fromMiddle")) {
+		} else if (strcmp(tileOrder->valuestring, "fromMiddle") == 0) {
 			r->tileOrder = renderOrderFromMiddle;
-		} else if (strcmp(tileOrder->valuestring, "toMiddle")) {
+		} else if (strcmp(tileOrder->valuestring, "toMiddle") == 0) {
 			r->tileOrder = renderOrderToMiddle;
 		} else {
 			r->tileOrder = renderOrderNormal;
@@ -495,23 +491,89 @@ int parseCamera(struct renderer *r, const cJSON *data) {
 	
 	transforms = cJSON_GetObjectItem(data, "transforms");
 	if (cJSON_IsArray(transforms)) {
-		struct matrixTransform *tforms;
-		tforms = parseTransforms(transforms);
-		//TODO: Apply these transforms
-		addCamTransforms(r->scene->camera, tforms);
+		int tformCount = cJSON_GetArraySize(transforms);
+		addCamTransforms(r->scene->camera, parseTransforms(transforms), tformCount);
 	}
 	
 	return 0;
 }
 
-int parseAmbientColor(struct renderer *r, const cJSON *data) {
-	//TODO
-	return -1;
+struct color *parseColor(const cJSON *data) {
+	
+	const cJSON *R = NULL;
+	const cJSON *G = NULL;
+	const cJSON *B = NULL;
+	const cJSON *A = NULL;
+	
+	struct color *newColor = (struct color*)calloc(1, sizeof(struct color));
+	
+	R = cJSON_GetObjectItem(data, "r");
+	if (R != NULL && cJSON_IsNumber(R)) {
+		newColor->red = R->valuedouble;
+	} else {
+		return NULL;
+	}
+	G = cJSON_GetObjectItem(data, "g");
+	if (R != NULL && cJSON_IsNumber(G)) {
+		newColor->green = G->valuedouble;
+	} else {
+		return NULL;
+	}
+	B = cJSON_GetObjectItem(data, "b");
+	if (R != NULL && cJSON_IsNumber(B)) {
+		newColor->blue = B->valuedouble;
+	} else {
+		return NULL;
+	}
+	A = cJSON_GetObjectItem(data, "a");
+	if (R != NULL && cJSON_IsNumber(A)) {
+		newColor->alpha = A->valuedouble;
+	} else {
+		newColor->alpha = 0.0;
+	}
+	
+	return newColor;
 }
 
-int parseOBJs(struct renderer *r, const cJSON *data) {
-	//TODO
-	return -1;
+int parseAmbientColor(struct renderer *r, const cJSON *data) {
+	struct color *ambientColor = parseColor(data);
+	if (ambientColor != NULL) {
+		r->scene->ambientColor = ambientColor;
+	} else {
+		return -1;
+	}
+	return 0;
+}
+
+void parseOBJ(struct renderer *r, const cJSON *data) {
+	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
+	bool objValid = false;
+	if (fileName != NULL && cJSON_IsString(fileName)) {
+		if (loadOBJ(r, fileName->valuestring)) {
+			objValid = true;
+		} else {
+			printf("Failed to find OBJ named %s\n", fileName->valuestring);
+			return;
+		}
+	}
+	if (objValid) {
+		const cJSON *transforms = cJSON_GetObjectItem(data, "transforms");
+		const cJSON *transform = NULL;
+		if (transforms != NULL && cJSON_IsArray(transforms)) {
+			cJSON_ArrayForEach(transform, transforms) {
+				addTransform(lastObj(r), parseTransform(transform));
+			}
+		}
+	}
+}
+
+void parseOBJs(struct renderer *r, const cJSON *data) {
+	const cJSON *OBJ = NULL;
+	if (data != NULL && cJSON_IsArray(data)) {
+		cJSON_ArrayForEach(OBJ, data) {
+			parseOBJ(r, OBJ);
+		}
+	}
 }
 
 int parseLights(struct renderer *r, const cJSON *data) {
@@ -571,9 +633,9 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	
 	fileType = cJSON_GetObjectItem(data, "fileType");
 	if (cJSON_IsString(fileType)) {
-		if (strcmp(fileType->valuestring, "png")) {
+		if (strcmp(fileType->valuestring, "png") == 0) {
 			r->image->fileType = png;
-		} else if (strcmp(fileType->valuestring, "bmp")) {
+		} else if (strcmp(fileType->valuestring, "bmp") == 0) {
 			r->image->fileType = bmp;
 		} else {
 			r->image->fileType = png;
@@ -582,17 +644,17 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	
 	ambientColor = cJSON_GetObjectItem(data, "ambientColor");
 	if (cJSON_IsObject(ambientColor)) {
-		if (parseAmbientColor(r, data) == -1) {
+		if (parseAmbientColor(r, ambientColor) == -1) {
 			return -1;
 		}
 	}
 	
-	lights = cJSON_GetObjectItem(data, "lights");
+	/*lights = cJSON_GetObjectItem(data, "lights");
 	if (cJSON_IsArray(lights)) {
 		if (parseLights(r, lights) == -1) {
 			return -1;
 		}
-	}
+	}*/
 	
 	spheres = cJSON_GetObjectItem(data, "spheres");
 	if (cJSON_IsArray(spheres)) {
@@ -601,9 +663,7 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	
 	OBJs = cJSON_GetObjectItem(data, "OBJs");
 	if (cJSON_IsArray(OBJs)) {
-		if (parseOBJs(r, data) == -1) {
-			return -1;
-		}
+		parseOBJs(r, OBJs);
 	}
 	
 	return 0;
@@ -614,6 +674,7 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	/*
 	 TODO:
 	 	LIGHTS, SPHERES
+	 	Check and fix camera transforms order
 	 */
 	
 	//Allocate dynamic props
