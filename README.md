@@ -4,7 +4,9 @@
 
 ## Rendering with SDL installed
 
-<iframe src="https://giphy.com/embed/8cT6Dbo7kCi3rRj5Fr" width="480" height="332" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/ray-tracing-raytracing-8cT6Dbo7kCi3rRj5Fr">via GIPHY</a></p>
+<p align="center">
+	<img src="https://media.giphy.com/media/8cT6Dbo7kCi3rRj5Fr/giphy.gif" width="512">
+</p>
 
 ## Status
 
