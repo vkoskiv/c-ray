@@ -47,7 +47,7 @@ void fillTexture(SDL_Renderer *renderer, SDL_Texture *texture, int r, int g, int
 	SDL_RenderFillRect(renderer, NULL);
 }
 
-static void setWindowIcon(SDL_Window *window) {
+/*static void setWindowIcon(SDL_Window *window) {
 	//For logo bitmap
 	#include "logo.c"
 	
@@ -71,7 +71,7 @@ static void setWindowIcon(SDL_Window *window) {
 	SDL_Surface *icon = SDL_CreateRGBSurfaceFrom((void*)crayIcon.pixel_data, crayIcon.width, crayIcon.height, crayIcon.bytes_per_pixel*8, crayIcon.bytes_per_pixel*crayIcon.width, rmask, gmask, bmask, amask);
 	SDL_SetWindowIcon(window, icon);
 	SDL_FreeSurface(icon);
-}
+}*/
 
 int initSDL() {
 	
@@ -118,7 +118,7 @@ int initSDL() {
 	SDL_SetTextureBlendMode(mainRenderer.mainDisplay->overlayTexture, SDL_BLENDMODE_BLEND);
 	
 	//Set window icon
-	setWindowIcon(mainRenderer.mainDisplay->window);
+	//setWindowIcon(mainRenderer.mainDisplay->window);
 	
 	return 0;
 }
