@@ -905,7 +905,7 @@ char *trimSpaces(char *inputLine) {
 #define	LONG_MAX	2147483647L	/* max signed long */
 #define	SSIZE_MAX	LONG_MAX	/* max value for a ssize_t */
 #define	EOVERFLOW	84		/* Value too large to be stored in data type */
-size_t getDelim(char **restrict lineptr, size_t *restrict n, int delimiter, FILE *restrict stream) {
+size_t getDelim(char **lineptr, size_t *restrict n, int delimiter, FILE *restrict stream) {
 	char *buf, *pos;
 	int c;
 	size_t bytes;

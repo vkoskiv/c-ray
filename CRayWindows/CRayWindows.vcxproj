@@ -160,7 +160,8 @@
     <ClInclude Include="..\src\kdtree.h" />
     <ClInclude Include="..\src\light.h" />
     <ClInclude Include="..\src\list.h" />
-    <ClInclude Include="..\src\lodepng.h" />
+	<ClInclude Include="..\src\lodepng.h" />
+	<ClInclude Include="..\src\cJSON.h" />
     <ClInclude Include="..\src\main.h" />
     <ClInclude Include="..\src\obj.h" />
     <ClInclude Include="..\src\obj_parser.h" />
@@ -186,7 +187,8 @@
     <ClCompile Include="..\src\light.c" />
     <ClCompile Include="..\src\lightRay.c" />
     <ClCompile Include="..\src\list.c" />
-    <ClCompile Include="..\src\lodepng.c" />
+	<ClCompile Include="..\src\lodepng.c" />
+	<ClCompile Include="..\src\cJSON.c" />
     <ClCompile Include="..\src\main.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
