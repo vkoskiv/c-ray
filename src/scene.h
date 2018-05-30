@@ -17,7 +17,6 @@ struct matrixTransform;
 struct poly;
 struct kdTreeNode;
 struct renderer;
-struct display;
 
 //World
 struct world {
