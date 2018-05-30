@@ -12,6 +12,7 @@ C-Ray is a simple raytracer built for studying computer graphics. It's also a gr
 
 C-Ray currently supports:
 - Real-time render preview using SDL
+- Easy scene compositing using JSON
 - Multithreading
 - OBJ loading with matrix transforms for compositing a scene
 - PNG and BMP file output
@@ -46,13 +47,15 @@ macOS:
 1. Install SDL2 (See installing SDL below)
 2. Open the .xcodeproj file in Xcode
 3. Edit scheme by clicking `C-Ray` in top left, make sure 'Use custom working directory' is ticked and set it to the root directory of this project.
-4. Build&Run with `CMD+R`
+4. Go into the `Arguments` tab, and add by clicking `+`. Type in `./input/scene.json`, then click close
+5. Build&Run with `CMD+R`
 
 Linux:
-1. Install SDL2 (See installing SDL below)
+1. (Optional) Install SDL2 (See installing SDL below)
+2. (Optional) Edit `src/includes.h` to uncomment `#define UI_ENABLED`
 2. Run `make`
 3. Suggest a fix to my makefile because it didn't link SDL2 on your platform.
-4. Run binary: `./bin/c-ray` (Making sure the working dir is the root directory)
+4. Run binary: `./bin/c-ray ./input/scene.json` (Making sure the working dir is the root directory)
 
 Windows:
 1. Open the VS project in CRayWindows
@@ -111,6 +114,8 @@ OBJ Loader library: http://www.kixor.net/dev/objloader/
 lodePNG PNG compression library: http://lodev.org/lodepng/
 
 SDL2: https://www.libsdl.org/index.php
+
+JSON parsing library: https://github.com/DaveGamble/cJSON
 
 ## Contributors
 
