@@ -423,6 +423,7 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 
 int parseDisplay(struct renderer *r, const cJSON *data) {
 	
+#ifdef UI_ENABLED
 	const cJSON *isFullscreen = NULL;
 	const cJSON *isBorderless = NULL;
 	const cJSON *windowScale = NULL;
@@ -444,7 +445,7 @@ int parseDisplay(struct renderer *r, const cJSON *data) {
 			r->mainDisplay->windowScale = 0.5;
 		}
 	}
-	
+#endif
 	return 0;
 }
 
@@ -805,9 +806,11 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	
 	//Allocate dynamic props
 	r->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
-	r->mainDisplay = (struct display*)calloc(1, sizeof(struct display));
 	r->scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
 	r->scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
+#ifdef UI_ENABLED
+	r->mainDisplay = (struct display*)calloc(1, sizeof(struct display));
+#endif
 	
 	char *buf = loadFile(inputFileName);
 	
