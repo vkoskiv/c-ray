@@ -11,6 +11,7 @@
 struct world;
 enum renderOrder;
 struct outputImage;
+struct display;
 
 /**
  Thread information struct to communicate with main thread
@@ -83,6 +84,9 @@ struct renderer {
 	int tileWidth;
 	int tileHeight;
 	enum renderOrder tileOrder;
+#ifdef UI_ENABLED
+	struct display *mainDisplay;
+#endif
 };
 
 /*

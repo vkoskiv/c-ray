@@ -16,11 +16,11 @@ struct display {
 	SDL_Texture *overlayTexture;
 	bool isBorderless;
 	bool isFullScreen;
+	double windowScale;
 };
 
 int initSDL();
 void drawWindow();
-extern struct display mainDisplay;
 #endif
 
 void printDuration(double time);

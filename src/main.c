@@ -102,13 +102,10 @@ int main(int argc, char *argv[]) {
 	computeFocalLength(&mainRenderer);
 	
 #ifdef UI_ENABLED
-	mainDisplay.window = NULL;
-	mainDisplay.renderer = NULL;
-	mainDisplay.texture = NULL;
-	mainDisplay.overlayTexture = NULL;
-	
-	mainDisplay.isBorderless = mainRenderer.scene->camera->isBorderless;
-	mainDisplay.isFullScreen = mainRenderer.scene->camera->isFullScreen;
+	mainRenderer.mainDisplay->window = NULL;
+	mainRenderer.mainDisplay->renderer = NULL;
+	mainRenderer.mainDisplay->texture = NULL;
+	mainRenderer.mainDisplay->overlayTexture = NULL;
 #endif
 	
 	//This is a timer to elapse how long a render takes per frame
@@ -152,6 +149,7 @@ int main(int argc, char *argv[]) {
 	
 	//Allocate memory and create array of pixels for image data
 	mainRenderer.image->data = (unsigned char*)calloc(3 * mainRenderer.image->size.width * mainRenderer.image->size.height, sizeof(unsigned char));
+	if (!mainRenderer.image->data) logHandler(imageMallocFailed);
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
@@ -166,8 +164,6 @@ int main(int argc, char *argv[]) {
 	initSDL();
 #endif
 	
-	if (!mainRenderer.image->data) logHandler(imageMallocFailed);
-	
 	mainRenderer.isRendering = true;
 	mainRenderer.renderAborted = false;
 #ifndef WINDOWS
@@ -180,7 +176,7 @@ int main(int argc, char *argv[]) {
 #ifdef UI_ENABLED
 		getKeyboardInput();
 		drawWindow();
-		SDL_UpdateWindowSurface(mainDisplay.window);
+		SDL_UpdateWindowSurface(mainRenderer.mainDisplay->window);
 #endif
 		
 		if (!threadsHaveStarted) {

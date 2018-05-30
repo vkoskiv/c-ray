@@ -9,10 +9,12 @@
 		"tileHeight": 128,
 		"tileOrder": "fromMiddle"
 	},
-	"camera": {
+	"display": {
 		"isFullscreen": false,
 		"isBorderless": false,
-		"windowScale": 1.0,
+		"windowScale": 1.0
+	},
+	"camera": {
 		"FOV": 80.0,
 		"aperture": 0.0,
 		"contrast": 0.5,

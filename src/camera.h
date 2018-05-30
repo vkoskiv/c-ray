@@ -20,17 +20,14 @@ struct camera {
 	struct vector left;
 	
 	int currentFrame;
-	double contrast;
-	double windowScale;
 	
-	bool isFullScreen;
-	bool isBorderless;
+	//FIXME: These 3 belong in renderer struct in renderer.h
+	double contrast;
+	bool areaLights;
+	int bounces;
 	
 	struct matrixTransform *transforms;
 	int transformCount;
-	
-	bool areaLights;
-	int bounces;
 };
 
 //Compute focal length for camera

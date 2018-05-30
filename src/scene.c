@@ -19,6 +19,7 @@
 #include "converter.h"
 #include "renderer.h"
 #include "cJSON.h"
+#include "ui.h"
 
 #define TOKEN_DEBUG_ENABLED false
 
@@ -418,36 +419,41 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	return 0;
 }
 
-int parseCamera(struct renderer *r, const cJSON *data) {
+int parseDisplay(struct renderer *r, const cJSON *data) {
 	
 	const cJSON *isFullscreen = NULL;
 	const cJSON *isBorderless = NULL;
 	const cJSON *windowScale = NULL;
+	
+	isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
+	if (cJSON_IsBool(isFullscreen)) {
+		r->mainDisplay->isFullScreen = cJSON_IsTrue(isFullscreen);
+	}
+	
+	isBorderless = cJSON_GetObjectItem(data, "isBorderless");
+	if (cJSON_IsBool(isBorderless)) {
+		r->mainDisplay->isBorderless = cJSON_IsTrue(isBorderless);
+	}
+	windowScale = cJSON_GetObjectItem(data, "windowScale");
+	if (cJSON_IsNumber(windowScale)) {
+		if (windowScale->valuedouble >= 0) {
+			r->mainDisplay->windowScale = windowScale->valuedouble;
+		} else {
+			r->mainDisplay->windowScale = 0.5;
+		}
+	}
+	
+	return 0;
+}
+
+int parseCamera(struct renderer *r, const cJSON *data) {
+	
 	const cJSON *FOV = NULL;
 	const cJSON *aperture = NULL;
 	const cJSON *contrast = NULL;
 	const cJSON *bounces = NULL;
 	const cJSON *areaLights = NULL;
 	const cJSON *transforms = NULL;
-	
-	isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
-	if (cJSON_IsBool(isFullscreen)) {
-		r->scene->camera->isFullScreen = cJSON_IsTrue(isFullscreen);
-	}
-	
-	isBorderless = cJSON_GetObjectItem(data, "isBorderless");
-	if (cJSON_IsBool(isBorderless)) {
-		r->scene->camera->isBorderless = cJSON_IsTrue(isBorderless);
-	}
-	
-	windowScale = cJSON_GetObjectItem(data, "windowScale");
-	if (cJSON_IsNumber(windowScale)) {
-		if (windowScale->valuedouble >= 0) {
-			r->scene->camera->windowScale = windowScale->valuedouble;
-		} else {
-			r->scene->camera->windowScale = 0.5;
-		}
-	}
 	
 	FOV = cJSON_GetObjectItem(data, "FOV");
 	if (cJSON_IsNumber(FOV)) {
@@ -691,6 +697,7 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	
 	//Allocate dynamic props
 	r->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
+	r->mainDisplay = (struct display*)calloc(1, sizeof(struct display));
 	r->scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
 	r->scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
 	
@@ -707,6 +714,7 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	}
 	
 	const cJSON *renderer = NULL;
+	const cJSON *display = NULL;
 	const cJSON *camera = NULL;
 	const cJSON *scene = NULL;
 	
@@ -715,6 +723,15 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 		printf("Parsing renderer prefs...\n");
 		if (parseRenderer(r, renderer) == -1) {
 			printf("Renderer parse failed!\n");
+			return -2;
+		}
+	}
+	
+	display = cJSON_GetObjectItem(json, "display");
+	if (display != NULL) {
+		printf("Parsing display prefs...\n");
+		if (parseDisplay(r, display) == -1) {
+			printf("Display parse failed!\n");
 			return -2;
 		}
 	}
@@ -773,9 +790,10 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	//TODO: Move camera to renderer
 	r->scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
 	initCamera(r->scene->camera);
-	r->scene->camera->isFullScreen = false;
-	r->scene->camera->isBorderless = false;
-	r->scene->camera-> windowScale = 1.0;
+	
+	r->mainDisplay->isFullScreen = false;
+	r->mainDisplay->isBorderless = false;
+	r->mainDisplay->windowScale = 1.0;
 	
 	r->scene->camera->         FOV = 80.0;
 	r->scene->camera->    aperture = 0.0;
