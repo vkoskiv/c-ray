@@ -25,7 +25,7 @@
 
 char *trimSpaces(char *inputLine);
 void copyString(const char *source, char **destination);
-size_t getDelim(char **restrict lineptr, size_t *restrict n, int delimiter, FILE *restrict stream);
+size_t getDelim(char **lineptr, size_t *restrict n, int delimiter, FILE *restrict stream);
 
 /**
  Extract the filename from a given file path
