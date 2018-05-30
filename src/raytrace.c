@@ -297,7 +297,7 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 		struct vector lightPos;
 		
 		if (scene->areaLights)
-			lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.power);
+			lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
 		else
 			lightPos = currentLight.pos;
 		
@@ -323,7 +323,7 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 			}
 
 			double intensity = min(max(NdotL,0),1);
-			struct color diffTmp = colorCoef(intensity*(currentLight.power/distance), color);
+			struct color diffTmp = colorCoef(intensity*(currentLight.radius/distance), color);
 			diffuse = addColors(&diffuse, &diffTmp);
 		
 			struct vector forward = vectorCross(&scene->camera->left, &scene->camera->up);
@@ -334,7 +334,7 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 			double specAngle = max(NdotH, 0.0);
 			double specVal = pow(specAngle, isect->end.glossiness);
 
-			struct color specTmp = colorCoef(specVal*(currentLight.power/distance), &isect->end.specular);
+			struct color specTmp = colorCoef(specVal*(currentLight.radius/distance), &isect->end.specular);
 			specular = addColors(&specular, &specTmp);
 		}
 	}
@@ -591,7 +591,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 			struct light currentLight = scene->lights[j];
 			struct vector lightPos;
 			if (scene->areaLights)
-				lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.power);
+				lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
 			else
 				lightPos = currentLight.pos;
 			

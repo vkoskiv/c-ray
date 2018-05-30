@@ -237,6 +237,8 @@ struct matrixTransform parseTransform(const cJSON *data) {
 		printf("Transform data: %s\n", cJSON_Print(data));
 	}
 	
+	//FIXME: Use parseCoordinate() for this
+	
 	cJSON *degrees = NULL;
 	cJSON *scale = NULL;
 	cJSON *X = NULL;
@@ -557,9 +559,73 @@ void parseOBJs(struct renderer *r, const cJSON *data) {
 	}
 }
 
-int parseLights(struct renderer *r, const cJSON *data) {
-	//TODO
-	return -1;
+struct vector parseCoordinate(const cJSON *data) {
+	const cJSON *X = NULL;
+	const cJSON *Y = NULL;
+	const cJSON *Z = NULL;
+	X = cJSON_GetObjectItem(data, "X");
+	Y = cJSON_GetObjectItem(data, "Y");
+	Z = cJSON_GetObjectItem(data, "Z");
+	
+	if (X != NULL && Y != NULL && Z != NULL) {
+		if (cJSON_IsNumber(X) && cJSON_IsNumber(Y) && cJSON_IsNumber(Z)) {
+			return vectorWithPos(X->valuedouble, Y->valuedouble, Z->valuedouble);
+		}
+	}
+	printf("Invalid coordinate parsed! Returning 0,0,0\n");
+	printf("Faulty JSON: %s\n", cJSON_Print(data));
+	return (struct vector){0.0,0.0,0.0,false};
+}
+
+void parseLight(struct renderer *r, const cJSON *data) {
+	const cJSON *pos = NULL;
+	const cJSON *radius = NULL;
+	const cJSON *color = NULL;
+	const cJSON *intensity = NULL;
+	
+	struct vector posValue = (struct vector){0.0,0.0,0.0,false};
+	double radiusValue = 0.0;
+	struct color colorValue = (struct color){0.0,0.0,0.0,0.0};
+	double intensityValue = 0.0;
+	
+	pos = cJSON_GetObjectItem(data, "pos");
+	if (pos != NULL) {
+		posValue = parseCoordinate(pos);
+	} else {
+		return;
+	}
+	
+	radius = cJSON_GetObjectItem(data, "radius");
+	if (radius != NULL && cJSON_IsNumber(radius)) {
+		radiusValue = radius->valuedouble;
+	} else {
+		return;
+	}
+	
+	color = cJSON_GetObjectItem(data, "color");
+	if (color != NULL) {
+		colorValue = *parseColor(color);
+	} else {
+		return;
+	}
+	
+	intensity = cJSON_GetObjectItem(data, "intensity");
+	if (intensity != NULL && cJSON_IsNumber(intensity)) {
+		intensityValue = intensity->valuedouble;
+	} else {
+		return;
+	}
+	
+	addLight(r->scene, newLight(posValue, radiusValue, colorValue, intensityValue));
+}
+
+void parseLights(struct renderer *r, const cJSON *data) {
+	const cJSON *light = NULL;
+	if (data != NULL && cJSON_IsArray(data)) {
+		cJSON_ArrayForEach(light, data) {
+			parseLight(r, light);
+		}
+	}
 }
 
 int parseScene(struct renderer *r, const cJSON *data) {
@@ -662,12 +728,10 @@ int parseScene(struct renderer *r, const cJSON *data) {
 		r->scene->areaLights = cJSON_IsTrue(areaLights);
 	}
 	
-	/*lights = cJSON_GetObjectItem(data, "lights");
+	lights = cJSON_GetObjectItem(data, "lights");
 	if (cJSON_IsArray(lights)) {
-		if (parseLights(r, lights) == -1) {
-			return -1;
-		}
-	}*/
+		parseLights(r, lights);
+	}
 	
 	spheres = cJSON_GetObjectItem(data, "spheres");
 	if (cJSON_IsArray(spheres)) {
@@ -904,9 +968,8 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	computeKDTrees(r->scene);
 	
 	//LIGHTS
-	
-	addLight(r->scene, newLight(vectorWithPos(970, 450, 500), 50, colorWithValues(2, 2, 4, 0)));
-	addLight(r->scene, newLight(vectorWithPos(1210, 450,1050), 100, colorWithValues(5, 0, 0, 0)));
+	addLight(r->scene, newLight(vectorWithPos(970, 450, 500), 50, colorWithValues(0.5, 0.5, 1.0, 0.0), 4));
+	addLight(r->scene, newLight(vectorWithPos(1210, 450, 1050), 100, colorWithValues(1, 0, 0, 0), 5));
 	
 	addSphere(r->scene, newSphere(vectorWithPos(650, 450, 1650), 150, newMaterial(colorWithValues(0.3, 0.3, 0.3, 0.0), 1.0)));
 	addSphere(r->scene, newSphere(vectorWithPos(950, 350, 1500), 50, newMaterial(colorWithValues(0.3, 0.3, 0.3, 0.0), 1.0)));
