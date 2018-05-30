@@ -12,7 +12,7 @@ ifeq ($(usesdl),no)
 	FRAMEWORKS = -I/usr/local/include
 endif
 
-CFLAGS = -std=c99 -Wall
+CFLAGS = -O3 -std=c99 -Wall
 LINKER = gcc -o
 LFLAGS = -I. -lm -pthread $(FRAMEWORKS)
 
