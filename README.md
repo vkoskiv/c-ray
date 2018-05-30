@@ -65,9 +65,12 @@ Linux:
 
 Windows:
 1. Open the VS project in CRayWindows
-2. `CTRL+F5` to run without debugging
-3. VS places a binary under `CRayWindows\bin\`
-i
+2. (Optional) Edit `src\includes.h` to uncomment `#define UI_ENABLED`
+3. Build the project (You only need to do this once)
+4. VS places a binary under `CRayWindows\bin\`
+5. Open `cmd` and navigate to `C:\path\to\c-ray`
+6. Run `>CRayWindows\x64\Release\CRayWindows.exe input\scene.json`
+
 ## Installing SDL
 
 On macOS, download the SDL2 runtime framework from https://www.libsdl.org/download-2.0.php and place in `/Library/Frameworks/`
