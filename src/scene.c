@@ -23,6 +23,7 @@
 #define TOKEN_DEBUG_ENABLED false
 
 char *trimSpaces(char *inputLine);
+void copyString(const char *source, char **destination);
 
 /**
  Extract the filename from a given file path
@@ -79,7 +80,7 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 	
 	r->scene->objs[r->scene->objCount].materialCount = 0;
 	//Set name
-	r->scene->objs[r->scene->objCount].objName = getFileName(inputFileName);
+	copyString(getFileName(inputFileName), &r->scene->objs[r->scene->objCount].objName);
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
@@ -584,6 +585,7 @@ int parseLights(struct renderer *r, const cJSON *data) {
 int parseScene(struct renderer *r, const cJSON *data) {
 	
 	const cJSON *filePath = NULL;
+	const cJSON *fileName = NULL;
 	const cJSON *inputFilePath = NULL;
 	const cJSON *count = NULL;
 	const cJSON *width = NULL;
@@ -596,12 +598,17 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	
 	filePath = cJSON_GetObjectItem(data, "filePath");
 	if (cJSON_IsString(filePath)) {
-		r->image->filePath = filePath->valuestring;
+		copyString(filePath->valuestring, &r->image->filePath);
+	}
+	
+	fileName = cJSON_GetObjectItem(data, "fileName");
+	if (cJSON_IsString(fileName)) {
+		copyString(fileName->valuestring, &r->image->fileName);
 	}
 	
 	inputFilePath = cJSON_GetObjectItem(data, "inputFilePath");
 	if (cJSON_IsString(inputFilePath)) {
-		r->inputFilePath = inputFilePath->valuestring;
+		copyString(inputFilePath->valuestring, &r->inputFilePath);
 	}
 	
 	count = cJSON_GetObjectItem(data, "count");
@@ -677,6 +684,11 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	 	Check and fix camera transforms order
 	 */
 	
+	/*
+	 Note: Since we are freeing the JSON data (and its' pointers) after parsing,
+	 we need to *copy* all dynamically allocated strings with the copyString() function.
+	 */
+	
 	//Allocate dynamic props
 	r->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
 	r->scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
@@ -698,7 +710,7 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	const cJSON *camera = NULL;
 	const cJSON *scene = NULL;
 	
-	renderer = cJSON_GetObjectItemCaseSensitive(json, "renderer");
+	renderer = cJSON_GetObjectItem(json, "renderer");
 	if (renderer != NULL) {
 		printf("Parsing renderer prefs...\n");
 		if (parseRenderer(r, renderer) == -1) {
@@ -727,12 +739,13 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	
 	cJSON_Delete(json);
 	
+	transformCameraIntoView(r->scene->camera);
 	transformMeshes(r->scene);
 	computeKDTrees(r->scene);
 	
 	printSceneStats(r->scene);
 	
-	return -2;
+	return 0;
 }
 
 int testBuild(struct renderer *r, char *inputFileName) {
@@ -888,6 +901,12 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	} else {
 		return 0;
 	}
+}
+
+//Copies source over to the destination pointer.
+void copyString(const char *source, char **destination) {
+	*destination = malloc(strlen(source) + 1);
+	strcpy(*destination, source);
 }
 
 //Removes tabs and spaces from a char byte array, terminates it and returns it.
