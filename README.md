@@ -14,9 +14,9 @@
 
 ## Synopsis
 
-C-Ray is a simple raytracer built for studying computer graphics. It's also a great platform for developing your own raytracing algorithms. Just write your own rayTrace() function! Multithreading, 3D model loading and render previews are handled by c-ray, so you can concentrate on the core principles.
+C-ray is a simple raytracer built for studying computer graphics. It's also a great platform for developing your own raytracing algorithms. Just write your own rayTrace() function! Multithreading, 3D model loading and render previews are handled by C-ray, so you can concentrate on the core principles.
 
-C-Ray currently supports:
+C-ray currently supports:
 - Real-time render preview using SDL
 - Easy scene compositing using JSON
 - Multithreading
@@ -83,7 +83,7 @@ On Linux using APT, run `sudo apt install libsdl2-dev`
 
 ## Writing your own raytracing algorithm
 
-C-Ray is built such that a new raytracing algorithm can be a drop-in replacement. Here's some pointers on getting started.
+C-ray is built such that a new raytracing algorithm can be a drop-in replacement. Here's some pointers on getting started.
 
 Your custom raytracing function takes two parameters. A light ray, and a scene:
 
@@ -110,7 +110,7 @@ For spheres, we have similar functions:
 
 ## Tests
 
-You really thought I wrote tests...?
+No tests yet! Maybe soon!
 
 ## Credits
 
@@ -127,4 +127,5 @@ JSON parsing library: https://github.com/DaveGamble/cJSON
 ## Contributors
 
 If you know more than me, please do get in touch at vkoskiv [at] gmail (dot) com!
+
 You can also ping me on **Discord!**: `vkoskiv#3100`
