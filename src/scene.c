@@ -25,6 +25,7 @@
 
 char *trimSpaces(char *inputLine);
 void copyString(const char *source, char **destination);
+size_t getDelim(char **restrict lineptr, size_t *restrict n, int delimiter, FILE *restrict stream);
 
 /**
  Extract the filename from a given file path
@@ -219,7 +220,7 @@ char *loadFile(char *inputFileName) {
 	}
 	char *buf = NULL;
 	size_t len;
-	ssize_t bytesRead = getdelim(&buf, &len, '\0', f);
+	size_t bytesRead = getDelim(&buf, &len, '\0', f);
 	if (bytesRead != -1) {
 		printf("%zi bytes of input JSON loaded, parsing...\n", bytesRead);
 	} else {
@@ -307,7 +308,7 @@ struct matrixTransform parseTransform(const cJSON *data) {
 		printf("Found an invalid transform\n");
 	}
 	
-	return (struct matrixTransform){};
+	return emptyTransform();
 }
 
 //Parse JSON array of transforms, and return a pointer to an array of corresponding matrixTransforms
@@ -898,4 +899,67 @@ char *trimSpaces(char *inputLine) {
 	//Add null termination byte
 	outputLine[j] = '\0';
 	return outputLine;
+}
+
+//For Windows support, we need our own getdelim()
+#define	LONG_MAX	2147483647L	/* max signed long */
+#define	SSIZE_MAX	LONG_MAX	/* max value for a ssize_t */
+#define	EOVERFLOW	84		/* Value too large to be stored in data type */
+size_t getDelim(char **restrict lineptr, size_t *restrict n, int delimiter, FILE *restrict stream) {
+	char *buf, *pos;
+	int c;
+	size_t bytes;
+	
+	if (lineptr == NULL || n == NULL) {
+		return 0;
+	}
+	if (stream == NULL) {
+		return 0;
+	}
+	
+	/* resize (or allocate) the line buffer if necessary */
+	buf = *lineptr;
+	if (buf == NULL || *n < 4) {
+		buf = realloc(*lineptr, 128);
+		if (buf == NULL) {
+			/* ENOMEM */
+			return 0;
+		}
+		*n = 128;
+		*lineptr = buf;
+	}
+	
+	/* read characters until delimiter is found, end of file is reached, or an
+	 error occurs. */
+	bytes = 0;
+	pos = buf;
+	while ((c = getc(stream)) != -1) {
+		if (bytes + 1 >= SSIZE_MAX) {
+			return 0;
+		}
+		bytes++;
+		if (bytes >= *n - 1) {
+			buf = realloc(*lineptr, *n + 128);
+			if (buf == NULL) {
+				/* ENOMEM */
+				return 0;
+			}
+			*n += 128;
+			pos = buf + bytes - 1;
+			*lineptr = buf;
+		}
+		
+		*pos++ = (char) c;
+		if (c == delimiter) {
+			break;
+		}
+	}
+	
+	if (ferror(stream) || (feof(stream) && (bytes == 0))) {
+		/* EOF, or an error from getc(). */
+		return 0;
+	}
+	
+	*pos = '\0';
+	return bytes;
 }
