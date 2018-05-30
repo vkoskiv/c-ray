@@ -83,6 +83,7 @@ On Linux using APT, run `sudo apt install libsdl2-dev`
 C-Ray is built such that a new raytracing algorithm can be a drop-in replacement. Here's some pointers on getting started.
 
 Your custom raytracing function takes two parameters. A light ray, and a scene:
+
 `struct color rayTrace(struct lightRay *incidentRay, struct world *scene)`
 It then returns a color corresponding to that pixel.
 
@@ -103,9 +104,6 @@ For spheres, we have similar functions:
 `rayIntersectsWithSphere()` takes a `lightRay`, a `sphere` and the current `t` value, and returns true if intersected.
 
 `rayIntersectsWithSphereTemp()` is a newer function that sets shading information into a given `intersection` struct, just like `intersectsWithNode`. It uses `rayIntersectsWithSphere` internally.
-
-Currently, the scene is defined in a central place in the code: The `testBuild()` function in `scene.c:201`
-I want to implement a config parser, or a launcher to set these in the future.
 
 ## Tests
 
