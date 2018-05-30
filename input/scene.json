@@ -80,7 +80,50 @@
 				"intensity": 5.0
 			}
 		],
-		"spheres": [],
+		"spheres": [
+			{
+				"pos": {
+					"x": 650,
+					"y": 450,
+					"z": 1650
+				},
+				"color": {
+					"r": 0.3,
+					"g": 0.3,
+					"b": 0.3
+				},
+				"reflectivity": 1.0,
+				"radius": 150
+			},
+			{
+				"pos": {
+					"x": 950,
+					"y": 350,
+					"z": 1500
+				},
+				"color": {
+					"r": 0.3,
+					"g": 0.3,
+					"b": 0.3
+				},
+				"reflectivity": 1.0,
+				"radius": 50
+			},
+			{
+				"pos": {
+					"x": 1100,
+					"y": 350,
+					"z": 1500
+				},
+				"color": {
+					"r": 0.0,
+					"b": 0.0,
+					"g": 0.3
+				},
+				"reflectivity": 0.0,
+				"radius": 50
+			}
+		],
 		"OBJs": [
 			{
 				"fileName": "newScene.obj",

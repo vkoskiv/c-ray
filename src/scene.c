@@ -628,6 +628,56 @@ void parseLights(struct renderer *r, const cJSON *data) {
 	}
 }
 
+void parseSphere(struct renderer *r, const cJSON *data) {
+	const cJSON *pos = NULL;
+	const cJSON *color = NULL;
+	const cJSON *reflectivity = NULL;
+	const cJSON *radius = NULL;
+	
+	struct vector posValue = (struct vector){0.0,0.0,0.0,false};
+	struct color colorValue = (struct color){0.0,0.0,0.0,0.0};
+	double reflectivityValue = 0.0;
+	double radiusValue = 0.0;
+	
+	pos = cJSON_GetObjectItem(data, "pos");
+	if (pos != NULL) {
+		posValue = parseCoordinate(pos);
+	} else {
+		return;
+	}
+	
+	color = cJSON_GetObjectItem(data, "color");
+	if (color != NULL) {
+		colorValue = *parseColor(color);
+	} else {
+		return;
+	}
+	
+	reflectivity = cJSON_GetObjectItem(data, "reflectivity");
+	if (reflectivity != NULL && cJSON_IsNumber(reflectivity)) {
+		reflectivityValue = reflectivity->valuedouble;
+	} else {
+		return;
+	}
+	
+	radius = cJSON_GetObjectItem(data, "radius");
+	if (radius != NULL && cJSON_IsNumber(radius)) {
+		radiusValue = radius->valuedouble;
+	} else {
+		return;
+	}
+	addSphere(r->scene, newSphere(posValue, radiusValue, newMaterial(colorValue, reflectivityValue)));
+}
+
+void parseSpheres(struct renderer *r, const cJSON *data) {
+	const cJSON *sphere = NULL;
+	if (data != NULL && cJSON_IsArray(data)) {
+		cJSON_ArrayForEach(sphere, data) {
+			parseSphere(r, sphere);
+		}
+	}
+}
+
 int parseScene(struct renderer *r, const cJSON *data) {
 	
 	const cJSON *filePath = NULL;
@@ -735,7 +785,7 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	
 	spheres = cJSON_GetObjectItem(data, "spheres");
 	if (cJSON_IsArray(spheres)) {
-		//TODO
+		parseSpheres(r, spheres);
 	}
 	
 	OBJs = cJSON_GetObjectItem(data, "OBJs");
@@ -747,12 +797,6 @@ int parseScene(struct renderer *r, const cJSON *data) {
 }
 
 int parseJSON(struct renderer *r, char *inputFileName) {
-	
-	/*
-	 TODO:
-	 	LIGHTS, SPHERES
-	 	Check and fix camera transforms order
-	 */
 	
 	/*
 	 Note: Since we are freeing the JSON data (and its' pointers) after parsing,
