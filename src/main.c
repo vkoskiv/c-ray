@@ -59,16 +59,16 @@ int main(int argc, char *argv[]) {
 #endif
 	
 	//Build the scene
-	switch (testBuild(&mainRenderer, fileName)) {
+	switch (parseJSON(&mainRenderer, fileName)) {
 		case -1:
 			logHandler(sceneBuildFailed);
-			break;
-		case -2:
-			logHandler(sceneParseErrorMalloc);
 			break;
 		case 4:
 			logHandler(sceneDebugEnabled);
 			return 0;
+			break;
+		case -2:
+			logHandler(sceneParseErrorJSON);
 			break;
 		default:
 			break;

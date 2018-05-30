@@ -50,5 +50,4 @@ struct world {
 	int bounces;
 };
 
-int testBuild(struct renderer *renderer, char *inputFileName);
 int parseJSON(struct renderer *r, char *inputFileName);
