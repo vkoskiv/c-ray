@@ -363,7 +363,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						
 						incidentRay.direction = direction;
 						incidentRay.rayType = rayTypeIncident;
-						incidentRay.remainingInteractions = mainRenderer.scene->camera->bounces;
+						incidentRay.remainingInteractions = mainRenderer.scene->bounces;
 						incidentRay.currentMedium.IOR = AIR_IOR;
 						
 						//For multi-sample rendering, we keep a running average of color values for each pixel

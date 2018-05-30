@@ -21,7 +21,6 @@ struct display;
 
 //World
 struct world {
-	
 	//Ambient background color.
 	struct color *ambientColor;
 	
@@ -45,6 +44,10 @@ struct world {
 	struct camera *camera;
 	int cameraCount;
 	
+	//Scene preferences
+	double contrast;
+	bool areaLights;
+	int bounces;
 };
 
 int testBuild(struct renderer *renderer, char *inputFileName);

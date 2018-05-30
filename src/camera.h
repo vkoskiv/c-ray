@@ -19,13 +19,6 @@ struct camera {
 	struct vector up;
 	struct vector left;
 	
-	int currentFrame;
-	
-	//FIXME: These 3 belong in renderer struct in renderer.h
-	double contrast;
-	bool areaLights;
-	int bounces;
-	
 	struct matrixTransform *transforms;
 	int transformCount;
 };

@@ -450,9 +450,6 @@ int parseCamera(struct renderer *r, const cJSON *data) {
 	
 	const cJSON *FOV = NULL;
 	const cJSON *aperture = NULL;
-	const cJSON *contrast = NULL;
-	const cJSON *bounces = NULL;
-	const cJSON *areaLights = NULL;
 	const cJSON *transforms = NULL;
 	
 	FOV = cJSON_GetObjectItem(data, "FOV");
@@ -471,29 +468,6 @@ int parseCamera(struct renderer *r, const cJSON *data) {
 		} else {
 			r->scene->camera->aperture = 0.0;
 		}
-	}
-	
-	contrast = cJSON_GetObjectItem(data, "contrast");
-	if (cJSON_IsNumber(contrast)) {
-		if (contrast->valuedouble >= 0.0) {
-			r->scene->camera->contrast = contrast->valuedouble;
-		} else {
-			r->scene->camera->contrast = 0.5;
-		}
-	}
-	
-	bounces = cJSON_GetObjectItem(data, "bounces");
-	if (cJSON_IsNumber(bounces)) {
-		if (bounces->valueint >= 1) {
-			r->scene->camera->bounces = bounces->valueint;
-		} else {
-			r->scene->camera->bounces = 1;
-		}
-	}
-	
-	areaLights = cJSON_GetObjectItem(data, "areaLights");
-	if (cJSON_IsBool(areaLights)) {
-		r->scene->camera->areaLights = cJSON_IsTrue(areaLights);
 	}
 	
 	transforms = cJSON_GetObjectItem(data, "transforms");
@@ -598,6 +572,9 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	const cJSON *height = NULL;
 	const cJSON *fileType = NULL;
 	const cJSON *ambientColor = NULL;
+	const cJSON *contrast = NULL;
+	const cJSON *bounces = NULL;
+	const cJSON *areaLights = NULL;
 	const cJSON *lights = NULL;
 	const cJSON *spheres = NULL;
 	const cJSON *OBJs = NULL;
@@ -660,6 +637,29 @@ int parseScene(struct renderer *r, const cJSON *data) {
 		if (parseAmbientColor(r, ambientColor) == -1) {
 			return -1;
 		}
+	}
+	
+	contrast = cJSON_GetObjectItem(data, "contrast");
+	if (cJSON_IsNumber(contrast)) {
+		if (contrast->valuedouble >= 0.0) {
+			r->scene->contrast = contrast->valuedouble;
+		} else {
+			r->scene->contrast = 0.5;
+		}
+	}
+	
+	bounces = cJSON_GetObjectItem(data, "bounces");
+	if (cJSON_IsNumber(bounces)) {
+		if (bounces->valueint >= 0) {
+			r->scene->bounces = bounces->valueint;
+		} else {
+			r->scene->bounces = 0;
+		}
+	}
+	
+	areaLights = cJSON_GetObjectItem(data, "areaLights");
+	if (cJSON_IsBool(areaLights)) {
+		r->scene->areaLights = cJSON_IsTrue(areaLights);
 	}
 	
 	/*lights = cJSON_GetObjectItem(data, "lights");
@@ -795,11 +795,11 @@ int testBuild(struct renderer *r, char *inputFileName) {
 	r->mainDisplay->isBorderless = false;
 	r->mainDisplay->windowScale = 1.0;
 	
-	r->scene->camera->         FOV = 80.0;
-	r->scene->camera->    aperture = 0.0;
-	r->scene->camera->    contrast = 0.5;
-	r->scene->camera->bounces = 3;
-	r->scene->camera->areaLights = true;
+	r->scene->camera->     FOV = 80.0;
+	r->scene->camera->aperture = 0.0;
+	r->scene->        contrast = 0.5;
+	r->scene->         bounces = 3;
+	r->scene->      areaLights = true;
 	
 	//comment this block, and uncomment the next block below to toggle the detailed view of the lighting bug
 	addCamTransform(r->scene->camera, newTransformTranslate(970, 480, 600)); //Set pos here

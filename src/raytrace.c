@@ -296,7 +296,7 @@ struct color getHighlights(const struct intersection *isect, struct color *color
 		struct light currentLight = scene->lights[i];
 		struct vector lightPos;
 		
-		if (scene->camera->areaLights)
+		if (scene->areaLights)
 			lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.power);
 		else
 			lightPos = currentLight.pos;
@@ -500,7 +500,6 @@ struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 	//Raytrace a given light ray with a given scene, then return the color value for that ray
 	struct color output = {0.0,0.0,0.0,0.0};
 	int bounces = 0;
-	double contrast = scene->camera->contrast;
 	
 	struct intersection *isectInfo = (struct intersection*)calloc(1, sizeof(struct intersection));
 	struct intersection *shadowInfo = (struct intersection*)calloc(1, sizeof(struct intersection));
@@ -573,7 +572,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 			surfaceNormal = vectorScale(temp, &surfaceNormal);
 		} else {
 			//Ray didn't hit any object, set color to ambient
-			struct color temp = colorCoef(contrast, scene->ambientColor);
+			struct color temp = colorCoef(scene->contrast, scene->ambientColor);
 			output = addColors(&output, &temp);
 			break;
 		}
@@ -591,7 +590,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 		for (unsigned j = 0; j < lightSourceAmount; ++j) {
 			struct light currentLight = scene->lights[j];
 			struct vector lightPos;
-			if (scene->camera->areaLights)
+			if (scene->areaLights)
 				lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.power);
 			else
 				lightPos = currentLight.pos;
@@ -634,14 +633,14 @@ struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 				double specularFactor = 1.0;//scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
 				
 				//Calculate Lambert diffusion
-				double diffuseFactor = scalarProduct(&bouncedRay.direction, &surfaceNormal) * contrast;
+				double diffuseFactor = scalarProduct(&bouncedRay.direction, &surfaceNormal) * scene->contrast;
 				output.red += specularFactor * diffuseFactor * currentLight.diffuse.red * currentMaterial.diffuse.red;
 				output.green += specularFactor * diffuseFactor * currentLight.diffuse.green * currentMaterial.diffuse.green;
 				output.blue += specularFactor * diffuseFactor * currentLight.diffuse.blue * currentMaterial.diffuse.blue;
 			}
 		}
 		//Iterate over the reflection
-		contrast *= currentMaterial.reflectivity;
+		scene->contrast *= currentMaterial.reflectivity;
 		
 		//Calculate reflected ray start and direction
 		double reflect = 2.0 * scalarProduct(&incidentRay->direction, &surfaceNormal);
@@ -651,7 +650,7 @@ struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 		
 		bounces++;
 		
-	} while ((contrast > 0.0) && (bounces <= scene->camera->bounces));
+	} while ((scene->contrast > 0.0) && (bounces <= scene->bounces));
 	
 	free(isectInfo);
 	free(shadowInfo);

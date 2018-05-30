@@ -17,27 +17,12 @@
 #include "ui.h"
 
 int getFileSize(char *fileName);
+void initRenderer(struct renderer *renderer);
 int getSysCores();
 void freeMem();
 
 extern struct renderer mainRenderer;
 extern struct poly *polygonArray;
-
-void initRenderer(struct renderer *renderer) {
-	renderer->renderBuffer = NULL;
-	renderer->renderTiles = NULL;
-	renderer->tileCount = 0;
-	renderer->renderedTileCount = 0;
-	renderer->activeThreads = 0;
-	renderer->threadCount = getSysCores();
-	renderer->mode = saveModeNormal;
-	renderer->isRendering = false;
-	renderer->renderPaused = false;
-	renderer->avgTileTime = (time_t)1;
-	renderer->timeSampleCount = 1;
-	
-	renderer->scene = (struct world*)calloc(1, sizeof(struct world));
-}
 
 /**
  Main entry point
@@ -123,9 +108,9 @@ int main(int argc, char *argv[]) {
 	
 	//Verify sample count
 	if (mainRenderer.sampleCount < 1) logHandler(renderErrorInvalidSampleCount);
-	if (!mainRenderer.scene->camera->areaLights) mainRenderer.sampleCount = 1;
+	if (!mainRenderer.scene->areaLights) mainRenderer.sampleCount = 1;
 	
-	printf("\nStarting C-ray renderer for frame %i\n\n", mainRenderer.scene->camera->currentFrame);
+	printf("\nStarting C-ray renderer for frame %i\n\n", mainRenderer.currentFrame);
 	
 	//Print a useful warning to user if the defined tile size results in less renderThreads
 	if (mainRenderer.tileCount < mainRenderer.threadCount) {
@@ -144,7 +129,7 @@ int main(int argc, char *argv[]) {
 		printf("\n");
 	}
 	
-	printf("Using %i light bounces\n", mainRenderer.scene->camera->bounces);
+	printf("Using %i light bounces\n", mainRenderer.scene->bounces);
 	printf("Raytracing...\n");
 	
 	//Allocate memory and create array of pixels for image data
@@ -241,7 +226,7 @@ int main(int argc, char *argv[]) {
 	//Write to file
 	writeImage(mainRenderer.image);
 	
-	mainRenderer.scene->camera->currentFrame++;
+	mainRenderer.currentFrame++;
 	
 	freeMem();
 	
@@ -284,6 +269,33 @@ void freeMem() {
 		free(polygonArray);
 }
 
+void initRenderer(struct renderer *renderer) {
+	renderer->scene = (struct world*)calloc(1, sizeof(struct world));
+	renderer->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
+	renderer->renderTiles = NULL;
+	renderer->tileCount = 0;
+	renderer->renderedTileCount = 0;
+	renderer->renderBuffer = NULL;
+	renderer->uiBuffer = NULL;
+	renderer->activeThreads = 0;
+	renderer->isRendering = false;
+	renderer->renderPaused = false;
+	renderer->renderAborted = false;
+	renderer->avgTileTime = (time_t)1;
+	renderer->timeSampleCount = 1;
+	renderer->currentFrame = 0;
+	renderer->renderThreadInfo = (struct threadInfo*)calloc(1, sizeof(struct threadInfo));
+	renderer->mode = saveModeNormal;
+	renderer->tileOrder = renderOrderNormal;
+	renderer->inputFilePath = NULL;
+	renderer->threadCount = 0;
+	renderer->sampleCount = 0;
+	renderer->tileWidth = 0;
+	renderer->tileHeight = 0;
+	renderer->smoothShading = false;
+	renderer->antialiasing = false;
+	renderer->newRenderer = false;
+}
 
 /**
  Sleep for a given amount of milliseconds
@@ -302,7 +314,6 @@ void sleepMSec(int ms) {
 	usleep(ms * 1000);
 #endif
 }
-
 
 /**
  Get amount of logical processing cores on the system

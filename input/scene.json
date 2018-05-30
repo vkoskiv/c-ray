@@ -17,9 +17,6 @@
 	"camera": {
 		"FOV": 80.0,
 		"aperture": 0.0,
-		"contrast": 0.5,
-		"bounces": 3,
-		"areaLights": true,
 		"transforms": [
 			{
 				"type": "translate",
@@ -49,6 +46,9 @@
 			"g": 0.6,
 			"b": 0.6
 		},
+		"contrast": 0.5,
+		"bounces": 3,
+		"areaLights": true,
 		"inputFilePath": "input/",
 		"lights": [
 			{

@@ -55,16 +55,13 @@ enum renderOrder {
  as well as information needed for the rendering routines.
  */
 struct renderer {
-	struct threadInfo *renderThreadInfo; //Info about threads
-#ifndef WINDOWS
-	pthread_attr_t renderThreadAttributes;
-#endif
+	//Source data
 	struct world *scene; //Scene to render
-	char *inputFilePath; //Directory to load input files from
+	
+	//State data
 	struct outputImage *image; //Output image
 	struct renderTile *renderTiles; //Array of renderTiles to render
 	int tileCount; //Total amount of render tiles
-	enum fileMode mode;
 	int renderedTileCount; //Completed render tiles
 	double *renderBuffer;  //Double-precision buffer for multisampling
 	unsigned char *uiBuffer; //UI element buffer
@@ -72,31 +69,31 @@ struct renderer {
 	bool isRendering;
 	bool renderPaused; //SDL listens for P key pressed, which sets this
 	bool renderAborted;//SDL listens for X key pressed, which sets this
-	bool smoothShading;//Unused
 	time_t avgTileTime;//Used for render duration estimation
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
-	
-	//Prefs
-	int threadCount; //Amount of threads to render with
-	int sampleCount;
-	bool antialiasing;
-	bool newRenderer;
-	int tileWidth;
-	int tileHeight;
-	enum renderOrder tileOrder;
+	int currentFrame;
+	struct threadInfo *renderThreadInfo; //Info about threads
+#ifndef WINDOWS
+	pthread_attr_t renderThreadAttributes;
+#endif
 #ifdef UI_ENABLED
 	struct display *mainDisplay;
 #endif
+	
+	//Preferences data (Set by user)
+	enum fileMode mode;
+	enum renderOrder tileOrder;
+	char *inputFilePath; //Directory to load input files from
+	
+	int threadCount; //Amount of threads to render with
+	int sampleCount;
+	int tileWidth;
+	int tileHeight;
+	
+	bool smoothShading;//Unused
+	bool antialiasing;
+	bool newRenderer;
 };
-
-/*
- Move to renderer:
- 
- Move to UI:
- isFullScreen
- isBorderless
- windowScale
- */
 
 //Renderer
 #ifdef WINDOWS
