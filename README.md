@@ -127,4 +127,4 @@ JSON parsing library: https://github.com/DaveGamble/cJSON
 ## Contributors
 
 If you know more than me, please do get in touch at vkoskiv [at] gmail (dot) com!
-
+You can also ping me on **Discord!**: `vkoskiv#3100`
