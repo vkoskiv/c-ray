@@ -2,6 +2,10 @@
 	<img src="https://i.imgur.com/fPBuCTG.png" width="256">
 </p>
 
+## Rendering with SDL installed
+
+<iframe src="https://giphy.com/embed/8cT6Dbo7kCi3rRj5Fr" width="480" height="332" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/ray-tracing-raytracing-8cT6Dbo7kCi3rRj5Fr">via GIPHY</a></p>
+
 ## Status
 
 [![Build Status](https://semaphoreci.com/api/v1/vkoskiv/c-ray/branches/master/badge.svg)](https://semaphoreci.com/vkoskiv/c-ray)
