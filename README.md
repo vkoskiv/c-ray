@@ -40,6 +40,10 @@ Things I'm looking to implement:
 - Expand the default raytracer into a full path tracer
 - Expand the default raytracer to use PBR
 
+## Usage
+
+Please see the [Wiki](https://github.com/VKoskiv/c-ray/wiki) for details on how to use the JSON scene interface!
+
 ## Dependencies
 
 - SDL2 (Disabled by default. uncomment #define UI_ENABLED in includes.h:12 to enable it)
