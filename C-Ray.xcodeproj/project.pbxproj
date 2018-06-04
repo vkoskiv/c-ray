@@ -51,7 +51,7 @@
 		9005F1AD1EA570B9004CF72D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		900C4FD81E59A566001695F6 /* ui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ui.c; path = src/ui.c; sourceTree = SOURCE_ROOT; };
 		900C4FD91E59A566001695F6 /* ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ui.h; path = src/ui.h; sourceTree = SOURCE_ROOT; };
-		901E4C101E5382D800B2AF38 /* sceneFile.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = sceneFile.txt; path = output/sceneFile.txt; sourceTree = "<group>"; };
+		900FB5DB20C3BA3C008174C4 /* scene.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = scene.json; path = input/scene.json; sourceTree = "<group>"; };
 		9021F8CD1E47EDB8001737C0 /* list.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = list.c; path = src/list.c; sourceTree = "<group>"; };
 		9021F8CE1E47EDB8001737C0 /* list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = list.h; path = src/list.h; sourceTree = "<group>"; };
 		9021F8CF1E47EDB8001737C0 /* lodepng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lodepng.c; path = src/lodepng.c; sourceTree = "<group>"; };
@@ -79,7 +79,6 @@
 		9021F8F91E47EE02001737C0 /* sphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sphere.h; path = src/sphere.h; sourceTree = SOURCE_ROOT; };
 		9021F8FD1E47EE0A001737C0 /* vector.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vector.c; path = src/vector.c; sourceTree = SOURCE_ROOT; };
 		9021F8FE1E47EE0A001737C0 /* vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vector.h; path = src/vector.h; sourceTree = SOURCE_ROOT; };
-		9021F9001E47F156001737C0 /* scene.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = scene.txt; path = output/scene.txt; sourceTree = "<group>"; };
 		9021F9011E480390001737C0 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = src/main.c; sourceTree = SOURCE_ROOT; };
 		9021F9021E480390001737C0 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = main.h; path = src/main.h; sourceTree = SOURCE_ROOT; };
 		9021F9071E494E3D001737C0 /* transforms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = transforms.c; path = src/transforms.c; sourceTree = SOURCE_ROOT; };
@@ -215,8 +214,7 @@
 		90D99B321D0DBDF60015A854 /* Inputfiles */ = {
 			isa = PBXGroup;
 			children = (
-				901E4C101E5382D800B2AF38 /* sceneFile.txt */,
-				9021F9001E47F156001737C0 /* scene.txt */,
+				900FB5DB20C3BA3C008174C4 /* scene.json */,
 			);
 			name = Inputfiles;
 			sourceTree = "<group>";
