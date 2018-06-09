@@ -245,6 +245,7 @@ void reorderTiles(enum renderOrder order) {
 }
 
 /**
+ //TODO: Refactor this to retrieve pixel from a given buffer, so we can reuse it for texture maps
  Gets a pixel from the render buffer
  
  @param x X coordinate of pixel

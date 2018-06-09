@@ -42,6 +42,7 @@ typedef struct {
 	double amb[3];
 	double diff[3];
 	double spec[3];
+	double emit[3];
 	double reflect;
 	double refract;
 	double trans;

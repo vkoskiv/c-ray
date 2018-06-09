@@ -56,7 +56,7 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 	
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFileName, r->inputFilePath) == 0) {
-		printf("OBJ %s file not found!\n", getFileName(inputFileName));
+		printf("OBJ %s not found!\n", getFileName(inputFileName));
 		return false;
 	}
 	printf("OBJ loaded, converting...\n");
@@ -127,6 +127,7 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 		for (int i = 0; i < data.material_count; i++) {
 			addMaterialOBJ(&r->scene->objs[r->scene->objCount], materialFromObj(data.material_list[i]));
 		}
+		//int err = lodepng_decode24_file(<#unsigned char **out#>, <#unsigned int *w#>, <#unsigned int *h#>, <#const char *filename#>)
 	}
 	
 	
@@ -536,7 +537,6 @@ void parseOBJ(struct renderer *r, const cJSON *data) {
 		if (loadOBJ(r, fileName->valuestring)) {
 			objValid = true;
 		} else {
-			printf("Failed to find OBJ named %s\n", fileName->valuestring);
 			return;
 		}
 	}

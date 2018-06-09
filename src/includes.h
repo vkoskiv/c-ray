@@ -9,13 +9,13 @@
 #pragma once
 
 //Comment this to disable SDL
-//#define UI_ENABLED
+#define UI_ENABLED
 
 //Global constants
 #define MAX_CRAY_VERTEX_COUNT 3
 #define PIOVER180 0.017453292519943295769236907684886
 #define PI        3.141592653589793238462643383279502
-#define MATERIAL_NAME_SIZE 255
+#define MATERIAL_NAME_SIZE 256
 #define OBJ_FILENAME_LENGTH 500
 
 //Some macros

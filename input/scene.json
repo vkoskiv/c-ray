@@ -2,7 +2,7 @@
 	"version": 1.0,
 	"renderer": {
 		"threadCount": 0,
-		"sampleCount": 25,
+		"sampleCount": 3,
 		"antialiasing": true,
 		"newRenderer": false,
 		"tileWidth": 128,
@@ -10,7 +10,7 @@
 		"tileOrder": "fromMiddle"
 	},
 	"display": {
-		"isFullscreen": false,
+		"isFullscreen": true,
 		"isBorderless": false,
 		"windowScale": 1.0
 	},
@@ -125,6 +125,25 @@
 			}
 		],
 		"OBJs": [
+			{
+				"fileName": "tonni.obj",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 100
+					},
+					{
+						"type": "rotateX",
+						"degrees": 90
+					},
+					{
+						"type": "translate",
+						"x": 1070,
+						"y": 400,
+						"z": 1050
+				 	}
+				]
+			},
 			{
 				"fileName": "newScene.obj",
 				"transforms": []

@@ -38,6 +38,7 @@ void initCamera(struct camera *cam) {
 	cam->left = vectorWithPos(-1, 0, 0);
 }
 
+//TODO: Fix so the translate transform is always performed correctly no matter what order transforms are given in
 void transformCameraIntoView(struct camera *cam) {
 	//Compute transforms for position (place the camera in the scene)
 	transformVector(&cam->pos, &cam->transforms[0]);
