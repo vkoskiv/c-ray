@@ -42,13 +42,21 @@
  'Diamond': 2.417 - 2.541
  */
 
+struct texture {
+	unsigned char *imgData;
+	unsigned int *width;
+	unsigned int *height;
+};
+
 //Non-PBR blinn-phong material
 struct material {
-	char name[MATERIAL_NAME_SIZE];
-	char textureFilename[OBJ_FILENAME_LENGTH];
+	struct texture *textures;
+	char *name;
+	char *textureFilePath;
 	struct color ambient;
 	struct color diffuse;
 	struct color specular;
+	struct color emission;
 	double reflectivity;
 	double refractivity;
 	double IOR;

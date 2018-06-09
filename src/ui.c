@@ -225,8 +225,3 @@ void drawWindow() {
 }
 
 #endif
-
-void updateProgress(int totalSamples, int completedSamples, int threadNum) {
-	printf("Thread %i rendering sample %i/%i\r", threadNum, completedSamples, totalSamples);
-	fflush(stdout);
-}

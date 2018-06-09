@@ -41,6 +41,9 @@ void obj_set_material_defaults(obj_material *mtl)
 	mtl->spec[0] = 1.0;
 	mtl->spec[1] = 1.0;
 	mtl->spec[2] = 1.0;
+	mtl->emit[0] = 1.0;
+	mtl->emit[1] = 1.0;
+	mtl->emit[2] = 1.0;
 	mtl->reflect = -1.0;
 	mtl->trans = 1;
 	mtl->glossy = 98;
@@ -250,6 +253,13 @@ int obj_parse_mtl_file(char *filename, list *material_list)
 			current_mtl->spec[1] = atof( strtok(NULL, " \t"));
 			current_mtl->spec[2] = atof( strtok(NULL, " \t"));
 		}
+		//emission
+		else if( strequal(current_token, "Ke") && material_open )
+		{
+			current_mtl->emit[0] = atof( strtok(NULL, " \t"));
+			current_mtl->emit[1] = atof( strtok(NULL, " \t"));
+			current_mtl->emit[2] = atof( strtok(NULL, " \t"));
+		}
 		//shiny
 		else if( strequal(current_token, "Ns") && material_open)
 		{
@@ -279,10 +289,14 @@ int obj_parse_mtl_file(char *filename, list *material_list)
 		else if( strequal(current_token, "illum") && material_open)
 		{
 		}
-		// texture map
-		else if( strequal(current_token, "map_Ka") && material_open)
+		// texture map (diffuse map)
+		else if( strequal(current_token, "map_Kd") && material_open)
 		{
 			strncpy(current_mtl->texture_filename, strtok(NULL, " \t"), OBJ_FILENAME_LENGTH);
+		}
+		else if ( strequal(current_token, "map_d") && material_open)
+		{
+			//TODO
 		}
 		else
 		{

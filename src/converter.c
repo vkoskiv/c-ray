@@ -64,6 +64,17 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
  */
 struct material materialFromObj(obj_material *mat) {
 	struct material newMat;
+	
+	for (int i = 0; i < 255; i++) {
+		newMat.name[i] = mat->name[i];
+		newMat.name[255] = '\0';
+	}
+	
+	/*for (int i = 0; i < 500; i++) {
+		newMat.textureFilename[i] = mat->texture_filename[i];
+		newMat.textureFilename[499] = '\0';
+	}*/
+	
 	newMat.diffuse.red   = mat->diff[0];
 	newMat.diffuse.green = mat->diff[1];
 	newMat.diffuse.blue  = mat->diff[2];
@@ -76,6 +87,10 @@ struct material materialFromObj(obj_material *mat) {
 	newMat.specular.green= mat->spec[1];
 	newMat.specular.blue = mat->spec[2];
 	newMat.specular.alpha= 0;
+	newMat.emission.red  = mat->emit[0];
+	newMat.emission.green= mat->emit[1];
+	newMat.emission.blue = mat->emit[2];
+	newMat.emission.alpha = 0;
 	newMat.reflectivity  = mat->reflect;
 	newMat.refractivity  = mat->refract;
 	newMat.IOR           = mat->refract_index;
