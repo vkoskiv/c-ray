@@ -8,6 +8,12 @@
 	<img src="https://media.giphy.com/media/8cT6Dbo7kCi3rRj5Fr/giphy.gif" width="512">
 </p>
 
+## Example render (6000 samples, 13 hours)
+
+<p align="center">
+	<img src="https://teensyimg.com/images/2xjK6CQ0pr.png" width="768">
+</p>
+
 ## Status
 
 [![Build Status](https://semaphoreci.com/api/v1/vkoskiv/c-ray/branches/master/badge.svg)](https://semaphoreci.com/vkoskiv/c-ray)
