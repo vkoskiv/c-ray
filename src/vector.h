@@ -32,7 +32,7 @@ extern int vertexCount;
 extern struct vector *normalArray;
 extern int normalCount;
 
-extern struct vector *textureArray;
+extern struct coord *textureArray;
 extern int textureCount;
 
 //Return a vector with given coordinates
@@ -49,6 +49,9 @@ double scalarProduct(const struct vector *v1, const struct vector *v2);
 
 //Multiply a vector by a coefficient and return the resulting vector
 struct vector vectorScale(const double c, const struct vector *v);
+
+struct coord coordScale(const double c, const struct coord *crd);
+struct coord addCoords(const struct coord *c1, const struct coord *c2);
 
 //Calculate the cross product of two vectors and return the resulting vector
 struct vector vectorCross(struct vector *v1, struct vector *v2);

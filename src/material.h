@@ -50,9 +50,10 @@ struct texture {
 
 //Non-PBR blinn-phong material
 struct material {
-	struct texture *textures;
-	char *name;
 	char *textureFilePath;
+	char *name;
+	bool hasTexture;
+	struct texture *texture;
 	struct color ambient;
 	struct color diffuse;
 	struct color specular;

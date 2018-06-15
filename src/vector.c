@@ -21,7 +21,7 @@ struct vector *vertexArray;
 int vertexCount;
 struct vector *normalArray;
 int normalCount;
-struct vector *textureArray;
+struct coord *textureArray;
 int textureCount;
 
 /* Vector Functions */
@@ -95,6 +95,14 @@ double scalarProduct(const struct vector *v1, const struct vector *v2) {
  */
 struct vector vectorScale(const double c, const struct vector *v) {
 	return (struct vector){v->x * c, v->y * c, v->z * c, false};
+}
+
+struct coord coordScale(const double c, const struct coord *crd) {
+	return (struct coord){crd->x * c, crd->y * c};
+}
+
+struct coord addCoords(const struct coord *c1, const struct coord *c2) {
+	return (struct coord){c1->x + c2->x, c1->y + c2->y};
 }
 
 /**

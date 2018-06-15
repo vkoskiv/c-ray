@@ -27,6 +27,14 @@ struct vector vectorFromObj(obj_vector *vec) {
 	return vector;
 }
 
+
+struct coord coordFromObj(obj_vector *vec) {
+	struct coord coordinate;
+	coordinate.x = vec->e[0];
+	coordinate.y = vec->e[1];
+	return coordinate;
+}
+
 /**
  Convert a given OBJ loader polygon into a c-ray polygon
  
@@ -65,15 +73,20 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
 struct material materialFromObj(obj_material *mat) {
 	struct material newMat;
 	
+	newMat.name = (char*)calloc(256, sizeof(char*));
+	newMat.textureFilePath = (char*)calloc(500, sizeof(char*));
+	
+	newMat.hasTexture = false;
+	
 	for (int i = 0; i < 255; i++) {
 		newMat.name[i] = mat->name[i];
 		newMat.name[255] = '\0';
 	}
 	
-	/*for (int i = 0; i < 500; i++) {
-		newMat.textureFilename[i] = mat->texture_filename[i];
-		newMat.textureFilename[499] = '\0';
-	}*/
+	for (int i = 0; i < 500; i++) {
+		newMat.textureFilePath[i] = mat->texture_filename[i];
+		newMat.textureFilePath[499] = '\0';
+	}
 	
 	newMat.diffuse.red   = mat->diff[0];
 	newMat.diffuse.green = mat->diff[1];

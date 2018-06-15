@@ -52,6 +52,28 @@ struct crayOBJ *lastObj(struct renderer *r) {
 	return &r->scene->objs[r->scene->objCount - 1];
 }
 
+struct texture *newTexture(char *filePath) {
+	struct texture *newTexture = (struct texture*)calloc(1, sizeof(struct texture));
+	newTexture->imgData = NULL;
+	newTexture->width = (unsigned int*)calloc(1, sizeof(unsigned int));
+	newTexture->height = (unsigned int*)calloc(1, sizeof(unsigned int));
+	
+	int err = lodepng_decode24_file(&newTexture->imgData, newTexture->width, newTexture->height, "/Users/vkoskiv/Documents/dev/c-ray/input/tonninseteli2.png");
+	if (err != 0) {
+		printf("Texture loading error: %s\n", lodepng_error_text(err));
+	}
+	return newTexture;
+}
+
+void loadOBJTextures(struct crayOBJ *obj) {
+	for (int i = 0; i < obj->materialCount; i++) {
+		if (strcmp(obj->materials[i].textureFilePath, "")) {
+			obj->materials[i].texture = newTexture(obj->materials[i].textureFilePath);
+			obj->materials[i].hasTexture = true;
+		}
+	}
+}
+
 bool loadOBJ(struct renderer *r, char *inputFileName) {
 	printf("Loading OBJ %s%s\n", r->inputFilePath, inputFileName);
 	
@@ -103,9 +125,9 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 		normalArray[r->scene->objs[r->scene->objCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture vectors
-	textureArray = (struct vector*)realloc(textureArray, textureCount * sizeof(struct vector));
+	textureArray = (struct coord*)realloc(textureArray, textureCount * sizeof(struct coord));
 	for (int i = 0; i < data.vertex_texture_count; i++) {
-		textureArray[r->scene->objs[r->scene->objCount].firstTextureIndex + i] = vectorFromObj(data.vertex_texture_list[i]);
+		textureArray[r->scene->objs[r->scene->objCount].firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
 	polygonArray = (struct poly*)realloc(polygonArray, polyCount * sizeof(struct poly));
@@ -128,9 +150,10 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 		for (int i = 0; i < data.material_count; i++) {
 			addMaterialOBJ(&r->scene->objs[r->scene->objCount], materialFromObj(data.material_list[i]));
 		}
-		//int err = lodepng_decode24_file(<#unsigned char **out#>, <#unsigned int *w#>, <#unsigned int *h#>, <#const char *filename#>)
 	}
 	
+	//Load textures for OBJs
+	loadOBJTextures(&r->scene->objs[r->scene->objCount]);
 	
 	printf("Converted OBJ! Translated %i faces, %i vectors and %i materials\n\n", data.face_count, data.vertex_count, data.material_count);
 	

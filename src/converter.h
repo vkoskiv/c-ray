@@ -17,6 +17,8 @@
  */
 struct vector vectorFromObj(obj_vector *vec);
 
+struct coord coordFromObj(obj_vector *vec);
+
 /**
  Convert a given OBJ loader polygon into a c-ray polygon
  
