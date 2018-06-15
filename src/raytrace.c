@@ -119,18 +119,46 @@ void getSurfaceProperties(int polyIndex,
 	
 #ifdef UV
 	//Texture coords
-	struct vector s0 = textureArray[polygonArray[polyIndex].textureIndex[0]];
-	struct vector s1 = textureArray[polygonArray[polyIndex].textureIndex[1]];
-	struct vector s2 = textureArray[polygonArray[polyIndex].textureIndex[2]];
+	struct coord uv1 = textureArray[polygonArray[polyIndex].textureIndex[0]];
+	struct coord uv2 = textureArray[polygonArray[polyIndex].textureIndex[1]];
+	struct coord uv3 = textureArray[polygonArray[polyIndex].textureIndex[2]];
+	
+	//uv is our barycentric coordinate from intersection
+	double s = uv.x;
+	double t = uv.y;
+	
+	double tmp = (1 - s - t);
+	struct coord comp1 = coordScale(tmp, &uv1);
+	struct coord comp2 = coordScale(s, &uv2);
+	struct coord comp3 = coordScale(t, &uv3);
+	
+	struct coord temp = addCoords(&comp1, &comp2);
+	struct coord final = addCoords(&temp, &comp3);
+	//textureCoord *should* be the X,Y value we take from our texture image
+	*textureCoord = uvFromValues(final.x, final.y);
 	
 	// (1 - uv.x - uv.y) * st0 + uv.x * st1 + uv.y * st2;
 	
-	double u = (1 - uv.x - uv.y);
-	u = u * s0.x;
-	u = u * s0.y;
-	u = u * s0.z;
 	
+	/*
+	 @vkoskiv the important bit is
+	 "you use the barycentric coords (s, t, 1 - s - t) to weight the uvs (or any other data) at the vertices, to get the (u, v) at your point in the triangle"
+	 just interpolate sUV1 + tUV2 + (1-s-t)*UV3 = final UV, if the UVs of the tree vertices are UV1,2,3
+	 no need to normalize the weights, because s + t + 1 - s - t = 1 trivially
+	 */
+	
+	/* sUV1 + tUV2 + (1-s-t)*UV3 = final UV */
+	
+	
+	// (1 - s - t) * uv1 + s * uv2 + t * uv3;
+	
+	// (1 - s - t) * uv1
+	
+	
+	//double v = coordScale(s, &uv2);
 	//double v = vectorScale(uv.x, &s1), vectorScale(uv.y, s2);
+	
+	
 	
 	//textureCoord = uvFromValues(u, v);
 #endif
@@ -502,6 +530,29 @@ struct vector randomInUnitSphere() {
 		vec = subtractVectors(&vec, &temp);
 	} while (squaredVectorLength(&vec) >= 1.0);
 	return vec;
+}
+/*struct color getPixel(int x, int y) {
+	struct color output = {0.0, 0.0, 0.0, 0.0};
+	output.red = mainRenderer.renderBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width)*3 + 0];
+	output.green = mainRenderer.renderBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width)*3 + 1];
+	output.blue = mainRenderer.renderBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width)*3 + 2];
+	output.alpha = 1.0;
+	return output;
+}*/
+
+
+struct color colorForUV(struct material mtl, struct coord uv) {
+	struct color output = {0.0, 0.0, 0.0, 0.0};
+	//We need to combine the given uv, material texture coordinates, and magic to resolve this color.
+	
+	int x = (int)uv.x;
+	int y = (int)uv.y;
+	
+	output.red = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 0];
+	output.green = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 1];
+	output.blue = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 2];
+	
+	return output;
 }
 
 bool lambertianScatter(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
