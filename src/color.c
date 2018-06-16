@@ -103,3 +103,41 @@ struct color mixColors(struct color c1, struct color c2, float coeff) {
 	//Linear interpolation mix
 	return add(muls(c1, 1.0f - coeff), muls(c2, coeff));
 }
+
+//sRGB transforms are from https://en.wikipedia.org/wiki/SRGB
+
+double linearToSRGB(double channel) {
+	if (channel <= 0.0031308) {
+		return 12.92 * channel;
+	} else {
+		return (1.055 * pow(channel, 0.4166666667)) - 0.055;
+	}
+}
+
+double SRGBToLinear(double channel) {
+	if (channel <= 0.04045) {
+		return channel / 12.92;
+	} else {
+		return pow(((channel + 0.055) / 1.055), 2.4);
+	}
+}
+
+//Convert from linear (0.0-1.0) to sRGB
+struct color toSRGB(struct color c) {
+	struct color srgb = (struct color){0.0, 0.0, 0.0, 0.0};
+	srgb.red = linearToSRGB(c.red);
+	srgb.green = linearToSRGB(c.green);
+	srgb.blue = linearToSRGB(c.blue);
+	srgb.alpha = c.alpha;
+	return srgb;
+}
+
+//Convert from sRGB to linear (0.0-1.0)
+struct color fromSRGB(struct color c) {
+	struct color linear = (struct color){0.0, 0.0, 0.0, 0.0};
+	linear.red = SRGBToLinear(c.red);
+	linear.green = SRGBToLinear(c.green);
+	linear.blue = SRGBToLinear(c.blue);
+	linear.alpha = c.alpha;
+	return linear;
+}

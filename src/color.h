@@ -38,3 +38,7 @@ struct color addColors(struct color *c1, struct color *c2);
 struct color colorCoef(double coef, struct color *c);
 
 struct color mixColors(struct color c1, struct color c2, float coeff);
+
+struct color toSRGB(struct color c);
+
+struct color fromSRGB(struct color c);

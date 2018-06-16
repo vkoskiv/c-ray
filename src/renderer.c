@@ -396,6 +396,9 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 1] = output.green;
 						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 2] = output.blue;
 						
+						//Gamma correction
+						output = toSRGB(output);
+						
 						//And store the image data
 						//Note how imageData only stores 8-bit precision for each color channel.
 						//This is why we use the renderBuffer for the running average as it just contains
