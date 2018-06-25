@@ -182,7 +182,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 }
 
 struct color getAmbient(const struct intersection *isect, struct color *color) {
-	//Very cheap ambient occlusion
+	//Very cheap global illumination
 	return colorCoef(0.25, color);
 }
 

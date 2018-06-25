@@ -70,6 +70,7 @@ enum bsdfType {
 //TODO: Different BSDF materials
 struct BSDF {
 	enum bsdfType *type;
+	//function pointer to the appropriate func
 };
 
 //temporary newMaterial func
