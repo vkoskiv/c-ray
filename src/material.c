@@ -41,3 +41,25 @@ struct material newMaterialFull(struct color ambient,
 	
 	return mat;
 }
+
+/*emission = 0,
+ lambertian,
+ glass,
+ metal,
+ translucent,
+ transparent*/
+
+bool lambertianScatter(struct lightRay incident, struct intersection isect, struct color attenuation, struct lightRay scattered) {
+	
+}
+
+void assignScatter(struct BSDF *mat) {
+	switch (mat->type) {
+		case lambertian:
+			mat->scatter = lambertianScatter;
+			break;
+			
+		default:
+			break;
+	}
+}

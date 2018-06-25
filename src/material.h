@@ -68,17 +68,29 @@ struct material {
 
 enum bsdfType {
 	emission = 0,
-	diffuse,
+	lambertian,
 	glass,
-	glossy,
-	refraction,
+	metal,
 	translucent,
 	transparent
 };
 
+struct lightRay;
+struct intersection;
+struct color;
+
+struct intersectionRec {
+	float distance;
+	struct vector *hitPoint;
+	struct vector *normal;
+	bool (*scatter)(struct lightRay, struct intersection, struct color, struct lightRay);
+};
+
 //TODO: Different BSDF materials
 struct BSDF {
-	enum bsdfType *type;
+	enum bsdfType type;
+	//ray, isect record, attenuation color, scattered ray
+	bool (*scatter)(struct lightRay, struct intersection, struct color, struct lightRay);
 };
 
 //temporary newMaterial func
