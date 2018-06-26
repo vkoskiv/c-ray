@@ -23,7 +23,6 @@
 
 #define TOKEN_DEBUG_ENABLED false
 
-char *trimSpaces(char *inputLine);
 void copyString(const char *source, char **destination);
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
 
@@ -902,26 +901,8 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 
 //Copies source over to the destination pointer.
 void copyString(const char *source, char **destination) {
-	*destination = malloc(strlen(source) + 1);
+	*destination = (char*)malloc(strlen(source) + 1);
 	strcpy(*destination, source);
-}
-
-//Removes tabs and spaces from a char byte array, terminates it and returns it.
-char *trimSpaces(char *inputLine) {
-	int i, j;
-	char *outputLine = inputLine;
-	for (i = 0, j = 0; i < strlen(inputLine); i++, j++) {
-		if (inputLine[i] == ' ') { //Space
-			j--;
-		} else if (inputLine[i] == '\t') { //Tab
-			j--;
-		} else {
-			outputLine[j] = inputLine[i];
-		}
-	}
-	//Add null termination byte
-	outputLine[j] = '\0';
-	return outputLine;
 }
 
 //For Windows support, we need our own getdelim()
@@ -943,7 +924,7 @@ size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
 	/* resize (or allocate) the line buffer if necessary */
 	buf = *lineptr;
 	if (buf == NULL || *n < 4) {
-		buf = realloc(*lineptr, 128);
+		buf = (char*)realloc(*lineptr, 128);
 		if (buf == NULL) {
 			/* ENOMEM */
 			return 0;

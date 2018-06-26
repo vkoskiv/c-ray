@@ -51,7 +51,7 @@
 		9005F1AD1EA570B9004CF72D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		900C4FD81E59A566001695F6 /* ui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ui.c; path = src/ui.c; sourceTree = SOURCE_ROOT; };
 		900C4FD91E59A566001695F6 /* ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ui.h; path = src/ui.h; sourceTree = SOURCE_ROOT; };
-		900FB5DB20C3BA3C008174C4 /* scene.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = scene.json; path = input/scene.json; sourceTree = "<group>"; };
+		900FB5DB20C3BA3C008174C4 /* scene.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = scene.json; path = input/scene.json; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
 		9021F8CD1E47EDB8001737C0 /* list.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = list.c; path = src/list.c; sourceTree = "<group>"; };
 		9021F8CE1E47EDB8001737C0 /* list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = list.h; path = src/list.h; sourceTree = "<group>"; };
 		9021F8CF1E47EDB8001737C0 /* lodepng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lodepng.c; path = src/lodepng.c; sourceTree = "<group>"; };

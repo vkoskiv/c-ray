@@ -59,6 +59,10 @@ double vectorLength(struct vector *v) {
 	return sqrt(v->x*v->x + v->y*v->y + v->z*v->z);
 }
 
+double squaredVectorLength(struct vector *v) {
+	return v->x * v->x + v->y * v->y + v->z * v->z;
+}
+
 /**
  Subtract a vector from another and return the resulting vector
 

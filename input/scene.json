@@ -4,10 +4,10 @@
 		"threadCount": 0,
 		"sampleCount": 3,
 		"antialiasing": true,
-		"newRenderer": true,
-		"tileWidth": 64,
-		"tileHeight": 64,
-		"tileOrder": "random"
+		"newRenderer": false,
+		"tileWidth": 128,
+		"tileHeight": 128,
+		"tileOrder": "fromMiddle"
 	},
 	"display": {
 		"isFullscreen": true,

@@ -10,6 +10,7 @@
 
 enum type {
 	rayTypeIncident,
+	rayTypeScattered,
 	rayTypeReflected,
 	rayTypeRefracted,
 	rayTypeShadow
@@ -23,3 +24,5 @@ struct lightRay {
 	struct material currentMedium;
 	int remainingInteractions; //Reflections or refractions
 };
+
+struct lightRay newRay(struct vector start, struct vector direction, enum type rayType);

@@ -40,5 +40,4 @@ struct intersection {
 
 struct color rayTrace(struct lightRay *incidentRay, struct world *scene);
 
-//New, experimental rayTracer
-struct color newTrace(struct lightRay *incidentRay, struct world *scene);
+struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth);

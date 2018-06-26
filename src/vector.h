@@ -65,6 +65,9 @@ struct vector maxVector(struct vector *v1, struct vector *v2);
 //Calculate length of vector
 double vectorLength(struct vector *v);
 
+//calculate length^2 of vector
+double squaredVectorLength(struct vector *v);
+
 //Normalize a vector
 struct vector normalizeVector(struct vector *v);
 

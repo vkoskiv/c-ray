@@ -376,7 +376,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						
 						//Get new sample (raytracing is initiated here)
 						if (mainRenderer.newRenderer) {
-							sample = newTrace(&incidentRay, mainRenderer.scene);
+							//sample = newTrace(&incidentRay, mainRenderer.scene);
+							sample = pathTrace(&incidentRay, mainRenderer.scene, 0);
 						} else {
 							sample = rayTrace(&incidentRay, mainRenderer.scene);
 						}
@@ -396,6 +397,9 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 0] = output.red;
 						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 1] = output.green;
 						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 2] = output.blue;
+						
+						//Gamma correction
+						output = toSRGB(output);
 						
 						//And store the image data
 						//Note how imageData only stores 8-bit precision for each color channel.

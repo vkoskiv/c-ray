@@ -9,7 +9,6 @@
 #pragma once
 
 struct world;
-enum renderOrder;
 struct outputImage;
 struct display;
 

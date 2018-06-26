@@ -210,7 +210,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 }
 
 struct color getAmbient(const struct intersection *isect, struct color *color) {
-	//Very cheap ambient occlusion
+	//Very cheap global illumination
 	return colorCoef(0.25, color);
 }
 
@@ -313,7 +313,7 @@ struct color getSpecular(const struct intersection *isect, struct light *light, 
  @param world Scene to get lighting information
  @return Highlighted color
  */
-struct color getHighlights(const struct intersection *isect, struct color *color, struct world *scene) {
+struct color getHighlights(struct intersection *isect, struct color *color, struct world *scene) {
 	//diffuse and specular highlights
 	struct color  diffuse = (struct color){0.0, 0.0, 0.0, 0.0};
 	struct color specular = (struct color){0.0, 0.0, 0.0, 0.0};
@@ -445,7 +445,7 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
 		reflectedRay.remainingInteractions = remainingInteractions - 1;
 		reflectedRay.currentMedium = isect->ray.currentMedium;
 		//And recurse!
-		struct color temp = newTrace(&reflectedRay, scene);
+		struct color temp = rayTrace(&reflectedRay, scene);
 		reflectiveColor = colorCoef(reflectivePercentage, &temp);
 	}
 	
@@ -457,7 +457,7 @@ struct color getReflectsAndRefracts(const struct intersection *isect, struct col
 		refractedRay.remainingInteractions = remainingInteractions - 1;
 		refractedRay.currentMedium = isect->end;
 		//Recurse here too
-		struct color temp = newTrace(&refractedRay, scene);
+		struct color temp = rayTrace(&refractedRay, scene);
 		refractiveColor = colorCoef(refractivePercentage, &temp);
 	}
 	
@@ -494,15 +494,22 @@ struct color getLighting(struct intersection *isect, struct world *scene) {
 	return addColors(&temp, &ambientColor);
 }
 
+struct color getAmbientColor(struct lightRay *incidentRay) {
+	struct vector unitDirection = normalizeVector(&incidentRay->direction);
+	float t = 0.5 * (unitDirection.y + 1.0);
+	struct color temp1 = colorCoef(1.0 - t, &(struct color){1.0, 1.0, 1.0, 0.0});
+	struct color temp2 = colorCoef(t, &(struct color){0.5, 0.7, 1.0, 0.0});
+	return addColors(&temp1, &temp2);
+}
+
 /**
- New, recursive raytracer. (Unfinished)
- Should support refractions, and will be easier to expand in the future.
+ Recursive raytracer. (Unfinished)
 
  @param incidentRay Given light ray to cast into a scene
  @param scene Given scene to cast ray into
  @return Color based on the given ray and scene.
  */
-struct color newTrace(struct lightRay *incidentRay, struct world *scene) {
+struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
 	//This is the start of the new rayTracer.
 	//Start by getting the closest intersection point in scene for this given incidentRay.
 	struct intersection closestIsect = getClosestIsect(incidentRay, scene);
@@ -511,9 +518,18 @@ struct color newTrace(struct lightRay *incidentRay, struct world *scene) {
 	if (closestIsect.didIntersect) {
 		return getLighting(&closestIsect, scene);
 	} else {
-		//Ray didn't hit anything, just return the ambientColor of this scene (set in scene.c)
-		return *scene->ambientColor;
+		return getAmbientColor(incidentRay);
 	}
+}
+
+struct vector randomInUnitSphere() {
+	struct vector vec = (struct vector){0.0, 0.0, 0.0, false};
+	do {
+		vec = vectorMultiply(vectorWithPos(drand48(), drand48(), drand48()), 2.0);
+		struct vector temp = vectorWithPos(1.0, 1.0, 1.0);
+		vec = subtractVectors(&vec, &temp);
+	} while (squaredVectorLength(&vec) >= 1.0);
+	return vec;
 }
 
 /*struct color getPixel(int x, int y) {
@@ -525,14 +541,13 @@ struct color newTrace(struct lightRay *incidentRay, struct world *scene) {
 	return output;
 }*/
 
-
 struct color colorForUV(struct material mtl, struct coord uv) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
 	//We need to combine the given uv, material texture coordinates, and magic to resolve this color.
 	
 	int x = (int)uv.x;
 	int y = (int)uv.y;
-	
+  
 	output.red = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 0];
 	output.green = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 1];
 	output.blue = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 2];
@@ -540,175 +555,45 @@ struct color colorForUV(struct material mtl, struct coord uv) {
 	return output;
 }
 
-/**
- Returns a computed color based on a given ray and world scene
- 
- @param incidentRay View ray to be cast into a scene
- @param scene Scene the ray is cast into
- @return Color value with full precision (double)
- */
-struct color rayTrace(struct lightRay *incidentRay, struct world *scene) {
-	//Raytrace a given light ray with a given scene, then return the color value for that ray
-	struct color output = {0.0,0.0,0.0,0.0};
-	int bounces = 0;
-	double contrast = scene->contrast;
+bool lambertianScatter(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
+	struct vector temp = addVectors(&isect->hitPoint, &isect->surfaceNormal);
+	struct vector rand = randomInUnitSphere();
+	struct vector target = addVectors(&temp, &rand);
 	
-	struct intersection *isectInfo = (struct intersection*)calloc(1, sizeof(struct intersection));
-	struct intersection *shadowInfo = (struct intersection*)calloc(1, sizeof(struct intersection));
+	struct vector target2 = subtractVectors(&isect->hitPoint, &target);
 	
-	do {
-		//closestIntersection, also often called 't', distance to closest intersection
-		//Used to figure out the nearest intersection
-		double closestIntersection = 20000.0;
-		double temp;
-		int currentSphere = -1;
-		int currentPolygon = -1;
-		unsigned sphereAmount = scene->sphereCount;
-		unsigned lightSourceAmount = scene->lightCount;
-		unsigned objCount = scene->objCount;
+	*scattered = ((struct lightRay){isect->hitPoint, target2, rayTypeReflected, isect->end, 0});
+	*attenuation = isect->end.diffuse;
+	return true;
+}
+
+bool metallicScatter(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
+	struct vector reflected = reflect(&isect->ray.direction, &isect->surfaceNormal);
+	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
+	*attenuation = isect->end.diffuse;
+	return (scalarProduct(&scattered->direction, &isect->surfaceNormal) > 0);
+}
+
+struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth) {
+	struct intersection rec = getClosestIsect(incidentRay, scene);
+	
+	struct coord textureCoord = {0.0, 0.0};
+	if(rec.type == hitTypePolygon) {
+		getSurfaceProperties(rec.polyIndex, rec.uv, &rec.surfaceNormal, &textureCoord);
+	}
+	
+	if (rec.didIntersect) {
+		struct lightRay scattered = {};
+		struct color attenuation = {};
 		
-		struct material currentMaterial;
-		struct vector surfaceNormal = {0.0, 0.0, 0.0, false};
-		struct coord  uv          = {0.0, 0.0};
-		struct coord textureCoord = {0.0, 0.0};
-		struct vector hitpoint;
-		
-		for (unsigned i = 0; i < sphereAmount; ++i) {
-			if (rayIntersectsWithSphere(incidentRay, &scene->spheres[i], &closestIntersection)) {
-				currentSphere = i;
-				currentMaterial = scene->spheres[currentSphere].material;
-			}
-		}
-		
-		isectInfo->distance = closestIntersection;
-		isectInfo->surfaceNormal = surfaceNormal;
-		for (unsigned o = 0; o < objCount; o++) {
-			if (rayIntersectsWithNode(scene->objs[o].tree, incidentRay, isectInfo)) {
-				currentPolygon      = isectInfo->polyIndex;
-				closestIntersection = isectInfo->distance;
-				surfaceNormal          = isectInfo->surfaceNormal;
-				uv                  = isectInfo->uv;
-				getSurfaceProperties(isectInfo->polyIndex, uv, &surfaceNormal, &textureCoord);
-				currentMaterial = scene->objs[o].materials[isectInfo->mtlIndex];
-				if (currentMaterial.hasTexture) {
-					currentMaterial.diffuse = colorForUV(scene->objs[o].materials[isectInfo->mtlIndex], textureCoord);
-				}
-				currentSphere = -1;
-			}
-		}
-		
-		/*unsigned o, p;
-		for (o = 0; o < objCount; o++) {
-			for (p = scene->objs[o].firstPolyIndex; p < (scene->objs[o].firstPolyIndex + scene->objs[o].polyCount); p++) {
-				if (rayIntersectsWithPolygon(incidentRay, &polygonArray[p], &closestIntersection, &surfaceNormal, &uv)) {
-					currentPolygon = p;
-					currentMaterial = scene->objs[o].materials[polygonArray[p].materialIndex];
-					currentSphere = -1;
-				}
-			}
-		}
-		*/
-		//Ray-object intersection detection
-		if (currentSphere != -1) {
-			struct vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
-			hitpoint = addVectors(&incidentRay->start, &scaled);
-			surfaceNormal = subtractVectors(&hitpoint, &scene->spheres[currentSphere].pos);
-			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
-			if (temp == 0.0) break;
-			temp = invsqrt(temp);
-			surfaceNormal = vectorScale(temp, &surfaceNormal);
-		} else if (currentPolygon != -1) {
-			struct vector scaled = vectorScale(closestIntersection, &incidentRay->direction);
-			hitpoint = addVectors(&incidentRay->start, &scaled);
-			temp = scalarProduct(&surfaceNormal,&surfaceNormal);
-			if (temp == 0.0) break;
-			temp = invsqrt(temp);
-			//FIXME: Possibly get existing normal here
-			surfaceNormal = vectorScale(temp, &surfaceNormal);
+		if (depth < 5 && lambertianScatter(&rec, incidentRay, &attenuation, &scattered)) {
+			struct color newColor = pathTrace(&scattered, scene, depth + 1);
+			return multiplyColors(&attenuation, &newColor);
 		} else {
-			//Ray didn't hit any object, set color to ambient
-			struct color temp = colorCoef(contrast, scene->ambientColor);
-			output = addColors(&output, &temp);
-			break;
+			return (struct color){0.0, 0.0, 0.0, 0.0};
 		}
 		
-		if (scalarProduct(&surfaceNormal, &incidentRay->direction) < 0.0) {
-			surfaceNormal = vectorScale(1.0, &surfaceNormal);
-		} else if (scalarProduct(&surfaceNormal, &incidentRay->direction) > 0.0) {
-			surfaceNormal = vectorScale(-1.0, &surfaceNormal);
-		}
-		
-		struct lightRay bouncedRay;
-		bouncedRay.start = hitpoint;
-		
-		//Find the value of the light at this point
-		for (unsigned j = 0; j < lightSourceAmount; ++j) {
-			struct light currentLight = scene->lights[j];
-			struct vector lightPos;
-			if (scene->areaLights)
-				lightPos = getRandomVecOnRadius(currentLight.pos, currentLight.radius);
-			else
-				lightPos = currentLight.pos;
-			
-			bouncedRay.direction = subtractVectors(&lightPos, &hitpoint);
-			
-			double lightProjection = scalarProduct(&bouncedRay.direction, &surfaceNormal);
-			if (lightProjection <= 0.0) continue;
-			
-			double lightDistance = scalarProduct(&bouncedRay.direction, &bouncedRay.direction);
-			double temp = lightDistance;
-			
-			if (temp <= 0.0) continue;
-			temp = invsqrt(temp);
-			bouncedRay.direction = vectorScale(temp, &bouncedRay.direction);
-			
-			//Calculate shadows
-			bool inShadow = false;
-			double t = lightDistance;
-			unsigned int k;
-			for (k = 0; k < sphereAmount; ++k) {
-				if (rayIntersectsWithSphere(&bouncedRay, &scene->spheres[k], &t)) {
-					inShadow = true;
-					break;
-				}
-			}
-			
-			shadowInfo->distance = lightDistance;
-			shadowInfo->surfaceNormal = surfaceNormal;
-			for (unsigned o = 0; o < objCount; o++) {
-				if (rayIntersectsWithNode(scene->objs[o].tree, &bouncedRay, shadowInfo)) {
-					t = shadowInfo->distance;
-					inShadow = true;
-					break;
-				}
-			}
-			
-			if (!inShadow) {
-				//TODO: Calculate specular reflection
-				double specularFactor = 1.0;//scalarProduct(&cameraRay.direction, &surfaceNormal) * contrast;
-				
-				//Calculate Lambert diffusion
-				double diffuseFactor = scalarProduct(&bouncedRay.direction, &surfaceNormal) * contrast;
-				output.red += specularFactor * diffuseFactor * currentLight.diffuse.red * currentMaterial.diffuse.red;
-				output.green += specularFactor * diffuseFactor * currentLight.diffuse.green * currentMaterial.diffuse.green;
-				output.blue += specularFactor * diffuseFactor * currentLight.diffuse.blue * currentMaterial.diffuse.blue;
-			}
-		}
-		//Iterate over the reflection
-		contrast *= currentMaterial.reflectivity;
-		
-		//Calculate reflected ray start and direction
-		double reflect = 2.0 * scalarProduct(&incidentRay->direction, &surfaceNormal);
-		incidentRay->start = hitpoint;
-		struct vector tempVec = vectorScale(reflect, &surfaceNormal);
-		incidentRay->direction = subtractVectors(&incidentRay->direction, &tempVec);
-		
-		bounces++;
-		
-	} while ((contrast > 0.0) && (bounces <= scene->bounces));
-	
-	free(isectInfo);
-	free(shadowInfo);
-	
-	return output;
+	} else {
+		return getAmbientColor(incidentRay);
+	}
 }
