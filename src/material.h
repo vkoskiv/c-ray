@@ -79,13 +79,6 @@ struct lightRay;
 struct intersection;
 struct color;
 
-struct intersectionRec {
-	float distance;
-	struct vector *hitPoint;
-	struct vector *normal;
-	bool (*scatter)(struct lightRay, struct intersection, struct color, struct lightRay);
-};
-
 //TODO: Different BSDF materials
 struct BSDF {
 	enum bsdfType type;
