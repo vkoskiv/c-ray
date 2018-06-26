@@ -375,9 +375,10 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						
 						//Get new sample (raytracing is initiated here)
 						if (mainRenderer.newRenderer) {
-							sample = newTrace(&incidentRay, mainRenderer.scene);
+							//sample = newTrace(&incidentRay, mainRenderer.scene);
+							sample = pathTrace(&incidentRay, mainRenderer.scene, 0);
 						} else {
-							sample = rayTrace(&incidentRay, mainRenderer.scene);
+							sample = newTrace(&incidentRay, mainRenderer.scene);
 						}
 						
 						//And process the running average

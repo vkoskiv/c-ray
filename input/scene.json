@@ -4,7 +4,7 @@
 		"threadCount": 0,
 		"sampleCount": 25,
 		"antialiasing": true,
-		"newRenderer": true,
+		"newRenderer": false,
 		"tileWidth": 128,
 		"tileHeight": 128,
 		"tileOrder": "fromMiddle"
