@@ -49,6 +49,7 @@ struct material newMaterialFull(struct color ambient,
  translucent,
  transparent*/
 
+
 /*void assignScatter(struct BSDF *mat) {
 	switch (mat->type) {
 		case lambertian:

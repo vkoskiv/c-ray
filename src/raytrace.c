@@ -531,6 +531,7 @@ struct vector randomInUnitSphere() {
 	} while (squaredVectorLength(&vec) >= 1.0);
 	return vec;
 }
+
 /*struct color getPixel(int x, int y) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
 	output.red = mainRenderer.renderBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width)*3 + 0];
@@ -540,14 +541,13 @@ struct vector randomInUnitSphere() {
 	return output;
 }*/
 
-
 struct color colorForUV(struct material mtl, struct coord uv) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
 	//We need to combine the given uv, material texture coordinates, and magic to resolve this color.
 	
 	int x = (int)uv.x;
 	int y = (int)uv.y;
-	
+  
 	output.red = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 0];
 	output.green = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 1];
 	output.blue = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 2];
