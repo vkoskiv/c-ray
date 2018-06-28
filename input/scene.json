@@ -2,9 +2,9 @@
 	"version": 1.0,
 	"renderer": {
 		"threadCount": 0,
-		"sampleCount": 3,
+		"sampleCount": 25,
 		"antialiasing": true,
-		"newRenderer": false,
+		"newRenderer": true,
 		"tileWidth": 128,
 		"tileHeight": 128,
 		"tileOrder": "fromMiddle"
@@ -138,8 +138,8 @@
 					},
 					{
 						"type": "translate",
-						"x": 1070,
-						"y": 400,
+						"x": 1170,
+						"y": 350,
 						"z": 1050
 				 	}
 				]

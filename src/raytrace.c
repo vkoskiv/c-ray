@@ -82,7 +82,7 @@ bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, st
 	}
 }
 
-#define SMOOTH
+//#define SMOOTH
 //#define UV
 
 void getSurfaceProperties(int polyIndex,
@@ -586,7 +586,7 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 		struct lightRay scattered = {};
 		struct color attenuation = {};
 		
-		if (depth < 5 && lambertianScatter(&rec, incidentRay, &attenuation, &scattered)) {
+		if (depth < 25 && lambertianScatter(&rec, incidentRay, &attenuation, &scattered)) {
 			struct color newColor = pathTrace(&scattered, scene, depth + 1);
 			return multiplyColors(&attenuation, &newColor);
 		} else {

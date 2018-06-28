@@ -49,14 +49,19 @@ struct material newMaterialFull(struct color ambient,
  translucent,
  transparent*/
 
+/*bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
+bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
 
-/*void assignScatter(struct BSDF *mat) {
+void assignBSDF(struct material *mat) {
 	switch (mat->type) {
 		case lambertian:
-			mat->scatter = lambertianScatter;
+			mat->bsdf = lambertianBSDF;
 			break;
+		case metal:
+			mat->bsdf = metallicBSDF;
 			
 		default:
+			mat->bsdf = lambertianBSDF;
 			break;
 	}
 }*/

@@ -42,13 +42,25 @@
  'Diamond': 2.417 - 2.541
  */
 
+struct lightRay;
+struct intersection;
+struct color;
+
 struct texture {
 	unsigned char *imgData;
 	unsigned int *width;
 	unsigned int *height;
 };
 
-//Non-PBR blinn-phong material
+enum bsdfType {
+	emission = 0,
+	lambertian,
+	glass,
+	metal,
+	translucent,
+	transparent
+};
+
 struct material {
 	char *textureFilePath;
 	char *name;
@@ -64,26 +76,10 @@ struct material {
 	double transparency;
 	double sharpness;
 	double glossiness;
-};
-
-enum bsdfType {
-	emission = 0,
-	lambertian,
-	glass,
-	metal,
-	translucent,
-	transparent
-};
-
-struct lightRay;
-struct intersection;
-struct color;
-
-//TODO: Different BSDF materials
-struct BSDF {
+	
 	enum bsdfType type;
-	//ray, isect record, attenuation color, scattered ray
-	bool (*scatter)(struct lightRay, struct intersection, struct color, struct lightRay);
+	//isect record, ray, attenuation color, scattered ray
+	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*);
 };
 
 //temporary newMaterial func
