@@ -4,7 +4,6 @@
 		"threadCount": 0,
 		"sampleCount": 25,
 		"antialiasing": true,
-		"newRenderer": true,
 		"tileWidth": 128,
 		"tileHeight": 128,
 		"tileOrder": "fromMiddle"
@@ -47,7 +46,7 @@
 			"b": 0.6
 		},
 		"contrast": 0.5,
-		"bounces": 3,
+		"bounces": 25,
 		"areaLights": true,
 		"inputFilePath": "input/",
 		"lights": [

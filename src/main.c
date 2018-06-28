@@ -294,7 +294,6 @@ void initRenderer(struct renderer *renderer) {
 	renderer->tileHeight = 0;
 	renderer->smoothShading = false;
 	renderer->antialiasing = false;
-	renderer->newRenderer = false;
 }
 
 /**

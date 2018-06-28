@@ -353,7 +353,6 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	const cJSON *threadCount = NULL;
 	const cJSON *sampleCount = NULL;
 	const cJSON *antialiasing = NULL;
-	const cJSON *newRenderer = NULL;
 	const cJSON *tileWidth = NULL;
 	const cJSON *tileHeight = NULL;
 	const cJSON *tileOrder = NULL;
@@ -387,14 +386,6 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 		r->antialiasing = cJSON_IsTrue(antialiasing);
 	} else {
 		printf("Invalid antialiasing bool while parsing renderer\n");
-		return -1;
-	}
-	
-	newRenderer = cJSON_GetObjectItem(data, "newRenderer");
-	if (cJSON_IsBool(newRenderer)) {
-		r->newRenderer = cJSON_IsTrue(newRenderer);
-	} else {
-		printf("Invalid newRenderer bool while parsing renderer\n");
 		return -1;
 	}
 	

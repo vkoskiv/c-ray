@@ -1,5 +1,5 @@
 //
-//  raytrace.h
+//  pathtrace.h
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 27/04/2017.
@@ -37,7 +37,5 @@ struct intersection {
 	int mtlIndex;					//OBJ material index
 	int polyIndex;					//OBJ polygon index
 };
-
-struct color rayTrace(struct lightRay *incidentRay, struct world *scene);
 
 struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth);

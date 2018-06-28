@@ -13,7 +13,7 @@
 #include "light.h"
 #include "poly.h"
 #include "scene.h"
-#include "raytrace.h"
+#include "pathtrace.h"
 #include "filehandler.h"
 #include "main.h"
 
@@ -375,12 +375,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						struct color sample = {0.0,0.0,0.0,0.0};
 						
 						//Get new sample (raytracing is initiated here)
-						if (mainRenderer.newRenderer) {
-							//sample = newTrace(&incidentRay, mainRenderer.scene);
-							sample = pathTrace(&incidentRay, mainRenderer.scene, 0);
-						} else {
-							sample = rayTrace(&incidentRay, mainRenderer.scene);
-						}
+						sample = pathTrace(&incidentRay, mainRenderer.scene, 0);
 						
 						//And process the running average
 						output.red = output.red * (tile.completedSamples - 1);

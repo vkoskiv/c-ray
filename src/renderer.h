@@ -91,7 +91,6 @@ struct renderer {
 	
 	bool smoothShading;//Unused
 	bool antialiasing;
-	bool newRenderer;
 };
 
 //Renderer

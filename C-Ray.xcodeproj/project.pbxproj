@@ -29,7 +29,7 @@
 		908B28CA1F469808009A967E /* converter.c in Sources */ = {isa = PBXBuildFile; fileRef = 908B28C81F469808009A967E /* converter.c */; };
 		90B988EB1EB33774000E22CF /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = 90B988E91EB33774000E22CF /* kdtree.c */; };
 		90B988EE1EB33DAB000E22CF /* bbox.c in Sources */ = {isa = PBXBuildFile; fileRef = 90B988EC1EB33DAB000E22CF /* bbox.c */; };
-		90BBA5351EB18D43001AE07B /* raytrace.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BBA5331EB18D43001AE07B /* raytrace.c */; };
+		90BBA5351EB18D43001AE07B /* pathtrace.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BBA5331EB18D43001AE07B /* pathtrace.c */; };
 		90BBA5381EB18FAB001AE07B /* obj.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BBA5361EB18FAB001AE07B /* obj.c */; };
 		90F843931ECE3FF700C5567C /* lightRay.c in Sources */ = {isa = PBXBuildFile; fileRef = 90F843911ECE3FF700C5567C /* lightRay.c */; };
 		90FDF8B81E593E9200EE91FD /* renderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FDF8B61E593E9200EE91FD /* renderer.c */; };
@@ -93,8 +93,8 @@
 		90B988EA1EB33774000E22CF /* kdtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kdtree.h; path = src/kdtree.h; sourceTree = SOURCE_ROOT; };
 		90B988EC1EB33DAB000E22CF /* bbox.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bbox.c; path = src/bbox.c; sourceTree = SOURCE_ROOT; };
 		90B988ED1EB33DAB000E22CF /* bbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bbox.h; path = src/bbox.h; sourceTree = SOURCE_ROOT; };
-		90BBA5331EB18D43001AE07B /* raytrace.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = raytrace.c; path = src/raytrace.c; sourceTree = SOURCE_ROOT; };
-		90BBA5341EB18D43001AE07B /* raytrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = raytrace.h; path = src/raytrace.h; sourceTree = SOURCE_ROOT; };
+		90BBA5331EB18D43001AE07B /* pathtrace.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pathtrace.c; path = src/pathtrace.c; sourceTree = SOURCE_ROOT; };
+		90BBA5341EB18D43001AE07B /* pathtrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pathtrace.h; path = src/pathtrace.h; sourceTree = SOURCE_ROOT; };
 		90BBA5361EB18FAB001AE07B /* obj.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj.c; path = src/obj.c; sourceTree = SOURCE_ROOT; };
 		90BBA5371EB18FAB001AE07B /* obj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = obj.h; path = src/obj.h; sourceTree = SOURCE_ROOT; };
 		90D99AF41D08ADB10015A854 /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -150,8 +150,8 @@
 			children = (
 				90FDF8B61E593E9200EE91FD /* renderer.c */,
 				90FDF8B71E593E9200EE91FD /* renderer.h */,
-				90BBA5331EB18D43001AE07B /* raytrace.c */,
-				90BBA5341EB18D43001AE07B /* raytrace.h */,
+				90BBA5331EB18D43001AE07B /* pathtrace.c */,
+				90BBA5341EB18D43001AE07B /* pathtrace.h */,
 				9021F9011E480390001737C0 /* main.c */,
 				9021F9021E480390001737C0 /* main.h */,
 				9021F8F61E47EE02001737C0 /* scene.c */,
@@ -282,7 +282,7 @@
 				90B988EB1EB33774000E22CF /* kdtree.c in Sources */,
 				9021F8FA1E47EE02001737C0 /* poly.c in Sources */,
 				9021F8FF1E47EE0A001737C0 /* vector.c in Sources */,
-				90BBA5351EB18D43001AE07B /* raytrace.c in Sources */,
+				90BBA5351EB18D43001AE07B /* pathtrace.c in Sources */,
 				9021F8E81E47EDEE001737C0 /* camera.c in Sources */,
 				9021F8FB1E47EE02001737C0 /* scene.c in Sources */,
 				9021F9031E480390001737C0 /* main.c in Sources */,
@@ -401,7 +401,7 @@
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 					"$(USER_LIBRARY_DIR)/Frameworks",
 				);
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
@@ -427,7 +427,7 @@
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 					"$(USER_LIBRARY_DIR)/Frameworks",
 				);
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
