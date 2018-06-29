@@ -8,10 +8,10 @@
 	<img src="https://media.giphy.com/media/8cT6Dbo7kCi3rRj5Fr/giphy.gif" width="512">
 </p>
 
-## Example render (6000 samples, 13 hours)
+## Example render (2000 samples, 11 hours)
 
 <p align="center">
-	<img src="https://teensyimg.com/images/2xjK6CQ0pr.png" width="768">
+	<img src="https://teensyimg.com/images/IpADpTYgZ0.png" width="768">
 </p>
 
 ## Status
@@ -20,7 +20,7 @@
 
 ## Synopsis
 
-C-ray is a simple raytracer built for studying computer graphics. It's also a great platform for developing your own raytracing algorithms. Just write your own rayTrace() function! Multithreading, 3D model loading and render previews are handled by C-ray, so you can concentrate on the core principles.
+C-ray is a simple path tracer built for studying computer graphics. It's also a great platform for developing your own raytracing algorithms. Just write your own rayTrace() function! Multithreading, 3D model loading and render previews are handled by C-ray, so you can concentrate on the core principles.
 
 C-ray currently supports:
 - Real-time render preview using SDL
@@ -32,19 +32,16 @@ C-ray currently supports:
 - Antialiasing
 - Multi-sampling
 
-The default recursive raytracing algorithm supports:
-- reflections
-- lights with radius (soft shadows)
+The default recursive path tracing algorithm supports:
+- metal
+- lambertian diffuse
 - triangles and spheres
-- blinn-phong lighting model
 - Depth of field
-- Refraction
 
 Things I'm looking to implement:
 - Implement more robust material handling to support textures, and multiple materials for a single OBJ
 - Some procedural textures
-- Expand the default raytracer into a full path tracer
-- Expand the default raytracer to use PBR
+- Expand the default path tracer to use PBR
 
 ## Usage
 
