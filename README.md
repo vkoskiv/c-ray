@@ -11,7 +11,7 @@
 ## Example render (2000 samples, 11 hours)
 
 <p align="center">
-	<img src="https://teensyimg.com/images/IpADpTYgZ0.png" width="768">
+	<img src="https://teensyimg.com/images/urzClV90yC.png" width="768">
 </p>
 
 ## Status
