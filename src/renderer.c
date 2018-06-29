@@ -91,14 +91,14 @@ void quantizeImage() {
 			tile->width  = mainRenderer.tileWidth;
 			tile->height = mainRenderer.tileHeight;
 			
-			tile->startX = x       * mainRenderer.tileWidth;
-			tile->endX   = (x + 1) * mainRenderer.tileWidth;
+			tile->begin.x = x       * mainRenderer.tileWidth;
+			tile->end.x   = (x + 1) * mainRenderer.tileWidth;
 			
-			tile->startY = y       * mainRenderer.tileHeight;
-			tile->endY   = (y + 1) * mainRenderer.tileHeight;
+			tile->begin.y = y       * mainRenderer.tileHeight;
+			tile->end.y   = (y + 1) * mainRenderer.tileHeight;
 			
-			tile->endX = min((x + 1) * mainRenderer.tileWidth, mainRenderer.image->size.width);
-			tile->endY = min((y + 1) * mainRenderer.tileHeight, mainRenderer.image->size.height);
+			tile->end.x = min((x + 1) * mainRenderer.tileWidth, mainRenderer.image->size.width);
+			tile->end.y = min((y + 1) * mainRenderer.tileHeight, mainRenderer.image->size.height);
 			
 			//Samples have to start at 1, so the running average works
 			tile->completedSamples = 1;
@@ -312,8 +312,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 			time(&tile.start);
 			
 			while (tile.completedSamples < mainRenderer.sampleCount+1 && mainRenderer.isRendering) {
-				for (int y = tile.endY; y > tile.startY; y--) {
-					for (int x = tile.startX; x < tile.endX; x++) {
+				for (int y = tile.end.y; y > tile.begin.y; y--) {
+					for (int x = tile.begin.x; x < tile.end.x; x++) {
 						
 						int height = mainRenderer.image->size.height;
 						int width = mainRenderer.image->size.width;

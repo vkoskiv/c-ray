@@ -32,9 +32,8 @@ struct threadInfo {
 struct renderTile {
 	int width;
 	int height;
-	//TODO: Consider position struct for these
-	int startX, startY;
-	int endX, endY;
+	struct coord begin;
+	struct coord end;
 	int completedSamples;
 	bool isRendering;
 	int tileNum;

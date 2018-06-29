@@ -179,20 +179,20 @@ void drawPixel(int x, int y, bool on) {
 void drawFrame(struct renderTile tile, bool on) {
 	for (int i = 1; i < 7; i++) {
 		//top left
-		drawPixel(tile.startX+i, tile.startY+1, on);
-		drawPixel(tile.startX+1, tile.startY+i, on);
+		drawPixel(tile.begin.x+i, tile.begin.y+1, on);
+		drawPixel(tile.begin.x+1, tile.begin.y+i, on);
 		
 		//top right
-		drawPixel(tile.endX-i, tile.startY+1, on);
-		drawPixel(tile.endX-1, tile.startY+i, on);
+		drawPixel(tile.end.x-i, tile.begin.y+1, on);
+		drawPixel(tile.end.x-1, tile.begin.y+i, on);
 		
 		//Bottom left
-		drawPixel(tile.startX+i, tile.endY-1, on);
-		drawPixel(tile.startX+1, tile.endY-i, on);
+		drawPixel(tile.begin.x+i, tile.end.y-1, on);
+		drawPixel(tile.begin.x+1, tile.end.y-i, on);
 		
 		//bottom right
-		drawPixel(tile.endX-i, tile.endY-1, on);
-		drawPixel(tile.endX-1, tile.endY-i, on);
+		drawPixel(tile.end.x-i, tile.end.y-1, on);
+		drawPixel(tile.end.x-1, tile.end.y-i, on);
 	}
 }
 
