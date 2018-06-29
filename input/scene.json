@@ -9,7 +9,7 @@
 		"tileOrder": "fromMiddle"
 	},
 	"display": {
-		"isFullscreen": true,
+		"isFullscreen": false,
 		"isBorderless": false,
 		"windowScale": 1.0
 	},
