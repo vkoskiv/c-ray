@@ -703,19 +703,17 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	const cJSON *height = NULL;
 	const cJSON *fileType = NULL;
 	const cJSON *ambientColor = NULL;
-	const cJSON *contrast = NULL;
 	const cJSON *bounces = NULL;
-	const cJSON *areaLights = NULL;
 	const cJSON *lights = NULL;
 	const cJSON *spheres = NULL;
 	const cJSON *OBJs = NULL;
 	
-	filePath = cJSON_GetObjectItem(data, "filePath");
+	filePath = cJSON_GetObjectItem(data, "outputFilePath");
 	if (cJSON_IsString(filePath)) {
 		copyString(filePath->valuestring, &r->image->filePath);
 	}
 	
-	fileName = cJSON_GetObjectItem(data, "fileName");
+	fileName = cJSON_GetObjectItem(data, "outputFileName");
 	if (cJSON_IsString(fileName)) {
 		copyString(fileName->valuestring, &r->image->fileName);
 	}
@@ -770,15 +768,6 @@ int parseScene(struct renderer *r, const cJSON *data) {
 		}
 	}
 	
-	contrast = cJSON_GetObjectItem(data, "contrast");
-	if (cJSON_IsNumber(contrast)) {
-		if (contrast->valuedouble >= 0.0) {
-			r->scene->contrast = contrast->valuedouble;
-		} else {
-			r->scene->contrast = 0.5;
-		}
-	}
-	
 	bounces = cJSON_GetObjectItem(data, "bounces");
 	if (cJSON_IsNumber(bounces)) {
 		if (bounces->valueint >= 0) {
@@ -786,11 +775,6 @@ int parseScene(struct renderer *r, const cJSON *data) {
 		} else {
 			r->scene->bounces = 0;
 		}
-	}
-	
-	areaLights = cJSON_GetObjectItem(data, "areaLights");
-	if (cJSON_IsBool(areaLights)) {
-		r->scene->areaLights = cJSON_IsTrue(areaLights);
 	}
 	
 	lights = cJSON_GetObjectItem(data, "lights");

@@ -108,7 +108,6 @@ int main(int argc, char *argv[]) {
 	
 	//Verify sample count
 	if (mainRenderer.sampleCount < 1) logHandler(renderErrorInvalidSampleCount);
-	if (!mainRenderer.scene->areaLights) mainRenderer.sampleCount = 1;
 	
 	printf("\nStarting C-ray renderer for frame %i\n\n", mainRenderer.currentFrame);
 	

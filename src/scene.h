@@ -45,8 +45,6 @@ struct world {
 	int cameraCount;
 	
 	//Scene preferences
-	double contrast;
-	bool areaLights;
 	int bounces;
 };
 

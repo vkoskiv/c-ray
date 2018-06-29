@@ -2,10 +2,10 @@
 	"version": 1.0,
 	"renderer": {
 		"threadCount": 0,
-		"sampleCount": 25,
+		"sampleCount": 64,
 		"antialiasing": true,
-		"tileWidth": 128,
-		"tileHeight": 128,
+		"tileWidth": 64,
+		"tileHeight": 64,
 		"tileOrder": "fromMiddle"
 	},
 	"display": {
@@ -34,20 +34,18 @@
 		]
 	},
 	"scene": {
-		"filePath": "output/",
-		"fileName": "rendered",
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
 		"count": 0,
 		"width": 1280,
 		"height": 800,
-		"fileType": "png",
 		"ambientColor": {
 			"r": 0.4,
 			"g": 0.6,
 			"b": 0.6
 		},
-		"contrast": 0.5,
-		"bounces": 25,
-		"areaLights": true,
+		"bounces": 12,
 		"inputFilePath": "input/",
 		"lights": [
 			{
@@ -87,9 +85,9 @@
 					"z": 1650
 				},
 				"color": {
-					"r": 0.3,
-					"g": 0.3,
-					"b": 0.3
+					"r": 1.0,
+					"g": 0.0,
+					"b": 0.5
 				},
 				"reflectivity": 1.0,
 				"radius": 150
@@ -101,9 +99,9 @@
 					"z": 1500
 				},
 				"color": {
-					"r": 0.3,
-					"g": 0.3,
-					"b": 0.3
+					"r": 1.0,
+					"g": 1.0,
+					"b": 1.0
 				},
 				"reflectivity": 1.0,
 				"radius": 50
@@ -117,7 +115,7 @@
 				"color": {
 					"r": 0.0,
 					"b": 0.0,
-					"g": 0.3
+					"g": 0.0
 				},
 				"reflectivity": 0.0,
 				"radius": 50
@@ -125,7 +123,7 @@
 		],
 		"OBJs": [
 			{
-				"fileName": "tonni.obj",
+				"fileName": "tonni.objdisabled",
 				"transforms": [
 					{
 						"type": "scaleUniform",
@@ -148,7 +146,7 @@
 				"transforms": []
 			},
 			{
-				"fileName": "teht1.obj",
+				"fileName": "teht1.objdisabled",
 				"transforms": [
 					{
 						"type": "scaleUniform",
