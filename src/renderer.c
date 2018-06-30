@@ -16,6 +16,7 @@
 #include "pathtrace.h"
 #include "filehandler.h"
 #include "main.h"
+#include "errorhandler.h"
 
 /*
  * Global renderer
@@ -65,7 +66,7 @@ void quantizeImage() {
 	//Create this here for now
 	tileMutex = CreateMutex(NULL, FALSE, NULL);
 #endif
-	printf("Quantizing render plane...\n");
+	logr(info, "Quantizing render plane...\n");
 	
 	//Sanity check on tilesizes
 	if (mainRenderer.tileWidth >= mainRenderer.image->size.width) mainRenderer.tileWidth = mainRenderer.image->size.width;
@@ -81,8 +82,7 @@ void quantizeImage() {
 	
 	mainRenderer.renderTiles = (struct renderTile*)calloc(tilesX*tilesY, sizeof(struct renderTile));
 	if (mainRenderer.renderTiles == NULL) {
-		printf("Failed to allocate renderTiles array!\n");
-		abort();
+		logr(error, "Failed to allocate renderTiles array.\n");
 	}
 	
 	for (int y = 0; y < tilesY; y++) {
@@ -108,7 +108,7 @@ void quantizeImage() {
 			mainRenderer.tileCount++;
 		}
 	}
-	printf("Quantized image into %i tiles. (%ix%i)", (tilesX*tilesY), tilesX, tilesY);
+	logr(info, "Quantized image into %i tiles. (%ix%i)\n", (tilesX*tilesY), tilesX, tilesY);
 }
 
 
@@ -261,19 +261,37 @@ struct color getPixel(int x, int y) {
 	return output;
 }
 
+void smartTime(time_t secs, char *buf) {
+	time_t mins = secs / 60;
+	time_t hours = (secs / 60) / 60;
+	
+	if (mins > 60) {
+		sprintf(buf, "%lih %lim", hours, mins);
+	} else if (secs > 60) {
+		sprintf(buf, "%lim %lis", mins, secs);
+	} else {
+		sprintf(buf, "%lis", secs);
+	}
+}
+
 /**
  Print running average duration of tiles rendered
 
  @param avgTime Current computed average time
  @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
  */
-void printRunningAverage(const time_t avgTime, struct renderTile tile) {
+void printRunningAverage(int thread, const time_t avgTime, struct renderTile tile) {
 	int remainingTileCount = mainRenderer.tileCount - mainRenderer.renderedTileCount;
 	time_t remainingTime = remainingTileCount * avgTime;
 	//First print avg tile time
-	printf("Finished tile %i/%i", tile.tileNum, mainRenderer.tileCount);
-	printf(", avgtime: %li min (%li sec)", avgTime / 60, avgTime);
-	printf(", remaining: %li min (%li sec)\r", remainingTime / 60, remainingTime);
+	logr(info, "[T:%i][%i/%i]", thread, mainRenderer.renderedTileCount, mainRenderer.tileCount);
+	
+	char avg[32];
+	smartTime(avgTime, avg);
+	printf(", avgt: %s", avg);
+	char rem[32];
+	smartTime(remainingTime, rem);
+	printf(", etf: %s\r", rem);
 }
 
 
@@ -282,12 +300,12 @@ void printRunningAverage(const time_t avgTime, struct renderTile tile) {
 
  @param tile Tile to get the duration from
  */
-void computeTimeAverage(struct renderTile tile) {
+void computeTimeAverage(int thread, struct renderTile tile) {
 	mainRenderer.avgTileTime = mainRenderer.avgTileTime * (mainRenderer.timeSampleCount - 1);
 	mainRenderer.avgTileTime += difftime(tile.stop, tile.start);
 	mainRenderer.avgTileTime = mainRenderer.avgTileTime / mainRenderer.timeSampleCount;
 	mainRenderer.timeSampleCount++;
-	printRunningAverage(mainRenderer.avgTileTime, tile);
+	printRunningAverage(thread, mainRenderer.avgTileTime, tile);
 }
 
 
@@ -418,11 +436,11 @@ DWORD WINAPI renderThread(LPVOID arg) {
 			//Tile has finished rendering, get a new one and start rendering it.
 			mainRenderer.renderTiles[tile.tileNum].isRendering = false;
 			time(&tile.stop);
-			computeTimeAverage(tile);
+			computeTimeAverage(tinfo->thread_num, tile);
 			tile = getTile();
 		}
 		//No more tiles to render, exit thread. (render done)
-		printf("Thread %i done\n", tinfo->thread_num);
+		logr(info, "Thread %i done\n", tinfo->thread_num);
 		tinfo->threadComplete = true;
 #ifdef WINDOWS
 		//Return possible codes here

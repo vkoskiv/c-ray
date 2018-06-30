@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "scene.h"
 #include "renderer.h"
+#include "errorhandler.h"
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
@@ -64,21 +65,21 @@ void saveBmpFromArray(const char *filename, unsigned char *imgData, int width, i
 	f = fopen(filename,"wb");
 	error = (unsigned int)fwrite(bmpfileheader,1,14,f);
 	if (error != 14) {
-		printf("Error writing BMP file header data\n");
+		logr(warning, "Error writing BMP file header data\n");
 	}
 	error = (unsigned int)fwrite(bmpinfoheader,1,40,f);
 	if (error != 40) {
-		printf("Error writing BMP info header data\n");
+		logr(warning, "Error writing BMP info header data\n");
 	}
 	
 	for (i = 1; i <= height; i++) {
 		error = (unsigned int)fwrite(bgrData+(width*(height - i)*3),3,width,f);
 		if (error != width) {
-			printf("Error writing image line to BMP\n");
+			logr(warning, "Error writing image line to BMP\n");
 		}
 		error = (unsigned int)fwrite(bmppadding,1,(4-(width*3)%4)%4,f);
 		if (error != (4-(width*3)%4)%4) {
-			printf("Error writing BMP padding data\n");
+			logr(warning, "Error writing BMP padding data\n");
 		}
 	}
 	fclose(f);
@@ -86,7 +87,7 @@ void saveBmpFromArray(const char *filename, unsigned char *imgData, int width, i
 
 void encodePNGFromArray(const char *filename, unsigned char *imgData, int width, int height) {
 	unsigned error = lodepng_encode24_file(filename, imgData, width, height);
-	if (error) printf("error %u: %s\n", error, lodepng_error_text(error));
+	if (error) logr(warning, "error %u: %s\n", error, lodepng_error_text(error));
 }
 
 void printFileSize(char *fileName) {
@@ -101,15 +102,15 @@ void printFileSize(char *fileName) {
 	terabytes = gigabytes / 1000;
 	
 	if (gigabytes > 1000) {
-		printf("Wrote %ldTB to file.\n", terabytes);
+		logr(info, "Wrote %ldTB to file.\n", terabytes);
 	} else if (megabytes > 1000) {
-		printf("Wrote %ldGB to file.\n", gigabytes);
+		logr(info, "Wrote %ldGB to file.\n", gigabytes);
 	} else if (kilobytes > 1000) {
-		printf("Wrote %ldMB to file.\n", megabytes);
+		logr(info, "Wrote %ldMB to file.\n", megabytes);
 	} else if (bytes > 1000) {
-		printf("Wrote %ldKB to file.\n", kilobytes);
+		logr(info, "Wrote %ldKB to file.\n", kilobytes);
 	} else {
-		printf("Wrote %ldB to file.\n", bytes);
+		logr(info, "Wrote %ldB to file.\n", bytes);
 	}
 	
 }
@@ -130,18 +131,18 @@ void writeImage(struct outputImage *img) {
 			
 			if (img->fileType == bmp){
 				sprintf(buf, "%s%s_%d.bmp", img->filePath, img->fileName, img->count);
-				printf("Saving result in \"%s\"\n", buf);
+				logr(info, "Saving result in \"%s\"\n", buf);
 				saveBmpFromArray(buf, img->data, img->size.width, img->size.height);
 			} else  if (img->fileType == png){
 				sprintf(buf, "%s%s_%d.png", img->filePath, img->fileName, img->count);
-				printf("Saving result in \"%s\"\n", buf);
+				logr(info, "Saving result in \"%s\"\n", buf);
 				encodePNGFromArray(buf, img->data, img->size.width, img->size.height);
 			}
 			printFileSize(buf);
 		}
 		break;
 		case saveModeNone:
-			printf("Image won't be saved!\n");
+			logr(info, "Image won't be saved!\n");
 			break;
 		default:
 			break;

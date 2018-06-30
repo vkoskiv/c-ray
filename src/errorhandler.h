@@ -8,39 +8,10 @@
 
 #pragma once
 
-enum renderLog {
-	threadMallocFailed,
-	sceneBuildFailed,
-	imageMallocFailed,
-	invalidThreadCount,
-	threadFrozen,
-	threadCreateFailed,
-	threadRemoveFailed,
-	sceneDebugEnabled,
-	sceneParseErrorJSON,
-	sceneParseErrorScene,
-	sceneParseErrorCamera,
-	sceneParseErrorSphere,
-	sceneParseErrorPoly,
-	sceneParseErrorLight,
-	sceneParseErrorMaterial,
-	sceneParseErrorMalloc,
-	sceneParseErrorNoPath,
-	dontTurnOnTheAntialiasingYouDoofus,
-	renderErrorInvalidSampleCount,
-	drawTaskMallocFailed,
-	defaultError
+enum logType {
+	error,
+	info,
+	warning
 };
 
-enum logSource {
-	rendererSource,
-	sceneBuilder,
-	vectorHandler,
-	colorHandler,
-	polyHandler,
-	sphereHandler,
-	fileHandler,
-	defaultSource
-};
-
-void logHandler(enum renderLog error);
+void logr(enum logType type, const char *fmt, ...);

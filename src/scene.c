@@ -20,6 +20,7 @@
 #include "renderer.h"
 #include "cJSON.h"
 #include "ui.h"
+#include "errorhandler.h"
 
 #define TOKEN_DEBUG_ENABLED false
 
@@ -63,7 +64,7 @@ struct texture *newTexture(char *filePath) {
 	
 	int err = lodepng_decode24_file(&newTexture->imgData, newTexture->width, newTexture->height, "/Users/vkoskiv/Documents/dev/c-ray/input/tonninseteli2.png");
 	if (err != 0) {
-		printf("Texture loading error: %s\n", lodepng_error_text(err));
+		logr(warning, "Texture loading error: %s\n", lodepng_error_text(err));
 	}
 	return newTexture;
 }
@@ -78,14 +79,14 @@ void loadOBJTextures(struct crayOBJ *obj) {
 }
 
 bool loadOBJ(struct renderer *r, char *inputFileName) {
-	printf("Loading OBJ %s%s\n", r->inputFilePath, inputFileName);
+	logr(info, "Loading OBJ %s%s\n", r->inputFilePath, inputFileName);
 	
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFileName, r->inputFilePath) == 0) {
-		printf("OBJ %s not found!\n", getFileName(inputFileName));
+		logr(warning, "OBJ %s not found!\n", getFileName(inputFileName));
 		return false;
 	}
-	printf("OBJ loaded, converting...\n");
+	logr(info, "OBJ loaded, converting...\n");
 	
 	//Create crayOBJ to keep track of objs
 	r->scene->objs = (struct crayOBJ*)realloc(r->scene->objs, (r->scene->objCount + 1) * sizeof(struct crayOBJ));
@@ -158,7 +159,7 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 	//Load textures for OBJs
 	loadOBJTextures(&r->scene->objs[r->scene->objCount]);
 	
-	printf("Converted OBJ! Translated %i faces, %i vectors and %i materials\n\n", data.face_count, data.vertex_count, data.material_count);
+	logr(info, "Converted OBJ! Translated %i faces, %i vectors and %i materials\n\n", data.face_count, data.vertex_count, data.material_count);
 	
 	//Delete OBJ data
 	delete_obj_data(&data);
@@ -191,23 +192,23 @@ void addLight(struct world *scene, struct light newLight) {
 }
 
 void transformMeshes(struct world *scene) {
-	printf("Running transforms...\n");
+	logr(info, "Running transforms...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
-		printf("Transforming %s...", scene->objs[i].objName);
+		logr(info, "Transforming %s...", scene->objs[i].objName);
 		transformMesh(&scene->objs[i]);
 		printf("Transformed %s!\n", scene->objs[i].objName);
 	}
-	printf("Transforms done!\n");
+	logr(info, "Transforms done\n");
 }
 
 void computeKDTrees(struct world *scene) {
-	printf("Computing KD-trees...\n");
+	logr(info, "Computing KD-trees...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
-		printf("Computing tree for %s...", scene->objs[i].objName);
+		logr(info, "Computing tree for %s...", scene->objs[i].objName);
 		scene->objs[i].tree = buildTree(&polygonArray[scene->objs[i].firstPolyIndex],
 										scene->objs[i].polyCount,
 										scene->objs[i].firstPolyIndex, 0);
-		printf(" Done!\n");
+		printf(" Done\n");
 	}
 }
 
@@ -223,15 +224,15 @@ void addCamTransform(struct camera *cam, struct matrixTransform transform) {
 }
 
 void addCamTransforms(struct camera *cam, struct matrixTransform *transforms, int count) {
-	printf("Adding %i transforms to camera\n", count);
+	logr(info, "Adding %i transforms to camera\n", count);
 	for (int i = 0; i < count; i++) {
 		addCamTransform(cam, transforms[i]);
 	}
 }
 
 void printSceneStats(struct world *scene) {
-	printf("SceneBuilder done!\n");
-	printf("Totals: %i vectors, %i normals, %i polygons, %i spheres and %i lights\n\n",
+	logr(info, "SceneBuilder done\n");
+	logr(info, "Totals: %i vectors, %i normals, %i polygons, %i spheres and %i lights\n\n",
 		   vertexCount,
 		   normalCount,
 		   polyCount,
@@ -242,16 +243,16 @@ void printSceneStats(struct world *scene) {
 char *loadFile(char *inputFileName) {
 	FILE *f = fopen(inputFileName, "rb");
 	if (!f) {
-		printf("No file found at %s", inputFileName);
+		logr(warning, "No file found at %s", inputFileName);
 		return NULL;
 	}
 	char *buf = NULL;
 	size_t len;
 	size_t bytesRead = getDelim(&buf, &len, '\0', f);
 	if (bytesRead != -1) {
-		printf("%zi bytes of input JSON loaded, parsing...\n", bytesRead);
+		logr(info, "%zi bytes of input JSON loaded, parsing...\n", bytesRead);
 	} else {
-		printf("Failed to read input JSON from %s", inputFileName);
+		logr(warning, "Failed to read input JSON from %s", inputFileName);
 		return NULL;
 	}
 	return buf;
@@ -261,8 +262,8 @@ struct matrixTransform parseTransform(const cJSON *data) {
 	
 	cJSON *type = cJSON_GetObjectItem(data, "type");
 	if (!cJSON_IsString(type)) {
-		printf("Failed to parse transform! No type found\n");
-		printf("Transform data: %s\n", cJSON_Print(data));
+		logr(warning, "Failed to parse transform! No type found\n");
+		logr(warning, "Transform data: %s\n", cJSON_Print(data));
 	}
 	
 	//FIXME: Use parseCoordinate() for this
@@ -299,40 +300,40 @@ struct matrixTransform parseTransform(const cJSON *data) {
 		if (validDegrees) {
 			return newTransformRotateX(degrees->valuedouble);
 		} else {
-			printf("Found rotateX transform with no valid degrees value given.\n");
+			logr(warning, "Found rotateX transform with no valid degrees value given.\n");
 		}
 	} else if (strcmp(type->valuestring, "rotateY") == 0) {
 		if (validDegrees) {
 			return newTransformRotateY(degrees->valuedouble);
 		} else {
-			printf("Found rotateY transform with no valid degrees value given.\n");
+			logr(warning, "Found rotateY transform with no valid degrees value given.\n");
 		}
 	} else if (strcmp(type->valuestring, "rotateZ") == 0) {
 		if (validDegrees) {
 			return newTransformRotateZ(degrees->valuedouble);
 		} else {
-			printf("Found rotateZ transform with no valid degrees value given.\n");
+			logr(warning, "Found rotateZ transform with no valid degrees value given.\n");
 		}
 	} else if (strcmp(type->valuestring, "translate") == 0) {
 		if (validCoords) {
 			return newTransformTranslate(X->valuedouble, Y->valuedouble, Z->valuedouble);
 		} else {
-			printf("Found translate transform with no valid coords given.\n");
+			logr(warning, "Found translate transform with no valid coords given.\n");
 		}
 	} else if (strcmp(type->valuestring, "scale") == 0) {
 		if (validCoords) {
 			return newTransformScale(X->valuedouble, Y->valuedouble, Z->valuedouble);
 		} else {
-			printf("Found scale transform with no valid scale value given.\n");
+			logr(warning, "Found scale transform with no valid scale value given.\n");
 		}
 	} else if (strcmp(type->valuestring, "scaleUniform") == 0) {
 		if (validScale) {
 			return newTransformScaleUniform(scale->valuedouble);
 		} else {
-			printf("Found scaleUniform transform with no valid scale value given.\n");
+			logr(warning, "Found scaleUniform transform with no valid scale value given.\n");
 		}
 	} else {
-		printf("Found an invalid transform\n");
+		logr(warning, "Found an invalid transform\n");
 	}
 	
 	return emptyTransform();
@@ -369,7 +370,7 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 			r->threadCount = 0;
 		}
 	} else {
-		printf("Invalid threadCount while parsing renderer\n");
+		logr(warning, "Invalid threadCount while parsing renderer\n");
 		return -1;
 	}
 	
@@ -381,7 +382,7 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 			r->sampleCount = 1;
 		}
 	} else {
-		printf("Invalid sampleCount while parsing renderer\n");
+		logr(warning, "Invalid sampleCount while parsing renderer\n");
 		return -1;
 	}
 	
@@ -389,7 +390,7 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsBool(antialiasing)) {
 		r->antialiasing = cJSON_IsTrue(antialiasing);
 	} else {
-		printf("Invalid antialiasing bool while parsing renderer\n");
+		logr(warning, "Invalid antialiasing bool while parsing renderer\n");
 		return -1;
 	}
 	
@@ -401,7 +402,7 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 			r->tileWidth = 1;
 		}
 	} else {
-		printf("Invalid tileWidth while parsing renderer\n");
+		logr(warning, "Invalid tileWidth while parsing renderer\n");
 		return -1;
 	}
 	
@@ -413,7 +414,7 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 			r->tileHeight = 1;
 		}
 	} else {
-		printf("Invalid tileHeight while parsing renderer\n");
+		logr(warning, "Invalid tileHeight while parsing renderer\n");
 		return -1;
 	}
 	
@@ -433,7 +434,7 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 			r->tileOrder = renderOrderNormal;
 		}
 	} else {
-		printf("Invalid tileOrder while parsing renderer\n");
+		logr(warning, "Invalid tileOrder while parsing renderer\n");
 		return -1;
 	}
 	
@@ -563,7 +564,7 @@ void parseOBJ(struct renderer *r, const cJSON *data) {
 			type = lambertian;
 		}
 	} else {
-		printf("Invalid bsdf while parsing OBJ\n");
+		logr(warning, "Invalid bsdf while parsing OBJ\n");
 	}
 	
 	bool objValid = false;
@@ -612,8 +613,8 @@ struct vector parseCoordinate(const cJSON *data) {
 			return vectorWithPos(X->valuedouble, Y->valuedouble, Z->valuedouble);
 		}
 	}
-	printf("Invalid coordinate parsed! Returning 0,0,0\n");
-	printf("Faulty JSON: %s\n", cJSON_Print(data));
+	logr(warning, "Invalid coordinate parsed! Returning 0,0,0\n");
+	logr(warning, "Faulty JSON: %s\n", cJSON_Print(data));
 	return (struct vector){0.0,0.0,0.0,false};
 }
 
@@ -691,7 +692,7 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 			type = lambertian;
 		}
 	} else {
-		printf("Invalid bsdf while parsing OBJ\n");
+		logr(warning, "Invalid bsdf while parsing OBJ\n");
 	}
 	
 	pos = cJSON_GetObjectItem(data, "pos");
@@ -857,10 +858,10 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	
 	cJSON *json = cJSON_Parse(buf);
 	if (json == NULL) {
-		printf("Failed to parse JSON\n");
+		logr(warning, "Failed to parse JSON\n");
 		const char *errptr = cJSON_GetErrorPtr();
 		if (errptr != NULL) {
-			printf("Error before: %s\n", errptr);
+			logr(info, "Error before: %s\n", errptr);
 		}
 		return -1;
 	}
@@ -872,36 +873,36 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	
 	renderer = cJSON_GetObjectItem(json, "renderer");
 	if (renderer != NULL) {
-		printf("Parsing renderer prefs...\n");
+		logr(info, "Parsing renderer prefs...\n");
 		if (parseRenderer(r, renderer) == -1) {
-			printf("Renderer parse failed!\n");
+			logr(warning, "Renderer parse failed!\n");
 			return -2;
 		}
 	}
 	
 	display = cJSON_GetObjectItem(json, "display");
 	if (display != NULL) {
-		printf("Parsing display prefs...\n");
+		logr(info, "Parsing display prefs...\n");
 		if (parseDisplay(r, display) == -1) {
-			printf("Display parse failed!\n");
+			logr(warning, "Display parse failed!\n");
 			return -2;
 		}
 	}
 	
 	camera = cJSON_GetObjectItem(json, "camera");
 	if (camera != NULL) {
-		printf("Parsing camera prefs...\n");
+		logr(info, "Parsing camera prefs...\n");
 		if (parseCamera(r, camera) == -1) {
-			printf("Camera parse failed!\n");
+			logr(warning, "Camera parse failed!\n");
 			return -2;
 		}
 	}
 	
 	scene = cJSON_GetObjectItem(json, "scene");
 	if (scene != NULL) {
-		printf("Parsing scene...\n");
+		logr(info, "Parsing scene...\n");
 		if (parseScene(r, scene) == -1) {
-			printf("Scene parse failed!\n");
+			logr(warning, "Scene parse failed!\n");
 			return -2;
 		}
 	}

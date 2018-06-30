@@ -13,6 +13,7 @@
 #include "renderer.h"
 #include "scene.h"
 #include "filehandler.h"
+#include "errorhandler.h"
 
 extern struct renderer mainRenderer;
 
@@ -23,19 +24,19 @@ sigfunc *signal(int, sigfunc*);
 
 void sigHandler(int sig) {
 	if (sig == SIGINT) {
-		printf("Received CTRL-C, aborting...\n");
+		logr(info, "Received CTRL-C, aborting...\n");
 		exit(1);
 	}
 }
 
 void printDuration(double time) {
 	if (time <= 60) {
-		printf("Finished render in %.0f seconds.\n", time);
+		logr(info, "Finished render in %.0f seconds.\n", time);
 	} else if (time <= 3600) {
-		printf("Finished render in %.0f minute", time/60);
+		logr(info, "Finished render in %.0f minute", time/60);
 		if (time/60 > 1) printf("s. (%.0f seconds)\n", time); else printf(". (%.0f seconds)\n", time);
 	} else {
-		printf("Finished render in %.0f hours (%.0f min).\n", (time/60)/60, time/60);
+		logr(info, "Finished render in %.0f hours (%.0f min).\n", (time/60)/60, time/60);
 	}
 }
 
@@ -77,7 +78,7 @@ int initSDL() {
 	
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		fprintf(stdout, "SDL couldn't initialize, error %s\n", SDL_GetError());
+		logr(warning, "SDL couldn't initialize, error %s\n", SDL_GetError());
 		return -1;
 	}
 	//Init window
@@ -87,13 +88,13 @@ int initSDL() {
 	
 	mainRenderer.mainDisplay->window = SDL_CreateWindow("C-ray © VKoskiv 2015-2018", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.image->size.width * mainRenderer.mainDisplay->windowScale, mainRenderer.image->size.height * mainRenderer.mainDisplay->windowScale, flags);
 	if (mainRenderer.mainDisplay->window == NULL) {
-		fprintf(stdout, "Window couldn't be created, error %s\n", SDL_GetError());
+		logr(warning, "Window couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	//Init renderer
 	mainRenderer.mainDisplay->renderer = SDL_CreateRenderer(mainRenderer.mainDisplay->window, -1, SDL_RENDERER_ACCELERATED);
 	if (mainRenderer.mainDisplay->renderer == NULL) {
-		fprintf(stdout, "Renderer couldn't be created, error %s\n", SDL_GetError());
+		logr(warning, "Renderer couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	//And set blend modes
@@ -103,13 +104,13 @@ int initSDL() {
 	//Init pixel texture
 	mainRenderer.mainDisplay->texture = SDL_CreateTexture(mainRenderer.mainDisplay->renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, mainRenderer.image->size.width, mainRenderer.image->size.height);
 	if (mainRenderer.mainDisplay->texture == NULL) {
-		fprintf(stdout, "Texture couldn't be created, error %s\n", SDL_GetError());
+		logr(warning, "Texture couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	//Init overlay texture (for UI info)
 	mainRenderer.mainDisplay->overlayTexture = SDL_CreateTexture(mainRenderer.mainDisplay->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, mainRenderer.image->size.width, mainRenderer.image->size.height);
 	if (mainRenderer.mainDisplay->overlayTexture == NULL) {
-		fprintf(stdout, "Overlay texture couldn't be created, error %s\n", SDL_GetError());
+		logr(warning, "Overlay texture couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	
@@ -127,20 +128,20 @@ void getKeyboardInput() {
 	SDL_PumpEvents();
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 	if (keys[SDL_SCANCODE_S]) {
-		printf("Aborting render, saving...\n");
+		logr(info, "Aborting render, saving...\n");
 		mainRenderer.renderAborted = true;
 	}
 	if (keys[SDL_SCANCODE_X]) {
-		printf("Aborting render without saving...\n");
+		logr(info, "Aborting render without saving...\n");
 		mainRenderer.mode = saveModeNone;
 		mainRenderer.renderAborted = true;
 	}
 	if (keys[SDL_SCANCODE_P]) {
 		if (mainRenderer.renderPaused) {
-			printf("Resuming render...\n");
+			logr(info, "Resuming render...\n");
 			mainRenderer.renderPaused = false;
 		} else {
-			printf("Pausing render...\n");
+			logr(info, "Pausing render...\n");
 			mainRenderer.renderPaused = true;
 		}
 	}
@@ -213,7 +214,7 @@ void drawWindow() {
 	SDL_RenderClear(mainRenderer.mainDisplay->renderer);
 	//Check for CTRL-C
 	if (signal(SIGINT, sigHandler) == SIG_ERR)
-		fprintf(stderr, "Couldn't catch SIGINT\n");
+		logr(warning, "Couldn't catch SIGINT\n");
 	//Render frame
 	updateUI();
 	//Update image data

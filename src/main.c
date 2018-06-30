@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 	if (argc == 2) {
 		fileName = argv[1];
 	} else {
-		logHandler(sceneParseErrorNoPath);
+		logr(error, "Invalid input file path.");
 	}
 	
 #ifndef UI_ENABLED
@@ -61,14 +61,14 @@ int main(int argc, char *argv[]) {
 	//Build the scene
 	switch (parseJSON(&mainRenderer, fileName)) {
 		case -1:
-			logHandler(sceneBuildFailed);
+			logr(error, "Scene builder failed due to previous error.");
 			break;
 		case 4:
-			logHandler(sceneDebugEnabled);
+			logr(warning, "Scene debug mode enabled, won't render image.");
 			return 0;
 			break;
 		case -2:
-			logHandler(sceneParseErrorJSON);
+			logr(error, "JSON parser failed.");
 			break;
 		default:
 			break;
@@ -102,39 +102,43 @@ int main(int argc, char *argv[]) {
 	//Alloc memory for pthread_create() args
 	mainRenderer.renderThreadInfo = (struct threadInfo*)calloc(mainRenderer.threadCount, sizeof(struct threadInfo));
 	if (mainRenderer.renderThreadInfo == NULL) {
-		logHandler(threadMallocFailed);
-		return -1;
+		logr(error, "Failed to allocate memory for threadInfo args.");
 	}
 	
 	//Verify sample count
-	if (mainRenderer.sampleCount < 1) logHandler(renderErrorInvalidSampleCount);
+	if (mainRenderer.sampleCount < 1) {
+		logr(warning, "Invalid sample count given, setting to 1");
+		mainRenderer.sampleCount = 1;
+	}
 	
-	printf("\nStarting C-ray renderer for frame %i\n\n", mainRenderer.currentFrame);
+	printf("\n");
+	logr(info, "Starting C-ray renderer for frame %i\n\n", mainRenderer.currentFrame);
 	
 	//Print a useful warning to user if the defined tile size results in less renderThreads
 	if (mainRenderer.tileCount < mainRenderer.threadCount) {
-		printf("WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
-		printf("Reducing thread count from %i to ", mainRenderer.threadCount);
+		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
+		logr(warning, "Reducing thread count from %i to ", mainRenderer.threadCount);
 		mainRenderer.threadCount = mainRenderer.tileCount;
 		printf("%i\n", mainRenderer.threadCount);
 	}
 	
-	printf("Rendering at %i x %i\n", mainRenderer.image->size.width,mainRenderer.image->size.height);
-	printf("Rendering with %i samples\n", mainRenderer.sampleCount);
-	printf("Rendering with %d thread",mainRenderer.threadCount);
+	logr(info, "Rendering at %i x %i\n", mainRenderer.image->size.width,mainRenderer.image->size.height);
+	logr(info, "Rendering with %i samples\n", mainRenderer.sampleCount);
+	logr(info, "Rendering with %d thread",mainRenderer.threadCount);
 	if (mainRenderer.threadCount > 1) {
 		printf("s\n");
 	} else {
 		printf("\n");
 	}
 	
-	printf("Using %i light bounces\n", mainRenderer.scene->bounces);
-	printf("Raytracing...\n");
+	logr(info, "Using %i light bounces\n", mainRenderer.scene->bounces);
+	logr(info, "Raytracing...\n");
 	
 	//Allocate memory and create array of pixels for image data
 	mainRenderer.image->data = (unsigned char*)calloc(3 * mainRenderer.image->size.width * mainRenderer.image->size.height, sizeof(unsigned char));
-	if (!mainRenderer.image->data) logHandler(imageMallocFailed);
-	
+	if (!mainRenderer.image->data) {
+		logr(error, "Failed to allocate memory for image data.");
+	}
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
 	mainRenderer.renderBuffer = (double*)calloc(3 * mainRenderer.image->size.width * mainRenderer.image->size.height, sizeof(double));
@@ -180,8 +184,7 @@ int main(int argc, char *argv[]) {
 				mainRenderer.renderThreadInfo[t].thread_id = threadId;
 #else
 				if (pthread_create(&mainRenderer.renderThreadInfo[t].thread_id, &mainRenderer.renderThreadAttributes, renderThread, &mainRenderer.renderThreadInfo[t])) {
-					logHandler(threadCreateFailed);
-					exit(-1);
+					logr(error, "Failed to create a thread");
 				}
 #endif
 			}
@@ -190,7 +193,7 @@ int main(int argc, char *argv[]) {
 			
 #ifndef WINDOWS
 			if (pthread_attr_destroy(&mainRenderer.renderThreadAttributes)) {
-				logHandler(threadRemoveFailed);
+				logr(warning, "Failed to destroy pthread.");
 			}
 #endif
 		}
@@ -214,7 +217,7 @@ int main(int argc, char *argv[]) {
 		WaitForSingleObjectEx(mainRenderer.renderThreadInfo[t].thread_handle, INFINITE, FALSE);
 #else
 		if (pthread_join(mainRenderer.renderThreadInfo[t].thread_id, NULL)) {
-			logHandler(threadFrozen);
+			logr(warning, "Thread %t frozen.", t);
 		}
 #endif
 	}
@@ -229,7 +232,7 @@ int main(int argc, char *argv[]) {
 	
 	freeMem();
 	
-	printf("Render finished, exiting.\n");
+	logr(info, "Render finished, exiting.\n");
 	
 	return 0;
 }
