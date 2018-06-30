@@ -20,7 +20,7 @@
 #include "renderer.h"
 #include "cJSON.h"
 #include "ui.h"
-#include "errorhandler.h"
+#include "logging.h"
 
 #define TOKEN_DEBUG_ENABLED false
 

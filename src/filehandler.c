@@ -12,7 +12,7 @@
 #include "camera.h"
 #include "scene.h"
 #include "renderer.h"
-#include "errorhandler.h"
+#include "logging.h"
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 

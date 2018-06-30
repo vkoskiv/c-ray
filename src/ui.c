@@ -13,7 +13,7 @@
 #include "renderer.h"
 #include "scene.h"
 #include "filehandler.h"
-#include "errorhandler.h"
+#include "logging.h"
 
 extern struct renderer mainRenderer;
 

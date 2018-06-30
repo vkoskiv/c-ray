@@ -1,5 +1,5 @@
 //
-//  errorhandler.h
+//  logging.h
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 14/09/15.

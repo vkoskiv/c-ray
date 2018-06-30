@@ -15,7 +15,7 @@
 		9021F8D81E47EDD1001737C0 /* obj_parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8D61E47EDD1001737C0 /* obj_parser.c */; };
 		9021F8E81E47EDEE001737C0 /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8D91E47EDEE001737C0 /* camera.c */; };
 		9021F8E91E47EDEE001737C0 /* color.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8DB1E47EDEE001737C0 /* color.c */; };
-		9021F8EC1E47EDEE001737C0 /* errorhandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8E11E47EDEE001737C0 /* errorhandler.c */; };
+		9021F8EC1E47EDEE001737C0 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8E11E47EDEE001737C0 /* logging.c */; };
 		9021F8ED1E47EDEE001737C0 /* filehandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8E31E47EDEE001737C0 /* filehandler.c */; };
 		9021F8EE1E47EDEE001737C0 /* light.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8E61E47EDEE001737C0 /* light.c */; };
 		9021F8FA1E47EE02001737C0 /* poly.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8F41E47EE02001737C0 /* poly.c */; };
@@ -64,8 +64,8 @@
 		9021F8DA1E47EDEE001737C0 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = src/camera.h; sourceTree = SOURCE_ROOT; };
 		9021F8DB1E47EDEE001737C0 /* color.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = color.c; path = src/color.c; sourceTree = SOURCE_ROOT; };
 		9021F8DC1E47EDEE001737C0 /* color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = color.h; path = src/color.h; sourceTree = SOURCE_ROOT; };
-		9021F8E11E47EDEE001737C0 /* errorhandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = errorhandler.c; path = src/errorhandler.c; sourceTree = SOURCE_ROOT; };
-		9021F8E21E47EDEE001737C0 /* errorhandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = errorhandler.h; path = src/errorhandler.h; sourceTree = SOURCE_ROOT; };
+		9021F8E11E47EDEE001737C0 /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = src/logging.c; sourceTree = SOURCE_ROOT; };
+		9021F8E21E47EDEE001737C0 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = logging.h; path = src/logging.h; sourceTree = SOURCE_ROOT; };
 		9021F8E31E47EDEE001737C0 /* filehandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filehandler.c; path = src/filehandler.c; sourceTree = SOURCE_ROOT; };
 		9021F8E41E47EDEE001737C0 /* filehandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filehandler.h; path = src/filehandler.h; sourceTree = SOURCE_ROOT; };
 		9021F8E51E47EDEE001737C0 /* includes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = includes.h; path = src/includes.h; sourceTree = SOURCE_ROOT; };
@@ -168,8 +168,8 @@
 				9021F8DC1E47EDEE001737C0 /* color.h */,
 				907E63061ED0DD1D0096563A /* material.c */,
 				907E63071ED0DD1D0096563A /* material.h */,
-				9021F8E11E47EDEE001737C0 /* errorhandler.c */,
-				9021F8E21E47EDEE001737C0 /* errorhandler.h */,
+				9021F8E11E47EDEE001737C0 /* logging.c */,
+				9021F8E21E47EDEE001737C0 /* logging.h */,
 				9021F8E31E47EDEE001737C0 /* filehandler.c */,
 				9021F8E41E47EDEE001737C0 /* filehandler.h */,
 				9021F8E51E47EDEE001737C0 /* includes.h */,
@@ -289,7 +289,7 @@
 				907E63081ED0DD1D0096563A /* material.c in Sources */,
 				908B28CA1F469808009A967E /* converter.c in Sources */,
 				90458777209C52F500D8FAE4 /* cJSON.c in Sources */,
-				9021F8EC1E47EDEE001737C0 /* errorhandler.c in Sources */,
+				9021F8EC1E47EDEE001737C0 /* logging.c in Sources */,
 				9021F8D81E47EDD1001737C0 /* obj_parser.c in Sources */,
 				9021F8D11E47EDB8001737C0 /* list.c in Sources */,
 				90BBA5381EB18FAB001AE07B /* obj.c in Sources */,

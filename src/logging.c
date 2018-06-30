@@ -1,5 +1,5 @@
 //
-//  errorhandler.c
+//  logging.c
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 14/09/15.
@@ -7,7 +7,7 @@
 //
 
 #include "includes.h"
-#include "errorhandler.h"
+#include "logging.h"
 
 #include <stdarg.h>
 

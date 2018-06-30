@@ -16,7 +16,7 @@
 #include "pathtrace.h"
 #include "filehandler.h"
 #include "main.h"
-#include "errorhandler.h"
+#include "logging.h"
 
 /*
  * Global renderer

@@ -10,7 +10,7 @@
 #include "main.h"
 
 #include "camera.h"
-#include "errorhandler.h"
+#include "logging.h"
 #include "filehandler.h"
 #include "renderer.h"
 #include "scene.h"

@@ -154,7 +154,7 @@
     <ClInclude Include="..\src\bbox.h" />
     <ClInclude Include="..\src\camera.h" />
     <ClInclude Include="..\src\color.h" />
-    <ClInclude Include="..\src\errorhandler.h" />
+    <ClInclude Include="..\src\logging.h" />
     <ClInclude Include="..\src\filehandler.h" />
     <ClInclude Include="..\src\includes.h" />
     <ClInclude Include="..\src\kdtree.h" />
@@ -166,7 +166,7 @@
     <ClInclude Include="..\src\obj.h" />
     <ClInclude Include="..\src\obj_parser.h" />
     <ClInclude Include="..\src\poly.h" />
-    <ClInclude Include="..\src\raytrace.h" />
+    <ClInclude Include="..\src\pathtrace.h" />
     <ClInclude Include="..\src\renderer.h" />
     <ClInclude Include="..\src\scene.h" />
     <ClInclude Include="..\src\sphere.h" />
@@ -181,7 +181,7 @@
     <ClCompile Include="..\src\bbox.c" />
     <ClCompile Include="..\src\camera.c" />
     <ClCompile Include="..\src\color.c" />
-    <ClCompile Include="..\src\errorhandler.c" />
+    <ClCompile Include="..\src\logging.c" />
     <ClCompile Include="..\src\filehandler.c" />
     <ClCompile Include="..\src\kdtree.c" />
     <ClCompile Include="..\src\light.c" />
@@ -196,7 +196,7 @@
     <ClCompile Include="..\src\obj.c" />
     <ClCompile Include="..\src\obj_parser.c" />
     <ClCompile Include="..\src\poly.c" />
-    <ClCompile Include="..\src\raytrace.c" />
+    <ClCompile Include="..\src\pathtrace.c" />
     <ClCompile Include="..\src\renderer.c" />
     <ClCompile Include="..\src\scene.c" />
     <ClCompile Include="..\src\sphere.c" />
