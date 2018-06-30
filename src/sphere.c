@@ -9,26 +9,14 @@
 #include "includes.h"
 #include "sphere.h"
 
+#include "pathtrace.h"
+
 struct sphere newSphere(struct vector pos, double radius, struct material material) {
 	return (struct sphere){pos, radius, material};
 }
 
-//Just check for intersection, nothing else.
-bool rayIntersectsWithSphereFast(struct lightRay *ray, struct sphere *sphere) {
-	double A = scalarProduct(&ray->direction, &ray->direction);
-	struct vector distance = subtractVectors(&ray->start, &sphere->pos);
-	double B = 2 * scalarProduct(&ray->direction, &distance);
-	double C = scalarProduct(&distance, &distance) - (sphere->radius * sphere->radius);
-	double trigDiscriminant = B * B - 4 * A * C;
-	if (trigDiscriminant < 0) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
 //Calculates intersection with a sphere and a light ray
-bool rayIntersectsWithSphere(struct lightRay *ray, struct sphere *sphere, double *t) {
+bool intersect(struct lightRay *ray, struct sphere *sphere, double *t) {
 	bool intersects = false;
 	
 	//Vector dot product of the direction
@@ -65,4 +53,25 @@ bool rayIntersectsWithSphere(struct lightRay *ray, struct sphere *sphere, double
 		}
 	}
 	return intersects;
+}
+
+bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct intersection *isect) {
+	//Pass the distance value to rayIntersectsWithSphere, where it's set
+	if (intersect(ray, sphere, &isect->distance)) {
+		isect->type = hitTypeSphere;
+		//Compute normal and store it to isect
+		struct vector scaled = vectorScale(isect->distance, &ray->direction);
+		struct vector hitpoint = addVectors(&ray->start, &scaled);
+		struct vector surfaceNormal = subtractVectors(&hitpoint, &sphere->pos);
+		double temp = scalarProduct(&surfaceNormal,&surfaceNormal);
+		if (temp == 0.0) return false; //FIXME: Check this later
+		temp = invsqrt(temp);
+		isect->surfaceNormal = vectorScale(temp, &surfaceNormal);
+		//Also store hitpoint
+		isect->hitPoint = hitpoint;
+		return true;
+	} else {
+		isect->type = hitTypeNone;
+		return false;
+	}
 }

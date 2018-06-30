@@ -21,7 +21,4 @@ struct lightRay;
 struct sphere newSphere(struct vector pos, double radius, struct material material);
 
 //Calculates intersection between a light ray and a sphere
-bool rayIntersectsWithSphere(struct lightRay *ray, struct sphere *sphere, double *t);
-
-//Just check for intersection, don't care about specifics
-bool rayIntersectsWithSphereFast(struct lightRay *ray, struct sphere *sphere);
+bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct intersection *isect);

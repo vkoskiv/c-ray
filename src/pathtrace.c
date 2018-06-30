@@ -17,28 +17,6 @@
 #include "bbox.h"
 #include "kdtree.h"
 
-//TODO: Merge this functionality into rayIntersectsWithSphere
-bool rayIntersectsWithSphereTemp(struct sphere *sphere, struct lightRay *ray, struct intersection *isect) {
-	//Pass the distance value to rayIntersectsWithSphere, where it's set
-	if (rayIntersectsWithSphere(ray, sphere, &isect->distance)) {
-		isect->type = hitTypeSphere;
-		//Compute normal and store it to isect
-		struct vector scaled = vectorScale(isect->distance, &ray->direction);
-		struct vector hitpoint = addVectors(&ray->start, &scaled);
-		struct vector surfaceNormal = subtractVectors(&hitpoint, &sphere->pos);
-		double temp = scalarProduct(&surfaceNormal,&surfaceNormal);
-		if (temp == 0.0) return false; //FIXME: Check this later
-		temp = invsqrt(temp);
-		isect->surfaceNormal = vectorScale(temp, &surfaceNormal);
-		//Also store hitpoint
-		isect->hitPoint = hitpoint;
-		return true;
-	} else {
-		isect->type = hitTypeNone;
-		return false;
-	}
-}
-
 /**
  Calculate the closest intersection point, and other relevant information based on a given lightRay and scene
  See the intersection struct for documentation of what this function calculates.
@@ -59,7 +37,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 	int sphereCount = scene->sphereCount;
 	
 	for (int i = 0; i < sphereCount; i++) {
-		if (rayIntersectsWithSphereTemp(&scene->spheres[i], incidentRay, &isect)) {
+		if (rayIntersectsWithSphere(&scene->spheres[i], incidentRay, &isect)) {
 			isect.end = scene->spheres[i].material;
 			isect.didIntersect = true;
 		}
