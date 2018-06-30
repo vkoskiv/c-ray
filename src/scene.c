@@ -51,6 +51,10 @@ struct crayOBJ *lastObj(struct renderer *r) {
 	return &r->scene->objs[r->scene->objCount - 1];
 }
 
+struct sphere *lastSphere(struct renderer *r) {
+	return &r->scene->spheres[r->scene->sphereCount - 1];
+}
+
 struct texture *newTexture(char *filePath) {
 	struct texture *newTexture = (struct texture*)calloc(1, sizeof(struct texture));
 	newTexture->imgData = NULL;
@@ -546,6 +550,22 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 
 void parseOBJ(struct renderer *r, const cJSON *data) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
+	
+	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
+	enum bsdfType type = lambertian;
+	
+	if (cJSON_IsString(bsdf)) {
+		if (strcmp(bsdf->valuestring, "lambertian") == 0) {
+			type = lambertian;
+		} else if (strcmp(bsdf->valuestring, "metal") == 0) {
+			type = metal;
+		} else {
+			type = lambertian;
+		}
+	} else {
+		printf("Invalid bsdf while parsing OBJ\n");
+	}
+	
 	bool objValid = false;
 	if (fileName != NULL && cJSON_IsString(fileName)) {
 		if (loadOBJ(r, fileName->valuestring)) {
@@ -561,6 +581,11 @@ void parseOBJ(struct renderer *r, const cJSON *data) {
 			cJSON_ArrayForEach(transform, transforms) {
 				addTransform(lastObj(r), parseTransform(transform));
 			}
+		}
+		
+		for (int i = 0; i < lastObj(r)->materialCount; i++) {
+			lastObj(r)->materials[i].type = type;
+			assignBSDF(&lastObj(r)->materials[i]);
 		}
 	}
 }
@@ -654,6 +679,21 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	double reflectivityValue = 0.0;
 	double radiusValue = 0.0;
 	
+	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
+	enum bsdfType type = lambertian;
+	
+	if (cJSON_IsString(bsdf)) {
+		if (strcmp(bsdf->valuestring, "lambertian") == 0) {
+			type = lambertian;
+		} else if (strcmp(bsdf->valuestring, "metal") == 0) {
+			type = metal;
+		} else {
+			type = lambertian;
+		}
+	} else {
+		printf("Invalid bsdf while parsing OBJ\n");
+	}
+	
 	pos = cJSON_GetObjectItem(data, "pos");
 	if (pos != NULL) {
 		posValue = parseCoordinate(pos);
@@ -682,6 +722,9 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 		return;
 	}
 	addSphere(r->scene, newSphere(posValue, radiusValue, newMaterial(colorValue, reflectivityValue)));
+	
+	lastSphere(r)->material.type = type;
+	assignBSDF(&lastSphere(r)->material);
 }
 
 void parseSpheres(struct renderer *r, const cJSON *data) {

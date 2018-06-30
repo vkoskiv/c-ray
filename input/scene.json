@@ -89,6 +89,7 @@
 					"g": 0.0,
 					"b": 0.5
 				},
+				"bsdf": "lambertian",
 				"reflectivity": 1.0,
 				"radius": 150
 			},
@@ -103,6 +104,7 @@
 					"g": 1.0,
 					"b": 1.0
 				},
+				"bsdf": "lambertian",
 				"reflectivity": 1.0,
 				"radius": 50
 			},
@@ -117,6 +119,7 @@
 					"b": 0.0,
 					"g": 0.0
 				},
+				"bsdf": "lambertian",
 				"reflectivity": 0.0,
 				"radius": 50
 			}
@@ -124,6 +127,7 @@
 		"OBJs": [
 			{
 				"fileName": "tonni.objdisabled",
+				"bsdf": "lambertian",
 				"transforms": [
 					{
 						"type": "scaleUniform",
@@ -143,10 +147,12 @@
 			},
 			{
 				"fileName": "newScene.obj",
+				"bsdf": "lambertian",
 				"transforms": []
 			},
 			{
 				"fileName": "teht1.objdisabled",
+				"bsdf": "lambertian",
 				"transforms": [
 					{
 						"type": "scaleUniform",
@@ -165,8 +171,9 @@
 				]
 			},
 			{
-				 "fileName": "torus.obj",
-				 "transforms": [
+				"fileName": "torus.obj",
+				"bsdf": "lambertian",
+				"transforms": [
 					{
 						"type": "scaleUniform",
 						"scale": 40
@@ -180,8 +187,9 @@
 				]
 			},
 			{
-				 "fileName": "teapot_test.obj",
-				 "transforms": [
+				"fileName": "teapot_test.obj",
+				"bsdf": "lambertian",
+				"transforms": [
 					{
 						"type": "scaleUniform",
 						"scale": 80
@@ -199,8 +207,9 @@
 				]
 			},
 			{
-				 "fileName": "teapot_test.obj",
-				 "transforms": [
+				"fileName": "teapot_test.obj",
+				"bsdf": "lambertian",
+				"transforms": [
 					{
 						"type": "scaleUniform",
 						"scale": 80
@@ -218,8 +227,9 @@
 				]
 			},
 			{
-				 "fileName": "teapot_test.obj",
-				 "transforms": [
+				"fileName": "teapot_test.obj",
+				"bsdf": "lambertian",
+				"transforms": [
 					{
 						"type": "scaleUniform",
 						"scale": 80
@@ -237,8 +247,9 @@
 				]
 			},
 			{
-				 "fileName": "teapot_white.obj",
-				 "transforms": [
+				"fileName": "teapot_white.obj",
+				"bsdf": "lambertian",
+				"transforms": [
 					{
 						"type": "scaleUniform",
 						"scale": 80
@@ -256,8 +267,9 @@
 				]
 			},
 			{
-				 "fileName": "teapot_green.obj",
-				 "transforms": [
+				"fileName": "teapot_green.obj",
+				"bsdf": "lambertian",
+				"transforms": [
 					{
 						"type": "scaleUniform",
 						"scale": 80
@@ -275,8 +287,9 @@
 				]
 			},
 			{
-				 "fileName": "teapot_green.obj",
-				 "transforms": [
+				"fileName": "teapot_green.obj",
+				"bsdf": "lambertian",
+				"transforms": [
 					{
 						"type": "scaleUniform",
 						"scale": 80
@@ -294,8 +307,9 @@
 				]
 			},
 			{
-				 "fileName": "teapot_green.obj",
-				 "transforms": [
+				"fileName": "teapot_green.obj",
+				"bsdf": "lambertian",
+				"transforms": [
 					{
 						"type": "scaleUniform",
 						"scale": 80
@@ -313,8 +327,9 @@
 				]
 			},
 			{
-				 "fileName": "teapot_blue.obj",
-				 "transforms": [
+				"fileName": "teapot_blue.obj",
+				"bsdf": "lambertian",
+				"transforms": [
 					{
 						"type": "scaleUniform",
 						"scale": 80
@@ -332,8 +347,9 @@
 				]
 			},
 			{
-				 "fileName": "teapot_blue.obj",
-				 "transforms": [
+				"fileName": "teapot_blue.obj",
+				"bsdf": "lambertian",
+				"transforms": [
 					{
 						"type": "scaleUniform",
 						"scale": 80
@@ -351,8 +367,9 @@
 				]
 			},
 			{
-				 "fileName": "teapot_blue.obj",
-				 "transforms": [
+				"fileName": "teapot_blue.obj",
+				"bsdf": "lambertian",
+				"transforms": [
 					{
 						"type": "scaleUniform",
 						"scale": 80

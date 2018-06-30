@@ -9,6 +9,8 @@
 #include "includes.h"
 #include "material.h"
 
+#include "pathtrace.h"
+
 //FIXME: Temporary, eventually support full OBJ spec
 struct material newMaterial(struct color diffuse, double reflectivity) {
 	struct material newMaterial;
@@ -49,9 +51,6 @@ struct material newMaterialFull(struct color ambient,
  translucent,
  transparent*/
 
-/*bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
-bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
-
 void assignBSDF(struct material *mat) {
 	switch (mat->type) {
 		case lambertian:
@@ -59,9 +58,52 @@ void assignBSDF(struct material *mat) {
 			break;
 		case metal:
 			mat->bsdf = metallicBSDF;
-			
+			break;
 		default:
 			mat->bsdf = lambertianBSDF;
 			break;
 	}
-}*/
+}
+
+/**
+ Compute reflection vector from a given vector and surface normal
+ 
+ @param vec Incident ray to reflect
+ @param normal Surface normal at point of reflection
+ @return Reflected vector
+ */
+struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
+	double reflect = 2.0 * scalarProduct(incident, normal);
+	struct vector temp = vectorScale(reflect, normal);
+	return subtractVectors(incident, &temp);
+}
+
+struct vector randomInUnitSphere() {
+	struct vector vec = (struct vector){0.0, 0.0, 0.0, false};
+	do {
+		vec = vectorMultiply(vectorWithPos(drand48(), drand48(), drand48()), 2.0);
+		struct vector temp = vectorWithPos(1.0, 1.0, 1.0);
+		vec = subtractVectors(&vec, &temp);
+	} while (squaredVectorLength(&vec) >= 1.0);
+	return vec;
+}
+
+bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
+	struct vector temp = addVectors(&isect->hitPoint, &isect->surfaceNormal);
+	struct vector rand = randomInUnitSphere();
+	struct vector target = addVectors(&temp, &rand);
+	
+	struct vector target2 = subtractVectors(&isect->hitPoint, &target);
+	
+	*scattered = ((struct lightRay){isect->hitPoint, target2, rayTypeReflected, isect->end, 0});
+	*attenuation = isect->end.diffuse;
+	return true;
+}
+
+bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
+	struct vector normalizedDir = normalizeVector(&isect->ray.direction);
+	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
+	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
+	*attenuation = isect->end.diffuse;
+	return (scalarProduct(&scattered->direction, &isect->surfaceNormal) > 0);
+}

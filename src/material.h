@@ -95,3 +95,8 @@ struct material newMaterialFull(struct color ambient,
 								transparency, double
 								sharpness, double
 								glossiness);
+
+bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
+bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
+
+void assignBSDF(struct material *mat);

@@ -211,35 +211,12 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 	return isect;
 }
 
-/**
- Compute reflection vector from a given vector and surface normal
-
- @param vec Incident ray to reflect
- @param normal Surface normal at point of reflection
- @return Reflected vector
- */
-struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
-	double reflect = 2.0 * scalarProduct(incident, normal);
-	struct vector temp = vectorScale(reflect, normal);
-	return subtractVectors(incident, &temp);
-}
-
 struct color getAmbientColor(struct lightRay *incidentRay) {
 	struct vector unitDirection = normalizeVector(&incidentRay->direction);
 	float t = 0.5 * (unitDirection.y + 1.0);
 	struct color temp1 = colorCoef(1.0 - t, &(struct color){1.0, 1.0, 1.0, 0.0});
 	struct color temp2 = colorCoef(t, &(struct color){0.5, 0.7, 1.0, 0.0});
 	return addColors(&temp1, &temp2);
-}
-
-struct vector randomInUnitSphere() {
-	struct vector vec = (struct vector){0.0, 0.0, 0.0, false};
-	do {
-		vec = vectorMultiply(vectorWithPos(drand48(), drand48(), drand48()), 2.0);
-		struct vector temp = vectorWithPos(1.0, 1.0, 1.0);
-		vec = subtractVectors(&vec, &temp);
-	} while (squaredVectorLength(&vec) >= 1.0);
-	return vec;
 }
 
 /*struct color getPixel(int x, int y) {
@@ -265,39 +242,17 @@ struct color colorForUV(struct material mtl, struct coord uv) {
 	return output;
 }
 
-bool lambertianScatter(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
-	struct vector temp = addVectors(&isect->hitPoint, &isect->surfaceNormal);
-	struct vector rand = randomInUnitSphere();
-	struct vector target = addVectors(&temp, &rand);
-	
-	struct vector target2 = subtractVectors(&isect->hitPoint, &target);
-	
-	*scattered = ((struct lightRay){isect->hitPoint, target2, rayTypeReflected, isect->end, 0});
-	*attenuation = isect->end.diffuse;
-	return true;
-}
-
-bool metallicScatter(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
-	struct vector reflected = reflect(&isect->ray.direction, &isect->surfaceNormal);
-	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
-	*attenuation = isect->end.diffuse;
-	return (scalarProduct(&scattered->direction, &isect->surfaceNormal) > 0);
-}
-
 struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth) {
 	struct intersection rec = getClosestIsect(incidentRay, scene);
-	
 	if (rec.didIntersect) {
 		struct lightRay scattered = {};
 		struct color attenuation = {};
-		
-		if (depth < scene->bounces && lambertianScatter(&rec, incidentRay, &attenuation, &scattered)) {
+		if (depth < scene->bounces && rec.end.bsdf(&rec, incidentRay, &attenuation, &scattered)) {
 			struct color newColor = pathTrace(&scattered, scene, depth + 1);
 			return multiplyColors(&attenuation, &newColor);
 		} else {
 			return (struct color){0.0, 0.0, 0.0, 0.0};
 		}
-		
 	} else {
 		return getAmbientColor(incidentRay);
 	}
