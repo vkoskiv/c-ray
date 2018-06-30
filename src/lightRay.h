@@ -12,8 +12,7 @@ enum type {
 	rayTypeIncident,
 	rayTypeScattered,
 	rayTypeReflected,
-	rayTypeRefracted,
-	rayTypeShadow
+	rayTypeRefracted
 };
 
 //Simulated light ray

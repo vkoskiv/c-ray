@@ -17,6 +17,25 @@
 #include "bbox.h"
 #include "kdtree.h"
 
+struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *scene);
+struct color getAmbientColor(struct lightRay *incidentRay);
+
+struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth) {
+	struct intersection isect = getClosestIsect(incidentRay, scene);
+	if (isect.didIntersect) {
+		struct lightRay scattered = {};
+		struct color attenuation = {};
+		if (depth < scene->bounces && isect.end.bsdf(&isect, incidentRay, &attenuation, &scattered)) {
+			struct color newColor = pathTrace(&scattered, scene, depth + 1);
+			return multiplyColors(&attenuation, &newColor);
+		} else {
+			return (struct color){0.0, 0.0, 0.0, 0.0};
+		}
+	} else {
+		return getAmbientColor(incidentRay);
+	}
+}
+
 /**
  Calculate the closest intersection point, and other relevant information based on a given lightRay and scene
  See the intersection struct for documentation of what this function calculates.
@@ -62,20 +81,4 @@ struct color getAmbientColor(struct lightRay *incidentRay) {
 	struct color temp1 = colorCoef(1.0 - t, &(struct color){1.0, 1.0, 1.0, 0.0});
 	struct color temp2 = colorCoef(t, &(struct color){0.5, 0.7, 1.0, 0.0});
 	return addColors(&temp1, &temp2);
-}
-
-struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth) {
-	struct intersection rec = getClosestIsect(incidentRay, scene);
-	if (rec.didIntersect) {
-		struct lightRay scattered = {};
-		struct color attenuation = {};
-		if (depth < scene->bounces && rec.end.bsdf(&rec, incidentRay, &attenuation, &scattered)) {
-			struct color newColor = pathTrace(&scattered, scene, depth + 1);
-			return multiplyColors(&attenuation, &newColor);
-		} else {
-			return (struct color){0.0, 0.0, 0.0, 0.0};
-		}
-	} else {
-		return getAmbientColor(incidentRay);
-	}
 }

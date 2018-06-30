@@ -25,6 +25,7 @@ enum currentType {
  */
 struct intersection {
 	struct lightRay ray;			//Light ray that encountered this intersection
+	//TODO: consider moving start,end materials to lightRay
 	struct material start;			//Material of where that ray originates
 	struct material end;			//Material of the intersected object
 	struct vector hitPoint;			//Hit point vector in 3D space
