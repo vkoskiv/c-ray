@@ -12,6 +12,8 @@
 #include "bbox.h"
 #include "poly.h"
 
+#include "pathtrace.h"
+
 //Tree funcs
 
 /*
@@ -152,4 +154,47 @@ struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyInd
 	}
 	
 	return node;
+}
+
+/**
+ Traverse a k-d tree and see if a ray collides with a polygon.
+ 
+ @param node Given tree to traverse
+ @param ray Ray to check intersection on
+ @param info Shading information
+ @return True if ray hits a polygon in a leaf node, otherwise false
+ */
+bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect) {
+	//A bit of a hack, but it does work...!
+	double fakeIsect = 20000.0;
+	if (rayIntersectWithAABB(node->bbox, ray, &fakeIsect)) {
+		bool hasHit = false;
+		
+		if (node->left->polyCount > 0 || node->right->polyCount > 0) {
+			//Recurse down both sides
+			bool hitLeft  = rayIntersectsWithNode(node->left, ray, isect);
+			bool hitRight = rayIntersectsWithNode(node->right, ray, isect);
+			
+			return hitLeft || hitRight;
+		} else {
+			//This is a leaf, so check all polys
+			for (int i = 0; i < node->polyCount; i++) {
+				if (rayIntersectsWithPolygon(ray, &node->polygons[i], &isect->distance, &isect->surfaceNormal, &isect->uv)) {
+					hasHit = true;
+					isect->type = hitTypePolygon;
+					isect->polyIndex = node->polygons[i].polyIndex;
+					isect->mtlIndex = node->polygons[i].materialIndex;
+					struct vector scaled = vectorScale(isect->distance, &ray->direction);
+					isect->hitPoint = addVectors(&ray->start, &scaled);
+				}
+			}
+			if (hasHit) {
+				isect->didIntersect = true;
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+	return false;
 }

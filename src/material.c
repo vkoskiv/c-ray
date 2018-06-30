@@ -65,6 +65,20 @@ void assignBSDF(struct material *mat) {
 	}
 }
 
+struct color colorForUV(struct material mtl, struct coord uv) {
+	struct color output = {0.0, 0.0, 0.0, 0.0};
+	//We need to combine the given uv, material texture coordinates, and magic to resolve this color.
+	
+	int x = (int)uv.x;
+	int y = (int)uv.y;
+	
+	output.red = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 0];
+	output.green = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 1];
+	output.blue = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 2];
+	
+	return output;
+}
+
 /**
  Compute reflection vector from a given vector and surface normal
  

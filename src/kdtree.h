@@ -24,3 +24,5 @@ struct kdTreeNode {
 
 //Builds a k-d tree and returns the root node
 struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyIndex, int depth);
+
+bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect);
