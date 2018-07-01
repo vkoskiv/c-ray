@@ -125,15 +125,14 @@ int main(int argc, char *argv[]) {
 	}
 	
 	logr(info, "Rendering at %i x %i\n", mainRenderer.image->size.width,mainRenderer.image->size.height);
-	logr(info, "Rendering with %i samples\n", mainRenderer.sampleCount);
+	logr(info, "Rendering %i samples with %i bounces.\n", mainRenderer.sampleCount, mainRenderer.scene->bounces);
 	logr(info, "Rendering with %d thread",mainRenderer.threadCount);
 	if (mainRenderer.threadCount > 1) {
-		printf("s\n");
+		printf("s.\n");
 	} else {
-		printf("\n");
+		printf(".\n");
 	}
 	
-	logr(info, "Using %i light bounces\n", mainRenderer.scene->bounces);
 	logr(info, "Pathtracing...\n");
 	
 	//Allocate memory and create array of pixels for image data

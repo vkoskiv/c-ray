@@ -62,7 +62,7 @@ struct texture *newTexture(char *filePath) {
 	newTexture->width = (unsigned int*)calloc(1, sizeof(unsigned int));
 	newTexture->height = (unsigned int*)calloc(1, sizeof(unsigned int));
 	
-	int err = lodepng_decode24_file(&newTexture->imgData, newTexture->width, newTexture->height, "/Users/vkoskiv/Documents/dev/c-ray/input/tonninseteli2.png");
+	int err = lodepng_decode24_file(&newTexture->imgData, newTexture->width, newTexture->height, filePath);
 	if (err != 0) {
 		logr(warning, "Texture loading error: %s\n", lodepng_error_text(err));
 	}
