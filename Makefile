@@ -5,14 +5,14 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	FRAMEWORKS = -lSDL2
 else
-	FRAMEWORKS = -I/usr/local/include -L/usr/local/lib -lSDL2
+	FRAMEWORKS = -I/usr/local/include
 endif
 
 ifeq ($(usesdl),no)
 	FRAMEWORKS = -I/usr/local/include
 endif
 
-CFLAGS = -O3 -std=c99 -Wall
+CFLAGS = -O3 -std=c99 -Wall -Wpedantic
 LINKER = gcc -o
 LFLAGS = -I. -lm -pthread $(FRAMEWORKS)
 
