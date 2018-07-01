@@ -159,20 +159,3 @@ int getFileSize(char *fileName) {
 	fclose(file);
 	return size;
 }
-
-int writeTarga(struct renderer *renderer, char *fileName) {
-	//We can just write the renderer to memory
-	FILE *file;
-	file = fopen(fileName, "wb");
-	fwrite(&renderer, sizeof(renderer), 1, file);
-	fclose(file);
-	return 0;
-}
-
-struct renderer *readTarga(char *fileName) {
-	FILE *file;
-	file = fopen(fileName, "r");
-	struct renderer *renderer = (struct renderer*)malloc(sizeof(struct renderer));
-	fread(&renderer, sizeof(renderer), 1, file);
-	return renderer;
-}
