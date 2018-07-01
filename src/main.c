@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 	if (argc == 2) {
 		fileName = argv[1];
 	} else {
-		logr(error, "Invalid input file path.");
+		logr(error, "Invalid input file path.\n");
 	}
 	
 #ifndef UI_ENABLED
