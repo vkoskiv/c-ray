@@ -266,9 +266,9 @@ void smartTime(time_t secs, char *buf) {
 	time_t hours = (secs / 60) / 60;
 	
 	if (mins > 60) {
-		sprintf(buf, "%lih %lim", hours, mins);
+		sprintf(buf, "%lih %lim", hours, mins - (hours * 60));
 	} else if (secs > 60) {
-		sprintf(buf, "%lim %lis", mins, secs);
+		sprintf(buf, "%lim %lis", mins, secs - (mins * 60));
 	} else {
 		sprintf(buf, "%lis", secs);
 	}
