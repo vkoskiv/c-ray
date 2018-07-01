@@ -41,6 +41,8 @@ int main(int argc, char *argv[]) {
 	srand48(time(NULL));
 #endif
 	
+	setbuf(stdout, NULL);
+	
 	//Initialize renderer
 	initRenderer(&mainRenderer);
 	
@@ -132,7 +134,7 @@ int main(int argc, char *argv[]) {
 	}
 	
 	logr(info, "Using %i light bounces\n", mainRenderer.scene->bounces);
-	logr(info, "Raytracing...\n");
+	logr(info, "Pathtracing...\n");
 	
 	//Allocate memory and create array of pixels for image data
 	mainRenderer.image->data = (unsigned char*)calloc(3 * mainRenderer.image->size.width * mainRenderer.image->size.height, sizeof(unsigned char));
@@ -276,7 +278,7 @@ void initRenderer(struct renderer *renderer) {
 	renderer->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
 	renderer->renderTiles = NULL;
 	renderer->tileCount = 0;
-	renderer->renderedTileCount = 0;
+	renderer->finishedTileCount = 0;
 	renderer->renderBuffer = NULL;
 	renderer->uiBuffer = NULL;
 	renderer->activeThreads = 0;
@@ -294,7 +296,6 @@ void initRenderer(struct renderer *renderer) {
 	renderer->sampleCount = 0;
 	renderer->tileWidth = 0;
 	renderer->tileHeight = 0;
-	renderer->smoothShading = false;
 	renderer->antialiasing = false;
 }
 

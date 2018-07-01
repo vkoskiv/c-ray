@@ -23,6 +23,8 @@
  */
 struct renderer mainRenderer;
 
+void computeTimeAverage(int thread, unsigned long long milliseconds);
+
 #ifdef WINDOWS
 HANDLE tileMutex = INVALID_HANDLE_VALUE;
 #else
@@ -43,10 +45,10 @@ struct renderTile getTile() {
 #else
 	pthread_mutex_lock(&tileMutex);
 #endif
-	if (mainRenderer.renderedTileCount < mainRenderer.tileCount) {
-		tile = mainRenderer.renderTiles[mainRenderer.renderedTileCount];
-		mainRenderer.renderTiles[mainRenderer.renderedTileCount].isRendering = true;
-		tile.tileNum = mainRenderer.renderedTileCount++;
+	if (mainRenderer.finishedTileCount < mainRenderer.tileCount) {
+		tile = mainRenderer.renderTiles[mainRenderer.finishedTileCount];
+		mainRenderer.renderTiles[mainRenderer.finishedTileCount].isRendering = true;
+		tile.tileNum = mainRenderer.finishedTileCount++;
 	}
 #ifdef WINDOWS
 	ReleaseMutex(tileMutex);
@@ -54,6 +56,20 @@ struct renderTile getTile() {
 	pthread_mutex_unlock(&tileMutex);
 #endif
 	return tile;
+}
+
+void printStats(unsigned long long ms, int thread) {
+#ifdef WINDOWS
+	WaitForSingleObject(finishedTileMutex, INFINITE);
+#else
+	pthread_mutex_lock(&tileMutex);
+#endif
+	computeTimeAverage(thread, ms);
+#ifdef WINDOWS
+	ReleaseMutex(finishedTileMutex);
+#else
+	pthread_mutex_unlock(&tileMutex);
+#endif
 }
 
 /**
@@ -261,7 +277,8 @@ struct color getPixel(int x, int y) {
 	return output;
 }
 
-void smartTime(time_t secs, char *buf) {
+void smartTime(unsigned long long milliseconds, char *buf) {
+	time_t secs = milliseconds / 1000;
 	time_t mins = secs / 60;
 	time_t hours = (secs / 60) / 60;
 	
@@ -269,8 +286,10 @@ void smartTime(time_t secs, char *buf) {
 		sprintf(buf, "%lih %lim", hours, mins - (hours * 60));
 	} else if (secs > 60) {
 		sprintf(buf, "%lim %lis", mins, secs - (mins * 60));
+	} else if (secs > 0) {
+		sprintf(buf, "%.2fs", (float)milliseconds / 1000);
 	} else {
-		sprintf(buf, "%lis", secs);
+		sprintf(buf, "%llums", milliseconds);
 	}
 }
 
@@ -280,34 +299,51 @@ void smartTime(time_t secs, char *buf) {
  @param avgTime Current computed average time
  @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
  */
-void printRunningAverage(int thread, const time_t avgTime, struct renderTile tile) {
-	int remainingTileCount = mainRenderer.tileCount - mainRenderer.renderedTileCount;
-	time_t remainingTime = remainingTileCount * avgTime;
+void printRunningAverage(int thread, unsigned long long avgTimeMilliseconds) {
+	int remainingTileCount = mainRenderer.tileCount - mainRenderer.finishedTileCount;
+	unsigned long long remainingTimeMilliseconds = remainingTileCount * avgTimeMilliseconds;
 	//First print avg tile time
-	logr(info, "[T:%i][%i/%i]", thread, mainRenderer.renderedTileCount, mainRenderer.tileCount);
+	printf("%s", "\33[2K");
+	logr(info, "[T:%i][%i/%i]", thread, mainRenderer.finishedTileCount, mainRenderer.tileCount);
 	
 	char avg[32];
-	smartTime(avgTime, avg);
+	smartTime(avgTimeMilliseconds, avg);
 	printf(", avgt: %s", avg);
 	char rem[32];
-	smartTime(remainingTime, rem);
-	printf(", etf: %s\r", rem);
+	smartTime(remainingTimeMilliseconds, rem);
+	printf(", etf: %s%s", rem, "\r");
 }
 
+/*
+ struct color output = getPixel(x, y);
+ 
+ //Get new sample (path tracing is initiated here)
+ struct color sample = pathTrace(&incidentRay, mainRenderer.scene, 0);
+ 
+ //And process the running average
+ output.red = output.red * (tile.completedSamples - 1);
+ output.green = output.green * (tile.completedSamples - 1);
+ output.blue = output.blue * (tile.completedSamples - 1);
+ 
+ output = addColors(&output, &sample);
+ 
+ output.red = output.red / tile.completedSamples;
+ output.green = output.green / tile.completedSamples;
+ output.blue = output.blue / tile.completedSamples;
+ */
 
 /**
  Compute the running average time from a given tile's render duration
 
  @param tile Tile to get the duration from
  */
-void computeTimeAverage(int thread, struct renderTile tile) {
+void computeTimeAverage(int thread, unsigned long long milliseconds) {
 	mainRenderer.avgTileTime = mainRenderer.avgTileTime * (mainRenderer.timeSampleCount - 1);
-	mainRenderer.avgTileTime += difftime(tile.stop, tile.start);
-	mainRenderer.avgTileTime = mainRenderer.avgTileTime / mainRenderer.timeSampleCount;
+	mainRenderer.avgTileTime += milliseconds;
+	mainRenderer.avgTileTime /= mainRenderer.timeSampleCount;
+	printRunningAverage(thread, mainRenderer.avgTileTime);
 	mainRenderer.timeSampleCount++;
-	printRunningAverage(thread, mainRenderer.avgTileTime, tile);
 }
-
 
 /**
  A render thread
@@ -327,7 +363,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		struct renderTile tile = getTile();
 		
 		while (tile.tileNum != -1) {
-			time(&tile.start);
+			startTimer();
 			
 			while (tile.completedSamples < mainRenderer.sampleCount+1 && mainRenderer.isRendering) {
 				for (int y = tile.end.y; y > tile.begin.y; y--) {
@@ -390,10 +426,9 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						
 						//Get previous color value from render buffer
 						struct color output = getPixel(x, y);
-						struct color sample = {0.0,0.0,0.0,0.0};
 						
-						//Get new sample (raytracing is initiated here)
-						sample = pathTrace(&incidentRay, mainRenderer.scene, 0);
+						//Get new sample (path tracing is initiated here)
+						struct color sample = pathTrace(&incidentRay, mainRenderer.scene, 0);
 						
 						//And process the running average
 						output.red = output.red * (tile.completedSamples - 1);
@@ -435,11 +470,12 @@ DWORD WINAPI renderThread(LPVOID arg) {
 			}
 			//Tile has finished rendering, get a new one and start rendering it.
 			mainRenderer.renderTiles[tile.tileNum].isRendering = false;
-			time(&tile.stop);
-			computeTimeAverage(tinfo->thread_num, tile);
 			tile = getTile();
+			unsigned long long duration = endTimer();
+			printStats(duration, tinfo->thread_num);
 		}
 		//No more tiles to render, exit thread. (render done)
+		printf("%s", "\33[2K");
 		logr(info, "Thread %i done\n", tinfo->thread_num);
 		tinfo->threadComplete = true;
 #ifdef WINDOWS

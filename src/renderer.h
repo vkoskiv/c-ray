@@ -37,7 +37,6 @@ struct renderTile {
 	int completedSamples;
 	bool isRendering;
 	int tileNum;
-	time_t start, stop;
 };
 
 enum renderOrder {
@@ -60,14 +59,14 @@ struct renderer {
 	struct outputImage *image; //Output image
 	struct renderTile *renderTiles; //Array of renderTiles to render
 	int tileCount; //Total amount of render tiles
-	int renderedTileCount; //Completed render tiles
+	int finishedTileCount; //Completed render tiles
 	double *renderBuffer;  //Double-precision buffer for multisampling
 	unsigned char *uiBuffer; //UI element buffer
 	int activeThreads; //Amount of threads currently rendering
 	bool isRendering;
 	bool renderPaused; //SDL listens for P key pressed, which sets this
 	bool renderAborted;//SDL listens for X key pressed, which sets this
-	time_t avgTileTime;//Used for render duration estimation
+	unsigned long long avgTileTime;//Used for render duration estimation (milliseconds)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
 	int currentFrame;
 	struct threadInfo *renderThreadInfo; //Info about threads
@@ -88,7 +87,6 @@ struct renderer {
 	int tileWidth;
 	int tileHeight;
 	
-	bool smoothShading;//Unused
 	bool antialiasing;
 };
 
