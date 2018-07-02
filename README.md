@@ -1,4 +1,4 @@
-<p align="center">
+﻿<p align="center">
 	<img src="https://i.imgur.com/fPBuCTG.png" width="256">
 </p>
 
@@ -71,12 +71,12 @@ Linux:
 4. Run binary: `./bin/c-ray ./input/scene.json` (Making sure the working dir is the root directory)
 
 Windows:
-1. Open the VS project in CRayWindows
-2. (Optional) Edit `src\includes.h` to uncomment `#define UI_ENABLED`
-3. Build the project (You only need to do this once)
-4. VS places a binary under `CRayWindows\bin\`
-5. Open `cmd` and navigate to `C:\path\to\c-ray`
-6. Run `>CRayWindows\x64\Release\CRayWindows.exe input\scene.json`
+1. Download SDL2 Development libaries from here and extract: https://www.libsdl.org/download-2.0.php (https://www.libsdl.org/release/SDL2-devel-2.0.8-VC.zip)
+2. Set path to SDL2DIR (where you extracted the files to, should have a few folders like 'include' and 'lib'): `set SDL2DIR=E:\sdl2\SDL2-devel-2.0.8-VC\SDL2-2.0.8`
+3. Run cmake: `cmake -G "Visual Studio 15 2017 Win64" .`
+4. (Optional) Edit `src\includes.h` to uncomment `#define UI_ENABLED`
+4. Build the generated solution: `msbuild c-ray.sln /p:Configuration=Release`
+5. Run:	`bin\Release\c-ray.exe input\scene.json`
 
 ## Installing SDL
 
@@ -84,7 +84,7 @@ On macOS, download the SDL2 runtime framework from https://www.libsdl.org/downlo
 
 If you don't have root access, place under `~/Library/Frameworks`
 
-On Windows, Visual Studio should include SDL automatically
+On Windows, download from `https://www.libsdl.org/release/SDL2-devel-2.0.8-VC.zip`
 
 On Linux using APT, run `sudo apt install libsdl2-dev`
 
