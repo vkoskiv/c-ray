@@ -23,8 +23,8 @@ struct color getAmbientColor(struct lightRay *incidentRay);
 struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth) {
 	struct intersection isect = getClosestIsect(incidentRay, scene);
 	if (isect.didIntersect) {
-		struct lightRay scattered = {};
-		struct color attenuation = {};
+		struct lightRay scattered;
+		struct color attenuation;
 		if (depth < scene->bounces && isect.end.bsdf(&isect, incidentRay, &attenuation, &scattered)) {
 			struct color newColor = pathTrace(&scattered, scene, depth + 1);
 			return multiplyColors(&attenuation, &newColor);

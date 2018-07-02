@@ -95,7 +95,7 @@ struct vector reflectVec(const struct vector *incident, const struct vector *nor
 struct vector randomInUnitSphere() {
 	struct vector vec = (struct vector){0.0, 0.0, 0.0, false};
 	do {
-		vec = vectorMultiply(vectorWithPos(drand48(), drand48(), drand48()), 2.0);
+		vec = vectorMultiply(vectorWithPos(getRandomDouble(0, 1), getRandomDouble(0, 1), getRandomDouble(0, 1)), 2.0);
 		struct vector temp = vectorWithPos(1.0, 1.0, 1.0);
 		vec = subtractVectors(&vec, &temp);
 	} while (squaredVectorLength(&vec) >= 1.0);
