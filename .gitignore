@@ -4,6 +4,15 @@
 *.png
 *.bmp
 bin/*
+output/*
+
+input/*
+!input/newScene.*
+!input/torus.*
+!input/teapot_test.*
+!input/teapot_white.*
+!input/teapot_green.*
+!input/teapot_blue.*
 
 ### CMake ###
 CMakeCache.txt
@@ -42,11 +51,11 @@ DerivedData/
 !default.perspectivev3
 
 ### Xcode Patch ###
-#*.xcodeproj/*
-#!*.xcodeproj/project.pbxproj
-#!*.xcodeproj/xcshareddata/
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
 !*.xcworkspace/contents.xcworkspacedata
-#/*.gcno
+/*.gcno
 
 ### VisualStudio ###
 ## Ignore Visual Studio temporary files, build results, and
