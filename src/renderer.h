@@ -67,6 +67,7 @@ struct renderer {
 	bool renderPaused; //SDL listens for P key pressed, which sets this
 	bool renderAborted;//SDL listens for X key pressed, which sets this
 	unsigned long long avgTileTime;//Used for render duration estimation (milliseconds)
+	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
 	int currentFrame;
 	struct threadInfo *renderThreadInfo; //Info about threads

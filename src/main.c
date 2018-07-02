@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
 	srand48(time(NULL));
 #endif
 	
+	//Disable output buffering
 	setbuf(stdout, NULL);
 	
 	//Initialize renderer

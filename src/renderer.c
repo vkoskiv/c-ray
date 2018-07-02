@@ -23,7 +23,21 @@
  */
 struct renderer mainRenderer;
 
-void computeTimeAverage(int thread, unsigned long long milliseconds);
+void computeTimeAverage(int thread, unsigned long long milliseconds, unsigned long long samples);
+
+//Tile duration timer (one for each thread
+struct timeval *timers;
+
+//Timer funcs
+void startTimer(struct timeval *timer) {
+	gettimeofday(timer, NULL);
+}
+
+unsigned long long endTimer(struct timeval *timer) {
+	struct timeval tmr2;
+	gettimeofday(&tmr2, NULL);
+	return 1000 * (tmr2.tv_sec - timer->tv_sec) + ((tmr2.tv_usec - timer->tv_usec) / 1000);
+}
 
 #ifdef WINDOWS
 HANDLE tileMutex = INVALID_HANDLE_VALUE;
@@ -58,13 +72,13 @@ struct renderTile getTile() {
 	return tile;
 }
 
-void printStats(unsigned long long ms, int thread) {
+void printStats(unsigned long long ms, unsigned long long samples, int thread) {
 #ifdef WINDOWS
 	WaitForSingleObject(finishedTileMutex, INFINITE);
 #else
 	pthread_mutex_lock(&tileMutex);
 #endif
-	computeTimeAverage(thread, ms);
+	computeTimeAverage(thread, ms, samples);
 #ifdef WINDOWS
 	ReleaseMutex(finishedTileMutex);
 #else
@@ -82,6 +96,11 @@ void quantizeImage() {
 	//Create this here for now
 	tileMutex = CreateMutex(NULL, FALSE, NULL);
 #endif
+	
+	//Alloc timers
+	//FIXME: Find better place for this
+	timers = (struct timeval*)calloc(mainRenderer.threadCount, sizeof(struct timeval));
+	
 	logr(info, "Quantizing render plane...\n");
 	
 	//Sanity check on tilesizes
@@ -282,10 +301,18 @@ void smartTime(unsigned long long milliseconds, char *buf) {
 	time_t mins = secs / 60;
 	time_t hours = (secs / 60) / 60;
 	
+	char secstring[3];
+	unsigned long long remainderSeconds = secs - (mins * 60);
+	if (remainderSeconds < 10) {
+		sprintf(secstring, "0%llu", remainderSeconds);
+	} else {
+		sprintf(secstring, "%llu", remainderSeconds);
+	}
+	
 	if (mins > 60) {
 		sprintf(buf, "%lih %lim", hours, mins - (hours * 60));
 	} else if (secs > 60) {
-		sprintf(buf, "%lim %lis", mins, secs - (mins * 60));
+		sprintf(buf, "%lim %ss", mins, secstring);
 	} else if (secs > 0) {
 		sprintf(buf, "%.2fs", (float)milliseconds / 1000);
 	} else {
@@ -299,9 +326,9 @@ void smartTime(unsigned long long milliseconds, char *buf) {
  @param avgTime Current computed average time
  @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
  */
-void printRunningAverage(int thread, unsigned long long avgTimeMilliseconds) {
+void printRunningAverage(int thread, unsigned long long avgTimeMilliseconds, float kSamplesPerSecond) {
 	int remainingTileCount = mainRenderer.tileCount - mainRenderer.finishedTileCount;
-	unsigned long long remainingTimeMilliseconds = remainingTileCount * avgTimeMilliseconds;
+	unsigned long long remainingTimeMilliseconds = (remainingTileCount * avgTimeMilliseconds) / mainRenderer.threadCount;
 	//First print avg tile time
 	printf("%s", "\33[2K");
 	logr(info, "[T:%i][%i/%i]", thread, mainRenderer.finishedTileCount, mainRenderer.tileCount);
@@ -311,7 +338,7 @@ void printRunningAverage(int thread, unsigned long long avgTimeMilliseconds) {
 	printf(", avgt: %s", avg);
 	char rem[32];
 	smartTime(remainingTimeMilliseconds, rem);
-	printf(", etf: %s%s", rem, "\r");
+	printf(", etf: %s, %.2fkS/s%s", rem, kSamplesPerSecond, "\r");
 }
 
 /*
@@ -337,11 +364,21 @@ void printRunningAverage(int thread, unsigned long long avgTimeMilliseconds) {
 
  @param tile Tile to get the duration from
  */
-void computeTimeAverage(int thread, unsigned long long milliseconds) {
+void computeTimeAverage(int thread, unsigned long long milliseconds, unsigned long long samples) {
 	mainRenderer.avgTileTime = mainRenderer.avgTileTime * (mainRenderer.timeSampleCount - 1);
 	mainRenderer.avgTileTime += milliseconds;
 	mainRenderer.avgTileTime /= mainRenderer.timeSampleCount;
-	printRunningAverage(thread, mainRenderer.avgTileTime);
+	
+	float multiplier = (float)milliseconds / 1000.0;
+	float samplesPerSecond = (float)samples / multiplier;
+	samplesPerSecond *= mainRenderer.threadCount;
+	mainRenderer.avgSampleRate = mainRenderer.avgSampleRate * (mainRenderer.timeSampleCount - 1);
+	mainRenderer.avgSampleRate += samplesPerSecond;
+	mainRenderer.avgSampleRate /= (float)mainRenderer.timeSampleCount;
+	
+	float printable = (float)mainRenderer.avgSampleRate / 1000.0;
+	
+	printRunningAverage(thread, mainRenderer.avgTileTime, printable);
 	mainRenderer.timeSampleCount++;
 }
 
@@ -363,7 +400,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		struct renderTile tile = getTile();
 		
 		while (tile.tileNum != -1) {
-			startTimer();
+			startTimer(&timers[tinfo->thread_num]);
 			
 			while (tile.completedSamples < mainRenderer.sampleCount+1 && mainRenderer.isRendering) {
 				for (int y = tile.end.y; y > tile.begin.y; y--) {
@@ -470,9 +507,10 @@ DWORD WINAPI renderThread(LPVOID arg) {
 			}
 			//Tile has finished rendering, get a new one and start rendering it.
 			mainRenderer.renderTiles[tile.tileNum].isRendering = false;
+			unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
 			tile = getTile();
-			unsigned long long duration = endTimer();
-			printStats(duration, tinfo->thread_num);
+			unsigned long long duration = endTimer(&timers[tinfo->thread_num]);
+			printStats(duration, samples, tinfo->thread_num);
 		}
 		//No more tiles to render, exit thread. (render done)
 		printf("%s", "\33[2K");

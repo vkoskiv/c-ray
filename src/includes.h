@@ -100,17 +100,3 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp) {
 	return 0;
 }
 #endif
-
-//Tile duration timer
-static struct timeval timer;
-
-//Timer funcs
-static inline void startTimer() {
-	gettimeofday(&timer, NULL);
-}
-
-static inline unsigned long long endTimer() {
-	struct timeval tmr2;
-	gettimeofday(&tmr2, NULL);
-	return 1000 * (tmr2.tv_sec - timer.tv_sec) + ((tmr2.tv_usec - timer.tv_usec) / 1000);
-}
