@@ -3,6 +3,16 @@ project (c-ray)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/)
 
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS "-Wall -Wpedantic")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMKE_CXX_FLAGS_RELEASE "-O3")
+
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
 FILE(GLOB CSources src/*.c)
 add_executable(c-ray ${CSources})
 
