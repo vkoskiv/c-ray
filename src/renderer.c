@@ -23,7 +23,7 @@
  */
 struct renderer mainRenderer;
 
-void computeTimeAverage(int thread, unsigned long long milliseconds, unsigned long long samples);
+void computeStatistics(int thread, unsigned long long milliseconds, unsigned long long samples);
 
 //Tile duration timer (one for each thread
 struct timeval *timers;
@@ -78,7 +78,7 @@ void printStats(unsigned long long ms, unsigned long long samples, int thread) {
 #else
 	pthread_mutex_lock(&tileMutex);
 #endif
-	computeTimeAverage(thread, ms, samples);
+	computeStatistics(thread, ms, samples);
 #ifdef WINDOWS
 	ReleaseMutex(finishedTileMutex);
 #else
@@ -326,7 +326,7 @@ void smartTime(unsigned long long milliseconds, char *buf) {
  @param avgTime Current computed average time
  @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
  */
-void printRunningAverage(int thread, unsigned long long avgTimeMilliseconds, float kSamplesPerSecond) {
+void printStatistics(int thread, unsigned long long avgTimeMilliseconds, float kSamplesPerSecond) {
 	int remainingTileCount = mainRenderer.tileCount - mainRenderer.finishedTileCount;
 	unsigned long long remainingTimeMilliseconds = (remainingTileCount * avgTimeMilliseconds) / mainRenderer.threadCount;
 	//First print avg tile time
@@ -341,30 +341,12 @@ void printRunningAverage(int thread, unsigned long long avgTimeMilliseconds, flo
 	printf(", etf: %s, %.2fkS/s%s", rem, kSamplesPerSecond, "\r");
 }
 
-/*
- struct color output = getPixel(x, y);
- 
- //Get new sample (path tracing is initiated here)
- struct color sample = pathTrace(&incidentRay, mainRenderer.scene, 0);
- 
- //And process the running average
- output.red = output.red * (tile.completedSamples - 1);
- output.green = output.green * (tile.completedSamples - 1);
- output.blue = output.blue * (tile.completedSamples - 1);
- 
- output = addColors(&output, &sample);
- 
- output.red = output.red / tile.completedSamples;
- output.green = output.green / tile.completedSamples;
- output.blue = output.blue / tile.completedSamples;
- */
-
 /**
  Compute the running average time from a given tile's render duration
 
  @param tile Tile to get the duration from
  */
-void computeTimeAverage(int thread, unsigned long long milliseconds, unsigned long long samples) {
+void computeStatistics(int thread, unsigned long long milliseconds, unsigned long long samples) {
 	mainRenderer.avgTileTime = mainRenderer.avgTileTime * (mainRenderer.timeSampleCount - 1);
 	mainRenderer.avgTileTime += milliseconds;
 	mainRenderer.avgTileTime /= mainRenderer.timeSampleCount;
@@ -378,7 +360,7 @@ void computeTimeAverage(int thread, unsigned long long milliseconds, unsigned lo
 	
 	float printable = (float)mainRenderer.avgSampleRate / 1000.0;
 	
-	printRunningAverage(thread, mainRenderer.avgTileTime, printable);
+	printStatistics(thread, mainRenderer.avgTileTime, printable);
 	mainRenderer.timeSampleCount++;
 }
 
