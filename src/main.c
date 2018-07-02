@@ -180,13 +180,13 @@ int main(int argc, char *argv[]) {
 				DWORD threadId;
 				mainRenderer.renderThreadInfo[t].thread_handle = CreateThread(NULL, 0, renderThread, &mainRenderer.renderThreadInfo[t], 0, &threadId);
 				if (mainRenderer.renderThreadInfo[t].thread_handle == NULL) {
-					logHandler(threadCreateFailed);
+					logr(error, "Failed to create thread.\n");
 					exit(-1);
 				}
 				mainRenderer.renderThreadInfo[t].thread_id = threadId;
 #else
 				if (pthread_create(&mainRenderer.renderThreadInfo[t].thread_id, &mainRenderer.renderThreadAttributes, renderThread, &mainRenderer.renderThreadInfo[t])) {
-					logr(error, "Failed to create a thread");
+					logr(error, "Failed to create a thread.\n");
 				}
 #endif
 			}
@@ -195,7 +195,7 @@ int main(int argc, char *argv[]) {
 			
 #ifndef WINDOWS
 			if (pthread_attr_destroy(&mainRenderer.renderThreadAttributes)) {
-				logr(warning, "Failed to destroy pthread.");
+				logr(warning, "Failed to destroy pthread.\n");
 			}
 #endif
 		}
