@@ -5,7 +5,7 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	FRAMEWORKS = -lSDL2
 else
-	FRAMEWORKS = -I/usr/local/include
+	FRAMEWORKS = -I/usr/local/include -L/usr/local/lib -lSDL2
 endif
 
 ifeq ($(usesdl),no)
