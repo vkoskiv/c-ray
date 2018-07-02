@@ -5,6 +5,9 @@
 *.bmp
 bin/*
 output/*
+*.vcxproj
+*.vcxproj.filters
+*.sln
 
 input/*
 !input/newScene.*
