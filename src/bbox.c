@@ -19,9 +19,9 @@
  @return Longest axis as an enum
  */
 enum bboxAxis getLongestAxis(struct boundingBox *bbox) {
-	int x = fabs(bbox->start.x - bbox->end.x);
-	int y = fabs(bbox->start.y - bbox->end.y);
-	int z = fabs(bbox->start.z - bbox->end.z);
+	float x = fabs(bbox->start.x - bbox->end.x);
+	float y = fabs(bbox->start.y - bbox->end.y);
+	float z = fabs(bbox->start.z - bbox->end.z);
 
 	return x > y && x > z ? X : y > z ? Y : Z;
 }

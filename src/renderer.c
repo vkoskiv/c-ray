@@ -191,7 +191,7 @@ void reorderTopToBottom() {
 }
 
 unsigned int rand_interval(unsigned int min, unsigned int max) {
-	int r;
+	unsigned int r;
 	const unsigned int range = 1 + max - min;
 	const unsigned int buckets = RAND_MAX / range;
 	const unsigned int limit = buckets * range;

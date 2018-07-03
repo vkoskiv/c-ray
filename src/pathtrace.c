@@ -77,7 +77,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 struct color getAmbientColor(struct lightRay *incidentRay) {
 	//Linearly interpolate based on the Y component, from white to light blue
 	struct vector unitDirection = normalizeVector(&incidentRay->direction);
-	float t = 0.5 * (unitDirection.y + 1.0);
+	double t = 0.5 * (unitDirection.y + 1.0);
 	struct color temp1 = colorCoef(1.0 - t, &(struct color){1.0, 1.0, 1.0, 0.0});
 	struct color temp2 = colorCoef(t, &(struct color){0.5, 0.7, 1.0, 0.0});
 	return addColors(&temp1, &temp2);
