@@ -19,9 +19,9 @@ struct display {
 	double windowScale;
 };
 
-int initSDL();
-void drawWindow();
+int initSDL(void);
+void drawWindow(void);
 #endif
 
 void printDuration(double time);
-void getKeyboardInput();
+void getKeyboardInput(void);

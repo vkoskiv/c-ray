@@ -18,8 +18,8 @@
 
 int getFileSize(char *fileName);
 void initRenderer(struct renderer *renderer);
-int getSysCores();
-void freeMem();
+int getSysCores(void);
+void freeMem(void);
 
 extern struct renderer mainRenderer;
 extern struct poly *polygonArray;

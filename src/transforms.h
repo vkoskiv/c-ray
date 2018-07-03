@@ -38,6 +38,6 @@ struct matrixTransform newTransformTranslate(double x, double y, double z);
 struct matrixTransform newTransformRotateX(double degrees);
 struct matrixTransform newTransformRotateY(double degrees);
 struct matrixTransform newTransformRotateZ(double degrees);
-struct matrixTransform emptyTransform();
+struct matrixTransform emptyTransform(void);
 
 void transformVector(struct vector *vec, struct matrixTransform *tf); //Expose for renderer

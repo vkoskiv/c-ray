@@ -97,5 +97,5 @@ DWORD WINAPI renderThread(LPVOID arg);
 #else
 void *renderThread(void *arg);
 #endif
-void quantizeImage();
+void quantizeImage(void);
 void reorderTiles(enum renderOrder order);
