@@ -24,7 +24,7 @@
 #define invsqrt(x) (1.0 / sqrt(x))
 
 //Master include file
-#define _XOPEN_SOURCE
+#define _XOPEN_SOURCE 500
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -58,7 +58,6 @@
 #elif _WIN32
 #include <windows.h>
 #else
-#define _BSD_SOURCE
 #include <unistd.h>
 #endif
 
