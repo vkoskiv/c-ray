@@ -304,14 +304,14 @@ void initRenderer(struct renderer *renderer) {
  @param ms Milliseconds to sleep for
  */
 void sleepMSec(int ms) {
-#ifdef WINDOWS
+#ifdef _WIN32
 	Sleep(ms);
-#elif MACOS
+#elif __APPLE__
 	struct timespec ts;
 	ts.tv_sec = ms / 1000;
 	ts.tv_nsec = (ms % 1000) * 1000000;
 	nanosleep(&ts, NULL);
-#else
+#elif __linux__
 	usleep(ms * 1000);
 #endif
 }
@@ -322,7 +322,7 @@ void sleepMSec(int ms) {
  @return Amount of logical processing cores
  */
 int getSysCores() {
-#ifdef MACOS
+#ifdef __APPLE__
 	int nm[2];
 	size_t len = 4;
 	uint32_t count;
@@ -338,11 +338,11 @@ int getSysCores() {
 		}
 	}
 	return count;
-#elif WINDOWS
+#elif _WIN32
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
 	return sysInfo.dwNumberOfProcessors;
-#else
+#elif __linux__
 	return (int)sysconf(_SC_NPROCESSORS_ONLN);
 #endif
 }

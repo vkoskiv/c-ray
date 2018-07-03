@@ -52,12 +52,12 @@
 #include "lodepng.h"
 
 //These are for multi-platform physical core detection
-#ifdef MACOS
+#ifdef __APPLE__
 #include <sys/param.h>
 #include <sys/sysctl.h>
 #elif _WIN32
 #include <windows.h>
-#else
+#elif __linux__
 #include <unistd.h>
 #endif
 

@@ -912,7 +912,9 @@ void copyString(const char *source, char **destination) {
 }
 
 //For Windows support, we need our own getdelim()
+#ifdef _WIN32
 #define	LONG_MAX	2147483647L	/* max signed long */
+#endif
 #define	SSIZE_MAX	LONG_MAX	/* max value for a ssize_t */
 #define	EOVERFLOW	84		/* Value too large to be stored in data type */
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
