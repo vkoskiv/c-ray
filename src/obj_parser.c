@@ -327,7 +327,7 @@ int obj_parse_obj_file(obj_growable_scene_data *growable_data, char *filename, c
 	obj_file_stream = fopen( fullPath, "r");
 	if(obj_file_stream == 0)
 	{
-		fprintf(stderr, "Error reading file: %s\n", fullPath);
+		//fprintf(stderr, "Error reading file: %s\n", fullPath);
 		return 0;
 	}
 

@@ -86,7 +86,6 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 		logr(warning, "OBJ %s not found!\n", getFileName(inputFileName));
 		return false;
 	}
-	logr(info, "OBJ loaded, converting...\n");
 	
 	//Create crayOBJ to keep track of objs
 	r->scene->objs = (struct crayOBJ*)realloc(r->scene->objs, (r->scene->objCount + 1) * sizeof(struct crayOBJ));
@@ -159,8 +158,6 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 	//Load textures for OBJs
 	loadOBJTextures(&r->scene->objs[r->scene->objCount]);
 	
-	logr(info, "Converted OBJ! Translated %i faces, %i vectors and %i materials\n\n", data.face_count, data.vertex_count, data.material_count);
-	
 	//Delete OBJ data
 	delete_obj_data(&data);
 	
@@ -194,21 +191,16 @@ void addLight(struct world *scene, struct light newLight) {
 void transformMeshes(struct world *scene) {
 	logr(info, "Running transforms...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
-		logr(info, "Transforming %s...", scene->objs[i].objName);
 		transformMesh(&scene->objs[i]);
-		printf("Transformed %s!\n", scene->objs[i].objName);
 	}
-	logr(info, "Transforms done\n");
 }
 
 void computeKDTrees(struct world *scene) {
 	logr(info, "Computing KD-trees...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
-		logr(info, "Computing tree for %s...", scene->objs[i].objName);
 		scene->objs[i].tree = buildTree(&polygonArray[scene->objs[i].firstPolyIndex],
 										scene->objs[i].polyCount,
 										scene->objs[i].firstPolyIndex, 0);
-		printf(" Done\n");
 	}
 }
 
@@ -224,15 +216,14 @@ void addCamTransform(struct camera *cam, struct matrixTransform transform) {
 }
 
 void addCamTransforms(struct camera *cam, struct matrixTransform *transforms, int count) {
-	logr(info, "Adding %i transforms to camera\n", count);
 	for (int i = 0; i < count; i++) {
 		addCamTransform(cam, transforms[i]);
 	}
 }
 
 void printSceneStats(struct world *scene) {
-	logr(info, "SceneBuilder done\n");
-	logr(info, "Totals: %i vectors, %i normals, %i polygons, %i spheres and %i lights\n\n",
+	logr(info, "Scene parsing complete\n");
+	logr(info, "Totals: %iV, %iN, %iP, %iS, %iL\n",
 		   vertexCount,
 		   normalCount,
 		   polyCount,
@@ -873,7 +864,6 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	
 	renderer = cJSON_GetObjectItem(json, "renderer");
 	if (renderer != NULL) {
-		logr(info, "Parsing renderer prefs...\n");
 		if (parseRenderer(r, renderer) == -1) {
 			logr(warning, "Renderer parse failed!\n");
 			return -2;
@@ -882,7 +872,6 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	
 	display = cJSON_GetObjectItem(json, "display");
 	if (display != NULL) {
-		logr(info, "Parsing display prefs...\n");
 		if (parseDisplay(r, display) == -1) {
 			logr(warning, "Display parse failed!\n");
 			return -2;
@@ -891,7 +880,6 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	
 	camera = cJSON_GetObjectItem(json, "camera");
 	if (camera != NULL) {
-		logr(info, "Parsing camera prefs...\n");
 		if (parseCamera(r, camera) == -1) {
 			logr(warning, "Camera parse failed!\n");
 			return -2;
@@ -900,7 +888,6 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	
 	scene = cJSON_GetObjectItem(json, "scene");
 	if (scene != NULL) {
-		logr(info, "Parsing scene...\n");
 		if (parseScene(r, scene) == -1) {
 			logr(warning, "Scene parse failed!\n");
 			return -2;

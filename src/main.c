@@ -105,17 +105,16 @@ int main(int argc, char *argv[]) {
 	//Alloc memory for pthread_create() args
 	mainRenderer.renderThreadInfo = (struct threadInfo*)calloc(mainRenderer.threadCount, sizeof(struct threadInfo));
 	if (mainRenderer.renderThreadInfo == NULL) {
-		logr(error, "Failed to allocate memory for threadInfo args.");
+		logr(error, "Failed to allocate memory for threadInfo args.\n");
 	}
 	
 	//Verify sample count
 	if (mainRenderer.sampleCount < 1) {
-		logr(warning, "Invalid sample count given, setting to 1");
+		logr(warning, "Invalid sample count given, setting to 1\n");
 		mainRenderer.sampleCount = 1;
 	}
 	
-	printf("\n");
-	logr(info, "Starting C-ray renderer for frame %i\n\n", mainRenderer.currentFrame);
+	logr(info, "Starting C-ray renderer for frame %i\n", mainRenderer.currentFrame);
 	
 	//Print a useful warning to user if the defined tile size results in less renderThreads
 	if (mainRenderer.tileCount < mainRenderer.threadCount) {
