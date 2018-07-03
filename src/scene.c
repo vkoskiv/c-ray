@@ -912,7 +912,7 @@ void copyString(const char *source, char **destination) {
 }
 
 //For Windows support, we need our own getdelim()
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__linux__)
 #define	LONG_MAX	2147483647L	/* max signed long */
 #endif
 #define	SSIZE_MAX	LONG_MAX	/* max value for a ssize_t */
