@@ -58,6 +58,7 @@
 #elif _WIN32
 #include <windows.h>
 #else
+#define _BSD_SOURCE
 #include <unistd.h>
 #endif
 
