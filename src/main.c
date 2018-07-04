@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 	
 #ifndef UI_ENABLED
 	printf("**************************************************************************\n");
-	printf("*UI is DISABLED! Enable by uncommenting #define UI_ENABLED in includes.h!*\n");
+	printf("*      UI is DISABLED! Enable by installing SDL2 and doing `cmake .`     *\n");
 	printf("**************************************************************************\n");
 #endif
 	

@@ -8,8 +8,8 @@
 
 #pragma once
 
-//Comment this to disable SDL
-#define UI_ENABLED
+//For Xcode: Uncomment this to enable SDL
+//#define UI_ENABLED
 
 //Global constants
 #define MAX_CRAY_VERTEX_COUNT 3
