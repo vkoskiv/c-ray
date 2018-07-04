@@ -1,4 +1,4 @@
-﻿//
+//
 //  renderer.c
 //  C-Ray
 //
@@ -328,7 +328,7 @@ void smartTime(unsigned long long milliseconds, char *buf) {
 	time_t mins = secs / 60;
 	time_t hours = (secs / 60) / 60;
 	
-	char secstring[3];
+	char secstring[25];
 	unsigned long long remainderSeconds = secs - (mins * 60);
 	if (remainderSeconds < 10) {
 		sprintf(secstring, "0%llu", remainderSeconds);

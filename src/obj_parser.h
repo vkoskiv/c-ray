@@ -37,8 +37,8 @@ typedef struct {
 }obj_vector;
 
 typedef struct {
-	char name[MATERIAL_NAME_SIZE];
-	char texture_filename[OBJ_FILENAME_LENGTH];
+	char name[MATERIAL_NAME_SIZE + 1];
+	char texture_filename[OBJ_FILENAME_LENGTH + 1];
 	double amb[3];
 	double diff[3];
 	double spec[3];
@@ -77,7 +77,7 @@ typedef struct {
 //	vector extreme_dimensions[2];
 	char scene_filename[OBJ_FILENAME_LENGTH];
 	char scene_filepath[OBJ_FILENAME_LENGTH];
-	char material_filename[OBJ_FILENAME_LENGTH];
+	char material_filename[OBJ_FILENAME_LENGTH + 1];
 	
 	list vertex_list;
 	list vertex_normal_list;
