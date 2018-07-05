@@ -378,14 +378,14 @@ void computeStatistics(int thread, unsigned long long milliseconds, unsigned lon
 	mainRenderer.avgTileTime += milliseconds;
 	mainRenderer.avgTileTime /= mainRenderer.timeSampleCount;
 	
-	float multiplier = (float)milliseconds / 1000.0;
+	float multiplier = (float)milliseconds / (float)1000.0f;
 	float samplesPerSecond = (float)samples / multiplier;
 	samplesPerSecond *= mainRenderer.threadCount;
 	mainRenderer.avgSampleRate = mainRenderer.avgSampleRate * (mainRenderer.timeSampleCount - 1);
 	mainRenderer.avgSampleRate += samplesPerSecond;
 	mainRenderer.avgSampleRate /= (float)mainRenderer.timeSampleCount;
 	
-	float printable = (float)mainRenderer.avgSampleRate / 1000.0;
+	float printable = (float)mainRenderer.avgSampleRate / 1000.0f;
 	
 	printStatistics(thread, mainRenderer.avgTileTime, printable);
 	mainRenderer.timeSampleCount++;
@@ -412,8 +412,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 			startTimer(&timers[tinfo->thread_num]);
 			
 			while (tile.completedSamples < mainRenderer.sampleCount+1 && mainRenderer.isRendering) {
-				for (int y = tile.end.y; y > tile.begin.y; y--) {
-					for (int x = tile.begin.x; x < tile.end.x; x++) {
+				for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
+					for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 						
 						int height = mainRenderer.image->size.height;
 						int width = mainRenderer.image->size.width;

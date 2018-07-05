@@ -916,7 +916,7 @@ void copyString(const char *source, char **destination) {
 #define	LONG_MAX	2147483647L	/* max signed long */
 #endif
 #define	SSIZE_MAX	LONG_MAX	/* max value for a ssize_t */
-#define	EOVERFLOW	84		/* Value too large to be stored in data type */
+//#define	EOVERFLOW	84		/* Value too large to be stored in data type */
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
 	char *buf, *pos;
 	int c;
