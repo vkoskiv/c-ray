@@ -9,6 +9,7 @@
 #pragma once
 
 struct scene;
+struct renderer;
 
 enum fileType {
 	bmp,
@@ -33,4 +34,4 @@ struct outputImage {
 void printFileSize(char *fileName);
 
 //Writes image data to file
-void writeImage(struct outputImage *img);
+void writeImage(struct renderer *r);

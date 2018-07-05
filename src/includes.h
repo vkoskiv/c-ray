@@ -69,6 +69,7 @@
 #include "material.h"
 #include "vector.h"
 #include "list.h"
+#include "obj.h"
 #include "sphere.h"
 #include "transforms.h"
 #include "lightRay.h"

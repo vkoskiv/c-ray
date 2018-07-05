@@ -8,6 +8,8 @@
 
 #pragma once
 
+struct renderer;
+
 #ifdef UI_ENABLED
 struct display {
 	SDL_Window *window;
@@ -19,9 +21,9 @@ struct display {
 	double windowScale;
 };
 
-int initSDL(void);
-void drawWindow(void);
+int initSDL(struct renderer *r);
+void drawWindow(struct renderer *r);
 #endif
 
 void printDuration(double time);
-void getKeyboardInput(void);
+void getKeyboardInput(struct renderer *r);

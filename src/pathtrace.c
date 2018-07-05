@@ -13,7 +13,6 @@
 #include "camera.h"
 #include "poly.h"
 #include "light.h"
-#include "obj.h"
 #include "bbox.h"
 #include "kdtree.h"
 
