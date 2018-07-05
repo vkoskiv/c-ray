@@ -13,7 +13,6 @@
 #include "light.h"
 #include "obj_parser.h"
 #include "poly.h"
-#include "obj.h"
 #include "kdtree.h"
 #include "filehandler.h"
 #include "converter.h"
@@ -44,6 +43,37 @@ char *getFileName(char *input) {
 	(fn = strrchr(input, '/')) ? ++fn : (fn = input);
 	
 	return fn;
+}
+
+/**
+ Get amount of logical processing cores on the system
+ 
+ @return Amount of logical processing cores
+ */
+int getSysCores() {
+#ifdef __APPLE__
+	int nm[2];
+	size_t len = 4;
+	uint32_t count;
+	
+	nm[0] = CTL_HW; nm[1] = HW_AVAILCPU;
+	sysctl(nm, 2, &count, &len, NULL, 0);
+	
+	if (count < 1) {
+		nm[1] = HW_NCPU;
+		sysctl(nm, 2, &count, &len, NULL, 0);
+		if (count < 1) {
+			count = 1;
+		}
+	}
+	return count;
+#elif _WIN32
+	SYSTEM_INFO sysInfo;
+	GetSystemInfo(&sysInfo);
+	return sysInfo.dwNumberOfProcessors;
+#elif __linux__
+	return (int)sysconf(_SC_NPROCESSORS_ONLN);
+#endif
 }
 
 void addMaterialOBJ(struct crayOBJ *obj, struct material newMaterial);
@@ -355,10 +385,10 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	
 	threadCount = cJSON_GetObjectItem(data, "threadCount");
 	if (cJSON_IsNumber(threadCount)) {
-		if (threadCount->valueint >= 0) {
+		if (threadCount->valueint > 0) {
 			r->threadCount = threadCount->valueint;
 		} else {
-			r->threadCount = 0;
+			r->threadCount = getSysCores();
 		}
 	} else {
 		logr(warning, "Invalid threadCount while parsing renderer\n");
@@ -837,10 +867,6 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	 we need to *copy* all dynamically allocated strings with the copyString() function.
 	 */
 	
-	//Allocate dynamic props
-	r->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
-	r->scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
-	r->scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
 #ifdef UI_ENABLED
 	r->mainDisplay = (struct display*)calloc(1, sizeof(struct display));
 #endif

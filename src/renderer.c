@@ -18,15 +18,8 @@
 #include "main.h"
 #include "logging.h"
 
-/*
- * Global renderer
- */
-struct renderer mainRenderer;
-
-void computeStatistics(int thread, unsigned long long milliseconds, unsigned long long samples);
-
-//Tile duration timer (one for each thread
-struct timeval *timers;
+void computeStatistics(struct renderer *r, int thread, unsigned long long milliseconds, unsigned long long samples);
+void reorderTiles(struct renderer *renderer);
 
 #ifdef WINDOWS
 typedef struct timeval {
@@ -66,50 +59,44 @@ unsigned long long endTimer(struct timeval *timer) {
 	return 1000 * (tmr2.tv_sec - timer->tv_sec) + ((tmr2.tv_usec - timer->tv_usec) / 1000);
 }
 
-#ifdef WINDOWS
-HANDLE tileMutex = INVALID_HANDLE_VALUE;
-#else
-pthread_mutex_t tileMutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
-
 /**
  Gets the next tile from renderTiles in mainRenderer
  
  @return A renderTile to be rendered
  */
-struct renderTile getTile() {
+struct renderTile getTile(struct renderer *r) {
 	struct renderTile tile;
 	memset(&tile, 0, sizeof(tile));
 	tile.tileNum = -1;
 #ifdef WINDOWS
-	WaitForSingleObject(tileMutex, INFINITE);
+	WaitForSingleObject(renderer->tileMutex, INFINITE);
 #else
-	pthread_mutex_lock(&tileMutex);
+	pthread_mutex_lock(&r->tileMutex);
 #endif
-	if (mainRenderer.finishedTileCount < mainRenderer.tileCount) {
-		tile = mainRenderer.renderTiles[mainRenderer.finishedTileCount];
-		mainRenderer.renderTiles[mainRenderer.finishedTileCount].isRendering = true;
-		tile.tileNum = mainRenderer.finishedTileCount++;
+	if (r->finishedTileCount < r->tileCount) {
+		tile = r->renderTiles[r->finishedTileCount];
+		r->renderTiles[r->finishedTileCount].isRendering = true;
+		tile.tileNum = r->finishedTileCount++;
 	}
 #ifdef WINDOWS
-	ReleaseMutex(tileMutex);
+	ReleaseMutex(renderer->tileMutex);
 #else
-	pthread_mutex_unlock(&tileMutex);
+	pthread_mutex_unlock(&r->tileMutex);
 #endif
 	return tile;
 }
 
-void printStats(unsigned long long ms, unsigned long long samples, int thread) {
+void printStats(struct renderer *r, unsigned long long ms, unsigned long long samples, int thread) {
 #ifdef WINDOWS
-	WaitForSingleObject(tileMutex, INFINITE);
+	WaitForSingleObject(renderer->tileMutex, INFINITE);
 #else
-	pthread_mutex_lock(&tileMutex);
+	pthread_mutex_lock(&r->tileMutex);
 #endif
-	computeStatistics(thread, ms, samples);
+	computeStatistics(r, thread, ms, samples);
 #ifdef WINDOWS
-	ReleaseMutex(tileMutex);
+	ReleaseMutex(renderer->tileMutex);
 #else
-	pthread_mutex_unlock(&tileMutex);
+	pthread_mutex_unlock(&r->tileMutex);
 #endif
 }
 
@@ -118,76 +105,69 @@ void printStats(unsigned long long ms, unsigned long long samples, int thread) {
  
  @param scene scene object
  */
-void quantizeImage() {
-#ifdef WINDOWS
-	//Create this here for now
-	tileMutex = CreateMutex(NULL, FALSE, NULL);
-#endif
-	
-	//Alloc timers
-	//FIXME: Find better place for this
-	timers = (struct timeval*)calloc(mainRenderer.threadCount, sizeof(struct timeval));
+void quantizeImage(struct renderer *r) {
 	
 	logr(info, "Quantizing render plane...\n");
 	
 	//Sanity check on tilesizes
-	if (mainRenderer.tileWidth >= mainRenderer.image->size.width) mainRenderer.tileWidth = mainRenderer.image->size.width;
-	if (mainRenderer.tileHeight >= mainRenderer.image->size.height) mainRenderer.tileHeight = mainRenderer.image->size.height;
-	if (mainRenderer.tileWidth <= 0) mainRenderer.tileWidth = 1;
-	if (mainRenderer.tileHeight <= 0) mainRenderer.tileHeight = 1;
+	if (r->tileWidth >= r->image->size.width) r->tileWidth = r->image->size.width;
+	if (r->tileHeight >= r->image->size.height) r->tileHeight = r->image->size.height;
+	if (r->tileWidth <= 0) r->tileWidth = 1;
+	if (r->tileHeight <= 0) r->tileHeight = 1;
 	
-	int tilesX = mainRenderer.image->size.width / mainRenderer.tileWidth;
-	int tilesY = mainRenderer.image->size.height / mainRenderer.tileHeight;
+	int tilesX = r->image->size.width / r->tileWidth;
+	int tilesY = r->image->size.height / r->tileHeight;
 	
-	tilesX = (mainRenderer.image->size.width % mainRenderer.tileWidth) != 0 ? tilesX + 1: tilesX;
-	tilesY = (mainRenderer.image->size.height % mainRenderer.tileHeight) != 0 ? tilesY + 1: tilesY;
+	tilesX = (r->image->size.width % r->tileWidth) != 0 ? tilesX + 1: tilesX;
+	tilesY = (r->image->size.height % r->tileHeight) != 0 ? tilesY + 1: tilesY;
 	
-	mainRenderer.renderTiles = (struct renderTile*)calloc(tilesX*tilesY, sizeof(struct renderTile));
-	if (mainRenderer.renderTiles == NULL) {
+	r->renderTiles = (struct renderTile*)calloc(tilesX*tilesY, sizeof(struct renderTile));
+	if (r->renderTiles == NULL) {
 		logr(error, "Failed to allocate renderTiles array.\n");
 	}
 	
 	for (int y = 0; y < tilesY; y++) {
 		for (int x = 0; x < tilesX; x++) {
-			struct renderTile *tile = &mainRenderer.renderTiles[x + y*tilesX];
-			tile->width  = mainRenderer.tileWidth;
-			tile->height = mainRenderer.tileHeight;
+			struct renderTile *tile = &r->renderTiles[x + y*tilesX];
+			tile->width  = r->tileWidth;
+			tile->height = r->tileHeight;
 			
-			tile->begin.x = x       * mainRenderer.tileWidth;
-			tile->end.x   = (x + 1) * mainRenderer.tileWidth;
+			tile->begin.x = x       * r->tileWidth;
+			tile->end.x   = (x + 1) * r->tileWidth;
 			
-			tile->begin.y = y       * mainRenderer.tileHeight;
-			tile->end.y   = (y + 1) * mainRenderer.tileHeight;
+			tile->begin.y = y       * r->tileHeight;
+			tile->end.y   = (y + 1) * r->tileHeight;
 			
-			tile->end.x = min((x + 1) * mainRenderer.tileWidth, mainRenderer.image->size.width);
-			tile->end.y = min((y + 1) * mainRenderer.tileHeight, mainRenderer.image->size.height);
+			tile->end.x = min((x + 1) * r->tileWidth, r->image->size.width);
+			tile->end.y = min((y + 1) * r->tileHeight, r->image->size.height);
 			
 			//Samples have to start at 1, so the running average works
 			tile->completedSamples = 1;
 			tile->isRendering = false;
-			tile->tileNum = mainRenderer.tileCount;
+			tile->tileNum = r->tileCount;
 			
-			mainRenderer.tileCount++;
+			r->tileCount++;
 		}
 	}
 	logr(info, "Quantized image into %i tiles. (%ix%i)\n", (tilesX*tilesY), tilesX, tilesY);
+	
+	reorderTiles(r);
 }
-
 
 /**
  Reorder renderTiles to start from top
  */
-void reorderTopToBottom() {
-	int endIndex = mainRenderer.tileCount - 1;
+void reorderTopToBottom(struct renderer *r) {
+	int endIndex = r->tileCount - 1;
 	
-	struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = (struct renderTile*)calloc(r->tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < mainRenderer.tileCount; i++) {
-		tempArray[i] = mainRenderer.renderTiles[endIndex--];
+	for (int i = 0; i < r->tileCount; i++) {
+		tempArray[i] = r->renderTiles[endIndex--];
 	}
 	
-	free(mainRenderer.renderTiles);
-	mainRenderer.renderTiles = tempArray;
+	free(r->renderTiles);
+	r->renderTiles = tempArray;
 }
 
 unsigned int rand_interval(unsigned int min, unsigned int max) {
@@ -210,68 +190,68 @@ unsigned int rand_interval(unsigned int min, unsigned int max) {
 /**
  Shuffle renderTiles into a random order
  */
-void reorderRandom() {
-	for (int i = 0; i < mainRenderer.tileCount; i++) {
-		unsigned int random = rand_interval(0, mainRenderer.tileCount - 1);
+void reorderRandom(struct renderer *r) {
+	for (int i = 0; i < r->tileCount; i++) {
+		unsigned int random = rand_interval(0, r->tileCount - 1);
 		
-		struct renderTile temp = mainRenderer.renderTiles[i];
-		mainRenderer.renderTiles[i] = mainRenderer.renderTiles[random];
-		mainRenderer.renderTiles[random] = temp;
+		struct renderTile temp = r->renderTiles[i];
+		r->renderTiles[i] = r->renderTiles[random];
+		r->renderTiles[random] = temp;
 	}
 }
 
 /**
  Reorder renderTiles to start from middle
  */
-void reorderFromMiddle() {
+void reorderFromMiddle(struct renderer *r) {
 	int midLeft = 0;
 	int midRight = 0;
 	bool isRight = true;
 	
-	midRight = ceil(mainRenderer.tileCount / 2);
+	midRight = ceil(r->tileCount / 2);
 	midLeft = midRight - 1;
 	
-	struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = (struct renderTile*)calloc(r->tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < mainRenderer.tileCount; i++) {
+	for (int i = 0; i < r->tileCount; i++) {
 		if (isRight) {
-			tempArray[i] = mainRenderer.renderTiles[midRight++];
+			tempArray[i] = r->renderTiles[midRight++];
 			isRight = false;
 		} else {
-			tempArray[i] = mainRenderer.renderTiles[midLeft--];
+			tempArray[i] = r->renderTiles[midLeft--];
 			isRight = true;
 		}
 	}
 	
-	free(mainRenderer.renderTiles);
-	mainRenderer.renderTiles = tempArray;
+	free(r->renderTiles);
+	r->renderTiles = tempArray;
 }
 
 
 /**
  Reorder renderTiles to start from ends, towards the middle
  */
-void reorderToMiddle() {
+void reorderToMiddle(struct renderer *r) {
 	int left = 0;
 	int right = 0;
 	bool isRight = true;
 	
-	right = mainRenderer.tileCount - 1;
+	right = r->tileCount - 1;
 	
-	struct renderTile *tempArray = (struct renderTile*)calloc(mainRenderer.tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = (struct renderTile*)calloc(r->tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < mainRenderer.tileCount; i++) {
+	for (int i = 0; i < r->tileCount; i++) {
 		if (isRight) {
-			tempArray[i] = mainRenderer.renderTiles[right--];
+			tempArray[i] = r->renderTiles[right--];
 			isRight = false;
 		} else {
-			tempArray[i] = mainRenderer.renderTiles[left++];
+			tempArray[i] = r->renderTiles[left++];
 			isRight = true;
 		}
 	}
 	
-	free(mainRenderer.renderTiles);
-	mainRenderer.renderTiles = tempArray;
+	free(r->renderTiles);
+	r->renderTiles = tempArray;
 }
 
 /**
@@ -279,26 +259,26 @@ void reorderToMiddle() {
  
  @param order Render order to be applied
  */
-void reorderTiles(enum renderOrder order) {
-	switch (order) {
+void reorderTiles(struct renderer *r) {
+	switch (r->tileOrder) {
 		case renderOrderFromMiddle:
 		{
-			reorderFromMiddle();
+			reorderFromMiddle(r);
 		}
 			break;
 		case renderOrderToMiddle:
 		{
-			reorderToMiddle();
+			reorderToMiddle(r);
 		}
 			break;
 		case renderOrderTopToBottom:
 		{
-			reorderTopToBottom();
+			reorderTopToBottom(r);
 		}
 			break;
 		case renderOrderRandom:
 		{
-			reorderRandom();
+			reorderRandom(r);
 		}
 			break;
 		default:
@@ -314,11 +294,11 @@ void reorderTiles(enum renderOrder order) {
  @param y Y coordinate of pixel
  @return A color object, with full color precision intact (double)
  */
-struct color getPixel(int x, int y) {
+struct color getPixel(struct renderer *r, int x, int y) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
-	output.red = mainRenderer.renderBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width)*3 + 0];
-	output.green = mainRenderer.renderBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width)*3 + 1];
-	output.blue = mainRenderer.renderBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width)*3 + 2];
+	output.red = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 0];
+	output.green = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 1];
+	output.blue = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 2];
 	output.alpha = 1.0;
 	return output;
 }
@@ -353,16 +333,16 @@ void smartTime(unsigned long long milliseconds, char *buf) {
  @param avgTime Current computed average time
  @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
  */
-void printStatistics(int thread, unsigned long long avgTimeMilliseconds, float kSamplesPerSecond) {
-	int remainingTileCount = mainRenderer.tileCount - mainRenderer.finishedTileCount;
-	unsigned long long remainingTimeMilliseconds = (remainingTileCount * avgTimeMilliseconds) / mainRenderer.threadCount;
+void printStatistics(struct renderer *r, int thread, float kSamplesPerSecond) {
+	int remainingTileCount = r->tileCount - r->finishedTileCount;
+	unsigned long long remainingTimeMilliseconds = (remainingTileCount * r->avgTileTime) / r->threadCount;
 	//First print avg tile time
 	printf("%s", "\33[2K");
-	float completion = ((float)mainRenderer.finishedTileCount / mainRenderer.tileCount) * 100;
+	float completion = ((float)r->finishedTileCount / r->tileCount) * 100;
 	logr(info, "[%.0f%%]", completion);
 	
 	char avg[32];
-	smartTime(avgTimeMilliseconds, avg);
+	smartTime(r->avgTileTime, avg);
 	printf(" avgt: %s", avg);
 	char rem[32];
 	smartTime(remainingTimeMilliseconds, rem);
@@ -374,22 +354,22 @@ void printStatistics(int thread, unsigned long long avgTimeMilliseconds, float k
 
  @param tile Tile to get the duration from
  */
-void computeStatistics(int thread, unsigned long long milliseconds, unsigned long long samples) {
-	mainRenderer.avgTileTime = mainRenderer.avgTileTime * (mainRenderer.timeSampleCount - 1);
-	mainRenderer.avgTileTime += milliseconds;
-	mainRenderer.avgTileTime /= mainRenderer.timeSampleCount;
+void computeStatistics(struct renderer *r, int thread, unsigned long long milliseconds, unsigned long long samples) {
+	r->avgTileTime = r->avgTileTime * (r->timeSampleCount - 1);
+	r->avgTileTime += milliseconds;
+	r->avgTileTime /= r->timeSampleCount;
 	
 	float multiplier = (float)milliseconds / (float)1000.0f;
 	float samplesPerSecond = (float)samples / multiplier;
-	samplesPerSecond *= mainRenderer.threadCount;
-	mainRenderer.avgSampleRate = mainRenderer.avgSampleRate * (mainRenderer.timeSampleCount - 1);
-	mainRenderer.avgSampleRate += samplesPerSecond;
-	mainRenderer.avgSampleRate /= (float)mainRenderer.timeSampleCount;
+	samplesPerSecond *= r->threadCount;
+	r->avgSampleRate = r->avgSampleRate * (r->timeSampleCount - 1);
+	r->avgSampleRate += samplesPerSecond;
+	r->avgSampleRate /= (float)r->timeSampleCount;
 	
-	float printable = (float)mainRenderer.avgSampleRate / 1000.0f;
+	float printable = (float)r->avgSampleRate / 1000.0f;
 	
-	printStatistics(thread, mainRenderer.avgTileTime, printable);
-	mainRenderer.timeSampleCount++;
+	printStatistics(r, thread, printable);
+	r->timeSampleCount++;
 }
 
 /**
@@ -406,49 +386,51 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		struct lightRay incidentRay;
 		struct threadInfo *tinfo = (struct threadInfo*)arg;
 		
+		struct renderer *renderer = tinfo->r;
+		
 		//First time setup for each thread
-		struct renderTile tile = getTile();
+		struct renderTile tile = getTile(renderer);
 		
 		while (tile.tileNum != -1) {
-			startTimer(&timers[tinfo->thread_num]);
+			startTimer(&renderer->timers[tinfo->thread_num]);
 			
-			while (tile.completedSamples < mainRenderer.sampleCount+1 && mainRenderer.isRendering) {
+			while (tile.completedSamples < renderer->sampleCount+1 && renderer->isRendering) {
 				for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 					for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 						
-						int height = mainRenderer.image->size.height;
-						int width = mainRenderer.image->size.width;
+						int height = renderer->image->size.height;
+						int width = renderer->image->size.width;
 						
 						double fracX = (double)x;
 						double fracY = (double)y;
 						
 						//A cheap 'antialiasing' of sorts. The more samples, the better this works
-						if (mainRenderer.antialiasing) {
+						if (renderer->antialiasing) {
 							fracX = getRandomDouble(fracX - 0.25, fracX + 0.25);
 							fracY = getRandomDouble(fracY - 0.25, fracY + 0.25);
 						}
 						
 						//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 						//imaginary plane in front of the origin. startPos is just the camera position.
-						struct vector direction = {(fracX - 0.5 * mainRenderer.image->size.width)
-													/ mainRenderer.scene->camera->focalLength,
-												   (fracY - 0.5 * mainRenderer.image->size.height)
-													/ mainRenderer.scene->camera->focalLength,
+						struct vector direction = {(fracX - 0.5 * renderer->image->size.width)
+													/ renderer->scene->camera->focalLength,
+												   (fracY - 0.5 * renderer->image->size.height)
+													/ renderer->scene->camera->focalLength,
 													1.0,
 													false};
 						
 						//Normalize direction
 						direction = normalizeVector(&direction);
-						struct vector startPos = mainRenderer.scene->camera->pos;
-						struct vector left = mainRenderer.scene->camera->left;
-						struct vector up = mainRenderer.scene->camera->up;
+						struct vector startPos = renderer->scene->camera->pos;
+						struct vector left = renderer->scene->camera->left;
+						struct vector up = renderer->scene->camera->up;
 						
 						//Run camera tranforms on direction vector
-						transformCameraView(mainRenderer.scene->camera, &direction);
+						transformCameraView(renderer->scene->camera, &direction);
 						
 						//Now handle aperture
 						//FIXME: This is a 'square' aperture
-						double aperture = mainRenderer.scene->camera->aperture;
+						double aperture = renderer->scene->camera->aperture;
 						if (aperture <= 0.0) {
 							incidentRay.start = startPos;
 						} else {
@@ -465,17 +447,17 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						
 						incidentRay.direction = direction;
 						incidentRay.rayType = rayTypeIncident;
-						incidentRay.remainingInteractions = mainRenderer.scene->bounces;
+						incidentRay.remainingInteractions = renderer->scene->bounces;
 						incidentRay.currentMedium.IOR = AIR_IOR;
 						
 						//For multi-sample rendering, we keep a running average of color values for each pixel
 						//The next block of code does this
 						
 						//Get previous color value from render buffer
-						struct color output = getPixel(x, y);
+						struct color output = getPixel(renderer, x, y);
 						
 						//Get new sample (path tracing is initiated here)
-						struct color sample = pathTrace(&incidentRay, mainRenderer.scene, 0);
+						struct color sample = pathTrace(&incidentRay, renderer->scene, 0);
 						
 						//And process the running average
 						output.red = output.red * (tile.completedSamples - 1);
@@ -489,9 +471,9 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						output.blue = output.blue / tile.completedSamples;
 						
 						//Store render buffer
-						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 0] = output.red;
-						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 1] = output.green;
-						mainRenderer.renderBuffer[(x + (height - y)*width)*3 + 2] = output.blue;
+						renderer->renderBuffer[(x + (height - y)*width)*3 + 0] = output.red;
+						renderer->renderBuffer[(x + (height - y)*width)*3 + 1] = output.green;
+						renderer->renderBuffer[(x + (height - y)*width)*3 + 2] = output.blue;
 						
 						//Gamma correction
 						output = toSRGB(output);
@@ -500,27 +482,26 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						//Note how imageData only stores 8-bit precision for each color channel.
 						//This is why we use the renderBuffer for the running average as it just contains
 						//the full precision color values
-						mainRenderer.image->data[(x + (height - y)*width)*3 + 0] =
+						renderer->image->data[(x + (height - y)*width)*3 + 0] =
 						(unsigned char)min( max(output.red*255.0,0), 255.0);
-						mainRenderer.image->data[(x + (height - y)*width)*3 + 1] =
+						renderer->image->data[(x + (height - y)*width)*3 + 1] =
 						(unsigned char)min( max(output.green*255.0,0), 255.0);
-						mainRenderer.image->data[(x + (height - y)*width)*3 + 2] =
+						renderer->image->data[(x + (height - y)*width)*3 + 2] =
 						(unsigned char)min( max(output.blue*255.0,0), 255.0);
 					}
 				}
 				tile.completedSamples++;
 				//Pause rendering when bool is set
-				while (mainRenderer.renderPaused) {
+				while (renderer->threadPaused[tinfo->thread_num]) {
 					sleepMSec(100);
-					if (!mainRenderer.renderPaused) break;
 				}
 			}
 			//Tile has finished rendering, get a new one and start rendering it.
-			mainRenderer.renderTiles[tile.tileNum].isRendering = false;
+			renderer->renderTiles[tile.tileNum].isRendering = false;
 			unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
-			tile = getTile();
-			unsigned long long duration = endTimer(&timers[tinfo->thread_num]);
-			printStats(duration, samples, tinfo->thread_num);
+			tile = getTile(renderer);
+			unsigned long long duration = endTimer(&renderer->timers[tinfo->thread_num]);
+			printStats(renderer, duration, samples, tinfo->thread_num);
 		}
 		//No more tiles to render, exit thread. (render done)
 		printf("%s", "\33[2K");
@@ -531,5 +512,29 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		return 0;
 #else
 		pthread_exit((void*) arg);
+#endif
+}
+	
+void initRenderer(struct renderer *renderer) {
+	renderer->avgTileTime = (time_t)1;
+	renderer->timeSampleCount = 1;
+	renderer->mode = saveModeNormal;
+	renderer->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
+	
+	renderer->scene = (struct world*)calloc(1, sizeof(struct world));
+	renderer->scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
+	renderer->scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
+	renderer->scene->objs = (struct crayOBJ*)calloc(1, sizeof(struct crayOBJ));
+	renderer->scene->spheres = (struct sphere*)calloc(1, sizeof(struct sphere));
+	renderer->scene->materials = (struct material*)calloc(1, sizeof(struct material));
+	renderer->scene->lights = (struct light*)calloc(1, sizeof(struct light));
+	
+	//Alloc timers
+	renderer->timers = (struct timeval*)calloc(renderer->threadCount, sizeof(struct timeval));
+	//Mutex
+#ifdef _WIN32
+	renderer->tileMutex = CreateMutex(NULL, FALSE, NULL);
+#else
+	renderer->tileMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 #endif
 }

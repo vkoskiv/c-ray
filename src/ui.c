@@ -15,8 +15,6 @@
 #include "filehandler.h"
 #include "logging.h"
 
-extern struct renderer mainRenderer;
-
 //Signal handling
 void (*signal(int signo, void (*func )(int)))(int);
 typedef void sigfunc(int);
@@ -74,7 +72,7 @@ void fillTexture(SDL_Renderer *renderer, SDL_Texture *texture, int r, int g, int
 	SDL_FreeSurface(icon);
 }*/
 
-int initSDL() {
+int initSDL(struct renderer *r) {
 	
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -83,90 +81,97 @@ int initSDL() {
 	}
 	//Init window
 	SDL_WindowFlags flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
-	if (mainRenderer.mainDisplay->isFullScreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	if (mainRenderer.mainDisplay->isBorderless) flags |= SDL_WINDOW_BORDERLESS;
+	if (r->mainDisplay->isFullScreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	if (r->mainDisplay->isBorderless) flags |= SDL_WINDOW_BORDERLESS;
 	
-	mainRenderer.mainDisplay->window = SDL_CreateWindow("C-ray © VKoskiv 2015-2018", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mainRenderer.image->size.width * mainRenderer.mainDisplay->windowScale, mainRenderer.image->size.height * mainRenderer.mainDisplay->windowScale, flags);
-	if (mainRenderer.mainDisplay->window == NULL) {
+	r->mainDisplay->window = SDL_CreateWindow("C-ray © VKoskiv 2015-2018", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, r->image->size.width * r->mainDisplay->windowScale, r->image->size.height * r->mainDisplay->windowScale, flags);
+	if (r->mainDisplay->window == NULL) {
 		logr(warning, "Window couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	//Init renderer
-	mainRenderer.mainDisplay->renderer = SDL_CreateRenderer(mainRenderer.mainDisplay->window, -1, SDL_RENDERER_ACCELERATED);
-	if (mainRenderer.mainDisplay->renderer == NULL) {
+	r->mainDisplay->renderer = SDL_CreateRenderer(r->mainDisplay->window, -1, SDL_RENDERER_ACCELERATED);
+	if (r->mainDisplay->renderer == NULL) {
 		logr(warning, "Renderer couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	//And set blend modes
-	SDL_SetRenderDrawBlendMode(mainRenderer.mainDisplay->renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawBlendMode(r->mainDisplay->renderer, SDL_BLENDMODE_BLEND);
 	
-	SDL_RenderSetScale(mainRenderer.mainDisplay->renderer, mainRenderer.mainDisplay->windowScale, mainRenderer.mainDisplay->windowScale);
+	SDL_RenderSetScale(r->mainDisplay->renderer, r->mainDisplay->windowScale, r->mainDisplay->windowScale);
 	//Init pixel texture
-	mainRenderer.mainDisplay->texture = SDL_CreateTexture(mainRenderer.mainDisplay->renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, mainRenderer.image->size.width, mainRenderer.image->size.height);
-	if (mainRenderer.mainDisplay->texture == NULL) {
+	r->mainDisplay->texture = SDL_CreateTexture(r->mainDisplay->renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, r->image->size.width, r->image->size.height);
+	if (r->mainDisplay->texture == NULL) {
 		logr(warning, "Texture couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	//Init overlay texture (for UI info)
-	mainRenderer.mainDisplay->overlayTexture = SDL_CreateTexture(mainRenderer.mainDisplay->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, mainRenderer.image->size.width, mainRenderer.image->size.height);
-	if (mainRenderer.mainDisplay->overlayTexture == NULL) {
+	r->mainDisplay->overlayTexture = SDL_CreateTexture(r->mainDisplay->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, r->image->size.width, r->image->size.height);
+	if (r->mainDisplay->overlayTexture == NULL) {
 		logr(warning, "Overlay texture couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	
 	//And set blend modes for textures too
-	SDL_SetTextureBlendMode(mainRenderer.mainDisplay->texture, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureBlendMode(mainRenderer.mainDisplay->overlayTexture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(r->mainDisplay->texture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(r->mainDisplay->overlayTexture, SDL_BLENDMODE_BLEND);
 	
 	//Set window icon
-	//setWindowIcon(mainRenderer.mainDisplay->window);
+	//setWindowIcon(r->mainDisplay->window);
 	
 	return 0;
 }
 
-void getKeyboardInput() {
-	SDL_PumpEvents();
-	const Uint8 *keys = SDL_GetKeyboardState(NULL);
-	if (keys[SDL_SCANCODE_S]) {
-		logr(info, "Aborting render, saving...\n");
-		mainRenderer.renderAborted = true;
-	}
-	if (keys[SDL_SCANCODE_X]) {
-		logr(info, "Aborting render without saving...\n");
-		mainRenderer.mode = saveModeNone;
-		mainRenderer.renderAborted = true;
-	}
-	if (keys[SDL_SCANCODE_P]) {
-		if (mainRenderer.renderPaused) {
-			logr(info, "Resuming render...\n");
-			mainRenderer.renderPaused = false;
-		} else {
-			logr(info, "Pausing render...\n");
-			mainRenderer.renderPaused = true;
+void getKeyboardInput(struct renderer *r) {
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
+			//const Uint8 *keys = SDL_GetKeyboardState(NULL);
+			if (event.key.keysym.sym == SDLK_s) {
+				logr(info, "Aborting render, saving...\n");
+				r->renderAborted = true;
+			}
+			if (event.key.keysym.sym == SDLK_x) {
+				logr(info, "Aborting render without saving...\n");
+				r->mode = saveModeNone;
+				r->renderAborted = true;
+			}
+			if (event.key.keysym.sym == SDLK_p) {
+				
+				for (int i = 0; i < r->threadCount; i++) {
+					if (r->threadPaused[i]) {
+						logr(info, "Resuming thread %i\n", i);
+						r->threadPaused[i] = false;
+					} else {
+						logr(info, "Pausing thread %i\n", i);
+						r->threadPaused[i] = true;
+					}
+				}
+			}
 		}
 	}
 }
 
-void drawPixel(int x, int y, bool on) {
+void drawPixel(struct renderer *r, int x, int y, bool on) {
 	if (y <= 0) y = 1;
 	if (x <= 0) x = 1;
-	if (x >= mainRenderer.image->size.width) x = mainRenderer.image->size.width - 1;
-	if (y >= mainRenderer.image->size.height) y = mainRenderer.image->size.height - 1;
+	if (x >= r->image->size.width) x = r->image->size.width - 1;
+	if (y >= r->image->size.height) y = r->image->size.height - 1;
 	
 	if (on) {
-		mainRenderer.uiBuffer[(x + (mainRenderer.image->size.height - y)
-							   * mainRenderer.image->size.width) * 4 + 3] = (unsigned char)min(frameColor.red*255.0, 255.0);
-		mainRenderer.uiBuffer[(x + (mainRenderer.image->size.height - y)
-							   * mainRenderer.image->size.width) * 4 + 2] = (unsigned char)min(frameColor.green*255.0, 255.0);
-		mainRenderer.uiBuffer[(x + (mainRenderer.image->size.height - y)
-							   * mainRenderer.image->size.width) * 4 + 1] = (unsigned char)min(frameColor.blue*255.0, 255.0);
-		mainRenderer.uiBuffer[(x + (mainRenderer.image->size.height - y)
-							   * mainRenderer.image->size.width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
+		r->uiBuffer[(x + (r->image->size.height - y)
+							   * r->image->size.width) * 4 + 3] = (unsigned char)min(frameColor.red*255.0, 255.0);
+		r->uiBuffer[(x + (r->image->size.height - y)
+							   * r->image->size.width) * 4 + 2] = (unsigned char)min(frameColor.green*255.0, 255.0);
+		r->uiBuffer[(x + (r->image->size.height - y)
+							   * r->image->size.width) * 4 + 1] = (unsigned char)min(frameColor.blue*255.0, 255.0);
+		r->uiBuffer[(x + (r->image->size.height - y)
+							   * r->image->size.width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
 	} else {
-		mainRenderer.uiBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width) * 4 + 0] = (unsigned char)0;
-		mainRenderer.uiBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width) * 4 + 1] = (unsigned char)0;
-		mainRenderer.uiBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width) * 4 + 2] = (unsigned char)0;
-		mainRenderer.uiBuffer[(x + (mainRenderer.image->size.height - y) * mainRenderer.image->size.width) * 4 + 3] = (unsigned char)0;
+		r->uiBuffer[(x + (r->image->size.height - y) * r->image->size.width) * 4 + 0] = (unsigned char)0;
+		r->uiBuffer[(x + (r->image->size.height - y) * r->image->size.width) * 4 + 1] = (unsigned char)0;
+		r->uiBuffer[(x + (r->image->size.height - y) * r->image->size.width) * 4 + 2] = (unsigned char)0;
+		r->uiBuffer[(x + (r->image->size.height - y) * r->image->size.width) * 4 + 3] = (unsigned char)0;
 	}
 }
 
@@ -177,52 +182,52 @@ void drawPixel(int x, int y, bool on) {
  @param tile Given renderTile
  @param on Draw frame if true, erase if false
  */
-void drawFrame(struct renderTile tile, bool on) {
+void drawFrame(struct renderer *r, struct renderTile tile, bool on) {
 	for (int i = 1; i < 7; i++) {
 		//top left
-		drawPixel(tile.begin.x+i, tile.begin.y+1, on);
-		drawPixel(tile.begin.x+1, tile.begin.y+i, on);
+		drawPixel(r, tile.begin.x+i, tile.begin.y+1, on);
+		drawPixel(r, tile.begin.x+1, tile.begin.y+i, on);
 		
 		//top right
-		drawPixel(tile.end.x-i, tile.begin.y+1, on);
-		drawPixel(tile.end.x-1, tile.begin.y+i, on);
+		drawPixel(r, tile.end.x-i, tile.begin.y+1, on);
+		drawPixel(r, tile.end.x-1, tile.begin.y+i, on);
 		
 		//Bottom left
-		drawPixel(tile.begin.x+i, tile.end.y-1, on);
-		drawPixel(tile.begin.x+1, tile.end.y-i, on);
+		drawPixel(r, tile.begin.x+i, tile.end.y-1, on);
+		drawPixel(r, tile.begin.x+1, tile.end.y-i, on);
 		
 		//bottom right
-		drawPixel(tile.end.x-i, tile.end.y-1, on);
-		drawPixel(tile.end.x-1, tile.end.y-i, on);
+		drawPixel(r, tile.end.x-i, tile.end.y-1, on);
+		drawPixel(r, tile.end.x-1, tile.end.y-i, on);
 	}
 }
 
-void updateUI() {
-	for (int i = 0; i < mainRenderer.tileCount; i++) {
+void updateUI(struct renderer *r) {
+	for (int i = 0; i < r->tileCount; i++) {
 		//For every tile, if it's currently rendering, draw the frame
 		//If it is NOT rendering, clear any frame present
-		if (mainRenderer.renderTiles[i].isRendering) {
-			drawFrame(mainRenderer.renderTiles[i], true);
+		if (r->renderTiles[i].isRendering) {
+			drawFrame(r, r->renderTiles[i], true);
 		} else {
-			drawFrame(mainRenderer.renderTiles[i], false);
+			drawFrame(r, r->renderTiles[i], false);
 		}
 	}
 }
 
-void drawWindow() {
-	SDL_SetRenderDrawColor(mainRenderer.mainDisplay->renderer, 0x0, 0x0, 0x0, 0x0);
-	SDL_RenderClear(mainRenderer.mainDisplay->renderer);
+void drawWindow(struct renderer *r) {
+	SDL_SetRenderDrawColor(r->mainDisplay->renderer, 0x0, 0x0, 0x0, 0x0);
+	SDL_RenderClear(r->mainDisplay->renderer);
 	//Check for CTRL-C
 	if (signal(SIGINT, sigHandler) == SIG_ERR)
 		logr(warning, "Couldn't catch SIGINT\n");
 	//Render frame
-	updateUI();
+	updateUI(r);
 	//Update image data
-	SDL_UpdateTexture(mainRenderer.mainDisplay->texture, NULL, mainRenderer.image->data, mainRenderer.image->size.width * 3);
-	SDL_UpdateTexture(mainRenderer.mainDisplay->overlayTexture, NULL, mainRenderer.uiBuffer, mainRenderer.image->size.width * 4);
-	SDL_RenderCopy(mainRenderer.mainDisplay->renderer, mainRenderer.mainDisplay->texture, NULL, NULL);
-	SDL_RenderCopy(mainRenderer.mainDisplay->renderer, mainRenderer.mainDisplay->overlayTexture, NULL, NULL);
-	SDL_RenderPresent(mainRenderer.mainDisplay->renderer);
+	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->image->data, r->image->size.width * 3);
+	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->uiBuffer, r->image->size.width * 4);
+	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
+	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
+	SDL_RenderPresent(r->mainDisplay->renderer);
 }
 
 #endif

@@ -17,7 +17,6 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
 //Prototypes for internal functions
-extern struct renderer mainRenderer;
 int getFileSize(char *fileName);
 
 void saveBmpFromArray(const char *filename, unsigned char *imgData, int width, int height) {
@@ -115,28 +114,28 @@ void printFileSize(char *fileName) {
 	
 }
 
-void writeImage(struct outputImage *img) {
-	switch (mainRenderer.mode) {
+void writeImage(struct renderer *r) {
+	switch (r->mode) {
 		case saveModeNormal: {
 			//Save image data to a file
 			int bufSize;
-			if (img->count < 100) {
+			if (r->image->count < 100) {
 				bufSize = 26;
-			} else if (img->count < 1000) {
+			} else if (r->image->count < 1000) {
 				bufSize = 27;
 			} else {
 				bufSize = 28;
 			}
 			char *buf = (char*)calloc(bufSize, sizeof(char));
 			
-			if (img->fileType == bmp){
-				sprintf(buf, "%s%s_%d.bmp", img->filePath, img->fileName, img->count);
+			if (r->image->fileType == bmp){
+				sprintf(buf, "%s%s_%d.bmp", r->image->filePath, r->image->fileName, r->image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
-				saveBmpFromArray(buf, img->data, img->size.width, img->size.height);
-			} else  if (img->fileType == png){
-				sprintf(buf, "%s%s_%d.png", img->filePath, img->fileName, img->count);
+				saveBmpFromArray(buf, r->image->data, r->image->size.width, r->image->size.height);
+			} else  if (r->image->fileType == png){
+				sprintf(buf, "%s%s_%d.png", r->image->filePath, r->image->fileName, r->image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
-				encodePNGFromArray(buf, img->data, img->size.width, img->size.height);
+				encodePNGFromArray(buf, r->image->data, r->image->size.width, r->image->size.height);
 			}
 			printFileSize(buf);
 		}

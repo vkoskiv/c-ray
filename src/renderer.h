@@ -24,6 +24,7 @@ struct threadInfo {
 #endif
 	int thread_num;
 	bool threadComplete;
+	struct renderer *r;
 };
 
 /**
@@ -64,7 +65,7 @@ struct renderer {
 	unsigned char *uiBuffer; //UI element buffer
 	int activeThreads; //Amount of threads currently rendering
 	bool isRendering;
-	bool renderPaused; //SDL listens for P key pressed, which sets this
+	bool *threadPaused; //SDL listens for P key pressed, which sets these, one for each thread.
 	bool renderAborted;//SDL listens for X key pressed, which sets this
 	unsigned long long avgTileTime;//Used for render duration estimation (milliseconds)
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
@@ -76,6 +77,15 @@ struct renderer {
 #endif
 #ifdef UI_ENABLED
 	struct display *mainDisplay;
+#endif
+	
+	//Tile duration timers (one for each thread
+	struct timeval *timers;
+	
+#ifdef WINDOWS
+	HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
+#else
+	pthread_mutex_t tileMutex; // = PTHREAD_MUTEX_INITIALIZER;
 #endif
 	
 	//Preferences data (Set by user)
@@ -97,5 +107,7 @@ DWORD WINAPI renderThread(LPVOID arg);
 #else
 void *renderThread(void *arg);
 #endif
-void quantizeImage(void);
-void reorderTiles(enum renderOrder order);
+
+void quantizeImage(struct renderer *renderer);
+
+void initRenderer(struct renderer *renderer);

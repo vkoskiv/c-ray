@@ -12,7 +12,6 @@
 #include "filehandler.h"
 #include "renderer.h"
 #include "scene.h"
-#include "transforms.h"
 
 /**
  Compute view direction transforms
