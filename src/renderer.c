@@ -358,11 +358,12 @@ void printStatistics(int thread, unsigned long long avgTimeMilliseconds, float k
 	unsigned long long remainingTimeMilliseconds = (remainingTileCount * avgTimeMilliseconds) / mainRenderer.threadCount;
 	//First print avg tile time
 	printf("%s", "\33[2K");
-	logr(info, "[T:%i][%i/%i]", thread, mainRenderer.finishedTileCount, mainRenderer.tileCount);
+	float completion = ((float)mainRenderer.finishedTileCount / mainRenderer.tileCount) * 100;
+	logr(info, "[%.0f%%]", completion);
 	
 	char avg[32];
 	smartTime(avgTimeMilliseconds, avg);
-	printf(", avgt: %s", avg);
+	printf(" avgt: %s", avg);
 	char rem[32];
 	smartTime(remainingTimeMilliseconds, rem);
 	printf(", etf: %s, %.2fkS/s%s", rem, kSamplesPerSecond, "\r");
