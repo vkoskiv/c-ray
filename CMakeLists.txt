@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-project (c-ray)
+project (c-ray C)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/)
 
