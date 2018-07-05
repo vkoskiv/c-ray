@@ -69,7 +69,7 @@ struct renderTile getTile(struct renderer *r) {
 	memset(&tile, 0, sizeof(tile));
 	tile.tileNum = -1;
 #ifdef WINDOWS
-	WaitForSingleObject(renderer->tileMutex, INFINITE);
+	WaitForSingleObject(r->tileMutex, INFINITE);
 #else
 	pthread_mutex_lock(&r->tileMutex);
 #endif
@@ -79,7 +79,7 @@ struct renderTile getTile(struct renderer *r) {
 		tile.tileNum = r->finishedTileCount++;
 	}
 #ifdef WINDOWS
-	ReleaseMutex(renderer->tileMutex);
+	ReleaseMutex(r->tileMutex);
 #else
 	pthread_mutex_unlock(&r->tileMutex);
 #endif
@@ -88,13 +88,13 @@ struct renderTile getTile(struct renderer *r) {
 
 void printStats(struct renderer *r, unsigned long long ms, unsigned long long samples, int thread) {
 #ifdef WINDOWS
-	WaitForSingleObject(renderer->tileMutex, INFINITE);
+	WaitForSingleObject(r->tileMutex, INFINITE);
 #else
 	pthread_mutex_lock(&r->tileMutex);
 #endif
 	computeStatistics(r, thread, ms, samples);
 #ifdef WINDOWS
-	ReleaseMutex(renderer->tileMutex);
+	ReleaseMutex(r->tileMutex);
 #else
 	pthread_mutex_unlock(&r->tileMutex);
 #endif
