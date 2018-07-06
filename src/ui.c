@@ -143,12 +143,17 @@ void getKeyboardInput(struct renderer *r) {
 			}
 			if (event.key.keysym.sym == SDLK_p) {
 				
+				if (r->threadPaused[0]) {
+					logr(info, "Resuming render.\n");
+				} else {
+					printf("\n");
+					logr(info, "Pausing render.\n");
+				}
+				
 				for (int i = 0; i < r->threadCount; i++) {
 					if (r->threadPaused[i]) {
-						logr(info, "Resuming thread %i\n", i);
 						r->threadPaused[i] = false;
 					} else {
-						logr(info, "Pausing thread %i\n", i);
 						r->threadPaused[i] = true;
 					}
 				}
@@ -207,7 +212,7 @@ void drawFrame(struct renderer *r, struct renderTile tile, bool on) {
 	}
 }
 
-void updateUI(struct renderer *r) {
+void updateFrames(struct renderer *r) {
 	for (int i = 0; i < r->tileCount; i++) {
 		//For every tile, if it's currently rendering, draw the frame
 		//If it is NOT rendering, clear any frame present
@@ -220,13 +225,11 @@ void updateUI(struct renderer *r) {
 }
 
 void drawWindow(struct renderer *r) {
-	SDL_SetRenderDrawColor(r->mainDisplay->renderer, 0x0, 0x0, 0x0, 0x0);
-	SDL_RenderClear(r->mainDisplay->renderer);
 	//Check for CTRL-C
 	if (signal(SIGINT, sigHandler) == SIG_ERR)
 		logr(warning, "Couldn't catch SIGINT\n");
-	//Render frame
-	updateUI(r);
+	//Render frames
+	updateFrames(r);
 	//Update image data
 	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->image->data, r->image->size.width * 3);
 	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->uiBuffer, r->image->size.width * 4);

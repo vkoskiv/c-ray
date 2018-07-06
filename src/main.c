@@ -155,7 +155,6 @@ int main(int argc, char *argv[]) {
 #ifdef UI_ENABLED
 		getKeyboardInput(mainRenderer);
 		drawWindow(mainRenderer);
-		SDL_UpdateWindowSurface(mainRenderer->mainDisplay->window);
 #endif
 		
 		if (!threadsHaveStarted) {
@@ -200,7 +199,11 @@ int main(int argc, char *argv[]) {
 				mainRenderer->isRendering = false;
 			}
 		}
-		sleepMSec(100);
+		if (mainRenderer->threadPaused[0]) {
+			sleepMSec(800);
+		} else {
+			sleepMSec(100);
+		}
 	}
 	
 	//Make sure render threads are finished before continuing

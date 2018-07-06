@@ -392,7 +392,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		//First time setup for each thread
 		struct renderTile tile = getTile(renderer);
 		
-		while (tile.tileNum != -1) {
+		while (tile.tileNum != -1 && renderer->isRendering) {
 			startTimer(&renderer->timers[tinfo->thread_num]);
 			
 			while (tile.completedSamples < renderer->sampleCount+1 && renderer->isRendering) {
@@ -493,7 +493,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 				}
 				tile.completedSamples++;
 				//Pause rendering when bool is set
-				while (renderer->threadPaused[tinfo->thread_num]) {
+				while (renderer->threadPaused[tinfo->thread_num] && !renderer->renderAborted) {
 					sleepMSec(100);
 				}
 			}
