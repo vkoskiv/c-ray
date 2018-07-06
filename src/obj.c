@@ -9,7 +9,6 @@
 #include "includes.h"
 #include "obj.h"
 
-#include "poly.h"
 #include "bbox.h"
 #include "kdtree.h"
 

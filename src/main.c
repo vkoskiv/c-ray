@@ -20,6 +20,7 @@ int getFileSize(char *fileName);
 void initRenderer(struct renderer *renderer);
 int getSysCores(void);
 void freeGlobals(void);
+void prepareGlobals(void);
 
 extern struct poly *polygonArray;
 
@@ -46,6 +47,7 @@ int main(int argc, char *argv[]) {
 	printf("**************************************************************************\n");
 #endif
 	
+	prepareGlobals();
 	//Initialize renderer
 	struct renderer *mainRenderer = newRenderer();
 	
@@ -94,4 +96,16 @@ void freeGlobals() {
 		free(textureArray);
 	if (polygonArray)
 		free(polygonArray);
+}
+
+void prepareGlobals() {
+	vertexArray = (struct vector*)calloc(1, sizeof(struct vector));
+	normalArray = (struct vector*)calloc(1, sizeof(struct vector));
+	textureArray = (struct coord*)calloc(1, sizeof(struct coord));
+	polygonArray = (struct poly*)calloc(1, sizeof(struct poly));
+	
+	vertexCount = 0;
+	normalCount = 0;
+	textureCount = 0;
+	polyCount = 0;
 }

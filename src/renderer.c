@@ -11,7 +11,6 @@
 
 #include "camera.h"
 #include "light.h"
-#include "poly.h"
 #include "scene.h"
 #include "pathtrace.h"
 #include "filehandler.h"
@@ -24,7 +23,7 @@
 struct color getPixel(struct renderer *r, int x, int y);
 
 void render(struct renderer *r) {
-	logr(info, "Starting C-ray renderer for frame %i\n", r->currentFrame);
+	logr(info, "Starting C-ray renderer for frame %i\n", r->image->count);
 	
 	logr(info, "Rendering at %i x %i\n", r->image->size.width,r->image->size.height);
 	logr(info, "Rendering %i samples with %i bounces.\n", r->sampleCount, r->scene->bounces);

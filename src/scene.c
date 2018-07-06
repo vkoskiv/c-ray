@@ -12,7 +12,6 @@
 #include "camera.h"
 #include "light.h"
 #include "obj_parser.h"
-#include "poly.h"
 #include "kdtree.h"
 #include "filehandler.h"
 #include "converter.h"

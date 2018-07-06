@@ -68,6 +68,7 @@
 #include "color.h"
 #include "material.h"
 #include "vector.h"
+#include "poly.h"
 #include "list.h"
 #include "obj.h"
 #include "sphere.h"

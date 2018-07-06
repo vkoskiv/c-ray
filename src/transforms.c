@@ -10,7 +10,6 @@
 #include "transforms.h"
 
 #include "light.h"
-#include "poly.h"
 
 //For ease of use
 double toRadians(double degrees) {

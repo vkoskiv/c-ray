@@ -11,7 +11,6 @@
 
 #include "scene.h"
 #include "camera.h"
-#include "poly.h"
 #include "light.h"
 #include "bbox.h"
 #include "kdtree.h"

@@ -10,7 +10,6 @@
 #include "converter.h"
 
 #include "obj_parser.h"
-#include "poly.h"
 
 /**
  Convert a given OBJ loader vector into a c-ray vector
@@ -78,8 +77,8 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
 struct material materialFromObj(obj_material *mat) {
 	struct material newMat;
 	
-	newMat.name = (char*)calloc(256, sizeof(char*));
-	newMat.textureFilePath = (char*)calloc(500, sizeof(char*));
+	newMat.name = (char*)calloc(256, sizeof(char));
+	newMat.textureFilePath = (char*)calloc(500, sizeof(char));
 	
 	newMat.hasTexture = false;
 	

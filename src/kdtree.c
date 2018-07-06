@@ -9,7 +9,6 @@
 #include "includes.h"
 #include "kdtree.h"
 #include "bbox.h"
-#include "poly.h"
 
 #include "pathtrace.h"
 

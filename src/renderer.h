@@ -57,7 +57,6 @@ struct renderer {
 	unsigned long long avgTileTime;//Used for render duration estimation (milliseconds)
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
-	int currentFrame;
 	struct threadInfo *renderThreadInfo; //Info about threads
 #ifndef WINDOWS
 	pthread_attr_t renderThreadAttributes;
