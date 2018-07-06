@@ -539,8 +539,6 @@ struct renderer *newRenderer() {
 	renderer->mainDisplay->overlayTexture = NULL;
 #endif
 	
-	//Alloc timers
-	renderer->timers = (struct timeval*)calloc(renderer->threadCount, sizeof(struct timeval));
 	//Mutex
 #ifdef _WIN32
 	renderer->tileMutex = CreateMutex(NULL, FALSE, NULL);

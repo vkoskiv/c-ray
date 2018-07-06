@@ -78,6 +78,9 @@ int main(int argc, char *argv[]) {
 	
 	mainRenderer->threadPaused = (bool*)calloc(mainRenderer->threadCount, sizeof(bool));
 	
+	//Alloc timers
+	mainRenderer->timers = (struct timeval*)calloc(mainRenderer->threadCount, sizeof(struct timeval));
+	
 	//Quantize image into renderTiles
 	quantizeImage(mainRenderer);
 	//Compute the focal length for the camera
