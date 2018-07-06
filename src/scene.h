@@ -9,7 +9,6 @@
 #pragma once
 
 struct crayOBJ;
-struct light;
 struct material;
 struct sphere;
 struct camera;
@@ -28,8 +27,6 @@ struct world {
 	struct crayOBJ *objs;
 	int objCount;
 	
-	//Lights
-	struct light *lights;
 	int lightCount;
 	
 	//Materials

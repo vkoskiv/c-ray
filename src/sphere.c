@@ -15,6 +15,18 @@ struct sphere newSphere(struct vector pos, double radius, struct material materi
 	return (struct sphere){pos, radius, material};
 }
 
+//FIXME: dirty hack
+struct sphere newLightSphere(struct vector pos, double radius, struct color color, double intensity) {
+	struct sphere newSphere;
+	newSphere.pos = pos;
+	newSphere.radius = radius;
+	newSphere.material = newMaterial(color, 0.0);
+	newSphere.material.emission = colorCoef(intensity, &color);
+	newSphere.material.type = emission;
+	assignBSDF(&newSphere.material);
+	return newSphere;
+}
+
 //Calculates intersection with a sphere and a light ray
 bool intersect(struct lightRay *ray, struct sphere *sphere, double *t) {
 	bool intersects = false;

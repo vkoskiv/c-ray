@@ -10,7 +10,6 @@
 #include "scene.h"
 
 #include "camera.h"
-#include "light.h"
 #include "obj_parser.h"
 #include "kdtree.h"
 #include "filehandler.h"
@@ -214,9 +213,10 @@ void addMaterialOBJ(struct crayOBJ *obj, struct material newMaterial) {
 	obj->materials[obj->materialCount++] = newMaterial;
 }
 
-void addLight(struct world *scene, struct light newLight) {
-	scene->lights = (struct light*)realloc(scene->lights, (scene->lightCount + 1) * sizeof(struct light));
-	scene->lights[scene->lightCount++] = newLight;
+void addLight(struct world *scene, struct sphere newLight) {
+	scene->spheres = (struct sphere*)realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(struct sphere));
+	scene->spheres[scene->sphereCount++] = newLight;
+	scene->lightCount++;
 }
 
 void transformMeshes(struct world *scene) {
@@ -693,7 +693,7 @@ void parseLight(struct renderer *r, const cJSON *data) {
 		return;
 	}
 	
-	addLight(r->scene, newLight(posValue, radiusValue, colorValue, intensityValue));
+	addSphere(r->scene, newLightSphere(posValue, radiusValue, colorValue, intensityValue));
 }
 
 void parseLights(struct renderer *r, const cJSON *data) {
@@ -1039,16 +1039,6 @@ void copyString(const char *source, char **destination) {
 	strcpy(*destination, source);
 }
 
-/*
- struct color *ambientColor;
- struct crayOBJ *objs;
- struct light *lights;
- struct material *materials;
- struct sphere *spheres;
- struct camera *camera;
- };
- */
-
 //Free scene data
 void freeScene(struct world *scene) {
 	if (scene->ambientColor) {
@@ -1065,9 +1055,6 @@ void freeScene(struct world *scene) {
 			freeMaterial(&scene->materials[i]);
 		}
 		free(scene->materials);
-	}
-	if (scene->lights) {
-		free(scene->lights);
 	}
 	if (scene->spheres) {
 		free(scene->spheres);

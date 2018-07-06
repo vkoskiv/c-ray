@@ -11,7 +11,6 @@
 
 #include "scene.h"
 #include "camera.h"
-#include "light.h"
 #include "bbox.h"
 #include "kdtree.h"
 
@@ -23,11 +22,13 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 	if (isect.didIntersect) {
 		struct lightRay scattered;
 		struct color attenuation;
+		struct color emitted = isect.end.emission;
 		if (depth < scene->bounces && isect.end.bsdf(&isect, incidentRay, &attenuation, &scattered)) {
 			struct color newColor = pathTrace(&scattered, scene, depth + 1);
-			return multiplyColors(&attenuation, &newColor);
+			struct color attenuated = multiplyColors(&attenuation, &newColor);
+			return addColors(&emitted, &attenuated);
 		} else {
-			return (struct color){0.0, 0.0, 0.0, 0.0};
+			return emitted;
 		}
 	} else {
 		return getAmbientColor(incidentRay);

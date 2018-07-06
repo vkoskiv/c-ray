@@ -10,7 +10,6 @@
 #include "renderer.h"
 
 #include "camera.h"
-#include "light.h"
 #include "scene.h"
 #include "pathtrace.h"
 #include "filehandler.h"
@@ -269,7 +268,6 @@ struct renderer *newRenderer() {
 	renderer->scene->objs = (struct crayOBJ*)calloc(1, sizeof(struct crayOBJ));
 	renderer->scene->spheres = (struct sphere*)calloc(1, sizeof(struct sphere));
 	renderer->scene->materials = (struct material*)calloc(1, sizeof(struct material));
-	renderer->scene->lights = (struct light*)calloc(1, sizeof(struct light));
 	
 #ifdef UI_ENABLED
 	renderer->mainDisplay = (struct display*)calloc(1, sizeof(struct display));

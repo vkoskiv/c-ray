@@ -13,7 +13,7 @@
 
 //FIXME: Temporary, eventually support full OBJ spec
 struct material newMaterial(struct color diffuse, double reflectivity) {
-	struct material newMaterial;
+	struct material newMaterial = {0};
 	newMaterial.reflectivity = reflectivity;
 	newMaterial.diffuse = diffuse;
 	return newMaterial;
@@ -59,6 +59,9 @@ void assignBSDF(struct material *mat) {
 		case metal:
 			mat->bsdf = metallicBSDF;
 			break;
+		case emission:
+			mat->bsdf = emissiveBSDF;
+			break;
 		default:
 			mat->bsdf = lambertianBSDF;
 			break;
@@ -100,6 +103,10 @@ struct vector randomInUnitSphere() {
 		vec = subtractVectors(&vec, &temp);
 	} while (squaredVectorLength(&vec) >= 1.0);
 	return vec;
+}
+
+bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
+	return false;
 }
 
 bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {

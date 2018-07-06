@@ -17,7 +17,6 @@
 		9021F8E91E47EDEE001737C0 /* color.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8DB1E47EDEE001737C0 /* color.c */; };
 		9021F8EC1E47EDEE001737C0 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8E11E47EDEE001737C0 /* logging.c */; };
 		9021F8ED1E47EDEE001737C0 /* filehandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8E31E47EDEE001737C0 /* filehandler.c */; };
-		9021F8EE1E47EDEE001737C0 /* light.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8E61E47EDEE001737C0 /* light.c */; };
 		9021F8FA1E47EE02001737C0 /* poly.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8F41E47EE02001737C0 /* poly.c */; };
 		9021F8FB1E47EE02001737C0 /* scene.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8F61E47EE02001737C0 /* scene.c */; };
 		9021F8FC1E47EE02001737C0 /* sphere.c in Sources */ = {isa = PBXBuildFile; fileRef = 9021F8F81E47EE02001737C0 /* sphere.c */; };
@@ -71,8 +70,6 @@
 		9021F8E31E47EDEE001737C0 /* filehandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filehandler.c; path = src/filehandler.c; sourceTree = SOURCE_ROOT; };
 		9021F8E41E47EDEE001737C0 /* filehandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filehandler.h; path = src/filehandler.h; sourceTree = SOURCE_ROOT; };
 		9021F8E51E47EDEE001737C0 /* includes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = includes.h; path = src/includes.h; sourceTree = SOURCE_ROOT; };
-		9021F8E61E47EDEE001737C0 /* light.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = light.c; path = src/light.c; sourceTree = SOURCE_ROOT; };
-		9021F8E71E47EDEE001737C0 /* light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = light.h; path = src/light.h; sourceTree = SOURCE_ROOT; };
 		9021F8F41E47EE02001737C0 /* poly.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = poly.c; path = src/poly.c; sourceTree = SOURCE_ROOT; };
 		9021F8F51E47EE02001737C0 /* poly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = poly.h; path = src/poly.h; sourceTree = SOURCE_ROOT; };
 		9021F8F61E47EE02001737C0 /* scene.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scene.c; path = src/scene.c; sourceTree = SOURCE_ROOT; };
@@ -181,8 +178,6 @@
 				9021F8E21E47EDEE001737C0 /* logging.h */,
 				9021F8E31E47EDEE001737C0 /* filehandler.c */,
 				9021F8E41E47EDEE001737C0 /* filehandler.h */,
-				9021F8E61E47EDEE001737C0 /* light.c */,
-				9021F8E71E47EDEE001737C0 /* light.h */,
 				9021F8F41E47EE02001737C0 /* poly.c */,
 				9021F8F51E47EE02001737C0 /* poly.h */,
 				9021F8F81E47EE02001737C0 /* sphere.c */,
@@ -308,7 +303,6 @@
 				9021F8E91E47EDEE001737C0 /* color.c in Sources */,
 				9021F8D21E47EDB8001737C0 /* lodepng.c in Sources */,
 				9021F8ED1E47EDEE001737C0 /* filehandler.c in Sources */,
-				9021F8EE1E47EDEE001737C0 /* light.c in Sources */,
 				90B988EE1EB33DAB000E22CF /* bbox.c in Sources */,
 				9021F8D51E47EDC6001737C0 /* string_extra.c in Sources */,
 				90F843931ECE3FF700C5567C /* lightRay.c in Sources */,

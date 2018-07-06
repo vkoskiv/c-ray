@@ -9,8 +9,6 @@
 #include "includes.h"
 #include "transforms.h"
 
-#include "light.h"
-
 //For ease of use
 double toRadians(double degrees) {
 	return (degrees * PI) / 180;

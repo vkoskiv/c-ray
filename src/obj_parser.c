@@ -41,9 +41,9 @@ void obj_set_material_defaults(obj_material *mtl)
 	mtl->spec[0] = 1.0;
 	mtl->spec[1] = 1.0;
 	mtl->spec[2] = 1.0;
-	mtl->emit[0] = 1.0;
-	mtl->emit[1] = 1.0;
-	mtl->emit[2] = 1.0;
+	mtl->emit[0] = 0.0;
+	mtl->emit[1] = 0.0;
+	mtl->emit[2] = 0.0;
 	mtl->reflect = -1.0;
 	mtl->trans = 1;
 	mtl->glossy = 98;
