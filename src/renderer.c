@@ -21,7 +21,6 @@
 #include "tile.h"
 
 void computeStatistics(struct renderer *r, int thread, unsigned long long milliseconds, unsigned long long samples);
-void reorderTiles(struct renderer *renderer);
 
 #ifdef WINDOWS
 typedef struct timeval {
@@ -138,11 +137,6 @@ void printStatistics(struct renderer *r, int thread, float kSamplesPerSecond) {
 	printf(", etf: %s, %.2fkS/s%s", rem, kSamplesPerSecond, "\r");
 }
 
-/**
- Compute the running average time from a given tile's render duration
-
- @param tile Tile to get the duration from
- */
 void computeStatistics(struct renderer *r, int thread, unsigned long long milliseconds, unsigned long long samples) {
 	r->avgTileTime = r->avgTileTime * (r->timeSampleCount - 1);
 	r->avgTileTime += milliseconds;
