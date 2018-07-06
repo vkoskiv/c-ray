@@ -10,6 +10,11 @@
 #pragma once
 
 #ifdef WINDOWS
+typedef struct timeval {
+	long tv_sec;
+	long tv_usec;
+} TIMEVAL, *PTIMEVAL, *LPTIMEVAL;
+
 int gettimeofday(struct timeval * tp, struct timezone * tzp);
 #endif
 

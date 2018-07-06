@@ -21,6 +21,7 @@
 #include "ui.h"
 #include "logging.h"
 #include "tile.h"
+#include "timer.h"
 
 #define TOKEN_DEBUG_ENABLED false
 
