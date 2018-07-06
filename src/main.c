@@ -15,6 +15,7 @@
 #include "renderer.h"
 #include "scene.h"
 #include "ui.h"
+#include "tile.h"
 
 int getFileSize(char *fileName);
 void initRenderer(struct renderer *renderer);

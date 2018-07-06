@@ -14,6 +14,7 @@
 #include "scene.h"
 #include "filehandler.h"
 #include "logging.h"
+#include "tile.h"
 
 //Signal handling
 void (*signal(int signo, void (*func )(int)))(int);

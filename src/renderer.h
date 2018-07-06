@@ -27,19 +27,6 @@ struct threadInfo {
 	struct renderer *r;
 };
 
-/**
- Render tile, contains needed information for the renderer
- */
-struct renderTile {
-	int width;
-	int height;
-	struct coord begin;
-	struct coord end;
-	int completedSamples;
-	bool isRendering;
-	int tileNum;
-};
-
 enum renderOrder {
 	renderOrderTopToBottom = 0,
 	renderOrderFromMiddle,
@@ -107,7 +94,5 @@ DWORD WINAPI renderThread(LPVOID arg);
 #else
 void *renderThread(void *arg);
 #endif
-
-void quantizeImage(struct renderer *renderer);
 
 struct renderer *newRenderer(void);
