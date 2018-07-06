@@ -12,6 +12,10 @@ struct world;
 struct outputImage;
 struct display;
 
+#ifdef WINDOWS
+struct timeval;
+#endif
+
 /**
  Thread information struct to communicate with main thread
  */
