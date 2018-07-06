@@ -41,12 +41,6 @@ int main(int argc, char *argv[]) {
 	//Disable output buffering
 	setbuf(stdout, NULL);
 	
-#ifndef UI_ENABLED
-	printf("**************************************************************************\n");
-	printf("*      UI is DISABLED! Enable by installing SDL2 and doing `cmake .`     *\n");
-	printf("**************************************************************************\n");
-#endif
-	
 	prepareGlobals();
 	//Initialize renderer
 	struct renderer *mainRenderer = newRenderer();
