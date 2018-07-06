@@ -20,7 +20,7 @@ struct boundingBox {
 	struct vector start, end, midPoint;
 };
 
-struct boundingBox *computeBoundingBox(struct poly *polys, int count);
+struct boundingBox *computeBoundingBox(int *polys, int count);
 
 enum bboxAxis getLongestAxis(struct boundingBox *bbox);
 

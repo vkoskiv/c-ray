@@ -229,9 +229,11 @@ void transformMeshes(struct world *scene) {
 void computeKDTrees(struct world *scene) {
 	logr(info, "Computing KD-trees...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
-		scene->objs[i].tree = buildTree(&polygonArray[scene->objs[i].firstPolyIndex],
-										scene->objs[i].polyCount,
-										scene->objs[i].firstPolyIndex, 0);
+		int *polys = (int*)calloc(scene->objs[i].polyCount, sizeof(int));
+		for (int j = 0; j < scene->objs[i].polyCount; j++) {
+			polys[j] = scene->objs[i].firstPolyIndex + j;
+		}
+		scene->objs[i].tree = buildTree(polys, scene->objs[i].polyCount, 0);
 	}
 }
 

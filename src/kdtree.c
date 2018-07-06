@@ -28,23 +28,23 @@
  */
 
 struct Array {
-	struct poly *array;
+	int *array;
 	size_t used;
 	size_t size;
 };
 
 void initArray(struct Array *a, size_t initialSize) {
-	a->array = (struct poly *)malloc(initialSize * sizeof(struct poly));
+	a->array = (int *)malloc(initialSize * sizeof(int));
 	a->used = 0;
 	a->size = initialSize;
 }
 
-void insertArray(struct Array *a, struct poly element) {
+void insertArray(struct Array *a, int element) {
 	// a->used is the number of used entries, because a->array[a->used++] updates a->used only *after* the array has been accessed.
 	// Therefore a->used can go up to a->size
 	if (a->used == a->size) {
 		a->size *= 2;
-		a->array = (struct poly *)realloc(a->array, a->size * sizeof(struct poly));
+		a->array = (int *)realloc(a->array, a->size * sizeof(int));
 	}
 	a->array[a->used++] = element;
 }
@@ -82,11 +82,11 @@ bool comparePolygons(struct poly *p1, struct poly *p2) {
 	return true;
 }
 
-struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyIndex, int depth) {
+struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 	struct kdTreeNode *node = (struct kdTreeNode*)calloc(1, sizeof(struct kdTreeNode));
-	node->polygons = polys;
-	node->firstPolyIndex = firstPolyIndex;
+	node->polygons = polygons;
 	node->polyCount = polyCount;
+	
 	node->left = NULL;
 	node->right = NULL;
 	node->bbox = NULL;
@@ -113,9 +113,9 @@ struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyInd
 	enum bboxAxis axis = getLongestAxis(node->bbox);
 	
 	for (int i = 0; i < node->polyCount; i++) {
-		struct vector polyMidPoint = getMidPoint(&vertexArray[node->polygons[i].vertexIndex[0]],
-									   &vertexArray[node->polygons[i].vertexIndex[1]],
-									   &vertexArray[node->polygons[i].vertexIndex[2]]);
+		struct vector polyMidPoint = getMidPoint(&vertexArray[polygonArray[node->polygons[i]].vertexIndex[0]],
+									   &vertexArray[polygonArray[node->polygons[i]].vertexIndex[1]],
+									   &vertexArray[polygonArray[node->polygons[i]].vertexIndex[2]]);
 		
 		if (((axis == X) && (midPoint.x >= polyMidPoint.x)) ||
 			((axis == Y) && (midPoint.y >= polyMidPoint.y)) ||
@@ -134,7 +134,7 @@ struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyInd
 	int matches = 0;
 	for (int i = 0; i < leftPolys.used; i++) {
 		for (int j = 0; j < rightPolys.used; j++) {
-			if (comparePolygons(&leftPolys.array[i], &rightPolys.array[j])) {
+			if (comparePolygons(&polygonArray[leftPolys.array[i]], &polygonArray[rightPolys.array[j]])) {
 				matches++;
 			}
 		}
@@ -142,8 +142,8 @@ struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyInd
 	
 	if (((double)matches < 0.5 * leftPolys.used) && ((double)matches < 0.5 * rightPolys.used)) {
 		//Recurse down both left and right sides
-		node->left = buildTree(leftPolys.array, (int)leftPolys.used, firstPolyIndex, depth + 1);
-		node->right = buildTree(rightPolys.array, (int)rightPolys.used, firstPolyIndex, depth + 1);
+		node->left = buildTree(leftPolys.array, (int)leftPolys.used, depth + 1);
+		node->right = buildTree(rightPolys.array, (int)rightPolys.used, depth + 1);
 	} else {
 		//Stop here
 		node->left = getNewNode();
@@ -178,11 +178,11 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 		} else {
 			//This is a leaf, so check all polys
 			for (int i = 0; i < node->polyCount; i++) {
-				if (rayIntersectsWithPolygon(ray, &node->polygons[i], &isect->distance, &isect->surfaceNormal, &isect->uv)) {
+				if (rayIntersectsWithPolygon(ray, &polygonArray[node->polygons[i]], &isect->distance, &isect->surfaceNormal, &isect->uv)) {
 					hasHit = true;
 					isect->type = hitTypePolygon;
-					isect->polyIndex = node->polygons[i].polyIndex;
-					isect->mtlIndex = node->polygons[i].materialIndex;
+					isect->polyIndex = polygonArray[node->polygons[i]].polyIndex;
+					isect->mtlIndex = polygonArray[node->polygons[i]].materialIndex;
 					struct vector scaled = vectorScale(isect->distance, &ray->direction);
 					isect->hitPoint = addVectors(&ray->start, &scaled);
 				}
@@ -207,5 +207,8 @@ void freeTree(struct kdTreeNode *node) {
 	}
 	if (node->bbox) {
 		free(node->bbox);
+	}
+	if (node->polygons) {
+		free(node->polygons);
 	}
 }

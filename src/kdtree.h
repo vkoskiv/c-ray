@@ -16,14 +16,13 @@ struct kdTreeNode {
 	struct boundingBox *bbox;//Bounding box
 	struct kdTreeNode *left; //Pointer to left child
 	struct kdTreeNode *right;//Pointer to right child
-	struct poly *polygons;   //Polygons within the bounding box
-	int firstPolyIndex;      //For offset (C-Ray uses a global polygon array)
-	int polyCount;           //Amount of polygons
+	int *polygons;   //indices to polygons within the bounding box
+	int polyCount;   //Amount of polygons
 	int depth;
 };
 
 //Builds a k-d tree and returns the root node
-struct kdTreeNode *buildTree(struct poly *polys, int polyCount, int firstPolyIndex, int depth);
+struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth);
 
 bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect);
 
