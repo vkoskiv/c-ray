@@ -8,6 +8,8 @@
 
 #pragma once
 
+struct renderer;
+
 enum logType {
 	error,
 	info,
@@ -15,3 +17,5 @@ enum logType {
 };
 
 void logr(enum logType type, const char *fmt, ...);
+
+void printStats(struct renderer *r, unsigned long long ms, unsigned long long samples, int thread);
