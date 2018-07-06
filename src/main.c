@@ -15,7 +15,6 @@
 #include "renderer.h"
 #include "scene.h"
 #include "ui.h"
-#include "tile.h"
 
 int getFileSize(char *fileName);
 void initRenderer(struct renderer *renderer);
@@ -32,9 +31,6 @@ extern struct poly *polygonArray;
  @return Error codes, 0 if exited normally
  */
 int main(int argc, char *argv[]) {
-	
-	time_t start, stop;
-	
 	//Seed RNGs
 	srand((int)time(NULL));
 #ifndef WINDOWS
@@ -43,6 +39,12 @@ int main(int argc, char *argv[]) {
 	
 	//Disable output buffering
 	setbuf(stdout, NULL);
+	
+#ifndef UI_ENABLED
+	printf("**************************************************************************\n");
+	printf("*      UI is DISABLED! Enable by installing SDL2 and doing `cmake .`     *\n");
+	printf("**************************************************************************\n");
+#endif
 	
 	//Initialize renderer
 	struct renderer *mainRenderer = newRenderer();
@@ -55,170 +57,20 @@ int main(int argc, char *argv[]) {
 		logr(error, "Invalid input file path.\n");
 	}
 	
-#ifndef UI_ENABLED
-	printf("**************************************************************************\n");
-	printf("*      UI is DISABLED! Enable by installing SDL2 and doing `cmake .`     *\n");
-	printf("**************************************************************************\n");
-#endif
+	//Load the scene and prepare renderer
+	loadScene(mainRenderer, fileName);
 	
-	//Build the scene
-	switch (parseJSON(mainRenderer, fileName)) {
-		case -1:
-			logr(error, "Scene builder failed due to previous error.");
-			break;
-		case 4:
-			logr(warning, "Scene debug mode enabled, won't render image.");
-			return 0;
-			break;
-		case -2:
-			logr(error, "JSON parser failed.");
-			break;
-		default:
-			break;
-	}
-	
-	mainRenderer->threadPaused = (bool*)calloc(mainRenderer->threadCount, sizeof(bool));
-	
-	//Alloc timers
-	mainRenderer->timers = (struct timeval*)calloc(mainRenderer->threadCount, sizeof(struct timeval));
-	
-	//Quantize image into renderTiles
-	quantizeImage(mainRenderer);
-	//Compute the focal length for the camera
-	computeFocalLength(mainRenderer);
-	
-	//This is a timer to elapse how long a render takes per frame
-	time(&start);
-	
-	//Create threads
-	int t;
-	
-	//Alloc memory for pthread_create() args
-	mainRenderer->renderThreadInfo = (struct threadInfo*)calloc(mainRenderer->threadCount, sizeof(struct threadInfo));
-	if (mainRenderer->renderThreadInfo == NULL) {
-		logr(error, "Failed to allocate memory for threadInfo args.\n");
-	}
-	
-	//Verify sample count
-	if (mainRenderer->sampleCount < 1) {
-		logr(warning, "Invalid sample count given, setting to 1\n");
-		mainRenderer->sampleCount = 1;
-	}
-	
-	logr(info, "Starting C-ray renderer for frame %i\n", mainRenderer->currentFrame);
-	
-	//Print a useful warning to user if the defined tile size results in less renderThreads
-	if (mainRenderer->tileCount < mainRenderer->threadCount) {
-		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
-		logr(warning, "Reducing thread count from %i to ", mainRenderer->threadCount);
-		mainRenderer->threadCount = mainRenderer->tileCount;
-		printf("%i\n", mainRenderer->threadCount);
-	}
-	
-	logr(info, "Rendering at %i x %i\n", mainRenderer->image->size.width,mainRenderer->image->size.height);
-	logr(info, "Rendering %i samples with %i bounces.\n", mainRenderer->sampleCount, mainRenderer->scene->bounces);
-	logr(info, "Rendering with %d thread", mainRenderer->threadCount);
-	if (mainRenderer->threadCount > 1) {
-		printf("s.\n");
-	} else {
-		printf(".\n");
-	}
-	
-	logr(info, "Pathtracing...\n");
-	
-	//Allocate memory and create array of pixels for image data
-	mainRenderer->image->data = (unsigned char*)calloc(3 * mainRenderer->image->size.width * mainRenderer->image->size.height, sizeof(unsigned char));
-	if (!mainRenderer->image->data) {
-		logr(error, "Failed to allocate memory for image data.");
-	}
-	//Allocate memory for render buffer
-	//Render buffer is used to store accurate color values for the renderers' internal use
-	mainRenderer->renderBuffer = (double*)calloc(3 * mainRenderer->image->size.width * mainRenderer->image->size.height, sizeof(double));
-	
-	//Allocate memory for render UI buffer
-	//This buffer is used for storing UI stuff like currently rendering tile highlights
-	mainRenderer->uiBuffer = (unsigned char*)calloc(4 * mainRenderer->image->size.width * mainRenderer->image->size.height, sizeof(unsigned char));
-	
-	//Initialize SDL display
+	//Initialize SDL display, if available
 #ifdef UI_ENABLED
 	initSDL(mainRenderer->mainDisplay);
 #endif
 	
-	mainRenderer->isRendering = true;
-	mainRenderer->renderAborted = false;
-#ifndef WINDOWS
-	pthread_attr_init(&mainRenderer->renderThreadAttributes);
-	pthread_attr_setdetachstate(&mainRenderer->renderThreadAttributes, PTHREAD_CREATE_JOINABLE);
-#endif
-	//Main loop (input)
-	bool threadsHaveStarted = false;
-	while (mainRenderer->isRendering) {
-#ifdef UI_ENABLED
-		getKeyboardInput(mainRenderer);
-		drawWindow(mainRenderer);
-#endif
-		
-		if (!threadsHaveStarted) {
-			threadsHaveStarted = true;
-			//Create render threads
-			for (t = 0; t < mainRenderer->threadCount; t++) {
-				mainRenderer->renderThreadInfo[t].thread_num = t;
-				mainRenderer->renderThreadInfo[t].threadComplete = false;
-				mainRenderer->renderThreadInfo[t].r = mainRenderer;
-				mainRenderer->activeThreads++;
-#ifdef WINDOWS
-				DWORD threadId;
-				mainRenderer->renderThreadInfo[t].thread_handle = CreateThread(NULL, 0, renderThread, &mainRenderer->renderThreadInfo[t], 0, &threadId);
-				if (mainRenderer->renderThreadInfo[t].thread_handle == NULL) {
-					logr(error, "Failed to create thread.\n");
-					exit(-1);
-				}
-				mainRenderer->renderThreadInfo[t].thread_id = threadId;
-#else
-				if (pthread_create(&mainRenderer->renderThreadInfo[t].thread_id, &mainRenderer->renderThreadAttributes, renderThread, &mainRenderer->renderThreadInfo[t])) {
-					logr(error, "Failed to create a thread.\n");
-				}
-#endif
-			}
-			
-			mainRenderer->renderThreadInfo->threadComplete = false;
-			
-#ifndef WINDOWS
-			if (pthread_attr_destroy(&mainRenderer->renderThreadAttributes)) {
-				logr(warning, "Failed to destroy pthread.\n");
-			}
-#endif
-		}
-		
-		//Wait for render threads to finish (Render finished)
-		for (t = 0; t < mainRenderer->threadCount; t++) {
-			if (mainRenderer->renderThreadInfo[t].threadComplete && mainRenderer->renderThreadInfo[t].thread_num != -1) {
-				mainRenderer->activeThreads--;
-				mainRenderer->renderThreadInfo[t].thread_num = -1;
-			}
-			if (mainRenderer->activeThreads == 0 || mainRenderer->renderAborted) {
-				mainRenderer->isRendering = false;
-			}
-		}
-		if (mainRenderer->threadPaused[0]) {
-			sleepMSec(800);
-		} else {
-			sleepMSec(100);
-		}
-	}
+	time_t start, stop;
 	
-	//Make sure render threads are finished before continuing
-	for (t = 0; t < mainRenderer->threadCount; t++) {
-#ifdef WINDOWS
-		WaitForSingleObjectEx(mainRenderer->renderThreadInfo[t].thread_handle, INFINITE, FALSE);
-#else
-		if (pthread_join(mainRenderer->renderThreadInfo[t].thread_id, NULL)) {
-			logr(warning, "Thread %t frozen.", t);
-		}
-#endif
-	}
-	
+	time(&start);
+	render(mainRenderer);
 	time(&stop);
+	
 	printDuration(difftime(stop, start));
 	
 	//Write to file
@@ -265,22 +117,4 @@ void freeMem(struct renderer *renderer) {
 		free(textureArray);
 	if (polygonArray)
 		free(polygonArray);
-}
-
-/**
- Sleep for a given amount of milliseconds
-
- @param ms Milliseconds to sleep for
- */
-void sleepMSec(int ms) {
-#ifdef _WIN32
-	Sleep(ms);
-#elif __APPLE__
-	struct timespec ts;
-	ts.tv_sec = ms / 1000;
-	ts.tv_nsec = (ms % 1000) * 1000000;
-	nanosleep(&ts, NULL);
-#elif __linux__
-	usleep(ms * 1000);
-#endif
 }

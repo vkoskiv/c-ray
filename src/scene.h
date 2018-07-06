@@ -48,4 +48,4 @@ struct world {
 	int bounces;
 };
 
-int parseJSON(struct renderer *r, char *inputFileName);
+void loadScene(struct renderer *r, char *filename);

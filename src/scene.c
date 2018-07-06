@@ -20,6 +20,7 @@
 #include "cJSON.h"
 #include "ui.h"
 #include "logging.h"
+#include "tile.h"
 
 #define TOKEN_DEBUG_ENABLED false
 
@@ -966,13 +967,68 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	cJSON_Delete(json);
 	free(buf);
 	
+	return 0;
+}
+
+//Load the scene, allocate buffers, etc
+void loadScene(struct renderer *r, char *filename) {
+	//Build the scene
+	switch (parseJSON(r, filename)) {
+		case -1:
+			logr(error, "Scene builder failed due to previous error.");
+			break;
+		case 4:
+			logr(error, "Scene debug mode enabled, won't render image.");
+			break;
+		case -2:
+			logr(error, "JSON parser failed.");
+			break;
+		default:
+			break;
+	}
+	
 	transformCameraIntoView(r->scene->camera);
 	transformMeshes(r->scene);
 	computeKDTrees(r->scene);
-	
 	printSceneStats(r->scene);
 	
-	return 0;
+	//Alloc threadPaused booleans, one for each thread
+	r->threadPaused = (bool*)calloc(r->threadCount, sizeof(bool));
+	//Alloc timers, one for each thread
+	r->timers = (struct timeval*)calloc(r->threadCount, sizeof(struct timeval));
+	
+	//Quantize image into renderTiles
+	quantizeImage(r);
+	
+	//Compute the focal length for the camera
+	computeFocalLength(r);
+	
+	//Allocate memory and create array of pixels for image data
+	r->image->data = (unsigned char*)calloc(3 * r->image->size.width * r->image->size.height, sizeof(unsigned char));
+	if (!r->image->data) {
+		logr(error, "Failed to allocate memory for image data.");
+	}
+	//Allocate memory for render buffer
+	//Render buffer is used to store accurate color values for the renderers' internal use
+	r->renderBuffer = (double*)calloc(3 * r->image->size.width * r->image->size.height, sizeof(double));
+	
+	//Allocate memory for render UI buffer
+	//This buffer is used for storing UI stuff like currently rendering tile highlights
+	r->uiBuffer = (unsigned char*)calloc(4 * r->image->size.width * r->image->size.height, sizeof(unsigned char));
+	
+	//Alloc memory for pthread_create() args
+	r->renderThreadInfo = (struct threadInfo*)calloc(r->threadCount, sizeof(struct threadInfo));
+	if (r->renderThreadInfo == NULL) {
+		logr(error, "Failed to allocate memory for threadInfo args.\n");
+	}
+	
+	//Print a useful warning to user if the defined tile size results in less renderThreads
+	if (r->tileCount < r->threadCount) {
+		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
+		logr(warning, "Reducing thread count from %i to ", r->threadCount);
+		r->threadCount = r->tileCount;
+		printf("%i\n", r->threadCount);
+	}
 }
 
 //Copies source over to the destination pointer.

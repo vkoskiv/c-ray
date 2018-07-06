@@ -7,5 +7,3 @@
 //
 
 #pragma once
-
-void sleepMSec(int ms);

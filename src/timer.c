@@ -46,3 +46,21 @@ unsigned long long endTimer(struct timeval *timer) {
 	gettimeofday(&tmr2, NULL);
 	return 1000 * (tmr2.tv_sec - timer->tv_sec) + ((tmr2.tv_usec - timer->tv_usec) / 1000);
 }
+
+/**
+ Sleep for a given amount of milliseconds
+ 
+ @param ms Milliseconds to sleep for
+ */
+void sleepMSec(int ms) {
+#ifdef _WIN32
+	Sleep(ms);
+#elif __APPLE__
+	struct timespec ts;
+	ts.tv_sec = ms / 1000;
+	ts.tv_nsec = (ms % 1000) * 1000000;
+	nanosleep(&ts, NULL);
+#elif __linux__
+	usleep(ms * 1000);
+#endif
+}

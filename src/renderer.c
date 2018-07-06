@@ -23,6 +23,98 @@
 
 struct color getPixel(struct renderer *r, int x, int y);
 
+void render(struct renderer *r) {
+	logr(info, "Starting C-ray renderer for frame %i\n", r->currentFrame);
+	
+	logr(info, "Rendering at %i x %i\n", r->image->size.width,r->image->size.height);
+	logr(info, "Rendering %i samples with %i bounces.\n", r->sampleCount, r->scene->bounces);
+	logr(info, "Rendering with %d thread", r->threadCount);
+	if (r->threadCount > 1) {
+		printf("s.\n");
+	} else {
+		printf(".\n");
+	}
+	
+	logr(info, "Pathtracing...\n");
+	
+	//Create threads
+	int t;
+	
+	r->isRendering = true;
+	r->renderAborted = false;
+#ifndef WINDOWS
+	pthread_attr_init(&r->renderThreadAttributes);
+	pthread_attr_setdetachstate(&r->renderThreadAttributes, PTHREAD_CREATE_JOINABLE);
+#endif
+	//Main loop (input)
+	bool threadsHaveStarted = false;
+	while (r->isRendering) {
+#ifdef UI_ENABLED
+		getKeyboardInput(r);
+		drawWindow(r);
+#endif
+		
+		if (!threadsHaveStarted) {
+			threadsHaveStarted = true;
+			//Create render threads
+			for (t = 0; t < r->threadCount; t++) {
+				r->renderThreadInfo[t].thread_num = t;
+				r->renderThreadInfo[t].threadComplete = false;
+				r->renderThreadInfo[t].r = r;
+				r->activeThreads++;
+#ifdef WINDOWS
+				DWORD threadId;
+				r->renderThreadInfo[t].thread_handle = CreateThread(NULL, 0, renderThread, &r->renderThreadInfo[t], 0, &threadId);
+				if (r->renderThreadInfo[t].thread_handle == NULL) {
+					logr(error, "Failed to create thread.\n");
+					exit(-1);
+				}
+				r->renderThreadInfo[t].thread_id = threadId;
+#else
+				if (pthread_create(&r->renderThreadInfo[t].thread_id, &r->renderThreadAttributes, renderThread, &r->renderThreadInfo[t])) {
+					logr(error, "Failed to create a thread.\n");
+				}
+#endif
+			}
+			
+			r->renderThreadInfo->threadComplete = false;
+			
+#ifndef WINDOWS
+			if (pthread_attr_destroy(&r->renderThreadAttributes)) {
+				logr(warning, "Failed to destroy pthread.\n");
+			}
+#endif
+		}
+		
+		//Wait for render threads to finish (Render finished)
+		for (t = 0; t < r->threadCount; t++) {
+			if (r->renderThreadInfo[t].threadComplete && r->renderThreadInfo[t].thread_num != -1) {
+				r->activeThreads--;
+				r->renderThreadInfo[t].thread_num = -1;
+			}
+			if (r->activeThreads == 0 || r->renderAborted) {
+				r->isRendering = false;
+			}
+		}
+		if (r->threadPaused[0]) {
+			sleepMSec(800);
+		} else {
+			sleepMSec(100);
+		}
+	}
+	
+	//Make sure render threads are finished before continuing
+	for (t = 0; t < r->threadCount; t++) {
+#ifdef WINDOWS
+		WaitForSingleObjectEx(r->renderThreadInfo[t].thread_handle, INFINITE, FALSE);
+#else
+		if (pthread_join(r->renderThreadInfo[t].thread_id, NULL)) {
+			logr(warning, "Thread %t frozen.", t);
+		}
+#endif
+	}
+}
+
 /**
  A render thread
  

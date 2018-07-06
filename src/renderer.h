@@ -95,4 +95,8 @@ DWORD WINAPI renderThread(LPVOID arg);
 void *renderThread(void *arg);
 #endif
 
+//Initialize a new renderer
 struct renderer *newRenderer(void);
+
+//Start main render loop
+void render(struct renderer *r);
