@@ -809,14 +809,19 @@ int parseScene(struct renderer *r, const cJSON *data) {
 		}
 	}
 	
+	//FIXME: This is super ugly
 	width = cJSON_GetObjectItem(data, "width");
 	if (cJSON_IsNumber(width)) {
 		if (width->valueint >= 0) {
 			r->image->size.width = width->valueint;
+#ifdef UI_ENABLED
 			r->mainDisplay->width = width->valueint;
+#endif
 		} else {
 			r->image->size.width = 640;
+#ifdef UI_ENABLED
 			r->mainDisplay->width = 640;
+#endif
 		}
 	}
 	
@@ -824,10 +829,14 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsNumber(height)) {
 		if (height->valueint >= 0) {
 			r->image->size.height = height->valueint;
+#ifdef UI_ENABLED
 			r->mainDisplay->height = height->valueint;
+#endif
 		} else {
 			r->image->size.height = 640;
+#ifdef UI_ENABLED
 			r->mainDisplay->height = 640;
+#endif
 		}
 	}
 	
