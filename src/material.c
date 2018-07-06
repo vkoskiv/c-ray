@@ -121,3 +121,24 @@ bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color
 	*attenuation = isect->end.diffuse;
 	return (scalarProduct(&scattered->direction, &isect->surfaceNormal) > 0);
 }
+
+void freeTexture(struct texture *tex) {
+	if (tex->height) {
+		free(tex->height);
+	}
+	if (tex->width) {
+		free(tex->width);
+	}
+	if (tex->imgData) {
+		free(tex->imgData);
+	}
+}
+
+void freeMaterial(struct material *mat) {
+	if (mat->textureFilePath) {
+		free(mat->textureFilePath);
+	}
+	if (mat->name) {
+		free(mat->name);
+	}
+}

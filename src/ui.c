@@ -239,4 +239,34 @@ void drawWindow(struct renderer *r) {
 	SDL_RenderPresent(r->mainDisplay->renderer);
 }
 
+/*
+ struct display {
+ SDL_Window *window;
+ SDL_Renderer *renderer;
+ SDL_Texture *texture;
+ SDL_Texture *overlayTexture;
+ bool isBorderless;
+ bool isFullScreen;
+ double windowScale;
+ 
+ int height;
+ int width;
+ };
+ */
+
+void freeDisplay(struct display *disp) {
+	if (disp->window) {
+		SDL_DestroyWindow(disp->window);
+	}
+	if (disp->renderer) {
+		SDL_DestroyRenderer(disp->renderer);
+	}
+	if (disp->texture) {
+		SDL_DestroyTexture(disp->texture);
+	}
+	if (disp->overlayTexture) {
+		SDL_DestroyTexture(disp->overlayTexture);
+	}
+}
+
 #endif

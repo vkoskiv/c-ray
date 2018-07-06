@@ -49,3 +49,5 @@ struct world {
 };
 
 void loadScene(struct renderer *r, char *filename);
+
+void freeScene(struct world *scene);

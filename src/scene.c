@@ -1037,6 +1037,45 @@ void copyString(const char *source, char **destination) {
 	strcpy(*destination, source);
 }
 
+/*
+ struct color *ambientColor;
+ struct crayOBJ *objs;
+ struct light *lights;
+ struct material *materials;
+ struct sphere *spheres;
+ struct camera *camera;
+ };
+ */
+
+//Free scene data
+void freeScene(struct world *scene) {
+	if (scene->ambientColor) {
+		free(scene->ambientColor);
+	}
+	if (scene->objs) {
+		for (int i = 0; i < scene->objCount; i++) {
+			freeOBJ(&scene->objs[i]);
+		}
+		free(scene->objs);
+	}
+	if (scene->materials) {
+		for (int i = 0; i < scene->materialCount; i++) {
+			freeMaterial(&scene->materials[i]);
+		}
+		free(scene->materials);
+	}
+	if (scene->lights) {
+		free(scene->lights);
+	}
+	if (scene->spheres) {
+		free(scene->spheres);
+	}
+	if (scene->camera) {
+		freeCamera(scene->camera);
+		free(scene->camera);
+	}
+}
+
 //For Windows support, we need our own getdelim()
 #if defined(_WIN32) || defined(__linux__)
 #define	LONG_MAX	2147483647L	/* max signed long */

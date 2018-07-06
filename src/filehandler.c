@@ -158,3 +158,15 @@ int getFileSize(char *fileName) {
 	fclose(file);
 	return size;
 }
+
+void freeImage(struct outputImage *image) {
+	if (image->filePath) {
+		free(image->filePath);
+	}
+	if (image->fileName) {
+		free(image->fileName);
+	}
+	if (image->data) {
+		free(image->data);
+	}
+}

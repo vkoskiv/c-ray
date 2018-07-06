@@ -197,3 +197,15 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 	}
 	return false;
 }
+
+void freeTree(struct kdTreeNode *node) {
+	if (node->left) {
+		freeTree(node->left);
+	}
+	if (node->right) {
+		freeTree(node->right);
+	}
+	if (node->bbox) {
+		free(node->bbox);
+	}
+}

@@ -26,6 +26,7 @@ struct display {
 
 int initSDL(struct display *d);
 void drawWindow(struct renderer *r);
+void freeDisplay(struct display *disp);
 #endif
 
 void printDuration(double time);

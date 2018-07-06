@@ -298,3 +298,42 @@ struct color getPixel(struct renderer *r, int x, int y) {
 	output.alpha = 1.0;
 	return output;
 }
+	
+void freeRenderer(struct renderer *r) {
+	if (r->scene) {
+		freeScene(r->scene);
+		free(r->scene);
+	}
+	if (r->image) {
+		freeImage(r->image);
+		free(r->image);
+	}
+	if (r->renderTiles) {
+		free(r->renderTiles);
+	}
+	if (r->renderBuffer) {
+		free(r->renderBuffer);
+	}
+	if (r->uiBuffer) {
+		free(r->uiBuffer);
+	}
+	if (r->threadPaused) {
+		free(r->threadPaused);
+	}
+	if (r->renderThreadInfo) {
+		free(r->renderThreadInfo);
+	}
+#ifdef UI_ENABLED
+	if (r->mainDisplay) {
+		freeDisplay(r->mainDisplay);
+	}
+#endif
+	if (r->timers) {
+		free(r->timers);
+	}
+	if (r->inputFilePath) {
+		free(r->inputFilePath);
+	}
+	
+	free(r);
+}

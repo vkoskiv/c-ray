@@ -11,6 +11,7 @@
 
 #include "poly.h"
 #include "bbox.h"
+#include "kdtree.h"
 
 
 void addTransform(struct crayOBJ *obj, struct matrixTransform transform) {
@@ -38,4 +39,21 @@ void transformMesh(struct crayOBJ *object) {
 			}
 		}
 	}
+}
+
+void freeOBJ(struct crayOBJ *obj) {
+	if (obj->objName) {
+		free(obj->objName);
+	}
+	for (int i = 0; i < obj->materialCount; i++) {
+		freeMaterial(&obj->materials[i]);
+	}
+	free(obj->materials);
+	
+	if (obj->tree) {
+		freeTree(obj->tree);
+	}
+	free(obj->tree);
+	
+	free(obj->transforms);
 }

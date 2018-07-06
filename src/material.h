@@ -48,6 +48,7 @@ struct color;
 
 struct texture {
 	unsigned char *imgData;
+	//These are unsigned and pointers because lodePNG.
 	unsigned int *width;
 	unsigned int *height;
 };
@@ -100,3 +101,5 @@ bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct col
 bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
 
 void assignBSDF(struct material *mat);
+
+void freeMaterial(struct material *mat);

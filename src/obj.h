@@ -52,3 +52,5 @@ struct crayOBJ {
 
 void addTransform(struct crayOBJ *obj, struct matrixTransform transform);
 void transformMesh(struct crayOBJ *object);
+
+void freeOBJ(struct crayOBJ *obj);

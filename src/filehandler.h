@@ -35,3 +35,5 @@ void printFileSize(char *fileName);
 
 //Writes image data to file
 void writeImage(struct renderer *r);
+
+void freeImage(struct outputImage *image);

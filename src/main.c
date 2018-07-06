@@ -19,7 +19,7 @@
 int getFileSize(char *fileName);
 void initRenderer(struct renderer *renderer);
 int getSysCores(void);
-void freeMem(struct renderer *renderer);
+void freeGlobals(void);
 
 extern struct poly *polygonArray;
 
@@ -76,39 +76,16 @@ int main(int argc, char *argv[]) {
 	//Write to file
 	writeImage(mainRenderer);
 	
-	mainRenderer->currentFrame++;
-	
-	freeMem(mainRenderer);
+	freeRenderer(mainRenderer);
+	freeGlobals();
 	
 	logr(info, "Render finished, exiting.\n");
 	
 	return 0;
 }
 
-
-/**
- Free dynamically allocated memory
- */
-void freeMem(struct renderer *renderer) {
+void freeGlobals() {
 	//Free memory
-	if (renderer->image->data)
-		free(renderer->image->data);
-	if (renderer->renderThreadInfo)
-		free(renderer->renderThreadInfo);
-	if (renderer->renderBuffer)
-		free(renderer->renderBuffer);
-	if (renderer->uiBuffer)
-		free(renderer->uiBuffer);
-	if (renderer->scene->lights)
-		free(renderer->scene->lights);
-	if (renderer->scene->spheres)
-		free(renderer->scene->spheres);
-	if (renderer->scene->materials)
-		free(renderer->scene->materials);
-	if (renderer->renderTiles)
-		free(renderer->renderTiles);
-	if (renderer->scene)
-		free(renderer->scene);
 	if (vertexArray)
 		free(vertexArray);
 	if (normalArray)

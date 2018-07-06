@@ -46,3 +46,9 @@ void transformCameraIntoView(struct camera *cam) {
 	transformCameraView(cam, &cam->left);
 	transformCameraView(cam, &cam->up);
 }
+
+void freeCamera(struct camera *cam) {
+	if (cam->transforms) {
+		free(cam->transforms);
+	}
+}

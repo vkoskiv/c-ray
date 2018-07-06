@@ -100,3 +100,5 @@ struct renderer *newRenderer(void);
 
 //Start main render loop
 void render(struct renderer *r);
+
+void freeRenderer(struct renderer *r);
