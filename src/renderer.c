@@ -21,15 +21,7 @@
 #include "tile.h"
 #include "timer.h"
 
-//TODO: Refactor this to retrieve pixel from a given buffer, so we can reuse it for texture maps
-struct color getPixel(struct renderer *r, int x, int y) {
-	struct color output = {0.0, 0.0, 0.0, 0.0};
-	output.red = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 0];
-	output.green = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 1];
-	output.blue = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 2];
-	output.alpha = 1.0;
-	return output;
-}
+struct color getPixel(struct renderer *r, int x, int y);
 
 /**
  A render thread
@@ -167,7 +159,6 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		logr(info, "Thread %i done\n", tinfo->thread_num);
 		tinfo->threadComplete = true;
 #ifdef WINDOWS
-		//Return possible codes here
 		return 0;
 #else
 		pthread_exit((void*) arg);
@@ -204,4 +195,14 @@ struct renderer *newRenderer() {
 	renderer->tileMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 #endif
 	return renderer;
+}
+	
+//TODO: Refactor this to retrieve pixel from a given buffer, so we can reuse it for texture maps
+struct color getPixel(struct renderer *r, int x, int y) {
+	struct color output = {0.0, 0.0, 0.0, 0.0};
+	output.red = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 0];
+	output.green = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 1];
+	output.blue = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 2];
+	output.alpha = 1.0;
+	return output;
 }
