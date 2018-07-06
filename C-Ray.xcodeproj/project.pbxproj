@@ -32,6 +32,7 @@
 		90BBA5351EB18D43001AE07B /* pathtrace.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BBA5331EB18D43001AE07B /* pathtrace.c */; };
 		90BBA5381EB18FAB001AE07B /* obj.c in Sources */ = {isa = PBXBuildFile; fileRef = 90BBA5361EB18FAB001AE07B /* obj.c */; };
 		90DB5EEB20EF7AB60023DBEC /* tile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90DB5EEA20EF7AB60023DBEC /* tile.c */; };
+		90DB5EEE20EF7DB80023DBEC /* timer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90DB5EED20EF7DB80023DBEC /* timer.c */; };
 		90F843931ECE3FF700C5567C /* lightRay.c in Sources */ = {isa = PBXBuildFile; fileRef = 90F843911ECE3FF700C5567C /* lightRay.c */; };
 		90FDF8B81E593E9200EE91FD /* renderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FDF8B61E593E9200EE91FD /* renderer.c */; };
 /* End PBXBuildFile section */
@@ -101,6 +102,8 @@
 		90D99AF41D08ADB10015A854 /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90DB5EE920EF7AB60023DBEC /* tile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tile.h; path = src/tile.h; sourceTree = SOURCE_ROOT; };
 		90DB5EEA20EF7AB60023DBEC /* tile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = tile.c; path = src/tile.c; sourceTree = SOURCE_ROOT; };
+		90DB5EEC20EF7DB80023DBEC /* timer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = timer.h; path = src/timer.h; sourceTree = SOURCE_ROOT; };
+		90DB5EED20EF7DB80023DBEC /* timer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = timer.c; path = src/timer.c; sourceTree = SOURCE_ROOT; };
 		90F843911ECE3FF700C5567C /* lightRay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lightRay.c; path = src/lightRay.c; sourceTree = SOURCE_ROOT; };
 		90F843921ECE3FF700C5567C /* lightRay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lightRay.h; path = src/lightRay.h; sourceTree = SOURCE_ROOT; };
 		90FDF8B61E593E9200EE91FD /* renderer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = renderer.c; path = src/renderer.c; sourceTree = SOURCE_ROOT; };
@@ -151,16 +154,17 @@
 		90D99AF61D08ADB10015A854 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				90DB5EEA20EF7AB60023DBEC /* tile.c */,
-				90DB5EE920EF7AB60023DBEC /* tile.h */,
+				9021F9011E480390001737C0 /* main.c */,
+				9021F9021E480390001737C0 /* main.h */,
 				90FDF8B61E593E9200EE91FD /* renderer.c */,
 				90FDF8B71E593E9200EE91FD /* renderer.h */,
 				90BBA5331EB18D43001AE07B /* pathtrace.c */,
 				90BBA5341EB18D43001AE07B /* pathtrace.h */,
-				9021F9011E480390001737C0 /* main.c */,
-				9021F9021E480390001737C0 /* main.h */,
 				9021F8F61E47EE02001737C0 /* scene.c */,
 				9021F8F71E47EE02001737C0 /* scene.h */,
+				9021F8E51E47EDEE001737C0 /* includes.h */,
+				90DB5EEA20EF7AB60023DBEC /* tile.c */,
+				90DB5EE920EF7AB60023DBEC /* tile.h */,
 				908B28C81F469808009A967E /* converter.c */,
 				908B28C91F469808009A967E /* converter.h */,
 				900C4FD81E59A566001695F6 /* ui.c */,
@@ -177,7 +181,6 @@
 				9021F8E21E47EDEE001737C0 /* logging.h */,
 				9021F8E31E47EDEE001737C0 /* filehandler.c */,
 				9021F8E41E47EDEE001737C0 /* filehandler.h */,
-				9021F8E51E47EDEE001737C0 /* includes.h */,
 				9021F8E61E47EDEE001737C0 /* light.c */,
 				9021F8E71E47EDEE001737C0 /* light.h */,
 				9021F8F41E47EE02001737C0 /* poly.c */,
@@ -194,6 +197,8 @@
 				90B988ED1EB33DAB000E22CF /* bbox.h */,
 				90F843911ECE3FF700C5567C /* lightRay.c */,
 				90F843921ECE3FF700C5567C /* lightRay.h */,
+				90DB5EED20EF7DB80023DBEC /* timer.c */,
+				90DB5EEC20EF7DB80023DBEC /* timer.h */,
 			);
 			name = src;
 			path = "C-Ray";
@@ -298,6 +303,7 @@
 				9021F8EC1E47EDEE001737C0 /* logging.c in Sources */,
 				9021F8D81E47EDD1001737C0 /* obj_parser.c in Sources */,
 				9021F8D11E47EDB8001737C0 /* list.c in Sources */,
+				90DB5EEE20EF7DB80023DBEC /* timer.c in Sources */,
 				90BBA5381EB18FAB001AE07B /* obj.c in Sources */,
 				9021F8E91E47EDEE001737C0 /* color.c in Sources */,
 				9021F8D21E47EDB8001737C0 /* lodepng.c in Sources */,
