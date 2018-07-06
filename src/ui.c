@@ -72,7 +72,7 @@ void fillTexture(SDL_Renderer *renderer, SDL_Texture *texture, int r, int g, int
 	SDL_FreeSurface(icon);
 }*/
 
-int initSDL(struct renderer *r) {
+int initSDL(struct display *d) {
 	
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -81,43 +81,48 @@ int initSDL(struct renderer *r) {
 	}
 	//Init window
 	SDL_WindowFlags flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
-	if (r->mainDisplay->isFullScreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	if (r->mainDisplay->isBorderless) flags |= SDL_WINDOW_BORDERLESS;
+	if (d->isFullScreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	if (d->isBorderless) flags |= SDL_WINDOW_BORDERLESS;
 	
-	r->mainDisplay->window = SDL_CreateWindow("C-ray © VKoskiv 2015-2018", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, r->image->size.width * r->mainDisplay->windowScale, r->image->size.height * r->mainDisplay->windowScale, flags);
-	if (r->mainDisplay->window == NULL) {
+	d->window = SDL_CreateWindow("C-ray © VKoskiv 2015-2018",
+								 SDL_WINDOWPOS_UNDEFINED,
+								 SDL_WINDOWPOS_UNDEFINED,
+								 d->width * d->windowScale,
+								 d->height * d->windowScale,
+								 flags);
+	if (d->window == NULL) {
 		logr(warning, "Window couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	//Init renderer
-	r->mainDisplay->renderer = SDL_CreateRenderer(r->mainDisplay->window, -1, SDL_RENDERER_ACCELERATED);
-	if (r->mainDisplay->renderer == NULL) {
+	d->renderer = SDL_CreateRenderer(d->window, -1, SDL_RENDERER_ACCELERATED);
+	if (d->renderer == NULL) {
 		logr(warning, "Renderer couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	//And set blend modes
-	SDL_SetRenderDrawBlendMode(r->mainDisplay->renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawBlendMode(d->renderer, SDL_BLENDMODE_BLEND);
 	
-	SDL_RenderSetScale(r->mainDisplay->renderer, r->mainDisplay->windowScale, r->mainDisplay->windowScale);
+	SDL_RenderSetScale(d->renderer, d->windowScale, d->windowScale);
 	//Init pixel texture
-	r->mainDisplay->texture = SDL_CreateTexture(r->mainDisplay->renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, r->image->size.width, r->image->size.height);
-	if (r->mainDisplay->texture == NULL) {
+	d->texture = SDL_CreateTexture(d->renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, d->width, d->height);
+	if (d->texture == NULL) {
 		logr(warning, "Texture couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	//Init overlay texture (for UI info)
-	r->mainDisplay->overlayTexture = SDL_CreateTexture(r->mainDisplay->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, r->image->size.width, r->image->size.height);
-	if (r->mainDisplay->overlayTexture == NULL) {
+	d->overlayTexture = SDL_CreateTexture(d->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, d->width, d->height);
+	if (d->overlayTexture == NULL) {
 		logr(warning, "Overlay texture couldn't be created, error %s\n", SDL_GetError());
 		return -1;
 	}
 	
 	//And set blend modes for textures too
-	SDL_SetTextureBlendMode(r->mainDisplay->texture, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureBlendMode(r->mainDisplay->overlayTexture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(d->texture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(d->overlayTexture, SDL_BLENDMODE_BLEND);
 	
 	//Set window icon
-	//setWindowIcon(r->mainDisplay->window);
+	//setWindowIcon(d->window);
 	
 	return 0;
 }

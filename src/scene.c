@@ -503,6 +503,9 @@ int parseCamera(struct renderer *r, const cJSON *data) {
 		} else {
 			r->scene->camera->FOV = 80.0;
 		}
+	} else {
+		logr(warning, "No FOV for camera found");
+		return -1;
 	}
 	
 	aperture = cJSON_GetObjectItem(data, "aperture");
@@ -512,12 +515,18 @@ int parseCamera(struct renderer *r, const cJSON *data) {
 		} else {
 			r->scene->camera->aperture = 0.0;
 		}
+	} else {
+		logr(warning, "No aperture for camera found");
+		return -1;
 	}
 	
 	transforms = cJSON_GetObjectItem(data, "transforms");
 	if (cJSON_IsArray(transforms)) {
 		int tformCount = cJSON_GetArraySize(transforms);
 		addCamTransforms(r->scene->camera, parseTransforms(transforms), tformCount);
+	} else {
+		logr(warning, "No transforms for camera found");
+		return -1;
 	}
 	
 	return 0;
@@ -536,18 +545,21 @@ struct color *parseColor(const cJSON *data) {
 	if (R != NULL && cJSON_IsNumber(R)) {
 		newColor->red = R->valuedouble;
 	} else {
+		free(newColor);
 		return NULL;
 	}
 	G = cJSON_GetObjectItem(data, "g");
 	if (R != NULL && cJSON_IsNumber(G)) {
 		newColor->green = G->valuedouble;
 	} else {
+		free(newColor);
 		return NULL;
 	}
 	B = cJSON_GetObjectItem(data, "b");
 	if (R != NULL && cJSON_IsNumber(B)) {
 		newColor->blue = B->valuedouble;
 	} else {
+		free(newColor);
 		return NULL;
 	}
 	A = cJSON_GetObjectItem(data, "a");
@@ -645,9 +657,9 @@ void parseLight(struct renderer *r, const cJSON *data) {
 	const cJSON *color = NULL;
 	const cJSON *intensity = NULL;
 	
-	struct vector posValue = (struct vector){0.0,0.0,0.0,false};
+	struct vector posValue;
 	double radiusValue = 0.0;
-	struct color colorValue = (struct color){0.0,0.0,0.0,0.0};
+	struct color colorValue;
 	double intensityValue = 0.0;
 	
 	pos = cJSON_GetObjectItem(data, "pos");
@@ -696,8 +708,8 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *reflectivity = NULL;
 	const cJSON *radius = NULL;
 	
-	struct vector posValue = (struct vector){0.0,0.0,0.0,false};
-	struct color colorValue = (struct color){0.0,0.0,0.0,0.0};
+	struct vector posValue;
+	struct color colorValue;
 	double reflectivityValue = 0.0;
 	double radiusValue = 0.0;
 	
@@ -801,8 +813,10 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsNumber(width)) {
 		if (width->valueint >= 0) {
 			r->image->size.width = width->valueint;
+			r->mainDisplay->width = width->valueint;
 		} else {
 			r->image->size.width = 640;
+			r->mainDisplay->width = 640;
 		}
 	}
 	
@@ -810,8 +824,10 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsNumber(height)) {
 		if (height->valueint >= 0) {
 			r->image->size.height = height->valueint;
+			r->mainDisplay->height = height->valueint;
 		} else {
 			r->image->size.height = 640;
+			r->mainDisplay->height = 640;
 		}
 	}
 	
@@ -867,10 +883,6 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	 we need to *copy* all dynamically allocated strings with the copyString() function.
 	 */
 	
-#ifdef UI_ENABLED
-	r->mainDisplay = (struct display*)calloc(1, sizeof(struct display));
-#endif
-	
 	char *buf = loadFile(inputFileName);
 	
 	cJSON *json = cJSON_Parse(buf);
@@ -878,9 +890,11 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 		logr(warning, "Failed to parse JSON\n");
 		const char *errptr = cJSON_GetErrorPtr();
 		if (errptr != NULL) {
-			logr(info, "Error before: %s\n", errptr);
+			free(buf);
+			cJSON_Delete(json);
+			logr(warning, "Error before: %s\n", errptr);
+			return -2;
 		}
-		return -1;
 	}
 	
 	const cJSON *renderer = NULL;
@@ -892,35 +906,56 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 	if (renderer != NULL) {
 		if (parseRenderer(r, renderer) == -1) {
 			logr(warning, "Renderer parse failed!\n");
+			free(buf);
 			return -2;
 		}
+	} else {
+		logr(warning, "No renderer found\n");
+		free(buf);
+		return -2;
 	}
 	
 	display = cJSON_GetObjectItem(json, "display");
 	if (display != NULL) {
 		if (parseDisplay(r, display) == -1) {
 			logr(warning, "Display parse failed!\n");
+			free(buf);
 			return -2;
 		}
+	} else {
+		logr(warning, "No display found\n");
+		free(buf);
+		return -2;
 	}
 	
 	camera = cJSON_GetObjectItem(json, "camera");
 	if (camera != NULL) {
 		if (parseCamera(r, camera) == -1) {
 			logr(warning, "Camera parse failed!\n");
+			free(buf);
 			return -2;
 		}
+	} else {
+		logr(warning, "No camera found\n");
+		free(buf);
+		return -2;
 	}
 	
 	scene = cJSON_GetObjectItem(json, "scene");
 	if (scene != NULL) {
 		if (parseScene(r, scene) == -1) {
 			logr(warning, "Scene parse failed!\n");
+			free(buf);
 			return -2;
 		}
+	} else {
+		logr(warning, "No scene found\n");
+		free(buf);
+		return -2;
 	}
 	
 	cJSON_Delete(json);
+	free(buf);
 	
 	transformCameraIntoView(r->scene->camera);
 	transformMeshes(r->scene);

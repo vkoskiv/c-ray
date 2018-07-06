@@ -110,4 +110,4 @@ void *renderThread(void *arg);
 
 void quantizeImage(struct renderer *renderer);
 
-void initRenderer(struct renderer *renderer);
+struct renderer *newRenderer(void);

@@ -43,10 +43,8 @@ int main(int argc, char *argv[]) {
 	//Disable output buffering
 	setbuf(stdout, NULL);
 	
-	struct renderer *mainRenderer = (struct renderer*)calloc(1, sizeof(struct renderer));
-	
 	//Initialize renderer
-	initRenderer(mainRenderer);
+	struct renderer *mainRenderer = newRenderer();
 	
 	char *fileName = NULL;
 	//Build the scene
@@ -60,14 +58,6 @@ int main(int argc, char *argv[]) {
 	printf("**************************************************************************\n");
 	printf("*      UI is DISABLED! Enable by installing SDL2 and doing `cmake .`     *\n");
 	printf("**************************************************************************\n");
-#endif
-	
-#ifdef UI_ENABLED
-	mainRenderer->mainDisplay = (struct display*)calloc(1, sizeof(struct display));
-	mainRenderer->mainDisplay->window = NULL;
-	mainRenderer->mainDisplay->renderer = NULL;
-	mainRenderer->mainDisplay->texture = NULL;
-	mainRenderer->mainDisplay->overlayTexture = NULL;
 #endif
 	
 	//Build the scene
@@ -147,7 +137,7 @@ int main(int argc, char *argv[]) {
 	
 	//Initialize SDL display
 #ifdef UI_ENABLED
-	initSDL(mainRenderer);
+	initSDL(mainRenderer->mainDisplay);
 #endif
 	
 	mainRenderer->isRendering = true;

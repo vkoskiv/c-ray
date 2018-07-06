@@ -19,9 +19,12 @@ struct display {
 	bool isBorderless;
 	bool isFullScreen;
 	double windowScale;
+	
+	int height;
+	int width;
 };
 
-int initSDL(struct renderer *r);
+int initSDL(struct display *d);
 void drawWindow(struct renderer *r);
 #endif
 

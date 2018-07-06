@@ -17,6 +17,7 @@
 #include "filehandler.h"
 #include "main.h"
 #include "logging.h"
+#include "ui.h"
 
 void computeStatistics(struct renderer *r, int thread, unsigned long long milliseconds, unsigned long long samples);
 void reorderTiles(struct renderer *renderer);
@@ -515,7 +516,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 #endif
 }
 	
-void initRenderer(struct renderer *renderer) {
+struct renderer *newRenderer() {
+	struct renderer *renderer = (struct renderer*)calloc(1, sizeof(struct renderer));
 	renderer->avgTileTime = (time_t)1;
 	renderer->timeSampleCount = 1;
 	renderer->mode = saveModeNormal;
@@ -529,6 +531,14 @@ void initRenderer(struct renderer *renderer) {
 	renderer->scene->materials = (struct material*)calloc(1, sizeof(struct material));
 	renderer->scene->lights = (struct light*)calloc(1, sizeof(struct light));
 	
+#ifdef UI_ENABLED
+	renderer->mainDisplay = (struct display*)calloc(1, sizeof(struct display));
+	renderer->mainDisplay->window = NULL;
+	renderer->mainDisplay->renderer = NULL;
+	renderer->mainDisplay->texture = NULL;
+	renderer->mainDisplay->overlayTexture = NULL;
+#endif
+	
 	//Alloc timers
 	renderer->timers = (struct timeval*)calloc(renderer->threadCount, sizeof(struct timeval));
 	//Mutex
@@ -537,4 +547,5 @@ void initRenderer(struct renderer *renderer) {
 #else
 	renderer->tileMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 #endif
+	return renderer;
 }
