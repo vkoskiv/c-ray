@@ -1,0 +1,20 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/bin": true,
+        "**/c-ray.dir": true,
+        "**/CMakeFiles": true,
+        "**/obj": true,
+        "**/Release": true,
+        "**/x64": true,
+        "**/*.vcxproj": true,
+        "**/*.vcxproj.filters": true,
+        "**/*.sln": true,
+        "**/CMakeCache.txt": true,
+        "**/cmake_install.cmake": true,
+        "**/.DS_Store": true
+    }
+}
