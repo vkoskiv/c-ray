@@ -229,6 +229,10 @@ struct vector vectorMultiply(struct vector v, double c) {
 	return (struct vector){v.x * c, v.y * c, v.z * c, false};
 }
 
+struct vector negateVector(struct vector v) {
+	return (struct vector){-v.x, -v.y, -v.z, false};
+}
+
 /**
 Returns the reflected ray vector from a surface
 

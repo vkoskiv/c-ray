@@ -16,6 +16,8 @@ input/*
 !input/teapot_white.*
 !input/teapot_green.*
 !input/teapot_blue.*
+!input/scene.json
+!input/refraction.json
 
 ### CMake ###
 CMakeCache.txt

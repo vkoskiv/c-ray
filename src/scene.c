@@ -596,6 +596,8 @@ void parseOBJ(struct renderer *r, const cJSON *data) {
 			type = lambertian;
 		} else if (strcmp(bsdf->valuestring, "metal") == 0) {
 			type = metal;
+		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
+			type = glass;
 		} else {
 			type = lambertian;
 		}
@@ -709,11 +711,13 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *pos = NULL;
 	const cJSON *color = NULL;
 	const cJSON *reflectivity = NULL;
+	const cJSON *IOR = NULL;
 	const cJSON *radius = NULL;
 	
 	struct vector posValue;
 	struct color colorValue;
 	double reflectivityValue = 0.0;
+	double iorValue = 0.0;
 	double radiusValue = 0.0;
 	
 	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
@@ -724,12 +728,14 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 			type = lambertian;
 		} else if (strcmp(bsdf->valuestring, "metal") == 0) {
 			type = metal;
+		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
+			type = glass;
 		} else {
 			type = lambertian;
 		}
 	} else {
 		logr(warning, "Invalid bsdf while parsing OBJ\n");
-	}
+	}	
 	
 	pos = cJSON_GetObjectItem(data, "pos");
 	if (pos != NULL) {
@@ -752,6 +758,13 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 		return;
 	}
 	
+	IOR = cJSON_GetObjectItem(data, "IOR");
+	if (IOR != NULL && cJSON_IsNumber(IOR)) {
+		iorValue = IOR->valuedouble;
+	} else {
+		return;
+	}
+	
 	radius = cJSON_GetObjectItem(data, "radius");
 	if (radius != NULL && cJSON_IsNumber(radius)) {
 		radiusValue = radius->valuedouble;
@@ -761,6 +774,7 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	addSphere(r->scene, newSphere(posValue, radiusValue, newMaterial(colorValue, reflectivityValue)));
 	
 	lastSphere(r)->material.type = type;
+	lastSphere(r)->material.IOR = iorValue;
 	assignBSDF(&lastSphere(r)->material);
 }
 

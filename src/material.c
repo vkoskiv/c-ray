@@ -62,6 +62,9 @@ void assignBSDF(struct material *mat) {
 		case emission:
 			mat->bsdf = emissiveBSDF;
 			break;
+		case glass:
+			mat->bsdf = dialectric;
+			break;
 		default:
 			mat->bsdf = lambertianBSDF;
 			break;
@@ -127,6 +130,62 @@ bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color
 	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 	*attenuation = isect->end.diffuse;
 	return (scalarProduct(&scattered->direction, &isect->surfaceNormal) > 0);
+}
+
+bool refract(struct vector in, struct vector normal, float niOverNt, struct vector *refracted) {
+	struct vector uv = normalizeVector(&in);
+	float dt = scalarProduct(&uv, &normal);
+	float discriminant = 1.0 - niOverNt * niOverNt * (1 - dt * dt);
+	if (discriminant > 0) {
+		struct vector A = vectorMultiply(normal, dt);
+		struct vector B = subtractVectors(&uv, &A);
+		struct vector C = vectorMultiply(B, niOverNt);
+		struct vector D = vectorMultiply(normal, sqrt(discriminant));
+		*refracted = subtractVectors(&C, &D);
+		return true;
+	} else {
+		return false;
+	}
+}
+
+float shlick(float cosine, float IOR) {
+	float r0 = (1 - IOR) / (1 + IOR);
+	r0 = r0*r0;
+	return r0 + (1 - r0) * pow((1 - cosine), 5);
+}
+
+bool dialectric(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
+	struct vector outwardNormal;
+	struct vector reflected = reflectVec(&isect->ray.direction, &isect->surfaceNormal);
+	float niOverNt;
+	*attenuation = whiteColor;
+	struct vector refracted;
+	float reflectionProbability;
+	float cosine;
+	
+	if (scalarProduct(&isect->ray.direction, &isect->surfaceNormal) > 0) {
+		outwardNormal = negateVector(isect->surfaceNormal);
+		niOverNt = isect->end.IOR;
+		cosine = isect->end.IOR * scalarProduct(&isect->ray.direction, &isect->surfaceNormal) / vectorLength(&isect->ray.direction);
+	} else {
+		outwardNormal = isect->surfaceNormal;
+		niOverNt = 1.0 / isect->end.IOR;
+		cosine = -(scalarProduct(&isect->ray.direction, &isect->surfaceNormal) / vectorLength(&isect->ray.direction));
+	}
+	
+	if (refract(isect->ray.direction, outwardNormal, niOverNt, &refracted)) {
+		reflectionProbability = shlick(cosine, isect->end.IOR);
+	} else {
+		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
+		reflectionProbability = 1.0;
+	}
+	
+	if (getRandomDouble(0, 1) < reflectionProbability) {
+		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
+	} else {
+		*scattered = newRay(isect->hitPoint, refracted, rayTypeRefracted);
+	}
+	return true;
 }
 
 void freeTexture(struct texture *tex) {

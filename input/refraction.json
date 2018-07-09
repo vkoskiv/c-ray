@@ -1,0 +1,421 @@
+{
+	"version": 1.0,
+	"renderer": {
+		"threadCount": 0,
+		"sampleCount": 500,
+		"antialiasing": true,
+		"tileWidth": 16,
+		"tileHeight": 16,
+		"tileOrder": "fromMiddle"
+	},
+	"display": {
+		"isFullscreen": true,
+		"isBorderless": false,
+		"windowScale": 1.0
+	},
+	"camera": {
+		"FOV": 15.0,
+		"aperture": 0.0,
+		"transforms": [
+			{
+				"type": "translate",
+				"x": 970,
+				"y": 480,
+				"z": 600
+			},
+			{
+				"type": "rotateX",
+				"degrees": 35
+			},
+			{
+				"type": "rotateY",
+				"degrees": 25
+			}
+		]
+	},
+	"scene": {
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 2560,
+		"height": 1600,
+		"ambientColor": {
+			"r": 0.4,
+			"g": 0.6,
+			"b": 0.6
+		},
+		"bounces": 50,
+		"inputFilePath": "input/",
+		"lights": [
+			{
+				"pos": {
+					"x": 1050,
+					"y": 310,
+					"z": 820
+				},
+				"radius": 2.5,
+				"color": {
+					"r": 1.0,
+					"g": 0.0,
+					"b": 0.0
+				},
+				"intensity": 10.0
+			},
+			{
+				"pos": {
+				   "x": 1070,
+				   "y": 330,
+				   "z": 820
+			},
+				"radius": 4,
+				"color": {
+				   "r": 0.0,
+				   "g": 1.0,
+				   "b": 0.0
+				},
+				"intensity": 10.0
+			},
+			{
+				"pos": {
+				   "x": 1090,
+				   "y": 310,
+				   "z": 820
+				},
+				"radius": 2.5,
+				"color": {
+				   "r": 0.0,
+				   "g": 0.0,
+				   "b": 1.0
+				},
+				"intensity": 10.0
+			}
+		],
+		"spheres": [
+			{
+				"pos": {
+					"x": 650,
+					"y": 450,
+					"z": 1650
+				},
+				"color": {
+					"r": 1.0,
+					"g": 0.0,
+					"b": 0.5
+				},
+				"bsdf": "lambertian",
+				"reflectivity": 1.0,
+				"radius": 150
+			},
+			{
+				"pos": {
+					"x": 950,
+					"y": 350,
+					"z": 1500
+				},
+				"color": {
+					"r": 1.0,
+					"g": 1.0,
+					"b": 1.0
+				},
+				"bsdf": "lambertian",
+				"reflectivity": 1.0,
+				"radius": 50
+			},
+			{
+				"pos": {
+					"x": 1100,
+					"y": 350,
+					"z": 1500
+				},
+				"color": {
+					"r": 0.0,
+					"b": 0.0,
+					"g": 0.0
+				},
+				"bsdf": "lambertian",
+				"reflectivity": 0.0,
+				"radius": 50
+			},
+			{
+				"pos": {
+					"x": 1070,
+					"y": 310,
+					"z": 820
+				},
+				"radius": 4.5,
+				"color": {
+					"r": 1.0,
+					"g": 0.75,
+					"b": 0.75
+				},
+				"bsdf": "glass",
+				"reflectivity": 1.0,
+				"IOR": 1.5
+			}
+		],
+		"OBJs": [
+			{
+				"fileName": "tonni.objdisabled",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 100
+					},
+					{
+						"type": "rotateX",
+						"degrees": 90
+					},
+					{
+						"type": "translate",
+						"x": 1170,
+						"y": 350,
+						"z": 1050
+				 	}
+				]
+			},
+			{
+				"fileName": "newScene.obj",
+				"bsdf": "lambertian",
+				"transforms": []
+			},
+			{
+				"fileName": "teht1.objdisabled",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 40
+					},
+					{
+						"type": "rotateX",
+						"degrees": 90
+					},
+					{
+						"type": "translate",
+						"x": 870,
+						"y": 350,
+						"z": 800
+					}
+				]
+			},
+			{
+				"fileName": "torus.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 40
+					},
+					{
+						"type": "translate",
+						"x": 1070,
+						"y": 310,
+						"z": 820
+					}
+				]
+			},
+			{
+				"fileName": "teapot_test.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 80
+					},
+					{
+						"type": "rotateY",
+						"degrees": 45
+					},
+					{
+						"type": "translate",
+						"x": 740,
+						"y": 299,
+						"z": 900
+					}
+				]
+			},
+			{
+				"fileName": "teapot_test.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 80
+					},
+					{
+						"type": "rotateY",
+						"degrees": 45
+					},
+					{
+						"type": "translate",
+						"x": 740,
+						"y": 299,
+						"z": 1050
+					}
+				]
+			},
+			{
+				"fileName": "teapot_test.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 80
+					},
+					{
+						"type": "rotateY",
+						"degrees": 45
+					},
+					{
+						"type": "translate",
+						"x": 740,
+						"y": 299,
+						"z": 1200
+					}
+				]
+			},
+			{
+				"fileName": "teapot_white.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 80
+					},
+					{
+						"type": "rotateY",
+						"degrees": 45
+					},
+					{
+						"type": "translate",
+						"x": 855,
+						"y": 299,
+						"z": 1125
+					}
+				]
+			},
+			{
+				"fileName": "teapot_green.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 80
+					},
+					{
+						"type": "rotateY",
+						"degrees": 20
+					},
+					{
+						"type": "translate",
+						"x": 970,
+						"y": 299,
+						"z": 900
+					}
+				]
+			},
+			{
+				"fileName": "teapot_green.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 80
+					},
+					{
+						"type": "rotateY",
+						"degrees": 20
+					},
+					{
+						"type": "translate",
+						"x": 970,
+						"y": 299,
+						"z": 1050
+					}
+				]
+			},
+			{
+				"fileName": "teapot_green.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 80
+					},
+					{
+						"type": "rotateY",
+						"degrees": 20
+					},
+					{
+						"type": "translate",
+						"x": 970,
+						"y": 299,
+						"z": 1200
+					}
+				]
+			},
+			{
+				"fileName": "teapot_blue.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 80
+					},
+					{
+						"type": "rotateY",
+						"degrees": 155
+					},
+					{
+						"type": "translate",
+						"x": 1210,
+						"y": 299,
+						"z": 900
+					}
+				]
+			},
+			{
+				"fileName": "teapot_blue.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 80
+					},
+					{
+						"type": "rotateY",
+						"degrees": 155
+					},
+					{
+						"type": "translate",
+						"x": 1210,
+						"y": 299,
+						"z": 1050
+					}
+				]
+			},
+			{
+				"fileName": "teapot_blue.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 80
+					},
+					{
+						"type": "rotateY",
+						"degrees": 155
+					},
+					{
+						"type": "translate",
+						"x": 1210,
+						"y": 299,
+						"z": 1200
+					}
+				]
+			}
+		]
+	}
+}

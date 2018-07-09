@@ -86,3 +86,5 @@ struct vector vectorMultiply(struct vector v, const double c);
 struct vector multiplyVectors(struct vector v1, struct vector v2);
 
 struct vector reflect(const struct vector* I, const struct vector* N);
+
+struct vector negateVector(struct vector v);
