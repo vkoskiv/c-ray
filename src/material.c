@@ -158,7 +158,7 @@ bool dialectric(struct intersection *isect, struct lightRay *ray, struct color *
 	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->ray.direction, &isect->surfaceNormal);
 	float niOverNt;
-	*attenuation = whiteColor;
+	*attenuation = isect->end.diffuse;
 	struct vector refracted;
 	float reflectionProbability;
 	float cosine;
