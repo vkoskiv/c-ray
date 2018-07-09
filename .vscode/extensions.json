@@ -1,6 +1,8 @@
 {
     "recommendations": [
         "twxs.cmake",
-        "vector-of-bool.cmake-tools"
+        "vector-of-bool.cmake-tools",
+        "michead.vscode-mesh-viewer",
+        "kevinehmry.heatscript"
     ]
 }
