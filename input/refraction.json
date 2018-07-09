@@ -2,14 +2,14 @@
 	"version": 1.0,
 	"renderer": {
 		"threadCount": 0,
-		"sampleCount": 500,
+		"sampleCount": 100,
 		"antialiasing": true,
-		"tileWidth": 16,
-		"tileHeight": 16,
+		"tileWidth": 64,
+		"tileHeight": 64,
 		"tileOrder": "fromMiddle"
 	},
 	"display": {
-		"isFullscreen": true,
+		"isFullscreen": false,
 		"isBorderless": false,
 		"windowScale": 1.0
 	},
@@ -38,8 +38,8 @@
 		"outputFileName": "rendered",
 		"fileType": "png",
 		"count": 0,
-		"width": 2560,
-		"height": 1600,
+		"width": 1280,
+		"height": 800,
 		"ambientColor": {
 			"r": 0.4,
 			"g": 0.6,
