@@ -2,7 +2,7 @@
 	"version": 1.0,
 	"renderer": {
 		"threadCount": 0,
-		"sampleCount": 64,
+		"sampleCount": 100,
 		"antialiasing": true,
 		"tileWidth": 64,
 		"tileHeight": 64,
@@ -45,7 +45,7 @@
 			"g": 0.6,
 			"b": 0.6
 		},
-		"bounces": 12,
+		"bounces": 50,
 		"inputFilePath": "input/",
 		"lights": [
 			{
