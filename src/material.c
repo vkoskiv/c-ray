@@ -44,12 +44,19 @@ struct material newMaterialFull(struct color ambient,
 	return mat;
 }
 
-/*emission = 0,
- lambertian,
- glass,
- metal,
- translucent,
- transparent*/
+struct material emptyMaterial() {
+	return (struct material){0};
+}
+
+//Find material with a given name and return a pointer to it
+struct material *materialForName(struct material *materials, int count, char *name) {
+	for (int i = 0; i < count; i++) {
+		if (strcmp(materials[i].name, name) == 0) {
+			return &materials[i];
+		}
+	}
+	return NULL;
+}
 
 void assignBSDF(struct material *mat) {
 	switch (mat->type) {

@@ -85,6 +85,7 @@ struct material {
 
 //temporary newMaterial func
 struct material newMaterial(struct color diffuse, double reflectivity);
+struct material *materialForName(struct material *materials, int count, char *name);
 
 //Full obj spec material
 struct material newMaterialFull(struct color ambient,
@@ -96,6 +97,8 @@ struct material newMaterialFull(struct color ambient,
 								transparency, double
 								sharpness, double
 								glossiness);
+
+struct material emptyMaterial(void);
 
 bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
 bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
