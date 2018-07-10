@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
 	
 	//Disable output buffering
 	setbuf(stdout, NULL);
+	initTerminal();
 	
 	prepareGlobals();
 	//Initialize renderer
