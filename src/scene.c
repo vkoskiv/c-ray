@@ -25,6 +25,7 @@
 
 void copyString(const char *source, char **destination);
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
+struct color *parseColor(const cJSON *data);
 
 /**
  Extract the filename from a given file path
@@ -280,6 +281,107 @@ char *loadFile(char *inputFileName) {
 		return NULL;
 	}
 	return buf;
+}
+
+struct material *parseMaterial(const cJSON *data) {
+	cJSON *bsdf = NULL;
+	cJSON *IOR = NULL;
+	//cJSON *roughness = NULL;
+	cJSON *color = NULL;
+	cJSON *intensity = NULL;
+	
+	bool validColor = false;
+	bool validIOR = false;
+	//bool validRoughness = false;
+	bool validIntensity = false;
+	
+	double IORValue = 1.0;
+	//double roughnessValue;
+	struct color *colorValue = NULL;
+	double intensityValue = 1.0;
+	
+	struct material *mat = (struct material*)calloc(1, sizeof(struct material));
+	
+	color = cJSON_GetObjectItem(data, "color");
+	colorValue = parseColor(color);
+	if (colorValue != NULL) {
+		validColor = true;
+	}
+	
+	intensity = cJSON_GetObjectItem(data, "intensity");
+	if (cJSON_IsNumber(intensity)) {
+		validIntensity = true;
+		if (intensity->valuedouble >= 0) {
+			intensityValue = intensity->valuedouble;
+		} else {
+			intensityValue = 1.0;
+		}
+	}
+	
+	IOR = cJSON_GetObjectItem(data, "IOR");
+	if (cJSON_IsNumber(IOR)) {
+		validIOR = true;
+		if (IOR->valuedouble >= 0) {
+			IORValue = IOR->valuedouble;
+		} else {
+			IORValue = 1.0;
+		}
+	}
+	
+	bsdf = cJSON_GetObjectItem(data, "bsdf");
+	if (!cJSON_IsString(bsdf)) {
+		logr(warning, "No bsdf type given for material.");
+		logr(error, "Material data: %s\n", cJSON_Print(data));
+	}
+	
+	if (strcmp(bsdf->valuestring, "lambertian") == 0) {
+		mat->type = lambertian;
+		if (validColor) {
+			mat->diffuse = *colorValue;
+		} else {
+			logr(warning, "Lambertian shader defined, but no color given\n");
+			logr(error, "Material data: %s\n", cJSON_Print(data));
+		}
+	} else if (strcmp(bsdf->valuestring, "metal") == 0) {
+		mat->type = metal;
+		if (validColor) {
+			mat->diffuse = *colorValue;
+		} else {
+			logr(warning, "Metal shader defined, but no color given\n");
+			logr(error, "Material data: %s\n", cJSON_Print(data));
+		}
+	} else if (strcmp(bsdf->valuestring, "glass") == 0) {
+		mat->type = glass;
+		if (validColor) {
+			mat->diffuse = *colorValue;
+		} else {
+			logr(warning, "Metal shader defined, but no color given\n");
+			logr(error, "Material data: %s\n", cJSON_Print(data));
+		}
+		if (validIOR) {
+			mat->IOR = IORValue;
+		} else {
+			logr(warning, "Glass shader defined, but no IOR given\n");
+			logr(error, "Material data: %s\n", cJSON_Print(data));
+		}
+	} else if (strcmp(bsdf->valuestring, "emission") == 0) {
+		mat->type = emission;
+		if (validColor) {
+			mat->emission = *colorValue;
+		} else {
+			logr(warning, "Emission shader defined, but no color given\n");
+			logr(error, "Material data: %s\n", cJSON_Print(data));
+		}
+		if (validIntensity) {
+			mat->emission = colorCoef(intensityValue, &mat->emission);
+		} else {
+			logr(warning, "Emission shader defined, but no intensity given\n");
+			logr(error, "Material data: %s\n", cJSON_Print(data));
+		}
+	}
+	free(colorValue);
+	assignBSDF(mat);
+	return mat;
 }
 
 struct matrixTransform parseTransform(const cJSON *data) {
