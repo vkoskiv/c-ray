@@ -31,9 +31,11 @@ C-ray currently supports:
 - k-d tree acceleration structure for fast intersection checks even with millions of primitives
 - Antialiasing
 - Multi-sampling
+- Russian Roulette path optimization
 
 The default recursive path tracing algorithm supports:
 - metal
+- glass
 - lambertian diffuse
 - triangles and spheres
 - Depth of field
