@@ -132,7 +132,6 @@ void getKeyboardInput(struct renderer *r) {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
-			//const Uint8 *keys = SDL_GetKeyboardState(NULL);
 			if (event.key.keysym.sym == SDLK_s) {
 				logr(info, "Aborting render, saving...\n");
 				r->renderAborted = true;
@@ -238,21 +237,6 @@ void drawWindow(struct renderer *r) {
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
 	SDL_RenderPresent(r->mainDisplay->renderer);
 }
-
-/*
- struct display {
- SDL_Window *window;
- SDL_Renderer *renderer;
- SDL_Texture *texture;
- SDL_Texture *overlayTexture;
- bool isBorderless;
- bool isFullScreen;
- double windowScale;
- 
- int height;
- int width;
- };
- */
 
 void freeDisplay(struct display *disp) {
 	if (disp->window) {

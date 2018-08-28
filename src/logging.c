@@ -23,6 +23,11 @@
 #define KWHT  "\x1B[37m"
 
 void initTerminal() {
+	
+	//Disable output buffering
+	setbuf(stdout, NULL);
+	
+	//Configure Windows terminals to handle color escape codes
 	#ifdef WINDOWS
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (hOut != INVALID_HANDLE_VALUE) {
