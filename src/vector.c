@@ -84,7 +84,7 @@ struct vector vectorSubtract(const struct vector* v, double n) {
 
  @param v1 Vector 1
  @param v2 Vector 2
- @return Resulting vector
+ @return Resulting scalar
  */
 double scalarProduct(const struct vector *v1, const struct vector *v2) {
 	return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
