@@ -84,6 +84,7 @@ int initSDL(struct display *d) {
 	SDL_WindowFlags flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
 	if (d->isFullScreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	if (d->isBorderless) flags |= SDL_WINDOW_BORDERLESS;
+	flags |= SDL_WINDOW_RESIZABLE;
 	
 	d->window = SDL_CreateWindow("C-ray © VKoskiv 2015-2018",
 								 SDL_WINDOWPOS_UNDEFINED,
