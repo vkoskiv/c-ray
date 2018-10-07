@@ -15,9 +15,9 @@
 
 void addTransform(struct crayOBJ *obj, struct matrixTransform transform) {
 	if (obj->transformCount == 0) {
-		obj->transforms = (struct matrixTransform*)calloc(1, sizeof(struct matrixTransform));
+		obj->transforms = calloc(1, sizeof(struct matrixTransform));
 	} else {
-		obj->transforms = (struct matrixTransform*)realloc(obj->transforms, (obj->transformCount + 1) * sizeof(struct matrixTransform));
+		obj->transforms = realloc(obj->transforms, (obj->transformCount + 1) * sizeof(struct matrixTransform));
 	}
 	obj->transforms[obj->transformCount] = transform;
 	obj->transformCount++;

@@ -33,7 +33,7 @@ struct Array {
 };
 
 void initArray(struct Array *a, size_t initialSize) {
-	a->array = (int *)malloc(initialSize * sizeof(int));
+	a->array = malloc(initialSize * sizeof(int));
 	a->used = 0;
 	a->size = initialSize;
 }
@@ -43,7 +43,7 @@ void insertArray(struct Array *a, int element) {
 	// Therefore a->used can go up to a->size
 	if (a->used == a->size) {
 		a->size *= 2;
-		a->array = (int *)realloc(a->array, a->size * sizeof(int));
+		a->array = realloc(a->array, a->size * sizeof(int));
 	}
 	a->array[a->used++] = element;
 }
@@ -55,7 +55,7 @@ void freeArray(struct Array *a) {
 }
 
 struct kdTreeNode *getNewNode() {
-	struct kdTreeNode *node = (struct kdTreeNode*)calloc(1, sizeof(struct kdTreeNode));
+	struct kdTreeNode *node = calloc(1, sizeof(struct kdTreeNode));
 	node->bbox = NULL;
 	node->left = NULL;
 	node->right = NULL;
@@ -82,7 +82,7 @@ bool comparePolygons(struct poly *p1, struct poly *p2) {
 }
 
 struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
-	struct kdTreeNode *node = (struct kdTreeNode*)calloc(1, sizeof(struct kdTreeNode));
+	struct kdTreeNode *node = calloc(1, sizeof(struct kdTreeNode));
 	node->polygons = polygons;
 	node->polyCount = polyCount;
 	

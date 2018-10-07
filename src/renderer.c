@@ -261,21 +261,21 @@ DWORD WINAPI renderThread(LPVOID arg) {
 }
 	
 struct renderer *newRenderer() {
-	struct renderer *renderer = (struct renderer*)calloc(1, sizeof(struct renderer));
+	struct renderer *renderer = calloc(1, sizeof(struct renderer));
 	renderer->avgTileTime = (time_t)1;
 	renderer->timeSampleCount = 1;
 	renderer->mode = saveModeNormal;
-	renderer->image = (struct outputImage*)calloc(1, sizeof(struct outputImage));
+	renderer->image = calloc(1, sizeof(struct outputImage));
 	
-	renderer->scene = (struct world*)calloc(1, sizeof(struct world));
-	renderer->scene->camera = (struct camera*)calloc(1, sizeof(struct camera));
-	renderer->scene->ambientColor = (struct color*)calloc(1, sizeof(struct color));
-	renderer->scene->objs = (struct crayOBJ*)calloc(1, sizeof(struct crayOBJ));
-	renderer->scene->spheres = (struct sphere*)calloc(1, sizeof(struct sphere));
-	renderer->scene->materials = (struct material*)calloc(1, sizeof(struct material));
+	renderer->scene = calloc(1, sizeof(struct world));
+	renderer->scene->camera = calloc(1, sizeof(struct camera));
+	renderer->scene->ambientColor = calloc(1, sizeof(struct color));
+	renderer->scene->objs = calloc(1, sizeof(struct crayOBJ));
+	renderer->scene->spheres = calloc(1, sizeof(struct sphere));
+	renderer->scene->materials = calloc(1, sizeof(struct material));
 	
 #ifdef UI_ENABLED
-	renderer->mainDisplay = (struct display*)calloc(1, sizeof(struct display));
+	renderer->mainDisplay = calloc(1, sizeof(struct display));
 	renderer->mainDisplay->window = NULL;
 	renderer->mainDisplay->renderer = NULL;
 	renderer->mainDisplay->texture = NULL;

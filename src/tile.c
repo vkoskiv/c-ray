@@ -63,7 +63,7 @@ void quantizeImage(struct renderer *r) {
 	tilesX = (r->image->size.width % r->tileWidth) != 0 ? tilesX + 1: tilesX;
 	tilesY = (r->image->size.height % r->tileHeight) != 0 ? tilesY + 1: tilesY;
 	
-	r->renderTiles = (struct renderTile*)calloc(tilesX*tilesY, sizeof(struct renderTile));
+	r->renderTiles = calloc(tilesX*tilesY, sizeof(struct renderTile));
 	if (r->renderTiles == NULL) {
 		logr(error, "Failed to allocate renderTiles array.\n");
 	}
@@ -102,7 +102,7 @@ void quantizeImage(struct renderer *r) {
 void reorderTopToBottom(struct renderer *r) {
 	int endIndex = r->tileCount - 1;
 	
-	struct renderTile *tempArray = (struct renderTile*)calloc(r->tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = calloc(r->tileCount, sizeof(struct renderTile));
 	
 	for (int i = 0; i < r->tileCount; i++) {
 		tempArray[i] = r->renderTiles[endIndex--];
@@ -153,7 +153,7 @@ void reorderFromMiddle(struct renderer *r) {
 	midRight = ceil(r->tileCount / 2);
 	midLeft = midRight - 1;
 	
-	struct renderTile *tempArray = (struct renderTile*)calloc(r->tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = calloc(r->tileCount, sizeof(struct renderTile));
 	
 	for (int i = 0; i < r->tileCount; i++) {
 		if (isRight) {
@@ -180,7 +180,7 @@ void reorderToMiddle(struct renderer *r) {
 	
 	right = r->tileCount - 1;
 	
-	struct renderTile *tempArray = (struct renderTile*)calloc(r->tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = calloc(r->tileCount, sizeof(struct renderTile));
 	
 	for (int i = 0; i < r->tileCount; i++) {
 		if (isRight) {

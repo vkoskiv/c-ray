@@ -92,10 +92,10 @@ void freeGlobals() {
 }
 
 void prepareGlobals() {
-	vertexArray = (struct vector*)calloc(1, sizeof(struct vector));
-	normalArray = (struct vector*)calloc(1, sizeof(struct vector));
-	textureArray = (struct coord*)calloc(1, sizeof(struct coord));
-	polygonArray = (struct poly*)calloc(1, sizeof(struct poly));
+	vertexArray = calloc(1, sizeof(struct vector));
+	normalArray = calloc(1, sizeof(struct vector));
+	textureArray = calloc(1, sizeof(struct coord));
+	polygonArray = calloc(1, sizeof(struct poly));
 	
 	vertexCount = 0;
 	normalCount = 0;

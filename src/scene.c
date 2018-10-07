@@ -88,10 +88,10 @@ struct sphere *lastSphere(struct renderer *r) {
 }
 
 struct texture *newTexture(char *filePath) {
-	struct texture *newTexture = (struct texture*)calloc(1, sizeof(struct texture));
+	struct texture *newTexture = calloc(1, sizeof(struct texture));
 	newTexture->imgData = NULL;
-	newTexture->width = (unsigned int*)calloc(1, sizeof(unsigned int));
-	newTexture->height = (unsigned int*)calloc(1, sizeof(unsigned int));
+	newTexture->width = calloc(1, sizeof(unsigned int));
+	newTexture->height = calloc(1, sizeof(unsigned int));
 	
 	int err = lodepng_decode24_file(&newTexture->imgData, newTexture->width, newTexture->height, filePath);
 	if (err != 0) {
@@ -119,7 +119,7 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 	}
 	
 	//Create crayOBJ to keep track of objs
-	r->scene->objs = (struct crayOBJ*)realloc(r->scene->objs, (r->scene->objCount + 1) * sizeof(struct crayOBJ));
+	r->scene->objs = realloc(r->scene->objs, (r->scene->objCount + 1) * sizeof(struct crayOBJ));
 	//Vertex data
 	r->scene->objs[r->scene->objCount].firstVectorIndex = vertexCount;
 	r->scene->objs[r->scene->objCount].vertexCount = data.vertex_count;
@@ -134,7 +134,7 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 	r->scene->objs[r->scene->objCount].polyCount = data.face_count;
 	//Transforms init
 	r->scene->objs[r->scene->objCount].transformCount = 0;
-	r->scene->objs[r->scene->objCount].transforms = (struct matrixTransform*)malloc(sizeof(struct matrixTransform));
+	r->scene->objs[r->scene->objCount].transforms = malloc(sizeof(struct matrixTransform));
 	
 	r->scene->objs[r->scene->objCount].materialCount = 0;
 	//Set name
@@ -148,23 +148,23 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 	
 	//Data loaded, now convert everything
 	//Convert vectors
-	vertexArray = (struct vector*)realloc(vertexArray, vertexCount * sizeof(struct vector));
+	vertexArray = realloc(vertexArray, vertexCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_count; i++) {
 		vertexArray[r->scene->objs[r->scene->objCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
 	}
 	
 	//Convert normals
-	normalArray = (struct vector*)realloc(normalArray, normalCount * sizeof(struct vector));
+	normalArray = realloc(normalArray, normalCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_normal_count; i++) {
 		normalArray[r->scene->objs[r->scene->objCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture vectors
-	textureArray = (struct coord*)realloc(textureArray, textureCount * sizeof(struct coord));
+	textureArray = realloc(textureArray, textureCount * sizeof(struct coord));
 	for (int i = 0; i < data.vertex_texture_count; i++) {
 		textureArray[r->scene->objs[r->scene->objCount].firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
-	polygonArray = (struct poly*)realloc(polygonArray, polyCount * sizeof(struct poly));
+	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
 	for (int i = 0; i < data.face_count; i++) {
 		polygonArray[r->scene->objs[r->scene->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
 																							r->scene->objs[r->scene->objCount].firstVectorIndex,
@@ -173,11 +173,11 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 																							r->scene->objs[r->scene->objCount].firstPolyIndex + i);
 	}
 	
-	r->scene->objs[r->scene->objCount].materials = (struct material*)calloc(1, sizeof(struct material));
+	r->scene->objs[r->scene->objCount].materials = calloc(1, sizeof(struct material));
 	//Parse materials
 	if (data.material_count == 0) {
 		//No material, set to something obscene to make it noticeable
-		r->scene->objs[r->scene->objCount].materials = (struct material*)calloc(1, sizeof(struct material));
+		r->scene->objs[r->scene->objCount].materials = calloc(1, sizeof(struct material));
 		*r->scene->objs[r->scene->objCount].materials = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
 	} else {
 		//Loop to add materials to obj (We already set the material indices in polyFromObj)
@@ -200,22 +200,22 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 //FIXME: change + 1 to ++scene->someCount and just pass the count to array access
 //In the future, maybe just pass a list and size and copy at once to save time (large counts)
 void addSphere(struct world *scene, struct sphere newSphere) {
-	scene->spheres = (struct sphere*)realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(struct sphere));
+	scene->spheres = realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(struct sphere));
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
 void addMaterial(struct world *scene, struct material newMaterial) {
-	scene->materials = (struct material*)realloc(scene->materials, (scene->materialCount + 1) * sizeof(struct material));
+	scene->materials = realloc(scene->materials, (scene->materialCount + 1) * sizeof(struct material));
 	scene->materials[scene->materialCount++] = newMaterial;
 }
 
 void addMaterialOBJ(struct crayOBJ *obj, struct material newMaterial) {
-	obj->materials = (struct material*)realloc(obj->materials, (obj->materialCount + 1) * sizeof(struct material));
+	obj->materials = realloc(obj->materials, (obj->materialCount + 1) * sizeof(struct material));
 	obj->materials[obj->materialCount++] = newMaterial;
 }
 
 void addLight(struct world *scene, struct sphere newLight) {
-	scene->spheres = (struct sphere*)realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(struct sphere));
+	scene->spheres = realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(struct sphere));
 	scene->spheres[scene->sphereCount++] = newLight;
 	scene->lightCount++;
 }
@@ -230,7 +230,7 @@ void transformMeshes(struct world *scene) {
 void computeKDTrees(struct world *scene) {
 	logr(info, "Computing KD-trees...\n");
 	for (int i = 0; i < scene->objCount; ++i) {
-		int *polys = (int*)calloc(scene->objs[i].polyCount, sizeof(int));
+		int *polys = calloc(scene->objs[i].polyCount, sizeof(int));
 		for (int j = 0; j < scene->objs[i].polyCount; j++) {
 			polys[j] = scene->objs[i].firstPolyIndex + j;
 		}
@@ -240,9 +240,9 @@ void computeKDTrees(struct world *scene) {
 
 void addCamTransform(struct camera *cam, struct matrixTransform transform) {
 	if (cam->transformCount == 0) {
-		cam->transforms = (struct matrixTransform*)calloc(1, sizeof(struct matrixTransform));
+		cam->transforms = calloc(1, sizeof(struct matrixTransform));
 	} else {
-		cam->transforms = (struct matrixTransform*)realloc(cam->transforms, (cam->transformCount + 1) * sizeof(struct matrixTransform));
+		cam->transforms = realloc(cam->transforms, (cam->transformCount + 1) * sizeof(struct matrixTransform));
 	}
 	
 	cam->transforms[cam->transformCount] = transform;
@@ -300,7 +300,7 @@ struct material *parseMaterial(const cJSON *data) {
 	struct color *colorValue = NULL;
 	double intensityValue = 1.0;
 	
-	struct material *mat = (struct material*)calloc(1, sizeof(struct material));
+	struct material *mat = calloc(1, sizeof(struct material));
 	
 	color = cJSON_GetObjectItem(data, "color");
 	colorValue = parseColor(color);
@@ -469,7 +469,7 @@ struct matrixTransform parseTransform(const cJSON *data) {
 struct matrixTransform *parseTransforms(const cJSON *data) {
 	
 	int transformCount = cJSON_GetArraySize(data);
-	struct matrixTransform *transforms = (struct matrixTransform*)calloc(transformCount, sizeof(struct matrixTransform));
+	struct matrixTransform *transforms = calloc(transformCount, sizeof(struct matrixTransform));
 	
 	cJSON *transform = NULL;
 	
@@ -644,7 +644,7 @@ struct color *parseColor(const cJSON *data) {
 	const cJSON *B = NULL;
 	const cJSON *A = NULL;
 	
-	struct color *newColor = (struct color*)calloc(1, sizeof(struct color));
+	struct color *newColor = calloc(1, sizeof(struct color));
 	
 	R = cJSON_GetObjectItem(data, "r");
 	if (R != NULL && cJSON_IsNumber(R)) {
@@ -1111,9 +1111,9 @@ void loadScene(struct renderer *r, char *filename) {
 	printSceneStats(r->scene);
 	
 	//Alloc threadPaused booleans, one for each thread
-	r->threadPaused = (bool*)calloc(r->threadCount, sizeof(bool));
+	r->threadPaused = calloc(r->threadCount, sizeof(bool));
 	//Alloc timers, one for each thread
-	r->timers = (struct timeval*)calloc(r->threadCount, sizeof(struct timeval));
+	r->timers = calloc(r->threadCount, sizeof(struct timeval));
 	
 	//Quantize image into renderTiles
 	quantizeImage(r);
@@ -1122,20 +1122,20 @@ void loadScene(struct renderer *r, char *filename) {
 	computeFocalLength(r);
 	
 	//Allocate memory and create array of pixels for image data
-	r->image->data = (unsigned char*)calloc(3 * r->image->size.width * r->image->size.height, sizeof(unsigned char));
+	r->image->data = calloc(3 * r->image->size.width * r->image->size.height, sizeof(unsigned char));
 	if (!r->image->data) {
 		logr(error, "Failed to allocate memory for image data.");
 	}
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
-	r->renderBuffer = (double*)calloc(3 * r->image->size.width * r->image->size.height, sizeof(double));
+	r->renderBuffer = calloc(3 * r->image->size.width * r->image->size.height, sizeof(double));
 	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
-	r->uiBuffer = (unsigned char*)calloc(4 * r->image->size.width * r->image->size.height, sizeof(unsigned char));
+	r->uiBuffer = calloc(4 * r->image->size.width * r->image->size.height, sizeof(unsigned char));
 	
 	//Alloc memory for pthread_create() args
-	r->renderThreadInfo = (struct threadInfo*)calloc(r->threadCount, sizeof(struct threadInfo));
+	r->renderThreadInfo = calloc(r->threadCount, sizeof(struct threadInfo));
 	if (r->renderThreadInfo == NULL) {
 		logr(error, "Failed to allocate memory for threadInfo args.\n");
 	}
@@ -1151,7 +1151,7 @@ void loadScene(struct renderer *r, char *filename) {
 
 //Copies source over to the destination pointer.
 void copyString(const char *source, char **destination) {
-	*destination = (char*)malloc(strlen(source) + 1);
+	*destination = malloc(strlen(source) + 1);
 	strcpy(*destination, source);
 }
 
