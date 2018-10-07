@@ -16,7 +16,7 @@ enum logType {
 	warning
 };
 
-void initTerminal();
+void initTerminal(void);
 
 void logr(enum logType type, const char *fmt, ...);
 
