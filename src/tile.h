@@ -8,7 +8,9 @@
 
 #pragma once
 
+struct image;
 struct renderer;
+enum renderOrder;
 
 /**
  Render tile, contains needed information for the renderer
@@ -23,6 +25,7 @@ struct renderTile {
 	int tileNum;
 };
 
-void quantizeImage(struct renderer *renderer);
+int quantizeImage(struct renderTile **renderTiles, struct image *image, int tileWidth, int tileHeight);
+void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder);
 
 struct renderTile getTile(struct renderer *r);

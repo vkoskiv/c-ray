@@ -13,8 +13,6 @@
 #include "logging.h"
 #include "filehandler.h"
 
-void reorderTiles(struct renderer *r);
-
 /**
  Gets the next tile from renderTiles in mainRenderer
  
@@ -47,69 +45,70 @@ struct renderTile getTile(struct renderer *r) {
  
  @param scene scene object
  */
-void quantizeImage(struct renderer *r) {
+
+int quantizeImage(struct renderTile **renderTiles, struct image *image, int tileWidth, int tileHeight) {
 	
 	logr(info, "Quantizing render plane...\n");
 	
 	//Sanity check on tilesizes
-	if (r->tileWidth >= r->image->size.width) r->tileWidth = r->image->size.width;
-	if (r->tileHeight >= r->image->size.height) r->tileHeight = r->image->size.height;
-	if (r->tileWidth <= 0) r->tileWidth = 1;
-	if (r->tileHeight <= 0) r->tileHeight = 1;
+	if (tileWidth >= image->size.width) tileWidth = image->size.width;
+	if (tileHeight >= image->size.height) tileHeight = image->size.height;
+	if (tileWidth <= 0) tileWidth = 1;
+	if (tileHeight <= 0) tileHeight = 1;
 	
-	int tilesX = r->image->size.width / r->tileWidth;
-	int tilesY = r->image->size.height / r->tileHeight;
+	int tilesX = image->size.width / tileWidth;
+	int tilesY = image->size.height / tileHeight;
 	
-	tilesX = (r->image->size.width % r->tileWidth) != 0 ? tilesX + 1: tilesX;
-	tilesY = (r->image->size.height % r->tileHeight) != 0 ? tilesY + 1: tilesY;
+	tilesX = (image->size.width % tileWidth) != 0 ? tilesX + 1: tilesX;
+	tilesY = (image->size.height % tileHeight) != 0 ? tilesY + 1: tilesY;
 	
-	r->renderTiles = calloc(tilesX*tilesY, sizeof(struct renderTile));
-	if (r->renderTiles == NULL) {
+	*renderTiles = calloc(tilesX*tilesY, sizeof(struct renderTile));
+	if (*renderTiles == NULL) {
 		logr(error, "Failed to allocate renderTiles array.\n");
 	}
 	
+	int tileCount = 0;
 	for (int y = 0; y < tilesY; y++) {
 		for (int x = 0; x < tilesX; x++) {
-			struct renderTile *tile = &r->renderTiles[x + y*tilesX];
-			tile->width  = r->tileWidth;
-			tile->height = r->tileHeight;
+			struct renderTile *tile = &(*renderTiles)[x + y*tilesX];
+			tile->width  = tileWidth;
+			tile->height = tileHeight;
 			
-			tile->begin.x = x       * r->tileWidth;
-			tile->end.x   = (x + 1) * r->tileWidth;
+			tile->begin.x = x       * tileWidth;
+			tile->end.x   = (x + 1) * tileWidth;
 			
-			tile->begin.y = y       * r->tileHeight;
-			tile->end.y   = (y + 1) * r->tileHeight;
+			tile->begin.y = y       * tileHeight;
+			tile->end.y   = (y + 1) * tileHeight;
 			
-			tile->end.x = min((x + 1) * r->tileWidth, r->image->size.width);
-			tile->end.y = min((y + 1) * r->tileHeight, r->image->size.height);
+			tile->end.x = min((x + 1) * tileWidth, image->size.width);
+			tile->end.y = min((y + 1) * tileHeight, image->size.height);
 			
 			//Samples have to start at 1, so the running average works
 			tile->completedSamples = 1;
 			tile->isRendering = false;
-			tile->tileNum = r->tileCount;
-			
-			r->tileCount++;
+			tile->tileNum = tileCount;
+			tileCount++;
 		}
 	}
-	logr(info, "Quantized image into %i tiles. (%ix%i)\n", (tilesX*tilesY), tilesX, tilesY);
+	logr(info, "Quantized image into %i tiles. (%ix%i)\n", tileCount, tilesX, tilesY);
 	
-	reorderTiles(r);
+	return tileCount;
 }
 
 /**
  Reorder renderTiles to start from top
  */
-void reorderTopToBottom(struct renderer *r) {
-	int endIndex = r->tileCount - 1;
+void reorderTopToBottom(struct renderTile **tiles, int tileCount) {
+	int endIndex = tileCount - 1;
 	
-	struct renderTile *tempArray = calloc(r->tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < r->tileCount; i++) {
-		tempArray[i] = r->renderTiles[endIndex--];
+	for (int i = 0; i < tileCount; i++) {
+		tempArray[i] = (*tiles)[endIndex--];
 	}
 	
-	free(r->renderTiles);
-	r->renderTiles = tempArray;
+	free(*tiles);
+	*tiles = tempArray;
 }
 
 unsigned int rand_interval(unsigned int min, unsigned int max) {
@@ -132,68 +131,67 @@ unsigned int rand_interval(unsigned int min, unsigned int max) {
 /**
  Shuffle renderTiles into a random order
  */
-void reorderRandom(struct renderer *r) {
-	for (int i = 0; i < r->tileCount; i++) {
-		unsigned int random = rand_interval(0, r->tileCount - 1);
+void reorderRandom(struct renderTile **tiles, int tileCount) {
+	for (int i = 0; i < tileCount; i++) {
+		unsigned int random = rand_interval(0, tileCount - 1);
 		
-		struct renderTile temp = r->renderTiles[i];
-		r->renderTiles[i] = r->renderTiles[random];
-		r->renderTiles[random] = temp;
+		struct renderTile temp = (*tiles)[i];
+		(*tiles)[i] = (*tiles)[random];
+		(*tiles)[random] = temp;
 	}
 }
 
 /**
  Reorder renderTiles to start from middle
  */
-void reorderFromMiddle(struct renderer *r) {
+void reorderFromMiddle(struct renderTile **tiles, int tileCount) {
 	int midLeft = 0;
 	int midRight = 0;
 	bool isRight = true;
 	
-	midRight = ceil(r->tileCount / 2);
+	midRight = ceil(tileCount / 2);
 	midLeft = midRight - 1;
 	
-	struct renderTile *tempArray = calloc(r->tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < r->tileCount; i++) {
+	for (int i = 0; i < tileCount; i++) {
 		if (isRight) {
-			tempArray[i] = r->renderTiles[midRight++];
+			tempArray[i] = (*tiles)[midRight++];
 			isRight = false;
 		} else {
-			tempArray[i] = r->renderTiles[midLeft--];
+			tempArray[i] = (*tiles)[midLeft--];
 			isRight = true;
 		}
 	}
 	
-	free(r->renderTiles);
-	r->renderTiles = tempArray;
+	free(*tiles);
+	*tiles = tempArray;
 }
-
 
 /**
  Reorder renderTiles to start from ends, towards the middle
  */
-void reorderToMiddle(struct renderer *r) {
+void reorderToMiddle(struct renderTile **tiles, int tileCount) {
 	int left = 0;
 	int right = 0;
 	bool isRight = true;
 	
-	right = r->tileCount - 1;
+	right = tileCount - 1;
 	
-	struct renderTile *tempArray = calloc(r->tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < r->tileCount; i++) {
+	for (int i = 0; i < tileCount; i++) {
 		if (isRight) {
-			tempArray[i] = r->renderTiles[right--];
+			tempArray[i] = (*tiles)[right--];
 			isRight = false;
 		} else {
-			tempArray[i] = r->renderTiles[left++];
+			tempArray[i] = (*tiles)[left++];
 			isRight = true;
 		}
 	}
 	
-	free(r->renderTiles);
-	r->renderTiles = tempArray;
+	free(*tiles);
+	*tiles = tempArray;
 }
 
 /**
@@ -201,27 +199,19 @@ void reorderToMiddle(struct renderer *r) {
  
  @param order Render order to be applied
  */
-void reorderTiles(struct renderer *r) {
-	switch (r->tileOrder) {
+void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder) {
+	switch (tileOrder) {
 		case renderOrderFromMiddle:
-		{
-			reorderFromMiddle(r);
-		}
+			reorderFromMiddle(tiles, tileCount);
 			break;
 		case renderOrderToMiddle:
-		{
-			reorderToMiddle(r);
-		}
+			reorderToMiddle(tiles, tileCount);
 			break;
 		case renderOrderTopToBottom:
-		{
-			reorderTopToBottom(r);
-		}
+			reorderTopToBottom(tiles, tileCount);
 			break;
 		case renderOrderRandom:
-		{
-			reorderRandom(r);
-		}
+			reorderRandom(tiles, tileCount);
 			break;
 		default:
 			break;

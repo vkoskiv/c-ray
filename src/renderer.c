@@ -265,7 +265,7 @@ struct renderer *newRenderer() {
 	renderer->avgTileTime = (time_t)1;
 	renderer->timeSampleCount = 1;
 	renderer->mode = saveModeNormal;
-	renderer->image = calloc(1, sizeof(struct outputImage));
+	renderer->image = calloc(1, sizeof(struct image));
 	
 	renderer->scene = calloc(1, sizeof(struct world));
 	renderer->scene->camera = calloc(1, sizeof(struct camera));

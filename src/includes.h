@@ -35,6 +35,7 @@
 #include <math.h>
 #include <signal.h>
 #include <string.h>
+#include <unistd.h>
 
 #ifndef WINDOWS
 #include <sys/time.h> //for gettimeofday()

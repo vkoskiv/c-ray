@@ -46,6 +46,7 @@ struct lightRay;
 struct intersection;
 struct color;
 
+//FIXME: Ditch texture and just use image instead
 struct texture {
 	unsigned char *imgData;
 	//These are unsigned and pointers because lodePNG.

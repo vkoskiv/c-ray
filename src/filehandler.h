@@ -21,7 +21,7 @@ struct dimensions {
 	int width;
 };
 
-struct outputImage {
+struct image {
 	struct dimensions size;
 	enum fileType fileType;
 	char *filePath;
@@ -33,7 +33,15 @@ struct outputImage {
 //Prints the file size of a given file to the console in a user-readable format
 void printFileSize(char *fileName);
 
+size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
+char *loadFile(char *filePath);
+
+struct image *loadImage(char *filePath);
+
 //Writes image data to file
 void writeImage(struct renderer *r);
 
-void freeImage(struct outputImage *image);
+void freeImage(struct image *image);
+
+void copyString(const char *source, char **destination);
+char *getFileName(char *input);
