@@ -15,6 +15,9 @@
 #include "renderer.h"
 #include "scene.h"
 #include "ui.h"
+#include "denoiser.h"
+#include "Tinn.h"
+#include "learn.h"
 
 int getFileSize(char *fileName);
 void initRenderer(struct renderer *renderer);
@@ -37,6 +40,12 @@ int main(int argc, char *argv[]) {
 #ifndef WINDOWS
 	srand48(time(NULL));
 #endif
+	
+	//Temporary
+	if (false) {
+		study();
+		return 0;
+	}
 	
 	initTerminal();
 	
@@ -62,8 +71,14 @@ int main(int argc, char *argv[]) {
 	
 	time_t start, stop;
 	
+	//TODO: Get from config
+	bool denoiser = false;
+	
 	time(&start);
 	render(mainRenderer);
+	if (denoiser) {
+		denoise(mainRenderer);
+	}
 	time(&stop);
 	
 	printDuration(difftime(stop, start));

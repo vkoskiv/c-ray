@@ -200,19 +200,151 @@ void createModel(char *filePath) {
 	saveModel(model, filePath);
 }
 
-void tileToTrainingData(struct renderTile *tile) {
+void allocMatrix(float ****data, int width, int height, int depth) {
+	(*data) = (float ***)calloc(depth, sizeof(float ***));
+	
+	for (int d = 0; d < depth; d++) {
+		(*data)[d] = (float **)calloc(width, sizeof(float **));
+		for (int r = 0; r < height; r++) {
+			(*data)[d][r] = (float*)calloc(height, sizeof(float *));
+		}
+	}
+}
+
+void deallocMatrix(float ****data, int width, int height, int depth) {
+	for (int d = 0; d < depth; d++) {
+		for (int r = 0; r < height; r++) {
+			free((*data)[d][r]);
+		}
+		free((*data)[d]);
+	}
+	free((*data));
+}
+
+//FIXME: Temporarily here
+struct color getPixelFromBuffer(struct image *i, int x, int y) {
+	struct color output = {0.0, 0.0, 0.0, 0.0};
+	//TODO: convert unsigned char -> double
+	output.red = (i->data[(x + (i->size.height - y) * i->size.width)*3 + 0]) / 255.0;
+	output.green = (i->data[(x + (i->size.height - y) * i->size.width)*3 + 1]) / 255.0;
+	output.blue = (i->data[(x + (i->size.height - y) * i->size.width)*3 + 2]) / 255.0;
+	output.alpha = 1.0;
+	return output;
+}
+
+struct data *loadTrainingData(struct image *low, struct renderTile *lowTile, struct image *high, struct renderTile *highTile, int nips, int nops, int nhid) {
 	//Loop thru tile, grab pixels, convert to floats and shove into training dataset
+	struct data *new = calloc(1, sizeof(struct data));
+	
+	new->nips = nips;
+	new->nops = nops;
+	new->source = NULL;
+	new->target = NULL;
+	
+	//3d matrices for training data
+	allocMatrix(&new->source, lowTile->width, lowTile->height, 3);
+	allocMatrix(&new->target, highTile->width, highTile->height, 3);
+	
+	//Now load image data for all color channels
+	//Source
+	for (int x = 0; x < lowTile->width; x++) {
+		for (int y = 0; y < lowTile->height; y++) {
+			struct color px = getPixelFromBuffer(low, x, y);
+			//TODO: Convert double -> float
+			new->source[0][x][y] = px.red;
+			new->source[1][x][y] = px.green;
+			new->source[2][x][y] = px.blue;
+		}
+	}
+	
+	//Target
+	for (int x = 0; x < highTile->width; x++) {
+		for (int y = 0; y < highTile->height; y++) {
+			struct color px =  getPixelFromBuffer(high, x, y);
+			new->target[0][x][y] = px.red;
+			new->target[1][x][y] = px.green;
+			new->target[2][x][y] = px.blue;
+		}
+	}
+	
+	return new;
+}
+
+//TODO: Consider having an image module, image.c
+
+void freeDataset(struct data *d) {
+	deallocMatrix(&d->source, 16, 16, 3);
+	deallocMatrix(&d->target, 16, 16, 3);
+}
+
+//Convert 2D array of grayscale img data to a 1D array. Append each row in.
+float *matrixToArray(float ***data, int width, int height) {
+	float *arr = (float *)calloc(width*height, sizeof(float));
+	
+	//output.red = i->data[(x + (i->size.height - y) * i->size.width)*3 + 0];
+	
+	/*for (int y = 0; y < height; y++) {
+		for (int x = 0; x < height; x++) {
+			arr[(x + (height - y) * width)] = (*data)[x][y];
+		}
+	}*/
+	
+	int k = 0;
+	
+	for (int x = 0; x < width; x++) {
+		for (int y = 0; y < height; y++) {
+			arr[k++] = (*data)[x][y];
+		}
+	}
+	return arr;
 }
 
 void study() {
 	struct model *m = loadModel("./models/model.json");
 	
 	struct image *low = loadImage("./models/examples/0low.png");
-	struct renderTile *lowTiles;
+	struct renderTile *lowTiles = NULL;
+	int lowTilesCount = quantizeImage(&lowTiles, low, 16, 16);
 	
 	struct image *high = loadImage("./models/examples/0.png");
-	struct renderTile *highTiles;
+	struct renderTile *highTiles = NULL;
+	int highTilesCount = quantizeImage(&highTiles, high, 16, 16);
 	
+	//Sanity check. These should be the same
+	if (lowTilesCount != highTilesCount) {
+		logr(error, "Quantization of images resulted in tile count mismatch. Please verify the source images have matching dimensions\n");
+	}
+	
+	
+	struct data *dataset = NULL;
+	//Learning params
+	float rate = 1.0f;
+	const float annealRate = 0.99f;
+	
+	for (int i = 0; i < lowTilesCount; i++) {
+		dataset = loadTrainingData(low, &lowTiles[i], high, &highTiles[i], m->nips, m->nops, m->nhid);
+		
+		float error = 0.0f;
+		
+		//Train
+		
+		for (int channel = 0; channel < 3; channel++) {
+			float *lowData = matrixToArray(&dataset->source[channel], low->size.width, low->size.height);
+			float *highData = matrixToArray(&dataset->target[channel], high->size.width, high->size.height);
+			
+			error += xttrain(m->network, lowData, highData, rate);
+		}
+		
+		printf("Training error rate: %.12f :: Learning rate %f\n", (double)error/3, (double)rate);
+		rate *= annealRate;
+		
+		freeDataset(dataset);
+	}
+	
+	
+	freeImage(low);
+	freeImage(high);
+
 }
 
 //To be used while rendering

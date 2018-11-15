@@ -20,8 +20,13 @@ struct model {
 	Tinn network;
 };
 
-struct trainingTile {
-	float *vals;
+struct data {
+	//3D matrices. 3x 2D tile.
+	float ***source;
+	float ***target;
+	
+	int nips;
+	int nops;
 };
 
 void study(void);
