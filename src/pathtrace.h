@@ -1,9 +1,9 @@
 //
 //  pathtrace.h
-//  C-Ray
+//  C-ray
 //
 //  Created by Valtteri Koskivuori on 27/04/2017.
-//  Copyright © 2017 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2018 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once

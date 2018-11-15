@@ -1,9 +1,9 @@
 //
 //  vector.c
-//  C-Ray
+//  C-ray
 //
-//  Created by Valtteri Koskivuori on 28/02/15.
-//  Copyright (c) 2015-2018 Valtteri Koskivuori. All rights reserved.
+//  Created by Valtteri Koskivuori on 28/02/2015.
+//  Copyright © 2015-2018 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "includes.h"

@@ -1,9 +1,9 @@
 //
 //  converter.c
-//  C-Ray
+//  C-ray
 //
 //  Created by Valtteri Koskivuori on 18/08/2017.
-//  Copyright © 2017 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2018 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "includes.h"

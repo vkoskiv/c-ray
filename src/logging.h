@@ -1,9 +1,9 @@
 //
 //  logging.h
-//  C-Ray
+//  C-ray
 //
-//  Created by Valtteri Koskivuori on 14/09/15.
-//  Copyright (c) 2015-2018 Valtteri Koskivuori. All rights reserved.
+//  Created by Valtteri Koskivuori on 14/09/2015.
+//  Copyright © 2015-2018 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
