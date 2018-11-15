@@ -191,7 +191,8 @@ struct coord uvFromValues(double u, double v) {
  @return Random double between min and max
  */
 double getRandomDouble(double min, double max) {
-	return ((((double)rand()) / (double)RAND_MAX) * (max - min)) + min;
+	unsigned int seed = time(NULL);
+	return ((((double)rand_r(&seed)) / (double)RAND_MAX) * (max - min)) + min;
 }
 
 /**
