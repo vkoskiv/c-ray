@@ -94,7 +94,6 @@ void printFileSize(char *fileName) {
 	//This will work for all image formats
 	long bytes, kilobytes, megabytes, gigabytes, terabytes; // <- Futureproofing?!
 	bytes = getFileSize(fileName);
-	if (fileName) free(fileName);
 	kilobytes = bytes / 1000;
 	megabytes = kilobytes / 1000;
 	gigabytes = megabytes / 1000;
@@ -111,7 +110,6 @@ void printFileSize(char *fileName) {
 	} else {
 		logr(info, "Wrote %ldB to file.\n", bytes);
 	}
-	
 }
 
 void writeImage(struct renderer *r) {
@@ -138,6 +136,14 @@ void writeImage(struct renderer *r) {
 				encodePNGFromArray(buf, r->image->data, r->image->size.width, r->image->size.height);
 			}
 			printFileSize(buf);
+#ifdef __APPLE__
+			//If on macOS, we can run the `open` command to display the finished render using Preview.app
+			char *buf2 = calloc(bufSize + 20, sizeof(char));
+			sprintf(buf2, "open %s", buf);
+			system(buf2);
+			free(buf2);
+#endif
+			free(buf);
 		}
 		break;
 		case saveModeNone:
