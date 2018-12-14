@@ -44,16 +44,12 @@ int main(int argc, char *argv[]) {
 	//Initialize renderer
 	struct renderer *mainRenderer = newRenderer();
 	
-	char *fileName = NULL;
-	//Build the scene
+	//Load the scene and prepare renderer
 	if (argc == 2) {
-		fileName = argv[1];
+		loadScene(mainRenderer, argv[1]);
 	} else {
 		logr(error, "Invalid input file path.\n");
 	}
-	
-	//Load the scene and prepare renderer
-	loadScene(mainRenderer, fileName);
 	
 	//Initialize SDL display, if available
 #ifdef UI_ENABLED
