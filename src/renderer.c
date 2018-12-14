@@ -97,7 +97,7 @@ void render(struct renderer *r) {
 		if (r->threadPaused[0]) {
 			sleepMSec(800);
 		} else {
-			sleepMSec(100);
+			sleepMSec(16);
 		}
 	}
 	
