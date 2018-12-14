@@ -32,7 +32,7 @@ if (MSVC)
 else()
 	set(CMAKE_C_FLAGS "-Wall -std=gnu99")
 	set(CMAKE_C_FLAGS_DEBUG "-fsanitize=address,undefined -O0 -g")
-	set(CMAKE_C_FLAGS_RELEASE "-O3")
+	set(CMAKE_C_FLAGS_RELEASE "-Ofast")
 endif()
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
