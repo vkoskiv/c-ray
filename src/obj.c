@@ -12,6 +12,47 @@
 #include "bbox.h"
 #include "kdtree.h"
 
+/*
+ struct crayOBJ {
+ //Vertices
+ int vertexCount;
+ int firstVectorIndex;
+ 
+ //Normals
+ int normalCount;
+ int firstNormalIndex;
+ 
+ //Texture coordinates
+ int textureCount;
+ int firstTextureIndex;
+ 
+ //Faces
+ int polyCount;
+ int firstPolyIndex;
+ 
+ //Transforms to perform before rendering
+ int transformCount;
+ struct matrixTransform *transforms;
+ 
+ //Materials
+ int materialCount;
+ struct material *materials;
+ 
+ //Root node of the kd-tree for this obj
+ struct kdTreeNode *tree;
+ 
+ char *objName;
+ };
+ */
+
+//Parse given .obj and .mtl and return a crayOBJ
+struct crayOBJ *parseOBJFile(char *fileName) {
+	struct crayOBJ *obj = calloc(1, sizeof(struct crayOBJ));
+	
+	
+	
+	return obj;
+}
 
 void addTransform(struct crayOBJ *obj, struct matrixTransform transform) {
 	if (obj->transformCount == 0) {
