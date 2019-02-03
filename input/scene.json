@@ -140,7 +140,7 @@
 		],
 		"OBJs": [
 			{
-				"fileName": "tonni.objdisabled",
+				"fileName": "tonni.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{
@@ -152,9 +152,17 @@
 						"degrees": 90
 					},
 					{
+						"type": "rotateY",
+						"degrees": 180
+					},
+					{
+						"type": "rotateZ",
+						"degrees": 180
+					},
+					{
 						"type": "translate",
-						"x": 1170,
-						"y": 350,
+						"x": 1100,
+						"y": 360,
 						"z": 1050
 				 	}
 				]

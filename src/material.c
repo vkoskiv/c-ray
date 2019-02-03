@@ -78,18 +78,85 @@ void assignBSDF(struct material *mat) {
 	}
 }
 
-struct color colorForUV(struct material mtl, struct coord uv) {
-	struct color output = {0.0, 0.0, 0.0, 0.0};
-	//We need to combine the given uv, material texture coordinates, and magic to resolve this color.
+//Transform the intersection coordinates to the texture coordinate space
+//And grab the color at that point. Texture mapping.
+struct color colorForUV(struct intersection *isect) {
+	struct color output = {0.0,0.0,0.0,0.0};
+	struct material mtl = isect->end;
+	struct poly p = polygonArray[isect->polyIndex];
 	
-	int x = (int)uv.x;
-	int y = (int)uv.y;
+	//Texture width and height for this material
+	double width = *mtl.texture->width;
+	double heigh = *mtl.texture->height;
 	
-	output.red = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 0];
-	output.green = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 1];
-	output.blue = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 2];
+	//barycentric coordinates for this polygon
+	double u = isect->uv.x;
+	double v = isect->uv.y;
+	double w = 1.0 - u - v; //1.0 - u - v
+	
+	//Weighted texture coordinates
+	struct coord ucomponent = coordScale(u, &textureArray[p.textureIndex[1]]);
+	struct coord vcomponent = coordScale(v, &textureArray[p.textureIndex[2]]);
+	struct coord wcomponent = coordScale(w,	&textureArray[p.textureIndex[0]]);
+	
+	// textureXY = u * v1tex + v * v2tex + w * v3tex
+	struct coord temp = addCoords(&ucomponent, &vcomponent);
+	struct coord textureXY = addCoords(&temp, &wcomponent);
+	
+	//Final integer X Y texture pixel coords
+	int x = (int)(textureXY.x*(width)) + 1;
+	int y = (int)(textureXY.y*(heigh)) + 1;
+	
+	//Get the color value at these XY coordinates
+	//These need to be normalized from 0-255 to 0-1 double (just divide by 255.0)
+	output.red = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 0] / 255.0;
+	output.green = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 1] / 255.0;
+	output.blue = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 2] / 255.0;
+	
+	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
+	//FIXME: Maybe ask lodepng if we actually need to do this transform
+	output = fromSRGB(output);
 	
 	return output;
+}
+
+//FIXME: Make this configurable
+//This is a checkerboard pattern mapped to the surface coordinate space
+struct color mappedCheckerBoard(struct intersection *isect, float coef) {
+	struct poly p = polygonArray[isect->polyIndex];
+	
+	//barycentric coordinates for this polygon
+	double u = isect->uv.x;
+	double v = isect->uv.y;
+	double w = 1.0 - u - v; //1.0 - u - v
+	
+	//Weighted coordinates
+	struct coord ucomponent = coordScale(u, &textureArray[p.textureIndex[1]]);
+	struct coord vcomponent = coordScale(v, &textureArray[p.textureIndex[2]]);
+	struct coord wcomponent = coordScale(w,	&textureArray[p.textureIndex[0]]);
+	
+	// textureXY = u * v1tex + v * v2tex + w * v3tex
+	struct coord temp = addCoords(&ucomponent, &vcomponent);
+	struct coord surfaceXY = addCoords(&temp, &wcomponent);
+	
+	float sines = sin(coef*surfaceXY.x) * sin(coef*surfaceXY.y);
+	
+	if (sines < 0) {
+		return (struct color){0.4, 0.4, 0.4, 0.0};
+	} else {
+		return (struct color){1.0, 1.0, 1.0, 0.0};
+	}
+}
+
+//FIXME: Make this configurable
+//This is a spatial checkerboard, mapped to the world coordinate space (always axis aligned)
+struct color checkerBoard(struct intersection *isect, float coef) {
+	float sines = sin(coef*isect->hitPoint.x) * sin(coef*isect->hitPoint.y) * sin(coef*isect->hitPoint.z);
+	if (sines < 0) {
+		return (struct color){0.4, 0.4, 0.4, 0.0};
+	} else {
+		return (struct color){1.0, 1.0, 1.0, 0.0};
+	}
 }
 
 /**
@@ -119,15 +186,21 @@ bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color
 	return false;
 }
 
+struct color diffuseColor(struct intersection *isect) {
+	if (isect->end.hasTexture) {
+		return colorForUV(isect);
+	} else {
+		return isect->end.diffuse;
+	}
+}
+
 bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
 	struct vector temp = addVectors(&isect->hitPoint, &isect->surfaceNormal);
 	struct vector rand = randomInUnitSphere();
 	struct vector target = addVectors(&temp, &rand);
-	
 	struct vector target2 = subtractVectors(&isect->hitPoint, &target);
-	
 	*scattered = ((struct lightRay){isect->hitPoint, target2, rayTypeReflected, isect->end, 0});
-	*attenuation = isect->end.diffuse;
+	*attenuation = diffuseColor(isect);
 	return true;
 }
 
