@@ -93,9 +93,12 @@ struct texture *newTexture(char *filePath) {
 	newTexture->width = calloc(1, sizeof(unsigned int));
 	newTexture->height = calloc(1, sizeof(unsigned int));
 	
+	//Handle the trailing newline here
+	filePath[strcspn(filePath, "\n")] = 0;
+	//FIXME: This will never load an alpha channel, consider supporting it in the future.
 	int err = lodepng_decode24_file(&newTexture->imgData, newTexture->width, newTexture->height, filePath);
 	if (err != 0) {
-		logr(warning, "Texture loading error: %s\n", lodepng_error_text(err));
+		logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
 	}
 	return newTexture;
 }
