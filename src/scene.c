@@ -105,6 +105,7 @@ struct texture *newTexture(char *filePath) {
 
 void loadOBJTextures(struct crayOBJ *obj) {
 	for (int i = 0; i < obj->materialCount; i++) {
+		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
 		if (strcmp(obj->materials[i].textureFilePath, "")) {
 			obj->materials[i].texture = newTexture(obj->materials[i].textureFilePath);
 			obj->materials[i].hasTexture = true;

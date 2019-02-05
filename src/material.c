@@ -107,6 +107,14 @@ struct color colorForUV(struct intersection *isect) {
 	int x = (int)(textureXY.x*(width)) + 1;
 	int y = (int)(textureXY.y*(heigh)) + 1;
 	
+	//Somehow textureXY can range from -2.36 to 4.53. Not cool at all.
+	//FIXME: Find out why this happens.
+	//Clamp 'em for now
+	x = x < 0 ? 0 : x;
+	y = y < 0 ? 0 : y;
+	x = x > width ? width : x;
+	y = y > heigh ? heigh : y;
+	
 	//Get the color value at these XY coordinates
 	//These need to be normalized from 0-255 to 0-1 double (just divide by 255.0)
 	output.red = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*3 + 0] / 255.0;
