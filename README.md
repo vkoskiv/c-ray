@@ -39,9 +39,10 @@ The default recursive path tracing algorithm supports:
 - lambertian diffuse
 - triangles and spheres
 - Depth of field
+- Diffuse textures
 
 Things I'm looking to implement:
-- Implement more robust material handling to support textures, and multiple materials for a single OBJ
+- Built a more robust API with a scene state.
 - Some procedural textures
 - Expand the default path tracer to use PBR
 
