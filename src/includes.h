@@ -8,9 +8,6 @@
 
 #pragma once
 
-//For Xcode: Uncomment this to enable SDL
-//#define UI_ENABLED
-
 //Global constants
 #define MAX_CRAY_VERTEX_COUNT 3
 #define PIOVER180 0.017453292519943295769236907684886
