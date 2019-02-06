@@ -21,7 +21,7 @@
 #include "tile.h"
 #include "timer.h"
 
-#define TOKEN_DEBUG_ENABLED false
+
 
 void copyString(const char *source, char **destination);
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
@@ -95,8 +95,7 @@ struct texture *newTexture(char *filePath) {
 	
 	//Handle the trailing newline here
 	filePath[strcspn(filePath, "\n")] = 0;
-	//FIXME: This will never load an alpha channel, consider supporting it in the future.
-	int err = lodepng_decode24_file(&newTexture->imgData, newTexture->width, newTexture->height, filePath);
+	int err = lodepng_decode32_file(&newTexture->imgData, newTexture->width, newTexture->height, filePath);
 	if (err != 0) {
 		logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
 	}
