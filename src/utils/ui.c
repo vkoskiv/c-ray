@@ -6,15 +6,15 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "ui.h"
 
-#include "camera.h"
-#include "renderer.h"
-#include "scene.h"
-#include "filehandler.h"
-#include "logging.h"
-#include "tile.h"
+#include "../datatypes/camera.h"
+#include "../renderer/renderer.h"
+#include "../datatypes/scene.h"
+#include "../utils/filehandler.h"
+#include "../utils/logging.h"
+#include "../datatypes/tile.h"
 
 //Signal handling
 void (*signal(int signo, void (*func )(int)))(int);

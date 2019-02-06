@@ -6,10 +6,10 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "material.h"
 
-#include "pathtrace.h"
+#include "../renderer/pathtrace.h"
 
 //FIXME: Temporary, eventually support full OBJ spec
 struct material newMaterial(struct color diffuse, double reflectivity) {

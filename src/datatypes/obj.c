@@ -6,11 +6,11 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "obj.h"
 
-#include "bbox.h"
-#include "kdtree.h"
+#include "../acceleration/bbox.h"
+#include "../acceleration/kdtree.h"
 
 /*
  struct crayOBJ {

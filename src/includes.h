@@ -52,7 +52,7 @@
 #include <SDL2/SDL.h>
 #endif
 #endif
-#include "lodepng.h"
+#include "./libraries/lodepng.h"
 
 //These are for multi-platform physical core detection
 #ifdef __APPLE__
@@ -65,15 +65,15 @@
 #endif
 
 //Project includes
-#include "color.h"
-#include "material.h"
-#include "vector.h"
-#include "poly.h"
-#include "list.h"
-#include "obj.h"
-#include "sphere.h"
-#include "transforms.h"
-#include "lightRay.h"
+#include "./datatypes/color.h"
+#include "./datatypes/material.h"
+#include "./datatypes/vector.h"
+#include "./datatypes/poly.h"
+#include "./libraries/list.h"
+#include "./datatypes/obj.h"
+#include "./datatypes/sphere.h"
+#include "./datatypes/transforms.h"
+#include "./datatypes/lightRay.h"
 
 enum fileMode {
 	loadModeNormal,//Load scene def normally

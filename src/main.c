@@ -9,12 +9,12 @@
 #include "includes.h"
 #include "main.h"
 
-#include "camera.h"
-#include "logging.h"
-#include "filehandler.h"
-#include "renderer.h"
-#include "scene.h"
-#include "ui.h"
+#include "datatypes/camera.h"
+#include "utils/logging.h"
+#include "utils/filehandler.h"
+#include "renderer/renderer.h"
+#include "datatypes/scene.h"
+#include "utils/ui.h"
 
 int getFileSize(char *fileName);
 void initRenderer(struct renderer *renderer);

@@ -6,20 +6,20 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "scene.h"
 
 #include "camera.h"
-#include "obj_parser.h"
-#include "kdtree.h"
-#include "filehandler.h"
-#include "converter.h"
-#include "renderer.h"
-#include "cJSON.h"
-#include "ui.h"
-#include "logging.h"
+#include "../libraries/obj_parser.h"
+#include "../acceleration/kdtree.h"
+#include "../utils/filehandler.h"
+#include "../utils/converter.h"
+#include "../renderer/renderer.h"
+#include "../libraries/cJSON.h"
+#include "../utils/ui.h"
+#include "../utils/logging.h"
 #include "tile.h"
-#include "timer.h"
+#include "../utils/timer.h"
 
 
 

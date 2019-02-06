@@ -6,12 +6,12 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "tile.h"
 
-#include "renderer.h"
-#include "logging.h"
-#include "filehandler.h"
+#include "../renderer/renderer.h"
+#include "../utils/logging.h"
+#include "../utils/filehandler.h"
 
 void reorderTiles(struct renderer *r);
 

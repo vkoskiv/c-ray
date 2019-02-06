@@ -6,18 +6,18 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "renderer.h"
 
-#include "camera.h"
-#include "scene.h"
+#include "../datatypes/camera.h"
+#include "../datatypes/scene.h"
 #include "pathtrace.h"
-#include "filehandler.h"
-#include "main.h"
-#include "logging.h"
-#include "ui.h"
-#include "tile.h"
-#include "timer.h"
+#include "../utils/filehandler.h"
+#include "../main.h"
+#include "../utils/logging.h"
+#include "../utils/ui.h"
+#include "../datatypes/tile.h"
+#include "../utils/timer.h"
 
 struct color getPixel(struct renderer *r, int x, int y);
 

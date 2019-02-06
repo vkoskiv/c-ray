@@ -6,11 +6,11 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "camera.h"
 
-#include "filehandler.h"
-#include "renderer.h"
+#include "../utils/filehandler.h"
+#include "../renderer/renderer.h"
 #include "scene.h"
 
 /**

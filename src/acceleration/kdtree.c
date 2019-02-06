@@ -6,11 +6,11 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "kdtree.h"
 #include "bbox.h"
 
-#include "pathtrace.h"
+#include "../renderer/pathtrace.h"
 
 //Tree funcs
 

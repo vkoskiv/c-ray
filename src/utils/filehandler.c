@@ -6,13 +6,13 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "filehandler.h"
 
-#include "camera.h"
-#include "scene.h"
-#include "renderer.h"
-#include "logging.h"
+#include "../datatypes/camera.h"
+#include "../datatypes/scene.h"
+#include "../renderer/renderer.h"
+#include "../utils/logging.h"
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 

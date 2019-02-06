@@ -6,10 +6,10 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "converter.h"
 
-#include "obj_parser.h"
+#include "../libraries/obj_parser.h"
 
 /**
  Convert a given OBJ loader vector into a c-ray vector

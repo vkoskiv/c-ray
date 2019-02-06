@@ -37,7 +37,7 @@ endif()
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-FILE(GLOB CSources src/*.c)
+FILE(GLOB_RECURSE CSources src/*.c)
 add_executable(c-ray ${CSources})
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${c-ray_SOURCE_DIR}/cmake")

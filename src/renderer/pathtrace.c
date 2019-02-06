@@ -6,13 +6,13 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "pathtrace.h"
 
-#include "scene.h"
-#include "camera.h"
-#include "bbox.h"
-#include "kdtree.h"
+#include "../datatypes/scene.h"
+#include "../datatypes/camera.h"
+#include "../acceleration/bbox.h"
+#include "../acceleration/kdtree.h"
 
 struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *scene);
 struct color getAmbientColor(struct lightRay *incidentRay);

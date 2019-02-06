@@ -6,7 +6,7 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "lightRay.h"
 
 struct lightRay newRay(struct vector start, struct vector direction, enum type rayType) {

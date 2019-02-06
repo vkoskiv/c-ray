@@ -7,7 +7,7 @@
 //
 
 //OBJ parser declares structures using typedefs, so have to include this here.
-#include "obj_parser.h"
+#include "../libraries/obj_parser.h"
 
 /**
  Convert a given OBJ loader vector into a c-ray vector

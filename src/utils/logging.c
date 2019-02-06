@@ -6,11 +6,11 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "logging.h"
 
 #include <stdarg.h>
-#include "renderer.h"
+#include "../renderer/renderer.h"
 
 //Terminal color codes
 #define KNRM  "\x1B[0m"

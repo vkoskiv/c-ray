@@ -6,10 +6,10 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
+#include "../includes.h"
 #include "sphere.h"
 
-#include "pathtrace.h"
+#include "../renderer/pathtrace.h"
 
 struct sphere newSphere(struct vector pos, double radius, struct material material) {
 	return (struct sphere){pos, radius, material};
