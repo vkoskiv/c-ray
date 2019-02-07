@@ -58,29 +58,14 @@ void logr(enum logType type, const char *fmt, ...) {
 		default:
 			break;
 	}
-	
-	//I want to pad seconds from 0-9 with a zero
-	char secstring[3];
-	if (time.tm_sec < 10) {
-		sprintf(secstring, "0%i", time.tm_sec);
-	} else {
-		sprintf(secstring, "%i", time.tm_sec);
-	}
-	
-	char minstring[3];
-	if (time.tm_min < 10) {
-		sprintf(minstring, "0%i", time.tm_min);
-	} else {
-		sprintf(minstring, "%i", time.tm_min);
-	}
-	
-	printf("[%d-%d-%d %d:%s:%s]: ",
+
+	printf("[%d-%d-%d %d:%02d:%02d]: ",
 		   time.tm_year + 1900,
 		   time.tm_mon + 1,
 		   time.tm_mday,
 		   time.tm_hour,
-		   minstring,
-		   secstring);
+		   time.tm_min,
+		   time.tm_sec);
 	
 	//Handle formatted string
 	char buf[512];
