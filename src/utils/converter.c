@@ -46,24 +46,26 @@ struct coord coordFromObj(obj_vector *vec) {
  */
 struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex, int polyIndex) {
 	struct poly polygon;
+	
 	if (face->normal_index[0] == -1) {
 		polygon.hasNormals = false;
 	} else {
 		polygon.hasNormals = true;
-		polygon.vertexCount = face->vertex_count;
-		polygon.materialIndex = face->material_index;
-		polygon.polyIndex = polyIndex;
-		for (int i = 0; i < polygon.vertexCount; i++) {
-			polygon.vertexIndex[i] = firstVertexIndex + face->vertex_index[i];
-		}
-		for (int i = 0; i < polygon.vertexCount; i++) {
-			polygon.normalIndex[i] = firstNormalIndex + face->normal_index[i];
-		}
-		for (int i = 0; i < polygon.vertexCount; i++) {
-			polygon.textureIndex[i] = firstTextureIndex + face->texture_index[i];
-		}
-		
 	}
+	
+	polygon.vertexCount = face->vertex_count;
+	polygon.materialIndex = face->material_index;
+	polygon.polyIndex = polyIndex;
+	for (int i = 0; i < polygon.vertexCount; i++) {
+		polygon.vertexIndex[i] = firstVertexIndex + face->vertex_index[i];
+	}
+	for (int i = 0; i < polygon.vertexCount; i++) {
+		polygon.normalIndex[i] = firstNormalIndex + face->normal_index[i];
+	}
+	for (int i = 0; i < polygon.vertexCount; i++) {
+		polygon.textureIndex[i] = firstTextureIndex + face->texture_index[i];
+	}
+	
 	return polygon;
 }
 
