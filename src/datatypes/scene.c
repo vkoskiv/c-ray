@@ -98,6 +98,8 @@ struct texture *newTexture(char *filePath) {
 	int err = lodepng_decode32_file(&newTexture->imgData, newTexture->width, newTexture->height, filePath);
 	if (err != 0) {
 		logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
+		free(newTexture);
+		return NULL;
 	}
 	return newTexture;
 }
@@ -106,8 +108,11 @@ void loadOBJTextures(struct crayOBJ *obj) {
 	for (int i = 0; i < obj->materialCount; i++) {
 		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
 		if (strcmp(obj->materials[i].textureFilePath, "")) {
+			//TODO: Set the shader for this obj to an obnoxious checker pattern if the texture wasn't found
 			obj->materials[i].texture = newTexture(obj->materials[i].textureFilePath);
-			obj->materials[i].hasTexture = true;
+			if (obj->materials[i].texture) {
+				obj->materials[i].hasTexture = true;
+			}
 		}
 	}
 }
