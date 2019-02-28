@@ -15,6 +15,7 @@
 #include "renderer/renderer.h"
 #include "datatypes/scene.h"
 #include "utils/ui.h"
+#include "utils/learn.h"
 
 int getFileSize(char *fileName);
 void initRenderer(struct renderer *renderer);
@@ -37,6 +38,11 @@ int main(int argc, char *argv[]) {
 #ifndef WINDOWS
 	srand48(time(NULL));
 #endif
+	
+	if (false) {
+		study();
+		return 0;
+	}
 	
 	initTerminal();
 	

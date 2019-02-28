@@ -166,23 +166,23 @@ void getKeyboardInput(struct renderer *r) {
 void drawPixel(struct renderer *r, int x, int y, bool on) {
 	if (y <= 0) y = 1;
 	if (x <= 0) x = 1;
-	if (x >= r->image->size.width) x = r->image->size.width - 1;
-	if (y >= r->image->size.height) y = r->image->size.height - 1;
+	if (x >= *r->image->width) x = *r->image->width - 1;
+	if (y >= *r->image->height) y = *r->image->height - 1;
 	
 	if (on) {
-		r->uiBuffer[(x + (r->image->size.height - y)
-							   * r->image->size.width) * 4 + 3] = (unsigned char)min(frameColor.red*255.0, 255.0);
-		r->uiBuffer[(x + (r->image->size.height - y)
-							   * r->image->size.width) * 4 + 2] = (unsigned char)min(frameColor.green*255.0, 255.0);
-		r->uiBuffer[(x + (r->image->size.height - y)
-							   * r->image->size.width) * 4 + 1] = (unsigned char)min(frameColor.blue*255.0, 255.0);
-		r->uiBuffer[(x + (r->image->size.height - y)
-							   * r->image->size.width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
+		r->uiBuffer[(x + (*r->image->height - y)
+							   * *r->image->width) * 4 + 3] = (unsigned char)min(frameColor.red*255.0, 255.0);
+		r->uiBuffer[(x + (*r->image->height - y)
+							   * *r->image->width) * 4 + 2] = (unsigned char)min(frameColor.green*255.0, 255.0);
+		r->uiBuffer[(x + (*r->image->height - y)
+							   * *r->image->width) * 4 + 1] = (unsigned char)min(frameColor.blue*255.0, 255.0);
+		r->uiBuffer[(x + (*r->image->height - y)
+							   * *r->image->width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
 	} else {
-		r->uiBuffer[(x + (r->image->size.height - y) * r->image->size.width) * 4 + 0] = (unsigned char)0;
-		r->uiBuffer[(x + (r->image->size.height - y) * r->image->size.width) * 4 + 1] = (unsigned char)0;
-		r->uiBuffer[(x + (r->image->size.height - y) * r->image->size.width) * 4 + 2] = (unsigned char)0;
-		r->uiBuffer[(x + (r->image->size.height - y) * r->image->size.width) * 4 + 3] = (unsigned char)0;
+		r->uiBuffer[(x + (*r->image->height - y) * *r->image->width) * 4 + 0] = (unsigned char)0;
+		r->uiBuffer[(x + (*r->image->height - y) * *r->image->width) * 4 + 1] = (unsigned char)0;
+		r->uiBuffer[(x + (*r->image->height - y) * *r->image->width) * 4 + 2] = (unsigned char)0;
+		r->uiBuffer[(x + (*r->image->height - y) * *r->image->width) * 4 + 3] = (unsigned char)0;
 	}
 }
 
@@ -232,8 +232,8 @@ void drawWindow(struct renderer *r) {
 	//Render frames
 	updateFrames(r);
 	//Update image data
-	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->image->data, r->image->size.width * 3);
-	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->uiBuffer, r->image->size.width * 4);
+	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->image->data, *r->image->width * 3);
+	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->uiBuffer, *r->image->width * 4);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
 	SDL_RenderPresent(r->mainDisplay->renderer);

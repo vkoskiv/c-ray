@@ -45,13 +45,7 @@
 struct lightRay;
 struct intersection;
 struct color;
-
-struct texture {
-	unsigned char *imgData;
-	//These are unsigned and pointers because lodePNG.
-	unsigned int *width;
-	unsigned int *height;
-};
+struct texture;
 
 enum bsdfType {
 	emission = 0,

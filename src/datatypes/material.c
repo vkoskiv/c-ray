@@ -10,6 +10,7 @@
 #include "material.h"
 
 #include "../renderer/pathtrace.h"
+#include "../utils/filehandler.h"
 
 //FIXME: Temporary, eventually support full OBJ spec
 struct material newMaterial(struct color diffuse, double reflectivity) {
@@ -117,10 +118,10 @@ struct color colorForUV(struct intersection *isect) {
 	
 	//Get the color value at these XY coordinates
 	//These need to be normalized from 0-255 to 0-1 double (just divide by 255.0)
-	output.red = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 0] / 255.0;
-	output.green = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 1] / 255.0;
-	output.blue = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 2] / 255.0;
-	output.alpha = mtl.texture->imgData[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 3] / 255.0;
+	output.red = mtl.texture->data[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 0] / 255.0;
+	output.green = mtl.texture->data[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 1] / 255.0;
+	output.blue = mtl.texture->data[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 2] / 255.0;
+	output.alpha = mtl.texture->data[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 3] / 255.0;
 	
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	//FIXME: Maybe ask lodepng if we actually need to do this transform
@@ -284,8 +285,8 @@ void freeTexture(struct texture *tex) {
 	if (tex->width) {
 		free(tex->width);
 	}
-	if (tex->imgData) {
-		free(tex->imgData);
+	if (tex->data) {
+		free(tex->data);
 	}
 }
 

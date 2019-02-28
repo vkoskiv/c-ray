@@ -9,7 +9,7 @@
 #pragma once
 
 struct world;
-struct outputImage;
+struct texture;
 struct display;
 
 /**
@@ -44,7 +44,7 @@ struct renderer {
 	struct world *scene; //Scene to render
 	
 	//State data
-	struct outputImage *image; //Output image
+	struct texture *image; //Output image
 	struct renderTile *renderTiles; //Array of renderTiles to render
 	int tileCount; //Total amount of render tiles
 	int finishedTileCount; //Completed render tiles
