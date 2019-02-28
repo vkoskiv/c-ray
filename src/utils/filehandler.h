@@ -21,13 +21,14 @@ struct dimensions {
 	int width;
 };
 
-struct outputImage {
-	struct dimensions size;
+struct texture {
 	enum fileType fileType;
 	char *filePath;
 	char *fileName;
 	int count;
 	unsigned char *data;
+	unsigned int *width;
+	unsigned int *height;
 };
 
 //Prints the file size of a given file to the console in a user-readable format
@@ -36,4 +37,11 @@ void printFileSize(char *fileName);
 //Writes image data to file
 void writeImage(struct renderer *r);
 
-void freeImage(struct outputImage *image);
+char *loadFile(char *inputFileName);
+
+//Load a PNG texture
+struct texture *newTexture(char *filePath);
+
+void copyString(const char *source, char **destination);
+
+void freeImage(struct texture *image);

@@ -23,6 +23,11 @@ struct renderTile {
 	int tileNum;
 };
 
-void quantizeImage(struct renderer *renderer);
+struct texture;
+enum renderOrder;
+
+int quantizeImage(struct renderTile **renderTiles, struct texture *image, int tileWidth, int tileHeight);
+
+void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder);
 
 struct renderTile getTile(struct renderer *r);

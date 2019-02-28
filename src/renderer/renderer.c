@@ -24,7 +24,7 @@ struct color getPixel(struct renderer *r, int x, int y);
 void render(struct renderer *r) {
 	logr(info, "Starting C-ray renderer for frame %i\n", r->image->count);
 	
-	logr(info, "Rendering at %i x %i\n", r->image->size.width,r->image->size.height);
+	logr(info, "Rendering at %i x %i\n", *r->image->width,*r->image->height);
 	logr(info, "Rendering %i samples with %i bounces.\n", r->sampleCount, r->scene->bounces);
 	logr(info, "Rendering with %d thread", r->threadCount);
 	if (r->threadCount > 1) {
@@ -140,8 +140,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 				for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 					for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 						
-						int height = renderer->image->size.height;
-						int width = renderer->image->size.width;
+						int height = *renderer->image->height;
+						int width = *renderer->image->width;
 						
 						double fracX = (double)x;
 						double fracY = (double)y;
@@ -154,9 +154,9 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						
 						//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 						//imaginary plane in front of the origin. startPos is just the camera position.
-						struct vector direction = {(fracX - 0.5 * renderer->image->size.width)
+						struct vector direction = {(fracX - 0.5 * *renderer->image->width)
 													/ renderer->scene->camera->focalLength,
-												   (fracY - 0.5 * renderer->image->size.height)
+												   (fracY - 0.5 * *renderer->image->height)
 													/ renderer->scene->camera->focalLength,
 													1.0,
 													false};
@@ -265,7 +265,9 @@ struct renderer *newRenderer() {
 	renderer->avgTileTime = (time_t)1;
 	renderer->timeSampleCount = 1;
 	renderer->mode = saveModeNormal;
-	renderer->image = calloc(1, sizeof(struct outputImage));
+	renderer->image = calloc(1, sizeof(struct texture));
+	renderer->image->width = calloc(1, sizeof(unsigned int));
+	renderer->image->height = calloc(1, sizeof(unsigned int));
 	
 	renderer->scene = calloc(1, sizeof(struct world));
 	renderer->scene->camera = calloc(1, sizeof(struct camera));
@@ -298,9 +300,9 @@ struct renderer *newRenderer() {
 //TODO: Refactor this to retrieve pixel from a given buffer, so we can reuse it for texture maps
 struct color getPixel(struct renderer *r, int x, int y) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
-	output.red = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 0];
-	output.green = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 1];
-	output.blue = r->renderBuffer[(x + (r->image->size.height - y) * r->image->size.width)*3 + 2];
+	output.red = r->renderBuffer[(x + (*r->image->height - y) * *r->image->width)*3 + 0];
+	output.green = r->renderBuffer[(x + (*r->image->height - y) * *r->image->width)*3 + 1];
+	output.blue = r->renderBuffer[(x + (*r->image->height - y) * *r->image->width)*3 + 2];
 	output.alpha = 1.0;
 	return output;
 }

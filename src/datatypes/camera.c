@@ -27,7 +27,7 @@ void transformCameraView(struct camera *cam, struct vector *direction) {
 
 void computeFocalLength(struct renderer *renderer) {
 	if (renderer->scene->camera->FOV > 0.0 && renderer->scene->camera->FOV < 189.0) {
-		renderer->scene->camera->focalLength = 0.5 * renderer->image->size.width / toRadians(0.5 * renderer->scene->camera->FOV);
+		renderer->scene->camera->focalLength = 0.5 * *renderer->image->width / toRadians(0.5 * renderer->scene->camera->FOV);
 	}
 }
 

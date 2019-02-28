@@ -21,10 +21,6 @@
 #include "tile.h"
 #include "../utils/timer.h"
 
-
-
-void copyString(const char *source, char **destination);
-size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
 struct color *parseColor(const cJSON *data);
 
 /**
@@ -87,27 +83,15 @@ struct sphere *lastSphere(struct renderer *r) {
 	return &r->scene->spheres[r->scene->sphereCount - 1];
 }
 
-struct texture *newTexture(char *filePath) {
-	struct texture *newTexture = calloc(1, sizeof(struct texture));
-	newTexture->imgData = NULL;
-	newTexture->width = calloc(1, sizeof(unsigned int));
-	newTexture->height = calloc(1, sizeof(unsigned int));
-	
-	//Handle the trailing newline here
-	filePath[strcspn(filePath, "\n")] = 0;
-	int err = lodepng_decode32_file(&newTexture->imgData, newTexture->width, newTexture->height, filePath);
-	if (err != 0) {
-		logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
-	}
-	return newTexture;
-}
-
 void loadOBJTextures(struct crayOBJ *obj) {
 	for (int i = 0; i < obj->materialCount; i++) {
 		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
 		if (strcmp(obj->materials[i].textureFilePath, "")) {
+			//TODO: Set the shader for this obj to an obnoxious checker pattern if the texture wasn't found
 			obj->materials[i].texture = newTexture(obj->materials[i].textureFilePath);
-			obj->materials[i].hasTexture = true;
+			if (obj->materials[i].texture) {
+				obj->materials[i].hasTexture = true;
+			}
 		}
 	}
 }
@@ -266,24 +250,6 @@ void printSceneStats(struct world *scene) {
 		   polyCount,
 		   scene->sphereCount,
 		   scene->lightCount);
-}
-
-char *loadFile(char *inputFileName) {
-	FILE *f = fopen(inputFileName, "rb");
-	if (!f) {
-		logr(warning, "No file found at %s", inputFileName);
-		return NULL;
-	}
-	char *buf = NULL;
-	size_t len;
-	size_t bytesRead = getDelim(&buf, &len, '\0', f);
-	if (bytesRead != -1) {
-		logr(info, "%zi bytes of input JSON loaded, parsing...\n", bytesRead);
-	} else {
-		logr(warning, "Failed to read input JSON from %s", inputFileName);
-		return NULL;
-	}
-	return buf;
 }
 
 struct material *parseMaterial(const cJSON *data) {
@@ -935,12 +901,12 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	width = cJSON_GetObjectItem(data, "width");
 	if (cJSON_IsNumber(width)) {
 		if (width->valueint >= 0) {
-			r->image->size.width = width->valueint;
+			*r->image->width = width->valueint;
 #ifdef UI_ENABLED
 			r->mainDisplay->width = width->valueint;
 #endif
 		} else {
-			r->image->size.width = 640;
+			*r->image->width = 640;
 #ifdef UI_ENABLED
 			r->mainDisplay->width = 640;
 #endif
@@ -950,12 +916,12 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	height = cJSON_GetObjectItem(data, "height");
 	if (cJSON_IsNumber(height)) {
 		if (height->valueint >= 0) {
-			r->image->size.height = height->valueint;
+			*r->image->height = height->valueint;
 #ifdef UI_ENABLED
 			r->mainDisplay->height = height->valueint;
 #endif
 		} else {
-			r->image->size.height = 640;
+			*r->image->height = 640;
 #ifdef UI_ENABLED
 			r->mainDisplay->height = 640;
 #endif
@@ -1119,23 +1085,25 @@ void loadScene(struct renderer *r, char *filename) {
 	r->timers = calloc(r->threadCount, sizeof(struct timeval));
 	
 	//Quantize image into renderTiles
-	quantizeImage(r);
+	r->tileCount = quantizeImage(&r->renderTiles, r->image, r->tileWidth, r->tileHeight);
+	
+	reorderTiles(&r->renderTiles, r->tileCount, r->tileOrder);
 	
 	//Compute the focal length for the camera
 	computeFocalLength(r);
 	
 	//Allocate memory and create array of pixels for image data
-	r->image->data = calloc(3 * r->image->size.width * r->image->size.height, sizeof(unsigned char));
+	r->image->data = calloc(3 * *r->image->width * *r->image->height, sizeof(unsigned char));
 	if (!r->image->data) {
 		logr(error, "Failed to allocate memory for image data.");
 	}
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
-	r->renderBuffer = calloc(3 * r->image->size.width * r->image->size.height, sizeof(double));
+	r->renderBuffer = calloc(3 * *r->image->width * *r->image->height, sizeof(double));
 	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
-	r->uiBuffer = calloc(4 * r->image->size.width * r->image->size.height, sizeof(unsigned char));
+	r->uiBuffer = calloc(4 * *r->image->width * *r->image->height, sizeof(unsigned char));
 	
 	//Alloc memory for pthread_create() args
 	r->renderThreadInfo = calloc(r->threadCount, sizeof(struct threadInfo));
@@ -1150,12 +1118,6 @@ void loadScene(struct renderer *r, char *filename) {
 		r->threadCount = r->tileCount;
 		printf("%i\n", r->threadCount);
 	}
-}
-
-//Copies source over to the destination pointer.
-void copyString(const char *source, char **destination) {
-	*destination = malloc(strlen(source) + 1);
-	strcpy(*destination, source);
 }
 
 //Free scene data
@@ -1182,68 +1144,4 @@ void freeScene(struct world *scene) {
 		freeCamera(scene->camera);
 		free(scene->camera);
 	}
-}
-
-//For Windows support, we need our own getdelim()
-#if defined(_WIN32) || defined(__linux__)
-#define	LONG_MAX	2147483647L	/* max signed long */
-#endif
-#define	SSIZE_MAX	LONG_MAX	/* max value for a ssize_t */
-size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
-	char *buf, *pos;
-	int c;
-	size_t bytes;
-	
-	if (lineptr == NULL || n == NULL) {
-		return 0;
-	}
-	if (stream == NULL) {
-		return 0;
-	}
-	
-	/* resize (or allocate) the line buffer if necessary */
-	buf = *lineptr;
-	if (buf == NULL || *n < 4) {
-		buf = (char*)realloc(*lineptr, 128);
-		if (buf == NULL) {
-			/* ENOMEM */
-			return 0;
-		}
-		*n = 128;
-		*lineptr = buf;
-	}
-	
-	/* read characters until delimiter is found, end of file is reached, or an
-	 error occurs. */
-	bytes = 0;
-	pos = buf;
-	while ((c = getc(stream)) != -1) {
-		if (bytes + 1 >= SSIZE_MAX) {
-			return 0;
-		}
-		bytes++;
-		if (bytes >= *n - 1) {
-			buf = realloc(*lineptr, *n + 128);
-			if (buf == NULL) {
-				/* ENOMEM */
-				return 0;
-			}
-			*n += 128;
-			pos = buf + bytes - 1;
-			*lineptr = buf;
-		}
-		
-		*pos++ = (char) c;
-		if (c == delimiter) {
-			break;
-		}
-	}
-	
-	if (ferror(stream) || (feof(stream) && (bytes == 0))) {
-		/* EOF, or an error from getc(). */
-		return 0;
-	}
-	
-	*pos = '\0';
-	return bytes;
 }

@@ -34,6 +34,9 @@
 		900BA142220B4603005B8EE7 /* converter.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA126220B4602005B8EE7 /* converter.c */; };
 		900BA143220B4603005B8EE7 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA127220B4602005B8EE7 /* logging.c */; };
 		900BA144220B4603005B8EE7 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA129220B4602005B8EE7 /* main.c */; };
+		9058A51122231E9F00193385 /* denoiser.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50D22231E9E00193385 /* denoiser.c */; };
+		9058A51222231E9F00193385 /* learn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50F22231E9E00193385 /* learn.c */; };
+		9058A51522231EB100193385 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -105,6 +108,12 @@
 		900BA129220B4602005B8EE7 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		900BA12A220B4602005B8EE7 /* includes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = includes.h; sourceTree = "<group>"; };
 		900FB5DB20C3BA3C008174C4 /* scene.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = scene.json; path = input/scene.json; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
+		9058A50D22231E9E00193385 /* denoiser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = denoiser.c; sourceTree = "<group>"; };
+		9058A50E22231E9E00193385 /* learn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = learn.h; sourceTree = "<group>"; };
+		9058A50F22231E9E00193385 /* learn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = learn.c; sourceTree = "<group>"; };
+		9058A51022231E9F00193385 /* denoiser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = denoiser.h; sourceTree = "<group>"; };
+		9058A51322231EB100193385 /* Tinn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tinn.h; sourceTree = "<group>"; };
+		9058A51422231EB100193385 /* Tinn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Tinn.c; sourceTree = "<group>"; };
 		90D99AF41D08ADB10015A854 /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -198,6 +207,8 @@
 		900BA112220B4602005B8EE7 /* libraries */ = {
 			isa = PBXGroup;
 			children = (
+				9058A51422231EB100193385 /* Tinn.c */,
+				9058A51322231EB100193385 /* Tinn.h */,
 				900BA113220B4602005B8EE7 /* lodepng.h */,
 				900BA114220B4602005B8EE7 /* obj_parser.h */,
 				900BA115220B4602005B8EE7 /* string_extra.c */,
@@ -215,6 +226,10 @@
 		900BA11D220B4602005B8EE7 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				9058A50D22231E9E00193385 /* denoiser.c */,
+				9058A51022231E9F00193385 /* denoiser.h */,
+				9058A50F22231E9E00193385 /* learn.c */,
+				9058A50E22231E9E00193385 /* learn.h */,
 				900BA11E220B4602005B8EE7 /* filehandler.c */,
 				900BA11F220B4602005B8EE7 /* timer.c */,
 				900BA120220B4602005B8EE7 /* ui.h */,
@@ -289,7 +304,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */;
+			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -316,14 +331,17 @@
 				900BA12F220B4603005B8EE7 /* poly.c in Sources */,
 				900BA13C220B4603005B8EE7 /* obj_parser.c in Sources */,
 				900BA143220B4603005B8EE7 /* logging.c in Sources */,
+				9058A51522231EB100193385 /* Tinn.c in Sources */,
 				900BA140220B4603005B8EE7 /* timer.c in Sources */,
 				900BA12D220B4603005B8EE7 /* pathtrace.c in Sources */,
 				900BA13B220B4603005B8EE7 /* list.c in Sources */,
 				900BA135220B4603005B8EE7 /* material.c in Sources */,
 				900BA13D220B4603005B8EE7 /* lodepng.c in Sources */,
+				9058A51122231E9F00193385 /* denoiser.c in Sources */,
 				900BA130220B4603005B8EE7 /* vector.c in Sources */,
 				900BA138220B4603005B8EE7 /* obj.c in Sources */,
 				900BA131220B4603005B8EE7 /* lightRay.c in Sources */,
+				9058A51222231E9F00193385 /* learn.c in Sources */,
 				900BA12C220B4603005B8EE7 /* kdtree.c in Sources */,
 				900BA142220B4603005B8EE7 /* converter.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
@@ -470,7 +488,7 @@
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 					"$(USER_LIBRARY_DIR)/Frameworks",
 				);
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
 					UI_ENABLED,
 					"DEBUG=1",
@@ -500,7 +518,7 @@
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 					"$(USER_LIBRARY_DIR)/Frameworks",
 				);
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = UI_ENABLED;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
@@ -519,7 +537,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */ = {
+		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				90D99AF91D08ADB10015A854 /* Debug */,
