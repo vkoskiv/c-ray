@@ -141,14 +141,14 @@
 			isa = PBXGroup;
 			children = (
 				900BA0F0220B4602005B8EE7 /* main.h */,
+				900BA129220B4602005B8EE7 /* main.c */,
+				900BA12A220B4602005B8EE7 /* includes.h */,
+				900BA128220B4602005B8EE7 /* .editorconfig */,
 				900BA0F1220B4602005B8EE7 /* acceleration */,
 				900BA0F6220B4602005B8EE7 /* renderer */,
 				900BA0FB220B4602005B8EE7 /* datatypes */,
 				900BA112220B4602005B8EE7 /* libraries */,
 				900BA11D220B4602005B8EE7 /* utils */,
-				900BA128220B4602005B8EE7 /* .editorconfig */,
-				900BA129220B4602005B8EE7 /* main.c */,
-				900BA12A220B4602005B8EE7 /* includes.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -157,8 +157,8 @@
 			isa = PBXGroup;
 			children = (
 				900BA0F2220B4602005B8EE7 /* bbox.h */,
-				900BA0F3220B4602005B8EE7 /* kdtree.h */,
 				900BA0F4220B4602005B8EE7 /* bbox.c */,
+				900BA0F3220B4602005B8EE7 /* kdtree.h */,
 				900BA0F5220B4602005B8EE7 /* kdtree.c */,
 			);
 			path = acceleration;
@@ -167,9 +167,9 @@
 		900BA0F6220B4602005B8EE7 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
+				900BA0F9220B4602005B8EE7 /* pathtrace.h */,
 				900BA0F7220B4602005B8EE7 /* pathtrace.c */,
 				900BA0F8220B4602005B8EE7 /* renderer.h */,
-				900BA0F9220B4602005B8EE7 /* pathtrace.h */,
 				900BA0FA220B4602005B8EE7 /* renderer.c */,
 			);
 			path = renderer;
@@ -178,28 +178,28 @@
 		900BA0FB220B4602005B8EE7 /* datatypes */ = {
 			isa = PBXGroup;
 			children = (
+				900BA108220B4602005B8EE7 /* poly.h */,
 				900BA0FC220B4602005B8EE7 /* poly.c */,
 				900BA0FD220B4602005B8EE7 /* tile.h */,
+				900BA107220B4602005B8EE7 /* tile.c */,
+				900BA10D220B4602005B8EE7 /* vector.h */,
 				900BA0FE220B4602005B8EE7 /* vector.c */,
 				900BA0FF220B4602005B8EE7 /* camera.h */,
+				900BA10C220B4602005B8EE7 /* camera.c */,
 				900BA100220B4602005B8EE7 /* sphere.h */,
+				900BA10B220B4602005B8EE7 /* sphere.c */,
 				900BA101220B4602005B8EE7 /* material.h */,
+				900BA10A220B4602005B8EE7 /* material.c */,
+				900BA109220B4602005B8EE7 /* lightRay.h */,
 				900BA102220B4602005B8EE7 /* lightRay.c */,
 				900BA103220B4602005B8EE7 /* color.h */,
-				900BA104220B4602005B8EE7 /* scene.c */,
-				900BA105220B4602005B8EE7 /* obj.h */,
-				900BA106220B4602005B8EE7 /* transforms.c */,
-				900BA107220B4602005B8EE7 /* tile.c */,
-				900BA108220B4602005B8EE7 /* poly.h */,
-				900BA109220B4602005B8EE7 /* lightRay.h */,
-				900BA10A220B4602005B8EE7 /* material.c */,
-				900BA10B220B4602005B8EE7 /* sphere.c */,
-				900BA10C220B4602005B8EE7 /* camera.c */,
-				900BA10D220B4602005B8EE7 /* vector.h */,
-				900BA10E220B4602005B8EE7 /* transforms.h */,
-				900BA10F220B4602005B8EE7 /* obj.c */,
 				900BA110220B4602005B8EE7 /* color.c */,
 				900BA111220B4602005B8EE7 /* scene.h */,
+				900BA104220B4602005B8EE7 /* scene.c */,
+				900BA105220B4602005B8EE7 /* obj.h */,
+				900BA10F220B4602005B8EE7 /* obj.c */,
+				900BA10E220B4602005B8EE7 /* transforms.h */,
+				900BA106220B4602005B8EE7 /* transforms.c */,
 			);
 			path = datatypes;
 			sourceTree = "<group>";
@@ -207,17 +207,17 @@
 		900BA112220B4602005B8EE7 /* libraries */ = {
 			isa = PBXGroup;
 			children = (
-				9058A51422231EB100193385 /* Tinn.c */,
 				9058A51322231EB100193385 /* Tinn.h */,
+				9058A51422231EB100193385 /* Tinn.c */,
 				900BA113220B4602005B8EE7 /* lodepng.h */,
+				900BA11B220B4602005B8EE7 /* lodepng.c */,
 				900BA114220B4602005B8EE7 /* obj_parser.h */,
+				900BA119220B4602005B8EE7 /* obj_parser.c */,
+				900BA118220B4602005B8EE7 /* string_extra.h */,
 				900BA115220B4602005B8EE7 /* string_extra.c */,
+				900BA11A220B4602005B8EE7 /* list.h */,
 				900BA116220B4602005B8EE7 /* list.c */,
 				900BA117220B4602005B8EE7 /* cJSON.h */,
-				900BA118220B4602005B8EE7 /* string_extra.h */,
-				900BA119220B4602005B8EE7 /* obj_parser.c */,
-				900BA11A220B4602005B8EE7 /* list.h */,
-				900BA11B220B4602005B8EE7 /* lodepng.c */,
 				900BA11C220B4602005B8EE7 /* cJSON.c */,
 			);
 			path = libraries;
@@ -226,19 +226,19 @@
 		900BA11D220B4602005B8EE7 /* utils */ = {
 			isa = PBXGroup;
 			children = (
-				9058A50D22231E9E00193385 /* denoiser.c */,
 				9058A51022231E9F00193385 /* denoiser.h */,
-				9058A50F22231E9E00193385 /* learn.c */,
+				9058A50D22231E9E00193385 /* denoiser.c */,
 				9058A50E22231E9E00193385 /* learn.h */,
+				9058A50F22231E9E00193385 /* learn.c */,
+				900BA123220B4602005B8EE7 /* filehandler.h */,
 				900BA11E220B4602005B8EE7 /* filehandler.c */,
+				900BA124220B4602005B8EE7 /* timer.h */,
 				900BA11F220B4602005B8EE7 /* timer.c */,
 				900BA120220B4602005B8EE7 /* ui.h */,
-				900BA121220B4602005B8EE7 /* converter.h */,
-				900BA122220B4602005B8EE7 /* logging.h */,
-				900BA123220B4602005B8EE7 /* filehandler.h */,
-				900BA124220B4602005B8EE7 /* timer.h */,
 				900BA125220B4602005B8EE7 /* ui.c */,
+				900BA121220B4602005B8EE7 /* converter.h */,
 				900BA126220B4602005B8EE7 /* converter.c */,
+				900BA122220B4602005B8EE7 /* logging.h */,
 				900BA127220B4602005B8EE7 /* logging.c */,
 			);
 			path = utils;
@@ -304,7 +304,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */;
+			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -537,7 +537,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */ = {
+		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				90D99AF91D08ADB10015A854 /* Debug */,
