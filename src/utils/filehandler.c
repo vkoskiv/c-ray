@@ -118,7 +118,7 @@ struct texture *newTexture(char *filePath) {
 	
 	//Handle the trailing newline here
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
-	//filePath[strcspn(filePath, "\n")] = 0;
+	filePath[strcspn(filePath, "\n")] = 0;
 	int err = lodepng_decode32_file(&newTexture->data, newTexture->width, newTexture->height, filePath);
 	if (err != 0) {
 		logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
