@@ -108,6 +108,7 @@ char *loadFile(char *inputFileName) {
 	return buf;
 }
 
+//TODO: Detect and support other file formats, like TIFF, JPEG and BMP
 struct texture *newTexture(char *filePath) {
 	struct texture *newTexture = calloc(1, sizeof(struct texture));
 	newTexture->data = NULL;
@@ -166,21 +167,21 @@ void writeImage(struct renderer *r) {
 			char *buf = calloc(bufSize, sizeof(char));
 			
 			if (r->image->fileType == bmp){
-				sprintf(buf, "%s%s_%d.bmp", r->image->filePath, r->image->fileName, r->image->count);
+				sprintf(buf, "%s%s_%04d.bmp", r->image->filePath, r->image->fileName, r->image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
 				saveBmpFromArray(buf, r->image->data, *r->image->width, *r->image->height);
 			} else  if (r->image->fileType == png){
-				sprintf(buf, "%s%s_%d.png", r->image->filePath, r->image->fileName, r->image->count);
+				sprintf(buf, "%s%s_%04d.png", r->image->filePath, r->image->fileName, r->image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
 				encodePNGFromArray(buf, r->image->data, *r->image->width, *r->image->height);
 			}
 			printFileSize(buf);
 #ifdef __APPLE__
 			//If on macOS, we can run the `open` command to display the finished render using Preview.app
-			char *buf2 = calloc(bufSize + 20, sizeof(char));
-			sprintf(buf2, "open %s", buf);
-			system(buf2);
-			free(buf2);
+			//char *buf2 = calloc(bufSize + 20, sizeof(char));
+			//sprintf(buf2, "open %s", buf);
+			//system(buf2);
+			//free(buf2);
 #endif
 			free(buf);
 		}
