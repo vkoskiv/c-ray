@@ -158,11 +158,11 @@ void writeImage(struct renderer *r) {
 			//Save image data to a file
 			int bufSize;
 			if (r->image->count < 100) {
-				bufSize = 26;
+				bufSize = 36;
 			} else if (r->image->count < 1000) {
-				bufSize = 27;
+				bufSize = 37;
 			} else {
-				bufSize = 28;
+				bufSize = 38;
 			}
 			char *buf = calloc(bufSize, sizeof(char));
 			
@@ -170,7 +170,7 @@ void writeImage(struct renderer *r) {
 				sprintf(buf, "%s%s_%04d.bmp", r->image->filePath, r->image->fileName, r->image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
 				saveBmpFromArray(buf, r->image->data, *r->image->width, *r->image->height);
-			} else  if (r->image->fileType == png){
+			} else if (r->image->fileType == png){
 				sprintf(buf, "%s%s_%04d.png", r->image->filePath, r->image->fileName, r->image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
 				encodePNGFromArray(buf, r->image->data, *r->image->width, *r->image->height);
