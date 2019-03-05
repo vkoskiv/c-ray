@@ -34,7 +34,7 @@ usemtl mirror_mtl
 f 9//3 10//3 11//3
 f 10//3 9//3 12//3
 usemtl lightblue_mtl
-f 15//4 14//4 13//4
+#f 15//4 14//4 13//4
 usemtl green_mtl
 f 7//5 4//5 1//5
 f 4//5 7//5 8//5
