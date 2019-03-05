@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 	srand48(time(NULL));
 #endif
 	
-	if (false) {
+	if (/* DISABLES CODE */ (false)) {
 		study();
 		return 0;
 	}

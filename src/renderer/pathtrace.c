@@ -17,21 +17,21 @@
 struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *scene);
 struct color getAmbientColor(struct lightRay *incidentRay);
 
-struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth) {
+struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, pcg32_random_t *rng) {
 	struct intersection isect = getClosestIsect(incidentRay, scene);
 	if (isect.didIntersect) {
 		struct lightRay scattered;
 		struct color attenuation;
 		struct color emitted = isect.end.emission;
-		if (depth < scene->bounces && isect.end.bsdf(&isect, incidentRay, &attenuation, &scattered)) {
+		if (depth < scene->bounces && isect.end.bsdf(&isect, incidentRay, &attenuation, &scattered, rng)) {
 			double probability = 1;
 			if (depth >= 2) {
 				probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
-				if (getRandomDouble(0, 1) > probability) {
+				if (getRandomDouble(0, 1, rng) > probability) {
 					return emitted;
 				}
 			}
-			struct color newColor = pathTrace(&scattered, scene, depth + 1);
+			struct color newColor = pathTrace(&scattered, scene, depth + 1, rng);
 			struct color attenuated = multiplyColors(&attenuation, &newColor);
 			struct color final = addColors(&emitted, &attenuated);
 			return colorCoef(1.0 / probability, &final);

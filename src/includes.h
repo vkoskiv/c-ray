@@ -61,6 +61,9 @@
 #include <unistd.h>
 #endif
 
+//PCG rng
+#include "./libraries/pcg_basic.h"
+
 //Project includes
 #include "./datatypes/color.h"
 #include "./datatypes/material.h"

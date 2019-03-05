@@ -190,8 +190,9 @@ struct coord uvFromValues(double u, double v) {
  @param max Maximum value
  @return Random double between min and max
  */
-double getRandomDouble(double min, double max) {
-	return ((((double)rand()) / (double)RAND_MAX) * (max - min)) + min;
+double getRandomDouble(double min, double max, pcg32_random_t *rng) {
+	//return ((((double)rand()) / (double)RAND_MAX) * (max - min)) + min;
+	return (((double)pcg32_random_r(rng) / (double)UINT32_MAX) * (max - min)) + min;
 }
 
 /**
@@ -201,10 +202,10 @@ double getRandomDouble(double min, double max) {
  @param radius Maximum distance from center point
  @return Vector of a random position within a radius of center point
  */
-struct vector getRandomVecOnRadius(struct vector center, double radius) {
-	return vectorWithPos(center.x + getRandomDouble(-radius, radius),
-						 center.y + getRandomDouble(-radius, radius),
-						 center.z + getRandomDouble(-radius, radius));
+struct vector getRandomVecOnRadius(struct vector center, double radius, pcg32_random_t *rng) {
+	return vectorWithPos(center.x + getRandomDouble(-radius, radius, rng),
+						 center.y + getRandomDouble(-radius, radius, rng),
+						 center.z + getRandomDouble(-radius, radius, rng));
 }
 
 /**
@@ -214,10 +215,10 @@ struct vector getRandomVecOnRadius(struct vector center, double radius) {
  @param radius Maximum distance from center point
  @return Vector of a random position on a plane within a radius of center point
  */
-struct vector getRandomVecOnPlane(struct vector center, double radius) {
+struct vector getRandomVecOnPlane(struct vector center, double radius, pcg32_random_t *rng) {
 	//FIXME: This only works in one orientation!
-	return vectorWithPos(center.x + getRandomDouble(-radius, radius),
-						 center.y + getRandomDouble(-radius, radius),
+	return vectorWithPos(center.x + getRandomDouble(-radius, radius, rng),
+						 center.y + getRandomDouble(-radius, radius, rng),
 						 center.z);
 }
 

@@ -182,17 +182,17 @@ struct vector reflectVec(const struct vector *incident, const struct vector *nor
 	return subtractVectors(incident, &temp);
 }
 
-struct vector randomInUnitSphere() {
+struct vector randomInUnitSphere(pcg32_random_t *rng) {
 	struct vector vec = (struct vector){0.0, 0.0, 0.0, false};
 	do {
-		vec = vectorMultiply(vectorWithPos(getRandomDouble(0, 1), getRandomDouble(0, 1), getRandomDouble(0, 1)), 2.0);
+		vec = vectorMultiply(vectorWithPos(getRandomDouble(0, 1, rng), getRandomDouble(0, 1, rng), getRandomDouble(0, 1, rng)), 2.0);
 		struct vector temp = vectorWithPos(1.0, 1.0, 1.0);
 		vec = subtractVectors(&vec, &temp);
 	} while (squaredVectorLength(&vec) >= 1.0);
 	return vec;
 }
 
-bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
+bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	return false;
 }
 
@@ -204,9 +204,9 @@ struct color diffuseColor(struct intersection *isect) {
 	}
 }
 
-bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
+bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	struct vector temp = addVectors(&isect->hitPoint, &isect->surfaceNormal);
-	struct vector rand = randomInUnitSphere();
+	struct vector rand = randomInUnitSphere(rng);
 	struct vector target = addVectors(&temp, &rand);
 	struct vector target2 = subtractVectors(&isect->hitPoint, &target);
 	*scattered = ((struct lightRay){isect->hitPoint, target2, rayTypeReflected, isect->end, 0});
@@ -214,7 +214,7 @@ bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct col
 	return true;
 }
 
-bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
+bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	struct vector normalizedDir = normalizeVector(&isect->ray.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
 	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
@@ -244,7 +244,7 @@ float shlick(float cosine, float IOR) {
 	return r0 + (1 - r0) * pow((1 - cosine), 5);
 }
 
-bool dialectric(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered) {
+bool dialectric(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->ray.direction, &isect->surfaceNormal);
 	float niOverNt;
@@ -270,7 +270,7 @@ bool dialectric(struct intersection *isect, struct lightRay *ray, struct color *
 		reflectionProbability = 1.0;
 	}
 	
-	if (getRandomDouble(0, 1) < reflectionProbability) {
+	if (getRandomDouble(0, 1, rng) < reflectionProbability) {
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 	} else {
 		*scattered = newRay(isect->hitPoint, refracted, rayTypeRefracted);

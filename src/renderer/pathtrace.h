@@ -39,4 +39,4 @@ struct intersection {
 	int polyIndex;					//OBJ polygon index
 };
 
-struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth);
+struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, pcg32_random_t *rng);

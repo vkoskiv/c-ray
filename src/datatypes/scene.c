@@ -1083,6 +1083,13 @@ void loadScene(struct renderer *r, char *filename) {
 	r->threadPaused = calloc(r->threadCount, sizeof(bool));
 	//Alloc timers, one for each thread
 	r->timers = calloc(r->threadCount, sizeof(struct timeval));
+	//Alloc RNGs, one for each thread
+	r->rngs = calloc(r->threadCount, sizeof(pcg32_random_t));
+	
+	//Seed each rng
+	for (int i = 0; i < r->threadCount; i++) {
+		pcg32_srandom_r(&r->rngs[i], time(NULL), i);
+	}
 	
 	//Quantize image into renderTiles
 	r->tileCount = quantizeImage(&r->renderTiles, r->image, r->tileWidth, r->tileHeight);

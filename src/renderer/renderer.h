@@ -58,6 +58,7 @@ struct renderer {
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
 	struct threadInfo *renderThreadInfo; //Info about threads
+	pcg32_random_t *rngs; // PCG rng, one for each thread
 #ifndef WINDOWS
 	pthread_attr_t renderThreadAttributes;
 #endif
