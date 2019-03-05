@@ -128,6 +128,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 		struct threadInfo *tinfo = (struct threadInfo*)arg;
 		
 		struct renderer *renderer = tinfo->r;
+		pcg32_random_t *rng = &tinfo->r->rngs[tinfo->thread_num];
 		
 		//First time setup for each thread
 		struct renderTile tile = getTile(renderer);
@@ -148,8 +149,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						
 						//A cheap 'antialiasing' of sorts. The more samples, the better this works
 						if (renderer->antialiasing) {
-							fracX = getRandomDouble(fracX - 0.25, fracX + 0.25);
-							fracY = getRandomDouble(fracY - 0.25, fracY + 0.25);
+							fracX = getRandomDouble(fracX - 0.25, fracX + 0.25, rng);
+							fracY = getRandomDouble(fracY - 0.25, fracY + 0.25, rng);
 						}
 						
 						//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
@@ -176,8 +177,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						if (aperture <= 0.0) {
 							incidentRay.start = startPos;
 						} else {
-							double randY = getRandomDouble(-aperture, aperture);
-							double randX = getRandomDouble(-aperture, aperture);
+							double randY = getRandomDouble(-aperture, aperture, rng);
+							double randX = getRandomDouble(-aperture, aperture, rng);
 							
 							struct vector upTemp = vectorScale(randY, &up);
 							struct vector temp = addVectors(&startPos, &upTemp);
@@ -199,7 +200,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						struct color output = getPixel(renderer, x, y);
 						
 						//Get new sample (path tracing is initiated here)
-						struct color sample = pathTrace(&incidentRay, renderer->scene, 0);
+						struct color sample = pathTrace(&incidentRay, renderer->scene, 0, rng);
 						
 						//And process the running average
 						output.red = output.red * (tile.completedSamples - 1);

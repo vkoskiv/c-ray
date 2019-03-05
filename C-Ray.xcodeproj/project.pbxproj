@@ -34,6 +34,7 @@
 		900BA142220B4603005B8EE7 /* converter.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA126220B4602005B8EE7 /* converter.c */; };
 		900BA143220B4603005B8EE7 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA127220B4602005B8EE7 /* logging.c */; };
 		900BA144220B4603005B8EE7 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA129220B4602005B8EE7 /* main.c */; };
+		90369CCC222E012F008D215B /* pcg_basic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90369CCA222E012F008D215B /* pcg_basic.c */; };
 		9058A51122231E9F00193385 /* denoiser.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50D22231E9E00193385 /* denoiser.c */; };
 		9058A51222231E9F00193385 /* learn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50F22231E9E00193385 /* learn.c */; };
 		9058A51522231EB100193385 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
@@ -108,6 +109,8 @@
 		900BA129220B4602005B8EE7 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		900BA12A220B4602005B8EE7 /* includes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = includes.h; sourceTree = "<group>"; };
 		900FB5DB20C3BA3C008174C4 /* scene.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = scene.json; path = input/scene.json; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.javascript; };
+		90369CCA222E012F008D215B /* pcg_basic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pcg_basic.c; sourceTree = "<group>"; };
+		90369CCB222E012F008D215B /* pcg_basic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pcg_basic.h; sourceTree = "<group>"; };
 		9058A50D22231E9E00193385 /* denoiser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = denoiser.c; sourceTree = "<group>"; };
 		9058A50E22231E9E00193385 /* learn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = learn.h; sourceTree = "<group>"; };
 		9058A50F22231E9E00193385 /* learn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = learn.c; sourceTree = "<group>"; };
@@ -207,6 +210,8 @@
 		900BA112220B4602005B8EE7 /* libraries */ = {
 			isa = PBXGroup;
 			children = (
+				90369CCA222E012F008D215B /* pcg_basic.c */,
+				90369CCB222E012F008D215B /* pcg_basic.h */,
 				9058A51322231EB100193385 /* Tinn.h */,
 				9058A51422231EB100193385 /* Tinn.c */,
 				900BA113220B4602005B8EE7 /* lodepng.h */,
@@ -341,6 +346,7 @@
 				900BA130220B4603005B8EE7 /* vector.c in Sources */,
 				900BA138220B4603005B8EE7 /* obj.c in Sources */,
 				900BA131220B4603005B8EE7 /* lightRay.c in Sources */,
+				90369CCC222E012F008D215B /* pcg_basic.c in Sources */,
 				9058A51222231E9F00193385 /* learn.c in Sources */,
 				900BA12C220B4603005B8EE7 /* kdtree.c in Sources */,
 				900BA142220B4603005B8EE7 /* converter.c in Sources */,
@@ -488,7 +494,7 @@
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 					"$(USER_LIBRARY_DIR)/Frameworks",
 				);
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
 					UI_ENABLED,
 					"DEBUG=1",
@@ -518,7 +524,7 @@
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 					"$(USER_LIBRARY_DIR)/Frameworks",
 				);
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = UI_ENABLED;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;

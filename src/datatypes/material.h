@@ -74,7 +74,7 @@ struct material {
 	
 	enum bsdfType type;
 	//isect record, ray, attenuation color, scattered ray
-	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*);
+	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
 };
 
 //temporary newMaterial func
@@ -94,10 +94,10 @@ struct material newMaterialFull(struct color ambient,
 
 struct material emptyMaterial(void);
 
-bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
-bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
-bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
-bool dialectric(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered);
+bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool dialectric(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
 
 void assignBSDF(struct material *mat);
 
