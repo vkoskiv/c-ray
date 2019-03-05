@@ -6,10 +6,14 @@ import os
 filename = './input/animate.json'
 
 with open(filename) as f:
+	backup = f.read()
+
+with open(filename) as f:
     data = json.load(f)
 
 data["scene"]["outputFilePath"] = "output/instanssi/"
-data["renderer"]["sampleCount"] = 5
+data["renderer"]["sampleCount"] = 15
+data["camera"]["transforms"][0]["x"] = 825
 
 for i in range(50):
     data["scene"]["count"] = i
@@ -20,3 +24,6 @@ for i in range(50):
         json.dump(data, f, indent=4)
 
     os.system('./bin/c-ray ' + filename)
+
+with open(filename, 'w') as f:
+	f.write(backup)
