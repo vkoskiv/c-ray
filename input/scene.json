@@ -41,9 +41,16 @@
 		"width": 1280,
 		"height": 800,
 		"ambientColor": {
-			"r": 0.4,
-			"g": 0.6,
-			"b": 0.6
+			"down": {
+				"r": 1.0,
+				"g": 1.0,
+				"b": 1.0
+			},
+			"up": {
+				"r": 0.5,
+				"g": 0.7,
+				"b": 1.0
+			}
 		},
 		"bounces": 50,
 		"inputFilePath": "input/",

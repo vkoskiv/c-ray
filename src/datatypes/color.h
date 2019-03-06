@@ -17,6 +17,11 @@ struct color {
 	double red, green, blue, alpha;
 };
 
+struct gradient {
+	struct color *down;
+	struct color *up;
+};
+
 //Some standard colours
 extern struct color redColor;
 extern struct color greenColor;

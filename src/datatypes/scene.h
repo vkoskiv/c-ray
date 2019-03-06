@@ -21,7 +21,7 @@ struct display;
 //World
 struct world {
 	//Ambient background color.
-	struct color *ambientColor;
+	struct gradient *ambientColor;
 	
 	//OBJ 3D models
 	struct crayOBJ *objs;

@@ -15,7 +15,7 @@
 #include "../acceleration/kdtree.h"
 
 struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *scene);
-struct color getAmbientColor(struct lightRay *incidentRay);
+struct color getAmbientColor(struct lightRay *incidentRay, struct gradient *color);
 
 struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, pcg32_random_t *rng) {
 	struct intersection isect = getClosestIsect(incidentRay, scene);
@@ -39,7 +39,7 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 			return emitted;
 		}
 	} else {
-		return getAmbientColor(incidentRay);
+		return getAmbientColor(incidentRay, scene->ambientColor);
 	}
 }
 
@@ -100,11 +100,13 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 }
 
 //FIXME: Make this configurable, current ambientColor is ignored!
-struct color getAmbientColor(struct lightRay *incidentRay) {
+struct color getAmbientColor(struct lightRay *incidentRay, struct gradient *color) {
 	//Linearly interpolate based on the Y component, from white to light blue
 	struct vector unitDirection = normalizeVector(&incidentRay->direction);
 	double t = 0.5 * (unitDirection.y + 1.0);
-	struct color temp1 = colorCoef(1.0 - t, &(struct color){1.0, 1.0, 1.0, 0.0});
-	struct color temp2 = colorCoef(t, &(struct color){0.5, 0.7, 1.0, 0.0});
+	//struct color temp1 = colorCoef(1.0 - t, &(struct color){1.0, 1.0, 1.0, 0.0});
+	//struct color temp2 = colorCoef(t, &(struct color){0.5, 0.7, 1.0, 0.0});
+	struct color temp1 = colorCoef(1.0 - t, color->down);
+	struct color temp2 = colorCoef(t, color->up);
 	return addColors(&temp1, &temp2);
 }
