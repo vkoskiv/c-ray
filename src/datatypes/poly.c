@@ -59,7 +59,7 @@ bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, double *r
 	struct vector s1 = vectorCross(&ray->direction, &edge2);
 	
 	orientation = scalarProduct(&edge1, &s1);
-	//Prepare for floating point precision errors, find a better way to fix these!
+	
 	if (orientation > -0.000001 && orientation < 0.000001) {
 		return false;
 	}
@@ -90,6 +90,7 @@ bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, double *r
 	
 	*result = temp - 0.005; //This is to fix floating point precision error artifacts
 	*normal = vectorCross(&edge2, &edge1);
+	*normal = normalizeVector(normal);
 	
 	return true;
 }

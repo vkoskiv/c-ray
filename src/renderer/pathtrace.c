@@ -43,22 +43,6 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 	}
 }
 
-void gouraud(struct intersection *isect) {
-	if (polygonArray[isect->polyIndex].hasNormals) {
-		struct vector n0 = normalArray[polygonArray[isect->polyIndex].normalIndex[0]];
-		struct vector n1 = normalArray[polygonArray[isect->polyIndex].normalIndex[1]];
-		struct vector n2 = normalArray[polygonArray[isect->polyIndex].normalIndex[2]];
-		
-		struct vector scaled0 = vectorScale((1 - isect->uv.x - isect->uv.y), &n0);
-		struct vector scaled1 = vectorScale(isect->uv.x, &n1);
-		struct vector scaled2 = vectorScale(isect->uv.y, &n2);
-		
-		struct vector add0 = addVectors(&scaled0, &scaled1);
-		struct vector add1 = addVectors(&add0, &scaled2);
-		isect->surfaceNormal = add1;
-	}
-}
-
 /**
  Calculate the closest intersection point, and other relevant information based on a given lightRay and scene
  See the intersection struct for documentation of what this function calculates.
@@ -91,10 +75,6 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 			isect.didIntersect = true;
 		}
 	}
-	
-	isect.surfaceNormal = normalizeVector(&isect.surfaceNormal);
-	
-	//gouraud(&isect);
 	
 	return isect;
 }
