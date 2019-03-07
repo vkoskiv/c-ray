@@ -61,8 +61,8 @@ uint32_t pcg32_random_r(pcg32_random_t* rng)
 {
     uint64_t oldstate = rng->state;
     rng->state = oldstate * 6364136223846793005ULL + rng->inc;
-	//Note: vkoskiv added the casts here to silence the warning given (implicit conversion)
-    uint32_t xorshifted = ((oldstate >> 18u) ^ oldstate) >> 27u;
+	//Note: VKoskiv added the uint32_t cast to silence implicit cast warning here
+    uint32_t xorshifted = (uint32_t)(((oldstate >> 18u) ^ oldstate) >> 27u);
     uint32_t rot = oldstate >> 59u;
     return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
 }
