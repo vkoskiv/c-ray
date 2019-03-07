@@ -18,20 +18,11 @@
  @return c-ray vector
  */
 struct vector vectorFromObj(obj_vector *vec) {
-	struct vector vector;
-	vector.x = vec->e[0];
-	vector.y = vec->e[1];
-	vector.z = vec->e[2];
-	vector.isTransformed = false;
-	return vector;
+	return (struct vector){vec->e[0], vec->e[1], vec->e[2], false};
 }
 
-
 struct coord coordFromObj(obj_vector *vec) {
-	struct coord coordinate;
-	coordinate.x = vec->e[0];
-	coordinate.y = vec->e[1];
-	return coordinate;
+	return (struct coord){vec->e[0], vec->e[1]};
 }
 
 /**
