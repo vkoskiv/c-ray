@@ -12,7 +12,6 @@
 #include "../libraries/cJSON.h"
 #include "../utils/logging.h"
 #include "../utils/filehandler.h"
-#include <unistd.h>
 
 #include "learn.h"
 
@@ -136,7 +135,7 @@ int saveMetaData(struct model *model, char *filePath) {
 	return 0;
 }
 
-struct model *loadModel(char *filePath) {
+/*struct model *loadModel(char *filePath) {
 	logr(info, "Loading model\n");
 	struct model *model = NULL;
 	//If model exists, read it, otherwise create it and read it.
@@ -154,7 +153,7 @@ struct model *loadModel(char *filePath) {
 		model->network.nhid = model->nhid;
 	}
 	return model;
-}
+}*/
 
 void saveModel(struct model *model, char *filePath) {
 	logr(info, "Saving model\n");
@@ -305,7 +304,7 @@ float *matrixToArray(float ***data, int width, int height) {
 }
 
 void study() {
-	struct model *m = loadModel("./models/model.json");
+	struct model *m = NULL;//loadModel("./models/model.json");
 	
 	struct texture *low = newTexture("./models/examples/0low.png");
 	struct renderTile *lowTiles = NULL;
