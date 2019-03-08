@@ -33,11 +33,6 @@ extern struct poly *polygonArray;
  @return Error codes, 0 if exited normally
  */
 int main(int argc, char *argv[]) {
-	//Seed RNGs
-	srand((int)time(NULL));
-#ifndef WINDOWS
-	srand48(time(NULL));
-#endif
 	
 	if (/* DISABLES CODE */ (false)) {
 		study();
