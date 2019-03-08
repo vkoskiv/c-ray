@@ -191,7 +191,6 @@ struct coord uvFromValues(double u, double v) {
  @return Random double between min and max
  */
 double getRandomDouble(double min, double max, pcg32_random_t *rng) {
-	//return ((((double)rand()) / (double)RAND_MAX) * (max - min)) + min;
 	return (((double)pcg32_random_r(rng) / (double)UINT32_MAX) * (max - min)) + min;
 }
 

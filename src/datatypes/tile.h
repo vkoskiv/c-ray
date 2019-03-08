@@ -28,6 +28,6 @@ enum renderOrder;
 
 int quantizeImage(struct renderTile **renderTiles, struct texture *image, int tileWidth, int tileHeight);
 
-void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder);
+void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder, pcg32_random_t *rng);
 
 struct renderTile getTile(struct renderer *r);

@@ -1109,7 +1109,7 @@ void loadScene(struct renderer *r, char *filename) {
 	//Quantize image into renderTiles
 	r->tileCount = quantizeImage(&r->renderTiles, r->image, r->tileWidth, r->tileHeight);
 	
-	reorderTiles(&r->renderTiles, r->tileCount, r->tileOrder);
+	reorderTiles(&r->renderTiles, r->tileCount, r->tileOrder, &r->rngs[0]);
 	
 	//Compute the focal length for the camera
 	computeFocalLength(r);

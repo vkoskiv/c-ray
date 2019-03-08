@@ -111,7 +111,7 @@ void reorderTopToBottom(struct renderTile **tiles, int tileCount) {
 	*tiles = tempArray;
 }
 
-unsigned int rand_interval(unsigned int min, unsigned int max) {
+unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_random_t *rng) {
 	unsigned int r;
 	const unsigned int range = 1 + max - min;
 	const unsigned int buckets = RAND_MAX / range;
@@ -120,9 +120,8 @@ unsigned int rand_interval(unsigned int min, unsigned int max) {
 	/* Create equal size buckets all in a row, then fire randomly towards
 	 * the buckets until you land in one of them. All buckets are equally
 	 * likely. If you land off the end of the line of buckets, try again. */
-	do
-	{
-		r = rand();
+	do {
+		r = pcg32_random_r(rng);
 	} while (r >= limit);
 	
 	return min + (r / buckets);
@@ -131,9 +130,9 @@ unsigned int rand_interval(unsigned int min, unsigned int max) {
 /**
  Shuffle renderTiles into a random order
  */
-void reorderRandom(struct renderTile **tiles, int tileCount) {
+void reorderRandom(struct renderTile **tiles, int tileCount, pcg32_random_t *rng) {
 	for (int i = 0; i < tileCount; i++) {
-		unsigned int random = rand_interval(0, tileCount - 1);
+		unsigned int random = rand_interval(0, tileCount - 1, rng);
 		
 		struct renderTile temp = (*tiles)[i];
 		(*tiles)[i] = (*tiles)[random];
@@ -200,7 +199,7 @@ void reorderToMiddle(struct renderTile **tiles, int tileCount) {
  
  @param order Render order to be applied
  */
-void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder) {
+void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder, pcg32_random_t *rng) {
 	switch (tileOrder) {
 		case renderOrderFromMiddle:
 		{
@@ -219,7 +218,7 @@ void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder til
 			break;
 		case renderOrderRandom:
 		{
-			reorderRandom(tiles, tileCount);
+			reorderRandom(tiles, tileCount, rng);
 		}
 			break;
 		default:
