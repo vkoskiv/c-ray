@@ -79,7 +79,6 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 	return isect;
 }
 
-//FIXME: Make this configurable, current ambientColor is ignored!
 struct color getAmbientColor(struct lightRay *incidentRay, struct gradient *color) {
 	//Linearly interpolate based on the Y component, from white to light blue
 	struct vector unitDirection = normalizeVector(&incidentRay->direction);

@@ -66,6 +66,10 @@ struct boundingBox *computeBoundingBox(int *polys, int count) {
  @return true if intersected, false otherwise
  */
 bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, double *t) {
+	
+	//If an obj has no polygons, it won't have a root bbox either.
+	if (!box) return false;
+	
 	struct vector dirfrac;
 	dirfrac.x = 1.0 / ray->direction.x;
 	dirfrac.y = 1.0 / ray->direction.y;
