@@ -114,7 +114,7 @@ void reorderTopToBottom(struct renderTile **tiles, int tileCount) {
 unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_random_t *rng) {
 	unsigned int r;
 	const unsigned int range = 1 + max - min;
-	const unsigned int buckets = RAND_MAX / range;
+	const unsigned int buckets = UINT32_MAX / range;
 	const unsigned int limit = buckets * range;
 	
 	/* Create equal size buckets all in a row, then fire randomly towards
