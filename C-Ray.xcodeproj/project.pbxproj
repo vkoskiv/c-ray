@@ -23,7 +23,6 @@
 		900BA137220B4603005B8EE7 /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA10C220B4602005B8EE7 /* camera.c */; };
 		900BA138220B4603005B8EE7 /* obj.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA10F220B4602005B8EE7 /* obj.c */; };
 		900BA139220B4603005B8EE7 /* color.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA110220B4602005B8EE7 /* color.c */; };
-		900BA13A220B4603005B8EE7 /* string_extra.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA115220B4602005B8EE7 /* string_extra.c */; };
 		900BA13B220B4603005B8EE7 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA116220B4602005B8EE7 /* list.c */; };
 		900BA13C220B4603005B8EE7 /* obj_parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA119220B4602005B8EE7 /* obj_parser.c */; };
 		900BA13D220B4603005B8EE7 /* lodepng.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11B220B4602005B8EE7 /* lodepng.c */; };
@@ -87,10 +86,8 @@
 		900BA111220B4602005B8EE7 /* scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene.h; sourceTree = "<group>"; };
 		900BA113220B4602005B8EE7 /* lodepng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lodepng.h; sourceTree = "<group>"; };
 		900BA114220B4602005B8EE7 /* obj_parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = obj_parser.h; sourceTree = "<group>"; };
-		900BA115220B4602005B8EE7 /* string_extra.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = string_extra.c; sourceTree = "<group>"; };
 		900BA116220B4602005B8EE7 /* list.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = list.c; sourceTree = "<group>"; };
 		900BA117220B4602005B8EE7 /* cJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cJSON.h; sourceTree = "<group>"; };
-		900BA118220B4602005B8EE7 /* string_extra.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_extra.h; sourceTree = "<group>"; };
 		900BA119220B4602005B8EE7 /* obj_parser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_parser.c; sourceTree = "<group>"; };
 		900BA11A220B4602005B8EE7 /* list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = list.h; sourceTree = "<group>"; };
 		900BA11B220B4602005B8EE7 /* lodepng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lodepng.c; sourceTree = "<group>"; };
@@ -218,8 +215,6 @@
 				900BA11B220B4602005B8EE7 /* lodepng.c */,
 				900BA114220B4602005B8EE7 /* obj_parser.h */,
 				900BA119220B4602005B8EE7 /* obj_parser.c */,
-				900BA118220B4602005B8EE7 /* string_extra.h */,
-				900BA115220B4602005B8EE7 /* string_extra.c */,
 				900BA11A220B4602005B8EE7 /* list.h */,
 				900BA116220B4602005B8EE7 /* list.c */,
 				900BA117220B4602005B8EE7 /* cJSON.h */,
@@ -351,7 +346,6 @@
 				900BA12C220B4603005B8EE7 /* kdtree.c in Sources */,
 				900BA142220B4603005B8EE7 /* converter.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
-				900BA13A220B4603005B8EE7 /* string_extra.c in Sources */,
 				900BA13E220B4603005B8EE7 /* cJSON.c in Sources */,
 				900BA139220B4603005B8EE7 /* color.c in Sources */,
 				900BA12E220B4603005B8EE7 /* renderer.c in Sources */,
