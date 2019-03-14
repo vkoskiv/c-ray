@@ -130,6 +130,15 @@ struct color colorForUV(struct intersection *isect) {
 	return output;
 }
 
+struct color gradient(struct intersection *isect) {
+	//barycentric coordinates for this polygon
+	double u = isect->uv.x;
+	double v = isect->uv.y;
+	double w = 1.0 - u - v; //1.0 - u - v
+	
+	return colorWithValues(u, v, w, 1.0);
+}
+
 //FIXME: Make this configurable
 //This is a checkerboard pattern mapped to the surface coordinate space
 struct color mappedCheckerBoard(struct intersection *isect, float coef) {
