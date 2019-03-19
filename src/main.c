@@ -16,6 +16,7 @@
 #include "datatypes/scene.h"
 #include "utils/ui.h"
 #include "utils/learn.h"
+#include "utils/multiplatform.h"
 
 int getFileSize(char *fileName);
 void initRenderer(struct renderer *renderer);

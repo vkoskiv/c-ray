@@ -37,6 +37,7 @@
 		9058A51122231E9F00193385 /* denoiser.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50D22231E9E00193385 /* denoiser.c */; };
 		9058A51222231E9F00193385 /* learn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50F22231E9E00193385 /* learn.c */; };
 		9058A51522231EB100193385 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
+		907CD47A2240DFFF003947B0 /* multiplatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 907CD4792240DFFF003947B0 /* multiplatform.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -114,6 +115,8 @@
 		9058A51022231E9F00193385 /* denoiser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = denoiser.h; sourceTree = "<group>"; };
 		9058A51322231EB100193385 /* Tinn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tinn.h; sourceTree = "<group>"; };
 		9058A51422231EB100193385 /* Tinn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Tinn.c; sourceTree = "<group>"; };
+		907CD4782240DFFF003947B0 /* multiplatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multiplatform.h; sourceTree = "<group>"; };
+		907CD4792240DFFF003947B0 /* multiplatform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = multiplatform.c; sourceTree = "<group>"; };
 		90D99AF41D08ADB10015A854 /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90E2DB28223D575600E7A305 /* asprintf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asprintf.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -228,6 +231,8 @@
 		900BA11D220B4602005B8EE7 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				907CD4782240DFFF003947B0 /* multiplatform.h */,
+				907CD4792240DFFF003947B0 /* multiplatform.c */,
 				9058A51022231E9F00193385 /* denoiser.h */,
 				9058A50D22231E9E00193385 /* denoiser.c */,
 				9058A50E22231E9E00193385 /* learn.h */,
@@ -330,6 +335,7 @@
 			files = (
 				900BA144220B4603005B8EE7 /* main.c in Sources */,
 				900BA136220B4603005B8EE7 /* sphere.c in Sources */,
+				907CD47A2240DFFF003947B0 /* multiplatform.c in Sources */,
 				900BA12F220B4603005B8EE7 /* poly.c in Sources */,
 				900BA13C220B4603005B8EE7 /* obj_parser.c in Sources */,
 				900BA143220B4603005B8EE7 /* logging.c in Sources */,

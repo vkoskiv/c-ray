@@ -16,8 +16,6 @@ enum logType {
 	warning
 };
 
-void initTerminal(void);
-
 void logr(enum logType type, const char *fmt, ...);
 
 void printStats(struct renderer *r, unsigned long long ms, unsigned long long samples, int thread);

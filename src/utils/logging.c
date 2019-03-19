@@ -22,24 +22,6 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
-void initTerminal() {
-	
-	//Disable output buffering
-	setbuf(stdout, NULL);
-	
-	//Configure Windows terminals to handle color escape codes
-	#ifdef WINDOWS
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	if (hOut != INVALID_HANDLE_VALUE) {
-		DWORD dwMode = 0;
-		if (GetConsoleMode(hOut, &dwMode)) {
-			dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-			SetConsoleMode(hOut, dwMode);
-		}
-	}
-	#endif
-}
-
 void logr(enum logType type, const char *fmt, ...) {
 	
 	time_t curTime = time(NULL);
