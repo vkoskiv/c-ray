@@ -95,6 +95,12 @@ DWORD WINAPI renderThread(LPVOID arg);
 void *renderThread(void *arg);
 #endif
 
+#ifdef WINDOWS
+DWORD WINAPI renderThreadGlobal(LPVOID arg);
+#else
+void *renderThreadGlobal(void *arg);
+#endif
+
 //Initialize a new renderer
 struct renderer *newRenderer(void);
 
