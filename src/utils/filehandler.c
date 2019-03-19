@@ -6,6 +6,7 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "../libraries/asprintf.h"
 #include "../includes.h"
 #include "filehandler.h"
 
@@ -156,22 +157,14 @@ void writeImage(struct renderer *r) {
 	switch (r->mode) {
 		case saveModeNormal: {
 			//Save image data to a file
-			int bufSize;
-			if (r->image->count < 100) {
-				bufSize = 36;
-			} else if (r->image->count < 1000) {
-				bufSize = 37;
-			} else {
-				bufSize = 38;
-			}
-			char *buf = calloc(bufSize, sizeof(char));
+			char *buf = NULL;
 			
 			if (r->image->fileType == bmp){
-				sprintf(buf, "%s%s_%04d.bmp", r->image->filePath, r->image->fileName, r->image->count);
+				asprintf(&buf, "%s%s_%04d.bmp", r->image->filePath, r->image->fileName, r->image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
 				saveBmpFromArray(buf, r->image->data, *r->image->width, *r->image->height);
 			} else if (r->image->fileType == png){
-				sprintf(buf, "%s%s_%04d.png", r->image->filePath, r->image->fileName, r->image->count);
+				asprintf(&buf, "%s%s_%04d.png", r->image->filePath, r->image->fileName, r->image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
 				encodePNGFromArray(buf, r->image->data, *r->image->width, *r->image->height);
 			}

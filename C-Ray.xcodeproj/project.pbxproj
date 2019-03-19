@@ -115,6 +115,7 @@
 		9058A51322231EB100193385 /* Tinn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tinn.h; sourceTree = "<group>"; };
 		9058A51422231EB100193385 /* Tinn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Tinn.c; sourceTree = "<group>"; };
 		90D99AF41D08ADB10015A854 /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
+		90E2DB28223D575600E7A305 /* asprintf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asprintf.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -207,6 +208,7 @@
 		900BA112220B4602005B8EE7 /* libraries */ = {
 			isa = PBXGroup;
 			children = (
+				90E2DB28223D575600E7A305 /* asprintf.h */,
 				90369CCA222E012F008D215B /* pcg_basic.c */,
 				90369CCB222E012F008D215B /* pcg_basic.h */,
 				9058A51322231EB100193385 /* Tinn.h */,
