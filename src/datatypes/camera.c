@@ -20,8 +20,7 @@
  */
 void transformCameraView(struct camera *cam, struct vector *direction) {
 	for (int i = 1; i < cam->transformCount; i++) {
-		transformVector(direction, &cam->transforms[i]);
-		direction->isTransformed = false;
+		transformVector(direction, &cam->transforms[i], false);
 	}
 }
 
@@ -40,7 +39,7 @@ void initCamera(struct camera *cam) {
 //TODO: Fix so the translate transform is always performed correctly no matter what order transforms are given in
 void transformCameraIntoView(struct camera *cam) {
 	//Compute transforms for position (place the camera in the scene)
-	transformVector(&cam->pos, &cam->transforms[0]);
+	transformVector(&cam->pos, &cam->transforms[0], false);
 	
 	//...and compute rotation transforms for camera orientation (point the camera)
 	transformCameraView(cam, &cam->left);

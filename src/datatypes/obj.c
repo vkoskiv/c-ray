@@ -65,20 +65,23 @@ void addTransform(struct crayOBJ *obj, struct matrixTransform transform) {
 }
 
 void transformMesh(struct crayOBJ *object) {
+	bool *tformed = (bool *)calloc(object->polyCount*3, sizeof(bool *));
 	for (int tf = 0; tf < object->transformCount; tf++) {
 		//Perform transforms
 		for (int p = object->firstPolyIndex; p < (object->firstPolyIndex + object->polyCount); p++) {
 			for (int v = 0; v < polygonArray[p].vertexCount; v++) {
-				transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], &object->transforms[tf]);
+				transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], &object->transforms[tf], tformed[polygonArray[p].vertexIndex[v]]);
+				tformed[polygonArray[p].vertexIndex[v]] = true;
 			}
 		}
 		//Clear isTransformed flags
 		for (int p = object->firstPolyIndex; p < object->firstPolyIndex + object->polyCount; p++) {
 			for (int v = 0; v < polygonArray->vertexCount; v++) {
-				vertexArray[polygonArray[p].vertexIndex[v]].isTransformed = false;
+				tformed[polygonArray[p].vertexIndex[v]] = false;
 			}
 		}
 	}
+	free(tformed);
 }
 
 void freeOBJ(struct crayOBJ *obj) {

@@ -40,4 +40,4 @@ struct matrixTransform newTransformRotateY(double degrees);
 struct matrixTransform newTransformRotateZ(double degrees);
 struct matrixTransform emptyTransform(void);
 
-void transformVector(struct vector *vec, struct matrixTransform *tf); //Expose for renderer
+void transformVector(struct vector *vec, struct matrixTransform *tf, bool isTransformed); //Expose for renderer

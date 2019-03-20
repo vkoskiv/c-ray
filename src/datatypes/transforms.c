@@ -25,8 +25,8 @@ struct matrixTransform emptyTransform() {
 }
 
 //http://tinyurl.com/hte35pq
-void transformVector(struct vector *vec, struct matrixTransform *tf) {
-	if (!vec->isTransformed) {
+void transformVector(struct vector *vec, struct matrixTransform *tf, bool isTransformed) {
+	if (!isTransformed) {
 		struct vector temp;
 		temp.x = (tf->a * vec->x) + (tf->b * vec->y) + (tf->c * vec->z) + tf->d;
 		temp.y = (tf->e * vec->x) + (tf->f * vec->y) + (tf->g * vec->z) + tf->h;
@@ -34,7 +34,6 @@ void transformVector(struct vector *vec, struct matrixTransform *tf) {
 		vec->x = temp.x;
 		vec->y = temp.y;
 		vec->z = temp.z;
-		vec->isTransformed = true;
 	}
 }
 
