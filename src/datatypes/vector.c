@@ -74,9 +74,8 @@ struct vector subtractVectors(const struct vector *v1, const struct vector *v2) 
 	return (struct vector){v1->x - v2->x, v1->y - v2->y, v1->z - v2->z};
 }
 
-struct vector vectorSubtract(const struct vector* v, double n) {
-	struct vector rv = {v->x - n, v->y - n, v->z - n};
-	return rv;
+struct vector vectorSubtractConstant(const struct vector* v, double n) {
+	return (struct vector){v->x - n, v->y - n, v->z - n};
 }
 
 /**
@@ -241,6 +240,6 @@ Returns the reflected ray vector from a surface
 @return Vector of the reflected ray vector from a surface
 */
 struct vector reflect(const struct vector* I, const struct vector* N) {
-	struct vector Imin2dotNI = vectorSubtract(I, scalarProduct(N, I) * 2.0);
+	struct vector Imin2dotNI = vectorSubtractConstant(I, scalarProduct(N, I) * 2.0);
 	return multiplyVectors(*N, Imin2dotNI);
 }
