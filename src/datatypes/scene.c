@@ -739,7 +739,7 @@ struct vector parseCoordinate(const cJSON *data) {
 	}
 	logr(warning, "Invalid coordinate parsed! Returning 0,0,0\n");
 	logr(warning, "Faulty JSON: %s\n", cJSON_Print(data));
-	return (struct vector){0.0,0.0,0.0,false};
+	return (struct vector){0.0,0.0,0.0};
 }
 
 void parseLight(struct renderer *r, const cJSON *data) {

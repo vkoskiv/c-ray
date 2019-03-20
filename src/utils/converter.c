@@ -18,7 +18,7 @@
  @return c-ray vector
  */
 struct vector vectorFromObj(obj_vector *vec) {
-	return (struct vector){vec->e[0], vec->e[1], vec->e[2], false};
+	return (struct vector){vec->e[0], vec->e[1], vec->e[2]};
 }
 
 struct coord coordFromObj(obj_vector *vec) {

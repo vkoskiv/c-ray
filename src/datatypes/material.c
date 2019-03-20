@@ -192,7 +192,7 @@ struct vector reflectVec(const struct vector *incident, const struct vector *nor
 }
 
 struct vector randomInUnitSphere(pcg32_random_t *rng) {
-	struct vector vec = (struct vector){0.0, 0.0, 0.0, false};
+	struct vector vec = (struct vector){0.0, 0.0, 0.0};
 	do {
 		vec = vectorMultiply(vectorWithPos(getRandomDouble(0, 1, rng), getRandomDouble(0, 1, rng), getRandomDouble(0, 1, rng)), 2.0);
 		struct vector temp = vectorWithPos(1.0, 1.0, 1.0);

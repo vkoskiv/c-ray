@@ -35,7 +35,7 @@ int textureCount;
  @return Vector with given values
  */
 struct vector vectorWithPos(double x, double y, double z) {
-	return (struct vector){x, y, z, false};
+	return (struct vector){x, y, z};
 }
 
 /**
@@ -46,7 +46,7 @@ struct vector vectorWithPos(double x, double y, double z) {
  @return Resulting vector
  */
 struct vector addVectors(struct vector *v1, struct vector *v2) {
-	return (struct vector){v1->x + v2->x, v1->y + v2->y, v1->z + v2->z, false};
+	return (struct vector){v1->x + v2->x, v1->y + v2->y, v1->z + v2->z};
 }
 
 /**
@@ -71,11 +71,11 @@ double squaredVectorLength(struct vector *v) {
  @return Resulting vector
  */
 struct vector subtractVectors(const struct vector *v1, const struct vector *v2) {
-	return (struct vector){v1->x - v2->x, v1->y - v2->y, v1->z - v2->z, false};
+	return (struct vector){v1->x - v2->x, v1->y - v2->y, v1->z - v2->z};
 }
 
 struct vector vectorSubtract(const struct vector* v, double n) {
-	struct vector rv = {v->x - n, v->y - n, v->z - n, false};
+	struct vector rv = {v->x - n, v->y - n, v->z - n};
 	return rv;
 }
 
@@ -98,7 +98,7 @@ double scalarProduct(const struct vector *v1, const struct vector *v2) {
  @return Multiplied vector
  */
 struct vector vectorScale(const double c, const struct vector *v) {
-	return (struct vector){v->x * c, v->y * c, v->z * c, false};
+	return (struct vector){v->x * c, v->y * c, v->z * c};
 }
 
 struct coord coordScale(const double c, const struct coord *crd) {
@@ -119,7 +119,7 @@ struct coord addCoords(const struct coord *c1, const struct coord *c2) {
 struct vector vectorCross(struct vector *v1, struct vector *v2) {
 	return (struct vector){((v1->y * v2->z) - (v1->z * v2->y)),
 		((v1->z * v2->x) - (v1->x * v2->z)),
-		((v1->x * v2->y) - (v1->y * v2->x)), false};
+		((v1->x * v2->y) - (v1->y * v2->x))};
 }
 
 /**
@@ -130,7 +130,7 @@ struct vector vectorCross(struct vector *v1, struct vector *v2) {
  @return Smallest vector
  */
 struct vector minVector(struct vector *v1, struct vector *v2) {
-	return (struct vector){min(v1->x, v2->x), min(v1->y, v2->y), min(v1->z, v2->z), false};
+	return (struct vector){min(v1->x, v2->x), min(v1->y, v2->y), min(v1->z, v2->z)};
 }
 
 /**
@@ -141,7 +141,7 @@ struct vector minVector(struct vector *v1, struct vector *v2) {
  @return Largest vector
  */
 struct vector maxVector(struct vector *v1, struct vector *v2) {
-	return (struct vector){max(v1->x, v2->x), max(v1->y, v2->y), max(v1->z, v2->z), false};
+	return (struct vector){max(v1->x, v2->x), max(v1->y, v2->y), max(v1->z, v2->z)};
 }
 
 
@@ -153,7 +153,7 @@ struct vector maxVector(struct vector *v1, struct vector *v2) {
  */
 struct vector normalizeVector(struct vector *v) {
 	double length = vectorLength(v);
-	return (struct vector){v->x / length, v->y / length, v->z / length, false};
+	return (struct vector){v->x / length, v->y / length, v->z / length};
 }
 
 
@@ -222,15 +222,15 @@ struct vector getRandomVecOnPlane(struct vector center, double radius, pcg32_ran
 }
 
 struct vector multiplyVectors(struct vector v1, struct vector v2) {
-	return (struct vector){v1.x * v2.x, v1.y * v2.y, v1.z * v2.z, false};
+	return (struct vector){v1.x * v2.x, v1.y * v2.y, v1.z * v2.z};
 }
 
 struct vector vectorMultiply(struct vector v, double c) {
-	return (struct vector){v.x * c, v.y * c, v.z * c, false};
+	return (struct vector){v.x * c, v.y * c, v.z * c};
 }
 
 struct vector negateVector(struct vector v) {
-	return (struct vector){-v.x, -v.y, -v.z, false};
+	return (struct vector){-v.x, -v.y, -v.z};
 }
 
 /**
