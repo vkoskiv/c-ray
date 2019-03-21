@@ -180,26 +180,6 @@
 				"transforms": []
 			},
 			{
-				"fileName": "teht1.objdisabled",
-				"bsdf": "lambertian",
-				"transforms": [
-					{
-						"type": "scaleUniform",
-						"scale": 40
-					},
-					{
-						"type": "rotateX",
-						"degrees": 90
-					},
-					{
-						"type": "translate",
-						"x": 870,
-						"y": 350,
-						"z": 800
-					}
-				]
-			},
-			{
 				"fileName": "torus.obj",
 				"bsdf": "lambertian",
 				"transforms": [
@@ -272,26 +252,6 @@
 						"x": 740,
 						"y": 299,
 						"z": 1200
-					}
-				]
-			},
-			{
-				"fileName": "teapot_white.obj",
-				"bsdf": "lambertian",
-				"transforms": [
-					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 45
-					},
-					{
-						"type": "translate",
-						"x": 855,
-						"y": 299,
-						"z": 1125
 					}
 				]
 			},
