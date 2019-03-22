@@ -34,7 +34,7 @@ int textureCount;
  @param z Z component
  @return Vector with given values
  */
-struct vector vectorWithPos(double x, double y, double z) {
+struct vector vecWithPos(double x, double y, double z) {
 	return (struct vector){x, y, z};
 }
 
@@ -45,7 +45,7 @@ struct vector vectorWithPos(double x, double y, double z) {
  @param v2 Vector 2
  @return Resulting vector
  */
-struct vector addVectors(struct vector *v1, struct vector *v2) {
+struct vector vecAdd(struct vector *v1, struct vector *v2) {
 	return (struct vector){v1->x + v2->x, v1->y + v2->y, v1->z + v2->z};
 }
 
@@ -55,11 +55,11 @@ struct vector addVectors(struct vector *v1, struct vector *v2) {
  @param v Vector to compute the length for
  @return Length of given vector
  */
-double vectorLength(struct vector *v) {
+double vecLength(struct vector *v) {
 	return sqrt(v->x*v->x + v->y*v->y + v->z*v->z);
 }
 
-double squaredVectorLength(struct vector *v) {
+double vecLengthSquared(struct vector *v) {
 	return v->x * v->x + v->y * v->y + v->z * v->z;
 }
 
@@ -70,11 +70,11 @@ double squaredVectorLength(struct vector *v) {
  @param v2 Vector to be subtracted
  @return Resulting vector
  */
-struct vector subtractVectors(const struct vector *v1, const struct vector *v2) {
+struct vector vecSubtract(const struct vector *v1, const struct vector *v2) {
 	return (struct vector){v1->x - v2->x, v1->y - v2->y, v1->z - v2->z};
 }
 
-struct vector vectorSubtractConstant(const struct vector* v, double n) {
+struct vector vecSubtractConst(const struct vector* v, double n) {
 	return (struct vector){v->x - n, v->y - n, v->z - n};
 }
 
@@ -85,7 +85,7 @@ struct vector vectorSubtractConstant(const struct vector* v, double n) {
  @param v2 Vector 2
  @return Resulting scalar
  */
-double scalarProduct(const struct vector *v1, const struct vector *v2) {
+double vecDot(const struct vector *v1, const struct vector *v2) {
 	return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
 }
 
@@ -96,7 +96,7 @@ double scalarProduct(const struct vector *v1, const struct vector *v2) {
  @param v Vector to be multiplied
  @return Multiplied vector
  */
-struct vector vectorScale(const double c, const struct vector *v) {
+struct vector vecScale(const double c, const struct vector *v) {
 	return (struct vector){v->x * c, v->y * c, v->z * c};
 }
 
@@ -115,7 +115,7 @@ struct coord addCoords(const struct coord *c1, const struct coord *c2) {
  @param v2 Vector 2
  @return Cross product of given vectors
  */
-struct vector vectorCross(struct vector *v1, struct vector *v2) {
+struct vector vecCross(struct vector *v1, struct vector *v2) {
 	return (struct vector){((v1->y * v2->z) - (v1->z * v2->y)),
 		((v1->z * v2->x) - (v1->x * v2->z)),
 		((v1->x * v2->y) - (v1->y * v2->x))};
@@ -128,7 +128,7 @@ struct vector vectorCross(struct vector *v1, struct vector *v2) {
  @param v2 Vector 2
  @return Smallest vector
  */
-struct vector minVector(struct vector *v1, struct vector *v2) {
+struct vector vecMin(struct vector *v1, struct vector *v2) {
 	return (struct vector){min(v1->x, v2->x), min(v1->y, v2->y), min(v1->z, v2->z)};
 }
 
@@ -139,7 +139,7 @@ struct vector minVector(struct vector *v1, struct vector *v2) {
  @param v2 Vector 2
  @return Largest vector
  */
-struct vector maxVector(struct vector *v1, struct vector *v2) {
+struct vector vecMax(struct vector *v1, struct vector *v2) {
 	return (struct vector){max(v1->x, v2->x), max(v1->y, v2->y), max(v1->z, v2->z)};
 }
 
@@ -150,8 +150,8 @@ struct vector maxVector(struct vector *v1, struct vector *v2) {
  @param v Vector to normalize
  @return normalized vector
  */
-struct vector normalizeVector(struct vector *v) {
-	double length = vectorLength(v);
+struct vector vecNormalize(struct vector *v) {
+	double length = vecLength(v);
 	return (struct vector){v->x / length, v->y / length, v->z / length};
 }
 
@@ -166,9 +166,9 @@ struct vector normalizeVector(struct vector *v) {
  @return Mid-point of given vectors
  */
 struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v3) {
-	struct vector temp = addVectors(v1, v2);
-	temp = addVectors(&temp, v3);
-	return vectorScale(1.0/3.0, &temp);
+	struct vector temp = vecAdd(v1, v2);
+	temp = vecAdd(&temp, v3);
+	return vecScale(1.0/3.0, &temp);
 }
 
 /**
@@ -189,7 +189,7 @@ struct coord uvFromValues(double u, double v) {
  @param max Maximum value
  @return Random double between min and max
  */
-double getRandomDouble(double min, double max, pcg32_random_t *rng) {
+double rndDouble(double min, double max, pcg32_random_t *rng) {
 	return (((double)pcg32_random_r(rng) / (double)UINT32_MAX) * (max - min)) + min;
 }
 
@@ -201,9 +201,9 @@ double getRandomDouble(double min, double max, pcg32_random_t *rng) {
  @return Vector of a random position within a radius of center point
  */
 struct vector getRandomVecOnRadius(struct vector center, double radius, pcg32_random_t *rng) {
-	return vectorWithPos(center.x + getRandomDouble(-radius, radius, rng),
-						 center.y + getRandomDouble(-radius, radius, rng),
-						 center.z + getRandomDouble(-radius, radius, rng));
+	return vecWithPos(center.x + rndDouble(-radius, radius, rng),
+					  center.y + rndDouble(-radius, radius, rng),
+					  center.z + rndDouble(-radius, radius, rng));
 }
 
 /**
@@ -215,20 +215,20 @@ struct vector getRandomVecOnRadius(struct vector center, double radius, pcg32_ra
  */
 struct vector getRandomVecOnPlane(struct vector center, double radius, pcg32_random_t *rng) {
 	//FIXME: This only works in one orientation!
-	return vectorWithPos(center.x + getRandomDouble(-radius, radius, rng),
-						 center.y + getRandomDouble(-radius, radius, rng),
+	return vecWithPos(center.x + rndDouble(-radius, radius, rng),
+						 center.y + rndDouble(-radius, radius, rng),
 						 center.z);
 }
 
-struct vector multiplyVectors(struct vector v1, struct vector v2) {
+struct vector vecMultiply(struct vector v1, struct vector v2) {
 	return (struct vector){v1.x * v2.x, v1.y * v2.y, v1.z * v2.z};
 }
 
-struct vector vectorMultiply(struct vector v, double c) {
+struct vector vecMultiplyConst(struct vector v, double c) {
 	return (struct vector){v.x * c, v.y * c, v.z * c};
 }
 
-struct vector negateVector(struct vector v) {
+struct vector vecNegate(struct vector v) {
 	return (struct vector){-v.x, -v.y, -v.z};
 }
 
@@ -240,6 +240,6 @@ Returns the reflected ray vector from a surface
 @return Vector of the reflected ray vector from a surface
 */
 struct vector reflect(const struct vector* I, const struct vector* N) {
-	struct vector Imin2dotNI = vectorSubtractConstant(I, scalarProduct(N, I) * 2.0);
-	return multiplyVectors(*N, Imin2dotNI);
+	struct vector Imin2dotNI = vecSubtractConst(I, vecDot(N, I) * 2.0);
+	return vecMultiply(*N, Imin2dotNI);
 }

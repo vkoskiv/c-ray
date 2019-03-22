@@ -27,7 +27,7 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 			double probability = 1;
 			if (depth >= 2) {
 				probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
-				if (getRandomDouble(0, 1, rng) > probability) {
+				if (rndDouble(0, 1, rng) > probability) {
 					return emitted;
 				}
 			}
@@ -81,7 +81,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 
 struct color getAmbientColor(struct lightRay *incidentRay, struct gradient *color) {
 	//Linearly interpolate based on the Y component, from white to light blue
-	struct vector unitDirection = normalizeVector(&incidentRay->direction);
+	struct vector unitDirection = vecNormalize(&incidentRay->direction);
 	double t = 0.5 * (unitDirection.y + 1.0);
 	struct color temp1 = colorCoef(1.0 - t, color->down);
 	struct color temp2 = colorCoef(t, color->up);

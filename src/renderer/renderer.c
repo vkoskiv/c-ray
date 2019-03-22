@@ -144,8 +144,8 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 					
 					//A cheap 'antialiasing' of sorts. The more samples, the better this works
 					if (renderer->antialiasing) {
-						fracX = getRandomDouble(fracX - 0.25, fracX + 0.25, rng);
-						fracY = getRandomDouble(fracY - 0.25, fracY + 0.25, rng);
+						fracX = rndDouble(fracX - 0.25, fracX + 0.25, rng);
+						fracY = rndDouble(fracY - 0.25, fracY + 0.25, rng);
 					}
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
@@ -157,7 +157,7 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 						1.0};
 					
 					//Normalize direction
-					direction = normalizeVector(&direction);
+					direction = vecNormalize(&direction);
 					struct vector startPos = renderer->scene->camera->pos;
 					struct vector left = renderer->scene->camera->left;
 					struct vector up = renderer->scene->camera->up;
@@ -171,13 +171,13 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 					if (aperture <= 0.0) {
 						incidentRay.start = startPos;
 					} else {
-						double randY = getRandomDouble(-aperture, aperture, rng);
-						double randX = getRandomDouble(-aperture, aperture, rng);
+						double randY = rndDouble(-aperture, aperture, rng);
+						double randX = rndDouble(-aperture, aperture, rng);
 						
-						struct vector upTemp = vectorScale(randY, &up);
-						struct vector temp = addVectors(&startPos, &upTemp);
-						struct vector leftTemp = vectorScale(randX, &left);
-						struct vector randomStart = addVectors(&temp, &leftTemp);
+						struct vector upTemp = vecScale(randY, &up);
+						struct vector temp = vecAdd(&startPos, &upTemp);
+						struct vector leftTemp = vecScale(randX, &left);
+						struct vector randomStart = vecAdd(&temp, &leftTemp);
 						
 						incidentRay.start = randomStart;
 					}
@@ -289,8 +289,8 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						
 						//A cheap 'antialiasing' of sorts. The more samples, the better this works
 						if (renderer->antialiasing) {
-							fracX = getRandomDouble(fracX - 0.25, fracX + 0.25, rng);
-							fracY = getRandomDouble(fracY - 0.25, fracY + 0.25, rng);
+							fracX = rndDouble(fracX - 0.25, fracX + 0.25, rng);
+							fracY = rndDouble(fracY - 0.25, fracY + 0.25, rng);
 						}
 						
 						//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
@@ -302,7 +302,7 @@ DWORD WINAPI renderThread(LPVOID arg) {
 													1.0};
 						
 						//Normalize direction
-						direction = normalizeVector(&direction);
+						direction = vecNormalize(&direction);
 						struct vector startPos = renderer->scene->camera->pos;
 						struct vector left = renderer->scene->camera->left;
 						struct vector up = renderer->scene->camera->up;
@@ -316,13 +316,13 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						if (aperture <= 0.0) {
 							incidentRay.start = startPos;
 						} else {
-							double randY = getRandomDouble(-aperture, aperture, rng);
-							double randX = getRandomDouble(-aperture, aperture, rng);
+							double randY = rndDouble(-aperture, aperture, rng);
+							double randX = rndDouble(-aperture, aperture, rng);
 							
-							struct vector upTemp = vectorScale(randY, &up);
-							struct vector temp = addVectors(&startPos, &upTemp);
-							struct vector leftTemp = vectorScale(randX, &left);
-							struct vector randomStart = addVectors(&temp, &leftTemp);
+							struct vector upTemp = vecScale(randY, &up);
+							struct vector temp = vecAdd(&startPos, &upTemp);
+							struct vector leftTemp = vecScale(randX, &left);
+							struct vector randomStart = vecAdd(&temp, &leftTemp);
 							
 							incidentRay.start = randomStart;
 						}

@@ -734,7 +734,7 @@ struct vector parseCoordinate(const cJSON *data) {
 	
 	if (X != NULL && Y != NULL && Z != NULL) {
 		if (cJSON_IsNumber(X) && cJSON_IsNumber(Y) && cJSON_IsNumber(Z)) {
-			return vectorWithPos(X->valuedouble, Y->valuedouble, Z->valuedouble);
+			return vecWithPos(X->valuedouble, Y->valuedouble, Z->valuedouble);
 		}
 	}
 	logr(warning, "Invalid coordinate parsed! Returning 0,0,0\n");
