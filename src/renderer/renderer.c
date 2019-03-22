@@ -131,15 +131,16 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 		startTimer(&renderer->timers[tinfo->thread_num]);
 		
 		int completedSamples = 0;
+		int height = *renderer->image->height;
+		int width = *renderer->image->width;
 		
 		while (completedSamples < renderer->sampleCount+1 && renderer->isRendering) {
 			for (int y = 0; y < *renderer->image->height-1; y++) {
-				for (int x = 0; x < *renderer->image->width-1; x += renderer->threadCount) {
+				for (int x = 0; x < ((*renderer->image->width-1)); x += renderer->threadCount) {
+					int tempx = x + tinfo->thread_num;
+					if (tempx > *renderer->image->width) break;
 					
-					int height = *renderer->image->height;
-					int width = *renderer->image->width;
-					
-					double fracX = (double)x + tinfo->thread_num;
+					double fracX = (double)tempx;
 					double fracY = (double)y;
 					
 					//A cheap 'antialiasing' of sorts. The more samples, the better this works
@@ -191,7 +192,7 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 					//The next block of code does this
 					
 					//Get previous color value from render buffer
-					struct color output = getPixel(renderer, x, y);
+					struct color output = getPixel(renderer, tempx, y);
 					
 					//Get new sample (path tracing is initiated here)
 					struct color sample = pathTrace(&incidentRay, renderer->scene, 0, rng);
@@ -208,9 +209,9 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 					output.blue = output.blue / completedSamples;
 					
 					//Store render buffer
-					renderer->renderBuffer[(x + (height - y)*width)*3 + 0] = output.red;
-					renderer->renderBuffer[(x + (height - y)*width)*3 + 1] = output.green;
-					renderer->renderBuffer[(x + (height - y)*width)*3 + 2] = output.blue;
+					renderer->renderBuffer[(tempx + (height - y)*width)*3 + 0] = output.red;
+					renderer->renderBuffer[(tempx + (height - y)*width)*3 + 1] = output.green;
+					renderer->renderBuffer[(tempx + (height - y)*width)*3 + 2] = output.blue;
 					
 					//Gamma correction
 					output = toSRGB(output);
@@ -219,11 +220,11 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 					//Note how imageData only stores 8-bit precision for each color channel.
 					//This is why we use the renderBuffer for the running average as it just contains
 					//the full precision color values
-					renderer->image->data[(x + (height - y)*width)*3 + 0] =
+					renderer->image->data[(tempx + (height - y)*width)*3 + 0] =
 					(unsigned char)min( max(output.red*255.0,0), 255.0);
-					renderer->image->data[(x + (height - y)*width)*3 + 1] =
+					renderer->image->data[(tempx + (height - y)*width)*3 + 1] =
 					(unsigned char)min( max(output.green*255.0,0), 255.0);
-					renderer->image->data[(x + (height - y)*width)*3 + 2] =
+					renderer->image->data[(tempx + (height - y)*width)*3 + 2] =
 					(unsigned char)min( max(output.blue*255.0,0), 255.0);
 				}
 			}
