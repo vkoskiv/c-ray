@@ -208,24 +208,14 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 					output.green = output.green / completedSamples;
 					output.blue = output.blue / completedSamples;
 					
-					//Store render buffer
-					renderer->renderBuffer[(tempx + (height - y)*width)*3 + 0] = output.red;
-					renderer->renderBuffer[(tempx + (height - y)*width)*3 + 1] = output.green;
-					renderer->renderBuffer[(tempx + (height - y)*width)*3 + 2] = output.blue;
+					//Store internal render buffer (double precision)
+					blitDouble(renderer->renderBuffer, width, height, &output, x, y);
 					
 					//Gamma correction
 					output = toSRGB(output);
 					
 					//And store the image data
-					//Note how imageData only stores 8-bit precision for each color channel.
-					//This is why we use the renderBuffer for the running average as it just contains
-					//the full precision color values
-					renderer->image->data[(tempx + (height - y)*width)*3 + 0] =
-					(unsigned char)min( max(output.red*255.0,0), 255.0);
-					renderer->image->data[(tempx + (height - y)*width)*3 + 1] =
-					(unsigned char)min( max(output.green*255.0,0), 255.0);
-					renderer->image->data[(tempx + (height - y)*width)*3 + 2] =
-					(unsigned char)min( max(output.blue*255.0,0), 255.0);
+					blit(renderer->image, &output, x, y);
 				}
 			}
 			completedSamples++;
@@ -353,24 +343,14 @@ DWORD WINAPI renderThread(LPVOID arg) {
 						output.green = output.green / tile.completedSamples;
 						output.blue = output.blue / tile.completedSamples;
 						
-						//Store render buffer
-						renderer->renderBuffer[(x + (height - y)*width)*3 + 0] = output.red;
-						renderer->renderBuffer[(x + (height - y)*width)*3 + 1] = output.green;
-						renderer->renderBuffer[(x + (height - y)*width)*3 + 2] = output.blue;
+						//Store internal render buffer (double precision)
+						blitDouble(renderer->renderBuffer, width, height, &output, x, y);
 						
 						//Gamma correction
 						output = toSRGB(output);
 						
 						//And store the image data
-						//Note how imageData only stores 8-bit precision for each color channel.
-						//This is why we use the renderBuffer for the running average as it just contains
-						//the full precision color values
-						renderer->image->data[(x + (height - y)*width)*3 + 0] =
-						(unsigned char)min( max(output.red*255.0,0), 255.0);
-						renderer->image->data[(x + (height - y)*width)*3 + 1] =
-						(unsigned char)min( max(output.green*255.0,0), 255.0);
-						renderer->image->data[(x + (height - y)*width)*3 + 2] =
-						(unsigned char)min( max(output.blue*255.0,0), 255.0);
+						blit(renderer->image, &output, x, y);
 					}
 				}
 				tile.completedSamples++;

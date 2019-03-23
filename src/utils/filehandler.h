@@ -37,6 +37,12 @@ void printFileSize(char *fileName);
 //Writes image data to file
 void writeImage(struct renderer *r);
 
+//For 24 bit buffer
+void blit(struct texture *t, struct color *c, unsigned int x, unsigned int y);
+
+//For internal render buffer
+void blitDouble(double *buf, int width, int height, struct color *c, unsigned int x, unsigned int y);
+
 char *loadFile(char *inputFileName);
 
 //Load a PNG texture
