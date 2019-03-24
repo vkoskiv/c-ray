@@ -96,9 +96,9 @@ void *renderThread(void *arg);
 #endif
 
 #ifdef WINDOWS
-DWORD WINAPI renderThreadGlobal(LPVOID arg);
+DWORD WINAPI renderThreadSIMD(LPVOID arg);
 #else
-void *renderThreadGlobal(void *arg);
+void *renderThreadSIMD(void *arg);
 #endif
 
 //Initialize a new renderer

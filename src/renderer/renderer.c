@@ -93,7 +93,7 @@ void render(struct renderer *r) {
 		if (r->threadPaused[0]) {
 			sleepMSec(800);
 		} else {
-			sleepMSec(16);
+			sleepMSec(33);
 		}
 	}
 	
@@ -120,7 +120,6 @@ DWORD WINAPI renderThreadSIMD(LPVOID arg) {
 #else
 void *renderThreadSIMD(void *arg) {
 #endif
-	struct lightRay incidentRay;
 	struct threadInfo *tinfo = (struct threadInfo*)arg;
 	
 	struct renderer *renderer = tinfo->r;
@@ -129,95 +128,173 @@ void *renderThreadSIMD(void *arg) {
 	//First time setup for each thread
 	struct renderTile tile = getTile(renderer);
 	
+	int height = *renderer->image->height;
+	int width = *renderer->image->width;
+	
+	struct vector startPos = renderer->scene->camera->pos;
+	
+	struct lightRay **incidentRay = malloc(width * sizeof(struct lightRay*));
+	for (int i = 0; i < width; i++) {
+		incidentRay[i] = malloc(height * sizeof(struct lightRay));
+	}
+	
+	double **fracX = malloc(width * sizeof(double*));
+	for (int i = 0; i < width; i++) {
+		fracX[i] = malloc(height * sizeof(double));
+	}
+	double **fracY = malloc(width * sizeof(double*));
+	for (int i = 0; i < width; i++) {
+		fracY[i] = malloc(height * sizeof(double));
+	}
+	struct vector **direction = malloc(width * sizeof(struct vector*));
+	for (int i = 0; i < width; i++) {
+		direction[i] = malloc(height * sizeof(struct vector));
+	}
+	struct color **output = malloc(width * sizeof(struct color*));
+	for (int i = 0; i < width; i++) {
+		output[i] = malloc(height * sizeof(struct color));
+	}
+	struct color **sample = malloc(width * sizeof(struct color*));
+	for (int i = 0; i < width; i++) {
+		sample[i] = malloc(height * sizeof(struct color));
+	}
+	
 	while (tile.tileNum != -1 && renderer->isRendering) {
 		unsigned long long sleepMs = 0;
 		startTimer(&renderer->timers[tinfo->thread_num]);
 		
 		while (tile.completedSamples < renderer->sampleCount+1 && renderer->isRendering) {
-			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
+			
+			//VECD indicates 'basic block vectorized' reported by gcc-8
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
-					
-					int height = *renderer->image->height;
-					int width = *renderer->image->width;
-					
-					double fracX = (double)x;
-					double fracY = (double)y;
-					
-					//A cheap 'antialiasing' of sorts. The more samples, the better this works
-					if (renderer->antialiasing) {
-						fracX = rndDouble(fracX - 0.25, fracX + 0.25, rng);
-						fracY = rndDouble(fracY - 0.25, fracY + 0.25, rng);
-					}
-					
-					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
-					//imaginary plane in front of the origin. startPos is just the camera position.
-					struct vector direction = {(fracX - 0.5 * *renderer->image->width)
-						/ renderer->scene->camera->focalLength,
-						(fracY - 0.5 * *renderer->image->height)
-						/ renderer->scene->camera->focalLength,
-						1.0};
-					
-					//Normalize direction
-					direction = vecNormalize(&direction);
-					struct vector startPos = renderer->scene->camera->pos;
-					struct vector left = renderer->scene->camera->left;
-					struct vector up = renderer->scene->camera->up;
-					
-					//Run camera tranforms on direction vector
-					transformCameraView(renderer->scene->camera, &direction);
-					
-					//Now handle aperture
-					//FIXME: This is a 'square' aperture
-					double aperture = renderer->scene->camera->aperture;
-					if (aperture <= 0.0) {
-						incidentRay.start = startPos;
-					} else {
-						double randY = rndDouble(-aperture, aperture, rng);
-						double randX = rndDouble(-aperture, aperture, rng);
-						
-						struct vector upTemp = vecScale(randY, &up);
-						struct vector temp = vecAdd(&startPos, &upTemp);
-						struct vector leftTemp = vecScale(randX, &left);
-						struct vector randomStart = vecAdd(&temp, &leftTemp);
-						
-						incidentRay.start = randomStart;
-					}
-					
-					incidentRay.direction = direction;
-					incidentRay.rayType = rayTypeIncident;
-					incidentRay.remainingInteractions = renderer->scene->bounces;
-					incidentRay.currentMedium.IOR = AIR_IOR;
-					
-					//For multi-sample rendering, we keep a running average of color values for each pixel
-					//The next block of code does this
-					
-					//Get previous color value from render buffer
-					struct color output = getPixel(renderer, x, y);
-					
-					//Get new sample (path tracing is initiated here)
-					struct color sample = pathTrace(&incidentRay, renderer->scene, 0, rng);
-					
-					//And process the running average
-					output.red = output.red * (tile.completedSamples - 1);
-					output.green = output.green * (tile.completedSamples - 1);
-					output.blue = output.blue * (tile.completedSamples - 1);
-					
-					output = addColors(&output, &sample);
-					
-					output.red = output.red / tile.completedSamples;
-					output.green = output.green / tile.completedSamples;
-					output.blue = output.blue / tile.completedSamples;
-					
-					//Store internal render buffer (double precision)
-					blitDouble(renderer->renderBuffer, width, height, &output, x, y);
-					
-					//Gamma correction
-					output = toSRGB(output);
-					
-					//And store the image data
-					blit(renderer->image, &output, x, y);
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					fracX[tx][ty] = (double)x;
+					fracY[tx][ty] = (double)y;
 				}
 			}
+			
+			if (renderer->antialiasing) {
+				for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+					for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
+						int tx = x - (int)tile.begin.x;
+						int ty = y - (int)tile.begin.y;
+						fracX[tx][ty] = rndDouble(fracX[tx][ty] - 0.25, fracX[tx][ty] + 0.25, rng);
+						fracY[tx][ty] = rndDouble(fracY[tx][ty] - 0.25, fracY[tx][ty] + 0.25, rng);
+					}
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) { //VECD
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					direction[tx][ty] = (struct vector){(fracX[tx][ty] - 0.5 * width)
+						/ renderer->scene->camera->focalLength,
+						(fracY[tx][ty] - 0.5 * height)
+						/ renderer->scene->camera->focalLength,
+						1.0};
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					direction[tx][ty] = vecNormalize(&direction[tx][ty]);
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					transformCameraView(renderer->scene->camera, &direction[tx][ty]);
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) { //VECD
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					incidentRay[tx][ty].start = startPos;
+					incidentRay[tx][ty].direction = direction[tx][ty];
+					incidentRay[tx][ty].rayType = rayTypeIncident;
+					incidentRay[tx][ty].remainingInteractions = renderer->scene->bounces;
+					incidentRay[tx][ty].currentMedium.IOR = AIR_IOR;
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) { //VECD
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					output[tx][ty] = getPixel(renderer, x, y);
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					sample[tx][ty] = pathTrace(&incidentRay[tx][ty], renderer->scene, 0, rng);
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) { //VECD
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					output[tx][ty].red = output[tx][ty].red * (tile.completedSamples - 1);
+					output[tx][ty].green = output[tx][ty].green * (tile.completedSamples - 1);
+					output[tx][ty].blue = output[tx][ty].blue * (tile.completedSamples - 1);
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					output[tx][ty] = addColors(&output[tx][ty], &sample[tx][ty]);
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) { //VECD
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					output[tx][ty].red = output[tx][ty].red / tile.completedSamples;
+					output[tx][ty].green = output[tx][ty].green / tile.completedSamples;
+					output[tx][ty].blue = output[tx][ty].blue / tile.completedSamples;
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					blitDouble(renderer->renderBuffer, width, height, &output[tx][ty], x, y);
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					output[tx][ty] = toSRGB(output[tx][ty]);
+				}
+			}
+			
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
+					int tx = x - (int)tile.begin.x;
+					int ty = y - (int)tile.begin.y;
+					blit(renderer->image, &output[tx][ty], x, y);
+				}
+			}
+			
 			tile.completedSamples++;
 			//Pause rendering when bool is set
 			while (renderer->threadPaused[tinfo->thread_num] && !renderer->renderAborted) {
@@ -235,6 +312,32 @@ void *renderThreadSIMD(void *arg) {
 		}
 		printStats(renderer, duration, samples, tinfo->thread_num);
 	}
+	
+	/*for (int i = 0; i < width; i++) {
+		free(incidentRay[i]);
+	}
+	free(incidentRay);
+	for (int i = 0; i < width; i++) {
+		free(fracX[i]);
+	}
+	free(fracX);
+	for (int i = 0; i < width; i++) {
+		free(fracY[i]);
+	}
+	free(fracY);
+	for (int i = 0; i < width; i++) {
+		free(direction[i]);
+	}
+	free(direction);
+	for (int i = 0; i < width; i++) {
+		free(output[i]);
+	}
+	free(output);
+	for (int i = 0; i < width; i++) {
+		free(sample[i]);
+	}
+	free(sample);*/
+	
 	//No more tiles to render, exit thread. (render done)
 	printf("%s", "\33[2K");
 	logr(info, "Thread %i done\n", tinfo->thread_num);
@@ -271,7 +374,7 @@ void *renderThread(void *arg) {
 		startTimer(&renderer->timers[tinfo->thread_num]);
 		
 		while (tile.completedSamples < renderer->sampleCount+1 && renderer->isRendering) {
-			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
+			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					
 					int height = *renderer->image->height;
