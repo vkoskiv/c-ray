@@ -110,37 +110,37 @@ void render(struct renderer *r) {
 }
 
 /**
- A global render thread
+ A SIMD-optimised render thread
  
  @param arg Thread information (see threadInfo struct)
  @return Exits when thread is done
  */
 #ifdef WINDOWS
-DWORD WINAPI renderThreadGlobal(LPVOID arg) {
+DWORD WINAPI renderThreadSIMD(LPVOID arg) {
 #else
-	void *renderThreadGlobal(void *arg) {
+void *renderThreadSIMD(void *arg) {
 #endif
-		struct lightRay incidentRay;
-		struct threadInfo *tinfo = (struct threadInfo*)arg;
-		
-		struct renderer *renderer = tinfo->r;
-		pcg32_random_t *rng = &tinfo->r->rngs[tinfo->thread_num];
-		
-		//We keep track of milliseconds spent sleeping, and subtract that from the total.
+	struct lightRay incidentRay;
+	struct threadInfo *tinfo = (struct threadInfo*)arg;
+	
+	struct renderer *renderer = tinfo->r;
+	pcg32_random_t *rng = &tinfo->r->rngs[tinfo->thread_num];
+	
+	//First time setup for each thread
+	struct renderTile tile = getTile(renderer);
+	
+	while (tile.tileNum != -1 && renderer->isRendering) {
 		unsigned long long sleepMs = 0;
 		startTimer(&renderer->timers[tinfo->thread_num]);
 		
-		int completedSamples = 0;
-		int height = *renderer->image->height;
-		int width = *renderer->image->width;
-		
-		while (completedSamples < renderer->sampleCount+1 && renderer->isRendering) {
-			for (int y = 0; y < *renderer->image->height-1; y++) {
-				for (int x = 0; x < ((*renderer->image->width-1)); x += renderer->threadCount) {
-					int tempx = x + tinfo->thread_num;
-					if (tempx > *renderer->image->width) break;
+		while (tile.completedSamples < renderer->sampleCount+1 && renderer->isRendering) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					
-					double fracX = (double)tempx;
+					int height = *renderer->image->height;
+					int width = *renderer->image->width;
+					
+					double fracX = (double)x;
 					double fracY = (double)y;
 					
 					//A cheap 'antialiasing' of sorts. The more samples, the better this works
@@ -192,21 +192,21 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 					//The next block of code does this
 					
 					//Get previous color value from render buffer
-					struct color output = getPixel(renderer, tempx, y);
+					struct color output = getPixel(renderer, x, y);
 					
 					//Get new sample (path tracing is initiated here)
 					struct color sample = pathTrace(&incidentRay, renderer->scene, 0, rng);
 					
 					//And process the running average
-					output.red = output.red * (completedSamples - 1);
-					output.green = output.green * (completedSamples - 1);
-					output.blue = output.blue * (completedSamples - 1);
+					output.red = output.red * (tile.completedSamples - 1);
+					output.green = output.green * (tile.completedSamples - 1);
+					output.blue = output.blue * (tile.completedSamples - 1);
 					
 					output = addColors(&output, &sample);
 					
-					output.red = output.red / completedSamples;
-					output.green = output.green / completedSamples;
-					output.blue = output.blue / completedSamples;
+					output.red = output.red / tile.completedSamples;
+					output.green = output.green / tile.completedSamples;
+					output.blue = output.blue / tile.completedSamples;
 					
 					//Store internal render buffer (double precision)
 					blitDouble(renderer->renderBuffer, width, height, &output, x, y);
@@ -218,7 +218,7 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 					blit(renderer->image, &output, x, y);
 				}
 			}
-			completedSamples++;
+			tile.completedSamples++;
 			//Pause rendering when bool is set
 			while (renderer->threadPaused[tinfo->thread_num] && !renderer->renderAborted) {
 				sleepMSec(100);
@@ -226,23 +226,25 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 			}
 		}
 		//Tile has finished rendering, get a new one and start rendering it.
-		unsigned long long samples = completedSamples * (*renderer->image->width * *renderer->image->height);
+		renderer->renderTiles[tile.tileNum].isRendering = false;
+		unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
+		tile = getTile(renderer);
 		unsigned long long duration = endTimer(&renderer->timers[tinfo->thread_num]);
 		if (sleepMs > 0) {
 			duration -= sleepMs;
 		}
 		printStats(renderer, duration, samples, tinfo->thread_num);
-		
-		//Max samples reached, exit thread. (render done)
-		printf("%s", "\33[2K");
-		logr(info, "Thread %i done\n", tinfo->thread_num);
-		tinfo->threadComplete = true;
-#ifdef WINDOWS
-		return 0;
-#else
-		pthread_exit((void*) arg);
-#endif
 	}
+	//No more tiles to render, exit thread. (render done)
+	printf("%s", "\33[2K");
+	logr(info, "Thread %i done\n", tinfo->thread_num);
+	tinfo->threadComplete = true;
+#ifdef WINDOWS
+	return 0;
+#else
+	pthread_exit((void*) arg);
+#endif
+}
 
 /**
  A render thread
@@ -253,131 +255,131 @@ DWORD WINAPI renderThreadGlobal(LPVOID arg) {
 #ifdef WINDOWS
 DWORD WINAPI renderThread(LPVOID arg) {
 #else
-	void *renderThread(void *arg) {
+void *renderThread(void *arg) {
 #endif
-		struct lightRay incidentRay;
-		struct threadInfo *tinfo = (struct threadInfo*)arg;
+	struct lightRay incidentRay;
+	struct threadInfo *tinfo = (struct threadInfo*)arg;
+	
+	struct renderer *renderer = tinfo->r;
+	pcg32_random_t *rng = &tinfo->r->rngs[tinfo->thread_num];
+	
+	//First time setup for each thread
+	struct renderTile tile = getTile(renderer);
+	
+	while (tile.tileNum != -1 && renderer->isRendering) {
+		unsigned long long sleepMs = 0;
+		startTimer(&renderer->timers[tinfo->thread_num]);
 		
-		struct renderer *renderer = tinfo->r;
-		pcg32_random_t *rng = &tinfo->r->rngs[tinfo->thread_num];
-		
-		//First time setup for each thread
-		struct renderTile tile = getTile(renderer);
-		
-		while (tile.tileNum != -1 && renderer->isRendering) {
-			unsigned long long sleepMs = 0;
-			startTimer(&renderer->timers[tinfo->thread_num]);
-			
-			while (tile.completedSamples < renderer->sampleCount+1 && renderer->isRendering) {
-				for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
-					for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
-						
-						int height = *renderer->image->height;
-						int width = *renderer->image->width;
-						
-						double fracX = (double)x;
-						double fracY = (double)y;
-						
-						//A cheap 'antialiasing' of sorts. The more samples, the better this works
-						if (renderer->antialiasing) {
-							fracX = rndDouble(fracX - 0.25, fracX + 0.25, rng);
-							fracY = rndDouble(fracY - 0.25, fracY + 0.25, rng);
-						}
-						
-						//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
-						//imaginary plane in front of the origin. startPos is just the camera position.
-						struct vector direction = {(fracX - 0.5 * *renderer->image->width)
-													/ renderer->scene->camera->focalLength,
-												   (fracY - 0.5 * *renderer->image->height)
-													/ renderer->scene->camera->focalLength,
-													1.0};
-						
-						//Normalize direction
-						direction = vecNormalize(&direction);
-						struct vector startPos = renderer->scene->camera->pos;
-						struct vector left = renderer->scene->camera->left;
-						struct vector up = renderer->scene->camera->up;
-						
-						//Run camera tranforms on direction vector
-						transformCameraView(renderer->scene->camera, &direction);
-						
-						//Now handle aperture
-						//FIXME: This is a 'square' aperture
-						double aperture = renderer->scene->camera->aperture;
-						if (aperture <= 0.0) {
-							incidentRay.start = startPos;
-						} else {
-							double randY = rndDouble(-aperture, aperture, rng);
-							double randX = rndDouble(-aperture, aperture, rng);
-							
-							struct vector upTemp = vecScale(randY, &up);
-							struct vector temp = vecAdd(&startPos, &upTemp);
-							struct vector leftTemp = vecScale(randX, &left);
-							struct vector randomStart = vecAdd(&temp, &leftTemp);
-							
-							incidentRay.start = randomStart;
-						}
-						
-						incidentRay.direction = direction;
-						incidentRay.rayType = rayTypeIncident;
-						incidentRay.remainingInteractions = renderer->scene->bounces;
-						incidentRay.currentMedium.IOR = AIR_IOR;
-						
-						//For multi-sample rendering, we keep a running average of color values for each pixel
-						//The next block of code does this
-						
-						//Get previous color value from render buffer
-						struct color output = getPixel(renderer, x, y);
-						
-						//Get new sample (path tracing is initiated here)
-						struct color sample = pathTrace(&incidentRay, renderer->scene, 0, rng);
-						
-						//And process the running average
-						output.red = output.red * (tile.completedSamples - 1);
-						output.green = output.green * (tile.completedSamples - 1);
-						output.blue = output.blue * (tile.completedSamples - 1);
-						
-						output = addColors(&output, &sample);
-						
-						output.red = output.red / tile.completedSamples;
-						output.green = output.green / tile.completedSamples;
-						output.blue = output.blue / tile.completedSamples;
-						
-						//Store internal render buffer (double precision)
-						blitDouble(renderer->renderBuffer, width, height, &output, x, y);
-						
-						//Gamma correction
-						output = toSRGB(output);
-						
-						//And store the image data
-						blit(renderer->image, &output, x, y);
+		while (tile.completedSamples < renderer->sampleCount+1 && renderer->isRendering) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
+				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
+					
+					int height = *renderer->image->height;
+					int width = *renderer->image->width;
+					
+					double fracX = (double)x;
+					double fracY = (double)y;
+					
+					//A cheap 'antialiasing' of sorts. The more samples, the better this works
+					if (renderer->antialiasing) {
+						fracX = rndDouble(fracX - 0.25, fracX + 0.25, rng);
+						fracY = rndDouble(fracY - 0.25, fracY + 0.25, rng);
 					}
-				}
-				tile.completedSamples++;
-				//Pause rendering when bool is set
-				while (renderer->threadPaused[tinfo->thread_num] && !renderer->renderAborted) {
-					sleepMSec(100);
-					sleepMs += 100;
+					
+					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
+					//imaginary plane in front of the origin. startPos is just the camera position.
+					struct vector direction = {(fracX - 0.5 * *renderer->image->width)
+												/ renderer->scene->camera->focalLength,
+											   (fracY - 0.5 * *renderer->image->height)
+												/ renderer->scene->camera->focalLength,
+												1.0};
+					
+					//Normalize direction
+					direction = vecNormalize(&direction);
+					struct vector startPos = renderer->scene->camera->pos;
+					struct vector left = renderer->scene->camera->left;
+					struct vector up = renderer->scene->camera->up;
+					
+					//Run camera tranforms on direction vector
+					transformCameraView(renderer->scene->camera, &direction);
+					
+					//Now handle aperture
+					//FIXME: This is a 'square' aperture
+					double aperture = renderer->scene->camera->aperture;
+					if (aperture <= 0.0) {
+						incidentRay.start = startPos;
+					} else {
+						double randY = rndDouble(-aperture, aperture, rng);
+						double randX = rndDouble(-aperture, aperture, rng);
+						
+						struct vector upTemp = vecScale(randY, &up);
+						struct vector temp = vecAdd(&startPos, &upTemp);
+						struct vector leftTemp = vecScale(randX, &left);
+						struct vector randomStart = vecAdd(&temp, &leftTemp);
+						
+						incidentRay.start = randomStart;
+					}
+					
+					incidentRay.direction = direction;
+					incidentRay.rayType = rayTypeIncident;
+					incidentRay.remainingInteractions = renderer->scene->bounces;
+					incidentRay.currentMedium.IOR = AIR_IOR;
+					
+					//For multi-sample rendering, we keep a running average of color values for each pixel
+					//The next block of code does this
+					
+					//Get previous color value from render buffer
+					struct color output = getPixel(renderer, x, y);
+					
+					//Get new sample (path tracing is initiated here)
+					struct color sample = pathTrace(&incidentRay, renderer->scene, 0, rng);
+					
+					//And process the running average
+					output.red = output.red * (tile.completedSamples - 1);
+					output.green = output.green * (tile.completedSamples - 1);
+					output.blue = output.blue * (tile.completedSamples - 1);
+					
+					output = addColors(&output, &sample);
+					
+					output.red = output.red / tile.completedSamples;
+					output.green = output.green / tile.completedSamples;
+					output.blue = output.blue / tile.completedSamples;
+					
+					//Store internal render buffer (double precision)
+					blitDouble(renderer->renderBuffer, width, height, &output, x, y);
+					
+					//Gamma correction
+					output = toSRGB(output);
+					
+					//And store the image data
+					blit(renderer->image, &output, x, y);
 				}
 			}
-			//Tile has finished rendering, get a new one and start rendering it.
-			renderer->renderTiles[tile.tileNum].isRendering = false;
-			unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
-			tile = getTile(renderer);
-			unsigned long long duration = endTimer(&renderer->timers[tinfo->thread_num]);
-			if (sleepMs > 0) {
-				duration -= sleepMs;
+			tile.completedSamples++;
+			//Pause rendering when bool is set
+			while (renderer->threadPaused[tinfo->thread_num] && !renderer->renderAborted) {
+				sleepMSec(100);
+				sleepMs += 100;
 			}
-			printStats(renderer, duration, samples, tinfo->thread_num);
 		}
-		//No more tiles to render, exit thread. (render done)
-		printf("%s", "\33[2K");
-		logr(info, "Thread %i done\n", tinfo->thread_num);
-		tinfo->threadComplete = true;
+		//Tile has finished rendering, get a new one and start rendering it.
+		renderer->renderTiles[tile.tileNum].isRendering = false;
+		unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
+		tile = getTile(renderer);
+		unsigned long long duration = endTimer(&renderer->timers[tinfo->thread_num]);
+		if (sleepMs > 0) {
+			duration -= sleepMs;
+		}
+		printStats(renderer, duration, samples, tinfo->thread_num);
+	}
+	//No more tiles to render, exit thread. (render done)
+	printf("%s", "\33[2K");
+	logr(info, "Thread %i done\n", tinfo->thread_num);
+	tinfo->threadComplete = true;
 #ifdef WINDOWS
-		return 0;
+	return 0;
 #else
-		pthread_exit((void*) arg);
+	pthread_exit((void*) arg);
 #endif
 }
 	
