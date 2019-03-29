@@ -53,7 +53,7 @@ int cray_vasprintf(char **strp, const char *format, va_list ap) {
 int asprintf(char **strp, const char *format, ...) {
 	va_list ap;
 	va_start(ap, format);
-	int retval = vasprintf(strp, format, ap);
+	int retval = cray_vasprintf(strp, format, ap);
 	va_end(ap);
 	return retval;
 }
