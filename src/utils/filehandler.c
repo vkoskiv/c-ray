@@ -133,11 +133,11 @@ void checkBuf() {
 #endif
 }
 
+#define chunksize 1024
 //Get scene data from stdin and return a pointer to it
 char *readStdin() {
 	checkBuf();
 	
-	int chunksize = 1024; //load in 1kb chunks
 	char chunk[chunksize];
 	
 	size_t bufSize = 1;
