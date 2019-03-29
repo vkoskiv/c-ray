@@ -145,7 +145,7 @@
 				"radius": 50
 			}
 		],
-		"OBJs": [
+		"meshes": [
 			{
 				"fileName": "tonni.obj",
 				"bsdf": "lambertian",

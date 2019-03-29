@@ -8,7 +8,7 @@
 
 #pragma once
 
-struct crayOBJ;
+struct mesh;
 struct material;
 struct sphere;
 struct camera;
@@ -23,9 +23,9 @@ struct world {
 	//Ambient background color.
 	struct gradient *ambientColor;
 	
-	//OBJ 3D models
-	struct crayOBJ *objs;
-	int objCount;
+	//3D models
+	struct mesh *meshes;
+	int meshCount;
 	
 	int lightCount;
 	

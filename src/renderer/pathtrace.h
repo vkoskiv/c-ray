@@ -21,7 +21,7 @@ enum currentType {
 
 /**
  Shading/intersection information, used to perform shading and rendering logic.
- NOTE: uv, mtlIndex and polyIndex are only set if the ray hits a polygon (OBJ mesh)
+ NOTE: uv, mtlIndex and polyIndex are only set if the ray hits a polygon (mesh)
  */
 struct intersection {
 	struct lightRay ray;			//Light ray that encountered this intersection
@@ -35,8 +35,8 @@ struct intersection {
 	bool didIntersect;				//True if ray intersected
 	double distance;				//Distance to intersection point
 	
-	int mtlIndex;					//OBJ material index
-	int polyIndex;					//OBJ polygon index
+	int mtlIndex;					//mesh material index
+	int polyIndex;					//mesh polygon index
 };
 
 struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, pcg32_random_t *rng);

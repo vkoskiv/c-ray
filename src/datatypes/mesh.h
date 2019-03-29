@@ -1,5 +1,5 @@
 //
-//  obj.h
+//  mesh.h
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 27/04/2017.
@@ -13,13 +13,13 @@ struct boundingBox;
 /*
  C-Ray stores all vectors and polygons in shared arrays, so these
  data structures just keep track of 'first-index offsets'
- These offsets are the element index of the first vector/polygon for this object
+ These offsets are the element index of the first vector/polygon for this mesh
  The 'count' values are then used to keep track of where the vectors/polygons stop.
  
- Materials are stored within the crayOBJ struct in *materials
+ Materials are stored within the mesh struct in *materials
  */
 
-struct crayOBJ {
+struct mesh {
 	//Vertices
 	int vertexCount;
 	int firstVectorIndex;
@@ -44,13 +44,13 @@ struct crayOBJ {
 	int materialCount;
 	struct material *materials;
 	
-	//Root node of the kd-tree for this obj
+	//Root node of the kd-tree for this mesh
 	struct kdTreeNode *tree;
 	
-	char *objName;
+	char *meshName;
 };
 
-void addTransform(struct crayOBJ *obj, struct matrixTransform transform);
-void transformMesh(struct crayOBJ *object);
+void addTransform(struct mesh *mesh, struct matrixTransform transform);
+void transformMesh(struct mesh *mesh);
 
-void freeOBJ(struct crayOBJ *obj);
+void freeMesh(struct mesh *mesh);

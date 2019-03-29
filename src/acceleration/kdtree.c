@@ -16,7 +16,7 @@
 
 /*
  Nodes are built per-object
- Start at root node that contains all tris, and a bounding box for the obj
+ Start at root node that contains all tris, and a bounding box for the mesh
  At each level, split on a different axis in order X,Y,Z,X,Y,Z OR by longest axis
  For each level:
  1. Find the midpoint of all tris in the node (calculated in a bounding box already)

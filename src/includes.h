@@ -13,7 +13,7 @@
 #define PIOVER180 0.017453292519943295769236907684886
 #define PI        3.141592653589793238462643383279502
 #define CRAY_MATERIAL_NAME_SIZE 256
-#define CRAY_OBJ_FILENAME_LENGTH 500
+#define CRAY_MESH_FILENAME_LENGTH 500
 
 //Some macros
 #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -70,7 +70,7 @@
 #include "./datatypes/vector.h"
 #include "./datatypes/poly.h"
 #include "./libraries/list.h"
-#include "./datatypes/obj.h"
+#include "./datatypes/mesh.h"
 #include "./datatypes/sphere.h"
 #include "./datatypes/transforms.h"
 #include "./datatypes/lightRay.h"

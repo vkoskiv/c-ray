@@ -165,7 +165,7 @@
 				"IOR": 1.5
 			}
 		],
-		"OBJs": [
+		"meshes": [
 			{
 				"fileName": "tonni.objdisabled",
 				"bsdf": "lambertian",

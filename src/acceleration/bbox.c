@@ -67,7 +67,7 @@ struct boundingBox *computeBoundingBox(int *polys, int count) {
  */
 bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, double *t) {
 	
-	//If an obj has no polygons, it won't have a root bbox either.
+	//If a mesh has no polygons, it won't have a root bbox either.
 	if (!box) return false;
 	
 	struct vector dirfrac;

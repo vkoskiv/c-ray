@@ -59,7 +59,7 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 	isect.ray = *incidentRay;
 	isect.start = incidentRay->currentMedium;
 	isect.didIntersect = false;
-	int objCount = scene->objCount;
+	int meshCount = scene->meshCount;
 	int sphereCount = scene->sphereCount;
 	
 	for (int i = 0; i < sphereCount; i++) {
@@ -69,9 +69,9 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 		}
 	}
 	
-	for (int o = 0; o < objCount; o++) {
-		if (rayIntersectsWithNode(scene->objs[o].tree, incidentRay, &isect)) {
-			isect.end = scene->objs[o].materials[polygonArray[isect.polyIndex].materialIndex];
+	for (int o = 0; o < meshCount; o++) {
+		if (rayIntersectsWithNode(scene->meshes[o].tree, incidentRay, &isect)) {
+			isect.end = scene->meshes[o].materials[polygonArray[isect.polyIndex].materialIndex];
 			isect.didIntersect = true;
 		}
 	}

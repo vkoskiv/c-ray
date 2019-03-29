@@ -159,7 +159,7 @@
 				"radius": 50
 			}
 		],
-		"OBJs": [
+		"meshes": [
 			{
 				"fileName": "venusscaled.obj",
 				"bsdf": "lambertian",

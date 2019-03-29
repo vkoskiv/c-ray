@@ -73,59 +73,59 @@ int getSysCores() {
 #endif
 }
 
-void addMaterialOBJ(struct crayOBJ *obj, struct material newMaterial);
+void addMaterialToMesh(struct mesh *mesh, struct material newMaterial);
 
-struct crayOBJ *lastObj(struct renderer *r) {
-	return &r->scene->objs[r->scene->objCount - 1];
+struct mesh *lastMesh(struct renderer *r) {
+	return &r->scene->meshes[r->scene->meshCount - 1];
 }
 
 struct sphere *lastSphere(struct renderer *r) {
 	return &r->scene->spheres[r->scene->sphereCount - 1];
 }
 
-void loadOBJTextures(struct crayOBJ *obj) {
-	for (int i = 0; i < obj->materialCount; i++) {
+void loadMeshTextures(struct mesh *mesh) {
+	for (int i = 0; i < mesh->materialCount; i++) {
 		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
-		if (strcmp(obj->materials[i].textureFilePath, "")) {
+		if (strcmp(mesh->materials[i].textureFilePath, "")) {
 			//TODO: Set the shader for this obj to an obnoxious checker pattern if the texture wasn't found
-			obj->materials[i].texture = newTexture(obj->materials[i].textureFilePath);
-			if (obj->materials[i].texture) {
-				obj->materials[i].hasTexture = true;
+			mesh->materials[i].texture = newTexture(mesh->materials[i].textureFilePath);
+			if (mesh->materials[i].texture) {
+				mesh->materials[i].hasTexture = true;
 			}
 		}
 	}
 }
 
-bool loadOBJ(struct renderer *r, char *inputFileName) {
-	logr(info, "Loading OBJ %s%s\n", r->inputFilePath, inputFileName);
+bool loadMesh(struct renderer *r, char *inputFileName) {
+	logr(info, "Loading mesh %s%s\n", r->inputFilePath, inputFileName);
 	
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFileName, r->inputFilePath) == 0) {
-		logr(warning, "OBJ %s not found!\n", getFileName(inputFileName));
+		logr(warning, "Mesh %s not found!\n", getFileName(inputFileName));
 		return false;
 	}
 	
-	//Create crayOBJ to keep track of objs
-	r->scene->objs = realloc(r->scene->objs, (r->scene->objCount + 1) * sizeof(struct crayOBJ));
+	//Create mesh to keep track of meshes
+	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + 1) * sizeof(struct mesh));
 	//Vertex data
-	r->scene->objs[r->scene->objCount].firstVectorIndex = vertexCount;
-	r->scene->objs[r->scene->objCount].vertexCount = data.vertex_count;
+	r->scene->meshes[r->scene->meshCount].firstVectorIndex = vertexCount;
+	r->scene->meshes[r->scene->meshCount].vertexCount = data.vertex_count;
 	//Normal data
-	r->scene->objs[r->scene->objCount].firstNormalIndex = normalCount;
-	r->scene->objs[r->scene->objCount].normalCount = data.vertex_normal_count;
+	r->scene->meshes[r->scene->meshCount].firstNormalIndex = normalCount;
+	r->scene->meshes[r->scene->meshCount].normalCount = data.vertex_normal_count;
 	//Texture vector data
-	r->scene->objs[r->scene->objCount].firstTextureIndex = textureCount;
-	r->scene->objs[r->scene->objCount].textureCount = data.vertex_texture_count;
+	r->scene->meshes[r->scene->meshCount].firstTextureIndex = textureCount;
+	r->scene->meshes[r->scene->meshCount].textureCount = data.vertex_texture_count;
 	//Poly data
-	r->scene->objs[r->scene->objCount].firstPolyIndex = polyCount;
-	r->scene->objs[r->scene->objCount].polyCount = data.face_count;
+	r->scene->meshes[r->scene->meshCount].firstPolyIndex = polyCount;
+	r->scene->meshes[r->scene->meshCount].polyCount = data.face_count;
 	//Transforms init
-	r->scene->objs[r->scene->objCount].transformCount = 0;
-	r->scene->objs[r->scene->objCount].transforms = malloc(sizeof(struct matrixTransform));
+	r->scene->meshes[r->scene->meshCount].transformCount = 0;
+	r->scene->meshes[r->scene->meshCount].transforms = malloc(sizeof(struct matrixTransform));
 	
-	r->scene->objs[r->scene->objCount].materialCount = 0;
+	r->scene->meshes[r->scene->meshCount].materialCount = 0;
 	//Set name
-	copyString(getFileName(inputFileName), &r->scene->objs[r->scene->objCount].objName);
+	copyString(getFileName(inputFileName), &r->scene->meshes[r->scene->meshCount].meshName);
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
@@ -137,50 +137,50 @@ bool loadOBJ(struct renderer *r, char *inputFileName) {
 	//Convert vectors
 	vertexArray = realloc(vertexArray, vertexCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_count; i++) {
-		vertexArray[r->scene->objs[r->scene->objCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
+		vertexArray[r->scene->meshes[r->scene->meshCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
 	}
 	
 	//Convert normals
 	normalArray = realloc(normalArray, normalCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_normal_count; i++) {
-		normalArray[r->scene->objs[r->scene->objCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
+		normalArray[r->scene->meshes[r->scene->meshCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture vectors
 	textureArray = realloc(textureArray, textureCount * sizeof(struct coord));
 	for (int i = 0; i < data.vertex_texture_count; i++) {
-		textureArray[r->scene->objs[r->scene->objCount].firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
+		textureArray[r->scene->meshes[r->scene->meshCount].firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
 	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
 	for (int i = 0; i < data.face_count; i++) {
-		polygonArray[r->scene->objs[r->scene->objCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
-																							r->scene->objs[r->scene->objCount].firstVectorIndex,
-																							r->scene->objs[r->scene->objCount].firstNormalIndex,
-																							r->scene->objs[r->scene->objCount].firstTextureIndex,
-																							r->scene->objs[r->scene->objCount].firstPolyIndex + i);
+		polygonArray[r->scene->meshes[r->scene->meshCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
+																							r->scene->meshes[r->scene->meshCount].firstVectorIndex,
+																							r->scene->meshes[r->scene->meshCount].firstNormalIndex,
+																							r->scene->meshes[r->scene->meshCount].firstTextureIndex,
+																							r->scene->meshes[r->scene->meshCount].firstPolyIndex + i);
 	}
 	
-	r->scene->objs[r->scene->objCount].materials = calloc(1, sizeof(struct material));
+	r->scene->meshes[r->scene->meshCount].materials = calloc(1, sizeof(struct material));
 	//Parse materials
 	if (data.material_count == 0) {
 		//No material, set to something obscene to make it noticeable
-		r->scene->objs[r->scene->objCount].materials = calloc(1, sizeof(struct material));
-		*r->scene->objs[r->scene->objCount].materials = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
+		r->scene->meshes[r->scene->meshCount].materials = calloc(1, sizeof(struct material));
+		*r->scene->meshes[r->scene->meshCount].materials = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
 	} else {
-		//Loop to add materials to obj (We already set the material indices in polyFromObj)
+		//Loop to add materials to mesh (We already set the material indices in polyFromObj)
 		for (int i = 0; i < data.material_count; i++) {
-			addMaterialOBJ(&r->scene->objs[r->scene->objCount], materialFromObj(data.material_list[i]));
+			addMaterialToMesh(&r->scene->meshes[r->scene->meshCount], materialFromObj(data.material_list[i]));
 		}
 	}
 	
-	//Load textures for OBJs
-	loadOBJTextures(&r->scene->objs[r->scene->objCount]);
+	//Load textures for meshes
+	loadMeshTextures(&r->scene->meshes[r->scene->meshCount]);
 	
 	//Delete OBJ data
 	delete_obj_data(&data);
 	
-	//Obj added, update count
-	r->scene->objCount++;
+	//Mesh added, update count
+	r->scene->meshCount++;
 	return true;
 }
 
@@ -196,9 +196,9 @@ void addMaterial(struct world *scene, struct material newMaterial) {
 	scene->materials[scene->materialCount++] = newMaterial;
 }
 
-void addMaterialOBJ(struct crayOBJ *obj, struct material newMaterial) {
-	obj->materials = realloc(obj->materials, (obj->materialCount + 1) * sizeof(struct material));
-	obj->materials[obj->materialCount++] = newMaterial;
+void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
+	mesh->materials = realloc(mesh->materials, (mesh->materialCount + 1) * sizeof(struct material));
+	mesh->materials[mesh->materialCount++] = newMaterial;
 }
 
 void addLight(struct world *scene, struct sphere newLight) {
@@ -209,19 +209,19 @@ void addLight(struct world *scene, struct sphere newLight) {
 
 void transformMeshes(struct world *scene) {
 	logr(info, "Running transforms...\n");
-	for (int i = 0; i < scene->objCount; ++i) {
-		transformMesh(&scene->objs[i]);
+	for (int i = 0; i < scene->meshCount; ++i) {
+		transformMesh(&scene->meshes[i]);
 	}
 }
 
 void computeKDTrees(struct world *scene) {
 	logr(info, "Computing KD-trees...\n");
-	for (int i = 0; i < scene->objCount; ++i) {
-		int *polys = calloc(scene->objs[i].polyCount, sizeof(int));
-		for (int j = 0; j < scene->objs[i].polyCount; j++) {
-			polys[j] = scene->objs[i].firstPolyIndex + j;
+	for (int i = 0; i < scene->meshCount; ++i) {
+		int *polys = calloc(scene->meshes[i].polyCount, sizeof(int));
+		for (int j = 0; j < scene->meshes[i].polyCount; j++) {
+			polys[j] = scene->meshes[i].firstPolyIndex + j;
 		}
-		scene->objs[i].tree = buildTree(polys, scene->objs[i].polyCount, 0);
+		scene->meshes[i].tree = buildTree(polys, scene->meshes[i].polyCount, 0);
 	}
 }
 
@@ -671,7 +671,7 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	return 0;
 }
 
-void parseOBJ(struct renderer *r, const cJSON *data) {
+void parseMesh(struct renderer *r, const cJSON *data) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
 	
 	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
@@ -688,38 +688,38 @@ void parseOBJ(struct renderer *r, const cJSON *data) {
 			type = lambertian;
 		}
 	} else {
-		logr(warning, "Invalid bsdf while parsing OBJ\n");
+		logr(warning, "Invalid bsdf while parsing mesh\n");
 	}
 	
-	bool objValid = false;
+	bool meshValid = false;
 	if (fileName != NULL && cJSON_IsString(fileName)) {
-		if (loadOBJ(r, fileName->valuestring)) {
-			objValid = true;
+		if (loadMesh(r, fileName->valuestring)) {
+			meshValid = true;
 		} else {
 			return;
 		}
 	}
-	if (objValid) {
+	if (meshValid) {
 		const cJSON *transforms = cJSON_GetObjectItem(data, "transforms");
 		const cJSON *transform = NULL;
 		if (transforms != NULL && cJSON_IsArray(transforms)) {
 			cJSON_ArrayForEach(transform, transforms) {
-				addTransform(lastObj(r), parseTransform(transform));
+				addTransform(lastMesh(r), parseTransform(transform));
 			}
 		}
 		
-		for (int i = 0; i < lastObj(r)->materialCount; i++) {
-			lastObj(r)->materials[i].type = type;
-			assignBSDF(&lastObj(r)->materials[i]);
+		for (int i = 0; i < lastMesh(r)->materialCount; i++) {
+			lastMesh(r)->materials[i].type = type;
+			assignBSDF(&lastMesh(r)->materials[i]);
 		}
 	}
 }
 
-void parseOBJs(struct renderer *r, const cJSON *data) {
-	const cJSON *OBJ = NULL;
+void parseMeshes(struct renderer *r, const cJSON *data) {
+	const cJSON *mesh = NULL;
 	if (data != NULL && cJSON_IsArray(data)) {
-		cJSON_ArrayForEach(OBJ, data) {
-			parseOBJ(r, OBJ);
+		cJSON_ArrayForEach(mesh, data) {
+			parseMesh(r, mesh);
 		}
 	}
 }
@@ -820,7 +820,7 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 			type = lambertian;
 		}
 	} else {
-		logr(warning, "Invalid bsdf while parsing OBJ\n");
+		logr(warning, "Invalid bsdf while parsing meshes\n");
 	}	
 	
 	pos = cJSON_GetObjectItem(data, "pos");
@@ -886,7 +886,7 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	const cJSON *bounces = NULL;
 	const cJSON *lights = NULL;
 	const cJSON *spheres = NULL;
-	const cJSON *OBJs = NULL;
+	const cJSON *meshes = NULL;
 	
 	filePath = cJSON_GetObjectItem(data, "outputFilePath");
 	if (cJSON_IsString(filePath)) {
@@ -980,9 +980,9 @@ int parseScene(struct renderer *r, const cJSON *data) {
 		parseSpheres(r, spheres);
 	}
 	
-	OBJs = cJSON_GetObjectItem(data, "OBJs");
-	if (cJSON_IsArray(OBJs)) {
-		parseOBJs(r, OBJs);
+	meshes = cJSON_GetObjectItem(data, "meshes");
+	if (cJSON_IsArray(meshes)) {
+		parseMeshes(r, meshes);
 	}
 	
 	return 0;
@@ -1154,11 +1154,11 @@ void freeScene(struct world *scene) {
 	if (scene->ambientColor) {
 		free(scene->ambientColor);
 	}
-	if (scene->objs) {
-		for (int i = 0; i < scene->objCount; i++) {
-			freeOBJ(&scene->objs[i]);
+	if (scene->meshes) {
+		for (int i = 0; i < scene->meshCount; i++) {
+			freeMesh(&scene->meshes[i]);
 		}
-		free(scene->objs);
+		free(scene->meshes);
 	}
 	if (scene->materials) {
 		for (int i = 0; i < scene->materialCount; i++) {
