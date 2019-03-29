@@ -72,8 +72,7 @@ Linux:
 1. (Optional) Install SDL2 (See installing SDL below)
 2. Run `cmake .`, or optionally `cmake . -DNO_SDL2=True` to disable SDL2.
 3. Run `make` to build the project
-4. Run binary: `./bin/c-ray ./input/scene.json` (Making sure the working dir is the root directory)
-You can also pipe files onto `C-ray` and it will read from there. This is useful for scripts that invoke `C-ray`.
+4. Run binary: `./bin/c-ray ./input/scene.json` (Making sure the working dir is the root directory). You can also pipe files into `C-ray` and it will read from there. This is useful for scripts that invoke `C-ray`.
 Example: `cat input/scene.json | ./bin/c-ray`
 
 Windows:
