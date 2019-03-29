@@ -45,6 +45,8 @@ void blitDouble(double *buf, int width, int height, struct color *c, unsigned in
 
 char *loadFile(char *inputFileName);
 
+char *readStdin(void);
+
 //Load a PNG texture
 struct texture *newTexture(char *filePath);
 

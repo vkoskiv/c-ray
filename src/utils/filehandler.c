@@ -15,6 +15,10 @@
 #include "../renderer/renderer.h"
 #include "../utils/logging.h"
 
+#ifndef WINDOWS
+#include <fcntl.h>
+#endif
+
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
 //Prototypes for internal functions
@@ -101,11 +105,70 @@ char *loadFile(char *inputFileName) {
 	size_t len;
 	size_t bytesRead = getDelim(&buf, &len, '\0', f);
 	if (bytesRead != -1) {
-		logr(info, "%zi bytes of input JSON loaded, parsing...\n", bytesRead);
+		logr(info, "%zi bytes of input JSON loaded from file, parsing...\n", bytesRead);
 	} else {
 		logr(warning, "Failed to read input JSON from %s", inputFileName);
 		return NULL;
 	}
+	return buf;
+}
+
+//Wait for 2 secs and abort if nothing is coming in from stdin
+void checkBuf() {
+#ifndef WINDOWS
+	fd_set set;
+	struct timeval timeout;
+	int rv;
+	FD_ZERO(&set);
+	FD_SET(0, &set);
+	timeout.tv_sec = 2;
+	timeout.tv_usec = 1000;
+	rv = select(1, &set, NULL, NULL, &timeout);
+	if (rv == -1) {
+		logr(error, "Error on stdin timeout\n");
+	} else if (rv == 0) {
+		logr(error, "Stdin timed out after %i seconds. Nothing was found on the input stream.\n", timeout.tv_sec);
+	} else {
+		return;
+	}
+#endif
+}
+
+//Get scene data from stdin and return a pointer to it
+char *readStdin() {
+#ifdef WINDOWS
+	logr(error, "Windows doesn't support reading from stdin. Pass the path to the input file as an argument instead.\n");
+#endif
+	
+	checkBuf();
+	
+	int chunksize = 1024; //load in 1kb chunks
+	char chunk[chunksize];
+	
+	size_t bufSize = 1;
+	char *buf = malloc(chunksize * sizeof(char));
+	if (!buf) {
+		logr(error, "Failed to malloc stdin buffer\n");
+	}
+	buf[0] = '\0';
+	while (fgets(chunk, chunksize, stdin)) {
+		char *old = buf;
+		bufSize += strlen(chunk);
+		buf = realloc(buf, bufSize);
+		if (!buf) {
+			free(old);
+			logr(error, "Failed to realloc stdin buffer\n");
+		}
+		strcat(buf, chunk);
+	}
+	
+	if (ferror(stdin)) {
+		free(buf);
+		logr(error, "Failed to read from stdin\n");
+	}
+	
+	logr(info, "%zi bytes of input JSON loaded from stdin, parsing...\n", bufSize-1);
+	
 	return buf;
 }
 

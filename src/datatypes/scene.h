@@ -45,6 +45,6 @@ struct world {
 	int bounces;
 };
 
-void loadScene(struct renderer *r, char *filename);
+void loadScene(struct renderer *r, char *filename, bool fromStdin);
 
 void freeScene(struct world *scene);

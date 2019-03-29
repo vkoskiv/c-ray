@@ -48,9 +48,10 @@ int main(int argc, char *argv[]) {
 	
 	//Load the scene and prepare renderer
 	if (argc == 2) {
-		loadScene(mainRenderer, argv[1]);
+		loadScene(mainRenderer, argv[1], false);
 	} else {
-		logr(error, "Invalid input file path.\n");
+		char *scene = readStdin();
+		loadScene(mainRenderer, scene, true);
 	}
 	
 	//Initialize SDL display, if available

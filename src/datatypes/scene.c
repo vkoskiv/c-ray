@@ -988,14 +988,21 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	return 0;
 }
 
-int parseJSON(struct renderer *r, char *inputFileName) {
+//input is either a file path to load if fromStdin = false, or a data buffer if stdin = true
+int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 	
 	/*
 	 Note: Since we are freeing the JSON data (and its' pointers) after parsing,
 	 we need to *copy* all dynamically allocated strings with the copyString() function.
 	 */
 	
-	char *buf = loadFile(inputFileName);
+	char *buf = NULL;
+	
+	if (fromStdin) {
+		buf = input;
+	} else {
+		buf = loadFile(input);
+	}
 	
 	cJSON *json = cJSON_Parse(buf);
 	if (json == NULL) {
@@ -1073,9 +1080,9 @@ int parseJSON(struct renderer *r, char *inputFileName) {
 }
 
 //Load the scene, allocate buffers, etc
-void loadScene(struct renderer *r, char *filename) {
+void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	//Build the scene
-	switch (parseJSON(r, filename)) {
+	switch (parseJSON(r, input, fromStdin)) {
 		case -1:
 			logr(error, "Scene builder failed due to previous error.");
 			break;
