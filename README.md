@@ -73,6 +73,8 @@ Linux:
 2. Run `cmake .`, or optionally `cmake . -DNO_SDL2=True` to disable SDL2.
 3. Run `make` to build the project
 4. Run binary: `./bin/c-ray ./input/scene.json` (Making sure the working dir is the root directory)
+You can also pipe files onto `C-ray` and it will read from there. This is useful for scripts that invoke `C-ray`.
+Example: `cat input/scene.json | ./bin/c-ray`
 
 Windows:
 1. Download SDL2 Development libaries from here and extract: https://www.libsdl.org/download-2.0.php (https://www.libsdl.org/release/SDL2-devel-2.0.8-VC.zip)
@@ -80,7 +82,7 @@ Windows:
 3. Run cmake: `cmake -G "Visual Studio 15 2017 Win64" .`
 4. (Optional) Edit `src\includes.h` to uncomment `#define UI_ENABLED` and copy your `SDL2.dll` into `bin\Release\`
 5. Build the generated solution: `msbuild c-ray.sln /p:Configuration=Release`
-6. Run:	`bin\Release\c-ray.exe input\scene.json`
+6. Run:	`bin\Release\c-ray.exe input\scene.json` or `type input\scene.json | bin\Release\c-ray.exe`
 
 ## Installing SDL
 
