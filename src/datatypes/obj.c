@@ -64,18 +64,18 @@ void addTransform(struct crayOBJ *obj, struct matrixTransform transform) {
 	obj->transformCount++;
 }
 
-void transformMesh(struct crayOBJ *object) {
-	bool *tformed = (bool *)calloc(object->polyCount*3, sizeof(bool *));
-	for (int tf = 0; tf < object->transformCount; tf++) {
+void transformMesh(struct crayOBJ *obj) {
+	bool *tformed = (bool *)calloc(obj->polyCount*3, sizeof(bool *));
+	for (int tf = 0; tf < obj->transformCount; tf++) {
 		//Perform transforms
-		for (int p = object->firstPolyIndex; p < (object->firstPolyIndex + object->polyCount); p++) {
+		for (int p = obj->firstPolyIndex; p < (obj->firstPolyIndex + obj->polyCount); p++) {
 			for (int v = 0; v < polygonArray[p].vertexCount; v++) {
-				transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], &object->transforms[tf], tformed[polygonArray[p].vertexIndex[v]]);
+				transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], &obj->transforms[tf], tformed[polygonArray[p].vertexIndex[v]]);
 				tformed[polygonArray[p].vertexIndex[v]] = true;
 			}
 		}
 		//Clear isTransformed flags
-		for (int p = object->firstPolyIndex; p < object->firstPolyIndex + object->polyCount; p++) {
+		for (int p = obj->firstPolyIndex; p < obj->firstPolyIndex + obj->polyCount; p++) {
 			for (int v = 0; v < polygonArray->vertexCount; v++) {
 				tformed[polygonArray[p].vertexIndex[v]] = false;
 			}
