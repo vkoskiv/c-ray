@@ -15,9 +15,8 @@
 #include "../renderer/renderer.h"
 #include "../utils/logging.h"
 
-#ifndef WINDOWS
 #include <fcntl.h>
-#endif
+
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
@@ -136,10 +135,6 @@ void checkBuf() {
 
 //Get scene data from stdin and return a pointer to it
 char *readStdin() {
-#ifdef WINDOWS
-	logr(error, "Windows doesn't support reading from stdin. Pass the path to the input file as an argument instead.\n");
-#endif
-	
 	checkBuf();
 	
 	int chunksize = 1024; //load in 1kb chunks
