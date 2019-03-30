@@ -79,15 +79,18 @@ int main(int argc, char *argv[]) {
 }
 
 void freeGlobals() {
-	//Free memory
-	if (vertexArray)
+	if (vertexArray) {
 		free(vertexArray);
-	if (normalArray)
+	}
+	if (normalArray) {
 		free(normalArray);
-	if (textureArray)
+	}
+	if (textureArray) {
 		free(textureArray);
-	if (polygonArray)
+	}
+	if (polygonArray) {
 		free(polygonArray);
+	}
 }
 
 void prepareGlobals() {

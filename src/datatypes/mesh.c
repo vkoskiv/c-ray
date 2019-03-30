@@ -56,15 +56,17 @@ void freeMesh(struct mesh *mesh) {
 	if (mesh->meshName) {
 		free(mesh->meshName);
 	}
-	for (int i = 0; i < mesh->materialCount; i++) {
-		freeMaterial(&mesh->materials[i]);
+	if (mesh->transforms) {
+		free(mesh->transforms);
 	}
-	free(mesh->materials);
-	
 	if (mesh->tree) {
 		freeTree(mesh->tree);
+		free(mesh->tree);
 	}
-	free(mesh->tree);
-	
-	free(mesh->transforms);
+	if (mesh->materials) {
+		for (int i = 0; i < mesh->materialCount; i++) {
+			freeMaterial(&mesh->materials[i]);
+		}
+		free(mesh->materials);
+	}
 }
