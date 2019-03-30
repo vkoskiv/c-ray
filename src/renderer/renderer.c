@@ -167,7 +167,7 @@ void *renderThreadSIMD(void *arg) {
 			
 			//VECD indicates 'basic block vectorized' reported by gcc-8
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -177,7 +177,7 @@ void *renderThreadSIMD(void *arg) {
 			}
 			
 			if (renderer->antialiasing) {
-				for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+				for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 					for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 						int tx = x - (int)tile.begin.x;
 						int ty = y - (int)tile.begin.y;
@@ -187,7 +187,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) { //VECD
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -199,7 +199,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -207,7 +207,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -215,7 +215,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) { //VECD
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -227,7 +227,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) { //VECD
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -235,7 +235,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -243,7 +243,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) { //VECD
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -253,7 +253,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -261,7 +261,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) { //VECD
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -271,7 +271,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -279,7 +279,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -287,7 +287,7 @@ void *renderThreadSIMD(void *arg) {
 				}
 			}
 			
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
@@ -374,7 +374,7 @@ void *renderThread(void *arg) {
 		startTimer(&renderer->timers[tinfo->thread_num]);
 		
 		while (tile.completedSamples < renderer->sampleCount+1 && renderer->isRendering) {
-			for (int y = (int)tile.begin.y; y < (int)tile.end.y; y++) {
+			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					
 					int height = *renderer->image->height;
