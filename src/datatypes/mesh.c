@@ -32,7 +32,8 @@ void addTransform(struct mesh *mesh, struct matrixTransform transform) {
 }
 
 void transformMesh(struct mesh *mesh) {
-	bool *tformed = (bool *)calloc(mesh->polyCount*3, sizeof(bool *));
+	//Bit of a hack here, using way more memory than needed. Should also work on 32-bit now
+	bool *tformed = (bool *)calloc(mesh->polyCount*3, 8);
 	for (int tf = 0; tf < mesh->transformCount; tf++) {
 		//Perform transforms
 		for (int p = mesh->firstPolyIndex; p < (mesh->firstPolyIndex + mesh->polyCount); p++) {
@@ -42,8 +43,8 @@ void transformMesh(struct mesh *mesh) {
 			}
 		}
 		//Clear isTransformed flags
-		for (int p = mesh->firstPolyIndex; p < mesh->firstPolyIndex + mesh->polyCount; p++) {
-			for (int v = 0; v < polygonArray->vertexCount; v++) {
+		for (int p = mesh->firstPolyIndex; p < (mesh->firstPolyIndex + mesh->polyCount); p++) {
+			for (int v = 0; v < polygonArray[p].vertexCount; v++) {
 				tformed[polygonArray[p].vertexIndex[v]] = false;
 			}
 		}
