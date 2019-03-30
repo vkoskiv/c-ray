@@ -1,29 +1,22 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 import json
-import os
+import sys
+from subprocess import *
 
-filename = './input/animate.json'
-
-with open(filename) as f:
-	backup = f.read()
+filename = './input/scene.json'
 
 with open(filename) as f:
     data = json.load(f)
 
-data["scene"]["outputFilePath"] = "output/instanssi/"
-data["renderer"]["sampleCount"] = 15
+data["scene"]["outputFilePath"] = "output/animation/"
+data["renderer"]["sampleCount"] = 1
 data["camera"]["transforms"][0]["x"] = 825
 
 for i in range(50):
     data["scene"]["count"] = i
     data["camera"]["transforms"][0]["x"] = data["camera"]["transforms"][0]["x"] + 5
 
-    os.remove(filename)
-    with open(filename, 'w') as f:
-        json.dump(data, f, indent=4)
-
-    os.system('./bin/c-ray ' + filename)
-
-with open(filename, 'w') as f:
-	f.write(backup)
+    proc = Popen('./bin/c-ray ', stdin=PIPE, shell=True)
+    proc.stdin.write(json.dumps(data).encode())
+    proc.communicate()
