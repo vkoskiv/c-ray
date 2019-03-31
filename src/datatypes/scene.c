@@ -121,7 +121,7 @@ bool loadMesh(struct renderer *r, char *inputFileName) {
 	r->scene->meshes[r->scene->meshCount].polyCount = data.face_count;
 	//Transforms init
 	r->scene->meshes[r->scene->meshCount].transformCount = 0;
-	r->scene->meshes[r->scene->meshCount].transforms = malloc(sizeof(struct matrixTransform));
+	r->scene->meshes[r->scene->meshCount].transforms = malloc(sizeof(struct transform));
 	
 	r->scene->meshes[r->scene->meshCount].materialCount = 0;
 	//Set name
@@ -225,18 +225,18 @@ void computeKDTrees(struct world *scene) {
 	}
 }
 
-void addCamTransform(struct camera *cam, struct matrixTransform transform) {
+void addCamTransform(struct camera *cam, struct transform transform) {
 	if (cam->transformCount == 0) {
-		cam->transforms = calloc(1, sizeof(struct matrixTransform));
+		cam->transforms = calloc(1, sizeof(struct transform));
 	} else {
-		cam->transforms = realloc(cam->transforms, (cam->transformCount + 1) * sizeof(struct matrixTransform));
+		cam->transforms = realloc(cam->transforms, (cam->transformCount + 1) * sizeof(struct transform));
 	}
 	
 	cam->transforms[cam->transformCount] = transform;
 	cam->transformCount++;
 }
 
-void addCamTransforms(struct camera *cam, struct matrixTransform *transforms, int count) {
+void addCamTransforms(struct camera *cam, struct transform *transforms, int count) {
 	for (int i = 0; i < count; i++) {
 		addCamTransform(cam, transforms[i]);
 	}
@@ -353,7 +353,7 @@ struct material *parseMaterial(const cJSON *data) {
 	return mat;
 }
 
-struct matrixTransform parseTransform(const cJSON *data) {
+struct transform parseTransform(const cJSON *data) {
 	
 	cJSON *type = cJSON_GetObjectItem(data, "type");
 	if (!cJSON_IsString(type)) {
@@ -434,11 +434,11 @@ struct matrixTransform parseTransform(const cJSON *data) {
 	return emptyTransform();
 }
 
-//Parse JSON array of transforms, and return a pointer to an array of corresponding matrixTransforms
-struct matrixTransform *parseTransforms(const cJSON *data) {
+//Parse JSON array of transforms, and return a pointer to an array of corresponding transforms
+struct transform *parseTransforms(const cJSON *data) {
 	
 	int transformCount = cJSON_GetArraySize(data);
-	struct matrixTransform *transforms = calloc(transformCount, sizeof(struct matrixTransform));
+	struct transform *transforms = calloc(transformCount, sizeof(struct transform));
 	
 	cJSON *transform = NULL;
 	

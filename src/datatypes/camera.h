@@ -19,7 +19,7 @@ struct camera {
 	struct vector up;
 	struct vector left;
 	
-	struct matrixTransform *transforms;
+	struct transform *transforms;
 	int transformCount;
 };
 

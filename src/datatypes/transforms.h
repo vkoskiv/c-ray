@@ -19,7 +19,7 @@ enum transformType {
 };
 
 //Reference: http://tinyurl.com/ho6h6mr
-struct matrixTransform {
+struct transform {
 	enum transformType type;
 	double a, b, c, d;
 	double e, f, g, h;
@@ -32,12 +32,11 @@ struct material;
 double toRadians(double degrees);
 
 //Transform types
-struct matrixTransform newTransformScale(double x, double y, double z);
-struct matrixTransform newTransformScaleUniform(double scale);
-struct matrixTransform newTransformTranslate(double x, double y, double z);
-struct matrixTransform newTransformRotateX(double degrees);
-struct matrixTransform newTransformRotateY(double degrees);
-struct matrixTransform newTransformRotateZ(double degrees);
-struct matrixTransform emptyTransform(void);
-
-void transformVector(struct vector *vec, struct matrixTransform *tf, bool isTransformed); //Expose for renderer
+struct transform newTransformScale(double x, double y, double z);
+struct transform newTransformScaleUniform(double scale);
+struct transform newTransformTranslate(double x, double y, double z);
+struct transform newTransformRotateX(double degrees);
+struct transform newTransformRotateY(double degrees);
+struct transform newTransformRotateZ(double degrees);
+struct transform emptyTransform(void);
+void transformVector(struct vector *vec, struct transform *tf, bool isTransformed); //Expose for renderer

@@ -14,8 +14,8 @@ double toRadians(double degrees) {
 	return (degrees * PI) / 180;
 }
 
-struct matrixTransform emptyTransform() {
-	struct matrixTransform transform;
+struct transform emptyTransform() {
+	struct transform transform;
 	transform.type = transformTypeNone;
 	transform.a = 0;transform.b = 0;transform.c = 0;transform.d = 0;
 	transform.e = 0;transform.f = 0;transform.g = 0;transform.h = 0;
@@ -25,7 +25,7 @@ struct matrixTransform emptyTransform() {
 }
 
 //http://tinyurl.com/hte35pq
-void transformVector(struct vector *vec, struct matrixTransform *tf, bool isTransformed) {
+void transformVector(struct vector *vec, struct transform *tf, bool isTransformed) {
 	if (!isTransformed) {
 		struct vector temp;
 		temp.x = (tf->a * vec->x) + (tf->b * vec->y) + (tf->c * vec->z) + tf->d;
@@ -37,8 +37,8 @@ void transformVector(struct vector *vec, struct matrixTransform *tf, bool isTran
 	}
 }
 
-struct matrixTransform newTransformRotateX(double degrees) {
-	struct matrixTransform transform = emptyTransform();
+struct transform newTransformRotateX(double degrees) {
+	struct transform transform = emptyTransform();
 	transform.type = transformTypeXRotate;
 	transform.a = 1;
 	transform.f = cos(toRadians(degrees));
@@ -49,8 +49,8 @@ struct matrixTransform newTransformRotateX(double degrees) {
 	return transform;
 }
 
-struct matrixTransform newTransformRotateY(double degrees) {
-	struct matrixTransform transform = emptyTransform();
+struct transform newTransformRotateY(double degrees) {
+	struct transform transform = emptyTransform();
 	transform.type = transformTypeYRotate;
 	transform.a = cos(toRadians(degrees));
 	transform.c = sin(toRadians(degrees));
@@ -61,8 +61,8 @@ struct matrixTransform newTransformRotateY(double degrees) {
 	return transform;
 }
 
-struct matrixTransform newTransformRotateZ(double degrees) {
-	struct matrixTransform transform = emptyTransform();
+struct transform newTransformRotateZ(double degrees) {
+	struct transform transform = emptyTransform();
 	transform.type = transformTypeZRotate;
 	transform.a = cos(toRadians(degrees));
 	transform.b = -sin(toRadians(degrees));
@@ -73,8 +73,8 @@ struct matrixTransform newTransformRotateZ(double degrees) {
 	return transform;
 }
 
-struct matrixTransform newTransformTranslate(double x, double y, double z) {
-	struct matrixTransform transform = emptyTransform();
+struct transform newTransformTranslate(double x, double y, double z) {
+	struct transform transform = emptyTransform();
 	transform.type = transformTypeTranslate;
 	transform.a = 1;
 	transform.f = 1;
@@ -86,8 +86,8 @@ struct matrixTransform newTransformTranslate(double x, double y, double z) {
 	return transform;
 }
 
-struct matrixTransform newTransformScale(double x, double y, double z) {
-	struct matrixTransform transform = emptyTransform();
+struct transform newTransformScale(double x, double y, double z) {
+	struct transform transform = emptyTransform();
 	transform.type = transformTypeScale;
 	transform.a = x;
 	transform.f = y;
@@ -96,8 +96,8 @@ struct matrixTransform newTransformScale(double x, double y, double z) {
 	return transform;
 }
 
-struct matrixTransform newTransformScaleUniform(double scale) {
-	struct matrixTransform transform = emptyTransform();
+struct transform newTransformScaleUniform(double scale) {
+	struct transform transform = emptyTransform();
 	transform.type = transformTypeScale;
 	transform.a = scale;
 	transform.f = scale;

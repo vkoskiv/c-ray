@@ -21,11 +21,11 @@ struct mesh *parseOBJFile(char *fileName) {
 	return mesh;
 }
 
-void addTransform(struct mesh *mesh, struct matrixTransform transform) {
+void addTransform(struct mesh *mesh, struct transform transform) {
 	if (mesh->transformCount == 0) {
-		mesh->transforms = calloc(1, sizeof(struct matrixTransform));
+		mesh->transforms = calloc(1, sizeof(struct transform));
 	} else {
-		mesh->transforms = realloc(mesh->transforms, (mesh->transformCount + 1) * sizeof(struct matrixTransform));
+		mesh->transforms = realloc(mesh->transforms, (mesh->transformCount + 1) * sizeof(struct transform));
 	}
 	mesh->transforms[mesh->transformCount] = transform;
 	mesh->transformCount++;

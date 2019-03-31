@@ -38,7 +38,7 @@ struct mesh {
 	
 	//Transforms to perform before rendering
 	int transformCount;
-	struct matrixTransform *transforms;
+	struct transform *transforms;
 	
 	//Materials
 	int materialCount;
@@ -50,7 +50,7 @@ struct mesh {
 	char *meshName;
 };
 
-void addTransform(struct mesh *mesh, struct matrixTransform transform);
+void addTransform(struct mesh *mesh, struct transform transform);
 void transformMesh(struct mesh *mesh);
 
 void freeMesh(struct mesh *mesh);

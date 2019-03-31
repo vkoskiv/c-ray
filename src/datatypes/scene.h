@@ -12,7 +12,7 @@ struct mesh;
 struct material;
 struct sphere;
 struct camera;
-struct matrixTransform;
+struct transform;
 struct poly;
 struct kdTreeNode;
 struct renderer;
