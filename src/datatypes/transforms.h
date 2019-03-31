@@ -39,4 +39,7 @@ struct transform newTransformRotateX(double degrees);
 struct transform newTransformRotateY(double degrees);
 struct transform newTransformRotateZ(double degrees);
 struct transform emptyTransform(void);
+
+struct transform inverseTransform(struct transform tf);
+
 void transformVector(struct vector *vec, struct transform *tf, bool isTransformed); //Expose for renderer
