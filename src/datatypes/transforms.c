@@ -139,8 +139,8 @@ void getCofactor(double A[4][4], double cofactors[4][4], int p, int q, int n) {
 }
 
 //Find det of a given 4x4 matrix A
-int findDeterminant(double A[4][4], int n) {
-	int det = 0;
+double findDeterminant(double A[4][4], int n) {
+	double det = 0;
 	
 	if (n == 1)
 		return A[0][0];
@@ -170,6 +170,13 @@ void findAdjoint(double A[4][4], double adjoint[4][4]) {
 	}
 }
 
+/*
+ double a, b, c, d;
+ double e, f, g, h;
+ double i, j, k, l;
+ double m, n, o, p;
+ */
+
 //find inverse of tf and return it
 struct transform inverseTransform(struct transform tf) {
 	double A[4][4];
@@ -178,7 +185,7 @@ struct transform inverseTransform(struct transform tf) {
 	
 	int det = findDeterminant(A, 4);
 	if (det == 0) {
-		logr(error, "No inverse for given transform!");
+		logr(error, "No inverse for given transform!\n");
 	}
 	
 	double adjoint[4][4];
@@ -193,5 +200,5 @@ struct transform inverseTransform(struct transform tf) {
 	struct transform inversetf = {0};
 	transferFromMatrix(&inversetf, inverse);
 	
-	return tf;
+	return inversetf;
 }
