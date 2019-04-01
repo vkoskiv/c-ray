@@ -8,6 +8,7 @@
 
 #include "../includes.h"
 #include "poly.h"
+#include "../datatypes/vertexbuffer.h"
 
 //Main polygon array
 struct poly *polygonArray;

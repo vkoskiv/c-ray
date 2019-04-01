@@ -17,12 +17,11 @@
 #include "utils/ui.h"
 #include "utils/learn.h"
 #include "utils/multiplatform.h"
+#include "datatypes/vertexbuffer.h"
 
 int getFileSize(char *fileName);
 void initRenderer(struct renderer *renderer);
 int getSysCores(void);
-void freeGlobals(void);
-void prepareGlobals(void);
 
 extern struct poly *polygonArray;
 
@@ -42,7 +41,7 @@ int main(int argc, char *argv[]) {
 	
 	initTerminal();
 	
-	prepareGlobals();
+	allocVertexBuffer();
 	//Initialize renderer
 	struct renderer *mainRenderer = newRenderer();
 	
@@ -71,36 +70,9 @@ int main(int argc, char *argv[]) {
 	writeImage(mainRenderer);
 	
 	freeRenderer(mainRenderer);
-	freeGlobals();
+	freeVertexBuffer();
 	
 	logr(info, "Render finished, exiting.\n");
 	
 	return 0;
-}
-
-void freeGlobals() {
-	if (vertexArray) {
-		free(vertexArray);
-	}
-	if (normalArray) {
-		free(normalArray);
-	}
-	if (textureArray) {
-		free(textureArray);
-	}
-	if (polygonArray) {
-		free(polygonArray);
-	}
-}
-
-void prepareGlobals() {
-	vertexArray = calloc(1, sizeof(struct vector));
-	normalArray = calloc(1, sizeof(struct vector));
-	textureArray = calloc(1, sizeof(struct coord));
-	polygonArray = calloc(1, sizeof(struct poly));
-	
-	vertexCount = 0;
-	normalCount = 0;
-	textureCount = 0;
-	polyCount = 0;
 }

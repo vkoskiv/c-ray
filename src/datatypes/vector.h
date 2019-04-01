@@ -18,16 +18,6 @@ struct coord {
 	double x, y;
 };
 
-//Main vector arrays
-extern struct vector *vertexArray;
-extern int vertexCount;
-
-extern struct vector *normalArray;
-extern int normalCount;
-
-extern struct coord *textureArray;
-extern int textureCount;
-
 //Return a vector with given coordinates
 struct vector vecWithPos(double x, double y, double z);
 

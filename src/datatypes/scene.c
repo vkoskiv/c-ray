@@ -20,6 +20,7 @@
 #include "../utils/logging.h"
 #include "tile.h"
 #include "../utils/timer.h"
+#include "../datatypes/vertexbuffer.h"
 
 struct color *parseColor(const cJSON *data);
 

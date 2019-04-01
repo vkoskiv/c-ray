@@ -8,6 +8,7 @@
 
 #include "../includes.h"
 #include "bbox.h"
+#include "../datatypes/vertexbuffer.h"
 
 /**
  Get the longest axis of an axis-aligned bounding box

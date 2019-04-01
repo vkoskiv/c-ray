@@ -11,6 +11,7 @@
 
 #include "../renderer/pathtrace.h"
 #include "../utils/filehandler.h"
+#include "../datatypes/vertexbuffer.h"
 
 //FIXME: Temporary, eventually support full OBJ spec
 struct material newMaterial(struct color diffuse, double reflectivity) {

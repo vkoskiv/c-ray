@@ -9,21 +9,6 @@
 #include "../includes.h"
 #include "vector.h"
 
-//Main vertex arrays
-
-/*
- Note:
- C-Ray stores all vectors and polygons in shared arrays, and uses data structures
- to keep track of them.
- */
-
-struct vector *vertexArray;
-int vertexCount;
-struct vector *normalArray;
-int normalCount;
-struct coord *textureArray;
-int textureCount;
-
 /* Vector Functions */
 
 /**

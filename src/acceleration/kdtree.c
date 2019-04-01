@@ -11,6 +11,7 @@
 #include "bbox.h"
 
 #include "../renderer/pathtrace.h"
+#include "../datatypes/vertexbuffer.h"
 
 //Tree funcs
 

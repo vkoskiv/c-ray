@@ -11,6 +11,7 @@
 
 #include "../acceleration/bbox.h"
 #include "../acceleration/kdtree.h"
+#include "../datatypes/vertexbuffer.h"
 
 //Parse given .obj and .mtl and return a mesh
 struct mesh *parseOBJFile(char *fileName) {
