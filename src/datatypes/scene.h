@@ -29,10 +29,6 @@ struct world {
 	
 	int lightCount;
 	
-	//Materials
-	struct material *materials;
-	int materialCount;
-	
 	//Spheres
 	struct sphere *spheres;
 	int sphereCount;

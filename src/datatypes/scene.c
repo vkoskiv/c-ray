@@ -191,11 +191,6 @@ void addSphere(struct world *scene, struct sphere newSphere) {
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
-void addMaterial(struct world *scene, struct material newMaterial) {
-	scene->materials = realloc(scene->materials, (scene->materialCount + 1) * sizeof(struct material));
-	scene->materials[scene->materialCount++] = newMaterial;
-}
-
 void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
 	mesh->materials = realloc(mesh->materials, (mesh->materialCount + 1) * sizeof(struct material));
 	mesh->materials[mesh->materialCount++] = newMaterial;
@@ -1159,12 +1154,6 @@ void freeScene(struct world *scene) {
 			freeMesh(&scene->meshes[i]);
 		}
 		free(scene->meshes);
-	}
-	if (scene->materials) {
-		for (int i = 0; i < scene->materialCount; i++) {
-			freeMaterial(&scene->materials[i]);
-		}
-		free(scene->materials);
 	}
 	if (scene->spheres) {
 		free(scene->spheres);

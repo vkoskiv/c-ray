@@ -500,7 +500,6 @@ struct renderer *newRenderer() {
 	renderer->scene->ambientColor = calloc(1, sizeof(struct color));
 	renderer->scene->meshes = calloc(1, sizeof(struct mesh));
 	renderer->scene->spheres = calloc(1, sizeof(struct sphere));
-	renderer->scene->materials = calloc(1, sizeof(struct material));
 	
 #ifdef UI_ENABLED
 	renderer->mainDisplay = calloc(1, sizeof(struct display));
