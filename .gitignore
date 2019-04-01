@@ -8,6 +8,7 @@ output/*
 *.vcxproj
 *.vcxproj.filters
 *.sln
+*.mp4
 
 input/*
 !input/newScene.*
