@@ -38,8 +38,10 @@ void transformMesh(struct mesh *mesh) {
 		//Perform transforms
 		for (int p = mesh->firstPolyIndex; p < (mesh->firstPolyIndex + mesh->polyCount); p++) {
 			for (int v = 0; v < polygonArray[p].vertexCount; v++) {
-				transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], &mesh->transforms[tf], tformed[polygonArray[p].vertexIndex[v]]);
-				tformed[polygonArray[p].vertexIndex[v]] = true;
+				if (!tformed[polygonArray[p].vertexIndex[v]]) {
+					transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], &mesh->transforms[tf]);
+					tformed[polygonArray[p].vertexIndex[v]] = true;
+				}
 			}
 		}
 		//Clear isTransformed flags

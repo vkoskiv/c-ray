@@ -26,16 +26,14 @@ struct transform emptyTransform() {
 }
 
 //http://tinyurl.com/hte35pq
-void transformVector(struct vector *vec, struct transform *tf, bool isTransformed) {
-	if (!isTransformed) {
-		struct vector temp;
-		temp.x = (tf->a * vec->x) + (tf->b * vec->y) + (tf->c * vec->z) + tf->d;
-		temp.y = (tf->e * vec->x) + (tf->f * vec->y) + (tf->g * vec->z) + tf->h;
-		temp.z = (tf->i * vec->x) + (tf->j * vec->y) + (tf->k * vec->z) + tf->l;
-		vec->x = temp.x;
-		vec->y = temp.y;
-		vec->z = temp.z;
-	}
+void transformVector(struct vector *vec, struct transform *tf) {
+	struct vector temp;
+	temp.x = (tf->a * vec->x) + (tf->b * vec->y) + (tf->c * vec->z) + tf->d;
+	temp.y = (tf->e * vec->x) + (tf->f * vec->y) + (tf->g * vec->z) + tf->h;
+	temp.z = (tf->i * vec->x) + (tf->j * vec->y) + (tf->k * vec->z) + tf->l;
+	vec->x = temp.x;
+	vec->y = temp.y;
+	vec->z = temp.z;
 }
 
 struct transform newTransformRotateX(double degrees) {

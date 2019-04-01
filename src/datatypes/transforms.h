@@ -42,4 +42,4 @@ struct transform emptyTransform(void);
 
 struct transform inverseTransform(struct transform tf);
 
-void transformVector(struct vector *vec, struct transform *tf, bool isTransformed); //Expose for renderer
+void transformVector(struct vector *vec, struct transform *tf);
