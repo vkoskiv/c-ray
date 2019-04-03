@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9005F1AE1EA570B9004CF72D /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9005F1AD1EA570B9004CF72D /* SDL2.framework */; };
 		900BA12B220B4603005B8EE7 /* bbox.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F4220B4602005B8EE7 /* bbox.c */; };
 		900BA12C220B4603005B8EE7 /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F5220B4602005B8EE7 /* kdtree.c */; };
 		900BA12D220B4603005B8EE7 /* pathtrace.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F7220B4602005B8EE7 /* pathtrace.c */; };
@@ -38,6 +37,7 @@
 		9058A51222231E9F00193385 /* learn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50F22231E9E00193385 /* learn.c */; };
 		9058A51522231EB100193385 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
 		907CD47A2240DFFF003947B0 /* multiplatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 907CD4792240DFFF003947B0 /* multiplatform.c */; };
+		90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85232252D99700BA7702 /* vertexbuffer.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -53,7 +53,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		9005F1AD1EA570B9004CF72D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		900BA0F0220B4602005B8EE7 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
 		900BA0F2220B4602005B8EE7 /* bbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bbox.h; sourceTree = "<group>"; };
 		900BA0F3220B4602005B8EE7 /* kdtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kdtree.h; sourceTree = "<group>"; };
@@ -117,6 +116,8 @@
 		9058A51422231EB100193385 /* Tinn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Tinn.c; sourceTree = "<group>"; };
 		907CD4782240DFFF003947B0 /* multiplatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multiplatform.h; sourceTree = "<group>"; };
 		907CD4792240DFFF003947B0 /* multiplatform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = multiplatform.c; sourceTree = "<group>"; };
+		90CA85222252D99600BA7702 /* vertexbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vertexbuffer.h; sourceTree = "<group>"; };
+		90CA85232252D99700BA7702 /* vertexbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vertexbuffer.c; sourceTree = "<group>"; };
 		90D99AF41D08ADB10015A854 /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90E2DB28223D575600E7A305 /* asprintf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asprintf.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -126,7 +127,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9005F1AE1EA570B9004CF72D /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,7 +136,6 @@
 		9005F1AC1EA570B9004CF72D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				9005F1AD1EA570B9004CF72D /* SDL2.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -204,6 +203,8 @@
 				900BA104220B4602005B8EE7 /* scene.c */,
 				900BA10E220B4602005B8EE7 /* transforms.h */,
 				900BA106220B4602005B8EE7 /* transforms.c */,
+				90CA85222252D99600BA7702 /* vertexbuffer.h */,
+				90CA85232252D99700BA7702 /* vertexbuffer.c */,
 			);
 			path = datatypes;
 			sourceTree = "<group>";
@@ -344,6 +345,7 @@
 				900BA140220B4603005B8EE7 /* timer.c in Sources */,
 				900BA12D220B4603005B8EE7 /* pathtrace.c in Sources */,
 				900BA13B220B4603005B8EE7 /* list.c in Sources */,
+				90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */,
 				900BA135220B4603005B8EE7 /* material.c in Sources */,
 				900BA13D220B4603005B8EE7 /* lodepng.c in Sources */,
 				9058A51122231E9F00193385 /* denoiser.c in Sources */,
@@ -510,6 +512,16 @@
 				GCC_WARN_PEDANTIC = NO;
 				GCC_WARN_SHADOW = NO;
 				GCC_WARN_UNUSED_PARAMETER = NO;
+				HEADER_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = (
+					"-I/usr/local/include/SDL2",
+					"-D_THREAD_SAFE",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib",
+					"-lSDL2",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 			};
@@ -536,6 +548,16 @@
 				GCC_WARN_PEDANTIC = NO;
 				GCC_WARN_SHADOW = NO;
 				GCC_WARN_UNUSED_PARAMETER = NO;
+				HEADER_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = (
+					"-I/usr/local/include/SDL2",
+					"-D_THREAD_SAFE",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib",
+					"-lSDL2",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 			};
