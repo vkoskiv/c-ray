@@ -46,7 +46,7 @@
 #else
 #include <pthread.h>
 #ifdef UI_ENABLED
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #endif
 #endif
 #include "./libraries/lodepng.h"
