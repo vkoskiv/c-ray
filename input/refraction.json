@@ -228,7 +228,7 @@
 				]
 			},
 			{
-				"fileName": "teapot_test.obj",
+				"fileName": "teapot.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{
@@ -248,7 +248,7 @@
 				]
 			},
 			{
-				"fileName": "teapot_test.obj",
+				"fileName": "teapot.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{
@@ -268,7 +268,7 @@
 				]
 			},
 			{
-				"fileName": "teapot_test.obj",
+				"fileName": "teapot.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{

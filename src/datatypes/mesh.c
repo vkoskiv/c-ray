@@ -13,15 +13,6 @@
 #include "../acceleration/kdtree.h"
 #include "../datatypes/vertexbuffer.h"
 
-//Parse given .obj and .mtl and return a mesh
-struct mesh *parseOBJFile(char *fileName) {
-	struct mesh *mesh = calloc(1, sizeof(struct mesh));
-	
-	//TODO
-	
-	return mesh;
-}
-
 void addTransform(struct mesh *mesh, struct transform transform) {
 	if (mesh->transformCount == 0) {
 		mesh->transforms = calloc(1, sizeof(struct transform));

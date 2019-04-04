@@ -188,6 +188,23 @@ struct texture *newTexture(char *filePath) {
 	return newTexture;
 }
 
+//FIXME: Move this to a better place
+bool stringEquals(const char *s1, const char *s2) {
+	if (strcmp(s1, s2) == 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+//FIXME: Move this to a better place
+bool stringContains(const char *haystack, const char *needle) {
+	if (strstr(haystack, needle) == NULL) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 void printFileSize(char *fileName) {
 	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
 	//This will work for all image formats

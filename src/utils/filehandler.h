@@ -50,6 +50,11 @@ char *readStdin(void);
 //Load a PNG texture
 struct texture *newTexture(char *filePath);
 
+//FIXME: Move this to a better place
+bool stringEquals(const char *s1, const char *s2);
+//FIXME: Move this to a better place
+bool stringContains(const char *haystack, const char *needle);
+
 void copyString(const char *source, char **destination);
 
 void freeImage(struct texture *image);

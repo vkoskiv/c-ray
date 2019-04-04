@@ -21,6 +21,7 @@
 #include "tile.h"
 #include "../utils/timer.h"
 #include "../datatypes/vertexbuffer.h"
+#include "../utils/loaders/objloader.h"
 
 struct color *parseColor(const cJSON *data);
 
@@ -95,6 +96,28 @@ void loadMeshTextures(struct mesh *mesh) {
 			}
 		}
 	}
+}
+
+bool loadMeshNew(struct renderer *r, char *inputFileName) {
+	logr(info, "Loading mesh %s%s\n", r->inputFilePath, inputFileName);
+	
+	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + 1) * sizeof(struct mesh));
+	
+	bool valid = false;
+	
+	char *fullPath = (char*)calloc(1024, sizeof(char));
+	sprintf(fullPath, "%s%s", r->inputFilePath, inputFileName);
+	
+	struct mesh *newMesh = parseOBJFile(fullPath);
+	if (newMesh != NULL) {
+		r->scene->meshes[r->scene->meshCount] = *newMesh;
+		free(newMesh);
+		valid = true;
+		loadMeshTextures(&r->scene->meshes[r->scene->meshCount]);
+	}
+	
+	r->scene->meshCount++;
+	return valid;
 }
 
 bool loadMesh(struct renderer *r, char *inputFileName) {

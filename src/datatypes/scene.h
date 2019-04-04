@@ -44,3 +44,5 @@ struct world {
 void loadScene(struct renderer *r, char *filename, bool fromStdin);
 
 void freeScene(struct world *scene);
+
+char *getFileName(char *input);
