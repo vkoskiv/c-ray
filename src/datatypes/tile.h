@@ -20,6 +20,7 @@ struct renderTile {
 	struct coord end;
 	int completedSamples;
 	bool isRendering;
+	bool renderComplete;
 	int tileNum;
 };
 

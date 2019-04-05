@@ -16,6 +16,7 @@ struct color blueColor =  {0.0, 0.0, 1.0, 0.0};
 struct color blackColor = {0.0, 0.0, 0.0, 0.0};
 struct color whiteColor = {1.0, 1.0, 1.0, 0.0};
 struct color frameColor = {1.0, 0.5, 0.0, 0.0};
+struct color progColor  = {0.2549019608, 0.4509803922, 0.9607843137, 0.0};
 
 //Color functions
 //Return a color with given values

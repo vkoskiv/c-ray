@@ -29,6 +29,7 @@ extern struct color blueColor;
 extern struct color blackColor;
 extern struct color whiteColor;
 extern struct color frameColor;
+extern struct color progColor;
 
 //Return a color with given values
 struct color colorWithValues(double red, double green, double blue, double alpha);

@@ -24,6 +24,11 @@ struct threadInfo {
 #endif
 	int thread_num;
 	bool threadComplete;
+	
+	//Share info about the current tile with main thread
+	int currentTileNum;
+	int completedSamples;
+	
 	struct renderer *r;
 };
 

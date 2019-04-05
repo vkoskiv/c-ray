@@ -93,7 +93,7 @@ void render(struct renderer *r) {
 		if (r->threadPaused[0]) {
 			sleepMSec(800);
 		} else {
-			sleepMSec(33);
+			sleepMSec(40);
 		}
 	}
 	
@@ -368,6 +368,7 @@ void *renderThread(void *arg) {
 	
 	//First time setup for each thread
 	struct renderTile tile = getTile(renderer);
+	tinfo->currentTileNum = tile.tileNum;
 	
 	while (tile.tileNum != -1 && renderer->isRendering) {
 		unsigned long long sleepMs = 0;
@@ -459,6 +460,7 @@ void *renderThread(void *arg) {
 				}
 			}
 			tile.completedSamples++;
+			tinfo->completedSamples = tile.completedSamples;
 			//Pause rendering when bool is set
 			while (renderer->threadPaused[tinfo->thread_num] && !renderer->renderAborted) {
 				sleepMSec(100);
@@ -467,8 +469,11 @@ void *renderThread(void *arg) {
 		}
 		//Tile has finished rendering, get a new one and start rendering it.
 		renderer->renderTiles[tile.tileNum].isRendering = false;
+		renderer->renderTiles[tile.tileNum].renderComplete = true;
+		tinfo->completedSamples = 0;
 		unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
 		tile = getTile(renderer);
+		tinfo->currentTileNum = tile.tileNum;
 		unsigned long long duration = endTimer(&renderer->timers[tinfo->thread_num]);
 		if (sleepMs > 0) {
 			duration -= sleepMs;

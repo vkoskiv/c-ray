@@ -163,7 +163,7 @@ void getKeyboardInput(struct renderer *r) {
 	}
 }
 
-void drawPixel(struct renderer *r, int x, int y, bool on) {
+void drawPixel(struct renderer *r, int x, int y, bool on, struct color c) {
 	if (y <= 0) y = 1;
 	if (x <= 0) x = 1;
 	if (x >= *r->image->width) x = *r->image->width - 1;
@@ -171,11 +171,11 @@ void drawPixel(struct renderer *r, int x, int y, bool on) {
 	
 	if (on) {
 		r->uiBuffer[(x + (*r->image->height - y)
-							   * *r->image->width) * 4 + 3] = (unsigned char)min(frameColor.red*255.0, 255.0);
+							   * *r->image->width) * 4 + 3] = (unsigned char)min(c.red*255.0, 255.0);
 		r->uiBuffer[(x + (*r->image->height - y)
-							   * *r->image->width) * 4 + 2] = (unsigned char)min(frameColor.green*255.0, 255.0);
+							   * *r->image->width) * 4 + 2] = (unsigned char)min(c.green*255.0, 255.0);
 		r->uiBuffer[(x + (*r->image->height - y)
-							   * *r->image->width) * 4 + 1] = (unsigned char)min(frameColor.blue*255.0, 255.0);
+							   * *r->image->width) * 4 + 1] = (unsigned char)min(c.blue*255.0, 255.0);
 		r->uiBuffer[(x + (*r->image->height - y)
 							   * *r->image->width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
 	} else {
@@ -186,6 +186,48 @@ void drawPixel(struct renderer *r, int x, int y, bool on) {
 	}
 }
 
+void clearProgBar(struct renderer *r, struct renderTile temp) {
+	for (int i = 0; i < temp.width; i++) {
+		/*drawPixel(r, temp.begin.x + i, temp.begin.y + 8, false, progColor);
+		drawPixel(r, temp.begin.x + i, temp.begin.y + 9, false, progColor);
+		drawPixel(r, temp.begin.x + i, temp.begin.y + 10, false, progColor);
+		drawPixel(r, temp.begin.x + i, temp.begin.y + 11, false, progColor);*/
+		
+		drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1, false, progColor);
+		drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)), false, progColor);
+		drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1, false, progColor);
+	}
+}
+
+/*
+ So this is a bit of a kludge, we get the dynamically updated completedSamples
+ info that renderThreads report back, and then associate that with the static
+ renderTiles array data that is only updated once a tile is completed.
+ I didn't want to put any mutex locks in the main render loop, so this gets
+ around that.
+ */
+void drawProgressBars(struct renderer *r) {
+	for (int t = 0; t < r->threadCount; t++) {
+		struct renderTile temp = r->renderTiles[r->renderThreadInfo[t].currentTileNum];
+		int completedSamples = r->renderThreadInfo[t].completedSamples;
+		int totalSamples = r->sampleCount;
+		
+		float prc = ((float)completedSamples / (float)totalSamples);
+		int pixels2draw = (int)((float)temp.width*(float)prc);
+		
+		//And then draw the bar
+		for (int i = 0; i < pixels2draw; i++) {
+			/*drawPixel(r, temp.begin.x + i, temp.begin.y + 8, true, progColor);
+			drawPixel(r, temp.begin.x + i, temp.begin.y + 9, true, progColor);
+			drawPixel(r, temp.begin.x + i, temp.begin.y + 10, true, progColor);
+			drawPixel(r, temp.begin.x + i, temp.begin.y + 11, true, progColor);*/
+			
+			drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1, true, progColor);
+			drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)), true, progColor);
+			drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1, true, progColor);
+		}
+	}
+}
 
 /**
  Draw highlight frame to show which tiles are rendering
@@ -196,20 +238,20 @@ void drawPixel(struct renderer *r, int x, int y, bool on) {
 void drawFrame(struct renderer *r, struct renderTile tile, bool on) {
 	for (int i = 1; i < 7; i++) {
 		//top left
-		drawPixel(r, tile.begin.x+i, tile.begin.y+1, on);
-		drawPixel(r, tile.begin.x+1, tile.begin.y+i, on);
+		drawPixel(r, tile.begin.x+i, tile.begin.y+1, on, frameColor);
+		drawPixel(r, tile.begin.x+1, tile.begin.y+i, on, frameColor);
 		
 		//top right
-		drawPixel(r, tile.end.x-i, tile.begin.y+1, on);
-		drawPixel(r, tile.end.x-1, tile.begin.y+i, on);
+		drawPixel(r, tile.end.x-i, tile.begin.y+1, on, frameColor);
+		drawPixel(r, tile.end.x-1, tile.begin.y+i, on, frameColor);
 		
 		//Bottom left
-		drawPixel(r, tile.begin.x+i, tile.end.y-1, on);
-		drawPixel(r, tile.begin.x+1, tile.end.y-i, on);
+		drawPixel(r, tile.begin.x+i, tile.end.y-1, on, frameColor);
+		drawPixel(r, tile.begin.x+1, tile.end.y-i, on, frameColor);
 		
 		//bottom right
-		drawPixel(r, tile.end.x-i, tile.end.y-1, on);
-		drawPixel(r, tile.end.x-1, tile.end.y-i, on);
+		drawPixel(r, tile.end.x-i, tile.end.y-1, on, frameColor);
+		drawPixel(r, tile.end.x-1, tile.end.y-i, on, frameColor);
 	}
 }
 
@@ -217,12 +259,12 @@ void updateFrames(struct renderer *r) {
 	for (int i = 0; i < r->tileCount; i++) {
 		//For every tile, if it's currently rendering, draw the frame
 		//If it is NOT rendering, clear any frame present
-		if (r->renderTiles[i].isRendering) {
-			drawFrame(r, r->renderTiles[i], true);
-		} else {
-			drawFrame(r, r->renderTiles[i], false);
+		drawFrame(r, r->renderTiles[i], r->renderTiles[i].isRendering);
+		if (r->renderTiles[i].renderComplete) {
+			clearProgBar(r, r->renderTiles[i]);
 		}
 	}
+	drawProgressBars(r);
 }
 
 void drawWindow(struct renderer *r) {
