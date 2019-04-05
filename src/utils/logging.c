@@ -37,6 +37,9 @@ void logr(enum logType type, const char *fmt, ...) {
 		case error:
 			printf("[%sERR %s]", KRED, KNRM);
 			break;
+		case debug:
+			printf("[%sDEBG%s]", KBLU, KNRM);
+			break;
 		default:
 			break;
 	}

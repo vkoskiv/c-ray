@@ -13,7 +13,8 @@ struct renderer;
 enum logType {
 	error,
 	info,
-	warning
+	warning,
+	debug
 };
 
 void logr(enum logType type, const char *fmt, ...);
