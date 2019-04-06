@@ -42,6 +42,11 @@ add_executable(c-ray ${CSources})
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${c-ray_SOURCE_DIR}/cmake")
 
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+configure_file("${c-ray_SOURCE_DIR}/src/utils/gitsha1.c.in" "${c-ray_BINARY_DIR}/src/utils/gitsha1.c" @ONLY)
+list(APPEND SOURCES "${c-ray_BINARY_DIR}/src/utils/gitsha1.c" "${c-ray_SOURCE_DIR}/src/utils/gitsha1.h")
+
 if (NOT NO_SDL2)
 	find_package(SDL2 QUIET)
 

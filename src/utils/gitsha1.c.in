@@ -1,0 +1,11 @@
+#include "gitsha1.h"
+#include <string.h>
+#include <stdlib.h>
+#define GIT_SHA1 "@GIT_SHA1@"
+const char git_sha1[] = GIT_SHA1;
+
+char *gitHash() {
+	char *newStr = malloc(9*sizeof(char));
+	strncpy(newStr, git_sha1, 8);
+	return newStr;
+}

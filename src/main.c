@@ -6,6 +6,8 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
+#define VERSION "0.6"
+
 #include "includes.h"
 #include "main.h"
 
@@ -18,6 +20,7 @@
 #include "utils/learn.h"
 #include "utils/multiplatform.h"
 #include "datatypes/vertexbuffer.h"
+#include "utils/gitsha1.h"
 
 int getFileSize(char *fileName);
 void initRenderer(struct renderer *renderer);
@@ -33,7 +36,8 @@ extern struct poly *polygonArray;
  @return Error codes, 0 if exited normally
  */
 int main(int argc, char *argv[]) {
-	
+
+	logr(info, "C-ray v%s [%s], Copyright 2015-2019 Valtteri Koskivuori (@vkoskiv)\n", VERSION, gitHash());
 	if (/* DISABLES CODE */ (false)) {
 		study();
 		return 0;
