@@ -37,11 +37,9 @@ extern struct poly *polygonArray;
  */
 int main(int argc, char *argv[]) {
 
-	logr(info, "C-ray v%s [%s], Copyright 2015-2019 Valtteri Koskivuori (@vkoskiv)\n", VERSION, gitHash());
-	if (/* DISABLES CODE */ (false)) {
-		study();
-		return 0;
-	}
+	char *hash = gitHash();
+	logr(info, "C-ray v%s [%s], Copyright 2015-2019 Valtteri Koskivuori (@vkoskiv)\n", VERSION, hash);
+	free(hash);
 	
 	initTerminal();
 	

@@ -7,5 +7,6 @@ const char git_sha1[] = GIT_SHA1;
 char *gitHash() {
 	char *newStr = malloc(9*sizeof(char));
 	strncpy(newStr, git_sha1, 8);
+	newStr[8] = '\0';
 	return newStr;
 }

@@ -42,6 +42,7 @@
 		90CA851E2252C90C00BA7702 /* textureloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA851B2252C90C00BA7702 /* textureloader.c */; };
 		90CA85212252CB3800BA7702 /* sceneloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85202252CB3800BA7702 /* sceneloader.c */; };
 		90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85232252D99700BA7702 /* vertexbuffer.c */; };
+		90FB15CB22596E79008D6AAA /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15C822596E79008D6AAA /* gitsha1.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -132,6 +133,9 @@
 		90CA85232252D99700BA7702 /* vertexbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vertexbuffer.c; sourceTree = "<group>"; };
 		90D99AF41D08ADB10015A854 /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90E2DB28223D575600E7A305 /* asprintf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asprintf.h; sourceTree = "<group>"; };
+		90FB15C822596E79008D6AAA /* gitsha1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gitsha1.c; sourceTree = "<group>"; };
+		90FB15C922596E79008D6AAA /* gitsha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gitsha1.h; sourceTree = "<group>"; };
+		90FB15CA22596E79008D6AAA /* gitsha1.c.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gitsha1.c.in; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -261,6 +265,9 @@
 				900BA126220B4602005B8EE7 /* converter.c */,
 				900BA122220B4602005B8EE7 /* logging.h */,
 				900BA127220B4602005B8EE7 /* logging.c */,
+				90FB15C822596E79008D6AAA /* gitsha1.c */,
+				90FB15CA22596E79008D6AAA /* gitsha1.c.in */,
+				90FB15C922596E79008D6AAA /* gitsha1.h */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -382,6 +389,7 @@
 				90CA851D2252C90C00BA7702 /* objloader.c in Sources */,
 				900BA131220B4603005B8EE7 /* lightRay.c in Sources */,
 				90369CCC222E012F008D215B /* pcg_basic.c in Sources */,
+				90FB15CB22596E79008D6AAA /* gitsha1.c in Sources */,
 				9058A51222231E9F00193385 /* learn.c in Sources */,
 				900BA12C220B4603005B8EE7 /* kdtree.c in Sources */,
 				900BA142220B4603005B8EE7 /* converter.c in Sources */,
