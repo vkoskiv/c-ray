@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # TODO: Figure out how to include SDL2 in this bundle
+# TODO: Implement and include version number
 
 platform='unknown'
 unamestr=`uname`
@@ -20,8 +21,10 @@ date=$(date +"%Y-%m-%d")
 git=$(git rev-parse --verify HEAD | cut -c1-8)
 bundlename=$date-$git-$platform
 
+# Bundle the release
 mkdir $bundlename
 mkdir $bundlename/bin
 mkdir $bundlename/output
 cp ./bin/c-ray $bundlename/bin
 cp -r ./input $bundlename/
+zip -r $bundlename.zip $bundlename
