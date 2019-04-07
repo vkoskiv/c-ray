@@ -53,29 +53,22 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
  */
 struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *scene) {
 	struct intersection isect;
-	memset(&isect, 0, sizeof(isect));
-	
 	isect.distance = 20000.0;
 	isect.ray = *incidentRay;
 	isect.start = incidentRay->currentMedium;
 	isect.didIntersect = false;
-	int meshCount = scene->meshCount;
-	int sphereCount = scene->sphereCount;
-	
-	for (int i = 0; i < sphereCount; i++) {
+	for (int i = 0; i < scene->sphereCount; i++) {
 		if (rayIntersectsWithSphere(&scene->spheres[i], incidentRay, &isect)) {
 			isect.end = scene->spheres[i].material;
 			isect.didIntersect = true;
 		}
 	}
-	
-	for (int o = 0; o < meshCount; o++) {
+	for (int o = 0; o < scene->meshCount; o++) {
 		if (rayIntersectsWithNode(scene->meshes[o].tree, incidentRay, &isect)) {
 			isect.end = scene->meshes[o].materials[polygonArray[isect.polyIndex].materialIndex];
 			isect.didIntersect = true;
 		}
 	}
-	
 	return isect;
 }
 
