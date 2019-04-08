@@ -4,9 +4,10 @@
 #define GIT_SHA1 "@GIT_SHA1@"
 const char git_sha1[] = GIT_SHA1;
 
-char *gitHash() {
-	char *newStr = malloc(9*sizeof(char));
-	strncpy(newStr, git_sha1, 8);
-	newStr[8] = '\0';
+char *gitHash(int chars) {
+	if (chars > 40) chars = 40;
+	char *newStr = malloc((chars+1)*sizeof(char));
+	strncpy(newStr, git_sha1, chars);
+	newStr[chars] = '\0';
 	return newStr;
 }
