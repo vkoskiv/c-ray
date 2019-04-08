@@ -3,6 +3,7 @@
 	"renderer": {
 		"threadCount": 0,
 		"sampleCount": 100,
+		"bounces": 50,
 		"antialiasing": true,
 		"tileWidth": 64,
 		"tileHeight": 64,
@@ -52,7 +53,6 @@
 				"b": 1.0
 			}
 		},
-		"bounces": 50,
 		"inputFilePath": "input/",
 		"lights": [
 			{

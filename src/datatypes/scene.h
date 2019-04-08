@@ -36,9 +36,6 @@ struct world {
 	//Currently only one camera supported
 	struct camera *camera;
 	int cameraCount;
-	
-	//Scene preferences
-	int bounces;
 };
 
 void loadScene(struct renderer *r, char *filename, bool fromStdin);

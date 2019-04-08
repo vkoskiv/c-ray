@@ -87,6 +87,7 @@ struct renderer {
 	
 	int threadCount; //Amount of threads to render with
 	int sampleCount;
+	int bounces;
 	int tileWidth;
 	int tileHeight;
 	

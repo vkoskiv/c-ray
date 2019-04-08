@@ -25,7 +25,7 @@ void render(struct renderer *r) {
 	logr(info, "Starting C-ray renderer for frame %i\n", r->image->count);
 	
 	logr(info, "Rendering at %i x %i\n", *r->image->width,*r->image->height);
-	logr(info, "Rendering %i samples with %i bounces.\n", r->sampleCount, r->scene->bounces);
+	logr(info, "Rendering %i samples with %i bounces.\n", r->sampleCount, r->bounces);
 	logr(info, "Rendering with %d thread", r->threadCount);
 	printf(r->threadCount > 1 ? "s.\n" : ".\n");
 	
@@ -222,7 +222,7 @@ void *renderThreadSIMD(void *arg) {
 					incidentRay[tx][ty].start = startPos;
 					incidentRay[tx][ty].direction = direction[tx][ty];
 					incidentRay[tx][ty].rayType = rayTypeIncident;
-					incidentRay[tx][ty].remainingInteractions = renderer->scene->bounces;
+					incidentRay[tx][ty].remainingInteractions = renderer->bounces;
 					incidentRay[tx][ty].currentMedium.IOR = AIR_IOR;
 				}
 			}
@@ -239,7 +239,7 @@ void *renderThreadSIMD(void *arg) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
-					sample[tx][ty] = pathTrace(&incidentRay[tx][ty], renderer->scene, 0, rng);
+					sample[tx][ty] = pathTrace(&incidentRay[tx][ty], renderer->scene, 0, renderer->bounces, rng);
 				}
 			}
 			
@@ -426,7 +426,7 @@ void *renderThread(void *arg) {
 					
 					incidentRay.direction = direction;
 					incidentRay.rayType = rayTypeIncident;
-					incidentRay.remainingInteractions = renderer->scene->bounces;
+					incidentRay.remainingInteractions = renderer->bounces;
 					incidentRay.currentMedium.IOR = AIR_IOR;
 					
 					//For multi-sample rendering, we keep a running average of color values for each pixel
@@ -436,7 +436,7 @@ void *renderThread(void *arg) {
 					struct color output = getPixel(renderer, x, y);
 					
 					//Get new sample (path tracing is initiated here)
-					struct color sample = pathTrace(&incidentRay, renderer->scene, 0, rng);
+					struct color sample = pathTrace(&incidentRay, renderer->scene, 0, renderer->bounces, rng);
 					
 					//And process the running average
 					output.red = output.red * (tile.completedSamples - 1);

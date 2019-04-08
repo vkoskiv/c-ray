@@ -475,6 +475,7 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	const cJSON *tileWidth = NULL;
 	const cJSON *tileHeight = NULL;
 	const cJSON *tileOrder = NULL;
+	const cJSON *bounces = NULL;
 	
 	threadCount = cJSON_GetObjectItem(data, "threadCount");
 	if (cJSON_IsNumber(threadCount)) {
@@ -498,6 +499,15 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	} else {
 		logr(warning, "Invalid sampleCount while parsing renderer\n");
 		return -1;
+	}
+	
+	bounces = cJSON_GetObjectItem(data, "bounces");
+	if (cJSON_IsNumber(bounces)) {
+		if (bounces->valueint >= 0) {
+			r->bounces = bounces->valueint;
+		} else {
+			r->bounces = 0;
+		}
 	}
 	
 	antialiasing = cJSON_GetObjectItem(data, "antialiasing");
@@ -902,7 +912,6 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	const cJSON *height = NULL;
 	const cJSON *fileType = NULL;
 	const cJSON *ambientColor = NULL;
-	const cJSON *bounces = NULL;
 	const cJSON *lights = NULL;
 	const cJSON *spheres = NULL;
 	const cJSON *meshes = NULL;
@@ -977,15 +986,6 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsObject(ambientColor)) {
 		if (parseAmbientColor(r, ambientColor) == -1) {
 			return -1;
-		}
-	}
-	
-	bounces = cJSON_GetObjectItem(data, "bounces");
-	if (cJSON_IsNumber(bounces)) {
-		if (bounces->valueint >= 0) {
-			r->scene->bounces = bounces->valueint;
-		} else {
-			r->scene->bounces = 0;
 		}
 	}
 	
