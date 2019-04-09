@@ -104,7 +104,7 @@ char *loadFile(char *inputFileName) {
 	size_t len;
 	size_t bytesRead = getDelim(&buf, &len, '\0', f);
 	if (bytesRead != -1) {
-		logr(info, "%zi bytes of input JSON loaded from file, parsing...\n", bytesRead);
+		logr(info, "%zi bytes of input JSON loaded from file, parsing.\n", bytesRead);
 	} else {
 		logr(warning, "Failed to read input JSON from %s", inputFileName);
 		return NULL;
@@ -162,7 +162,7 @@ char *readStdin() {
 		logr(error, "Failed to read from stdin\n");
 	}
 	
-	logr(info, "%zi bytes of input JSON loaded from stdin, parsing...\n", bufSize-1);
+	logr(info, "%zi bytes of input JSON loaded from stdin, parsing.\n", bufSize-1);
 	
 	return buf;
 }
