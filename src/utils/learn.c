@@ -12,6 +12,8 @@
 #include "../libraries/cJSON.h"
 #include "../utils/logging.h"
 #include "../utils/filehandler.h"
+#include "../datatypes/texture.h"
+#include "../utils/loaders/textureloader.h"
 
 #include "learn.h"
 
@@ -349,8 +351,8 @@ void study() {
 	m->sessions++;
 	saveModel(m, "./models/model.json");
 	
-	freeImage(low);
-	freeImage(high);
+	freeTexture(low);
+	freeTexture(high);
 
 }
 

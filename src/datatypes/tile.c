@@ -11,7 +11,7 @@
 
 #include "../renderer/renderer.h"
 #include "../utils/logging.h"
-#include "../utils/filehandler.h"
+#include "../datatypes/texture.h"
 
 /**
  Gets the next tile from renderTiles in mainRenderer

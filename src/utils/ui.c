@@ -15,6 +15,7 @@
 #include "../utils/filehandler.h"
 #include "../utils/logging.h"
 #include "../datatypes/tile.h"
+#include "../datatypes/texture.h"
 
 //Signal handling
 void (*signal(int signo, void (*func )(int)))(int);

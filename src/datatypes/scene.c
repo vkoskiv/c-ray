@@ -22,6 +22,8 @@
 #include "../utils/timer.h"
 #include "../datatypes/vertexbuffer.h"
 #include "../utils/loaders/objloader.h"
+#include "../datatypes/texture.h"
+#include "../utils/loaders/textureloader.h"
 
 struct color *parseColor(const cJSON *data);
 

@@ -12,12 +12,14 @@
 #include "../datatypes/camera.h"
 #include "../datatypes/scene.h"
 #include "pathtrace.h"
-#include "../utils/filehandler.h"
+#include "../utils/filehandler.h" //blit
 #include "../main.h"
 #include "../utils/logging.h"
 #include "../utils/ui.h"
 #include "../datatypes/tile.h"
 #include "../utils/timer.h"
+#include "../datatypes/texture.h"
+#include "../utils/loaders/textureloader.h"
 
 struct color getPixel(struct renderer *r, int x, int y);
 
@@ -543,7 +545,7 @@ void freeRenderer(struct renderer *r) {
 		free(r->scene);
 	}
 	if (r->image) {
-		freeImage(r->image);
+		freeTexture(r->image);
 		free(r->image);
 	}
 	if (r->renderTiles) {

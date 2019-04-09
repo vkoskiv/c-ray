@@ -43,6 +43,7 @@
 		90CA85212252CB3800BA7702 /* sceneloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85202252CB3800BA7702 /* sceneloader.c */; };
 		90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85232252D99700BA7702 /* vertexbuffer.c */; };
 		90FB15CB22596E79008D6AAA /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15C822596E79008D6AAA /* gitsha1.c */; };
+		90FB15CE225C6D85008D6AAA /* texture.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15CD225C6D85008D6AAA /* texture.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -136,6 +137,8 @@
 		90FB15C822596E79008D6AAA /* gitsha1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gitsha1.c; sourceTree = "<group>"; };
 		90FB15C922596E79008D6AAA /* gitsha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gitsha1.h; sourceTree = "<group>"; };
 		90FB15CA22596E79008D6AAA /* gitsha1.c.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gitsha1.c.in; sourceTree = "<group>"; };
+		90FB15CC225C6D85008D6AAA /* texture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = texture.h; sourceTree = "<group>"; };
+		90FB15CD225C6D85008D6AAA /* texture.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = texture.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -221,6 +224,8 @@
 				900BA106220B4602005B8EE7 /* transforms.c */,
 				90CA85222252D99600BA7702 /* vertexbuffer.h */,
 				90CA85232252D99700BA7702 /* vertexbuffer.c */,
+				90FB15CC225C6D85008D6AAA /* texture.h */,
+				90FB15CD225C6D85008D6AAA /* texture.c */,
 			);
 			path = datatypes;
 			sourceTree = "<group>";
@@ -386,6 +391,7 @@
 				900BA13D220B4603005B8EE7 /* lodepng.c in Sources */,
 				9058A51122231E9F00193385 /* denoiser.c in Sources */,
 				900BA130220B4603005B8EE7 /* vector.c in Sources */,
+				90FB15CE225C6D85008D6AAA /* texture.c in Sources */,
 				90CA851D2252C90C00BA7702 /* objloader.c in Sources */,
 				900BA131220B4603005B8EE7 /* lightRay.c in Sources */,
 				90369CCC222E012F008D215B /* pcg_basic.c in Sources */,

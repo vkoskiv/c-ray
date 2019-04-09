@@ -11,26 +11,6 @@
 struct scene;
 struct renderer;
 
-enum fileType {
-	bmp,
-	png
-};
-
-struct dimensions {
-	int height;
-	int width;
-};
-
-struct texture {
-	enum fileType fileType;
-	char *filePath;
-	char *fileName;
-	int count;
-	unsigned char *data;
-	unsigned int *width;
-	unsigned int *height;
-};
-
 //Prints the file size of a given file to the console in a user-readable format
 void printFileSize(char *fileName);
 
@@ -47,14 +27,9 @@ char *loadFile(char *inputFileName);
 
 char *readStdin(void);
 
-//Load a PNG texture
-struct texture *newTexture(char *filePath);
-
 //FIXME: Move this to a better place
 bool stringEquals(const char *s1, const char *s2);
 //FIXME: Move this to a better place
 bool stringContains(const char *haystack, const char *needle);
 
 void copyString(const char *source, char **destination);
-
-void freeImage(struct texture *image);

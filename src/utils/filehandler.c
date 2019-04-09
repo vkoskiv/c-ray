@@ -14,6 +14,7 @@
 #include "../datatypes/scene.h"
 #include "../renderer/renderer.h"
 #include "../utils/logging.h"
+#include "../datatypes/texture.h"
 
 #include <fcntl.h>
 
@@ -167,27 +168,6 @@ char *readStdin() {
 	return buf;
 }
 
-//TODO: Detect and support other file formats, like TIFF, JPEG and BMP
-struct texture *newTexture(char *filePath) {
-	struct texture *newTexture = calloc(1, sizeof(struct texture));
-	newTexture->data = NULL;
-	newTexture->width = calloc(1, sizeof(unsigned int));
-	newTexture->height = calloc(1, sizeof(unsigned int));
-	copyString(filePath, &newTexture->filePath);
-	newTexture->fileType = png;
-	
-	//Handle the trailing newline here
-	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
-	filePath[strcspn(filePath, "\n")] = 0;
-	int err = lodepng_decode32_file(&newTexture->data, newTexture->width, newTexture->height, filePath);
-	if (err != 0) {
-		logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
-		free(newTexture);
-		return NULL;
-	}
-	return newTexture;
-}
-
 //FIXME: Move this to a better place
 bool stringEquals(const char *s1, const char *s2) {
 	if (strcmp(s1, s2) == 0) {
@@ -263,6 +243,7 @@ void writeImage(struct renderer *r) {
 	
 }
 
+//FIXME: Move these to a better place
 //Note how imageData only stores 8-bit precision for each color channel.
 //This is why we use the renderBuffer (blitDouble) for the running average as it just contains
 //the full precision color values
@@ -346,6 +327,7 @@ size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
 }
 
 //Copies source over to the destination pointer.
+//TODO: Move this to a better time
 void copyString(const char *source, char **destination) {
 	*destination = malloc(strlen(source) + 1);
 	strcpy(*destination, source);
@@ -359,16 +341,4 @@ int getFileSize(char *fileName) {
 	int size = (int)ftell(file);
 	fclose(file);
 	return size;
-}
-
-void freeImage(struct texture *image) {
-	if (image->filePath) {
-		free(image->filePath);
-	}
-	if (image->fileName) {
-		free(image->fileName);
-	}
-	if (image->data) {
-		free(image->data);
-	}
 }

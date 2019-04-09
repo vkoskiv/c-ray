@@ -12,6 +12,7 @@
 #include "../renderer/pathtrace.h"
 #include "../utils/filehandler.h"
 #include "../datatypes/vertexbuffer.h"
+#include "../datatypes/texture.h"
 
 //FIXME: Temporary, eventually support full OBJ spec
 struct material newMaterial(struct color diffuse, double reflectivity) {
@@ -288,18 +289,6 @@ bool dialectric(struct intersection *isect, struct lightRay *ray, struct color *
 		*scattered = newRay(isect->hitPoint, refracted, rayTypeRefracted);
 	}
 	return true;
-}
-
-void freeTexture(struct texture *tex) {
-	if (tex->height) {
-		free(tex->height);
-	}
-	if (tex->width) {
-		free(tex->width);
-	}
-	if (tex->data) {
-		free(tex->data);
-	}
 }
 
 void freeMaterial(struct material *mat) {
