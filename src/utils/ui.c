@@ -188,11 +188,6 @@ void drawPixel(struct renderer *r, int x, int y, bool on, struct color c) {
 
 void clearProgBar(struct renderer *r, struct renderTile temp) {
 	for (int i = 0; i < temp.width; i++) {
-		/*drawPixel(r, temp.begin.x + i, temp.begin.y + 8, false, progColor);
-		drawPixel(r, temp.begin.x + i, temp.begin.y + 9, false, progColor);
-		drawPixel(r, temp.begin.x + i, temp.begin.y + 10, false, progColor);
-		drawPixel(r, temp.begin.x + i, temp.begin.y + 11, false, progColor);*/
-		
 		drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1, false, progColor);
 		drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)), false, progColor);
 		drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1, false, progColor);
@@ -217,11 +212,6 @@ void drawProgressBars(struct renderer *r) {
 		
 		//And then draw the bar
 		for (int i = 0; i < pixels2draw; i++) {
-			/*drawPixel(r, temp.begin.x + i, temp.begin.y + 8, true, progColor);
-			drawPixel(r, temp.begin.x + i, temp.begin.y + 9, true, progColor);
-			drawPixel(r, temp.begin.x + i, temp.begin.y + 10, true, progColor);
-			drawPixel(r, temp.begin.x + i, temp.begin.y + 11, true, progColor);*/
-			
 			drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1, true, progColor);
 			drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)), true, progColor);
 			drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1, true, progColor);

@@ -72,6 +72,13 @@ struct material {
 	double sharpness;
 	double glossiness;
 	
+	//TODO:
+	// - New BSDF struct that contains FP, type and contributing percentage
+	// - Have an array of these structs, so 50% emit 50% reflect would have
+	//   two BSDF structs that have their contributions set to 0.5
+	// - Modify pathTrace loop to accommodate this new system.
+	// - Normalize probabilities
+	
 	enum bsdfType type;
 	//isect record, ray, attenuation color, scattered ray
 	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);

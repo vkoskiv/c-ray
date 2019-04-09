@@ -5,14 +5,14 @@
 		"sampleCount": 100,
 		"bounces": 25,
 		"antialiasing": true,
-		"tileWidth": 16,
-		"tileHeight": 16,
+		"tileWidth": 64,
+		"tileHeight": 64,
 		"tileOrder": "fromMiddle"
 	},
 	"display": {
 		"isFullscreen": false,
 		"isBorderless": false,
-		"windowScale": 0.5
+		"windowScale": 1.0
 	},
 	"camera": {
 		"FOV": 12.0,
