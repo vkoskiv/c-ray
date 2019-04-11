@@ -25,19 +25,19 @@ void addTransform(struct mesh *mesh, struct transform transform) {
 
 void transformMesh(struct mesh *mesh) {
 	//Bit of a hack here, using way more memory than needed. Should also work on 32-bit now
-	bool *tformed = (bool *)calloc(vertexCount, 8);
+	bool *tformed = (bool *)calloc(mesh->vertexCount, sizeof(bool));
 	for (int tf = 0; tf < mesh->transformCount; tf++) {
 		//Perform transforms
 		for (int p = mesh->firstPolyIndex; p < (mesh->firstPolyIndex + mesh->polyCount); p++) {
 			for (int v = 0; v < polygonArray[p].vertexCount; v++) {
-				if (!tformed[polygonArray[p].vertexIndex[v]]) {
+				if (!tformed[polygonArray[p].vertexIndex[v] - mesh->firstVectorIndex]) {
 					transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], &mesh->transforms[tf]);
-					tformed[polygonArray[p].vertexIndex[v]] = true;
+					tformed[polygonArray[p].vertexIndex[v] - mesh->firstVectorIndex] = true;
 				}
 			}
 		}
 		//Clear isTransformed flags
-		memset(tformed, 0, vertexCount*8);
+		memset(tformed, 0, mesh->vertexCount * sizeof(bool));
 	}
 	free(tformed);
 }
