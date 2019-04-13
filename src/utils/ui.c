@@ -78,7 +78,7 @@ int initSDL(struct display *d) {
 	
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		logr(warning, "SDL couldn't initialize, error %s\n", SDL_GetError());
+		logr(warning, "SDL couldn't initialize, error: \"%s\"\n", SDL_GetError());
 		return -1;
 	}
 	//Init window
@@ -94,13 +94,13 @@ int initSDL(struct display *d) {
 								 d->height * d->windowScale,
 								 flags);
 	if (d->window == NULL) {
-		logr(warning, "Window couldn't be created, error %s\n", SDL_GetError());
+		logr(warning, "Window couldn't be created, error: \"%s\"\n", SDL_GetError());
 		return -1;
 	}
 	//Init renderer
 	d->renderer = SDL_CreateRenderer(d->window, -1, SDL_RENDERER_ACCELERATED);
 	if (d->renderer == NULL) {
-		logr(warning, "Renderer couldn't be created, error %s\n", SDL_GetError());
+		logr(warning, "Renderer couldn't be created, error: \"%s\"\n", SDL_GetError());
 		return -1;
 	}
 	//And set blend modes
@@ -110,13 +110,13 @@ int initSDL(struct display *d) {
 	//Init pixel texture
 	d->texture = SDL_CreateTexture(d->renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, d->width, d->height);
 	if (d->texture == NULL) {
-		logr(warning, "Texture couldn't be created, error %s\n", SDL_GetError());
+		logr(warning, "Texture couldn't be created, error: \"%s\"\n", SDL_GetError());
 		return -1;
 	}
 	//Init overlay texture (for UI info)
 	d->overlayTexture = SDL_CreateTexture(d->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, d->width, d->height);
 	if (d->overlayTexture == NULL) {
-		logr(warning, "Overlay texture couldn't be created, error %s\n", SDL_GetError());
+		logr(warning, "Overlay texture couldn't be created, error: \"%s\"\n", SDL_GetError());
 		return -1;
 	}
 	
