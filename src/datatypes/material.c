@@ -62,6 +62,7 @@ struct material *materialForName(struct material *materials, int count, char *na
 }
 
 void assignBSDF(struct material *mat) {
+	//TODO: Add the BSDF weighting here
 	switch (mat->type) {
 		case lambertian:
 			mat->bsdf = lambertianBSDF;
@@ -204,6 +205,16 @@ struct vector randomInUnitSphere(pcg32_random_t *rng) {
 }
 
 bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	return false;
+}
+
+bool weightedBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	
+	/*
+	 This will be the internal shader weighting solver that runs a random distribution and chooses from the available
+	 discrete shaders.
+	 */
+	
 	return false;
 }
 

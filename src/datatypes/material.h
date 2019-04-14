@@ -56,6 +56,12 @@ enum bsdfType {
 	transparent
 };
 
+struct bsdf {
+	enum bsdfType type;
+	float weights;
+	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
+};
+
 struct material {
 	char *textureFilePath;
 	char *name;
