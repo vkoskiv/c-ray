@@ -52,7 +52,8 @@ Please see the [Wiki](https://github.com/VKoskiv/c-ray/wiki) for details on how 
 
 ## Dependencies
 
-- SDL2 (CMake will link and enable it if it is found on your system.)
+- CMake for the build system
+- SDL2 (Optional, CMake will link and enable it if it is found on your system.)
 - Standard C99/GNU99 with some standard libraries
 
 All other libraries are included as source
@@ -85,9 +86,7 @@ Windows:
 
 ## Installing SDL
 
-On macOS, download the SDL2 runtime framework from https://www.libsdl.org/download-2.0.php and place in `/Library/Frameworks/`
-
-If you don't have root access, place under `~/Library/Frameworks`
+On macOS, use `homebrew` to install SDL. `brew install sdl2`
 
 On Windows, download from `https://www.libsdl.org/release/SDL2-devel-2.0.8-VC.zip`
 
