@@ -127,7 +127,7 @@ void checkBuf() {
 	if (rv == -1) {
 		logr(error, "Error on stdin timeout\n");
 	} else if (rv == 0) {
-		logr(error, "Stdin timed out after %i seconds. Nothing was found on the input stream.\n", timeout.tv_sec);
+		logr(error, "No input found after %i seconds. Hint: Try `./bin/c-ray input/scene.json`.\n", timeout.tv_sec);
 	} else {
 		return;
 	}
