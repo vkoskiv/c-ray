@@ -12,5 +12,7 @@
 //Prepare terminal. On *nix this disables output buffering, on WIN32 it enables ANSI escape codes.
 void initTerminal(void);
 
+int getSysCores(void);
+
 //Thread handling
 
