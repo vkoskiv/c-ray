@@ -30,6 +30,7 @@ struct transform {
 struct material;
 
 double toRadians(double degrees);
+double fromRadians(double radians);
 
 //Transform types
 struct transform newTransformScale(double x, double y, double z);

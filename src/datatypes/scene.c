@@ -385,16 +385,21 @@ struct transform parseTransform(const cJSON *data) {
 	//FIXME: Use parseCoordinate() for this
 	
 	cJSON *degrees = NULL;
+	cJSON *radians = NULL;
 	cJSON *scale = NULL;
 	cJSON *X = NULL;
 	cJSON *Y = NULL;
 	cJSON *Z = NULL;
 	
 	bool validDegrees = false;
+	bool validRadians = false;
 	bool validScale = false;
 	bool validCoords = false;
 	
+	double degs = 0.0;
+	
 	degrees = cJSON_GetObjectItem(data, "degrees");
+	radians = cJSON_GetObjectItem(data, "radians");
 	scale = cJSON_GetObjectItem(data, "scale");
 	X = cJSON_GetObjectItem(data, "X");
 	Y = cJSON_GetObjectItem(data, "Y");
@@ -402,6 +407,9 @@ struct transform parseTransform(const cJSON *data) {
 	
 	if (degrees != NULL && cJSON_IsNumber(degrees)) {
 		validDegrees = true;
+	}
+	if (radians != NULL && cJSON_IsNumber(radians)) {
+		validRadians = true;
 	}
 	if (scale != NULL && cJSON_IsNumber(scale)) {
 		validScale = true;
@@ -415,20 +423,26 @@ struct transform parseTransform(const cJSON *data) {
 	if (strcmp(type->valuestring, "rotateX") == 0) {
 		if (validDegrees) {
 			return newTransformRotateX(degrees->valuedouble);
+		} else if (validRadians) {
+			return newTransformRotateX(fromRadians(radians->valuedouble));
 		} else {
-			logr(warning, "Found rotateX transform with no valid degrees value given.\n");
+			logr(warning, "Found rotateX transform with no valid degrees or radians value given.\n");
 		}
 	} else if (strcmp(type->valuestring, "rotateY") == 0) {
 		if (validDegrees) {
 			return newTransformRotateY(degrees->valuedouble);
+		} else if (validRadians) {
+			return newTransformRotateY(fromRadians(radians->valuedouble));
 		} else {
-			logr(warning, "Found rotateY transform with no valid degrees value given.\n");
+			logr(warning, "Found rotateY transform with no valid degrees or radians value given.\n");
 		}
 	} else if (strcmp(type->valuestring, "rotateZ") == 0) {
 		if (validDegrees) {
 			return newTransformRotateZ(degrees->valuedouble);
+		} else if (validRadians) {
+			return newTransformRotateZ(fromRadians(radians->valuedouble));
 		} else {
-			logr(warning, "Found rotateZ transform with no valid degrees value given.\n");
+			logr(warning, "Found rotateZ transform with no valid degrees or radians value given.\n");
 		}
 	} else if (strcmp(type->valuestring, "translate") == 0) {
 		if (validCoords) {

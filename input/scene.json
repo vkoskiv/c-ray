@@ -160,7 +160,7 @@
 					},
 					{
 						"type": "rotateY",
-						"degrees": 180
+						"radians": 3.14
 					},
 					{
 						"type": "rotateZ",

@@ -15,6 +15,10 @@ double toRadians(double degrees) {
 	return (degrees * PI) / 180;
 }
 
+double fromRadians(double radians) {
+	return radians * (180/PI);
+}
+
 struct transform emptyTransform() {
 	struct transform transform;
 	transform.type = transformTypeNone;
