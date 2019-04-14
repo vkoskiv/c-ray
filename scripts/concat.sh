@@ -5,8 +5,14 @@
 # This script creates that, it's then passed to ffmpeg and deleted after
 # file '/path/to/file'\n
 
-list=$(ls -1 ../output/animation)
+if [[ "$1" != "" ]]; then
+	IMGDIR="$1"
+else
+	IMGDIR=.
+fi
+
+list=$(ls -1 $IMGDIR)
 
 while read -r line; do
-	echo "file '../output/animation/$line'" >> list.txt
+	echo "file '$IMGDIR$line'" >> list.txt
 done <<< "$list"

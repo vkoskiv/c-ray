@@ -4,19 +4,19 @@ import json
 import sys
 from subprocess import *
 
-filename = '../input/scene.json'
+filename = 'input/scene.json'
 
 with open(filename) as f:
     data = json.load(f)
 
-data["scene"]["outputFilePath"] = "output/animation/"
-data["renderer"]["sampleCount"] = 1
+data["scene"]["outputFilePath"] = "output/20sample/"
+data["renderer"]["sampleCount"] = 20
 data["camera"]["transforms"][0]["x"] = 825
 
 for i in range(50):
     data["scene"]["count"] = i
     data["camera"]["transforms"][0]["x"] = data["camera"]["transforms"][0]["x"] + 5
 
-    proc = Popen('../bin/c-ray ', stdin=PIPE, shell=True)
+    proc = Popen('./bin/c-ray ', stdin=PIPE, shell=True)
     proc.stdin.write(json.dumps(data).encode())
     proc.communicate()
