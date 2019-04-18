@@ -840,36 +840,42 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	if (pos != NULL) {
 		posValue = parseCoordinate(pos);
 	} else {
-		return;
+		logr(warning, "No position specified for sphere\n");
+		posValue = vecWithPos(0, 0, 0);
 	}
 	
 	color = cJSON_GetObjectItem(data, "color");
 	if (color != NULL) {
 		colorValue = *parseColor(color);
 	} else {
-		return;
+		logr(warning, "No color specified for sphere\n");
+		colorValue = colorWithValues(0.0, 0.0, 0.0, 0.0);
 	}
 	
 	reflectivity = cJSON_GetObjectItem(data, "reflectivity");
 	if (reflectivity != NULL && cJSON_IsNumber(reflectivity)) {
 		reflectivityValue = reflectivity->valuedouble;
 	} else {
-		return;
+		logr(warning, "No reflectivity specified for sphere\n");
+		reflectivityValue = 0.0;
 	}
 	
 	IOR = cJSON_GetObjectItem(data, "IOR");
 	if (IOR != NULL && cJSON_IsNumber(IOR)) {
 		iorValue = IOR->valuedouble;
 	} else {
-		return;
+		iorValue = 1.0;
 	}
 	
 	radius = cJSON_GetObjectItem(data, "radius");
 	if (radius != NULL && cJSON_IsNumber(radius)) {
 		radiusValue = radius->valuedouble;
 	} else {
-		return;
+		logr(warning, "No radius specified for sphere, setting to 50\n");
+		radiusValue = 50;
 	}
+	
+	//FIXME: Proper materials for spheres
 	addSphere(r->scene, newSphere(posValue, radiusValue, newMaterial(colorValue, reflectivityValue)));
 	
 	lastSphere(r)->material.type = type;

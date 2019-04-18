@@ -236,7 +236,6 @@ bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct col
 	return true;
 }
 
-//FIXME: Doesn't work (all black)
 bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	struct vector normalizedDir = vecNormalize(&isect->ray.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
