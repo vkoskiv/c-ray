@@ -8,10 +8,10 @@
 	<img src="https://media.giphy.com/media/8cT6Dbo7kCi3rRj5Fr/giphy.gif" width="512">
 </p>
 
-## Example render (2000 samples, 11 hours)
+## Example render (2000 samples, 1920x1080, 50 bounces, 1h 55min)
 
 <p align="center">
-	<img src="https://teensyimg.com/images/urzClV90yC.png" width="768">
+	<img src="https://teensyimg.com/images/PLxxP7lRVE.png" width="768">
 </p>
 
 ## Status
