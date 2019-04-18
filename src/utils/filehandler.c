@@ -215,11 +215,11 @@ void writeImage(struct renderer *r) {
 			char *buf = NULL;
 			
 			if (r->image->fileType == bmp){
-				asprintf(&buf, "%s%s_%04d.bmp", r->image->filePath, r->image->fileName, r->image->count);
+				asprintf(&buf, "%s%s_%d.bmp", r->image->filePath, r->image->fileName, r->image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
 				saveBmpFromArray(buf, r->image->data, *r->image->width, *r->image->height);
 			} else if (r->image->fileType == png){
-				asprintf(&buf, "%s%s_%04d.png", r->image->filePath, r->image->fileName, r->image->count);
+				asprintf(&buf, "%s%s_%d.png", r->image->filePath, r->image->fileName, r->image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
 				encodePNGFromArray(buf, r->image->data, *r->image->width, *r->image->height);
 			}
