@@ -586,7 +586,11 @@ int parseCamera(struct renderer *r, const cJSON *data) {
 	FOV = cJSON_GetObjectItem(data, "FOV");
 	if (cJSON_IsNumber(FOV)) {
 		if (FOV->valuedouble >= 0.0) {
-			r->scene->camera->FOV = FOV->valuedouble;
+			if (FOV->valuedouble > 180.0) {
+				r->scene->camera->FOV = 180.0;
+			} else {
+				r->scene->camera->FOV = FOV->valuedouble;
+			}
 		} else {
 			r->scene->camera->FOV = 80.0;
 		}

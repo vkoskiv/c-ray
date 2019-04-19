@@ -515,9 +515,9 @@ struct renderer *newRenderer() {
 	renderer->mainDisplay->texture = NULL;
 	renderer->mainDisplay->overlayTexture = NULL;
 #else
-	printf("**************************************************************************\n");
-	printf("*      UI is DISABLED! Enable by installing SDL2 and doing `cmake .`     *\n");
-	printf("**************************************************************************\n");
+	printf("******************************************************************\n");
+	printf("*  UI is DISABLED! Enable by installing SDL2 and doing `cmake .` *\n");
+	printf("******************************************************************\n");
 #endif
 	
 	//Mutex
