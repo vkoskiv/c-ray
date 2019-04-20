@@ -14,12 +14,14 @@ elif [[ "$unamestr" == 'FreeBSD' ]]; then
 	platform='freebsd'
 fi
 
+verstring="v$(grep '#define VERSION' src/main.c | cut -d \" -f2)"
+
 cmake . -DCMAKE_BUILD_TYPE=Release
 make
 
 date=$(date +"%Y-%m-%d")
 git=$(git rev-parse --verify HEAD | cut -c1-8)
-bundlename=$date-$git-$platform
+bundlename=$date-$git-$platform-$verstring
 
 # Bundle the release
 mkdir $bundlename
