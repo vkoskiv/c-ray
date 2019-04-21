@@ -1,0 +1,174 @@
+{
+	"version": 1.0,
+	"renderer": {
+		"threadCount": 0,
+		"sampleCount": 2000,
+		"bounces": 50,
+		"antialiasing": true,
+		"tileWidth": 32,
+		"tileHeight": 32,
+		"tileOrder": "fromMiddle"
+	},
+	"display": {
+		"isFullscreen": false,
+		"isBorderless": false,
+		"windowScale": 1.0
+	},
+	"camera": {
+		"FOV": 80.0,
+		"aperture": 0.0,
+		"transforms": [
+			{
+				"type": "translate",
+				"x": 970,
+				"y": 400,
+				"z": 600
+			},
+			{
+				"type": "rotateX",
+				"degrees": 10
+			}
+		]
+	},
+	"scene": {
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 1280,
+		"height": 800,
+		"ambientColor": {
+			"down": {
+				"r": 0.056470,
+				"g": 0.072549,
+				"b": 0.088235
+			},
+			"up": {
+				"r": 0.007843,
+				"g": 0.016862,
+				"b": 0.038431
+			}
+		},
+		"inputFilePath": "input/",
+		"lights": [
+			{
+				"pos": {
+					"x": 900,
+					"y": 350,
+					"z": 1020
+				},
+				"radius": 8,
+				"color": {
+					"r": 1.0,
+					"g": 0.0,
+					"b": 0.0
+				},
+				"intensity": 100.0
+			},
+			{
+				"pos": {
+				   "x": 1000,
+				   "y": 350,
+				   "z": 1020
+			},
+				"radius": 8,
+				"color": {
+				   "r": 0.0,
+				   "g": 1.0,
+				   "b": 0.0
+				},
+				"intensity": 100.0
+			},
+			{
+				"pos": {
+				   "x": 1100,
+				   "y": 350,
+				   "z": 1020
+				},
+				"radius": 8,
+				"color": {
+				   "r": 0.0,
+				   "g": 0.0,
+				   "b": 1.0
+				},
+				"intensity": 100.0
+			}
+		],
+		"spheres": [
+			{
+				"pos": {
+					"x": 650,
+					"y": 450,
+					"z": 1650
+				},
+				"color": {
+					"r": 1.0,
+					"g": 0.0,
+					"b": 1.0
+				},
+				"bsdf": "metal",
+				"reflectivity": 1.0,
+				"radius": 150
+			},
+			{
+				"pos": {
+					"x": 950,
+					"y": 350,
+					"z": 1500
+				},
+				"color": {
+					"r": 1.0,
+					"g": 1.0,
+					"b": 1.0
+				},
+				"bsdf": "metal",
+				"reflectivity": 1.0,
+				"radius": 50
+			},
+			{
+				"pos": {
+					"x": 1100,
+					"y": 350,
+					"z": 1500
+				},
+				"color": {
+					"r": 1.0,
+					"g": 0.87,
+					"b": 0.0
+				},
+				"bsdf": "metal",
+				"reflectivity": 0.0,
+				"radius": 50
+			}
+		],
+		"meshes": [
+			{
+				"fileName": "newScene.obj",
+				"bsdf": "lambertian",
+				"transforms": []
+			},
+			{
+				"fileName": "fence.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "rotateY",
+						"degrees": 90
+					},
+					{
+						"type": "scale",
+						"x": 100,
+						"y": 100,
+						"z": 50
+					},
+					{
+						"type": "translate",
+						"x": 1000,
+						"y": 380,
+						"z": 960
+					}
+				]
+			}
+		]
+	}
+}
