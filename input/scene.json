@@ -112,8 +112,9 @@
 				"radius": 10
 			}
 		],
-		"spheres": [
+		"primitives": [
 			{
+				"type": "sphere",
 				"pos": {
 					"x": 650,
 					"y": 450,
@@ -129,6 +130,7 @@
 				"radius": 150
 			},
 			{
+				"type": "sphere",
 				"pos": {
 					"x": 950,
 					"y": 350,
@@ -144,6 +146,7 @@
 				"radius": 50
 			},
 			{
+				"type": "sphere",
 				"pos": {
 					"x": 1100,
 					"y": 350,

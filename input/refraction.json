@@ -70,8 +70,9 @@
 				"intensity": 15.0
 			}
 		],
-		"spheres": [
+		"primitives": [
 			{
+				"type": "sphere",
 				"pos": {
 					"x": 650,
 					"y": 450,
@@ -87,6 +88,7 @@
 				"radius": 150
 			},
 			{
+				"type": "sphere",
 				"pos": {
 					"x": 950,
 					"y": 350,
@@ -102,6 +104,7 @@
 				"radius": 50
 			},
 			{
+				"type": "sphere",
 				"pos": {
 					"x": 1100,
 					"y": 350,
@@ -117,6 +120,7 @@
 				"radius": 50
 			},
 			{
+				"type": "sphere",
 				"pos": {
 					"x": 1060,
 					"y": 310,
@@ -133,6 +137,7 @@
 				"IOR": 1.5
 			},
 			{
+				"type": "sphere",
 				"pos": {
 					"x": 1070,
 					"y": 310,
@@ -149,6 +154,7 @@
 				"IOR": 1.5
 			},
 			{
+				"type": "sphere",
 				"pos": {
 					"x": 1080,
 					"y": 310,

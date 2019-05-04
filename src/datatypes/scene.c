@@ -887,11 +887,23 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	assignBSDF(&lastSphere(r)->material);
 }
 
-void parseSpheres(struct renderer *r, const cJSON *data) {
-	const cJSON *sphere = NULL;
+void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {
+	const cJSON *type = NULL;
+	type = cJSON_GetObjectItem(data, "type");
+	if (strcmp(type->valuestring, "sphere") == 0) {
+		parseSphere(r, data);
+	} else {
+		logr(warning, "Unknown primitive type \"%s\" at index %i\n", type->valuestring, idx);
+	}
+}
+
+void parsePrimitives(struct renderer *r, const cJSON *data) {
+	const cJSON *primitive = NULL;
 	if (data != NULL && cJSON_IsArray(data)) {
-		cJSON_ArrayForEach(sphere, data) {
-			parseSphere(r, sphere);
+		int i = 0;
+		cJSON_ArrayForEach(primitive, data) {
+			parsePrimitive(r, primitive, i);
+			i++;
 		}
 	}
 }
@@ -907,7 +919,7 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	const cJSON *fileType = NULL;
 	const cJSON *ambientColor = NULL;
 	const cJSON *lights = NULL;
-	const cJSON *spheres = NULL;
+	const cJSON *primitives = NULL;
 	const cJSON *meshes = NULL;
 	
 	filePath = cJSON_GetObjectItem(data, "outputFilePath");
@@ -988,9 +1000,9 @@ int parseScene(struct renderer *r, const cJSON *data) {
 		parseLights(r, lights);
 	}
 	
-	spheres = cJSON_GetObjectItem(data, "spheres");
-	if (cJSON_IsArray(spheres)) {
-		parseSpheres(r, spheres);
+	primitives = cJSON_GetObjectItem(data, "primitives");
+	if (cJSON_IsArray(primitives)) {
+		parsePrimitives(r, primitives);
 	}
 	
 	meshes = cJSON_GetObjectItem(data, "meshes");
