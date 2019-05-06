@@ -515,9 +515,7 @@ struct renderer *newRenderer() {
 	renderer->mainDisplay->texture = NULL;
 	renderer->mainDisplay->overlayTexture = NULL;
 #else
-	printf("******************************************************************\n");
-	printf("*  UI is DISABLED! Enable by installing SDL2 and doing `cmake .` *\n");
-	printf("******************************************************************\n");
+	logr(warning, "Render preview is disabled. (No SDL2)\n");
 #endif
 	
 	//Mutex
