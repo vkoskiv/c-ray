@@ -30,13 +30,15 @@ void sigHandler(int sig) {
 }
 
 void printDuration(double time) {
+	printf("\n");
+	logr(info, "Finished render in ");
 	if (time <= 60) {
-		logr(info, "Finished render in %.0f seconds.\n", time);
+		printf("%.0f seconds.\n", time);
 	} else if (time <= 3600) {
-		logr(info, "Finished render in %.0f minute", time/60);
+		printf("%.0f minute", time/60);
 		if (time/60 > 1) printf("s. (%.0f seconds)\n", time); else printf(". (%.0f seconds)\n", time);
 	} else {
-		logr(info, "Finished render in %.0f hours (%.0f min).\n", (time/60)/60, time/60);
+		printf("%.0f hours (%.0f min).\n", (time/60)/60, time/60);
 	}
 }
 

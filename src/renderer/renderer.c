@@ -342,7 +342,7 @@ void *renderThreadSIMD(void *arg) {
 	
 	//No more tiles to render, exit thread. (render done)
 	printf("%s", "\33[2K");
-	logr(info, "Thread %i done\n", tinfo->thread_num);
+	logr(info, "Thread %i done\r", tinfo->thread_num);
 	tinfo->threadComplete = true;
 #ifdef WINDOWS
 	return 0;
@@ -483,8 +483,6 @@ void *renderThread(void *arg) {
 		printStats(renderer, duration, samples, tinfo->thread_num);
 	}
 	//No more tiles to render, exit thread. (render done)
-	printf("%s", "\33[2K");
-	logr(info, "Thread %i done\n", tinfo->thread_num);
 	tinfo->threadComplete = true;
 #ifdef WINDOWS
 	return 0;

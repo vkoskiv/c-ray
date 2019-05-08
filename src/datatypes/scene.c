@@ -92,11 +92,12 @@ bool loadMeshNew(struct renderer *r, char *inputFileName) {
 	return valid;
 }
 
-bool loadMesh(struct renderer *r, char *inputFileName) {
-	logr(info, "Loading mesh %s%s\n", r->inputFilePath, inputFileName);
+bool loadMesh(struct renderer *r, char *inputFileName, int idx, int meshCount) {
+	logr(info, "Loading mesh %i/%i\r", idx, meshCount);
 	
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFileName, r->inputFilePath) == 0) {
+		printf("\n");
 		logr(warning, "Mesh %s not found!\n", getFileName(inputFileName));
 		return false;
 	}
@@ -688,7 +689,7 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	return 0;
 }
 
-void parseMesh(struct renderer *r, const cJSON *data) {
+void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
 	
 	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
@@ -710,7 +711,7 @@ void parseMesh(struct renderer *r, const cJSON *data) {
 	
 	bool meshValid = false;
 	if (fileName != NULL && cJSON_IsString(fileName)) {
-		if (loadMesh(r, fileName->valuestring)) {
+		if (loadMesh(r, fileName->valuestring, idx, meshCount)) {
 			meshValid = true;
 		} else {
 			return;
@@ -734,11 +735,15 @@ void parseMesh(struct renderer *r, const cJSON *data) {
 
 void parseMeshes(struct renderer *r, const cJSON *data) {
 	const cJSON *mesh = NULL;
+	int idx = 1;
+	int meshCount = cJSON_GetArraySize(data);
 	if (data != NULL && cJSON_IsArray(data)) {
 		cJSON_ArrayForEach(mesh, data) {
-			parseMesh(r, mesh);
+			parseMesh(r, mesh, idx, meshCount);
+			idx++;
 		}
 	}
+	printf("\n");
 }
 
 struct vector parseCoordinate(const cJSON *data) {

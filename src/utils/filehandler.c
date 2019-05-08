@@ -226,8 +226,8 @@ void writeImage(struct renderer *r) {
 			printFileSize(buf);
 #ifdef __APPLE__
 			//If on macOS, we can run the `open` command to display the finished render using Preview.app
-			//char *buf2 = calloc(bufSize + 20, sizeof(char));
-			//sprintf(buf2, "open %s", buf);
+			//char *buf2 = NULL;
+			//asprintf(&buf2, "open %s", buf);
 			//system(buf2);
 			//free(buf2);
 #endif
@@ -235,7 +235,7 @@ void writeImage(struct renderer *r) {
 		}
 		break;
 		case saveModeNone:
-			logr(info, "Image won't be saved!\n");
+			logr(info, "Abort pressed, image won't be saved.\n");
 			break;
 		default:
 			break;
