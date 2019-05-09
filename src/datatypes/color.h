@@ -27,6 +27,7 @@ extern struct color redColor;
 extern struct color greenColor;
 extern struct color blueColor;
 extern struct color blackColor;
+extern struct color grayColor;
 extern struct color whiteColor;
 extern struct color frameColor;
 extern struct color progColor;

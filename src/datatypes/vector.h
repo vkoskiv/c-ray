@@ -21,6 +21,9 @@ struct coord {
 //Return a vector with given coordinates
 struct vector vecWithPos(double x, double y, double z);
 
+//For defaults
+struct vector vecZero(void);
+
 //Add two vectors and return the resulting vector
 struct vector vecAdd(struct vector *v1, struct vector *v2);
 

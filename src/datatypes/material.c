@@ -51,6 +51,15 @@ struct material emptyMaterial() {
 	return (struct material){0};
 }
 
+struct material defaultMaterial() {
+	struct material newMat = emptyMaterial();
+	newMat.diffuse = grayColor;
+	newMat.reflectivity = 1.0;
+	newMat.type = lambertian;
+	newMat.IOR = 1.0;
+	return newMat;
+}
+
 //Find material with a given name and return a pointer to it
 struct material *materialForName(struct material *materials, int count, char *name) {
 	for (int i = 0; i < count; i++) {
@@ -202,6 +211,16 @@ struct vector randomInUnitSphere(pcg32_random_t *rng) {
 		vec = vecSubtract(&vec, &temp);
 	} while (vecLengthSquared(&vec) >= 1.0);
 	return vec;
+}
+
+struct vector randomOnUnitSphere(pcg32_random_t *rng) {
+	struct vector vec = (struct vector){0.0, 0.0, 0.0};
+	do {
+		vec = vecMultiplyConst(vecWithPos(rndDouble(0, 1, rng), rndDouble(0, 1, rng), rndDouble(0, 1, rng)), 2.0);
+		struct vector temp = vecWithPos(1.0, 1.0, 1.0);
+		vec = vecSubtract(&vec, &temp);
+	} while (vecLengthSquared(&vec) >= 1.0);
+	return vecNormalize(&vec);
 }
 
 bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {

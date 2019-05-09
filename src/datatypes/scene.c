@@ -822,73 +822,57 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *IOR = NULL;
 	const cJSON *radius = NULL;
 	
-	struct vector posValue;
-	struct color colorValue;
-	double reflectivityValue = 0.0;
-	double iorValue = 0.0;
-	double radiusValue = 0.0;
+	struct sphere newSphere = defaultSphere();
 	
 	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
-	enum bsdfType type = lambertian;
 	
 	if (cJSON_IsString(bsdf)) {
 		if (strcmp(bsdf->valuestring, "lambertian") == 0) {
-			type = lambertian;
+			newSphere.material.type = lambertian;
 		} else if (strcmp(bsdf->valuestring, "metal") == 0) {
-			type = metal;
+			newSphere.material.type = metal;
 		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
-			type = glass;
-		} else {
-			type = lambertian;
+			newSphere.material.type = glass;
 		}
 	} else {
-		logr(warning, "Invalid bsdf while parsing meshes\n");
+		logr(warning, "Sphere BSDF not found, defaulting to dialectric.\n");
 	}	
 	
 	pos = cJSON_GetObjectItem(data, "pos");
 	if (pos != NULL) {
-		posValue = parseCoordinate(pos);
+		newSphere.pos = parseCoordinate(pos);
 	} else {
 		logr(warning, "No position specified for sphere\n");
-		posValue = vecWithPos(0, 0, 0);
 	}
 	
 	color = cJSON_GetObjectItem(data, "color");
 	if (color != NULL) {
-		colorValue = *parseColor(color);
+		newSphere.material.diffuse = *parseColor(color);
 	} else {
 		logr(warning, "No color specified for sphere\n");
-		colorValue = colorWithValues(0.0, 0.0, 0.0, 0.0);
 	}
 	
 	reflectivity = cJSON_GetObjectItem(data, "reflectivity");
 	if (reflectivity != NULL && cJSON_IsNumber(reflectivity)) {
-		reflectivityValue = reflectivity->valuedouble;
+		newSphere.material.reflectivity = reflectivity->valuedouble;
 	} else {
 		logr(warning, "No reflectivity specified for sphere\n");
-		reflectivityValue = 0.0;
 	}
 	
 	IOR = cJSON_GetObjectItem(data, "IOR");
 	if (IOR != NULL && cJSON_IsNumber(IOR)) {
-		iorValue = IOR->valuedouble;
-	} else {
-		iorValue = 1.0;
+		newSphere.material.IOR = IOR->valuedouble;
 	}
 	
 	radius = cJSON_GetObjectItem(data, "radius");
 	if (radius != NULL && cJSON_IsNumber(radius)) {
-		radiusValue = radius->valuedouble;
+		newSphere.radius = radius->valuedouble;
 	} else {
-		logr(warning, "No radius specified for sphere, setting to 50\n");
-		radiusValue = 50;
+		logr(warning, "No radius specified for sphere, setting to %.0f\n", newSphere.radius);
 	}
 	
 	//FIXME: Proper materials for spheres
-	addSphere(r->scene, newSphere(posValue, radiusValue, newMaterial(colorValue, reflectivityValue)));
-	
-	lastSphere(r)->material.type = type;
-	lastSphere(r)->material.IOR = iorValue;
+	addSphere(r->scene, newSphere);
 	assignBSDF(&lastSphere(r)->material);
 }
 

@@ -15,6 +15,10 @@ struct sphere newSphere(struct vector pos, double radius, struct material materi
 	return (struct sphere){pos, radius, material};
 }
 
+struct sphere defaultSphere() {
+	return (struct sphere){vecZero(), 10.0, defaultMaterial()};
+}
+
 //FIXME: dirty hack
 struct sphere newLightSphere(struct vector pos, double radius, struct color color, double intensity) {
 	struct sphere newSphere;

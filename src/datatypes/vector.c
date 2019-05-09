@@ -23,6 +23,10 @@ struct vector vecWithPos(double x, double y, double z) {
 	return (struct vector){x, y, z};
 }
 
+struct vector vecZero() {
+	return (struct vector){0.0, 0.0, 0.0};
+}
+
 /**
  Add two vectors and return the resulting vector
 
