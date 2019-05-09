@@ -14,7 +14,7 @@
 #include "../../datatypes/texture.h"
 
 //TODO: Detect and support other file formats, like TIFF, JPEG and BMP
-struct texture *newTexture(char *filePath) {
+struct texture *loadTexture(char *filePath) {
 	struct texture *newTexture = calloc(1, sizeof(struct texture));
 	newTexture->data = NULL;
 	newTexture->width = calloc(1, sizeof(unsigned int));

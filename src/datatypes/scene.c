@@ -62,7 +62,7 @@ void loadMeshTextures(struct mesh *mesh) {
 		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
 		if (strcmp(mesh->materials[i].textureFilePath, "")) {
 			//TODO: Set the shader for this obj to an obnoxious checker pattern if the texture wasn't found
-			mesh->materials[i].texture = newTexture(mesh->materials[i].textureFilePath);
+			mesh->materials[i].texture = loadTexture(mesh->materials[i].textureFilePath);
 			if (mesh->materials[i].texture) {
 				mesh->materials[i].hasTexture = true;
 			}

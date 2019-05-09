@@ -308,11 +308,11 @@ float *matrixToArray(float ***data, int width, int height) {
 void study() {
 	struct model *m = NULL;//loadModel("./models/model.json");
 	
-	struct texture *low = newTexture("./models/examples/0low.png");
+	struct texture *low = loadTexture("./models/examples/0low.png");
 	struct renderTile *lowTiles = NULL;
 	int lowTilesCount = quantizeImage(&lowTiles, low, 16, 16);
 	
-	struct texture *high = newTexture("./models/examples/0.png");
+	struct texture *high = loadTexture("./models/examples/0.png");
 	struct renderTile *highTiles = NULL;
 	int highTilesCount = quantizeImage(&highTiles, high, 16, 16);
 	

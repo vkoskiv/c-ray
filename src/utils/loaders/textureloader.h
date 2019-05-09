@@ -11,6 +11,6 @@
 //C-ray texture parser
 
 //Load a generic texture. Currently only PNG supported.
-struct texture *newTexture(char *filePath);
+struct texture *loadTexture(char *filePath);
 
 void freeTexture(struct texture *image);
