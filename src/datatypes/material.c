@@ -74,7 +74,7 @@ void assignBSDF(struct material *mat) {
 			mat->bsdf = emissiveBSDF;
 			break;
 		case glass:
-			mat->bsdf = dialectric;
+			mat->bsdf = dialectricBSDF;
 			break;
 		default:
 			mat->bsdf = lambertianBSDF;
@@ -267,7 +267,7 @@ float shlick(float cosine, float IOR) {
 }
 
 // Only works on spheres for now. Reflections work but refractions don't
-bool dialectric(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool dialectricBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->ray.direction, &isect->surfaceNormal);
 	float niOverNt;
