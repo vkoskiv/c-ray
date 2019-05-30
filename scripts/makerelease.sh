@@ -4,7 +4,7 @@
 # TODO: Implement and include version number
 
 platform='unknown'
-unamestr=`uname`
+unamestr=$(uname)
 
 if [[ "$unamestr" == 'Linux' ]]; then
 	platform='linux'
@@ -24,9 +24,9 @@ git=$(git rev-parse --verify HEAD | cut -c1-8)
 bundlename=cray-$git-$platform-$verstring
 
 # Bundle the release
-mkdir $bundlename
-mkdir $bundlename/bin
-mkdir $bundlename/output
-cp ./bin/c-ray $bundlename/bin
-cp -r ./input $bundlename/
-zip -r $bundlename.zip $bundlename
+mkdir "$bundlename"
+mkdir "$bundlename"/bin
+mkdir "$bundlename"/output
+cp ./bin/c-ray "$bundlename"/bin
+cp -r ./input "$bundlename"/
+zip -r "$bundlename".zip "$bundlename"
