@@ -105,7 +105,7 @@ struct color colorForUV(struct intersection *isect) {
 	//barycentric coordinates for this polygon
 	double u = isect->uv.x;
 	double v = isect->uv.y;
-	double w = 1.0 - u - v; //1.0 - u - v
+	double w = 1.0 - u - v;
 	
 	//Weighted texture coordinates
 	struct coord ucomponent = coordScale(u, &textureArray[p.textureIndex[1]]);

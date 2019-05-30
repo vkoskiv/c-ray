@@ -387,9 +387,10 @@ void *renderThread(void *arg) {
 					double fracY = (double)y;
 					
 					//A cheap 'antialiasing' of sorts. The more samples, the better this works
+					float jitter = 0.25;
 					if (renderer->antialiasing) {
-						fracX = rndDouble(fracX - 0.25, fracX + 0.25, rng);
-						fracY = rndDouble(fracY - 0.25, fracY + 0.25, rng);
+						fracX = rndDouble(fracX - jitter, fracX + jitter, rng);
+						fracY = rndDouble(fracY - jitter, fracY + jitter, rng);
 					}
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
