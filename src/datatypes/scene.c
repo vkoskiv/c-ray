@@ -1122,15 +1122,15 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	//Alloc RNGs, one for each thread
 	r->rngs = calloc(r->threadCount, sizeof(pcg32_random_t));
 	
-	//Seed each rng
+	//Seed each rng	
 	for (int i = 0; i < r->threadCount; i++) {
-		pcg32_srandom_r(&r->rngs[i], time(NULL), i);
+		pcg32_srandom_r(&r->rngs[i], 3141592, 0);
 	}
 	
 	//Quantize image into renderTiles
 	r->tileCount = quantizeImage(&r->renderTiles, r->image, r->tileWidth, r->tileHeight);
 	
-	reorderTiles(&r->renderTiles, r->tileCount, r->tileOrder, &r->rngs[0]);
+	reorderTiles(&r->renderTiles, r->tileCount, r->tileOrder);
 	
 	//Compute the focal length for the camera
 	computeFocalLength(r);

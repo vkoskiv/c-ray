@@ -130,7 +130,9 @@ unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_random_t *r
 /**
  Shuffle renderTiles into a random order
  */
-void reorderRandom(struct renderTile **tiles, int tileCount, pcg32_random_t *rng) {
+void reorderRandom(struct renderTile **tiles, int tileCount) {
+	pcg32_random_t *rng = calloc(1, sizeof(pcg32_random_t));
+	pcg32_srandom_r(rng, 3141592, 0);
 	for (int i = 0; i < tileCount; i++) {
 		unsigned int random = rand_interval(0, tileCount - 1, rng);
 		
@@ -138,6 +140,7 @@ void reorderRandom(struct renderTile **tiles, int tileCount, pcg32_random_t *rng
 		(*tiles)[i] = (*tiles)[random];
 		(*tiles)[random] = temp;
 	}
+	free(rng);
 }
 
 /**
@@ -199,7 +202,7 @@ void reorderToMiddle(struct renderTile **tiles, int tileCount) {
  
  @param order Render order to be applied
  */
-void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder, pcg32_random_t *rng) {
+void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder) {
 	switch (tileOrder) {
 		case renderOrderFromMiddle:
 		{
@@ -218,7 +221,7 @@ void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder til
 			break;
 		case renderOrderRandom:
 		{
-			reorderRandom(tiles, tileCount, rng);
+			reorderRandom(tiles, tileCount);
 		}
 			break;
 		default:
