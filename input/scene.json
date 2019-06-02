@@ -54,64 +54,6 @@
 			}
 		},
 		"inputFilePath": "input/",
-		"lights": [
-			{
-				"pos": {
-					"x": 1050,
-					"y": 310,
-					"z": 820
-				},
-				"radius": 2.5,
-				"color": {
-					"r": 1.0,
-					"g": 0.0,
-					"b": 0.0
-				},
-				"intensity": 10.0
-			},
-			{
-				"pos": {
-				   "x": 1070,
-				   "y": 310,
-				   "z": 820
-			},
-				"radius": 2.5,
-				"color": {
-				   "r": 0.0,
-				   "g": 1.0,
-				   "b": 0.0
-				},
-				"intensity": 10.0
-			},
-			{
-				"pos": {
-				   "x": 1090,
-				   "y": 310,
-				   "z": 820
-				},
-				"radius": 2.5,
-				"color": {
-				   "r": 0.0,
-				   "g": 0.0,
-				   "b": 1.0
-				},
-				"intensity": 10.0
-			},
-			{
-				"pos": {
-				   "x": 950,
-				   "y": 420,
-				   "z": 1500
-				},
-				"color": {
-				   "r": 1.0,
-				   "g": 1.0,
-				   "b": 1.0
-				},
-				"intensity": 10.0,
-				"radius": 10
-			}
-		],
 		"primitives": [
 			{
 				"type": "sphere",
@@ -160,6 +102,70 @@
 				"bsdf": "metal",
 				"reflectivity": 0.0,
 				"radius": 50
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 1050,
+					"y": 310,
+					"z": 820
+				},
+				"radius": 2.5,
+				"color": {
+					"r": 1.0,
+					"g": 0.0,
+					"b": 0.0
+				},
+				"bsdf": "emissive",
+				"intensity": 10.0
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 1070,
+					"y": 310,
+					"z": 820
+				},
+				"radius": 2.5,
+				"color": {
+					"r": 0.0,
+					"g": 1.0,
+					"b": 0.0
+				},
+				"bsdf": "emissive",
+				"intensity": 10.0
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 1090,
+					"y": 310,
+					"z": 820
+				},
+				"radius": 2.5,
+				"color": {
+					"r": 0.0,
+					"g": 0.0,
+					"b": 1.0
+				},
+				"bsdf": "emissive",
+				"intensity": 10.0
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 950,
+					"y": 420,
+					"z": 1500
+				},
+				"color": {
+					"r": 1.0,
+					"g": 1.0,
+					"b": 1.0
+				},
+				"bsdf": "emissive",
+				"intensity": 10.0,
+				"radius": 10
 			}
 		],
 		"meshes": [

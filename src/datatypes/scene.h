@@ -27,8 +27,6 @@ struct world {
 	struct mesh *meshes;
 	int meshCount;
 	
-	int lightCount;
-	
 	//Spheres
 	struct sphere *spheres;
 	int sphereCount;

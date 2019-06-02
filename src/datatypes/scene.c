@@ -192,12 +192,6 @@ void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
 	mesh->materials[mesh->materialCount++] = newMaterial;
 }
 
-void addLight(struct world *scene, struct sphere newLight) {
-	scene->spheres = realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(struct sphere));
-	scene->spheres[scene->sphereCount++] = newLight;
-	scene->lightCount++;
-}
-
 void transformMeshes(struct world *scene) {
 	logr(info, "Running transforms...\n");
 	for (int i = 0; i < scene->meshCount; ++i) {
@@ -233,14 +227,13 @@ void addCamTransforms(struct camera *cam, struct transform *transforms, int coun
 	}
 }
 
-void printSceneStats(struct world *scene) {
-	logr(info, "Scene parsing complete\n");
-	logr(info, "Totals: %iV, %iN, %iP, %iS, %iL\n",
+void printSceneStats(struct world *scene, unsigned long long ms) {
+	logr(info, "Scene parsing completed in %llums\n", ms);
+	logr(info, "Totals: %iV, %iN, %iP, %iS\n",
 		   vertexCount,
 		   normalCount,
 		   polyCount,
-		   scene->sphereCount,
-		   scene->lightCount);
+		   scene->sphereCount);
 }
 
 struct material *parseMaterial(const cJSON *data) {
@@ -763,63 +756,13 @@ struct vector parseCoordinate(const cJSON *data) {
 	return (struct vector){0.0,0.0,0.0};
 }
 
-void parseLight(struct renderer *r, const cJSON *data) {
-	const cJSON *pos = NULL;
-	const cJSON *radius = NULL;
-	const cJSON *color = NULL;
-	const cJSON *intensity = NULL;
-	
-	struct vector posValue;
-	double radiusValue = 0.0;
-	struct color colorValue;
-	double intensityValue = 0.0;
-	
-	pos = cJSON_GetObjectItem(data, "pos");
-	if (pos != NULL) {
-		posValue = parseCoordinate(pos);
-	} else {
-		return;
-	}
-	
-	radius = cJSON_GetObjectItem(data, "radius");
-	if (radius != NULL && cJSON_IsNumber(radius)) {
-		radiusValue = radius->valuedouble;
-	} else {
-		return;
-	}
-	
-	color = cJSON_GetObjectItem(data, "color");
-	if (color != NULL) {
-		colorValue = *parseColor(color);
-	} else {
-		return;
-	}
-	
-	intensity = cJSON_GetObjectItem(data, "intensity");
-	if (intensity != NULL && cJSON_IsNumber(intensity)) {
-		intensityValue = intensity->valuedouble;
-	} else {
-		return;
-	}
-	
-	addSphere(r->scene, newLightSphere(posValue, radiusValue, colorValue, intensityValue));
-}
-
-void parseLights(struct renderer *r, const cJSON *data) {
-	const cJSON *light = NULL;
-	if (data != NULL && cJSON_IsArray(data)) {
-		cJSON_ArrayForEach(light, data) {
-			parseLight(r, light);
-		}
-	}
-}
-
 void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *pos = NULL;
 	const cJSON *color = NULL;
 	const cJSON *reflectivity = NULL;
 	const cJSON *IOR = NULL;
 	const cJSON *radius = NULL;
+	const cJSON *intensity = NULL;
 	
 	struct sphere newSphere = defaultSphere();
 	
@@ -832,9 +775,11 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 			newSphere.material.type = metal;
 		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
 			newSphere.material.type = glass;
+		} else if (strcmp(bsdf->valuestring, "emissive") == 0) {
+			newSphere.material.type = emission;
 		}
 	} else {
-		logr(warning, "Sphere BSDF not found, defaulting to dialectric.\n");
+		logr(warning, "Sphere BSDF not found, defaulting to lambertian.\n");
 	}	
 	
 	pos = cJSON_GetObjectItem(data, "pos");
@@ -846,27 +791,47 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	
 	color = cJSON_GetObjectItem(data, "color");
 	if (color != NULL) {
-		newSphere.material.diffuse = *parseColor(color);
+		switch (newSphere.material.type) {
+			case emission:
+				newSphere.material.emission = *parseColor(color);
+				break;
+				
+			default:
+				newSphere.material.ambient = *parseColor(color);
+				newSphere.material.diffuse = *parseColor(color);
+				break;
+		}
 	} else {
 		logr(warning, "No color specified for sphere\n");
+	}
+	
+	//FIXME: Another hack.
+	intensity = cJSON_GetObjectItem(data, "intensity");
+	if (intensity != NULL) {
+		if (cJSON_IsNumber(intensity) && (newSphere.material.type == emission)) {
+			newSphere.material.emission = colorCoef(intensity->valuedouble, &newSphere.material.emission);
+		}
 	}
 	
 	reflectivity = cJSON_GetObjectItem(data, "reflectivity");
 	if (reflectivity != NULL && cJSON_IsNumber(reflectivity)) {
 		newSphere.material.reflectivity = reflectivity->valuedouble;
 	} else {
-		logr(warning, "No reflectivity specified for sphere\n");
+		newSphere.material.reflectivity = 0.0;
 	}
 	
 	IOR = cJSON_GetObjectItem(data, "IOR");
 	if (IOR != NULL && cJSON_IsNumber(IOR)) {
 		newSphere.material.IOR = IOR->valuedouble;
+	} else {
+		newSphere.material.IOR = 1.0;
 	}
 	
 	radius = cJSON_GetObjectItem(data, "radius");
 	if (radius != NULL && cJSON_IsNumber(radius)) {
 		newSphere.radius = radius->valuedouble;
 	} else {
+		newSphere.radius = 10;
 		logr(warning, "No radius specified for sphere, setting to %.0f\n", newSphere.radius);
 	}
 	
@@ -906,7 +871,6 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	const cJSON *height = NULL;
 	const cJSON *fileType = NULL;
 	const cJSON *ambientColor = NULL;
-	const cJSON *lights = NULL;
 	const cJSON *primitives = NULL;
 	const cJSON *meshes = NULL;
 	
@@ -981,11 +945,6 @@ int parseScene(struct renderer *r, const cJSON *data) {
 		if (parseAmbientColor(r, ambientColor) == -1) {
 			return -1;
 		}
-	}
-	
-	lights = cJSON_GetObjectItem(data, "lights");
-	if (cJSON_IsArray(lights)) {
-		parseLights(r, lights);
 	}
 	
 	primitives = cJSON_GetObjectItem(data, "primitives");
@@ -1116,9 +1075,7 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	transformCameraIntoView(r->scene->camera);
 	transformMeshes(r->scene);
 	computeKDTrees(r->scene);
-	printSceneStats(r->scene);
-	
-	logr(info, "Built scene in %llums\n", endTimer(timer));
+	printSceneStats(r->scene, endTimer(timer));
 	free(timer);
 	
 	//Alloc threadPaused booleans, one for each thread
