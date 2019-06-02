@@ -36,6 +36,13 @@ void startTimer(struct timeval *timer) {
 	gettimeofday(timer, NULL);
 }
 
+
+/**
+ end a given timer and return milliseconds
+
+ @param timer timer to end and measure
+ @return milliseconds
+ */
 unsigned long long endTimer(struct timeval *timer) {
 	struct timeval tmr2;
 	gettimeofday(&tmr2, NULL);

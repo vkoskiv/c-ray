@@ -23,6 +23,7 @@
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
 #include "../utils/multiplatform.h"
+#include "../utils/timer.h"
 
 struct color *parseColor(const cJSON *data);
 
@@ -1093,6 +1094,10 @@ int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 
 //Load the scene, allocate buffers, etc
 void loadScene(struct renderer *r, char *input, bool fromStdin) {
+	
+	struct timeval *timer = calloc(1, sizeof(struct timeval));
+	startTimer(timer);
+	
 	//Build the scene
 	switch (parseJSON(r, input, fromStdin)) {
 		case -1:
@@ -1112,6 +1117,9 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	transformMeshes(r->scene);
 	computeKDTrees(r->scene);
 	printSceneStats(r->scene);
+	
+	logr(info, "Built scene in %llums\n", endTimer(timer));
+	free(timer);
 	
 	//Alloc threadPaused booleans, one for each thread
 	r->threadPaused = calloc(r->threadCount, sizeof(bool));
