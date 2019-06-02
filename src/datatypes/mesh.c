@@ -9,7 +9,6 @@
 #include "../includes.h"
 #include "mesh.h"
 
-#include "../acceleration/bbox.h"
 #include "../acceleration/kdtree.h"
 #include "../datatypes/vertexbuffer.h"
 

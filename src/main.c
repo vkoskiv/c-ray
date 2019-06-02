@@ -11,22 +11,14 @@
 #include "includes.h"
 #include "main.h"
 
-#include "datatypes/camera.h"
 #include "utils/logging.h"
 #include "utils/filehandler.h"
 #include "renderer/renderer.h"
 #include "datatypes/scene.h"
 #include "utils/ui.h"
-#include "utils/learn.h"
 #include "utils/multiplatform.h"
 #include "datatypes/vertexbuffer.h"
-#include "utils/gitsha1.h"
-
-int getFileSize(char *fileName);
-void initRenderer(struct renderer *renderer);
-int getSysCores(void);
-
-extern struct poly *polygonArray;
+#include "utils/gitsha1.h" 
 
 /**
  Main entry point
@@ -36,45 +28,32 @@ extern struct poly *polygonArray;
  @return Error codes, 0 if exited normally
  */
 int main(int argc, char *argv[]) {
-
 	char *hash = gitHash(8);
 	logr(info, "C-ray v%s [%s], © 2015-2019 Valtteri Koskivuori\n", VERSION, hash);
 	free(hash);
 	
 	initTerminal();
-	
 	allocVertexBuffer();
-	//Initialize renderer
-	struct renderer *mainRenderer = newRenderer();
-	
-	//Load the scene and prepare renderer
+	struct renderer *r = newRenderer();
 	if (argc == 2) {
-		loadScene(mainRenderer, argv[1], false);
+		loadScene(r, argv[1], false);
 	} else {
 		char *scene = readStdin();
-		loadScene(mainRenderer, scene, true);
+		loadScene(r, scene, true);
 	}
-	
-	//Initialize SDL display, if available
 #ifdef UI_ENABLED
-	initSDL(mainRenderer->mainDisplay);
+	initSDL(r->mainDisplay);
 #endif
 	
 	time_t start, stop;
-	
 	time(&start);
-	render(mainRenderer);
+	render(r);
 	time(&stop);
-	
 	printDuration(difftime(stop, start));
 	
-	//Write to file
-	writeImage(mainRenderer);
-	
-	freeRenderer(mainRenderer);
+	writeImage(r);
+	freeRenderer(r);
 	freeVertexBuffer();
-	
 	logr(info, "Render finished, exiting.\n");
-	
 	return 0;
 }

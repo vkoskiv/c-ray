@@ -10,7 +10,6 @@
 #include "material.h"
 
 #include "../renderer/pathtrace.h"
-#include "../utils/filehandler.h"
 #include "../datatypes/vertexbuffer.h"
 #include "../datatypes/texture.h"
 

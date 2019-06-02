@@ -9,8 +9,6 @@
 #include "../includes.h"
 #include "camera.h"
 
-#include "../utils/filehandler.h"
-#include "../renderer/renderer.h"
 #include "scene.h"
 #include "../datatypes/texture.h"
 
@@ -25,9 +23,10 @@ void transformCameraView(struct camera *cam, struct vector *direction) {
 	}
 }
 
-void computeFocalLength(struct renderer *renderer) {
-	if (renderer->scene->camera->FOV > 0.0 && renderer->scene->camera->FOV < 189.0) {
-		renderer->scene->camera->focalLength = 0.5 * *renderer->image->width / toRadians(0.5 * renderer->scene->camera->FOV);
+//FIXME: Move image to camera and fix this
+void computeFocalLength(struct camera *camera, int width) {
+	if (camera->FOV > 0.0 && camera->FOV < 189.0) {
+		camera->focalLength = 0.5 * width / toRadians(0.5 * camera->FOV);
 	}
 }
 

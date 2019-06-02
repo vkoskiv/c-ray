@@ -9,10 +9,7 @@
 #include "../includes.h"
 #include "ui.h"
 
-#include "../datatypes/camera.h"
 #include "../renderer/renderer.h"
-#include "../datatypes/scene.h"
-#include "../utils/filehandler.h"
 #include "../utils/logging.h"
 #include "../datatypes/tile.h"
 #include "../datatypes/texture.h"
@@ -24,7 +21,7 @@ sigfunc *signal(int, sigfunc*);
 
 void sigHandler(int sig) {
 	if (sig == SIGINT) {
-		logr(info, "Received CTRL-C, aborting...\n");
+		logr(info, "Received ^C, aborting...\n");
 		exit(1);
 	}
 }

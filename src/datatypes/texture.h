@@ -25,3 +25,8 @@ struct texture {
 	unsigned int *width;
 	unsigned int *height;
 };
+
+struct color;
+
+void blit(struct texture *t, struct color *c, unsigned int x, unsigned int y);
+void blitDouble(double *buf, int width, int height, struct color *c, unsigned int x, unsigned int y);

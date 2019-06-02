@@ -12,8 +12,6 @@
 #include "../datatypes/camera.h"
 #include "../datatypes/scene.h"
 #include "pathtrace.h"
-#include "../utils/filehandler.h" //blit
-#include "../main.h"
 #include "../utils/logging.h"
 #include "../utils/ui.h"
 #include "../datatypes/tile.h"

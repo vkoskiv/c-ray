@@ -10,7 +10,6 @@
 #include "scene.h"
 
 #include "camera.h"
-#include "../libraries/obj_parser.h"
 #include "../acceleration/kdtree.h"
 #include "../utils/filehandler.h"
 #include "../utils/converter.h"
@@ -19,7 +18,6 @@
 #include "../utils/ui.h"
 #include "../utils/logging.h"
 #include "tile.h"
-#include "../utils/timer.h"
 #include "../datatypes/vertexbuffer.h"
 #include "../utils/loaders/objloader.h"
 #include "../datatypes/texture.h"
@@ -1133,7 +1131,7 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	reorderTiles(&r->renderTiles, r->tileCount, r->tileOrder);
 	
 	//Compute the focal length for the camera
-	computeFocalLength(r);
+	computeFocalLength(r->scene->camera, *r->image->width);
 	
 	//Allocate memory and create array of pixels for image data
 	r->image->data = calloc(3 * *r->image->width * *r->image->height, sizeof(unsigned char));

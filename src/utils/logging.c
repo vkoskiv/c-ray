@@ -22,6 +22,14 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
+
+/**
+ C-ray internal formatted logger
+
+ @param type Type of log message
+ @param fmt Log message formatted like printf
+ @param ... 
+ */
 void logr(enum logType type, const char *fmt, ...) {
 	
 	time_t curTime = time(NULL);
@@ -91,6 +99,7 @@ void smartTime(unsigned long long milliseconds, char *buf) {
 	}
 }
 
+//FIXME: Clean up this mess here and move it elsewhere
 /**
  Print running average duration of tiles rendered
  
