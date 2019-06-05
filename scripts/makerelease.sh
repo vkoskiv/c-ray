@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 6.6.2019 - Added codesigning on macOS, it grabs the identity
+# fingerprint from $signteam environment variable
+
 # TODO: Figure out how to include SDL2 in this bundle
 # TODO: Implement and include version number
 
@@ -28,5 +31,12 @@ mkdir "$bundlename"
 mkdir "$bundlename"/bin
 mkdir "$bundlename"/output
 cp ./bin/c-ray "$bundlename"/bin
+if [[ "$platform" == 'macos' ]]; then
+	if [[ "$signteam" != '' ]]; then
+		echo "Code signing using $signteam"
+		codesign -s "$signteam" "$bundlename"/bin/c-ray
+		codesign -dv --verbose=2 "$bundlename"/bin/c-ray
+	fi
+fi
 cp -r ./input "$bundlename"/
 zip -r "$bundlename".zip "$bundlename"
