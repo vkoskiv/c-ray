@@ -155,6 +155,38 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 	return node;
 }
 
+//Recurse through tree and count orphan nodes with no polygons
+int checkTree(struct kdTreeNode *node) {
+	int orphans = 0;
+	if (node) {
+		if (node->polyCount == 0) {
+			orphans += 1;
+		}
+		
+		if (node->left) {
+			orphans += checkTree(node->left);
+		}
+		if (node->right) {
+			orphans += checkTree(node->right);
+		}
+	}
+	return orphans;
+}
+
+int countNodes(struct kdTreeNode *node) {
+	int nodes = 0;
+	if (node) {
+		if (node->left) {
+			nodes += countNodes(node->left);
+		}
+		if (node->right) {
+			nodes += countNodes(node->right);
+		}
+		nodes += 1;
+	}
+	return nodes;
+}
+
 /**
  Traverse a k-d tree and see if a ray collides with a polygon.
  

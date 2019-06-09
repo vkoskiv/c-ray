@@ -10,7 +10,6 @@
 
 #include "../includes.h"
 
-//FIXME: Move these to a better place
 //Note how imageData only stores 8-bit precision for each color channel.
 //This is why we use the renderBuffer (blitDouble) for the running average as it just contains
 //the full precision color values

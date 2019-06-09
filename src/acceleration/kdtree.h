@@ -26,4 +26,7 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth);
 
 bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect);
 
+int countNodes(struct kdTreeNode *node);
+int checkTree(struct kdTreeNode *node);
+
 void freeTree(struct kdTreeNode *node);
