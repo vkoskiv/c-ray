@@ -17,6 +17,7 @@
 struct texture *loadTexture(char *filePath) {
 	struct texture *newTexture = calloc(1, sizeof(struct texture));
 	newTexture->data = NULL;
+	newTexture->colorspace = linear;
 	newTexture->width = calloc(1, sizeof(unsigned int));
 	newTexture->height = calloc(1, sizeof(unsigned int));
 	copyString(filePath, &newTexture->filePath);
@@ -31,17 +32,6 @@ struct texture *loadTexture(char *filePath) {
 		free(newTexture);
 		return NULL;
 	}
+	//textureFromSRGB(newTexture);
 	return newTexture;
-}
-
-void freeTexture(struct texture *tex) {
-	if (tex->height) {
-		free(tex->height);
-	}
-	if (tex->width) {
-		free(tex->width);
-	}
-	if (tex->data) {
-		free(tex->data);
-	}
 }

@@ -20,13 +20,10 @@
 int getFileSize(char *fileName);
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
 
-void saveBmpFromArray(const char *filename, unsigned char *imgData, int width, int height) {
-	
+void encodeBMPFromArray(const char *filename, unsigned char *imgData, int width, int height) {
 	//Apparently BMP is BGR, whereas C-ray's internal buffer is RGB (Like it should be)
 	//So we need to convert the image data before writing to file.
-	
 	unsigned char *bgrData = calloc(3 * width * height, sizeof(unsigned char));
-	
 	//FIXME: For some reason we can't access the 0 of X and Y on imgdata. So now BMP images have 1 black row on left and top edges...
 	for (int y = 1; y < height; y++) {
 		for (int x = 1; x < width; x++) {
@@ -35,33 +32,27 @@ void saveBmpFromArray(const char *filename, unsigned char *imgData, int width, i
 			bgrData[(x + (height - y) * width) * 3 + 2] = imgData[(x + (height - y) * width) * 3 + 0];
 		}
 	}
-	
 	int i;
 	int error;
 	FILE *f;
 	int filesize = 54 + 3 * width * height;
-	
 	unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
 	unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
 	unsigned char bmppadding[3] = {0,0,0};
-	
 	//Create header with filesize data
 	bmpfileheader[2] = (unsigned char)(filesize    );
 	bmpfileheader[3] = (unsigned char)(filesize>> 8);
 	bmpfileheader[4] = (unsigned char)(filesize>>16);
 	bmpfileheader[5] = (unsigned char)(filesize>>24);
-	
 	//create header width and height info
 	bmpinfoheader[ 4] = (unsigned char)(width    );
 	bmpinfoheader[ 5] = (unsigned char)(width>>8 );
 	bmpinfoheader[ 6] = (unsigned char)(width>>16);
 	bmpinfoheader[ 7] = (unsigned char)(width>>24);
-	
 	bmpinfoheader[ 8] = (unsigned char)(height    );
 	bmpinfoheader[ 9] = (unsigned char)(height>>8 );
 	bmpinfoheader[10] = (unsigned char)(height>>16);
 	bmpinfoheader[11] = (unsigned char)(height>>24);
-	
 	f = fopen(filename,"wb");
 	error = (unsigned int)fwrite(bmpfileheader,1,14,f);
 	if (error != 14) {
@@ -71,7 +62,6 @@ void saveBmpFromArray(const char *filename, unsigned char *imgData, int width, i
 	if (error != 40) {
 		logr(warning, "Error writing BMP info header data\n");
 	}
-	
 	for (i = 1; i <= height; i++) {
 		error = (unsigned int)fwrite(bgrData+(width*(height - i)*3),3,width,f);
 		if (error != width) {
@@ -82,6 +72,7 @@ void saveBmpFromArray(const char *filename, unsigned char *imgData, int width, i
 			logr(warning, "Error writing BMP padding data\n");
 		}
 	}
+	free(bgrData);
 	fclose(f);
 }
 
@@ -203,20 +194,20 @@ void printFileSize(char *fileName) {
 	}
 }
 
-void writeImage(struct renderer *r) {
-	switch (r->mode) {
+void writeImage(struct texture *image, enum fileMode mode) {
+	switch (mode) {
 		case saveModeNormal: {
 			//Save image data to a file
 			char *buf = NULL;
 			
-			if (r->image->fileType == bmp){
-				asprintf(&buf, "%s%s_%04d.bmp", r->image->filePath, r->image->fileName, r->image->count);
+			if (image->fileType == bmp){
+				asprintf(&buf, "%s%s_%04d.bmp", image->filePath, image->fileName, image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
-				saveBmpFromArray(buf, r->image->data, *r->image->width, *r->image->height);
-			} else if (r->image->fileType == png){
-				asprintf(&buf, "%s%s_%04d.png", r->image->filePath, r->image->fileName, r->image->count);
+				encodeBMPFromArray(buf, image->data, *image->width, *image->height);
+			} else if (image->fileType == png){
+				asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
 				logr(info, "Saving result in \"%s\"\n", buf);
-				encodePNGFromArray(buf, r->image->data, *r->image->width, *r->image->height);
+				encodePNGFromArray(buf, image->data, *image->width, *image->height);
 			}
 			printFileSize(buf);
 #ifdef __APPLE__

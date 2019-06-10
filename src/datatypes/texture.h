@@ -16,8 +16,14 @@ struct dimensions {
 	int width;
 };
 
+enum colorspace {
+	linear,
+	sRGB
+};
+
 struct texture {
 	enum fileType fileType;
+	enum colorspace colorspace;
 	char *filePath;
 	char *fileName;
 	int count;
@@ -28,5 +34,10 @@ struct texture {
 
 struct color;
 
-void blit(struct texture *t, struct color *c, unsigned int x, unsigned int y);
+void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
 void blitDouble(double *buf, int width, int height, struct color *c, unsigned int x, unsigned int y);
+
+void textureFromSRGB(struct texture *t);
+void textureToSRGB(struct texture *t);
+
+void freeTexture(struct texture *tex);

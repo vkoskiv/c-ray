@@ -291,7 +291,7 @@ void *renderThreadSIMD(void *arg) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					int tx = x - (int)tile.begin.x;
 					int ty = y - (int)tile.begin.y;
-					blit(renderer->image, &output[tx][ty], x, y);
+					blit(renderer->image, output[tx][ty], x, y);
 				}
 			}
 			
@@ -457,7 +457,7 @@ void *renderThread(void *arg) {
 					output = toSRGB(output);
 					
 					//And store the image data
-					blit(renderer->image, &output, x, y);
+					blit(renderer->image, output, x, y);
 				}
 			}
 			tile.completedSamples++;

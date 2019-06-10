@@ -12,5 +12,3 @@
 
 //Load a generic texture. Currently only PNG supported.
 struct texture *loadTexture(char *filePath);
-
-void freeTexture(struct texture *image);
