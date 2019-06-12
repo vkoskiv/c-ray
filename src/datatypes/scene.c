@@ -351,7 +351,6 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 		logr(warning, "Transform data: %s\n", cJSON_Print(data));
 	}
 	
-	//FIXME: Use parseCoordinate() for this
 	cJSON *degrees = NULL;
 	cJSON *radians = NULL;
 	cJSON *scale = NULL;
@@ -362,7 +361,6 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 	bool validDegrees = false;
 	bool validRadians = false;
 	bool validScale = false;
-	bool validCoords = false;
 	
 	degrees = cJSON_GetObjectItem(data, "degrees");
 	radians = cJSON_GetObjectItem(data, "radians");
@@ -380,10 +378,26 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 	if (scale != NULL && cJSON_IsNumber(scale)) {
 		validScale = true;
 	}
-	if (X != NULL && Y != NULL && Z != NULL) {
-		if (cJSON_IsNumber(X) && cJSON_IsNumber(Y) && cJSON_IsNumber(Z)) {
-			validCoords = true;
-		}
+	
+	int validCoords = 0; //Accept if we have at least one provided
+	double Xval, Yval, Zval;
+	if (X != NULL && cJSON_IsNumber(X)) {
+		Xval = X->valuedouble;
+		validCoords++;
+	} else {
+		Xval = 1.0;
+	}
+	if (Y != NULL && cJSON_IsNumber(Y)) {
+		Yval = Y->valuedouble;
+		validCoords++;
+	} else {
+		Yval = 1.0;
+	}
+	if (Z != NULL && cJSON_IsNumber(Z)) {
+		Zval = Z->valuedouble;
+		validCoords++;
+	} else {
+		Zval = 1.0;
 	}
 	
 	if (strcmp(type->valuestring, "rotateX") == 0) {
@@ -411,16 +425,16 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 			logr(warning, "Found rotateZ transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "translate") == 0) {
-		if (validCoords) {
-			return newTransformTranslate(X->valuedouble, Y->valuedouble, Z->valuedouble);
+		if (validCoords > 0) {
+			return newTransformTranslate(Xval, Yval, Zval);
 		} else {
-			logr(warning, "Found translate transform for object \"%s\" with no valid coords given.\n", targetName);
+			logr(warning, "Found translate transform for object \"%s\" with less than 1 valid coordinate given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "scale") == 0) {
-		if (validCoords) {
-			return newTransformScale(X->valuedouble, Y->valuedouble, Z->valuedouble);
+		if (validCoords > 0) {
+			return newTransformScale(Xval, Yval, Zval);
 		} else {
-			logr(warning, "Found scale transform for object \"%s\" with no valid scale value given.\n", targetName);
+			logr(warning, "Found scale transform for object \"%s\" with less than 1 valid scale value given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "scaleUniform") == 0) {
 		if (validScale) {
