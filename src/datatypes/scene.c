@@ -344,8 +344,7 @@ struct material *parseMaterial(const cJSON *data) {
 	return mat;
 }
 
-struct transform parseTransform(const cJSON *data) {
-	
+struct transform parseTransform(const cJSON *data, char *targetName) {
 	cJSON *type = cJSON_GetObjectItem(data, "type");
 	if (!cJSON_IsString(type)) {
 		logr(warning, "Failed to parse transform! No type found\n");
@@ -353,7 +352,6 @@ struct transform parseTransform(const cJSON *data) {
 	}
 	
 	//FIXME: Use parseCoordinate() for this
-	
 	cJSON *degrees = NULL;
 	cJSON *radians = NULL;
 	cJSON *scale = NULL;
@@ -394,7 +392,7 @@ struct transform parseTransform(const cJSON *data) {
 		} else if (validRadians) {
 			return newTransformRotateX(fromRadians(radians->valuedouble));
 		} else {
-			logr(warning, "Found rotateX transform with no valid degrees or radians value given.\n");
+			logr(warning, "Found rotateX transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "rotateY") == 0) {
 		if (validDegrees) {
@@ -402,7 +400,7 @@ struct transform parseTransform(const cJSON *data) {
 		} else if (validRadians) {
 			return newTransformRotateY(fromRadians(radians->valuedouble));
 		} else {
-			logr(warning, "Found rotateY transform with no valid degrees or radians value given.\n");
+			logr(warning, "Found rotateY transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "rotateZ") == 0) {
 		if (validDegrees) {
@@ -410,28 +408,28 @@ struct transform parseTransform(const cJSON *data) {
 		} else if (validRadians) {
 			return newTransformRotateZ(fromRadians(radians->valuedouble));
 		} else {
-			logr(warning, "Found rotateZ transform with no valid degrees or radians value given.\n");
+			logr(warning, "Found rotateZ transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "translate") == 0) {
 		if (validCoords) {
 			return newTransformTranslate(X->valuedouble, Y->valuedouble, Z->valuedouble);
 		} else {
-			logr(warning, "Found translate transform with no valid coords given.\n");
+			logr(warning, "Found translate transform for object \"%s\" with no valid coords given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "scale") == 0) {
 		if (validCoords) {
 			return newTransformScale(X->valuedouble, Y->valuedouble, Z->valuedouble);
 		} else {
-			logr(warning, "Found scale transform with no valid scale value given.\n");
+			logr(warning, "Found scale transform for object \"%s\" with no valid scale value given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "scaleUniform") == 0) {
 		if (validScale) {
 			return newTransformScaleUniform(scale->valuedouble);
 		} else {
-			logr(warning, "Found scaleUniform transform with no valid scale value given.\n");
+			logr(warning, "Found scaleUniform transform for object \"%s\" with no valid scale value given.\n", targetName);
 		}
 	} else {
-		logr(warning, "Found an invalid transform\n");
+		logr(warning, "Found an invalid transform \"%s\" for object \"%s\"\n", type->valuestring, targetName);
 	}
 	
 	return emptyTransform();
@@ -447,7 +445,7 @@ struct transform *parseTransforms(const cJSON *data) {
 	
 	for (int i = 0; i < transformCount; i++) {
 		transform = cJSON_GetArrayItem(data, i);
-		transforms[i] = parseTransform(transform);
+		transforms[i] = parseTransform(transform, "camera");
 	}
 	return transforms;
 }
@@ -688,6 +686,7 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	return 0;
 }
 
+//FIXME: Only parse everything else if the mesh is found and is valid
 void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
 	
@@ -719,12 +718,14 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	if (meshValid) {
 		const cJSON *transforms = cJSON_GetObjectItem(data, "transforms");
 		const cJSON *transform = NULL;
+		//TODO: Use parseTransforms for this
 		if (transforms != NULL && cJSON_IsArray(transforms)) {
 			cJSON_ArrayForEach(transform, transforms) {
-				addTransform(lastMesh(r), parseTransform(transform));
+				addTransform(lastMesh(r), parseTransform(transform, lastMesh(r)->meshName));
 			}
 		}
 		
+		//FIXME: this isn't right.
 		for (int i = 0; i < lastMesh(r)->materialCount; i++) {
 			lastMesh(r)->materials[i].type = type;
 			assignBSDF(&lastMesh(r)->materials[i]);
