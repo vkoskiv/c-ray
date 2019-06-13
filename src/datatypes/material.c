@@ -116,8 +116,8 @@ struct color colorForUV(struct intersection *isect) {
 	struct coord textureXY = addCoords(&temp, &wcomponent);
 	
 	//Final integer X Y texture pixel coords
-	int x = (int)(textureXY.x*(width)) + 1;
-	int y = (int)(textureXY.y*(heigh)) + 1;
+	int x = (int)(textureXY.x*(width));
+	int y = (int)(textureXY.y*(heigh));
 	
 	//Somehow textureXY can range from -2.36 to 4.53. Not cool at all.
 	//FIXME: Find out why this happens.
@@ -129,10 +129,10 @@ struct color colorForUV(struct intersection *isect) {
 	
 	//Get the color value at these XY coordinates
 	//These need to be normalized from 0-255 to 0-1 double (just divide by 255.0)
-	output.red   = mtl.texture->data[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 0] / 255.0;
-	output.green = mtl.texture->data[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 1] / 255.0;
-	output.blue  = mtl.texture->data[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 2] / 255.0;
-	output.alpha = mtl.texture->data[(x + (*mtl.texture->height - y) * *mtl.texture->width)*4 + 3] / 255.0;
+	output.red   = mtl.texture->data[(x + (*mtl.texture->height - (y+1)) * *mtl.texture->width)*4 + 0] / 255.0;
+	output.green = mtl.texture->data[(x + (*mtl.texture->height - (y+1)) * *mtl.texture->width)*4 + 1] / 255.0;
+	output.blue  = mtl.texture->data[(x + (*mtl.texture->height - (y+1)) * *mtl.texture->width)*4 + 2] / 255.0;
+	output.alpha = mtl.texture->data[(x + (*mtl.texture->height - (y+1)) * *mtl.texture->width)*4 + 3] / 255.0;
 	
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	//FIXME: Maybe ask lodepng if we actually need to do this transform

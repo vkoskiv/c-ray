@@ -471,6 +471,7 @@ void *renderThread(void *arg) {
 		//Tile has finished rendering, get a new one and start rendering it.
 		renderer->renderTiles[tile.tileNum].isRendering = false;
 		renderer->renderTiles[tile.tileNum].renderComplete = true;
+		tinfo->currentTileNum = -1;
 		tinfo->completedSamples = 0;
 		unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
 		tile = getTile(renderer);
@@ -483,6 +484,7 @@ void *renderThread(void *arg) {
 	}
 	//No more tiles to render, exit thread. (render done)
 	tinfo->threadComplete = true;
+	tinfo->currentTileNum = -1;
 #ifdef WINDOWS
 	return 0;
 #else

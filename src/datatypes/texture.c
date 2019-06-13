@@ -16,12 +16,9 @@
 void blit(struct texture *t, struct color c, unsigned int x, unsigned int y) {
 	if ((x > *t->width-1) || y < 0) return;
 	if ((y > *t->height-1) || y < 0) return;
-	t->data[(x + (*t->height - y)* *t->width)*3 + 0] =
-	(unsigned char)min( max(c.red*255.0,0), 255.0);
-	t->data[(x + (*t->height - y)* *t->width)*3 + 1] =
-	(unsigned char)min( max(c.green*255.0,0), 255.0);
-	t->data[(x + (*t->height - y)* *t->width)*3 + 2] =
-	(unsigned char)min( max(c.blue*255.0,0), 255.0);
+	t->data[(x + (*t->height - (y+1))* *t->width)*3 + 0] = (unsigned char)min( max(c.red*255.0,0), 255.0);
+	t->data[(x + (*t->height - (y+1))* *t->width)*3 + 1] = (unsigned char)min( max(c.green*255.0,0), 255.0);
+	t->data[(x + (*t->height - (y+1))* *t->width)*3 + 2] = (unsigned char)min( max(c.blue*255.0,0), 255.0);
 }
 
 void blitDouble(double *buf, int width, int height, struct color *c, unsigned int x, unsigned int y) {

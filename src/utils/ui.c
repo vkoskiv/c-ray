@@ -170,19 +170,19 @@ void drawPixel(struct renderer *r, int x, int y, bool on, struct color c) {
 	if (y >= *r->image->height) y = *r->image->height - 1;
 	
 	if (on) {
-		r->uiBuffer[(x + (*r->image->height - y)
+		r->uiBuffer[(x + (*r->image->height - (y+1))
 							   * *r->image->width) * 4 + 3] = (unsigned char)min(c.red*255.0, 255.0);
-		r->uiBuffer[(x + (*r->image->height - y)
+		r->uiBuffer[(x + (*r->image->height - (y+1))
 							   * *r->image->width) * 4 + 2] = (unsigned char)min(c.green*255.0, 255.0);
-		r->uiBuffer[(x + (*r->image->height - y)
+		r->uiBuffer[(x + (*r->image->height - (y+1))
 							   * *r->image->width) * 4 + 1] = (unsigned char)min(c.blue*255.0, 255.0);
-		r->uiBuffer[(x + (*r->image->height - y)
+		r->uiBuffer[(x + (*r->image->height - (y+1))
 							   * *r->image->width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
 	} else {
-		r->uiBuffer[(x + (*r->image->height - y) * *r->image->width) * 4 + 0] = (unsigned char)0;
-		r->uiBuffer[(x + (*r->image->height - y) * *r->image->width) * 4 + 1] = (unsigned char)0;
-		r->uiBuffer[(x + (*r->image->height - y) * *r->image->width) * 4 + 2] = (unsigned char)0;
-		r->uiBuffer[(x + (*r->image->height - y) * *r->image->width) * 4 + 3] = (unsigned char)0;
+		r->uiBuffer[(x + (*r->image->height - (y+1)) * *r->image->width) * 4 + 0] = (unsigned char)0;
+		r->uiBuffer[(x + (*r->image->height - (y+1)) * *r->image->width) * 4 + 1] = (unsigned char)0;
+		r->uiBuffer[(x + (*r->image->height - (y+1)) * *r->image->width) * 4 + 2] = (unsigned char)0;
+		r->uiBuffer[(x + (*r->image->height - (y+1)) * *r->image->width) * 4 + 3] = (unsigned char)0;
 	}
 }
 
@@ -203,18 +203,20 @@ void clearProgBar(struct renderer *r, struct renderTile temp) {
  */
 void drawProgressBars(struct renderer *r) {
 	for (int t = 0; t < r->threadCount; t++) {
-		struct renderTile temp = r->renderTiles[r->renderThreadInfo[t].currentTileNum];
-		int completedSamples = r->renderThreadInfo[t].completedSamples;
-		int totalSamples = r->sampleCount;
-		
-		float prc = ((float)completedSamples / (float)totalSamples);
-		int pixels2draw = (int)((float)temp.width*(float)prc);
-		
-		//And then draw the bar
-		for (int i = 0; i < pixels2draw; i++) {
-			drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1, true, progColor);
-			drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)), true, progColor);
-			drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1, true, progColor);
+		if (r->renderThreadInfo[t].currentTileNum != -1) {
+			struct renderTile temp = r->renderTiles[r->renderThreadInfo[t].currentTileNum];
+			int completedSamples = r->renderThreadInfo[t].completedSamples;
+			int totalSamples = r->sampleCount;
+			
+			float prc = ((float)completedSamples / (float)totalSamples);
+			int pixels2draw = (int)((float)temp.width*(float)prc);
+			
+			//And then draw the bar
+			for (int i = 0; i < pixels2draw; i++) {
+				drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1, true, progColor);
+				drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)), true, progColor);
+				drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1, true, progColor);
+			}
 		}
 	}
 }
