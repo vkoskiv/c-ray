@@ -529,9 +529,9 @@ struct renderer *newRenderer() {
 //TODO: Refactor this to retrieve pixel from a given buffer, so we can reuse it for texture maps
 struct color getPixel(struct renderer *r, int x, int y) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
-	output.red = r->renderBuffer[(x + (*r->image->height - (y+1)) * *r->image->width)*3 + 0];
-	output.green = r->renderBuffer[(x + (*r->image->height - (y+1)) * *r->image->width)*3 + 1];
-	output.blue = r->renderBuffer[(x + (*r->image->height - (y+1)) * *r->image->width)*3 + 2];
+	output.red = r->renderBuffer[(x + (*r->image->height - y) * *r->image->width)*3 + 0];
+	output.green = r->renderBuffer[(x + (*r->image->height - y) * *r->image->width)*3 + 1];
+	output.blue = r->renderBuffer[(x + (*r->image->height - y) * *r->image->width)*3 + 2];
 	output.alpha = 1.0;
 	return output;
 }

@@ -22,9 +22,9 @@ void blit(struct texture *t, struct color c, unsigned int x, unsigned int y) {
 }
 
 void blitDouble(double *buf, int width, int height, struct color *c, unsigned int x, unsigned int y) {
-	buf[(x + (height - (y+1))*width)*3 + 0] = c->red;
-	buf[(x + (height - (y+1))*width)*3 + 1] = c->green;
-	buf[(x + (height - (y+1))*width)*3 + 2] = c->blue;
+	buf[(x + (height - y)*width)*3 + 0] = c->red;
+	buf[(x + (height - y)*width)*3 + 1] = c->green;
+	buf[(x + (height - y)*width)*3 + 2] = c->blue;
 }
 
 //FIXME: Use this everywhere, in renderer too where there is now a duplicate getPixel()
