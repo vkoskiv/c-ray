@@ -1125,6 +1125,7 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	if (!r->image->data) {
 		logr(error, "Failed to allocate memory for image data.");
 	}
+	r->image->hasAlpha = false;
 	
 	//Set a dark gray background for the render preview
 	struct color c = {49/255.0,51/255.0,54/255.0,0};

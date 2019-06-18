@@ -6,9 +6,9 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "texture.h"
-
 #include "../includes.h"
+
+#include "texture.h"
 
 //Note how imageData only stores 8-bit precision for each color channel.
 //This is why we use the renderBuffer (blitDouble) for the running average as it just contains
@@ -30,10 +30,17 @@ void blitDouble(double *buf, int width, int height, struct color *c, unsigned in
 //FIXME: Use this everywhere, in renderer too where there is now a duplicate getPixel()
 struct color textureGetPixel(struct texture *t, int x, int y) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
-	output.red   = t->data[(x + (*t->height - y) * *t->width)*3 + 0]/255.0;
-	output.green = t->data[(x + (*t->height - y) * *t->width)*3 + 1]/255.0;
-	output.blue  = t->data[(x + (*t->height - y) * *t->width)*3 + 2]/255.0;
-	output.alpha = 1.0;
+	int pitch = 0;
+	if (t->hasAlpha) {
+		pitch = 4;
+	} else {
+		pitch = 3;
+	}
+	output.red   = t->data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0]/255.0;
+	output.green = t->data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1]/255.0;
+	output.blue  = t->data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2]/255.0;
+	output.alpha = t->hasAlpha ? t->data[(x + (*t->height - y) * *t->width)*pitch + 3]/255.0 : 1.0;
+	
 	return output;
 }
 
