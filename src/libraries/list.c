@@ -39,7 +39,6 @@ void list_make(list *listo, int start_size, char growable)
 
 int list_add_item(list *listo, void *item, char *name)
 {
-	int name_length;
 	char *new_name;
 	
 	if( list_is_full(listo) )
@@ -53,9 +52,8 @@ int list_add_item(list *listo, void *item, char *name)
 	listo->names[listo->item_count] = NULL;
 	if(name != NULL)
 	{
-		name_length = (int)strlen(name);
-		new_name = (char*) malloc(sizeof(char) * name_length + 2);
-		strncpy(new_name, name, name_length);
+		new_name = malloc(strlen(name) + 1);
+		strcpy(new_name, name);
 		listo->names[listo->item_count] = new_name;
 	}
 
