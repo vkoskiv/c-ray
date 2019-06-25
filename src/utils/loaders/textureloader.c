@@ -48,7 +48,7 @@ struct texture *loadTexture(char *filePath) {
 	newTexture->colorspace = linear;
 	newTexture->width = calloc(1, sizeof(unsigned int));
 	newTexture->height = calloc(1, sizeof(unsigned int));
-	newTexture->hasAlpha = true;
+	newTexture->hasAlpha = false;
 	copyString(filePath, &newTexture->filePath);
 	newTexture->fileType = png;
 	
