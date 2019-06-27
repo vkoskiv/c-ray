@@ -81,7 +81,7 @@ struct renderer {
 #endif
 	
 	//Preferences data (Set by user)
-	enum fileMode mode;
+	enum fileMode fileMode;
 	enum renderOrder tileOrder;
 	char *inputFilePath; //Directory to load input files from
 	

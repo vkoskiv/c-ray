@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
 	time(&stop);
 	printDuration(difftime(stop, start));
 	
-	writeImage(r->image, r->mode);
+	writeImage(r->image, r->fileMode);
 	freeRenderer(r);
 	freeVertexBuffer();
 	logr(info, "Render finished, exiting.\n");
