@@ -87,7 +87,7 @@ bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, double *r
 	
 	//For barycentric coordinates
 	//Used for texturing and smooth shading
-	*uv = uvFromValues(u, v);
+	*uv = (struct coord){u, v};
 	
 	*result = temp - 0.005; //This is to fix floating point precision error artifacts
 	*normal = vecCross(&edge2, &edge1);

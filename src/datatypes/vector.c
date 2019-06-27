@@ -161,17 +161,6 @@ struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v
 }
 
 /**
- Construct and return a UV coordinate from given values
-
- @param u U component
- @param v V component
- @return coordinate object
- */
-struct coord uvFromValues(double u, double v) {
-	return (struct coord){u, v};
-}
-
-/**
  Returns a random double between min and max
  
  @param min Minimum value

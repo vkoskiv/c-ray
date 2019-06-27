@@ -57,8 +57,6 @@ double vecLengthSquared(struct vector *v);
 //Normalize a vector
 struct vector vecNormalize(struct vector *v);
 
-struct coord uvFromValues(double u, double v);
-
 struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v3);
 
 struct vector getRandomVecOnRadius(struct vector center, double radius, pcg32_random_t *rng);
