@@ -41,6 +41,8 @@ struct color multiplyColors(struct color *c1, struct color *c2);
 //Add two colors and return the resulting color
 struct color addColors(struct color *c1, struct color *c2);
 
+struct color grayscale(struct color *c);
+
 //Multiply a color by a coefficient and return the resulting color
 struct color colorCoef(double coef, struct color *c);
 

@@ -39,6 +39,11 @@ struct color addColors(struct color *c1, struct color *c2) {
 	return (struct color){c1->red + c2->red, c1->green + c2->green, c1->blue + c2->blue, 0.0};
 }
 
+struct color grayscale(struct color *c) {
+	double b = (c->red+c->green+c->blue)/3;
+	return (struct color){b, b, b, 0.0};
+}
+
 //Multiply a color with a coefficient value
 struct color colorCoef(double coef, struct color *c) {
 	return (struct color){c->red * coef, c->green * coef, c->blue * coef, 0.0};
