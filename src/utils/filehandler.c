@@ -84,7 +84,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 char *loadFile(char *inputFileName) {
 	FILE *f = fopen(inputFileName, "rb");
 	if (!f) {
-		logr(warning, "No file found at %s", inputFileName);
+		logr(error, "No file found at %s\n", inputFileName);
 		return NULL;
 	}
 	char *buf = NULL;
