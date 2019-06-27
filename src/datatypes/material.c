@@ -232,6 +232,7 @@ bool weightedBSDF(struct intersection *isect, struct lightRay *ray, struct color
 	return false;
 }
 
+//TODO: Make this a function ptr in the material?
 struct color diffuseColor(struct intersection *isect) {
 	if (isect->end.hasTexture) {
 		return colorForUV(isect);
@@ -254,7 +255,7 @@ bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color
 	struct vector normalizedDir = vecNormalize(&isect->ray.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
 	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
-	*attenuation = isect->end.diffuse;
+	*attenuation = diffuseColor(isect);
 	return (vecDot(&scattered->direction, &isect->surfaceNormal) > 0);
 }
 
@@ -285,7 +286,7 @@ bool dialectricBSDF(struct intersection *isect, struct lightRay *ray, struct col
 	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->ray.direction, &isect->surfaceNormal);
 	float niOverNt;
-	*attenuation = isect->end.diffuse;
+	*attenuation = diffuseColor(isect);
 	struct vector refracted;
 	float reflectionProbability;
 	float cosine;
