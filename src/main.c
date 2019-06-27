@@ -18,7 +18,7 @@
 #include "utils/ui.h"
 #include "utils/multiplatform.h"
 #include "datatypes/vertexbuffer.h"
-#include "utils/gitsha1.h" 
+#include "utils/gitsha1.h"
 
 /**
  Main entry point
