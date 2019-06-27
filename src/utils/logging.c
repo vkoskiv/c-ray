@@ -52,7 +52,7 @@ void logr(enum logType type, const char *fmt, ...) {
 			break;
 	}
 
-	printf("[%d-%d-%d %d:%02d:%02d]: ",
+	printf("[%d-%02d-%02d %02d:%02d:%02d]: ",
 		   time.tm_year + 1900,
 		   time.tm_mon + 1,
 		   time.tm_mday,
