@@ -102,6 +102,8 @@ int initSDL(struct display *d) {
 		logr(warning, "Renderer couldn't be created, error: \"%s\"\n", SDL_GetError());
 		return -1;
 	}
+	
+	SDL_RenderSetLogicalSize(d->renderer, d->width, d->height);
 	//And set blend modes
 	SDL_SetRenderDrawBlendMode(d->renderer, SDL_BLENDMODE_BLEND);
 	
