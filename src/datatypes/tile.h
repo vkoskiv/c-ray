@@ -16,8 +16,8 @@ struct renderer;
 struct renderTile {
 	int width;
 	int height;
-	struct coord begin;
-	struct coord end;
+	struct intCoord begin;
+	struct intCoord end;
 	int completedSamples;
 	bool isRendering;
 	bool renderComplete;

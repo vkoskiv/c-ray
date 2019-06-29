@@ -18,6 +18,10 @@ struct coord {
 	double x, y;
 };
 
+struct intCoord {
+	int x, y;
+};
+
 //Return a vector with given coordinates
 struct vector vecWithPos(double x, double y, double z);
 
