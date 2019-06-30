@@ -43,7 +43,7 @@ void startTimer(struct timeval *timer) {
  @param timer timer to end and measure
  @return milliseconds
  */
-unsigned long long endTimer(struct timeval *timer) {
+long endTimer(struct timeval *timer) {
 	struct timeval tmr2;
 	gettimeofday(&tmr2, NULL);
 	return 1000 * (tmr2.tv_sec - timer->tv_sec) + ((tmr2.tv_usec - timer->tv_usec) / 1000);

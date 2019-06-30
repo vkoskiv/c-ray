@@ -17,7 +17,7 @@
 struct texture *flipHorizontal(struct texture *t) {
 	struct texture *newTex = calloc(1, sizeof(struct texture));
 	newTex->data = calloc(3 * *t->width * *t->height, sizeof(unsigned char));
-	newTex->count = t->colorspace;
+	newTex->colorspace = t->colorspace;
 	newTex->count = t->count;
 	newTex->width = calloc(1, sizeof(unsigned int));
 	*newTex->width = *t->width;
@@ -56,7 +56,7 @@ struct texture *loadTexture(char *filePath) {
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
 	//FIXME: Ignoring alpha here, and set hasAlpha to false before for now
-	int err = lodepng_decode24_file(&newTexture->data, newTexture->width, newTexture->height, filePath);
+	int err = (int)lodepng_decode24_file(&newTexture->data, newTexture->width, newTexture->height, filePath);
 	if (err != 0) {
 		logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
 		free(newTexture);

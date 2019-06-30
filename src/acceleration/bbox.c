@@ -24,12 +24,11 @@ enum bboxAxis getLongestAxis(struct boundingBox *bbox) {
 	return x > y && x > z ? X : y > z ? Y : Z;
 }
 
-
 /**
  Compute the bounding box for a given array of polygons
 
- @param polys Polygons to compute bounding box for
- @param count Amount of polygons given
+ @param polys Indices to polygons to compute bounding box for
+ @param count Amount of polygons indices given
  @return Axis-aligned bounding box
  */
 struct boundingBox *computeBoundingBox(int *polys, int count) {

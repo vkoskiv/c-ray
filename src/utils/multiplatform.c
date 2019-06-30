@@ -47,7 +47,7 @@ int getSysCores() {
 			count = 1;
 		}
 	}
-	return count;
+	return (int)count;
 #elif _WIN32
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
