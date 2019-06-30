@@ -496,7 +496,7 @@ struct renderer *newRenderer() {
 	struct renderer *renderer = calloc(1, sizeof(struct renderer));
 	renderer->avgTileTime = (time_t)1;
 	renderer->timeSampleCount = 1;
-	renderer->mode = saveModeNormal;
+	renderer->fileMode = saveModeNormal;
 	renderer->image = calloc(1, sizeof(struct texture));
 	renderer->image->width = calloc(1, sizeof(unsigned int));
 	renderer->image->height = calloc(1, sizeof(unsigned int));
