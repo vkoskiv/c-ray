@@ -108,7 +108,7 @@ void getKeyboardInput(struct renderer *r) {
 			}
 			if (event.key.keysym.sym == SDLK_x) {
 				logr(info, "Aborting render without saving...\n");
-				r->mode = saveModeNone;
+				r->fileMode = saveModeNone;
 				r->renderAborted = true;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
