@@ -43,6 +43,18 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 	}
 }
 
+struct color pathTracePreview(struct lightRay *incidentRay, struct world *scene, int depth, int maxDepth, pcg32_random_t *rng) {
+	struct intersection isect = getClosestIsect(incidentRay, scene);
+	if (isect.didIntersect) {
+		struct color baseColor;
+		struct lightRay scattered;
+		isect.end.bsdf(&isect, incidentRay, &baseColor, &scattered, rng);
+		return colorCoef(0.15, &baseColor);
+	} else {
+		return getAmbientColor(incidentRay, scene->ambientColor);
+	}
+}
+
 /**
  Calculate the closest intersection point, and other relevant information based on a given lightRay and scene
  See the intersection struct for documentation of what this function calculates.

@@ -98,6 +98,40 @@ int initSDL(struct display *d) {
 	return 0;
 }
 
+void getKeyboardInputInteractive(struct renderer *r) {
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		//TODO: Implement a moveCamera function that handles transforms
+		if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
+			if (event.key.keysym.sym == SDLK_w) {
+				//Camera forward
+			}
+			if (event.key.keysym.sym == SDLK_s) {
+				//Camera backwards
+			}
+			if (event.key.keysym.sym == SDLK_a) {
+				//Camera left
+			}
+			if (event.key.keysym.sym == SDLK_d) {
+				//Camera right
+			}
+			
+			if (event.key.keysym.sym == SDLK_i) {
+				//Pan camera down
+			}
+			if (event.key.keysym.sym == SDLK_k) {
+				//Pan camera up
+			}
+			if (event.key.keysym.sym == SDLK_j) {
+				//Pan camera left
+			}
+			if (event.key.keysym.sym == SDLK_l) {
+				//Pan camera right
+			}
+		}
+	}
+}
+
 void getKeyboardInput(struct renderer *r) {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
@@ -132,7 +166,7 @@ void getKeyboardInput(struct renderer *r) {
 	}
 }
 
-void drawPixel(struct renderer *r, int x, int y, bool on, struct color c) {
+void drawPixel(struct renderer *r, unsigned int x, unsigned int y, bool on, struct color c) {
 	if (y <= 0) y = 1;
 	if (x <= 0) x = 1;
 	if (x >= *r->image->width) x = *r->image->width - 1;

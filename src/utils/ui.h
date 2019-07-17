@@ -31,3 +31,4 @@ void freeDisplay(struct display *disp);
 
 void printDuration(double time);
 void getKeyboardInput(struct renderer *r);
+void getKeyboardInputInteractive(struct renderer *r);

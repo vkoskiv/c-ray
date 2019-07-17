@@ -2,11 +2,11 @@
 	"version": 1.0,
 	"renderer": {
 		"threadCount": 0,
-		"sampleCount": 100,
+		"sampleCount": 15,
 		"bounces": 50,
 		"antialiasing": true,
-		"tileWidth": 64,
-		"tileHeight": 64,
+		"tileWidth": 32,
+		"tileHeight": 32,
 		"tileOrder": "fromMiddle"
 	},
 	"display": {
@@ -173,22 +173,23 @@
 		],
 		"meshes": [
 			{
-				"fileName": "tonni.objdisabled",
-				"bsdf": "lambertian",
+				"fileName": "tonni.obj",
+				"bsdf": "metal",
+				"reflectivity": 1.0,
 				"transforms": [
 					{
 						"type": "scaleUniform",
-						"scale": 100
+						"scale": 50
 					},
 					{
-						"type": "rotateX",
-						"degrees": 90
+						"type": "rotateY",
+						"degrees": 25
 					},
 					{
 						"type": "translate",
-						"x": 1170,
-						"y": 350,
-						"z": 1050
+						"x": 1070,
+						"y": 300,
+						"z": 820
 				 	}
 				]
 			},

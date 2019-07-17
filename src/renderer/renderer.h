@@ -40,6 +40,11 @@ enum renderOrder {
 	renderOrderRandom
 };
 
+enum renderMode {
+	offline,
+	interactive
+};
+
 /**
  Main renderer. Stores needed information to keep track of render status,
  as well as information needed for the rendering routines.
@@ -82,6 +87,7 @@ struct renderer {
 	
 	//Preferences data (Set by user)
 	enum fileMode fileMode;
+	enum renderMode mode;
 	enum renderOrder tileOrder;
 	char *inputFilePath; //Directory to load input files from
 	

@@ -21,6 +21,18 @@
 
 struct color getPixel(struct renderer *r, int x, int y);
 
+//Real-time rendering loop
+void startRendering(struct renderer *r) {
+	logr(info, "Starting C-ray in interactive mode\n");
+	
+#ifndef UI_ENABLED
+	logr(error, "C-ray interactive mode is only supported with SDL2.\n");
+#endif
+	
+	
+	
+}
+
 void render(struct renderer *r) {
 	logr(info, "Starting C-ray renderer for frame %i\n", r->image->count);
 	
@@ -107,6 +119,22 @@ void render(struct renderer *r) {
 		}
 #endif
 	}
+}
+
+#ifdef WINDOWS
+DWORD WINAPI renderThreadRealtime(LPVOID arg) {
+#else
+void *renderThreadRealtime(void *arg) {
+#endif
+	struct threadInfo *tinfo = (struct threadInfo*)arg;
+	
+	
+	
+#ifdef WINDOWS
+	return 0;
+#else
+	pthread_exit((void*) arg);
+#endif
 }
 
 /**

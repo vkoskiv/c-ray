@@ -40,3 +40,4 @@ struct intersection {
 };
 
 struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, int maxDepth, pcg32_random_t *rng);
+struct color pathTracePreview(struct lightRay *incidentRay, struct world *scene, int depth, int maxDepth, pcg32_random_t *rng);
