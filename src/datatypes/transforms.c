@@ -43,35 +43,38 @@ void transformVector(struct vector *vec, struct transform *tf) {
 
 struct transform newTransformRotateX(double degrees) {
 	struct transform transform = emptyTransform();
+	double rads = toRadians(degrees);
 	transform.type = transformTypeXRotate;
 	transform.a = 1;
-	transform.f = cos(toRadians(degrees));
-	transform.g = -sin(toRadians(degrees));
-	transform.j = sin(toRadians(degrees));
-	transform.k = cos(toRadians(degrees));
+	transform.f = cos(rads);
+	transform.g = -sin(rads);
+	transform.j = sin(rads);
+	transform.k = cos(rads);
 	transform.p = 1;
 	return transform;
 }
 
 struct transform newTransformRotateY(double degrees) {
 	struct transform transform = emptyTransform();
+	double rads = toRadians(degrees);
 	transform.type = transformTypeYRotate;
-	transform.a = cos(toRadians(degrees));
-	transform.c = sin(toRadians(degrees));
+	transform.a = cos(rads);
+	transform.c = sin(rads);
 	transform.f = 1;
-	transform.i = -sin(toRadians(degrees));
-	transform.k = cos(toRadians(degrees));
+	transform.i = -sin(rads);
+	transform.k = cos(rads);
 	transform.p = 1;
 	return transform;
 }
 
 struct transform newTransformRotateZ(double degrees) {
 	struct transform transform = emptyTransform();
+	double rads = toRadians(degrees);
 	transform.type = transformTypeZRotate;
-	transform.a = cos(toRadians(degrees));
-	transform.b = -sin(toRadians(degrees));
-	transform.e = sin(toRadians(degrees));
-	transform.f = cos(toRadians(degrees));
+	transform.a = cos(rads);
+	transform.b = -sin(rads);
+	transform.e = sin(rads);
+	transform.f = cos(rads);
 	transform.k = 1;
 	transform.p = 1;
 	return transform;
