@@ -22,19 +22,7 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
-
-/**
- C-ray internal formatted logger
-
- @param type Type of log message
- @param fmt Log message formatted like printf
- @param ... 
- */
-void logr(enum logType type, const char *fmt, ...) {
-	
-	time_t curTime = time(NULL);
-	struct tm time = *localtime(&curTime);
-	
+void printPrefix(enum logType type) {
 	switch (type) {
 		case info:
 			printf("[%sINFO%s]", KGRN, KNRM);
@@ -51,7 +39,22 @@ void logr(enum logType type, const char *fmt, ...) {
 		default:
 			break;
 	}
+}
 
+/**
+ C-ray internal formatted logger
+
+ @param type Type of log message
+ @param fmt Log message formatted like printf
+ @param ... 
+ */
+void logr(enum logType type, const char *fmt, ...) {
+	
+	time_t curTime = time(NULL);
+	struct tm time = *localtime(&curTime);
+
+	printPrefix(type);
+	
 	printf("[%d-%02d-%02d %02d:%02d:%02d]: ",
 		   time.tm_year + 1900,
 		   time.tm_mon + 1,
