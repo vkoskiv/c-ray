@@ -446,7 +446,8 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 		logr(warning, "Found an invalid transform \"%s\" for object \"%s\"\n", type->valuestring, targetName);
 	}
 	
-	return emptyTransform();
+	//Hack. This is essentially just a NOP transform that does nothing.
+	return newTransformTranslate(0.0, 0.0, 0.0);
 }
 
 //Parse JSON array of transforms, and return a pointer to an array of corresponding transforms
