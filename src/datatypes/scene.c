@@ -381,7 +381,7 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 	
 	//For translate, we want the default to be 0. For scaling, def should be 1
 	double def = 0.0;
-	if (validScale) {
+	if (strcmp(type->valuestring, "scale") == 0) {
 		def = 1.0;
 	}
 	
