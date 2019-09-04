@@ -379,25 +379,31 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 		validScale = true;
 	}
 	
+	//For translate, we want the default to be 0. For scaling, def should be 1
+	double def = 0.0;
+	if (validScale) {
+		def = 1.0;
+	}
+	
 	int validCoords = 0; //Accept if we have at least one provided
 	double Xval, Yval, Zval;
 	if (X != NULL && cJSON_IsNumber(X)) {
 		Xval = X->valuedouble;
 		validCoords++;
 	} else {
-		Xval = 1.0;
+		Xval = def;
 	}
 	if (Y != NULL && cJSON_IsNumber(Y)) {
 		Yval = Y->valuedouble;
 		validCoords++;
 	} else {
-		Yval = 1.0;
+		Yval = def;
 	}
 	if (Z != NULL && cJSON_IsNumber(Z)) {
 		Zval = Z->valuedouble;
 		validCoords++;
 	} else {
-		Zval = 1.0;
+		Zval = def;
 	}
 	
 	if (strcmp(type->valuestring, "rotateX") == 0) {
