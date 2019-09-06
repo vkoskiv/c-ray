@@ -22,6 +22,7 @@ void addTransform(struct mesh *mesh, struct transform transform) {
 	mesh->transformCount++;
 }
 
+//FIXME: Normals aren't transformed! Those must be transformed by the inverse transpose of a given tform
 void transformMesh(struct mesh *mesh) {
 	//Bit of a hack here, using way more memory than needed. Should also work on 32-bit now
 	bool *tformed = (bool *)calloc(mesh->vertexCount, sizeof(bool));
