@@ -1,0 +1,89 @@
+{
+	"version": 1.0,
+	"renderer": {
+		"threadCount": 0,
+		"sampleCount": 25,
+		"bounces": 50,
+		"antialiasing": true,
+		"tileWidth": 64,
+		"tileHeight": 64,
+		"tileOrder": "fromMiddle"
+	},
+	"display": {
+		"isFullscreen": false,
+		"isBorderless": false,
+		"windowScale": 1.0
+	},
+	"camera": {
+		"FOV": 80.0,
+		"aperture": 0.0,
+		"transforms": [
+			{
+				"type": "translate",
+				"x": 0,
+				"y": 0,
+				"z": 0
+			}
+		]
+	},
+	"scene": {
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 800,
+		"height": 800,
+		"ambientColor": {
+			"down": {
+				"r": 1.0,
+				"g": 1.0,
+				"b": 1.0
+			},
+			"up": {
+				"r": 0.5,
+				"g": 0.7,
+				"b": 1.0
+			}
+		},
+		"inputFilePath": "input/",
+		"primitives": [
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 0,
+					"y": 0,
+					"z": 1.9
+				},
+				"color": {
+					"r": 0.8,
+					"g": 0.8,
+					"b": 1.0
+				},
+				"bsdf": "glass",
+				"IOR": 1.9,
+				"reflectivity": 1.0,
+				"radius": 0.2
+			}	
+		],
+		"meshes": [
+			{
+				"fileName": "tonni.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 1
+					},
+					{
+						"type": "rotateX",
+						"degrees": -90
+					},
+					{
+						"type": "translate",
+						"Z": 2
+					}	
+				]
+			}	
+		]
+	}
+}
