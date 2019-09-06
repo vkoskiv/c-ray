@@ -176,13 +176,6 @@ void findAdjoint(double A[4][4], double adjoint[4][4]) {
 	}
 }
 
-/*
- double a, b, c, d;
- double e, f, g, h;
- double i, j, k, l;
- double m, n, o, p;
- */
-
 //find inverse of tf and return it
 struct transform inverseTransform(struct transform tf) {
 	double A[4][4];
@@ -207,4 +200,14 @@ struct transform inverseTransform(struct transform tf) {
 	transferFromMatrix(&inversetf, inverse);
 	
 	return inversetf;
+}
+
+//FIXME: Untested
+struct transform transpose(struct transform tf) {
+	struct transform inv = emptyTransform();
+	inv.a = tf.a; inv.b = tf.e; inv.c = tf.i; inv.d = inv.m;
+	inv.e = tf.b; inv.f = tf.f; inv.g = tf.j; inv.h = tf.n;
+	inv.i = tf.c; inv.j = tf.g; inv.k = tf.k; inv.l = tf.l;
+	inv.m = tf.d; inv.n = tf.h; inv.o = tf.l; inv.p = tf.p;
+	return inv;
 }
