@@ -210,13 +210,6 @@ void writeImage(struct texture *image, enum fileMode mode) {
 				encodePNGFromArray(buf, image->data, *image->width, *image->height);
 			}
 			printFileSize(buf);
-#ifdef __APPLE__
-			//If on macOS, we can run the `open` command to display the finished render using Preview.app
-			//char *buf2 = NULL;
-			//asprintf(&buf2, "open %s", buf);
-			//system(buf2);
-			//free(buf2);
-#endif
 			free(buf);
 		}
 		break;
