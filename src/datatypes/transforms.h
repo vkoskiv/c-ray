@@ -15,16 +15,15 @@ enum transformType {
 	transformTypeTranslate,
 	transformTypeScale,
 	transformTypeMultiplication,
-	transformTypeNone
+	transformTypeNone,
+	transformTypeInverse,
+	transformTypeTranspose
 };
 
 //Reference: http://tinyurl.com/ho6h6mr
 struct transform {
 	enum transformType type;
-	double a, b, c, d;
-	double e, f, g, h;
-	double i, j, k, l;
-	double m, n, o, p;
+	double A[4][4];
 };
 
 struct material;
@@ -41,6 +40,7 @@ struct transform newTransformRotateY(double degrees);
 struct transform newTransformRotateZ(double degrees);
 struct transform emptyTransform(void);
 
-struct transform inverseTransform(struct transform tf);
+struct transform inverse(struct transform tf);
+struct transform transpose(struct transform tf);
 
 void transformVector(struct vector *vec, struct transform *tf);

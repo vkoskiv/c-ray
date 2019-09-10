@@ -20,22 +20,37 @@ double fromRadians(double radians) {
 	return radians * (180/PI);
 }
 
+//FIXME: Return and rename to identity matrix
 struct transform emptyTransform() {
 	struct transform transform;
 	transform.type = transformTypeNone;
-	transform.a = 0;transform.b = 0;transform.c = 0;transform.d = 0;
-	transform.e = 0;transform.f = 0;transform.g = 0;transform.h = 0;
-	transform.i = 0;transform.j = 0;transform.k = 0;transform.l = 0;
-	transform.m = 0;transform.n = 0;transform.o = 0;transform.p = 0;
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			transform.A[i][j] = 0;
+		}
+	}
 	return transform;
+}
+
+struct transform fromParams(double t00, double t01, double t02, double t03,
+							double t10, double t11, double t12, double t13,
+							double t20, double t21, double t22, double t23,
+							double t30, double t31, double t32, double t33) {
+	struct transform new = emptyTransform();
+	new.type = transformTypeNone;
+	new.A[0][0] = t00; new.A[0][1] = t01; new.A[0][2] = t02; new.A[0][3] = t03;
+	new.A[1][0] = t10; new.A[1][1] = t11; new.A[1][2] = t12; new.A[1][3] = t13;
+	new.A[2][0] = t20; new.A[2][1] = t21; new.A[2][2] = t22; new.A[2][3] = t23;
+	new.A[3][0] = t30; new.A[3][1] = t31; new.A[3][2] = t32; new.A[3][3] = t33;
+	return new;
 }
 
 //http://tinyurl.com/hte35pq
 void transformVector(struct vector *vec, struct transform *tf) {
 	struct vector temp;
-	temp.x = (tf->a * vec->x) + (tf->b * vec->y) + (tf->c * vec->z) + tf->d;
-	temp.y = (tf->e * vec->x) + (tf->f * vec->y) + (tf->g * vec->z) + tf->h;
-	temp.z = (tf->i * vec->x) + (tf->j * vec->y) + (tf->k * vec->z) + tf->l;
+	temp.x = (tf->A[0][0] * vec->x) + (tf->A[0][1] * vec->y) + (tf->A[0][2] * vec->z) + tf->A[0][3];
+	temp.y = (tf->A[1][0] * vec->x) + (tf->A[1][1] * vec->y) + (tf->A[1][2] * vec->z) + tf->A[1][3];
+	temp.z = (tf->A[2][0] * vec->x) + (tf->A[2][1] * vec->y) + (tf->A[2][2] * vec->z) + tf->A[2][3];
 	vec->x = temp.x;
 	vec->y = temp.y;
 	vec->z = temp.z;
@@ -45,12 +60,12 @@ struct transform newTransformRotateX(double degrees) {
 	struct transform transform = emptyTransform();
 	double rads = toRadians(degrees);
 	transform.type = transformTypeXRotate;
-	transform.a = 1;
-	transform.f = cos(rads);
-	transform.g = -sin(rads);
-	transform.j = sin(rads);
-	transform.k = cos(rads);
-	transform.p = 1;
+	transform.A[0][0] = 1;
+	transform.A[1][1] = cos(rads);
+	transform.A[1][2] = -sin(rads);
+	transform.A[2][1] = sin(rads);
+	transform.A[2][2] = cos(rads);
+	transform.A[3][3] = 1;
 	return transform;
 }
 
@@ -58,12 +73,12 @@ struct transform newTransformRotateY(double degrees) {
 	struct transform transform = emptyTransform();
 	double rads = toRadians(degrees);
 	transform.type = transformTypeYRotate;
-	transform.a = cos(rads);
-	transform.c = sin(rads);
-	transform.f = 1;
-	transform.i = -sin(rads);
-	transform.k = cos(rads);
-	transform.p = 1;
+	transform.A[0][0] = cos(rads);
+	transform.A[0][2] = sin(rads);
+	transform.A[1][1] = 1;
+	transform.A[2][0] = -sin(rads);
+	transform.A[2][2] = cos(rads);
+	transform.A[3][3] = 1;
 	return transform;
 }
 
@@ -71,60 +86,46 @@ struct transform newTransformRotateZ(double degrees) {
 	struct transform transform = emptyTransform();
 	double rads = toRadians(degrees);
 	transform.type = transformTypeZRotate;
-	transform.a = cos(rads);
-	transform.b = -sin(rads);
-	transform.e = sin(rads);
-	transform.f = cos(rads);
-	transform.k = 1;
-	transform.p = 1;
+	transform.A[0][0] = cos(rads);
+	transform.A[0][1] = -sin(rads);
+	transform.A[1][0] = sin(rads);
+	transform.A[1][1] = cos(rads);
+	transform.A[2][2] = 1;
+	transform.A[3][3] = 1;
 	return transform;
 }
 
 struct transform newTransformTranslate(double x, double y, double z) {
 	struct transform transform = emptyTransform();
 	transform.type = transformTypeTranslate;
-	transform.a = 1;
-	transform.f = 1;
-	transform.k = 1;
-	transform.p = 1;
-	transform.d = x;
-	transform.h = y;
-	transform.l = z;
+	transform.A[0][0] = 1;
+	transform.A[1][1] = 1;
+	transform.A[2][2] = 1;
+	transform.A[3][3] = 1;
+	transform.A[0][3] = x;
+	transform.A[1][3] = y;
+	transform.A[2][3] = z;
 	return transform;
 }
 
 struct transform newTransformScale(double x, double y, double z) {
 	struct transform transform = emptyTransform();
 	transform.type = transformTypeScale;
-	transform.a = x;
-	transform.f = y;
-	transform.k = z;
-	transform.p = 1;
+	transform.A[0][0] = x;
+	transform.A[1][1] = y;
+	transform.A[2][2] = z;
+	transform.A[3][3] = 1;
 	return transform;
 }
 
 struct transform newTransformScaleUniform(double scale) {
 	struct transform transform = emptyTransform();
 	transform.type = transformTypeScale;
-	transform.a = scale;
-	transform.f = scale;
-	transform.k = scale;
-	transform.p = 1;
+	transform.A[0][0] = scale;
+	transform.A[1][1] = scale;
+	transform.A[2][2] = scale;
+	transform.A[3][3] = 1;
 	return transform;
-}
-
-void transferToMatrix(double A[4][4], struct transform tf) {
-	A[0][0] = tf.a;A[0][1] = tf.b;A[0][2] = tf.c;A[0][3] = tf.d;
-	A[1][0] = tf.e;A[1][1] = tf.f;A[1][2] = tf.g;A[1][3] = tf.h;
-	A[2][0] = tf.i;A[2][1] = tf.j;A[2][2] = tf.k;A[2][3] = tf.l;
-	A[3][0] = tf.m;A[3][1] = tf.n;A[3][2] = tf.o;A[3][3] = tf.p;
-}
-
-void transferFromMatrix(struct transform *tf, double A[4][4]) {
-	tf->a = A[0][0];tf->b = A[0][1];tf->c = A[0][2];tf->d = A[0][3];
-	tf->e = A[1][0];tf->f = A[1][1];tf->g = A[1][2];tf->h = A[1][3];
-	tf->i = A[2][0];tf->j = A[2][1];tf->k = A[2][2];tf->l = A[2][3];
-	tf->m = A[3][0];tf->n = A[3][1];tf->o = A[3][2];tf->p = A[3][3];
 }
 
 void getCofactor(double A[4][4], double cofactors[4][4], int p, int q, int n) {
@@ -176,38 +177,67 @@ void findAdjoint(double A[4][4], double adjoint[4][4]) {
 	}
 }
 
-//find inverse of tf and return it
-struct transform inverseTransform(struct transform tf) {
-	double A[4][4];
-	transferToMatrix(A, tf);
-	double inverse[4][4];
+struct transform inverse(struct transform tf) {
+	struct transform inverse = {0};
 	
-	int det = findDeterminant(A, 4);
+	int det = findDeterminant(tf.A, 4);
 	if (det == 0) {
 		logr(error, "No inverse for given transform!\n");
 	}
 	
 	double adjoint[4][4];
-	findAdjoint(A, adjoint);
+	findAdjoint(tf.A, adjoint);
 	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-			inverse[i][j] = adjoint[i][j] / det;
+			inverse.A[i][j] = adjoint[i][j] / det;
 		}
 	}
 	
-	struct transform inversetf = {0};
-	transferFromMatrix(&inversetf, inverse);
+	inverse.type = transformTypeInverse;
 	
-	return inversetf;
+	return inverse;
 }
 
-//FIXME: Untested
 struct transform transpose(struct transform tf) {
-	struct transform inv = emptyTransform();
-	inv.a = tf.a; inv.b = tf.e; inv.c = tf.i; inv.d = inv.m;
-	inv.e = tf.b; inv.f = tf.f; inv.g = tf.j; inv.h = tf.n;
-	inv.i = tf.c; inv.j = tf.g; inv.k = tf.k; inv.l = tf.l;
-	inv.m = tf.d; inv.n = tf.h; inv.o = tf.l; inv.p = tf.p;
-	return inv;
+	return fromParams(tf.A[0][0], tf.A[1][0], tf.A[2][0], tf.A[3][0],
+					  tf.A[0][1], tf.A[1][1], tf.A[2][1], tf.A[3][1],
+					  tf.A[0][2], tf.A[1][2], tf.A[2][2], tf.A[3][2],
+					  tf.A[0][3], tf.A[1][3], tf.A[2][3], tf.A[3][3]);
+}
+
+//Tests, this is dead code for now until I get a testing suite.
+void printMatrix(struct transform tf) {
+	printf("\n");
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			printf("tf.A[%i][%i]=%.2f ",i,j,tf.A[i][j]);
+		}
+		printf("\n");
+	}
+}
+
+//Print the given matrix, and the inverse.
+void testInverse(struct transform tf) {
+	printf("Testing inverse...\n");
+	printMatrix(tf);
+	printMatrix(inverse(tf));
+}
+
+void testTranspose(struct transform tf) {
+	printf("Testing transpose...\n");
+	printMatrix(tf);
+	printMatrix(transpose(tf));
+}
+
+void testInverseAndTranspose() {
+	testInverse(fromParams(1, 0, 0, 1,
+						   0, 2, 1, 2,
+						   2, 1, 0, 1,
+						   2, 0, 1, 4));
+	
+	testTranspose(fromParams(1, 0, 0, 1,
+							 0, 2, 1, 2,
+							 2, 1, 0, 1,
+							 2, 0, 1, 4));
 }
