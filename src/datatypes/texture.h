@@ -37,6 +37,7 @@ struct texture {
 struct HDRI {
 	enum fileType fileType;
 	enum colorspace colorspace;
+	float offset; //radians
 	char *filePath;
 	char *fileName;
 	float *data;

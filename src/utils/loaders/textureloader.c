@@ -80,6 +80,7 @@ struct HDRI *loadHDRI(char *filePath) {
 	
 	struct HDRI *newHDRI = calloc(1, sizeof(struct HDRI));
 	newHDRI->fileType = hdr;
+	newHDRI->offset = 0.0;
 	newHDRI->width = calloc(1, sizeof(int));
 	newHDRI->height = calloc(1, sizeof(int));
 	newHDRI->channels = calloc(1, sizeof(int));

@@ -686,6 +686,7 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *down = NULL;
 	const cJSON *up = NULL;
 	const cJSON *hdr = NULL;
+	const cJSON *offset = NULL;
 	
 	struct gradient *newGradient = calloc(1, sizeof(struct gradient));
 	
@@ -700,6 +701,11 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	hdr = cJSON_GetObjectItem(data, "hdr");
 	if (cJSON_IsString(hdr)) {
 		r->scene->hdr = loadHDRI(hdr->valuestring);
+	}
+	
+	offset = cJSON_GetObjectItem(data, "offset");
+	if (cJSON_IsNumber(offset)) {
+		r->scene->hdr->offset = toRadians(offset->valuedouble)/4;
 	}
 	
 	return 0;

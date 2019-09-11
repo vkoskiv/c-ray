@@ -87,7 +87,7 @@ struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 	
 	//To polar from cartesian
 	float r = 1.0f; //Normalized above
-	float phi = atan2f(ud.z, ud.x)/4;
+	float phi = (atan2f(ud.z, ud.x)/4) + scene->hdr->offset;
 	float theta = acosf((-ud.y/r));
 	
 	float u = theta / M_PI;

@@ -43,6 +43,7 @@
 		"height": 800,
 		"ambientColor": {
 			"hdr": "input/HDRs/rooitou_park_1k.hdr",
+			"offset": 0,
 			"down": {
 				"r": 1.0,
 				"g": 1.0,
