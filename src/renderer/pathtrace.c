@@ -13,9 +13,10 @@
 #include "../datatypes/camera.h"
 #include "../acceleration/bbox.h"
 #include "../acceleration/kdtree.h"
+#include "../datatypes/texture.h"
 
 struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *scene);
-struct color getAmbientColor(struct lightRay *incidentRay, struct gradient *color);
+struct color getBackground(struct lightRay *incidentRay, struct world *scene);
 
 struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, int maxDepth, pcg32_random_t *rng) {
 	struct intersection isect = getClosestIsect(incidentRay, scene);
@@ -39,7 +40,7 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 			return emitted;
 		}
 	} else {
-		return getAmbientColor(incidentRay, scene->ambientColor);
+		return getBackground(incidentRay, scene);
 	}
 }
 
@@ -72,6 +73,43 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 	return isect;
 }
 
+float wrapMax(float x, float max) {
+    return fmod(max + fmod(x, max), max);
+}
+
+float wrapMinMax(float x, float min, float max) {
+    return min + wrapMax(x - min, max - min);
+}
+
+struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
+	//Unit direction vector
+	struct vector ud = vecNormalize(&incidentRay->direction);
+	
+	//To polar from cartesian
+	float r = 1.0f; //Normalized above
+	float phi = atan2f(ud.z, ud.x)/4;
+	float theta = acosf((-ud.y/r));
+	
+	float u = theta / M_PI;
+	float v = (phi / (M_PI/2));
+	
+	u = wrapMinMax(u, 0, 1);
+	v = wrapMinMax(v, 0, 1);
+	
+	int y = (int)(u * *scene->hdr->height);
+	int x = (int)(v * *scene->hdr->width);
+	
+	//Clamping
+	x = x < 0 ? 0 : x;
+	y = y < 0 ? 0 : y;
+	x = x > *scene->hdr->width ? *scene->hdr->width : x;
+	y = y > *scene->hdr->height ? *scene->hdr->height : y;
+	
+	struct color newColor = hdrGetPixel(scene->hdr, x, y);
+	
+	return newColor;
+}
+
 struct color getAmbientColor(struct lightRay *incidentRay, struct gradient *color) {
 	//Linearly interpolate based on the Y component, from white to light blue
 	struct vector unitDirection = vecNormalize(&incidentRay->direction);
@@ -79,4 +117,8 @@ struct color getAmbientColor(struct lightRay *incidentRay, struct gradient *colo
 	struct color temp1 = colorCoef(1.0 - t, color->down);
 	struct color temp2 = colorCoef(t, color->up);
 	return addColors(&temp1, &temp2);
+}
+
+struct color getBackground(struct lightRay *incidentRay, struct world *scene) {
+	return scene->hdr ? getHDRI(incidentRay, scene) : getAmbientColor(incidentRay, scene->ambientColor);
 }

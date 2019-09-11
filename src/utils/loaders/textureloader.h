@@ -12,3 +12,6 @@
 
 //Load a generic texture. Currently only PNG supported.
 struct texture *loadTexture(char *filePath);
+
+//Load a Radiance HDR file
+struct HDRI *loadHDRI(char *filePath);

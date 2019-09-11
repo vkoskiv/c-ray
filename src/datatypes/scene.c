@@ -682,9 +682,10 @@ struct color *parseColor(const cJSON *data) {
 	return newColor;
 }
 
-struct gradient *parseGradient(const cJSON *data) {
+int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *down = NULL;
 	const cJSON *up = NULL;
+	const cJSON *hdr = NULL;
 	
 	struct gradient *newGradient = calloc(1, sizeof(struct gradient));
 	
@@ -694,16 +695,13 @@ struct gradient *parseGradient(const cJSON *data) {
 	newGradient->down = parseColor(down);
 	newGradient->up = parseColor(up);
 	
-	return newGradient;
-}
-
-int parseAmbientColor(struct renderer *r, const cJSON *data) {
-	struct gradient *ambientColor = parseGradient(data);
-	if (ambientColor != NULL) {
-		r->scene->ambientColor = ambientColor;
-	} else {
-		return -1;
+	r->scene->ambientColor = newGradient;
+	
+	hdr = cJSON_GetObjectItem(data, "hdr");
+	if (cJSON_IsString(hdr)) {
+		r->scene->hdr = loadHDRI(hdr->valuestring);
 	}
+	
 	return 0;
 }
 

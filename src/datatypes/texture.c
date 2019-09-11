@@ -44,6 +44,29 @@ struct color textureGetPixel(struct texture *t, int x, int y) {
 	return output;
 }
 
+struct color hdrGetPixel(struct HDRI *hdr, int x, int y) {
+	struct color output = {0.0, 0.0, 0.0, 0.0};
+	int pitch = *hdr->channels;
+	bool hasAlpha = false;
+	if (pitch > 3) hasAlpha = true;
+	
+	output.red = hdr->data[(x + ((*hdr->height-1) - y) * *hdr->width)*pitch + 0];
+	output.green = hdr->data[(x + ((*hdr->height-1) - y) * *hdr->width)*pitch + 1];
+	output.blue = hdr->data[(x + ((*hdr->height-1) - y) * *hdr->width)*pitch + 2];
+	output.alpha = hasAlpha ? hdr->data[(x + ((*hdr->height-1) - y) * *hdr->width)*pitch + 3] : 1.0;
+	
+	return output;
+}
+
+struct color hdrTestPixel(int x, int y, int coef) {
+	float sines = sin(coef*x) * sin(coef*y);
+	if (sines < 0) {
+		return (struct color){0.4, 0.4, 0.4, 0.0};
+	} else {
+		return (struct color){1.0, 1.0, 1.0, 0.0};
+	}
+}
+
 void textureFromSRGB(struct texture *t) {
 	if (t->colorspace == sRGB) return;
 	for (int x = 0; x < *t->width; x++) {

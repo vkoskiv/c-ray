@@ -8,7 +8,8 @@
 
 enum fileType {
 	bmp,
-	png
+	png,
+	hdr
 };
 
 struct dimensions {
@@ -33,11 +34,25 @@ struct texture {
 	unsigned int *height;
 };
 
+struct HDRI {
+	enum fileType fileType;
+	enum colorspace colorspace;
+	char *filePath;
+	char *fileName;
+	float *data;
+	int *width;
+	int *height;
+	int *channels;
+};
+
 struct color;
 
 void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
 void blitDouble(double *buf, int width, int height, struct color *c, unsigned int x, unsigned int y);
 struct color textureGetPixel(struct texture *t, int x, int y);
+
+struct color hdrGetPixel(struct HDRI *hdr, int x, int y);
+struct color hdrTestPixel(int x, int y, int coef);
 
 void textureFromSRGB(struct texture *t);
 void textureToSRGB(struct texture *t);

@@ -13,6 +13,10 @@
 
 #include "../../datatypes/texture.h"
 
+#define STBI_ONLY_HDR
+#define STB_IMAGE_IMPLEMENTATION
+#include "../../libraries/stb_image.h"
+
 //This is a bit of a hack, my coordinate space is inverted.
 struct texture *flipHorizontal(struct texture *t) {
 	struct texture *newTex = calloc(1, sizeof(struct texture));
@@ -65,4 +69,31 @@ struct texture *loadTexture(char *filePath) {
 	//textureFromSRGB(newTexture);
 	newTexture = flipHorizontal(newTexture);
 	return newTexture;
+}
+
+struct HDRI *loadHDRI(char *filePath) {
+	logr(info, "Loading HDR from %s\n", filePath);
+	if (!stbi_is_hdr(filePath)) {
+		logr(warning, "File at %s not found or not a valid Radiance file, skipping.\n", filePath);
+		return NULL;
+	}
+	
+	struct HDRI *newHDRI = calloc(1, sizeof(struct HDRI));
+	newHDRI->fileType = hdr;
+	newHDRI->width = calloc(1, sizeof(int));
+	newHDRI->height = calloc(1, sizeof(int));
+	newHDRI->channels = calloc(1, sizeof(int));
+	//TODO: use loadFile() for all loading operations for consistency.
+	newHDRI->data = stbi_loadf(filePath, newHDRI->width, newHDRI->height, newHDRI->channels, 0);
+	
+	if (!newHDRI->data) {
+		free(newHDRI);
+		logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
+		return NULL;
+	} else {
+		int MB = (((*newHDRI->width * *newHDRI->height * sizeof(float))/1024)/1024);
+		logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, *newHDRI->channels);
+	}
+	
+	return newHDRI;
 }

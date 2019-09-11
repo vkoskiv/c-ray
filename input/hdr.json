@@ -1,0 +1,186 @@
+{
+	"version": 1.0,
+	"renderer": {
+		"threadCount": 0,
+		"sampleCount": 250,
+		"bounces": 30,
+		"antialiasing": true,
+		"tileWidth": 64,
+		"tileHeight": 64,
+		"tileOrder": "fromMiddle"
+	},
+	"display": {
+		"isFullscreen": false,
+		"isBorderless": false,
+		"windowScale": 1.0
+	},
+	"camera": {
+		"FOV": 30.0,
+		"aperture": 0.0,
+		"transforms": [
+			{
+				"type": "translate",
+				"x": 0,
+				"y": 0.1,
+				"z": -0.7
+			},
+			{
+				"type": "rotateX",
+				"degrees": 5
+			},
+			{
+				"type": "rotateZ",
+				"degrees": 0
+			}
+		]
+	},
+	"scene": {
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 1280,
+		"height": 800,
+		"ambientColor": {
+			"hdr": "input/HDRs/rooitou_park_1k.hdr",
+			"down": {
+				"r": 1.0,
+				"g": 1.0,
+				"b": 1.0
+			},
+			"up": {
+				"r": 0.5,
+				"g": 0.7,
+				"b": 1.0
+			}
+		},
+		"inputFilePath": "input/",
+		"primitives": [
+			{
+				"type": "sphere",
+				"pos": {
+					"x": -0.25,
+					"y": 0.1001,
+					"z": 0.3
+				},
+				"color": {
+					"r": 1.0,
+					"g": 0.0,
+					"b": 1.0
+				},
+				"bsdf": "metal",
+				"roughness": 0.05,
+				"radius": 0.1
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 0,
+					"y": 0.05,
+					"z": 0
+				},
+				"color": {
+					"r": 1.0,
+					"g": 1.0,
+					"b": 1.0
+				},
+				"bsdf": "metal",
+				"roughness": 0.00,
+				"radius": 0.05
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 0.15,
+					"y": 0.05,
+					"z": 0
+				},
+				"color": {
+					"r": 1.0,
+					"g": 1.0,
+					"b": 1.0
+				},
+				"bsdf": "glass",
+				"IOR": 1.9,
+				"roughness": 0.01,
+				"radius": 0.05
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": -0.03,
+					"y": 0.01,
+					"z": -0.25
+				},
+				"radius": 0.01,
+				"color": {
+					"r": 1.0,
+					"g": 0.0,
+					"b": 0.0
+				},
+				"bsdf": "metal",
+				"roughness": 1.0
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 1070,
+					"y": 310,
+					"z": 820
+				},
+				"radius": 2.5,
+				"color": {
+					"r": 0.0,
+					"g": 1.0,
+					"b": 0.0
+				},
+				"bsdf": "emissive",
+				"intensity": 10.0
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 1090,
+					"y": 310,
+					"z": 820
+				},
+				"radius": 2.5,
+				"color": {
+					"r": 0.0,
+					"g": 0.0,
+					"b": 1.0
+				},
+				"bsdf": "emissive",
+				"intensity": 10.0
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 950,
+					"y": 420,
+					"z": 1500
+				},
+				"color": {
+					"r": 1.0,
+					"g": 1.0,
+					"b": 1.0
+				},
+				"bsdf": "emissive",
+				"intensity": 10.0,
+				"radius": 10
+			}
+		],
+		"meshes": [
+			{
+				"fileName": "shapes/rockplane.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "rotateX",
+						"degrees": 0
+					}
+				]
+			}	
+		]
+	}
+}

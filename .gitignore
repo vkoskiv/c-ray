@@ -10,6 +10,10 @@ output/*
 *.sln
 *.mp4
 
+# Heavy HDR files, just include a small one for demo
+input/HDRs/*
+!input/HDRs/rooitou_park_1k.hdr
+
 # for git version string
 src/utils/gitsha1.c
 

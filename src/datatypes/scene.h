@@ -23,6 +23,9 @@ struct world {
 	//Ambient background color.
 	struct gradient *ambientColor;
 	
+	//Optional environment map
+	struct HDRI *hdr;
+	
 	//3D models
 	struct mesh *meshes;
 	int meshCount;

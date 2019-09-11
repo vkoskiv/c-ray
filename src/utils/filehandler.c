@@ -81,6 +81,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	if (error) logr(warning, "error %u: %s\n", error, lodepng_error_text(error));
 }
 
+//TODO: Use this for textures and HDRs too.
 char *loadFile(char *inputFileName) {
 	FILE *f = fopen(inputFileName, "rb");
 	if (!f) {
@@ -171,6 +172,7 @@ bool stringContains(const char *haystack, const char *needle) {
 	}
 }
 
+//TODO: Refactor this to just return file size as a string so it can be reused elsewhere
 void printFileSize(char *fileName) {
 	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
 	//This will work for all image formats
