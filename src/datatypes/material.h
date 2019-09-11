@@ -72,6 +72,7 @@ struct material {
 	struct color specular;
 	struct color emission;
 	double reflectivity;
+	double roughness;
 	double refractivity;
 	double IOR;
 	double transparency;

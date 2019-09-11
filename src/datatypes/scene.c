@@ -786,7 +786,7 @@ struct vector parseCoordinate(const cJSON *data) {
 void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *pos = NULL;
 	const cJSON *color = NULL;
-	const cJSON *reflectivity = NULL;
+	const cJSON *roughness = NULL;
 	const cJSON *IOR = NULL;
 	const cJSON *radius = NULL;
 	const cJSON *intensity = NULL;
@@ -840,11 +840,11 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 		}
 	}
 	
-	reflectivity = cJSON_GetObjectItem(data, "reflectivity");
-	if (reflectivity != NULL && cJSON_IsNumber(reflectivity)) {
-		newSphere.material.reflectivity = reflectivity->valuedouble;
+	roughness = cJSON_GetObjectItem(data, "roughness");
+	if (roughness != NULL && cJSON_IsNumber(roughness)) {
+		newSphere.material.roughness = roughness->valuedouble;
 	} else {
-		newSphere.material.reflectivity = 0.0;
+		newSphere.material.roughness = 0.0;
 	}
 	
 	IOR = cJSON_GetObjectItem(data, "IOR");

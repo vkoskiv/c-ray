@@ -254,6 +254,10 @@ bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct col
 bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	struct vector normalizedDir = vecNormalize(&isect->ray.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
+	//Roughness
+	struct vector fuzz = vecMultiplyConst(randomInUnitSphere(rng), isect->end.roughness);
+	reflected = vecAdd(&reflected, &fuzz);
+	
 	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 	*attenuation = diffuseColor(isect);
 	return (vecDot(&scattered->direction, &isect->surfaceNormal) > 0);
@@ -307,6 +311,11 @@ bool dialectricBSDF(struct intersection *isect, struct lightRay *ray, struct col
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 		reflectionProbability = 1.0;
 	}
+	
+	//Roughness
+	struct vector fuzz = vecMultiplyConst(randomInUnitSphere(rng), isect->end.roughness);
+	reflected = vecAdd(&reflected, &fuzz);
+	refracted = vecAdd(&refracted, &fuzz);
 	
 	if (rndDouble(0, 1, rng) < reflectionProbability) {
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
