@@ -59,6 +59,14 @@ struct material defaultMaterial() {
 	return newMat;
 }
 
+//To showcase missing .MTL file, for example
+struct material warningMaterial() {
+	struct material newMat = emptyMaterial();
+	newMat.type = lambertian;
+	newMat.diffuse = (struct color){1.0, 0.0, 0.5, 0.0};
+	return newMat;
+}
+
 //Find material with a given name and return a pointer to it
 struct material *materialForName(struct material *materials, int count, char *name) {
 	for (int i = 0; i < count; i++) {

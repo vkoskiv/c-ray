@@ -108,6 +108,7 @@ struct material newMaterialFull(struct color ambient,
 
 struct material emptyMaterial(void);
 struct material defaultMaterial(void);
+struct material warningMaterial(void);
 
 bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
 bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);

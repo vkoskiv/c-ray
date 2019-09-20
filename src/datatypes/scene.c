@@ -161,7 +161,9 @@ bool loadMesh(struct renderer *r, char *inputFileName, int idx, int meshCount) {
 	if (data.material_count == 0) {
 		//No material, set to something obscene to make it noticeable
 		r->scene->meshes[r->scene->meshCount].materials = calloc(1, sizeof(struct material));
-		*r->scene->meshes[r->scene->meshCount].materials = newMaterial(colorWithValues(255.0/255.0, 20.0/255.0, 147.0/255.0, 0), 0);
+		r->scene->meshes[r->scene->meshCount].materials[0] = warningMaterial();
+		assignBSDF(&r->scene->meshes[r->scene->meshCount].materials[0]);
+		r->scene->meshes[r->scene->meshCount].materialCount++;
 	} else {
 		//Loop to add materials to mesh (We already set the material indices in polyFromObj)
 		for (int i = 0; i < data.material_count; i++) {

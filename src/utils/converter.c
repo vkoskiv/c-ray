@@ -45,7 +45,8 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
 	}
 	
 	polygon.vertexCount = face->vertex_count;
-	polygon.materialIndex = face->material_index;
+	//If no materials are found (missing .mtl), we will just patch in a bright pink material to show that
+	polygon.materialIndex = face->material_index == -1 ? 0 : face->material_index;
 	polygon.polyIndex = polyIndex;
 	for (int i = 0; i < polygon.vertexCount; i++) {
 		polygon.vertexIndex[i] = firstVertexIndex + face->vertex_index[i];
