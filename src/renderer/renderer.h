@@ -83,7 +83,6 @@ struct renderer {
 	//Preferences data (Set by user)
 	enum fileMode fileMode;
 	enum renderOrder tileOrder;
-	char *inputFilePath; //Directory to load input files from
 	
 	int threadCount; //Amount of threads to render with
 	int sampleCount;

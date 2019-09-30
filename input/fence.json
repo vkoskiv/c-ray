@@ -49,7 +49,6 @@
 				"b": 0.038431
 			}
 		},
-		"inputFilePath": "input/",
 		"primitives": [
 			{
 				"type": "sphere",
@@ -150,12 +149,12 @@
 		],
 		"meshes": [
 			{
-				"fileName": "newScene.obj",
+				"fileName": "input/newScene.obj",
 				"bsdf": "lambertian",
 				"transforms": []
 			},
 			{
-				"fileName": "fence.obj",
+				"fileName": "input/fence.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{

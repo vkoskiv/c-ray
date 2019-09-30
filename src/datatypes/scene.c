@@ -59,27 +59,31 @@ struct sphere *lastSphere(struct renderer *r) {
 void loadMeshTextures(struct mesh *mesh) {
 	for (int i = 0; i < mesh->materialCount; i++) {
 		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
-		if (strcmp(mesh->materials[i].textureFilePath, "")) {
-			//TODO: Set the shader for this obj to an obnoxious checker pattern if the texture wasn't found
-			mesh->materials[i].texture = loadTexture(mesh->materials[i].textureFilePath);
-			if (mesh->materials[i].texture) {
-				mesh->materials[i].hasTexture = true;
+		if (mesh->materials[i].textureFilePath) {
+			if (strcmp(mesh->materials[i].textureFilePath, "")) {
+				//TODO: Set the shader for this obj to an obnoxious checker pattern if the texture wasn't found
+				mesh->materials[i].texture = loadTexture(mesh->materials[i].textureFilePath);
+				if (mesh->materials[i].texture) {
+					mesh->materials[i].hasTexture = true;
+				}
+			} else {
+				mesh->materials[i].hasTexture = false;
 			}
+		} else {
+			mesh->materials[i].hasTexture = false;
 		}
+		
 	}
 }
 
-bool loadMeshNew(struct renderer *r, char *inputFileName) {
-	logr(info, "Loading mesh %s%s\n", r->inputFilePath, inputFileName);
+bool loadMeshNew(struct renderer *r, char *inputFilePath) {
+	logr(info, "Loading mesh %s\n", inputFilePath);
 	
 	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + 1) * sizeof(struct mesh));
 	
 	bool valid = false;
 	
-	char *fullPath = (char*)calloc(1024, sizeof(char));
-	sprintf(fullPath, "%s%s", r->inputFilePath, inputFileName);
-	
-	struct mesh *newMesh = parseOBJFile(fullPath);
+	struct mesh *newMesh = parseOBJFile(inputFilePath);
 	if (newMesh != NULL) {
 		r->scene->meshes[r->scene->meshCount] = *newMesh;
 		free(newMesh);
@@ -91,13 +95,13 @@ bool loadMeshNew(struct renderer *r, char *inputFileName) {
 	return valid;
 }
 
-bool loadMesh(struct renderer *r, char *inputFileName, int idx, int meshCount) {
+bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	logr(info, "Loading mesh %i/%i\r", idx, meshCount);
 	
 	obj_scene_data data;
-	if (parse_obj_scene(&data, inputFileName, r->inputFilePath) == 0) {
+	if (parse_obj_scene(&data, inputFilePath) == 0) {
 		printf("\n");
-		logr(warning, "Mesh %s not found!\n", getFileName(inputFileName));
+		logr(warning, "Mesh %s not found!\n", getFileName(inputFilePath));
 		return false;
 	}
 	
@@ -121,7 +125,7 @@ bool loadMesh(struct renderer *r, char *inputFileName, int idx, int meshCount) {
 	
 	r->scene->meshes[r->scene->meshCount].materialCount = 0;
 	//Set name
-	copyString(getFileName(inputFileName), &r->scene->meshes[r->scene->meshCount].meshName);
+	copyString(getFileName(inputFilePath), &r->scene->meshes[r->scene->meshCount].meshName);
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
@@ -900,7 +904,6 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	
 	const cJSON *filePath = NULL;
 	const cJSON *fileName = NULL;
-	const cJSON *inputFilePath = NULL;
 	const cJSON *count = NULL;
 	const cJSON *width = NULL;
 	const cJSON *height = NULL;
@@ -917,11 +920,6 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	fileName = cJSON_GetObjectItem(data, "outputFileName");
 	if (cJSON_IsString(fileName)) {
 		copyString(fileName->valuestring, &r->image->fileName);
-	}
-	
-	inputFilePath = cJSON_GetObjectItem(data, "inputFilePath");
-	if (cJSON_IsString(inputFilePath)) {
-		copyString(inputFilePath->valuestring, &r->inputFilePath);
 	}
 	
 	count = cJSON_GetObjectItem(data, "count");

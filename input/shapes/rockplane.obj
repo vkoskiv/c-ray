@@ -1,6 +1,6 @@
 # Blender v2.80 (sub 40) OBJ File: ''
 # www.blender.org
-mtllib shapes/rockplane.mtl
+mtllib rockplane.mtl
 o rock_01_diff_1k
 v -0.500000 0.000000 0.500000
 v 0.500000 0.000000 0.500000

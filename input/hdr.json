@@ -55,7 +55,6 @@
 				"b": 1.0
 			}
 		},
-		"inputFilePath": "input/",
 		"primitives": [
 			{
 				"type": "sphere",
@@ -173,7 +172,7 @@
 		],
 		"meshes": [
 			{
-				"fileName": "shapes/rockplane.obj",
+				"fileName": "input/shapes/plane.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{

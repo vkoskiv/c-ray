@@ -569,9 +569,6 @@ void freeRenderer(struct renderer *r) {
 	if (r->timers) {
 		free(r->timers);
 	}
-	if (r->inputFilePath) {
-		free(r->inputFilePath);
-	}
 	
 	free(r);
 }
