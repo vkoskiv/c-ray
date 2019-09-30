@@ -706,7 +706,7 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	
 	hdr = cJSON_GetObjectItem(data, "hdr");
 	if (cJSON_IsString(hdr)) {
-		r->scene->hdr = loadHDRI(hdr->valuestring);
+		r->scene->hdr = loadTexture(hdr->valuestring);
 	}
 	
 	offset = cJSON_GetObjectItem(data, "offset");
@@ -1132,8 +1132,8 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	computeFocalLength(r->scene->camera, *r->image->width);
 	
 	//Allocate memory and create array of pixels for image data
-	r->image->data = calloc(3 * *r->image->width * *r->image->height, sizeof(unsigned char));
-	if (!r->image->data) {
+	r->image->byte_data = calloc(3 * *r->image->width * *r->image->height, sizeof(unsigned char));
+	if (!r->image->byte_data) {
 		logr(error, "Failed to allocate memory for image data.");
 	}
 	r->image->hasAlpha = false;

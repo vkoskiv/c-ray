@@ -105,7 +105,7 @@ struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 	x = x > *scene->hdr->width ? *scene->hdr->width : x;
 	y = y > *scene->hdr->height ? *scene->hdr->height : y;
 	
-	struct color newColor = hdrGetPixel(scene->hdr, x, y);
+	struct color newColor = textureGetPixel(scene->hdr, x, y);
 	
 	return newColor;
 }

@@ -20,7 +20,7 @@
 //This is a bit of a hack, my coordinate space is inverted.
 struct texture *flipHorizontal(struct texture *t) {
 	struct texture *newTex = calloc(1, sizeof(struct texture));
-	newTex->data = calloc(3 * *t->width * *t->height, sizeof(unsigned char));
+	newTex->byte_data = calloc(3 * *t->width * *t->height, sizeof(unsigned char));
 	newTex->colorspace = t->colorspace;
 	newTex->count = t->count;
 	newTex->width = calloc(1, sizeof(unsigned int));
@@ -46,10 +46,13 @@ struct texture *flipHorizontal(struct texture *t) {
 }
 
 //TODO: Detect and support other file formats, like TIFF, JPEG and BMP
+//Currently supports: PNG, HDR
 struct texture *loadTexture(char *filePath) {
 	struct texture *newTexture = calloc(1, sizeof(struct texture));
-	newTexture->data = NULL;
-	newTexture->colorspace = linear;
+	newTexture->byte_data = NULL;
+	newTexture->float_data = NULL;
+	newTexture->channels = NULL;
+	newTexture->colorspace = linear; //Assumed for now
 	newTexture->width = calloc(1, sizeof(unsigned int));
 	newTexture->height = calloc(1, sizeof(unsigned int));
 	newTexture->hasAlpha = false;
@@ -60,41 +63,29 @@ struct texture *loadTexture(char *filePath) {
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
 	//FIXME: Ignoring alpha here, and set hasAlpha to false before for now
-	int err = (int)lodepng_decode24_file(&newTexture->data, newTexture->width, newTexture->height, filePath);
-	if (err != 0) {
-		logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
-		free(newTexture);
-		return NULL;
-	}
-	//textureFromSRGB(newTexture);
-	newTexture = flipHorizontal(newTexture);
-	return newTexture;
-}
-
-struct HDRI *loadHDRI(char *filePath) {
-	logr(info, "Loading HDR from %s\n", filePath);
-	if (!stbi_is_hdr(filePath)) {
-		logr(warning, "File at %s not found or not a valid Radiance file, skipping.\n", filePath);
-		return NULL;
-	}
 	
-	struct HDRI *newHDRI = calloc(1, sizeof(struct HDRI));
-	newHDRI->fileType = hdr;
-	newHDRI->offset = 0.0;
-	newHDRI->width = calloc(1, sizeof(int));
-	newHDRI->height = calloc(1, sizeof(int));
-	newHDRI->channels = calloc(1, sizeof(int));
-	//TODO: use loadFile() for all loading operations for consistency.
-	newHDRI->data = stbi_loadf(filePath, newHDRI->width, newHDRI->height, newHDRI->channels, 0);
-	
-	if (!newHDRI->data) {
-		free(newHDRI);
-		logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
-		return NULL;
+	if (stbi_is_hdr(filePath)) {
+		newTexture->fileType = hdr;
+		newTexture->hasAlpha = false;
+		newTexture->channels = calloc(1, sizeof(int));
+		newTexture->float_data = stbi_loadf(filePath, (int*)newTexture->width, (int*)newTexture->height, newTexture->channels, 0);
+		if (!newTexture->float_data) {
+			free(newTexture);
+			logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
+			return NULL;
+		} else {
+			int MB = (((*newTexture->width * *newTexture->height * sizeof(float))/1024)/1024);
+			logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, *newTexture->channels);
+		}
 	} else {
-		int MB = (((*newHDRI->width * *newHDRI->height * sizeof(float))/1024)/1024);
-		logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, *newHDRI->channels);
+		int err = (int)lodepng_decode24_file(&newTexture->byte_data, newTexture->width, newTexture->height, filePath);
+		if (err != 0) {
+			logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
+			free(newTexture);
+			return NULL;
+		}
+		newTexture = flipHorizontal(newTexture);
 	}
 	
-	return newHDRI;
+	return newTexture;
 }

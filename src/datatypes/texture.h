@@ -29,21 +29,12 @@ struct texture {
 	char *filePath;
 	char *fileName;
 	int count;
-	unsigned char *data;
+	unsigned char *byte_data; //For 24/32bit
+	float *float_data; //For hdr
+	int *channels; //For hdr
+	float offset; //radians, for hdr
 	unsigned int *width;
 	unsigned int *height;
-};
-
-struct HDRI {
-	enum fileType fileType;
-	enum colorspace colorspace;
-	float offset; //radians
-	char *filePath;
-	char *fileName;
-	float *data;
-	int *width;
-	int *height;
-	int *channels;
 };
 
 struct color;
@@ -51,9 +42,6 @@ struct color;
 void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
 void blitDouble(double *buf, int width, int height, struct color *c, unsigned int x, unsigned int y);
 struct color textureGetPixel(struct texture *t, int x, int y);
-
-struct color hdrGetPixel(struct HDRI *hdr, int x, int y);
-struct color hdrTestPixel(int x, int y, int coef);
 
 void textureFromSRGB(struct texture *t);
 void textureToSRGB(struct texture *t);

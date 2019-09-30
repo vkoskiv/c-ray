@@ -10,8 +10,5 @@
 
 //C-ray texture parser
 
-//Load a generic texture. Currently only PNG supported.
+//Load a generic texture. Currently only PNG and Radiance HDR supported.
 struct texture *loadTexture(char *filePath);
-
-//Load a Radiance HDR file
-struct HDRI *loadHDRI(char *filePath);

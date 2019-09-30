@@ -16,9 +16,9 @@
 void blit(struct texture *t, struct color c, unsigned int x, unsigned int y) {
 	if ((x > *t->width-1) || y < 0) return;
 	if ((y > *t->height-1) || y < 0) return;
-	t->data[(x + (*t->height - (y+1))* *t->width)*3 + 0] = (unsigned char)min( max(c.red*255.0,0), 255.0);
-	t->data[(x + (*t->height - (y+1))* *t->width)*3 + 1] = (unsigned char)min( max(c.green*255.0,0), 255.0);
-	t->data[(x + (*t->height - (y+1))* *t->width)*3 + 2] = (unsigned char)min( max(c.blue*255.0,0), 255.0);
+	t->byte_data[(x + (*t->height - (y+1))* *t->width)*3 + 0] = (unsigned char)min( max(c.red*255.0,0), 255.0);
+	t->byte_data[(x + (*t->height - (y+1))* *t->width)*3 + 1] = (unsigned char)min( max(c.green*255.0,0), 255.0);
+	t->byte_data[(x + (*t->height - (y+1))* *t->width)*3 + 2] = (unsigned char)min( max(c.blue*255.0,0), 255.0);
 }
 
 void blitDouble(double *buf, int width, int height, struct color *c, unsigned int x, unsigned int y) {
@@ -36,35 +36,20 @@ struct color textureGetPixel(struct texture *t, int x, int y) {
 	} else {
 		pitch = 3;
 	}
-	output.red   = t->data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0]/255.0;
-	output.green = t->data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1]/255.0;
-	output.blue  = t->data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2]/255.0;
-	output.alpha = t->hasAlpha ? t->data[(x + (*t->height - y) * *t->width)*pitch + 3]/255.0 : 1.0;
 	
-	return output;
-}
-
-struct color hdrGetPixel(struct HDRI *hdr, int x, int y) {
-	struct color output = {0.0, 0.0, 0.0, 0.0};
-	int pitch = *hdr->channels;
-	bool hasAlpha = false;
-	if (pitch > 3) hasAlpha = true;
-	
-	output.red = hdr->data[(x + ((*hdr->height-1) - y) * *hdr->width)*pitch + 0];
-	output.green = hdr->data[(x + ((*hdr->height-1) - y) * *hdr->width)*pitch + 1];
-	output.blue = hdr->data[(x + ((*hdr->height-1) - y) * *hdr->width)*pitch + 2];
-	output.alpha = hasAlpha ? hdr->data[(x + ((*hdr->height-1) - y) * *hdr->width)*pitch + 3] : 1.0;
-	
-	return output;
-}
-
-struct color hdrTestPixel(int x, int y, int coef) {
-	float sines = sin(coef*x) * sin(coef*y);
-	if (sines < 0) {
-		return (struct color){0.4, 0.4, 0.4, 0.0};
+	if (t->fileType == hdr) {
+		output.red = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0];
+		output.green = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1];
+		output.blue = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2];
+		output.alpha = t->hasAlpha ? t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 3] : 1.0;
 	} else {
-		return (struct color){1.0, 1.0, 1.0, 0.0};
+		output.red   = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0]/255.0;
+		output.green = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1]/255.0;
+		output.blue  = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2]/255.0;
+		output.alpha = t->hasAlpha ? t->byte_data[(x + (*t->height - y) * *t->width)*pitch + 3]/255.0 : 1.0;
 	}
+	
+	return output;
 }
 
 void textureFromSRGB(struct texture *t) {
@@ -88,13 +73,25 @@ void textureToSRGB(struct texture *t) {
 }
 
 void freeTexture(struct texture *tex) {
-	if (tex->height) {
-		free(tex->height);
+	if (tex->fileName) {
+		free(tex->fileName);
+	}
+	if (tex->filePath) {
+		free(tex->filePath);
+	}
+	if (tex->byte_data) {
+		free(tex->byte_data);
+	}
+	if (tex->float_data) {
+		free(tex->float_data);
+	}
+	if (tex->channels) {
+		free(tex->channels);
 	}
 	if (tex->width) {
 		free(tex->width);
 	}
-	if (tex->data) {
-		free(tex->data);
+	if (tex->height) {
+		free(tex->height);
 	}
 }

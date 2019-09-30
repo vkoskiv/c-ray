@@ -235,7 +235,7 @@ void drawWindow(struct renderer *r) {
 	//Render frames
 	updateFrames(r);
 	//Update image data
-	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->image->data, *r->image->width * 3);
+	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->image->byte_data, *r->image->width * 3);
 	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->uiBuffer, *r->image->width * 4);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
