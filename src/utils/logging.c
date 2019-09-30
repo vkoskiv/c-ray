@@ -84,8 +84,11 @@ void smartTime(unsigned long long milliseconds, char *buf) {
 	time_t secs = milliseconds / 1000;
 	time_t mins = secs / 60;
 	time_t hours = (secs / 60) / 60;
+	time_t days = hours / 24;
 	
-	if (mins > 60) {
+	if (days > 1) {
+		sprintf(buf, "%lid %lih %lim", days, hours - (days * 24), mins - (hours * 60));
+	} else if (mins > 60) {
 		sprintf(buf, "%lih %lim", hours, mins - (hours * 60));
 	} else if (secs > 60) {
 		sprintf(buf, "%lim %02lds", mins, secs - (mins * 60));
