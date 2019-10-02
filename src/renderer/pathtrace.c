@@ -96,8 +96,8 @@ struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 	u = wrapMinMax(u, 0, 1);
 	v = wrapMinMax(v, 0, 1);
 	
-	float x = (v * *scene->hdr->width);
-	float y = (u * *scene->hdr->height);
+	float x =  (v * *scene->hdr->width) - 0.5;
+	float y = (u * *scene->hdr->height) - 0.5;
 	
 	struct color newColor = textureGetPixelFiltered(scene->hdr, x, y);
 	
