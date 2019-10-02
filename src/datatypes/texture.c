@@ -10,6 +10,8 @@
 
 #include "texture.h"
 
+struct color textureGetPixel(struct texture *t, int x, int y);
+
 //Note how imageData only stores 8-bit precision for each color channel.
 //This is why we use the renderBuffer (blitDouble) for the running average as it just contains
 //the full precision color values
@@ -27,6 +29,30 @@ void blitDouble(double *buf, int width, int height, struct color *c, unsigned in
 	buf[(x + (height - y)*width)*3 + 2] = c->blue;
 }
 
+struct color lerp(struct color start, struct color end, float t) {
+	struct color ret = {0};
+	ret.red = start.red + (end.red - start.red) * t;
+	ret.green = start.green + (end.green - start.green) * t;
+	ret.blue = start.blue + (end.blue - start.blue) * t;
+	ret.alpha = start.alpha + (end.alpha - start.alpha) * t;
+	return ret;
+}
+
+struct color bilinearInterpolate(struct color topleft, struct color topright, struct color botleft, struct color botright, float tx, float ty) {
+	return lerp(lerp(topleft, topright, tx), lerp(botleft, botright, tx), ty);
+}
+
+//Bilinearly interpolated (smoothed) output. Requires float precision, i.e. 0.0->width-1.0
+struct color textureGetPixelFiltered(struct texture *t, float x, float y) {
+	int xint = (int)x;
+	int yint = (int)y;
+	struct color topleft = textureGetPixel(t, xint, yint);
+	struct color topright = textureGetPixel(t, xint + 1, yint);
+	struct color botleft = textureGetPixel(t, xint, yint + 1);
+	struct color botright = textureGetPixel(t, xint + 1, yint + 1);
+	return bilinearInterpolate(topleft, topright, botleft, botright, x-xint, y-yint);
+}
+
 //FIXME: Use this everywhere, in renderer too where there is now a duplicate getPixel()
 struct color textureGetPixel(struct texture *t, int x, int y) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
@@ -36,6 +62,12 @@ struct color textureGetPixel(struct texture *t, int x, int y) {
 	} else {
 		pitch = 3;
 	}
+	
+	//bilinear lerp might tweak the values, so just clamp here to be safe.
+	x = x > *t->width-1 ? *t->width-1 : x;
+	y = y > *t->height-1 ? *t->height-1 : y;
+	x = x < 0 ? 0 : x;
+	y = y < 0 ? 0 : y;
 	
 	if (t->fileType == hdr) {
 		output.red = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0];

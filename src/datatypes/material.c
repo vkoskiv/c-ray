@@ -123,20 +123,11 @@ struct color colorForUV(struct intersection *isect) {
 	struct coord temp = addCoords(&ucomponent, &vcomponent);
 	struct coord textureXY = addCoords(&temp, &wcomponent);
 	
-	//Final integer X Y texture pixel coords
-	int x = (int)(textureXY.x*(width));
-	int y = (int)(textureXY.y*(heigh));
-	
-	//Somehow textureXY can range from -2.36 to 4.53. Not cool at all.
-	//FIXME: Find out why this happens.
-	//Clamp 'em for now
-	x = x < 0 ? 0 : x;
-	y = y < 0 ? 0 : y;
-	x = x > width ? width : x;
-	y = y > heigh ? heigh : y;
+	float x = (textureXY.x*(width));
+	float y = (textureXY.y*(heigh));
 	
 	//Get the color value at these XY coordinates
-	output = textureGetPixel(mtl.texture, x, y);
+	output = textureGetPixelFiltered(mtl.texture, x, y);
 	
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	//FIXME: Maybe ask lodepng if we actually need to do this transform

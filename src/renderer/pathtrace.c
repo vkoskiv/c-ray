@@ -96,16 +96,10 @@ struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 	u = wrapMinMax(u, 0, 1);
 	v = wrapMinMax(v, 0, 1);
 	
-	int y = (int)(u * *scene->hdr->height);
-	int x = (int)(v * *scene->hdr->width);
+	float x = (v * *scene->hdr->width);
+	float y = (u * *scene->hdr->height);
 	
-	//Clamping
-	x = x < 0 ? 0 : x;
-	y = y < 0 ? 0 : y;
-	x = x > *scene->hdr->width ? *scene->hdr->width : x;
-	y = y > *scene->hdr->height ? *scene->hdr->height : y;
-	
-	struct color newColor = textureGetPixel(scene->hdr, x, y);
+	struct color newColor = textureGetPixelFiltered(scene->hdr, x, y);
 	
 	return newColor;
 }
