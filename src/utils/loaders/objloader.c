@@ -170,7 +170,7 @@ struct mesh *parseOBJFile(char *filePath) {
 	polyCount += pCount;
 	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
 	
-	//newMesh->meshName;
+	//newMesh->name;
 	//newMesh->materials;
 	//newMesh->materialCount;
 	
@@ -223,7 +223,7 @@ struct mesh *parseOBJFile(char *filePath) {
 			free(mtlCount);
 		} else if (stringEquals(token, "o")) {
 			//object name
-			copyString(strtok(NULL, ws), &newMesh->meshName);
+			copyString(strtok(NULL, ws), &newMesh->name);
 		} else if (stringEquals(token, "s")) {
 			//smoothShading
 			//TODO

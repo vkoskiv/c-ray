@@ -125,7 +125,7 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	
 	r->scene->meshes[r->scene->meshCount].materialCount = 0;
 	//Set name
-	copyString(getFileName(inputFilePath), &r->scene->meshes[r->scene->meshCount].meshName);
+	copyString(getFileName(inputFilePath), &r->scene->meshes[r->scene->meshCount].name);
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
@@ -218,7 +218,7 @@ void computeKDTrees(struct world *scene) {
 		/*int orphans = checkTree(scene->meshes[i].tree);
 		if (orphans > 0) {
 			int total = countNodes(scene->meshes[i].tree);
-			logr(warning, "Found %i/%i orphan nodes in %s kdtree\n", orphans, total, scene->meshes[i].meshName);
+			logr(warning, "Found %i/%i orphan nodes in %s kdtree\n", orphans, total, scene->meshes[i].name);
 		}*/
 	}
 }
@@ -752,7 +752,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 		//TODO: Use parseTransforms for this
 		if (transforms != NULL && cJSON_IsArray(transforms)) {
 			cJSON_ArrayForEach(transform, transforms) {
-				addTransform(lastMesh(r), parseTransform(transform, lastMesh(r)->meshName));
+				addTransform(lastMesh(r), parseTransform(transform, lastMesh(r)->name));
 			}
 		}
 		

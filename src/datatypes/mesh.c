@@ -43,8 +43,8 @@ void transformMesh(struct mesh *mesh) {
 }
 
 void freeMesh(struct mesh *mesh) {
-	if (mesh->meshName) {
-		free(mesh->meshName);
+	if (mesh->name) {
+		free(mesh->name);
 	}
 	if (mesh->transforms) {
 		free(mesh->transforms);

@@ -47,7 +47,7 @@ struct mesh {
 	//Root node of the kd-tree for this mesh
 	struct kdTreeNode *tree;
 	
-	char *meshName;
+	char *name;
 };
 
 void addTransform(struct mesh *mesh, struct transform transform);
