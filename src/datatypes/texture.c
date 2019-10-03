@@ -44,13 +44,15 @@ struct color bilinearInterpolate(struct color topleft, struct color topright, st
 
 //Bilinearly interpolated (smoothed) output. Requires float precision, i.e. 0.0->width-1.0
 struct color textureGetPixelFiltered(struct texture *t, float x, float y) {
-	int xint = (int)x;
-	int yint = (int)y;
+	float xcopy = x - 0.5;
+	float ycopy = y - 0.5;
+	int xint = (int)xcopy;
+	int yint = (int)ycopy;
 	struct color topleft = textureGetPixel(t, xint, yint);
 	struct color topright = textureGetPixel(t, xint + 1, yint);
 	struct color botleft = textureGetPixel(t, xint, yint + 1);
 	struct color botright = textureGetPixel(t, xint + 1, yint + 1);
-	return bilinearInterpolate(topleft, topright, botleft, botright, x-xint, y-yint);
+	return bilinearInterpolate(topleft, topright, botleft, botright, xcopy-xint, ycopy-yint);
 }
 
 //FIXME: Use this everywhere, in renderer too where there is now a duplicate getPixel()

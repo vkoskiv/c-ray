@@ -123,8 +123,8 @@ struct color colorForUV(struct intersection *isect) {
 	struct coord temp = addCoords(&ucomponent, &vcomponent);
 	struct coord textureXY = addCoords(&temp, &wcomponent);
 	
-	float x = (textureXY.x*(width)) - 0.5;
-	float y = (textureXY.y*(heigh)) - 0.5;
+	float x = (textureXY.x*(width));
+	float y = (textureXY.y*(heigh));
 	
 	//Get the color value at these XY coordinates
 	output = textureGetPixelFiltered(mtl.texture, x, y);
