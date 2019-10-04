@@ -20,111 +20,127 @@ double fromRadians(double radians) {
 	return radians * (180/PI);
 }
 
-//FIXME: Return and rename to identity matrix
-struct transform emptyTransform() {
-	struct transform transform;
-	transform.type = transformTypeNone;
+struct matrix4x4 identityMatrix() {
+	struct matrix4x4 mtx;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-			transform.A[i][j] = 0;
+			mtx.mtx[i][j] = 0;
 		}
 	}
-	return transform;
+	mtx.mtx[0][0] = 1;
+	mtx.mtx[1][1] = 1;
+	mtx.mtx[2][2] = 1;
+	mtx.mtx[3][3] = 1;
+	return mtx;
 }
 
-struct transform fromParams(double t00, double t01, double t02, double t03,
+struct transform newTransform() {
+	struct transform tf;
+	tf.type = transformTypeIdentity;
+	tf.A = identityMatrix();
+	tf.Ainv = inverse(identityMatrix());
+	return tf;
+}
+
+struct matrix4x4 fromParams(double t00, double t01, double t02, double t03,
 							double t10, double t11, double t12, double t13,
 							double t20, double t21, double t22, double t23,
 							double t30, double t31, double t32, double t33) {
-	struct transform new = emptyTransform();
-	new.type = transformTypeNone;
-	new.A[0][0] = t00; new.A[0][1] = t01; new.A[0][2] = t02; new.A[0][3] = t03;
-	new.A[1][0] = t10; new.A[1][1] = t11; new.A[1][2] = t12; new.A[1][3] = t13;
-	new.A[2][0] = t20; new.A[2][1] = t21; new.A[2][2] = t22; new.A[2][3] = t23;
-	new.A[3][0] = t30; new.A[3][1] = t31; new.A[3][2] = t32; new.A[3][3] = t33;
+	struct matrix4x4 new = {{{0}}};
+	new.mtx[0][0] = t00; new.mtx[0][1] = t01; new.mtx[0][2] = t02; new.mtx[0][3] = t03;
+	new.mtx[1][0] = t10; new.mtx[1][1] = t11; new.mtx[1][2] = t12; new.mtx[1][3] = t13;
+	new.mtx[2][0] = t20; new.mtx[2][1] = t21; new.mtx[2][2] = t22; new.mtx[2][3] = t23;
+	new.mtx[3][0] = t30; new.mtx[3][1] = t31; new.mtx[3][2] = t32; new.mtx[3][3] = t33;
 	return new;
 }
 
 //http://tinyurl.com/hte35pq
-void transformVector(struct vector *vec, struct transform *tf) {
+//TODO: Boolean switch to inverse, or just feed m4x4 directly
+void transformVector(struct vector *vec, struct matrix4x4 mtx) {
 	struct vector temp;
-	temp.x = (tf->A[0][0] * vec->x) + (tf->A[0][1] * vec->y) + (tf->A[0][2] * vec->z) + tf->A[0][3];
-	temp.y = (tf->A[1][0] * vec->x) + (tf->A[1][1] * vec->y) + (tf->A[1][2] * vec->z) + tf->A[1][3];
-	temp.z = (tf->A[2][0] * vec->x) + (tf->A[2][1] * vec->y) + (tf->A[2][2] * vec->z) + tf->A[2][3];
+	temp.x = (mtx.mtx[0][0] * vec->x) + (mtx.mtx[0][1] * vec->y) + (mtx.mtx[0][2] * vec->z) + mtx.mtx[0][3];
+	temp.y = (mtx.mtx[1][0] * vec->x) + (mtx.mtx[1][1] * vec->y) + (mtx.mtx[1][2] * vec->z) + mtx.mtx[1][3];
+	temp.z = (mtx.mtx[2][0] * vec->x) + (mtx.mtx[2][1] * vec->y) + (mtx.mtx[2][2] * vec->z) + mtx.mtx[2][3];
 	vec->x = temp.x;
 	vec->y = temp.y;
 	vec->z = temp.z;
 }
 
 struct transform newTransformRotateX(double degrees) {
-	struct transform transform = emptyTransform();
+	struct transform transform = newTransform();
 	double rads = toRadians(degrees);
 	transform.type = transformTypeXRotate;
-	transform.A[0][0] = 1;
-	transform.A[1][1] = cos(rads);
-	transform.A[1][2] = -sin(rads);
-	transform.A[2][1] = sin(rads);
-	transform.A[2][2] = cos(rads);
-	transform.A[3][3] = 1;
+	transform.A.mtx[0][0] = 1;
+	transform.A.mtx[1][1] = cos(rads);
+	transform.A.mtx[1][2] = -sin(rads);
+	transform.A.mtx[2][1] = sin(rads);
+	transform.A.mtx[2][2] = cos(rads);
+	transform.A.mtx[3][3] = 1;
+	transform.Ainv = inverse(transform.A);
 	return transform;
 }
 
 struct transform newTransformRotateY(double degrees) {
-	struct transform transform = emptyTransform();
+	struct transform transform = newTransform();
 	double rads = toRadians(degrees);
 	transform.type = transformTypeYRotate;
-	transform.A[0][0] = cos(rads);
-	transform.A[0][2] = sin(rads);
-	transform.A[1][1] = 1;
-	transform.A[2][0] = -sin(rads);
-	transform.A[2][2] = cos(rads);
-	transform.A[3][3] = 1;
+	transform.A.mtx[0][0] = cos(rads);
+	transform.A.mtx[0][2] = sin(rads);
+	transform.A.mtx[1][1] = 1;
+	transform.A.mtx[2][0] = -sin(rads);
+	transform.A.mtx[2][2] = cos(rads);
+	transform.A.mtx[3][3] = 1;
+	transform.Ainv = inverse(transform.A);
 	return transform;
 }
 
 struct transform newTransformRotateZ(double degrees) {
-	struct transform transform = emptyTransform();
+	struct transform transform = newTransform();
 	double rads = toRadians(degrees);
 	transform.type = transformTypeZRotate;
-	transform.A[0][0] = cos(rads);
-	transform.A[0][1] = -sin(rads);
-	transform.A[1][0] = sin(rads);
-	transform.A[1][1] = cos(rads);
-	transform.A[2][2] = 1;
-	transform.A[3][3] = 1;
+	transform.A.mtx[0][0] = cos(rads);
+	transform.A.mtx[0][1] = -sin(rads);
+	transform.A.mtx[1][0] = sin(rads);
+	transform.A.mtx[1][1] = cos(rads);
+	transform.A.mtx[2][2] = 1;
+	transform.A.mtx[3][3] = 1;
+	transform.Ainv = inverse(transform.A);
 	return transform;
 }
 
 struct transform newTransformTranslate(double x, double y, double z) {
-	struct transform transform = emptyTransform();
+	struct transform transform = newTransform();
 	transform.type = transformTypeTranslate;
-	transform.A[0][0] = 1;
-	transform.A[1][1] = 1;
-	transform.A[2][2] = 1;
-	transform.A[3][3] = 1;
-	transform.A[0][3] = x;
-	transform.A[1][3] = y;
-	transform.A[2][3] = z;
+	transform.A.mtx[0][0] = 1;
+	transform.A.mtx[1][1] = 1;
+	transform.A.mtx[2][2] = 1;
+	transform.A.mtx[3][3] = 1;
+	transform.A.mtx[0][3] = x;
+	transform.A.mtx[1][3] = y;
+	transform.A.mtx[2][3] = z;
+	transform.Ainv = inverse(transform.A);
 	return transform;
 }
 
 struct transform newTransformScale(double x, double y, double z) {
-	struct transform transform = emptyTransform();
+	struct transform transform = newTransform();
 	transform.type = transformTypeScale;
-	transform.A[0][0] = x;
-	transform.A[1][1] = y;
-	transform.A[2][2] = z;
-	transform.A[3][3] = 1;
+	transform.A.mtx[0][0] = x;
+	transform.A.mtx[1][1] = y;
+	transform.A.mtx[2][2] = z;
+	transform.A.mtx[3][3] = 1;
+	transform.Ainv = inverse(transform.A);
 	return transform;
 }
 
 struct transform newTransformScaleUniform(double scale) {
-	struct transform transform = emptyTransform();
+	struct transform transform = newTransform();
 	transform.type = transformTypeScale;
-	transform.A[0][0] = scale;
-	transform.A[1][1] = scale;
-	transform.A[2][2] = scale;
-	transform.A[3][3] = 1;
+	transform.A.mtx[0][0] = scale;
+	transform.A.mtx[1][1] = scale;
+	transform.A.mtx[2][2] = scale;
+	transform.A.mtx[3][3] = 1;
+	transform.Ainv = inverse(transform.A);
 	return transform;
 }
 
@@ -145,6 +161,16 @@ void getCofactor(double A[4][4], double cofactors[4][4], int p, int q, int n) {
 	}
 }
 
+//I really, really hope this is faster than the generic one
+//I wrote this by hand...
+double findDeterminant4x4(double A[4][4]) {
+	double topLeft = A[0][0] * ((A[1][1] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) + (A[1][3] * ((A[2][1]*A[3][2])-(A[2][2]*A[3][1]))));
+	double topRigh = A[0][1] * ((A[1][0] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][2])-(A[2][2]*A[3][0]))));
+	double botLeft = A[0][2] * ((A[1][0] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) - (A[1][1] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][1])-(A[2][1]*A[3][0]))));
+	double botRigh = A[0][3] * ((A[1][0] * ((A[2][1]*A[3][2])-(A[2][2]*A[3][1]))) - (A[1][1] * ((A[2][0]*A[3][2])-(A[2][2]*A[3][0]))) + (A[1][2] * ((A[2][0]*A[3][1])-(A[2][1]*A[3][0]))));
+	return topLeft - topRigh + botLeft - botRigh;
+}
+
 //Find det of a given 4x4 matrix A
 double findDeterminant(double A[4][4], int n) {
 	double det = 0;
@@ -153,7 +179,7 @@ double findDeterminant(double A[4][4], int n) {
 		return A[0][0];
 	
 	double cofactors[4][4];
-	int sign = 1;
+	double sign = 1.0;
 	
 	for (int f = 0; f < n; f++) {
 		getCofactor(A, cofactors, 0, f, n);
@@ -177,67 +203,108 @@ void findAdjoint(double A[4][4], double adjoint[4][4]) {
 	}
 }
 
-struct transform inverse(struct transform tf) {
-	struct transform inverse = {0};
+struct matrix4x4 inverse(struct matrix4x4 mtx) {
+	struct matrix4x4 inverse = {{{0}}};
 	
-	int det = findDeterminant(tf.A, 4);
+	//This round() call was added after about 5 hours of debugging
+	//why my determinants turned out as 0.
+	int det = round(findDeterminant4x4(mtx.mtx));
 	if (det == 0) {
 		logr(error, "No inverse for given transform!\n");
 	}
 	
 	double adjoint[4][4];
-	findAdjoint(tf.A, adjoint);
+	findAdjoint(mtx.mtx, adjoint);
 	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-			inverse.A[i][j] = adjoint[i][j] / det;
+			inverse.mtx[i][j] = adjoint[i][j] / det;
 		}
 	}
 	
-	inverse.type = transformTypeInverse;
-	
-	return inverse;
+	//Not sure why I need to transpose here, but doing so
+	//gives correct results
+	return transpose(inverse);
 }
 
-struct transform transpose(struct transform tf) {
-	return fromParams(tf.A[0][0], tf.A[1][0], tf.A[2][0], tf.A[3][0],
-					  tf.A[0][1], tf.A[1][1], tf.A[2][1], tf.A[3][1],
-					  tf.A[0][2], tf.A[1][2], tf.A[2][2], tf.A[3][2],
-					  tf.A[0][3], tf.A[1][3], tf.A[2][3], tf.A[3][3]);
+struct matrix4x4 transpose(struct matrix4x4 tf) {
+	return fromParams(tf.mtx[0][0], tf.mtx[1][0], tf.mtx[2][0], tf.mtx[3][0],
+					  tf.mtx[0][1], tf.mtx[1][1], tf.mtx[2][1], tf.mtx[3][1],
+					  tf.mtx[0][2], tf.mtx[1][2], tf.mtx[2][2], tf.mtx[3][2],
+					  tf.mtx[0][3], tf.mtx[1][3], tf.mtx[2][3], tf.mtx[3][3]);
 }
 
 //Tests, this is dead code for now until I get a testing suite.
-void printMatrix(struct transform tf) {
-	printf("\n");
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			printf("tf.A[%i][%i]=%.2f ",i,j,tf.A[i][j]);
-		}
-		printf("\n");
+char *transformTypeString(enum transformType type) {
+	switch (type) {
+		case transformTypeXRotate:
+			return "transformTypeXRotate";
+			break;
+		case transformTypeYRotate:
+			return "transformTypeYRotate";
+			break;
+		case transformTypeZRotate:
+			return "transformTypeZRotate";
+			break;
+		case transformTypeTranslate:
+			return "transformTypeTranslate";
+			break;
+		case transformTypeScale:
+			return "transformTypeScale";
+			break;
+		case transformTypeMultiplication:
+			return "transformTypeMultiplication";
+			break;
+		case transformTypeIdentity:
+			return "transformTypeIdentity";
+			break;
+		case transformTypeInverse:
+			return "transformTypeInverse";
+			break;
+		case transformTypeTranspose:
+			return "transformTypeTranspose";
+			break;
+		default:
+			return "unknownTransform";
+			break;
 	}
 }
 
-//Print the given matrix, and the inverse.
-void testInverse(struct transform tf) {
-	printf("Testing inverse...\n");
-	printMatrix(tf);
-	printMatrix(inverse(tf));
+void printMatrix(struct matrix4x4 mtx) {
+	printf("\n");
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			printf("mtx.mtx[%i][%i]=%s%f ",i,j, mtx.mtx[i][j] < 0 ? "" : " " ,mtx.mtx[i][j]);
+		}
+		printf("\n");
+	}
+	printf("\n");
 }
 
-void testTranspose(struct transform tf) {
-	printf("Testing transpose...\n");
-	printMatrix(tf);
-	printMatrix(transpose(tf));
+void printTransform(struct transform tf) {
+	printf("%s", transformTypeString(tf.type));
+	printMatrix(tf.A);
+	printMatrix(tf.Ainv);
 }
 
-void testInverseAndTranspose() {
-	testInverse(fromParams(1, 0, 0, 1,
-						   0, 2, 1, 2,
-						   2, 1, 0, 1,
-						   2, 0, 1, 4));
+void testStuff() {
+	struct transform rotateX = newTransformRotateX(33.3);
+	struct transform rotateY = newTransformRotateY(33.3);
+	struct transform rotateZ = newTransformRotateZ(33.3);
+	printTransform(rotateX);
+	printTransform(rotateY);
+	printTransform(rotateZ);
 	
-	testTranspose(fromParams(1, 0, 0, 1,
-							 0, 2, 1, 2,
-							 2, 1, 0, 1,
-							 2, 0, 1, 4));
+	struct transform scale = newTransformScaleUniform(33.3);
+	printTransform(scale);
+	
+	struct transform scaleX = newTransformScale(33.3, 1, 1);
+	struct transform scaleY = newTransformScale(1, 33.3, 1);
+	struct transform scaleZ = newTransformScale(1, 1, 33.3);
+	printTransform(scaleX);
+	printTransform(scaleY);
+	printTransform(scaleZ);
+	
+	struct transform move = newTransformTranslate(33.333, 33.333, 33.333);
+	printTransform(move);
 }

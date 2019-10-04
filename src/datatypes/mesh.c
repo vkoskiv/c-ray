@@ -22,24 +22,36 @@ void addTransform(struct mesh *mesh, struct transform transform) {
 	mesh->transformCount++;
 }
 
-//FIXME: Normals aren't transformed! Those must be transformed by the inverse transpose of a given tform
 void transformMesh(struct mesh *mesh) {
 	//Bit of a hack here, using way more memory than needed. Should also work on 32-bit now
 	bool *tformed = (bool *)calloc(mesh->vertexCount, sizeof(bool));
+	bool *ntformed = (bool *)calloc(mesh->normalCount, sizeof(bool));
 	for (int tf = 0; tf < mesh->transformCount; tf++) {
 		//Perform transforms
 		for (int p = mesh->firstPolyIndex; p < (mesh->firstPolyIndex + mesh->polyCount); p++) {
 			for (int v = 0; v < polygonArray[p].vertexCount; v++) {
+				//vec
 				if (!tformed[polygonArray[p].vertexIndex[v] - mesh->firstVectorIndex]) {
-					transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], &mesh->transforms[tf]);
+					transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], mesh->transforms[tf].A);
 					tformed[polygonArray[p].vertexIndex[v] - mesh->firstVectorIndex] = true;
+				}
+			}
+		}
+		for (int n = mesh->firstNormalIndex; n < (mesh->firstNormalIndex + mesh->normalCount); n++) {
+			//normal, skip translates and do inverse transpose
+			if (!ntformed[n - mesh->firstNormalIndex]) {
+				if (mesh->transforms[tf].type != transformTypeTranslate) {
+					transformVector(&normalArray[n], transpose(mesh->transforms[tf].Ainv));
+					ntformed[n - mesh->firstNormalIndex] = true;
 				}
 			}
 		}
 		//Clear isTransformed flags
 		memset(tformed, 0, mesh->vertexCount * sizeof(bool));
+		memset(ntformed, 0, mesh->normalCount * sizeof(bool));
 	}
 	free(tformed);
+	free(ntformed);
 }
 
 void freeMesh(struct mesh *mesh) {

@@ -15,15 +15,20 @@ enum transformType {
 	transformTypeTranslate,
 	transformTypeScale,
 	transformTypeMultiplication,
-	transformTypeNone,
+	transformTypeIdentity,
 	transformTypeInverse,
 	transformTypeTranspose
+};
+
+struct matrix4x4 {
+	double mtx[4][4];
 };
 
 //Reference: http://tinyurl.com/ho6h6mr
 struct transform {
 	enum transformType type;
-	double A[4][4];
+	struct matrix4x4 A;
+	struct matrix4x4 Ainv;
 };
 
 struct material;
@@ -38,9 +43,9 @@ struct transform newTransformTranslate(double x, double y, double z);
 struct transform newTransformRotateX(double degrees);
 struct transform newTransformRotateY(double degrees);
 struct transform newTransformRotateZ(double degrees);
-struct transform emptyTransform(void);
+struct transform newTransform(void);
 
-struct transform inverse(struct transform tf);
-struct transform transpose(struct transform tf);
+struct matrix4x4 inverse(struct matrix4x4 mtx);
+struct matrix4x4 transpose(struct matrix4x4 tf);
 
-void transformVector(struct vector *vec, struct transform *tf);
+void transformVector(struct vector *vec, struct matrix4x4 mtx);
