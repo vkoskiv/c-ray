@@ -711,7 +711,9 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	
 	offset = cJSON_GetObjectItem(data, "offset");
 	if (cJSON_IsNumber(offset)) {
-		r->scene->hdr->offset = toRadians(offset->valuedouble)/4;
+		if (r->scene->hdr) {
+			r->scene->hdr->offset = toRadians(offset->valuedouble)/4;
+		}
 	}
 	
 	return 0;
