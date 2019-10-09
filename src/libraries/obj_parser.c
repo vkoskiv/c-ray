@@ -6,6 +6,7 @@
 
 #ifdef WINDOWS
 #include <Shlwapi.h>
+#pragma comment(lib, "shlwapi.lib")
 #else
 #include <libgen.h>
 #endif
@@ -208,9 +209,26 @@ void obj_parse_camera(obj_growable_scene_data *scene, obj_camera *camera)
 	camera->camera_up_norm_index = obj_convert_to_list_index(scene->vertex_normal_list.item_count, indices[2]);
 }
 
+void copyStringDuplicate(const char *source, char **destination) {
+	*destination = malloc(strlen(source) + 1);
+	strcpy(*destination, source);
+}
+
+void flipSlashes(char *string) {
+	for (int i = 0; i < strlen(string); i++) {
+		if (string[i] == '/') {
+			string[i] = '\\';
+		}
+	}
+}
+
 char *filePath(char *fullPath) {
 #ifdef WINDOWS
-	
+	char *copy;
+	copyStringDuplicate(fullPath, copy);
+	flipSlashes(copy);
+	PathRemoveFileSpec(copy);
+	return copy;
 #else
 	return dirname(fullPath);
 #endif
@@ -457,7 +475,11 @@ int obj_parse_obj_file(obj_growable_scene_data *growable_data, char *filepath)
 			//Add path
 			char *temp = (char*)calloc(1024, sizeof(char));
 			char *path = filePath(filepath);
+#ifdef WINDOWS
+			sprintf(temp, "%s\\%s", path, growable_data->material_filename);
+#else
 			sprintf(temp, "%s/%s", path, growable_data->material_filename);
+#endif
 			obj_parse_mtl_file(temp, &growable_data->material_list);
 			continue;
 		}
