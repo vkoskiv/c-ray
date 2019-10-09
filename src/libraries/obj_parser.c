@@ -3,7 +3,12 @@
 #include <stdlib.h>
 #include "obj_parser.h"
 #include "list.h"
+
+#ifdef WINDOWS
+#include <Shlwapi.h>
+#else
 #include <libgen.h>
+#endif
 
 #define WHITESPACE " \t\n\r"
 
@@ -201,6 +206,14 @@ void obj_parse_camera(obj_growable_scene_data *scene, obj_camera *camera)
 	camera->camera_pos_index = obj_convert_to_list_index(scene->vertex_list.item_count, indices[0]);
 	camera->camera_look_point_index = obj_convert_to_list_index(scene->vertex_list.item_count, indices[1]);
 	camera->camera_up_norm_index = obj_convert_to_list_index(scene->vertex_normal_list.item_count, indices[2]);
+}
+
+char *filePath(char *fullPath) {
+#ifdef WINDOWS
+	
+#else
+	return dirname(fullPath);
+#endif
 }
 
 int obj_parse_mtl_file(char *filename, list *material_list)
@@ -443,7 +456,7 @@ int obj_parse_obj_file(obj_growable_scene_data *growable_data, char *filepath)
 			strncpy(growable_data->material_filename, strtok(NULL, WHITESPACE), OBJ_FILENAME_LENGTH);
 			//Add path
 			char *temp = (char*)calloc(1024, sizeof(char));
-			char *path = dirname(filepath);
+			char *path = filePath(filepath);
 			sprintf(temp, "%s/%s", path, growable_data->material_filename);
 			obj_parse_mtl_file(temp, &growable_data->material_list);
 			continue;
