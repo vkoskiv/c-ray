@@ -225,7 +225,7 @@ void flipSlashes(char *string) {
 char *filePath(char *fullPath) {
 #ifdef WINDOWS
 	char *copy;
-	copyStringDuplicate(fullPath, copy);
+	copyStringDuplicate(fullPath, &copy);
 	flipSlashes(copy);
 	PathRemoveFileSpec(copy);
 	return copy;
