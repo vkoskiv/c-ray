@@ -90,8 +90,8 @@ struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 	float phi = (atan2f(ud.z, ud.x)/4) + scene->hdr->offset;
 	float theta = acosf((-ud.y/r));
 	
-	float u = theta / M_PI;
-	float v = (phi / (M_PI/2));
+	float u = theta / PI;
+	float v = (phi / (PI/2));
 	
 	u = wrapMinMax(u, 0, 1);
 	v = wrapMinMax(v, 0, 1);
