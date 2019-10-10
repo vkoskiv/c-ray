@@ -577,9 +577,17 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 int parseDisplay(struct renderer *r, const cJSON *data) {
 	
 #ifdef UI_ENABLED
+	const cJSON *enabled = NULL;
 	const cJSON *isFullscreen = NULL;
 	const cJSON *isBorderless = NULL;
 	const cJSON *windowScale = NULL;
+	
+	enabled = cJSON_GetObjectItem(data, "enabled");
+	if (cJSON_IsBool(enabled)) {
+		r->mainDisplay->enabled = cJSON_IsTrue(enabled);
+	} else {
+		r->mainDisplay->enabled = true;
+	}
 	
 	isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
 	if (cJSON_IsBool(isFullscreen)) {

@@ -42,6 +42,10 @@ void printDuration(double time) {
 #ifdef UI_ENABLED
 int initSDL(struct display *d) {
 	
+	if (!d->enabled) {
+		return 0;
+	}
+	
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		logr(warning, "SDL couldn't initialize, error: \"%s\"\n", SDL_GetError());

@@ -16,6 +16,7 @@ struct display {
 	SDL_Renderer *renderer;
 	SDL_Texture *texture;
 	SDL_Texture *overlayTexture;
+	bool enabled;
 	bool isBorderless;
 	bool isFullScreen;
 	double windowScale;
