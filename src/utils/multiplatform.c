@@ -9,6 +9,16 @@
 
 #include "../includes.h"
 
+//These are for multi-platform physical core detection
+#ifdef __APPLE__
+#include <sys/param.h>
+#include <sys/sysctl.h>
+#elif _WIN32
+#include <windows.h>
+#elif __linux__
+#include <unistd.h>
+#endif
+
 void initTerminal() {
 	//Disable output buffering
 	setbuf(stdout, NULL);
@@ -26,11 +36,6 @@ void initTerminal() {
 #endif
 }
 
-/**
- Get amount of logical processing cores on the system
- 
- @return Amount of logical processing cores
- */
 int getSysCores() {
 #ifdef __APPLE__
 	int nm[2];
