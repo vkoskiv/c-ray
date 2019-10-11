@@ -108,27 +108,27 @@ void getKeyboardInput(struct renderer *r) {
 		if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
 			if (event.key.keysym.sym == SDLK_s) {
 				logr(info, "Aborting render, saving...\n");
-				r->renderAborted = true;
+				r->state.renderAborted = true;
 			}
 			if (event.key.keysym.sym == SDLK_x) {
 				logr(info, "Aborting render without saving...\n");
-				r->fileMode = saveModeNone;
-				r->renderAborted = true;
+				r->prefs.fileMode = saveModeNone;
+				r->state.renderAborted = true;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
 				
-				if (r->threadPaused[0]) {
+				if (r->state.threadPaused[0]) {
 					logr(info, "Resuming render.\n");
 				} else {
 					printf("\n");
 					logr(info, "Pausing render.\n");
 				}
 				
-				for (int i = 0; i < r->threadCount; i++) {
-					if (r->threadPaused[i]) {
-						r->threadPaused[i] = false;
+				for (int i = 0; i < r->prefs.threadCount; i++) {
+					if (r->state.threadPaused[i]) {
+						r->state.threadPaused[i] = false;
 					} else {
-						r->threadPaused[i] = true;
+						r->state.threadPaused[i] = true;
 					}
 				}
 			}
@@ -139,23 +139,23 @@ void getKeyboardInput(struct renderer *r) {
 void drawPixel(struct renderer *r, int x, int y, bool on, struct color c) {
 	if (y <= 0) y = 1;
 	if (x <= 0) x = 1;
-	if (x >= *r->image->width) x = *r->image->width - 1;
-	if (y >= *r->image->height) y = *r->image->height - 1;
+	if (x >= *r->state.image->width) x = *r->state.image->width - 1;
+	if (y >= *r->state.image->height) y = *r->state.image->height - 1;
 	
 	if (on) {
-		r->uiBuffer[(x + (*r->image->height - (y+1))
-							   * *r->image->width) * 4 + 3] = (unsigned char)min(c.red*255.0, 255.0);
-		r->uiBuffer[(x + (*r->image->height - (y+1))
-							   * *r->image->width) * 4 + 2] = (unsigned char)min(c.green*255.0, 255.0);
-		r->uiBuffer[(x + (*r->image->height - (y+1))
-							   * *r->image->width) * 4 + 1] = (unsigned char)min(c.blue*255.0, 255.0);
-		r->uiBuffer[(x + (*r->image->height - (y+1))
-							   * *r->image->width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
+		r->state.uiBuffer[(x + (*r->state.image->height - (y+1))
+							   * *r->state.image->width) * 4 + 3] = (unsigned char)min(c.red*255.0, 255.0);
+		r->state.uiBuffer[(x + (*r->state.image->height - (y+1))
+							   * *r->state.image->width) * 4 + 2] = (unsigned char)min(c.green*255.0, 255.0);
+		r->state.uiBuffer[(x + (*r->state.image->height - (y+1))
+							   * *r->state.image->width) * 4 + 1] = (unsigned char)min(c.blue*255.0, 255.0);
+		r->state.uiBuffer[(x + (*r->state.image->height - (y+1))
+							   * *r->state.image->width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
 	} else {
-		r->uiBuffer[(x + (*r->image->height - (y+1)) * *r->image->width) * 4 + 0] = (unsigned char)0;
-		r->uiBuffer[(x + (*r->image->height - (y+1)) * *r->image->width) * 4 + 1] = (unsigned char)0;
-		r->uiBuffer[(x + (*r->image->height - (y+1)) * *r->image->width) * 4 + 2] = (unsigned char)0;
-		r->uiBuffer[(x + (*r->image->height - (y+1)) * *r->image->width) * 4 + 3] = (unsigned char)0;
+		r->state.uiBuffer[(x + (*r->state.image->height - (y+1)) * *r->state.image->width) * 4 + 0] = (unsigned char)0;
+		r->state.uiBuffer[(x + (*r->state.image->height - (y+1)) * *r->state.image->width) * 4 + 1] = (unsigned char)0;
+		r->state.uiBuffer[(x + (*r->state.image->height - (y+1)) * *r->state.image->width) * 4 + 2] = (unsigned char)0;
+		r->state.uiBuffer[(x + (*r->state.image->height - (y+1)) * *r->state.image->width) * 4 + 3] = (unsigned char)0;
 	}
 }
 
@@ -175,11 +175,11 @@ void clearProgBar(struct renderer *r, struct renderTile temp) {
  around that.
  */
 void drawProgressBars(struct renderer *r) {
-	for (int t = 0; t < r->threadCount; t++) {
-		if (r->renderThreadInfo[t].currentTileNum != -1) {
-			struct renderTile temp = r->renderTiles[r->renderThreadInfo[t].currentTileNum];
-			int completedSamples = r->renderThreadInfo[t].completedSamples;
-			int totalSamples = r->sampleCount;
+	for (int t = 0; t < r->prefs.threadCount; t++) {
+		if (r->state.renderThreadInfo[t].currentTileNum != -1) {
+			struct renderTile temp = r->state.renderTiles[r->state.renderThreadInfo[t].currentTileNum];
+			int completedSamples = r->state.renderThreadInfo[t].completedSamples;
+			int totalSamples = r->prefs.sampleCount;
 			
 			float prc = ((float)completedSamples / (float)totalSamples);
 			int pixels2draw = (int)((float)temp.width*(float)prc);
@@ -221,12 +221,12 @@ void drawFrame(struct renderer *r, struct renderTile tile, bool on) {
 }
 
 void updateFrames(struct renderer *r) {
-	for (int i = 0; i < r->tileCount; i++) {
+	for (int i = 0; i < r->state.tileCount; i++) {
 		//For every tile, if it's currently rendering, draw the frame
 		//If it is NOT rendering, clear any frame present
-		drawFrame(r, r->renderTiles[i], r->renderTiles[i].isRendering);
-		if (r->renderTiles[i].renderComplete) {
-			clearProgBar(r, r->renderTiles[i]);
+		drawFrame(r, r->state.renderTiles[i], r->state.renderTiles[i].isRendering);
+		if (r->state.renderTiles[i].renderComplete) {
+			clearProgBar(r, r->state.renderTiles[i]);
 		}
 	}
 	drawProgressBars(r);
@@ -239,8 +239,8 @@ void drawWindow(struct renderer *r) {
 	//Render frames
 	updateFrames(r);
 	//Update image data
-	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->image->byte_data, *r->image->width * 3);
-	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->uiBuffer, *r->image->width * 4);
+	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->state.image->byte_data, *r->state.image->width * 3);
+	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer, *r->state.image->width * 4);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
 	SDL_RenderPresent(r->mainDisplay->renderer);

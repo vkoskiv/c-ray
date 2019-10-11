@@ -107,15 +107,15 @@ void smartTime(unsigned long long milliseconds, char *buf) {
  @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
  */
 void printStatistics(struct renderer *r, int thread, float kSamplesPerSecond) {
-	int remainingTileCount = r->tileCount - r->finishedTileCount;
-	unsigned long long remainingTimeMilliseconds = (remainingTileCount * r->avgTileTime) / r->threadCount;
+	int remainingTileCount = r->state.tileCount - r->state.finishedTileCount;
+	unsigned long long remainingTimeMilliseconds = (remainingTileCount * r->state.avgTileTime) / r->prefs.threadCount;
 	//First print avg tile time
 	printf("%s", "\33[2K");
-	float completion = ((float)r->finishedTileCount / r->tileCount) * 100;
+	float completion = ((float)r->state.finishedTileCount / r->state.tileCount) * 100;
 	logr(info, "[%.0f%%]", completion);
 	
 	char avg[32];
-	smartTime(r->avgTileTime, avg);
+	smartTime(r->state.avgTileTime, avg);
 	printf(" avgt: %s", avg);
 	char rem[32];
 	smartTime(remainingTimeMilliseconds, rem);
@@ -123,33 +123,33 @@ void printStatistics(struct renderer *r, int thread, float kSamplesPerSecond) {
 }
 
 void computeStatistics(struct renderer *r, int thread, unsigned long long milliseconds, unsigned long long samples) {
-	r->avgTileTime = r->avgTileTime * (r->timeSampleCount - 1);
-	r->avgTileTime += milliseconds;
-	r->avgTileTime /= r->timeSampleCount;
+	r->state.avgTileTime = r->state.avgTileTime * (r->state.timeSampleCount - 1);
+	r->state.avgTileTime += milliseconds;
+	r->state.avgTileTime /= r->state.timeSampleCount;
 	
 	float multiplier = (float)milliseconds / (float)1000.0f;
 	float samplesPerSecond = (float)samples / multiplier;
-	samplesPerSecond *= r->threadCount;
-	r->avgSampleRate = r->avgSampleRate * (r->timeSampleCount - 1);
-	r->avgSampleRate += samplesPerSecond;
-	r->avgSampleRate /= (float)r->timeSampleCount;
+	samplesPerSecond *= r->prefs.threadCount;
+	r->state.avgSampleRate = r->state.avgSampleRate * (r->state.timeSampleCount - 1);
+	r->state.avgSampleRate += samplesPerSecond;
+	r->state.avgSampleRate /= (float)r->state.timeSampleCount;
 	
-	float printable = (float)r->avgSampleRate / 1000.0f;
+	float printable = (float)r->state.avgSampleRate / 1000.0f;
 	
 	printStatistics(r, thread, printable);
-	r->timeSampleCount++;
+	r->state.timeSampleCount++;
 }
 
 void printStats(struct renderer *r, unsigned long long ms, unsigned long long samples, int thread) {
 #ifdef WINDOWS
-	WaitForSingleObject(r->tileMutex, INFINITE);
+	WaitForSingleObject(r->state.tileMutex, INFINITE);
 #else
-	pthread_mutex_lock(&r->tileMutex);
+	pthread_mutex_lock(&r->state.tileMutex);
 #endif
 	computeStatistics(r, thread, ms, samples);
 #ifdef WINDOWS
-	ReleaseMutex(r->tileMutex);
+	ReleaseMutex(r->state.tileMutex);
 #else
-	pthread_mutex_unlock(&r->tileMutex);
+	pthread_mutex_unlock(&r->state.tileMutex);
 #endif
 }

@@ -40,15 +40,8 @@ enum renderOrder {
 	renderOrderRandom
 };
 
-/**
- Main renderer. Stores needed information to keep track of render status,
- as well as information needed for the rendering routines.
- */
-struct renderer {
-	//Source data
-	struct world *scene; //Scene to render
-	
-	//State data
+//State data
+struct state {
 	struct texture *image; //Output image
 	struct renderTile *renderTiles; //Array of renderTiles to render
 	int tileCount; //Total amount of render tiles
@@ -64,23 +57,18 @@ struct renderer {
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
 	struct threadInfo *renderThreadInfo; //Info about threads
 	pcg32_random_t *rngs; // PCG rng, one for each thread
-#ifndef WINDOWS
-	pthread_attr_t renderThreadAttributes;
-#endif
-#ifdef UI_ENABLED
-	struct display *mainDisplay;
-#endif
-	
-	//Tile duration timers (one for each thread
-	struct timeval *timers;
+	struct timeval *timers; //Tile duration timers (one for each thread)
 	
 #ifdef WINDOWS
 	HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
 #else
+	pthread_attr_t renderThreadAttributes;
 	pthread_mutex_t tileMutex; // = PTHREAD_MUTEX_INITIALIZER;
 #endif
-	
-	//Preferences data (Set by user)
+};
+
+//Preferences data (Set by user)
+struct prefs {
 	enum fileMode fileMode;
 	enum renderOrder tileOrder;
 	
@@ -91,6 +79,19 @@ struct renderer {
 	int tileHeight;
 	
 	bool antialiasing;
+};
+
+/**
+ Main renderer. Stores needed information to keep track of render status,
+ as well as information needed for the rendering routines.
+ */
+struct renderer {
+	struct world *scene; //Scene to render
+	struct state state;  //Internal state
+	struct prefs prefs;  //User prefs
+	
+	//TODO: Consider moving this out of renderer.
+	struct display *mainDisplay;
 };
 
 //Renderer

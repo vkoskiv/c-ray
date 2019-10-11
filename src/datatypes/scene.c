@@ -489,9 +489,9 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	threadCount = cJSON_GetObjectItem(data, "threadCount");
 	if (cJSON_IsNumber(threadCount)) {
 		if (threadCount->valueint > 0) {
-			r->threadCount = threadCount->valueint;
+			r->prefs.threadCount = threadCount->valueint;
 		} else {
-			r->threadCount = getSysCores();
+			r->prefs.threadCount = getSysCores();
 		}
 	} else {
 		logr(warning, "Invalid threadCount while parsing renderer\n");
@@ -501,9 +501,9 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	sampleCount = cJSON_GetObjectItem(data, "sampleCount");
 	if (cJSON_IsNumber(sampleCount)) {
 		if (sampleCount->valueint >= 1) {
-			r->sampleCount = sampleCount->valueint;
+			r->prefs.sampleCount = sampleCount->valueint;
 		} else {
-			r->sampleCount = 1;
+			r->prefs.sampleCount = 1;
 		}
 	} else {
 		logr(warning, "Invalid sampleCount while parsing renderer\n");
@@ -513,15 +513,15 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	bounces = cJSON_GetObjectItem(data, "bounces");
 	if (cJSON_IsNumber(bounces)) {
 		if (bounces->valueint >= 0) {
-			r->bounces = bounces->valueint;
+			r->prefs.bounces = bounces->valueint;
 		} else {
-			r->bounces = 0;
+			r->prefs.bounces = 0;
 		}
 	}
 	
 	antialiasing = cJSON_GetObjectItem(data, "antialiasing");
 	if (cJSON_IsBool(antialiasing)) {
-		r->antialiasing = cJSON_IsTrue(antialiasing);
+		r->prefs.antialiasing = cJSON_IsTrue(antialiasing);
 	} else {
 		logr(warning, "Invalid antialiasing bool while parsing renderer\n");
 		return -1;
@@ -530,9 +530,9 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	tileWidth = cJSON_GetObjectItem(data, "tileWidth");
 	if (cJSON_IsNumber(tileWidth)) {
 		if (tileWidth->valueint >= 1) {
-			r->tileWidth = tileWidth->valueint;
+			r->prefs.tileWidth = tileWidth->valueint;
 		} else {
-			r->tileWidth = 1;
+			r->prefs.tileWidth = 1;
 		}
 	} else {
 		logr(warning, "Invalid tileWidth while parsing renderer\n");
@@ -542,9 +542,9 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	tileHeight = cJSON_GetObjectItem(data, "tileHeight");
 	if (cJSON_IsNumber(tileHeight)) {
 		if (tileHeight->valueint >= 1) {
-			r->tileHeight = tileHeight->valueint;
+			r->prefs.tileHeight = tileHeight->valueint;
 		} else {
-			r->tileHeight = 1;
+			r->prefs.tileHeight = 1;
 		}
 	} else {
 		logr(warning, "Invalid tileHeight while parsing renderer\n");
@@ -554,17 +554,17 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	tileOrder = cJSON_GetObjectItem(data, "tileOrder");
 	if (cJSON_IsString(tileOrder)) {
 		if (strcmp(tileOrder->valuestring, "normal") == 0) {
-			r->tileOrder = renderOrderNormal;
+			r->prefs.tileOrder = renderOrderNormal;
 		} else if (strcmp(tileOrder->valuestring, "random") == 0) {
-			r->tileOrder = renderOrderRandom;
+			r->prefs.tileOrder = renderOrderRandom;
 		} else if (strcmp(tileOrder->valuestring, "topToBottom") == 0) {
-			r->tileOrder = renderOrderTopToBottom;
+			r->prefs.tileOrder = renderOrderTopToBottom;
 		} else if (strcmp(tileOrder->valuestring, "fromMiddle") == 0) {
-			r->tileOrder = renderOrderFromMiddle;
+			r->prefs.tileOrder = renderOrderFromMiddle;
 		} else if (strcmp(tileOrder->valuestring, "toMiddle") == 0) {
-			r->tileOrder = renderOrderToMiddle;
+			r->prefs.tileOrder = renderOrderToMiddle;
 		} else {
-			r->tileOrder = renderOrderNormal;
+			r->prefs.tileOrder = renderOrderNormal;
 		}
 	} else {
 		logr(warning, "Invalid tileOrder while parsing renderer\n");
@@ -924,20 +924,20 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	
 	filePath = cJSON_GetObjectItem(data, "outputFilePath");
 	if (cJSON_IsString(filePath)) {
-		copyString(filePath->valuestring, &r->image->filePath);
+		copyString(filePath->valuestring, &r->state.image->filePath);
 	}
 	
 	fileName = cJSON_GetObjectItem(data, "outputFileName");
 	if (cJSON_IsString(fileName)) {
-		copyString(fileName->valuestring, &r->image->fileName);
+		copyString(fileName->valuestring, &r->state.image->fileName);
 	}
 	
 	count = cJSON_GetObjectItem(data, "count");
 	if (cJSON_IsNumber(count)) {
 		if (count->valueint >= 0) {
-			r->image->count = count->valueint;
+			r->state.image->count = count->valueint;
 		} else {
-			r->image->count = 0;
+			r->state.image->count = 0;
 		}
 	}
 	
@@ -945,12 +945,12 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	width = cJSON_GetObjectItem(data, "width");
 	if (cJSON_IsNumber(width)) {
 		if (width->valueint >= 0) {
-			*r->image->width = width->valueint;
+			*r->state.image->width = width->valueint;
 #ifdef UI_ENABLED
 			r->mainDisplay->width = width->valueint;
 #endif
 		} else {
-			*r->image->width = 640;
+			*r->state.image->width = 640;
 #ifdef UI_ENABLED
 			r->mainDisplay->width = 640;
 #endif
@@ -960,12 +960,12 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	height = cJSON_GetObjectItem(data, "height");
 	if (cJSON_IsNumber(height)) {
 		if (height->valueint >= 0) {
-			*r->image->height = height->valueint;
+			*r->state.image->height = height->valueint;
 #ifdef UI_ENABLED
 			r->mainDisplay->height = height->valueint;
 #endif
 		} else {
-			*r->image->height = 640;
+			*r->state.image->height = 640;
 #ifdef UI_ENABLED
 			r->mainDisplay->height = 640;
 #endif
@@ -975,11 +975,11 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	fileType = cJSON_GetObjectItem(data, "fileType");
 	if (cJSON_IsString(fileType)) {
 		if (strcmp(fileType->valuestring, "png") == 0) {
-			r->image->fileType = png;
+			r->state.image->fileType = png;
 		} else if (strcmp(fileType->valuestring, "bmp") == 0) {
-			r->image->fileType = bmp;
+			r->state.image->fileType = bmp;
 		} else {
-			r->image->fileType = png;
+			r->state.image->fileType = png;
 		}
 	}
 	
@@ -1122,60 +1122,60 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	free(timer);
 	
 	//Alloc threadPaused booleans, one for each thread
-	r->threadPaused = calloc(r->threadCount, sizeof(bool));
+	r->state.threadPaused = calloc(r->prefs.threadCount, sizeof(bool));
 	//Alloc timers, one for each thread
-	r->timers = calloc(r->threadCount, sizeof(struct timeval));
+	r->state.timers = calloc(r->prefs.threadCount, sizeof(struct timeval));
 	//Alloc RNGs, one for each thread
-	r->rngs = calloc(r->threadCount, sizeof(pcg32_random_t));
+	r->state.rngs = calloc(r->prefs.threadCount, sizeof(pcg32_random_t));
 	
 	//Seed each rng	
-	for (int i = 0; i < r->threadCount; i++) {
-		pcg32_srandom_r(&r->rngs[i], 3141592, 0);
+	for (int i = 0; i < r->prefs.threadCount; i++) {
+		pcg32_srandom_r(&r->state.rngs[i], 3141592, 0);
 	}
 	
 	//Quantize image into renderTiles
-	r->tileCount = quantizeImage(&r->renderTiles, r->image, r->tileWidth, r->tileHeight);
+	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);
 	
-	reorderTiles(&r->renderTiles, r->tileCount, r->tileOrder);
+	reorderTiles(&r->state.renderTiles, r->state.tileCount, r->prefs.tileOrder);
 	
 	//Compute the focal length for the camera
-	computeFocalLength(r->scene->camera, *r->image->width);
+	computeFocalLength(r->scene->camera, *r->state.image->width);
 	
 	//Allocate memory and create array of pixels for image data
-	r->image->byte_data = calloc(3 * *r->image->width * *r->image->height, sizeof(unsigned char));
-	if (!r->image->byte_data) {
+	r->state.image->byte_data = calloc(3 * *r->state.image->width * *r->state.image->height, sizeof(unsigned char));
+	if (!r->state.image->byte_data) {
 		logr(error, "Failed to allocate memory for image data.");
 	}
-	r->image->hasAlpha = false;
+	r->state.image->hasAlpha = false;
 	
 	//Set a dark gray background for the render preview
 	struct color c = {49/255.0,51/255.0,54/255.0,0};
-	for (int x = 0; x < *r->image->width; x++) {
-		for (int y = 0; y < *r->image->height; y++) {
-			blit(r->image, c, x, y);
+	for (int x = 0; x < *r->state.image->width; x++) {
+		for (int y = 0; y < *r->state.image->height; y++) {
+			blit(r->state.image, c, x, y);
 		}
 	}
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
-	r->renderBuffer = calloc(3 * *r->image->width * *r->image->height, sizeof(double));
+	r->state.renderBuffer = calloc(3 * *r->state.image->width * *r->state.image->height, sizeof(double));
 	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
-	r->uiBuffer = calloc(4 * *r->image->width * *r->image->height, sizeof(unsigned char));
+	r->state.uiBuffer = calloc(4 * *r->state.image->width * *r->state.image->height, sizeof(unsigned char));
 	
 	//Alloc memory for pthread_create() args
-	r->renderThreadInfo = calloc(r->threadCount, sizeof(struct threadInfo));
-	if (r->renderThreadInfo == NULL) {
+	r->state.renderThreadInfo = calloc(r->prefs.threadCount, sizeof(struct threadInfo));
+	if (r->state.renderThreadInfo == NULL) {
 		logr(error, "Failed to allocate memory for threadInfo args.\n");
 	}
 	
 	//Print a useful warning to user if the defined tile size results in less renderThreads
-	if (r->tileCount < r->threadCount) {
+	if (r->state.tileCount < r->prefs.threadCount) {
 		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
-		logr(warning, "Reducing thread count from %i to ", r->threadCount);
-		r->threadCount = r->tileCount;
-		printf("%i\n", r->threadCount);
+		logr(warning, "Reducing thread count from %i to ", r->prefs.threadCount);
+		r->prefs.threadCount = r->state.tileCount;
+		printf("%i\n", r->prefs.threadCount);
 	}
 }
 

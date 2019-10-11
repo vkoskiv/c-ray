@@ -23,19 +23,19 @@ struct renderTile getTile(struct renderer *r) {
 	memset(&tile, 0, sizeof(tile));
 	tile.tileNum = -1;
 #ifdef WINDOWS
-	WaitForSingleObject(r->tileMutex, INFINITE);
+	WaitForSingleObject(r->state.tileMutex, INFINITE);
 #else
-	pthread_mutex_lock(&r->tileMutex);
+	pthread_mutex_lock(&r->state.tileMutex);
 #endif
-	if (r->finishedTileCount < r->tileCount) {
-		tile = r->renderTiles[r->finishedTileCount];
-		r->renderTiles[r->finishedTileCount].isRendering = true;
-		tile.tileNum = r->finishedTileCount++;
+	if (r->state.finishedTileCount < r->state.tileCount) {
+		tile = r->state.renderTiles[r->state.finishedTileCount];
+		r->state.renderTiles[r->state.finishedTileCount].isRendering = true;
+		tile.tileNum = r->state.finishedTileCount++;
 	}
 #ifdef WINDOWS
-	ReleaseMutex(r->tileMutex);
+	ReleaseMutex(r->state.tileMutex);
 #else
-	pthread_mutex_unlock(&r->tileMutex);
+	pthread_mutex_unlock(&r->state.tileMutex);
 #endif
 	return tile;
 }
