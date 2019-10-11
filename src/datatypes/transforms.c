@@ -206,10 +206,8 @@ void findAdjoint(double A[4][4], double adjoint[4][4]) {
 struct matrix4x4 inverse(struct matrix4x4 mtx) {
 	struct matrix4x4 inverse = {{{0}}};
 	
-	//This round() call was added after about 5 hours of debugging
-	//why my determinants turned out as 0.
-	int det = round(findDeterminant4x4(mtx.mtx));
-	if (det == 0) {
+	double det = findDeterminant4x4(mtx.mtx);
+	if (det <= 0.0) {
 		logr(error, "No inverse for given transform!\n");
 	}
 	
