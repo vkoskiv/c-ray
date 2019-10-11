@@ -10,8 +10,9 @@
 
 struct renderer;
 
-#ifdef UI_ENABLED
+
 struct display {
+#ifdef UI_ENABLED
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	SDL_Texture *texture;
@@ -23,8 +24,10 @@ struct display {
 	
 	int height;
 	int width;
+#endif
 };
 
+#ifdef UI_ENABLED
 int initSDL(struct display *d);
 void drawWindow(struct renderer *r);
 void freeDisplay(struct display *disp);
