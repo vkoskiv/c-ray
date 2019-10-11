@@ -21,11 +21,11 @@ enum currentType {
 
 /**
  Shading/intersection information, used to perform shading and rendering logic.
- NOTE: uv, mtlIndex and polyIndex are only set if the ray hits a polygon (mesh)
+ @note uv, mtlIndex and polyIndex are only set if the ray hits a polygon (mesh)
+ @todo Consider moving start, end materials to lightRay instead
  */
 struct intersection {
 	struct lightRay ray;			//Light ray that encountered this intersection
-	//TODO: consider moving start,end materials to lightRay
 	struct material start;			//Material of where that ray originates
 	struct material end;			//Material of the intersected object
 	struct vector hitPoint;			//Hit point vector in 3D space
@@ -40,3 +40,10 @@ struct intersection {
 };
 
 struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, int maxDepth, pcg32_random_t *rng);
+
+/// Recursive path tracer.
+/// @param incidentRay View ray to be casted into the scene
+/// @param scene Scene to cast the ray into
+/// @param depth Current depth for recursive calls
+/// @param maxDepth Maximum depth of recursion
+/// @param rng A random number generator. One per execution thread.

@@ -187,14 +187,6 @@ int countNodes(struct kdTreeNode *node) {
 	return nodes;
 }
 
-/**
- Traverse a k-d tree and see if a ray collides with a polygon.
- 
- @param node Given tree to traverse
- @param ray Ray to check intersection on
- @param info Shading information
- @return True if ray hits a polygon in a leaf node, otherwise false
- */
 bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect) {
 	//A bit of a hack, but it does work...!
 	double fakeIsect = 20000.0;

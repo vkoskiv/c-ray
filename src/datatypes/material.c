@@ -140,7 +140,7 @@ struct color gradient(struct intersection *isect) {
 	//barycentric coordinates for this polygon
 	double u = isect->uv.x;
 	double v = isect->uv.y;
-	double w = 1.0 - u - v; //1.0 - u - v
+	double w = 1.0 - u - v;
 	
 	return colorWithValues(u, v, w, 1.0);
 }

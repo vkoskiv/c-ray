@@ -4,6 +4,8 @@
 #define GIT_SHA1 "@GIT_SHA1@"
 const char git_sha1[] = GIT_SHA1;
 
+/// Return current build time git hash
+/// @param chars bytes of hash to return
 char *gitHash(int chars) {
 	if (chars > 40) chars = 40;
 	if (chars < 1) chars = 1;

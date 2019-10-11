@@ -21,9 +21,16 @@ struct kdTreeNode {
 	int depth;
 };
 
-//Builds a k-d tree and returns the root node
+/// Builds a KD-tree for a given array of polygons and returns a pointer to the root node
+/// @param polygons Array of polygons to process
+/// @param polyCount Amount of polygons given
+/// @param depth Current depth for recursive calls
 struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth);
 
+/// Traverses a given KD-tree to find an intersection between a ray and a polygon in that tree. Hopefully really fast.
+/// @param node Root node to start traversing from
+/// @param ray Ray to check intersection against
+/// @param isect Intersection information is saved to this struct
 bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect);
 
 int countNodes(struct kdTreeNode *node);
