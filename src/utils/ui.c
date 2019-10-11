@@ -201,7 +201,9 @@ void drawProgressBars(struct renderer *r) {
  @param on Draw frame if true, erase if false
  */
 void drawFrame(struct renderer *r, struct renderTile tile, bool on) {
-	for (int i = 1; i < 7; i++) {
+	int length = 8;
+	if (tile.width < 16) length = 4;
+	for (int i = 1; i < length; i++) {
 		//top left
 		drawPixel(r, tile.begin.x+i, tile.begin.y+1, on, frameColor);
 		drawPixel(r, tile.begin.x+1, tile.begin.y+i, on, frameColor);
@@ -221,6 +223,7 @@ void drawFrame(struct renderer *r, struct renderTile tile, bool on) {
 }
 
 void updateFrames(struct renderer *r) {
+	if (r->prefs.tileWidth < 8 || r->prefs.tileHeight < 8) return;
 	for (int i = 0; i < r->state.tileCount; i++) {
 		//For every tile, if it's currently rendering, draw the frame
 		//If it is NOT rendering, clear any frame present
