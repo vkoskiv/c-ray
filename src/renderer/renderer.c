@@ -60,12 +60,12 @@ void render(struct renderer *r) {
 				r->state.activeThreads++;
 #ifdef WINDOWS
 				DWORD threadId;
-				r->renderThreadInfo[t].thread_handle = CreateThread(NULL, 0, renderThread, &r->renderThreadInfo[t], 0, &threadId);
-				if (r->renderThreadInfo[t].thread_handle == NULL) {
+				r->state.renderThreadInfo[t].thread_handle = CreateThread(NULL, 0, renderThread, &r->state.renderThreadInfo[t], 0, &threadId);
+				if (r->state.renderThreadInfo[t].thread_handle == NULL) {
 					logr(error, "Failed to create thread.\n");
 					exit(-1);
 				}
-				r->renderThreadInfo[t].thread_id = threadId;
+				r->state.renderThreadInfo[t].thread_id = threadId;
 #else
 				if (pthread_create(&r->state.renderThreadInfo[t].thread_id, &r->state.renderThreadAttributes, renderThread, &r->state.renderThreadInfo[t])) {
 					logr(error, "Failed to create a thread.\n");
@@ -102,7 +102,7 @@ void render(struct renderer *r) {
 	//Make sure render threads are finished before continuing
 	for (t = 0; t < r->prefs.threadCount; t++) {
 #ifdef WINDOWS
-		WaitForSingleObjectEx(r->renderThreadInfo[t].thread_handle, INFINITE, FALSE);
+		WaitForSingleObjectEx(r->state.renderThreadInfo[t].thread_handle, INFINITE, FALSE);
 #else
 		if (pthread_join(r->state.renderThreadInfo[t].thread_id, NULL)) {
 			logr(warning, "Thread %t frozen.", t);
