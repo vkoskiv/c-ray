@@ -21,6 +21,7 @@ struct renderTile {
 	int completedSamples;
 	bool isRendering;
 	bool renderComplete;
+	bool hasHitObject;  //If a tile contains just ambient, we can skip tiles pretty safely after 25 samples or so.
 	int tileNum;
 };
 

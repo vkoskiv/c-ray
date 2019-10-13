@@ -373,9 +373,12 @@ void *renderThread(void *arg) {
 	struct renderTile tile = getTile(renderer);
 	tinfo->currentTileNum = tile.tileNum;
 	
+	bool hasHitObject = false;
+	
 	while (tile.tileNum != -1 && renderer->state.isRendering) {
 		unsigned long long sleepMs = 0;
 		startTimer(&renderer->state.timers[tinfo->thread_num]);
+		hasHitObject = false;
 		
 		while (tile.completedSamples < renderer->prefs.sampleCount+1 && renderer->state.isRendering) {
 			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
@@ -440,7 +443,7 @@ void *renderThread(void *arg) {
 					struct color output = getPixel(renderer, x, y);
 					
 					//Get new sample (path tracing is initiated here)
-					struct color sample = pathTrace(&incidentRay, renderer->scene, 0, renderer->prefs.bounces, rng);
+					struct color sample = pathTrace(&incidentRay, renderer->scene, 0, renderer->prefs.bounces, rng, &hasHitObject);
 					
 					//And process the running average
 					output.red = output.red * (tile.completedSamples - 1);
@@ -465,6 +468,7 @@ void *renderThread(void *arg) {
 			}
 			tile.completedSamples++;
 			tinfo->completedSamples = tile.completedSamples;
+			if (tile.completedSamples > 25 && !hasHitObject) break; //Abort if we didn't hit anything within 25 samples
 			//Pause rendering when bool is set
 			while (renderer->state.threadPaused[tinfo->thread_num] && !renderer->state.renderAborted) {
 				sleepMSec(100);
