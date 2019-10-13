@@ -16,6 +16,8 @@
 #include "../utils/logging.h"
 #include "../datatypes/texture.h"
 
+#include <limits.h> //For SSIZE_MAX
+
 //Prototypes for internal functions
 int getFileSize(char *fileName);
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
