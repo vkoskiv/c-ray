@@ -104,7 +104,7 @@ vec3 HeitzSpecularBSDF(Material* mat, vec3 wo, vec3 wi)
 	float VoH = vec3_dot(wo, wm);
 
 	float alpha = mat->roughness * mat->roughness; /* GGX alpha */
-	float aspect = 1.0f / mat->anisotropy;
+	float aspect = sqrtf(1.0f - 0.9f * mat->anisotropy);
 	float ax = alpha * aspect;
 	float ay = alpha / aspect;
 
