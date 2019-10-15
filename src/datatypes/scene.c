@@ -339,7 +339,7 @@ struct material *parseMaterial(const cJSON *data) {
 			logr(error, "Material data: %s\n", cJSON_Print(data));
 		}
 		if (validIntensity) {
-			mat->emission = colorCoef(intensityValue, &mat->emission);
+			mat->emission = colorCoef(intensityValue, mat->emission);
 		} else {
 			logr(warning, "Emission shader defined, but no intensity given\n");
 			logr(error, "Material data: %s\n", cJSON_Print(data));
@@ -858,7 +858,7 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	intensity = cJSON_GetObjectItem(data, "intensity");
 	if (intensity != NULL) {
 		if (cJSON_IsNumber(intensity) && (newSphere.material.type == emission)) {
-			newSphere.material.emission = colorCoef(intensity->valuedouble, &newSphere.material.emission);
+			newSphere.material.emission = colorCoef(intensity->valuedouble, newSphere.material.emission);
 		}
 	}
 	

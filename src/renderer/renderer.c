@@ -209,7 +209,7 @@ void *renderThread(void *arg) {
 					output.green = output.green * (tile.completedSamples - 1);
 					output.blue = output.blue * (tile.completedSamples - 1);
 					
-					output = addColors(&output, &sample);
+					output = addColors(output, sample);
 					
 					output.red = output.red / tile.completedSamples;
 					output.green = output.green / tile.completedSamples;

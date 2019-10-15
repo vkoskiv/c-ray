@@ -25,7 +25,7 @@ struct sphere newLightSphere(struct vector pos, double radius, struct color colo
 	newSphere.pos = pos;
 	newSphere.radius = radius;
 	newSphere.material = newMaterial(color, 0.0);
-	newSphere.material.emission = colorCoef(intensity, &color);
+	newSphere.material.emission = colorCoef(intensity, color);
 	newSphere.material.type = emission;
 	assignBSDF(&newSphere.material);
 	return newSphere;

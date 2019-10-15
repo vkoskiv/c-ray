@@ -34,9 +34,7 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 				}
 			}
 			struct color newColor = pathTrace(&scattered, scene, depth + 1, maxDepth, rng, hasHitObject);
-			struct color attenuated = multiplyColors(&attenuation, &newColor);
-			struct color final = addColors(&emitted, &attenuated);
-			return colorCoef(1.0 / probability, &final);
+			return colorCoef(1.0 / probability, addColors(emitted, multiplyColors(attenuation, newColor)));
 		} else {
 			return emitted;
 		}
@@ -105,13 +103,11 @@ struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 	return newColor;
 }
 
+//Linearly interpolate based on the Y component
 struct color getAmbientColor(struct lightRay *incidentRay, struct gradient *color) {
-	//Linearly interpolate based on the Y component, from white to light blue
 	struct vector unitDirection = vecNormalize(&incidentRay->direction);
 	double t = 0.5 * (unitDirection.y + 1.0);
-	struct color temp1 = colorCoef(1.0 - t, color->down);
-	struct color temp2 = colorCoef(t, color->up);
-	return addColors(&temp1, &temp2);
+	return addColors(colorCoef(1.0 - t, *color->down), colorCoef(t, *color->up));
 }
 
 struct color getBackground(struct lightRay *incidentRay, struct world *scene) {
