@@ -42,79 +42,107 @@
  'Diamond': 2.417 - 2.541
  */
 
-struct lightRay;
-struct intersection;
-struct color;
-struct texture;
+#include <math.h>
 
-enum bsdfType {
-	emission = 0,
-	lambertian,
-	glass,
-	metal,
-	translucent,
-	transparent
+typedef struct
+{
+	float x, y, z;
+} vec3;
+
+#define VEC3_ZERO ((vec3){0.0f, 0.0f, 0.0f})
+#define VEC3_ONE ((vec3){1.0f, 1.0f, 1.0f})
+
+vec3 vec3_new(float x, float y, float z)
+{
+	return (vec3){x, y, z};
+}
+
+float vec3_dot(vec3 a, vec3 b)
+{
+	return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+float vec3_length(vec3 v)
+{
+	return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+vec3 vec3_divs(vec3 v, float s)
+{
+	return (vec3){v.x / s, v.y / s, v.z / s};
+}
+
+vec3 vec3_normalize(vec3 v)
+{
+	return vec3_divs(v, vec3_length(v));
+}
+
+vec3 vec3_add(vec3 a, vec3 b)
+{
+	return (vec3){a.x + b.x, a.y + b.y, a.z + b.z};
+}
+
+vec3 vec3_sub(vec3 a, vec3 b)
+{
+	return (vec3){a.x - b.x, a.y - b.y, a.z - b.z};
+}
+
+vec3 vec3_mul(vec3 a, vec3 b)
+{
+	return (vec3){a.x * b.x, a.y * b.y, a.z * b.z};
+}
+
+vec3 vec3_adds(vec3 v, float s)
+{
+	return (vec3){v.x + s, v.y + s, v.z + s};
+}
+
+vec3 vec3_muls(vec3 v, float s)
+{
+	return (vec3){v.x * s, v.y * s, v.z * s};
+}
+
+typedef struct
+{
+	vec3 albedo;
+	float metalness;
+	float specularity;
+	float ior;
+	float anisotropy;
+	float roughness;
+} Material;
+
+
+typedef enum
+{
+	BSDF_TYPE_DIFFUSE,
+	BSDF_TYPE_SPECULAR,
+} BSDF_TYPE;
+
+typedef vec3 (*BSDF_FUN)(Material* mat, vec3 wo, vec3 wi);
+
+typedef struct
+{
+	BSDF_TYPE type;
+	BSDF_FUN fun;
+} BSDF;
+
+/* BSDF declarations */
+vec3 HammonDiffuseBSDF(Material* mat, vec3 wo, vec3 wi);
+vec3 HeitzSpecularBSDF(Material* mat, vec3 wo, vec3 wi);
+
+enum BSDFLookupTableEnum
+{
+	HAMMON_DIFFUSE_BSDF,
+	HEITZ_SPECULAR_BSDF,
+	BSDF_LOOKUP_TABLE_SIZE
 };
 
-struct bsdf {
-	enum bsdfType type;
-	float weights;
-	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
-};
+BSDF BSDFLookUpTable[BSDF_LOOKUP_TABLE_SIZE];
 
-struct material {
-	char *textureFilePath;
-	char *name;
-	bool hasTexture;
-	struct texture *texture;
-	struct color ambient;
-	struct color diffuse;
-	struct color specular;
-	struct color emission;
-	double reflectivity;
-	double roughness;
-	double refractivity;
-	double IOR;
-	double transparency;
-	double sharpness;
-	double glossiness;
-	
-	//TODO:
-	// - New BSDF struct that contains FP, type and contributing percentage
-	// - Have an array of these structs, so 50% emit 50% reflect would have
-	//   two BSDF structs that have their contributions set to 0.5
-	// - Modify pathTrace loop to accommodate this new system.
-	// - Normalize probabilities
-	
-	enum bsdfType type;
-	//isect record, ray, attenuation color, scattered ray
-	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
-};
+static void SetupBSDFLUT(void)
+{
+	BSDFLookUpTable[HAMMON_DIFFUSE_BSDF] = (BSDF){ BSDF_TYPE_DIFFUSE, (BSDF_FUN) &HammonDiffuseBSDF };
+	BSDFLookUpTable[HEITZ_SPECULAR_BSDF] = (BSDF){ BSDF_TYPE_SPECULAR, (BSDF_FUN) &HeitzSpecularBSDF };
+}
 
-//temporary newMaterial func
-struct material newMaterial(struct color diffuse, double reflectivity);
-struct material *materialForName(struct material *materials, int count, char *name);
-
-//Full obj spec material
-struct material newMaterialFull(struct color ambient,
-								struct color diffuse,
-								struct color specular,
-								double reflectivity,
-								double refractivity,
-								double IOR, double
-								transparency, double
-								sharpness, double
-								glossiness);
-
-struct material emptyMaterial(void);
-struct material defaultMaterial(void);
-struct material warningMaterial(void);
-
-bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool dialectricBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-
-void assignBSDF(struct material *mat);
-
-void freeMaterial(struct material *mat);
