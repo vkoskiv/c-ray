@@ -41,20 +41,9 @@ void printPrefix(enum logType type) {
 	}
 }
 
-/**
- C-ray internal formatted logger
-
- @param type Type of log message
- @param fmt Log message formatted like printf
- @param ... 
- */
-void logr(enum logType type, const char *fmt, ...) {
-	
+void printDate() {
 	time_t curTime = time(NULL);
 	struct tm time = *localtime(&curTime);
-
-	printPrefix(type);
-	
 	printf("[%d-%02d-%02d %02d:%02d:%02d]: ",
 		   time.tm_year + 1900,
 		   time.tm_mon + 1,
@@ -62,16 +51,18 @@ void logr(enum logType type, const char *fmt, ...) {
 		   time.tm_hour,
 		   time.tm_min,
 		   time.tm_sec);
-	
-	//Handle formatted string
+}
+
+void logr(enum logType type, const char *fmt, ...) {
+	if (!fmt) return;
+	printPrefix(type);
+	printDate();
 	char buf[512];
 	va_list vl;
 	va_start(vl, fmt);
 	vsnprintf(buf, sizeof(buf), fmt, vl);
 	va_end(vl);
-	//And print it
 	printf("%s", buf);
-	
 	if (type == error) {
 		logr(info, "Aborting due to previous error.\n");
 		abort();

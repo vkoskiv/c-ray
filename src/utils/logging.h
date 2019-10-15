@@ -17,6 +17,14 @@ enum logType {
 	debug
 };
 
+/**
+C-ray internal formatted logger.
+
+@note Error will print stack trace and abort execution.
+@param type Type of log message
+@param fmt Log message formatted like printf
+@param ...
+*/
 void logr(enum logType type, const char *fmt, ...);
 
 void printStats(struct renderer *r, unsigned long long ms, unsigned long long samples, int thread);
