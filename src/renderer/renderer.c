@@ -165,7 +165,7 @@ void *renderThread(void *arg) {
 												1.0};
 					
 					//Normalize direction
-					direction = vecNormalize(&direction);
+					direction = vecNormalize(direction);
 					struct vector startPos = renderer->scene->camera->pos;
 					struct vector left = renderer->scene->camera->left;
 					struct vector up = renderer->scene->camera->up;
@@ -181,11 +181,7 @@ void *renderThread(void *arg) {
 					} else {
 						double randY = rndDouble(-aperture, aperture, rng);
 						double randX = rndDouble(-aperture, aperture, rng);
-						
-						struct vector upTemp = vecScale(randY, &up);
-						struct vector temp = vecAdd(&startPos, &upTemp);
-						struct vector leftTemp = vecScale(randX, &left);
-						struct vector randomStart = vecAdd(&temp, &leftTemp);
+						struct vector randomStart = vecAdd(vecAdd(startPos, vecScale(randY, up)), vecScale(randX, left));
 						
 						incidentRay.start = randomStart;
 					}

@@ -36,14 +36,14 @@ bool intersect(struct lightRay *ray, struct sphere *sphere, double *t) {
 	bool intersects = false;
 	
 	//Vector dot product of the direction
-	double A = vecDot(&ray->direction, &ray->direction);
+	double A = vecDot(ray->direction, ray->direction);
 	
 	//Distance between start of a lightRay and the sphere position
-	struct vector distance = vecSubtract(&ray->start, &sphere->pos);
+	struct vector distance = vecSubtract(ray->start, sphere->pos);
 	
-	double B = 2 * vecDot(&ray->direction, &distance);
+	double B = 2 * vecDot(ray->direction, distance);
 	
-	double C = vecDot(&distance, &distance) - (sphere->radius * sphere->radius);
+	double C = vecDot(distance, distance) - (sphere->radius * sphere->radius);
 	
 	double trigDiscriminant = B * B - 4 * A * C;
 	
@@ -76,13 +76,13 @@ bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct
 	if (intersect(ray, sphere, &isect->distance)) {
 		isect->type = hitTypeSphere;
 		//Compute normal and store it to isect
-		struct vector scaled = vecScale(isect->distance, &ray->direction);
-		struct vector hitpoint = vecAdd(&ray->start, &scaled);
-		struct vector surfaceNormal = vecSubtract(&hitpoint, &sphere->pos);
-		double temp = vecDot(&surfaceNormal,&surfaceNormal);
+		struct vector scaled = vecScale(isect->distance, ray->direction);
+		struct vector hitpoint = vecAdd(ray->start, scaled);
+		struct vector surfaceNormal = vecSubtract(hitpoint, sphere->pos);
+		double temp = vecDot(surfaceNormal, surfaceNormal);
 		if (temp == 0.0) return false; //FIXME: Check this later
 		temp = invsqrt(temp);
-		isect->surfaceNormal = vecScale(temp, &surfaceNormal);
+		isect->surfaceNormal = vecScale(temp, surfaceNormal);
 		//Also store hitpoint
 		isect->hitPoint = hitpoint;
 		return true;

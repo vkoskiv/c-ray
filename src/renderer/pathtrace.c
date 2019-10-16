@@ -82,7 +82,7 @@ float wrapMinMax(float x, float min, float max) {
 
 struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 	//Unit direction vector
-	struct vector ud = vecNormalize(&incidentRay->direction);
+	struct vector ud = vecNormalize(incidentRay->direction);
 	
 	//To polar from cartesian
 	float r = 1.0f; //Normalized above
@@ -105,7 +105,7 @@ struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 
 //Linearly interpolate based on the Y component
 struct color getAmbientColor(struct lightRay *incidentRay, struct gradient *color) {
-	struct vector unitDirection = vecNormalize(&incidentRay->direction);
+	struct vector unitDirection = vecNormalize(incidentRay->direction);
 	double t = 0.5 * (unitDirection.y + 1.0);
 	return addColors(colorCoef(1.0 - t, *color->down), colorCoef(t, *color->up));
 }

@@ -29,39 +29,39 @@ struct vector vecWithPos(double x, double y, double z);
 struct vector vecZero(void);
 
 //Add two vectors and return the resulting vector
-struct vector vecAdd(struct vector *v1, struct vector *v2);
+struct vector vecAdd(struct vector v1, struct vector v2);
 
 //Subtract two vectors and return the resulting vector
-struct vector vecSubtract(const struct vector *v1, const struct vector *v2);
+struct vector vecSubtract(const struct vector v1, const struct vector v2);
 
 //Multiply two vectors and return the dot product
-double vecDot(const struct vector *v1, const struct vector *v2);
+double vecDot(const struct vector v1, const struct vector v2);
 
 //Multiply a vector by a coefficient and return the resulting vector
-struct vector vecScale(const double c, const struct vector *v);
+struct vector vecScale(const double c, const struct vector v);
 
-struct coord coordScale(const double c, const struct coord *crd);
-struct coord addCoords(const struct coord *c1, const struct coord *c2);
+struct coord coordScale(const double c, const struct coord crd);
+struct coord addCoords(const struct coord c1, const struct coord c2);
 
 //Calculate the cross product of two vectors and return the resulting vector
-struct vector vecCross(struct vector *v1, struct vector *v2);
+struct vector vecCross(struct vector v1, struct vector v2);
 
 //Calculate min of 2 vectors
-struct vector vecMin(struct vector *v1, struct vector *v2);
+struct vector vecMin(struct vector v1, struct vector v2);
 
 //Calculate max of 2 vectors
-struct vector vecMax(struct vector *v1, struct vector *v2);
+struct vector vecMax(struct vector v1, struct vector v2);
 
 //Calculate length of vector
-double vecLength(struct vector *v);
+double vecLength(struct vector v);
 
 //calculate length^2 of vector
-double vecLengthSquared(struct vector *v);
+double vecLengthSquared(struct vector v);
 
 //Normalize a vector
-struct vector vecNormalize(struct vector *v);
+struct vector vecNormalize(struct vector v);
 
-struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v3);
+struct vector getMidPoint(struct vector v1, struct vector v2, struct vector v3);
 
 struct vector getRandomVecOnRadius(struct vector center, double radius, pcg32_random_t *rng);
 
@@ -73,6 +73,6 @@ struct vector vecMultiplyConst(struct vector v, const double c);
 
 struct vector vecMultiply(struct vector v1, struct vector v2);
 
-struct vector reflect(const struct vector* I, const struct vector* N);
+struct vector reflect(const struct vector I, const struct vector N);
 
 struct vector vecNegate(struct vector v);

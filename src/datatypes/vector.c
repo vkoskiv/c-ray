@@ -34,8 +34,8 @@ struct vector vecZero() {
  @param v2 Vector 2
  @return Resulting vector
  */
-struct vector vecAdd(struct vector *v1, struct vector *v2) {
-	return (struct vector){v1->x + v2->x, v1->y + v2->y, v1->z + v2->z};
+struct vector vecAdd(struct vector v1, struct vector v2) {
+	return (struct vector){v1.x + v2.x, v1.y + v2.y, v1.z + v2.z};
 }
 
 /**
@@ -44,12 +44,12 @@ struct vector vecAdd(struct vector *v1, struct vector *v2) {
  @param v Vector to compute the length for
  @return Length of given vector
  */
-double vecLength(struct vector *v) {
-	return sqrt(v->x*v->x + v->y*v->y + v->z*v->z);
+double vecLength(struct vector v) {
+	return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 
-double vecLengthSquared(struct vector *v) {
-	return v->x * v->x + v->y * v->y + v->z * v->z;
+double vecLengthSquared(struct vector v) {
+	return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
 /**
@@ -59,12 +59,12 @@ double vecLengthSquared(struct vector *v) {
  @param v2 Vector to be subtracted
  @return Resulting vector
  */
-struct vector vecSubtract(const struct vector *v1, const struct vector *v2) {
-	return (struct vector){v1->x - v2->x, v1->y - v2->y, v1->z - v2->z};
+struct vector vecSubtract(const struct vector v1, const struct vector v2) {
+	return (struct vector){v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
 }
 
-struct vector vecSubtractConst(const struct vector* v, double n) {
-	return (struct vector){v->x - n, v->y - n, v->z - n};
+struct vector vecSubtractConst(const struct vector v, double n) {
+	return (struct vector){v.x - n, v.y - n, v.z - n};
 }
 
 /**
@@ -74,8 +74,8 @@ struct vector vecSubtractConst(const struct vector* v, double n) {
  @param v2 Vector 2
  @return Resulting scalar
  */
-double vecDot(const struct vector *v1, const struct vector *v2) {
-	return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
+double vecDot(const struct vector v1, const struct vector v2) {
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
 /**
@@ -85,16 +85,16 @@ double vecDot(const struct vector *v1, const struct vector *v2) {
  @param v Vector to be multiplied
  @return Multiplied vector
  */
-struct vector vecScale(const double c, const struct vector *v) {
-	return (struct vector){v->x * c, v->y * c, v->z * c};
+struct vector vecScale(const double c, const struct vector v) {
+	return (struct vector){v.x * c, v.y * c, v.z * c};
 }
 
-struct coord coordScale(const double c, const struct coord *crd) {
-	return (struct coord){crd->x * c, crd->y * c};
+struct coord coordScale(const double c, const struct coord crd) {
+	return (struct coord){crd.x * c, crd.y * c};
 }
 
-struct coord addCoords(const struct coord *c1, const struct coord *c2) {
-	return (struct coord){c1->x + c2->x, c1->y + c2->y};
+struct coord addCoords(const struct coord c1, const struct coord c2) {
+	return (struct coord){c1.x + c2.x, c1.y + c2.y};
 }
 
 /**
@@ -104,10 +104,11 @@ struct coord addCoords(const struct coord *c1, const struct coord *c2) {
  @param v2 Vector 2
  @return Cross product of given vectors
  */
-struct vector vecCross(struct vector *v1, struct vector *v2) {
-	return (struct vector){((v1->y * v2->z) - (v1->z * v2->y)),
-		((v1->z * v2->x) - (v1->x * v2->z)),
-		((v1->x * v2->y) - (v1->y * v2->x))};
+struct vector vecCross(struct vector v1, struct vector v2) {
+	return (struct vector){ ((v1.y * v2.z) - (v1.z * v2.y)),
+							((v1.z * v2.x) - (v1.x * v2.z)),
+							((v1.x * v2.y) - (v1.y * v2.x))
+	};
 }
 
 /**
@@ -117,8 +118,8 @@ struct vector vecCross(struct vector *v1, struct vector *v2) {
  @param v2 Vector 2
  @return Smallest vector
  */
-struct vector vecMin(struct vector *v1, struct vector *v2) {
-	return (struct vector){min(v1->x, v2->x), min(v1->y, v2->y), min(v1->z, v2->z)};
+struct vector vecMin(struct vector v1, struct vector v2) {
+	return (struct vector){min(v1.x, v2.x), min(v1.y, v2.y), min(v1.z, v2.z)};
 }
 
 /**
@@ -128,8 +129,8 @@ struct vector vecMin(struct vector *v1, struct vector *v2) {
  @param v2 Vector 2
  @return Largest vector
  */
-struct vector vecMax(struct vector *v1, struct vector *v2) {
-	return (struct vector){max(v1->x, v2->x), max(v1->y, v2->y), max(v1->z, v2->z)};
+struct vector vecMax(struct vector v1, struct vector v2) {
+	return (struct vector){max(v1.x, v2.x), max(v1.y, v2.y), max(v1.z, v2.z)};
 }
 
 
@@ -137,11 +138,12 @@ struct vector vecMax(struct vector *v1, struct vector *v2) {
  Normalize a given vector
 
  @param v Vector to normalize
+ @todo Consider having this one void and as a reference type
  @return normalized vector
  */
-struct vector vecNormalize(struct vector *v) {
+struct vector vecNormalize(struct vector v) {
 	double length = vecLength(v);
-	return (struct vector){v->x / length, v->y / length, v->z / length};
+	return (struct vector){v.x / length, v.y / length, v.z / length};
 }
 
 
@@ -154,10 +156,8 @@ struct vector vecNormalize(struct vector *v) {
  @param v3 Vector 3
  @return Mid-point of given vectors
  */
-struct vector getMidPoint(struct vector *v1, struct vector *v2, struct vector *v3) {
-	struct vector temp = vecAdd(v1, v2);
-	temp = vecAdd(&temp, v3);
-	return vecScale(1.0/3.0, &temp);
+struct vector getMidPoint(struct vector v1, struct vector v2, struct vector v3) {
+	return vecScale(1.0/3.0, vecAdd(vecAdd(v1, v2), v3));
 }
 
 /**
@@ -217,7 +217,7 @@ Returns the reflected ray vector from a surface
 @param N Normal vector normalized
 @return Vector of the reflected ray vector from a surface
 */
-struct vector reflect(const struct vector* I, const struct vector* N) {
+struct vector reflect(const struct vector I, const struct vector N) {
 	struct vector Imin2dotNI = vecSubtractConst(I, vecDot(N, I) * 2.0);
-	return vecMultiply(*N, Imin2dotNI);
+	return vecMultiply(N, Imin2dotNI);
 }

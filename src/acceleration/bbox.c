@@ -38,16 +38,16 @@ struct boundingBox *computeBoundingBox(int *polys, int count) {
 	
 	for (int i = 0; i < count; i++) {
 		for (int j = 0; j < 3; j++) {
-			minPoint = vecMin(&minPoint, &vertexArray[polygonArray[polys[i]].vertexIndex[j]]);
-			maxPoint = vecMax(&maxPoint, &vertexArray[polygonArray[polys[i]].vertexIndex[j]]);
+			minPoint = vecMin(minPoint, vertexArray[polygonArray[polys[i]].vertexIndex[j]]);
+			maxPoint = vecMax(maxPoint, vertexArray[polygonArray[polys[i]].vertexIndex[j]]);
 		}
 	}
 	struct vector center = vecWithPos(0.5 * (minPoint.x + maxPoint.x), 0.5 * (minPoint.y + maxPoint.y), 0.5 * (minPoint.z + maxPoint.z));
 	double maxDistance = 0.0;
 	for (int i = 0; i < count; i++) {
 		for (int j = 0; j < 3; j++) {
-			struct vector fromCenter = vecSubtract(&vertexArray[polygonArray[polys[i]].vertexIndex[j]], &center);
-			maxDistance = max(maxDistance, pow(vecLength(&fromCenter), 2));
+			struct vector fromCenter = vecSubtract(vertexArray[polygonArray[polys[i]].vertexIndex[j]], center);
+			maxDistance = max(maxDistance, pow(vecLength(fromCenter), 2));
 		}
 	}
 	bbox->start = minPoint;
