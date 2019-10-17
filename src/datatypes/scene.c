@@ -25,6 +25,19 @@
 #include "../utils/multiplatform.h"
 #include "../utils/timer.h"
 
+struct renderer defaultSettings = (struct renderer){
+	.prefs = {
+		.fileMode = saveModeNormal,
+		.tileOrder = renderOrderFromMiddle,
+		.threadCount = 4,
+		.sampleCount = 25,
+		.bounces = 50,
+		.tileWidth = 32,
+		.tileHeight = 32,
+		.antialiasing = true
+	}
+};
+
 struct color *parseColor(const cJSON *data);
 
 /**
