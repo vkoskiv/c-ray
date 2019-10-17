@@ -11,9 +11,9 @@
 struct renderer;
 
 struct camera {
-	double FOV;
-	double focalLength;
-	double aperture;
+	float FOV;
+	float focalLength;
+	float aperture;
 	
 	struct vector pos;
 	struct vector up;

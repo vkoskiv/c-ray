@@ -14,7 +14,7 @@
 
 //Color
 struct color {
-	double red, green, blue, alpha;
+	float red, green, blue, alpha;
 };
 
 struct gradient {
@@ -33,7 +33,7 @@ extern struct color frameColor;
 extern struct color progColor;
 
 //Return a color with given values
-struct color colorWithValues(double red, double green, double blue, double alpha);
+struct color colorWithValues(float red, float green, float blue, float alpha);
 
 //Multiply two colors and return the resulting color
 struct color multiplyColors(struct color c1, struct color c2);
@@ -44,7 +44,7 @@ struct color addColors(struct color c1, struct color c2);
 struct color grayscale(struct color c);
 
 //Multiply a color by a coefficient and return the resulting color
-struct color colorCoef(double coef, struct color c);
+struct color colorCoef(float coef, struct color c);
 
 struct color mixColors(struct color c1, struct color c2, float coeff);
 

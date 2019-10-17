@@ -19,7 +19,7 @@
  @param z Z component
  @return Vector with given values
  */
-struct vector vecWithPos(double x, double y, double z) {
+struct vector vecWithPos(float x, float y, float z) {
 	return (struct vector){x, y, z};
 }
 
@@ -44,11 +44,11 @@ struct vector vecAdd(struct vector v1, struct vector v2) {
  @param v Vector to compute the length for
  @return Length of given vector
  */
-double vecLength(struct vector v) {
+float vecLength(struct vector v) {
 	return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 
-double vecLengthSquared(struct vector v) {
+float vecLengthSquared(struct vector v) {
 	return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
@@ -63,7 +63,7 @@ struct vector vecSubtract(const struct vector v1, const struct vector v2) {
 	return (struct vector){v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
 }
 
-struct vector vecSubtractConst(const struct vector v, double n) {
+struct vector vecSubtractConst(const struct vector v, float n) {
 	return (struct vector){v.x - n, v.y - n, v.z - n};
 }
 
@@ -74,7 +74,7 @@ struct vector vecSubtractConst(const struct vector v, double n) {
  @param v2 Vector 2
  @return Resulting scalar
  */
-double vecDot(const struct vector v1, const struct vector v2) {
+float vecDot(const struct vector v1, const struct vector v2) {
 	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
@@ -85,11 +85,11 @@ double vecDot(const struct vector v1, const struct vector v2) {
  @param v Vector to be multiplied
  @return Multiplied vector
  */
-struct vector vecScale(const double c, const struct vector v) {
+struct vector vecScale(const float c, const struct vector v) {
 	return (struct vector){v.x * c, v.y * c, v.z * c};
 }
 
-struct coord coordScale(const double c, const struct coord crd) {
+struct coord coordScale(const float c, const struct coord crd) {
 	return (struct coord){crd.x * c, crd.y * c};
 }
 
@@ -142,7 +142,7 @@ struct vector vecMax(struct vector v1, struct vector v2) {
  @return normalized vector
  */
 struct vector vecNormalize(struct vector v) {
-	double length = vecLength(v);
+	float length = vecLength(v);
 	return (struct vector){v.x / length, v.y / length, v.z / length};
 }
 
@@ -161,14 +161,14 @@ struct vector getMidPoint(struct vector v1, struct vector v2, struct vector v3) 
 }
 
 /**
- Returns a random double between min and max
+ Returns a random float between min and max
  
  @param min Minimum value
  @param max Maximum value
- @return Random double between min and max
+ @return Random float between min and max
  */
-double rndDouble(double min, double max, pcg32_random_t *rng) {
-	return (((double)pcg32_random_r(rng) / (double)UINT32_MAX) * (max - min)) + min;
+float rndFloat(float min, float max, pcg32_random_t *rng) {
+	return (((float)pcg32_random_r(rng) / (float)UINT32_MAX) * (max - min)) + min;
 }
 
 /**
@@ -178,10 +178,10 @@ double rndDouble(double min, double max, pcg32_random_t *rng) {
  @param radius Maximum distance from center point
  @return Vector of a random position within a radius of center point
  */
-struct vector getRandomVecOnRadius(struct vector center, double radius, pcg32_random_t *rng) {
-	return vecWithPos(center.x + rndDouble(-radius, radius, rng),
-					  center.y + rndDouble(-radius, radius, rng),
-					  center.z + rndDouble(-radius, radius, rng));
+struct vector getRandomVecOnRadius(struct vector center, float radius, pcg32_random_t *rng) {
+	return vecWithPos(center.x + rndFloat(-radius, radius, rng),
+					  center.y + rndFloat(-radius, radius, rng),
+					  center.z + rndFloat(-radius, radius, rng));
 }
 
 /**
@@ -191,10 +191,10 @@ struct vector getRandomVecOnRadius(struct vector center, double radius, pcg32_ra
  @param radius Maximum distance from center point
  @return Vector of a random position on a plane within a radius of center point
  */
-struct vector getRandomVecOnPlane(struct vector center, double radius, pcg32_random_t *rng) {
+struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_random_t *rng) {
 	//FIXME: This only works in one orientation!
-	return vecWithPos(center.x + rndDouble(-radius, radius, rng),
-						 center.y + rndDouble(-radius, radius, rng),
+	return vecWithPos(center.x + rndFloat(-radius, radius, rng),
+						 center.y + rndFloat(-radius, radius, rng),
 						 center.z);
 }
 
@@ -202,7 +202,7 @@ struct vector vecMultiply(struct vector v1, struct vector v2) {
 	return (struct vector){v1.x * v2.x, v1.y * v2.y, v1.z * v2.z};
 }
 
-struct vector vecMultiplyConst(struct vector v, double c) {
+struct vector vecMultiplyConst(struct vector v, float c) {
 	return (struct vector){v.x * c, v.y * c, v.z * c};
 }
 

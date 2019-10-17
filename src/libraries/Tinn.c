@@ -134,8 +134,8 @@ void xtsave(const Tinn t, const char* const path)
     // Save header.
     fprintf(file, "%d %d %d\n", t.nips, t.nhid, t.nops);
     // Save biases and weights.
-    for(int i = 0; i < t.nb; i++) fprintf(file, "%f\n", (double) t.b[i]);
-    for(int i = 0; i < t.nw; i++) fprintf(file, "%f\n", (double) t.w[i]);
+    for(int i = 0; i < t.nb; i++) fprintf(file, "%f\n", (float) t.b[i]);
+    for(int i = 0; i < t.nw; i++) fprintf(file, "%f\n", (float) t.w[i]);
     fclose(file);
 }
 
@@ -170,6 +170,6 @@ void xtfree(const Tinn t)
 void xtprint(const float* arr, const int size)
 {
     for(int i = 0; i < size; i++)
-        printf("%f ", (double) arr[i]);
+        printf("%f ", (float) arr[i]);
     printf("\n");
 }

@@ -26,7 +26,7 @@ void sigHandler(int sig) {
 	}
 }
 
-void printDuration(double time) {
+void printDuration(float time) {
 	printf("\n");
 	logr(info, "Finished render in ");
 	if (time <= 60) {

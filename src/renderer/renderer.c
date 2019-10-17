@@ -146,14 +146,14 @@ void *renderThread(void *arg) {
 					int height = *renderer->state.image->height;
 					int width = *renderer->state.image->width;
 					
-					double fracX = (double)x;
-					double fracY = (double)y;
+					float fracX = (float)x;
+					float fracY = (float)y;
 					
 					//A cheap 'antialiasing' of sorts. The more samples, the better this works
 					float jitter = 0.25;
 					if (renderer->prefs.antialiasing) {
-						fracX = rndDouble(fracX - jitter, fracX + jitter, rng);
-						fracY = rndDouble(fracY - jitter, fracY + jitter, rng);
+						fracX = rndFloat(fracX - jitter, fracX + jitter, rng);
+						fracY = rndFloat(fracY - jitter, fracY + jitter, rng);
 					}
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
@@ -175,12 +175,12 @@ void *renderThread(void *arg) {
 					
 					//Now handle aperture
 					//FIXME: This is a 'square' aperture
-					double aperture = renderer->scene->camera->aperture;
+					float aperture = renderer->scene->camera->aperture;
 					if (aperture <= 0.0) {
 						incidentRay.start = startPos;
 					} else {
-						double randY = rndDouble(-aperture, aperture, rng);
-						double randX = rndDouble(-aperture, aperture, rng);
+						float randY = rndFloat(-aperture, aperture, rng);
+						float randX = rndFloat(-aperture, aperture, rng);
 						struct vector randomStart = vecAdd(vecAdd(startPos, vecScale(randY, up)), vecScale(randX, left));
 						
 						incidentRay.start = randomStart;
@@ -211,8 +211,8 @@ void *renderThread(void *arg) {
 					output.green = output.green / tile.completedSamples;
 					output.blue = output.blue / tile.completedSamples;
 					
-					//Store internal render buffer (double precision)
-					blitDouble(renderer->state.renderBuffer, width, height, &output, x, y);
+					//Store internal render buffer (float precision)
+					blitfloat(renderer->state.renderBuffer, width, height, &output, x, y);
 					
 					//Gamma correction
 					output = toSRGB(output);

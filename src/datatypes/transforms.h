@@ -21,7 +21,7 @@ enum transformType {
 };
 
 struct matrix4x4 {
-	double mtx[4][4];
+	float mtx[4][4];
 };
 
 //Reference: http://tinyurl.com/ho6h6mr
@@ -33,16 +33,16 @@ struct transform {
 
 struct material;
 
-double toRadians(double degrees);
-double fromRadians(double radians);
+float toRadians(float degrees);
+float fromRadians(float radians);
 
 //Transform types
-struct transform newTransformScale(double x, double y, double z);
-struct transform newTransformScaleUniform(double scale);
-struct transform newTransformTranslate(double x, double y, double z);
-struct transform newTransformRotateX(double degrees);
-struct transform newTransformRotateY(double degrees);
-struct transform newTransformRotateZ(double degrees);
+struct transform newTransformScale(float x, float y, float z);
+struct transform newTransformScaleUniform(float scale);
+struct transform newTransformTranslate(float x, float y, float z);
+struct transform newTransformRotateX(float degrees);
+struct transform newTransformRotateY(float degrees);
+struct transform newTransformRotateZ(float degrees);
 struct transform newTransform(void);
 
 struct matrix4x4 inverse(struct matrix4x4 mtx);

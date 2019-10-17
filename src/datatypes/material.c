@@ -14,7 +14,7 @@
 #include "../datatypes/texture.h"
 
 //FIXME: Temporary, eventually support full OBJ spec
-struct material newMaterial(struct color diffuse, double reflectivity) {
+struct material newMaterial(struct color diffuse, float reflectivity) {
 	struct material newMaterial = {0};
 	newMaterial.reflectivity = reflectivity;
 	newMaterial.diffuse = diffuse;
@@ -25,12 +25,12 @@ struct material newMaterial(struct color diffuse, double reflectivity) {
 struct material newMaterialFull(struct color ambient,
 								struct color diffuse,
 								struct color specular,
-								double reflectivity,
-								double refractivity,
-								double IOR, double
-								transparency, double
-								sharpness, double
-								glossiness) {
+								float reflectivity,
+								float refractivity,
+								float IOR,
+								float transparency,
+								float sharpness,
+								float glossiness) {
 	struct material mat;
 	
 	mat.ambient = ambient;
@@ -106,13 +106,13 @@ struct color colorForUV(struct intersection *isect) {
 	struct poly p = polygonArray[isect->polyIndex];
 	
 	//Texture width and height for this material
-	double width = *mtl.texture->width;
-	double heigh = *mtl.texture->height;
+	float width = *mtl.texture->width;
+	float heigh = *mtl.texture->height;
 	
 	//barycentric coordinates for this polygon
-	double u = isect->uv.x;
-	double v = isect->uv.y;
-	double w = 1.0 - u - v;
+	float u = isect->uv.x;
+	float v = isect->uv.y;
+	float w = 1.0 - u - v;
 	
 	//Weighted texture coordinates
 	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[1]]);
@@ -137,9 +137,9 @@ struct color colorForUV(struct intersection *isect) {
 
 struct color gradient(struct intersection *isect) {
 	//barycentric coordinates for this polygon
-	double u = isect->uv.x;
-	double v = isect->uv.y;
-	double w = 1.0 - u - v;
+	float u = isect->uv.x;
+	float v = isect->uv.y;
+	float w = 1.0 - u - v;
 	
 	return colorWithValues(u, v, w, 1.0);
 }
@@ -150,9 +150,9 @@ struct color mappedCheckerBoard(struct intersection *isect, float coef) {
 	struct poly p = polygonArray[isect->polyIndex];
 	
 	//barycentric coordinates for this polygon
-	double u = isect->uv.x;
-	double v = isect->uv.y;
-	double w = 1.0 - u - v; //1.0 - u - v
+	float u = isect->uv.x;
+	float v = isect->uv.y;
+	float w = 1.0 - u - v; //1.0 - u - v
 	
 	//Weighted coordinates
 	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[1]]);
@@ -190,14 +190,14 @@ struct color checkerBoard(struct intersection *isect, float coef) {
  @return Reflected vector
  */
 struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
-	double reflect = 2.0 * vecDot(*incident, *normal);
+	float reflect = 2.0 * vecDot(*incident, *normal);
 	return vecSubtract(*incident, vecScale(reflect, *normal));
 }
 
 struct vector randomInUnitSphere(pcg32_random_t *rng) {
 	struct vector vec = (struct vector){0.0, 0.0, 0.0};
 	do {
-		vec = vecMultiplyConst(vecWithPos(rndDouble(0, 1, rng), rndDouble(0, 1, rng), rndDouble(0, 1, rng)), 2.0);
+		vec = vecMultiplyConst(vecWithPos(rndFloat(0, 1, rng), rndFloat(0, 1, rng), rndFloat(0, 1, rng)), 2.0);
 		vec = vecSubtract(vec, vecWithPos(1.0, 1.0, 1.0));
 	} while (vecLengthSquared(vec) >= 1.0);
 	return vec;
@@ -206,7 +206,7 @@ struct vector randomInUnitSphere(pcg32_random_t *rng) {
 struct vector randomOnUnitSphere(pcg32_random_t *rng) {
 	struct vector vec = (struct vector){0.0, 0.0, 0.0};
 	do {
-		vec = vecMultiplyConst(vecWithPos(rndDouble(0, 1, rng), rndDouble(0, 1, rng), rndDouble(0, 1, rng)), 2.0);
+		vec = vecMultiplyConst(vecWithPos(rndFloat(0, 1, rng), rndFloat(0, 1, rng), rndFloat(0, 1, rng)), 2.0);
 		vec = vecSubtract(vec, vecWithPos(1.0, 1.0, 1.0));
 	} while (vecLengthSquared(vec) >= 1.0);
 	return vecNormalize(vec);
@@ -315,7 +315,7 @@ bool dialectricBSDF(struct intersection *isect, struct lightRay *ray, struct col
 		refracted = vecAdd(refracted, fuzz);
 	}
 	
-	if (rndDouble(0, 1, rng) < reflectionProbability) {
+	if (rndFloat(0, 1, rng) < reflectionProbability) {
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 	} else {
 		*scattered = newRay(isect->hitPoint, refracted, rayTypeRefracted);
