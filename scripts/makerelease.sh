@@ -19,7 +19,7 @@ fi
 
 verstring="v$(grep '#define VERSION' src/main.c | cut -d \" -f2)"
 
-cmake . -DCMAKE_BUILD_TYPE=Release
+cmake . -DNO_SDL2=True -DCMAKE_BUILD_TYPE=Release
 make
 
 # date=$(date +"%Y-%m-%d")
