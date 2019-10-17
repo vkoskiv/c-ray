@@ -12,11 +12,11 @@
 #include "../utils/logging.h"
 
 //For ease of use
-double toRadians(double degrees) {
+float toRadians(float degrees) {
 	return (degrees * PI) / 180;
 }
 
-double fromRadians(double radians) {
+float fromRadians(float radians) {
 	return radians * (180/PI);
 }
 
@@ -42,10 +42,10 @@ struct transform newTransform() {
 	return tf;
 }
 
-struct matrix4x4 fromParams(double t00, double t01, double t02, double t03,
-							double t10, double t11, double t12, double t13,
-							double t20, double t21, double t22, double t23,
-							double t30, double t31, double t32, double t33) {
+struct matrix4x4 fromParams(float t00, float t01, float t02, float t03,
+							float t10, float t11, float t12, float t13,
+							float t20, float t21, float t22, float t23,
+							float t30, float t31, float t32, float t33) {
 	struct matrix4x4 new = {{{0}}};
 	new.mtx[0][0] = t00; new.mtx[0][1] = t01; new.mtx[0][2] = t02; new.mtx[0][3] = t03;
 	new.mtx[1][0] = t10; new.mtx[1][1] = t11; new.mtx[1][2] = t12; new.mtx[1][3] = t13;
@@ -66,9 +66,9 @@ void transformVector(struct vector *vec, struct matrix4x4 mtx) {
 	vec->z = temp.z;
 }
 
-struct transform newTransformRotateX(double degrees) {
+struct transform newTransformRotateX(float degrees) {
 	struct transform transform = newTransform();
-	double rads = toRadians(degrees);
+	float rads = toRadians(degrees);
 	transform.type = transformTypeXRotate;
 	transform.A.mtx[0][0] = 1;
 	transform.A.mtx[1][1] = cos(rads);
@@ -80,9 +80,9 @@ struct transform newTransformRotateX(double degrees) {
 	return transform;
 }
 
-struct transform newTransformRotateY(double degrees) {
+struct transform newTransformRotateY(float degrees) {
 	struct transform transform = newTransform();
-	double rads = toRadians(degrees);
+	float rads = toRadians(degrees);
 	transform.type = transformTypeYRotate;
 	transform.A.mtx[0][0] = cos(rads);
 	transform.A.mtx[0][2] = sin(rads);
@@ -94,9 +94,9 @@ struct transform newTransformRotateY(double degrees) {
 	return transform;
 }
 
-struct transform newTransformRotateZ(double degrees) {
+struct transform newTransformRotateZ(float degrees) {
 	struct transform transform = newTransform();
-	double rads = toRadians(degrees);
+	float rads = toRadians(degrees);
 	transform.type = transformTypeZRotate;
 	transform.A.mtx[0][0] = cos(rads);
 	transform.A.mtx[0][1] = -sin(rads);
@@ -108,7 +108,7 @@ struct transform newTransformRotateZ(double degrees) {
 	return transform;
 }
 
-struct transform newTransformTranslate(double x, double y, double z) {
+struct transform newTransformTranslate(float x, float y, float z) {
 	struct transform transform = newTransform();
 	transform.type = transformTypeTranslate;
 	transform.A.mtx[0][0] = 1;
@@ -122,7 +122,7 @@ struct transform newTransformTranslate(double x, double y, double z) {
 	return transform;
 }
 
-struct transform newTransformScale(double x, double y, double z) {
+struct transform newTransformScale(float x, float y, float z) {
 	struct transform transform = newTransform();
 	transform.type = transformTypeScale;
 	transform.A.mtx[0][0] = x;
@@ -133,7 +133,7 @@ struct transform newTransformScale(double x, double y, double z) {
 	return transform;
 }
 
-struct transform newTransformScaleUniform(double scale) {
+struct transform newTransformScaleUniform(float scale) {
 	struct transform transform = newTransform();
 	transform.type = transformTypeScale;
 	transform.A.mtx[0][0] = scale;
@@ -144,7 +144,7 @@ struct transform newTransformScaleUniform(double scale) {
 	return transform;
 }
 
-void getCofactor(double A[4][4], double cofactors[4][4], int p, int q, int n) {
+void getCofactor(float A[4][4], float cofactors[4][4], int p, int q, int n) {
 	int i = 0;
 	int j = 0;
 	
@@ -163,23 +163,23 @@ void getCofactor(double A[4][4], double cofactors[4][4], int p, int q, int n) {
 
 //I really, really hope this is faster than the generic one
 //I wrote this by hand...
-double findDeterminant4x4(double A[4][4]) {
-	double topLeft = A[0][0] * ((A[1][1] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) + (A[1][3] * ((A[2][1]*A[3][2])-(A[2][2]*A[3][1]))));
-	double topRigh = A[0][1] * ((A[1][0] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][2])-(A[2][2]*A[3][0]))));
-	double botLeft = A[0][2] * ((A[1][0] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) - (A[1][1] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][1])-(A[2][1]*A[3][0]))));
-	double botRigh = A[0][3] * ((A[1][0] * ((A[2][1]*A[3][2])-(A[2][2]*A[3][1]))) - (A[1][1] * ((A[2][0]*A[3][2])-(A[2][2]*A[3][0]))) + (A[1][2] * ((A[2][0]*A[3][1])-(A[2][1]*A[3][0]))));
+float findDeterminant4x4(float A[4][4]) {
+	float topLeft = A[0][0] * ((A[1][1] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) + (A[1][3] * ((A[2][1]*A[3][2])-(A[2][2]*A[3][1]))));
+	float topRigh = A[0][1] * ((A[1][0] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][2])-(A[2][2]*A[3][0]))));
+	float botLeft = A[0][2] * ((A[1][0] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) - (A[1][1] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][1])-(A[2][1]*A[3][0]))));
+	float botRigh = A[0][3] * ((A[1][0] * ((A[2][1]*A[3][2])-(A[2][2]*A[3][1]))) - (A[1][1] * ((A[2][0]*A[3][2])-(A[2][2]*A[3][0]))) + (A[1][2] * ((A[2][0]*A[3][1])-(A[2][1]*A[3][0]))));
 	return topLeft - topRigh + botLeft - botRigh;
 }
 
 //Find det of a given 4x4 matrix A
-double findDeterminant(double A[4][4], int n) {
-	double det = 0;
+float findDeterminant(float A[4][4], int n) {
+	float det = 0;
 	
 	if (n == 1)
 		return A[0][0];
 	
-	double cofactors[4][4];
-	double sign = 1.0;
+	float cofactors[4][4];
+	float sign = 1.0;
 	
 	for (int f = 0; f < n; f++) {
 		getCofactor(A, cofactors, 0, f, n);
@@ -190,9 +190,9 @@ double findDeterminant(double A[4][4], int n) {
 	return det;
 }
 
-void findAdjoint(double A[4][4], double adjoint[4][4]) {
+void findAdjoint(float A[4][4], float adjoint[4][4]) {
 	int sign = 1;
-	double temp[4][4];
+	float temp[4][4];
 	
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -206,12 +206,12 @@ void findAdjoint(double A[4][4], double adjoint[4][4]) {
 struct matrix4x4 inverse(struct matrix4x4 mtx) {
 	struct matrix4x4 inverse = {{{0}}};
 	
-	double det = findDeterminant4x4(mtx.mtx);
+	float det = findDeterminant4x4(mtx.mtx);
 	if (det <= 0.0) {
 		logr(error, "No inverse for given transform!\n");
 	}
 	
-	double adjoint[4][4];
+	float adjoint[4][4];
 	findAdjoint(mtx.mtx, adjoint);
 	
 	for (int i = 0; i < 4; i++) {

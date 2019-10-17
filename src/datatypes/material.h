@@ -71,13 +71,13 @@ struct material {
 	struct color diffuse;
 	struct color specular;
 	struct color emission;
-	double reflectivity;
-	double roughness;
-	double refractivity;
-	double IOR;
-	double transparency;
-	double sharpness;
-	double glossiness;
+	float reflectivity;
+	float roughness;
+	float refractivity;
+	float IOR;
+	float transparency;
+	float sharpness;
+	float glossiness;
 	
 	//TODO:
 	// - New BSDF struct that contains FP, type and contributing percentage
@@ -92,19 +92,19 @@ struct material {
 };
 
 //temporary newMaterial func
-struct material newMaterial(struct color diffuse, double reflectivity);
+struct material newMaterial(struct color diffuse, float reflectivity);
 struct material *materialForName(struct material *materials, int count, char *name);
 
 //Full obj spec material
 struct material newMaterialFull(struct color ambient,
 								struct color diffuse,
 								struct color specular,
-								double reflectivity,
-								double refractivity,
-								double IOR, double
-								transparency, double
-								sharpness, double
-								glossiness);
+								float reflectivity,
+								float refractivity,
+								float IOR,
+								float transparency,
+								float sharpness,
+								float glossiness);
 
 struct material emptyMaterial(void);
 struct material defaultMaterial(void);

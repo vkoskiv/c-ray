@@ -11,7 +11,7 @@
 
 #include "../renderer/pathtrace.h"
 
-struct sphere newSphere(struct vector pos, double radius, struct material material) {
+struct sphere newSphere(struct vector pos, float radius, struct material material) {
 	return (struct sphere){pos, radius, material};
 }
 
@@ -20,7 +20,7 @@ struct sphere defaultSphere() {
 }
 
 //FIXME: dirty hack
-struct sphere newLightSphere(struct vector pos, double radius, struct color color, double intensity) {
+struct sphere newLightSphere(struct vector pos, float radius, struct color color, float intensity) {
 	struct sphere newSphere;
 	newSphere.pos = pos;
 	newSphere.radius = radius;
@@ -32,28 +32,28 @@ struct sphere newLightSphere(struct vector pos, double radius, struct color colo
 }
 
 //Calculates intersection with a sphere and a light ray
-bool intersect(struct lightRay *ray, struct sphere *sphere, double *t) {
+bool intersect(struct lightRay *ray, struct sphere *sphere, float *t) {
 	bool intersects = false;
 	
 	//Vector dot product of the direction
-	double A = vecDot(ray->direction, ray->direction);
+	float A = vecDot(ray->direction, ray->direction);
 	
 	//Distance between start of a lightRay and the sphere position
 	struct vector distance = vecSubtract(ray->start, sphere->pos);
 	
-	double B = 2 * vecDot(ray->direction, distance);
+	float B = 2 * vecDot(ray->direction, distance);
 	
-	double C = vecDot(distance, distance) - (sphere->radius * sphere->radius);
+	float C = vecDot(distance, distance) - (sphere->radius * sphere->radius);
 	
-	double trigDiscriminant = B * B - 4 * A * C;
+	float trigDiscriminant = B * B - 4 * A * C;
 	
 	//If discriminant is negative, no real roots and the ray has missed the sphere
 	if (trigDiscriminant < 0) {
 		intersects = false;
 	} else {
-		double sqrtOfDiscriminant = sqrt(trigDiscriminant);
-		double t0 = (-B + sqrtOfDiscriminant)/(2);
-		double t1 = (-B - sqrtOfDiscriminant)/(2);
+		float sqrtOfDiscriminant = sqrt(trigDiscriminant);
+		float t0 = (-B + sqrtOfDiscriminant)/(2);
+		float t1 = (-B - sqrtOfDiscriminant)/(2);
 		
 		//Pick closest intersection
 		if (t0 > t1) {
@@ -79,7 +79,7 @@ bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct
 		struct vector scaled = vecScale(isect->distance, ray->direction);
 		struct vector hitpoint = vecAdd(ray->start, scaled);
 		struct vector surfaceNormal = vecSubtract(hitpoint, sphere->pos);
-		double temp = vecDot(surfaceNormal, surfaceNormal);
+		float temp = vecDot(surfaceNormal, surfaceNormal);
 		if (temp == 0.0) return false; //FIXME: Check this later
 		temp = invsqrt(temp);
 		isect->surfaceNormal = vecScale(temp, surfaceNormal);

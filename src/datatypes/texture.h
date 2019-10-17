@@ -40,7 +40,7 @@ struct texture {
 struct color;
 
 void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
-void blitDouble(double *buf, int width, int height, struct color *c, unsigned int x, unsigned int y);
+void blitfloat(float *buf, int width, int height, struct color *c, unsigned int x, unsigned int y);
 struct color textureGetPixel(struct texture *t, int x, int y);
 struct color textureGetPixelFiltered(struct texture *t, float x, float y);
 

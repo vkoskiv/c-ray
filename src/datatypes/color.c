@@ -21,7 +21,7 @@ struct color progColor  = {0.2549019608, 0.4509803922, 0.9607843137, 0.0};
 
 //Color functions
 //Return a color with given values
-struct color colorWithValues(double red, double green, double blue, double alpha) {
+struct color colorWithValues(float red, float green, float blue, float alpha) {
 	return (struct color){red, green, blue, alpha};
 }
 
@@ -40,12 +40,12 @@ struct color addColors(struct color c1, struct color c2) {
 }
 
 struct color grayscale(struct color c) {
-	double b = (c.red+c.green+c.blue)/3;
+	float b = (c.red+c.green+c.blue)/3;
 	return (struct color){b, b, b, 0.0};
 }
 
 //Multiply a color with a coefficient value
-struct color colorCoef(double coef, struct color c) {
+struct color colorCoef(float coef, struct color c) {
 	return (struct color){c.red * coef, c.green * coef, c.blue * coef, 0.0};
 }
 
@@ -74,7 +74,7 @@ struct color mixColors(struct color c1, struct color c2, float coeff) {
 
 //sRGB transforms are from https://en.wikipedia.org/wiki/SRGB
 
-double linearToSRGB(double channel) {
+float linearToSRGB(float channel) {
 	if (channel <= 0.0031308) {
 		return 12.92 * channel;
 	} else {
@@ -82,7 +82,7 @@ double linearToSRGB(double channel) {
 	}
 }
 
-double SRGBToLinear(double channel) {
+float SRGBToLinear(float channel) {
 	if (channel <= 0.04045) {
 		return channel / 12.92;
 	} else {

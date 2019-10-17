@@ -26,10 +26,10 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 		struct color attenuation;
 		struct color emitted = isect.end.emission;
 		if (depth < maxDepth && isect.end.bsdf(&isect, incidentRay, &attenuation, &scattered, rng)) {
-			double probability = 1;
+			float probability = 1;
 			if (depth >= 2) {
 				probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
-				if (rndDouble(0, 1, rng) > probability) {
+				if (rndFloat(0, 1, rng) > probability) {
 					return emitted;
 				}
 			}
@@ -106,7 +106,7 @@ struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 //Linearly interpolate based on the Y component
 struct color getAmbientColor(struct lightRay *incidentRay, struct gradient *color) {
 	struct vector unitDirection = vecNormalize(incidentRay->direction);
-	double t = 0.5 * (unitDirection.y + 1.0);
+	float t = 0.5 * (unitDirection.y + 1.0);
 	return addColors(colorCoef(1.0 - t, *color->down), colorCoef(t, *color->up));
 }
 

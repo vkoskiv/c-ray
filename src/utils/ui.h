@@ -20,7 +20,7 @@ struct display {
 	bool enabled;
 	bool isBorderless;
 	bool isFullScreen;
-	double windowScale;
+	float windowScale;
 	
 	int height;
 	int width;
@@ -33,5 +33,5 @@ void drawWindow(struct renderer *r);
 void freeDisplay(struct display *disp);
 #endif
 
-void printDuration(double time);
+void printDuration(float time);
 void getKeyboardInput(struct renderer *r);

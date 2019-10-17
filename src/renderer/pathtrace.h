@@ -33,7 +33,7 @@ struct intersection {
 	struct coord uv;				//UV barycentric coordinates for intersection point
 	enum currentType type;			//Type of object ray intersected with
 	bool didIntersect;				//True if ray intersected
-	double distance;				//Distance to intersection point
+	float distance;				//Distance to intersection point
 	
 	int mtlIndex;					//mesh material index
 	int polyIndex;					//mesh polygon index

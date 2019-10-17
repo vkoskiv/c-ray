@@ -15,7 +15,7 @@ struct poly *polygonArray;
 int polyCount;
 
 bool rayIntersectsWithPolygonFast(struct lightRay *ray, struct poly *poly) {
-	double orientation, inverseOrientation;
+	float orientation, inverseOrientation;
 	struct vector edge1 = vecSubtract(vertexArray[poly->vertexIndex[1]], vertexArray[poly->vertexIndex[0]]);
 	struct vector edge2 = vecSubtract(vertexArray[poly->vertexIndex[2]], vertexArray[poly->vertexIndex[0]]);
 	
@@ -31,18 +31,18 @@ bool rayIntersectsWithPolygonFast(struct lightRay *ray, struct poly *poly) {
 	inverseOrientation = 1/orientation;
 	
 	struct vector s2 = vecSubtract(ray->start, vertexArray[poly->vertexIndex[0]]);
-	double u = vecDot(s2, s1) * inverseOrientation;
+	float u = vecDot(s2, s1) * inverseOrientation;
 	if (u < 0 || u > 1) {
 		return false;
 	}
 	
 	struct vector s3 = vecCross(s2, edge1);
-	double v = vecDot(ray->direction, s3) * inverseOrientation;
+	float v = vecDot(ray->direction, s3) * inverseOrientation;
 	if (v < 0 || (u+v) > 1) {
 		return false;
 	}
 	
-	double temp = vecDot(edge2, s3) * inverseOrientation;
+	float temp = vecDot(edge2, s3) * inverseOrientation;
 	
 	if (temp < 0) {
 		return false;
@@ -51,8 +51,8 @@ bool rayIntersectsWithPolygonFast(struct lightRay *ray, struct poly *poly) {
 	return true;
 }
 
-bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, double *result, struct vector *normal, struct coord *uv) {
-	double orientation, inverseOrientation;
+bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, float *result, struct vector *normal, struct coord *uv) {
+	float orientation, inverseOrientation;
 	struct vector edge1 = vecSubtract(vertexArray[poly->vertexIndex[1]], vertexArray[poly->vertexIndex[0]]);
 	struct vector edge2 = vecSubtract(vertexArray[poly->vertexIndex[2]], vertexArray[poly->vertexIndex[0]]);
 	
@@ -68,18 +68,18 @@ bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, double *r
 	inverseOrientation = 1/orientation;
 	
 	struct vector s2 = vecSubtract(ray->start, vertexArray[poly->vertexIndex[0]]);
-	double u = vecDot(s2, s1) * inverseOrientation;
+	float u = vecDot(s2, s1) * inverseOrientation;
 	if (u < 0 || u > 1) {
 		return false;
 	}
 	
 	struct vector s3 = vecCross(s2, edge1);
-	double v = vecDot(ray->direction, s3) * inverseOrientation;
+	float v = vecDot(ray->direction, s3) * inverseOrientation;
 	if (v < 0 || (u+v) > 1) {
 		return false;
 	}
 	
-	double temp = vecDot(edge2, s3) * inverseOrientation;
+	float temp = vecDot(edge2, s3) * inverseOrientation;
 	
 	if ((temp < 0) || (temp > *result)) {
 		return false;

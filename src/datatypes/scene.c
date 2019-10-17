@@ -274,10 +274,10 @@ struct material *parseMaterial(const cJSON *data) {
 	//bool validRoughness = false;
 	bool validIntensity = false;
 	
-	double IORValue = 1.0;
-	//double roughnessValue;
+	float IORValue = 1.0;
+	//float roughnessValue;
 	struct color *colorValue = NULL;
-	double intensityValue = 1.0;
+	float intensityValue = 1.0;
 	
 	struct material *mat = calloc(1, sizeof(struct material));
 	
@@ -399,13 +399,13 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 	}
 	
 	//For translate, we want the default to be 0. For scaling, def should be 1
-	double def = 0.0;
+	float def = 0.0;
 	if (strcmp(type->valuestring, "scale") == 0) {
 		def = 1.0;
 	}
 	
 	int validCoords = 0; //Accept if we have at least one provided
-	double Xval, Yval, Zval;
+	float Xval, Yval, Zval;
 	if (X != NULL && cJSON_IsNumber(X)) {
 		Xval = X->valuedouble;
 		validCoords++;

@@ -140,7 +140,7 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 		}
 	}
 	
-	if (((double)matches < 0.5 * leftPolys.used) && ((double)matches < 0.5 * rightPolys.used)) {
+	if (((float)matches < 0.5 * leftPolys.used) && ((float)matches < 0.5 * rightPolys.used)) {
 		//Recurse down both left and right sides
 		node->left = buildTree(leftPolys.array, (int)leftPolys.used, depth + 1);
 		node->right = buildTree(rightPolys.array, (int)rightPolys.used, depth + 1);
@@ -189,7 +189,7 @@ int countNodes(struct kdTreeNode *node) {
 
 bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect) {
 	//A bit of a hack, but it does work...!
-	double fakeIsect = 20000.0;
+	float fakeIsect = 20000.0;
 	if (rayIntersectWithAABB(node->bbox, ray, &fakeIsect)) {
 		bool hasHit = false;
 		
