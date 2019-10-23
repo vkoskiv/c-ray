@@ -96,6 +96,10 @@ int initSDL(struct display *d) {
 	SDL_SetTextureBlendMode(d->texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(d->overlayTexture, SDL_BLENDMODE_BLEND);
 	
+	SDL_SetRenderDrawColor(d->renderer, 49, 51, 54, 255);
+	SDL_RenderClear(d->renderer);
+	SDL_RenderPresent(d->renderer);
+	
 	//Set window icon
 	//setWindowIcon(d->window);
 	
@@ -235,6 +239,10 @@ void updateFrames(struct renderer *r) {
 	drawProgressBars(r);
 }
 
+SDL_Rect sdlRectFromTile(struct renderTile t) {
+    return (SDL_Rect){.h = t.height, .w = t.width, .x = t.begin.x, .y = t.begin.y};
+}
+
 void drawWindow(struct renderer *r) {
 	//Check for CTRL-C
 	if (signal(SIGINT, sigHandler) == SIG_ERR)
@@ -242,10 +250,27 @@ void drawWindow(struct renderer *r) {
 	//Render frames
 	updateFrames(r);
 	//Update image data
+	
+	
+	SDL_SetRenderDrawColor(r->mainDisplay->renderer, 49, 51, 54, 255);
+	SDL_RenderClear(r->mainDisplay->renderer);
+	
+	/*
+	for (int i = 0; i < r->state.activeThreads; i++) {
+		SDL_Rect rect = sdlRectFromTile(r->state.renderTiles[r->state.renderThreadInfo[i].currentTileNum]);
+	
+		SDL_UpdateTexture(r->mainDisplay->texture, &rect, r->state.image->byte_data, *r->state.image->width * 3);
+		SDL_UpdateTexture(r->mainDisplay->overlayTexture, &rect, r->state.uiBuffer, *r->state.image->width * 4);
+		SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, &rect, &rect);
+		SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, &rect, &rect);
+	}
+	*/
+	
 	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->state.image->byte_data, *r->state.image->width * 3);
 	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer, *r->state.image->width * 4);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
+
 	SDL_RenderPresent(r->mainDisplay->renderer);
 }
 

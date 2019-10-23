@@ -1161,14 +1161,6 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	}
 	r->state.image->hasAlpha = false;
 	
-	//Set a dark gray background for the render preview
-	struct color c = {49/255.0,51/255.0,54/255.0,0};
-	for (int x = 0; x < *r->state.image->width; x++) {
-		for (int y = 0; y < *r->state.image->height; y++) {
-			blit(r->state.image, c, x, y);
-		}
-	}
-	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
 	r->state.renderBuffer = calloc(3 * *r->state.image->width * *r->state.image->height, sizeof(double));
