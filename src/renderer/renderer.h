@@ -101,16 +101,11 @@ DWORD WINAPI renderThread(LPVOID arg);
 void *renderThread(void *arg);
 #endif
 
-#ifdef WINDOWS
-DWORD WINAPI renderThreadSIMD(LPVOID arg);
-#else
-void *renderThreadSIMD(void *arg);
-#endif
-
 //Initialize a new renderer
 struct renderer *newRenderer(void);
 
 //Start main render loop
 void render(struct renderer *r);
 
+//Free renderer allocations
 void freeRenderer(struct renderer *r);
