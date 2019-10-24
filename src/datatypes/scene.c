@@ -25,7 +25,7 @@
 #include "../utils/multiplatform.h"
 #include "../utils/timer.h"
 
-struct renderer defaultSettings = (struct renderer){
+/*struct renderer defaultSettings = (struct renderer){
 	.prefs = {
 		.fileMode = saveModeNormal,
 		.tileOrder = renderOrderFromMiddle,
@@ -36,7 +36,7 @@ struct renderer defaultSettings = (struct renderer){
 		.tileHeight = 32,
 		.antialiasing = true
 	}
-};
+};*/
 
 struct color *parseColor(const cJSON *data);
 
