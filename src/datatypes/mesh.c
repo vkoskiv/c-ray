@@ -67,7 +67,7 @@ void freeMesh(struct mesh *mesh) {
 	}
 	if (mesh->materials) {
 		for (int i = 0; i < mesh->materialCount; i++) {
-			freeMaterial(&mesh->materials[i]);
+			MaterialFree(mesh->materials[i]);
 		}
 		free(mesh->materials);
 	}

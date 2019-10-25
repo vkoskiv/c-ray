@@ -12,14 +12,16 @@
 #define NOT_REFRACTIVE 1
 #define NOT_REFLECTIVE -1
 
+#include "vec3.h"
+
 //Color
 struct color {
 	float red, green, blue, alpha;
 };
 
 struct gradient {
-	struct color *down;
-	struct color *up;
+	vec3 down;
+	vec3 up;
 };
 
 //Some standard colours
@@ -48,6 +50,6 @@ struct color colorCoef(float coef, struct color c);
 
 struct color mixColors(struct color c1, struct color c2, float coeff);
 
-struct color toSRGB(struct color c);
+vec3 toSRGB(vec3 c);
 
-struct color fromSRGB(struct color c);
+vec3 fromSRGB(vec3 c);

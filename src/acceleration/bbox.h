@@ -17,7 +17,7 @@ enum bboxAxis {
 };
 
 struct boundingBox {
-	struct vector start, end, midPoint;
+	vec3 start, end, midPoint;
 };
 
 

@@ -48,4 +48,4 @@ struct transform newTransform(void);
 struct matrix4x4 inverse(struct matrix4x4 mtx);
 struct matrix4x4 transpose(struct matrix4x4 tf);
 
-void transformVector(struct vector *vec, struct matrix4x4 mtx);
+void transformVector(vec3 *vec, struct matrix4x4 mtx);

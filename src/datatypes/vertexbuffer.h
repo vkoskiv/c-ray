@@ -9,13 +9,13 @@
 #pragma once
 
 //Main vector arrays
-extern struct vector *vertexArray;
+extern vec3 *vertexArray;
 extern int vertexCount;
 
-extern struct vector *normalArray;
+extern vec3 *normalArray;
 extern int normalCount;
 
-extern struct coord *textureArray;
+extern vec2 *textureArray;
 extern int textureCount;
 
 void freeVertexBuffer(void);

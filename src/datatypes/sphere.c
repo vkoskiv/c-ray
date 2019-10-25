@@ -11,23 +11,22 @@
 
 #include "../renderer/pathtrace.h"
 
-struct sphere newSphere(struct vector pos, float radius, struct material material) {
+struct sphere newSphere(vec3 pos, float radius, IMaterial material) {
 	return (struct sphere){pos, radius, material};
 }
 
 struct sphere defaultSphere() {
-	return (struct sphere){vecZero(), 10.0, defaultMaterial()};
+	return (struct sphere){vecZero(), 10.0, NewMaterial(MATERIAL_TYPE_DEFAULT)};
 }
 
 //FIXME: dirty hack
-struct sphere newLightSphere(struct vector pos, float radius, struct color color, float intensity) {
+struct sphere newLightSphere(vec3 pos, float radius, vec3 color, float intensity) {
 	struct sphere newSphere;
 	newSphere.pos = pos;
 	newSphere.radius = radius;
-	newSphere.material = newMaterial(color, 0.0);
-	newSphere.material.emission = colorCoef(intensity, color);
-	newSphere.material.type = emission;
-	assignBSDF(&newSphere.material);
+	newSphere.material = NewMaterial(MATERIAL_TYPE_EMISSIVE);
+	MaterialSetVec3(newSphere.material, "emission", vec3_muls(color, intensity));
+
 	return newSphere;
 }
 
@@ -39,7 +38,7 @@ bool intersect(struct lightRay *ray, struct sphere *sphere, float *t) {
 	float A = vecDot(ray->direction, ray->direction);
 	
 	//Distance between start of a lightRay and the sphere position
-	struct vector distance = vecSubtract(ray->start, sphere->pos);
+	vec3 distance = vecSubtract(ray->start, sphere->pos);
 	
 	float B = 2 * vecDot(ray->direction, distance);
 	
@@ -76,9 +75,9 @@ bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct
 	if (intersect(ray, sphere, &isect->distance)) {
 		isect->type = hitTypeSphere;
 		//Compute normal and store it to isect
-		struct vector scaled = vecScale(isect->distance, ray->direction);
-		struct vector hitpoint = vecAdd(ray->start, scaled);
-		struct vector surfaceNormal = vecSubtract(hitpoint, sphere->pos);
+		vec3 scaled = vecScale(isect->distance, ray->direction);
+		vec3 hitpoint = vecAdd(ray->start, scaled);
+		vec3 surfaceNormal = vecSubtract(hitpoint, sphere->pos);
 		float temp = vecDot(surfaceNormal, surfaceNormal);
 		if (temp == 0.0) return false; //FIXME: Check this later
 		temp = invsqrt(temp);

@@ -24,6 +24,7 @@
 #include "../utils/loaders/textureloader.h"
 #include "../utils/multiplatform.h"
 #include "../utils/timer.h"
+#include "vec3.h"
 
 /*struct renderer defaultSettings = (struct renderer){
 	.prefs = {
@@ -59,7 +60,7 @@ char *getFileName(char *input) {
 	return fn;
 }
 
-void addMaterialToMesh(struct mesh *mesh, struct material newMaterial);
+void addMaterialToMesh(struct mesh *mesh, IMaterial newMaterial);
 
 struct mesh *lastMesh(struct renderer *r) {
 	return &r->scene->meshes[r->scene->meshCount - 1];
@@ -70,23 +71,23 @@ struct sphere *lastSphere(struct renderer *r) {
 }
 
 void loadMeshTextures(struct mesh *mesh) {
-	for (int i = 0; i < mesh->materialCount; i++) {
-		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
-		if (mesh->materials[i].textureFilePath) {
-			if (strcmp(mesh->materials[i].textureFilePath, "")) {
-				//TODO: Set the shader for this obj to an obnoxious checker pattern if the texture wasn't found
-				mesh->materials[i].texture = loadTexture(mesh->materials[i].textureFilePath);
-				if (mesh->materials[i].texture) {
-					mesh->materials[i].hasTexture = true;
-				}
-			} else {
-				mesh->materials[i].hasTexture = false;
-			}
-		} else {
-			mesh->materials[i].hasTexture = false;
-		}
-		
-	}
+	//for (int i = 0; i < mesh->materialCount; i++) {
+	//	//FIXME: do this check in materialFromOBJ and just check against hasTexture here
+	//	if (mesh->materials[i].textureFilePath) {
+	//		if (strcmp(mesh->materials[i].textureFilePath, "")) {
+	//			//TODO: Set the shader for this obj to an obnoxious checker pattern if the texture wasn't found
+	//			mesh->materials[i].texture = loadTexture(mesh->materials[i].textureFilePath);
+	//			if (mesh->materials[i].texture) {
+	//				mesh->materials[i].hasTexture = true;
+	//			}
+	//		} else {
+	//			mesh->materials[i].hasTexture = false;
+	//		}
+	//	} else {
+	//		mesh->materials[i].hasTexture = false;
+	//	}
+	//	
+	//}
 }
 
 bool loadMeshNew(struct renderer *r, char *inputFilePath) {
@@ -148,20 +149,20 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	
 	//Data loaded, now convert everything
 	//Convert vectors
-	vertexArray = realloc(vertexArray, vertexCount * sizeof(struct vector));
+	vertexArray = realloc(vertexArray, vertexCount * sizeof(vec3));
 	for (int i = 0; i < data.vertex_count; i++) {
-		vertexArray[r->scene->meshes[r->scene->meshCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
+		vertexArray[r->scene->meshes[r->scene->meshCount].firstVectorIndex + i] = vec3FromObj(data.vertex_list[i]);
 	}
 	
 	//Convert normals
-	normalArray = realloc(normalArray, normalCount * sizeof(struct vector));
+	normalArray = realloc(normalArray, normalCount * sizeof(vec3));
 	for (int i = 0; i < data.vertex_normal_count; i++) {
-		normalArray[r->scene->meshes[r->scene->meshCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
+		normalArray[r->scene->meshes[r->scene->meshCount].firstNormalIndex + i] = vec3FromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture vectors
-	textureArray = realloc(textureArray, textureCount * sizeof(struct coord));
+	textureArray = realloc(textureArray, textureCount * sizeof(vec2));
 	for (int i = 0; i < data.vertex_texture_count; i++) {
-		textureArray[r->scene->meshes[r->scene->meshCount].firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
+		textureArray[r->scene->meshes[r->scene->meshCount].firstTextureIndex + i] = vec2FromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
 	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
@@ -173,13 +174,13 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 																							r->scene->meshes[r->scene->meshCount].firstPolyIndex + i);
 	}
 	
-	r->scene->meshes[r->scene->meshCount].materials = calloc(1, sizeof(struct material));
+	r->scene->meshes[r->scene->meshCount].materials = calloc(1, sizeof(IMaterial));
 	//Parse materials
 	if (data.material_count == 0) {
 		//No material, set to something obscene to make it noticeable
-		r->scene->meshes[r->scene->meshCount].materials = calloc(1, sizeof(struct material));
-		r->scene->meshes[r->scene->meshCount].materials[0] = warningMaterial();
-		assignBSDF(&r->scene->meshes[r->scene->meshCount].materials[0]);
+		r->scene->meshes[r->scene->meshCount].materials = calloc(1, sizeof(IMaterial));
+		r->scene->meshes[r->scene->meshCount].materials[0] = NewMaterial(MATERIAL_TYPE_WARNING);
+		//assignBSDF(&r->scene->meshes[r->scene->meshCount].materials[0]);
 		r->scene->meshes[r->scene->meshCount].materialCount++;
 	} else {
 		//Loop to add materials to mesh (We already set the material indices in polyFromObj)
@@ -206,8 +207,8 @@ void addSphere(struct world *scene, struct sphere newSphere) {
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
-void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
-	mesh->materials = realloc(mesh->materials, (mesh->materialCount + 1) * sizeof(struct material));
+void addMaterialToMesh(struct mesh *mesh, IMaterial newMaterial) {
+	mesh->materials = realloc(mesh->materials, (mesh->materialCount + 1) * sizeof(IMaterial));
 	mesh->materials[mesh->materialCount++] = newMaterial;
 }
 
@@ -262,8 +263,12 @@ void printSceneStats(struct world *scene, unsigned long long ms) {
 		   scene->sphereCount);
 }
 
-struct material *parseMaterial(const cJSON *data) {
-	cJSON *bsdf = NULL;
+IMaterial parseMaterial(const cJSON *data) {
+	const cJSON* diffuse_bsdf_json = cJSON_GetObjectItem(data, "Diffuse BSDF");
+	const cJSON* specular_bsdf_json = cJSON_GetObjectItem(data, "Specular BSDF");
+	BSDF_TYPE diffuse_bsdf_type = BSDF_TYPE_LAMBERT_DIFFUSE;
+	BSDF_TYPE specular_bsdf_type = BSDF_TYPE_PHONG_SPECULAR;
+
 	cJSON *IOR = NULL;
 	//cJSON *roughness = NULL;
 	cJSON *color = NULL;
@@ -279,7 +284,7 @@ struct material *parseMaterial(const cJSON *data) {
 	struct color *colorValue = NULL;
 	float intensityValue = 1.0;
 	
-	struct material *mat = calloc(1, sizeof(struct material));
+	IMaterial mat = NewMaterial(MATERIAL_TYPE_DEFAULT);
 	
 	color = cJSON_GetObjectItem(data, "color");
 	colorValue = parseColor(color);
@@ -306,60 +311,31 @@ struct material *parseMaterial(const cJSON *data) {
 			IORValue = 1.0;
 		}
 	}
-	
-	bsdf = cJSON_GetObjectItem(data, "bsdf");
-	if (!cJSON_IsString(bsdf)) {
-		logr(warning, "No bsdf type given for material.");
+
+	MaterialSetFloat(mat, "ior", IORValue);
+
+	if (!cJSON_IsString(diffuse_bsdf_json)) {
+		logr(warning, "No diffuse BSDF type given for material.");
 		logr(error, "Material data: %s\n", cJSON_Print(data));
 	}
-	
-	if (strcmp(bsdf->valuestring, "lambertian") == 0) {
-		mat->type = lambertian;
-		if (validColor) {
-			mat->diffuse = *colorValue;
-		} else {
-			logr(warning, "Lambertian shader defined, but no color given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
-	} else if (strcmp(bsdf->valuestring, "metal") == 0) {
-		mat->type = metal;
-		if (validColor) {
-			mat->diffuse = *colorValue;
-		} else {
-			logr(warning, "Metal shader defined, but no color given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
-	} else if (strcmp(bsdf->valuestring, "glass") == 0) {
-		mat->type = glass;
-		if (validColor) {
-			mat->diffuse = *colorValue;
-		} else {
-			logr(warning, "Metal shader defined, but no color given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
-		if (validIOR) {
-			mat->IOR = IORValue;
-		} else {
-			logr(warning, "Glass shader defined, but no IOR given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
-	} else if (strcmp(bsdf->valuestring, "emission") == 0) {
-		mat->type = emission;
-		if (validColor) {
-			mat->emission = *colorValue;
-		} else {
-			logr(warning, "Emission shader defined, but no color given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
-		if (validIntensity) {
-			mat->emission = colorCoef(intensityValue, mat->emission);
-		} else {
-			logr(warning, "Emission shader defined, but no intensity given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
+	else
+	{
+		diffuse_bsdf_type = ValueStrToDiffBSDF(diffuse_bsdf_json->valuestring);
 	}
+
+	if (!cJSON_IsString(specular_bsdf_json)) {
+		logr(warning, "No spcular BSDF type given for material.");
+		logr(error, "Material data: %s\n", cJSON_Print(data));
+	}
+	else
+	{
+		specular_bsdf_type = ValueStrToSpecBSDF(specular_bsdf_json->valuestring);
+	}
+
+	MaterialSetVec3(mat, "albedo", (vec3) { colorValue->red, colorValue->green, colorValue->blue });
+
 	free(colorValue);
-	assignBSDF(mat);
+	//assignBSDF(mat);
 	return mat;
 }
 
@@ -404,23 +380,23 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 		def = 1.0;
 	}
 	
-	int validCoords = 0; //Accept if we have at least one provided
+	int validvec2s = 0; //Accept if we have at least one provided
 	float Xval, Yval, Zval;
 	if (X != NULL && cJSON_IsNumber(X)) {
 		Xval = X->valuedouble;
-		validCoords++;
+		validvec2s++;
 	} else {
 		Xval = def;
 	}
 	if (Y != NULL && cJSON_IsNumber(Y)) {
 		Yval = Y->valuedouble;
-		validCoords++;
+		validvec2s++;
 	} else {
 		Yval = def;
 	}
 	if (Z != NULL && cJSON_IsNumber(Z)) {
 		Zval = Z->valuedouble;
-		validCoords++;
+		validvec2s++;
 	} else {
 		Zval = def;
 	}
@@ -450,13 +426,13 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 			logr(warning, "Found rotateZ transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "translate") == 0) {
-		if (validCoords > 0) {
+		if (validvec2s > 0) {
 			return newTransformTranslate(Xval, Yval, Zval);
 		} else {
-			logr(warning, "Found translate transform for object \"%s\" with less than 1 valid coordinate given.\n", targetName);
+			logr(warning, "Found translate transform for object \"%s\" with less than 1 valid vec2inate given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "scale") == 0) {
-		if (validCoords > 0) {
+		if (validvec2s > 0) {
 			return newTransformScale(Xval, Yval, Zval);
 		} else {
 			logr(warning, "Found scale transform for object \"%s\" with less than 1 valid scale value given.\n", targetName);
@@ -719,9 +695,11 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	
 	down = cJSON_GetObjectItem(data, "down");
 	up = cJSON_GetObjectItem(data, "up");
-	
-	newGradient->down = parseColor(down);
-	newGradient->up = parseColor(up);
+
+	struct color* downColor = parseColor(down);
+	struct color* upColor = parseColor(up);
+	newGradient->down = (vec3){downColor->red, downColor->green, downColor->blue};
+	newGradient->up = (vec3){ upColor->red, upColor->green, upColor->blue };
 	
 	r->scene->ambientColor = newGradient;
 	
@@ -743,24 +721,54 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 //FIXME: Only parse everything else if the mesh is found and is valid
 void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
+
+	const cJSON* diffuse_bsdf_json = cJSON_GetObjectItem(data, "Diffuse BSDF");
+	const cJSON* specular_bsdf_json = cJSON_GetObjectItem(data, "Specular BSDF");
+	BSDF_TYPE diffuse_bsdf_type = BSDF_TYPE_LAMBERT_DIFFUSE;
+	BSDF_TYPE specular_bsdf_type = BSDF_TYPE_PHONG_SPECULAR;
 	
-	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
-	enum bsdfType type = lambertian;
-	
-	if (cJSON_IsString(bsdf)) {
-		if (strcmp(bsdf->valuestring, "lambertian") == 0) {
-			type = lambertian;
-		} else if (strcmp(bsdf->valuestring, "metal") == 0) {
-			type = metal;
-		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
-			type = glass;
-		} else {
-			type = lambertian;
-		}
+	if (cJSON_IsString(diffuse_bsdf_json)) {
+		diffuse_bsdf_type = ValueStrToDiffBSDF(diffuse_bsdf_json->valuestring);
 	} else {
-		logr(warning, "Invalid bsdf while parsing mesh\n");
+		logr(warning, "Invalid diffuse BSDF while parsing mesh\n");
 	}
-	
+
+	if (cJSON_IsString(specular_bsdf_json)) {
+		specular_bsdf_type = ValueStrToSpecBSDF(specular_bsdf_json->valuestring);
+	}
+	else {
+		logr(warning, "Invalid specular BSDF while parsing mesh\n");
+	}
+
+	cJSON* mat_json = cJSON_GetObjectItem(data, "Material");
+
+	vec3 albedo;
+	float roughness;
+	float specularity;
+	float metalness;
+	float anisotropy;
+	float ior;
+
+	{
+		cJSON* albedo_json = cJSON_GetObjectItem(mat_json, "albedo");
+		cJSON* roughness_json = cJSON_GetObjectItem(mat_json, "roughness");
+		cJSON* specularity_json = cJSON_GetObjectItem(mat_json, "specularity");
+		cJSON* metalness_json = cJSON_GetObjectItem(mat_json, "metalness");
+		cJSON* anisotropy_json = cJSON_GetObjectItem(mat_json, "anisotropy");
+		cJSON* ior_json = cJSON_GetObjectItem(mat_json, "ior");
+
+		cJSON* albedo_r_json = cJSON_GetObjectItem(albedo_json, "r");
+		cJSON* albedo_g_json = cJSON_GetObjectItem(albedo_json, "g");
+		cJSON* albedo_b_json = cJSON_GetObjectItem(albedo_json, "b");
+
+		albedo = (vec3){ albedo_r_json->valuedouble, albedo_g_json->valuedouble, albedo_b_json->valuedouble };
+		roughness = roughness_json->valuedouble;
+		specularity = specularity_json->valuedouble;
+		metalness = metalness_json->valuedouble;
+		anisotropy = anisotropy_json->valuedouble;
+		ior = ior_json->valuedouble;
+	}
+
 	bool meshValid = false;
 	if (fileName != NULL && cJSON_IsString(fileName)) {
 		if (loadMesh(r, fileName->valuestring, idx, meshCount)) {
@@ -781,8 +789,15 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 		
 		//FIXME: this isn't right.
 		for (int i = 0; i < lastMesh(r)->materialCount; i++) {
-			lastMesh(r)->materials[i].type = type;
-			assignBSDF(&lastMesh(r)->materials[i]);
+			IMaterial mat = lastMesh(r)->materials[i];
+			mat->diffuse_bsdf_type = diffuse_bsdf_type;
+			mat->specular_bsdf_type = specular_bsdf_type;
+			MaterialSetVec3(mat, "albedo", albedo);
+			MaterialSetFloat(mat, "roughness", roughness);
+			MaterialSetFloat(mat, "specularity", specularity);
+			MaterialSetFloat(mat, "metalness", metalness);
+			MaterialSetFloat(mat, "anisotropy", anisotropy);
+			MaterialSetFloat(mat, "ior", ior);
 		}
 	}
 }
@@ -800,7 +815,7 @@ void parseMeshes(struct renderer *r, const cJSON *data) {
 	printf("\n");
 }
 
-struct vector parseCoordinate(const cJSON *data) {
+vec3 parsevec3inate(const cJSON *data) {
 	const cJSON *X = NULL;
 	const cJSON *Y = NULL;
 	const cJSON *Z = NULL;
@@ -813,9 +828,9 @@ struct vector parseCoordinate(const cJSON *data) {
 			return vecWithPos(X->valuedouble, Y->valuedouble, Z->valuedouble);
 		}
 	}
-	logr(warning, "Invalid coordinate parsed! Returning 0,0,0\n");
+	logr(warning, "Invalid vec3inate parsed! Returning 0,0,0\n");
 	logr(warning, "Faulty JSON: %s\n", cJSON_Print(data));
-	return (struct vector){0.0,0.0,0.0};
+	return (vec3){0.0,0.0,0.0};
 }
 
 void parseSphere(struct renderer *r, const cJSON *data) {
@@ -828,65 +843,73 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	
 	struct sphere newSphere = defaultSphere();
 	
-	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
-	
-	if (cJSON_IsString(bsdf)) {
-		if (strcmp(bsdf->valuestring, "lambertian") == 0) {
-			newSphere.material.type = lambertian;
-		} else if (strcmp(bsdf->valuestring, "metal") == 0) {
-			newSphere.material.type = metal;
-		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
-			newSphere.material.type = glass;
-		} else if (strcmp(bsdf->valuestring, "emissive") == 0) {
-			newSphere.material.type = emission;
-		}
-	} else {
-		logr(warning, "Sphere BSDF not found, defaulting to lambertian.\n");
-	}	
+	const cJSON* diffuse_bsdf_json = cJSON_GetObjectItem(data, "Diffuse BSDF");
+	const cJSON* specular_bsdf_json = cJSON_GetObjectItem(data, "Specular BSDF");
+	BSDF_TYPE diffuse_bsdf_type = BSDF_TYPE_LAMBERT_DIFFUSE;
+	BSDF_TYPE specular_bsdf_type = BSDF_TYPE_PHONG_SPECULAR;
+
+	const cJSON* material_type_json = cJSON_GetObjectItem(data, "Material type");
+
+	if (cJSON_IsString(material_type_json))
+	{
+		newSphere.material->type = ValueStrToMaterialType(material_type_json->valuestring);
+	}
+	else
+	{
+		newSphere.material->type = MATERIAL_TYPE_WARNING;
+	}
+
+	if (cJSON_IsString(diffuse_bsdf_json)) {
+		diffuse_bsdf_type = ValueStrToDiffBSDF(diffuse_bsdf_json->valuestring);
+	}
+	else {
+		logr(warning, "Invalid diffuse BSDF while parsing mesh\n");
+	}
+
+	if (cJSON_IsString(specular_bsdf_json)) {
+		specular_bsdf_type = ValueStrToSpecBSDF(specular_bsdf_json->valuestring);
+	}
+	else {
+		logr(warning, "Invalid specular BSDF while parsing mesh\n");
+	}
 	
 	pos = cJSON_GetObjectItem(data, "pos");
 	if (pos != NULL) {
-		newSphere.pos = parseCoordinate(pos);
+		newSphere.pos = parsevec3inate(pos);
 	} else {
 		logr(warning, "No position specified for sphere\n");
 	}
 	
 	color = cJSON_GetObjectItem(data, "color");
 	if (color != NULL) {
-		switch (newSphere.material.type) {
-			case emission:
-				newSphere.material.emission = *parseColor(color);
-				break;
-				
-			default:
-				newSphere.material.ambient = *parseColor(color);
-				newSphere.material.diffuse = *parseColor(color);
-				break;
-		}
-	} else {
+		struct color col = *parseColor(color);
+		MaterialSetVec3(newSphere.material, "albedo", (vec3) { col.red, col.green, col.blue });
+	}
+	else {
 		logr(warning, "No color specified for sphere\n");
+		MaterialSetVec3(newSphere.material, "albedo", (vec3) { 1.0f, 1.0f, 1.0f });
 	}
 	
 	//FIXME: Another hack.
 	intensity = cJSON_GetObjectItem(data, "intensity");
 	if (intensity != NULL) {
-		if (cJSON_IsNumber(intensity) && (newSphere.material.type == emission)) {
-			newSphere.material.emission = colorCoef(intensity->valuedouble, newSphere.material.emission);
+		if (cJSON_IsNumber(intensity) && (newSphere.material->type == MATERIAL_TYPE_EMISSIVE)) {
+			MaterialSetVec3(newSphere.material, "albedo", vec3_muls(MaterialGetVec3(newSphere.material, "albedo"), intensity->valuedouble));
 		}
 	}
 	
 	roughness = cJSON_GetObjectItem(data, "roughness");
 	if (roughness != NULL && cJSON_IsNumber(roughness)) {
-		newSphere.material.roughness = roughness->valuedouble;
+		MaterialSetFloat(newSphere.material, "roughness", roughness->valuedouble);
 	} else {
-		newSphere.material.roughness = 0.0;
+		MaterialSetFloat(newSphere.material, "roughness", 0.5);
 	}
 	
 	IOR = cJSON_GetObjectItem(data, "IOR");
 	if (IOR != NULL && cJSON_IsNumber(IOR)) {
-		newSphere.material.IOR = IOR->valuedouble;
+		MaterialSetFloat(newSphere.material, "ior", IOR->valuedouble);
 	} else {
-		newSphere.material.IOR = 1.0;
+		MaterialSetFloat(newSphere.material, "ior", 1.0);
 	}
 	
 	radius = cJSON_GetObjectItem(data, "radius");
@@ -899,7 +922,7 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	
 	//FIXME: Proper materials for spheres
 	addSphere(r->scene, newSphere);
-	assignBSDF(&lastSphere(r)->material);
+	//assignBSDF(&lastSphere(r)->material);
 }
 
 void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {
@@ -1162,7 +1185,7 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	r->state.image->hasAlpha = false;
 	
 	//Set a dark gray background for the render preview
-	struct color c = {49/255.0,51/255.0,54/255.0,0};
+	vec3 c = {49/255.0,51/255.0,54/255.0};
 	for (int x = 0; x < *r->state.image->width; x++) {
 		for (int y = 0; y < *r->state.image->height; y++) {
 			blit(r->state.image, c, x, y);

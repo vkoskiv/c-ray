@@ -17,14 +17,12 @@
 
 #define ws " \t\n\r"
 
-struct vector parseVertex() {
-	struct vector v = (struct vector){atof(strtok(NULL, ws)), atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
-	return v;
+vec3 parseVertex() {
+	return (vec3){atof(strtok(NULL, ws)), atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
 }
 
-struct coord parseCoord() {
-	struct coord c = (struct coord){atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
-	return c;
+vec2 parsevec2() {
+	return (vec2){atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
 }
 
 int parseIndices(int *vertexIndex, int *normalIndex, int *textureIndex) {
@@ -103,7 +101,7 @@ struct poly parsePoly() {
 
 int findMaterialIndex(struct mesh *mesh, char *mtlName) {
 	for (int i = 0; i < mesh->materialCount; i++) {
-		if (stringEquals(mesh->materials[i].name, mtlName)) {
+		if (stringEquals(mesh->materials[i]->name, mtlName)) {
 			return i;
 		}
 	}
@@ -162,11 +160,11 @@ struct mesh *parseOBJFile(char *filePath) {
 	newMesh->polyCount = pCount;
 	
 	vertexCount += vCount;
-	vertexArray = realloc(vertexArray, vertexCount * sizeof(struct vector));
+	vertexArray = realloc(vertexArray, vertexCount * sizeof(vec3));
 	normalCount += nCount;
-	normalArray = realloc(normalArray, normalCount * sizeof(struct vector));
+	normalArray = realloc(normalArray, normalCount * sizeof(vec3));
 	textureCount += tCount;
-	textureArray = realloc(textureArray, textureCount * sizeof(struct vector));
+	textureArray = realloc(textureArray, textureCount * sizeof(vec3));
 	polyCount += pCount;
 	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
 	
@@ -196,8 +194,8 @@ struct mesh *parseOBJFile(char *filePath) {
 			normalArray[newMesh->firstNormalIndex + currNorIdx] = parseVertex();
 			currNorIdx++;
 		} else if (stringEquals(token, "vt")) {
-			//Texture coord
-			textureArray[newMesh->firstTextureIndex + currTexIdx] = parseCoord();
+			//Texture vec2
+			textureArray[newMesh->firstTextureIndex + currTexIdx] = parsevec2();
 			currTexIdx++;
 		} else if (stringEquals(token, "f")) {
 			//Polygon
@@ -214,7 +212,7 @@ struct mesh *parseOBJFile(char *filePath) {
 			int *mtlCount = malloc(1*sizeof(int));
 			char *fullPath = (char*)calloc(1024, sizeof(char));
 			sprintf(fullPath, "%s%s", "input/", strtok(NULL, ws));
-			struct material *newMats = parseMTLFile(fullPath, mtlCount);
+			IMaterial *newMats = parseMTLFile(fullPath, mtlCount);
 			if (newMats != NULL) {
 				newMesh->materialCount = *mtlCount;
 				newMesh->materials = newMats;

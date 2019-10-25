@@ -39,10 +39,10 @@ struct texture {
 
 struct color;
 
-void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
-void blitfloat(float *buf, int width, int height, struct color *c, unsigned int x, unsigned int y);
-struct color textureGetPixel(struct texture *t, int x, int y);
-struct color textureGetPixelFiltered(struct texture *t, float x, float y);
+void blit(struct texture *t, vec3 c, unsigned int x, unsigned int y);
+void blitfloat(float *buf, int width, int height, vec3 *c, unsigned int x, unsigned int y);
+vec3 textureGetPixel(struct texture *t, int x, int y);
+vec3 textureGetPixelFiltered(struct texture *t, float x, float y);
 
 void textureFromSRGB(struct texture *t);
 void textureToSRGB(struct texture *t);

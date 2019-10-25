@@ -16,11 +16,11 @@
 
 #include "../includes.h"
 
-struct vector *vertexArray;
+vec3 *vertexArray;
 int vertexCount;
-struct vector *normalArray;
+vec3 *normalArray;
 int normalCount;
-struct coord *textureArray;
+vec2 *textureArray;
 int textureCount;
 
 void freeVertexBuffer() {
@@ -39,9 +39,9 @@ void freeVertexBuffer() {
 }
 
 void allocVertexBuffer() {
-	vertexArray = calloc(1, sizeof(struct vector));
-	normalArray = calloc(1, sizeof(struct vector));
-	textureArray = calloc(1, sizeof(struct coord));
+	vertexArray = calloc(1, sizeof(vec3));
+	normalArray = calloc(1, sizeof(vec3));
+	textureArray = calloc(1, sizeof(vec2));
 	polygonArray = calloc(1, sizeof(struct poly));
 	
 	vertexCount = 0;

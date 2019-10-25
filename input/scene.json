@@ -2,11 +2,11 @@
 	"version": 1.0,
 	"renderer": {
 		"threadCount": 0,
-		"sampleCount": 100,
-		"bounces": 50,
+		"sampleCount": 64,
+		"bounces": 16,
 		"antialiasing": true,
-		"tileWidth": 64,
-		"tileHeight": 64,
+		"tileWidth": 16,
+		"tileHeight": 16,
 		"tileOrder": "fromMiddle"
 	},
 	"display": {
@@ -38,9 +38,9 @@
 		"outputFilePath": "output/",
 		"outputFileName": "rendered",
 		"fileType": "png",
-		"count": 0,
-		"width": 1280,
-		"height": 800,
+		"count": 1,
+		"width": 640,
+		"height": 480,
 		"ambientColor": {
 			"down": {
 				"r": 1.0,

@@ -91,21 +91,21 @@ float SRGBToLinear(float channel) {
 }
 
 //Convert from linear (0.0-1.0) to sRGB
-struct color toSRGB(struct color c) {
-	struct color srgb = (struct color){0.0, 0.0, 0.0, 0.0};
-	srgb.red = linearToSRGB(c.red);
-	srgb.green = linearToSRGB(c.green);
-	srgb.blue = linearToSRGB(c.blue);
-	srgb.alpha = c.alpha;
+vec3 toSRGB(vec3 c) {
+	vec3 srgb = (vec3){ 0.0, 0.0, 0.0 };
+	srgb.r = linearToSRGB(c.r);
+	srgb.g = linearToSRGB(c.g);
+	srgb.b = linearToSRGB(c.b);
+	//srgb.a = c.a;
 	return srgb;
 }
 
 //Convert from sRGB to linear (0.0-1.0)
-struct color fromSRGB(struct color c) {
-	struct color linear = (struct color){0.0, 0.0, 0.0, 0.0};
-	linear.red = SRGBToLinear(c.red);
-	linear.green = SRGBToLinear(c.green);
-	linear.blue = SRGBToLinear(c.blue);
-	linear.alpha = c.alpha;
+vec3 fromSRGB(vec3 c) {
+	vec3 linear = (vec3){0.0, 0.0, 0.0};
+	linear.r = SRGBToLinear(c.r);
+	linear.g = SRGBToLinear(c.g);
+	linear.b = SRGBToLinear(c.b);
+	//linear.a = c.a;
 	return linear;
 }

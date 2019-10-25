@@ -42,79 +42,128 @@
  'Diamond': 2.417 - 2.541
  */
 
+#include "vec3.h"
+
 struct lightRay;
 struct intersection;
-struct color;
 struct texture;
 
-enum bsdfType {
-	emission = 0,
-	lambertian,
-	glass,
-	metal,
-	translucent,
-	transparent
-};
+typedef enum
+{
+	BSDF_TYPE_LAMBERT_DIFFUSE,
+	BSDF_TYPE_ERIC_HEITZ_GGX_2018_SPECULAR,
+	BSDF_TYPE_PHONG_SPECULAR,
+	BSDF_TYPE_PHONG_DIFFUSE,
+	BSDF_TYPE_BLINN_PHONG_SPECULAR,
+	BSDF_TYPE_HAMMON_EARL_GGX_DIFFUSE,
+	BSDF_TYPE_OREN_NEYAR_DIFFUSE
+} BSDF_TYPE;
 
-struct bsdf {
-	enum bsdfType type;
-	float weights;
-	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
-};
+static BSDF_TYPE ValueStrToDiffBSDF(const char* str)
+{
+	BSDF_TYPE type = BSDF_TYPE_LAMBERT_DIFFUSE;
 
-struct material {
-	char *textureFilePath;
-	char *name;
-	bool hasTexture;
-	struct texture *texture;
-	struct color ambient;
-	struct color diffuse;
-	struct color specular;
-	struct color emission;
-	float reflectivity;
-	float roughness;
-	float refractivity;
-	float IOR;
-	float transparency;
-	float sharpness;
-	float glossiness;
-	
-	//TODO:
-	// - New BSDF struct that contains FP, type and contributing percentage
-	// - Have an array of these structs, so 50% emit 50% reflect would have
-	//   two BSDF structs that have their contributions set to 0.5
-	// - Modify pathTrace loop to accommodate this new system.
-	// - Normalize probabilities
-	
-	enum bsdfType type;
-	//isect record, ray, attenuation color, scattered ray
-	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
-};
+	if      (!strcmp(str, "Lambert"))     type = BSDF_TYPE_LAMBERT_DIFFUSE;
+	else if (!strcmp(str, "Phong"))       type = BSDF_TYPE_PHONG_DIFFUSE;
+	else if (!strcmp(str, "Blinn-Phong")) type = BSDF_TYPE_OREN_NEYAR_DIFFUSE;
+	else if (!strcmp(str, "Hammon Earl")) type = BSDF_TYPE_HAMMON_EARL_GGX_DIFFUSE;
 
-//temporary newMaterial func
-struct material newMaterial(struct color diffuse, float reflectivity);
-struct material *materialForName(struct material *materials, int count, char *name);
+	return type;
+}
 
-//Full obj spec material
-struct material newMaterialFull(struct color ambient,
-								struct color diffuse,
-								struct color specular,
-								float reflectivity,
-								float refractivity,
-								float IOR,
-								float transparency,
-								float sharpness,
-								float glossiness);
+static BSDF_TYPE ValueStrToSpecBSDF(const char* str)
+{
+	BSDF_TYPE type = BSDF_TYPE_PHONG_SPECULAR;
 
-struct material emptyMaterial(void);
-struct material defaultMaterial(void);
-struct material warningMaterial(void);
+	if      (!strcmp(str, "Phong"))               type = BSDF_TYPE_PHONG_SPECULAR;
+	else if (!strcmp(str, "Blinn-Phong"))         type = BSDF_TYPE_OREN_NEYAR_DIFFUSE;
+	else if (!strcmp(str, "Eric Heitz GGX 2018")) type = BSDF_TYPE_ERIC_HEITZ_GGX_2018_SPECULAR;
 
-bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool dialectricBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+	return type;
+}
 
-void assignBSDF(struct material *mat);
+typedef enum 
+{
+	MATERIAL_TYPE_EMISSIVE,
+	MATERIAL_TYPE_DEFAULT,
+	MATERIAL_TYPE_WARNING
+} MaterialType;
 
-void freeMaterial(struct material *mat);
+
+static MaterialType ValueStrToMaterialType(const char* str)
+{
+	MaterialType type = MATERIAL_TYPE_DEFAULT;
+
+	if (!strcmp(str, "Emissive")) type = MATERIAL_TYPE_EMISSIVE;
+
+	return type;
+}
+
+typedef enum
+{
+	MATERIAL_VAR_TYPE_SCALAR,
+	MATERIAL_VAR_TYPE_VEC3,
+} MaterialVarType;
+
+typedef struct
+{
+	bool is_used;
+	void* data;
+} MaterialEntry;
+
+typedef struct
+{
+	MaterialEntry* data;
+	uint64_t size;
+	MaterialType type;
+	BSDF_TYPE diffuse_bsdf_type;
+	BSDF_TYPE specular_bsdf_type;
+	const char* name;
+} Material, *IMaterial;
+
+typedef vec3(*BSDF_PFN)(IMaterial mat, vec3 wo, vec3 wi);
+
+
+inline uint64_t HashDataToU64(uint8_t* data, size_t size)
+{
+	static const uint64_t FNV_offset_basis = 14695981039346656037;
+	static const uint64_t FNV_prime = 1099511628211;
+
+	uint64_t hash = FNV_offset_basis;
+
+	for (size_t i = 0; i < size; ++i)
+	{
+		uint8_t byte_of_data = data[i];
+		hash = (~0xFF & hash) | (0xFF & (hash ^ byte_of_data));
+		hash = hash * FNV_prime;
+	}
+
+	return hash;
+}
+
+IMaterial NewMaterial(MaterialType type);
+void MaterialFree(IMaterial self);
+
+MaterialEntry* MaterialGetEntry(IMaterial self, const char* id);
+void MaterialSetVec3(IMaterial self, const char* id, vec3 value);
+void MaterialSetFloat(IMaterial self, const char* id, float value);
+float MaterialGetFloat(IMaterial self, const char* id);
+vec3 MaterialGetVec3(IMaterial self, const char* id);
+bool MaterialValueAt(IMaterial self, const char* id);
+IMaterial MaterialPhongDefault(void);
+
+vec3 GetAlbedo(IMaterial mat);
+
+/* Default BSDF function decl */
+static const float INV_PI = 1.0f / PI;
+vec3 LambertDiffuseBSDF(IMaterial mat, vec3 wo, vec3 wi);
+
+typedef struct
+{
+	BSDF_TYPE type;
+	BSDF_PFN pfn;
+} BSDF;
+
+//bool LightingFunc(struct intersection* isect, vec3* attenuation, struct lightRay* scattered, pcg32_random_t* rng);
+vec3 LightingFuncDiffuse(IMaterial mat, vec3 wo, vec3 wi);
+vec3 LightingFuncSpecular(IMaterial mat, vec3 wo, vec3 wi);

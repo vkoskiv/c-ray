@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 project (c-ray C)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/)
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
@@ -42,13 +42,17 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${c-ray_SOURCE_DIR}/cmake")
 
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-configure_file("${c-ray_SOURCE_DIR}/src/utils/gitsha1.c.in" "${c-ray_BINARY_DIR}/src/utils/gitsha1.c" @ONLY)
-list(APPEND SOURCES "${c-ray_BINARY_DIR}/src/utils/gitsha1.c" "${c-ray_SOURCE_DIR}/src/utils/gitsha1.h")
+configure_file("${CMAKE_CURRENT_LIST_DIR}/src/utils/gitsha1.c.in" "${CMAKE_CURRENT_LIST_DIR}/src/utils/gitsha1.c" @ONLY)
+list(APPEND SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/utils/gitsha1.c" "${CMAKE_CURRENT_LIST_DIR}/src/utils/gitsha1.h")
+file(COPY "${CMAKE_CURRENT_LIST_DIR}/input" "${CMAKE_CURRENT_LIST_DIR}/output" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
-FILE(GLOB_RECURSE CSources src/*.c)
+FILE(GLOB_RECURSE CSources src/*.c src/*.h)
 add_executable(c-ray ${CSources})
 
 if (NOT NO_SDL2)
+	set(SDL2_PATH "./deps/SDL2-2.0.8")
+	file(COPY "./deps/SDL2-2.0.8/lib/x64/SDL2.dll" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
 	find_package(SDL2 QUIET)
 
 	if (SDL2_FOUND)

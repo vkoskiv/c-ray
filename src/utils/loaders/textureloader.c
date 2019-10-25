@@ -17,7 +17,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../libraries/stb_image.h"
 
-//This is a bit of a hack, my coordinate space is inverted.
+//This is a bit of a hack, my vec2inate space is inverted.
 struct texture *flipHorizontal(struct texture *t) {
 	struct texture *newTex = calloc(1, sizeof(struct texture));
 	newTex->byte_data = calloc(3 * *t->width * *t->height, sizeof(unsigned char));

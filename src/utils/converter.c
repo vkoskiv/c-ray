@@ -17,12 +17,12 @@
  @param vec OBJ loader vector
  @return c-ray vector
  */
-struct vector vectorFromObj(obj_vector *vec) {
-	return (struct vector){vec->e[0], vec->e[1], vec->e[2]};
+vec3 vec3FromObj(obj_vector *vec) {
+	return (vec3){vec->e[0], vec->e[1], vec->e[2]};
 }
 
-struct coord coordFromObj(obj_vector *vec) {
-	return (struct coord){vec->e[0], vec->e[1]};
+vec2 vec2FromObj(obj_vector *vec) {
+	return (vec2){vec->e[0], vec->e[1]};
 }
 
 /**
@@ -68,10 +68,10 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
  @param mat OBJ loader material
  @return c-ray material
  */
-struct material materialFromObj(obj_material *mat) {
-	struct material newMat;
+IMaterial materialFromObj(obj_material *obj_mat) {
+	IMaterial mat = NewMaterial(MATERIAL_TYPE_DEFAULT);
 	
-	newMat.name = calloc(256, sizeof(char));
+	/*newMat.name = calloc(256, sizeof(char));
 	newMat.textureFilePath = calloc(500, sizeof(char));
 	
 	newMat.hasTexture = false;
@@ -84,29 +84,12 @@ struct material materialFromObj(obj_material *mat) {
 	for (int i = 0; i < 500; i++) {
 		newMat.textureFilePath[i] = mat->texture_filename[i];
 		newMat.textureFilePath[499] = '\0';
-	}
-	
-	newMat.diffuse.red   = mat->diff[0];
-	newMat.diffuse.green = mat->diff[1];
-	newMat.diffuse.blue  = mat->diff[2];
-	newMat.diffuse.alpha = 0;
-	newMat.ambient.red   = mat->amb[0];
-	newMat.ambient.green = mat->amb[1];
-	newMat.ambient.blue  = mat->amb[2];
-	newMat.ambient.alpha = 0;
-	newMat.specular.red  = mat->spec[0];
-	newMat.specular.green= mat->spec[1];
-	newMat.specular.blue = mat->spec[2];
-	newMat.specular.alpha= 0;
-	newMat.emission.red  = mat->emit[0];
-	newMat.emission.green= mat->emit[1];
-	newMat.emission.blue = mat->emit[2];
-	newMat.emission.alpha = 0;
-	newMat.reflectivity  = mat->reflect;
-	newMat.refractivity  = mat->refract;
-	newMat.IOR           = mat->refract_index;
-	newMat.glossiness    = mat->glossy;
-	newMat.transparency  = mat->trans;
-	newMat.sharpness     = 0;
-	return newMat;
+	}*/
+
+	MaterialSetFloat(mat, "ambient", vec3_length((vec3) { obj_mat->amb[0], obj_mat->amb[1], obj_mat->amb[2] }) );
+	MaterialSetVec3(mat, "albedo", (vec3) { obj_mat->diff[0], obj_mat->diff[1], obj_mat->diff[2] });
+	MaterialSetFloat(mat, "ior", obj_mat->refract_index);
+	MaterialSetFloat(mat, "roughness", 1.0f - obj_mat->glossy);
+
+	return mat;
 }

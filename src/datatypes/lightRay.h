@@ -17,11 +17,11 @@ enum type {
 
 //Simulated light ray
 struct lightRay {
-	struct vector start;
-	struct vector direction;
+	vec3 start;
+	vec3 direction;
 	enum type rayType;
-	struct material currentMedium;
+	Material *currentMedium;
 	int remainingInteractions; //Reflections or refractions
 };
 
-struct lightRay newRay(struct vector start, struct vector direction, enum type rayType);
+struct lightRay newRay(vec3 start, vec3 direction, enum type rayType);

@@ -59,7 +59,7 @@
 //Project includes
 #include "./datatypes/color.h"
 #include "./datatypes/material.h"
-#include "./datatypes/vector.h"
+#include "./datatypes/vec3.h"
 #include "./datatypes/poly.h"
 #include "./libraries/list.h"
 #include "./datatypes/mesh.h"

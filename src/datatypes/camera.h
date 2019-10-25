@@ -15,9 +15,9 @@ struct camera {
 	float focalLength;
 	float aperture;
 	
-	struct vector pos;
-	struct vector up;
-	struct vector left;
+	vec3 pos;
+	vec3 up;
+	vec3 left;
 	
 	struct transform *transforms;
 	int transformCount;
@@ -26,7 +26,7 @@ struct camera {
 //Compute focal length for camera
 void computeFocalLength(struct camera *camera, int width);
 void initCamera(struct camera *cam);
-void transformCameraView(struct camera *cam, struct vector *direction); //For transforming direction in renderer
+void transformCameraView(struct camera *cam, vec3 *direction); //For transforming direction in renderer
 void transformCameraIntoView(struct camera *cam); //Run once in scene.c to calculate pos, up, left
 
 void freeCamera(struct camera *cam);
