@@ -142,7 +142,7 @@ float AbsCosTheta(vec3 w) { return fabs(CosTheta(w)); }
 
 vec3 LambertDiffuseBSDF(IMaterial mat, vec3 wo, vec3 wi)
 {
-	float NoL = vec3_dot(wo, wi);
+	float NoL = CosTheta(wi);
 	return vec3_muls(GetAlbedo(mat), max(NoL, 0.0) * INV_PI);
 }
 
@@ -156,11 +156,45 @@ float HeitzGgxDGTR2Aniso(vec3 wm, float ax, float ay)
 	return 1.0f / (PI * ax * ay * Square(dotHX2 / ax2 + dotHY2 / ay2 + cos2Theta));
 }
 
+float HeitzGgxG1GTR2Aniso(vec3 wm, vec3 w, float ax, float ay)
+{
+	float NoX = vec3_dot(wm, w);
+
+	if (NoX <= 0.) return 0.;
+
+	float phi = Phi(w);
+	float cos2Phi = Square(cos(phi));
+	float sin2Phi = Square(sin(phi));
+	float tanTheta = tan(Theta(w));
+
+	float a = 1.0f / (tanTheta * sqrt(cos2Phi * ax * ax + sin2Phi * ay * ay));
+	float a2 = a * a;
+
+	float lambda = 0.5f * (-1.0f + sqrt(1.0f + 1.0f / a2));
+	return 1.0f / (1.0f + lambda);
+}
+
+float HeitzGgxG2GTR2Aniso(vec3 wm, vec3 wo, vec3 wi, float ax, float ay)
+{
+	return HeitzGgxG1GTR2Aniso(wm, wo, ax, ay) * HeitzGgxG1GTR2Aniso(wm, wi, ax, ay);
+}
+
+float SchlickFresnel(float NoX, float F0)
+{
+	return F0 + (1.0f - F0) * pow(1.0f - NoX, 5.0f);
+}
+
 vec3 EricHeitzGgx2018(Material* mat, vec3 wo, vec3 wi)
 {
+	float NoV = CosTheta(wo);
+	float NoL = CosTheta(wi);
+
+	if (NoV <= 0.0f || NoL <= 0.0f) return VEC3_ZERO;
+
 	vec3 albedo = MaterialGetVec3(mat, "albedo");
 	float roughness = MaterialGetFloat(mat, "roughness");
 	float anisotropy = MaterialGetFloat(mat, "anisotropy");
+	float ior = MaterialGetFloat(mat, "ior");
 
 	float alpha = roughness * roughness;
 	float aspect = sqrt(1.0f - 0.9f * anisotropy);
@@ -168,10 +202,18 @@ vec3 EricHeitzGgx2018(Material* mat, vec3 wo, vec3 wi)
 	float ay = alpha / aspect;
 
 	vec3 wm = vec3_normalize(vec3_add(wo, wi));
+	float NoH = CosTheta(wm);
+	float VoH = vec3_dot(wo, wm);
+
+	float F0 = abs((1.0 - ior) / (1.0 + ior));
 
 	float D = HeitzGgxDGTR2Aniso(wm, ax, ay);
+	float F = SchlickFresnel(VoH, F0);
+	float G = HeitzGgxG2GTR2Aniso(wm, wo, wi, ax, ay);
 
-	return (vec3) { D, D, D };
+	float Fr = (D * F * G) / (4.0f * NoV * max(NoL, 0.0f) + 0.05f);
+
+	return (vec3) { Fr, Fr, Fr };
 }
 
 vec3 LightingFuncDiffuse(IMaterial mat, vec3 wo, vec3 wi)
@@ -183,6 +225,8 @@ vec3 LightingFuncDiffuse(IMaterial mat, vec3 wo, vec3 wi)
 			return LambertDiffuseBSDF(mat, wo, wi);
 		}
 	}
+
+	return (vec3) { 0.0f, 0.0f, 0.0f };
 }
 
 vec3 LightingFuncSpecular(IMaterial mat, vec3 wo, vec3 wi)
@@ -194,6 +238,8 @@ vec3 LightingFuncSpecular(IMaterial mat, vec3 wo, vec3 wi)
 			return EricHeitzGgx2018(mat, wo, wi);
 		}
 	}
+
+	return (vec3) { 0.0f, 0.0f, 0.0f };
 }
 
 //bool LightingFunc(struct intersection* isect, vec3* attenuation, struct lightRay* scattered, pcg32_random_t* rng)

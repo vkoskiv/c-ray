@@ -137,7 +137,7 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	r->scene->meshes[r->scene->meshCount].transformCount = 0;
 	r->scene->meshes[r->scene->meshCount].transforms = malloc(sizeof(struct transform));
 	
-	r->scene->meshes[r->scene->meshCount].materialCount = 0;
+	//r->scene->meshes[r->scene->meshCount].materialCount = 0;
 	//Set name
 	copyString(getFileName(inputFilePath), &r->scene->meshes[r->scene->meshCount].name);
 	
@@ -174,15 +174,16 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 																							r->scene->meshes[r->scene->meshCount].firstPolyIndex + i);
 	}
 	
-	r->scene->meshes[r->scene->meshCount].materials = calloc(1, sizeof(IMaterial));
+	//r->scene->meshes[r->scene->meshCount].mat = calloc(1, sizeof(IMaterial));
 	//Parse materials
 	if (data.material_count == 0) {
 		//No material, set to something obscene to make it noticeable
-		r->scene->meshes[r->scene->meshCount].materials = calloc(1, sizeof(IMaterial));
-		r->scene->meshes[r->scene->meshCount].materials[0] = NewMaterial(MATERIAL_TYPE_WARNING);
+		//r->scene->meshes[r->scene->meshCount].mat = calloc(1, sizeof(IMaterial));
+		r->scene->meshes[r->scene->meshCount].mat = NewMaterial(MATERIAL_TYPE_WARNING);
 		//assignBSDF(&r->scene->meshes[r->scene->meshCount].materials[0]);
-		r->scene->meshes[r->scene->meshCount].materialCount++;
+		//r->scene->meshes[r->scene->meshCount].materialCount++;
 	} else {
+		//r->scene->meshes[r->scene->meshCount].mat = NewMaterial(MATERIAL_TYPE_DEFAULT);
 		//Loop to add materials to mesh (We already set the material indices in polyFromObj)
 		for (int i = 0; i < data.material_count; i++) {
 			addMaterialToMesh(&r->scene->meshes[r->scene->meshCount], materialFromObj(data.material_list[i]));
@@ -208,8 +209,8 @@ void addSphere(struct world *scene, struct sphere newSphere) {
 }
 
 void addMaterialToMesh(struct mesh *mesh, IMaterial newMaterial) {
-	mesh->materials = realloc(mesh->materials, (mesh->materialCount + 1) * sizeof(IMaterial));
-	mesh->materials[mesh->materialCount++] = newMaterial;
+	//mesh->mat = realloc(mesh->materials, (mesh->materialCount + 1) * sizeof(IMaterial));
+	mesh->mat = newMaterial;
 }
 
 void transformMeshes(struct world *scene) {
@@ -786,8 +787,20 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 				addTransform(lastMesh(r), parseTransform(transform, lastMesh(r)->name));
 			}
 		}
+
+		IMaterial mat = lastMesh(r)->mat;
+		mat->type = MATERIAL_TYPE_DEFAULT;
+		mat->diffuse_bsdf_type = diffuse_bsdf_type;
+		mat->specular_bsdf_type = specular_bsdf_type;
+		MaterialSetVec3(mat, "albedo", albedo);
+		MaterialSetFloat(mat, "roughness", roughness);
+		MaterialSetFloat(mat, "specularity", specularity);
+		MaterialSetFloat(mat, "metalness", metalness);
+		MaterialSetFloat(mat, "anisotropy", anisotropy);
+		MaterialSetFloat(mat, "ior", ior);
 		
 		//FIXME: this isn't right.
+		/*
 		for (int i = 0; i < lastMesh(r)->materialCount; i++) {
 			IMaterial mat = lastMesh(r)->materials[i];
 			mat->diffuse_bsdf_type = diffuse_bsdf_type;
@@ -798,7 +811,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 			MaterialSetFloat(mat, "metalness", metalness);
 			MaterialSetFloat(mat, "anisotropy", anisotropy);
 			MaterialSetFloat(mat, "ior", ior);
-		}
+		}*/
 	}
 }
 
@@ -835,13 +848,9 @@ vec3 parsevec3inate(const cJSON *data) {
 
 void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *pos = NULL;
-	const cJSON *color = NULL;
-	const cJSON *roughness = NULL;
-	const cJSON *IOR = NULL;
 	const cJSON *radius = NULL;
-	const cJSON *intensity = NULL;
 	
-	struct sphere newSphere = defaultSphere();
+	struct sphere newSphere = defaultSphere(); // inits material
 	
 	const cJSON* diffuse_bsdf_json = cJSON_GetObjectItem(data, "Diffuse BSDF");
 	const cJSON* specular_bsdf_json = cJSON_GetObjectItem(data, "Specular BSDF");
@@ -872,44 +881,51 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	else {
 		logr(warning, "Invalid specular BSDF while parsing mesh\n");
 	}
-	
+
+	cJSON* mat_json = cJSON_GetObjectItem(data, "Material");
+
+	vec3 albedo;
+	float roughness;
+	float specularity;
+	float metalness;
+	float anisotropy;
+	float ior;
+
+	{
+		cJSON* albedo_json = cJSON_GetObjectItem(mat_json, "albedo");
+		cJSON* roughness_json = cJSON_GetObjectItem(mat_json, "roughness");
+		cJSON* specularity_json = cJSON_GetObjectItem(mat_json, "specularity");
+		cJSON* metalness_json = cJSON_GetObjectItem(mat_json, "metalness");
+		cJSON* anisotropy_json = cJSON_GetObjectItem(mat_json, "anisotropy");
+		cJSON* ior_json = cJSON_GetObjectItem(mat_json, "ior");
+
+		cJSON* albedo_r_json = cJSON_GetObjectItem(albedo_json, "r");
+		cJSON* albedo_g_json = cJSON_GetObjectItem(albedo_json, "g");
+		cJSON* albedo_b_json = cJSON_GetObjectItem(albedo_json, "b");
+
+		albedo = (vec3){ albedo_r_json->valuedouble, albedo_g_json->valuedouble, albedo_b_json->valuedouble };
+		roughness = roughness_json->valuedouble;
+		specularity = specularity_json->valuedouble;
+		metalness = metalness_json->valuedouble;
+		anisotropy = anisotropy_json->valuedouble;
+		ior = ior_json->valuedouble;
+	}
+
+	IMaterial mat = newSphere.material;
+	mat->diffuse_bsdf_type = diffuse_bsdf_type;
+	mat->specular_bsdf_type = specular_bsdf_type;
+	MaterialSetVec3(mat, "albedo", albedo);
+	MaterialSetFloat(mat, "roughness", roughness);
+	MaterialSetFloat(mat, "specularity", specularity);
+	MaterialSetFloat(mat, "metalness", metalness);
+	MaterialSetFloat(mat, "anisotropy", anisotropy);
+	MaterialSetFloat(mat, "ior", ior);
+
 	pos = cJSON_GetObjectItem(data, "pos");
 	if (pos != NULL) {
 		newSphere.pos = parsevec3inate(pos);
 	} else {
 		logr(warning, "No position specified for sphere\n");
-	}
-	
-	color = cJSON_GetObjectItem(data, "color");
-	if (color != NULL) {
-		struct color col = *parseColor(color);
-		MaterialSetVec3(newSphere.material, "albedo", (vec3) { col.red, col.green, col.blue });
-	}
-	else {
-		logr(warning, "No color specified for sphere\n");
-		MaterialSetVec3(newSphere.material, "albedo", (vec3) { 1.0f, 1.0f, 1.0f });
-	}
-	
-	//FIXME: Another hack.
-	intensity = cJSON_GetObjectItem(data, "intensity");
-	if (intensity != NULL) {
-		if (cJSON_IsNumber(intensity) && (newSphere.material->type == MATERIAL_TYPE_EMISSIVE)) {
-			MaterialSetVec3(newSphere.material, "albedo", vec3_muls(MaterialGetVec3(newSphere.material, "albedo"), intensity->valuedouble));
-		}
-	}
-	
-	roughness = cJSON_GetObjectItem(data, "roughness");
-	if (roughness != NULL && cJSON_IsNumber(roughness)) {
-		MaterialSetFloat(newSphere.material, "roughness", roughness->valuedouble);
-	} else {
-		MaterialSetFloat(newSphere.material, "roughness", 0.5);
-	}
-	
-	IOR = cJSON_GetObjectItem(data, "IOR");
-	if (IOR != NULL && cJSON_IsNumber(IOR)) {
-		MaterialSetFloat(newSphere.material, "ior", IOR->valuedouble);
-	} else {
-		MaterialSetFloat(newSphere.material, "ior", 1.0);
 	}
 	
 	radius = cJSON_GetObjectItem(data, "radius");

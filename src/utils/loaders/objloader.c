@@ -100,11 +100,13 @@ struct poly parsePoly() {
 }
 
 int findMaterialIndex(struct mesh *mesh, char *mtlName) {
+	/*
 	for (int i = 0; i < mesh->materialCount; i++) {
 		if (stringEquals(mesh->materials[i]->name, mtlName)) {
 			return i;
 		}
-	}
+	}*/
+	//return mesh->mat;
 	return 0;
 }
 
@@ -169,8 +171,8 @@ struct mesh *parseOBJFile(char *filePath) {
 	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
 	
 	//newMesh->name;
-	//newMesh->materials;
-	//newMesh->materialCount;
+	//newMesh->materials = malloc(sizeof(IMaterial));
+	//newMesh->materialCount = 1;
 	
 	int currMatIdx = 0;
 	int currVecIdx = 0;
@@ -200,25 +202,27 @@ struct mesh *parseOBJFile(char *filePath) {
 		} else if (stringEquals(token, "f")) {
 			//Polygon
 			struct poly p = parsePoly();
-			p.materialIndex = currMatIdx;
+			p.materialIndex = 0;
 			p.polyIndex = currPolIdx;
 			polygonArray[newMesh->firstPolyIndex + currPolIdx] = p;
 			currPolIdx++;
 		} else if (stringEquals(token, "usemtl")) {
 			//current material index
-			currMatIdx = findMaterialIndex(newMesh, strtok(NULL, ws));
+			currMatIdx = 0;// findMaterialIndex(newMesh, strtok(NULL, ws));
 		} else if (stringEquals(token, "mtllib")) {
 			//new material
+			/*
 			int *mtlCount = malloc(1*sizeof(int));
 			char *fullPath = (char*)calloc(1024, sizeof(char));
 			sprintf(fullPath, "%s%s", "input/", strtok(NULL, ws));
 			IMaterial *newMats = parseMTLFile(fullPath, mtlCount);
 			if (newMats != NULL) {
-				newMesh->materialCount = *mtlCount;
-				newMesh->materials = newMats;
+				//newMesh->materialCount = *mtlCount;
+				//newMesh->materials = newMats;
 			}
 			free(fullPath);
 			free(mtlCount);
+			*/
 		} else if (stringEquals(token, "o")) {
 			//object name
 			copyString(strtok(NULL, ws), &newMesh->name);
@@ -229,7 +233,8 @@ struct mesh *parseOBJFile(char *filePath) {
 			logr(warning, "Unrecognized command '%s' in OBJ file %s on line %i\n", token, filePath, linenum);
 		}
 	}
-	
+
+	//newMesh->mat = NewMaterial(MATERIAL_TYPE_DEFAULT);
 	fclose(fileStream);
 	
 	return newMesh;

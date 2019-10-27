@@ -65,10 +65,5 @@ void freeMesh(struct mesh *mesh) {
 		freeTree(mesh->tree);
 		free(mesh->tree);
 	}
-	if (mesh->materials) {
-		for (int i = 0; i < mesh->materialCount; i++) {
-			MaterialFree(mesh->materials[i]);
-		}
-		free(mesh->materials);
-	}
+	MaterialFree(mesh->mat);
 }

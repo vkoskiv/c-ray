@@ -70,7 +70,7 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
  */
 IMaterial materialFromObj(obj_material *obj_mat) {
 	IMaterial mat = NewMaterial(MATERIAL_TYPE_DEFAULT);
-	
+
 	/*newMat.name = calloc(256, sizeof(char));
 	newMat.textureFilePath = calloc(500, sizeof(char));
 	
@@ -86,7 +86,6 @@ IMaterial materialFromObj(obj_material *obj_mat) {
 		newMat.textureFilePath[499] = '\0';
 	}*/
 
-	MaterialSetFloat(mat, "ambient", vec3_length((vec3) { obj_mat->amb[0], obj_mat->amb[1], obj_mat->amb[2] }) );
 	MaterialSetVec3(mat, "albedo", (vec3) { obj_mat->diff[0], obj_mat->diff[1], obj_mat->diff[2] });
 	MaterialSetFloat(mat, "ior", obj_mat->refract_index);
 	MaterialSetFloat(mat, "roughness", 1.0f - obj_mat->glossy);

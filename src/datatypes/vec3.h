@@ -8,13 +8,12 @@
 
 #pragma once
 
-#include "../includes.h"
-
-typedef union vec3
+typedef union
 {
 	struct { float x, y, z; };
 	struct { float r, g, b; };
-} vec3;
+	float e[3];
+} vec3, float3;
 
 typedef struct
 {
@@ -38,6 +37,8 @@ vec3 vec3_muls(vec3 v, float x);
 vec3 vec3_negate(vec3 v);
 vec3 vec3_normalize(vec3 v);
 vec3 vec3_sub(vec3 v1, vec3 v2);
+vec3 vec3_cross(vec3 v1, vec3 v2);
+vec3 vec3_subs(vec3 v, float x);
 
 float vec3_length(vec3 v);
 float vec3_dot(vec3 v1, vec3 v2);

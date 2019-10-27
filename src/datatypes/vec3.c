@@ -57,6 +57,20 @@ vec3 vec3_sub(vec3 v1, vec3 v2)
 	return (vec3) { v1.x - v2.x, v1.y - v2.y, v1.z - v2.z };
 }
 
+vec3 vec3_cross(vec3 v1, vec3 v2)
+{
+	return (vec3) {
+		((v1.y * v2.z) - (v1.z * v2.y)),
+		((v1.z * v2.x) - (v1.x * v2.z)),
+		((v1.x * v2.y) - (v1.y * v2.x))
+	};
+}
+
+vec3 vec3_subs(vec3 v, float x)
+{
+	return (vec3) { v.x - x, v.y - x, v.z - x };
+}
+
 /**
  Create a vector with given position values and return it.
 

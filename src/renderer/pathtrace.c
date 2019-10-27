@@ -15,18 +15,20 @@
 #include "../acceleration/kdtree.h"
 #include "../datatypes/texture.h"
 
+#include "../datatypes/mat3.h"
+
 bool GetHit(struct intersection* rec, struct lightRay *incidentRay, struct world *scene);
 vec3 GetBackground(struct lightRay *incidentRay, struct world *scene);
 
 vec3 RandomUnitSphere(pcg32_random_t* rng) {
 	vec3 vec = (vec3){ 0.0f, 0.0f, 0.0f };
 	do {
-		vec = vecMultiplyConst(vecWithPos(rndFloat(0, 1, rng), rndFloat(0, 1, rng), rndFloat(0, 1, rng)), 2.0);
-		vec = vecSubtract(vec, vecWithPos(1.0f, 1.0f, 1.0f));
+		vec = (vec3){ rndFloat(0.0f, 1.0f, rng), rndFloat(0.0f, 1.0f, rng), rndFloat(0.0f, 1.0f, rng) };
+		vec = vec3_subs(vec3_muls(vec, 2.0f), 1.0f);
 	} while (vecLengthSquared(vec) >= 1.0f);
 	return vec;
 }
-
+const float EPSILON = 0.00001f;
 
 vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, pcg32_random_t *rng, bool *hasHitObject) {
 
@@ -41,34 +43,71 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 		{
 			vec3 wo, wi;
 			if (hasHitObject) *hasHitObject = true;
-			wi = vec3_negate(incidentRay->direction);
+			wo = vec3_negate(incidentRay->direction); // view direction from hitpoint
 
-			incidentRay->start = rec.hitPoint;
-			incidentRay->direction = vec3_normalize(vec3_sub(RandomUnitSphere(rng), rec.surfaceNormal));
-
-			wo = incidentRay->direction;
-
-			// TODO(saidwho12): transform wi and wo to tangent space using TBN inverse
+			//float r = rec.distance;
+			//float alpha = 1.0f / (4.0f * PI * r * r); // inverse square law for light
 			
 			if (rec.end->type == MATERIAL_TYPE_EMISSIVE)
 			{
 				color = vec3_mul(falloff, GetAlbedo(rec.end));
 				break;
 			}
-			if (rec.end->type == MATERIAL_TYPE_DEFAULT)
+			else if (rec.end->type == MATERIAL_TYPE_DEFAULT)
 			{
-				vec3 diffuse = LightingFuncDiffuse(rec.end, wo, wi);
-				vec3 specular = LightingFuncSpecular(rec.end, wo, wi);
-
 				float specularity = MaterialGetFloat(rec.end, "specularity");
 				float metalness = MaterialGetFloat(rec.end, "metalness");
 
-				falloff = vec3_mul(falloff, vec3_mix(diffuse, specular, specularity * metalness));
+				// Setup TBN matrix for tangent space transforms
+
+				vec3 N = rec.surfaceNormal;
+				vec3 T = vec3_normalize(vec3_cross((vec3) { N.y, N.z, N.x }, N)); // to prevent cross product being length 0
+				vec3 B = vec3_cross(N, T);
+
+				mat3 TBN = (mat3)
+				{
+					T, B, N
+				};
+				mat3 invTBN = mat3_transpose(TBN);
+
+				wo = vec3_normalize(mat3_mul_vec3(invTBN, wo));
+
+				if (rndFloat(0.0f, 1.0f, rng) > 0.5f)
+				{
+					// Light incoming direction from hitpoint, random in normal direction
+					wi = vec3_normalize(vec3_add(RandomUnitSphere(rng), (vec3) {0.0f, 0.0f, 1.0f}));
+
+					incidentRay->start = vec3_add(rec.hitPoint, vec3_muls(N, EPSILON));
+					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
+
+					vec3 diffuse = LightingFuncDiffuse(rec.end, wo, wi);
+
+					falloff = vec3_mul(falloff, vec3_muls(diffuse, (1.0f - specularity)));
+
+				}
+				else
+				{
+					// MIS sample VNDF
+					float roughness = MaterialGetFloat(rec.end, "roughness");
+
+					vec3 R = (vec3){ -wo.x, -wo.y, wo.z }; // reflection in tangent space
+
+					// light incoming direction from hitpoint, random in reverse reflection direction
+					wi = vec3_normalize(vec3_add(vec3_muls(RandomUnitSphere(rng), roughness), R));
+
+					incidentRay->start = vec3_add(rec.hitPoint, vec3_muls(rec.surfaceNormal, EPSILON));
+					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
+
+					//float VoR = vec3_dot(wi, R);
+					//float spec = max(VoR, 0.0f);
+					vec3 specular = LightingFuncSpecular(rec.end, wo, wi);
+					falloff = vec3_mul(falloff, vec3_muls(specular, specularity));
+				}
 			}
 		}
 		else
 		{
-			color = vec3_mul(vec3_muls(GetBackground(incidentRay, scene), 4.0), falloff);
+			color = vec3_mul(vec3_muls(GetBackground(incidentRay, scene), 1.0), falloff);
 			break;
 		}
 	}
@@ -127,7 +166,7 @@ bool GetHit(struct intersection *rec, struct lightRay *incidentRay, struct world
 	}
 	for (int o = 0; o < scene->meshCount; o++) {
 		if (rayIntersectsWithNode(scene->meshes[o].tree, incidentRay, rec)) {
-			rec->end = scene->meshes[o].materials[polygonArray[rec->polyIndex].materialIndex];
+			rec->end = scene->meshes[o].mat;
 			rec->didIntersect = true;
 		}
 	}

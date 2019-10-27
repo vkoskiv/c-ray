@@ -41,8 +41,7 @@ struct mesh {
 	struct transform *transforms;
 	
 	//Materials
-	int materialCount;
-	IMaterial *materials;
+	IMaterial mat;
 	
 	//Root node of the kd-tree for this mesh
 	struct kdTreeNode *tree;
