@@ -54,7 +54,9 @@ typedef enum
 	BSDF_TYPE_ERIC_HEITZ_GGX_2018_SPECULAR,
 	BSDF_TYPE_PHONG_SPECULAR,
 	BSDF_TYPE_PHONG_DIFFUSE,
+	BSDF_TYPE_BLINN_PHONG_DIFFUSE,
 	BSDF_TYPE_BLINN_PHONG_SPECULAR,
+	BSDF_TYPE_PHONG_DIFFUSE,
 	BSDF_TYPE_HAMMON_EARL_GGX_DIFFUSE,
 	BSDF_TYPE_OREN_NEYAR_DIFFUSE
 } BSDF_TYPE;
@@ -65,7 +67,7 @@ static BSDF_TYPE ValueStrToDiffBSDF(const char* str)
 
 	if      (!strcmp(str, "Lambert"))     type = BSDF_TYPE_LAMBERT_DIFFUSE;
 	else if (!strcmp(str, "Phong"))       type = BSDF_TYPE_PHONG_DIFFUSE;
-	else if (!strcmp(str, "Blinn-Phong")) type = BSDF_TYPE_OREN_NEYAR_DIFFUSE;
+	else if (!strcmp(str, "Blinn-Phong")) type = BSDF_TYPE_BLINN_PHONG_DIFFUSE;
 	else if (!strcmp(str, "Hammon Earl")) type = BSDF_TYPE_HAMMON_EARL_GGX_DIFFUSE;
 
 	return type;
@@ -76,7 +78,7 @@ static BSDF_TYPE ValueStrToSpecBSDF(const char* str)
 	BSDF_TYPE type = BSDF_TYPE_PHONG_SPECULAR;
 
 	if      (!strcmp(str, "Phong"))               type = BSDF_TYPE_PHONG_SPECULAR;
-	else if (!strcmp(str, "Blinn-Phong"))         type = BSDF_TYPE_OREN_NEYAR_DIFFUSE;
+	else if (!strcmp(str, "Blinn-Phong"))         type = BSDF_TYPE_BLINN_PHONG_SPECULAR;
 	else if (!strcmp(str, "Eric Heitz GGX 2018")) type = BSDF_TYPE_ERIC_HEITZ_GGX_2018_SPECULAR;
 
 	return type;
