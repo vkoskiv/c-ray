@@ -122,15 +122,15 @@
         "Specular BSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
-            "r": 1.0,
-            "g": 1.0,
+            "r": 0.1,
+            "g": 0.5,
             "b": 1.0
           },
-          "roughness": 0.2,
+          "roughness": 0.4,
           "metalness": 1.0,
-          "specularity": 0.8,
+          "specularity": 0.3,
           "anisotropy": 0.9,
-          "ior": 1.5
+          "ior": 1.0
         }
       },
       {
@@ -190,11 +190,11 @@
         "Specular BSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
-            "r": 0.2,
-            "g": 0.2,
-            "b": 0.2
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
           },
-          "roughness": 0.3,
+          "roughness": 0.01,
           "metalness": 0.1,
           "specularity": 0.3,
           "anisotropy": 0.01,
@@ -203,7 +203,7 @@
         "transforms": [
           {
             "type": "scaleUniform",
-            "scale": 10
+            "scale": 1
           }
         ]
       },

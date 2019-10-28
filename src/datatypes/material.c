@@ -13,6 +13,9 @@
 #include "../datatypes/vertexbuffer.h"
 #include "../datatypes/texture.h"
 
+#define _ISOC99_SOURCE
+#include <math.h>
+
 static const uint64_t MATERIAL_TABLE_SIZE = 32;
 IMaterial NewMaterial(MaterialType type)
 {
@@ -202,8 +205,8 @@ vec3 EricHeitzGgx2018(Material* mat, vec3 wo, vec3 wi)
 	float ay = alpha / aspect;
 
 	vec3 wm = vec3_normalize(vec3_add(wo, wi));
-	float NoH = CosTheta(wm);
-	//float VoH = vec3_dot(wo, wm);
+	float NoH = fmaxf(CosTheta(wm), 0.0f);
+	float VoH = fmaxf(vec3_dot(wo, wm), 0.0f);
 
 	float F0 = abs((1.0 - ior) / (1.0 + ior));
 
@@ -212,7 +215,9 @@ vec3 EricHeitzGgx2018(Material* mat, vec3 wo, vec3 wi)
 	float G = HeitzGgxG2GTR2Aniso(wm, wo, wi, ax, ay);
 
 	// HACK to fix the crazy edge lighting going over 1.0
-	float Fr = (D * F * G); // / (4.0f * NoV * max(NoL, 0.0f) + 0.05f);
+	float Fr = (D * F * G) / (4.0f * NoV * NoL);
+
+	Fr = fminf(Fr, 1.0f);
 
 	return (vec3) { Fr, Fr, Fr };
 }
