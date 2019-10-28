@@ -33,6 +33,43 @@
 		900BA144220B4603005B8EE7 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA129220B4602005B8EE7 /* main.c */; };
 		90189DA6224EB302007FA268 /* mesh.c in Sources */ = {isa = PBXBuildFile; fileRef = 90189DA4224EB302007FA268 /* mesh.c */; };
 		90369CCC222E012F008D215B /* pcg_basic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90369CCA222E012F008D215B /* pcg_basic.c */; };
+		905842DB236651FC009D92F1 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA129220B4602005B8EE7 /* main.c */; };
+		905842DC236651FC009D92F1 /* sphere.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA10B220B4602005B8EE7 /* sphere.c */; };
+		905842DD236651FC009D92F1 /* multiplatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 907CD4792240DFFF003947B0 /* multiplatform.c */; };
+		905842DE236651FC009D92F1 /* poly.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0FC220B4602005B8EE7 /* poly.c */; };
+		905842DF236651FC009D92F1 /* obj_parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA119220B4602005B8EE7 /* obj_parser.c */; };
+		905842E0236651FC009D92F1 /* textureloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA851B2252C90C00BA7702 /* textureloader.c */; };
+		905842E1236651FC009D92F1 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA127220B4602005B8EE7 /* logging.c */; };
+		905842E2236651FC009D92F1 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
+		905842E3236651FC009D92F1 /* timer.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11F220B4602005B8EE7 /* timer.c */; };
+		905842E4236651FC009D92F1 /* pathtrace.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F7220B4602005B8EE7 /* pathtrace.c */; };
+		905842E5236651FC009D92F1 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA116220B4602005B8EE7 /* list.c */; };
+		905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85232252D99700BA7702 /* vertexbuffer.c */; };
+		905842E7236651FC009D92F1 /* material.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA10A220B4602005B8EE7 /* material.c */; };
+		905842E8236651FC009D92F1 /* lodepng.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11B220B4602005B8EE7 /* lodepng.c */; };
+		905842E9236651FC009D92F1 /* denoiser.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50D22231E9E00193385 /* denoiser.c */; };
+		905842EA236651FC009D92F1 /* vector.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0FE220B4602005B8EE7 /* vector.c */; };
+		905842EB236651FC009D92F1 /* texture.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15CD225C6D85008D6AAA /* texture.c */; };
+		905842EC236651FC009D92F1 /* objloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85192252C90C00BA7702 /* objloader.c */; };
+		905842ED236651FC009D92F1 /* lightRay.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA102220B4602005B8EE7 /* lightRay.c */; };
+		905842EE236651FC009D92F1 /* pcg_basic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90369CCA222E012F008D215B /* pcg_basic.c */; };
+		905842EF236651FC009D92F1 /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15C822596E79008D6AAA /* gitsha1.c */; };
+		905842F0236651FC009D92F1 /* learn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50F22231E9E00193385 /* learn.c */; };
+		905842F1236651FC009D92F1 /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F5220B4602005B8EE7 /* kdtree.c */; };
+		905842F2236651FC009D92F1 /* converter.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA126220B4602005B8EE7 /* converter.c */; };
+		905842F3236651FC009D92F1 /* mtlloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85182252C90C00BA7702 /* mtlloader.c */; };
+		905842F4236651FC009D92F1 /* tile.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA107220B4602005B8EE7 /* tile.c */; };
+		905842F5236651FC009D92F1 /* mesh.c in Sources */ = {isa = PBXBuildFile; fileRef = 90189DA4224EB302007FA268 /* mesh.c */; };
+		905842F6236651FC009D92F1 /* cJSON.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11C220B4602005B8EE7 /* cJSON.c */; };
+		905842F7236651FC009D92F1 /* color.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA110220B4602005B8EE7 /* color.c */; };
+		905842F8236651FC009D92F1 /* renderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0FA220B4602005B8EE7 /* renderer.c */; };
+		905842F9236651FC009D92F1 /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA10C220B4602005B8EE7 /* camera.c */; };
+		905842FA236651FC009D92F1 /* scene.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA104220B4602005B8EE7 /* scene.c */; };
+		905842FB236651FC009D92F1 /* filehandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11E220B4602005B8EE7 /* filehandler.c */; };
+		905842FC236651FC009D92F1 /* transforms.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA106220B4602005B8EE7 /* transforms.c */; };
+		905842FD236651FC009D92F1 /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA125220B4602005B8EE7 /* ui.c */; };
+		905842FE236651FC009D92F1 /* bbox.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F4220B4602005B8EE7 /* bbox.c */; };
+		905842FF236651FC009D92F1 /* sceneloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85202252CB3800BA7702 /* sceneloader.c */; };
 		9058A51122231E9F00193385 /* denoiser.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50D22231E9E00193385 /* denoiser.c */; };
 		9058A51222231E9F00193385 /* learn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50F22231E9E00193385 /* learn.c */; };
 		9058A51522231EB100193385 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
@@ -47,6 +84,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		90584301236651FC009D92F1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		90D99AF21D08ADB10015A854 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -114,6 +160,7 @@
 		90189DA5224EB302007FA268 /* mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesh.h; sourceTree = "<group>"; };
 		90369CCA222E012F008D215B /* pcg_basic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pcg_basic.c; sourceTree = "<group>"; };
 		90369CCB222E012F008D215B /* pcg_basic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pcg_basic.h; sourceTree = "<group>"; };
+		90584305236651FC009D92F1 /* C-Ray Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9058A50D22231E9E00193385 /* denoiser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = denoiser.c; sourceTree = "<group>"; };
 		9058A50E22231E9E00193385 /* learn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = learn.h; sourceTree = "<group>"; };
 		9058A50F22231E9E00193385 /* learn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = learn.c; sourceTree = "<group>"; };
@@ -133,7 +180,7 @@
 		90CA85202252CB3800BA7702 /* sceneloader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sceneloader.c; sourceTree = "<group>"; };
 		90CA85222252D99600BA7702 /* vertexbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vertexbuffer.h; sourceTree = "<group>"; };
 		90CA85232252D99700BA7702 /* vertexbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vertexbuffer.c; sourceTree = "<group>"; };
-		90D99AF41D08ADB10015A854 /* C-Ray */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray"; sourceTree = BUILT_PRODUCTS_DIR; };
+		90D99AF41D08ADB10015A854 /* C-Ray Fast */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Fast"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90E2DB28223D575600E7A305 /* asprintf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asprintf.h; sourceTree = "<group>"; };
 		90FB15C822596E79008D6AAA /* gitsha1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gitsha1.c; sourceTree = "<group>"; };
 		90FB15C922596E79008D6AAA /* gitsha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gitsha1.h; sourceTree = "<group>"; };
@@ -143,6 +190,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		90584300236651FC009D92F1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		90D99AF11D08ADB10015A854 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -307,7 +361,8 @@
 		90D99AF51D08ADB10015A854 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				90D99AF41D08ADB10015A854 /* C-Ray */,
+				90D99AF41D08ADB10015A854 /* C-Ray Fast */,
+				90584305236651FC009D92F1 /* C-Ray Debug */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -323,9 +378,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		90D99AF31D08ADB10015A854 /* C-Ray */ = {
+		905842D9236651FC009D92F1 /* C-Ray Debug */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 90D99AFB1D08ADB10015A854 /* Build configuration list for PBXNativeTarget "C-Ray" */;
+			buildConfigurationList = 90584302236651FC009D92F1 /* Build configuration list for PBXNativeTarget "C-Ray Debug" */;
+			buildPhases = (
+				905842DA236651FC009D92F1 /* Sources */,
+				90584300236651FC009D92F1 /* Frameworks */,
+				90584301236651FC009D92F1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "C-Ray Debug";
+			productName = "C-Ray";
+			productReference = 90584305236651FC009D92F1 /* C-Ray Debug */;
+			productType = "com.apple.product-type.tool";
+		};
+		90D99AF31D08ADB10015A854 /* C-Ray Fast */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 90D99AFB1D08ADB10015A854 /* Build configuration list for PBXNativeTarget "C-Ray Fast" */;
 			buildPhases = (
 				90D99AF01D08ADB10015A854 /* Sources */,
 				90D99AF11D08ADB10015A854 /* Frameworks */,
@@ -335,9 +407,9 @@
 			);
 			dependencies = (
 			);
-			name = "C-Ray";
+			name = "C-Ray Fast";
 			productName = "C-Ray";
-			productReference = 90D99AF41D08ADB10015A854 /* C-Ray */;
+			productReference = 90D99AF41D08ADB10015A854 /* C-Ray Fast */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -367,12 +439,57 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				90D99AF31D08ADB10015A854 /* C-Ray */,
+				90D99AF31D08ADB10015A854 /* C-Ray Fast */,
+				905842D9236651FC009D92F1 /* C-Ray Debug */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		905842DA236651FC009D92F1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				905842DB236651FC009D92F1 /* main.c in Sources */,
+				905842DC236651FC009D92F1 /* sphere.c in Sources */,
+				905842DD236651FC009D92F1 /* multiplatform.c in Sources */,
+				905842DE236651FC009D92F1 /* poly.c in Sources */,
+				905842DF236651FC009D92F1 /* obj_parser.c in Sources */,
+				905842E0236651FC009D92F1 /* textureloader.c in Sources */,
+				905842E1236651FC009D92F1 /* logging.c in Sources */,
+				905842E2236651FC009D92F1 /* Tinn.c in Sources */,
+				905842E3236651FC009D92F1 /* timer.c in Sources */,
+				905842E4236651FC009D92F1 /* pathtrace.c in Sources */,
+				905842E5236651FC009D92F1 /* list.c in Sources */,
+				905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */,
+				905842E7236651FC009D92F1 /* material.c in Sources */,
+				905842E8236651FC009D92F1 /* lodepng.c in Sources */,
+				905842E9236651FC009D92F1 /* denoiser.c in Sources */,
+				905842EA236651FC009D92F1 /* vector.c in Sources */,
+				905842EB236651FC009D92F1 /* texture.c in Sources */,
+				905842EC236651FC009D92F1 /* objloader.c in Sources */,
+				905842ED236651FC009D92F1 /* lightRay.c in Sources */,
+				905842EE236651FC009D92F1 /* pcg_basic.c in Sources */,
+				905842EF236651FC009D92F1 /* gitsha1.c in Sources */,
+				905842F0236651FC009D92F1 /* learn.c in Sources */,
+				905842F1236651FC009D92F1 /* kdtree.c in Sources */,
+				905842F2236651FC009D92F1 /* converter.c in Sources */,
+				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
+				905842F4236651FC009D92F1 /* tile.c in Sources */,
+				905842F5236651FC009D92F1 /* mesh.c in Sources */,
+				905842F6236651FC009D92F1 /* cJSON.c in Sources */,
+				905842F7236651FC009D92F1 /* color.c in Sources */,
+				905842F8236651FC009D92F1 /* renderer.c in Sources */,
+				905842F9236651FC009D92F1 /* camera.c in Sources */,
+				905842FA236651FC009D92F1 /* scene.c in Sources */,
+				905842FB236651FC009D92F1 /* filehandler.c in Sources */,
+				905842FC236651FC009D92F1 /* transforms.c in Sources */,
+				905842FD236651FC009D92F1 /* ui.c in Sources */,
+				905842FE236651FC009D92F1 /* bbox.c in Sources */,
+				905842FF236651FC009D92F1 /* sceneloader.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		90D99AF01D08ADB10015A854 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -420,6 +537,85 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		90584303236651FC009D92F1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
+				CLANG_WARN_ASSIGN_ENUM = NO;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
+				CODE_SIGN_IDENTITY = "-";
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_OPTIMIZATION_LEVEL = 0;
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
+					UI_ENABLED,
+					"DEBUG=1",
+				);
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_PEDANTIC = NO;
+				GCC_WARN_SHADOW = NO;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				HEADER_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = (
+					"-I/usr/local/include/SDL2",
+					"-D_THREAD_SAFE",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib",
+					"-lSDL2",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = NO;
+			};
+			name = Debug;
+		};
+		90584304236651FC009D92F1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
+				CLANG_WARN_ASSIGN_ENUM = NO;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
+				CODE_SIGN_IDENTITY = "-";
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = UI_ENABLED;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_PEDANTIC = NO;
+				GCC_WARN_SHADOW = NO;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				HEADER_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = (
+					"-I/usr/local/include/SDL2",
+					"-D_THREAD_SAFE",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib",
+					"-lSDL2",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = NO;
+			};
+			name = Release;
+		};
 		90D99AF91D08ADB10015A854 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -618,6 +814,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		90584302236651FC009D92F1 /* Build configuration list for PBXNativeTarget "C-Ray Debug" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				90584303236651FC009D92F1 /* Debug */,
+				90584304236651FC009D92F1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -627,7 +832,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		90D99AFB1D08ADB10015A854 /* Build configuration list for PBXNativeTarget "C-Ray" */ = {
+		90D99AFB1D08ADB10015A854 /* Build configuration list for PBXNativeTarget "C-Ray Fast" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				90D99AFC1D08ADB10015A854 /* Debug */,
