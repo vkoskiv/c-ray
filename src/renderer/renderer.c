@@ -122,19 +122,23 @@ DWORD WINAPI renderThread(LPVOID arg) {
 #else
 void *renderThread(void *arg) {
 #endif
+	//First time setup for each thread
 	struct lightRay incidentRay;
 	struct threadInfo *tinfo = (struct threadInfo*)arg;
 	
 	struct renderer *renderer = tinfo->r;
 	pcg32_random_t *rng = &tinfo->r->state.rngs[tinfo->thread_num];
 	
-	//First time setup for each thread
-	struct renderTile tile = getTile(renderer);
+	int currentTileIndex = 0;
+	struct renderTile *tiles = renderer->state.renderTiles[tinfo->thread_num];
+	struct renderTile tile = tiles[currentTileIndex];
+	tiles[currentTileIndex].isRendering = true;
 	tinfo->currentTileNum = tile.tileNum;
+	tinfo->currentTileIdx = currentTileIndex;
 	
 	bool hasHitObject = false;
 	
-	while (tile.tileNum != -1 && renderer->state.isRendering) {
+	while (currentTileIndex < renderer->state.tileAmounts[tinfo->thread_num] && renderer->state.isRendering) {
 		unsigned long long sleepMs = 0;
 		startTimer(&renderer->state.timers[tinfo->thread_num]);
 		hasHitObject = false;
@@ -230,14 +234,17 @@ void *renderThread(void *arg) {
 				sleepMs += 100;
 			}
 		}
+		tiles[currentTileIndex++].isRendering = false;
 		//Tile has finished rendering, get a new one and start rendering it.
-		renderer->state.renderTiles[tile.tileNum].isRendering = false;
-		renderer->state.renderTiles[tile.tileNum].renderComplete = true;
 		tinfo->currentTileNum = -1;
+		tinfo->currentTileIdx = -1;
 		tinfo->completedSamples = 0;
 		unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
-		tile = getTile(renderer);
+		tile = tiles[currentTileIndex];
+		tiles[currentTileIndex].isRendering = true;
+		renderer->state.finishedTileCount++;
 		tinfo->currentTileNum = tile.tileNum;
+		tinfo->currentTileIdx = currentTileIndex;
 		unsigned long long duration = endTimer(&renderer->state.timers[tinfo->thread_num]);
 		if (sleepMs > 0) {
 			duration -= sleepMs;
@@ -247,6 +254,7 @@ void *renderThread(void *arg) {
 	//No more tiles to render, exit thread. (render done)
 	tinfo->threadComplete = true;
 	tinfo->currentTileNum = -1;
+	tinfo->currentTileIdx = -1;
 #ifdef WINDOWS
 	return 0;
 #else
@@ -282,9 +290,9 @@ struct renderer *newRenderer() {
 	
 	//Mutex
 #ifdef _WIN32
-	renderer->state.tileMutex = CreateMutex(NULL, FALSE, NULL);
+	renderer->state.statsMutex = CreateMutex(NULL, FALSE, NULL);
 #else
-	renderer->state.tileMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+	renderer->state.statsMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 #endif
 	return renderer;
 }

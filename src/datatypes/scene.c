@@ -1146,10 +1146,11 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 		pcg32_srandom_r(&r->state.rngs[i], 3141592, 0);
 	}
 	
+	struct renderTile *tiles;
 	//Quantize image into renderTiles
-	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);
-	
-	reorderTiles(&r->state.renderTiles, r->state.tileCount, r->prefs.tileOrder);
+	r->state.tileCount = quantizeImage(&tiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);
+	reorderTiles(&tiles, r->state.tileCount, r->prefs.tileOrder);
+	assignTiles(tiles, &r->state.renderTiles, r->state.tileCount, r->prefs.threadCount, &r->state.tileAmounts);
 	
 	//Compute the focal length for the camera
 	computeFocalLength(r->scene->camera, *r->state.image->width);
@@ -1162,6 +1163,7 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	r->state.image->hasAlpha = false;
 	
 	//Set a dark gray background for the render preview
+	//FIXME: Hack, fix the SDL stuff instead
 	struct color c = {49/255.0,51/255.0,54/255.0,0};
 	for (int x = 0; x < *r->state.image->width; x++) {
 		for (int y = 0; y < *r->state.image->height; y++) {

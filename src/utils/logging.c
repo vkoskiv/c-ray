@@ -133,14 +133,14 @@ void computeStatistics(struct renderer *r, int thread, unsigned long long millis
 
 void printStats(struct renderer *r, unsigned long long ms, unsigned long long samples, int thread) {
 #ifdef WINDOWS
-	WaitForSingleObject(r->state.tileMutex, INFINITE);
+	WaitForSingleObject(r->state.statsMutex, INFINITE);
 #else
-	pthread_mutex_lock(&r->state.tileMutex);
+	pthread_mutex_lock(&r->state.statsMutex);
 #endif
 	computeStatistics(r, thread, ms, samples);
 #ifdef WINDOWS
-	ReleaseMutex(r->state.tileMutex);
+	ReleaseMutex(r->state.statsMutex);
 #else
-	pthread_mutex_unlock(&r->state.tileMutex);
+	pthread_mutex_unlock(&r->state.statsMutex);
 #endif
 }
