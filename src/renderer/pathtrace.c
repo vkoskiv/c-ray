@@ -50,7 +50,7 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 			
 			if (rec.end->type == MATERIAL_TYPE_EMISSIVE)
 			{
-				color = vec3_mul(falloff, GetAlbedo(rec.end));
+				color = GetAlbedo(rec.end);
 				break;
 			}
 			else if (rec.end->type == MATERIAL_TYPE_DEFAULT)
@@ -71,7 +71,7 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 				mat3 invTBN = mat3_transpose(TBN);
 
 				wo = vec3_normalize(mat3_mul_vec3(invTBN, wo));
-
+				/*
 				if (rndFloat(0.0f, 1.0f, rng) > 0.5f)
 				{
 					// Light incoming direction from hitpoint, random in normal direction
@@ -85,7 +85,7 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 					falloff = vec3_mul(falloff, vec3_muls(diffuse, (1.0f - specularity)));
 
 				}
-				else
+				else*/
 				{
 					// MIS sample VNDF
 					float roughness = MaterialGetFloat(rec.end, "roughness");
@@ -98,21 +98,21 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 					incidentRay->start = vec3_add(rec.hitPoint, vec3_muls(rec.surfaceNormal, EPSILON));
 					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
 
-					//float VoR = vec3_dot(wi, R);
-					//float spec = max(VoR, 0.0f);
+					vec3 diffuse = LightingFuncDiffuse(rec.end, wo, wi);
 					vec3 specular = LightingFuncSpecular(rec.end, wo, wi);
-					falloff = vec3_mul(falloff, vec3_muls(specular, specularity));
+
+					falloff = vec3_mul(falloff, vec3_mix(diffuse, specular, specularity));
 				}
 			}
 		}
 		else
 		{
-			color = vec3_mul(vec3_muls(GetBackground(incidentRay, scene), 1.0), falloff);
+			color = GetBackground(incidentRay, scene);
 			break;
 		}
 	}
 
-	return color;
+	return vec3_mul(color, falloff);
 }
 
 //vec3 pathTrace(struct lightRay* incidentRay, struct world* scene, int depth, int maxDepth, pcg32_random_t* rng, bool* hasHitObject) {

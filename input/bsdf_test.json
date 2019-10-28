@@ -3,7 +3,7 @@
 	"renderer":
 	{
 		"threadCount": 0,
-		"sampleCount": 64,
+		"sampleCount": 20,
 		"bounces": 8,
 		"antialiasing": true,
 		"tileWidth": 64,
@@ -74,9 +74,9 @@
         "Specular BSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
-            "r": 50.0,
-            "g": 50.0,
-            "b": 50.0
+            "r": 35.0,
+            "g": 35.0,
+            "b": 35.0
           },
           "roughness": 0.99,
           "metalness": 0.1,
@@ -100,13 +100,13 @@
           "albedo": {
             "r": 0.95,
             "g": 0.93,
-            "b": 0.7
+            "b": 0.3
           },
-          "roughness": 0.4,
+          "roughness": 0.2,
           "metalness": 0.1,
           "specularity": 0.5,
           "anisotropy": 0.0,
-          "ior": 1.1
+          "ior": 1.5
         }
       },
       {
@@ -122,15 +122,15 @@
         "Specular BSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
-            "r": 0.98,
-            "g": 0.83,
-            "b": 0.7
+            "r": 1.0,
+            "g": 0.0,
+            "b": 0.0
           },
-          "roughness": 0.2,
+          "roughness": 0.98,
           "metalness": 0.1,
-          "specularity": 0.9,
+          "specularity": 0.5,
           "anisotropy": 0.95,
-          "ior": 1.6
+          "ior": 1.0
         }
       },
       {
@@ -146,9 +146,9 @@
         "Specular BSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
-            "r": 100.0,
-            "g": 100.0,
-            "b": 100.0
+            "r": 35.0,
+            "g": 35.0,
+            "b": 35.0
           },
           "roughness": 0.9,
           "metalness": 0.1,
@@ -166,15 +166,15 @@
         "Specular BSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
+            "r": 0.3,
+            "g": 0.3,
+            "b": 0.3
           },
-          "roughness": 0.99,
+          "roughness": 0.2,
           "metalness": 0.1,
-          "specularity": 0.0,
+          "specularity": 0.6,
           "anisotropy": 0.01,
-          "ior": 1.5
+          "ior": 1.6
         },
         "transforms": [
           {
@@ -192,13 +192,13 @@
           "albedo": {
             "r": 0.43,
             "g": 0.58,
-            "b": 0.45
+            "b": 0.83
           },
-          "roughness": 0.34,
+          "roughness": 0.6,
           "metalness": 0.1,
-          "specularity": 0.6,
+          "specularity": 0.74,
           "anisotropy": 0.0,
-          "ior": 1.5
+          "ior": 1.1
         },
         "transforms": [
           {

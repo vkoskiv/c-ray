@@ -160,7 +160,7 @@ float HeitzGgxG1GTR2Aniso(vec3 wm, vec3 w, float ax, float ay)
 {
 	float NoX = vec3_dot(wm, w);
 
-	if (NoX <= 0.) return 0.;
+	if (NoX <= 0.0f) return 0.0f;
 
 	float phi = Phi(w);
 	float cos2Phi = Square(cos(phi));
@@ -208,7 +208,7 @@ vec3 EricHeitzGgx2018(Material* mat, vec3 wo, vec3 wi)
 	float F0 = abs((1.0 - ior) / (1.0 + ior));
 
 	float D = HeitzGgxDGTR2Aniso(wm, ax, ay);
-	float F = SchlickFresnel(VoH, F0);
+	float F = SchlickFresnel(NoL, F0);
 	float G = HeitzGgxG2GTR2Aniso(wm, wo, wi, ax, ay);
 
 	float Fr = (D * F * G) / (4.0f * NoV * max(NoL, 0.0f) + 0.05f);

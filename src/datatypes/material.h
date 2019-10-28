@@ -56,7 +56,6 @@ typedef enum
 	BSDF_TYPE_PHONG_DIFFUSE,
 	BSDF_TYPE_BLINN_PHONG_DIFFUSE,
 	BSDF_TYPE_BLINN_PHONG_SPECULAR,
-	BSDF_TYPE_PHONG_DIFFUSE,
 	BSDF_TYPE_HAMMON_EARL_GGX_DIFFUSE,
 	BSDF_TYPE_OREN_NEYAR_DIFFUSE
 } BSDF_TYPE;
@@ -68,6 +67,7 @@ static BSDF_TYPE ValueStrToDiffBSDF(const char* str)
 	if      (!strcmp(str, "Lambert"))     type = BSDF_TYPE_LAMBERT_DIFFUSE;
 	else if (!strcmp(str, "Phong"))       type = BSDF_TYPE_PHONG_DIFFUSE;
 	else if (!strcmp(str, "Blinn-Phong")) type = BSDF_TYPE_BLINN_PHONG_DIFFUSE;
+	else if (!strcmp(str, "Oren Neyar"))  type = BSDF_TYPE_OREN_NEYAR_DIFFUSE;
 	else if (!strcmp(str, "Hammon Earl")) type = BSDF_TYPE_HAMMON_EARL_GGX_DIFFUSE;
 
 	return type;
