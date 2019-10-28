@@ -146,37 +146,41 @@ vec3 LambertDiffuseBSDF(IMaterial mat, vec3 wo, vec3 wi)
 	return vec3_muls(GetAlbedo(mat), max(NoL, 0.0) * INV_PI);
 }
 
-float HeitzGgxDGTR2Aniso(vec3 wm, float ax, float ay)
+float rsqrt(float x)
 {
-	float dotHX2 = Square(wm.x);
-	float dotHY2 = Square(wm.y);
-	float cos2Theta = Cos2Theta(wm);
+	return 1.0f / sqrt(x);
+}
+
+float EricHeitz2018GGXG1Lambda(vec3 V, float alpha_x, float alpha_y)
+{
+	float Vx2 = Square(V.x);
+	float Vy2 = Square(V.y);
+	float Vz2 = Square(V.z);
+	float ax2 = Square(alpha_x);
+	float ay2 = Square(alpha_y);
+	return (-1.0f + sqrtf(1.0f + (Vx2 * ax2 + Vy2 * ay2) / Vz2)) / 2.0f;
+}
+
+float EricHeitz2018GGXG1(vec3 V, float alpha_x, float alpha_y)
+{
+	return 1.0f / (1.0f + EricHeitz2018GGXG1Lambda(V, alpha_x, alpha_y));
+}
+
+// wm: microfacet normal in frame
+float EricHeitz2018GGXD(vec3 N, float ax, float ay)
+{
+	float Nx2 = Square(N.x);
+	float Ny2 = Square(N.y);
+	float Nz2 = Square(N.z);
 	float ax2 = Square(ax);
 	float ay2 = Square(ay);
-	return 1.0f / (PI * ax * ay * Square(dotHX2 / ax2 + dotHY2 / ay2 + cos2Theta));
+	return 1.0f / (M_PI * ax * ay * Square(Nx2 / ax2 + Ny2 / ay2 + Nz2));
 }
 
-float HeitzGgxG1GTR2Aniso(vec3 wm, vec3 w, float ax, float ay)
+
+float EricHeitz2018GGXG2(vec3 V, vec3 L, float alpha_x, float alpha_y)
 {
-	float NoX = vec3_dot(wm, w);
-
-	if (NoX <= 0.0f) return 0.0f;
-
-	float phi = Phi(w);
-	float cos2Phi = Square(cos(phi));
-	float sin2Phi = Square(sin(phi));
-	float tanTheta = tan(Theta(w));
-
-	float a = 1.0f / (tanTheta * sqrt(cos2Phi * ax * ax + sin2Phi * ay * ay));
-	float a2 = a * a;
-
-	float lambda = 0.5f * (-1.0f + sqrt(1.0f + 1.0f / a2));
-	return 1.0f / (1.0f + lambda);
-}
-
-float HeitzGgxG2GTR2Aniso(vec3 wm, vec3 wo, vec3 wi, float ax, float ay)
-{
-	return HeitzGgxG1GTR2Aniso(wm, wo, ax, ay) * HeitzGgxG1GTR2Aniso(wm, wi, ax, ay);
+	return EricHeitz2018GGXG1(V, alpha_x, alpha_y) * EricHeitz2018GGXG1(L, alpha_x, alpha_y);
 }
 
 float SchlickFresnel(float NoX, float F0)
@@ -184,7 +188,103 @@ float SchlickFresnel(float NoX, float F0)
 	return F0 + (1.0f - F0) * pow(1.0f - NoX, 5.0f);
 }
 
-vec3 EricHeitzGgx2018(Material* mat, vec3 wo, vec3 wi)
+// Input Ve: view direction
+// Input alpha_x, alpha_y: roughness parameters
+// Input U1, U2: uniform random numbers U(0, 1)
+// Output Ne: normal sampled with PDF D_Ve(Ne) = G1(Ve) * max(0, dot(Ve, Ne)) * D(Ne) / Ve.z
+vec3 EricHeitz2018GGXVNDF(vec3 Ve, float alpha_x, float alpha_y, float U1, float U2)
+{
+	// Section 3.2: transforming the view direction to the hemisphere configuration
+	vec3 Vh = vec3_normalize((vec3) { alpha_x* Ve.x, alpha_y* Ve.y, Ve.z });
+	// Section 4.1: orthonormal basis (with special case if cross product is zero)
+	float lensq = Vh.x * Vh.x + Vh.y * Vh.y;
+	vec3 T1 = lensq > 0.0f ? vec3_muls((vec3) { -Vh.y, Vh.x, 0.0f }, rsqrt(lensq)) : (vec3) { 1.0f, 0.0f, 0.0f };
+	vec3 T2 = vec3_cross(Vh, T1);
+	// Section 4.2: parameterization of the projected area
+	float r = sqrt(U1);
+	float phi = 2.0f * M_PI * U2;
+	float t1 = r * cosf(phi);
+	float t2 = r * sinf(phi);
+	float s = 0.5f * (1.0f + Vh.z);
+	t2 = (1.0f - s) * sqrtf(1.0f - t1 * t1) + s * t2;
+	// Section 4.3: reprojection onto hemisphere
+	vec3 Nh = vec3_add(vec3_add(vec3_muls(T1, t1), vec3_muls(T2, t2)), vec3_muls(Vh, sqrtf(fmaxf(0.0f, 1.0f - t1 * t1 - t2 * t2))));
+	// Section 3.4: transforming the normal back to the ellipsoid configuration
+	vec3 Ne = vec3_normalize((vec3) { alpha_x* Nh.x, alpha_y* Nh.y, fmaxf(0.0f, Nh.z) });
+	return Ne;
+}
+
+float EricHeitz2018GGXDV(vec3 N, vec3 V, float alpha_x, float alpha_y)
+{
+	float cosThetaV = CosTheta(V);
+	float NoV = vec3_dot(N, V);
+	float G = EricHeitz2018GGXG1(V, alpha_x, alpha_y);
+	float D = EricHeitz2018GGXD(N, alpha_x, alpha_y);
+	return (G * fmaxf(NoV, 0.0f) * D) / cosThetaV;
+}
+
+float EricHeitz2018GGXPDF(vec3 V, vec3 Ni, vec3 Li, float alpha_x, float alpha_y)
+{
+	float DV = EricHeitz2018GGXDV(Ni, V, alpha_x, alpha_y);
+	float VoNi = vec3_dot(V, Ni);
+	return DV / (4.0f * VoNi);
+}
+
+float EricHeitz2018GGX_Rho(vec3 V, vec3 L, float alpha_x, float alpha_y, float ior)
+{
+	vec3 H = vec3_normalize(vec3_add(L, V));
+	float cosThetaV = CosTheta(V);
+	float cosThetaL = CosTheta(L);
+	float VoH = vec3_dot(V, H);
+	float F0 = abs((1.0f - ior) / (1.0f + ior));
+
+	float D = EricHeitz2018GGXD(H, alpha_x, alpha_y);
+	float F = SchlickFresnel(fmaxf(VoH, 0.0f), F0);
+	float G = EricHeitz2018GGXG2(V, L, alpha_x, alpha_y);
+	return (D * F * G) / (4.0f * cosThetaV * cosThetaL);
+}
+
+// I and N face away from surface point
+vec3 Reflect(vec3 I, vec3 N)
+{
+	return reflect(vec3_negate(I), N);
+}
+
+vec3 EricHeitz2018GGX(Material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng)
+{
+	vec3 albedo = MaterialGetVec3(p_mat, "albedo");
+	float roughness = MaterialGetFloat(p_mat, "roughness");
+	float anisotropy = MaterialGetFloat(p_mat, "anisotropy");
+	float ior = MaterialGetFloat(p_mat, "ior");
+
+	float alpha = roughness * roughness;
+	float aspect = sqrt(1.0f - 0.9f * anisotropy);
+	float alpha_x = alpha * aspect;
+	float alpha_y = alpha / aspect;
+
+	float U1 = rndFloat(0.0f, 1.0f, p_rng);
+	float U2 = rndFloat(0.0f, 1.0f, p_rng);
+	vec3 Ni = EricHeitz2018GGXVNDF(V, alpha_x, alpha_y, U1, U2);
+	vec3 Li = Reflect(V, Ni);
+
+	vec3 H = vec3_normalize(vec3_add(Li, V));
+	float VoLi = vec3_dot(V, Li);
+	float F0 = abs((1.0f - ior) / (1.0f + ior));
+
+	float F = SchlickFresnel(fmaxf(VoLi, 0.0f), F0);
+	float G2 = EricHeitz2018GGXG2(V, Li, alpha_x, alpha_y);
+	float G1 = EricHeitz2018GGXG1(V, alpha_x, alpha_y);
+
+	float I = (F * G2) / G1;
+
+	I = fminf(fmaxf(I, 0.0f), 1.0f);
+
+	*p_Li = Li;
+
+	return (vec3) { I, I, I };
+}
+
+vec3 EarlHammonGgx(Material* mat, vec3 wo, vec3 wi)
 {
 	float NoV = CosTheta(wo);
 	float NoL = CosTheta(wi);
@@ -193,26 +293,21 @@ vec3 EricHeitzGgx2018(Material* mat, vec3 wo, vec3 wi)
 
 	vec3 albedo = MaterialGetVec3(mat, "albedo");
 	float roughness = MaterialGetFloat(mat, "roughness");
-	float anisotropy = MaterialGetFloat(mat, "anisotropy");
-	float ior = MaterialGetFloat(mat, "ior");
-
-	float alpha = roughness * roughness;
-	float aspect = sqrt(1.0f - 0.9f * anisotropy);
-	float ax = alpha * aspect;
-	float ay = alpha / aspect;
 
 	vec3 wm = vec3_normalize(vec3_add(wo, wi));
 
-	float F0 = abs((1.0f - ior) / (1.0f + ior));
+	float NoH = CosTheta(wm);
+	float VoL = vec3_dot(wo, wi);
 
-	float D = HeitzGgxDGTR2Aniso(wm, ax, ay);
-	float F = SchlickFresnel(NoV, F0);
-	float G = HeitzGgxG2GTR2Aniso(wm, wo, wi, ax, ay);
+	float alpha = roughness * roughness;
 
-	float Fr = (D * F * G) / (4.0f * NoV * NoL);
-	Fr = fminf(Fr, 1.0f);
+	float facing = 0.5f + 0.5f * VoL;
+	float roughy = facing * (0.9f - 0.4f * facing) * (0.5f + NoH) / NoH;
+	float smoothy = 1.05f * (1.0f - powf(1.0f - NoL, 5.0f)) * (1.0f - powf(1.0f - NoV, 5.0f));
+	float single = INV_PI * (smoothy * (1.0f - alpha) + alpha * roughy);
+	float multi = alpha * 0.1159f;
 
-	return (vec3) { Fr, Fr, Fr };
+	return vec3_mul(albedo, vec3_adds(vec3_muls(albedo, multi), single));
 }
 
 vec3 LightingFuncDiffuse(IMaterial mat, vec3 wo, vec3 wi)
@@ -223,18 +318,23 @@ vec3 LightingFuncDiffuse(IMaterial mat, vec3 wo, vec3 wi)
 		{
 			return LambertDiffuseBSDF(mat, wo, wi);
 		}
+
+		case BSDF_TYPE_EARL_HAMMON_GGX_DIFFUSE:
+		{
+			return EarlHammonGgx(mat, wo, wi);
+		}
 	}
 
 	return (vec3) { 0.0f, 0.0f, 0.0f };
 }
 
-vec3 LightingFuncSpecular(IMaterial mat, vec3 wo, vec3 wi)
+vec3 LightingFuncSpecular(Material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng)
 {
-	switch (mat->specular_bsdf_type)
+	switch (p_mat->specular_bsdf_type)
 	{
 		case BSDF_TYPE_ERIC_HEITZ_GGX_2018_SPECULAR:
 		{
-			return EricHeitzGgx2018(mat, wo, wi);
+			return EricHeitz2018GGX(p_mat, V, p_Li, p_rng);
 		}
 	}
 

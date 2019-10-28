@@ -56,7 +56,7 @@ typedef enum
 	BSDF_TYPE_PHONG_DIFFUSE,
 	BSDF_TYPE_BLINN_PHONG_DIFFUSE,
 	BSDF_TYPE_BLINN_PHONG_SPECULAR,
-	BSDF_TYPE_HAMMON_EARL_GGX_DIFFUSE,
+	BSDF_TYPE_EARL_HAMMON_GGX_DIFFUSE,
 	BSDF_TYPE_OREN_NEYAR_DIFFUSE
 } BSDF_TYPE;
 
@@ -64,11 +64,11 @@ static BSDF_TYPE ValueStrToDiffBSDF(const char* str)
 {
 	BSDF_TYPE type = BSDF_TYPE_LAMBERT_DIFFUSE;
 
-	if      (!strcmp(str, "Lambert"))     type = BSDF_TYPE_LAMBERT_DIFFUSE;
-	else if (!strcmp(str, "Phong"))       type = BSDF_TYPE_PHONG_DIFFUSE;
-	else if (!strcmp(str, "Blinn-Phong")) type = BSDF_TYPE_BLINN_PHONG_DIFFUSE;
-	else if (!strcmp(str, "Oren Neyar"))  type = BSDF_TYPE_OREN_NEYAR_DIFFUSE;
-	else if (!strcmp(str, "Hammon Earl")) type = BSDF_TYPE_HAMMON_EARL_GGX_DIFFUSE;
+	if      (!strcmp(str, "Lambert"))         type = BSDF_TYPE_LAMBERT_DIFFUSE;
+	else if (!strcmp(str, "Phong"))           type = BSDF_TYPE_PHONG_DIFFUSE;
+	else if (!strcmp(str, "Blinn-Phong"))     type = BSDF_TYPE_BLINN_PHONG_DIFFUSE;
+	else if (!strcmp(str, "Oren Neyar"))      type = BSDF_TYPE_OREN_NEYAR_DIFFUSE;
+	else if (!strcmp(str, "Earl Hammon GGX")) type = BSDF_TYPE_EARL_HAMMON_GGX_DIFFUSE;
 
 	return type;
 }
@@ -168,4 +168,4 @@ typedef struct
 
 //bool LightingFunc(struct intersection* isect, vec3* attenuation, struct lightRay* scattered, pcg32_random_t* rng);
 vec3 LightingFuncDiffuse(IMaterial mat, vec3 wo, vec3 wi);
-vec3 LightingFuncSpecular(IMaterial mat, vec3 wo, vec3 wi);
+vec3 LightingFuncSpecular(Material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng);

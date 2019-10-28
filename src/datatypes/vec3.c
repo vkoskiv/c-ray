@@ -71,6 +71,11 @@ vec3 vec3_subs(vec3 v, float x)
 	return (vec3) { v.x - x, v.y - x, v.z - x };
 }
 
+vec3 vec3_adds(vec3 v, float x)
+{
+	return (vec3) { v.x + x, v.y + x, v.z + x };
+}
+
 /**
  Create a vector with given position values and return it.
 
@@ -288,6 +293,8 @@ Returns the reflected ray vector from a surface
 @return Vector of the reflected ray vector from a surface
 */
 vec3 reflect(const vec3 I, const vec3 N) {
-	vec3 Imin2dotNI = vecSubtractConst(I, vecDot(N, I) * 2.0);
-	return vecMultiply(N, Imin2dotNI);
+	return vec3_sub(I, vec3_muls(N, vec3_dot(N, I) * 2.0f));
 }
+
+// I - 2.0 * dot(N, I) * N -> correct
+// (I - 2.0 * dot(N, I)) * N -> yours

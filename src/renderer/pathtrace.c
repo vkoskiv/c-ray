@@ -30,6 +30,18 @@ vec3 RandomUnitSphere(pcg32_random_t* rng) {
 }
 const float EPSILON = 0.00001f;
 
+bool IsPureSpec(Material* p_mat)
+{
+	float specularity = MaterialGetFloat(p_mat, "specularity");
+	return specularity >= 1.0f;
+}
+
+bool IsPureDiff(Material* p_mat)
+{
+	float specularity = MaterialGetFloat(p_mat, "specularity");
+	return specularity <= 0.0f;
+}
+
 vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, pcg32_random_t *rng, bool *hasHitObject) {
 
 	vec3 color = VEC3_ZERO;
@@ -55,13 +67,14 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 			}
 			else if (rec.end->type == MATERIAL_TYPE_DEFAULT)
 			{
-				float specularity = MaterialGetFloat(rec.end, "specularity");
-				float metalness = MaterialGetFloat(rec.end, "metalness");
+				Material* p_mat = rec.end;
+				float specularity = MaterialGetFloat(p_mat, "specularity");
+				float metalness = MaterialGetFloat(p_mat, "metalness");
 
 				// Setup TBN matrix for tangent space transforms
 
 				vec3 N = rec.surfaceNormal;
-				vec3 T = vec3_normalize(vec3_cross((vec3) { N.y, N.z, N.x }, N)); // to prevent cross product being length 0
+				vec3 T = vec3_normalize(vec3_cross((vec3) { N.y, N.x, N.z }, N)); // to prevent cross product being length 0
 				vec3 B = vec3_cross(N, T);
 
 				mat3 TBN = (mat3)
@@ -71,8 +84,12 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 				mat3 invTBN = mat3_transpose(TBN);
 
 				wo = vec3_normalize(mat3_mul_vec3(invTBN, wo));
-				/*
-				if (rndFloat(0.0f, 1.0f, rng) > 0.5f)
+
+				float rn = rndFloat(0.0f, 1.0f, rng);
+				bool isPureDiff = IsPureDiff(p_mat);
+				bool isPureSpec = IsPureSpec(p_mat);
+
+				if (isPureDiff || (rn < 0.5f && !isPureSpec))
 				{
 					// Light incoming direction from hitpoint, random in normal direction
 					wi = vec3_normalize(vec3_add(RandomUnitSphere(rng), (vec3) {0.0f, 0.0f, 1.0f}));
@@ -80,29 +97,21 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 					incidentRay->start = vec3_add(rec.hitPoint, vec3_muls(N, EPSILON));
 					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
 
-					vec3 diffuse = LightingFuncDiffuse(rec.end, wo, wi);
+					vec3 diffuse = LightingFuncDiffuse(p_mat, wo, wi);
 
-					falloff = vec3_mul(falloff, vec3_muls(diffuse, (1.0f - specularity)));
-
+					falloff = vec3_mul(falloff, vec3_muls(diffuse, 1.0f - specularity));
 				}
-				else*/
+
+				if(isPureSpec || (rn > 0.5f && !isPureDiff))
 				{
-					// TODO: MIS sample VNDF (for Anisotropy and proper sampling)
-					float roughness = MaterialGetFloat(rec.end, "roughness");
-
-					vec3 R = (vec3){ -wo.x, -wo.y, wo.z }; // reflection in tangent space
-
-					// light incoming direction from hitpoint, random in reverse reflection direction
-					wi = vec3_normalize(vec3_add(vec3_muls(RandomUnitSphere(rng), roughness), R));
-					//wi = vec3_normalize(vec3_add(RandomUnitSphere(rng), (vec3) { 0.0f, 0.0f, 1.0f }));
-
 					incidentRay->start = vec3_add(rec.hitPoint, vec3_muls(rec.surfaceNormal, EPSILON));
+
+					// MIS sample using VNDF
+					vec3 specular = LightingFuncSpecular(p_mat, wo, &wi, rng);
+
 					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
 
-					vec3 diffuse = LightingFuncDiffuse(rec.end, wo, wi);
-					vec3 specular = LightingFuncSpecular(rec.end, wo, wi);
-
-					falloff = vec3_mul(falloff, vec3_mix(diffuse, specular, specularity));
+					falloff = vec3_mul(falloff, vec3_muls(specular, specularity));
 				}
 			}
 		}
