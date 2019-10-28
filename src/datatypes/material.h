@@ -110,7 +110,8 @@ typedef enum
 typedef struct
 {
 	bool is_used;
-	void* data;
+	void* value;
+	char* key;
 } MaterialEntry;
 
 typedef struct

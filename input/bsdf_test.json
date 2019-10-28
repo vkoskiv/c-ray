@@ -3,8 +3,8 @@
 	"renderer":
 	{
 		"threadCount": 0,
-		"sampleCount": 64,
-		"bounces": 8,
+		"sampleCount": 256,
+		"bounces": 32,
 		"antialiasing": true,
 		"tileWidth": 64,
 		"tileHeight": 64,
@@ -66,7 +66,7 @@
         "pos": {
           "x": 0.0,
           "y": 1.5,
-          "z": 0.0
+          "z": -0.4
         },
         "radius": 0.2,
         "Material type": "Emissive",
@@ -130,7 +130,8 @@
           "metalness": 1.0,
           "specularity": 0.3,
           "anisotropy": 0.9,
-          "ior": 1.0
+          "ior": 1.0,
+          "albedoTexURI": "./input/textures/"
         }
       },
       {
@@ -156,30 +157,6 @@
           "anisotropy": 0.0,
           "ior": 1.0
         }
-      },
-      {
-        "type": "sphere",
-        "pos": {
-          "x": 0.5,
-          "y": 0.5,
-          "z": -0.4
-        },
-        "radius": 0.05,
-        "Material type": "Emissive",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 200.0,
-            "g": 200.0,
-            "b": 200.0
-          },
-          "roughness": 0.9,
-          "metalness": 0.1,
-          "specularity": 0.0,
-          "anisotropy": 0.0,
-          "ior": 1.5
-        }
       }
     ],
     "meshes": [
@@ -203,7 +180,7 @@
         "transforms": [
           {
             "type": "scaleUniform",
-            "scale": 1
+            "scale": 3
           }
         ]
       },
@@ -220,7 +197,7 @@
           },
           "roughness": 0.38,
           "metalness": 0.1,
-          "specularity": 0.65,
+          "specularity": 0.3,
           "anisotropy": 0.25,
           "ior": 1.1
         },

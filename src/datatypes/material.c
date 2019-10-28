@@ -22,7 +22,8 @@ IMaterial NewMaterial(MaterialType type)
 	for (uint64_t i = 0; i < MATERIAL_TABLE_SIZE; ++i)
 	{
 		self->data[i].is_used = false;
-		self->data[i].data = NULL;
+		self->data[i].value = NULL;
+		self->data[i].key = NULL;
 	}
 
 	self->type = type;
@@ -34,43 +35,60 @@ void MaterialFree(IMaterial self)
 	if (self == NULL) return;
 	for (uint64_t i = 0; i < MATERIAL_TABLE_SIZE; ++i)
 	{
-		if(self->data[i].is_used) free(self->data[i].data);
+		if(self->data[i].is_used) free(self->data[i].value);
 	}
 	free(self->data);
 	free(self);
 }
 
-MaterialEntry* MaterialGetEntry(IMaterial self, const char* id)
+MaterialEntry* MaterialGetEntry(IMaterial self, const char* key)
 {
-	return &self->data[HashDataToU64(id, strlen(id)) % self->size];
+	MaterialEntry* p_entry;
+	uint64_t index = HashDataToU64((uint8_t*)key, strlen(key)) % self->size;
+
+	for (; index < self->size; ++index)
+	{
+		p_entry = &self->data[index];
+
+		if (p_entry->is_used && p_entry->key != NULL)
+		{
+			if (!strcmp(key, p_entry->key)) return p_entry;
+		}
+		else
+		{
+			return p_entry;
+		}
+	}
+
+	return NULL;
 }
 
 void MaterialSetVec3(IMaterial self, const char* id, vec3 value)
 {
 	MaterialEntry* pentry = MaterialGetEntry(self, id);
-	pentry->data = malloc(sizeof(vec3));
+	pentry->value = malloc(sizeof(vec3));
 	pentry->is_used = true;
-	*(vec3*)pentry->data = value;
+	*(vec3*)pentry->value = value;
 }
 
 void MaterialSetFloat(IMaterial self, const char* id, float value)
 {
 	MaterialEntry* pentry = MaterialGetEntry(self, id);
-	pentry->data = malloc(sizeof(float));
+	pentry->value = malloc(sizeof(float));
 	pentry->is_used = true;
-	*(float*)pentry->data = value;
+	*(float*)pentry->value = value;
 }
 
 float MaterialGetFloat(IMaterial self, const char* id)
 {
-	return *(float*)MaterialGetEntry(self, id)->data;
+	return *(float*)MaterialGetEntry(self, id)->value;
 }
 
 vec3 MaterialGetVec3(IMaterial self, const char* id)
 {
 	MaterialEntry* pentry = MaterialGetEntry(self, id);
 	if (pentry->is_used)
-		return *(vec3*)pentry->data;
+		return *(vec3*)pentry->value;
 	else
 		return (vec3) { 0.0f, 0.0f, 0.0f };
 }

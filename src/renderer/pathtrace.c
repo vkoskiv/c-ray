@@ -72,7 +72,6 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 				float metalness = MaterialGetFloat(p_mat, "metalness");
 
 				// Setup TBN matrix for tangent space transforms
-
 				vec3 N = rec.surfaceNormal;
 				vec3 T = vec3_normalize(vec3_cross((vec3) { N.y, N.x, N.z }, N)); // to prevent cross product being length 0
 				vec3 B = vec3_cross(N, T);
@@ -101,8 +100,7 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 
 					falloff = vec3_mul(falloff, vec3_muls(diffuse, 1.0f - specularity));
 				}
-
-				if(isPureSpec || (rn > 0.5f && !isPureDiff))
+				else if(isPureSpec || (rn > 0.5f && !isPureDiff))
 				{
 					incidentRay->start = vec3_add(rec.hitPoint, vec3_muls(rec.surfaceNormal, EPSILON));
 
