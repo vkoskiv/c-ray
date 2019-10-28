@@ -203,15 +203,16 @@ vec3 EricHeitzGgx2018(Material* mat, vec3 wo, vec3 wi)
 
 	vec3 wm = vec3_normalize(vec3_add(wo, wi));
 	float NoH = CosTheta(wm);
-	float VoH = vec3_dot(wo, wm);
+	//float VoH = vec3_dot(wo, wm);
 
 	float F0 = abs((1.0 - ior) / (1.0 + ior));
 
 	float D = HeitzGgxDGTR2Aniso(wm, ax, ay);
-	float F = SchlickFresnel(NoL, F0);
+	float F = SchlickFresnel(NoV, F0);
 	float G = HeitzGgxG2GTR2Aniso(wm, wo, wi, ax, ay);
 
-	float Fr = (D * F * G) / (4.0f * NoV * max(NoL, 0.0f) + 0.05f);
+	// HACK to fix the crazy edge lighting going over 1.0
+	float Fr = (D * F * G); // / (4.0f * NoV * max(NoL, 0.0f) + 0.05f);
 
 	return (vec3) { Fr, Fr, Fr };
 }

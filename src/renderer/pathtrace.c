@@ -87,13 +87,14 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 				}
 				else*/
 				{
-					// MIS sample VNDF
+					// TODO: MIS sample VNDF (for Anisotropy and proper sampling)
 					float roughness = MaterialGetFloat(rec.end, "roughness");
 
 					vec3 R = (vec3){ -wo.x, -wo.y, wo.z }; // reflection in tangent space
 
 					// light incoming direction from hitpoint, random in reverse reflection direction
 					wi = vec3_normalize(vec3_add(vec3_muls(RandomUnitSphere(rng), roughness), R));
+					//wi = vec3_normalize(vec3_add(RandomUnitSphere(rng), (vec3) { 0.0f, 0.0f, 1.0f }));
 
 					incidentRay->start = vec3_add(rec.hitPoint, vec3_muls(rec.surfaceNormal, EPSILON));
 					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
