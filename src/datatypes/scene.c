@@ -1143,7 +1143,7 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	
 	//Seed each rng	
 	for (int i = 0; i < r->prefs.threadCount; i++) {
-		pcg32_srandom_r(&r->state.rngs[i], 3141592, 0);
+		pcg32_srandom_r(&r->state.rngs[i], 3141592 + i, 0);
 	}
 	
 	struct renderTile *tiles;
