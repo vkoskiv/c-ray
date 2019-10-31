@@ -96,9 +96,6 @@ int initSDL(struct display *d) {
 	SDL_SetTextureBlendMode(d->texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(d->overlayTexture, SDL_BLENDMODE_BLEND);
 	
-	//Set window icon
-	//setWindowIcon(d->window);
-	
 	return 0;
 }
 
@@ -135,29 +132,6 @@ void getKeyboardInput(struct renderer *r) {
 		}
 	}
 }
-
-/*void drawPixel(struct renderer *r, int x, int y, bool on, struct color c) {
-	if (y <= 0) y = 1;
-	if (x <= 0) x = 1;
-	if (x >= *r->state.image->width) x = *r->state.image->width - 1;
-	if (y >= *r->state.image->height) y = *r->state.image->height - 1;
-	
-	if (on) {
-		r->state.uiBuffer[(x + (*r->state.image->height - (y+1))
-							   * *r->state.image->width) * 4 + 3] = (unsigned char)min(c.red*255.0, 255.0);
-		r->state.uiBuffer[(x + (*r->state.image->height - (y+1))
-							   * *r->state.image->width) * 4 + 2] = (unsigned char)min(c.green*255.0, 255.0);
-		r->state.uiBuffer[(x + (*r->state.image->height - (y+1))
-							   * *r->state.image->width) * 4 + 1] = (unsigned char)min(c.blue*255.0, 255.0);
-		r->state.uiBuffer[(x + (*r->state.image->height - (y+1))
-							   * *r->state.image->width) * 4 + 0] = (unsigned char)min(255.0, 255.0);
-	} else {
-		r->state.uiBuffer[(x + (*r->state.image->height - (y+1)) * *r->state.image->width) * 4 + 0] = (unsigned char)0;
-		r->state.uiBuffer[(x + (*r->state.image->height - (y+1)) * *r->state.image->width) * 4 + 1] = (unsigned char)0;
-		r->state.uiBuffer[(x + (*r->state.image->height - (y+1)) * *r->state.image->width) * 4 + 2] = (unsigned char)0;
-		r->state.uiBuffer[(x + (*r->state.image->height - (y+1)) * *r->state.image->width) * 4 + 3] = (unsigned char)0;
-	}
-}*/
 
 void clearProgBar(struct renderer *r, struct renderTile temp) {
 	for (int i = 0; i < temp.width; i++) {
