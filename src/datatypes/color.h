@@ -30,6 +30,7 @@ extern struct color blackColor;
 extern struct color grayColor;
 extern struct color whiteColor;
 extern struct color frameColor;
+extern struct color clearColor;
 extern struct color progColor;
 
 //Return a color with given values
@@ -51,3 +52,5 @@ struct color mixColors(struct color c1, struct color c2, float coeff);
 struct color toSRGB(struct color c);
 
 struct color fromSRGB(struct color c);
+
+struct color lerp(struct color start, struct color end, float t);

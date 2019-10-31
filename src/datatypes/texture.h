@@ -9,7 +9,8 @@
 enum fileType {
 	bmp,
 	png,
-	hdr
+	hdr,
+	buffer
 };
 
 struct dimensions {
@@ -22,10 +23,16 @@ enum colorspace {
 	sRGB
 };
 
+enum precision {
+	char_p,
+	float_p
+};
+
 struct texture {
 	bool hasAlpha;
 	enum fileType fileType;
 	enum colorspace colorspace;
+	enum precision precision;
 	char *filePath;
 	char *fileName;
 	int count;
@@ -40,9 +47,11 @@ struct texture {
 struct color;
 
 void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
-void blitfloat(float *buf, int width, int height, struct color *c, unsigned int x, unsigned int y);
 struct color textureGetPixel(struct texture *t, int x, int y);
 struct color textureGetPixelFiltered(struct texture *t, float x, float y);
+
+struct texture *newTexture(void);
+void allocTextureBuffer(struct texture *t, enum precision p, int width, int height, int channels);
 
 void textureFromSRGB(struct texture *t);
 void textureToSRGB(struct texture *t);

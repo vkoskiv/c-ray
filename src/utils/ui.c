@@ -86,7 +86,7 @@ int initSDL(struct display *d) {
 		return -1;
 	}
 	//Init overlay texture (for UI info)
-	d->overlayTexture = SDL_CreateTexture(d->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, d->width, d->height);
+	d->overlayTexture = SDL_CreateTexture(d->renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, d->width, d->height);
 	if (d->overlayTexture == NULL) {
 		logr(warning, "Overlay texture couldn't be created, error: \"%s\"\n", SDL_GetError());
 		return -1;
@@ -136,7 +136,7 @@ void getKeyboardInput(struct renderer *r) {
 	}
 }
 
-void drawPixel(struct renderer *r, int x, int y, bool on, struct color c) {
+/*void drawPixel(struct renderer *r, int x, int y, bool on, struct color c) {
 	if (y <= 0) y = 1;
 	if (x <= 0) x = 1;
 	if (x >= *r->state.image->width) x = *r->state.image->width - 1;
@@ -157,13 +157,13 @@ void drawPixel(struct renderer *r, int x, int y, bool on, struct color c) {
 		r->state.uiBuffer[(x + (*r->state.image->height - (y+1)) * *r->state.image->width) * 4 + 2] = (unsigned char)0;
 		r->state.uiBuffer[(x + (*r->state.image->height - (y+1)) * *r->state.image->width) * 4 + 3] = (unsigned char)0;
 	}
-}
+}*/
 
 void clearProgBar(struct renderer *r, struct renderTile temp) {
 	for (int i = 0; i < temp.width; i++) {
-		drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1, false, progColor);
-		drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)), false, progColor);
-		drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1, false, progColor);
+		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1);
+		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5))    );
+		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1);
 	}
 }
 
@@ -176,9 +176,6 @@ void clearProgBar(struct renderer *r, struct renderTile temp) {
  */
 void drawProgressBars(struct renderer *r) {
 	for (int t = 0; t < r->prefs.threadCount; t++) {
-		/*for (int i = 0; i < r->state.tileAmounts[t]; i++) {
-			
-		}*/
 		if (r->state.threadStates[t].currentTileIdx != -1) {
 			struct renderTile temp = r->state.renderTiles[t][r->state.threadStates[t].currentTileIdx];
 			int completedSamples = r->state.threadStates[t].completedSamples;
@@ -189,9 +186,9 @@ void drawProgressBars(struct renderer *r) {
 			
 			//And then draw the bar
 			for (int i = 0; i < pixels2draw; i++) {
-				drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1, true, progColor);
-				drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)), true, progColor);
-				drawPixel(r, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1, true, progColor);
+				blit(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1);
+				blit(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5))    );
+				blit(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1);
 			}
 		}
 	}
@@ -205,24 +202,27 @@ void drawProgressBars(struct renderer *r) {
  */
 void drawFrame(struct renderer *r, struct renderTile tile) {
 	int length = 8;
-	bool on = tile.isRendering;
+	struct color c = clearColor;
+	if (tile.isRendering) {
+		c = frameColor;
+	}
 	if (tile.width < 16) length = 4;
 	for (int i = 1; i < length; i++) {
 		//top left
-		drawPixel(r, tile.begin.x+i, tile.begin.y+1, on, frameColor);
-		drawPixel(r, tile.begin.x+1, tile.begin.y+i, on, frameColor);
+		blit(r->state.uiBuffer, c, tile.begin.x+i, tile.begin.y+1);
+		blit(r->state.uiBuffer, c, tile.begin.x+1, tile.begin.y+i);
 		
 		//top right
-		drawPixel(r, tile.end.x-i, tile.begin.y+1, on, frameColor);
-		drawPixel(r, tile.end.x-1, tile.begin.y+i, on, frameColor);
+		blit(r->state.uiBuffer, c, tile.end.x-i, tile.begin.y+1);
+		blit(r->state.uiBuffer, c, tile.end.x-1, tile.begin.y+i);
 		
 		//Bottom left
-		drawPixel(r, tile.begin.x+i, tile.end.y-1, on, frameColor);
-		drawPixel(r, tile.begin.x+1, tile.end.y-i, on, frameColor);
+		blit(r->state.uiBuffer, c, tile.begin.x+i, tile.end.y-1);
+		blit(r->state.uiBuffer, c, tile.begin.x+1, tile.end.y-i);
 		
 		//bottom right
-		drawPixel(r, tile.end.x-i, tile.end.y-1, on, frameColor);
-		drawPixel(r, tile.end.x-1, tile.end.y-i, on, frameColor);
+		blit(r->state.uiBuffer, c, tile.end.x-i, tile.end.y-1);
+		blit(r->state.uiBuffer, c, tile.end.x-1, tile.end.y-i);
 	}
 }
 
@@ -249,7 +249,7 @@ void drawWindow(struct renderer *r) {
 	updateFrames(r);
 	//Update image data
 	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->state.image->byte_data, *r->state.image->width * 3);
-	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer, *r->state.image->width * 4);
+	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer->byte_data, *r->state.image->width * 4);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
 	SDL_RenderPresent(r->mainDisplay->renderer);

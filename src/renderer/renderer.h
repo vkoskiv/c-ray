@@ -48,8 +48,8 @@ struct state {
 	struct renderTile **renderTiles; //Preassigned per-thread array of renderTiles to render
 	int *tileAmounts; //one for each thread, how many tiles it has to render
 	int tileCount; //Total amount of render tiles
-	float *renderBuffer;  //float-precision buffer for multisampling
-	unsigned char *uiBuffer; //UI element buffer
+	struct texture *renderBuffer;  //float-precision buffer for multisampling
+	struct texture *uiBuffer; //UI element buffer
 	int activeThreads; //Amount of threads currently rendering
 	bool isRendering;
 	bool *threadPaused; //SDL listens for P key pressed, which sets these, one for each thread.

@@ -1156,7 +1156,7 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	computeFocalLength(r->scene->camera, *r->state.image->width);
 	
 	//Allocate memory and create array of pixels for image data
-	r->state.image->byte_data = calloc(3 * *r->state.image->width * *r->state.image->height, sizeof(unsigned char));
+	allocTextureBuffer(r->state.image, char_p, *r->state.image->width, *r->state.image->height, 3);
 	if (!r->state.image->byte_data) {
 		logr(error, "Failed to allocate memory for image data.");
 	}
@@ -1173,11 +1173,13 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
-	r->state.renderBuffer = calloc(3 * *r->state.image->width * *r->state.image->height, sizeof(double));
+	r->state.renderBuffer = newTexture();
+	allocTextureBuffer(r->state.renderBuffer, float_p, *r->state.image->width, *r->state.image->height, 3);
 	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
-	r->state.uiBuffer = calloc(4 * *r->state.image->width * *r->state.image->height, sizeof(unsigned char));
+	r->state.uiBuffer = newTexture();
+	allocTextureBuffer(r->state.uiBuffer, char_p, *r->state.image->width, *r->state.image->height, 4);
 	
 	//Alloc memory for pthread_create() args
 	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(struct threadState));

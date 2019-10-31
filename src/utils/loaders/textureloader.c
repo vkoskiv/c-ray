@@ -18,76 +18,66 @@
 #include "../../libraries/stb_image.h"
 
 //This is a bit of a hack, my coordinate space is inverted.
+//TODO: Just flip the buffer instead
 struct texture *flipHorizontal(struct texture *t) {
-	struct texture *newTex = calloc(1, sizeof(struct texture));
-	newTex->byte_data = calloc(3 * *t->width * *t->height, sizeof(unsigned char));
-	newTex->colorspace = t->colorspace;
-	newTex->count = t->count;
-	newTex->width = calloc(1, sizeof(unsigned int));
-	*newTex->width = *t->width;
-	newTex->height = calloc(1, sizeof(unsigned int));
-	*newTex->height = *t->height;
+	struct texture *new = newTexture();
+	allocTextureBuffer(new, t->precision, *t->width, *t->height, *t->channels);
+	new->colorspace = t->colorspace;
+	new->count = t->count;
 	if (t->fileName) {
-		copyString(t->fileName, &newTex->fileName);
+		copyString(t->fileName, &new->fileName);
 	}
 	if (t->filePath) {
-		copyString(t->filePath, &newTex->filePath);
+		copyString(t->filePath, &new->filePath);
 	}
-	newTex->fileType = t->fileType;
+	new->fileType = t->fileType;
 	
-	for (int y = 0; y < *newTex->height; y++) {
-		for (int x = 0; x < *newTex->width; x++) {
-			blit(newTex, textureGetPixel(t, ((*t->width-1) - x), y), x, y);
+	for (int y = 0; y < *new->height; y++) {
+		for (int x = 0; x < *new->width; x++) {
+			blit(new, textureGetPixel(t, ((*t->width-1) - x), y), x, y);
 		}
 	}
 	
 	free(t);
-	return newTex;
+	return new;
 }
 
 //TODO: Detect and support other file formats, like TIFF, JPEG and BMP
 //Currently supports: PNG, HDR
 struct texture *loadTexture(char *filePath) {
-	struct texture *newTexture = calloc(1, sizeof(struct texture));
-	newTexture->byte_data = NULL;
-	newTexture->float_data = NULL;
-	newTexture->channels = NULL;
-	newTexture->colorspace = linear; //Assumed for now
-	newTexture->width = calloc(1, sizeof(unsigned int));
-	newTexture->height = calloc(1, sizeof(unsigned int));
-	newTexture->hasAlpha = false;
-	copyString(filePath, &newTexture->filePath);
-	newTexture->fileType = png;
-	
+	struct texture *new = newTexture();
+	copyString(filePath, &new->filePath);
 	//Handle the trailing newline here
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
 	//FIXME: Ignoring alpha here, and set hasAlpha to false before for now
 	
 	if (stbi_is_hdr(filePath)) {
-		newTexture->fileType = hdr;
-		newTexture->hasAlpha = false;
-		newTexture->channels = calloc(1, sizeof(int));
-		newTexture->float_data = stbi_loadf(filePath, (int*)newTexture->width, (int*)newTexture->height, newTexture->channels, 0);
-		if (!newTexture->float_data) {
-			freeTexture(newTexture);
-			free(newTexture);
+		new->fileType = hdr;
+		new->float_data = stbi_loadf(filePath, (int*)new->width, (int*)new->height, new->channels, 0);
+		new->precision = float_p;
+		if (!new->float_data) {
+			freeTexture(new);
+			free(new);
 			logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
 			return NULL;
 		} else {
-			int MB = (((*newTexture->width * *newTexture->height * sizeof(float))/1024)/1024);
-			logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, *newTexture->channels);
+			int MB = (((*new->width * *new->height * sizeof(float))/1024)/1024);
+			logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, *new->channels);
 		}
 	} else {
-		int err = (int)lodepng_decode24_file(&newTexture->byte_data, newTexture->width, newTexture->height, filePath);
+		int err = (int)lodepng_decode24_file(&new->byte_data, new->width, new->height, filePath);
 		if (err != 0) {
 			logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
-			freeTexture(newTexture);
-			free(newTexture);
+			freeTexture(new);
+			free(new);
 			return NULL;
 		}
-		newTexture = flipHorizontal(newTexture);
+		*new->channels = 3;
+		new->fileType = png;
+		new = flipHorizontal(new);
+		new->precision = char_p;
 	}
 	
-	return newTexture;
+	return new;
 }
