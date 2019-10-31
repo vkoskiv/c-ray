@@ -179,9 +179,9 @@ void drawProgressBars(struct renderer *r) {
 		/*for (int i = 0; i < r->state.tileAmounts[t]; i++) {
 			
 		}*/
-		if (r->state.renderThreadInfo[t].currentTileIdx != -1) {
-			struct renderTile temp = r->state.renderTiles[t][r->state.renderThreadInfo[t].currentTileIdx];
-			int completedSamples = r->state.renderThreadInfo[t].completedSamples;
+		if (r->state.threadStates[t].currentTileIdx != -1) {
+			struct renderTile temp = r->state.renderTiles[t][r->state.threadStates[t].currentTileIdx];
+			int completedSamples = r->state.threadStates[t].completedSamples;
 			int totalSamples = r->prefs.sampleCount;
 			
 			float prc = ((float)completedSamples / (float)totalSamples);

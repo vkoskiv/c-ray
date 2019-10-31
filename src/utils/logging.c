@@ -100,7 +100,7 @@ void smartTime(unsigned long long milliseconds, char *buf) {
 void printStatistics(struct renderer *r, int thread, float kSamplesPerSecond) {
 	int finishedTileCount = 0;
 	for (int t = 0; t < r->prefs.threadCount; t++) {
-		finishedTileCount += r->state.renderThreadInfo[t].finishedTileCount;
+		finishedTileCount += r->state.threadStates[t].finishedTileCount;
 	}
 	
 	int remainingTileCount = r->state.tileCount - finishedTileCount;

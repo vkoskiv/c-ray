@@ -15,7 +15,7 @@ struct display;
 /**
  Thread information struct to communicate with main thread
  */
-struct threadInfo {
+struct threadState {
 #ifdef WINDOWS
 	HANDLE thread_handle;
 	DWORD thread_id;
@@ -57,7 +57,7 @@ struct state {
 	unsigned long long avgTileTime;//Used for render duration estimation (milliseconds)
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
-	struct threadInfo *renderThreadInfo; //Info about threads
+	struct threadState *threadStates; //Info about threads
 	pcg32_random_t *rngs; // PCG rng, one for each thread
 	struct timeval *timers; //Tile duration timers (one for each thread)
 	

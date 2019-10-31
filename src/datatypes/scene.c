@@ -1180,8 +1180,8 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	r->state.uiBuffer = calloc(4 * *r->state.image->width * *r->state.image->height, sizeof(unsigned char));
 	
 	//Alloc memory for pthread_create() args
-	r->state.renderThreadInfo = calloc(r->prefs.threadCount, sizeof(struct threadInfo));
-	if (r->state.renderThreadInfo == NULL) {
+	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(struct threadState));
+	if (r->state.threadStates == NULL) {
 		logr(error, "Failed to allocate memory for threadInfo args.\n");
 	}
 	
