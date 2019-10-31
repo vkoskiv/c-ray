@@ -19,8 +19,11 @@
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
 
+<<<<<<< HEAD
 vec3 getPixel(struct renderer *r, int x, int y);
 
+=======
+>>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 void render(struct renderer *r) {
@@ -126,11 +129,11 @@ void *renderThread(void *arg) {
 	struct lightRay incidentRay;
 	struct threadState *tinfo = (struct threadState*)arg;
 	
-	struct renderer *renderer = tinfo->r;
+	struct renderer *r = tinfo->r;
 	pcg32_random_t *rng = &tinfo->r->state.rngs[tinfo->thread_num];
 	
 	int currentTileIndex = 0;
-	struct renderTile *tiles = renderer->state.renderTiles[tinfo->thread_num];
+	struct renderTile *tiles = r->state.renderTiles[tinfo->thread_num];
 	struct renderTile tile = tiles[currentTileIndex];
 	tiles[currentTileIndex].isRendering = true;
 	tinfo->currentTileNum = tile.tileNum;
@@ -138,48 +141,58 @@ void *renderThread(void *arg) {
 	
 	bool hasHitObject = false;
 	
-	while (currentTileIndex < renderer->state.tileAmounts[tinfo->thread_num] && renderer->state.isRendering) {
+	while (currentTileIndex < r->state.tileAmounts[tinfo->thread_num] && r->state.isRendering) {
 		unsigned long long sleepMs = 0;
-		startTimer(&renderer->state.timers[tinfo->thread_num]);
+		startTimer(&r->state.timers[tinfo->thread_num]);
 		hasHitObject = false;
 		
-		while (tile.completedSamples < renderer->prefs.sampleCount+1 && renderer->state.isRendering) {
+		while (tile.completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
 			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
-					
-					int height = *renderer->state.image->height;
-					int width = *renderer->state.image->width;
 					
 					float fracX = (float)x;
 					float fracY = (float)y;
 					
 					//A cheap 'antialiasing' of sorts. The more samples, the better this works
 					float jitter = 0.25;
-					if (renderer->prefs.antialiasing) {
+					if (r->prefs.antialiasing) {
 						fracX = rndFloat(fracX - jitter, fracX + jitter, rng);
 						fracY = rndFloat(fracY - jitter, fracY + jitter, rng);
 					}
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 					//imaginary plane in front of the origin. startPos is just the camera position.
+<<<<<<< HEAD
 					vec3 direction = {(fracX - 0.5 * *renderer->state.image->width)
 												/ renderer->scene->camera->focalLength,
 											   (fracY - 0.5 * *renderer->state.image->height)
 												/ renderer->scene->camera->focalLength,
+=======
+					struct vector direction = {(fracX - 0.5 * *r->state.image->width)
+												/ r->scene->camera->focalLength,
+											   (fracY - 0.5 * *r->state.image->height)
+												/ r->scene->camera->focalLength,
+>>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 												1.0};
 					
 					//Normalize direction
 					direction = vecNormalize(direction);
+<<<<<<< HEAD
 					vec3 startPos = renderer->scene->camera->pos;
 					vec3 left = renderer->scene->camera->left;
 					vec3 up = renderer->scene->camera->up;
+=======
+					struct vector startPos = r->scene->camera->pos;
+					struct vector left = r->scene->camera->left;
+					struct vector up = r->scene->camera->up;
+>>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 					
 					//Run camera tranforms on direction vector
-					transformCameraView(renderer->scene->camera, &direction);
+					transformCameraView(r->scene->camera, &direction);
 					
 					//Now handle aperture
 					//FIXME: This is a 'square' aperture
-					float aperture = renderer->scene->camera->aperture;
+					float aperture = r->scene->camera->aperture;
 					if (aperture <= 0.0) {
 						incidentRay.start = startPos;
 					} else {
@@ -192,21 +205,33 @@ void *renderThread(void *arg) {
 					
 					incidentRay.direction = direction;
 					incidentRay.rayType = rayTypeIncident;
+<<<<<<< HEAD
 					incidentRay.remainingInteractions = renderer->prefs.bounces;
 
 					incidentRay.currentMedium = newMaterial(MATERIAL_TYPE_DEFAULT);
 					setMaterialFloat(incidentRay.currentMedium, "ior", AIR_IOR);
+=======
+					incidentRay.remainingInteractions = r->prefs.bounces;
+					incidentRay.currentMedium.IOR = AIR_IOR;
+>>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 					
 					//For multi-sample rendering, we keep a running average of color values for each pixel
 					//The next block of code does this
 					
 					//Get previous color value from render buffer
+<<<<<<< HEAD
 					vec3 output = getPixel(renderer, x, y);
 					
 					//Get new sample (path tracing is initiated here)
 					vec3 sample = pathTrace(&incidentRay, renderer->scene, renderer->prefs.bounces, rng, &hasHitObject);
 
 					freeMaterial(incidentRay.currentMedium);
+=======
+					struct color output = textureGetPixel(r->state.renderBuffer, x, y);
+					
+					//Get new sample (path tracing is initiated here)
+					struct color sample = pathTrace(&incidentRay, r->scene, 0, r->prefs.bounces, rng, &hasHitObject);
+>>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 					
 					//And process the running average
 					output.r = output.r * (tile.completedSamples - 1);
@@ -220,20 +245,20 @@ void *renderThread(void *arg) {
 					output.b = output.b / tile.completedSamples;
 					
 					//Store internal render buffer (float precision)
-					blitfloat(renderer->state.renderBuffer, width, height, &output, x, y);
+					blit(r->state.renderBuffer, output, x, y);
 					
 					//Gamma correction
 					output = toSRGB(output);
 					
 					//And store the image data
-					blit(renderer->state.image, output, x, y);
+					blit(r->state.image, output, x, y);
 				}
 			}
 			tile.completedSamples++;
 			tinfo->completedSamples = tile.completedSamples;
 			if (tile.completedSamples > 25 && !hasHitObject) break; //Abort if we didn't hit anything within 25 samples
 			//Pause rendering when bool is set
-			while (renderer->state.threadPaused[tinfo->thread_num] && !renderer->state.renderAborted) {
+			while (r->state.threadPaused[tinfo->thread_num] && !r->state.renderAborted) {
 				sleepMSec(100);
 				sleepMs += 100;
 			}
@@ -249,11 +274,11 @@ void *renderThread(void *arg) {
 		tinfo->finishedTileCount++;
 		tinfo->currentTileNum = tile.tileNum;
 		tinfo->currentTileIdx = currentTileIndex;
-		unsigned long long duration = endTimer(&renderer->state.timers[tinfo->thread_num]);
+		unsigned long long duration = endTimer(&r->state.timers[tinfo->thread_num]);
 		if (sleepMs > 0) {
 			duration -= sleepMs;
 		}
-		printStats(renderer, duration, samples, tinfo->thread_num);
+		printStats(r, duration, samples, tinfo->thread_num);
 	}
 	//No more tiles to render, exit thread. (render done)
 	tinfo->threadComplete = true;
@@ -267,37 +292,45 @@ void *renderThread(void *arg) {
 }
 	
 struct renderer *newRenderer() {
-	struct renderer *renderer = calloc(1, sizeof(struct renderer));
-	renderer->state.avgTileTime = (time_t)1;
-	renderer->state.timeSampleCount = 1;
-	renderer->prefs.fileMode = saveModeNormal;
-	renderer->state.image = calloc(1, sizeof(struct texture));
-	renderer->state.image->width = calloc(1, sizeof(unsigned int));
-	renderer->state.image->height = calloc(1, sizeof(unsigned int));
+	struct renderer *r = calloc(1, sizeof(struct renderer));
+	r->state.avgTileTime = (time_t)1;
+	r->state.timeSampleCount = 1;
+	r->prefs.fileMode = saveModeNormal;
+	r->state.image = newTexture();
 	
+<<<<<<< HEAD
 	renderer->scene = calloc(1, sizeof(struct world));
 	renderer->scene->camera = calloc(1, sizeof(struct camera));
 	renderer->scene->ambientColor = calloc(1, sizeof(struct gradient));
 	renderer->scene->hdr = NULL; //Optional, to be loaded later
 	renderer->scene->meshes = calloc(1, sizeof(struct mesh));
 	renderer->scene->spheres = calloc(1, sizeof(struct sphere));
+=======
+	r->scene = calloc(1, sizeof(struct world));
+	r->scene->camera = calloc(1, sizeof(struct camera));
+	r->scene->ambientColor = calloc(1, sizeof(struct color));
+	r->scene->hdr = NULL; //Optional, to be loaded later
+	r->scene->meshes = calloc(1, sizeof(struct mesh));
+	r->scene->spheres = calloc(1, sizeof(struct sphere));
+>>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 	
 #ifdef UI_ENABLED
-	renderer->mainDisplay = calloc(1, sizeof(struct display));
-	renderer->mainDisplay->window = NULL;
-	renderer->mainDisplay->renderer = NULL;
-	renderer->mainDisplay->texture = NULL;
-	renderer->mainDisplay->overlayTexture = NULL;
+	r->mainDisplay = calloc(1, sizeof(struct display));
+	r->mainDisplay->window = NULL;
+	r->mainDisplay->renderer = NULL;
+	r->mainDisplay->texture = NULL;
+	r->mainDisplay->overlayTexture = NULL;
 #else
 	logr(warning, "Render preview is disabled. (No SDL2)\n");
 #endif
 	
 	//Mutex
 #ifdef _WIN32
-	renderer->state.statsMutex = CreateMutex(NULL, FALSE, NULL);
+	r->state.statsMutex = CreateMutex(NULL, FALSE, NULL);
 #else
-	renderer->state.statsMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+	r->state.statsMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 #endif
+<<<<<<< HEAD
 	return renderer;
 }
 	
@@ -309,6 +342,9 @@ vec3 getPixel(struct renderer *r, int x, int y) {
 	output.b = r->state.renderBuffer[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 2];
 	//output.a = 1.0;
 	return output;
+=======
+	return r;
+>>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 }
 	
 void freeRenderer(struct renderer *r) {
@@ -324,9 +360,11 @@ void freeRenderer(struct renderer *r) {
 		free(r->state.renderTiles);
 	}
 	if (r->state.renderBuffer) {
+		freeTexture(r->state.renderBuffer);
 		free(r->state.renderBuffer);
 	}
 	if (r->state.uiBuffer) {
+		freeTexture(r->state.uiBuffer);
 		free(r->state.uiBuffer);
 	}
 	if (r->state.threadPaused) {

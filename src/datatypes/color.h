@@ -32,6 +32,7 @@ extern struct color blackColor;
 extern struct color grayColor;
 extern struct color whiteColor;
 extern struct color frameColor;
+extern struct color clearColor;
 extern struct color progColor;
 
 //Return a color with given values
@@ -52,4 +53,10 @@ struct color mixColors(struct color c1, struct color c2, float coeff);
 
 vec3 toSRGB(vec3 c);
 
+<<<<<<< HEAD
 vec3 fromSRGB(vec3 c);
+=======
+struct color fromSRGB(struct color c);
+
+struct color lerp(struct color start, struct color end, float t);
+>>>>>>> 1d60640fe22419135cd05015879227d4992e474f
