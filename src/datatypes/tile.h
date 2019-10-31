@@ -20,7 +20,6 @@ struct renderTile {
 	ivec2 end;
 	int completedSamples;
 	bool isRendering;
-	bool renderComplete;
 	bool hasHitObject;  //If a tile contains just ambient, we can skip tiles pretty safely after 25 samples or so.
 	int tileNum;
 };
@@ -32,4 +31,4 @@ int quantizeImage(struct renderTile **renderTiles, struct texture *image, int ti
 
 void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder);
 
-struct renderTile getTile(struct renderer *r);
+void assignTiles(struct renderTile *origTiles, struct renderTile ***tiles, int tileCount, int threadCount, int **amounts);

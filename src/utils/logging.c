@@ -98,11 +98,16 @@ void smartTime(unsigned long long milliseconds, char *buf) {
  @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
  */
 void printStatistics(struct renderer *r, int thread, float kSamplesPerSecond) {
-	int remainingTileCount = r->state.tileCount - r->state.finishedTileCount;
+	int finishedTileCount = 0;
+	for (int t = 0; t < r->prefs.threadCount; t++) {
+		finishedTileCount += r->state.threadStates[t].finishedTileCount;
+	}
+	
+	int remainingTileCount = r->state.tileCount - finishedTileCount;
 	unsigned long long remainingTimeMilliseconds = (remainingTileCount * r->state.avgTileTime) / r->prefs.threadCount;
 	//First print avg tile time
 	printf("%s", "\33[2K");
-	float completion = ((float)r->state.finishedTileCount / r->state.tileCount) * 100;
+	float completion = ((float)finishedTileCount / r->state.tileCount) * 100;
 	logr(info, "[%.0f%%]", completion);
 	
 	char avg[32];
@@ -133,14 +138,14 @@ void computeStatistics(struct renderer *r, int thread, unsigned long long millis
 
 void printStats(struct renderer *r, unsigned long long ms, unsigned long long samples, int thread) {
 #ifdef WINDOWS
-	WaitForSingleObject(r->state.tileMutex, INFINITE);
+	WaitForSingleObject(r->state.statsMutex, INFINITE);
 #else
-	pthread_mutex_lock(&r->state.tileMutex);
+	pthread_mutex_lock(&r->state.statsMutex);
 #endif
 	computeStatistics(r, thread, ms, samples);
 #ifdef WINDOWS
-	ReleaseMutex(r->state.tileMutex);
+	ReleaseMutex(r->state.statsMutex);
 #else
-	pthread_mutex_unlock(&r->state.tileMutex);
+	pthread_mutex_unlock(&r->state.statsMutex);
 #endif
 }

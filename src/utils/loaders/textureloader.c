@@ -70,6 +70,7 @@ struct texture *loadTexture(char *filePath) {
 		newTexture->channels = calloc(1, sizeof(int));
 		newTexture->float_data = stbi_loadf(filePath, (int*)newTexture->width, (int*)newTexture->height, newTexture->channels, 0);
 		if (!newTexture->float_data) {
+			freeTexture(newTexture);
 			free(newTexture);
 			logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
 			return NULL;
@@ -81,6 +82,7 @@ struct texture *loadTexture(char *filePath) {
 		int err = (int)lodepng_decode24_file(&newTexture->byte_data, newTexture->width, newTexture->height, filePath);
 		if (err != 0) {
 			logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
+			freeTexture(newTexture);
 			free(newTexture);
 			return NULL;
 		}

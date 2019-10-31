@@ -1179,13 +1179,14 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	
 	//Seed each rng	
 	for (int i = 0; i < r->prefs.threadCount; i++) {
-		pcg32_srandom_r(&r->state.rngs[i], 3141592, 0);
+		pcg32_srandom_r(&r->state.rngs[i], 3141592 + i, 0);
 	}
 	
+	struct renderTile *tiles;
 	//Quantize image into renderTiles
-	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);
-	
-	reorderTiles(&r->state.renderTiles, r->state.tileCount, r->prefs.tileOrder);
+	r->state.tileCount = quantizeImage(&tiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);
+	reorderTiles(&tiles, r->state.tileCount, r->prefs.tileOrder);
+	assignTiles(tiles, &r->state.renderTiles, r->state.tileCount, r->prefs.threadCount, &r->state.tileAmounts);
 	
 	//Compute the focal length for the camera
 	computeFocalLength(r->scene->camera, *r->state.image->width);
@@ -1198,7 +1199,12 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	r->state.image->hasAlpha = false;
 	
 	//Set a dark gray background for the render preview
+<<<<<<< HEAD
 	vec3 c = {49/255.0,51/255.0,54/255.0};
+=======
+	//FIXME: Hack, fix the SDL stuff instead
+	struct color c = {49/255.0,51/255.0,54/255.0,0};
+>>>>>>> 4432f43ca5a2b34e0702dd87696fd5d05741f353
 	for (int x = 0; x < *r->state.image->width; x++) {
 		for (int y = 0; y < *r->state.image->height; y++) {
 			blit(r->state.image, c, x, y);
@@ -1214,8 +1220,8 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	r->state.uiBuffer = calloc(4 * *r->state.image->width * *r->state.image->height, sizeof(unsigned char));
 	
 	//Alloc memory for pthread_create() args
-	r->state.renderThreadInfo = calloc(r->prefs.threadCount, sizeof(struct threadInfo));
-	if (r->state.renderThreadInfo == NULL) {
+	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(struct threadState));
+	if (r->state.threadStates == NULL) {
 		logr(error, "Failed to allocate memory for threadInfo args.\n");
 	}
 	

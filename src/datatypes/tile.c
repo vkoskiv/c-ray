@@ -14,33 +14,6 @@
 #include "../datatypes/texture.h"
 
 /**
- Gets the next tile from renderTiles in mainRenderer
- 
- @return A renderTile to be rendered
- */
-struct renderTile getTile(struct renderer *r) {
-	struct renderTile tile;
-	memset(&tile, 0, sizeof(tile));
-	tile.tileNum = -1;
-#ifdef WINDOWS
-	WaitForSingleObject(r->state.tileMutex, INFINITE);
-#else
-	pthread_mutex_lock(&r->state.tileMutex);
-#endif
-	if (r->state.finishedTileCount < r->state.tileCount) {
-		tile = r->state.renderTiles[r->state.finishedTileCount];
-		r->state.renderTiles[r->state.finishedTileCount].isRendering = true;
-		tile.tileNum = r->state.finishedTileCount++;
-	}
-#ifdef WINDOWS
-	ReleaseMutex(r->state.tileMutex);
-#else
-	pthread_mutex_unlock(&r->state.tileMutex);
-#endif
-	return tile;
-}
-
-/**
  Create tiles from render plane, and add those to mainRenderer
  
  @param scene scene object
@@ -226,5 +199,27 @@ void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder til
 			break;
 		default:
 			break;
+	}
+}
+
+//Assign tiles to threads in a predictable way
+//This one just goes 0>1>2>...>n>0>1>2>...>n until tiles run out.
+void assignTiles(struct renderTile *origTiles, struct renderTile ***tiles, int tileCount, int threadCount, int **amounts) {
+	*amounts = calloc(threadCount, sizeof(int *));
+	int totalAmount = (tileCount / threadCount) + 1;
+	(*tiles) = (struct renderTile **)calloc(threadCount, sizeof(struct renderTile *));
+	for (int i = 0; i < threadCount; i++) {
+		(*tiles)[i] = (struct renderTile *)calloc(totalAmount, sizeof(struct renderTile));
+	}
+	int currentThread = 0;
+	int currentIdx = 0;
+	for (int i = 0; i < tileCount; i++) {
+		(*tiles)[currentThread][currentIdx] = origTiles[i];
+		(*amounts)[currentThread]++;
+		currentThread++;
+		if (currentThread >= threadCount) {
+			currentThread = 0;
+			currentIdx++;
+		}
 	}
 }

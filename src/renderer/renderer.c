@@ -54,26 +54,26 @@ void render(struct renderer *r) {
 			threadsHaveStarted = true;
 			//Create render threads
 			for (t = 0; t < r->prefs.threadCount; t++) {
-				r->state.renderThreadInfo[t].thread_num = t;
-				r->state.renderThreadInfo[t].threadComplete = false;
-				r->state.renderThreadInfo[t].r = r;
+				r->state.threadStates[t].thread_num = t;
+				r->state.threadStates[t].threadComplete = false;
+				r->state.threadStates[t].r = r;
 				r->state.activeThreads++;
 #ifdef WINDOWS
 				DWORD threadId;
-				r->state.renderThreadInfo[t].thread_handle = CreateThread(NULL, 0, renderThread, &r->state.renderThreadInfo[t], 0, &threadId);
-				if (r->state.renderThreadInfo[t].thread_handle == NULL) {
+				r->state.threadStates[t].thread_handle = CreateThread(NULL, 0, renderThread, &r->state.threadStates[t], 0, &threadId);
+				if (r->state.threadStates[t].thread_handle == NULL) {
 					logr(error, "Failed to create thread.\n");
 					exit(-1);
 				}
-				r->state.renderThreadInfo[t].thread_id = threadId;
+				r->state.threadStates[t].thread_id = threadId;
 #else
-				if (pthread_create(&r->state.renderThreadInfo[t].thread_id, &r->state.renderThreadAttributes, renderThread, &r->state.renderThreadInfo[t])) {
+				if (pthread_create(&r->state.threadStates[t].thread_id, &r->state.renderThreadAttributes, renderThread, &r->state.threadStates[t])) {
 					logr(error, "Failed to create a thread.\n");
 				}
 #endif
 			}
 			
-			r->state.renderThreadInfo->threadComplete = false;
+			r->state.threadStates->threadComplete = false;
 			
 #ifndef WINDOWS
 			if (pthread_attr_destroy(&r->state.renderThreadAttributes)) {
@@ -84,9 +84,9 @@ void render(struct renderer *r) {
 		
 		//Wait for render threads to finish (Render finished)
 		for (t = 0; t < r->prefs.threadCount; t++) {
-			if (r->state.renderThreadInfo[t].threadComplete && r->state.renderThreadInfo[t].thread_num != -1) {
+			if (r->state.threadStates[t].threadComplete && r->state.threadStates[t].thread_num != -1) {
 				r->state.activeThreads--;
-				r->state.renderThreadInfo[t].thread_num = -1;
+				r->state.threadStates[t].thread_num = -1;
 			}
 			if (r->state.activeThreads == 0 || r->state.renderAborted) {
 				r->state.isRendering = false;
@@ -102,9 +102,9 @@ void render(struct renderer *r) {
 	//Make sure render threads are finished before continuing
 	for (t = 0; t < r->prefs.threadCount; t++) {
 #ifdef WINDOWS
-		WaitForSingleObjectEx(r->state.renderThreadInfo[t].thread_handle, INFINITE, FALSE);
+		WaitForSingleObjectEx(r->state.threadStates[t].thread_handle, INFINITE, FALSE);
 #else
-		if (pthread_join(r->state.renderThreadInfo[t].thread_id, NULL)) {
+		if (pthread_join(r->state.threadStates[t].thread_id, NULL)) {
 			logr(warning, "Thread %t frozen.", t);
 		}
 #endif
@@ -122,19 +122,23 @@ DWORD WINAPI renderThread(LPVOID arg) {
 #else
 void *renderThread(void *arg) {
 #endif
+	//First time setup for each thread
 	struct lightRay incidentRay;
-	struct threadInfo *tinfo = (struct threadInfo*)arg;
+	struct threadState *tinfo = (struct threadState*)arg;
 	
 	struct renderer *renderer = tinfo->r;
 	pcg32_random_t *rng = &tinfo->r->state.rngs[tinfo->thread_num];
 	
-	//First time setup for each thread
-	struct renderTile tile = getTile(renderer);
+	int currentTileIndex = 0;
+	struct renderTile *tiles = renderer->state.renderTiles[tinfo->thread_num];
+	struct renderTile tile = tiles[currentTileIndex];
+	tiles[currentTileIndex].isRendering = true;
 	tinfo->currentTileNum = tile.tileNum;
+	tinfo->currentTileIdx = currentTileIndex;
 	
 	bool hasHitObject = false;
 	
-	while (tile.tileNum != -1 && renderer->state.isRendering) {
+	while (currentTileIndex < renderer->state.tileAmounts[tinfo->thread_num] && renderer->state.isRendering) {
 		unsigned long long sleepMs = 0;
 		startTimer(&renderer->state.timers[tinfo->thread_num]);
 		hasHitObject = false;
@@ -234,14 +238,17 @@ void *renderThread(void *arg) {
 				sleepMs += 100;
 			}
 		}
+		tiles[currentTileIndex++].isRendering = false;
 		//Tile has finished rendering, get a new one and start rendering it.
-		renderer->state.renderTiles[tile.tileNum].isRendering = false;
-		renderer->state.renderTiles[tile.tileNum].renderComplete = true;
 		tinfo->currentTileNum = -1;
+		tinfo->currentTileIdx = -1;
 		tinfo->completedSamples = 0;
 		unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
-		tile = getTile(renderer);
+		tile = tiles[currentTileIndex];
+		tiles[currentTileIndex].isRendering = true;
+		tinfo->finishedTileCount++;
 		tinfo->currentTileNum = tile.tileNum;
+		tinfo->currentTileIdx = currentTileIndex;
 		unsigned long long duration = endTimer(&renderer->state.timers[tinfo->thread_num]);
 		if (sleepMs > 0) {
 			duration -= sleepMs;
@@ -251,6 +258,7 @@ void *renderThread(void *arg) {
 	//No more tiles to render, exit thread. (render done)
 	tinfo->threadComplete = true;
 	tinfo->currentTileNum = -1;
+	tinfo->currentTileIdx = -1;
 #ifdef WINDOWS
 	return 0;
 #else
@@ -286,9 +294,9 @@ struct renderer *newRenderer() {
 	
 	//Mutex
 #ifdef _WIN32
-	renderer->state.tileMutex = CreateMutex(NULL, FALSE, NULL);
+	renderer->state.statsMutex = CreateMutex(NULL, FALSE, NULL);
 #else
-	renderer->state.tileMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+	renderer->state.statsMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 #endif
 	return renderer;
 }
@@ -324,8 +332,8 @@ void freeRenderer(struct renderer *r) {
 	if (r->state.threadPaused) {
 		free(r->state.threadPaused);
 	}
-	if (r->state.renderThreadInfo) {
-		free(r->state.renderThreadInfo);
+	if (r->state.threadStates) {
+		free(r->state.threadStates);
 	}
 #ifdef UI_ENABLED
 	if (r->mainDisplay) {

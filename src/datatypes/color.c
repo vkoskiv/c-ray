@@ -10,6 +10,7 @@
 #include "color.h"
 
 //Some standard colours
+//TODO: Prefix these so it's obvious they are extern variables
 struct color redColor =   {1.0, 0.0, 0.0, 0.0};
 struct color greenColor = {0.0, 1.0, 0.0, 0.0};
 struct color blueColor =  {0.0, 0.0, 1.0, 0.0};

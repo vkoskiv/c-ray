@@ -15,7 +15,7 @@ struct display;
 /**
  Thread information struct to communicate with main thread
  */
-struct threadInfo {
+struct threadState {
 #ifdef WINDOWS
 	HANDLE thread_handle;
 	DWORD thread_id;
@@ -27,7 +27,9 @@ struct threadInfo {
 	
 	//Share info about the current tile with main thread
 	int currentTileNum;
+	int currentTileIdx;
 	int completedSamples;
+	int finishedTileCount;
 	
 	struct renderer *r;
 };
@@ -43,9 +45,9 @@ enum renderOrder {
 //State data
 struct state {
 	struct texture *image; //Output image
-	struct renderTile *renderTiles; //Array of renderTiles to render
+	struct renderTile **renderTiles; //Preassigned per-thread array of renderTiles to render
+	int *tileAmounts; //one for each thread, how many tiles it has to render
 	int tileCount; //Total amount of render tiles
-	int finishedTileCount; //Completed render tiles
 	float *renderBuffer;  //float-precision buffer for multisampling
 	unsigned char *uiBuffer; //UI element buffer
 	int activeThreads; //Amount of threads currently rendering
@@ -55,15 +57,15 @@ struct state {
 	unsigned long long avgTileTime;//Used for render duration estimation (milliseconds)
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
-	struct threadInfo *renderThreadInfo; //Info about threads
+	struct threadState *threadStates; //Info about threads
 	pcg32_random_t *rngs; // PCG rng, one for each thread
 	struct timeval *timers; //Tile duration timers (one for each thread)
 	
 #ifdef WINDOWS
-	HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
+	HANDLE statsMutex; // = INVALID_HANDLE_VALUE;
 #else
 	pthread_attr_t renderThreadAttributes;
-	pthread_mutex_t tileMutex; // = PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_t statsMutex; // = PTHREAD_MUTEX_INITIALIZER;
 #endif
 };
 
