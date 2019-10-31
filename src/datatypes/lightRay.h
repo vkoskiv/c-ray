@@ -20,7 +20,7 @@ struct lightRay {
 	vec3 start;
 	vec3 direction;
 	enum type rayType;
-	Material *currentMedium;
+	struct material *currentMedium;
 	int remainingInteractions; //Reflections or refractions
 };
 

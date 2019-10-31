@@ -10,4 +10,4 @@
 
 #include "../../datatypes/material.h"
 
-IMaterial *parseMTLFile(char *filePath, int *mtlCount);
+struct material *parseMTLFile(char *filePath, int *mtlCount);

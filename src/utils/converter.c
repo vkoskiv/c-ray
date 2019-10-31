@@ -68,8 +68,8 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
  @param mat OBJ loader material
  @return c-ray material
  */
-IMaterial materialFromObj(obj_material *obj_mat) {
-	IMaterial mat = NewMaterial(MATERIAL_TYPE_DEFAULT);
+struct material *materialFromObj(obj_material *obj_mat) {
+	struct material *mat = newMaterial(MATERIAL_TYPE_DEFAULT);
 
 	/*newMat.name = calloc(256, sizeof(char));
 	newMat.textureFilePath = calloc(500, sizeof(char));
@@ -86,9 +86,9 @@ IMaterial materialFromObj(obj_material *obj_mat) {
 		newMat.textureFilePath[499] = '\0';
 	}*/
 
-	MaterialSetVec3(mat, "albedo", (vec3) { obj_mat->diff[0], obj_mat->diff[1], obj_mat->diff[2] });
-	MaterialSetFloat(mat, "ior", obj_mat->refract_index);
-	MaterialSetFloat(mat, "roughness", 1.0f - obj_mat->glossy);
+	setMaterialVec3(mat, "albedo", (vec3) { obj_mat->diff[0], obj_mat->diff[1], obj_mat->diff[2] });
+	setMaterialFloat(mat, "ior", obj_mat->refract_index);
+	setMaterialFloat(mat, "roughness", 1.0f - obj_mat->glossy);
 
 	return mat;
 }

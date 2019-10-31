@@ -17,8 +17,8 @@
 
 #include "../datatypes/mat3.h"
 
-bool GetHit(struct intersection* rec, struct lightRay *incidentRay, struct world *scene);
-vec3 GetBackground(struct lightRay *incidentRay, struct world *scene);
+bool getHit(struct intersection* rec, struct lightRay *incidentRay, struct world *scene);
+vec3 getBackground(struct lightRay *incidentRay, struct world *scene);
 
 vec3 RandomUnitSphere(pcg32_random_t* rng) {
 	vec3 vec = (vec3){ 0.0f, 0.0f, 0.0f };
@@ -30,15 +30,15 @@ vec3 RandomUnitSphere(pcg32_random_t* rng) {
 }
 const float EPSILON = 0.00001f;
 
-bool IsPureSpec(Material* p_mat)
+bool IsPureSpec(struct material *p_mat)
 {
-	float specularity = MaterialGetFloat(p_mat, "specularity");
+	float specularity = getMaterialFloat(p_mat, "specularity");
 	return specularity >= 1.0f;
 }
 
-bool IsPureDiff(Material* p_mat)
+bool IsPureDiff(struct material *p_mat)
 {
-	float specularity = MaterialGetFloat(p_mat, "specularity");
+	float specularity = getMaterialFloat(p_mat, "specularity");
 	return specularity <= 0.0f;
 }
 
@@ -49,9 +49,9 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 
 	for (int i = 0; i < maxDepth; ++i)
 	{
-		struct intersection rec;
+		struct intersection isect;
 
-		if (GetHit(&rec, incidentRay, scene))
+		if (getHit(&isect, incidentRay, scene))
 		{
 			vec3 wo, wi;
 			if (hasHitObject) *hasHitObject = true;
@@ -60,19 +60,19 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 			//float r = rec.distance;
 			//float alpha = 1.0f / (4.0f * PI * r * r); // inverse square law for light
 			
-			if (rec.end->type == MATERIAL_TYPE_EMISSIVE)
+			if (isect.end->type == MATERIAL_TYPE_EMISSIVE)
 			{
-				color = GetAlbedo(rec.end);
+				color = getAlbedo(isect.end);
 				break;
 			}
-			else if (rec.end->type == MATERIAL_TYPE_DEFAULT)
+			else if (isect.end->type == MATERIAL_TYPE_DEFAULT)
 			{
-				Material* p_mat = rec.end;
-				float specularity = MaterialGetFloat(p_mat, "specularity");
-				float metalness = MaterialGetFloat(p_mat, "metalness");
+				struct material* p_mat = isect.end;
+				float specularity = getMaterialFloat(p_mat, "specularity");
+				float metalness = getMaterialFloat(p_mat, "metalness");
 
 				// Setup TBN matrix for tangent space transforms
-				vec3 N = rec.surfaceNormal;
+				vec3 N = isect.surfaceNormal;
 				vec3 T = vec3_normalize(vec3_cross((vec3) { N.y, N.x, N.z }, N)); // to prevent cross product being length 0
 				vec3 B = vec3_cross(N, T);
 
@@ -93,19 +93,19 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 					// Light incoming direction from hitpoint, random in normal direction
 					wi = vec3_normalize(vec3_add(RandomUnitSphere(rng), (vec3) {0.0f, 0.0f, 1.0f}));
 
-					incidentRay->start = vec3_add(rec.hitPoint, vec3_muls(N, EPSILON));
+					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(N, EPSILON));
 					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
 
-					vec3 diffuse = LightingFuncDiffuse(p_mat, wo, wi);
+					vec3 diffuse = lightingFuncDiffuse(p_mat, wo, wi);
 
 					falloff = vec3_mul(falloff, vec3_muls(diffuse, 1.0f - specularity));
 				}
 				else if(isPureSpec || (rn > 0.5f && !isPureDiff))
 				{
-					incidentRay->start = vec3_add(rec.hitPoint, vec3_muls(rec.surfaceNormal, EPSILON));
+					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(isect.surfaceNormal, EPSILON));
 
-					// MIS sample using VNDF
-					vec3 specular = LightingFuncSpecular(p_mat, wo, &wi, rng);
+					// MIS sample using VNDF or NDF
+					vec3 specular = lightingFuncSpecular(p_mat, wo, &wi, rng);
 
 					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
 
@@ -115,7 +115,7 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 		}
 		else
 		{
-			color = GetBackground(incidentRay, scene);
+			color = getBackground(incidentRay, scene);
 			break;
 		}
 	}
@@ -161,7 +161,7 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
  @param scene  Given scene to cast that ray into
  @return intersection struct with the appropriate values set
  */
-bool GetHit(struct intersection *rec, struct lightRay *incidentRay, struct world *scene) {
+bool getHit(struct intersection *rec, struct lightRay *incidentRay, struct world *scene) {
 	rec->distance = 20000.0;
 	rec->ray = *incidentRay;
 	rec->start = incidentRay->currentMedium;
@@ -174,7 +174,7 @@ bool GetHit(struct intersection *rec, struct lightRay *incidentRay, struct world
 	}
 	for (int o = 0; o < scene->meshCount; o++) {
 		if (rayIntersectsWithNode(scene->meshes[o].tree, incidentRay, rec)) {
-			rec->end = scene->meshes[o].mat;
+			rec->end = scene->meshes[o].material;
 			rec->didIntersect = true;
 		}
 	}
@@ -219,6 +219,6 @@ vec3 getAmbientColor(struct lightRay *incidentRay, struct gradient *color) {
 	return vec3_add(vec3_muls((*color).down, 1.0 - t), vec3_muls((*color).up, t));
 }
 
-vec3 GetBackground(struct lightRay *incidentRay, struct world *scene) {
+vec3 getBackground(struct lightRay *incidentRay, struct world *scene) {
 	return scene->hdr ? getHDRI(incidentRay, scene) : getAmbientColor(incidentRay, scene->ambientColor);
 }

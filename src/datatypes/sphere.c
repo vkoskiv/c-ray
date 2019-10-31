@@ -11,12 +11,12 @@
 
 #include "../renderer/pathtrace.h"
 
-struct sphere newSphere(vec3 pos, float radius, IMaterial material) {
+struct sphere newSphere(vec3 pos, float radius, struct material *material) {
 	return (struct sphere){pos, radius, material};
 }
 
 struct sphere defaultSphere() {
-	return (struct sphere){vecZero(), 10.0, NewMaterial(MATERIAL_TYPE_DEFAULT)};
+	return (struct sphere){vecZero(), 10.0, newMaterial(MATERIAL_TYPE_DEFAULT)};
 }
 
 //FIXME: dirty hack
@@ -24,8 +24,8 @@ struct sphere newLightSphere(vec3 pos, float radius, vec3 color, float intensity
 	struct sphere newSphere;
 	newSphere.pos = pos;
 	newSphere.radius = radius;
-	newSphere.material = NewMaterial(MATERIAL_TYPE_EMISSIVE);
-	MaterialSetVec3(newSphere.material, "emission", vec3_muls(color, intensity));
+	newSphere.material = newMaterial(MATERIAL_TYPE_EMISSIVE);
+	setMaterialVec3(newSphere.material, "emission", vec3_muls(color, intensity));
 
 	return newSphere;
 }

@@ -60,7 +60,7 @@ char *getFileName(char *input) {
 	return fn;
 }
 
-void addMaterialToMesh(struct mesh *mesh, IMaterial newMaterial);
+void addMaterialToMesh(struct mesh *mesh, struct material * newMaterial);
 
 struct mesh *lastMesh(struct renderer *r) {
 	return &r->scene->meshes[r->scene->meshCount - 1];
@@ -179,7 +179,7 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	if (data.material_count == 0) {
 		//No material, set to something obscene to make it noticeable
 		//r->scene->meshes[r->scene->meshCount].mat = calloc(1, sizeof(IMaterial));
-		r->scene->meshes[r->scene->meshCount].mat = NewMaterial(MATERIAL_TYPE_WARNING);
+		r->scene->meshes[r->scene->meshCount].material = newMaterial(MATERIAL_TYPE_WARNING);
 		//assignBSDF(&r->scene->meshes[r->scene->meshCount].materials[0]);
 		//r->scene->meshes[r->scene->meshCount].materialCount++;
 	} else {
@@ -208,9 +208,9 @@ void addSphere(struct world *scene, struct sphere newSphere) {
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
-void addMaterialToMesh(struct mesh *mesh, IMaterial newMaterial) {
+void addMaterialToMesh(struct mesh *mesh, struct material *newMaterial) {
 	//mesh->mat = realloc(mesh->materials, (mesh->materialCount + 1) * sizeof(IMaterial));
-	mesh->mat = newMaterial;
+	mesh->material = newMaterial;
 }
 
 void transformMeshes(struct world *scene) {
@@ -264,11 +264,11 @@ void printSceneStats(struct world *scene, unsigned long long ms) {
 		   scene->sphereCount);
 }
 
-IMaterial parseMaterial(const cJSON *data) {
-	const cJSON* diffuse_bsdf_json = cJSON_GetObjectItem(data, "Diffuse BSDF");
-	const cJSON* specular_bsdf_json = cJSON_GetObjectItem(data, "Specular BSDF");
-	BSDF_TYPE diffuse_bsdf_type = BSDF_TYPE_LAMBERT_DIFFUSE;
-	BSDF_TYPE specular_bsdf_type = BSDF_TYPE_PHONG_SPECULAR;
+struct material *parseMaterial(const cJSON *data) {
+	const cJSON* diffuseBSDF_JSON = cJSON_GetObjectItem(data, "diffuseBSDF");
+	const cJSON* specularBSDF_JSON = cJSON_GetObjectItem(data, "specularBSDF");
+	enum diffuseBSDF diffuseBSDF = DIFFUSE_BSDF_LAMBERT;
+	enum specularBSDF specularBSDF = SPECULAR_BSDF_PHONG;
 
 	cJSON *IOR = NULL;
 	//cJSON *roughness = NULL;
@@ -285,7 +285,7 @@ IMaterial parseMaterial(const cJSON *data) {
 	struct color *colorValue = NULL;
 	float intensityValue = 1.0;
 	
-	IMaterial mat = NewMaterial(MATERIAL_TYPE_DEFAULT);
+	struct material *mat = newMaterial(MATERIAL_TYPE_DEFAULT);
 	
 	color = cJSON_GetObjectItem(data, "color");
 	colorValue = parseColor(color);
@@ -313,27 +313,25 @@ IMaterial parseMaterial(const cJSON *data) {
 		}
 	}
 
-	MaterialSetFloat(mat, "ior", IORValue);
+	setMaterialFloat(mat, "ior", IORValue);
 
-	if (!cJSON_IsString(diffuse_bsdf_json)) {
-		logr(warning, "No diffuse BSDF type given for material.");
+	if (cJSON_IsString(diffuseBSDF_JSON)) {
+		diffuseBSDF = getDiffuseBSDF_FromStr(diffuseBSDF_JSON->valuestring);
+	}
+	else {
+		logr(warning, "No diffuse BSDF given for material.");
 		logr(error, "Material data: %s\n", cJSON_Print(data));
 	}
-	else
-	{
-		diffuse_bsdf_type = ValueStrToDiffBSDF(diffuse_bsdf_json->valuestring);
-	}
 
-	if (!cJSON_IsString(specular_bsdf_json)) {
-		logr(warning, "No spcular BSDF type given for material.");
+	if (cJSON_IsString(specularBSDF_JSON)) {
+		specularBSDF = getSpecularBSDF_FromStr(specularBSDF_JSON->valuestring);
+	}
+	else {
+		logr(warning, "No specular BSDF given for material.");
 		logr(error, "Material data: %s\n", cJSON_Print(data));
 	}
-	else
-	{
-		specular_bsdf_type = ValueStrToSpecBSDF(specular_bsdf_json->valuestring);
-	}
 
-	MaterialSetVec3(mat, "albedo", (vec3) { colorValue->red, colorValue->green, colorValue->blue });
+	setMaterialVec3(mat, "albedo", (vec3) { colorValue->red, colorValue->green, colorValue->blue });
 
 	free(colorValue);
 	//assignBSDF(mat);
@@ -723,25 +721,25 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
 
-	const cJSON* diffuse_bsdf_json = cJSON_GetObjectItem(data, "Diffuse BSDF");
-	const cJSON* specular_bsdf_json = cJSON_GetObjectItem(data, "Specular BSDF");
-	BSDF_TYPE diffuse_bsdf_type = BSDF_TYPE_LAMBERT_DIFFUSE;
-	BSDF_TYPE specular_bsdf_type = BSDF_TYPE_PHONG_SPECULAR;
+	const cJSON* diffuseBSDF_JSON = cJSON_GetObjectItem(data, "diffuseBSDF");
+	const cJSON* specularBSDF_JSON = cJSON_GetObjectItem(data, "specularBSDF");
+	enum diffuseBSDF diffuseBSDF = DIFFUSE_BSDF_LAMBERT;
+	enum specularBSDF specularBSDF = SPECULAR_BSDF_PHONG;
 	
-	if (cJSON_IsString(diffuse_bsdf_json)) {
-		diffuse_bsdf_type = ValueStrToDiffBSDF(diffuse_bsdf_json->valuestring);
+	if (cJSON_IsString(diffuseBSDF_JSON)) {
+		diffuseBSDF = getDiffuseBSDF_FromStr(diffuseBSDF_JSON->valuestring);
 	} else {
 		logr(warning, "Invalid diffuse BSDF while parsing mesh\n");
 	}
 
-	if (cJSON_IsString(specular_bsdf_json)) {
-		specular_bsdf_type = ValueStrToSpecBSDF(specular_bsdf_json->valuestring);
+	if (cJSON_IsString(specularBSDF_JSON)) {
+		specularBSDF = getSpecularBSDF_FromStr(specularBSDF_JSON->valuestring);
 	}
 	else {
 		logr(warning, "Invalid specular BSDF while parsing mesh\n");
 	}
 
-	cJSON* mat_json = cJSON_GetObjectItem(data, "Material");
+	cJSON* mat_json = cJSON_GetObjectItem(data, "material");
 
 	vec3 albedo;
 	float roughness;
@@ -788,16 +786,16 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 			}
 		}
 
-		IMaterial mat = lastMesh(r)->mat;
+		struct material *mat = lastMesh(r)->material;
 		mat->type = MATERIAL_TYPE_DEFAULT;
-		mat->diffuse_bsdf_type = diffuse_bsdf_type;
-		mat->specular_bsdf_type = specular_bsdf_type;
-		MaterialSetVec3(mat, "albedo", albedo);
-		MaterialSetFloat(mat, "roughness", roughness);
-		MaterialSetFloat(mat, "specularity", specularity);
-		MaterialSetFloat(mat, "metalness", metalness);
-		MaterialSetFloat(mat, "anisotropy", anisotropy);
-		MaterialSetFloat(mat, "ior", ior);
+		mat->diffuseBSDF = diffuseBSDF;
+		mat->specularBSDF = specularBSDF;
+		setMaterialVec3(mat, "albedo", albedo);
+		setMaterialFloat(mat, "roughness", roughness);
+		setMaterialFloat(mat, "specularity", specularity);
+		setMaterialFloat(mat, "metalness", metalness);
+		setMaterialFloat(mat, "anisotropy", anisotropy);
+		setMaterialFloat(mat, "ior", ior);
 		
 		//FIXME: this isn't right.
 		/*
@@ -851,38 +849,37 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *radius = NULL;
 	
 	struct sphere newSphere = defaultSphere(); // inits material
-	
-	const cJSON* diffuse_bsdf_json = cJSON_GetObjectItem(data, "Diffuse BSDF");
-	const cJSON* specular_bsdf_json = cJSON_GetObjectItem(data, "Specular BSDF");
-	BSDF_TYPE diffuse_bsdf_type = BSDF_TYPE_LAMBERT_DIFFUSE;
-	BSDF_TYPE specular_bsdf_type = BSDF_TYPE_PHONG_SPECULAR;
 
-	const cJSON* material_type_json = cJSON_GetObjectItem(data, "Material type");
+	const cJSON* materialType_JSON = cJSON_GetObjectItem(data, "materialType");
+	const cJSON *diffuseBSDF_JSON = cJSON_GetObjectItem(data, "diffuseBSDF");
+	const cJSON *specularBSDF_JSON = cJSON_GetObjectItem(data, "specularBSDF");
+	enum diffuseBSDF diffuseBSDF = DIFFUSE_BSDF_LAMBERT;
+	enum specularBSDF specularBSDF = SPECULAR_BSDF_PHONG;
 
-	if (cJSON_IsString(material_type_json))
+	if (cJSON_IsString(diffuseBSDF_JSON)) {
+		diffuseBSDF = getDiffuseBSDF_FromStr(diffuseBSDF_JSON->valuestring);
+	}
+	else {
+		logr(warning, "Invalid diffuse BSDF while parsing mesh\n");
+	}
+
+	if (cJSON_IsString(specularBSDF_JSON)) {
+		specularBSDF = getSpecularBSDF_FromStr(specularBSDF_JSON->valuestring);
+	}
+	else {
+		logr(warning, "Invalid specular BSDF while parsing mesh\n");
+	}
+
+	if (cJSON_IsString(materialType_JSON))
 	{
-		newSphere.material->type = ValueStrToMaterialType(material_type_json->valuestring);
+		newSphere.material->type = getMaterialType_FromStr(materialType_JSON->valuestring);
 	}
 	else
 	{
 		newSphere.material->type = MATERIAL_TYPE_WARNING;
 	}
 
-	if (cJSON_IsString(diffuse_bsdf_json)) {
-		diffuse_bsdf_type = ValueStrToDiffBSDF(diffuse_bsdf_json->valuestring);
-	}
-	else {
-		logr(warning, "Invalid diffuse BSDF while parsing mesh\n");
-	}
-
-	if (cJSON_IsString(specular_bsdf_json)) {
-		specular_bsdf_type = ValueStrToSpecBSDF(specular_bsdf_json->valuestring);
-	}
-	else {
-		logr(warning, "Invalid specular BSDF while parsing mesh\n");
-	}
-
-	cJSON* mat_json = cJSON_GetObjectItem(data, "Material");
+	cJSON* mat_json = cJSON_GetObjectItem(data, "material");
 
 	vec3 albedo;
 	float roughness;
@@ -911,15 +908,15 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 		ior = ior_json->valuedouble;
 	}
 
-	IMaterial mat = newSphere.material;
-	mat->diffuse_bsdf_type = diffuse_bsdf_type;
-	mat->specular_bsdf_type = specular_bsdf_type;
-	MaterialSetVec3(mat, "albedo", albedo);
-	MaterialSetFloat(mat, "roughness", roughness);
-	MaterialSetFloat(mat, "specularity", specularity);
-	MaterialSetFloat(mat, "metalness", metalness);
-	MaterialSetFloat(mat, "anisotropy", anisotropy);
-	MaterialSetFloat(mat, "ior", ior);
+	struct material *mat = newSphere.material;
+	mat->diffuseBSDF = diffuseBSDF;
+	mat->specularBSDF = specularBSDF;
+	setMaterialVec3(mat, "albedo", albedo);
+	setMaterialFloat(mat, "roughness", roughness);
+	setMaterialFloat(mat, "specularity", specularity);
+	setMaterialFloat(mat, "metalness", metalness);
+	setMaterialFloat(mat, "anisotropy", anisotropy);
+	setMaterialFloat(mat, "ior", ior);
 
 	pos = cJSON_GetObjectItem(data, "pos");
 	if (pos != NULL) {

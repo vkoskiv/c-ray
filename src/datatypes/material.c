@@ -13,12 +13,12 @@
 #include "../datatypes/vertexbuffer.h"
 #include "../datatypes/texture.h"
 
+// TODO: Make this dynamic
 static const uint64_t MATERIAL_TABLE_SIZE = 32;
-IMaterial NewMaterial(MaterialType type)
-{
-	Material* self = malloc(sizeof(Material));
+struct material *newMaterial(enum materialType type) {
+	struct material *self = malloc(sizeof(struct material));
 	self->size = MATERIAL_TABLE_SIZE;
-	self->data = malloc(sizeof(MaterialEntry) * MATERIAL_TABLE_SIZE);
+	self->data = malloc(sizeof(struct materialBucket) * MATERIAL_TABLE_SIZE);
 	for (uint64_t i = 0; i < MATERIAL_TABLE_SIZE; ++i)
 	{
 		self->data[i].is_used = false;
@@ -30,8 +30,7 @@ IMaterial NewMaterial(MaterialType type)
 	return self;
 }
 
-void MaterialFree(IMaterial self)
-{
+void freeMaterial(struct material *self) {
 	if (self == NULL) return;
 	for (uint64_t i = 0; i < MATERIAL_TABLE_SIZE; ++i)
 	{
@@ -41,71 +40,57 @@ void MaterialFree(IMaterial self)
 	free(self);
 }
 
-MaterialEntry* MaterialGetEntry(IMaterial self, const char* key)
-{
-	MaterialEntry* p_entry;
-	uint64_t index = HashDataToU64((uint8_t*)key, strlen(key)) % self->size;
+struct materialBucket *getMaterialBucketPtr(struct material *self, const char* key) {
+	struct materialBucket* p_bucket;
+	uint64_t index = hashDataToU64((uint8_t*)key, strlen(key)) % self->size;
 
 	for (; index < self->size; ++index)
 	{
-		p_entry = &self->data[index];
+		p_bucket = &self->data[index];
 
-		if (p_entry->is_used && p_entry->key != NULL)
+		if (p_bucket->is_used && p_bucket->key != NULL)
 		{
-			if (!strcmp(key, p_entry->key)) return p_entry;
+			if (!strcmp(key, p_bucket->key)) return p_bucket;
 		}
 		else
 		{
-			return p_entry;
+			return p_bucket;
 		}
 	}
 
 	return NULL;
 }
 
-void MaterialSetVec3(IMaterial self, const char* id, vec3 value)
-{
-	MaterialEntry* pentry = MaterialGetEntry(self, id);
-	pentry->value = malloc(sizeof(vec3));
-	pentry->is_used = true;
-	*(vec3*)pentry->value = value;
+void setMaterialVec3(struct material *self, const char* key, vec3 value) {
+	struct materialBucket *p_bucket = getMaterialBucketPtr(self, key);
+	p_bucket->value = malloc(sizeof(vec3));
+	p_bucket->is_used = true;
+	*(vec3*)p_bucket->value = value;
 }
 
-void MaterialSetFloat(IMaterial self, const char* id, float value)
-{
-	MaterialEntry* pentry = MaterialGetEntry(self, id);
-	pentry->value = malloc(sizeof(float));
-	pentry->is_used = true;
-	*(float*)pentry->value = value;
+void setMaterialFloat(struct material *self, const char *key, float value) {
+	struct materialBucket* p_bucket = getMaterialBucketPtr(self, key);
+	p_bucket->value = malloc(sizeof(float));
+	p_bucket->is_used = true;
+	*(float*)p_bucket->value = value;
 }
 
-float MaterialGetFloat(IMaterial self, const char* id)
-{
-	return *(float*)MaterialGetEntry(self, id)->value;
+float getMaterialFloat(struct material *self, const char *key) {
+	return *(float*)getMaterialBucketPtr(self, key)->value;
 }
 
-vec3 MaterialGetVec3(IMaterial self, const char* id)
-{
-	MaterialEntry* pentry = MaterialGetEntry(self, id);
-	if (pentry->is_used)
-		return *(vec3*)pentry->value;
+vec3 getMaterialVec3(struct material *self, const char *key) {
+	struct materialBucket* p_bucket = getMaterialBucketPtr(self, key);
+	if (p_bucket->is_used)
+		return *(vec3*)p_bucket->value;
 	else
 		return (vec3) { 0.0f, 0.0f, 0.0f };
 }
 
-bool MaterialValueAt(IMaterial self, const char* id)
-{
-	return MaterialGetEntry(self, id)->is_used;
+bool doesMaterialValueExist(struct material *self, const char *key) {
+	return getMaterialBucketPtr(self, key)->is_used;
 }
 
-
-IMaterial MaterialPhongDefault(void)
-{
-	IMaterial mat = NewMaterial(MATERIAL_TYPE_DEFAULT);
-	MaterialSetVec3(mat, "albedo", (vec3) { 0.5f, 0.5f, 0.5f });
-	MaterialSetFloat(mat, "roughness", 0.5f);
-	return mat;
-}
 /*
 vec3 colorForUV(struct intersection* isect) {
 	struct color output = { 0.0,0.0,0.0,0.0 };
@@ -142,67 +127,61 @@ vec3 colorForUV(struct intersection* isect) {
 	return output;
 }
 */
-vec3 GetAlbedo(IMaterial mat)
-{
-	if (MaterialValueAt(mat, "albedo"))	return MaterialGetVec3(mat, "albedo");
+vec3 getAlbedo(struct material *p_mat) {
+	if (doesMaterialValueExist(p_mat, "albedo"))	return getMaterialVec3(p_mat, "albedo");
 	else return (vec3) { 1.0f, 0.0f, 1.0f };
 }
 
 
-float Square(float x) { return x * x; }
-float Theta(vec3 w) { return acos(w.z / vec3_length(w)); }
-float Phi(vec3 w) { return atan(w.y / w.x); }
-float CosPhi(vec3 w) { return cos(Phi(w)); }
-float CosTheta(vec3 w) { return cos(Theta(w)); }
-float Cos2Theta(vec3 w) { return Square(CosTheta(w)); }
-float AbsTanTheta(vec3 w) { return fabs(tan(Theta(w))); }
-float AbsCosTheta(vec3 w) { return fabs(CosTheta(w)); }
-
-vec3 LambertDiffuseBSDF(IMaterial mat, vec3 wo, vec3 wi)
-{
-	float NoL = CosTheta(wi);
-	return vec3_muls(GetAlbedo(mat), max(NoL, 0.0) * INV_PI);
-}
-
+float square(float x) { return x * x; }
+float getTheta(vec3 w) { return acos(w.z / vec3_length(w)); }
+float getPhi(vec3 w) { return atan(w.y / w.x); }
+float getCosPhi(vec3 w) { return cos(getPhi(w)); }
+float getCosTheta(vec3 w) { return cos(getTheta(w)); }
+float getCos2Theta(vec3 w) { return square(getCosTheta(w)); }
+float getAbsTanTheta(vec3 w) { return fabs(tan(getTheta(w))); }
+float getAbsCosTheta(vec3 w) { return fabs(getCosTheta(w)); }
 float rsqrt(float x)
 {
 	return 1.0f / sqrt(x);
 }
 
-float EricHeitz2018GGXG1Lambda(vec3 V, float alpha_x, float alpha_y)
-{
-	float Vx2 = Square(V.x);
-	float Vy2 = Square(V.y);
-	float Vz2 = Square(V.z);
-	float ax2 = Square(alpha_x);
-	float ay2 = Square(alpha_y);
+// Start defining BSDF functions
+
+vec3 diffuseLambert(struct material *p_mat, vec3 wo, vec3 wi) {
+	float dotNL = getCosTheta(wi);
+	return vec3_muls(getAlbedo(p_mat), max(dotNL, 0.0) * INV_PI);
+}
+
+float EricHeitz2018GGXG1Lambda(vec3 V, float alpha_x, float alpha_y) {
+	float Vx2 = square(V.x);
+	float Vy2 = square(V.y);
+	float Vz2 = square(V.z);
+	float ax2 = square(alpha_x);
+	float ay2 = square(alpha_y);
 	return (-1.0f + sqrtf(1.0f + (Vx2 * ax2 + Vy2 * ay2) / Vz2)) / 2.0f;
 }
 
-float EricHeitz2018GGXG1(vec3 V, float alpha_x, float alpha_y)
-{
+float EricHeitz2018GGXG1(vec3 V, float alpha_x, float alpha_y) {
 	return 1.0f / (1.0f + EricHeitz2018GGXG1Lambda(V, alpha_x, alpha_y));
 }
 
 // wm: microfacet normal in frame
-float EricHeitz2018GGXD(vec3 N, float ax, float ay)
-{
-	float Nx2 = Square(N.x);
-	float Ny2 = Square(N.y);
-	float Nz2 = Square(N.z);
-	float ax2 = Square(ax);
-	float ay2 = Square(ay);
-	return 1.0f / (M_PI * ax * ay * Square(Nx2 / ax2 + Ny2 / ay2 + Nz2));
+float EricHeitz2018GGXD(vec3 N, float alpha_x, float alpha_y) {
+	float Nx2 = square(N.x);
+	float Ny2 = square(N.y);
+	float Nz2 = square(N.z);
+	float ax2 = square(alpha_x);
+	float ay2 = square(alpha_y);
+	return 1.0f / (M_PI * alpha_x * alpha_y * square(Nx2 / ax2 + Ny2 / ay2 + Nz2));
 }
 
 
-float EricHeitz2018GGXG2(vec3 V, vec3 L, float alpha_x, float alpha_y)
-{
+float EricHeitz2018GGXG2(vec3 V, vec3 L, float alpha_x, float alpha_y) {
 	return EricHeitz2018GGXG1(V, alpha_x, alpha_y) * EricHeitz2018GGXG1(L, alpha_x, alpha_y);
 }
 
-float SchlickFresnel(float NoX, float F0)
-{
+float SchlickFresnel(float NoX, float F0) {
 	return F0 + (1.0f - F0) * pow(1.0f - NoX, 5.0f);
 }
 
@@ -210,8 +189,7 @@ float SchlickFresnel(float NoX, float F0)
 // Input alpha_x, alpha_y: roughness parameters
 // Input U1, U2: uniform random numbers U(0, 1)
 // Output Ne: normal sampled with PDF D_Ve(Ne) = G1(Ve) * max(0, dot(Ve, Ne)) * D(Ne) / Ve.z
-vec3 EricHeitz2018GGXVNDF(vec3 Ve, float alpha_x, float alpha_y, float U1, float U2)
-{
+vec3 EricHeitz2018GGXVNDF(vec3 Ve, float alpha_x, float alpha_y, float U1, float U2) {
 	// Section 3.2: transforming the view direction to the hemisphere configuration
 	vec3 Vh = vec3_normalize((vec3) { alpha_x* Ve.x, alpha_y* Ve.y, Ve.z });
 	// Section 4.1: orthonormal basis (with special case if cross product is zero)
@@ -232,22 +210,20 @@ vec3 EricHeitz2018GGXVNDF(vec3 Ve, float alpha_x, float alpha_y, float U1, float
 	return Ne;
 }
 
-float EricHeitz2018GGXDV(vec3 N, vec3 V, float alpha_x, float alpha_y)
-{
-	float cosThetaV = CosTheta(V);
-	float NoV = vec3_dot(N, V);
+float EricHeitz2018GGXDV(vec3 N, vec3 V, float alpha_x, float alpha_y) {
+	float dotVZ = getCosTheta(V);
+	float dotNV = vec3_dot(N, V);
 	float G = EricHeitz2018GGXG1(V, alpha_x, alpha_y);
 	float D = EricHeitz2018GGXD(N, alpha_x, alpha_y);
-	return (G * fmaxf(NoV, 0.0f) * D) / cosThetaV;
+	return (G * fmaxf(dotNV, 0.0f) * D) / dotVZ;
 }
 
-float EricHeitz2018GGXPDF(vec3 V, vec3 Ni, vec3 Li, float alpha_x, float alpha_y)
-{
+float EricHeitz2018GGXPDF(vec3 V, vec3 Ni, vec3 Li, float alpha_x, float alpha_y) {
 	float DV = EricHeitz2018GGXDV(Ni, V, alpha_x, alpha_y);
-	float VoNi = vec3_dot(V, Ni);
-	return DV / (4.0f * VoNi);
+	float dotNiV = vec3_dot(V, Ni);
+	return DV / (4.0f * dotNiV);
 }
-
+/*
 float EricHeitz2018GGX_Rho(vec3 V, vec3 L, float alpha_x, float alpha_y, float ior)
 {
 	vec3 H = vec3_normalize(vec3_add(L, V));
@@ -261,19 +237,13 @@ float EricHeitz2018GGX_Rho(vec3 V, vec3 L, float alpha_x, float alpha_y, float i
 	float G = EricHeitz2018GGXG2(V, L, alpha_x, alpha_y);
 	return (D * F * G) / (4.0f * cosThetaV * cosThetaL);
 }
+*/
 
-// I and N face away from surface point
-vec3 Reflect(vec3 I, vec3 N)
-{
-	return reflect(vec3_negate(I), N);
-}
-
-vec3 EricHeitz2018GGX(Material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng)
-{
-	vec3 albedo = MaterialGetVec3(p_mat, "albedo");
-	float roughness = MaterialGetFloat(p_mat, "roughness");
-	float anisotropy = MaterialGetFloat(p_mat, "anisotropy");
-	float ior = MaterialGetFloat(p_mat, "ior");
+vec3 specularEricHeitz2018GGX(struct material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
+	vec3 albedo = getMaterialVec3(p_mat, "albedo");
+	float roughness = getMaterialFloat(p_mat, "roughness");
+	float anisotropy = getMaterialFloat(p_mat, "anisotropy");
+	float ior = getMaterialFloat(p_mat, "ior");
 
 	float alpha = roughness * roughness;
 	float aspect = sqrt(1.0f - 0.9f * anisotropy);
@@ -282,81 +252,78 @@ vec3 EricHeitz2018GGX(Material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng
 
 	float U1 = rndFloat(0.0f, 1.0f, p_rng);
 	float U2 = rndFloat(0.0f, 1.0f, p_rng);
-	vec3 Ni = EricHeitz2018GGXVNDF(V, alpha_x, alpha_y, U1, U2);
-	vec3 Li = Reflect(V, Ni);
+	vec3 N = EricHeitz2018GGXVNDF(V, alpha_x, alpha_y, U1, U2);
+	vec3 L = reflect(vec3_negate(V), N); // Li
 
-	vec3 H = vec3_normalize(vec3_add(Li, V));
-	float VoLi = vec3_dot(V, Li);
+	vec3 H = vec3_normalize(vec3_add(L, V));
+	float dotVL = vec3_dot(V, L);
 	float F0 = abs((1.0f - ior) / (1.0f + ior));
 
-	float F = SchlickFresnel(fmaxf(VoLi, 0.0f), F0);
-	float G2 = EricHeitz2018GGXG2(V, Li, alpha_x, alpha_y);
+	float F = SchlickFresnel(fmaxf(dotVL, 0.0f), F0);
+	float G2 = EricHeitz2018GGXG2(V, L, alpha_x, alpha_y);
 	float G1 = EricHeitz2018GGXG1(V, alpha_x, alpha_y);
 
 	float I = (F * G2) / G1;
 
 	I = fminf(fmaxf(I, 0.0f), 1.0f);
 
-	*p_Li = Li;
+	*p_Li = L;
 
 	return (vec3) { I, I, I };
 }
 
-vec3 EarlHammonGgx(Material* mat, vec3 wo, vec3 wi)
-{
-	float NoV = CosTheta(wo);
-	float NoL = CosTheta(wi);
+vec3 diffuseEarlHammonGGX(struct material *p_mat, vec3 wo, vec3 wi) {
+	float dotNV = getCosTheta(wo);
+	float dotNL = getCosTheta(wi);
 
-	if (NoV <= 0.0f || NoL <= 0.0f) return VEC3_ZERO;
+	if (dotNV <= 0.0f || dotNL <= 0.0f) return VEC3_ZERO;
 
-	vec3 albedo = MaterialGetVec3(mat, "albedo");
-	float roughness = MaterialGetFloat(mat, "roughness");
+	vec3 albedo = getMaterialVec3(p_mat, "albedo");
+	float roughness = getMaterialFloat(p_mat, "roughness");
 
 	vec3 wm = vec3_normalize(vec3_add(wo, wi));
 
-	float NoH = CosTheta(wm);
-	float VoL = vec3_dot(wo, wi);
+	float dotNH = getCosTheta(wm);
+	float dotVL = vec3_dot(wo, wi);
 
 	float alpha = roughness * roughness;
 
-	float facing = 0.5f + 0.5f * VoL;
-	float roughy = facing * (0.9f - 0.4f * facing) * (0.5f + NoH) / NoH;
-	float smoothy = 1.05f * (1.0f - powf(1.0f - NoL, 5.0f)) * (1.0f - powf(1.0f - NoV, 5.0f));
+	float facing = 0.5f + 0.5f * dotVL;
+	float roughy = facing * (0.9f - 0.4f * facing) * (0.5f + dotNH) / dotNH;
+	float smoothy = 1.05f * (1.0f - powf(1.0f - dotNL, 5.0f)) * (1.0f - powf(1.0f - dotNV, 5.0f));
 	float single = INV_PI * (smoothy * (1.0f - alpha) + alpha * roughy);
 	float multi = alpha * 0.1159f;
 
 	return vec3_mul(albedo, vec3_adds(vec3_muls(albedo, multi), single));
 }
 
-vec3 LightingFuncDiffuse(IMaterial mat, vec3 wo, vec3 wi)
-{
-	switch (mat->diffuse_bsdf_type)
+vec3 lightingFuncDiffuse(struct material *p_mat, vec3 wo, vec3 wi) {
+	switch (p_mat->diffuseBSDF)
 	{
-		case BSDF_TYPE_LAMBERT_DIFFUSE:
+		case DIFFUSE_BSDF_LAMBERT:
 		{
-			return LambertDiffuseBSDF(mat, wo, wi);
+			return diffuseLambert(p_mat, wo, wi);
 		}
 
-		case BSDF_TYPE_EARL_HAMMON_GGX_DIFFUSE:
+		case DIFFUSE_BSDF_EARL_HAMMON_GGX:
 		{
-			return EarlHammonGgx(mat, wo, wi);
+			return diffuseEarlHammonGGX(p_mat, wo, wi);
 		}
 	}
 
-	return (vec3) { 0.0f, 0.0f, 0.0f };
+	return (vec3) { 1.0f, 0.0f, 1.0f };
 }
 
-vec3 LightingFuncSpecular(Material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng)
-{
-	switch (p_mat->specular_bsdf_type)
+vec3 lightingFuncSpecular(struct material *p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
+	switch (p_mat->specularBSDF)
 	{
-		case BSDF_TYPE_ERIC_HEITZ_GGX_2018_SPECULAR:
+		case SPECULAR_BSDF_ERIC_HEITZ_GGX_2018:
 		{
-			return EricHeitz2018GGX(p_mat, V, p_Li, p_rng);
+			return specularEricHeitz2018GGX(p_mat, V, p_Li, p_rng);
 		}
 	}
 
-	return (vec3) { 0.0f, 0.0f, 0.0f };
+	return (vec3) { 1.0f, 0.0f, 1.0f };
 }
 
 //bool LightingFunc(struct intersection* isect, vec3* attenuation, struct lightRay* scattered, pcg32_random_t* rng)

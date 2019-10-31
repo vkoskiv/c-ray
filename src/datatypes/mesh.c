@@ -65,5 +65,5 @@ void freeMesh(struct mesh *mesh) {
 		freeTree(mesh->tree);
 		free(mesh->tree);
 	}
-	MaterialFree(mesh->mat);
+	freeMaterial(mesh->material);
 }

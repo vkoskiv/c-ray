@@ -14,13 +14,13 @@
 struct sphere {
 	vec3 pos;
 	float radius;
-	Material *material;
+	struct material *material;
 };
 
 struct lightRay;
 
 //New sphere with given params
-struct sphere newSphere(vec3 pos, float radius, Material* material);
+struct sphere newSphere(vec3 pos, float radius, struct material *material);
 
 struct sphere newLightSphere(vec3 pos, float radius, vec3 color, float intensity);
 

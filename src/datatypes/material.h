@@ -48,86 +48,79 @@ struct lightRay;
 struct intersection;
 struct texture;
 
-typedef enum
+enum diffuseBSDF
 {
-	BSDF_TYPE_LAMBERT_DIFFUSE,
-	BSDF_TYPE_ERIC_HEITZ_GGX_2018_SPECULAR,
-	BSDF_TYPE_PHONG_SPECULAR,
-	BSDF_TYPE_PHONG_DIFFUSE,
-	BSDF_TYPE_BLINN_PHONG_DIFFUSE,
-	BSDF_TYPE_BLINN_PHONG_SPECULAR,
-	BSDF_TYPE_EARL_HAMMON_GGX_DIFFUSE,
-	BSDF_TYPE_OREN_NEYAR_DIFFUSE
-} BSDF_TYPE;
+	DIFFUSE_BSDF_LAMBERT,
+	DIFFUSE_BSDF_OREN_NEYAR,
+	DIFFUSE_BSDF_EARL_HAMMON_GGX,
+};
 
-static BSDF_TYPE ValueStrToDiffBSDF(const char* str)
+enum specularBSDF
 {
-	BSDF_TYPE type = BSDF_TYPE_LAMBERT_DIFFUSE;
+	SPECULAR_BSDF_PHONG,
+	SPECULAR_BLINN_PHONG,
+	SPECULAR_BSDF_ERIC_HEITZ_GGX_2018,
+};
 
-	if      (!strcmp(str, "Lambert"))         type = BSDF_TYPE_LAMBERT_DIFFUSE;
-	else if (!strcmp(str, "Phong"))           type = BSDF_TYPE_PHONG_DIFFUSE;
-	else if (!strcmp(str, "Blinn-Phong"))     type = BSDF_TYPE_BLINN_PHONG_DIFFUSE;
-	else if (!strcmp(str, "Oren Neyar"))      type = BSDF_TYPE_OREN_NEYAR_DIFFUSE;
-	else if (!strcmp(str, "Earl Hammon GGX")) type = BSDF_TYPE_EARL_HAMMON_GGX_DIFFUSE;
+static enum diffuseBSDF getDiffuseBSDF_FromStr(const char* str)
+{
+	enum diffuseBSDF bsdf = DIFFUSE_BSDF_LAMBERT;
 
-	return type;
+	if      (!strcmp(str, "Lambert"))         bsdf = DIFFUSE_BSDF_LAMBERT;
+	else if (!strcmp(str, "Oren Neyar"))      bsdf = DIFFUSE_BSDF_OREN_NEYAR;
+	else if (!strcmp(str, "Earl Hammon GGX")) bsdf = DIFFUSE_BSDF_EARL_HAMMON_GGX;
+
+	return bsdf;
 }
 
-static BSDF_TYPE ValueStrToSpecBSDF(const char* str)
+static enum specularBSDF getSpecularBSDF_FromStr(const char* str)
 {
-	BSDF_TYPE type = BSDF_TYPE_PHONG_SPECULAR;
+	enum specularBSDF bsdf = SPECULAR_BSDF_PHONG;
 
-	if      (!strcmp(str, "Phong"))               type = BSDF_TYPE_PHONG_SPECULAR;
-	else if (!strcmp(str, "Blinn-Phong"))         type = BSDF_TYPE_BLINN_PHONG_SPECULAR;
-	else if (!strcmp(str, "Eric Heitz GGX 2018")) type = BSDF_TYPE_ERIC_HEITZ_GGX_2018_SPECULAR;
+	if      (!strcmp(str, "Phong"))               bsdf = SPECULAR_BSDF_PHONG;
+	else if (!strcmp(str, "Blinn-Phong"))         bsdf = SPECULAR_BLINN_PHONG;
+	else if (!strcmp(str, "Eric Heitz GGX 2018")) bsdf = SPECULAR_BSDF_ERIC_HEITZ_GGX_2018;
 
-	return type;
+	return bsdf;
 }
 
-typedef enum 
+enum materialType
 {
 	MATERIAL_TYPE_EMISSIVE,
 	MATERIAL_TYPE_DEFAULT,
 	MATERIAL_TYPE_WARNING
-} MaterialType;
+};
 
-
-static MaterialType ValueStrToMaterialType(const char* str)
+static enum materialType getMaterialType_FromStr(const char* str)
 {
-	MaterialType type = MATERIAL_TYPE_DEFAULT;
+	enum materialType type = MATERIAL_TYPE_DEFAULT;
 
 	if (!strcmp(str, "Emissive")) type = MATERIAL_TYPE_EMISSIVE;
 
 	return type;
 }
 
-typedef enum
-{
-	MATERIAL_VAR_TYPE_SCALAR,
-	MATERIAL_VAR_TYPE_VEC3,
-} MaterialVarType;
-
-typedef struct
+struct materialBucket
 {
 	bool is_used;
 	void* value;
 	char* key;
-} MaterialEntry;
+};
 
-typedef struct
+struct material
 {
-	MaterialEntry* data;
+	struct materialBucket* data;
 	uint64_t size;
-	MaterialType type;
-	BSDF_TYPE diffuse_bsdf_type;
-	BSDF_TYPE specular_bsdf_type;
+	enum materialType type;
+	enum diffuseBSDF diffuseBSDF;
+	enum specularBSDF specularBSDF;
 	const char* name;
-} Material, *IMaterial;
+};
 
-typedef vec3(*BSDF_PFN)(IMaterial mat, vec3 wo, vec3 wi);
+typedef vec3(*diffuseBSDF_Func)(struct material *p_mat, vec3 wo, vec3 wi);
+typedef vec3(*specularBSDF_Func)(struct material *p_mat, vec3 V, vec3 *p_Li, pcg32_random_t *p_rng);
 
-
-inline uint64_t HashDataToU64(uint8_t* data, size_t size)
+inline uint64_t hashDataToU64(uint8_t* data, size_t size)
 {
 	static const uint64_t FNV_offset_basis = 14695981039346656037;
 	static const uint64_t FNV_prime = 1099511628211;
@@ -144,29 +137,20 @@ inline uint64_t HashDataToU64(uint8_t* data, size_t size)
 	return hash;
 }
 
-IMaterial NewMaterial(MaterialType type);
-void MaterialFree(IMaterial self);
+struct material* newMaterial(enum materialType type);
+void freeMaterial(struct material* self);
 
-MaterialEntry* MaterialGetEntry(IMaterial self, const char* id);
-void MaterialSetVec3(IMaterial self, const char* id, vec3 value);
-void MaterialSetFloat(IMaterial self, const char* id, float value);
-float MaterialGetFloat(IMaterial self, const char* id);
-vec3 MaterialGetVec3(IMaterial self, const char* id);
-bool MaterialValueAt(IMaterial self, const char* id);
-IMaterial MaterialPhongDefault(void);
+struct materialBucket* getMaterialBucketPtr(struct material *self, const char *key);
+void setMaterialVec3(struct material *self, const char *key, vec3 value);
+void setMaterialFloat(struct material *self, const char *key, float value);
+float getMaterialFloat(struct material *self, const char *key);
+vec3 getMaterialVec3(struct material *self, const char *key);
+bool doesMaterialValueExist(struct material *self, const char *id);
 
-vec3 GetAlbedo(IMaterial mat);
+vec3 getAlbedo(struct material* p_mat);
 
-/* Default BSDF function decl */
 static const float INV_PI = 1.0f / PI;
-vec3 LambertDiffuseBSDF(IMaterial mat, vec3 wo, vec3 wi);
-
-typedef struct
-{
-	BSDF_TYPE type;
-	BSDF_PFN pfn;
-} BSDF;
 
 //bool LightingFunc(struct intersection* isect, vec3* attenuation, struct lightRay* scattered, pcg32_random_t* rng);
-vec3 LightingFuncDiffuse(IMaterial mat, vec3 wo, vec3 wi);
-vec3 LightingFuncSpecular(Material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng);
+vec3 lightingFuncDiffuse(struct material *p_mat, vec3 wo, vec3 wi);
+vec3 lightingFuncSpecular(struct material *p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng);

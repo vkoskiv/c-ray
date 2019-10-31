@@ -18,15 +18,15 @@
 
 // Parse a list of materials and return an array of materials.
 // mtlCount is the amount of materials loaded.
-IMaterial *parseMTLFile(char *filePath, int *mtlCount) {
-	IMaterial *newMaterials = calloc(1, sizeof(IMaterial));
+struct material *parseMTLFile(char *filePath, int *mtlCount) {
+	struct material **newMaterials = calloc(1, sizeof(struct material));
 	
 	int count = 1;
 	int linenum = 0;
 	char *token;
 	char currLine[500];
 	FILE *fileStream;
-	IMaterial currMat = NULL;
+	struct material *currMat = NULL;
 	bool matOpen = false;
 	
 	fileStream = fopen(filePath, "r");
@@ -45,9 +45,9 @@ IMaterial *parseMTLFile(char *filePath, int *mtlCount) {
 			continue;
 		} else if (stringEquals(token, "newmtl")) {
 			//New material is created
-			newMaterials = realloc(newMaterials, count * sizeof(IMaterial));
+			newMaterials = realloc(newMaterials, count * sizeof(struct material));
 			currMat = newMaterials[count-1];
-			currMat = NewMaterial(MATERIAL_TYPE_DEFAULT);
+			currMat = newMaterial(MATERIAL_TYPE_DEFAULT);
 			//newMaterials[count-1].name = calloc(CRAY_MATERIAL_NAME_SIZE, sizeof(char));
 			//currMat->textureFilePath = calloc(CRAY_MESH_FILENAME_LENGTH, sizeof(char));
 			//strncpy(newMaterials[count-1].name, strtok(NULL, " \t"), CRAY_MATERIAL_NAME_SIZE);
@@ -60,7 +60,7 @@ IMaterial *parseMTLFile(char *filePath, int *mtlCount) {
 			//currMat->ambient.blue = atof(strtok(NULL, " \t"));
 		} else if (stringEquals(token, "Kd") && matOpen) {
 			//Diffuse color
-			MaterialSetVec3(currMat, "albedo", (vec3) { atof(strtok(NULL, " \t")), atof(strtok(NULL, " \t")), atof(strtok(NULL, " \t")) });
+			setMaterialVec3(currMat, "albedo", (vec3) { atof(strtok(NULL, " \t")), atof(strtok(NULL, " \t")), atof(strtok(NULL, " \t")) });
 		} else if (stringEquals(token, "Ks") && matOpen) {
 			//Specular color
 			//currMat->specular.red = atof(strtok(NULL, " \t"));
@@ -82,10 +82,10 @@ IMaterial *parseMTLFile(char *filePath, int *mtlCount) {
 			//currMat->reflectivity = atof(strtok(NULL, " \t"));
 		} else if (stringEquals(token, "sharpness") && matOpen) {
 			//Glossiness
-			MaterialSetFloat(currMat, "roughness", 1.0 - atof(strtok(NULL, " \t")));
+			setMaterialFloat(currMat, "roughness", 1.0 - atof(strtok(NULL, " \t")));
 		} else if (stringEquals(token, "Ni") && matOpen) {
 			//IOR
-			MaterialSetFloat(currMat, "ior", atof(strtok(NULL, " \t")));
+			setMaterialFloat(currMat, "ior", atof(strtok(NULL, " \t")));
 		} else if (stringEquals(token, "illum") && matOpen) {
 			//Illumination type
 			//UNUSED

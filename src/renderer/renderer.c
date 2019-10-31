@@ -190,8 +190,8 @@ void *renderThread(void *arg) {
 					incidentRay.rayType = rayTypeIncident;
 					incidentRay.remainingInteractions = renderer->prefs.bounces;
 
-					incidentRay.currentMedium = NewMaterial(MATERIAL_TYPE_DEFAULT);
-					MaterialSetFloat(incidentRay.currentMedium, "ior", AIR_IOR);
+					incidentRay.currentMedium = newMaterial(MATERIAL_TYPE_DEFAULT);
+					setMaterialFloat(incidentRay.currentMedium, "ior", AIR_IOR);
 					
 					//For multi-sample rendering, we keep a running average of color values for each pixel
 					//The next block of code does this
@@ -202,7 +202,7 @@ void *renderThread(void *arg) {
 					//Get new sample (path tracing is initiated here)
 					vec3 sample = pathTrace(&incidentRay, renderer->scene, renderer->prefs.bounces, rng, &hasHitObject);
 
-					MaterialFree(incidentRay.currentMedium);
+					freeMaterial(incidentRay.currentMedium);
 					
 					//And process the running average
 					output.r = output.r * (tile.completedSamples - 1);
