@@ -98,11 +98,16 @@ void smartTime(unsigned long long milliseconds, char *buf) {
  @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
  */
 void printStatistics(struct renderer *r, int thread, float kSamplesPerSecond) {
-	int remainingTileCount = r->state.tileCount - r->state.finishedTileCount;
+	int finishedTileCount = 0;
+	for (int t = 0; t < r->prefs.threadCount; t++) {
+		finishedTileCount += r->state.renderThreadInfo[t].finishedTileCount;
+	}
+	
+	int remainingTileCount = r->state.tileCount - finishedTileCount;
 	unsigned long long remainingTimeMilliseconds = (remainingTileCount * r->state.avgTileTime) / r->prefs.threadCount;
 	//First print avg tile time
 	printf("%s", "\33[2K");
-	float completion = ((float)r->state.finishedTileCount / r->state.tileCount) * 100;
+	float completion = ((float)finishedTileCount / r->state.tileCount) * 100;
 	logr(info, "[%.0f%%]", completion);
 	
 	char avg[32];

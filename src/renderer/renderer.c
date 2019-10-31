@@ -242,7 +242,7 @@ void *renderThread(void *arg) {
 		unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
 		tile = tiles[currentTileIndex];
 		tiles[currentTileIndex].isRendering = true;
-		renderer->state.finishedTileCount++;
+		tinfo->finishedTileCount++;
 		tinfo->currentTileNum = tile.tileNum;
 		tinfo->currentTileIdx = currentTileIndex;
 		unsigned long long duration = endTimer(&renderer->state.timers[tinfo->thread_num]);
