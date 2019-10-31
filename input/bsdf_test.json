@@ -69,9 +69,9 @@
           "z": -0.4
         },
         "radius": 0.2,
-        "Material type": "Emissive",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
+        "materialType": "Emissive",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
             "r": 50.0,
@@ -93,9 +93,9 @@
           "z": -0.2
         },
         "radius": 0.2,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
             "r": 1.0,
@@ -117,9 +117,9 @@
           "z": -0.2
         },
         "radius": 0.2,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
             "r": 0.02,
@@ -130,8 +130,7 @@
           "metalness": 1.0,
           "specularity": 0.3,
           "anisotropy": 0.9,
-          "ior": 1.0,
-          "albedoTexURI": "./input/textures/"
+          "ior": 1.0
         }
       },
       {
@@ -142,9 +141,9 @@
           "z": -0.35
         },
         "radius": 0.15,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
             "r": 1.0,
@@ -162,9 +161,9 @@
     "meshes": [
       {
         "fileName": "input/shapes/plane.obj",
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
             "r": 0.3,
@@ -186,16 +185,16 @@
       },
       {
         "fileName": "input/dragon_50k.obj",
-        "Material type": "Default",
-        "Diffuse BSDF": "Lambert",
-        "Specular BSDF": "Eric Heitz GGX 2018",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
             "r": 0.52,
             "g": 0.83,
             "b": 0.65
           },
-          "roughness": 0.38,
+          "roughness": 0.25,
           "metalness": 0.1,
           "specularity": 0.3,
           "anisotropy": 0.25,
