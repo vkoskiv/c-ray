@@ -202,7 +202,7 @@ void drawProgressBars(struct renderer *r) {
  */
 void drawFrame(struct renderer *r, struct renderTile tile) {
 	int length = 8;
-	struct color c = clearColor;
+	color c = clearColor;
 	if (tile.isRendering) {
 		c = frameColor;
 	}

@@ -12,6 +12,7 @@ typedef union
 {
 	struct { float x, y, z; };
 	struct { float r, g, b; };
+	struct { float red, green, blue; };
 	float e[3];
 } vec3, float3;
 

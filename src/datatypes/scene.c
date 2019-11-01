@@ -39,7 +39,7 @@
 	}
 };*/
 
-struct color *parseColor(const cJSON *data);
+color *parseColor(const cJSON *data);
 
 /**
  Extract the filename from a given file path
@@ -272,7 +272,7 @@ struct material *parseMaterial(const cJSON *data) {
 
 	cJSON *IOR = NULL;
 	//cJSON *roughness = NULL;
-	cJSON *color = NULL;
+	cJSON *colorJson = NULL;
 	cJSON *intensity = NULL;
 	
 	bool validColor = false;
@@ -282,13 +282,13 @@ struct material *parseMaterial(const cJSON *data) {
 	
 	float IORValue = 1.0;
 	//float roughnessValue;
-	struct color *colorValue = NULL;
+	color *colorValue = NULL;
 	float intensityValue = 1.0;
 	
 	struct material *mat = newMaterial(MATERIAL_TYPE_DEFAULT);
 	
-	color = cJSON_GetObjectItem(data, "color");
-	colorValue = parseColor(color);
+	colorJson = cJSON_GetObjectItem(data, "color");
+	colorValue = parseColor(colorJson);
 	if (colorValue != NULL) {
 		validColor = true;
 	}
@@ -331,7 +331,7 @@ struct material *parseMaterial(const cJSON *data) {
 		logr(error, "Material data: %s\n", cJSON_Print(data));
 	}
 
-	setMaterialVec3(mat, "albedo", (vec3) { colorValue->red, colorValue->green, colorValue->blue });
+	setMaterialVec3(mat, "albedo", *colorValue);
 
 	free(colorValue);
 	//assignBSDF(mat);
@@ -644,14 +644,14 @@ int parseCamera(struct renderer *r, const cJSON *data) {
 	return 0;
 }
 
-struct color *parseColor(const cJSON *data) {
+color *parseColor(const cJSON *data) {
 	
 	const cJSON *R = NULL;
 	const cJSON *G = NULL;
 	const cJSON *B = NULL;
 	const cJSON *A = NULL;
 	
-	struct color *newColor = calloc(1, sizeof(struct color));
+	color *newColor = calloc(1, sizeof(color));
 	
 	R = cJSON_GetObjectItem(data, "r");
 	if (R != NULL && cJSON_IsNumber(R)) {
@@ -674,12 +674,13 @@ struct color *parseColor(const cJSON *data) {
 		free(newColor);
 		return NULL;
 	}
+	/*
 	A = cJSON_GetObjectItem(data, "a");
 	if (R != NULL && cJSON_IsNumber(A)) {
 		newColor->alpha = A->valuedouble;
 	} else {
 		newColor->alpha = 0.0;
-	}
+	}*/
 	
 	return newColor;
 }
@@ -695,8 +696,8 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	down = cJSON_GetObjectItem(data, "down");
 	up = cJSON_GetObjectItem(data, "up");
 
-	struct color* downColor = parseColor(down);
-	struct color* upColor = parseColor(up);
+	color* downColor = parseColor(down);
+	color* upColor = parseColor(up);
 	newGradient->down = (vec3){downColor->red, downColor->green, downColor->blue};
 	newGradient->up = (vec3){ upColor->red, upColor->green, upColor->blue };
 	
@@ -1199,12 +1200,8 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	r->state.image->hasAlpha = false;
 	
 	//Set a dark gray background for the render preview
-<<<<<<< HEAD
+
 	vec3 c = {49/255.0,51/255.0,54/255.0};
-=======
-	//FIXME: Hack, fix the SDL stuff instead
-	struct color c = {49/255.0,51/255.0,54/255.0,0};
->>>>>>> 4432f43ca5a2b34e0702dd87696fd5d05741f353
 	for (int x = 0; x < *r->state.image->width; x++) {
 		for (int y = 0; y < *r->state.image->height; y++) {
 			blit(r->state.image, c, x, y);

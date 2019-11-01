@@ -46,16 +46,10 @@ struct texture {
 
 struct color;
 
-<<<<<<< HEAD
-void blit(struct texture *t, vec3 c, unsigned int x, unsigned int y);
-void blitfloat(float *buf, int width, int height, vec3 *c, unsigned int x, unsigned int y);
-vec3 textureGetPixel(struct texture *t, int x, int y);
-vec3 textureGetPixelFiltered(struct texture *t, float x, float y);
-=======
-void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
-struct color textureGetPixel(struct texture *t, int x, int y);
-struct color textureGetPixelFiltered(struct texture *t, float x, float y);
->>>>>>> 1d60640fe22419135cd05015879227d4992e474f
+void blit(struct texture *t, color c, unsigned int x, unsigned int y);
+void blitfloat(float *buf, int width, int height, color*c, unsigned int x, unsigned int y);
+color textureGetPixel(struct texture *t, int x, int y);
+color textureGetPixelFiltered(struct texture *t, float x, float y);
 
 struct texture *newTexture(void);
 void allocTextureBuffer(struct texture *t, enum precision p, int width, int height, int channels);

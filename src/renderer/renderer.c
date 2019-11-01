@@ -19,11 +19,8 @@
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
 
-<<<<<<< HEAD
 vec3 getPixel(struct renderer *r, int x, int y);
 
-=======
->>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 void render(struct renderer *r) {
@@ -162,30 +159,18 @@ void *renderThread(void *arg) {
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 					//imaginary plane in front of the origin. startPos is just the camera position.
-<<<<<<< HEAD
-					vec3 direction = {(fracX - 0.5 * *renderer->state.image->width)
-												/ renderer->scene->camera->focalLength,
-											   (fracY - 0.5 * *renderer->state.image->height)
-												/ renderer->scene->camera->focalLength,
-=======
-					struct vector direction = {(fracX - 0.5 * *r->state.image->width)
+					vec3 direction = {(fracX - 0.5 * *r->state.image->width)
 												/ r->scene->camera->focalLength,
 											   (fracY - 0.5 * *r->state.image->height)
 												/ r->scene->camera->focalLength,
->>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 												1.0};
 					
 					//Normalize direction
-					direction = vecNormalize(direction);
-<<<<<<< HEAD
-					vec3 startPos = renderer->scene->camera->pos;
-					vec3 left = renderer->scene->camera->left;
-					vec3 up = renderer->scene->camera->up;
-=======
-					struct vector startPos = r->scene->camera->pos;
-					struct vector left = r->scene->camera->left;
-					struct vector up = r->scene->camera->up;
->>>>>>> 1d60640fe22419135cd05015879227d4992e474f
+					direction = vec3_normalize(direction);
+
+					vec3 startPos = r->scene->camera->pos;
+					vec3 left = r->scene->camera->left;
+					vec3 up = r->scene->camera->up;
 					
 					//Run camera tranforms on direction vector
 					transformCameraView(r->scene->camera, &direction);
@@ -198,40 +183,29 @@ void *renderThread(void *arg) {
 					} else {
 						float randY = rndFloat(-aperture, aperture, rng);
 						float randX = rndFloat(-aperture, aperture, rng);
-						vec3 randomStart = vecAdd(vecAdd(startPos, vecScale(randY, up)), vecScale(randX, left));
+						vec3 randomStart = vec3_add(vec3_add(startPos, vec3_muls(up, randY)), vec3_muls(left, randX));
 						
 						incidentRay.start = randomStart;
 					}
 					
 					incidentRay.direction = direction;
 					incidentRay.rayType = rayTypeIncident;
-<<<<<<< HEAD
-					incidentRay.remainingInteractions = renderer->prefs.bounces;
+					incidentRay.remainingInteractions = r->prefs.bounces;
 
 					incidentRay.currentMedium = newMaterial(MATERIAL_TYPE_DEFAULT);
 					setMaterialFloat(incidentRay.currentMedium, "ior", AIR_IOR);
-=======
-					incidentRay.remainingInteractions = r->prefs.bounces;
-					incidentRay.currentMedium.IOR = AIR_IOR;
->>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 					
 					//For multi-sample rendering, we keep a running average of color values for each pixel
 					//The next block of code does this
 					
 					//Get previous color value from render buffer
-<<<<<<< HEAD
-					vec3 output = getPixel(renderer, x, y);
+
+					vec3 output = textureGetPixel(r->state.renderBuffer, x, y);
 					
 					//Get new sample (path tracing is initiated here)
-					vec3 sample = pathTrace(&incidentRay, renderer->scene, renderer->prefs.bounces, rng, &hasHitObject);
+					vec3 sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, rng, &hasHitObject);
 
 					freeMaterial(incidentRay.currentMedium);
-=======
-					struct color output = textureGetPixel(r->state.renderBuffer, x, y);
-					
-					//Get new sample (path tracing is initiated here)
-					struct color sample = pathTrace(&incidentRay, r->scene, 0, r->prefs.bounces, rng, &hasHitObject);
->>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 					
 					//And process the running average
 					output.r = output.r * (tile.completedSamples - 1);
@@ -298,21 +272,12 @@ struct renderer *newRenderer() {
 	r->prefs.fileMode = saveModeNormal;
 	r->state.image = newTexture();
 	
-<<<<<<< HEAD
-	renderer->scene = calloc(1, sizeof(struct world));
-	renderer->scene->camera = calloc(1, sizeof(struct camera));
-	renderer->scene->ambientColor = calloc(1, sizeof(struct gradient));
-	renderer->scene->hdr = NULL; //Optional, to be loaded later
-	renderer->scene->meshes = calloc(1, sizeof(struct mesh));
-	renderer->scene->spheres = calloc(1, sizeof(struct sphere));
-=======
 	r->scene = calloc(1, sizeof(struct world));
 	r->scene->camera = calloc(1, sizeof(struct camera));
-	r->scene->ambientColor = calloc(1, sizeof(struct color));
+	r->scene->ambientColor = calloc(1, sizeof(struct gradient));
 	r->scene->hdr = NULL; //Optional, to be loaded later
 	r->scene->meshes = calloc(1, sizeof(struct mesh));
 	r->scene->spheres = calloc(1, sizeof(struct sphere));
->>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 	
 #ifdef UI_ENABLED
 	r->mainDisplay = calloc(1, sizeof(struct display));
@@ -330,21 +295,18 @@ struct renderer *newRenderer() {
 #else
 	r->state.statsMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 #endif
-<<<<<<< HEAD
-	return renderer;
+
+	return r;
 }
 	
 //TODO: Refactor this to retrieve pixel from a given buffer, so we can reuse it for texture maps
-vec3 getPixel(struct renderer *r, int x, int y) {
-	vec3 output = {0.0, 0.0, 0.0};
-	output.r = r->state.renderBuffer[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 0];
-	output.g = r->state.renderBuffer[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 1];
-	output.b = r->state.renderBuffer[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 2];
+color getPixel(struct renderer *r, int x, int y) {
+	color output = {0.0f, 0.0f, 0.0f};
+	output.r = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 0];
+	output.g = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 1];
+	output.b = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 2];
 	//output.a = 1.0;
 	return output;
-=======
-	return r;
->>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 }
 	
 void freeRenderer(struct renderer *r) {

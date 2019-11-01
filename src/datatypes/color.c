@@ -11,65 +11,65 @@
 
 //Some standard colours
 //TODO: Prefix these so it's obvious they are extern variables
-struct color redColor =   {1.0, 0.0, 0.0, 1.0};
-struct color greenColor = {0.0, 1.0, 0.0, 1.0};
-struct color blueColor =  {0.0, 0.0, 1.0, 1.0};
-struct color blackColor = {0.0, 0.0, 0.0, 1.0};
-struct color grayColor =  {0.5, 0.5, 0.5, 1.0};
-struct color whiteColor = {1.0, 1.0, 1.0, 1.0};
-struct color frameColor = {1.0, 0.5, 0.0, 1.0};
-struct color clearColor = {0.0, 0.0, 0.0, 0.0};
-struct color progColor  = {0.2549019608, 0.4509803922, 0.9607843137, 1.0};
+color redColor =   {1.0, 0.0, 0.0};
+color greenColor = {0.0, 1.0, 0.0};
+color blueColor =  {0.0, 0.0, 1.0};
+color blackColor = {0.0, 0.0, 0.0};
+color grayColor =  {0.5, 0.5, 0.5};
+color whiteColor = {1.0, 1.0, 1.0};
+color frameColor = {1.0, 0.5, 0.0};
+color clearColor = {0.0, 0.0, 0.0};
+color progColor  = {0.2549019608, 0.4509803922, 0.9607843137};
 
 //Color functions
 //Return a color with given values
-struct color colorWithValues(float red, float green, float blue, float alpha) {
-	return (struct color){red, green, blue, alpha};
+color colorWithValues(float red, float green, float blue, float alpha) {
+	return (color){red, green, blue};
 }
 
-struct color colorWithRGBAValues(int R, int G, int B, int A) {
-	return (struct color){R / 255.0, G / 255.0, B / 255.0, A / 255.0};
+color colorWithRGBValues(int R, int G, int B) {
+	return (color){R / 255.0, G / 255.0, B / 255.0};
 }
 
 //Multiply two colors
-struct color multiplyColors(struct color c1, struct color c2) {
-	return (struct color){c1.red * c2.red, c1.green * c2.green, c1.blue * c2.blue, 0.0};
+color multiplyColors(color c1, color c2) {
+	return vec3_mul(c1, c2);
 }
 
 //Add two colors
-struct color addColors(struct color c1, struct color c2) {
-	return (struct color){c1.red + c2.red, c1.green + c2.green, c1.blue + c2.blue, 0.0};
+color addColors(color c1, color c2) {
+	return (color){c1.r + c2.r, c1.g + c2.g, c1.b + c2.b};
 }
 
-struct color grayscale(struct color c) {
-	float b = (c.red+c.green+c.blue)/3;
-	return (struct color){b, b, b, 0.0};
+color grayscale(color c) {
+	float b = (c.r+c.g+c.b)/3;
+	return (color){b, b, b};
 }
 
 //Multiply a color with a coefficient value
-struct color colorCoef(float coef, struct color c) {
-	return (struct color){c.red * coef, c.green * coef, c.blue * coef, 0.0};
+color colorCoef(float coef, color c) {
+	return (color){c.r * coef, c.g * coef, c.b * coef};
 }
 
-struct color add(struct color c1, struct color c2) {
-	struct color result = (struct color){0, 0, 0, 0};
-	result.red = c1.red + c2.red;
-	result.green = c1.green + c2.green;
-	result.blue = c1.blue + c2.blue;
-	result.alpha = c1.alpha + c2.alpha;
+color add(color c1, color c2) {
+	color result = (color){0, 0, 0};
+	result.r = c1.r + c2.r;
+	result.g = c1.g + c2.g;
+	result.b = c1.b + c2.b;
+	//result.a = c1.a + c2.a;
 	return result;
 }
 
-struct color muls(struct color c, float coeff) {
-	struct color result = (struct color){0, 0, 0, 0};
-	result.red = c.red * coeff;
-	result.green = c.green * coeff;
-	result.blue = c.blue * coeff;
-	result.alpha = c.alpha * coeff;
+color muls(color c, float coeff) {
+	color result = (color){0, 0, 0};
+	result.r = c.r * coeff;
+	result.g = c.g * coeff;
+	result.b = c.b * coeff;
+	//result.alpha = c.alpha * coeff;
 	return result;
 }
 
-struct color mixColors(struct color c1, struct color c2, float coeff) {
+color mixColors(color c1, color c2, float coeff) {
 	//Linear interpolation mix
 	return add(muls(c1, 1.0f - coeff), muls(c2, coeff));
 }
@@ -93,8 +93,8 @@ float SRGBToLinear(float channel) {
 }
 
 //Convert from linear (0.0-1.0) to sRGB
-vec3 toSRGB(vec3 c) {
-	vec3 srgb = (vec3){ 0.0, 0.0, 0.0 };
+color toSRGB(color c) {
+	color srgb = (color){ 0.0, 0.0, 0.0 };
 	srgb.r = linearToSRGB(c.r);
 	srgb.g = linearToSRGB(c.g);
 	srgb.b = linearToSRGB(c.b);
@@ -103,8 +103,8 @@ vec3 toSRGB(vec3 c) {
 }
 
 //Convert from sRGB to linear (0.0-1.0)
-vec3 fromSRGB(vec3 c) {
-	vec3 linear = (vec3){0.0, 0.0, 0.0};
+color fromSRGB(color c) {
+	color linear = (color){0.0, 0.0, 0.0};
 	linear.r = SRGBToLinear(c.r);
 	linear.g = SRGBToLinear(c.g);
 	linear.b = SRGBToLinear(c.b);
@@ -112,11 +112,11 @@ vec3 fromSRGB(vec3 c) {
 	return linear;
 }
 
-struct color lerp(struct color start, struct color end, float t) {
-	struct color ret = {0};
-	ret.red = start.red + (end.red - start.red) * t;
-	ret.green = start.green + (end.green - start.green) * t;
-	ret.blue = start.blue + (end.blue - start.blue) * t;
-	ret.alpha = start.alpha + (end.alpha - start.alpha) * t;
+color lerp(color start, color end, float t) {
+	color ret = {0};
+	ret.r = start.r + (end.r - start.r) * t;
+	ret.g = start.g + (end.g - start.g) * t;
+	ret.b = start.b + (end.b - start.b) * t;
+	//ret.alpha = start.alpha + (end.alpha - start.alpha) * t;
 	return ret;
 }

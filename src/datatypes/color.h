@@ -13,50 +13,40 @@
 #define NOT_REFLECTIVE -1
 
 #include "vec3.h"
+typedef vec3 color;
 
 //Color
-struct color {
-	float red, green, blue, alpha;
-};
-
 struct gradient {
 	vec3 down;
 	vec3 up;
 };
 
 //Some standard colours
-extern struct color redColor;
-extern struct color greenColor;
-extern struct color blueColor;
-extern struct color blackColor;
-extern struct color grayColor;
-extern struct color whiteColor;
-extern struct color frameColor;
-extern struct color clearColor;
-extern struct color progColor;
+extern color redColor;
+extern color greenColor;
+extern color blueColor;
+extern color blackColor;
+extern color grayColor;
+extern color whiteColor;
+extern color frameColor;
+extern color clearColor;
+extern color progColor;
 
 //Return a color with given values
-struct color colorWithValues(float red, float green, float blue, float alpha);
+color colorWithValues(float red, float green, float blue, float alpha);
 
 //Multiply two colors and return the resulting color
-struct color multiplyColors(struct color c1, struct color c2);
+color multiplyColors(color c1, color c2);
 
 //Add two colors and return the resulting color
-struct color addColors(struct color c1, struct color c2);
+color addColors(color c1, color c2);
 
-struct color grayscale(struct color c);
+color grayscale(color c);
 
 //Multiply a color by a coefficient and return the resulting color
-struct color colorCoef(float coef, struct color c);
+color colorCoef(float coef, color c);
 
-struct color mixColors(struct color c1, struct color c2, float coeff);
+color mixColors(color c1, color c2, float coeff);
 
-vec3 toSRGB(vec3 c);
-
-<<<<<<< HEAD
-vec3 fromSRGB(vec3 c);
-=======
-struct color fromSRGB(struct color c);
-
-struct color lerp(struct color start, struct color end, float t);
->>>>>>> 1d60640fe22419135cd05015879227d4992e474f
+color toSRGB(color c);
+color fromSRGB(color c);

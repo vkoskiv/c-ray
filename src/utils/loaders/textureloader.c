@@ -17,12 +17,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../libraries/stb_image.h"
 
-<<<<<<< HEAD
 //This is a bit of a hack, my vec2inate space is inverted.
-=======
-//This is a bit of a hack, my coordinate space is inverted.
-//TODO: Just flip the buffer instead
->>>>>>> 1d60640fe22419135cd05015879227d4992e474f
 struct texture *flipHorizontal(struct texture *t) {
 	struct texture *new = newTexture();
 	allocTextureBuffer(new, t->precision, *t->width, *t->height, *t->channels);
