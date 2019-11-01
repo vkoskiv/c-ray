@@ -263,7 +263,7 @@ vec3 specularEricHeitz2018GGX(struct material* p_mat, vec3 V, vec3* p_Li, pcg32_
 	vec3 albedo = getAlbedo(p_mat);
 	float roughness = getMaterialFloat(p_mat, "roughness");
 	float anisotropy = getMaterialFloat(p_mat, "anisotropy");
-	float metalness = getMaterialFloat(p_mat, "anisotropy");
+	float metalness = getMaterialFloat(p_mat, "metalness");
 	float ior = getMaterialFloat(p_mat, "ior");
 
 	float alpha = roughness * roughness;
