@@ -201,8 +201,8 @@ float EricHeitz2018GGXG2(vec3 V, vec3 L, float alpha_x, float alpha_y) {
 	return EricHeitz2018GGXG1(V, alpha_x, alpha_y) * EricHeitz2018GGXG1(L, alpha_x, alpha_y);
 }
 
-float SchlickFresnel(float NoX, float F0) {
-	return F0 + (1.0f - F0) * pow(1.0f - NoX, 5.0f);
+vec3 SchlickFresnel(float NoX, vec3 F0) {
+	return vec3_add(F0, vec3_muls(vec3_sub(VEC3_ONE, F0), pow(1.0f - NoX, 5.0f)));
 }
 
 // Input Ve: view direction
@@ -260,9 +260,10 @@ float EricHeitz2018GGX_Rho(vec3 V, vec3 L, float alpha_x, float alpha_y, float i
 */
 
 vec3 specularEricHeitz2018GGX(struct material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
-	color albedo = getMaterialColor(p_mat, "albedo");
+	vec3 albedo = getAlbedo(p_mat);
 	float roughness = getMaterialFloat(p_mat, "roughness");
 	float anisotropy = getMaterialFloat(p_mat, "anisotropy");
+	float metalness = getMaterialFloat(p_mat, "anisotropy");
 	float ior = getMaterialFloat(p_mat, "ior");
 
 	float alpha = roughness * roughness;
@@ -277,19 +278,20 @@ vec3 specularEricHeitz2018GGX(struct material* p_mat, vec3 V, vec3* p_Li, pcg32_
 
 	vec3 H = vec3_normalize(vec3_add(L, V));
 	float dotVL = vec3_dot(V, L);
-	float F0 = abs((1.0f - ior) / (1.0f + ior));
 
-	float F = SchlickFresnel(fmaxf(dotVL, 0.0f), F0);
+	float F0_ = abs((1.0f - ior) / (1.0f + ior));
+	F0_ = F0_* F0_;
+	vec3 F0 = vec3_mix((vec3) {F0_, F0_, F0_}, albedo, metalness);
+
+	vec3 F = SchlickFresnel(fmaxf(dotVL, 0.0f), F0);
 	float G2 = EricHeitz2018GGXG2(V, L, alpha_x, alpha_y);
 	float G1 = EricHeitz2018GGXG1(V, alpha_x, alpha_y);
 
-	float I = (F * G2) / G1;
-
-	I = fminf(fmaxf(I, 0.0f), 1.0f);
+	vec3 I = vec3_divs(vec3_muls(F, G2), fmaxf(G1, 0.01f));
 
 	*p_Li = L;
 
-	return (vec3) { I, I, I };
+	return I;
 }
 
 vec3 diffuseEarlHammonGGX(struct material *p_mat, vec3 wo, vec3 wi) {
