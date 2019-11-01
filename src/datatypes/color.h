@@ -12,13 +12,13 @@
 #define NOT_REFRACTIVE 1
 #define NOT_REFLECTIVE -1
 
-#include "vec3.h"
-typedef vec3 color;
+#include "vec4.h"
+typedef vec4 color;
 
 //Color
 struct gradient {
-	vec3 down;
-	vec3 up;
+	color down;
+	color up;
 };
 
 //Some standard colours
@@ -34,19 +34,22 @@ extern color progColor;
 
 //Return a color with given values
 color colorWithValues(float red, float green, float blue, float alpha);
+color colorWithRGBAValues(int R, int G, int B, int A);
 
 //Multiply two colors and return the resulting color
 color multiplyColors(color c1, color c2);
 
 //Add two colors and return the resulting color
-color addColors(color c1, color c2);
+color color_add(color c1, color c2);
+color color_adds(color c, float coeff);
 
 color grayscale(color c);
 
 //Multiply a color by a coefficient and return the resulting color
-color colorCoef(float coef, color c);
+color color_mul(color c1, color c2);
+color color_muls(color c, float coeff);
 
-color mixColors(color c1, color c2, float coeff);
+color color_mix(color c1, color c2, float coeff);
 
 color toSRGB(color c);
 color fromSRGB(color c);

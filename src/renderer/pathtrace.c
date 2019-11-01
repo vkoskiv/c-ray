@@ -18,7 +18,7 @@
 #include "../datatypes/mat3.h"
 
 bool getHit(struct intersection* rec, struct lightRay *incidentRay, struct world *scene);
-vec3 getBackground(struct lightRay *incidentRay, struct world *scene);
+color getBackground(struct lightRay *incidentRay, struct world *scene);
 
 vec3 RandomUnitSphere(pcg32_random_t* rng) {
 	vec3 vec = (vec3){ 0.0f, 0.0f, 0.0f };
@@ -44,7 +44,7 @@ bool IsPureDiff(struct material *p_mat)
 
 vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, pcg32_random_t *rng, bool *hasHitObject) {
 
-	vec3 color = VEC3_ZERO;
+	vec3 col = VEC3_ZERO;
 	vec3 falloff = VEC3_ONE;
 
 	for (int i = 0; i < maxDepth; ++i)
@@ -62,7 +62,7 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 			
 			if (isect.end->type == MATERIAL_TYPE_EMISSIVE)
 			{
-				color = getAlbedo(isect.end);
+				col = getAlbedo(isect.end);
 				break;
 			}
 			else if (isect.end->type == MATERIAL_TYPE_DEFAULT)
@@ -115,12 +115,13 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 		}
 		else
 		{
-			color = getBackground(incidentRay, scene);
+			color bg = getBackground(incidentRay, scene);
+			col = (vec3){ bg.r, bg.g, bg.b };
 			break;
 		}
 	}
 
-	return vec3_mul(color, falloff);
+	return vec3_mul(col, falloff);
 }
 
 //vec3 pathTrace(struct lightRay* incidentRay, struct world* scene, int depth, int maxDepth, pcg32_random_t* rng, bool* hasHitObject) {
@@ -189,7 +190,7 @@ float wrapMinMax(float x, float min, float max) {
     return min + wrapMax(x - min, max - min);
 }
 
-vec3 getHDRI(struct lightRay *incidentRay, struct world *scene) {
+color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 	//Unit direction vector
 	vec3 ud = vecNormalize(incidentRay->direction);
 	
@@ -207,18 +208,18 @@ vec3 getHDRI(struct lightRay *incidentRay, struct world *scene) {
 	float x =  (v * *scene->hdr->width);
 	float y = (u * *scene->hdr->height);
 	
-	vec3 newColor = textureGetPixelFiltered(scene->hdr, x, y);
+	color newColor = textureGetPixelFiltered(scene->hdr, x, y);
 	
 	return newColor;
 }
 
 //Linearly interpolate based on the Y component
-vec3 getAmbientColor(struct lightRay *incidentRay, struct gradient *color) {
+color getAmbientColor(struct lightRay *incidentRay, struct gradient *c) {
 	vec3 unitDirection = vecNormalize(incidentRay->direction);
 	float t = 0.5 * (unitDirection.y + 1.0);
-	return vec3_add(vec3_muls((*color).down, 1.0 - t), vec3_muls((*color).up, t));
+	return color_add(color_muls((*c).down, 1.0 - t), color_muls((*c).up, t));
 }
 
-vec3 getBackground(struct lightRay *incidentRay, struct world *scene) {
+color getBackground(struct lightRay *incidentRay, struct world *scene) {
 	return scene->hdr ? getHDRI(incidentRay, scene) : getAmbientColor(incidentRay, scene->ambientColor);
 }

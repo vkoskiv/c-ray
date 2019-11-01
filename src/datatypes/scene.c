@@ -331,7 +331,7 @@ struct material *parseMaterial(const cJSON *data) {
 		logr(error, "Material data: %s\n", cJSON_Print(data));
 	}
 
-	setMaterialVec3(mat, "albedo", *colorValue);
+	setMaterialColor(mat, "albedo", *colorValue);
 
 	free(colorValue);
 	//assignBSDF(mat);
@@ -674,13 +674,13 @@ color *parseColor(const cJSON *data) {
 		free(newColor);
 		return NULL;
 	}
-	/*
+	
 	A = cJSON_GetObjectItem(data, "a");
 	if (R != NULL && cJSON_IsNumber(A)) {
 		newColor->alpha = A->valuedouble;
 	} else {
 		newColor->alpha = 0.0;
-	}*/
+	}
 	
 	return newColor;
 }
@@ -698,8 +698,8 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 
 	color* downColor = parseColor(down);
 	color* upColor = parseColor(up);
-	newGradient->down = (vec3){downColor->red, downColor->green, downColor->blue};
-	newGradient->up = (vec3){ upColor->red, upColor->green, upColor->blue };
+	newGradient->down = *downColor;
+	newGradient->up = *upColor;
 	
 	r->scene->ambientColor = newGradient;
 	
@@ -742,7 +742,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 
 	cJSON* mat_json = cJSON_GetObjectItem(data, "material");
 
-	vec3 albedo;
+	color albedo;
 	float roughness;
 	float specularity;
 	float metalness;
@@ -761,7 +761,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 		cJSON* albedo_g_json = cJSON_GetObjectItem(albedo_json, "g");
 		cJSON* albedo_b_json = cJSON_GetObjectItem(albedo_json, "b");
 
-		albedo = (vec3){ albedo_r_json->valuedouble, albedo_g_json->valuedouble, albedo_b_json->valuedouble };
+		albedo = (color){ albedo_r_json->valuedouble, albedo_g_json->valuedouble, albedo_b_json->valuedouble, 1.0f };
 		roughness = roughness_json->valuedouble;
 		specularity = specularity_json->valuedouble;
 		metalness = metalness_json->valuedouble;
@@ -791,7 +791,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 		mat->type = MATERIAL_TYPE_DEFAULT;
 		mat->diffuseBSDF = diffuseBSDF;
 		mat->specularBSDF = specularBSDF;
-		setMaterialVec3(mat, "albedo", albedo);
+		setMaterialColor(mat, "albedo", albedo);
 		setMaterialFloat(mat, "roughness", roughness);
 		setMaterialFloat(mat, "specularity", specularity);
 		setMaterialFloat(mat, "metalness", metalness);
@@ -1201,7 +1201,7 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	
 	//Set a dark gray background for the render preview
 
-	vec3 c = {49/255.0,51/255.0,54/255.0};
+	color c = {49/255.0,51/255.0,54/255.0, 1.0};
 	for (int x = 0; x < *r->state.image->width; x++) {
 		for (int y = 0; y < *r->state.image->height; y++) {
 			blit(r->state.image, c, x, y);

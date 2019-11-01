@@ -3,8 +3,8 @@
 	"renderer":
 	{
 		"threadCount": 0,
-		"sampleCount": 256,
-		"bounces": 32,
+		"sampleCount": 64,
+		"bounces": 8,
 		"antialiasing": true,
 		"tileWidth": 64,
 		"tileHeight": 64,

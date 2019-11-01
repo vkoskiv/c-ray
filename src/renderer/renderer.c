@@ -19,7 +19,7 @@
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
 
-vec3 getPixel(struct renderer *r, int x, int y);
+color getPixel(struct renderer *r, int x, int y);
 
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
@@ -200,7 +200,7 @@ void *renderThread(void *arg) {
 					
 					//Get previous color value from render buffer
 
-					vec3 output = textureGetPixel(r->state.renderBuffer, x, y);
+					color output = textureGetPixel(r->state.renderBuffer, x, y);
 					
 					//Get new sample (path tracing is initiated here)
 					vec3 sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, rng, &hasHitObject);
@@ -212,7 +212,7 @@ void *renderThread(void *arg) {
 					output.g = output.g * (tile.completedSamples - 1);
 					output.b = output.b * (tile.completedSamples - 1);
 					
-					output = vec3_add(output, sample);
+					output = color_add(output, (color) { sample.r, sample.g, sample.b, 1.0f });
 					
 					output.r = output.r / tile.completedSamples;
 					output.g = output.g / tile.completedSamples;
@@ -301,11 +301,11 @@ struct renderer *newRenderer() {
 	
 //TODO: Refactor this to retrieve pixel from a given buffer, so we can reuse it for texture maps
 color getPixel(struct renderer *r, int x, int y) {
-	color output = {0.0f, 0.0f, 0.0f};
+	color output = {0.0f, 0.0f, 0.0f, 0.0f};
 	output.r = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 0];
 	output.g = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 1];
 	output.b = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 2];
-	//output.a = 1.0;
+	output.a = 1.0;
 	return output;
 }
 	

@@ -87,6 +87,21 @@ vec3 getMaterialVec3(struct material *self, const char *key) {
 		return (vec3) { 0.0f, 0.0f, 0.0f };
 }
 
+void setMaterialColor(struct material* self, const char* key, color value) {
+	struct materialBucket* p_bucket = getMaterialBucketPtr(self, key);
+	p_bucket->value = malloc(sizeof(color));
+	p_bucket->is_used = true;
+	*(color*)p_bucket->value = value;
+}
+
+color getMaterialColor(struct material* self, const char* key) {
+	struct materialBucket* p_bucket = getMaterialBucketPtr(self, key);
+	if (p_bucket->is_used)
+		return *(color*)p_bucket->value;
+	else
+		return (color) { 1.0f, 0.0f, 1.0f, 1.0f };
+}
+
 bool doesMaterialValueExist(struct material *self, const char *key) {
 	return getMaterialBucketPtr(self, key)->is_used;
 }
@@ -128,7 +143,11 @@ vec3 colorForUV(struct intersection* isect) {
 }
 */
 vec3 getAlbedo(struct material *p_mat) {
-	if (doesMaterialValueExist(p_mat, "albedo"))	return getMaterialVec3(p_mat, "albedo");
+	if (doesMaterialValueExist(p_mat, "albedo"))
+	{
+		color albedoColor = getMaterialColor(p_mat, "albedo");
+		return (vec3) { albedoColor.r, albedoColor.g, albedoColor.b };
+	}
 	else return (vec3) { 1.0f, 0.0f, 1.0f };
 }
 
@@ -149,8 +168,9 @@ float rsqrt(float x)
 // Start defining BSDF functions
 
 vec3 diffuseLambert(struct material *p_mat, vec3 wo, vec3 wi) {
+	vec3 albedo = getAlbedo(p_mat);
 	float dotNL = getCosTheta(wi);
-	return vec3_muls(getAlbedo(p_mat), max(dotNL, 0.0) * INV_PI);
+	return vec3_muls(albedo, max(dotNL, 0.0) * INV_PI);
 }
 
 float EricHeitz2018GGXG1Lambda(vec3 V, float alpha_x, float alpha_y) {
@@ -240,7 +260,7 @@ float EricHeitz2018GGX_Rho(vec3 V, vec3 L, float alpha_x, float alpha_y, float i
 */
 
 vec3 specularEricHeitz2018GGX(struct material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
-	vec3 albedo = getMaterialVec3(p_mat, "albedo");
+	color albedo = getMaterialColor(p_mat, "albedo");
 	float roughness = getMaterialFloat(p_mat, "roughness");
 	float anisotropy = getMaterialFloat(p_mat, "anisotropy");
 	float ior = getMaterialFloat(p_mat, "ior");
@@ -276,9 +296,10 @@ vec3 diffuseEarlHammonGGX(struct material *p_mat, vec3 wo, vec3 wi) {
 	float dotNV = getCosTheta(wo);
 	float dotNL = getCosTheta(wi);
 
+	// No light contribution if light or view isn't visible from surface
 	if (dotNV <= 0.0f || dotNL <= 0.0f) return VEC3_ZERO;
 
-	vec3 albedo = getMaterialVec3(p_mat, "albedo");
+	vec3 albedo = getAlbedo(p_mat);
 	float roughness = getMaterialFloat(p_mat, "roughness");
 
 	vec3 wm = vec3_normalize(vec3_add(wo, wi));

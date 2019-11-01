@@ -148,6 +148,8 @@ vec3 getMaterialVec3(struct material *self, const char *key);
 bool doesMaterialValueExist(struct material *self, const char *id);
 
 vec3 getAlbedo(struct material* p_mat);
+void setMaterialColor(struct material* self, const char* key, color value);
+color getMaterialColor(struct material* self, const char* key);
 
 static const float INV_PI = 1.0f / PI;
 

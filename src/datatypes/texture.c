@@ -19,18 +19,17 @@ void blit(struct texture *t, color c, unsigned int x, unsigned int y) {
 	if ((x > *t->width-1) || y < 0) return;
 	if ((y > *t->height-1) || y < 0) return;
 
-	switch (t->precision) {
-	case char_p:
-		t->byte_data[(x + (*t->height - (y + 1)) * *t->width) * *t->channels + 0] = (unsigned char)min(max(c.red * 255.0, 0), 255.0);
-		t->byte_data[(x + (*t->height - (y + 1)) * *t->width) * *t->channels + 1] = (unsigned char)min(max(c.green * 255.0, 0), 255.0);
-		t->byte_data[(x + (*t->height - (y + 1)) * *t->width) * *t->channels + 2] = (unsigned char)min(max(c.blue * 255.0, 0), 255.0);
-
-		break;
-	case float_p:
+	if (t->precision == char_p) {
+		t->byte_data[(x + (*t->height - (y + 1)) * *t->width) * *t->channels + 0] = (unsigned char)min(c.red * 255.0, 255.0);
+		t->byte_data[(x + (*t->height - (y + 1)) * *t->width) * *t->channels + 1] = (unsigned char)min(c.green * 255.0, 255.0);
+		t->byte_data[(x + (*t->height - (y + 1)) * *t->width) * *t->channels + 2] = (unsigned char)min(c.blue * 255.0, 255.0);
+		if (t->hasAlpha) t->byte_data[(x + (*t->height - (y + 1)) * *t->width) * *t->channels + 3] = (unsigned char)min(c.alpha * 255.0, 255.0);
+	}
+	else if (t->precision == float_p) {
 		t->float_data[(x + (*t->height - (y + 1)) * *t->width) * *t->channels + 0] = c.red;
 		t->float_data[(x + (*t->height - (y + 1)) * *t->width) * *t->channels + 1] = c.green;
 		t->float_data[(x + (*t->height - (y + 1)) * *t->width) * *t->channels + 2] = c.blue;
-		break;
+		if (t->hasAlpha) t->float_data[(x + (*t->height - (y + 1)) * *t->width) * *t->channels + 3] = c.alpha;
 	}
 }
 
@@ -41,7 +40,7 @@ void blitfloat(float *buf, int width, int height, color*c, unsigned int x, unsig
 }
 
 color bilinearInterpolate(color topleft, color topright, color botleft, color botright, float tx, float ty) {
-	return vec3_mix(vec3_mix(topleft, topright, tx), vec3_mix(botleft, botright, tx), ty);
+	return color_mix(color_mix(topleft, topright, tx), color_mix(botleft, botright, tx), ty);
 }
 
 //Bilinearly interpolated (smoothed) output. Requires float precision, i.e. 0.0->width-1.0
@@ -59,7 +58,7 @@ color textureGetPixelFiltered(struct texture *t, float x, float y) {
 
 //FIXME: Use this everywhere, in renderer too where there is now a duplicate getPixel()
 color textureGetPixel(struct texture *t, int x, int y) {
-	color output = {0.0, 0.0, 0.0};
+	color output = {0.0f, 0.0f, 0.0f, 0.0f};
 
 	int pitch = 0;
 	if (t->hasAlpha) {
@@ -78,12 +77,12 @@ color textureGetPixel(struct texture *t, int x, int y) {
 		output.r = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0];
 		output.g = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1];
 		output.b = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2];
-		//output.a = t->hasAlpha ? t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 3] : 1.0;
+		output.a = t->hasAlpha ? t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 3] : 1.0;
 	} else {
 		output.r = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0]/255.0;
 		output.g = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1]/255.0;
 		output.b = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2]/255.0;
-		//output.alpha = t->hasAlpha ? t->byte_data[(x + (*t->height - y) * *t->width)*pitch + 3]/255.0 : 1.0;
+		output.alpha = t->hasAlpha ? t->byte_data[(x + (*t->height - y) * *t->width)*pitch + 3]/255.0 : 1.0;
 	}
 	
 	return output;
@@ -113,7 +112,7 @@ void allocTextureBuffer(struct texture *t, enum precision p, int width, int heig
 	
 	switch (t->precision) {
 		case char_p:
-			t->byte_data = calloc(channels *width * height, sizeof(unsigned char));
+			t->byte_data = calloc(channels * width * height, sizeof(unsigned char));
 			break;
 		case float_p:
 			t->float_data = calloc(channels * width * height, sizeof(float));
