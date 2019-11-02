@@ -1,0 +1,107 @@
+{
+  "version": 1.0,
+  "renderer": {
+    "threadCount": 0,
+    "sampleCount": 128,
+    "bounces": 8,
+    "antialiasing": true,
+    "tileWidth": 64,
+    "tileHeight": 64,
+    "tileOrder": "normal"
+  },
+  "display": {
+    "isFullscreen": false,
+    "isBorderless": false,
+    "windowScale": 1.0
+  },
+  "camera": {
+    "FOV": 75.0,
+    "aperture": 0.0,
+    "transforms": [
+
+      {
+        "type": "translate",
+        "x": -0.6,
+        "y": 1.5,
+        "z": -6.5
+      },
+      {
+        "type": "rotateX",
+        "degrees": 5
+      }
+    ]
+  },
+  "scene": {
+    "outputFilePath": "output/",
+    "outputFileName": "rendered",
+    "fileType": "png",
+    "count": 1,
+    "width": 1280,
+    "height": 720,
+    "ambientColor": {
+      "offset": 0,
+      "down": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0
+      },
+      "up": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0
+      }
+    },
+    "primitives": [
+    ],
+    "meshes": [
+      {
+        "fileName": "input/teapot.obj",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+          },
+          "roughness": 0.0,
+          "metalness": 0.0,
+          "specularity": 0.0,
+          "anisotropy": 0.0,
+          "ior": 1.0
+        },
+        "transforms": [
+          {
+            "type": "rotateY",
+            "degrees": 42
+          }
+        ]
+      },
+      {
+        "fileName": "input/plane.obj",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+          },
+          "roughness": 0.0,
+          "metalness": 0.0,
+          "specularity": 0.0,
+          "anisotropy": 0.0,
+          "ior": 1.0
+        },
+        "transforms": [
+          {
+            "type": "scaleUniform",
+            "scale": 25
+          }
+        ]
+      }
+    ]
+  }
+}

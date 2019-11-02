@@ -76,6 +76,17 @@ vec3 vec3_adds(vec3 v, float x)
 	return (vec3) { v.x + x, v.y + x, v.z + x };
 }
 
+
+vec2 coordScale(const float c, const vec2 crd)
+{
+	return (vec2) { c* crd.x, c* crd.y };
+}
+
+vec2 addCoords(const vec2 c1, const vec2 c2)
+{
+	return (vec2) { c1.x + c2.x, c1.y + c2.y };
+}
+
 /**
  Create a vector with given position values and return it.
 

@@ -64,13 +64,29 @@ struct materialBucket *getMaterialBucketPtr(struct material *self, const char* k
 
 void setMaterialVec3(struct material *self, const char* key, vec3 value) {
 	struct materialBucket *p_bucket = getMaterialBucketPtr(self, key);
+	p_bucket->key = key;
 	p_bucket->value = malloc(sizeof(vec3));
 	p_bucket->is_used = true;
 	*(vec3*)p_bucket->value = value;
 }
 
+void setMaterialPtr(struct material* self, const char* key, void* value)
+{
+	struct materialBucket* p_bucket = getMaterialBucketPtr(self, key);
+	p_bucket->key = key;
+	p_bucket->value = malloc(sizeof(void*));
+	p_bucket->is_used = true;
+	*(void**)p_bucket->value = value;
+}
+
+void* getMaterialPtr(struct material* self, const char* key)
+{
+	return *(void**)getMaterialBucketPtr(self, key)->value;
+}
+
 void setMaterialFloat(struct material *self, const char *key, float value) {
 	struct materialBucket* p_bucket = getMaterialBucketPtr(self, key);
+	p_bucket->key = key;
 	p_bucket->value = malloc(sizeof(float));
 	p_bucket->is_used = true;
 	*(float*)p_bucket->value = value;
@@ -90,6 +106,7 @@ vec3 getMaterialVec3(struct material *self, const char *key) {
 
 void setMaterialColor(struct material* self, const char* key, color value) {
 	struct materialBucket* p_bucket = getMaterialBucketPtr(self, key);
+	p_bucket->key = key;
 	p_bucket->value = malloc(sizeof(color));
 	p_bucket->is_used = true;
 	*(color*)p_bucket->value = value;
@@ -135,34 +152,15 @@ bool doesMaterialValueExist(struct material *self, const char *key) {
 	return getMaterialBucketPtr(self, key)->is_used;
 }
 
-/*
-vec3 colorForUV(struct intersection* isect) {
-	struct color output = { 0.0,0.0,0.0,0.0 };
-	struct material mtl = isect->end;
-	struct poly p = polygonArray[isect->polyIndex];
+color sampleTexture(struct texture *p_tex, vec2 uv) {
+	color output = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	//Texture width and height for this material
-	float width = *mtl.texture->width;
-	float heigh = *mtl.texture->height;
-
-	//barycentric coordinates for this polygon
-	float u = isect->uv.x;
-	float v = isect->uv.y;
-	float w = 1.0 - u - v;
-
-	//Weighted texture coordinates
-	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[1]]);
-	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[2]]);
-	struct coord wcomponent = coordScale(w, textureArray[p.textureIndex[0]]);
-
-	// textureXY = u * v1tex + v * v2tex + w * v3tex
-	struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
-
-	float x = (textureXY.x * (width));
-	float y = (textureXY.y * (heigh));
+	float width = *p_tex->width;
+	float height = *p_tex->height;
 
 	//Get the color value at these XY coordinates
-	output = textureGetPixelFiltered(mtl.texture, x, y);
+	output = textureGetPixelFiltered(p_tex, uv.x * width, uv.y * height);
 
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	//FIXME: Maybe ask lodepng if we actually need to do this transform
@@ -170,11 +168,19 @@ vec3 colorForUV(struct intersection* isect) {
 
 	return output;
 }
-*/
-color getAlbedo(struct material *p_mat) {
+
+color getAlbedo(struct material *p_mat, vec2 uv) {
 	if (doesMaterialValueExist(p_mat, "albedo")) {
-		color albedoColor = getMaterialColor(p_mat, "albedo");
-		return colorWithValues(albedoColor.red, albedoColor.green, albedoColor.blue, albedoColor.alpha);
+		color albedo = getMaterialColor(p_mat, "albedo");
+
+		if (doesMaterialValueExist(p_mat, "albedoTexture"))
+		{
+			struct texture* albedoTexture = getMaterialPtr(p_mat, "albedoTexture");
+			color albedoSample = sampleTexture(albedoTexture, uv);
+			return multiplyColors(albedo, albedoSample);
+		}
+
+		return albedo;
 	}
 	else return (color){1.0f, 0.0f, 1.0f, 1.0f};
 }
@@ -195,8 +201,8 @@ float rsqrt(float x)
 
 // Start defining BSDF functions
 
-color diffuseLambert(struct material *p_mat, vec3 wo, vec3 wi) {
-	color albedo = getAlbedo(p_mat);
+color diffuseLambert(struct material *p_mat, vec2 uv, vec3 wo, vec3 wi) {
+	color albedo = getAlbedo(p_mat, uv);
 	float dotNL = getCosTheta(wi);
 	return colorCoef(albedo, max(dotNL, 0.0) * INV_PI);
 }
@@ -287,8 +293,8 @@ float EricHeitz2018GGX_Rho(vec3 V, vec3 L, float alpha_x, float alpha_y, float i
 }
 */
 
-color specularEricHeitz2018GGX(struct material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
-	color albedo = getAlbedo(p_mat);
+color specularEricHeitz2018GGX(struct material* p_mat, vec2 uv, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
+	color albedo = getAlbedo(p_mat, uv);
 	float roughness = getMaterialFloat(p_mat, "roughness");
 	float anisotropy = getMaterialFloat(p_mat, "anisotropy");
 	float metalness = getMaterialFloat(p_mat, "metalness");
@@ -321,14 +327,14 @@ color specularEricHeitz2018GGX(struct material* p_mat, vec3 V, vec3* p_Li, pcg32
 	return I;
 }
 
-color diffuseEarlHammonGGX(struct material *p_mat, vec3 wo, vec3 wi) {
+color diffuseEarlHammonGGX(struct material *p_mat, vec2 uv, vec3 wo, vec3 wi) {
 	float dotNV = getCosTheta(wo);
 	float dotNL = getCosTheta(wi);
 
 	// No light contribution if light or view isn't visible from surface
 	if (dotNV <= 0.0f || dotNL <= 0.0f) return blackColor;
 
-	color albedo = getAlbedo(p_mat);
+	color albedo = getAlbedo(p_mat, uv);
 	float roughness = getMaterialFloat(p_mat, "roughness");
 
 	vec3 wm = vec3_normalize(vec3_add(wo, wi));
@@ -347,14 +353,14 @@ color diffuseEarlHammonGGX(struct material *p_mat, vec3 wo, vec3 wi) {
 	return multiplyColors(albedo, colorAddCoef(colorCoef(albedo, multi), single));
 }
 
-color lightingFuncDiffuse(struct material *p_mat, vec3 wo, vec3 wi) {
+color lightingFuncDiffuse(struct material *p_mat, vec2 uv, vec3 wo, vec3 wi) {
 	switch (p_mat->diffuseBSDF)	{
 		case DIFFUSE_BSDF_LAMBERT: {
-			return diffuseLambert(p_mat, wo, wi);
+			return diffuseLambert(p_mat, uv, wo, wi);
 		}
 		break;
 		case DIFFUSE_BSDF_EARL_HAMMON_GGX: {
-			return diffuseEarlHammonGGX(p_mat, wo, wi);
+			return diffuseEarlHammonGGX(p_mat, uv, wo, wi);
 		}
 		break;
 	}
@@ -362,12 +368,12 @@ color lightingFuncDiffuse(struct material *p_mat, vec3 wo, vec3 wi) {
 	return (color) {1.0f, 0.0f, 1.0f, 1.0f};
 }
 
-color lightingFuncSpecular(struct material *p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
+color lightingFuncSpecular(struct material *p_mat, vec2 uv, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
 	switch (p_mat->specularBSDF)
 	{
 		case SPECULAR_BSDF_ERIC_HEITZ_GGX_2018:
 		{
-			return specularEricHeitz2018GGX(p_mat, V, p_Li, p_rng);
+			return specularEricHeitz2018GGX(p_mat, uv, V, p_Li, p_rng);
 		}
 	}
 

@@ -166,7 +166,7 @@ struct mesh *parseOBJFile(char *filePath) {
 	normalCount += nCount;
 	normalArray = realloc(normalArray, normalCount * sizeof(vec3));
 	textureCount += tCount;
-	textureArray = realloc(textureArray, textureCount * sizeof(vec3));
+	textureArray = realloc(textureArray, textureCount * sizeof(vec2));
 	polyCount += pCount;
 	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
 	

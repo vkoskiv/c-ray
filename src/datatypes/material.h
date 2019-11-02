@@ -113,6 +113,10 @@ void freeMaterial(struct material* self);
 struct materialBucket* getMaterialBucketPtr(struct material *self, const char *key);
 void setMaterialVec3(struct material *self, const char *key, vec3 value);
 void setMaterialFloat(struct material *self, const char *key, float value);
+
+void setMaterialPtr(struct material* self, const char* key, void* value);
+void *getMaterialPtr(struct material* self, const char* key);
+
 float getMaterialFloat(struct material *self, const char *key);
 vec3 getMaterialVec3(struct material *self, const char *key);
 bool doesMaterialValueExist(struct material *self, const char *id);
@@ -124,5 +128,5 @@ color getMaterialColor(struct material* self, const char* key);
 static const float INV_PI = 1.0f / PI;
 
 //bool LightingFunc(struct intersection* isect, vec3* attenuation, struct lightRay* scattered, pcg32_random_t* rng);
-color lightingFuncDiffuse(struct material *p_mat, vec3 wo, vec3 wi);
-color lightingFuncSpecular(struct material *p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng);
+color lightingFuncDiffuse(struct material *p_mat, vec2 uv, vec3 wo, vec3 wi);
+color lightingFuncSpecular(struct material *p_mat, vec2 uv, vec3 V, vec3* p_Li, pcg32_random_t* p_rng);

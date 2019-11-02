@@ -726,6 +726,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON* specularBSDF_JSON = cJSON_GetObjectItem(data, "specularBSDF");
 	enum diffuseBSDF diffuseBSDF = DIFFUSE_BSDF_LAMBERT;
 	enum specularBSDF specularBSDF = SPECULAR_BSDF_PHONG;
+	enum materialType materialType = getMaterialType_FromStr(cJSON_GetObjectItem(data, "materialType")->valuestring);
 	
 	if (cJSON_IsString(diffuseBSDF_JSON)) {
 		diffuseBSDF = getDiffuseBSDF_FromStr(diffuseBSDF_JSON->valuestring);
@@ -740,7 +741,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 		logr(warning, "Invalid specular BSDF while parsing mesh\n");
 	}
 
-	cJSON* mat_json = cJSON_GetObjectItem(data, "material");
+	cJSON* matJSON = cJSON_GetObjectItem(data, "material");
 
 	color albedo;
 	float roughness;
@@ -750,12 +751,12 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	float ior;
 
 	{
-		cJSON* albedo_json = cJSON_GetObjectItem(mat_json, "albedo");
-		cJSON* roughness_json = cJSON_GetObjectItem(mat_json, "roughness");
-		cJSON* specularity_json = cJSON_GetObjectItem(mat_json, "specularity");
-		cJSON* metalness_json = cJSON_GetObjectItem(mat_json, "metalness");
-		cJSON* anisotropy_json = cJSON_GetObjectItem(mat_json, "anisotropy");
-		cJSON* ior_json = cJSON_GetObjectItem(mat_json, "ior");
+		cJSON* albedo_json = cJSON_GetObjectItem(matJSON, "albedo");
+		cJSON* roughness_json = cJSON_GetObjectItem(matJSON, "roughness");
+		cJSON* specularity_json = cJSON_GetObjectItem(matJSON, "specularity");
+		cJSON* metalness_json = cJSON_GetObjectItem(matJSON, "metalness");
+		cJSON* anisotropy_json = cJSON_GetObjectItem(matJSON, "anisotropy");
+		cJSON* ior_json = cJSON_GetObjectItem(matJSON, "ior");
 
 		cJSON* albedo_r_json = cJSON_GetObjectItem(albedo_json, "r");
 		cJSON* albedo_g_json = cJSON_GetObjectItem(albedo_json, "g");
@@ -768,6 +769,8 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 		anisotropy = anisotropy_json->valuedouble;
 		ior = ior_json->valuedouble;
 	}
+
+	cJSON* albedoTextureJSON = cJSON_GetObjectItem(matJSON, "albedoTexture");
 
 	bool meshValid = false;
 	if (fileName != NULL && cJSON_IsString(fileName)) {
@@ -788,7 +791,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 		}
 
 		struct material *mat = lastMesh(r)->material;
-		mat->type = MATERIAL_TYPE_DEFAULT;
+		mat->type = materialType;
 		mat->diffuseBSDF = diffuseBSDF;
 		mat->specularBSDF = specularBSDF;
 		setMaterialColor(mat, "albedo", albedo);
@@ -797,6 +800,12 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 		setMaterialFloat(mat, "metalness", metalness);
 		setMaterialFloat(mat, "anisotropy", anisotropy);
 		setMaterialFloat(mat, "ior", ior);
+		if (albedoTextureJSON != NULL) {
+			struct texture* albedoTexture = loadTexture(albedoTextureJSON->valuestring);
+			if (albedoTexture != NULL) {
+				setMaterialPtr(mat, "albedoTexture", albedoTexture);
+			}
+		}
 		
 		//FIXME: this isn't right.
 		/*

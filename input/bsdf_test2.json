@@ -1,0 +1,261 @@
+{
+  "version": 1.0,
+  "renderer": {
+    "threadCount": 0,
+    "sampleCount": 64,
+    "bounces": 8,
+    "antialiasing": true,
+    "tileWidth": 64,
+    "tileHeight": 64,
+    "tileOrder": "normal"
+  },
+  "display": {
+    "isFullscreen": false,
+    "isBorderless": false,
+    "windowScale": 1.0
+  },
+  "camera": {
+    "FOV": 70.0,
+    "aperture": 0.0,
+    "transforms": [
+      {
+        "type": "translate",
+        "x": 0.0,
+        "y": 1.8,
+        "z": -2.5
+      },
+      {
+        "type": "rotateX",
+        "degrees": 20
+      }
+    ]
+  },
+  "scene": {
+    "outputFilePath": "output/",
+    "outputFileName": "rendered",
+    "fileType": "png",
+    "count": 1,
+    "width": 1280,
+    "height": 720,
+    "ambientColor": {
+      "hdr": "input/HDRs/lebombo_1k.hdr",
+      "offset": 0,
+      "down": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0
+      },
+      "up": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0
+      }
+    },
+    "primitives": [
+    ],
+    "meshes": [
+      {
+        "fileName": "input/roman_pottery_1.obj",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 0.955,
+            "g": 0.637,
+            "b": 0.538
+          },
+          "roughness": 0.6,
+          "metalness": 1.0,
+          "specularity": 0.95,
+          "anisotropy": 0.0,
+          "ior": 1.1
+        },
+        "transforms": [
+          {
+            "type": "rotateY",
+            "degrees": -17
+          },
+          {
+            "type": "translate",
+            "x": 0.4,
+            "y": 0.0,
+            "z": 0.0
+          }
+        ]
+      },
+      {
+        "fileName": "input/roman_pottery_2.obj",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 0.612,
+            "g": 0.337,
+            "b": 0.259
+          },
+          "roughness": 0.6,
+          "metalness": 0.0,
+          "specularity": 0.25,
+          "anisotropy": 0.0,
+          "ior": 1.5
+        },
+        "transforms": [
+          {
+            "type": "rotateY",
+            "degrees": 35
+          },
+          {
+            "type": "translate",
+            "x": 0.5,
+            "y": 0.0,
+            "z": 0.6
+          }
+        ]
+      },
+      {
+        "fileName": "input/girl.obj",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+          },
+          "roughness": 1.0,
+          "metalness": 0.0,
+          "specularity": 0.0,
+          "anisotropy": 0.0,
+          "ior": 1.486
+        },
+        "transforms": [
+          {
+            "type": "translate",
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.5
+          }
+        ]
+      },
+      {
+        "fileName": "input/duck.obj",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+          },
+          "albedoTexture": "input/duckAlbedo.jpg",
+          "roughness": 1.0,
+          "metalness": 0.0,
+          "specularity": 0.0,
+          "anisotropy": 0.0,
+          "ior": 1.0
+        },
+        "transforms": [
+          {
+            "type": "rotateY",
+            "degrees": 60
+          },
+          {
+            "type": "translate",
+            "x": 0.0,
+            "y": 0.0,
+            "z": -0.5
+          }
+        ]
+      },
+      {
+        "fileName": "input/ghandi.obj",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 1.0,
+            "g": 0.765,
+            "b": 0.336
+          },
+          "roughness": 0.3,
+          "metalness": 1.0,
+          "specularity": 0.7,
+          "anisotropy": 0.0,
+          "ior": 0.47
+        },
+        "transforms": [
+          {
+            "type": "rotateY",
+            "degrees": 25
+          },
+          {
+            "type": "translate",
+            "x": -0.5,
+            "y": 0.0,
+            "z": 0.2
+          }
+        ]
+      },
+      {
+        "fileName": "input/plane.obj",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+          },
+          "roughness": 0.0,
+          "metalness": 0.0,
+          "specularity": 0.0,
+          "anisotropy": 0.0,
+          "ior": 1.0,
+          "albedoTexture": "input/old_planks_02_diff_1k.jpg"
+        },
+        "transforms": [
+          {
+            "type": "scaleUniform",
+            "scale": 1
+          }
+        ]
+      },
+      {
+        "fileName": "input/plane.obj",
+        "materialType": "Emissive",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 20,
+            "g": 18,
+            "b": 14
+          },
+          "roughness": 0.0,
+          "metalness": 0.0,
+          "specularity": 0.0,
+          "anisotropy": 0.0,
+          "ior": 1.0
+        },
+        "transforms": [
+          {
+            "type": "scaleUniform",
+            "scale": 0.2
+          },
+          {
+            "type": "translate",
+            "x": 0.0,
+            "y": 2.0,
+            "z": 0.0
+          }
+        ]
+      }
+    ]
+  }
+}

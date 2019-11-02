@@ -42,7 +42,9 @@ bool IsPureDiff(struct material *p_mat)
 	return specularity <= 0.0f;
 }
 
-color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, pcg32_random_t *rng, bool *hasHitObject) {
+extern vec2* textureArray;
+
+color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, pcg32_random_t *p_rng, bool *hasHitObject) {
 
 	color col = blackColor;
 	color falloff = whiteColor;
@@ -74,30 +76,51 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 
 				wo = vec3_normalize(mat3_mul_vec3(invTBN, wo));
 
-				float rn = rndFloat(0.0f, 1.0f, rng);
+				// polygon
+				struct poly p = polygonArray[isect.polyIndex];
+
+				// barycentric coordinates for this polygon
+				float uf = isect.uv.x;
+				float vf = isect.uv.y;
+				float wf = 1.0f - uf - vf;
+
+				// Weighted texture coordinates
+				vec2 u = coordScale(uf, textureArray[p.textureIndex[1]]);
+				vec2 v = coordScale(vf, textureArray[p.textureIndex[2]]);
+				vec2 w = coordScale(wf, textureArray[p.textureIndex[0]]);
+
+				// textureXY = u * v1tex + v * v2tex + w * v3tex
+				vec2 uv = addCoords(addCoords(u, v), w);
+
+				float U1 = rndFloat(0.0f, 1.0f, p_rng);
 				bool isPureDiff = IsPureDiff(p_mat);
 				bool isPureSpec = IsPureSpec(p_mat);
 
-				if (isPureDiff || (rn < 0.5f && !isPureSpec)) {
+				float reflProb = 1.0f - (1.0f - specularity) * (1.0f - metalness);
+
+				if (U1 < reflProb) {
+
+					//falloff = vec3_mul(falloff, vec3_muls(diffuse, 1.0f - specularity));
+					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(isect.surfaceNormal, EPSILON));
+
+					// MIS sample using VNDF or NDF
+					color specular = lightingFuncSpecular(p_mat, uv, wo, &wi, p_rng);
+
+					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
+
+					falloff = multiplyColors(falloff, specular);
+
+				} else {
+
 					// Light incoming direction from hitpoint, random in normal direction
-					wi = vec3_normalize(vec3_add(RandomUnitSphere(rng), (vec3) {0.0f, 0.0f, 1.0f}));
+					wi = vec3_normalize(vec3_add(RandomUnitSphere(p_rng), (vec3) { 0.0f, 0.0f, 1.0f }));
 
 					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(N, EPSILON));
 					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
 
-					color diffuse = lightingFuncDiffuse(p_mat, wo, wi);
+					color diffuse = lightingFuncDiffuse(p_mat, uv, wo, wi);
 
-					falloff = multiplyColors(falloff, colorCoef(diffuse, 1.0f - specularity));
-					//falloff = vec3_mul(falloff, vec3_muls(diffuse, 1.0f - specularity));
-				} else if(isPureSpec || (rn > 0.5f && !isPureDiff)) {
-					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(isect.surfaceNormal, EPSILON));
-
-					// MIS sample using VNDF or NDF
-					color specular = lightingFuncSpecular(p_mat, wo, &wi, rng);
-
-					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
-
-					falloff = multiplyColors(falloff, colorCoef(specular, specularity));
+					falloff = multiplyColors(falloff, diffuse);
 				}
 			}
 		} else {
