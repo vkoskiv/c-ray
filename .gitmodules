@@ -1,3 +1,0 @@
-[submodule "deps/glm-c"]
-	path = deps/glm-c
-	url = https://github.com/saidwho12/glm-c.git
