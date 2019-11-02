@@ -72,8 +72,6 @@
 		9058A51222231E9F00193385 /* learn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50F22231E9E00193385 /* learn.c */; };
 		9058A51522231EB100193385 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
 		907CD47A2240DFFF003947B0 /* multiplatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 907CD4792240DFFF003947B0 /* multiplatform.c */; };
-		907D6293236D1F650021BE45 /* vec4.c in Sources */ = {isa = PBXBuildFile; fileRef = 907D6291236D1F650021BE45 /* vec4.c */; };
-		907D6294236D1F650021BE45 /* vec4.c in Sources */ = {isa = PBXBuildFile; fileRef = 907D6291236D1F650021BE45 /* vec4.c */; };
 		907D6295236D1F650021BE45 /* vec3.c in Sources */ = {isa = PBXBuildFile; fileRef = 907D6292236D1F650021BE45 /* vec3.c */; };
 		907D6296236D1F650021BE45 /* vec3.c in Sources */ = {isa = PBXBuildFile; fileRef = 907D6292236D1F650021BE45 /* vec3.c */; };
 		90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85182252C90C00BA7702 /* mtlloader.c */; };
@@ -169,9 +167,7 @@
 		9058A51422231EB100193385 /* Tinn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Tinn.c; sourceTree = "<group>"; };
 		907CD4782240DFFF003947B0 /* multiplatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multiplatform.h; sourceTree = "<group>"; };
 		907CD4792240DFFF003947B0 /* multiplatform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = multiplatform.c; sourceTree = "<group>"; };
-		907D628F236D1F650021BE45 /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
 		907D6290236D1F650021BE45 /* vec3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec3.h; sourceTree = "<group>"; };
-		907D6291236D1F650021BE45 /* vec4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vec4.c; sourceTree = "<group>"; };
 		907D6292236D1F650021BE45 /* vec3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vec3.c; sourceTree = "<group>"; };
 		907D6297236D36FC0021BE45 /* mat3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mat3.h; sourceTree = "<group>"; };
 		90BAE9362328344100B1EBF0 /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
@@ -264,15 +260,13 @@
 				900BA0FC220B4602005B8EE7 /* poly.c */,
 				900BA0FD220B4602005B8EE7 /* tile.h */,
 				900BA107220B4602005B8EE7 /* tile.c */,
-				907D6292236D1F650021BE45 /* vec3.c */,
+				907D6297236D36FC0021BE45 /* mat3.h */,
 				907D6290236D1F650021BE45 /* vec3.h */,
-				907D6291236D1F650021BE45 /* vec4.c */,
-				907D628F236D1F650021BE45 /* vec4.h */,
+				907D6292236D1F650021BE45 /* vec3.c */,
 				900BA0FF220B4602005B8EE7 /* camera.h */,
 				900BA10C220B4602005B8EE7 /* camera.c */,
 				900BA100220B4602005B8EE7 /* sphere.h */,
 				900BA10B220B4602005B8EE7 /* sphere.c */,
-				907D6297236D36FC0021BE45 /* mat3.h */,
 				900BA101220B4602005B8EE7 /* material.h */,
 				900BA10A220B4602005B8EE7 /* material.c */,
 				90189DA5224EB302007FA268 /* mesh.h */,
@@ -466,7 +460,6 @@
 				905842E0236651FC009D92F1 /* textureloader.c in Sources */,
 				905842E1236651FC009D92F1 /* logging.c in Sources */,
 				905842E2236651FC009D92F1 /* Tinn.c in Sources */,
-				907D6294236D1F650021BE45 /* vec4.c in Sources */,
 				905842E3236651FC009D92F1 /* timer.c in Sources */,
 				905842E4236651FC009D92F1 /* pathtrace.c in Sources */,
 				905842E5236651FC009D92F1 /* list.c in Sources */,
@@ -511,7 +504,6 @@
 				90CA851E2252C90C00BA7702 /* textureloader.c in Sources */,
 				900BA143220B4603005B8EE7 /* logging.c in Sources */,
 				9058A51522231EB100193385 /* Tinn.c in Sources */,
-				907D6293236D1F650021BE45 /* vec4.c in Sources */,
 				900BA140220B4603005B8EE7 /* timer.c in Sources */,
 				900BA12D220B4603005B8EE7 /* pathtrace.c in Sources */,
 				900BA13B220B4603005B8EE7 /* list.c in Sources */,

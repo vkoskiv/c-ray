@@ -8,21 +8,15 @@
 
 #pragma once
 
-typedef union
-{
-	float e[3];
-	struct { float x, y, z; };
-	struct { float r, g, b; };
-	struct { float red, green, blue; };
-} vec3, float3;
+typedef struct vec3 {
+	float x, y, z;
+} vec3;
 
-typedef struct
-{
+typedef struct vec2 {
 	float x, y;
 } vec2;
 
-typedef struct
-{
+typedef struct ivec2 {
 	int x, y;
 } ivec2;
 

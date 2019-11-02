@@ -230,7 +230,7 @@ void deallocMatrix(float ****data, int width, int height, int depth) {
 
 //FIXME: Temporarily here
 color getPixelFromBuffer(unsigned char **data, int width, int height, int x, int y) {
-	color output = {0.0, 0.0, 0.0};
+	color output = {0.0, 0.0, 0.0, 0.0};
 	//TODO: convert unsigned char -> float
 	output.red = (float)((*data)[(x + (height - y) * (width))*4 + 0] / 255.0);
 	output.green = (float)((*data)[(x + (height - y) * (width))*4 + 1] / 255.0);
