@@ -28,7 +28,7 @@ struct mesh {
 	int normalCount;
 	int firstNormalIndex;
 	
-	//Texture coordinates
+	//Texture vec2inates
 	int textureCount;
 	int firstTextureIndex;
 	
@@ -41,8 +41,7 @@ struct mesh {
 	struct transform *transforms;
 	
 	//Materials
-	int materialCount;
-	struct material *materials;
+	struct material *material;
 	
 	//Root node of the kd-tree for this mesh
 	struct kdTreeNode *tree;

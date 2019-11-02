@@ -103,7 +103,7 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 	
 	node->bbox = computeBoundingBox(node->polygons, node->polyCount);
 	
-	struct vector midPoint = node->bbox->midPoint;
+	vec3 midPoint = node->bbox->midPoint;
 	
 	struct Array leftPolys;
 	initArray(&leftPolys, 5);
@@ -113,7 +113,7 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 	enum bboxAxis axis = getLongestAxis(node->bbox);
 	
 	for (int i = 0; i < node->polyCount; i++) {
-		struct vector polyMidPoint = getMidPoint(vertexArray[polygonArray[node->polygons[i]].vertexIndex[0]],
+		vec3 polyMidPoint = getMidPoint(vertexArray[polygonArray[node->polygons[i]].vertexIndex[0]],
 									   vertexArray[polygonArray[node->polygons[i]].vertexIndex[1]],
 									   vertexArray[polygonArray[node->polygons[i]].vertexIndex[2]]);
 		
@@ -207,7 +207,7 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 					isect->type = hitTypePolygon;
 					isect->polyIndex = polygonArray[node->polygons[i]].polyIndex;
 					isect->mtlIndex = polygonArray[node->polygons[i]].materialIndex;
-					struct vector scaled = vecScale(isect->distance, ray->direction);
+					vec3 scaled = vecScale(isect->distance, ray->direction);
 					isect->hitPoint = vecAdd(ray->start, scaled);
 				}
 			}

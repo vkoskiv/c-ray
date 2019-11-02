@@ -8,4 +8,6 @@
 
 #pragma once
 
+#include "../../datatypes/material.h"
+
 struct material *parseMTLFile(char *filePath, int *mtlCount);

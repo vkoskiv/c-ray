@@ -26,11 +26,11 @@ enum currentType {
  */
 struct intersection {
 	struct lightRay ray;			//Light ray that encountered this intersection
-	struct material start;			//Material of where that ray originates
-	struct material end;			//Material of the intersected object
-	struct vector hitPoint;			//Hit point vector in 3D space
-	struct vector surfaceNormal;	//Surface normal at that point of intersection
-	struct coord uv;				//UV barycentric coordinates for intersection point
+	struct material *start;			//Material of where that ray originates
+	struct material *end;			//Material of the intersected object
+	vec3 hitPoint;			//Hit point vector in 3D space
+	vec3 surfaceNormal;	//Surface normal at that point of intersection
+	vec2 uv;				//UV barycentric coordinates for intersection point
 	enum currentType type;			//Type of object ray intersected with
 	bool didIntersect;				//True if ray intersected
 	float distance;				//Distance to intersection point
@@ -47,4 +47,4 @@ struct intersection {
 /// @param maxDepth Maximum depth of recursion
 /// @param rng A random number generator. One per execution thread.
 /// @param hasHitObject set to true if an object was hit in this pass
-struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, int maxDepth, pcg32_random_t *rng, bool *hasHitObject);
+vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, pcg32_random_t *rng, bool *hasHitObject);

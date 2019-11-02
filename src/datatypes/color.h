@@ -12,14 +12,13 @@
 #define NOT_REFRACTIVE 1
 #define NOT_REFLECTIVE -1
 
-//Color
-struct color {
-	float red, green, blue, alpha;
-};
+#include "vec4.h"
+typedef vec4 color;
 
+//Color
 struct gradient {
-	struct color *down;
-	struct color *up;
+	color down;
+	color up;
 };
 
 //Some standard colours
@@ -35,23 +34,23 @@ extern struct color progColor;
 extern struct color backgroundColor;
 
 //Return a color with given values
-struct color colorWithValues(float red, float green, float blue, float alpha);
+color colorWithValues(float red, float green, float blue, float alpha);
+color colorWithRGBAValues(int R, int G, int B, int A);
 
 //Multiply two colors and return the resulting color
-struct color multiplyColors(struct color c1, struct color c2);
+color multiplyColors(color c1, color c2);
 
 //Add two colors and return the resulting color
-struct color addColors(struct color c1, struct color c2);
+color color_add(color c1, color c2);
+color color_adds(color c, float coeff);
 
-struct color grayscale(struct color c);
+color grayscale(color c);
 
 //Multiply a color by a coefficient and return the resulting color
-struct color colorCoef(float coef, struct color c);
+color color_mul(color c1, color c2);
+color color_muls(color c, float coeff);
 
-struct color mixColors(struct color c1, struct color c2, float coeff);
+color color_mix(color c1, color c2, float coeff);
 
-struct color toSRGB(struct color c);
-
-struct color fromSRGB(struct color c);
-
-struct color lerp(struct color start, struct color end, float t);
+color toSRGB(color c);
+color fromSRGB(color c);

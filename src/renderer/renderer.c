@@ -19,6 +19,8 @@
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
 
+color getPixel(struct renderer *r, int x, int y);
+
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 void render(struct renderer *r) {
@@ -157,17 +159,18 @@ void *renderThread(void *arg) {
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 					//imaginary plane in front of the origin. startPos is just the camera position.
-					struct vector direction = {(fracX - 0.5 * *r->state.image->width)
+					vec3 direction = {(fracX - 0.5 * *r->state.image->width)
 												/ r->scene->camera->focalLength,
 											   (fracY - 0.5 * *r->state.image->height)
 												/ r->scene->camera->focalLength,
 												1.0};
 					
 					//Normalize direction
-					direction = vecNormalize(direction);
-					struct vector startPos = r->scene->camera->pos;
-					struct vector left = r->scene->camera->left;
-					struct vector up = r->scene->camera->up;
+					direction = vec3_normalize(direction);
+
+					vec3 startPos = r->scene->camera->pos;
+					vec3 left = r->scene->camera->left;
+					vec3 up = r->scene->camera->up;
 					
 					//Run camera tranforms on direction vector
 					transformCameraView(r->scene->camera, &direction);
@@ -180,7 +183,7 @@ void *renderThread(void *arg) {
 					} else {
 						float randY = rndFloat(-aperture, aperture, rng);
 						float randX = rndFloat(-aperture, aperture, rng);
-						struct vector randomStart = vecAdd(vecAdd(startPos, vecScale(randY, up)), vecScale(randX, left));
+						vec3 randomStart = vec3_add(vec3_add(startPos, vec3_muls(up, randY)), vec3_muls(left, randX));
 						
 						incidentRay.start = randomStart;
 					}
@@ -188,27 +191,32 @@ void *renderThread(void *arg) {
 					incidentRay.direction = direction;
 					incidentRay.rayType = rayTypeIncident;
 					incidentRay.remainingInteractions = r->prefs.bounces;
-					incidentRay.currentMedium.IOR = AIR_IOR;
+
+					incidentRay.currentMedium = newMaterial(MATERIAL_TYPE_DEFAULT);
+					setMaterialFloat(incidentRay.currentMedium, "ior", AIR_IOR);
 					
 					//For multi-sample rendering, we keep a running average of color values for each pixel
 					//The next block of code does this
 					
 					//Get previous color value from render buffer
-					struct color output = textureGetPixel(r->state.renderBuffer, x, y);
+
+					color output = textureGetPixel(r->state.renderBuffer, x, y);
 					
 					//Get new sample (path tracing is initiated here)
-					struct color sample = pathTrace(&incidentRay, r->scene, 0, r->prefs.bounces, rng, &hasHitObject);
+					vec3 sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, rng, &hasHitObject);
+
+					freeMaterial(incidentRay.currentMedium);
 					
 					//And process the running average
-					output.red = output.red * (tile.completedSamples - 1);
-					output.green = output.green * (tile.completedSamples - 1);
-					output.blue = output.blue * (tile.completedSamples - 1);
+					output.r = output.r * (tile.completedSamples - 1);
+					output.g = output.g * (tile.completedSamples - 1);
+					output.b = output.b * (tile.completedSamples - 1);
 					
-					output = addColors(output, sample);
+					output = color_add(output, (color) { sample.r, sample.g, sample.b, 1.0f });
 					
-					output.red = output.red / tile.completedSamples;
-					output.green = output.green / tile.completedSamples;
-					output.blue = output.blue / tile.completedSamples;
+					output.r = output.r / tile.completedSamples;
+					output.g = output.g / tile.completedSamples;
+					output.b = output.b / tile.completedSamples;
 					
 					//Store internal render buffer (float precision)
 					blit(r->state.renderBuffer, output, x, y);
@@ -266,7 +274,7 @@ struct renderer *newRenderer() {
 	
 	r->scene = calloc(1, sizeof(struct world));
 	r->scene->camera = calloc(1, sizeof(struct camera));
-	r->scene->ambientColor = calloc(1, sizeof(struct color));
+	r->scene->ambientColor = calloc(1, sizeof(struct gradient));
 	r->scene->hdr = NULL; //Optional, to be loaded later
 	r->scene->meshes = calloc(1, sizeof(struct mesh));
 	r->scene->spheres = calloc(1, sizeof(struct sphere));
@@ -287,7 +295,18 @@ struct renderer *newRenderer() {
 #else
 	r->state.statsMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 #endif
+
 	return r;
+}
+	
+//TODO: Refactor this to retrieve pixel from a given buffer, so we can reuse it for texture maps
+color getPixel(struct renderer *r, int x, int y) {
+	color output = {0.0f, 0.0f, 0.0f, 0.0f};
+	output.r = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 0];
+	output.g = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 1];
+	output.b = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 2];
+	output.a = 1.0;
+	return output;
 }
 	
 void freeRenderer(struct renderer *r) {

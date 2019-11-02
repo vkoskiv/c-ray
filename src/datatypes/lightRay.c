@@ -9,6 +9,6 @@
 #include "../includes.h"
 #include "lightRay.h"
 
-struct lightRay newRay(struct vector start, struct vector direction, enum type rayType) {
-	return (struct lightRay){start, direction, rayType, {0}, rayTypeIncident};
+struct lightRay newRay(vec3 start, vec3 direction, enum type rayType) {
+	return (struct lightRay){start, direction, rayType, newMaterial(MATERIAL_TYPE_DEFAULT), rayTypeIncident};
 }

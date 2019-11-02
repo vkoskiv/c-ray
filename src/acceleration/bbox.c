@@ -33,8 +33,8 @@ enum bboxAxis getLongestAxis(struct boundingBox *bbox) {
  */
 struct boundingBox *computeBoundingBox(int *polys, int count) {
 	struct boundingBox *bbox = calloc(1, sizeof(struct boundingBox));
-	struct vector minPoint = vertexArray[polygonArray[polys[0]].vertexIndex[0]];
-	struct vector maxPoint = vertexArray[polygonArray[polys[0]].vertexIndex[0]];
+	vec3 minPoint = vertexArray[polygonArray[polys[0]].vertexIndex[0]];
+	vec3 maxPoint = vertexArray[polygonArray[polys[0]].vertexIndex[0]];
 	
 	for (int i = 0; i < count; i++) {
 		for (int j = 0; j < 3; j++) {
@@ -42,11 +42,11 @@ struct boundingBox *computeBoundingBox(int *polys, int count) {
 			maxPoint = vecMax(maxPoint, vertexArray[polygonArray[polys[i]].vertexIndex[j]]);
 		}
 	}
-	struct vector center = vecWithPos(0.5 * (minPoint.x + maxPoint.x), 0.5 * (minPoint.y + maxPoint.y), 0.5 * (minPoint.z + maxPoint.z));
+	vec3 center = vecWithPos(0.5 * (minPoint.x + maxPoint.x), 0.5 * (minPoint.y + maxPoint.y), 0.5 * (minPoint.z + maxPoint.z));
 	float maxDistance = 0.0;
 	for (int i = 0; i < count; i++) {
 		for (int j = 0; j < 3; j++) {
-			struct vector fromCenter = vecSubtract(vertexArray[polygonArray[polys[i]].vertexIndex[j]], center);
+			vec3 fromCenter = vecSubtract(vertexArray[polygonArray[polys[i]].vertexIndex[j]], center);
 			maxDistance = max(maxDistance, pow(vecLength(fromCenter), 2));
 		}
 	}
@@ -70,7 +70,7 @@ bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, float *
 	//If a mesh has no polygons, it won't have a root bbox either.
 	if (!box) return false;
 	
-	struct vector dirfrac;
+	vec3 dirfrac;
 	dirfrac.x = 1.0 / ray->direction.x;
 	dirfrac.y = 1.0 / ray->direction.y;
 	dirfrac.z = 1.0 / ray->direction.z;

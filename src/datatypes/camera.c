@@ -17,7 +17,7 @@
  
  @param direction Direction vector to be transformed
  */
-void transformCameraView(struct camera *cam, struct vector *direction) {
+void transformCameraView(struct camera *cam, vec3 *direction) {
 	for (int i = 1; i < cam->transformCount; i++) {
 		transformVector(direction, cam->transforms[i].A);
 	}

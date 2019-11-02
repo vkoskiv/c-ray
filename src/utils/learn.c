@@ -229,13 +229,13 @@ void deallocMatrix(float ****data, int width, int height, int depth) {
 }
 
 //FIXME: Temporarily here
-struct color getPixelFromBuffer(unsigned char **data, int width, int height, int x, int y) {
-	struct color output = {0.0, 0.0, 0.0, 0.0};
+color getPixelFromBuffer(unsigned char **data, int width, int height, int x, int y) {
+	color output = {0.0, 0.0, 0.0};
 	//TODO: convert unsigned char -> float
 	output.red = (float)((*data)[(x + (height - y) * (width))*4 + 0] / 255.0);
 	output.green = (float)((*data)[(x + (height - y) * (width))*4 + 1] / 255.0);
 	output.blue = (float)((*data)[(x + (height - y) * (width))*4 + 2] / 255.0);
-	output.alpha = (float)((*data)[(x + (height - y) * (width))*4 + 3] / 255.0);
+	//output.alpha = (float)((*data)[(x + (height - y) * (width))*4 + 3] / 255.0);
 	return output;
 }
 
@@ -256,7 +256,7 @@ struct data *loadTrainingData(struct texture *low, struct renderTile *lowTile, s
 	//Source
 	for (int x = 0; x < lowTile->width; x++) {
 		for (int y = 0; y < lowTile->height; y++) {
-			struct color px = getPixelFromBuffer(&low->byte_data, lowTile->width, lowTile->height, x, y);
+			color px = getPixelFromBuffer(&low->byte_data, lowTile->width, lowTile->height, x, y);
 			new->source[0][x][y] = (float)px.red;
 			new->source[1][x][y] = (float)px.green;
 			new->source[2][x][y] = (float)px.blue;
@@ -266,7 +266,7 @@ struct data *loadTrainingData(struct texture *low, struct renderTile *lowTile, s
 	//Target
 	for (int x = 0; x < highTile->width; x++) {
 		for (int y = 0; y < highTile->height; y++) {
-			struct color px = getPixelFromBuffer(&high->byte_data, highTile->width, highTile->height, x, y);
+			color px = getPixelFromBuffer(&high->byte_data, highTile->width, highTile->height, x, y);
 			new->target[0][x][y] = (float)px.red;
 			new->target[1][x][y] = (float)px.green;
 			new->target[2][x][y] = (float)px.blue;

@@ -1,0 +1,212 @@
+{
+	"version": 1.0,
+	"renderer":
+	{
+		"threadCount": 0,
+		"sampleCount": 64,
+		"bounces": 8,
+		"antialiasing": true,
+		"tileWidth": 64,
+		"tileHeight": 64,
+		"tileOrder": "fromMiddle"
+	},
+	"display":
+	{
+		"isFullscreen": false,
+		"isBorderless": false,
+		"windowScale": 1.0
+	},
+	"camera":
+	{
+		"FOV": 70.0,
+		"aperture": 0.0,
+		"transforms":
+		[
+			{
+				"type": "translate",
+				"x": 0,
+				"y": 1.2,
+				"z": -2.5
+			},
+			{
+				"type": "rotateX",
+				"degrees": 15
+			},
+			{
+				"type": "rotateZ",
+				"degrees": 0
+			}
+		]
+	},
+	"scene":
+	{
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 1,
+		"width": 1280,
+		"height": 720,
+    "ambientColor": {
+      "hdr": "input/HDRs/lebombo_1k.hdr",
+      "offset": 0,
+      "down": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0
+      },
+      "up": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0
+      }
+    },
+    "primitives": [
+      {
+        "type": "sphere",
+        "pos": {
+          "x": 0.0,
+          "y": 1.5,
+          "z": -0.4
+        },
+        "radius": 0.2,
+        "materialType": "Emissive",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 50.0,
+            "g": 50.0,
+            "b": 50.0
+          },
+          "roughness": 0.99,
+          "metalness": 0.1,
+          "specularity": 0.0,
+          "anisotropy": 0.01,
+          "ior": 1.5
+        }
+      },
+      {
+        "type": "sphere",
+        "pos": {
+          "x": 0.8,
+          "y": 0.2,
+          "z": -0.2
+        },
+        "radius": 0.2,
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+          },
+          "roughness": 0.2,
+          "metalness": 1.0,
+          "specularity": 0.8,
+          "anisotropy": 1.0,
+          "ior": 1.5
+        }
+      },
+      {
+        "type": "sphere",
+        "pos": {
+          "x": -0.8,
+          "y": 0.2,
+          "z": -0.2
+        },
+        "radius": 0.2,
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 0.02,
+            "g": 0.3,
+            "b": 1.0
+          },
+          "roughness": 0.2,
+          "metalness": 1.0,
+          "specularity": 0.3,
+          "anisotropy": 0.9,
+          "ior": 1.0
+        }
+      },
+      {
+        "type": "sphere",
+        "pos": {
+          "x": 0.5,
+          "y": 0.15,
+          "z": -0.35
+        },
+        "radius": 0.15,
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 1.0,
+            "g": 0.0,
+            "b": 0.0
+          },
+          "roughness": 0.99,
+          "metalness": 0.0,
+          "specularity": 0.0,
+          "anisotropy": 0.0,
+          "ior": 1.0
+        }
+      }
+    ],
+    "meshes": [
+      {
+        "fileName": "input/shapes/plane.obj",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 0.3,
+            "g": 0.3,
+            "b": 0.3
+          },
+          "roughness": 0.01,
+          "metalness": 0.1,
+          "specularity": 0.8,
+          "anisotropy": 0.01,
+          "ior": 1.1
+        },
+        "transforms": [
+          {
+            "type": "scaleUniform",
+            "scale": 3
+          }
+        ]
+      },
+      {
+        "fileName": "input/dragon_50k.obj",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 0.52,
+            "g": 0.83,
+            "b": 0.65
+          },
+          "roughness": 0.25,
+          "metalness": 0.1,
+          "specularity": 0.3,
+          "anisotropy": 0.25,
+          "ior": 1.1
+        },
+        "transforms": [
+          {
+            "type": "scaleUniform",
+            "scale": 1.5
+          }
+        ]
+      }
+    ]
+	}
+}

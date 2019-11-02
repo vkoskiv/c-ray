@@ -16,8 +16,8 @@ struct renderer;
 struct renderTile {
 	int width;
 	int height;
-	struct intCoord begin;
-	struct intCoord end;
+	ivec2 begin;
+	ivec2 end;
 	int completedSamples;
 	bool isRendering;
 	bool hasHitObject;  //If a tile contains just ambient, we can skip tiles pretty safely after 25 samples or so.

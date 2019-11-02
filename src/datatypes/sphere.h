@@ -8,19 +8,21 @@
 
 #pragma once
 
+#include "vec3.h"
+
 //Sphere
 struct sphere {
-	struct vector pos;
+	vec3 pos;
 	float radius;
-	struct material material;
+	struct material *material;
 };
 
 struct lightRay;
 
 //New sphere with given params
-struct sphere newSphere(struct vector pos, float radius, struct material material);
+struct sphere newSphere(vec3 pos, float radius, struct material *material);
 
-struct sphere newLightSphere(struct vector pos, float radius, struct color color, float intensity);
+struct sphere newLightSphere(vec3 pos, float radius, vec3 color, float intensity);
 
 struct sphere defaultSphere(void);
 

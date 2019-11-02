@@ -15,9 +15,9 @@
  @param vec OBJ loader vector
  @return c-ray vector
  */
-struct vector vectorFromObj(obj_vector *vec);
+vec3 vec3FromObj(obj_vector *vec);
 
-struct coord coordFromObj(obj_vector *vec);
+vec2 vec2FromObj(obj_vector *vec);
 
 /**
  Convert a given OBJ loader polygon into a c-ray polygon
@@ -37,4 +37,4 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
  @param mat OBJ loader material
  @return c-ray material
  */
-struct material materialFromObj(obj_material *mat);
+struct material *materialFromObj(obj_material *mat);
