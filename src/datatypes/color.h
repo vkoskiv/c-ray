@@ -32,6 +32,7 @@ extern struct color whiteColor;
 extern struct color frameColor;
 extern struct color clearColor;
 extern struct color progColor;
+extern struct color backgroundColor;
 
 //Return a color with given values
 struct color colorWithValues(float red, float green, float blue, float alpha);

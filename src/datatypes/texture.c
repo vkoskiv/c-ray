@@ -96,7 +96,7 @@ void allocTextureBuffer(struct texture *t, enum precision p, int width, int heig
 	
 	switch (t->precision) {
 		case char_p:
-			t->byte_data = calloc(channels *width * height, sizeof(unsigned char));
+			t->byte_data = calloc(channels * width * height, sizeof(unsigned char));
 			break;
 		case float_p:
 			t->float_data = calloc(channels * width * height, sizeof(float));

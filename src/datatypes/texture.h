@@ -46,13 +46,12 @@ struct texture {
 
 struct color;
 
-void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
-struct color textureGetPixel(struct texture *t, int x, int y);
-struct color textureGetPixelFiltered(struct texture *t, float x, float y);
-
 struct texture *newTexture(void);
 void allocTextureBuffer(struct texture *t, enum precision p, int width, int height, int channels);
 
+void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
+struct color textureGetPixel(struct texture *t, int x, int y);
+struct color textureGetPixelFiltered(struct texture *t, float x, float y);
 void textureFromSRGB(struct texture *t);
 void textureToSRGB(struct texture *t);
 

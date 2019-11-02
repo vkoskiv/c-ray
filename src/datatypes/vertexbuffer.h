@@ -18,5 +18,5 @@ extern int normalCount;
 extern struct coord *textureArray;
 extern int textureCount;
 
-void freeVertexBuffer(void);
 void allocVertexBuffer(void);
+void freeVertexBuffer(void);
