@@ -64,9 +64,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
@@ -80,246 +80,246 @@
 					"ior": 1.0
 				}
 			},
-      {
-        "type": "sphere",
-        "pos": {
-          "x": -4.0,
-          "y": 0.5,
-          "z": 0.0
-        },
-        "radius": 0.5,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
-          },
-          "roughness": 0.1,
-          "metalness": 0.0,
-          "specularity": 1.0,
-          "anisotropy": 0.0,
-          "ior": 1.0
-        }
-      },
-      {
-        "type": "sphere",
-        "pos": {
-          "x": -3.0,
-          "y": 0.5,
-          "z": 0.0
-        },
-        "radius": 0.5,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
-          },
-          "roughness": 0.2,
-          "metalness": 0.0,
-          "specularity": 1.0,
-          "anisotropy": 0.0,
-          "ior": 1.0
-        }
-      },
-      {
-        "type": "sphere",
-        "pos": {
-          "x": -2.0,
-          "y": 0.5,
-          "z": 0.0
-        },
-        "radius": 0.5,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
-          },
-          "roughness": 0.3,
-          "metalness": 0.0,
-          "specularity": 1.0,
-          "anisotropy": 0.0,
-          "ior": 1.0
-        }
-      },
-      {
-        "type": "sphere",
-        "pos": {
-          "x": -1.0,
-          "y": 0.5,
-          "z": 0.0
-        },
-        "radius": 0.5,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
-          },
-          "roughness": 0.4,
-          "metalness": 0.0,
-          "specularity": 1.0,
-          "anisotropy": 0.0,
-          "ior": 1.0
-        }
-      },
-      {
-        "type": "sphere",
-        "pos": {
-          "x": 0.0,
-          "y": 0.5,
-          "z": 0.0
-        },
-        "radius": 0.5,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
-          },
-          "roughness": 0.5,
-          "metalness": 0.0,
-          "specularity": 1.0,
-          "anisotropy": 0.0,
-          "ior": 1.0
-        }
-      },
-      {
-        "type": "sphere",
-        "pos": {
-          "x": 1.0,
-          "y": 0.5,
-          "z": 0.0
-        },
-        "radius": 0.5,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
-          },
-          "roughness": 0.6,
-          "metalness": 0.0,
-          "specularity": 1.0,
-          "anisotropy": 0.0,
-          "ior": 1.0
-        }
-      },
-      {
-        "type": "sphere",
-        "pos": {
-          "x": 2.0,
-          "y": 0.5,
-          "z": 0.0
-        },
-        "radius": 0.5,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
-          },
-          "roughness": 0.7,
-          "metalness": 0.0,
-          "specularity": 1.0,
-          "anisotropy": 0.0,
-          "ior": 1.0
-        }
-      },
-      {
-        "type": "sphere",
-        "pos": {
-          "x": 3.0,
-          "y": 0.5,
-          "z": 0.0
-        },
-        "radius": 0.5,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
-          },
-          "roughness": 0.8,
-          "metalness": 0.0,
-          "specularity": 1.0,
-          "anisotropy": 0.0,
-          "ior": 1.0
-        }
-      },
-      {
-        "type": "sphere",
-        "pos": {
-          "x": 4.0,
-          "y": 0.5,
-          "z": 0.0
-        },
-        "radius": 0.5,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
-          },
-          "roughness": 0.9,
-          "metalness": 0.0,
-          "specularity": 1.0,
-          "anisotropy": 0.0,
-          "ior": 1.0
-        }
-      },
-      {
-        "type": "sphere",
-        "pos": {
-          "x": 5.0,
-          "y": 0.5,
-          "z": 0.0
-        },
-        "radius": 0.5,
-        "Material type": "Default",
-        "Diffuse BSDF": "Earl Hammon GGX",
-        "Specular BSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
-          },
-          "roughness": 1.0,
-          "metalness": 0.0,
-          "specularity": 1.0,
-          "anisotropy": 0.0,
-          "ior": 1.0
-        }
-      }
+			{
+				"type": "sphere",
+				"pos": {
+					"x": -4.0,
+					"y": 0.5,
+					"z": 0.0
+				},
+				"radius": 0.5,
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
+				"material": {
+					"albedo": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"roughness": 0.1,
+					"metalness": 0.0,
+					"specularity": 1.0,
+					"anisotropy": 0.0,
+					"ior": 1.0
+				}
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": -3.0,
+					"y": 0.5,
+					"z": 0.0
+				},
+				"radius": 0.5,
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
+				"material": {
+					"albedo": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"roughness": 0.2,
+					"metalness": 0.0,
+					"specularity": 1.0,
+					"anisotropy": 0.0,
+					"ior": 1.0
+				}
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": -2.0,
+					"y": 0.5,
+					"z": 0.0
+				},
+				"radius": 0.5,
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
+				"material": {
+					"albedo": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"roughness": 0.3,
+					"metalness": 0.0,
+					"specularity": 1.0,
+					"anisotropy": 0.0,
+					"ior": 1.0
+				}
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": -1.0,
+					"y": 0.5,
+					"z": 0.0
+				},
+				"radius": 0.5,
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
+				"material": {
+					"albedo": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"roughness": 0.4,
+					"metalness": 0.0,
+					"specularity": 1.0,
+					"anisotropy": 0.0,
+					"ior": 1.0
+				}
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 0.0,
+					"y": 0.5,
+					"z": 0.0
+				},
+				"radius": 0.5,
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
+				"material": {
+					"albedo": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"roughness": 0.5,
+					"metalness": 0.0,
+					"specularity": 1.0,
+					"anisotropy": 0.0,
+					"ior": 1.0
+				}
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 1.0,
+					"y": 0.5,
+					"z": 0.0
+				},
+				"radius": 0.5,
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
+				"material": {
+					"albedo": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"roughness": 0.6,
+					"metalness": 0.0,
+					"specularity": 1.0,
+					"anisotropy": 0.0,
+					"ior": 1.0
+				}
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 2.0,
+					"y": 0.5,
+					"z": 0.0
+				},
+				"radius": 0.5,
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
+				"material": {
+					"albedo": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"roughness": 0.7,
+					"metalness": 0.0,
+					"specularity": 1.0,
+					"anisotropy": 0.0,
+					"ior": 1.0
+				}
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 3.0,
+					"y": 0.5,
+					"z": 0.0
+				},
+				"radius": 0.5,
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
+				"material": {
+					"albedo": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"roughness": 0.8,
+					"metalness": 0.0,
+					"specularity": 1.0,
+					"anisotropy": 0.0,
+					"ior": 1.0
+				}
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 4.0,
+					"y": 0.5,
+					"z": 0.0
+				},
+				"radius": 0.5,
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
+				"material": {
+					"albedo": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"roughness": 0.9,
+					"metalness": 0.0,
+					"specularity": 1.0,
+					"anisotropy": 0.0,
+					"ior": 1.0
+				}
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 5.0,
+					"y": 0.5,
+					"z": 0.0
+				},
+				"radius": 0.5,
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
+				"material": {
+					"albedo": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"roughness": 1.0,
+					"metalness": 0.0,
+					"specularity": 1.0,
+					"anisotropy": 0.0,
+					"ior": 1.0
+				}
+			}
 		],
     "meshes": [
     ]

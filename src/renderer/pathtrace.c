@@ -100,7 +100,8 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 
 				if (U1 < reflProb) {
 
-					//falloff = vec3_mul(falloff, vec3_muls(diffuse, 1.0f - specularity));
+					falloff = multiplyColors(falloff, colorCoef(diffuse, 1.0f - specularity));
+				} else if(isPureSpec || (rn > 0.5f && !isPureDiff)) {
 					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(isect.surfaceNormal, EPSILON));
 
 					// MIS sample using VNDF or NDF

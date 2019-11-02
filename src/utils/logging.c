@@ -41,6 +41,22 @@ void printPrefix(enum logType type) {
 	}
 }
 
+char *dateString() {
+	char *buf = malloc(20 * sizeof(char));
+	time_t curTime = time(NULL);
+	struct tm time = *localtime(&curTime);
+	sprintf(buf, "%d-%02d-%02d_%02d_%02d_%02d",
+			time.tm_year + 1900,
+			time.tm_mon + 1,
+			time.tm_mday,
+			time.tm_hour,
+			time.tm_min,
+			time.tm_sec);
+	
+	buf[19] = '\0';
+	return buf;
+}
+
 void printDate() {
 	time_t curTime = time(NULL);
 	struct tm time = *localtime(&curTime);

@@ -165,11 +165,11 @@ vec3 vecScale(const float c, const vec3 v) {
 	return (vec3){v.x * c, v.y * c, v.z * c};
 }
 
-vec2 vec2Scale(const float c, const vec2 crd) {
+vec2 coordScale(const float c, const vec2 crd) {
 	return (vec2){crd.x * c, crd.y * c};
 }
 
-vec2 addvec2s(const vec2 c1, const vec2 c2) {
+vec2 addCoords(const vec2 c1, const vec2 c2) {
 	return (vec2){c1.x + c2.x, c1.y + c2.y};
 }
 

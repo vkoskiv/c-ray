@@ -317,16 +317,14 @@ struct material *parseMaterial(const cJSON *data) {
 
 	if (cJSON_IsString(diffuseBSDF_JSON)) {
 		diffuseBSDF = getDiffuseBSDF_FromStr(diffuseBSDF_JSON->valuestring);
-	}
-	else {
+	} else {
 		logr(warning, "No diffuse BSDF given for material.");
 		logr(error, "Material data: %s\n", cJSON_Print(data));
 	}
 
 	if (cJSON_IsString(specularBSDF_JSON)) {
 		specularBSDF = getSpecularBSDF_FromStr(specularBSDF_JSON->valuestring);
-	}
-	else {
+	} else {
 		logr(warning, "No specular BSDF given for material.");
 		logr(error, "Material data: %s\n", cJSON_Print(data));
 	}
@@ -334,7 +332,7 @@ struct material *parseMaterial(const cJSON *data) {
 	setMaterialColor(mat, "albedo", *colorValue);
 
 	free(colorValue);
-	//assignBSDF(mat);
+	
 	return mat;
 }
 
@@ -875,17 +873,13 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 
 	if (cJSON_IsString(specularBSDF_JSON)) {
 		specularBSDF = getSpecularBSDF_FromStr(specularBSDF_JSON->valuestring);
-	}
-	else {
+	} else {
 		logr(warning, "Invalid specular BSDF while parsing mesh\n");
 	}
 
-	if (cJSON_IsString(materialType_JSON))
-	{
+	if (cJSON_IsString(materialType_JSON)) {
 		newSphere.material->type = getMaterialType_FromStr(materialType_JSON->valuestring);
-	}
-	else
-	{
+	} else {
 		newSphere.material->type = MATERIAL_TYPE_WARNING;
 	}
 
@@ -988,7 +982,11 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	
 	fileName = cJSON_GetObjectItem(data, "outputFileName");
 	if (cJSON_IsString(fileName)) {
-		copyString(fileName->valuestring, &r->state.image->fileName);
+		if (strcmp(fileName->valuestring, "") == 0) {
+			r->state.image->fileName = dateString();
+		} else {
+			copyString(fileName->valuestring, &r->state.image->fileName);
+		}
 	}
 	
 	count = cJSON_GetObjectItem(data, "count");
