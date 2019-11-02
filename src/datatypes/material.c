@@ -136,9 +136,8 @@ bool doesMaterialValueExist(struct material *self, const char *key) {
 }
 
 
-color colorForUV(struct texture *t, vec2 uv) {
+color colorForUV(struct texture *t, vec2 uv, struct poly p) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
-	struct poly p = polygonArray[isect->polyIndex];
 
 	//Texture width and height for this material
 	float width = *t->width;
