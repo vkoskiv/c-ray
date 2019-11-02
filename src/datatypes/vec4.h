@@ -2,10 +2,10 @@
 
 typedef union
 {
+	float e[4];
 	struct { float x, y, z, w; };
 	struct { float r, g, b, a; };
 	struct { float red, green, blue, alpha; };
-	float e[4];
 } vec4, float4;
 
 static const vec4 VEC4_ZERO = { 0.0f, 0.0f, 0.0f, 0.0 };

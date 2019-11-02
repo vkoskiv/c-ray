@@ -62,28 +62,6 @@ enum specularBSDF
 	SPECULAR_BSDF_ERIC_HEITZ_GGX_2018,
 };
 
-static enum diffuseBSDF getDiffuseBSDF_FromStr(const char* str)
-{
-	enum diffuseBSDF bsdf = DIFFUSE_BSDF_LAMBERT;
-
-	if      (!strcmp(str, "Lambert"))         bsdf = DIFFUSE_BSDF_LAMBERT;
-	else if (!strcmp(str, "Oren Neyar"))      bsdf = DIFFUSE_BSDF_OREN_NEYAR;
-	else if (!strcmp(str, "Earl Hammon GGX")) bsdf = DIFFUSE_BSDF_EARL_HAMMON_GGX;
-
-	return bsdf;
-}
-
-static enum specularBSDF getSpecularBSDF_FromStr(const char* str)
-{
-	enum specularBSDF bsdf = SPECULAR_BSDF_PHONG;
-
-	if      (!strcmp(str, "Phong"))               bsdf = SPECULAR_BSDF_PHONG;
-	else if (!strcmp(str, "Blinn-Phong"))         bsdf = SPECULAR_BLINN_PHONG;
-	else if (!strcmp(str, "Eric Heitz GGX 2018")) bsdf = SPECULAR_BSDF_ERIC_HEITZ_GGX_2018;
-
-	return bsdf;
-}
-
 enum materialType
 {
 	MATERIAL_TYPE_EMISSIVE,
@@ -91,24 +69,17 @@ enum materialType
 	MATERIAL_TYPE_WARNING
 };
 
-static enum materialType getMaterialType_FromStr(const char* str)
-{
-	enum materialType type = MATERIAL_TYPE_DEFAULT;
+enum materialType getMaterialType_FromStr(const char* str);
+enum diffuseBSDF getDiffuseBSDF_FromStr(const char* str);
+enum specularBSDF getSpecularBSDF_FromStr(const char* str);
 
-	if (!strcmp(str, "Emissive")) type = MATERIAL_TYPE_EMISSIVE;
-
-	return type;
-}
-
-struct materialBucket
-{
+struct materialBucket {
 	bool is_used;
 	void* value;
 	char* key;
 };
 
-struct material
-{
+struct material {
 	struct materialBucket* data;
 	uint64_t size;
 	enum materialType type;
@@ -120,9 +91,8 @@ struct material
 typedef vec3(*diffuseBSDF_Func)(struct material *p_mat, vec3 wo, vec3 wi);
 typedef vec3(*specularBSDF_Func)(struct material *p_mat, vec3 V, vec3 *p_Li, pcg32_random_t *p_rng);
 
-inline uint64_t hashDataToU64(uint8_t* data, size_t size)
-{
-	static const uint64_t FNV_offset_basis = 14695981039346656037;
+inline uint64_t hashDataToU64(uint8_t* data, size_t size) {
+	static const uint64_t FNV_offset_basis = 14695981039346656037U;
 	static const uint64_t FNV_prime = 1099511628211;
 
 	uint64_t hash = FNV_offset_basis;
@@ -147,12 +117,12 @@ float getMaterialFloat(struct material *self, const char *key);
 vec3 getMaterialVec3(struct material *self, const char *key);
 bool doesMaterialValueExist(struct material *self, const char *id);
 
-vec3 getAlbedo(struct material* p_mat);
+color getAlbedo(struct material* p_mat);
 void setMaterialColor(struct material* self, const char* key, color value);
 color getMaterialColor(struct material* self, const char* key);
 
 static const float INV_PI = 1.0f / PI;
 
 //bool LightingFunc(struct intersection* isect, vec3* attenuation, struct lightRay* scattered, pcg32_random_t* rng);
-vec3 lightingFuncDiffuse(struct material *p_mat, vec3 wo, vec3 wi);
-vec3 lightingFuncSpecular(struct material *p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng);
+color lightingFuncDiffuse(struct material *p_mat, vec3 wo, vec3 wi);
+color lightingFuncSpecular(struct material *p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng);

@@ -47,4 +47,4 @@ struct intersection {
 /// @param maxDepth Maximum depth of recursion
 /// @param rng A random number generator. One per execution thread.
 /// @param hasHitObject set to true if an object was hit in this pass
-vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, pcg32_random_t *rng, bool *hasHitObject);
+color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, pcg32_random_t *rng, bool *hasHitObject);

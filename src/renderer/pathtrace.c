@@ -42,31 +42,24 @@ bool IsPureDiff(struct material *p_mat)
 	return specularity <= 0.0f;
 }
 
-vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, pcg32_random_t *rng, bool *hasHitObject) {
+color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, pcg32_random_t *rng, bool *hasHitObject) {
 
-	vec3 col = VEC3_ZERO;
-	vec3 falloff = VEC3_ONE;
+	color col = blackColor;
+	color falloff = whiteColor;
 
-	for (int i = 0; i < maxDepth; ++i)
-	{
+	for (int i = 0; i < maxDepth; ++i) {
 		struct intersection isect;
 
-		if (getHit(&isect, incidentRay, scene))
-		{
+		if (getHit(&isect, incidentRay, scene)) {
 			vec3 wo, wi;
 			if (hasHitObject) *hasHitObject = true;
 			wo = vec3_negate(incidentRay->direction); // view direction from hitpoint
 
-			//float r = rec.distance;
-			//float alpha = 1.0f / (4.0f * PI * r * r); // inverse square law for light
-			
-			if (isect.end->type == MATERIAL_TYPE_EMISSIVE)
-			{
+			if (isect.end->type == MATERIAL_TYPE_EMISSIVE) {
 				col = getAlbedo(isect.end);
 				break;
 			}
-			else if (isect.end->type == MATERIAL_TYPE_DEFAULT)
-			{
+			else if (isect.end->type == MATERIAL_TYPE_DEFAULT) {
 				struct material* p_mat = isect.end;
 				float specularity = getMaterialFloat(p_mat, "specularity");
 				float metalness = getMaterialFloat(p_mat, "metalness");
@@ -76,10 +69,7 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 				vec3 T = vec3_normalize(vec3_cross((vec3) { N.y, N.x, N.z }, N)); // to prevent cross product being length 0
 				vec3 B = vec3_cross(N, T);
 
-				mat3 TBN = (mat3)
-				{
-					T, B, N
-				};
+				mat3 TBN = (mat3){.v = {T, B, N}};
 				mat3 invTBN = mat3_transpose(TBN);
 
 				wo = vec3_normalize(mat3_mul_vec3(invTBN, wo));
@@ -88,40 +78,35 @@ vec3 pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth, 
 				bool isPureDiff = IsPureDiff(p_mat);
 				bool isPureSpec = IsPureSpec(p_mat);
 
-				if (isPureDiff || (rn < 0.5f && !isPureSpec))
-				{
+				if (isPureDiff || (rn < 0.5f && !isPureSpec)) {
 					// Light incoming direction from hitpoint, random in normal direction
 					wi = vec3_normalize(vec3_add(RandomUnitSphere(rng), (vec3) {0.0f, 0.0f, 1.0f}));
 
 					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(N, EPSILON));
 					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
 
-					vec3 diffuse = lightingFuncDiffuse(p_mat, wo, wi);
+					color diffuse = lightingFuncDiffuse(p_mat, wo, wi);
 
-					falloff = vec3_mul(falloff, vec3_muls(diffuse, 1.0f - specularity));
-				}
-				else if(isPureSpec || (rn > 0.5f && !isPureDiff))
-				{
+					falloff = multiplyColors(falloff, colorCoef(diffuse, 1.0f - specularity));
+					//falloff = vec3_mul(falloff, vec3_muls(diffuse, 1.0f - specularity));
+				} else if(isPureSpec || (rn > 0.5f && !isPureDiff)) {
 					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(isect.surfaceNormal, EPSILON));
 
 					// MIS sample using VNDF or NDF
-					vec3 specular = lightingFuncSpecular(p_mat, wo, &wi, rng);
+					color specular = lightingFuncSpecular(p_mat, wo, &wi, rng);
 
 					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
 
-					falloff = vec3_mul(falloff, vec3_muls(specular, specularity));
+					falloff = multiplyColors(falloff, colorCoef(specular, specularity));
 				}
 			}
-		}
-		else
-		{
-			color bg = getBackground(incidentRay, scene);
-			col = (vec3){ bg.r, bg.g, bg.b };
+		} else {
+			col = getBackground(incidentRay, scene);
 			break;
 		}
 	}
 
-	return vec3_mul(col, falloff);
+	return multiplyColors(col, falloff);
 }
 
 //vec3 pathTrace(struct lightRay* incidentRay, struct world* scene, int depth, int maxDepth, pcg32_random_t* rng, bool* hasHitObject) {
@@ -183,11 +168,11 @@ bool getHit(struct intersection *rec, struct lightRay *incidentRay, struct world
 }
 
 float wrapMax(float x, float max) {
-    return fmod(max + fmod(x, max), max);
+	return fmod(max + fmod(x, max), max);
 }
 
 float wrapMinMax(float x, float min, float max) {
-    return min + wrapMax(x - min, max - min);
+	return min + wrapMax(x - min, max - min);
 }
 
 color getHDRI(struct lightRay *incidentRay, struct world *scene) {
@@ -217,7 +202,7 @@ color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 color getAmbientColor(struct lightRay *incidentRay, struct gradient *c) {
 	vec3 unitDirection = vecNormalize(incidentRay->direction);
 	float t = 0.5 * (unitDirection.y + 1.0);
-	return color_add(color_muls((*c).down, 1.0 - t), color_muls((*c).up, t));
+	return addColors(colorCoef((*c).down, 1.0 - t), colorCoef((*c).up, t));
 }
 
 color getBackground(struct lightRay *incidentRay, struct world *scene) {

@@ -4,6 +4,7 @@
 
 typedef union
 {
+	float data[3*3];
 	float3 v[3];
 	float e[3][3];
 } float3x3, mat3x3, mat3;

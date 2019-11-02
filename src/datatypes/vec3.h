@@ -10,10 +10,10 @@
 
 typedef union
 {
+	float e[3];
 	struct { float x, y, z; };
 	struct { float r, g, b; };
 	struct { float red, green, blue; };
-	float e[3];
 } vec3, float3;
 
 typedef struct
@@ -25,9 +25,6 @@ typedef struct
 {
 	int x, y;
 } ivec2;
-
-static const vec3 VEC3_ZERO = { 0.0f, 0.0f, 0.0f };
-static const vec3 VEC3_ONE = { 1.0f, 1.0f, 1.0f };
 
 vec3 vec3_mix(vec3 x0, vec3 x1, float t);
 vec3 vec3_mul(vec3 v1, vec3 v2);

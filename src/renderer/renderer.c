@@ -19,8 +19,6 @@
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
 
-color getPixel(struct renderer *r, int x, int y);
-
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 void render(struct renderer *r) {
@@ -203,20 +201,20 @@ void *renderThread(void *arg) {
 					color output = textureGetPixel(r->state.renderBuffer, x, y);
 					
 					//Get new sample (path tracing is initiated here)
-					vec3 sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, rng, &hasHitObject);
+					color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, rng, &hasHitObject);
 
 					freeMaterial(incidentRay.currentMedium);
 					
 					//And process the running average
-					output.r = output.r * (tile.completedSamples - 1);
-					output.g = output.g * (tile.completedSamples - 1);
-					output.b = output.b * (tile.completedSamples - 1);
+					output.red = output.red * (tile.completedSamples - 1);
+					output.green = output.green * (tile.completedSamples - 1);
+					output.blue = output.blue * (tile.completedSamples - 1);
 					
-					output = color_add(output, (color) { sample.r, sample.g, sample.b, 1.0f });
+					output = addColors(output, (color){ sample.red, sample.green, sample.blue, 1.0f });
 					
-					output.r = output.r / tile.completedSamples;
-					output.g = output.g / tile.completedSamples;
-					output.b = output.b / tile.completedSamples;
+					output.red = output.red / tile.completedSamples;
+					output.green = output.green / tile.completedSamples;
+					output.blue = output.blue / tile.completedSamples;
 					
 					//Store internal render buffer (float precision)
 					blit(r->state.renderBuffer, output, x, y);
@@ -297,16 +295,6 @@ struct renderer *newRenderer() {
 #endif
 
 	return r;
-}
-	
-//TODO: Refactor this to retrieve pixel from a given buffer, so we can reuse it for texture maps
-color getPixel(struct renderer *r, int x, int y) {
-	color output = {0.0f, 0.0f, 0.0f, 0.0f};
-	output.r = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 0];
-	output.g = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 1];
-	output.b = r->state.image->byte_data[(x + (*r->state.image->height - y) * *r->state.image->width)*3 + 2];
-	output.a = 1.0;
-	return output;
 }
 	
 void freeRenderer(struct renderer *r) {

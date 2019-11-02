@@ -12,9 +12,7 @@
 
 color textureGetPixel(struct texture *t, int x, int y);
 
-//Note how imageData only stores 8-bit precision for each color channel.
-//This is why we use the renderBuffer (blitfloat) for the running average as it just contains
-//the full precision color values
+//General-purpose blit function
 void blit(struct texture *t, color c, unsigned int x, unsigned int y) {
 	if ((x > *t->width-1) || y < 0) return;
 	if ((y > *t->height-1) || y < 0) return;
@@ -33,14 +31,8 @@ void blit(struct texture *t, color c, unsigned int x, unsigned int y) {
 	}
 }
 
-void blitfloat(float *buf, int width, int height, color*c, unsigned int x, unsigned int y) {
-	buf[(x + (height - y)*width)*3 + 0] = c->r;
-	buf[(x + (height - y)*width)*3 + 1] = c->g;
-	buf[(x + (height - y)*width)*3 + 2] = c->b;
-}
-
 color bilinearInterpolate(color topleft, color topright, color botleft, color botright, float tx, float ty) {
-	return color_mix(color_mix(topleft, topright, tx), color_mix(botleft, botright, tx), ty);
+	return mixColors(mixColors(topleft, topright, tx), mixColors(botleft, botright, tx), ty);
 }
 
 //Bilinearly interpolated (smoothed) output. Requires float precision, i.e. 0.0->width-1.0
@@ -74,14 +66,14 @@ color textureGetPixel(struct texture *t, int x, int y) {
 	y = y < 0 ? 0 : y;
 	
 	if (t->fileType == hdr || t->precision == float_p) {
-		output.r = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0];
-		output.g = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1];
-		output.b = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2];
-		output.a = t->hasAlpha ? t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 3] : 1.0;
+		output.red = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0];
+		output.green = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1];
+		output.blue = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2];
+		output.alpha = t->hasAlpha ? t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 3] : 1.0;
 	} else {
-		output.r = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0]/255.0;
-		output.g = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1]/255.0;
-		output.b = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2]/255.0;
+		output.red = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0]/255.0;
+		output.green = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1]/255.0;
+		output.blue = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2]/255.0;
 		output.alpha = t->hasAlpha ? t->byte_data[(x + (*t->height - y) * *t->width)*pitch + 3]/255.0 : 1.0;
 	}
 	

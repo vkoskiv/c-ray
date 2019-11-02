@@ -12,6 +12,7 @@
 #include "../renderer/pathtrace.h"
 #include "../datatypes/vertexbuffer.h"
 #include "../datatypes/texture.h"
+#include "../datatypes/vec3.h"
 
 // TODO: Make this dynamic
 static const uint64_t MATERIAL_TABLE_SIZE = 32;
@@ -94,6 +95,34 @@ void setMaterialColor(struct material* self, const char* key, color value) {
 	*(color*)p_bucket->value = value;
 }
 
+enum materialType getMaterialType_FromStr(const char* str) {
+	enum materialType type = MATERIAL_TYPE_DEFAULT;
+
+	if (!strcmp(str, "Emissive")) type = MATERIAL_TYPE_EMISSIVE;
+
+	return type;
+}
+
+enum diffuseBSDF getDiffuseBSDF_FromStr(const char* str) {
+	enum diffuseBSDF bsdf = DIFFUSE_BSDF_LAMBERT;
+
+	if      (!strcmp(str, "Lambert"))         bsdf = DIFFUSE_BSDF_LAMBERT;
+	else if (!strcmp(str, "Oren Neyar"))      bsdf = DIFFUSE_BSDF_OREN_NEYAR;
+	else if (!strcmp(str, "Earl Hammon GGX")) bsdf = DIFFUSE_BSDF_EARL_HAMMON_GGX;
+
+	return bsdf;
+}
+
+enum specularBSDF getSpecularBSDF_FromStr(const char* str) {
+	enum specularBSDF bsdf = SPECULAR_BSDF_PHONG;
+
+	if      (!strcmp(str, "Phong"))               bsdf = SPECULAR_BSDF_PHONG;
+	else if (!strcmp(str, "Blinn-Phong"))         bsdf = SPECULAR_BLINN_PHONG;
+	else if (!strcmp(str, "Eric Heitz GGX 2018")) bsdf = SPECULAR_BSDF_ERIC_HEITZ_GGX_2018;
+
+	return bsdf;
+}
+
 color getMaterialColor(struct material* self, const char* key) {
 	struct materialBucket* p_bucket = getMaterialBucketPtr(self, key);
 	if (p_bucket->is_used)
@@ -142,13 +171,12 @@ vec3 colorForUV(struct intersection* isect) {
 	return output;
 }
 */
-vec3 getAlbedo(struct material *p_mat) {
-	if (doesMaterialValueExist(p_mat, "albedo"))
-	{
+color getAlbedo(struct material *p_mat) {
+	if (doesMaterialValueExist(p_mat, "albedo")) {
 		color albedoColor = getMaterialColor(p_mat, "albedo");
-		return (vec3) { albedoColor.r, albedoColor.g, albedoColor.b };
+		return colorWithValues(albedoColor.red, albedoColor.green, albedoColor.blue, albedoColor.alpha);
 	}
-	else return (vec3) { 1.0f, 0.0f, 1.0f };
+	else return (color){1.0f, 0.0f, 1.0f, 1.0f};
 }
 
 
@@ -167,10 +195,10 @@ float rsqrt(float x)
 
 // Start defining BSDF functions
 
-vec3 diffuseLambert(struct material *p_mat, vec3 wo, vec3 wi) {
-	vec3 albedo = getAlbedo(p_mat);
+color diffuseLambert(struct material *p_mat, vec3 wo, vec3 wi) {
+	color albedo = getAlbedo(p_mat);
 	float dotNL = getCosTheta(wi);
-	return vec3_muls(albedo, max(dotNL, 0.0) * INV_PI);
+	return colorCoef(albedo, max(dotNL, 0.0) * INV_PI);
 }
 
 float EricHeitz2018GGXG1Lambda(vec3 V, float alpha_x, float alpha_y) {
@@ -201,8 +229,8 @@ float EricHeitz2018GGXG2(vec3 V, vec3 L, float alpha_x, float alpha_y) {
 	return EricHeitz2018GGXG1(V, alpha_x, alpha_y) * EricHeitz2018GGXG1(L, alpha_x, alpha_y);
 }
 
-vec3 SchlickFresnel(float NoX, vec3 F0) {
-	return vec3_add(F0, vec3_muls(vec3_sub(VEC3_ONE, F0), pow(1.0f - NoX, 5.0f)));
+color SchlickFresnel(float NoX, color F0) {
+	return addColors(F0, colorCoef(subtractColors(whiteColor, F0), pow(1.0f - NoX, 5.0f)));
 }
 
 // Input Ve: view direction
@@ -259,8 +287,8 @@ float EricHeitz2018GGX_Rho(vec3 V, vec3 L, float alpha_x, float alpha_y, float i
 }
 */
 
-vec3 specularEricHeitz2018GGX(struct material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
-	vec3 albedo = getAlbedo(p_mat);
+color specularEricHeitz2018GGX(struct material* p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
+	color albedo = getAlbedo(p_mat);
 	float roughness = getMaterialFloat(p_mat, "roughness");
 	float anisotropy = getMaterialFloat(p_mat, "anisotropy");
 	float metalness = getMaterialFloat(p_mat, "metalness");
@@ -276,32 +304,31 @@ vec3 specularEricHeitz2018GGX(struct material* p_mat, vec3 V, vec3* p_Li, pcg32_
 	vec3 N = EricHeitz2018GGXVNDF(V, alpha_x, alpha_y, U1, U2);
 	vec3 L = reflect(vec3_negate(V), N); // Li
 
-	vec3 H = vec3_normalize(vec3_add(L, V));
 	float dotVL = vec3_dot(V, L);
 
-	float F0_ = abs((1.0f - ior) / (1.0f + ior));
+	float F0_ = fabs((1.0f - ior) / (1.0f + ior));
 	F0_ = F0_* F0_;
-	vec3 F0 = vec3_mix((vec3) {F0_, F0_, F0_}, albedo, metalness);
+	color F0 = mixColors(colorWithValues(F0_, F0_, F0_, 0.0), albedo, metalness);
 
-	vec3 F = SchlickFresnel(fmaxf(dotVL, 0.0f), F0);
+	color F = SchlickFresnel(fmaxf(dotVL, 0.0f), F0);
 	float G2 = EricHeitz2018GGXG2(V, L, alpha_x, alpha_y);
 	float G1 = EricHeitz2018GGXG1(V, alpha_x, alpha_y);
 
-	vec3 I = vec3_divs(vec3_muls(F, G2), fmaxf(G1, 0.01f));
+	color I = colorDivCoef(colorCoef(F, G2), fmaxf(G1, 0.01f));
 
 	*p_Li = L;
 
 	return I;
 }
 
-vec3 diffuseEarlHammonGGX(struct material *p_mat, vec3 wo, vec3 wi) {
+color diffuseEarlHammonGGX(struct material *p_mat, vec3 wo, vec3 wi) {
 	float dotNV = getCosTheta(wo);
 	float dotNL = getCosTheta(wi);
 
 	// No light contribution if light or view isn't visible from surface
-	if (dotNV <= 0.0f || dotNL <= 0.0f) return VEC3_ZERO;
+	if (dotNV <= 0.0f || dotNL <= 0.0f) return blackColor;
 
-	vec3 albedo = getAlbedo(p_mat);
+	color albedo = getAlbedo(p_mat);
 	float roughness = getMaterialFloat(p_mat, "roughness");
 
 	vec3 wm = vec3_normalize(vec3_add(wo, wi));
@@ -317,27 +344,25 @@ vec3 diffuseEarlHammonGGX(struct material *p_mat, vec3 wo, vec3 wi) {
 	float single = INV_PI * (smoothy * (1.0f - alpha) + alpha * roughy);
 	float multi = alpha * 0.1159f;
 
-	return vec3_mul(albedo, vec3_adds(vec3_muls(albedo, multi), single));
+	return multiplyColors(albedo, colorAddCoef(colorCoef(albedo, multi), single));
 }
 
-vec3 lightingFuncDiffuse(struct material *p_mat, vec3 wo, vec3 wi) {
-	switch (p_mat->diffuseBSDF)
-	{
-		case DIFFUSE_BSDF_LAMBERT:
-		{
+color lightingFuncDiffuse(struct material *p_mat, vec3 wo, vec3 wi) {
+	switch (p_mat->diffuseBSDF)	{
+		case DIFFUSE_BSDF_LAMBERT: {
 			return diffuseLambert(p_mat, wo, wi);
 		}
-
-		case DIFFUSE_BSDF_EARL_HAMMON_GGX:
-		{
+		break;
+		case DIFFUSE_BSDF_EARL_HAMMON_GGX: {
 			return diffuseEarlHammonGGX(p_mat, wo, wi);
 		}
+		break;
 	}
 
-	return (vec3) { 1.0f, 0.0f, 1.0f };
+	return (color) {1.0f, 0.0f, 1.0f, 1.0f};
 }
 
-vec3 lightingFuncSpecular(struct material *p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
+color lightingFuncSpecular(struct material *p_mat, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
 	switch (p_mat->specularBSDF)
 	{
 		case SPECULAR_BSDF_ERIC_HEITZ_GGX_2018:
@@ -346,7 +371,7 @@ vec3 lightingFuncSpecular(struct material *p_mat, vec3 V, vec3* p_Li, pcg32_rand
 		}
 	}
 
-	return (vec3) { 1.0f, 0.0f, 1.0f };
+	return (color){1.0, 0.0, 1.0, 1.0};
 }
 
 //bool LightingFunc(struct intersection* isect, vec3* attenuation, struct lightRay* scattered, pcg32_random_t* rng)
