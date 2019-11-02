@@ -88,7 +88,6 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 					color diffuse = lightingFuncDiffuse(p_mat, wo, wi);
 
 					falloff = multiplyColors(falloff, colorCoef(diffuse, 1.0f - specularity));
-					//falloff = vec3_mul(falloff, vec3_muls(diffuse, 1.0f - specularity));
 				} else if(isPureSpec || (rn > 0.5f && !isPureDiff)) {
 					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(isect.surfaceNormal, EPSILON));
 
