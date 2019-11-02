@@ -973,7 +973,11 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	
 	fileName = cJSON_GetObjectItem(data, "outputFileName");
 	if (cJSON_IsString(fileName)) {
-		copyString(fileName->valuestring, &r->state.image->fileName);
+		if (strcmp(fileName->valuestring, "") == 0) {
+			r->state.image->fileName = dateString();
+		} else {
+			copyString(fileName->valuestring, &r->state.image->fileName);
+		}
 	}
 	
 	count = cJSON_GetObjectItem(data, "count");

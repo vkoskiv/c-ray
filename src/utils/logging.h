@@ -27,4 +27,6 @@ C-ray internal formatted logger.
 */
 void logr(enum logType type, const char *fmt, ...);
 
+char *dateString(void);
+
 void printStats(struct renderer *r, unsigned long long ms, unsigned long long samples, int thread);
