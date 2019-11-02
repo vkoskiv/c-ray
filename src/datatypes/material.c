@@ -135,34 +135,33 @@ bool doesMaterialValueExist(struct material *self, const char *key) {
 	return getMaterialBucketPtr(self, key)->is_used;
 }
 
-/*
-vec3 colorForUV(struct intersection* isect) {
-	struct color output = { 0.0,0.0,0.0,0.0 };
-	struct material mtl = isect->end;
+
+color colorForUV(struct texture *t, vec2 uv) {
+	struct color output = {0.0, 0.0, 0.0, 0.0};
 	struct poly p = polygonArray[isect->polyIndex];
 
 	//Texture width and height for this material
-	float width = *mtl.texture->width;
-	float heigh = *mtl.texture->height;
+	float width = *t->width;
+	float heigh = *t->height;
 
 	//barycentric coordinates for this polygon
-	float u = isect->uv.x;
-	float v = isect->uv.y;
+	float u = uv.x;
+	float v = uv.y;
 	float w = 1.0 - u - v;
 
 	//Weighted texture coordinates
-	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[1]]);
-	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[2]]);
-	struct coord wcomponent = coordScale(w, textureArray[p.textureIndex[0]]);
+	vec2 ucomponent = coordScale(u, textureArray[p.textureIndex[1]]);
+	vec2 vcomponent = coordScale(v, textureArray[p.textureIndex[2]]);
+	vec2 wcomponent = coordScale(w, textureArray[p.textureIndex[0]]);
 
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
-	struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
+	vec2 textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
 
 	float x = (textureXY.x * (width));
 	float y = (textureXY.y * (heigh));
 
 	//Get the color value at these XY coordinates
-	output = textureGetPixelFiltered(mtl.texture, x, y);
+	output = textureGetPixelFiltered(t, x, y);
 
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	//FIXME: Maybe ask lodepng if we actually need to do this transform
@@ -170,7 +169,6 @@ vec3 colorForUV(struct intersection* isect) {
 
 	return output;
 }
-*/
 color getAlbedo(struct material *p_mat) {
 	if (doesMaterialValueExist(p_mat, "albedo")) {
 		color albedoColor = getMaterialColor(p_mat, "albedo");
