@@ -203,16 +203,14 @@ void writeImage(struct texture *image, enum fileMode mode) {
 		case saveModeNormal: {
 			//Save image data to a file
 			char *buf = NULL;
-			
 			if (image->fileType == bmp){
 				asprintf(&buf, "%s%s_%04d.bmp", image->filePath, image->fileName, image->count);
-				logr(info, "Saving result in \"%s\"\n", buf);
 				encodeBMPFromArray(buf, image->byte_data, *image->width, *image->height);
 			} else if (image->fileType == png){
 				asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
-				logr(info, "Saving result in \"%s\"\n", buf);
 				encodePNGFromArray(buf, image->byte_data, *image->width, *image->height);
 			}
+			logr(info, "Saving result in \"%s\"\n", buf);
 			printFileSize(buf);
 			free(buf);
 		}

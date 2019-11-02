@@ -11,15 +11,19 @@
 
 //Some standard colours
 //TODO: Prefix these so it's obvious they are extern variables
-color redColor =   {1.0, 0.0, 0.0, 1.0};
-color greenColor = {0.0, 1.0, 0.0, 1.0};
-color blueColor =  {0.0, 0.0, 1.0, 1.0};
-color blackColor = {0.0, 0.0, 0.0, 1.0};
-color grayColor =  {0.5, 0.5, 0.5, 1.0};
-color whiteColor = {1.0, 1.0, 1.0, 1.0};
-color frameColor = {1.0, 0.5, 0.0, 1.0};
-color clearColor = {0.0, 0.0, 0.0, 0.0};
-color progColor  = {0.2549019608, 0.4509803922, 0.9607843137, 1.0};
+
+struct color redColor =   {1.0, 0.0, 0.0, 1.0};
+struct color greenColor = {0.0, 1.0, 0.0, 1.0};
+struct color blueColor =  {0.0, 0.0, 1.0, 1.0};
+struct color blackColor = {0.0, 0.0, 0.0, 1.0};
+struct color grayColor =  {0.5, 0.5, 0.5, 1.0};
+struct color whiteColor = {1.0, 1.0, 1.0, 1.0};
+struct color clearColor = {0.0, 0.0, 0.0, 0.0};
+
+//Colors for the SDL elements
+struct color backgroundColor = {0.1921568627, 0.2, 0.2117647059, 1.0};
+struct color frameColor = {1.0, 0.5, 0.0, 1.0};
+struct color progColor  = {0.2549019608, 0.4509803922, 0.9607843137, 1.0};
 
 //Color functions
 //Return a color with given values

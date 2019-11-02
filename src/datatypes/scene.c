@@ -1188,6 +1188,7 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	r->state.tileCount = quantizeImage(&tiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);
 	reorderTiles(&tiles, r->state.tileCount, r->prefs.tileOrder);
 	assignTiles(tiles, &r->state.renderTiles, r->state.tileCount, r->prefs.threadCount, &r->state.tileAmounts);
+	free(tiles);
 	
 	//Compute the focal length for the camera
 	computeFocalLength(r->scene->camera, *r->state.image->width);
@@ -1197,14 +1198,11 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	if (!r->state.image->byte_data) {
 		logr(error, "Failed to allocate memory for image data.");
 	}
-	r->state.image->hasAlpha = false;
 	
 	//Set a dark gray background for the render preview
-
-	color c = {49/255.0,51/255.0,54/255.0, 1.0};
 	for (int x = 0; x < *r->state.image->width; x++) {
 		for (int y = 0; y < *r->state.image->height; y++) {
-			blit(r->state.image, c, x, y);
+			blit(r->state.image, backgroundColor, x, y);
 		}
 	}
 	

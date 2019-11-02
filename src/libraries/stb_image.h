@@ -1489,7 +1489,7 @@ stbi_inline static int stbi__at_eof(stbi__context *s)
    return s->img_buffer >= s->img_buffer_end;
 }
 
-/*static void stbi__skip(stbi__context *s, int n)
+static void stbi__skip(stbi__context *s, int n)
 {
    if (n < 0) {
       s->img_buffer = s->img_buffer_end;
@@ -1504,7 +1504,7 @@ stbi_inline static int stbi__at_eof(stbi__context *s)
       }
    }
    s->img_buffer += n;
-}*/
+}
 
 static int stbi__getn(stbi__context *s, stbi_uc *buffer, int n)
 {
@@ -1530,17 +1530,17 @@ static int stbi__getn(stbi__context *s, stbi_uc *buffer, int n)
       return 0;
 }
 
-/*static int stbi__get16be(stbi__context *s)
+static int stbi__get16be(stbi__context *s)
 {
    int z = stbi__get8(s);
    return (z << 8) + stbi__get8(s);
-}*/
+}
 
-/*static stbi__uint32 stbi__get32be(stbi__context *s)
+static stbi__uint32 stbi__get32be(stbi__context *s)
 {
    stbi__uint32 z = stbi__get16be(s);
    return (z << 16) + stbi__get16be(s);
-}*/
+}
 
 #if defined(STBI_NO_BMP) && defined(STBI_NO_TGA) && defined(STBI_NO_GIF)
 // nothing
@@ -1574,12 +1574,12 @@ static stbi__uint32 stbi__get32le(stbi__context *s)
 //  assume data buffer is malloced, so malloc a new one and free that one
 //  only failure mode is malloc failing
 
-/*static stbi_uc stbi__compute_y(int r, int g, int b)
+static stbi_uc stbi__compute_y(int r, int g, int b)
 {
    return (stbi_uc) (((r*77) + (g*150) +  (29*b)) >> 8);
-}*/
+}
 
-/*static unsigned char *stbi__convert_format(unsigned char *data, int img_n, int req_comp, unsigned int x, unsigned int y)
+static unsigned char *stbi__convert_format(unsigned char *data, int img_n, int req_comp, unsigned int x, unsigned int y)
 {
    int i,j;
    unsigned char *good;
@@ -1621,14 +1621,14 @@ static stbi__uint32 stbi__get32le(stbi__context *s)
 
    STBI_FREE(data);
    return good;
-}*/
+}
 
-/*static stbi__uint16 stbi__compute_y_16(int r, int g, int b)
+static stbi__uint16 stbi__compute_y_16(int r, int g, int b)
 {
    return (stbi__uint16) (((r*77) + (g*150) +  (29*b)) >> 8);
-}*/
+}
 
-/*static stbi__uint16 *stbi__convert_format16(stbi__uint16 *data, int img_n, int req_comp, unsigned int x, unsigned int y)
+static stbi__uint16 *stbi__convert_format16(stbi__uint16 *data, int img_n, int req_comp, unsigned int x, unsigned int y)
 {
    int i,j;
    stbi__uint16 *good;
@@ -1670,7 +1670,7 @@ static stbi__uint32 stbi__get32le(stbi__context *s)
 
    STBI_FREE(data);
    return good;
-}*/
+}
 
 #ifndef STBI_NO_LINEAR
 static float   *stbi__ldr_to_hdr(stbi_uc *data, int x, int y, int comp)

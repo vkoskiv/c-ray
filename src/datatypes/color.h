@@ -22,15 +22,16 @@ struct gradient {
 };
 
 //Some standard colours
-extern color redColor;
-extern color greenColor;
-extern color blueColor;
-extern color blackColor;
-extern color grayColor;
-extern color whiteColor;
-extern color frameColor;
-extern color clearColor;
-extern color progColor;
+extern struct color redColor;
+extern struct color greenColor;
+extern struct color blueColor;
+extern struct color blackColor;
+extern struct color grayColor;
+extern struct color whiteColor;
+extern struct color frameColor;
+extern struct color clearColor;
+extern struct color progColor;
+extern struct color backgroundColor;
 
 //Return a color with given values
 color colorWithValues(float red, float green, float blue, float alpha);

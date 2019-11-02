@@ -13,11 +13,12 @@
 
 #include "../../datatypes/texture.h"
 
-#define STBI_ONLY_HDR
+#define STBI_NO_PSD
+#define STBI_NO_GIF
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../libraries/stb_image.h"
 
-//This is a bit of a hack, my vec2inate space is inverted.
+//This is to compensate for the non-standard coordinate system handedness
 struct texture *flipHorizontal(struct texture *t) {
 	struct texture *new = newTexture();
 	allocTextureBuffer(new, t->precision, *t->width, *t->height, *t->channels);
@@ -41,19 +42,16 @@ struct texture *flipHorizontal(struct texture *t) {
 	return new;
 }
 
-//TODO: Detect and support other file formats, like TIFF, JPEG and BMP
-//Currently supports: PNG, HDR
 struct texture *loadTexture(char *filePath) {
 	struct texture *new = newTexture();
 	copyString(filePath, &new->filePath);
 	//Handle the trailing newline here
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
-	//FIXME: Ignoring alpha here, and set hasAlpha to false before for now
 	
 	if (stbi_is_hdr(filePath)) {
 		new->fileType = hdr;
-		new->float_data = stbi_loadf(filePath, (int*)new->width, (int*)new->height, new->channels, 0);
+		new->float_data = stbi_loadf(filePath, (int *)new->width, (int *)new->height, new->channels, 0);
 		new->precision = float_p;
 		if (!new->float_data) {
 			freeTexture(new);
@@ -65,15 +63,14 @@ struct texture *loadTexture(char *filePath) {
 			logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, *new->channels);
 		}
 	} else {
-		int err = (int)lodepng_decode24_file(&new->byte_data, new->width, new->height, filePath);
-		if (err != 0) {
-			logr(warning, "Texture loading error at %s: %s\n", filePath, lodepng_error_text(err));
+		new->byte_data = stbi_load(filePath, (int *)new->width, (int *)new->height, new->channels, 3);
+		if (!new->byte_data) {
+			logr(warning, "Error while loading texture from %s - Does the file exist?\n", filePath);
 			freeTexture(new);
 			free(new);
 			return NULL;
 		}
-		*new->channels = 3;
-		new->fileType = png;
+		new->fileType = buffer;
 		new = flipHorizontal(new);
 		new->precision = char_p;
 	}
