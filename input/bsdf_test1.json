@@ -42,7 +42,7 @@
 		"width": 1280,
 		"height": 720,
 		"ambientColor": {
-			"hdr": "input/HDRs/adams_place_bridge_1k.hdr",
+			"hdr": "input/HDRs/winter_evening_16k.hdr",
 			"offset": 0,
 			"down": {
 				"r": 0.0,
@@ -64,9 +64,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
@@ -88,9 +88,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
@@ -112,9 +112,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
@@ -136,9 +136,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
@@ -160,9 +160,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
@@ -184,9 +184,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
@@ -208,9 +208,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
@@ -232,9 +232,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
@@ -256,9 +256,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
@@ -280,9 +280,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
@@ -304,9 +304,9 @@
 					"z": 0.0
 				},
 				"radius": 0.5,
-				"Material type": "Default",
-				"Diffuse BSDF": "Earl Hammon GGX",
-				"Specular BSDF": "Eric Heitz GGX 2018",
+				"materialType": "Default",
+				"diffuseBSDF": "Earl Hammon GGX",
+				"specularBSDF": "Eric Heitz GGX 2018",
 				"material": {
 					"albedo": {
 						"r": 1.0,
