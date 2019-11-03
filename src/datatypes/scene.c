@@ -1064,7 +1064,9 @@ int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 	if (fromStdin) {
 		buf = input;
 	} else {
-		buf = loadFile(input);
+		size_t bytes = 0;
+		buf = loadFile(input, &bytes);
+		logr(info, "%zi bytes of input JSON loaded from file, parsing.\n", bytes);
 	}
 	
 	cJSON *json = cJSON_Parse(buf);

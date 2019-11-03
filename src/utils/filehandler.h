@@ -17,7 +17,7 @@ void printFileSize(char *fileName);
 //Writes image data to file
 void writeImage(struct texture *image, enum fileMode mode);
 
-char *loadFile(char *inputFileName);
+char *loadFile(char *inputFileName, size_t *bytes);
 
 char *readStdin(void);
 
