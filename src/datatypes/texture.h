@@ -56,3 +56,6 @@ void textureFromSRGB(struct texture *t);
 void textureToSRGB(struct texture *t);
 
 void freeTexture(struct texture *tex);
+
+
+void blurTextureGaussian(struct texture* dst, struct texture* src, unsigned int kernelSize, float stdDev, bool doWrap);

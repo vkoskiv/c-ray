@@ -71,7 +71,7 @@ struct texture *loadTexture(char *filePath) {
 			return NULL;
 		}
 		new->fileType = buffer;
-		new = flipHorizontal(new);
+		//new = flipHorizontal(new);
 		new->precision = char_p;
 	}
 	

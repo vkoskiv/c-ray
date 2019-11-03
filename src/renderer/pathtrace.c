@@ -76,21 +76,24 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 
 				wo = vec3_normalize(mat3_mul_vec3(invTBN, wo));
 
-				// polygon
-				struct poly p = polygonArray[isect.polyIndex];
+				vec2 uv = (vec2){ 0.0f, 0.0f };
+				if (isect.type == hitTypePolygon)
+				{
+					// polygon
+					struct poly p = polygonArray[isect.polyIndex];
 
-				// barycentric coordinates for this polygon
-				float uf = isect.uv.x;
-				float vf = isect.uv.y;
-				float wf = 1.0f - uf - vf;
+					// barycentric coordinates for this polygon
+					float uf = isect.uv.x;
+					float vf = isect.uv.y;
+					float wf = 1.0f - uf - vf;
 
-				// Weighted texture coordinates
-				vec2 u = coordScale(uf, textureArray[p.textureIndex[1]]);
-				vec2 v = coordScale(vf, textureArray[p.textureIndex[2]]);
-				vec2 w = coordScale(wf, textureArray[p.textureIndex[0]]);
+					// Weighted texture coordinates
+					vec2 u = coordScale(uf, textureArray[p.textureIndex[1]]);
+					vec2 v = coordScale(vf, textureArray[p.textureIndex[2]]);
+					vec2 w = coordScale(wf, textureArray[p.textureIndex[0]]);
 
-				// textureXY = u * v1tex + v * v2tex + w * v3tex
-				vec2 uv = addCoords(addCoords(u, v), w);
+					uv = addCoords(addCoords(u, v), w);
+				}				
 
 				float U1 = rndFloat(0.0f, 1.0f, p_rng);
 				bool isPureDiff = IsPureDiff(p_mat);
@@ -124,7 +127,7 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 				}
 			}
 		} else {
-			col = getBackground(incidentRay, scene);
+			col = getBackground(incidentRay, scene, i);
 			break;
 		}
 	}
@@ -198,7 +201,7 @@ float wrapMinMax(float x, float min, float max) {
 	return min + wrapMax(x - min, max - min);
 }
 
-color getHDRI(struct lightRay *incidentRay, struct world *scene) {
+color getHDRI(struct lightRay *incidentRay, struct world *scene, int index) {
 	//Unit direction vector
 	vec3 ud = vecNormalize(incidentRay->direction);
 	
@@ -216,7 +219,7 @@ color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 	float x =  (v * *scene->hdr->width);
 	float y = (u * *scene->hdr->height);
 	
-	color newColor = textureGetPixelFiltered(scene->hdr, x, y);
+	color newColor = textureGetPixelFiltered(!index ? scene->hdrBlurred : scene->hdr, x, y);
 	
 	return newColor;
 }
@@ -228,6 +231,6 @@ color getAmbientColor(struct lightRay *incidentRay, struct gradient *c) {
 	return addColors(colorCoef((*c).down, 1.0 - t), colorCoef((*c).up, t));
 }
 
-color getBackground(struct lightRay *incidentRay, struct world *scene) {
-	return scene->hdr ? getHDRI(incidentRay, scene) : getAmbientColor(incidentRay, scene->ambientColor);
+color getBackground(struct lightRay *incidentRay, struct world *scene, int index) {
+	return scene->hdr ? getHDRI(incidentRay, scene, index) : getAmbientColor(incidentRay, scene->ambientColor);
 }

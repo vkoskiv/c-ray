@@ -5,8 +5,8 @@
     "sampleCount": 64,
     "bounces": 8,
     "antialiasing": true,
-    "tileWidth": 64,
-    "tileHeight": 64,
+    "tileWidth": 320,
+    "tileHeight": 720,
     "tileOrder": "normal"
   },
   "display": {
@@ -38,7 +38,7 @@
     "width": 1280,
     "height": 720,
     "ambientColor": {
-      "hdr": "input/HDRs/lebombo_1k.hdr",
+      "hdr": "input/HDRs/epping_forest_02_1k.hdr",
       "offset": 0,
       "down": {
         "r": 1.0,
@@ -65,8 +65,8 @@
             "g": 0.637,
             "b": 0.538
           },
-          "roughness": 0.6,
-          "metalness": 1.0,
+          "roughness": 0.4,
+          "metalness": 0.8,
           "specularity": 0.95,
           "anisotropy": 0.0,
           "ior": 1.1
@@ -95,9 +95,9 @@
             "g": 0.337,
             "b": 0.259
           },
-          "roughness": 0.6,
+          "roughness": 0.8,
           "metalness": 0.0,
-          "specularity": 0.25,
+          "specularity": 0.2,
           "anisotropy": 0.0,
           "ior": 1.5
         },
@@ -108,7 +108,7 @@
           },
           {
             "type": "translate",
-            "x": 0.5,
+            "x": 0.6,
             "y": 0.0,
             "z": 0.6
           }
@@ -125,6 +125,7 @@
             "g": 1.0,
             "b": 1.0
           },
+          "albedoTexture": "input/girl.jpg",
           "roughness": 1.0,
           "metalness": 0.0,
           "specularity": 0.0,
@@ -137,37 +138,6 @@
             "x": 0.0,
             "y": 0.0,
             "z": 0.5
-          }
-        ]
-      },
-      {
-        "fileName": "input/duck.obj",
-        "materialType": "Default",
-        "diffuseBSDF": "Earl Hammon GGX",
-        "specularBSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 1.0,
-            "b": 1.0
-          },
-          "albedoTexture": "input/duckAlbedo.jpg",
-          "roughness": 1.0,
-          "metalness": 0.0,
-          "specularity": 0.0,
-          "anisotropy": 0.0,
-          "ior": 1.0
-        },
-        "transforms": [
-          {
-            "type": "rotateY",
-            "degrees": 60
-          },
-          {
-            "type": "translate",
-            "x": 0.0,
-            "y": 0.0,
-            "z": -0.5
           }
         ]
       },
@@ -212,7 +182,7 @@
             "g": 1.0,
             "b": 1.0
           },
-          "roughness": 0.0,
+          "roughness": 1.0,
           "metalness": 0.0,
           "specularity": 0.0,
           "anisotropy": 0.0,
@@ -233,9 +203,9 @@
         "specularBSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
-            "r": 20,
-            "g": 18,
-            "b": 14
+            "r": 25,
+            "g": 22,
+            "b": 20
           },
           "roughness": 0.0,
           "metalness": 0.0,
@@ -246,7 +216,7 @@
         "transforms": [
           {
             "type": "scaleUniform",
-            "scale": 0.2
+            "scale": 0.36
           },
           {
             "type": "translate",

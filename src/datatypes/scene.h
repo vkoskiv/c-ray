@@ -24,7 +24,8 @@ struct world {
 	struct gradient *ambientColor;
 	
 	//Optional environment map
-	struct texture *hdr;
+	struct texture* hdr;
+	struct texture* hdrBlurred;
 	
 	//3D models
 	struct mesh *meshes;

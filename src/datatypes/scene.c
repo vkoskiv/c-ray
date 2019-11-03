@@ -706,12 +706,23 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	hdr = cJSON_GetObjectItem(data, "hdr");
 	if (cJSON_IsString(hdr)) {
 		r->scene->hdr = loadTexture(hdr->valuestring);
+
+		logr(info, "%s\n", "Making blurred copy of HDR texture");
+		int width = *r->scene->hdr->width;
+		int height = *r->scene->hdr->height;
+		int channels = *r->scene->hdr->channels;
+
+		r->scene->hdrBlurred = newTexture();
+		allocTextureBuffer(r->scene->hdrBlurred, r->scene->hdr->precision, width, height, channels);
+
+		blurTextureGaussian(r->scene->hdrBlurred, r->scene->hdr, 10, 10.0f, true);
 	}
 	
 	offset = cJSON_GetObjectItem(data, "offset");
 	if (cJSON_IsNumber(offset)) {
 		if (r->scene->hdr) {
-			r->scene->hdr->offset = toRadians(offset->valuedouble)/4;
+			r->scene->hdr->offset = toRadians(offset->valuedouble) / 4;
+			r->scene->hdrBlurred->offset = toRadians(offset->valuedouble) / 4;
 		}
 	}
 	
@@ -1066,9 +1077,9 @@ int parseScene(struct renderer *r, const cJSON *data) {
 int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 	
 	/*
-	 Note: Since we are freeing the JSON data (and its' pointers) after parsing,
-	 we need to *copy* all dynamically allocated strings with the copyString() function.
-	 */
+		Note: Since we are freeing the JSON data (and its' pointers) after parsing,
+		we need to *copy* all dynamically allocated strings with the copyString() function.
+	*/
 	
 	char *buf = NULL;
 	

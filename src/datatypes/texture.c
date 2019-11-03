@@ -155,3 +155,54 @@ void freeTexture(struct texture *t) {
 		free(t->height);
 	}
 }
+
+float gaussian(float x, float y, float rho)
+{
+	float rho2 = rho * rho;
+	return 1.0f / ((M_PI + M_PI) * rho2) * exp( -(x*x + y*y)/(rho2 + rho2) );
+}
+
+void blurTextureGaussian(struct texture* dst, struct texture* src, unsigned int kernelSize, float stdDev, bool doWrap) {
+	// Gaussian blur over whole image
+
+	int w = *dst->width, h = *dst->height;
+
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			// Assume we're working with float data
+			color newColor = blackColor;
+
+			for (int gy = 0; gy < kernelSize; ++gy)
+			{
+				for (int gx = 0; gx < kernelSize; ++gx)
+				{
+					// sx, sy : real sampling location
+					float sx = (float)x + (gx - (float)(kernelSize)*0.5f), sy = (float)y + (gy - (float)(kernelSize)*0.5f);
+
+					if (doWrap)
+					{
+						sx = fmodf(sx, (float)w);
+						sy = fmodf(sy, (float)h);
+					}
+
+					// u, v : [0;1]
+					float u = (float)gx / (float)(kernelSize);
+					float v = (float)gy / (float)(kernelSize);
+
+					// px, py [-1;+1]
+					float px = v * 2.0f - 1.0f;
+					float py = v * 2.0f - 1.0f;
+
+					float g = gaussian(px, py, stdDev);
+					color colorSample = textureGetPixelFiltered(src, sx, sy);
+
+					newColor = addColors(newColor, colorCoef(colorSample, g));
+				}
+			}
+
+			blit(dst, newColor, x, y);
+		}
+	}
+}
