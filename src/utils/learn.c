@@ -36,7 +36,9 @@ void createModel(char *filePath);
 
 //Load metadata for model from JSON file
 int loadMetaData(struct model *model, char *filePath) {
-	char *buf = loadFile(filePath);
+	size_t bytes = 0;
+	char *buf = loadFile(filePath, &bytes);
+	logr(info, "%zi bytes of input loaded from file, parsing.\n", bytes);
 	cJSON *json = cJSON_Parse(buf);
 	free(buf);
 	if (json == NULL) {

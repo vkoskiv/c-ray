@@ -84,7 +84,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 }
 
 //TODO: Use this for textures and HDRs too.
-char *loadFile(char *inputFileName) {
+char *loadFile(char *inputFileName, size_t *bytes) {
 	FILE *f = fopen(inputFileName, "rb");
 	if (!f) {
 		logr(error, "No file found at %s\n", inputFileName);
@@ -94,11 +94,13 @@ char *loadFile(char *inputFileName) {
 	size_t len;
 	size_t bytesRead = getDelim(&buf, &len, '\0', f);
 	if (bytesRead != -1) {
-		logr(info, "%zi bytes of input JSON loaded from file, parsing.\n", bytesRead);
+		if (bytes) *bytes = bytesRead;
 	} else {
-		logr(warning, "Failed to read input JSON from %s", inputFileName);
+		logr(warning, "Failed to read input file from %s", inputFileName);
+		fclose(f);
 		return NULL;
 	}
+	fclose(f);
 	return buf;
 }
 
