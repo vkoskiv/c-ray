@@ -93,11 +93,13 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 					T = vec3_normalize(vec3_cross((vec3) { N.y, N.x, N.z }, N)); // To prevent cross product being length 0
 					B = vec3_cross(N, T);
 				}
-
-				falloff.red = uv.x;//T.x*0.5+0.5;
-				falloff.green = uv.y;//T.y*0.5+0.5;
-				falloff.blue = 0.0f;// T.z * 0.5 + 0.5;
+				/*
+				col.red = B.x*0.5+0.5;
+				col.green = B.y*0.5+0.5;
+				col.blue = B.z * 0.5f + 0.5f;
+				col.alpha = 1.0f;
 				break;
+				*/
 
 				mat3 TBN = (mat3){ .v = {T, B, N} };
 				mat3 invTBN = mat3_transpose(TBN);

@@ -172,7 +172,9 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 			r->scene->meshes[r->scene->meshCount].firstTextureIndex,
 			r->scene->meshes[r->scene->meshCount].firstPolyIndex + i);
 
-		calculatePolyTangentAndBitangent(&p);
+		if (p.hasUVs) {
+			calculatePolyTangentAndBitangent(&p);
+		}
 
 		polygonArray[r->scene->meshes[r->scene->meshCount].firstPolyIndex + i] = p;
 	}

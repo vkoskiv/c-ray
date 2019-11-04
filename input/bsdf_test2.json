@@ -38,6 +38,7 @@
     "width": 1280,
     "height": 720,
     "ambientColor": {
+      "hdr": "input/HDRs/epping_forest_02_1k.hdr",
       "offset": 0,
       "down": {
         "r": 0.0,
@@ -137,36 +138,6 @@
             "x": 0.0,
             "y": 0.0,
             "z": 0.5
-          }
-        ]
-      },
-      {
-        "fileName": "input/ghandi.obj",
-        "materialType": "Default",
-        "diffuseBSDF": "Earl Hammon GGX",
-        "specularBSDF": "Eric Heitz GGX 2018",
-        "material": {
-          "albedo": {
-            "r": 1.0,
-            "g": 0.765,
-            "b": 0.336
-          },
-          "roughness": 0.1,
-          "metalness": 1.0,
-          "specularity": 0.7,
-          "anisotropy": 0.0,
-          "ior": 0.47
-        },
-        "transforms": [
-          {
-            "type": "rotateY",
-            "degrees": 25
-          },
-          {
-            "type": "translate",
-            "x": -0.5,
-            "y": 0.0,
-            "z": 0.2
           }
         ]
       },
