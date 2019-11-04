@@ -167,8 +167,12 @@ struct vector getMidPoint(struct vector v1, struct vector v2, struct vector v3) 
  @param max Maximum value
  @return Random float between min and max
  */
-float rndFloat(float min, float max, pcg32_random_t *rng) {
+float rndFloatRange(float min, float max, pcg32_random_t *rng) {
 	return (((float)pcg32_random_r(rng) / (float)UINT32_MAX) * (max - min)) + min;
+}
+
+float rndFloat(pcg32_random_t *rng) {
+	return (1.0 / (1ull << 32)) * pcg32_random_r(rng);
 }
 
 /**
@@ -179,9 +183,9 @@ float rndFloat(float min, float max, pcg32_random_t *rng) {
  @return Vector of a random position within a radius of center point
  */
 struct vector getRandomVecOnRadius(struct vector center, float radius, pcg32_random_t *rng) {
-	return vecWithPos(center.x + rndFloat(-radius, radius, rng),
-					  center.y + rndFloat(-radius, radius, rng),
-					  center.z + rndFloat(-radius, radius, rng));
+	return vecWithPos(center.x + rndFloatRange(-radius, radius, rng),
+					  center.y + rndFloatRange(-radius, radius, rng),
+					  center.z + rndFloatRange(-radius, radius, rng));
 }
 
 /**
@@ -193,8 +197,8 @@ struct vector getRandomVecOnRadius(struct vector center, float radius, pcg32_ran
  */
 struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_random_t *rng) {
 	//FIXME: This only works in one orientation!
-	return vecWithPos(center.x + rndFloat(-radius, radius, rng),
-						 center.y + rndFloat(-radius, radius, rng),
+	return vecWithPos(center.x + rndFloatRange(-radius, radius, rng),
+						 center.y + rndFloatRange(-radius, radius, rng),
 						 center.z);
 }
 

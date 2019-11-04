@@ -109,6 +109,13 @@ void render(struct renderer *r) {
 	}
 }
 
+uint64_t hash(uint64_t x) {
+	x = (x ^ (x >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
+	x = (x ^ (x >> 27)) * UINT64_C(0x94d049bb133111eb);
+	x = x ^ (x >> 31);
+	return x;
+}
+
 /**
  A render thread
  
@@ -120,23 +127,19 @@ DWORD WINAPI renderThread(LPVOID arg) {
 #else
 void *renderThread(void *arg) {
 #endif
-	//First time setup for each thread
 	struct lightRay incidentRay;
 	struct threadState *tinfo = (struct threadState*)arg;
 	
 	struct renderer *r = tinfo->r;
 	pcg32_random_t *rng = &tinfo->r->state.rngs[tinfo->thread_num];
 	
-	int currentTileIndex = 0;
-	struct renderTile *tiles = r->state.renderTiles[tinfo->thread_num];
-	struct renderTile tile = tiles[currentTileIndex];
-	tiles[currentTileIndex].isRendering = true;
+	//First time setup for each thread
+	struct renderTile tile = getTile(r);
 	tinfo->currentTileNum = tile.tileNum;
-	tinfo->currentTileIdx = currentTileIndex;
 	
 	bool hasHitObject = false;
 	
-	while (currentTileIndex < r->state.tileAmounts[tinfo->thread_num] && r->state.isRendering) {
+	while (tile.tileNum != -1 && r->state.isRendering) {
 		unsigned long long sleepMs = 0;
 		startTimer(&r->state.timers[tinfo->thread_num]);
 		hasHitObject = false;
@@ -145,14 +148,18 @@ void *renderThread(void *arg) {
 			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					
+					uint64_t pixIdx = y * *r->state.image->width + x;
+					uint64_t idx = pixIdx * r->prefs.sampleCount + tile.completedSamples;
+					pcg32_srandom_r(rng, hash(idx), 0);
+					
 					float fracX = (float)x;
 					float fracY = (float)y;
 					
 					//A cheap 'antialiasing' of sorts. The more samples, the better this works
 					float jitter = 0.25;
 					if (r->prefs.antialiasing) {
-						fracX = rndFloat(fracX - jitter, fracX + jitter, rng);
-						fracY = rndFloat(fracY - jitter, fracY + jitter, rng);
+						fracX = rndFloatRange(fracX - jitter, fracX + jitter, rng);
+						fracY = rndFloatRange(fracY - jitter, fracY + jitter, rng);
 					}
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
@@ -178,9 +185,15 @@ void *renderThread(void *arg) {
 					if (aperture <= 0.0) {
 						incidentRay.start = startPos;
 					} else {
+<<<<<<< HEAD
 						float randY = rndFloat(-aperture, aperture, rng);
 						float randX = rndFloat(-aperture, aperture, rng);
 						struct vector randomStart = vecAdd(vecAdd(startPos, vecScale(randY, up)), vecScale(randX, left));
+=======
+						float randY = rndFloatRange(-aperture, aperture, rng);
+						float randX = rndFloatRange(-aperture, aperture, rng);
+						vec3 randomStart = vec3_add(vec3_add(startPos, vec3_muls(up, randY)), vec3_muls(left, randX));
+>>>>>>> 2cb7e7c... Undo render tile preallocation commit. It caused a performance regression.
 						
 						incidentRay.start = randomStart;
 					}
@@ -229,17 +242,14 @@ void *renderThread(void *arg) {
 				sleepMs += 100;
 			}
 		}
-		tiles[currentTileIndex++].isRendering = false;
 		//Tile has finished rendering, get a new one and start rendering it.
+		r->state.renderTiles[tile.tileNum].isRendering = false;
+		r->state.renderTiles[tile.tileNum].renderComplete = true;
 		tinfo->currentTileNum = -1;
-		tinfo->currentTileIdx = -1;
 		tinfo->completedSamples = 0;
 		unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
-		tile = tiles[currentTileIndex];
-		tiles[currentTileIndex].isRendering = true;
-		tinfo->finishedTileCount++;
+		tile = getTile(r);
 		tinfo->currentTileNum = tile.tileNum;
-		tinfo->currentTileIdx = currentTileIndex;
 		unsigned long long duration = endTimer(&r->state.timers[tinfo->thread_num]);
 		if (sleepMs > 0) {
 			duration -= sleepMs;
@@ -249,7 +259,6 @@ void *renderThread(void *arg) {
 	//No more tiles to render, exit thread. (render done)
 	tinfo->threadComplete = true;
 	tinfo->currentTileNum = -1;
-	tinfo->currentTileIdx = -1;
 #ifdef WINDOWS
 	return 0;
 #else
@@ -283,9 +292,9 @@ struct renderer *newRenderer() {
 	
 	//Mutex
 #ifdef _WIN32
-	r->state.statsMutex = CreateMutex(NULL, FALSE, NULL);
+	r->state.tileMutex = CreateMutex(NULL, FALSE, NULL);
 #else
-	r->state.statsMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+	r->state.tileMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 #endif
 	return r;
 }

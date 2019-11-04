@@ -98,10 +98,11 @@ void smartTime(unsigned long long milliseconds, char *buf) {
  @param remainingTileCount Tiles remaining to render, to compute estimated remaining render time.
  */
 void printStatistics(struct renderer *r, int thread, float kSamplesPerSecond) {
-	int finishedTileCount = 0;
-	for (int t = 0; t < r->prefs.threadCount; t++) {
+	//FIXME: Re-implement per-thread finishedTileCount, this will race
+	int finishedTileCount = r->state.finishedTileCount;
+	/*for (int t = 0; t < r->prefs.threadCount; t++) {
 		finishedTileCount += r->state.threadStates[t].finishedTileCount;
-	}
+	}*/
 	
 	int remainingTileCount = r->state.tileCount - finishedTileCount;
 	unsigned long long remainingTimeMilliseconds = (remainingTileCount * r->state.avgTileTime) / r->prefs.threadCount;
@@ -138,14 +139,14 @@ void computeStatistics(struct renderer *r, int thread, unsigned long long millis
 
 void printStats(struct renderer *r, unsigned long long ms, unsigned long long samples, int thread) {
 #ifdef WINDOWS
-	WaitForSingleObject(r->state.statsMutex, INFINITE);
+	WaitForSingleObject(r->state.tileMutex, INFINITE);
 #else
-	pthread_mutex_lock(&r->state.statsMutex);
+	pthread_mutex_lock(&r->state.tileMutex);
 #endif
 	computeStatistics(r, thread, ms, samples);
 #ifdef WINDOWS
-	ReleaseMutex(r->state.statsMutex);
+	ReleaseMutex(r->state.tileMutex);
 #else
-	pthread_mutex_unlock(&r->state.statsMutex);
+	pthread_mutex_unlock(&r->state.tileMutex);
 #endif
 }
