@@ -314,8 +314,8 @@ color specularEricHeitz2018GGX(struct material* p_mat, vec3 V, vec3* p_Li, pcg32
 	float alpha_x = alpha * aspect;
 	float alpha_y = alpha / aspect;
 
-	float U1 = rndFloat(0.0f, 1.0f, p_rng);
-	float U2 = rndFloat(0.0f, 1.0f, p_rng);
+	float U1 = rndFloat(p_rng);
+	float U2 = rndFloat(p_rng);
 	vec3 N = EricHeitz2018GGXVNDF(V, alpha_x, alpha_y, U1, U2);
 	vec3 L = reflect(vec3_negate(V), N); // Li
 

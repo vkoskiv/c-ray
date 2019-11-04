@@ -23,7 +23,7 @@ color getBackground(struct lightRay *incidentRay, struct world *scene);
 vec3 RandomUnitSphere(pcg32_random_t* rng) {
 	vec3 vec = (vec3){ 0.0f, 0.0f, 0.0f };
 	do {
-		vec = (vec3){ rndFloat(0.0f, 1.0f, rng), rndFloat(0.0f, 1.0f, rng), rndFloat(0.0f, 1.0f, rng) };
+		vec = (vec3){ rndFloat(rng), rndFloat(rng), rndFloat(rng) };
 		vec = vec3_subs(vec3_muls(vec, 2.0f), 1.0f);
 	} while (vecLengthSquared(vec) >= 1.0f);
 	return vec;
@@ -74,7 +74,7 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 
 				wo = vec3_normalize(mat3_mul_vec3(invTBN, wo));
 
-				float rn = rndFloat(0.0f, 1.0f, rng);
+				float rn = rndFloat(rng);
 				bool isPureDiff = IsPureDiff(p_mat);
 				bool isPureSpec = IsPureSpec(p_mat);
 
