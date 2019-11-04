@@ -122,7 +122,7 @@ float getMaterialFloat(struct material *self, const char *key);
 vec3 getMaterialVec3(struct material *self, const char *key);
 bool doesMaterialValueExist(struct material *self, const char *id);
 
-color getAlbedo(struct material* p_mat);
+color getAlbedo(struct material* p_mat, vec2 uv);
 void setMaterialColor(struct material* self, const char* key, color value);
 color getMaterialColor(struct material* self, const char* key);
 

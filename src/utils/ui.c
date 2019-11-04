@@ -150,8 +150,8 @@ void clearProgBar(struct renderer *r, struct renderTile temp) {
  */
 void drawProgressBars(struct renderer *r) {
 	for (int t = 0; t < r->prefs.threadCount; t++) {
-		if (r->state.threadStates[t].currentTileIdx != -1) {
-			struct renderTile temp = r->state.renderTiles[t][r->state.threadStates[t].currentTileIdx];
+		if (r->state.threadStates[t].currentTileNum != -1) {
+			struct renderTile temp = r->state.renderTiles[r->state.threadStates[t].currentTileNum];
 			int completedSamples = r->state.threadStates[t].completedSamples;
 			int totalSamples = r->prefs.sampleCount;
 			
@@ -174,7 +174,7 @@ void drawProgressBars(struct renderer *r) {
  @param tile Given renderTile
  @param on Draw frame if true, erase if false
  */
-void drawFrame(struct renderer *r, struct renderTile tile) {
+void drawFrame(struct renderer *r, struct renderTile tile, bool on) {
 	int length = 8;
 	color c = clearColor;
 	if (tile.isRendering) {
@@ -202,14 +202,12 @@ void drawFrame(struct renderer *r, struct renderTile tile) {
 
 void updateFrames(struct renderer *r) {
 	if (r->prefs.tileWidth < 8 || r->prefs.tileHeight < 8) return;
-	for (int t = 0; t < r->prefs.threadCount; t++) {
-		for (int i = 0; i < r->state.tileAmounts[t]; i++) {
-			//For every tile, if it's currently rendering, draw the frame
-			//If it is NOT rendering, clear any frame present
-			drawFrame(r, r->state.renderTiles[t][i]);
-			if (!r->state.renderTiles[t][i].isRendering) {
-				clearProgBar(r, r->state.renderTiles[t][i]);
-			}
+	for (int i = 0; i < r->state.tileCount; i++) {
+		//For every tile, if it's currently rendering, draw the frame
+		//If it is NOT rendering, clear any frame present
+		drawFrame(r, r->state.renderTiles[i], r->state.renderTiles[i].isRendering);
+		if (r->state.renderTiles[i].renderComplete) {
+			clearProgBar(r, r->state.renderTiles[i]);
 		}
 	}
 	drawProgressBars(r);

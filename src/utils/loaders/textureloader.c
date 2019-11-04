@@ -58,10 +58,9 @@ struct texture *loadTexture(char *filePath) {
 			free(new);
 			logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
 			return NULL;
-		} else {
-			int MB = (((*new->width * *new->height * sizeof(float))/1024)/1024);
-			logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, *new->channels);
 		}
+		int MB = (((*new->width * *new->height * sizeof(float))/1024)/1024);
+		logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, *new->channels);
 	} else {
 		new->byte_data = stbi_load(filePath, (int *)new->width, (int *)new->height, new->channels, 3);
 		if (!new->byte_data) {

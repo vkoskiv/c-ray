@@ -320,16 +320,14 @@ struct material *parseMaterial(const cJSON *data) {
 
 	if (cJSON_IsString(diffuseBSDF_JSON)) {
 		diffuseBSDF = getDiffuseBSDF_FromStr(diffuseBSDF_JSON->valuestring);
-	}
-	else {
+	} else {
 		logr(warning, "No diffuse BSDF given for material.");
 		logr(error, "Material data: %s\n", cJSON_Print(data));
 	}
 
 	if (cJSON_IsString(specularBSDF_JSON)) {
 		specularBSDF = getSpecularBSDF_FromStr(specularBSDF_JSON->valuestring);
-	}
-	else {
+	} else {
 		logr(warning, "No specular BSDF given for material.");
 		logr(error, "Material data: %s\n", cJSON_Print(data));
 	}
@@ -337,7 +335,7 @@ struct material *parseMaterial(const cJSON *data) {
 	setMaterialColor(mat, "albedo", *colorValue);
 
 	free(colorValue);
-	//assignBSDF(mat);
+	
 	return mat;
 }
 
@@ -903,17 +901,13 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 
 	if (cJSON_IsString(specularBSDF_JSON)) {
 		specularBSDF = getSpecularBSDF_FromStr(specularBSDF_JSON->valuestring);
-	}
-	else {
+	} else {
 		logr(warning, "Invalid specular BSDF while parsing mesh\n");
 	}
 
-	if (cJSON_IsString(materialType_JSON))
-	{
+	if (cJSON_IsString(materialType_JSON)) {
 		newSphere.material->type = getMaterialType_FromStr(materialType_JSON->valuestring);
-	}
-	else
-	{
+	} else {
 		newSphere.material->type = MATERIAL_TYPE_WARNING;
 	}
 
@@ -1016,7 +1010,11 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	
 	fileName = cJSON_GetObjectItem(data, "outputFileName");
 	if (cJSON_IsString(fileName)) {
-		copyString(fileName->valuestring, &r->state.image->fileName);
+		if (strcmp(fileName->valuestring, "") == 0) {
+			r->state.image->fileName = dateString();
+		} else {
+			copyString(fileName->valuestring, &r->state.image->fileName);
+		}
 	}
 	
 	count = cJSON_GetObjectItem(data, "count");
@@ -1103,7 +1101,9 @@ int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 	if (fromStdin) {
 		buf = input;
 	} else {
-		buf = loadFile(input);
+		size_t bytes = 0;
+		buf = loadFile(input, &bytes);
+		logr(info, "%zi bytes of input JSON loaded from file, parsing.\n", bytes);
 	}
 	
 	cJSON *json = cJSON_Parse(buf);
@@ -1215,17 +1215,9 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	//Alloc RNGs, one for each thread
 	r->state.rngs = calloc(r->prefs.threadCount, sizeof(pcg32_random_t));
 	
-	//Seed each rng	
-	for (int i = 0; i < r->prefs.threadCount; i++) {
-		pcg32_srandom_r(&r->state.rngs[i], 3141592 + i, 0);
-	}
-	
-	struct renderTile *tiles;
 	//Quantize image into renderTiles
-	r->state.tileCount = quantizeImage(&tiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);
-	reorderTiles(&tiles, r->state.tileCount, r->prefs.tileOrder);
-	assignTiles(tiles, &r->state.renderTiles, r->state.tileCount, r->prefs.threadCount, &r->state.tileAmounts);
-	free(tiles);
+	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);
+	reorderTiles(&r->state.renderTiles, r->state.tileCount, r->prefs.tileOrder);
 	
 	//Compute the focal length for the camera
 	computeFocalLength(r->scene->camera, *r->state.image->width);

@@ -154,11 +154,11 @@ vec3 vecScale(const float c, const vec3 v) {
 	return (vec3){v.x * c, v.y * c, v.z * c};
 }
 
-vec2 vec2Scale(const float c, const vec2 crd) {
+vec2 coordScale(const float c, const vec2 crd) {
 	return (vec2){crd.x * c, crd.y * c};
 }
 
-vec2 addvec2s(const vec2 c1, const vec2 c2) {
+vec2 addCoords(const vec2 c1, const vec2 c2) {
 	return (vec2){c1.x + c2.x, c1.y + c2.y};
 }
 
@@ -242,8 +242,12 @@ vec3 getMidPoint(vec3 v1, vec3 v2, vec3 v3) {
  @param max Maximum value
  @return Random float between min and max
  */
-float rndFloat(float min, float max, pcg32_random_t *rng) {
+float rndFloatRange(float min, float max, pcg32_random_t *rng) {
 	return (((float)pcg32_random_r(rng) / (float)UINT32_MAX) * (max - min)) + min;
+}
+
+float rndFloat(pcg32_random_t *rng) {
+	return (1.0 / (1ull << 32)) * pcg32_random_r(rng);
 }
 
 /**
@@ -254,9 +258,9 @@ float rndFloat(float min, float max, pcg32_random_t *rng) {
  @return Vector of a random position within a radius of center point
  */
 vec3 getRandomVecOnRadius(vec3 center, float radius, pcg32_random_t *rng) {
-	return vecWithPos(center.x + rndFloat(-radius, radius, rng),
-					  center.y + rndFloat(-radius, radius, rng),
-					  center.z + rndFloat(-radius, radius, rng));
+	return vecWithPos(center.x + rndFloatRange(-radius, radius, rng),
+					  center.y + rndFloatRange(-radius, radius, rng),
+					  center.z + rndFloatRange(-radius, radius, rng));
 }
 
 /**
@@ -268,8 +272,8 @@ vec3 getRandomVecOnRadius(vec3 center, float radius, pcg32_random_t *rng) {
  */
 vec3 getRandomVecOnPlane(vec3 center, float radius, pcg32_random_t *rng) {
 	//FIXME: This only works in one orientation!
-	return vecWithPos(center.x + rndFloat(-radius, radius, rng),
-						 center.y + rndFloat(-radius, radius, rng),
+	return vecWithPos(center.x + rndFloatRange(-radius, radius, rng),
+						 center.y + rndFloatRange(-radius, radius, rng),
 						 center.z);
 }
 

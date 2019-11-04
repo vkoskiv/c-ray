@@ -112,7 +112,23 @@ void setMaterialColor(struct material* self, const char* key, color value) {
 	*(color*)p_bucket->value = value;
 }
 
-enum materialType getMaterialType_FromStr(const char* str) {
+void setMaterialTexture(struct material *self, const char *key, struct texture *t) {
+	struct materialBucket *p_bucket = getMaterialBucketPtr(self, key);
+	p_bucket->value = malloc(sizeof(struct texture *));
+	p_bucket->is_used = true;
+	p_bucket->value = t;
+}
+
+struct texture *getMaterialTexture(struct material *self, const char *key) {
+	struct materialBucket *p_bucket = getMaterialBucketPtr(self, key);
+	if (p_bucket->is_used) {
+		return p_bucket->value;
+	} else {
+		return NULL;
+	}
+}
+
+enum materialType getMaterialType_FromStr(const char *str) {
 	enum materialType type = MATERIAL_TYPE_DEFAULT;
 
 	if (!strcmp(str, "Emissive")) type = MATERIAL_TYPE_EMISSIVE;
@@ -120,7 +136,7 @@ enum materialType getMaterialType_FromStr(const char* str) {
 	return type;
 }
 
-enum diffuseBSDF getDiffuseBSDF_FromStr(const char* str) {
+enum diffuseBSDF getDiffuseBSDF_FromStr(const char *str) {
 	enum diffuseBSDF bsdf = DIFFUSE_BSDF_LAMBERT;
 
 	if      (!strcmp(str, "Lambert"))         bsdf = DIFFUSE_BSDF_LAMBERT;
@@ -130,7 +146,7 @@ enum diffuseBSDF getDiffuseBSDF_FromStr(const char* str) {
 	return bsdf;
 }
 
-enum specularBSDF getSpecularBSDF_FromStr(const char* str) {
+enum specularBSDF getSpecularBSDF_FromStr(const char *str) {
 	enum specularBSDF bsdf = SPECULAR_BSDF_PHONG;
 
 	if      (!strcmp(str, "Phong"))               bsdf = SPECULAR_BSDF_PHONG;
@@ -140,12 +156,13 @@ enum specularBSDF getSpecularBSDF_FromStr(const char* str) {
 	return bsdf;
 }
 
-color getMaterialColor(struct material* self, const char* key) {
-	struct materialBucket* p_bucket = getMaterialBucketPtr(self, key);
-	if (p_bucket->is_used)
+color getMaterialColor(struct material *self, const char *key) {
+	struct materialBucket *p_bucket = getMaterialBucketPtr(self, key);
+	if (p_bucket->is_used) {
 		return *(color*)p_bucket->value;
-	else
-		return (color) { 1.0f, 0.0f, 1.0f, 1.0f };
+	} else {
+		return (color){1.0f, 0.0f, 1.0f, 1.0f};
+	}
 }
 
 bool doesMaterialValueExist(struct material *self, const char *key) {
@@ -181,7 +198,6 @@ color getAlbedo(struct material *p_mat, vec2 uv) {
 
 		return albedo;
 	}
-	else return (color){1.0f, 0.0f, 1.0f, 1.0f};
 }
 
 float getRoughness(struct material* p_mat, vec2 uv) {
@@ -324,8 +340,8 @@ color specularEricHeitz2018GGX(struct material* p_mat, vec2 uv, vec3 V, vec3* p_
 	float alpha_x = alpha * aspect;
 	float alpha_y = alpha / aspect;
 
-	float U1 = rndFloat(0.0f, 1.0f, p_rng);
-	float U2 = rndFloat(0.0f, 1.0f, p_rng);
+	float U1 = rndFloat(p_rng);
+	float U2 = rndFloat(p_rng);
 	vec3 N = EricHeitz2018GGXVNDF(V, alpha_x, alpha_y, U1, U2);
 	vec3 L = reflect(vec3_negate(V), N); // Li
 

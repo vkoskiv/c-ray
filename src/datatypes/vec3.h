@@ -74,7 +74,8 @@ vec3 getRandomVecOnRadius(vec3 center, float radius, pcg32_random_t *rng);
 
 vec3 getRandomVecOnPlane(vec3 center, float radius, pcg32_random_t *rng);
 
-float rndFloat(float min, float max, pcg32_random_t *rng);
+float rndFloatRange(float min, float max, pcg32_random_t *rng);
+float rndFloat(pcg32_random_t *rng);
 
 vec3 vecMultiplyConst(vec3 v, const float c);
 

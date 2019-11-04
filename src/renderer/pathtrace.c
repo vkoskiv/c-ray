@@ -18,12 +18,12 @@
 #include "../datatypes/mat3.h"
 
 bool getHit(struct intersection* rec, struct lightRay *incidentRay, struct world *scene);
-color getBackground(struct lightRay *incidentRay, struct world *scene);
+color getBackground(struct lightRay *incidentRay, struct world *scene, int index);
 
 vec3 RandomUnitSphere(pcg32_random_t* rng) {
 	vec3 vec = (vec3){ 0.0f, 0.0f, 0.0f };
 	do {
-		vec = (vec3){ rndFloat(0.0f, 1.0f, rng), rndFloat(0.0f, 1.0f, rng), rndFloat(0.0f, 1.0f, rng) };
+		vec = (vec3){ rndFloat(rng), rndFloat(rng), rndFloat(rng) };
 		vec = vec3_subs(vec3_muls(vec, 2.0f), 1.0f);
 	} while (vecLengthSquared(vec) >= 1.0f);
 	return vec;
@@ -58,7 +58,7 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 			wo = vec3_negate(incidentRay->direction); // view direction from hitpoint
 
 			if (isect.end->type == MATERIAL_TYPE_EMISSIVE) {
-				col = getAlbedo(isect.end);
+				col = getMaterialColor(isect.end, "albedo");
 				break;
 			}
 			else if (isect.end->type == MATERIAL_TYPE_DEFAULT) {
@@ -104,7 +104,7 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 
 				wo = vec3_normalize(mat3_mul_vec3(invTBN, wo));
 
-				float U1 = rndFloat(0.0f, 1.0f, p_rng);
+				float U1 = rndFloat(p_rng);
 
 				float specularity = getSpecularity(p_mat, uv);
 				float reflProb = 1.0f - (1.0f - specularity) * (1.0f - metalness);
@@ -118,7 +118,6 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));
 
 					falloff = multiplyColors(falloff, specular);
-
 				}
 				else {
 

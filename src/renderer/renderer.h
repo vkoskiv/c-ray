@@ -27,9 +27,7 @@ struct threadState {
 	
 	//Share info about the current tile with main thread
 	int currentTileNum;
-	int currentTileIdx;
 	int completedSamples;
-	int finishedTileCount;
 	
 	struct renderer *r;
 };
@@ -45,9 +43,9 @@ enum renderOrder {
 //State data
 struct state {
 	struct texture *image; //Output image
-	struct renderTile **renderTiles; //Preassigned per-thread array of renderTiles to render
-	int *tileAmounts; //one for each thread, how many tiles it has to render
+	struct renderTile *renderTiles; //Array of renderTiles to render
 	int tileCount; //Total amount of render tiles
+	int finishedTileCount;
 	struct texture *renderBuffer;  //float-precision buffer for multisampling
 	struct texture *uiBuffer; //UI element buffer
 	int activeThreads; //Amount of threads currently rendering
@@ -62,10 +60,10 @@ struct state {
 	struct timeval *timers; //Tile duration timers (one for each thread)
 	
 #ifdef WINDOWS
-	HANDLE statsMutex; // = INVALID_HANDLE_VALUE;
+	HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
 #else
 	pthread_attr_t renderThreadAttributes;
-	pthread_mutex_t statsMutex; // = PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_t tileMutex; // = PTHREAD_MUTEX_INITIALIZER;
 #endif
 };
 

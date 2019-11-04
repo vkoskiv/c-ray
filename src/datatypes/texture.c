@@ -65,7 +65,7 @@ color textureGetPixel(struct texture *t, int x, int y) {
 	x = x < 0 ? 0 : x;
 	y = y < 0 ? 0 : y;
 	
-	if (t->fileType == hdr || t->precision == float_p) {
+	if (t->precision == float_p) {
 		output.red = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0];
 		output.green = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1];
 		output.blue = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2];
