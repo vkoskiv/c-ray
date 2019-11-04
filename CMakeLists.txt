@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 project (c-ray C)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/)
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
