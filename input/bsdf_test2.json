@@ -5,8 +5,8 @@
     "sampleCount": 64,
     "bounces": 8,
     "antialiasing": true,
-    "tileWidth": 320,
-    "tileHeight": 720,
+    "tileWidth": 64,
+    "tileHeight": 64,
     "tileOrder": "normal"
   },
   "display": {
@@ -21,7 +21,7 @@
       {
         "type": "translate",
         "x": 0.0,
-        "y": 1.8,
+        "y": 1.7,
         "z": -2.5
       },
       {
@@ -38,17 +38,16 @@
     "width": 1280,
     "height": 720,
     "ambientColor": {
-      "hdr": "input/HDRs/epping_forest_02_1k.hdr",
       "offset": 0,
       "down": {
-        "r": 1.0,
-        "g": 1.0,
-        "b": 1.0
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0
       },
       "up": {
-        "r": 1.0,
-        "g": 1.0,
-        "b": 1.0
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0
       }
     },
     "primitives": [
@@ -65,9 +64,9 @@
             "g": 0.637,
             "b": 0.538
           },
-          "roughness": 0.4,
-          "metalness": 0.8,
-          "specularity": 0.95,
+          "roughness": 0.3,
+          "metalness": 1.0,
+          "specularity": 0.4,
           "anisotropy": 0.0,
           "ior": 1.1
         },
@@ -152,7 +151,7 @@
             "g": 0.765,
             "b": 0.336
           },
-          "roughness": 0.3,
+          "roughness": 0.1,
           "metalness": 1.0,
           "specularity": 0.7,
           "anisotropy": 0.0,
@@ -187,12 +186,14 @@
           "specularity": 0.0,
           "anisotropy": 0.0,
           "ior": 1.0,
-          "albedoTexture": "input/old_planks_02_diff_1k.jpg"
+          "albedoTexture": "input/cobblestone_floor_05_diff_1k.jpg",
+          "roughnessTexture": "input/cobblestone_floor_05_rough_1k.jpg",
+          "speculaityTexture": "input/cobblestone_floor_05_spec_1k.jpg"
         },
         "transforms": [
           {
             "type": "scaleUniform",
-            "scale": 1
+            "scale": 1.5
           }
         ]
       },
@@ -216,7 +217,7 @@
         "transforms": [
           {
             "type": "scaleUniform",
-            "scale": 0.36
+            "scale": 0.3
           },
           {
             "type": "translate",
