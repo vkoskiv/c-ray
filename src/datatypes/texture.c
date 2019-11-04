@@ -159,7 +159,7 @@ void freeTexture(struct texture *t) {
 float gaussian(float x, float y, float rho)
 {
 	float rho2 = rho * rho;
-	return 1.0f / ((M_PI + M_PI) * rho2) * exp( -(x*x + y*y)/(rho2 + rho2) );
+	return 1.0f / ((PI + PI) * rho2) * exp( -(x*x + y*y)/(rho2 + rho2) );
 }
 
 void blurTextureGaussian(struct texture* dst, struct texture* src, unsigned int kernelSize, float stdDev, bool doWrap) {

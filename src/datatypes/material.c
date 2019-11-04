@@ -262,7 +262,7 @@ float EricHeitz2018GGXD(vec3 N, float alpha_x, float alpha_y) {
 	float Nz2 = square(N.z);
 	float ax2 = square(alpha_x);
 	float ay2 = square(alpha_y);
-	return 1.0f / (M_PI * alpha_x * alpha_y * square(Nx2 / ax2 + Ny2 / ay2 + Nz2));
+	return 1.0f / (PI * alpha_x * alpha_y * square(Nx2 / ax2 + Ny2 / ay2 + Nz2));
 }
 
 
@@ -287,7 +287,7 @@ vec3 EricHeitz2018GGXVNDF(vec3 Ve, float alpha_x, float alpha_y, float U1, float
 	vec3 T2 = vec3_cross(Vh, T1);
 	// Section 4.2: parameterization of the projected area
 	float r = sqrt(U1);
-	float phi = 2.0f * M_PI * U2;
+	float phi = 2.0f * PI * U2;
 	float t1 = r * cosf(phi);
 	float t2 = r * sinf(phi);
 	float s = 0.5f * (1.0f + Vh.z);

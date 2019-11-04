@@ -25,6 +25,9 @@ struct display {
 	int height;
 	int width;
 #endif
+
+	// To fix dumb MSVC C compiler
+	char msvc_sucks;
 };
 
 #ifdef UI_ENABLED
