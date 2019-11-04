@@ -18,5 +18,6 @@ extern int normalCount;
 extern vec2 *textureArray;
 extern int textureCount;
 
+
 void allocVertexBuffer(void);
 void freeVertexBuffer(void);

@@ -90,6 +90,9 @@ struct poly parsePoly() {
 		if (p.normalIndex[i] == 0) {
 			p.hasNormals = false;
 		}
+		if (p.textureIndex[i] == 0) {
+			p.hasUVs = false;
+		}
 		
 		p.vertexIndex[i] = (vertexCount+1) + p.vertexIndex[i];
 		p.normalIndex[i] = (normalCount+1) + p.normalIndex[i];

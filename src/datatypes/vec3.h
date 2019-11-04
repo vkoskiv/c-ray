@@ -12,10 +12,6 @@ typedef struct vec3 {
 	float x, y, z;
 } vec3;
 
-typedef struct vec2 {
-	float x, y;
-} vec2;
-
 typedef struct ivec2 {
 	int x, y;
 } ivec2;
@@ -53,9 +49,6 @@ float vecDot(const vec3 v1, const vec3 v2);
 
 //Multiply a vector by a coefficient and return the resulting vector
 vec3 vecScale(const float c, const vec3 v);
-
-vec2 coordScale(const float c, const vec2 crd);
-vec2 addCoords(const vec2 c1, const vec2 c2);
 
 //Calculate the cross product of two vectors and return the resulting vector
 vec3 vecCross(vec3 v1, vec3 v2);

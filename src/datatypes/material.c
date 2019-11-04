@@ -173,11 +173,10 @@ color getAlbedo(struct material *p_mat, vec2 uv) {
 	if (doesMaterialValueExist(p_mat, "albedo")) {
 		color albedo = getMaterialColor(p_mat, "albedo");
 
-		if (doesMaterialValueExist(p_mat, "albedoTexture"))
-		{
+		if (doesMaterialValueExist(p_mat, "albedoTexture")) {
 			struct texture* albedoTexture = getMaterialPtr(p_mat, "albedoTexture");
 			color albedoSample = sampleTexture(albedoTexture, uv);
-			return multiplyColors(albedo, albedoSample);
+			return albedoSample;
 		}
 
 		return albedo;
@@ -185,6 +184,26 @@ color getAlbedo(struct material *p_mat, vec2 uv) {
 	else return (color){1.0f, 0.0f, 1.0f, 1.0f};
 }
 
+float getRoughness(struct material* p_mat, vec2 uv) {
+	if (doesMaterialValueExist(p_mat, "roughnessTexture")) {
+		return sampleTexture(getMaterialPtr(p_mat, "roughnessTexture"), uv).red;
+	}
+	else if (doesMaterialValueExist(p_mat, "roughness")) {
+		return getMaterialFloat(p_mat, "roughness");
+	}
+	
+	else return 0.0f;
+}
+
+float getSpecularity(struct material* p_mat, vec2 uv) {
+	if (doesMaterialValueExist(p_mat, "specularityTexture")) {
+		return sampleTexture(getMaterialPtr(p_mat, "specularityTexture"), uv).red;
+	}
+	else if (doesMaterialValueExist(p_mat, "specularity")) {
+		return getMaterialFloat(p_mat, "specularity");
+	}
+	else return 0.0f;
+}
 
 float square(float x) { return x * x; }
 float getTheta(vec3 w) { return acos(w.z / vec3_length(w)); }
@@ -295,7 +314,7 @@ float EricHeitz2018GGX_Rho(vec3 V, vec3 L, float alpha_x, float alpha_y, float i
 
 color specularEricHeitz2018GGX(struct material* p_mat, vec2 uv, vec3 V, vec3* p_Li, pcg32_random_t* p_rng) {
 	color albedo = getAlbedo(p_mat, uv);
-	float roughness = getMaterialFloat(p_mat, "roughness");
+	float roughness = getRoughness(p_mat, uv);
 	float anisotropy = getMaterialFloat(p_mat, "anisotropy");
 	float metalness = getMaterialFloat(p_mat, "metalness");
 	float ior = getMaterialFloat(p_mat, "ior");
@@ -335,7 +354,7 @@ color diffuseEarlHammonGGX(struct material *p_mat, vec2 uv, vec3 wo, vec3 wi) {
 	if (dotNV <= 0.0f || dotNL <= 0.0f) return blackColor;
 
 	color albedo = getAlbedo(p_mat, uv);
-	float roughness = getMaterialFloat(p_mat, "roughness");
+	float roughness = getRoughness(p_mat, uv);
 
 	vec3 wm = vec3_normalize(vec3_add(wo, wi));
 

@@ -153,7 +153,6 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	for (int i = 0; i < data.vertex_count; i++) {
 		vertexArray[r->scene->meshes[r->scene->meshCount].firstVectorIndex + i] = vec3FromObj(data.vertex_list[i]);
 	}
-	
 	//Convert normals
 	normalArray = realloc(normalArray, normalCount * sizeof(vec3));
 	for (int i = 0; i < data.vertex_normal_count; i++) {
@@ -167,11 +166,15 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	//Convert polygons
 	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
 	for (int i = 0; i < data.face_count; i++) {
-		polygonArray[r->scene->meshes[r->scene->meshCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
-																							r->scene->meshes[r->scene->meshCount].firstVectorIndex,
-																							r->scene->meshes[r->scene->meshCount].firstNormalIndex,
-																							r->scene->meshes[r->scene->meshCount].firstTextureIndex,
-																							r->scene->meshes[r->scene->meshCount].firstPolyIndex + i);
+		struct poly p = polyFromObj(data.face_list[i],
+			r->scene->meshes[r->scene->meshCount].firstVectorIndex,
+			r->scene->meshes[r->scene->meshCount].firstNormalIndex,
+			r->scene->meshes[r->scene->meshCount].firstTextureIndex,
+			r->scene->meshes[r->scene->meshCount].firstPolyIndex + i);
+
+		calculatePolyTangentAndBitangent(&p);
+
+		polygonArray[r->scene->meshes[r->scene->meshCount].firstPolyIndex + i] = p;
 	}
 	
 	//r->scene->meshes[r->scene->meshCount].mat = calloc(1, sizeof(IMaterial));
@@ -782,6 +785,8 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	}
 
 	cJSON* albedoTextureJSON = cJSON_GetObjectItem(matJSON, "albedoTexture");
+	cJSON* roughnessTextureJSON = cJSON_GetObjectItem(matJSON, "roughnessTexture");
+	cJSON* specularityTextureJSON = cJSON_GetObjectItem(matJSON, "specularityTexture");
 
 	bool meshValid = false;
 	if (fileName != NULL && cJSON_IsString(fileName)) {
@@ -815,6 +820,18 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 			struct texture* albedoTexture = loadTexture(albedoTextureJSON->valuestring);
 			if (albedoTexture != NULL) {
 				setMaterialPtr(mat, "albedoTexture", albedoTexture);
+			}
+		}
+		if (roughnessTextureJSON != NULL) {
+			struct texture* roughnessTexture = loadTexture(roughnessTextureJSON->valuestring);
+			if (roughnessTexture != NULL) {
+				setMaterialPtr(mat, "roughnessTexture", roughnessTexture);
+			}
+		}
+		if (specularityTextureJSON != NULL) {
+			struct texture* specularityTexture = loadTexture(specularityTextureJSON->valuestring);
+			if (specularityTexture != NULL) {
+				setMaterialPtr(mat, "specularityTexture", specularityTexture);
 			}
 		}
 		

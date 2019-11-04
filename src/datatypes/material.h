@@ -43,6 +43,7 @@
  */
 
 #include "vec3.h"
+#include "vec2.h"
 
 struct lightRay;
 struct intersection;
@@ -124,6 +125,8 @@ bool doesMaterialValueExist(struct material *self, const char *id);
 color getAlbedo(struct material* p_mat);
 void setMaterialColor(struct material* self, const char* key, color value);
 color getMaterialColor(struct material* self, const char* key);
+
+float getSpecularity(struct material* p_mat, vec2 uv);
 
 static const float INV_PI = 1.0f / PI;
 

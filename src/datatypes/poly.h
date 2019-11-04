@@ -16,6 +16,10 @@ struct poly {
 	int polyIndex;
 	int vertexCount;
 	bool hasNormals;
+	bool hasUVs;
+
+	vec3 tangent;
+	vec3 bitangent;
 };
 
 //Main polygon array
@@ -30,3 +34,5 @@ bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, float *re
 
 //Just check for intersection
 bool rayIntersectsWithPolygonFast(struct lightRay *ray, struct poly *poly);
+
+void calculatePolyTangentAndBitangent(struct poly* poly);

@@ -63,24 +63,16 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 			}
 			else if (isect.end->type == MATERIAL_TYPE_DEFAULT) {
 				struct material* p_mat = isect.end;
-				float specularity = getMaterialFloat(p_mat, "specularity");
 				float metalness = getMaterialFloat(p_mat, "metalness");
 
 				// Setup TBN matrix for tangent space transforms
 				vec3 N = isect.surfaceNormal;
-				vec3 T = vec3_normalize(vec3_cross((vec3) { N.y, N.x, N.z }, N)); // to prevent cross product being length 0
-				vec3 B = vec3_cross(N, T);
+				vec3 T, B;
 
-				mat3 TBN = (mat3){.v = {T, B, N}};
-				mat3 invTBN = mat3_transpose(TBN);
-
-				wo = vec3_normalize(mat3_mul_vec3(invTBN, wo));
-
+				struct poly p = polygonArray[isect.polyIndex];
 				vec2 uv = (vec2){ 0.0f, 0.0f };
-				if (isect.type == hitTypePolygon)
-				{
+				if (isect.type == hitTypePolygon && p.hasUVs) {
 					// polygon
-					struct poly p = polygonArray[isect.polyIndex];
 
 					// barycentric coordinates for this polygon
 					float uf = isect.uv.x;
@@ -88,22 +80,36 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 					float wf = 1.0f - uf - vf;
 
 					// Weighted texture coordinates
-					vec2 u = coordScale(uf, textureArray[p.textureIndex[1]]);
-					vec2 v = coordScale(vf, textureArray[p.textureIndex[2]]);
-					vec2 w = coordScale(wf, textureArray[p.textureIndex[0]]);
+					vec2 u = vec2_muls(textureArray[p.textureIndex[1]], uf);
+					vec2 v = vec2_muls(textureArray[p.textureIndex[2]], vf);
+					vec2 w = vec2_muls(textureArray[p.textureIndex[0]], wf);
 
-					uv = addCoords(addCoords(u, v), w);
-				}				
+					uv = vec2_add(vec2_add(u, v), w);
+					
+					T = p.tangent;
+					B = p.bitangent;
+				}
+				else {
+					T = vec3_normalize(vec3_cross((vec3) { N.y, N.x, N.z }, N)); // To prevent cross product being length 0
+					B = vec3_cross(N, T);
+				}
+
+				falloff.red = uv.x;//T.x*0.5+0.5;
+				falloff.green = uv.y;//T.y*0.5+0.5;
+				falloff.blue = 0.0f;// T.z * 0.5 + 0.5;
+				break;
+
+				mat3 TBN = (mat3){ .v = {T, B, N} };
+				mat3 invTBN = mat3_transpose(TBN);
+
+				wo = vec3_normalize(mat3_mul_vec3(invTBN, wo));
 
 				float U1 = rndFloat(0.0f, 1.0f, p_rng);
-				bool isPureDiff = IsPureDiff(p_mat);
-				bool isPureSpec = IsPureSpec(p_mat);
 
+				float specularity = getSpecularity(p_mat, uv);
 				float reflProb = 1.0f - (1.0f - specularity) * (1.0f - metalness);
 
 				if (U1 < reflProb) {
-
-					//falloff = vec3_mul(falloff, vec3_muls(diffuse, 1.0f - specularity));
 					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(isect.surfaceNormal, EPSILON));
 
 					// MIS sample using VNDF or NDF
@@ -113,7 +119,8 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 
 					falloff = multiplyColors(falloff, specular);
 
-				} else {
+				}
+				else {
 
 					// Light incoming direction from hitpoint, random in normal direction
 					wi = vec3_normalize(vec3_add(RandomUnitSphere(p_rng), (vec3) { 0.0f, 0.0f, 1.0f }));

@@ -48,6 +48,7 @@ color colorDivCoef(color c, float coef);
 color colorAddCoef(color c, float coef);
 
 color grayscale(color c);
+float colorLength(color c);
 
 //Multiply a color by a coefficient and return the resulting color
 color multiply(color c1, color c2);

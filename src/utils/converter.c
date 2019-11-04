@@ -43,6 +43,13 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
 	} else {
 		polygon.hasNormals = true;
 	}
+
+	if (face->texture_index[0] == -1) {
+		polygon.hasUVs = false;
+	}
+	else {
+		polygon.hasUVs = true;
+	}
 	
 	polygon.vertexCount = face->vertex_count;
 	//If no materials are found (missing .mtl), we will just patch in a bright pink material to show that

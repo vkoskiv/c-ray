@@ -95,3 +95,38 @@ bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, float *re
 	
 	return true;
 }
+
+
+
+void calculatePolyTangentAndBitangent(struct poly* poly)
+{
+	vec3 tangent1, bitangent1;
+
+	vec3 pos1 = vertexArray[poly->vertexIndex[1]];
+	vec3 pos2 = vertexArray[poly->vertexIndex[2]];
+	vec3 pos3 = vertexArray[poly->vertexIndex[0]];
+
+	vec2 uv1 = textureArray[poly->textureIndex[1]];
+	vec2 uv2 = textureArray[poly->textureIndex[2]];
+	vec2 uv3 = textureArray[poly->textureIndex[0]];
+
+	vec3 edge1 = vec3_sub(pos2, pos1);
+	vec3 edge2 = vec3_sub(pos3, pos1);
+	vec2 deltaUV1 = vec2_sub(uv2, uv1);
+	vec2 deltaUV2 = vec2_sub(uv3, uv1);
+
+	float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+	tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+	tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+	tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+	tangent1 = vec3_normalize(tangent1);
+
+	bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+	bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+	bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+	bitangent1 = vec3_normalize(bitangent1);
+
+	poly->tangent = tangent1;
+	poly->bitangent = bitangent1;
+}

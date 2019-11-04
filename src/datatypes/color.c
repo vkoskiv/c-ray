@@ -50,6 +50,11 @@ color grayscale(color c) {
 	return (struct color){b, b, b, 0.0};
 }
 
+float colorLength(color c) {
+	float len = sqrtf(c.red * c.red + c.blue * c.blue + c.green * c.green + c.alpha * c.alpha);
+	return len;
+}
+
 //Multiply a color with a coefficient value
 color colorCoef(color c, float coef) {
 	return (struct color){c.red * coef, c.green * coef, c.blue * coef, c.alpha * coef};
