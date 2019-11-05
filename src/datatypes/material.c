@@ -181,7 +181,7 @@ color sampleTexture(struct texture *p_tex, vec2 uv) {
 
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	//FIXME: Maybe ask lodepng if we actually need to do this transform
-	output = fromSRGB(output);
+	//output = fromSRGB(output);
 
 	return output;
 }
@@ -340,8 +340,8 @@ color specularEricHeitz2018GGX(struct material* p_mat, vec2 uv, vec3 V, vec3* p_
 	float alpha_x = alpha * aspect;
 	float alpha_y = alpha / aspect;
 
-	float U1 = rndFloat(p_rng);
-	float U2 = rndFloat(p_rng);
+	float U1 = randomFloat(p_rng);
+	float U2 = randomFloat(p_rng);
 	vec3 N = EricHeitz2018GGXVNDF(V, alpha_x, alpha_y, U1, U2);
 	vec3 L = reflect(vec3_negate(V), N); // Li
 

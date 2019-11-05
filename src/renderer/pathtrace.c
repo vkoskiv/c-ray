@@ -23,12 +23,30 @@ color getBackground(struct lightRay *incidentRay, struct world *scene, int index
 vec3 RandomUnitSphere(pcg32_random_t* rng) {
 	vec3 vec = (vec3){ 0.0f, 0.0f, 0.0f };
 	do {
-		vec = (vec3){ rndFloat(rng), rndFloat(rng), rndFloat(rng) };
+		vec = (vec3){ randomFloat(rng), randomFloat(rng), randomFloat(rng) };
 		vec = vec3_subs(vec3_muls(vec, 2.0f), 1.0f);
 	} while (vecLengthSquared(vec) >= 1.0f);
 	return vec;
 }
 const float EPSILON = 0.00001f;
+
+vec3 sampleCosineHemisphere(float U1, float U2) {
+	float r = sqrtf(U1);
+	float theta = 2.0f * PI * U2;
+
+	float x = r * cosf(theta);
+	float y = r * sinf(theta);
+
+	return (vec3) { x, y, sqrtf(fmaxf(0.0f, 1.0f - U1)) };
+}
+
+vec3 sampleUniformHemisphere(float U1, float U2) {
+	float r = sqrtf(1.0f - U1 * U1);
+	float phi = 2.0f * PI * U2;
+
+	return (vec3) { cosf(phi)* r, sinf(phi)* r, U1 };
+}
+
 
 bool IsPureSpec(struct material *p_mat)
 {
@@ -69,25 +87,32 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 				vec3 N = isect.surfaceNormal;
 				vec3 T, B;
 
-				struct poly p = polygonArray[isect.polyIndex];
 				vec2 uv = (vec2){ 0.0f, 0.0f };
-				if (isect.type == hitTypePolygon && p.hasUVs) {
-					// polygon
+				bool isMeshWithTangents = false;
+				struct poly poly;
 
+				if (isect.type == hitTypePolygon) {
+					poly = polygonArray[isect.polyIndex];
+					if (poly.hasUVs) {
+						isMeshWithTangents = true;
+					}
+				}
+
+				if (isMeshWithTangents) {
 					// barycentric coordinates for this polygon
 					float uf = isect.uv.x;
 					float vf = isect.uv.y;
 					float wf = 1.0f - uf - vf;
 
 					// Weighted texture coordinates
-					vec2 u = vec2_muls(textureArray[p.textureIndex[1]], uf);
-					vec2 v = vec2_muls(textureArray[p.textureIndex[2]], vf);
-					vec2 w = vec2_muls(textureArray[p.textureIndex[0]], wf);
+					vec2 u = vec2_muls(textureArray[poly.textureIndex[1]], uf);
+					vec2 v = vec2_muls(textureArray[poly.textureIndex[2]], vf);
+					vec2 w = vec2_muls(textureArray[poly.textureIndex[0]], wf);
 
 					uv = vec2_add(vec2_add(u, v), w);
 					
-					T = p.tangent;
-					B = p.bitangent;
+					T = poly.tangent;
+					B = poly.bitangent;
 				}
 				else {
 					T = vec3_normalize(vec3_cross((vec3) { N.y, N.x, N.z }, N)); // To prevent cross product being length 0
@@ -106,12 +131,12 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 
 				wo = vec3_normalize(mat3_mul_vec3(invTBN, wo));
 
-				float U1 = rndFloat(p_rng);
+				float reflRand = randomFloat(p_rng);
 
 				float specularity = getSpecularity(p_mat, uv);
 				float reflProb = 1.0f - (1.0f - specularity) * (1.0f - metalness);
 
-				if (U1 < reflProb) {
+				if (reflRand < reflProb) {
 					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(isect.surfaceNormal, EPSILON));
 
 					// MIS sample using VNDF or NDF
@@ -124,7 +149,12 @@ color pathTrace(struct lightRay *incidentRay, struct world *scene, int maxDepth,
 				else {
 
 					// Light incoming direction from hitpoint, random in normal direction
-					wi = vec3_normalize(vec3_add(RandomUnitSphere(p_rng), (vec3) { 0.0f, 0.0f, 1.0f }));
+
+					//wi = vec3_normalize(vec3_add(RandomUnitSphere(p_rng), (vec3) { 0.0f, 0.0f, 1.0f }));
+
+					float U1 = randomFloat(p_rng), U2 = randomFloat(p_rng);
+					//wi = sampleCosineHemisphere(U1, U2);
+					wi = sampleUniformHemisphere(U1, U2);
 
 					incidentRay->start = vec3_add(isect.hitPoint, vec3_muls(N, EPSILON));
 					incidentRay->direction = vec3_normalize(mat3_mul_vec3(TBN, wi));

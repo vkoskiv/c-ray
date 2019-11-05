@@ -246,7 +246,7 @@ float rndFloatRange(float min, float max, pcg32_random_t *rng) {
 	return (((float)pcg32_random_r(rng) / (float)UINT32_MAX) * (max - min)) + min;
 }
 
-float rndFloat(pcg32_random_t *rng) {
+float randomFloat(pcg32_random_t *rng) {
 	return (1.0 / (1ull << 32)) * pcg32_random_r(rng);
 }
 

@@ -2,7 +2,7 @@
   "version": 1.0,
   "renderer": {
     "threadCount": 0,
-    "sampleCount": 64,
+    "sampleCount": 256,
     "bounces": 8,
     "antialiasing": true,
     "tileWidth": 64,
@@ -38,7 +38,7 @@
     "width": 1280,
     "height": 720,
     "ambientColor": {
-      "hdr": "input/HDRs/epping_forest_02_1k.hdr",
+      "hdr": "input/HDRs/lebombo_1k.hdr",
       "offset": 0,
       "down": {
         "r": 0.0,
@@ -52,6 +52,30 @@
       }
     },
     "primitives": [
+      {
+        "type": "sphere",
+        "pos": {
+          "x": -0.25,
+          "y": 0.87,
+          "z": 0.43
+        },
+        "radius": 0.1,
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 1.0,
+            "g": 0.0,
+            "b": 0.0
+          },
+          "roughness": 1.0,
+          "metalness": 0.0,
+          "specularity": 0.0,
+          "anisotropy": 0.0,
+          "ior": 1.0
+        }
+      }
     ],
     "meshes": [
       {
@@ -65,9 +89,9 @@
             "g": 0.637,
             "b": 0.538
           },
-          "roughness": 0.3,
-          "metalness": 1.0,
-          "specularity": 0.4,
+          "roughness": 0.4,
+          "metalness": 0.5,
+          "specularity": 0.5,
           "anisotropy": 0.0,
           "ior": 1.1
         },
@@ -95,9 +119,9 @@
             "g": 0.337,
             "b": 0.259
           },
-          "roughness": 0.8,
+          "roughness": 0.3,
           "metalness": 0.0,
-          "specularity": 0.2,
+          "specularity": 0.05,
           "anisotropy": 0.0,
           "ior": 1.5
         },
@@ -126,9 +150,9 @@
             "b": 1.0
           },
           "albedoTexture": "input/girl.jpg",
-          "roughness": 1.0,
+          "roughness": 0.1,
           "metalness": 0.0,
-          "specularity": 0.0,
+          "specularity": 0.08,
           "anisotropy": 0.0,
           "ior": 1.486
         },
@@ -138,6 +162,32 @@
             "x": 0.0,
             "y": 0.0,
             "z": 0.5
+          }
+        ]
+      },
+      {
+        "fileName": "input/bunny.obj",
+        "materialType": "Default",
+        "diffuseBSDF": "Earl Hammon GGX",
+        "specularBSDF": "Eric Heitz GGX 2018",
+        "material": {
+          "albedo": {
+            "r": 1.0,
+            "g": 0.765,
+            "b": 0.336
+          },
+          "roughness": 0.3,
+          "metalness": 0.5,
+          "specularity": 0.7,
+          "anisotropy": 0.4,
+          "ior": 0.47
+        },
+        "transforms": [
+          {
+            "type": "translate",
+            "x": -0.5,
+            "y": 0.0,
+            "z": -0.2
           }
         ]
       },
@@ -156,10 +206,7 @@
           "metalness": 0.0,
           "specularity": 0.0,
           "anisotropy": 0.0,
-          "ior": 1.0,
-          "albedoTexture": "input/cobblestone_floor_05_diff_1k.jpg",
-          "roughnessTexture": "input/cobblestone_floor_05_rough_1k.jpg",
-          "speculaityTexture": "input/cobblestone_floor_05_spec_1k.jpg"
+          "ior": 1.0
         },
         "transforms": [
           {
@@ -175,9 +222,9 @@
         "specularBSDF": "Eric Heitz GGX 2018",
         "material": {
           "albedo": {
-            "r": 25,
-            "g": 22,
-            "b": 20
+            "r": 50,
+            "g": 47,
+            "b": 44
           },
           "roughness": 0.0,
           "metalness": 0.0,
@@ -193,7 +240,7 @@
           {
             "type": "translate",
             "x": 0.0,
-            "y": 2.0,
+            "y": 2.5,
             "z": 0.0
           }
         ]
