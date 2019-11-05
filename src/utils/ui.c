@@ -188,15 +188,16 @@ float invertedFalloff(float x)
  @param tile Given renderTile
  @param on Draw frame if true, erase if false
  */
+/*
 void drawFrame(struct renderer *r, struct renderTile tile, bool on) {
-	int length = 8;
+	int length = tile.width /2 + 1;
 	color c = clearColor;
 
 	if (tile.width < 16) length = 4;
 	for (int i = 1; i < length; i++) {
 
 		if (tile.isRendering) {
-			c = (color){1.0f, 0.5f, 0.0f, 1.0f};
+			c = frameColor;
 			float brightness;
 			int a = 1;
 			//top left
@@ -242,6 +243,33 @@ void drawFrame(struct renderer *r, struct renderTile tile, bool on) {
 			blit(r->state.uiBuffer, c, tile.end.x - i, tile.end.y - 1);
 			blit(r->state.uiBuffer, c, tile.end.x - 1, tile.end.y - i);
 		}
+	}
+}*/
+
+void drawFrame(struct renderer* r, struct renderTile tile, bool on) {
+	int length = tile.width / 2 + 1;
+	color c = clearColor;
+	if (tile.isRendering) {
+		c = frameColor;
+	}
+
+	if (tile.width < 16) length = 4;
+	for (int i = 1; i < length; i++) {
+		//top left
+		blit(r->state.uiBuffer, c, tile.begin.x + i, tile.begin.y + 1);
+		blit(r->state.uiBuffer, c, tile.begin.x + 1, tile.begin.y + i);
+
+		//top right
+		blit(r->state.uiBuffer, c, tile.end.x - i, tile.begin.y + 1);
+		blit(r->state.uiBuffer, c, tile.end.x - 1, tile.begin.y + i);
+
+		//Bottom left
+		blit(r->state.uiBuffer, c, tile.begin.x + i, tile.end.y - 1);
+		blit(r->state.uiBuffer, c, tile.begin.x + 1, tile.end.y - i);
+
+		//bottom right
+		blit(r->state.uiBuffer, c, tile.end.x - i, tile.end.y - 1);
+		blit(r->state.uiBuffer, c, tile.end.x - 1, tile.end.y - i);
 	}
 }
 

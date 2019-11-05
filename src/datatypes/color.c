@@ -56,7 +56,7 @@ float colorLength(color c) {
 }
 
 color colorCoefRGB(color c, float coef) {
-	return (struct color) { c.red* coef, c.green* coef, c.blue* coef, 1.0f };
+	return (struct color) { c.red* coef, c.green* coef, c.blue* coef, c.alpha };
 }
 
 //Multiply a color with a coefficient value

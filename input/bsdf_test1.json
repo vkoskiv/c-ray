@@ -2,7 +2,7 @@
 	"version": 1.0,
 	"renderer": {
 		"threadCount": 0,
-		"sampleCount": 256,
+		"sampleCount": 512,
 		"bounces": 4,
 		"antialiasing": true,
 		"tileWidth": 100,
