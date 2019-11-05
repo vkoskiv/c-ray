@@ -2,7 +2,7 @@
 	"version": 1.0,
 	"renderer": {
 		"threadCount": 0,
-		"sampleCount": 128,
+		"sampleCount": 256,
 		"bounces": 4,
 		"antialiasing": true,
 		"tileWidth": 100,
@@ -42,7 +42,7 @@
 		"width": 1280,
 		"height": 720,
     "ambientColor": {
-      "hdr": "input/HDRs/lebombo_1k.hdr",
+      "hdr": "input/HDRs/epping_forest_02_1k.hdr",
       "offset": 0,
       "down": {
         "r": 0.0,

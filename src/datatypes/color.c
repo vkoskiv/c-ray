@@ -21,7 +21,7 @@ color whiteColor = {1.0, 1.0, 1.0, 1.0};
 color clearColor = {0.0, 0.0, 0.0, 0.0};
 
 //Colors for the SDL elements
-color backgroundColor = {0.1921568627, 0.2, 0.2117647059, 1.0};
+color backgroundColor = {0.2f, 0.2f, 0.2f, 1.0f};//{0.1921568627, 0.2, 0.2117647059, 1.0};
 color frameColor = {1.0, 0.5, 0.0, 1.0};
 color progColor  = {0.2549019608, 0.4509803922, 0.9607843137, 1.0};
 
@@ -33,26 +33,30 @@ color colorWithValues(float red, float green, float blue, float alpha) {
 
 //Multiply two colors
 color multiplyColors(color c1, color c2) {
-	return (struct color){c1.red * c2.red, c1.green * c2.green, c1.blue * c2.blue, 0.0};
+	return (struct color){c1.red * c2.red, c1.green * c2.green, c1.blue * c2.blue, 1.0f};
 }
 
 //Add two colors
 color addColors(color c1, color c2) {
-	return (struct color){c1.red + c2.red, c1.green + c2.green, c1.blue + c2.blue, c1.alpha + c2.alpha};
+	return (struct color){c1.red + c2.red, c1.green + c2.green, c1.blue + c2.blue, 1.0f};
 }
 
 color subtractColors(color c1, color c2) {
-	return (struct color){c1.red - c2.red, c1.green - c2.green, c1.blue - c2.blue, c1.alpha - c2.alpha};
+	return (struct color){c1.red - c2.red, c1.green - c2.green, c1.blue - c2.blue, 1.0f};
 }
 
 color grayscale(color c) {
 	float b = (c.red+c.green+c.blue)/3;
-	return (struct color){b, b, b, 0.0};
+	return (struct color){b, b, b, 1.0};
 }
 
 float colorLength(color c) {
-	float len = sqrtf(c.red * c.red + c.blue * c.blue + c.green * c.green + c.alpha * c.alpha);
+	float len = sqrtf(c.red * c.red + c.blue * c.blue + c.green * c.green);
 	return len;
+}
+
+color colorCoefRGB(color c, float coef) {
+	return (struct color) { c.red* coef, c.green* coef, c.blue* coef, 1.0f };
 }
 
 //Multiply a color with a coefficient value

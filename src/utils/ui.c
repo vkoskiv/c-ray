@@ -168,6 +168,20 @@ void drawProgressBars(struct renderer *r) {
 	}
 }
 
+float alphaFalloff(float x)
+{
+	float k = 2.0f * x - 1.0f;
+	float k3 = k * k * k;
+	float nom = 1.0f / k3;
+	return 1.0f - nom / 2.0f - 1.0f / 2.0f;
+}
+
+float invertedFalloff(float x)
+{
+	float k = cbrtf(-(2.0f * x - 1.0f));
+	return (k + 1.0f) / 2.0f;
+}
+
 /**
  Draw highlight frame to show which tiles are rendering
 
@@ -177,26 +191,57 @@ void drawProgressBars(struct renderer *r) {
 void drawFrame(struct renderer *r, struct renderTile tile, bool on) {
 	int length = 8;
 	color c = clearColor;
-	if (tile.isRendering) {
-		c = frameColor;
-	}
+
 	if (tile.width < 16) length = 4;
 	for (int i = 1; i < length; i++) {
-		//top left
-		blit(r->state.uiBuffer, c, tile.begin.x+i, tile.begin.y+1);
-		blit(r->state.uiBuffer, c, tile.begin.x+1, tile.begin.y+i);
-		
-		//top right
-		blit(r->state.uiBuffer, c, tile.end.x-i, tile.begin.y+1);
-		blit(r->state.uiBuffer, c, tile.end.x-1, tile.begin.y+i);
-		
-		//Bottom left
-		blit(r->state.uiBuffer, c, tile.begin.x+i, tile.end.y-1);
-		blit(r->state.uiBuffer, c, tile.begin.x+1, tile.end.y-i);
-		
-		//bottom right
-		blit(r->state.uiBuffer, c, tile.end.x-i, tile.end.y-1);
-		blit(r->state.uiBuffer, c, tile.end.x-1, tile.end.y-i);
+
+		if (tile.isRendering) {
+			c = (color){1.0f, 0.5f, 0.0f, 1.0f};
+			float brightness;
+			int a = 1;
+			//top left
+			brightness = colorLength(textureGetPixel(r->state.image, tile.begin.x + i, tile.begin.y + 1));
+			blit(r->state.uiBuffer, colorCoefRGB(c, invertedFalloff(brightness)), tile.begin.x + i, tile.begin.y + 1);
+			brightness = colorLength(textureGetPixel(r->state.image, tile.begin.x + 1, tile.begin.y + i));
+			blit(r->state.uiBuffer, colorCoefRGB(c, invertedFalloff(brightness)), tile.begin.x + 1, tile.begin.y + i);
+
+			//top right
+			brightness = colorLength(textureGetPixel(r->state.image, tile.end.x - i, tile.begin.y + 1));
+			blit(r->state.uiBuffer, colorCoefRGB(c, invertedFalloff(brightness)), tile.end.x - i, tile.begin.y + 1);
+			brightness = colorLength(textureGetPixel(r->state.image, tile.end.x - 1, tile.begin.y + i));
+			blit(r->state.uiBuffer, colorCoefRGB(c, invertedFalloff(brightness)), tile.end.x - 1, tile.begin.y + i);
+
+			//bottom left
+			brightness = colorLength(textureGetPixel(r->state.image, tile.begin.x + i, tile.end.y - 1));
+			blit(r->state.uiBuffer, colorCoefRGB(c, invertedFalloff(brightness)), tile.begin.x + i, tile.end.y - 1);
+			brightness = colorLength(textureGetPixel(r->state.image, tile.begin.x + 1, tile.end.y - i));
+			blit(r->state.uiBuffer, colorCoefRGB(c, invertedFalloff(brightness)), tile.begin.x + 1, tile.end.y - i);
+
+			//bottom right
+			brightness = colorLength(textureGetPixel(r->state.image, tile.end.x - i, tile.end.y - 1));
+			blit(r->state.uiBuffer, colorCoefRGB(c, invertedFalloff(brightness)), tile.end.x - i, tile.end.y - 1);
+			brightness = colorLength(textureGetPixel(r->state.image, tile.end.x - 1, tile.end.y - i));
+			blit(r->state.uiBuffer, colorCoefRGB(c, invertedFalloff(brightness)), tile.end.x - 1, tile.end.y - i);
+
+
+		}
+		else {
+			//top left
+			blit(r->state.uiBuffer, c, tile.begin.x + i, tile.begin.y + 1);
+			blit(r->state.uiBuffer, c, tile.begin.x + 1, tile.begin.y + i);
+
+			//top right
+			blit(r->state.uiBuffer, c, tile.end.x - i, tile.begin.y + 1);
+			blit(r->state.uiBuffer, c, tile.end.x - 1, tile.begin.y + i);
+
+			//Bottom left
+			blit(r->state.uiBuffer, c, tile.begin.x + i, tile.end.y - 1);
+			blit(r->state.uiBuffer, c, tile.begin.x + 1, tile.end.y - i);
+
+			//bottom right
+			blit(r->state.uiBuffer, c, tile.end.x - i, tile.end.y - 1);
+			blit(r->state.uiBuffer, c, tile.end.x - 1, tile.end.y - i);
+		}
 	}
 }
 

@@ -53,6 +53,7 @@ float colorLength(color c);
 //Multiply a color by a coefficient and return the resulting color
 color multiply(color c1, color c2);
 color multiplyCoef(color c, float coeff);
+color colorCoefRGB(color c, float coef);
 
 color lerp(color c1, color c2, float coeff);
 

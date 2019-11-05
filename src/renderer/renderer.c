@@ -216,12 +216,14 @@ void *renderThread(void *arg) {
 					output.red = output.red * (tile.completedSamples - 1);
 					output.green = output.green * (tile.completedSamples - 1);
 					output.blue = output.blue * (tile.completedSamples - 1);
+					output.alpha = 1.0f;
 					
 					output = addColors(output, (color){ sample.red, sample.green, sample.blue, 1.0f });
 					
 					output.red = output.red / tile.completedSamples;
 					output.green = output.green / tile.completedSamples;
 					output.blue = output.blue / tile.completedSamples;
+					output.alpha = 1.0f;
 					
 					//Store internal render buffer (float precision)
 					blit(r->state.renderBuffer, output, x, y);
