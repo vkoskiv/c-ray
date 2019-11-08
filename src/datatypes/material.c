@@ -197,7 +197,7 @@ struct vector reflectVec(const struct vector *incident, const struct vector *nor
 struct vector randomInUnitSphere(pcg32_random_t *rng) {
 	struct vector vec = (struct vector){0.0, 0.0, 0.0};
 	do {
-		vec = vecMultiplyConst(vecWithPos(rndFloat(0, 1, rng), rndFloat(0, 1, rng), rndFloat(0, 1, rng)), 2.0);
+		vec = vecMultiplyConst(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
 		vec = vecSubtract(vec, vecWithPos(1.0, 1.0, 1.0));
 	} while (vecLengthSquared(vec) >= 1.0);
 	return vec;
@@ -206,7 +206,7 @@ struct vector randomInUnitSphere(pcg32_random_t *rng) {
 struct vector randomOnUnitSphere(pcg32_random_t *rng) {
 	struct vector vec = (struct vector){0.0, 0.0, 0.0};
 	do {
-		vec = vecMultiplyConst(vecWithPos(rndFloat(0, 1, rng), rndFloat(0, 1, rng), rndFloat(0, 1, rng)), 2.0);
+		vec = vecMultiplyConst(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
 		vec = vecSubtract(vec, vecWithPos(1.0, 1.0, 1.0));
 	} while (vecLengthSquared(vec) >= 1.0);
 	return vecNormalize(vec);
@@ -315,7 +315,7 @@ bool dialectricBSDF(struct intersection *isect, struct lightRay *ray, struct col
 		refracted = vecAdd(refracted, fuzz);
 	}
 	
-	if (rndFloat(0, 1, rng) < reflectionProbability) {
+	if (rndFloat(rng) < reflectionProbability) {
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 	} else {
 		*scattered = newRay(isect->hitPoint, refracted, rayTypeRefracted);

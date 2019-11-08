@@ -185,15 +185,9 @@ void *renderThread(void *arg) {
 					if (aperture <= 0.0) {
 						incidentRay.start = startPos;
 					} else {
-<<<<<<< HEAD
-						float randY = rndFloat(-aperture, aperture, rng);
-						float randX = rndFloat(-aperture, aperture, rng);
-						struct vector randomStart = vecAdd(vecAdd(startPos, vecScale(randY, up)), vecScale(randX, left));
-=======
 						float randY = rndFloatRange(-aperture, aperture, rng);
 						float randX = rndFloatRange(-aperture, aperture, rng);
-						vec3 randomStart = vec3_add(vec3_add(startPos, vec3_muls(up, randY)), vec3_muls(left, randX));
->>>>>>> 2cb7e7c... Undo render tile preallocation commit. It caused a performance regression.
+						struct vector randomStart = vecAdd(vecAdd(startPos, vecMultiplyConst(up, randY)), vecMultiplyConst(left, randX));
 						
 						incidentRay.start = randomStart;
 					}

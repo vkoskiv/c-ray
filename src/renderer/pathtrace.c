@@ -29,7 +29,7 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 			float probability = 1;
 			if (depth >= 2) {
 				probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
-				if (rndFloat(0, 1, rng) > probability) {
+				if (rndFloat(rng) > probability) {
 					return emitted;
 				}
 			}

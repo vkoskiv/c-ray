@@ -67,7 +67,9 @@ struct vector getRandomVecOnRadius(struct vector center, float radius, pcg32_ran
 
 struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_random_t *rng);
 
-float rndFloat(float min, float max, pcg32_random_t *rng);
+float rndFloatRange(float min, float max, pcg32_random_t *rng);
+
+float rndFloat(pcg32_random_t *rng);
 
 struct vector vecMultiplyConst(struct vector v, const float c);
 
