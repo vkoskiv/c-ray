@@ -49,13 +49,9 @@ struct texture *loadTexture(char *filePath) {
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
 	
-	int *width = calloc(1, sizeof(int));
-	int *height = calloc(1, sizeof(int));
-	int *channels = calloc(1, sizeof(int));
-	
 	if (stbi_is_hdr(filePath)) {
 		new->fileType = hdr;
-		new->float_data = stbi_loadf(filePath, width, height, channels, 0);
+		new->float_data = stbi_loadf(filePath, (int*)&new->width, (int*)&new->height, &new->channels, 0);
 		new->precision = float_p;
 		if (!new->float_data) {
 			freeTexture(new);
@@ -66,7 +62,7 @@ struct texture *loadTexture(char *filePath) {
 		int MB = (((new->width * new->height * sizeof(float))/1024)/1024);
 		logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, new->channels);
 	} else {
-		new->byte_data = stbi_load(filePath, width, height, channels, 3);
+		new->byte_data = stbi_load(filePath, (int*)&new->width, (int*)&new->height, &new->channels, 3);
 		if (!new->byte_data) {
 			logr(warning, "Error while loading texture from %s - Does the file exist?\n", filePath);
 			freeTexture(new);
@@ -74,17 +70,9 @@ struct texture *loadTexture(char *filePath) {
 			return NULL;
 		}
 		new->fileType = buffer;
-		new = flipHorizontal(new);
+		//new = flipHorizontal(new);
 		new->precision = char_p;
 	}
-	
-	new->width = *width;
-	new->height = *height;
-	new->channels = *channels;
-	
-	free(width);
-	free(height);
-	free(channels);
 	
 	return new;
 }

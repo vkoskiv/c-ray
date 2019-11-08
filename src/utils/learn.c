@@ -45,7 +45,6 @@ int loadMetaData(struct model *model, char *filePath) {
 		logr(warning, "Failed to parse JSON\n");
 		const char *errptr = cJSON_GetErrorPtr();
 		if (errptr != NULL) {
-			free(buf);
 			cJSON_Delete(json);
 			logr(warning, "Error before: %s\n", errptr);
 			return -2;

@@ -101,7 +101,7 @@ void assignBSDF(struct material *mat) {
 //Transform the intersection coordinates to the texture coordinate space
 //And grab the color at that point. Texture mapping.
 struct color colorForUV(struct intersection *isect) {
-	struct color output = {0.0,0.0,0.0,0.0};
+	struct color output;
 	struct material mtl = isect->end;
 	struct poly p = polygonArray[isect->polyIndex];
 	
@@ -195,7 +195,7 @@ struct vector reflectVec(const struct vector *incident, const struct vector *nor
 }
 
 struct vector randomInUnitSphere(pcg32_random_t *rng) {
-	struct vector vec = (struct vector){0.0, 0.0, 0.0};
+	struct vector vec;
 	do {
 		vec = vecMultiplyConst(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
 		vec = vecSubtract(vec, vecWithPos(1.0, 1.0, 1.0));
@@ -204,7 +204,7 @@ struct vector randomInUnitSphere(pcg32_random_t *rng) {
 }
 
 struct vector randomOnUnitSphere(pcg32_random_t *rng) {
-	struct vector vec = (struct vector){0.0, 0.0, 0.0};
+	struct vector vec;
 	do {
 		vec = vecMultiplyConst(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
 		vec = vecSubtract(vec, vecWithPos(1.0, 1.0, 1.0));

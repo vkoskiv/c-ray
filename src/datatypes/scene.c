@@ -661,7 +661,9 @@ int parseCamera(struct renderer *r, const cJSON *data) {
 	transforms = cJSON_GetObjectItem(data, "transforms");
 	if (cJSON_IsArray(transforms)) {
 		int tformCount = cJSON_GetArraySize(transforms);
-		addCamTransforms(r->scene->camera, parseTransforms(transforms), tformCount);
+		struct transform *tforms = parseTransforms(transforms);
+		addCamTransforms(r->scene->camera, tforms, tformCount);
+		free(tforms);
 	} else {
 		logr(warning, "No transforms for camera found");
 		return -1;

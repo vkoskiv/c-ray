@@ -269,7 +269,7 @@ struct renderer *newRenderer() {
 	
 	r->scene = calloc(1, sizeof(struct world));
 	r->scene->camera = calloc(1, sizeof(struct camera));
-	r->scene->ambientColor = calloc(1, sizeof(struct color));
+	r->scene->ambientColor = calloc(1, sizeof(struct gradient));
 	r->scene->hdr = NULL; //Optional, to be loaded later
 	r->scene->meshes = calloc(1, sizeof(struct mesh));
 	r->scene->spheres = calloc(1, sizeof(struct sphere));

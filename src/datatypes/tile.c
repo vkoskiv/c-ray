@@ -64,6 +64,7 @@ int quantizeImage(struct renderTile **renderTiles, struct texture *image, int ti
 	*renderTiles = calloc(tilesX*tilesY, sizeof(struct renderTile));
 	if (*renderTiles == NULL) {
 		logr(error, "Failed to allocate renderTiles array.\n");
+		return 0;
 	}
 	
 	int tileCount = 0;

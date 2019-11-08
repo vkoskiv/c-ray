@@ -136,6 +136,7 @@ char *readStdin() {
 	char *buf = malloc(chunksize * sizeof(char));
 	if (!buf) {
 		logr(error, "Failed to malloc stdin buffer\n");
+		return NULL;
 	}
 	buf[0] = '\0';
 	while (fgets(chunk, chunksize, stdin)) {
@@ -143,15 +144,17 @@ char *readStdin() {
 		bufSize += strlen(chunk);
 		buf = realloc(buf, bufSize);
 		if (!buf) {
-			free(old);
 			logr(error, "Failed to realloc stdin buffer\n");
+			free(old);
+			return NULL;
 		}
 		strcat(buf, chunk);
 	}
 	
 	if (ferror(stdin)) {
-		free(buf);
 		logr(error, "Failed to read from stdin\n");
+		free(buf);
+		return NULL;
 	}
 	
 	logr(info, "%zi bytes of input JSON loaded from stdin, parsing.\n", bufSize-1);
