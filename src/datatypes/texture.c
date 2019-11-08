@@ -14,18 +14,20 @@ struct color textureGetPixel(struct texture *t, int x, int y);
 
 //General-purpose blit function
 void blit(struct texture *t, struct color c, unsigned int x, unsigned int y) {
-	if ((x > *t->width-1) || y < 0) return;
-	if ((y > *t->height-1) || y < 0) return;
+	if ((x > t->width-1) || y < 0) return;
+	if ((y > t->height-1) || y < 0) return;
+
 	if (t->precision == char_p) {
-		t->byte_data[(x + (*t->height - (y+1))* *t->width)* *t->channels + 0] = (unsigned char)min(c.red*255.0, 255.0);
-		t->byte_data[(x + (*t->height - (y+1))* *t->width)* *t->channels + 1] = (unsigned char)min(c.green*255.0,255.0);
-		t->byte_data[(x + (*t->height - (y+1))* *t->width)* *t->channels + 2] = (unsigned char)min(c.blue*255.0,255.0);
-		if (t->hasAlpha) t->byte_data[(x + (*t->height - (y+1))* *t->width)* *t->channels + 3] = (unsigned char)min(c.alpha*255.0, 255.0);
-	} else if (t->precision == float_p) {
-		t->float_data[(x + (*t->height - (y+1))* *t->width)* *t->channels + 0] = c.red;
-		t->float_data[(x + (*t->height - (y+1))* *t->width)* *t->channels + 1] = c.green;
-		t->float_data[(x + (*t->height - (y+1))* *t->width)* *t->channels + 2] = c.blue;
-		if (t->hasAlpha) t->float_data[(x + (*t->height - (y+1))* *t->width)* *t->channels + 3] = c.alpha;
+		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = (unsigned char)min(c.red * 255.0, 255.0);
+		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = (unsigned char)min(c.green * 255.0, 255.0);
+		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 2] = (unsigned char)min(c.blue * 255.0, 255.0);
+		if (t->hasAlpha) t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = (unsigned char)min(c.alpha * 255.0, 255.0);
+	}
+	else if (t->precision == float_p) {
+		t->float_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = c.red;
+		t->float_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = c.green;
+		t->float_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 2] = c.blue;
+		if (t->hasAlpha) t->float_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = c.alpha;
 	}
 }
 
@@ -52,21 +54,21 @@ struct color textureGetPixel(struct texture *t, int x, int y) {
 	}
 	
 	//bilinear lerp might tweak the values, so just clamp here to be safe.
-	x = x > *t->width-1 ? *t->width-1 : x;
-	y = y > *t->height-1 ? *t->height-1 : y;
+	x = x > t->width-1 ? t->width-1 : x;
+	y = y > t->height-1 ? t->height-1 : y;
 	x = x < 0 ? 0 : x;
 	y = y < 0 ? 0 : y;
 	
 	if (t->precision == float_p) {
-		output.red = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0];
-		output.green = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1];
-		output.blue = t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2];
-		output.alpha = t->hasAlpha ? t->float_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 3] : 1.0;
+		output.red = t->float_data[(x + ((t->height-1) - y) * t->width)*pitch + 0];
+		output.green = t->float_data[(x + ((t->height-1) - y) * t->width)*pitch + 1];
+		output.blue = t->float_data[(x + ((t->height-1) - y) * t->width)*pitch + 2];
+		output.alpha = t->hasAlpha ? t->float_data[(x + ((t->height-1) - y) * t->width)*pitch + 3] : 1.0;
 	} else {
-		output.red   = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 0]/255.0;
-		output.green = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 1]/255.0;
-		output.blue  = t->byte_data[(x + ((*t->height-1) - y) * *t->width)*pitch + 2]/255.0;
-		output.alpha = t->hasAlpha ? t->byte_data[(x + (*t->height - y) * *t->width)*pitch + 3]/255.0 : 1.0;
+		output.red = t->byte_data[(x + ((t->height-1) - y) * t->width)*pitch + 0]/255.0;
+		output.green = t->byte_data[(x + ((t->height-1) - y) * t->width)*pitch + 1]/255.0;
+		output.blue = t->byte_data[(x + ((t->height-1) - y) * t->width)*pitch + 2]/255.0;
+		output.alpha = t->hasAlpha ? t->byte_data[(x + (t->height - y) * t->width)*pitch + 3]/255.0 : 1.0;
 	}
 	
 	return output;
@@ -76,9 +78,6 @@ struct texture *newTexture() {
 	struct texture *t = calloc(1, sizeof(struct texture));
 	t->byte_data = NULL;
 	t->float_data = NULL;
-	t->width = calloc(1, sizeof(unsigned int));
-	t->height = calloc(1, sizeof(unsigned int));
-	t->channels = calloc(1, sizeof(int));
 	t->colorspace = linear;
 	t->count = 0;
 	t->hasAlpha = false;
@@ -88,10 +87,10 @@ struct texture *newTexture() {
 }
 
 void allocTextureBuffer(struct texture *t, enum precision p, int width, int height, int channels) {
-	*t->width = width;
-	*t->height = height;
+	t->width = width;
+	t->height = height;
 	t->precision = p;
-	*t->channels = channels;
+	t->channels = channels;
 	if (channels > 3) t->hasAlpha = true;
 	
 	switch (t->precision) {
@@ -106,8 +105,8 @@ void allocTextureBuffer(struct texture *t, enum precision p, int width, int heig
 
 void textureFromSRGB(struct texture *t) {
 	if (t->colorspace == sRGB) return;
-	for (int x = 0; x < *t->width; x++) {
-		for (int y = 0; y < *t->height; y++) {
+	for (int x = 0; x < t->width; x++) {
+		for (int y = 0; y < t->height; y++) {
 			blit(t, fromSRGB(textureGetPixel(t, x, y)), x, y);
 		}
 	}
@@ -116,8 +115,8 @@ void textureFromSRGB(struct texture *t) {
 
 void textureToSRGB(struct texture *t) {
 	if (t->colorspace == linear) return;
-	for (int x = 0; x < *t->width; x++) {
-		for (int y = 0; y < *t->height; y++) {
+	for (int x = 0; x < t->width; x++) {
+		for (int y = 0; y < t->height; y++) {
 			blit(t, toSRGB(textureGetPixel(t, x, y)), x, y);
 		}
 	}
@@ -136,14 +135,5 @@ void freeTexture(struct texture *t) {
 	}
 	if (t->float_data) {
 		free(t->float_data);
-	}
-	if (t->channels) {
-		free(t->channels);
-	}
-	if (t->width) {
-		free(t->width);
-	}
-	if (t->height) {
-		free(t->height);
 	}
 }

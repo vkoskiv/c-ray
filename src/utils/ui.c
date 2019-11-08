@@ -220,8 +220,8 @@ void drawWindow(struct renderer *r) {
 	//Render frames
 	updateFrames(r);
 	//Update image data
-	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->state.image->byte_data, *r->state.image->width * 3);
-	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer->byte_data, *r->state.image->width * 4);
+	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->state.image->byte_data, r->state.image->width * 3);
+	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer->byte_data, r->state.image->width * 4);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
 	SDL_RenderPresent(r->mainDisplay->renderer);

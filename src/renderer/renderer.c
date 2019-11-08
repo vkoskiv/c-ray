@@ -24,7 +24,7 @@
 void render(struct renderer *r) {
 	logr(info, "Starting C-ray renderer for frame %i\n", r->state.image->count);
 	
-	logr(info, "Rendering at %i x %i\n", *r->state.image->width,*r->state.image->height);
+	logr(info, "Rendering at %i x %i\n", r->state.image->width, r->state.image->height);
 	logr(info, "Rendering %i samples with %i bounces.\n", r->prefs.sampleCount, r->prefs.bounces);
 	logr(info, "Rendering with %d thread", r->prefs.threadCount);
 	printf(r->prefs.threadCount > 1 ? "s.\n" : ".\n");
@@ -148,7 +148,7 @@ void *renderThread(void *arg) {
 			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					
-					uint64_t pixIdx = y * *r->state.image->width + x;
+					uint64_t pixIdx = y * r->state.image->width + x;
 					uint64_t idx = pixIdx * r->prefs.sampleCount + tile.completedSamples;
 					pcg32_srandom_r(rng, hash(idx), 0);
 					
@@ -164,9 +164,9 @@ void *renderThread(void *arg) {
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 					//imaginary plane in front of the origin. startPos is just the camera position.
-					struct vector direction = {(fracX - 0.5 * *r->state.image->width)
+					struct vector direction = {(fracX - 0.5 * r->state.image->width)
 												/ r->scene->camera->focalLength,
-											   (fracY - 0.5 * *r->state.image->height)
+											   (fracY - 0.5 * r->state.image->height)
 												/ r->scene->camera->focalLength,
 												1.0};
 					

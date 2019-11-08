@@ -106,9 +106,9 @@ struct color colorForUV(struct intersection *isect) {
 	struct poly p = polygonArray[isect->polyIndex];
 	
 	//Texture width and height for this material
-	float width = *mtl.texture->width;
-	float heigh = *mtl.texture->height;
-	
+	float width = mtl.texture->width;
+	float heigh = mtl.texture->height;
+
 	//barycentric coordinates for this polygon
 	float u = isect->uv.x;
 	float v = isect->uv.y;

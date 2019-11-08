@@ -50,16 +50,16 @@ int quantizeImage(struct renderTile **renderTiles, struct texture *image, int ti
 	logr(info, "Quantizing render plane...\n");
 	
 	//Sanity check on tilesizes
-	if (tileWidth >= *image->width) tileWidth = *image->width;
-	if (tileHeight >= *image->height) tileHeight = *image->height;
+	if (tileWidth >= image->width) tileWidth = image->width;
+	if (tileHeight >= image->height) tileHeight = image->height;
 	if (tileWidth <= 0) tileWidth = 1;
 	if (tileHeight <= 0) tileHeight = 1;
 	
-	int tilesX = *image->width / tileWidth;
-	int tilesY = *image->height / tileHeight;
+	int tilesX = image->width / tileWidth;
+	int tilesY = image->height / tileHeight;
 	
-	tilesX = (*image->width % tileWidth) != 0 ? tilesX + 1: tilesX;
-	tilesY = (*image->height % tileHeight) != 0 ? tilesY + 1: tilesY;
+	tilesX = (image->width % tileWidth) != 0 ? tilesX + 1: tilesX;
+	tilesY = (image->height % tileHeight) != 0 ? tilesY + 1: tilesY;
 	
 	*renderTiles = calloc(tilesX*tilesY, sizeof(struct renderTile));
 	if (*renderTiles == NULL) {
@@ -79,8 +79,8 @@ int quantizeImage(struct renderTile **renderTiles, struct texture *image, int ti
 			tile->begin.y = y       * tileHeight;
 			tile->end.y   = (y + 1) * tileHeight;
 			
-			tile->end.x = min((x + 1) * tileWidth, *image->width);
-			tile->end.y = min((y + 1) * tileHeight, *image->height);
+			tile->end.x = min((x + 1) * tileWidth, image->width);
+			tile->end.y = min((y + 1) * tileHeight, image->height);
 			
 			//Samples have to start at 1, so the running average works
 			tile->completedSamples = 1;

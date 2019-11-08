@@ -218,6 +218,7 @@ void transformMeshes(struct world *scene) {
 	}
 }
 
+//TODO: Parallelize this task
 void computeKDTrees(struct world *scene) {
 	logr(info, "Computing KD-trees...\n");
 	for (int i = 0; i < scene->meshCount; ++i) {
@@ -958,12 +959,12 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	width = cJSON_GetObjectItem(data, "width");
 	if (cJSON_IsNumber(width)) {
 		if (width->valueint >= 0) {
-			*r->state.image->width = width->valueint;
+			r->state.image->width = width->valueint;
 #ifdef UI_ENABLED
 			r->mainDisplay->width = width->valueint;
 #endif
 		} else {
-			*r->state.image->width = 640;
+			r->state.image->width = 640;
 #ifdef UI_ENABLED
 			r->mainDisplay->width = 640;
 #endif
@@ -973,12 +974,12 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	height = cJSON_GetObjectItem(data, "height");
 	if (cJSON_IsNumber(height)) {
 		if (height->valueint >= 0) {
-			*r->state.image->height = height->valueint;
+			r->state.image->height = height->valueint;
 #ifdef UI_ENABLED
 			r->mainDisplay->height = height->valueint;
 #endif
 		} else {
-			*r->state.image->height = 640;
+			r->state.image->height = 640;
 #ifdef UI_ENABLED
 			r->mainDisplay->height = 640;
 #endif
@@ -1148,17 +1149,17 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	reorderTiles(&r->state.renderTiles, r->state.tileCount, r->prefs.tileOrder);
 	
 	//Compute the focal length for the camera
-	computeFocalLength(r->scene->camera, *r->state.image->width);
+	computeFocalLength(r->scene->camera, r->state.image->width);
 	
 	//Allocate memory and create array of pixels for image data
-	allocTextureBuffer(r->state.image, char_p, *r->state.image->width, *r->state.image->height, 3);
+	allocTextureBuffer(r->state.image, char_p, r->state.image->width, r->state.image->height, 3);
 	if (!r->state.image->byte_data) {
 		logr(error, "Failed to allocate memory for image data.");
 	}
 	
 	//Set a dark gray background for the render preview
-	for (int x = 0; x < *r->state.image->width; x++) {
-		for (int y = 0; y < *r->state.image->height; y++) {
+	for (int x = 0; x < r->state.image->width; x++) {
+		for (int y = 0; y < r->state.image->height; y++) {
 			blit(r->state.image, backgroundColor, x, y);
 		}
 	}
@@ -1166,12 +1167,12 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
 	r->state.renderBuffer = newTexture();
-	allocTextureBuffer(r->state.renderBuffer, float_p, *r->state.image->width, *r->state.image->height, 3);
+	allocTextureBuffer(r->state.renderBuffer, float_p, r->state.image->width, r->state.image->height, 3);
 	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
 	r->state.uiBuffer = newTexture();
-	allocTextureBuffer(r->state.uiBuffer, char_p, *r->state.image->width, *r->state.image->height, 4);
+	allocTextureBuffer(r->state.uiBuffer, char_p, r->state.image->width, r->state.image->height, 4);
 	
 	//Alloc memory for pthread_create() args
 	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(struct threadState));
