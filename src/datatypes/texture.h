@@ -38,10 +38,10 @@ struct texture {
 	int count;
 	unsigned char *byte_data; //For 24/32bit
 	float *float_data; //For hdr
-	int *channels; //For hdr
+	int channels; //For hdr
 	float offset; //radians, for hdr
-	unsigned int *width;
-	unsigned int *height;
+	unsigned int width;
+	unsigned int height;
 };
 
 struct color;

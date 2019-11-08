@@ -157,8 +157,8 @@ color colorForUV(struct texture *t, vec2 uv, struct poly p) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
 
 	//Texture width and height for this material
-	float width = *t->width;
-	float heigh = *t->height;
+	float width = t->width;
+	float heigh = t->height;
 
 	//barycentric coordinates for this polygon
 	float u = uv.x;

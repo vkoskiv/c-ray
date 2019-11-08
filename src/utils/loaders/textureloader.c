@@ -21,7 +21,7 @@
 //This is to compensate for the non-standard coordinate system handedness
 struct texture *flipHorizontal(struct texture *t) {
 	struct texture *new = newTexture();
-	allocTextureBuffer(new, t->precision, *t->width, *t->height, *t->channels);
+	allocTextureBuffer(new, t->precision, t->width, t->height, t->channels);
 	new->colorspace = t->colorspace;
 	new->count = t->count;
 	if (t->fileName) {
@@ -32,9 +32,9 @@ struct texture *flipHorizontal(struct texture *t) {
 	}
 	new->fileType = t->fileType;
 	
-	for (int y = 0; y < *new->height; y++) {
-		for (int x = 0; x < *new->width; x++) {
-			blit(new, textureGetPixel(t, ((*t->width-1) - x), y), x, y);
+	for (int y = 0; y < new->height; y++) {
+		for (int x = 0; x < new->width; x++) {
+			blit(new, textureGetPixel(t, ((t->width-1) - x), y), x, y);
 		}
 	}
 	
@@ -49,9 +49,13 @@ struct texture *loadTexture(char *filePath) {
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
 	
+	int *width = calloc(1, sizeof(int));
+	int *height = calloc(1, sizeof(int));
+	int *channels = calloc(1, sizeof(int));
+	
 	if (stbi_is_hdr(filePath)) {
 		new->fileType = hdr;
-		new->float_data = stbi_loadf(filePath, (int *)new->width, (int *)new->height, new->channels, 0);
+		new->float_data = stbi_loadf(filePath, width, height, channels, 0);
 		new->precision = float_p;
 		if (!new->float_data) {
 			freeTexture(new);
@@ -59,10 +63,10 @@ struct texture *loadTexture(char *filePath) {
 			logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
 			return NULL;
 		}
-		int MB = (((*new->width * *new->height * sizeof(float))/1024)/1024);
-		logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, *new->channels);
+		int MB = (((new->width * new->height * sizeof(float))/1024)/1024);
+		logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, new->channels);
 	} else {
-		new->byte_data = stbi_load(filePath, (int *)new->width, (int *)new->height, new->channels, 3);
+		new->byte_data = stbi_load(filePath, width, height, channels, 3);
 		if (!new->byte_data) {
 			logr(warning, "Error while loading texture from %s - Does the file exist?\n", filePath);
 			freeTexture(new);
@@ -73,6 +77,14 @@ struct texture *loadTexture(char *filePath) {
 		new = flipHorizontal(new);
 		new->precision = char_p;
 	}
+	
+	new->width = *width;
+	new->height = *height;
+	new->channels = *channels;
+	
+	free(width);
+	free(height);
+	free(channels);
 	
 	return new;
 }
