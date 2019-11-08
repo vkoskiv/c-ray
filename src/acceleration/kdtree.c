@@ -102,6 +102,7 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 	}
 	
 	node->bbox = computeBoundingBox(node->polygons, node->polyCount);
+	float currentSAHCost = node->polyCount * findSurfaceArea(*node->bbox);
 	
 	struct vector midPoint = node->bbox->midPoint;
 	
@@ -135,27 +136,25 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 		rightPolys = leftPolys;
 	}
 	
-	//If more than 50% of polys match, stop subdividing
-	//TODO: Find a non-O(n^2) way of stopping the subdivide
-	int matches = 0;
-	for (int i = 0; i < leftPolys.used; i++) {
-		for (int j = 0; j < rightPolys.used; j++) {
-			if (comparePolygons(&polygonArray[leftPolys.array[i]], &polygonArray[rightPolys.array[j]])) {
-				matches++;
-			}
-		}
-	}
+	struct boundingBox *leftBBox = computeBoundingBox(leftPolys.array, (int)leftPolys.used);
+	struct boundingBox *rightBBox = computeBoundingBox(rightPolys.array, (int)rightPolys.used);
 	
-	if (((float)matches < 0.5 * leftPolys.used) && ((float)matches < 0.5 * rightPolys.used)) {
-		//Recurse down both left and right sides
-		node->left = buildTree(leftPolys.array, (int)leftPolys.used, depth + 1);
-		node->right = buildTree(rightPolys.array, (int)rightPolys.used, depth + 1);
-	} else {
+	float leftSAHCost = leftPolys.used * findSurfaceArea(*leftBBox);
+	float rightSAHCost = rightPolys.used * findSurfaceArea(*rightBBox);
+	
+	free(leftBBox);
+	free(rightBBox);
+	
+	if ((leftSAHCost + rightSAHCost) > currentSAHCost) {
 		//Stop here
 		node->left = getNewNode();
 		node->right = getNewNode();
 		node->left->polygons = NULL;
 		node->right->polygons = NULL;
+	} else {
+		//Keep going
+		node->left = buildTree(leftPolys.array, (int)leftPolys.used, depth + 1);
+		node->right = buildTree(rightPolys.array, (int)rightPolys.used, depth + 1);
 	}
 	
 	return node;

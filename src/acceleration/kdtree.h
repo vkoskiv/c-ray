@@ -12,7 +12,6 @@ struct poly;
 struct boundingBox;
 
 struct kdTreeNode {
-	//Need a bounding volume
 	struct boundingBox *bbox;//Bounding box
 	struct kdTreeNode *left; //Pointer to left child
 	struct kdTreeNode *right;//Pointer to right child

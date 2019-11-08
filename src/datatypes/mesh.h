@@ -8,8 +8,6 @@
 
 #pragma once
 
-struct boundingBox;
-
 /*
  C-Ray stores all vectors and polygons in shared arrays, so these
  data structures just keep track of 'first-index offsets'
