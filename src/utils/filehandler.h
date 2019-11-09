@@ -10,12 +10,13 @@
 
 struct scene;
 struct renderer;
+struct renderInfo;
 
 //Prints the file size of a given file to the console in a user-readable format
 void printFileSize(char *fileName);
 
 //Writes image data to file
-void writeImage(struct texture *image, enum fileMode mode);
+void writeImage(struct texture *image, enum fileMode mode, struct renderInfo info);
 
 char *loadFile(char *inputFileName, size_t *bytes);
 

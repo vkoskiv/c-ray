@@ -78,9 +78,46 @@ void encodeBMPFromArray(const char *filename, unsigned char *imgData, int width,
 	fclose(f);
 }
 
-void encodePNGFromArray(const char *filename, unsigned char *imgData, int width, int height) {
-	unsigned error = lodepng_encode24_file(filename, imgData, width, height);
-	if (error) logr(warning, "error %u: %s\n", error, lodepng_error_text(error));
+void encodePNGFromArray(const char *filename, unsigned char *imgData, int width, int height, struct renderInfo imginfo) {
+	LodePNGInfo info;
+	lodepng_info_init(&info);
+	info.time_defined = 1;
+	
+	char version[60];
+	sprintf(version, "C-ray v%s [%s], © 2015-2019 Valtteri Koskivuori", imginfo.crayVersion, imginfo.gitHash);
+	char samples[16];
+	sprintf(samples, "%i", imginfo.samples);
+	char bounces[16];
+	sprintf(bounces, "%i", imginfo.bounces);
+	char seconds[16];
+	sprintf(seconds, "%i", imginfo.renderTimeSeconds);
+	
+	lodepng_add_text(&info, "C-ray Version", version);
+	lodepng_add_text(&info, "C-ray Source", "https://github.com/vkoskiv/c-ray");
+	lodepng_add_text(&info, "C-ray Samples", samples);
+	lodepng_add_text(&info, "C-ray Bounces", bounces);
+	lodepng_add_text(&info, "C-ray RenderTime (seconds)", seconds);
+	
+	LodePNGState state;
+	lodepng_state_init(&state);
+	state.info_raw.bitdepth = 8;
+	state.info_raw.colortype = LCT_RGB;
+	lodepng_info_copy(&state.info_png, &info);
+	state.encoder.add_id = 1;
+	state.encoder.text_compression = 0;
+	
+	size_t bytes = 0;
+	unsigned char *buf = NULL;
+	
+	unsigned error = lodepng_encode(&buf, &bytes, imgData, width, height, &state);
+	if (error) logr(warning, "Error %u: %s\n", error, lodepng_error_text(error));
+	
+	error = lodepng_save_file(buf, bytes, filename);
+	if (error) logr(warning, "Error %u: %s\n", error, lodepng_error_text(error));
+	
+	lodepng_info_cleanup(&info);
+	lodepng_state_cleanup(&state);
+	
 }
 
 //TODO: Use this for textures and HDRs too.
@@ -203,7 +240,7 @@ void printFileSize(char *fileName) {
 	}
 }
 
-void writeImage(struct texture *image, enum fileMode mode) {
+void writeImage(struct texture *image, enum fileMode mode, struct renderInfo imginfo) {
 	switch (mode) {
 		case saveModeNormal: {
 			//Save image data to a file
@@ -213,7 +250,7 @@ void writeImage(struct texture *image, enum fileMode mode) {
 				encodeBMPFromArray(buf, image->byte_data, image->width, image->height);
 			} else if (image->fileType == png){
 				asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
-				encodePNGFromArray(buf, image->byte_data, image->width, image->height);
+				encodePNGFromArray(buf, image->byte_data, image->width, image->height, imginfo);
 			}
 			logr(info, "Saving result in \"%s\"\n", buf);
 			printFileSize(buf);

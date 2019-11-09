@@ -28,6 +28,14 @@ enum precision {
 	float_p
 };
 
+struct renderInfo {
+	int samples;
+	int bounces;
+	int renderTimeSeconds;
+	char *crayVersion;
+	char *gitHash;
+};
+
 struct texture {
 	bool hasAlpha;
 	enum fileType fileType;

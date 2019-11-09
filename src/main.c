@@ -19,6 +19,7 @@
 #include "utils/multiplatform.h"
 #include "datatypes/vertexbuffer.h"
 #include "utils/gitsha1.h"
+#include "datatypes/texture.h"
 
 /**
  Main entry point
@@ -30,7 +31,6 @@
 int main(int argc, char *argv[]) {
 	char *hash = gitHash(8);
 	logr(info, "C-ray v%s [%s], © 2015-2019 Valtteri Koskivuori\n", VERSION, hash);
-	free(hash);
 	
 	initTerminal();
 	allocVertexBuffer();
@@ -51,7 +51,14 @@ int main(int argc, char *argv[]) {
 	time(&stop);
 	printDuration(difftime(stop, start));
 	
-	writeImage(r->state.image, r->prefs.fileMode);
+	writeImage(r->state.image, r->prefs.fileMode, (struct renderInfo){
+		.bounces = r->prefs.bounces,
+		.samples = r->prefs.sampleCount,
+		.crayVersion = VERSION,
+		.gitHash = hash,
+		.renderTimeSeconds = difftime(stop, start)
+	});
+	free(hash);
 	freeRenderer(r);
 	freeVertexBuffer();
 	logr(info, "Render finished, exiting.\n");
