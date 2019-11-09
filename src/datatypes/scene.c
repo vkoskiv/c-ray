@@ -1113,7 +1113,17 @@ int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 }
 
 //Load the scene, allocate buffers, etc
-void loadScene(struct renderer *r, char *input, bool fromStdin) {
+int loadScene(struct renderer *r, int argc, char **argv) {
+	
+	bool fromStdin = false;
+	char *input;
+	if (argc == 2) {
+		input = argv[1];
+		fromStdin = false;
+	} else {
+		input = readStdin();
+		fromStdin = true;
+	}
 	
 	struct timeval *timer = calloc(1, sizeof(struct timeval));
 	startTimer(timer);
@@ -1121,16 +1131,22 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 	//Build the scene
 	switch (parseJSON(r, input, fromStdin)) {
 		case -1:
-			logr(error, "Scene builder failed due to previous error.\n");
+			logr(warning, "Scene builder failed due to previous error.\n");
+			return -1;
 			break;
 		case 4:
-			logr(error, "Scene debug mode enabled, won't render image.\n");
+			logr(warning, "Scene debug mode enabled, won't render image.\n");
+			return -1;
 			break;
 		case -2:
-			logr(error, "JSON parser failed.\n");
+			logr(warning, "JSON parser failed.\n");
+			return -1;
 			break;
 		default:
 			break;
+	}
+	if (fromStdin) {
+		free(input);
 	}
 	
 	transformCameraIntoView(r->scene->camera);
@@ -1189,6 +1205,7 @@ void loadScene(struct renderer *r, char *input, bool fromStdin) {
 		r->prefs.threadCount = r->state.tileCount;
 		printf("%i\n", r->prefs.threadCount);
 	}
+	return 0;
 }
 
 //Free scene data

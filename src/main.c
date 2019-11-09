@@ -35,12 +35,13 @@ int main(int argc, char *argv[]) {
 	initTerminal();
 	allocVertexBuffer();
 	struct renderer *r = newRenderer();
-	if (argc == 2) {
-		loadScene(r, argv[1], false);
-	} else {
-		char *scene = readStdin();
-		loadScene(r, scene, true);
+	
+	if (loadScene(r, argc, argv)) {
+		freeRenderer(r);
+		freeVertexBuffer();
+		return -1;
 	}
+	
 #ifdef UI_ENABLED
 	initSDL(r->mainDisplay);
 #endif
