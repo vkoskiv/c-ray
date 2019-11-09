@@ -127,7 +127,6 @@ char *loadFile(char *inputFileName, size_t *bytes) {
 	FILE *f = fopen(inputFileName, "rb");
 	if (!f) {
 		logr(warning, "No file found at %s\n", inputFileName);
-		fclose(f);
 		return NULL;
 	}
 	char *buf = NULL;
@@ -271,7 +270,9 @@ void writeImage(struct texture *image, enum fileMode mode, struct renderInfo img
 
 //For Windows support, we need our own getdelim()
 #if defined(_WIN32) || defined(__linux__)
+#ifndef LONG_MAX
 #define	LONG_MAX	2147483647L	/* max signed long */
+#endif
 #endif
 #define	SSIZE_MAX	LONG_MAX	/* max value for a ssize_t */
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
