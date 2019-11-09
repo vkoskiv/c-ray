@@ -112,6 +112,8 @@ SDL2: https://www.libsdl.org/index.php
 
 JSON parsing library: https://github.com/DaveGamble/cJSON
 
+PCG random number generator: http://www.pcg-random.org
+
 ## Contributors
 
 If you know more than me, please do get in touch at vkoskiv [at] gmail (dot) com!
