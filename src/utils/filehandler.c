@@ -126,7 +126,8 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 char *loadFile(char *inputFileName, size_t *bytes) {
 	FILE *f = fopen(inputFileName, "rb");
 	if (!f) {
-		logr(error, "No file found at %s\n", inputFileName);
+		logr(warning, "No file found at %s\n", inputFileName);
+		fclose(f);
 		return NULL;
 	}
 	char *buf = NULL;
