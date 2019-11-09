@@ -322,6 +322,7 @@ void freeRenderer(struct renderer *r) {
 #ifdef UI_ENABLED
 	if (r->mainDisplay) {
 		freeDisplay(r->mainDisplay);
+		free(r->mainDisplay);
 	}
 #endif
 	if (r->state.timers) {

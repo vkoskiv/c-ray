@@ -1135,14 +1135,17 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 	switch (parseJSON(r, input, fromStdin)) {
 		case -1:
 			logr(warning, "Scene builder failed due to previous error.\n");
+			free(timer);
 			return -1;
 			break;
 		case 4:
 			logr(warning, "Scene debug mode enabled, won't render image.\n");
+			free(timer);
 			return -1;
 			break;
 		case -2:
 			logr(warning, "JSON parser failed.\n");
+			free(timer);
 			return -1;
 			break;
 		default:

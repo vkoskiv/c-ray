@@ -37,8 +37,9 @@ int main(int argc, char *argv[]) {
 	struct renderer *r = newRenderer();
 	
 	if (loadScene(r, argc, argv)) {
-		freeRenderer(r);
+		free(hash);
 		freeVertexBuffer();
+		freeRenderer(r);
 		return -1;
 	}
 	
