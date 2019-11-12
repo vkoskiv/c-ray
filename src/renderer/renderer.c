@@ -131,7 +131,7 @@ void *renderThread(void *arg) {
 	struct threadState *tinfo = (struct threadState*)arg;
 	
 	struct renderer *r = tinfo->r;
-	pcg32_random_t *rng = &tinfo->r->state.rngs[tinfo->thread_num];
+	pcg32_random_t rng;
 	
 	//First time setup for each thread
 	struct renderTile tile = getTile(r);
@@ -151,7 +151,7 @@ void *renderThread(void *arg) {
 					
 					uint64_t pixIdx = y * r->state.image->width + x;
 					uint64_t idx = pixIdx * r->prefs.sampleCount + tile.completedSamples;
-					pcg32_srandom_r(rng, hash(idx), 0);
+					pcg32_srandom_r(&rng, hash(idx), 0);
 					
 					float fracX = (float)x;
 					float fracY = (float)y;
@@ -159,8 +159,8 @@ void *renderThread(void *arg) {
 					//A cheap 'antialiasing' of sorts. The more samples, the better this works
 					float jitter = 0.25;
 					if (r->prefs.antialiasing) {
-						fracX = rndFloatRange(fracX - jitter, fracX + jitter, rng);
-						fracY = rndFloatRange(fracY - jitter, fracY + jitter, rng);
+						fracX = rndFloatRange(fracX - jitter, fracX + jitter, &rng);
+						fracY = rndFloatRange(fracY - jitter, fracY + jitter, &rng);
 					}
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
@@ -186,8 +186,8 @@ void *renderThread(void *arg) {
 					if (aperture <= 0.0) {
 						incidentRay.start = startPos;
 					} else {
-						float randY = rndFloatRange(-aperture, aperture, rng);
-						float randX = rndFloatRange(-aperture, aperture, rng);
+						float randY = rndFloatRange(-aperture, aperture, &rng);
+						float randX = rndFloatRange(-aperture, aperture, &rng);
 						struct vector randomStart = vecAdd(vecAdd(startPos, vecMultiplyConst(up, randY)), vecMultiplyConst(left, randX));
 						
 						incidentRay.start = randomStart;
@@ -205,7 +205,7 @@ void *renderThread(void *arg) {
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y);
 					
 					//Get new sample (path tracing is initiated here)
-					struct color sample = pathTrace(&incidentRay, r->scene, 0, r->prefs.bounces, rng, &hasHitObject);
+					struct color sample = pathTrace(&incidentRay, r->scene, 0, r->prefs.bounces, &rng, &hasHitObject);
 					
 					//And process the running average
 					output.red = output.red * (tile.completedSamples - 1);

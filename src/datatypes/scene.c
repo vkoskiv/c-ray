@@ -1159,8 +1159,6 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 	
 	//Alloc threadPaused booleans, one for each thread
 	r->state.threadPaused = calloc(r->prefs.threadCount, sizeof(bool));
-	//Alloc RNGs, one for each thread
-	r->state.rngs = calloc(r->prefs.threadCount, sizeof(pcg32_random_t));
 	
 	//Quantize image into renderTiles
 	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);

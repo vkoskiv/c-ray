@@ -56,7 +56,6 @@ struct state {
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
 	struct threadState *threadStates; //Info about threads
-	pcg32_random_t *rngs; // PCG rng, one for each thread
 	
 #ifdef WINDOWS
 	HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
