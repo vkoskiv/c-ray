@@ -1128,24 +1128,21 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 		fromStdin = true;
 	}
 	
-	struct timeval *timer = calloc(1, sizeof(struct timeval));
-	startTimer(timer);
+	struct timeval timer;
+	startTimer(&timer);
 	
 	//Build the scene
 	switch (parseJSON(r, input, fromStdin)) {
 		case -1:
 			logr(warning, "Scene builder failed due to previous error.\n");
-			free(timer);
 			return -1;
 			break;
 		case 4:
 			logr(warning, "Scene debug mode enabled, won't render image.\n");
-			free(timer);
 			return -1;
 			break;
 		case -2:
 			logr(warning, "JSON parser failed.\n");
-			free(timer);
 			return -1;
 			break;
 		default:
@@ -1158,8 +1155,7 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 	transformCameraIntoView(r->scene->camera);
 	transformMeshes(r->scene);
 	computeKDTrees(r->scene->meshes, r->scene->meshCount);
-	printSceneStats(r->scene, endTimer(timer));
-	free(timer);
+	printSceneStats(r->scene, endTimer(&timer));
 	
 	//Alloc threadPaused booleans, one for each thread
 	r->state.threadPaused = calloc(r->prefs.threadCount, sizeof(bool));
