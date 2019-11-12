@@ -21,7 +21,7 @@ sigfunc *signal(int, sigfunc*);
 
 void sigHandler(int sig) {
 	if (sig == SIGINT) {
-		logr(info, "Received ^C, aborting...\n");
+		logr(info, "Received ^C, aborting\n");
 		exit(1);
 	}
 }
@@ -104,11 +104,11 @@ void getKeyboardInput(struct renderer *r) {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
 			if (event.key.keysym.sym == SDLK_s) {
-				logr(info, "Aborting render, saving...\n");
+				logr(info, "Aborting render, saving\n");
 				r->state.renderAborted = true;
 			}
 			if (event.key.keysym.sym == SDLK_x) {
-				logr(info, "Aborting render without saving...\n");
+				logr(info, "Aborting render without saving\n");
 				r->prefs.fileMode = saveModeNone;
 				r->state.renderAborted = true;
 			}

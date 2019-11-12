@@ -29,7 +29,7 @@ void render(struct renderer *r) {
 	logr(info, "Rendering with %d thread", r->prefs.threadCount);
 	printf(r->prefs.threadCount > 1 ? "s.\n" : ".\n");
 	
-	logr(info, "Pathtracing...\n");
+	logr(info, "Pathtracing\n");
 	
 	//Create threads
 	int t;

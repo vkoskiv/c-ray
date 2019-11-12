@@ -120,25 +120,26 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	
 	//Create mesh to keep track of meshes
 	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + 1) * sizeof(struct mesh));
+	struct mesh *newMesh = &r->scene->meshes[r->scene->meshCount];
 	//Vertex data
-	r->scene->meshes[r->scene->meshCount].firstVectorIndex = vertexCount;
-	r->scene->meshes[r->scene->meshCount].vertexCount = data.vertex_count;
+	newMesh->firstVectorIndex = vertexCount;
+	newMesh->vertexCount = data.vertex_count;
 	//Normal data
-	r->scene->meshes[r->scene->meshCount].firstNormalIndex = normalCount;
-	r->scene->meshes[r->scene->meshCount].normalCount = data.vertex_normal_count;
+	newMesh->firstNormalIndex = normalCount;
+	newMesh->normalCount = data.vertex_normal_count;
 	//Texture vector data
-	r->scene->meshes[r->scene->meshCount].firstTextureIndex = textureCount;
-	r->scene->meshes[r->scene->meshCount].textureCount = data.vertex_texture_count;
+	newMesh->firstTextureIndex = textureCount;
+	newMesh->textureCount = data.vertex_texture_count;
 	//Poly data
-	r->scene->meshes[r->scene->meshCount].firstPolyIndex = polyCount;
-	r->scene->meshes[r->scene->meshCount].polyCount = data.face_count;
+	newMesh->firstPolyIndex = polyCount;
+	newMesh->polyCount = data.face_count;
 	//Transforms init
-	r->scene->meshes[r->scene->meshCount].transformCount = 0;
-	r->scene->meshes[r->scene->meshCount].transforms = malloc(sizeof(struct transform));
+	newMesh->transformCount = 0;
+	newMesh->transforms = malloc(sizeof(struct transform));
 	
-	r->scene->meshes[r->scene->meshCount].materialCount = 0;
+	newMesh->materialCount = 0;
 	//Set name
-	copyString(getFileName(inputFilePath), &r->scene->meshes[r->scene->meshCount].name);
+	copyString(getFileName(inputFilePath), &newMesh->name);
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
@@ -150,46 +151,46 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	//Convert vectors
 	vertexArray = realloc(vertexArray, vertexCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_count; i++) {
-		vertexArray[r->scene->meshes[r->scene->meshCount].firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
+		vertexArray[newMesh->firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
 	}
 	
 	//Convert normals
 	normalArray = realloc(normalArray, normalCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_normal_count; i++) {
-		normalArray[r->scene->meshes[r->scene->meshCount].firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
+		normalArray[newMesh->firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture vectors
 	textureArray = realloc(textureArray, textureCount * sizeof(struct coord));
 	for (int i = 0; i < data.vertex_texture_count; i++) {
-		textureArray[r->scene->meshes[r->scene->meshCount].firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
+		textureArray[newMesh->firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
 	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
 	for (int i = 0; i < data.face_count; i++) {
-		polygonArray[r->scene->meshes[r->scene->meshCount].firstPolyIndex + i] = polyFromObj(data.face_list[i],
-																							r->scene->meshes[r->scene->meshCount].firstVectorIndex,
-																							r->scene->meshes[r->scene->meshCount].firstNormalIndex,
-																							r->scene->meshes[r->scene->meshCount].firstTextureIndex,
-																							r->scene->meshes[r->scene->meshCount].firstPolyIndex + i);
+		polygonArray[newMesh->firstPolyIndex + i] = polyFromObj(data.face_list[i],
+																newMesh->firstVectorIndex,
+																newMesh->firstNormalIndex,
+																newMesh->firstTextureIndex,
+																newMesh->firstPolyIndex + i);
 	}
 	
-	r->scene->meshes[r->scene->meshCount].materials = calloc(1, sizeof(struct material));
+	newMesh->materials = calloc(1, sizeof(struct material));
 	//Parse materials
 	if (data.material_count == 0) {
 		//No material, set to something obscene to make it noticeable
-		r->scene->meshes[r->scene->meshCount].materials = calloc(1, sizeof(struct material));
-		r->scene->meshes[r->scene->meshCount].materials[0] = warningMaterial();
-		assignBSDF(&r->scene->meshes[r->scene->meshCount].materials[0]);
-		r->scene->meshes[r->scene->meshCount].materialCount++;
+		newMesh->materials = calloc(1, sizeof(struct material));
+		newMesh->materials[0] = warningMaterial();
+		assignBSDF(&newMesh->materials[0]);
+		newMesh->materialCount++;
 	} else {
 		//Loop to add materials to mesh (We already set the material indices in polyFromObj)
 		for (int i = 0; i < data.material_count; i++) {
-			addMaterialToMesh(&r->scene->meshes[r->scene->meshCount], materialFromObj(data.material_list[i]));
+			addMaterialToMesh(newMesh, materialFromObj(data.material_list[i]));
 		}
 	}
 	
 	//Load textures for meshes
-	loadMeshTextures(&r->scene->meshes[r->scene->meshCount]);
+	loadMeshTextures(newMesh);
 	
 	//Delete OBJ data
 	delete_obj_data(&data);
@@ -212,21 +213,21 @@ void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
 }
 
 void transformMeshes(struct world *scene) {
-	logr(info, "Running transforms...\n");
+	logr(info, "Running transforms\n");
 	for (int i = 0; i < scene->meshCount; ++i) {
 		transformMesh(&scene->meshes[i]);
 	}
 }
 
 //TODO: Parallelize this task
-void computeKDTrees(struct world *scene) {
-	logr(info, "Computing KD-trees...\n");
-	for (int i = 0; i < scene->meshCount; ++i) {
-		int *polys = calloc(scene->meshes[i].polyCount, sizeof(int));
-		for (int j = 0; j < scene->meshes[i].polyCount; j++) {
-			polys[j] = scene->meshes[i].firstPolyIndex + j;
+void computeKDTrees(struct mesh *meshes, int meshCount) {
+	logr(info, "Computing KD-trees\n");
+	for (int i = 0; i < meshCount; ++i) {
+		int *indices = calloc(meshes[i].polyCount, sizeof(int));
+		for (int j = 0; j < meshes[i].polyCount; j++) {
+			indices[j] = meshes[i].firstPolyIndex + j;
 		}
-		scene->meshes[i].tree = buildTree(polys, scene->meshes[i].polyCount, 0);
+		meshes[i].tree = buildTree(indices, meshes[i].polyCount, 0);
 		
 		// Optional tree checking
 		/*int orphans = checkTree(scene->meshes[i].tree);
@@ -1157,7 +1158,7 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 	
 	transformCameraIntoView(r->scene->camera);
 	transformMeshes(r->scene);
-	computeKDTrees(r->scene);
+	computeKDTrees(r->scene->meshes, r->scene->meshCount);
 	printSceneStats(r->scene, endTimer(timer));
 	free(timer);
 	

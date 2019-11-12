@@ -47,7 +47,7 @@ struct renderTile getTile(struct renderer *r) {
  */
 int quantizeImage(struct renderTile **renderTiles, struct texture *image, int tileWidth, int tileHeight) {
 	
-	logr(info, "Quantizing render plane...\n");
+	logr(info, "Quantizing render plane\n");
 	
 	//Sanity check on tilesizes
 	if (tileWidth >= image->width) tileWidth = image->width;
