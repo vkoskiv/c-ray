@@ -1128,7 +1128,7 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 		fromStdin = true;
 	}
 	
-	struct timeval timer;
+	struct timeval timer = {0};
 	startTimer(&timer);
 	
 	//Build the scene
@@ -1155,12 +1155,10 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 	transformCameraIntoView(r->scene->camera);
 	transformMeshes(r->scene);
 	computeKDTrees(r->scene->meshes, r->scene->meshCount);
-	printSceneStats(r->scene, endTimer(&timer));
+	printSceneStats(r->scene, getMs(timer));
 	
 	//Alloc threadPaused booleans, one for each thread
 	r->state.threadPaused = calloc(r->prefs.threadCount, sizeof(bool));
-	//Alloc timers, one for each thread
-	r->state.timers = calloc(r->prefs.threadCount, sizeof(struct timeval));
 	//Alloc RNGs, one for each thread
 	r->state.rngs = calloc(r->prefs.threadCount, sizeof(pcg32_random_t));
 	

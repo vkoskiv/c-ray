@@ -20,6 +20,20 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp);
 
 void startTimer(struct timeval *timer);
 
-long endTimer(struct timeval *timer);
+/**
+end a given timer and return milliseconds
+
+@param timer timer to end and measure
+@return milliseconds
+*/
+long getMs(struct timeval timer);
+
+/**
+end a given timer and return microseconds
+
+@param timer timer to end and measure
+@return microseconds
+*/
+long getUs(struct timeval timer);
 
 void sleepMSec(int ms);

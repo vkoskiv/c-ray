@@ -138,10 +138,11 @@ void *renderThread(void *arg) {
 	tinfo->currentTileNum = tile.tileNum;
 	
 	bool hasHitObject = false;
+	struct timeval timer = {0};
 	
 	while (tile.tileNum != -1 && r->state.isRendering) {
 		unsigned long long sleepMs = 0;
-		startTimer(&r->state.timers[tinfo->thread_num]);
+		startTimer(&timer);
 		hasHitObject = false;
 		
 		while (tile.completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
@@ -244,7 +245,7 @@ void *renderThread(void *arg) {
 		unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
 		tile = getTile(r);
 		tinfo->currentTileNum = tile.tileNum;
-		unsigned long long duration = endTimer(&r->state.timers[tinfo->thread_num]);
+		unsigned long long duration = getMs(timer);
 		if (sleepMs > 0) {
 			duration -= sleepMs;
 		}
@@ -325,9 +326,6 @@ void freeRenderer(struct renderer *r) {
 		free(r->mainDisplay);
 	}
 #endif
-	if (r->state.timers) {
-		free(r->state.timers);
-	}
 	
 	free(r);
 }
