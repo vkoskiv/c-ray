@@ -119,7 +119,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	
 	lodepng_info_cleanup(&info);
 	lodepng_state_cleanup(&state);
-	
+	free(buf);
 }
 
 //TODO: Use this for textures and HDRs too.

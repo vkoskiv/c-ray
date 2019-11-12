@@ -481,6 +481,7 @@ int obj_parse_obj_file(obj_growable_scene_data *growable_data, char *filepath)
 			sprintf(temp, "%s/%s", path, growable_data->material_filename);
 #endif
 			obj_parse_mtl_file(temp, &growable_data->material_list);
+			free(temp);
 			continue;
 		}
 		

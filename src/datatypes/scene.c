@@ -135,7 +135,6 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	newMesh->polyCount = data.face_count;
 	//Transforms init
 	newMesh->transformCount = 0;
-	newMesh->transforms = malloc(sizeof(struct transform));
 	
 	newMesh->materialCount = 0;
 	//Set name
