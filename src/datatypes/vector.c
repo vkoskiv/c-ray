@@ -24,7 +24,7 @@ struct vector vecWithPos(float x, float y, float z) {
 }
 
 struct vector vecZero() {
-	return (struct vector){0.0, 0.0, 0.0};
+	return (struct vector){0.0f, 0.0f, 0.0f};
 }
 
 /**
@@ -157,7 +157,7 @@ struct vector vecNormalize(struct vector v) {
  @return Mid-point of given vectors
  */
 struct vector getMidPoint(struct vector v1, struct vector v2, struct vector v3) {
-	return vecScale(1.0/3.0, vecAdd(vecAdd(v1, v2), v3));
+	return vecScale(1.0f/3.0f, vecAdd(vecAdd(v1, v2), v3));
 }
 
 /**
@@ -172,7 +172,7 @@ float rndFloatRange(float min, float max, pcg32_random_t *rng) {
 }
 
 float rndFloat(pcg32_random_t *rng) {
-	return (1.0 / (1ull << 32)) * pcg32_random_r(rng);
+	return (1.0f / (1ull << 32)) * pcg32_random_r(rng);
 }
 
 /**
@@ -214,14 +214,6 @@ struct vector vecNegate(struct vector v) {
 	return (struct vector){-v.x, -v.y, -v.z};
 }
 
-/**
-Returns the reflected ray vector from a surface
-
-@param I Incident vector normalized
-@param N Normal vector normalized
-@return Vector of the reflected ray vector from a surface
-*/
 struct vector reflect(const struct vector I, const struct vector N) {
-	struct vector Imin2dotNI = vecSubtractConst(I, vecDot(N, I) * 2.0);
-	return vecMultiply(N, Imin2dotNI);
+	return vecSubtract(I, vecMultiplyConst(N, vecDot(N, I) * 2.0f));
 }

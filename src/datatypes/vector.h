@@ -71,10 +71,17 @@ float rndFloatRange(float min, float max, pcg32_random_t *rng);
 
 float rndFloat(pcg32_random_t *rng);
 
-struct vector vecMultiplyConst(struct vector v, const float c);
-
 struct vector vecMultiply(struct vector v1, struct vector v2);
 
-struct vector reflect(const struct vector I, const struct vector N);
+struct vector vecMultiplyConst(struct vector v, const float c);
 
 struct vector vecNegate(struct vector v);
+
+/**
+Returns the reflected ray vector from a surface
+
+@param I Incident vector normalized
+@param N Normal vector normalized
+@return Vector of the reflected ray vector from a surface
+*/
+struct vector reflect(const struct vector I, const struct vector N);
