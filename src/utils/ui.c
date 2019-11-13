@@ -26,19 +26,6 @@ void sigHandler(int sig) {
 	}
 }
 
-void printDuration(float time) {
-	printf("\n");
-	logr(info, "Finished render in ");
-	if (time <= 60) {
-		printf("%.0f seconds.\n", time);
-	} else if (time <= 3600) {
-		printf("%.0f minute", time/60);
-		if (time/60 > 1) printf("s. (%.0f seconds)\n", time); else printf(". (%.0f seconds)\n", time);
-	} else {
-		printf("%.0f hours (%.0f min).\n", (time/60)/60, time/60);
-	}
-}
-
 #ifdef UI_ENABLED
 int initSDL(struct display *d) {
 	
@@ -97,6 +84,35 @@ int initSDL(struct display *d) {
 	SDL_SetTextureBlendMode(d->overlayTexture, SDL_BLENDMODE_BLEND);
 	
 	return 0;
+}
+
+void freeDisplay(struct display *disp) {
+	if (disp->window) {
+		SDL_DestroyWindow(disp->window);
+	}
+	if (disp->renderer) {
+		SDL_DestroyRenderer(disp->renderer);
+	}
+	if (disp->texture) {
+		SDL_DestroyTexture(disp->texture);
+	}
+	if (disp->overlayTexture) {
+		SDL_DestroyTexture(disp->overlayTexture);
+	}
+}
+#endif
+
+void printDuration(float time) {
+	printf("\n");
+	logr(info, "Finished render in ");
+	if (time <= 60) {
+		printf("%.0f seconds.\n", time);
+	} else if (time <= 3600) {
+		printf("%.0f minute", time/60);
+		if (time/60 > 1) printf("s. (%.0f seconds)\n", time); else printf(". (%.0f seconds)\n", time);
+	} else {
+		printf("%.0f hours (%.0f min).\n", (time/60)/60, time/60);
+	}
 }
 
 void getKeyboardInput(struct renderer *r) {
@@ -230,20 +246,3 @@ void drawWindow(struct renderer *r) {
 	SDL_RenderPresent(r->mainDisplay->renderer);
 #endif
 }
-
-void freeDisplay(struct display *disp) {
-	if (disp->window) {
-		SDL_DestroyWindow(disp->window);
-	}
-	if (disp->renderer) {
-		SDL_DestroyRenderer(disp->renderer);
-	}
-	if (disp->texture) {
-		SDL_DestroyTexture(disp->texture);
-	}
-	if (disp->overlayTexture) {
-		SDL_DestroyTexture(disp->overlayTexture);
-	}
-}
-
-#endif

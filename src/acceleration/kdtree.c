@@ -65,23 +65,6 @@ struct kdTreeNode *getNewNode() {
 	return node;
 }
 
-//Check if the two are same
-//Abort early approach
-bool comparePolygons(struct poly *p1, struct poly *p2) {
-	for (int i = 0; i < 3; i++) {
-		if (p1->vertexIndex[i] != p2->vertexIndex[i]) {
-			return false;
-		}
-		if (p1->normalIndex[i] != p2->normalIndex[i]) {
-			return false;
-		}
-		if (p1->textureIndex[i] != p2->textureIndex[i]) {
-			return false;
-		}
-	}
-	return true;
-}
-
 struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 	struct kdTreeNode *node = calloc(1, sizeof(struct kdTreeNode));
 	node->polygons = polygons;
