@@ -29,6 +29,8 @@ struct threadState {
 	int currentTileNum;
 	int completedSamples;
 	
+	long avgRayTime;
+	
 	struct renderer *r;
 };
 

@@ -19,6 +19,9 @@
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
 
+#define paused_msec 800
+#define active_msec  40
+
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 void render(struct renderer *r) {
@@ -42,11 +45,33 @@ void render(struct renderer *r) {
 #endif
 	//Main loop (input)
 	bool threadsHaveStarted = false;
+	float avgRayTime = 0.0f;
+	int pauser = 0;
+	float finalAvg = 0.0f;
+	int ctr = 1;
 	while (r->state.isRendering) {
-#ifdef UI_ENABLED
 		getKeyboardInput(r);
 		drawWindow(r);
-#endif
+		
+		for (int t = 0; t < r->prefs.threadCount; t++) {
+			avgRayTime += r->state.threadStates[t].avgRayTime;
+		}
+		finalAvg += avgRayTime / r->prefs.threadCount;
+		finalAvg /= ctr;
+		ctr++;
+		
+		//Run the sample printing about 4x/s
+		if (pauser == 280 / active_msec) {
+			long remainingSampleCount = ((r->state.tileCount - r->state.finishedTileCount) * r->prefs.tileWidth * r->prefs.tileHeight * r->prefs.sampleCount);
+			double sps = (1000000.0f/finalAvg) * r->prefs.threadCount;
+			long usecTillFinished = remainingSampleCount * finalAvg;
+			char rem[32];
+			smartTime((0.001 * usecTillFinished) / r->prefs.threadCount, rem);
+			float completion = ((float)r->state.finishedTileCount / r->state.tileCount) * 100;
+			logr(info, "[%.0f%%] μs/ray: %.02f, etf: %s, %.02lfMs/s        \r", completion, finalAvg, rem, 0.000001*sps);
+			pauser = 0;
+		}
+		pauser++;
 		
 		if (!threadsHaveStarted) {
 			threadsHaveStarted = true;
@@ -91,9 +116,9 @@ void render(struct renderer *r) {
 			}
 		}
 		if (r->state.threadPaused[0]) {
-			sleepMSec(800);
+			sleepMSec(paused_msec);
 		} else {
-			sleepMSec(40);
+			sleepMSec(active_msec);
 		}
 	}
 	
@@ -142,13 +167,14 @@ void *renderThread(void *arg) {
 	
 	while (tile.tileNum != -1 && r->state.isRendering) {
 		unsigned long long sleepMs = 0;
-		startTimer(&timer);
 		hasHitObject = false;
+		long totalUsec = 0;
+		long rays = 0;
 		
 		while (tile.completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
 			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
-					
+					startTimer(&timer);
 					uint64_t pixIdx = y * r->state.image->width + x;
 					uint64_t idx = pixIdx * r->prefs.sampleCount + tile.completedSamples;
 					pcg32_srandom_r(&rng, hash(idx), 0);
@@ -226,6 +252,10 @@ void *renderThread(void *arg) {
 					
 					//And store the image data
 					blit(r->state.image, output, x, y);
+					
+					//For performance metrics
+					rays++;
+					totalUsec += getUs(timer);
 				}
 			}
 			tile.completedSamples++;
@@ -236,20 +266,15 @@ void *renderThread(void *arg) {
 				sleepMSec(100);
 				sleepMs += 100;
 			}
+			tinfo->avgRayTime = totalUsec / rays;
 		}
 		//Tile has finished rendering, get a new one and start rendering it.
 		r->state.renderTiles[tile.tileNum].isRendering = false;
 		r->state.renderTiles[tile.tileNum].renderComplete = true;
 		tinfo->currentTileNum = -1;
 		tinfo->completedSamples = 0;
-		unsigned long long samples = tile.completedSamples * (tile.width * tile.height);
 		tile = getTile(r);
 		tinfo->currentTileNum = tile.tileNum;
-		unsigned long long duration = getMs(timer);
-		if (sleepMs > 0) {
-			duration -= sleepMs;
-		}
-		printStats(r, duration, samples, tinfo->thread_num);
 	}
 	//No more tiles to render, exit thread. (render done)
 	tinfo->threadComplete = true;

@@ -100,6 +100,7 @@ int initSDL(struct display *d) {
 }
 
 void getKeyboardInput(struct renderer *r) {
+#ifdef UI_ENABLED
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
@@ -131,6 +132,7 @@ void getKeyboardInput(struct renderer *r) {
 			}
 		}
 	}
+#endif
 }
 
 void clearProgBar(struct renderer *r, struct renderTile temp) {
@@ -214,6 +216,7 @@ void updateFrames(struct renderer *r) {
 }
 
 void drawWindow(struct renderer *r) {
+#ifdef UI_ENABLED
 	//Check for CTRL-C
 	if (signal(SIGINT, sigHandler) == SIG_ERR)
 		logr(warning, "Couldn't catch SIGINT\n");
@@ -225,6 +228,7 @@ void drawWindow(struct renderer *r) {
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
 	SDL_RenderPresent(r->mainDisplay->renderer);
+#endif
 }
 
 void freeDisplay(struct display *disp) {

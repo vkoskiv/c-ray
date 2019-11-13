@@ -29,9 +29,9 @@ struct display {
 
 #ifdef UI_ENABLED
 int initSDL(struct display *d);
-void drawWindow(struct renderer *r);
 void freeDisplay(struct display *disp);
 #endif
 
 void printDuration(float time);
 void getKeyboardInput(struct renderer *r);
+void drawWindow(struct renderer *r);
