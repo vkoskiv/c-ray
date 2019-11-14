@@ -230,10 +230,10 @@ void computeKDTrees(struct mesh *meshes, int meshCount) {
 		meshes[i].tree = buildTree(indices, meshes[i].polyCount, 0);
 		
 		// Optional tree checking
-		/*int orphans = checkTree(scene->meshes[i].tree);
+		/*int orphans = checkTree(meshes[i].tree);
 		if (orphans > 0) {
-			int total = countNodes(scene->meshes[i].tree);
-			logr(warning, "Found %i/%i orphan nodes in %s kdtree\n", orphans, total, scene->meshes[i].name);
+			int total = countNodes(meshes[i].tree);
+			logr(warning, "Found %i/%i orphan nodes in %s kdtree\n", orphans, total, meshes[i].name);
 		}*/
 	}
 }

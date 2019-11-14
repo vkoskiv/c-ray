@@ -66,21 +66,17 @@ struct kdTreeNode *getNewNode() {
 }
 
 struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
-	struct kdTreeNode *node = calloc(1, sizeof(struct kdTreeNode));
+	struct kdTreeNode *node = getNewNode();
 	node->polygons = polygons;
 	node->polyCount = polyCount;
-	
-	node->left = NULL;
-	node->right = NULL;
-	node->bbox = NULL;
 	node->depth = depth;
 	
 	if (polyCount == 0)
 		return node;
 	if (polyCount == 1) {
 		node->bbox = computeBoundingBox(&node->polygons[0], 1);
-		node->left = getNewNode();
-		node->right = getNewNode();
+		node->left = NULL;
+		node->right = NULL;
 		return node;
 	}
 	
@@ -130,10 +126,8 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 	
 	if ((leftSAHCost + rightSAHCost) > currentSAHCost) {
 		//Stop here
-		node->left = getNewNode();
-		node->right = getNewNode();
-		node->left->polygons = NULL;
-		node->right->polygons = NULL;
+		node->left = NULL;
+		node->right = NULL;
 	} else {
 		//Keep going
 		node->left = buildTree(leftPolys.array, (int)leftPolys.used, depth + 1);
@@ -150,7 +144,6 @@ int checkTree(struct kdTreeNode *node) {
 		if (node->polyCount == 0) {
 			orphans += 1;
 		}
-		
 		if (node->left) {
 			orphans += checkTree(node->left);
 		}
@@ -176,12 +169,13 @@ int countNodes(struct kdTreeNode *node) {
 }
 
 bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect) {
+	if (!node) return false;
 	//A bit of a hack, but it does work...!
 	float fakeIsect = 20000.0;
 	if (rayIntersectWithAABB(node->bbox, ray, &fakeIsect)) {
 		bool hasHit = false;
 		
-		if (node->left->polyCount > 0 || node->right->polyCount > 0) {
+		if (node->left != NULL || node->right != NULL) {
 			//Recurse down both sides
 			bool hitLeft  = rayIntersectsWithNode(node->left, ray, isect);
 			bool hitRight = rayIntersectsWithNode(node->right, ray, isect);

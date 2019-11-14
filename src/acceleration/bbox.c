@@ -33,8 +33,8 @@ enum bboxAxis getLongestAxis(struct boundingBox *bbox) {
  */
 struct boundingBox *computeBoundingBox(int *polys, int count) {
 	struct boundingBox *bbox = calloc(1, sizeof(struct boundingBox));
-	struct vector minPoint = vertexArray[polygonArray[polys[0]].vertexIndex[0]];
-	struct vector maxPoint = vertexArray[polygonArray[polys[0]].vertexIndex[0]];
+	struct vector minPoint = vecWithPos(FLT_MAX, FLT_MAX, FLT_MAX);
+	struct vector maxPoint = vecWithPos(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 	
 	for (int i = 0; i < count; i++) {
 		for (int j = 0; j < 3; j++) {
