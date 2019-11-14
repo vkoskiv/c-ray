@@ -10,7 +10,7 @@
 
 struct renderer;
 
-
+//FIXME: This should be in datatypes
 struct display {
 #ifdef UI_ENABLED
 	SDL_Window *window;

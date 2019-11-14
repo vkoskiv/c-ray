@@ -14,8 +14,8 @@ struct renderer;
  Render tile, contains needed information for the renderer
  */
 struct renderTile {
-	int width;
-	int height;
+	unsigned width;
+	unsigned height;
 	struct intCoord begin;
 	struct intCoord end;
 	int completedSamples;
@@ -28,7 +28,7 @@ struct renderTile {
 struct texture;
 enum renderOrder;
 
-int quantizeImage(struct renderTile **renderTiles, struct texture *image, int tileWidth, int tileHeight);
+int quantizeImage(struct renderTile **renderTiles, struct texture *image, unsigned tileWidth, unsigned tileHeight);
 
 void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder);
 

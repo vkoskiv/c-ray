@@ -7,3 +7,7 @@
 //
 
 #pragma once
+
+struct renderer;
+
+int parseJSON(struct renderer *r, char *input, bool fromStdin);

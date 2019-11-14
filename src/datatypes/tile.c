@@ -45,7 +45,7 @@ struct renderTile getTile(struct renderer *r) {
  
  @param scene scene object
  */
-int quantizeImage(struct renderTile **renderTiles, struct texture *image, int tileWidth, int tileHeight) {
+int quantizeImage(struct renderTile **renderTiles, struct texture *image, unsigned tileWidth, unsigned tileHeight) {
 	
 	logr(info, "Quantizing render plane\n");
 	
@@ -55,8 +55,8 @@ int quantizeImage(struct renderTile **renderTiles, struct texture *image, int ti
 	if (tileWidth <= 0) tileWidth = 1;
 	if (tileHeight <= 0) tileHeight = 1;
 	
-	int tilesX = image->width / tileWidth;
-	int tilesY = image->height / tileHeight;
+	unsigned tilesX = image->width / tileWidth;
+	unsigned tilesY = image->height / tileHeight;
 	
 	tilesX = (image->width % tileWidth) != 0 ? tilesX + 1: tilesX;
 	tilesY = (image->height % tileHeight) != 0 ? tilesY + 1: tilesY;
@@ -67,9 +67,9 @@ int quantizeImage(struct renderTile **renderTiles, struct texture *image, int ti
 		return 0;
 	}
 	
-	int tileCount = 0;
-	for (int y = 0; y < tilesY; y++) {
-		for (int x = 0; x < tilesX; x++) {
+	unsigned tileCount = 0;
+	for (unsigned y = 0; y < tilesY; y++) {
+		for (unsigned x = 0; x < tilesX; x++) {
 			struct renderTile *tile = &(*renderTiles)[x + y*tilesX];
 			tile->width  = tileWidth;
 			tile->height = tileHeight;

@@ -35,7 +35,7 @@ void createModel(char *filePath);
  */
 
 //Load metadata for model from JSON file
-int loadMetaData(struct model *model, char *filePath) {
+/*int loadMetaData(struct model *model, char *filePath) {
 	size_t bytes = 0;
 	char *buf = loadFile(filePath, &bytes);
 	logr(info, "%zi bytes of input loaded from file, parsing.\n", bytes);
@@ -136,7 +136,7 @@ int saveMetaData(struct model *model, char *filePath) {
 	
 	
 	return 0;
-}
+}*/
 
 /*struct model *loadModel(char *filePath) {
 	logr(info, "Loading model\n");
@@ -158,6 +158,7 @@ int saveMetaData(struct model *model, char *filePath) {
 	return model;
 }*/
 
+/*
 void saveModel(struct model *model, char *filePath) {
 	logr(info, "Saving model\n");
 	cJSON *json = cJSON_CreateObject();
@@ -282,19 +283,19 @@ struct data *loadTrainingData(struct texture *low, struct renderTile *lowTile, s
 void freeDataset(struct data *d) {
 	deallocMatrix(&d->source, 16, 16, 3);
 	deallocMatrix(&d->target, 16, 16, 3);
-}
+}*/
 
 //Convert 2D array of grayscale img data to a 1D array. Append each row in.
-float *matrixToArray(float ***data, int width, int height) {
+/*float *matrixToArray(float ***data, int width, int height) {
 	float *arr = (float *)calloc(width*height, sizeof(float));
 	
 	//output.red = i->data[(x + (i->size.height - y) * i->size.width)*3 + 0];
 	
-	/*for (int y = 0; y < height; y++) {
+	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < height; x++) {
 			arr[(x + (height - y) * width)] = (*data)[x][y];
 		}
-	}*/
+	}
 	
 	int k = 0;
 	
@@ -304,8 +305,8 @@ float *matrixToArray(float ***data, int width, int height) {
 		}
 	}
 	return arr;
-}
-
+}*/
+/*
 void study() {
 	struct model *m = NULL;//loadModel("./models/model.json");
 	
@@ -359,9 +360,9 @@ void study() {
 
 //To be used while rendering
 void learnTile(struct renderer *r, struct renderTile *tile) {
-	/*
-	 Get rendered data from current render
-	 Then get rendered data from example file
-	 Then run training iteration
-	 */
+	
+	 //Get rendered data from current render
+	 //Then get rendered data from example file
+	 //Then run training iteration
 }
+*/

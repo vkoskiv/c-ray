@@ -1,6 +1,6 @@
 name: C-ray CI
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   macos:

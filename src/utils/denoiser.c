@@ -11,6 +11,6 @@
 
 #include "denoiser.h"
 
-void denoise(struct renderer *r) {
+/*void denoise(struct renderer *r) {
 	
-}
+}*/

@@ -42,5 +42,3 @@ struct world {
 int loadScene(struct renderer *r, int argc, char **argv);
 
 void freeScene(struct world *scene);
-
-char *getFileName(char *input);

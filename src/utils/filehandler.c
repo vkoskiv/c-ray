@@ -148,7 +148,7 @@ char *loadFile(char *inputFileName, size_t *bytes) {
 	char *buf = NULL;
 	size_t len;
 	size_t bytesRead = getDelim(&buf, &len, '\0', f);
-	if (bytesRead != -1) {
+	if (bytesRead > 0) {
 		if (bytes) *bytes = bytesRead;
 	} else {
 		logr(warning, "Failed to read input file from %s", inputFileName);
@@ -178,6 +178,25 @@ void checkBuf() {
 		return;
 	}
 #endif
+}
+
+/**
+ Extract the filename from a given file path
+
+ @param input File path to be processed
+ @return Filename string, including file type extension
+ */
+char *getFileName(char *input) {
+	char *fn;
+	
+	/* handle trailing '/' e.g.
+	 input == "/home/me/myprogram/" */
+	if (input[(strlen(input) - 1)] == '/')
+		input[(strlen(input) - 1)] = '\0';
+	
+	(fn = strrchr(input, '/')) ? ++fn : (fn = input);
+	
+	return fn;
 }
 
 #define chunksize 1024
