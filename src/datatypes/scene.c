@@ -150,7 +150,7 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 void freeScene(struct world *scene) {
 	if (scene->hdr) {
 		freeTexture(scene->hdr);
-		freeTexture(scene->hdr);
+		free(scene->hdr);
 	}
 	
 	if (scene->meshes) {
