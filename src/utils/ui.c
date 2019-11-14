@@ -21,6 +21,8 @@ sigfunc *signal(int, sigfunc*);
 
 static bool aborted = false;
 
+//FIXME: This won't work on linux, it'll just abort the execution.
+//Take a look at the docs for sigaction() and implement that.
 void sigHandler(int sig) {
 	if (sig == SIGINT) {
 		printf("\n");

@@ -250,8 +250,6 @@ int obj_parse_mtl_file(char *filename, list *material_list)
 		fprintf(stderr, "Error reading file: %s\n", filename);
 		return 0;
 	}
-		
-	list_make(material_list, 10, 1);
 
 	while( fgets(current_line, OBJ_LINE_SIZE, mtl_file_stream) )
 	{
@@ -519,7 +517,7 @@ void obj_init_temp_storage(obj_growable_scene_data *growable_data)
 	list_make(&growable_data->light_quad_list, 10, 1);
 	list_make(&growable_data->light_disc_list, 10, 1);
 	
-	list_make(&growable_data->material_list, 10, 1);	
+	list_make(&growable_data->material_list, 10, 1);
 	
 	growable_data->camera = NULL;
 }
