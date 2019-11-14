@@ -3668,7 +3668,7 @@ void lodepng_compute_color_stats(LodePNGColorStats* stats,
 	if(!numcolors_done) {
 		for(i = 0; i < stats->numcolors; i++) {
 			const unsigned char* color = &stats->palette[i * 4];
-			color_tree_add(&tree, color[0], color[1], color[2], color[3], i);
+			color_tree_add(&tree, color[0], color[1], color[2], color[3], (unsigned)i);
 		}
 	}
 	
@@ -4624,7 +4624,7 @@ static unsigned readChunk_iCCP(LodePNGInfo* info, const LodePNGDecompressSetting
 							length, zlibsettings);
 	if(!error) {
 		if(decoded.size) {
-			info->iccp_profile_size = decoded.size;
+			info->iccp_profile_size = (unsigned)decoded.size;
 			info->iccp_profile = (unsigned char*)lodepng_malloc(decoded.size);
 			if(info->iccp_profile) {
 				lodepng_memcpy(info->iccp_profile, decoded.data, decoded.size);

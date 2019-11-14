@@ -10,10 +10,8 @@
 
 #include "texture.h"
 
-struct color textureGetPixel(struct texture *t, int x, int y);
-
 //General-purpose blit function
-void blit(struct texture *t, struct color c, unsigned int x, unsigned int y) {
+void blit(struct texture *t, struct color c, unsigned x, unsigned y) {
 	if ((x > t->width-1) || y < 0) return;
 	if ((y > t->height-1) || y < 0) return;
 
@@ -31,20 +29,7 @@ void blit(struct texture *t, struct color c, unsigned int x, unsigned int y) {
 	}
 }
 
-//Bilinearly interpolated (smoothed) output. Requires float precision, i.e. 0.0->width-1.0
-struct color textureGetPixelFiltered(struct texture *t, float x, float y) {
-	float xcopy = x - 0.5;
-	float ycopy = y - 0.5;
-	int xint = (int)xcopy;
-	int yint = (int)ycopy;
-	struct color topleft = textureGetPixel(t, xint, yint);
-	struct color topright = textureGetPixel(t, xint + 1, yint);
-	struct color botleft = textureGetPixel(t, xint, yint + 1);
-	struct color botright = textureGetPixel(t, xint + 1, yint + 1);
-	return lerp(lerp(topleft, topright, xcopy-xint), lerp(botleft, botright, xcopy-xint), ycopy-yint);
-}
-
-struct color textureGetPixel(struct texture *t, int x, int y) {
+struct color textureGetPixel(struct texture *t, unsigned x, unsigned y) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
 	int pitch = 0;
 	if (t->hasAlpha) {
@@ -72,6 +57,19 @@ struct color textureGetPixel(struct texture *t, int x, int y) {
 	}
 	
 	return output;
+}
+
+//Bilinearly interpolated (smoothed) output. Requires float precision, i.e. 0.0->width-1.0
+struct color textureGetPixelFiltered(struct texture *t, float x, float y) {
+	float xcopy = x - 0.5;
+	float ycopy = y - 0.5;
+	int xint = (int)xcopy;
+	int yint = (int)ycopy;
+	struct color topleft = textureGetPixel(t, xint, yint);
+	struct color topright = textureGetPixel(t, xint + 1, yint);
+	struct color botleft = textureGetPixel(t, xint, yint + 1);
+	struct color botright = textureGetPixel(t, xint + 1, yint + 1);
+	return lerp(lerp(topleft, topright, xcopy-xint), lerp(botleft, botright, xcopy-xint), ycopy-yint);
 }
 
 struct texture *newTexture() {
@@ -105,8 +103,8 @@ void allocTextureBuffer(struct texture *t, enum precision p, int width, int heig
 
 void textureFromSRGB(struct texture *t) {
 	if (t->colorspace == sRGB) return;
-	for (int x = 0; x < t->width; x++) {
-		for (int y = 0; y < t->height; y++) {
+	for (unsigned x = 0; x < t->width; x++) {
+		for (unsigned y = 0; y < t->height; y++) {
 			blit(t, fromSRGB(textureGetPixel(t, x, y)), x, y);
 		}
 	}
@@ -115,8 +113,8 @@ void textureFromSRGB(struct texture *t) {
 
 void textureToSRGB(struct texture *t) {
 	if (t->colorspace == linear) return;
-	for (int x = 0; x < t->width; x++) {
-		for (int y = 0; y < t->height; y++) {
+	for (unsigned x = 0; x < t->width; x++) {
+		for (unsigned y = 0; y < t->height; y++) {
 			blit(t, toSRGB(textureGetPixel(t, x, y)), x, y);
 		}
 	}

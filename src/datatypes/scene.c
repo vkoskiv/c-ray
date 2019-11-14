@@ -114,8 +114,8 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 	}
 	
 	//Set a dark gray background for the render preview
-	for (int x = 0; x < r->state.image->width; x++) {
-		for (int y = 0; y < r->state.image->height; y++) {
+	for (unsigned x = 0; x < r->state.image->width; x++) {
+		for (unsigned y = 0; y < r->state.image->height; y++) {
 			blit(r->state.image, backgroundColor, x, y);
 		}
 	}

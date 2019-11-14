@@ -50,8 +50,8 @@ struct texture {
 	float *float_data; //For hdr
 	int channels; //For hdr
 	float offset; //radians, for hdr
-	unsigned int width;
-	unsigned int height;
+	unsigned width;
+	unsigned height;
 };
 
 struct color;
@@ -60,7 +60,7 @@ struct texture *newTexture(void);
 void allocTextureBuffer(struct texture *t, enum precision p, int width, int height, int channels);
 
 void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
-struct color textureGetPixel(struct texture *t, int x, int y);
+struct color textureGetPixel(struct texture *t, unsigned x, unsigned y);
 struct color textureGetPixelFiltered(struct texture *t, float x, float y);
 void textureFromSRGB(struct texture *t);
 void textureToSRGB(struct texture *t);

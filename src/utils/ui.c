@@ -154,7 +154,7 @@ void getKeyboardInput(struct renderer *r) {
 }
 
 void clearProgBar(struct renderer *r, struct renderTile temp) {
-	for (int i = 0; i < temp.width; i++) {
+	for (unsigned i = 0; i < temp.width; i++) {
 		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1);
 		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5))    );
 		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1);
@@ -191,10 +191,10 @@ void drawProgressBars(struct renderer *r) {
 /**
  Draw highlight frame to show which tiles are rendering
 
+ @param r Renderer
  @param tile Given renderTile
- @param on Draw frame if true, erase if false
  */
-void drawFrame(struct renderer *r, struct renderTile tile, bool on) {
+void drawFrame(struct renderer *r, struct renderTile tile) {
 	int length = 8;
 	struct color c = clearColor;
 	if (tile.isRendering) {
@@ -225,7 +225,7 @@ void updateFrames(struct renderer *r) {
 	for (int i = 0; i < r->state.tileCount; i++) {
 		//For every tile, if it's currently rendering, draw the frame
 		//If it is NOT rendering, clear any frame present
-		drawFrame(r, r->state.renderTiles[i], r->state.renderTiles[i].isRendering);
+		drawFrame(r, r->state.renderTiles[i]);
 		if (r->state.renderTiles[i].renderComplete) {
 			clearProgBar(r, r->state.renderTiles[i]);
 		}

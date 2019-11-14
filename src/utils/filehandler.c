@@ -148,7 +148,7 @@ char *loadFile(char *inputFileName, size_t *bytes) {
 	char *buf = NULL;
 	size_t len;
 	size_t bytesRead = getDelim(&buf, &len, '\0', f);
-	if (bytesRead != -1) {
+	if (bytesRead > 0) {
 		if (bytes) *bytes = bytesRead;
 	} else {
 		logr(warning, "Failed to read input file from %s", inputFileName);

@@ -215,7 +215,7 @@ void copyStringDuplicate(const char *source, char **destination) {
 }
 
 void flipSlashes(char *string) {
-	for (int i = 0; i < strlen(string); i++) {
+	for (size_t i = 0; i < strlen(string); i++) {
 		if (string[i] == '/') {
 			string[i] = '\\';
 		}

@@ -87,7 +87,7 @@ struct material {
 	// - Normalize probabilities
 	
 	enum bsdfType type;
-	//isect record, ray, attenuation color, scattered ray
+	//isect record, ray, attenuation color, scattered ray, rng
 	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
 };
 
