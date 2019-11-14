@@ -68,7 +68,7 @@ void render(struct renderer *r) {
 			char rem[32];
 			smartTime((0.001 * usecTillFinished) / r->prefs.threadCount, rem);
 			float completion = ((float)r->state.finishedTileCount / r->state.tileCount) * 100;
-			logr(info, "[%.0f%%] μs/ray: %.02f, etf: %s, %.02lfMs/s        \r", completion, finalAvg, rem, 0.000001*sps);
+			logr(info, "[%s%.0f%%%s] μs/ray: %.02f, etf: %s, %.02lfMs/s        \r", KBLU, KNRM, completion, finalAvg, rem, 0.000001*sps);
 			pauser = 0;
 		}
 		pauser++;

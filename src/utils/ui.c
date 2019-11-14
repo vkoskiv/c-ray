@@ -21,6 +21,7 @@ sigfunc *signal(int, sigfunc*);
 
 void sigHandler(int sig) {
 	if (sig == SIGINT) {
+		printf("\n");
 		logr(info, "Received ^C, aborting\n");
 		exit(1);
 	}
@@ -103,7 +104,6 @@ void freeDisplay(struct display *disp) {
 #endif
 
 void printDuration(float time) {
-	printf("\n");
 	logr(info, "Finished render in ");
 	if (time <= 60) {
 		printf("%.0f seconds.\n", time);
@@ -121,10 +121,12 @@ void getKeyboardInput(struct renderer *r) {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
 			if (event.key.keysym.sym == SDLK_s) {
+				printf("\n");
 				logr(info, "Aborting render, saving\n");
 				r->state.renderAborted = true;
 			}
 			if (event.key.keysym.sym == SDLK_x) {
+				printf("\n");
 				logr(info, "Aborting render without saving\n");
 				r->prefs.fileMode = saveModeNone;
 				r->state.renderAborted = true;
