@@ -27,6 +27,6 @@ jobs:
       steps:
       - uses: actions/checkout@v1
       - name: cmake
-        run: cmake -G "Visual Studio 15 2017 Win64"
+        run: cmake -G "Visual Studio 15 2017 Win64" .
       - name: build
         run: msbuild c-ray.sln /p:Configuration=Release
