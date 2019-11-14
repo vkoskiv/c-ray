@@ -19,11 +19,13 @@ void (*signal(int signo, void (*func )(int)))(int);
 typedef void sigfunc(int);
 sigfunc *signal(int, sigfunc*);
 
+static bool aborted = false;
+
 void sigHandler(int sig) {
 	if (sig == SIGINT) {
 		printf("\n");
-		logr(info, "Received ^C, aborting\n");
-		exit(1);
+		logr(info, "Received ^C, aborting render without saving\n");
+		aborted = true;
 	}
 }
 
@@ -234,6 +236,10 @@ void updateFrames(struct renderer *r) {
 }
 
 void drawWindow(struct renderer *r) {
+	if (aborted) {
+		r->prefs.fileMode = saveModeNone;
+		r->state.renderAborted = true;
+	}
 #ifdef UI_ENABLED
 	//Check for CTRL-C
 	if (signal(SIGINT, sigHandler) == SIG_ERR)
