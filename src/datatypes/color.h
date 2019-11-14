@@ -18,8 +18,8 @@ struct color {
 };
 
 struct gradient {
-	struct color *down;
-	struct color *up;
+	struct color down;
+	struct color up;
 };
 
 //Some standard colours

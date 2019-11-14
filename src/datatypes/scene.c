@@ -38,7 +38,7 @@
 	}
 };*/
 
-struct color *parseColor(const cJSON *data);
+struct color parseColor(const cJSON *data);
 
 /**
  Extract the filename from a given file path
@@ -135,7 +135,6 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	newMesh->polyCount = data.face_count;
 	//Transforms init
 	newMesh->transformCount = 0;
-	newMesh->transforms = malloc(sizeof(struct transform));
 	
 	newMesh->materialCount = 0;
 	//Set name
@@ -270,23 +269,23 @@ struct material *parseMaterial(const cJSON *data) {
 	//cJSON *roughness = NULL;
 	cJSON *color = NULL;
 	cJSON *intensity = NULL;
-	
-	bool validColor = false;
 	bool validIOR = false;
 	//bool validRoughness = false;
 	bool validIntensity = false;
 	
 	float IORValue = 1.0;
 	//float roughnessValue;
-	struct color *colorValue = NULL;
+	struct color colorValue = blackColor;
 	float intensityValue = 1.0;
 	
 	struct material *mat = calloc(1, sizeof(struct material));
 	
 	color = cJSON_GetObjectItem(data, "color");
-	colorValue = parseColor(color);
-	if (colorValue != NULL) {
-		validColor = true;
+	if (cJSON_IsObject(color)) {
+		colorValue = parseColor(color);
+	} else {
+		logr(warning, "No color given\n");
+		logr(warning, "Material data: %s\n", cJSON_Print(data));
 	}
 	
 	intensity = cJSON_GetObjectItem(data, "intensity");
@@ -317,28 +316,13 @@ struct material *parseMaterial(const cJSON *data) {
 	
 	if (strcmp(bsdf->valuestring, "lambertian") == 0) {
 		mat->type = lambertian;
-		if (validColor) {
-			mat->diffuse = *colorValue;
-		} else {
-			logr(warning, "Lambertian shader defined, but no color given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
+		mat->diffuse = colorValue;
 	} else if (strcmp(bsdf->valuestring, "metal") == 0) {
 		mat->type = metal;
-		if (validColor) {
-			mat->diffuse = *colorValue;
-		} else {
-			logr(warning, "Metal shader defined, but no color given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
+		mat->diffuse = colorValue;
 	} else if (strcmp(bsdf->valuestring, "glass") == 0) {
 		mat->type = glass;
-		if (validColor) {
-			mat->diffuse = *colorValue;
-		} else {
-			logr(warning, "Metal shader defined, but no color given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
+		mat->diffuse = colorValue;
 		if (validIOR) {
 			mat->IOR = IORValue;
 		} else {
@@ -347,12 +331,7 @@ struct material *parseMaterial(const cJSON *data) {
 		}
 	} else if (strcmp(bsdf->valuestring, "emission") == 0) {
 		mat->type = emission;
-		if (validColor) {
-			mat->emission = *colorValue;
-		} else {
-			logr(warning, "Emission shader defined, but no color given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
+		mat->diffuse = colorValue;
 		if (validIntensity) {
 			mat->emission = colorCoef(intensityValue, mat->emission);
 		} else {
@@ -360,7 +339,6 @@ struct material *parseMaterial(const cJSON *data) {
 			logr(error, "Material data: %s\n", cJSON_Print(data));
 		}
 	}
-	free(colorValue);
 	assignBSDF(mat);
 	return mat;
 }
@@ -673,41 +651,38 @@ int parseCamera(struct renderer *r, const cJSON *data) {
 	return 0;
 }
 
-struct color *parseColor(const cJSON *data) {
+struct color parseColor(const cJSON *data) {
 	
 	const cJSON *R = NULL;
 	const cJSON *G = NULL;
 	const cJSON *B = NULL;
 	const cJSON *A = NULL;
 	
-	struct color *newColor = calloc(1, sizeof(struct color));
+	struct color newColor;
 	
 	R = cJSON_GetObjectItem(data, "r");
 	if (R != NULL && cJSON_IsNumber(R)) {
-		newColor->red = R->valuedouble;
+		newColor.red = R->valuedouble;
 	} else {
-		free(newColor);
-		return NULL;
+		newColor.red = 0.0f;
 	}
 	G = cJSON_GetObjectItem(data, "g");
 	if (R != NULL && cJSON_IsNumber(G)) {
-		newColor->green = G->valuedouble;
+		newColor.green = G->valuedouble;
 	} else {
-		free(newColor);
-		return NULL;
+		newColor.green = 0.0f;
 	}
 	B = cJSON_GetObjectItem(data, "b");
 	if (R != NULL && cJSON_IsNumber(B)) {
-		newColor->blue = B->valuedouble;
+		newColor.blue = B->valuedouble;
 	} else {
-		free(newColor);
-		return NULL;
+		newColor.blue = 0.0f;
 	}
 	A = cJSON_GetObjectItem(data, "a");
 	if (R != NULL && cJSON_IsNumber(A)) {
-		newColor->alpha = A->valuedouble;
+		newColor.alpha = A->valuedouble;
 	} else {
-		newColor->alpha = 0.0;
+		newColor.alpha = 0.0;
 	}
 	
 	return newColor;
@@ -719,13 +694,13 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *hdr = NULL;
 	const cJSON *offset = NULL;
 	
-	struct gradient *newGradient = calloc(1, sizeof(struct gradient));
+	struct gradient newGradient;
 	
 	down = cJSON_GetObjectItem(data, "down");
 	up = cJSON_GetObjectItem(data, "up");
 	
-	newGradient->down = parseColor(down);
-	newGradient->up = parseColor(up);
+	newGradient.down = parseColor(down);
+	newGradient.up = parseColor(up);
 	
 	r->scene->ambientColor = newGradient;
 	
@@ -859,12 +834,12 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	if (color != NULL) {
 		switch (newSphere.material.type) {
 			case emission:
-				newSphere.material.emission = *parseColor(color);
+				newSphere.material.emission = parseColor(color);
 				break;
 				
 			default:
-				newSphere.material.ambient = *parseColor(color);
-				newSphere.material.diffuse = *parseColor(color);
+				newSphere.material.ambient = parseColor(color);
+				newSphere.material.diffuse = parseColor(color);
 				break;
 		}
 	} else {
@@ -1209,9 +1184,6 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 
 //Free scene data
 void freeScene(struct world *scene) {
-	if (scene->ambientColor) {
-		free(scene->ambientColor);
-	}
 	if (scene->meshes) {
 		for (int i = 0; i < scene->meshCount; i++) {
 			freeMesh(&scene->meshes[i]);

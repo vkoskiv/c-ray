@@ -21,7 +21,7 @@ struct display;
 //World
 struct world {
 	//Ambient background color.
-	struct gradient *ambientColor;
+	struct gradient ambientColor;
 	
 	//Optional environment map
 	struct texture *hdr;

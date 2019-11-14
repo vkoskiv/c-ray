@@ -104,10 +104,10 @@ struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 }
 
 //Linearly interpolate based on the Y component
-struct color getAmbientColor(struct lightRay *incidentRay, struct gradient *color) {
+struct color getAmbientColor(struct lightRay *incidentRay, struct gradient color) {
 	struct vector unitDirection = vecNormalize(incidentRay->direction);
 	float t = 0.5 * (unitDirection.y + 1.0);
-	return addColors(colorCoef(1.0 - t, *color->down), colorCoef(t, *color->up));
+	return addColors(colorCoef(1.0 - t, color.down), colorCoef(t, color.up));
 }
 
 struct color getBackground(struct lightRay *incidentRay, struct world *scene) {

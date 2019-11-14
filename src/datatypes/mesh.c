@@ -58,8 +58,10 @@ void freeMesh(struct mesh *mesh) {
 	if (mesh->name) {
 		free(mesh->name);
 	}
-	if (mesh->transforms) {
-		free(mesh->transforms);
+	if (mesh->transformCount > 0) {
+		if (mesh->transforms) {
+			free(mesh->transforms);
+		}
 	}
 	if (mesh->tree) {
 		freeTree(mesh->tree);
