@@ -18,6 +18,10 @@
 
 #include <limits.h> //For SSIZE_MAX
 
+#ifndef WINDOWS
+#include <sys/utsname.h>
+#endif
+
 //Prototypes for internal functions
 int getFileSize(char *fileName);
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
@@ -91,12 +95,24 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	sprintf(bounces, "%i", imginfo.bounces);
 	char seconds[16];
 	sprintf(seconds, "%i", imginfo.renderTimeSeconds);
+	char threads[16];
+	sprintf(threads, "%i", imginfo.threadCount);
+#ifndef WINDOWS
+	char sysinfo[512];
+	struct utsname name;
+	uname(&name);
+	sprintf(sysinfo, "%s %s %s %s %s", name.machine, name.nodename, name.release, name.sysname, name.version);
+#endif
 	
 	lodepng_add_text(&info, "C-ray Version", version);
 	lodepng_add_text(&info, "C-ray Source", "https://github.com/vkoskiv/c-ray");
 	lodepng_add_text(&info, "C-ray Samples", samples);
 	lodepng_add_text(&info, "C-ray Bounces", bounces);
 	lodepng_add_text(&info, "C-ray RenderTime (seconds)", seconds);
+	lodepng_add_text(&info, "C-ray Threads", threads);
+#ifndef WINDOWS
+	lodepng_add_text(&info, "C-ray SysInfo", sysinfo);
+#endif
 	
 	//TODO: Maybe platform info? arch, uname, etc.
 	

@@ -32,6 +32,8 @@ struct renderInfo {
 	int samples;
 	int bounces;
 	int renderTimeSeconds;
+	int threadCount;
+	char *arch;
 	char *crayVersion;
 	char *gitHash;
 };

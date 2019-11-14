@@ -58,7 +58,8 @@ int main(int argc, char *argv[]) {
 		.samples = r->prefs.sampleCount,
 		.crayVersion = VERSION,
 		.gitHash = hash,
-		.renderTimeSeconds = difftime(stop, start)
+		.renderTimeSeconds = difftime(stop, start),
+		.threadCount = r->prefs.threadCount
 	});
 	free(hash);
 	freeRenderer(r);
