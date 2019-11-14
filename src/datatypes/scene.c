@@ -97,9 +97,6 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 	computeKDTrees(r->scene->meshes, r->scene->meshCount);
 	printSceneStats(r->scene, getMs(timer));
 	
-	//Alloc threadPaused booleans, one for each thread
-	r->state.threadPaused = calloc(r->prefs.threadCount, sizeof(bool));
-	
 	//Quantize image into renderTiles
 	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);
 	reorderTiles(&r->state.renderTiles, r->state.tileCount, r->prefs.tileOrder);

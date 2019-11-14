@@ -25,6 +25,8 @@ struct threadState {
 	int thread_num;
 	bool threadComplete;
 	
+	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.
+	
 	//Share info about the current tile with main thread
 	int currentTileNum;
 	int completedSamples;
@@ -52,7 +54,6 @@ struct state {
 	struct texture *uiBuffer; //UI element buffer
 	int activeThreads; //Amount of threads currently rendering
 	bool isRendering;
-	bool *threadPaused; //SDL listens for P key pressed, which sets these, one for each thread.
 	bool renderAborted;//SDL listens for X key pressed, which sets this
 	unsigned long long avgTileTime;//Used for render duration estimation (milliseconds)
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)

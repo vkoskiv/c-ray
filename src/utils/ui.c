@@ -120,6 +120,13 @@ void printDuration(float time) {
 }
 
 void getKeyboardInput(struct renderer *r) {
+	if (aborted) {
+		r->prefs.fileMode = saveModeNone;
+		r->state.renderAborted = true;
+	}
+	//Check for CTRL-C
+	if (signal(SIGINT, sigHandler) == SIG_ERR)
+		logr(warning, "Couldn't catch SIGINT\n");
 #ifdef UI_ENABLED
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
@@ -137,18 +144,19 @@ void getKeyboardInput(struct renderer *r) {
 			}
 			if (event.key.keysym.sym == SDLK_p) {
 				
-				if (r->state.threadPaused[0]) {
+				/*if (r->state.threadStates[0].paused) {
+					printf("\n");
 					logr(info, "Resuming render.\n");
 				} else {
 					printf("\n");
 					logr(info, "Pausing render.\n");
-				}
+				}*/
 				
 				for (int i = 0; i < r->prefs.threadCount; i++) {
-					if (r->state.threadPaused[i]) {
-						r->state.threadPaused[i] = false;
+					if (r->state.threadStates[i].paused) {
+						r->state.threadStates[i].paused = false;
 					} else {
-						r->state.threadPaused[i] = true;
+						r->state.threadStates[i].paused = true;
 					}
 				}
 			}
@@ -238,14 +246,7 @@ void updateFrames(struct renderer *r) {
 }
 
 void drawWindow(struct renderer *r) {
-	if (aborted) {
-		r->prefs.fileMode = saveModeNone;
-		r->state.renderAborted = true;
-	}
 #ifdef UI_ENABLED
-	//Check for CTRL-C
-	if (signal(SIGINT, sigHandler) == SIG_ERR)
-		logr(warning, "Couldn't catch SIGINT\n");
 	//Render frames
 	updateFrames(r);
 	//Update image data
