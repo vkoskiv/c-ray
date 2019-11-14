@@ -106,13 +106,17 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 		}
 	}
 	
+	bool rightFreed = false;
+	bool leftFreed = false;
 	if (leftPolys.used == 0 && rightPolys.used > 0) {
 		freeArray(&leftPolys);
 		leftPolys = rightPolys;
+		leftFreed = true;
 	}
 	if (rightPolys.used == 0 && leftPolys.used > 0) {
 		freeArray(&rightPolys);
 		rightPolys = leftPolys;
+		rightFreed = true;
 	}
 	
 	struct boundingBox *leftBBox = computeBoundingBox(leftPolys.array, (int)leftPolys.used);
@@ -128,6 +132,8 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 		//Stop here
 		node->left = NULL;
 		node->right = NULL;
+		if (leftPolys.used > 0 && !leftFreed) freeArray(&leftPolys);
+		if (rightPolys.used > 0 && !rightFreed) freeArray(&rightPolys);
 	} else {
 		//Keep going
 		node->left = buildTree(leftPolys.array, (int)leftPolys.used, depth + 1);
