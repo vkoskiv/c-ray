@@ -20,6 +20,14 @@ void writeImage(struct texture *image, enum fileMode mode, struct renderInfo inf
 
 char *loadFile(char *inputFileName, size_t *bytes);
 
+/**
+ Extract the filename from a given file path
+
+ @param input File path to be processed
+ @return Filename string, including file type extension
+ */
+char *getFileName(char *input);
+
 char *readStdin(void);
 
 //FIXME: Move this to a better place

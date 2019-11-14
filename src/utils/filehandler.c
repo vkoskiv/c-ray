@@ -180,6 +180,25 @@ void checkBuf() {
 #endif
 }
 
+/**
+ Extract the filename from a given file path
+
+ @param input File path to be processed
+ @return Filename string, including file type extension
+ */
+char *getFileName(char *input) {
+	char *fn;
+	
+	/* handle trailing '/' e.g.
+	 input == "/home/me/myprogram/" */
+	if (input[(strlen(input) - 1)] == '/')
+		input[(strlen(input) - 1)] = '\0';
+	
+	(fn = strrchr(input, '/')) ? ++fn : (fn = input);
+	
+	return fn;
+}
+
 #define chunksize 1024
 //Get scene data from stdin and return a pointer to it
 char *readStdin() {
