@@ -148,6 +148,11 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 
 //Free scene data
 void freeScene(struct world *scene) {
+	if (scene->hdr) {
+		freeTexture(scene->hdr);
+		freeTexture(scene->hdr);
+	}
+	
 	if (scene->meshes) {
 		for (int i = 0; i < scene->meshCount; i++) {
 			freeMesh(&scene->meshes[i]);
