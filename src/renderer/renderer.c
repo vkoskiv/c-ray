@@ -282,7 +282,7 @@ void *renderThread(void *arg) {
 #ifdef WINDOWS
 	return 0;
 #else
-	pthread_exit((void*) arg);
+	return 0;
 #endif
 }
 	
