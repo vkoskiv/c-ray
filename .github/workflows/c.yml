@@ -26,6 +26,7 @@ jobs:
       runs-on: windows-latest
       steps:
       - uses: actions/checkout@v1
+      - uses: warrenbuckley/Setup-MSBuild@v1
       - name: cmake
         run: cmake -G "Visual Studio 16 2019" -A x64 .
       - name: build
