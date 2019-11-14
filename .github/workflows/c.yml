@@ -1,15 +1,32 @@
 name: C-ray CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-    
+  macos:
+    name: macOS Build
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
     - name: cmake
       run: cmake .
-    - name: make
+    - name: build
       run: make
+  linux:
+    name: Linux Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: cmake
+      run: cmake .
+    - name: build
+      run: make
+  winbuild:
+      name: Windows Build
+      runs-on: windows-latest
+      steps:
+      - uses: actions/checkout@v1
+      - name: cmake
+        run: cmake -G "Visual Studio 15 2017 Win64"
+      - name: build
+        run: msbuild c-ray.sln /p:Configuration=Release
