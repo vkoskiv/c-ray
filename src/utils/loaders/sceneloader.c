@@ -964,6 +964,7 @@ int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 	}
 	
 	cJSON *json = cJSON_Parse(buf);
+	free(buf);
 	if (json == NULL) {
 		logr(warning, "Failed to parse JSON\n");
 		const char *errptr = cJSON_GetErrorPtr();
