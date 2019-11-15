@@ -47,7 +47,7 @@ void computeKDTrees(struct mesh *meshes, int meshCount) {
 }
 
 void printSceneStats(struct world *scene, unsigned long long ms) {
-	logr(info, "Scene parsing completed in %llums\n", ms);
+	logr(info, "Scene construction completed in %llums\n", ms);
 	logr(info, "Totals: %iV, %iN, %iP, %iS\n",
 		   vertexCount,
 		   normalCount,

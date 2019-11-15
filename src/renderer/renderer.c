@@ -62,7 +62,6 @@ void render(struct renderer *r) {
 			finalAvg /= ctr;
 			ctr++;
 			sleepMSec(active_msec);
-			if (r->state.renderAborted) break;
 		} else {
 			sleepMSec(paused_msec);
 		}
@@ -286,11 +285,7 @@ void *renderThread(void *arg) {
 	//No more tiles to render, exit thread. (render done)
 	tinfo->threadComplete = true;
 	tinfo->currentTileNum = -1;
-#ifdef WINDOWS
 	return 0;
-#else
-	return 0;
-#endif
 }
 	
 struct renderer *newRenderer() {
@@ -318,7 +313,7 @@ struct renderer *newRenderer() {
 #endif
 	
 	//Mutex
-#ifdef _WIN32
+#ifdef WINDOWS
 	r->state.tileMutex = CreateMutex(NULL, FALSE, NULL);
 #else
 	r->state.tileMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;

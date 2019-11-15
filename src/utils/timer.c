@@ -54,7 +54,7 @@ long getUs(struct timeval timer) {
  @param ms Milliseconds to sleep for
  */
 void sleepMSec(int ms) {
-#ifdef _WIN32
+#ifdef WINDOWS
 	Sleep(ms);
 #elif __APPLE__
 	struct timespec ts;

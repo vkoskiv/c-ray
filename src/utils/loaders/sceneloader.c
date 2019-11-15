@@ -968,7 +968,6 @@ int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 		logr(warning, "Failed to parse JSON\n");
 		const char *errptr = cJSON_GetErrorPtr();
 		if (errptr != NULL) {
-			free(buf);
 			cJSON_Delete(json);
 			logr(warning, "Error before: %s\n", errptr);
 			return -2;
@@ -984,12 +983,10 @@ int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 	if (renderer != NULL) {
 		if (parseRenderer(r, renderer) == -1) {
 			logr(warning, "Renderer parse failed!\n");
-			free(buf);
 			return -2;
 		}
 	} else {
 		logr(warning, "No renderer found\n");
-		free(buf);
 		return -2;
 	}
 	
@@ -997,12 +994,10 @@ int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 	if (display != NULL) {
 		if (parseDisplay(r, display) == -1) {
 			logr(warning, "Display parse failed!\n");
-			free(buf);
 			return -2;
 		}
 	} else {
 		logr(warning, "No display found\n");
-		free(buf);
 		return -2;
 	}
 	
@@ -1010,12 +1005,10 @@ int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 	if (camera != NULL) {
 		if (parseCamera(r, camera) == -1) {
 			logr(warning, "Camera parse failed!\n");
-			free(buf);
 			return -2;
 		}
 	} else {
 		logr(warning, "No camera found\n");
-		free(buf);
 		return -2;
 	}
 	
@@ -1023,17 +1016,14 @@ int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 	if (scene != NULL) {
 		if (parseScene(r, scene) == -1) {
 			logr(warning, "Scene parse failed!\n");
-			free(buf);
 			return -2;
 		}
 	} else {
 		logr(warning, "No scene found\n");
-		free(buf);
 		return -2;
 	}
 	
 	cJSON_Delete(json);
-	free(buf);
 	
 	return 0;
 }
