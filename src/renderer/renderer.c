@@ -181,6 +181,7 @@ void *renderThread(void *arg) {
 		while (tile.completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
 			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
+					if (r->state.renderAborted) return 0;
 					startTimer(&timer);
 					uint64_t pixIdx = y * r->state.image->width + x;
 					uint64_t idx = pixIdx * r->prefs.sampleCount + tile.completedSamples;

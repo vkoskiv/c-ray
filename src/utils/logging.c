@@ -55,7 +55,7 @@ void logr(enum logType type, const char *fmt, ...) {
 	printf("%s", buf);
 	if (type == error) {
 		logr(info, "Aborting due to previous error.\n");
-		abort();
+		exit(-1);
 	}
 }
 
