@@ -14,14 +14,13 @@
 #include "../../datatypes/material.h"
 #include "../../utils/logging.h"
 #include "../../utils/filehandler.h" //for copyString FIXME
-//#include "../../datatypes/scene.h" // for getFileName FIXME
 
 // Parse a list of materials and return an array of materials.
 // mtlCount is the amount of materials loaded.
 struct material *parseMTLFile(char *filePath, int *mtlCount) {
-	struct material *newMaterials = calloc(1, sizeof(struct material));
+	struct material *newMaterials = NULL;
 	
-	int count = 1;
+	int count = 0;
 	int linenum = 0;
 	char *token;
 	char currLine[500];
@@ -32,7 +31,6 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 	fileStream = fopen(filePath, "r");
 	if (fileStream == 0) {
 		logr(warning, "Material not found at %s\n", filePath);
-		free(newMaterials);
 		return NULL;
 	}
 	
@@ -40,17 +38,17 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 		token = strtok(currLine, " \t\n\r");
 		linenum++;
 		
-		if (token == NULL || stringEquals(token, "//") || stringEquals(token, "#")) {
-			//Skip comments starting with // or #
+		if (token == NULL || stringEquals(token, "#")) {
+			//Skip comments starting with #
 			continue;
 		} else if (stringEquals(token, "newmtl")) {
 			//New material is created
+			count++;
 			newMaterials = realloc(newMaterials, count * sizeof(struct material));
 			currMat = &newMaterials[count-1];
-			newMaterials[count-1].name = calloc(CRAY_MATERIAL_NAME_SIZE, sizeof(char));
+			currMat->name = calloc(CRAY_MATERIAL_NAME_SIZE, sizeof(char));
 			currMat->textureFilePath = calloc(CRAY_MESH_FILENAME_LENGTH, sizeof(char));
-			strncpy(newMaterials[count-1].name, strtok(NULL, " \t"), CRAY_MATERIAL_NAME_SIZE);
-			count++;
+			strncpy(currMat->name, strtok(NULL, " \t"), CRAY_MATERIAL_NAME_SIZE);
 			matOpen = true;
 		} else if (stringEquals(token, "Ka") && matOpen) {
 			//Ambient color
@@ -105,7 +103,11 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 	
 	fclose(fileStream);
 	
-	*mtlCount = count-1;
+	*mtlCount = count;
+	
+	for (int i = 0; i < *mtlCount; i++) {
+		newMaterials[i].name[strcspn(newMaterials[i].name, "\n")] = 0;
+	}
 	
 	return newMaterials;
 }

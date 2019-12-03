@@ -79,6 +79,8 @@
 		90CA851E2252C90C00BA7702 /* textureloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA851B2252C90C00BA7702 /* textureloader.c */; };
 		90CA85212252CB3800BA7702 /* sceneloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85202252CB3800BA7702 /* sceneloader.c */; };
 		90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85232252D99700BA7702 /* vertexbuffer.c */; };
+		90CFA7DF2381BF0900061288 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CFA7DE2381BF0900061288 /* hashtable.c */; };
+		90CFA7E02381BF0900061288 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CFA7DE2381BF0900061288 /* hashtable.c */; };
 		90EE4F3C237DD49F0071894E /* meshloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90EE4F3B237DD49F0071894E /* meshloader.c */; };
 		90EE4F3D237DD49F0071894E /* meshloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90EE4F3B237DD49F0071894E /* meshloader.c */; };
 		90FB15CB22596E79008D6AAA /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15C822596E79008D6AAA /* gitsha1.c */; };
@@ -182,6 +184,8 @@
 		90CA85202252CB3800BA7702 /* sceneloader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sceneloader.c; sourceTree = "<group>"; };
 		90CA85222252D99600BA7702 /* vertexbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vertexbuffer.h; sourceTree = "<group>"; };
 		90CA85232252D99700BA7702 /* vertexbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vertexbuffer.c; sourceTree = "<group>"; };
+		90CFA7DD2381BF0900061288 /* hashtable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hashtable.h; sourceTree = "<group>"; };
+		90CFA7DE2381BF0900061288 /* hashtable.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hashtable.c; sourceTree = "<group>"; };
 		90D99AF41D08ADB10015A854 /* C-Ray Fast */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Fast"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90E2DB28223D575600E7A305 /* asprintf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asprintf.h; sourceTree = "<group>"; };
 		90EE4F3A237DD49F0071894E /* meshloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = meshloader.h; sourceTree = "<group>"; };
@@ -314,6 +318,8 @@
 			isa = PBXGroup;
 			children = (
 				90CA85152252C90C00BA7702 /* loaders */,
+				90CFA7DD2381BF0900061288 /* hashtable.h */,
+				90CFA7DE2381BF0900061288 /* hashtable.c */,
 				907CD4782240DFFF003947B0 /* multiplatform.h */,
 				907CD4792240DFFF003947B0 /* multiplatform.c */,
 				9058A51022231E9F00193385 /* denoiser.h */,
@@ -494,6 +500,7 @@
 				905842FD236651FC009D92F1 /* ui.c in Sources */,
 				905842FE236651FC009D92F1 /* bbox.c in Sources */,
 				905842FF236651FC009D92F1 /* sceneloader.c in Sources */,
+				90CFA7E02381BF0900061288 /* hashtable.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -539,6 +546,7 @@
 				900BA141220B4603005B8EE7 /* ui.c in Sources */,
 				900BA12B220B4603005B8EE7 /* bbox.c in Sources */,
 				90CA85212252CB3800BA7702 /* sceneloader.c in Sources */,
+				90CFA7DF2381BF0900061288 /* hashtable.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

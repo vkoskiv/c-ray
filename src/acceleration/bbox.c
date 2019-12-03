@@ -66,7 +66,6 @@ struct boundingBox *computeBoundingBox(int *polys, int count) {
  @return true if intersected, false otherwise
  */
 bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, float *t) {
-	
 	//If a mesh has no polygons, it won't have a root bbox either.
 	if (!box) return false;
 	
@@ -102,13 +101,8 @@ bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, float *
 }
 
 float findSurfaceArea(struct boundingBox box) {
-	float area = 0.0;
-	
 	float width = box.end.x - box.start.x;
 	float height = box.end.y - box.start.y;
 	float length = box.end.z - box.start.z;
-	
-	area = 2 * (length * width) + 2 * (length * height) + 2 * (width * height);
-	
-	return area;
+	return 2 * (length * width) + 2 * (length * height) + 2 * (width * height);
 }

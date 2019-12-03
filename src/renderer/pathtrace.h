@@ -34,8 +34,6 @@ struct intersection {
 	enum currentType type;			//Type of object ray intersected with
 	bool didIntersect;				//True if ray intersected
 	float distance;				//Distance to intersection point
-	
-	int mtlIndex;					//mesh material index
 	int polyIndex;					//mesh polygon index
 };
 

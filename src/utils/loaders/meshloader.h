@@ -7,3 +7,5 @@
 //
 
 #pragma once
+
+//struct mesh *parseMesh(char *filePath);

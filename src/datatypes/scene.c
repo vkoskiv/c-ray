@@ -47,7 +47,7 @@ void computeKDTrees(struct mesh *meshes, int meshCount) {
 }
 
 void printSceneStats(struct world *scene, unsigned long long ms) {
-	logr(info, "Scene parsing completed in %llums\n", ms);
+	logr(info, "Scene construction completed in %llums\n", ms);
 	logr(info, "Totals: %iV, %iN, %iP, %iS\n",
 		   vertexCount,
 		   normalCount,
@@ -96,9 +96,6 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 	transformMeshes(r->scene);
 	computeKDTrees(r->scene->meshes, r->scene->meshCount);
 	printSceneStats(r->scene, getMs(timer));
-	
-	//Alloc threadPaused booleans, one for each thread
-	r->state.threadPaused = calloc(r->prefs.threadCount, sizeof(bool));
 	
 	//Quantize image into renderTiles
 	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);

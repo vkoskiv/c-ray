@@ -58,6 +58,7 @@
 #include "./libraries/pcg_basic.h"
 
 //Project includes
+//FIXME: Remove these.
 #include "./datatypes/color.h"
 #include "./datatypes/material.h"
 #include "./datatypes/vector.h"

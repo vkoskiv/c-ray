@@ -10,16 +10,18 @@
 
 struct poly;
 
+/// Current bbox split axis
 enum bboxAxis {
 	X,
 	Y,
 	Z
 };
 
+
+/// Bounding box for a given set of primitives
 struct boundingBox {
 	struct vector start, end, midPoint;
 };
-
 
 /// Computes a bounding box for a given array of polygons
 /// @param polys Array of polygons to process
@@ -35,7 +37,6 @@ enum bboxAxis getLongestAxis(struct boundingBox *bbox);
 /// @param ray Ray to intersect
 /// @param t Distance the intersection occurred at along the ray
 bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, float *t);
-
 
 /// Compute the surface area of a given bounding box
 /// @param box Bounding box to compute surface area for

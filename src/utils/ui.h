@@ -27,10 +27,8 @@ struct display {
 	int width;
 };
 
-#ifdef UI_ENABLED
 int initSDL(struct display *d);
 void freeDisplay(struct display *disp);
-#endif
 
 void printDuration(float time);
 void getKeyboardInput(struct renderer *r);

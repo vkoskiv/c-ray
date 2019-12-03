@@ -61,7 +61,7 @@ bool intersect(struct lightRay *ray, struct sphere *sphere, float *t) {
 		}
 		
 		//Verify intersection is larger than 0 and less than the original distance
-		if ((t0 > 0.001f) && (t0 < *t)) {
+		if ((t0 > 0.00001f) && (t0 < *t)) {
 			*t = t0;
 			intersects = true;
 		} else {

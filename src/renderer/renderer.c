@@ -19,17 +19,18 @@
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
 
-#define paused_msec 800
-#define active_msec  40
+//Main thread loop speeds
+#define paused_msec 100
+#define active_msec  16
 
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 void render(struct renderer *r) {
 	logr(info, "Starting C-ray renderer for frame %i\n", r->state.image->count);
 	
-	logr(info, "Rendering at %i x %i\n", r->state.image->width, r->state.image->height);
-	logr(info, "Rendering %i samples with %i bounces.\n", r->prefs.sampleCount, r->prefs.bounces);
-	logr(info, "Rendering with %d thread", r->prefs.threadCount);
+	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->state.image->width, KNRM, KWHT, r->state.image->height, KNRM);
+	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
+	logr(info, "Rendering with %s%d%s thread", KRED, r->prefs.threadCount, KNRM);
 	printf(r->prefs.threadCount > 1 ? "s.\n" : ".\n");
 	
 	logr(info, "Pathtracing\n");
@@ -51,14 +52,19 @@ void render(struct renderer *r) {
 	int ctr = 1;
 	while (r->state.isRendering) {
 		getKeyboardInput(r);
-		drawWindow(r);
 		
-		for (int t = 0; t < r->prefs.threadCount; t++) {
-			avgRayTime += r->state.threadStates[t].avgRayTime;
+		if (!r->state.threadStates[0].paused) {
+			drawWindow(r);
+			for (int t = 0; t < r->prefs.threadCount; t++) {
+				avgRayTime += r->state.threadStates[t].avgRayTime;
+			}
+			finalAvg += avgRayTime / r->prefs.threadCount;
+			finalAvg /= ctr;
+			ctr++;
+			sleepMSec(active_msec);
+		} else {
+			sleepMSec(paused_msec);
 		}
-		finalAvg += avgRayTime / r->prefs.threadCount;
-		finalAvg /= ctr;
-		ctr++;
 		
 		//Run the sample printing about 4x/s
 		if (pauser == 280 / active_msec) {
@@ -68,7 +74,14 @@ void render(struct renderer *r) {
 			char rem[32];
 			smartTime((0.001 * usecTillFinished) / r->prefs.threadCount, rem);
 			float completion = ((float)r->state.finishedTileCount / r->state.tileCount) * 100;
-			logr(info, "[%s%.0f%%%s] μs/ray: %.02f, etf: %s, %.02lfMs/s        \r", KBLU, KNRM, completion, finalAvg, rem, 0.000001*sps);
+			logr(info, "[%s%.0f%%%s] μs/ray: %.02f, etf: %s, %.02lfMs/s %s        \r",
+				 KBLU,
+				 KNRM,
+				 completion,
+				 finalAvg,
+				 rem,
+				 0.000001*sps,
+				 r->state.threadStates[0].paused ? "[PAUSED]" : "");
 			pauser = 0;
 		}
 		pauser++;
@@ -114,11 +127,6 @@ void render(struct renderer *r) {
 			if (r->state.activeThreads == 0 || r->state.renderAborted) {
 				r->state.isRendering = false;
 			}
-		}
-		if (r->state.threadPaused[0]) {
-			sleepMSec(paused_msec);
-		} else {
-			sleepMSec(active_msec);
 		}
 	}
 	
@@ -166,7 +174,6 @@ void *renderThread(void *arg) {
 	struct timeval timer = {0};
 	
 	while (tile.tileNum != -1 && r->state.isRendering) {
-		unsigned long long sleepMs = 0;
 		hasHitObject = false;
 		long totalUsec = 0;
 		long rays = 0;
@@ -174,6 +181,7 @@ void *renderThread(void *arg) {
 		while (tile.completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
 			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
+					if (r->state.renderAborted) return 0;
 					startTimer(&timer);
 					uint64_t pixIdx = y * r->state.image->width + x;
 					uint64_t idx = pixIdx * r->prefs.sampleCount + tile.completedSamples;
@@ -262,9 +270,8 @@ void *renderThread(void *arg) {
 			tinfo->completedSamples = tile.completedSamples;
 			if (tile.completedSamples > 25 && !hasHitObject) break; //Abort if we didn't hit anything within 25 samples
 			//Pause rendering when bool is set
-			while (r->state.threadPaused[tinfo->thread_num] && !r->state.renderAborted) {
+			while (tinfo->paused && !r->state.renderAborted) {
 				sleepMSec(100);
-				sleepMs += 100;
 			}
 			tinfo->avgRayTime = totalUsec / rays;
 		}
@@ -279,11 +286,7 @@ void *renderThread(void *arg) {
 	//No more tiles to render, exit thread. (render done)
 	tinfo->threadComplete = true;
 	tinfo->currentTileNum = -1;
-#ifdef WINDOWS
 	return 0;
-#else
-	return 0;
-#endif
 }
 	
 struct renderer *newRenderer() {
@@ -311,7 +314,7 @@ struct renderer *newRenderer() {
 #endif
 	
 	//Mutex
-#ifdef _WIN32
+#ifdef WINDOWS
 	r->state.tileMutex = CreateMutex(NULL, FALSE, NULL);
 #else
 	r->state.tileMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
@@ -339,18 +342,13 @@ void freeRenderer(struct renderer *r) {
 		freeTexture(r->state.uiBuffer);
 		free(r->state.uiBuffer);
 	}
-	if (r->state.threadPaused) {
-		free(r->state.threadPaused);
-	}
 	if (r->state.threadStates) {
 		free(r->state.threadStates);
 	}
-#ifdef UI_ENABLED
 	if (r->mainDisplay) {
 		freeDisplay(r->mainDisplay);
 		free(r->mainDisplay);
 	}
-#endif
 	
 	free(r);
 }

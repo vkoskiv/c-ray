@@ -18,13 +18,11 @@
 #define ws " \t\n\r"
 
 struct vector parseVertex() {
-	struct vector v = (struct vector){atof(strtok(NULL, ws)), atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
-	return v;
+	return (struct vector){atof(strtok(NULL, ws)), atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
 }
 
 struct coord parseCoord() {
-	struct coord c = (struct coord){atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
-	return c;
+	return (struct coord){atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
 }
 
 int parseIndices(int *vertexIndex, int *normalIndex, int *textureIndex) {
@@ -68,7 +66,7 @@ int parseIndices(int *vertexIndex, int *normalIndex, int *textureIndex) {
 int convert(int amount, int index) {
 	if (index == 0)
 		return -1;
-	if (index  < 0)
+	if (index < 0)
 		return amount + index;
 	
 	return index - 1;
@@ -80,7 +78,7 @@ void convertIndices(int amount, int *indices) {
 	}
 }
 
-struct poly parsePoly() {
+struct poly parsePoly(struct mesh mesh) {
 	struct poly p;
 	p.vertexCount = parseIndices(p.vertexIndex, p.normalIndex, p.textureIndex);
 	
@@ -93,9 +91,9 @@ struct poly parsePoly() {
 			p.hasNormals = false;
 		}
 		
-		p.vertexIndex[i] = (vertexCount+1) + p.vertexIndex[i];
-		p.normalIndex[i] = (normalCount+1) + p.normalIndex[i];
-		p.textureIndex[i] = (textureCount+1) + p.textureIndex[i];
+		p.vertexIndex[i] = mesh.firstVectorIndex + (p.vertexIndex[i] - 1);
+		p.normalIndex[i] = mesh.firstNormalIndex + (p.normalIndex[i] - 1);
+		p.textureIndex[i] = mesh.firstTextureIndex + (p.textureIndex[i] - 1);
 	}
 	
 	return p;
@@ -137,7 +135,7 @@ struct mesh *parseOBJFile(char *filePath) {
 	while (fgets(currLine, 500, fileStream)) {
 		token = strtok(currLine, ws);
 		//skip comments
-		if(token == NULL || stringEquals(token, "//") || stringEquals(token, "#")) {
+		if(token == NULL || stringEquals(token, "#")) {
 			continue;
 		} else if (stringEquals(token, "v")) {
 			vCount++;
@@ -184,7 +182,7 @@ struct mesh *parseOBJFile(char *filePath) {
 		token = strtok(currLine, ws);
 		linenum++;
 		
-		if (token == NULL || stringEquals(token, "//") || stringEquals(token, "#")) {
+		if (token == NULL || stringEquals(token, "#")) {
 			//skip comments
 			continue;
 		} else if (stringEquals(token, "v")) {
@@ -201,7 +199,7 @@ struct mesh *parseOBJFile(char *filePath) {
 			currTexIdx++;
 		} else if (stringEquals(token, "f")) {
 			//Polygon
-			struct poly p = parsePoly();
+			struct poly p = parsePoly(*newMesh);
 			p.materialIndex = currMatIdx;
 			p.polyIndex = currPolIdx;
 			polygonArray[newMesh->firstPolyIndex + currPolIdx] = p;
@@ -211,16 +209,27 @@ struct mesh *parseOBJFile(char *filePath) {
 			currMatIdx = findMaterialIndex(newMesh, strtok(NULL, ws));
 		} else if (stringEquals(token, "mtllib")) {
 			//new material
-			int *mtlCount = malloc(1*sizeof(int));
+			int mtlCount = 0;
+			//I am so very sorry for this. I didn't mean to. Just wanted to get it working.
 			char *fullPath = (char*)calloc(1024, sizeof(char));
-			sprintf(fullPath, "%s%s", "input/", strtok(NULL, ws));
-			struct material *newMats = parseMTLFile(fullPath, mtlCount);
+			sprintf(fullPath, "%s", filePath);
+			char key = '\0';
+			int i = (int)strcspn(filePath, &key);
+			fullPath[i-3] = 'm';
+			fullPath[i-2] = 't';
+			fullPath[i-1] = 'l';
+			
+			struct material *newMats = parseMTLFile(fullPath, &mtlCount);
+			
 			if (newMats != NULL) {
-				newMesh->materialCount = *mtlCount;
+				newMesh->materialCount = mtlCount;
 				newMesh->materials = newMats;
+			} else {
+				newMesh->materials = calloc(1, sizeof(struct material));
+				newMesh->materials[0] = warningMaterial();
+				newMesh->materialCount = 1;
 			}
 			free(fullPath);
-			free(mtlCount);
 		} else if (stringEquals(token, "o")) {
 			//object name
 			copyString(strtok(NULL, ws), &newMesh->name);
