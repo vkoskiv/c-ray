@@ -246,6 +246,10 @@ void updateFrames(struct renderer *r) {
 }
 
 void drawWindow(struct renderer *r) {
+	if (aborted) {
+		r->prefs.fileMode = saveModeNone;
+		r->state.renderAborted = true;
+	}
 #ifdef UI_ENABLED
 	//Render frames
 	updateFrames(r);
