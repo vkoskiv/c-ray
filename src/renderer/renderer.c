@@ -345,12 +345,10 @@ void freeRenderer(struct renderer *r) {
 	if (r->state.threadStates) {
 		free(r->state.threadStates);
 	}
-#ifdef UI_ENABLED
 	if (r->mainDisplay) {
 		freeDisplay(r->mainDisplay);
 		free(r->mainDisplay);
 	}
-#endif
 	
 	free(r);
 }

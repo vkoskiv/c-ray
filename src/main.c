@@ -36,9 +36,7 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	
-#ifdef UI_ENABLED
 	initSDL(r->mainDisplay);
-#endif
 	
 	time_t start, stop;
 	time(&start);

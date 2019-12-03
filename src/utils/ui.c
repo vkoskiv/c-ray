@@ -31,9 +31,8 @@ void sigHandler(int sig) {
 	}
 }
 
-#ifdef UI_ENABLED
 int initSDL(struct display *d) {
-	
+#ifdef UI_ENABLED
 	if (!d->enabled) {
 		return 0;
 	}
@@ -87,11 +86,12 @@ int initSDL(struct display *d) {
 	//And set blend modes for textures too
 	SDL_SetTextureBlendMode(d->texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(d->overlayTexture, SDL_BLENDMODE_BLEND);
-	
+#endif
 	return 0;
 }
 
 void freeDisplay(struct display *disp) {
+#ifdef UI_ENABLED
 	if (disp->window) {
 		SDL_DestroyWindow(disp->window);
 	}
@@ -104,8 +104,8 @@ void freeDisplay(struct display *disp) {
 	if (disp->overlayTexture) {
 		SDL_DestroyTexture(disp->overlayTexture);
 	}
-}
 #endif
+}
 
 void printDuration(float time) {
 	logr(info, "Finished render in ");
