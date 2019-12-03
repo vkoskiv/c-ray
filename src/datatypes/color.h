@@ -12,6 +12,8 @@
 #define NOT_REFRACTIVE 1
 #define NOT_REFLECTIVE -1
 
+//TODO: Split this into color, colorspace and gradient
+
 //Color
 struct color {
 	float red, green, blue, alpha;

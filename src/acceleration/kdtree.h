@@ -32,7 +32,14 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth);
 /// @param isect Intersection information is saved to this struct
 bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect);
 
+/// Count total nodes in a given tree
+/// @param node root node of a tree to evaluate
 int countNodes(struct kdTreeNode *node);
+
+/// Check the health of a given tree
+/// @param node root node of a tree to evaluate
 int checkTree(struct kdTreeNode *node);
 
+/// Free a given tree
+/// @param node Root node of a tree to free
 void freeTree(struct kdTreeNode *node);

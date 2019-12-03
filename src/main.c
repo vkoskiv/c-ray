@@ -20,18 +20,11 @@
 #include "datatypes/vertexbuffer.h"
 #include "utils/gitsha1.h"
 #include "datatypes/texture.h"
+#include "utils/hashtable.h"
 
-/**
- Main entry point
-
- @param argc Argument count
- @param argv Arguments
- @return Error codes, 0 if exited normally
- */
 int main(int argc, char *argv[]) {
 	char *hash = gitHash(8);
 	logr(info, "C-ray v%s [%s], © 2015-2019 Valtteri Koskivuori\n", VERSION, hash);
-	
 	initTerminal();
 	allocVertexBuffer();
 	struct renderer *r = newRenderer();

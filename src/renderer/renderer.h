@@ -44,7 +44,7 @@ enum renderOrder {
 	renderOrderRandom
 };
 
-//State data
+/// Renderer state data
 struct state {
 	struct texture *image; //Output image
 	struct renderTile *renderTiles; //Array of renderTiles to render
@@ -68,7 +68,7 @@ struct state {
 #endif
 };
 
-//Preferences data (Set by user)
+/// Preferences data (Set by user)
 struct prefs {
 	enum fileMode fileMode;
 	enum renderOrder tileOrder;

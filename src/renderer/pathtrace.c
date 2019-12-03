@@ -73,20 +73,20 @@ struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *
 }
 
 float wrapMax(float x, float max) {
-    return fmod(max + fmod(x, max), max);
+	return fmod(max + fmod(x, max), max);
 }
 
 float wrapMinMax(float x, float min, float max) {
-    return min + wrapMax(x - min, max - min);
+	return min + wrapMax(x - min, max - min);
 }
 
-struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
+struct color getHDRI(struct lightRay *incidentRay, struct texture *hdr) {
 	//Unit direction vector
 	struct vector ud = vecNormalize(incidentRay->direction);
 	
 	//To polar from cartesian
 	float r = 1.0f; //Normalized above
-	float phi = (atan2f(ud.z, ud.x)/4) + scene->hdr->offset;
+	float phi = (atan2f(ud.z, ud.x)/4) + hdr->offset;
 	float theta = acosf((-ud.y/r));
 	
 	float u = theta / PI;
@@ -95,10 +95,10 @@ struct color getHDRI(struct lightRay *incidentRay, struct world *scene) {
 	u = wrapMinMax(u, 0, 1);
 	v = wrapMinMax(v, 0, 1);
 	
-	float x = (v * scene->hdr->width);
-	float y = (u * scene->hdr->height);
+	float x = (v * hdr->width);
+	float y = (u * hdr->height);
 	
-	struct color newColor = textureGetPixelFiltered(scene->hdr, x, y);
+	struct color newColor = textureGetPixelFiltered(hdr, x, y);
 	
 	return newColor;
 }
@@ -111,5 +111,5 @@ struct color getAmbientColor(struct lightRay *incidentRay, struct gradient color
 }
 
 struct color getBackground(struct lightRay *incidentRay, struct world *scene) {
-	return scene->hdr ? getHDRI(incidentRay, scene) : getAmbientColor(incidentRay, scene->ambientColor);
+	return scene->hdr ? getHDRI(incidentRay, scene->hdr) : getAmbientColor(incidentRay, scene->ambientColor);
 }

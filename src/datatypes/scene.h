@@ -18,7 +18,7 @@ struct kdTreeNode;
 struct renderer;
 struct display;
 
-//World
+/// World
 struct world {
 	//Ambient background color.
 	struct gradient ambientColor;
