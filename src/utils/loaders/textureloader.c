@@ -50,6 +50,7 @@ struct texture *loadTexture(char *filePath) {
 	filePath[strcspn(filePath, "\n")] = 0;
 	
 	if (stbi_is_hdr(filePath)) {
+		logr(info, "Loading HDR...");
 		new->fileType = hdr;
 		new->float_data = stbi_loadf(filePath, (int*)&new->width, (int*)&new->height, &new->channels, 0);
 		new->precision = float_p;
@@ -59,8 +60,8 @@ struct texture *loadTexture(char *filePath) {
 			logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
 			return NULL;
 		}
-		int MB = (((new->width * new->height * sizeof(float))/1024)/1024);
-		logr(info, "Loaded %iMB Radiance file with pitch %i\n", MB, new->channels);
+		float MB = (((getFileSize(filePath))/1000.0)/1000.0);
+		printf(" %.1fMB\n", MB);
 	} else {
 		new->byte_data = stbi_load(filePath, (int*)&new->width, (int*)&new->height, &new->channels, 3);
 		if (!new->byte_data) {

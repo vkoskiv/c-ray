@@ -28,9 +28,9 @@
 void render(struct renderer *r) {
 	logr(info, "Starting C-ray renderer for frame %i\n", r->state.image->count);
 	
-	logr(info, "Rendering at %i x %i\n", r->state.image->width, r->state.image->height);
-	logr(info, "Rendering %i samples with %i bounces.\n", r->prefs.sampleCount, r->prefs.bounces);
-	logr(info, "Rendering with %d thread", r->prefs.threadCount);
+	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->state.image->width, KNRM, KWHT, r->state.image->height, KNRM);
+	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
+	logr(info, "Rendering with %s%d%s thread", KRED, r->prefs.threadCount, KNRM);
 	printf(r->prefs.threadCount > 1 ? "s.\n" : ".\n");
 	
 	logr(info, "Pathtracing\n");

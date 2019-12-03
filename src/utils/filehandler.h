@@ -36,3 +36,5 @@ bool stringEquals(const char *s1, const char *s2);
 bool stringContains(const char *haystack, const char *needle);
 
 void copyString(const char *source, char **destination);
+
+int getFileSize(char *fileName);
