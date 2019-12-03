@@ -6,7 +6,7 @@
 //  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
 //
 
-#define VERSION "0.6.1"
+#define VERSION "0.6.2"
 
 #include "includes.h"
 #include "main.h"
