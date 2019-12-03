@@ -115,8 +115,8 @@ struct color colorForUV(struct intersection *isect) {
 	float w = 1.0 - u - v;
 	
 	//Weighted texture coordinates
-	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[1]]);
-	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[2]]);
+	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
+	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
 	struct coord wcomponent = coordScale(w, textureArray[p.textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
@@ -238,9 +238,8 @@ struct color diffuseColor(struct intersection *isect) {
 bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
 	struct vector rand = randomInUnitSphere(rng);
-	struct vector target = vecAdd(temp, rand);
-	struct vector target2 = vecSubtract(isect->hitPoint, target);
-	*scattered = ((struct lightRay){isect->hitPoint, target2, rayTypeScattered, isect->end, 0});
+	struct vector scatterDir = vecSubtract(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
+	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered, isect->end, 0});
 	*attenuation = diffuseColor(isect);
 	return true;
 }
