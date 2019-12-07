@@ -59,6 +59,8 @@ int getSysCores() {
 	return sysInfo.dwNumberOfProcessors;
 #elif __linux__
 	return (int)sysconf(_SC_NPROCESSORS_ONLN);
+#else
+	return 1;
 #endif
 }
 
