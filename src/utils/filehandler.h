@@ -26,6 +26,11 @@ char *loadFile(char *inputFileName, size_t *bytes);
  */
 char *getFileName(char *input);
 
+
+/// Extract the path from a given full path, excluding the filename
+/// @param input Full path
+char *getFilePath(char *input);
+
 char *readStdin(void);
 
 //FIXME: Move this to a better place

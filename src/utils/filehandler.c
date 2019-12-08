@@ -20,6 +20,7 @@
 
 #ifndef WINDOWS
 #include <sys/utsname.h>
+#include <libgen.h>
 #endif
 
 //Prototypes for internal functions
@@ -98,7 +99,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	char threads[16];
 	sprintf(threads, "%i", imginfo.threadCount);
 #ifndef WINDOWS
-	char sysinfo[512];
+	char sysinfo[1300];
 	struct utsname name;
 	uname(&name);
 	sprintf(sysinfo, "%s %s %s %s %s", name.machine, name.nodename, name.release, name.sysname, name.version);
@@ -197,6 +198,19 @@ char *getFileName(char *input) {
 	(fn = strrchr(input, '/')) ? ++fn : (fn = input);
 	
 	return fn;
+}
+
+char *getFilePath(char *input) {
+	char *dir = calloc(256, sizeof(char));
+#ifdef WINDOWS
+	//char *dir = calloc(256, sizeof(char));
+	//_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0); //Maybe works on MS-WinDOS?
+#else
+	copyString(dirname(input), &dir);
+	dir[strlen(dirname(input))] = '/';
+	dir[strlen(dirname(input))+1] = '\0';
+#endif
+	return dir;
 }
 
 #define chunksize 1024

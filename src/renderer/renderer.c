@@ -71,7 +71,7 @@ void render(struct renderer *r) {
 			long remainingSampleCount = ((r->state.tileCount - r->state.finishedTileCount) * r->prefs.tileWidth * r->prefs.tileHeight * r->prefs.sampleCount);
 			double sps = (1000000.0f/finalAvg) * r->prefs.threadCount;
 			long usecTillFinished = remainingSampleCount * finalAvg;
-			char rem[32];
+			char rem[64];
 			smartTime((0.001 * usecTillFinished) / r->prefs.threadCount, rem);
 			float completion = ((float)r->state.finishedTileCount / r->state.tileCount) * 100;
 			logr(info, "[%s%.0f%%%s] μs/ray: %.02f, etf: %s, %.02lfMs/s %s        \r",
