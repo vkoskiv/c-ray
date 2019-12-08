@@ -51,3 +51,5 @@ C-ray internal formatted logger.
 void logr(enum logType type, const char *fmt, ...);
 
 void smartTime(unsigned long long milliseconds, char *buf);
+
+void printSmartTime(unsigned long long ms);

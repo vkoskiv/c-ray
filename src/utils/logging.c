@@ -59,6 +59,12 @@ void logr(enum logType type, const char *fmt, ...) {
 	}
 }
 
+void printSmartTime(unsigned long long ms) {
+	char buf[64];
+	smartTime(ms, buf);
+	printf("%s", buf);
+}
+
 // Print to buf a logically formatted string representing time given in milliseconds.
 // Example: "980ms", "2s", "1m 02s", "3h 12m", etc.
 void smartTime(unsigned long long milliseconds, char *buf) {

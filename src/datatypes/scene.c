@@ -21,15 +21,21 @@
 #include "../datatypes/tile.h"
 
 void transformMeshes(struct world *scene) {
-	logr(info, "Running transforms\n");
+	logr(info, "Running transforms: ");
+	struct timeval timer = {0};
+	startTimer(&timer);
 	for (int i = 0; i < scene->meshCount; ++i) {
 		transformMesh(&scene->meshes[i]);
 	}
+	printSmartTime(getMs(timer));
+	printf("\n");
 }
 
 //TODO: Parallelize this task
 void computeKDTrees(struct mesh *meshes, int meshCount) {
-	logr(info, "Computing KD-trees\n");
+	logr(info, "Computing KD-trees: ");
+	struct timeval timer = {0};
+	startTimer(&timer);
 	for (int i = 0; i < meshCount; ++i) {
 		int *indices = calloc(meshes[i].polyCount, sizeof(int));
 		for (int j = 0; j < meshes[i].polyCount; j++) {
@@ -44,13 +50,18 @@ void computeKDTrees(struct mesh *meshes, int meshCount) {
 			logr(warning, "Found %i/%i orphan nodes in %s kdtree\n", orphans, total, meshes[i].name);
 		}*/
 	}
+	printSmartTime(getMs(timer));
+	printf("\n");
 }
 
 void printSceneStats(struct world *scene, unsigned long long ms) {
-	logr(info, "Scene construction completed in %llums\n", ms);
-	logr(info, "Totals: %iV, %iN, %iP, %iS\n",
+	logr(info, "Scene construction completed in ");
+	printSmartTime(ms);
+	printf("\n");
+	logr(info, "Totals: %iV, %iN, %iT, %iP, %iS\n",
 		   vertexCount,
 		   normalCount,
+		   textureCount,
 		   polyCount,
 		   scene->sphereCount);
 }
