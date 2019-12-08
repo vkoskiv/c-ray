@@ -584,6 +584,7 @@
 				OTHER_CFLAGS = (
 					"-I/usr/local/include/SDL2",
 					"-D_THREAD_SAFE",
+					"-DXCODE_NO_COLOR",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib",
@@ -622,6 +623,7 @@
 				OTHER_CFLAGS = (
 					"-I/usr/local/include/SDL2",
 					"-D_THREAD_SAFE",
+					"-DXCODE_NO_COLOR",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib",
@@ -779,6 +781,7 @@
 				OTHER_CFLAGS = (
 					"-I/usr/local/include/SDL2",
 					"-D_THREAD_SAFE",
+					"-DXCODE_NO_COLOR",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib",
@@ -817,6 +820,7 @@
 				OTHER_CFLAGS = (
 					"-I/usr/local/include/SDL2",
 					"-D_THREAD_SAFE",
+					"-DXCODE_NO_COLOR",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib",
