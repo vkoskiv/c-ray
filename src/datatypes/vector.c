@@ -39,6 +39,21 @@ struct vector vecAdd(struct vector v1, struct vector v2) {
 }
 
 /**
+ Subtract a vector from another and return the resulting vector
+
+ @param v1 Vector to be subtracted from
+ @param v2 Vector to be subtracted
+ @return Resulting vector
+ */
+struct vector vecSub(const struct vector v1, const struct vector v2) {
+	return (struct vector){v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
+}
+
+struct vector vecMul(struct vector v1, struct vector v2) {
+	return (struct vector){v1.x * v2.x, v1.y * v2.y, v1.z * v2.z};
+}
+
+/**
  Compute the length of a vector
 
  @param v Vector to compute the length for
@@ -50,17 +65,6 @@ float vecLength(struct vector v) {
 
 float vecLengthSquared(struct vector v) {
 	return v.x * v.x + v.y * v.y + v.z * v.z;
-}
-
-/**
- Subtract a vector from another and return the resulting vector
-
- @param v1 Vector to be subtracted from
- @param v2 Vector to be subtracted
- @return Resulting vector
- */
-struct vector vecSubtract(const struct vector v1, const struct vector v2) {
-	return (struct vector){v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
 }
 
 struct vector vecSubtractConst(const struct vector v, float n) {
@@ -85,7 +89,7 @@ float vecDot(const struct vector v1, const struct vector v2) {
  @param v Vector to be multiplied
  @return Multiplied vector
  */
-struct vector vecScale(const float c, const struct vector v) {
+struct vector vecScale(const struct vector v, const float c) {
 	return (struct vector){v.x * c, v.y * c, v.z * c};
 }
 
@@ -157,7 +161,7 @@ struct vector vecNormalize(struct vector v) {
  @return Mid-point of given vectors
  */
 struct vector getMidPoint(struct vector v1, struct vector v2, struct vector v3) {
-	return vecScale(1.0f/3.0f, vecAdd(vecAdd(v1, v2), v3));
+	return vecScale(vecAdd(vecAdd(v1, v2), v3), 1.0f/3.0f);
 }
 
 /**
@@ -202,18 +206,10 @@ struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_rand
 						 center.z);
 }
 
-struct vector vecMultiply(struct vector v1, struct vector v2) {
-	return (struct vector){v1.x * v2.x, v1.y * v2.y, v1.z * v2.z};
-}
-
-struct vector vecMultiplyConst(struct vector v, float c) {
-	return (struct vector){v.x * c, v.y * c, v.z * c};
-}
-
 struct vector vecNegate(struct vector v) {
 	return (struct vector){-v.x, -v.y, -v.z};
 }
 
-struct vector reflect(const struct vector I, const struct vector N) {
-	return vecSubtract(I, vecMultiplyConst(N, vecDot(N, I) * 2.0f));
+struct vector vecReflect(const struct vector I, const struct vector N) {
+	return vecSub(I, vecScale(N, vecDot(N, I) * 2.0f));
 }

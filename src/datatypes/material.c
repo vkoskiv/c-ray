@@ -191,14 +191,14 @@ struct color checkerBoard(struct hitRecord *isect, float coef) {
  */
 struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
 	float reflect = 2.0 * vecDot(*incident, *normal);
-	return vecSubtract(*incident, vecScale(reflect, *normal));
+	return vecSub(*incident, vecScale(*normal, reflect));
 }
 
 struct vector randomInUnitSphere(pcg32_random_t *rng) {
 	struct vector vec;
 	do {
-		vec = vecMultiplyConst(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
-		vec = vecSubtract(vec, vecWithPos(1.0, 1.0, 1.0));
+		vec = vecScale(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
+		vec = vecSub(vec, vecWithPos(1.0, 1.0, 1.0));
 	} while (vecLengthSquared(vec) >= 1.0);
 	return vec;
 }
@@ -206,8 +206,8 @@ struct vector randomInUnitSphere(pcg32_random_t *rng) {
 struct vector randomOnUnitSphere(pcg32_random_t *rng) {
 	struct vector vec;
 	do {
-		vec = vecMultiplyConst(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
-		vec = vecSubtract(vec, vecWithPos(1.0, 1.0, 1.0));
+		vec = vecScale(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
+		vec = vecSub(vec, vecWithPos(1.0, 1.0, 1.0));
 	} while (vecLengthSquared(vec) >= 1.0);
 	return vecNormalize(vec);
 }
@@ -238,7 +238,7 @@ struct color diffuseColor(struct hitRecord *isect) {
 bool lambertianBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
 	struct vector rand = randomInUnitSphere(rng);
-	struct vector scatterDir = vecSubtract(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
+	struct vector scatterDir = vecSub(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
 	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered, isect->end, 0});
 	*attenuation = diffuseColor(isect);
 	return true;
@@ -249,7 +249,7 @@ bool metallicBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *a
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
 	//Roughness
 	if (isect->end.roughness > 0.0) {
-		struct vector fuzz = vecMultiplyConst(randomInUnitSphere(rng), isect->end.roughness);
+		struct vector fuzz = vecScale(randomInUnitSphere(rng), isect->end.roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
 	
@@ -263,11 +263,11 @@ bool refract(struct vector in, struct vector normal, float niOverNt, struct vect
 	float dt = vecDot(uv, normal);
 	float discriminant = 1.0 - niOverNt * niOverNt * (1 - dt * dt);
 	if (discriminant > 0) {
-		struct vector A = vecMultiplyConst(normal, dt);
-		struct vector B = vecSubtract(uv, A);
-		struct vector C = vecMultiplyConst(B, niOverNt);
-		struct vector D = vecMultiplyConst(normal, sqrt(discriminant));
-		*refracted = vecSubtract(C, D);
+		struct vector A = vecScale(normal, dt);
+		struct vector B = vecSub(uv, A);
+		struct vector C = vecScale(B, niOverNt);
+		struct vector D = vecScale(normal, sqrt(discriminant));
+		*refracted = vecSub(C, D);
 		return true;
 	} else {
 		return false;
@@ -309,7 +309,7 @@ bool dialectricBSDF(struct hitRecord *isect, struct lightRay *ray, struct color 
 	
 	//Roughness
 	if (isect->end.roughness > 0.0) {
-		struct vector fuzz = vecMultiplyConst(randomInUnitSphere(rng), isect->end.roughness);
+		struct vector fuzz = vecScale(randomInUnitSphere(rng), isect->end.roughness);
 		reflected = vecAdd(reflected, fuzz);
 		refracted = vecAdd(refracted, fuzz);
 	}

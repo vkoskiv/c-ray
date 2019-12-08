@@ -39,7 +39,7 @@ bool intersect(struct lightRay *ray, struct sphere *sphere, float *t) {
 	float A = vecDot(ray->direction, ray->direction);
 	
 	//Distance between start of a lightRay and the sphere position
-	struct vector distance = vecSubtract(ray->start, sphere->pos);
+	struct vector distance = vecSub(ray->start, sphere->pos);
 	
 	float B = 2 * vecDot(ray->direction, distance);
 	
@@ -76,13 +76,13 @@ bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct
 	if (intersect(ray, sphere, &isect->distance)) {
 		isect->type = hitTypeSphere;
 		//Compute normal and store it to isect
-		struct vector scaled = vecScale(isect->distance, ray->direction);
+		struct vector scaled = vecScale(ray->direction, isect->distance);
 		struct vector hitpoint = vecAdd(ray->start, scaled);
-		struct vector surfaceNormal = vecSubtract(hitpoint, sphere->pos);
+		struct vector surfaceNormal = vecSub(hitpoint, sphere->pos);
 		float temp = vecDot(surfaceNormal, surfaceNormal);
 		if (temp == 0.0) return false; //FIXME: Check this later
 		temp = invsqrt(temp);
-		isect->surfaceNormal = vecScale(temp, surfaceNormal);
+		isect->surfaceNormal = vecScale(surfaceNormal, temp);
 		//Also store hitpoint
 		isect->hitPoint = hitpoint;
 		return true;

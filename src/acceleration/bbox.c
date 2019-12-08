@@ -46,7 +46,7 @@ struct boundingBox *computeBoundingBox(int *polys, int count) {
 	float maxDistance = 0.0;
 	for (int i = 0; i < count; i++) {
 		for (int j = 0; j < 3; j++) {
-			struct vector fromCenter = vecSubtract(vertexArray[polygonArray[polys[i]].vertexIndex[j]], center);
+			struct vector fromCenter = vecSub(vertexArray[polygonArray[polys[i]].vertexIndex[j]], center);
 			maxDistance = max(maxDistance, pow(vecLength(fromCenter), 2));
 		}
 	}

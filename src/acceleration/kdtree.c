@@ -178,16 +178,16 @@ void interpolateNormal(struct poly p, struct coord uv, struct vector *hitPoint, 
 	float u = uv.x;
 	float v = uv.y;
 	float w = 1.0f - u - v;
-	vector ucomp = vecScale(u, vertexArray[p.vertexIndex[2]]);
-	vector vcomp = vecScale(v, vertexArray[p.vertexIndex[1]]);
-	vector wcomp = vecScale(w, vertexArray[p.vertexIndex[0]]);
+	vector ucomp = vecScale(vertexArray[p.vertexIndex[2]], u);
+	vector vcomp = vecScale(vertexArray[p.vertexIndex[1]], v);
+	vector wcomp = vecScale(vertexArray[p.vertexIndex[0]], w);
 	
 	*hitPoint = vecAdd(vecAdd(ucomp, vcomp), wcomp);
 	
 	if (p.hasNormals) {
-		vector upcomp = vecScale(u, normalArray[p.normalIndex[2]]);
-		vector vpcomp = vecScale(v, normalArray[p.normalIndex[1]]);
-		vector wpcomp = vecScale(w, normalArray[p.normalIndex[0]]);
+		vector upcomp = vecScale(normalArray[p.normalIndex[2]], u);
+		vector vpcomp = vecScale(normalArray[p.normalIndex[1]], v);
+		vector wpcomp = vecScale(normalArray[p.normalIndex[0]], w);
 		
 		*normal = vecNormalize(vecAdd(vecAdd(upcomp, vpcomp), wpcomp));
 	}
@@ -216,7 +216,7 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 					isect->polyIndex = p.polyIndex;
 					interpolateNormal(p, isect->uv, &isect->hitPoint, &isect->surfaceNormal);
 					//TODO: This should be done in isectWithPoly, as well as the actual hitpoint calculation.
-					isect->hitPoint = vecAdd(isect->hitPoint, vecMultiplyConst(isect->surfaceNormal, 0.0001f));
+					isect->hitPoint = vecAdd(isect->hitPoint, vecScale(isect->surfaceNormal, 0.0001f));
 				}
 			}
 			if (hasHit) {

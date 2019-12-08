@@ -16,8 +16,8 @@ int polyCount;
 
 bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, float *result, struct vector *normal, struct coord *uv) {
 	float orientation, inverseOrientation;
-	struct vector edge1 = vecSubtract(vertexArray[poly->vertexIndex[2]], vertexArray[poly->vertexIndex[0]]);
-	struct vector edge2 = vecSubtract(vertexArray[poly->vertexIndex[1]], vertexArray[poly->vertexIndex[0]]);
+	struct vector edge1 = vecSub(vertexArray[poly->vertexIndex[2]], vertexArray[poly->vertexIndex[0]]);
+	struct vector edge2 = vecSub(vertexArray[poly->vertexIndex[1]], vertexArray[poly->vertexIndex[0]]);
 	
 	//Find the cross product of edge 2 and the current ray direction
 	struct vector s1 = vecCross(ray->direction, edge2);
@@ -30,7 +30,7 @@ bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, float *re
 	
 	inverseOrientation = 1.0f/orientation;
 	
-	struct vector s2 = vecSubtract(ray->start, vertexArray[poly->vertexIndex[0]]);
+	struct vector s2 = vecSub(ray->start, vertexArray[poly->vertexIndex[0]]);
 	float u = vecDot(s2, s1) * inverseOrientation;
 	if (u < 0.0f || u > 1.0f) {
 		return false;

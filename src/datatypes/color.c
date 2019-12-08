@@ -77,6 +77,7 @@ struct color mixColors(struct color c1, struct color c2, float coeff) {
 	return add(muls(c1, 1.0f - coeff), muls(c2, coeff));
 }
 
+//TODO: Move to own file
 //sRGB transforms are from https://en.wikipedia.org/wiki/SRGB
 
 float linearToSRGB(float channel) {

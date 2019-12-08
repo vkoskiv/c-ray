@@ -32,13 +32,15 @@ struct vector vecZero(void);
 struct vector vecAdd(struct vector v1, struct vector v2);
 
 //Subtract two vectors and return the resulting vector
-struct vector vecSubtract(const struct vector v1, const struct vector v2);
+struct vector vecSub(const struct vector v1, const struct vector v2);
+
+struct vector vecMul(struct vector v1, struct vector v2);
 
 //Multiply two vectors and return the dot product
 float vecDot(const struct vector v1, const struct vector v2);
 
 //Multiply a vector by a coefficient and return the resulting vector
-struct vector vecScale(const float c, const struct vector v);
+struct vector vecScale(const struct vector v, const float c);
 
 struct coord coordScale(const float c, const struct coord crd);
 struct coord addCoords(const struct coord c1, const struct coord c2);
@@ -70,10 +72,6 @@ struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_rand
 float rndFloatRange(float min, float max, pcg32_random_t *rng);
 
 float rndFloat(pcg32_random_t *rng);
-
-struct vector vecMultiply(struct vector v1, struct vector v2);
-
-struct vector vecMultiplyConst(struct vector v, const float c);
 
 struct vector vecNegate(struct vector v);
 

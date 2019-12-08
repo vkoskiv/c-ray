@@ -222,7 +222,7 @@ void *renderThread(void *arg) {
 					} else {
 						float randY = rndFloatRange(-aperture, aperture, &rng);
 						float randX = rndFloatRange(-aperture, aperture, &rng);
-						struct vector randomStart = vecAdd(vecAdd(startPos, vecMultiplyConst(up, randY)), vecMultiplyConst(left, randX));
+						struct vector randomStart = vecAdd(vecAdd(startPos, vecScale(up, randY)), vecScale(left, randX));
 						
 						incidentRay.start = randomStart;
 					}
