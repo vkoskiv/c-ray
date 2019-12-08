@@ -228,11 +228,7 @@ bool weightedBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *a
 
 //TODO: Make this a function ptr in the material?
 struct color diffuseColor(struct hitRecord *isect) {
-	if (isect->end.hasTexture) {
-		return colorForUV(isect);
-	} else {
-		return isect->end.diffuse;
-	}
+	return isect->end.hasTexture ? colorForUV(isect) : isect->end.diffuse;
 }
 
 bool lambertianBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
