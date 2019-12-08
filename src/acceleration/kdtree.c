@@ -174,6 +174,25 @@ int countNodes(struct kdTreeNode *node) {
 	return nodes;
 }
 
+void interpolateNormal(struct poly p, struct coord uv, struct vector *hitPoint, struct vector *normal) {
+	float u = uv.x;
+	float v = uv.y;
+	float w = 1.0f - u - v;
+	vector ucomp = vecScale(u, vertexArray[p.vertexIndex[2]]);
+	vector vcomp = vecScale(v, vertexArray[p.vertexIndex[1]]);
+	vector wcomp = vecScale(w, vertexArray[p.vertexIndex[0]]);
+	
+	*hitPoint = vecAdd(vecAdd(ucomp, vcomp), wcomp);
+	
+	if (p.hasNormals) {
+		vector upcomp = vecScale(u, normalArray[p.normalIndex[2]]);
+		vector vpcomp = vecScale(v, normalArray[p.normalIndex[1]]);
+		vector wpcomp = vecScale(w, normalArray[p.normalIndex[0]]);
+		
+		*normal = vecNormalize(vecAdd(vecAdd(upcomp, vpcomp), wpcomp));
+	}
+}
+
 bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct hitRecord *isect) {
 	if (!node) return false;
 	//A bit of a hack, but it does work...!
@@ -195,7 +214,7 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 					hasHit = true;
 					isect->type = hitTypePolygon;
 					isect->polyIndex = p.polyIndex;
-					isect->hitPoint = vecAdd(ray->start, vecMultiplyConst(ray->direction, isect->distance));
+					interpolateNormal(p, isect->uv, &isect->hitPoint, &isect->surfaceNormal);
 					//TODO: This should be done in isectWithPoly, as well as the actual hitpoint calculation.
 					isect->hitPoint = vecAdd(isect->hitPoint, vecMultiplyConst(isect->surfaceNormal, 0.0001f));
 				}
