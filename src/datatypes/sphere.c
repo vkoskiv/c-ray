@@ -71,7 +71,7 @@ bool intersect(struct lightRay *ray, struct sphere *sphere, float *t) {
 	return intersects;
 }
 
-bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct intersection *isect) {
+bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct hitRecord *isect) {
 	//Pass the distance value to rayIntersectsWithSphere, where it's set
 	if (intersect(ray, sphere, &isect->distance)) {
 		isect->type = hitTypeSphere;

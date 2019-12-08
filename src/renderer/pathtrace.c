@@ -15,11 +15,11 @@
 #include "../acceleration/kdtree.h"
 #include "../datatypes/texture.h"
 
-struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *scene);
+struct hitRecord getClosestIsect(struct lightRay *incidentRay, struct world *scene);
 struct color getBackground(struct lightRay *incidentRay, struct world *scene);
 
 struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, int maxDepth, pcg32_random_t *rng, bool *hasHitObject) {
-	struct intersection isect = getClosestIsect(incidentRay, scene);
+	struct hitRecord isect = getClosestIsect(incidentRay, scene);
 	if (isect.didIntersect) {
 		if (hasHitObject) *hasHitObject = true;
 		struct lightRay scattered;
@@ -51,10 +51,10 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
  @param scene  Given scene to cast that ray into
  @return intersection struct with the appropriate values set
  */
-struct intersection getClosestIsect(struct lightRay *incidentRay, struct world *scene) {
-	struct intersection isect;
+struct hitRecord getClosestIsect(struct lightRay *incidentRay, struct world *scene) {
+	struct hitRecord isect;
 	isect.distance = 20000.0;
-	isect.ray = *incidentRay;
+	isect.incident = *incidentRay;
 	isect.start = incidentRay->currentMedium;
 	isect.didIntersect = false;
 	for (int i = 0; i < scene->sphereCount; i++) {

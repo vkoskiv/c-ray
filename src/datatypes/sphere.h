@@ -25,4 +25,4 @@ struct sphere newLightSphere(struct vector pos, float radius, struct color color
 struct sphere defaultSphere(void);
 
 //Calculates intersection between a light ray and a sphere
-bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct intersection *isect);
+bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct hitRecord *isect);

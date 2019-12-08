@@ -24,8 +24,8 @@ enum currentType {
  @note uv, mtlIndex and polyIndex are only set if the ray hits a polygon (mesh)
  @todo Consider moving start, end materials to lightRay instead
  */
-struct intersection {
-	struct lightRay ray;			//Light ray that encountered this intersection
+struct hitRecord {
+	struct lightRay incident;			//Light ray that encountered this intersection
 	struct material start;			//Material of where that ray originates
 	struct material end;			//Material of the intersected object
 	struct vector hitPoint;			//Hit point vector in 3D space

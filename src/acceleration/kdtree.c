@@ -174,7 +174,7 @@ int countNodes(struct kdTreeNode *node) {
 	return nodes;
 }
 
-bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect) {
+bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct hitRecord *isect) {
 	if (!node) return false;
 	//A bit of a hack, but it does work...!
 	float fakeIsect = 20000.0;
@@ -190,11 +190,13 @@ bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct
 		} else {
 			//This is a leaf, so check all polys
 			for (int i = 0; i < node->polyCount; i++) {
-				if (rayIntersectsWithPolygon(ray, &polygonArray[node->polygons[i]], &isect->distance, &isect->surfaceNormal, &isect->uv)) {
+				struct poly p = polygonArray[node->polygons[i]];
+				if (rayIntersectsWithPolygon(ray, &p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
 					hasHit = true;
 					isect->type = hitTypePolygon;
-					isect->polyIndex = polygonArray[node->polygons[i]].polyIndex;
+					isect->polyIndex = p.polyIndex;
 					isect->hitPoint = vecAdd(ray->start, vecMultiplyConst(ray->direction, isect->distance));
+					//TODO: This should be done in isectWithPoly, as well as the actual hitpoint calculation.
 					isect->hitPoint = vecAdd(isect->hitPoint, vecMultiplyConst(isect->surfaceNormal, 0.0001f));
 				}
 			}

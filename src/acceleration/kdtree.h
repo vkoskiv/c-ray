@@ -30,7 +30,7 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth);
 /// @param node Root node to start traversing from
 /// @param ray Ray to check intersection against
 /// @param isect Intersection information is saved to this struct
-bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect);
+bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct hitRecord *isect);
 
 /// Count total nodes in a given tree
 /// @param node root node of a tree to evaluate
