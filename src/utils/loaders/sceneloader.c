@@ -885,14 +885,10 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsNumber(width)) {
 		if (width->valueint >= 0) {
 			r->state.image->width = width->valueint;
-#ifdef UI_ENABLED
 			r->mainDisplay->width = width->valueint;
-#endif
 		} else {
 			r->state.image->width = 640;
-#ifdef UI_ENABLED
 			r->mainDisplay->width = 640;
-#endif
 		}
 	}
 	
@@ -900,14 +896,10 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsNumber(height)) {
 		if (height->valueint >= 0) {
 			r->state.image->height = height->valueint;
-#ifdef UI_ENABLED
 			r->mainDisplay->height = height->valueint;
-#endif
 		} else {
 			r->state.image->height = 640;
-#ifdef UI_ENABLED
 			r->mainDisplay->height = 640;
-#endif
 		}
 	}
 	
