@@ -15,8 +15,6 @@ struct sphere {
 	struct material material;
 };
 
-struct lightRay;
-
 //New sphere with given params
 struct sphere newSphere(struct vector pos, float radius, struct material material);
 

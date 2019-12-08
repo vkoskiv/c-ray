@@ -7,11 +7,6 @@
 //
 
 #pragma once
-
-struct world;
-struct texture;
-struct display;
-
 /**
  Thread information struct to communicate with main thread
  */

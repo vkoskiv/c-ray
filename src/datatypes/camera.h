@@ -7,9 +7,6 @@
 //
 
 #pragma once
-
-struct renderer;
-
 struct camera {
 	float FOV;
 	float focalLength;

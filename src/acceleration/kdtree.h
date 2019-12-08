@@ -8,9 +8,6 @@
 
 #pragma once
 
-struct poly;
-struct boundingBox;
-
 struct kdTreeNode {
 	struct boundingBox *bbox;//Bounding box
 	struct kdTreeNode *left; //Pointer to left child

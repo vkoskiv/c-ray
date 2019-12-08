@@ -8,8 +8,6 @@
 
 #pragma once
 
-struct scene;
-struct renderer;
 struct renderInfo;
 
 //Prints the file size of a given file to the console in a user-readable format

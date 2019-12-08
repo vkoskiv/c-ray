@@ -43,8 +43,6 @@
  */
 
 struct lightRay;
-struct color;
-struct texture;
 struct hitRecord;
 
 enum bsdfType {

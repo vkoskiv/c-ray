@@ -8,15 +8,7 @@
 
 #pragma once
 
-struct mesh;
-struct material;
-struct sphere;
-struct camera;
-struct transform;
-struct poly;
-struct kdTreeNode;
 struct renderer;
-struct display;
 
 /// World
 struct world {

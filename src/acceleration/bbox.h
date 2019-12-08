@@ -8,8 +8,6 @@
 
 #pragma once
 
-struct poly;
-
 /// Current bbox split axis
 enum bboxAxis {
 	X,
