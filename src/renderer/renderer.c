@@ -30,7 +30,11 @@ void render(struct renderer *r) {
 	
 	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->state.image->width, KNRM, KWHT, r->state.image->height, KNRM);
 	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
-	logr(info, "Rendering with %s%d%s thread", KRED, r->prefs.threadCount, KNRM);
+	logr(info, "Rendering with %s%d%s%s thread",
+		 KRED,
+		 r->prefs.fromSystem ? r->prefs.threadCount - 2 : r->prefs.threadCount,
+		 r->prefs.fromSystem ? "+2" : "",
+		 KNRM);
 	printf(r->prefs.threadCount > 1 ? "s.\n" : ".\n");
 	
 	logr(info, "Pathtracing\n");
@@ -184,8 +188,8 @@ void *renderThread(void *arg) {
 					if (r->state.renderAborted) return 0;
 					startTimer(&timer);
 					uint64_t pixIdx = y * r->state.image->width + x;
-					uint64_t idx = pixIdx * r->prefs.sampleCount + tile.completedSamples;
-					pcg32_srandom_r(&rng, hash(idx), 0);
+					uint64_t uniqueIdx = pixIdx * r->prefs.sampleCount + tile.completedSamples;
+					pcg32_srandom_r(&rng, hash(uniqueIdx), 0);
 					
 					float fracX = (float)x;
 					float fracY = (float)y;

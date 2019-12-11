@@ -430,8 +430,10 @@ int parseRenderer(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsNumber(threadCount)) {
 		if (threadCount->valueint > 0) {
 			r->prefs.threadCount = threadCount->valueint;
+			r->prefs.fromSystem = false;
 		} else {
-			r->prefs.threadCount = getSysCores();
+			r->prefs.threadCount = getSysCores() + 2;
+			r->prefs.fromSystem = true;
 		}
 	} else {
 		logr(warning, "Invalid threadCount while parsing renderer\n");
