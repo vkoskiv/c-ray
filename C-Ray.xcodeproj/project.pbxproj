@@ -587,6 +587,7 @@
 					"-I/usr/local/include/SDL2",
 					"-D_THREAD_SAFE",
 					"-DXCODE_NO_COLOR",
+					"-ferror-limit=1000",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib",
@@ -626,6 +627,7 @@
 					"-I/usr/local/include/SDL2",
 					"-D_THREAD_SAFE",
 					"-DXCODE_NO_COLOR",
+					"-ferror-limit=1000",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib",
@@ -784,6 +786,7 @@
 					"-I/usr/local/include/SDL2",
 					"-D_THREAD_SAFE",
 					"-DXCODE_NO_COLOR",
+					"-ferror-limit=1000",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib",
@@ -823,6 +826,7 @@
 					"-I/usr/local/include/SDL2",
 					"-D_THREAD_SAFE",
 					"-DXCODE_NO_COLOR",
+					"-ferror-limit=1000",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib",
