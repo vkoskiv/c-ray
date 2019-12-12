@@ -31,6 +31,7 @@ void computeFocalLength(struct camera *camera, int width) {
 }
 
 void initCamera(struct camera *cam) {
+	cam->transforms = calloc(1, sizeof(struct transform));
 	cam->pos = vecWithPos(0, 0, 0);
 	cam->up = vecWithPos(0, 1, 0);
 	cam->left = vecWithPos(-1, 0, 0);
