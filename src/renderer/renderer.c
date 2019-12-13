@@ -72,11 +72,17 @@ void render(struct renderer *r) {
 		
 		//Run the sample printing about 4x/s
 		if (pauser == 280 / active_msec) {
-			long remainingSampleCount = ((r->state.tileCount - r->state.finishedTileCount) * r->prefs.tileWidth * r->prefs.tileHeight * r->prefs.sampleCount);
+			float timePerSingleTileSample = finalAvg * r->prefs.tileWidth * r->prefs.tileHeight;
+			uint64_t totalTileSamples = r->state.tileCount * r->prefs.sampleCount;
+			uint64_t completedSamples = 0;
+			for (int t = 0; t < r->prefs.threadCount; ++t) {
+				completedSamples += r->state.threadStates[t].totalSamples;
+			}
+			uint64_t remainingTileSamples = totalTileSamples - completedSamples;
+			uint64_t msecTillFinished = 0.001 * (timePerSingleTileSample * remainingTileSamples);
 			double sps = (1000000.0f/finalAvg) * r->prefs.threadCount;
-			long usecTillFinished = remainingSampleCount * finalAvg;
 			char rem[64];
-			smartTime((0.001 * usecTillFinished) / r->prefs.threadCount, rem);
+			smartTime((msecTillFinished) / r->prefs.threadCount, rem);
 			float completion = ((float)r->state.finishedTileCount / r->state.tileCount) * 100;
 			logr(info, "[%s%.0f%%%s] μs/ray: %.02f, etf: %s, %.02lfMs/s %s        \r",
 				 KBLU,
@@ -279,6 +285,7 @@ void *renderThread(void *arg) {
 			}
 			tinfo->avgRayTime = totalUsec / rays;
 		}
+		tinfo->totalSamples += tile.completedSamples;
 		//Tile has finished rendering, get a new one and start rendering it.
 		r->state.renderTiles[tile.tileNum].isRendering = false;
 		r->state.renderTiles[tile.tileNum].renderComplete = true;
