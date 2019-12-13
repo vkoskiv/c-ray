@@ -1,8 +1,8 @@
 {
 	"version": 1.0,
 	"renderer": {
-		"threadCount": 0,
-		"sampleCount": 100,
+		"threads": 0,
+		"samples": 100,
 		"bounces": 25,
 		"antialiasing": true,
 		"tileWidth": 64,

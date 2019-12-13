@@ -418,26 +418,26 @@ static struct prefs defaultPrefs = (struct prefs){
 int parsePrefs(struct prefs *p, const cJSON *data) {
 	if (!data) *p = defaultPrefs;
 	
-	const cJSON *threadCount = NULL;
-	const cJSON *sampleCount = NULL;
+	const cJSON *threads = NULL;
+	const cJSON *samples = NULL;
 	const cJSON *antialiasing = NULL;
 	const cJSON *tileWidth = NULL;
 	const cJSON *tileHeight = NULL;
 	const cJSON *tileOrder = NULL;
 	const cJSON *bounces = NULL;
 	
-	threadCount = cJSON_GetObjectItem(data, "threadCount");
-	if (threadCount) {
-		if (cJSON_IsNumber(threadCount)) {
-			if (threadCount->valueint > 0) {
-				p->threadCount = threadCount->valueint;
+	threads = cJSON_GetObjectItem(data, "threads");
+	if (threads) {
+		if (cJSON_IsNumber(threads)) {
+			if (threads->valueint > 0) {
+				p->threadCount = threads->valueint;
 				p->fromSystem = false;
 			} else {
 				p->threadCount = getSysCores() + 2;
 				p->fromSystem = true;
 			}
 		} else {
-			logr(warning, "Invalid threadCount while parsing renderer\n");
+			logr(warning, "Invalid threads while parsing renderer\n");
 			return -1;
 		}
 	} else {
@@ -445,16 +445,16 @@ int parsePrefs(struct prefs *p, const cJSON *data) {
 		p->fromSystem = true;
 	}
 	
-	sampleCount = cJSON_GetObjectItem(data, "sampleCount");
-	if (sampleCount) {
-		if (cJSON_IsNumber(sampleCount)) {
-			if (sampleCount->valueint >= 1) {
-				p->sampleCount = sampleCount->valueint;
+	samples = cJSON_GetObjectItem(data, "samples");
+	if (samples) {
+		if (cJSON_IsNumber(samples)) {
+			if (samples->valueint >= 1) {
+				p->sampleCount = samples->valueint;
 			} else {
 				p->sampleCount = 1;
 			}
 		} else {
-			logr(warning, "Invalid sampleCount while parsing renderer\n");
+			logr(warning, "Invalid samples while parsing renderer\n");
 			return -1;
 		}
 	} else {
