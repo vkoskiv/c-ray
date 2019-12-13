@@ -50,7 +50,7 @@ void render(struct renderer *r) {
 #endif
 	//Main loop (input)
 	bool threadsHaveStarted = false;
-	float avgRayTime = 0.0f;
+	float avgSampleTime = 0.0f;
 	int pauser = 0;
 	float finalAvg = 0.0f;
 	int ctr = 1;
@@ -60,11 +60,10 @@ void render(struct renderer *r) {
 		if (!r->state.threadStates[0].paused) {
 			drawWindow(r);
 			for (int t = 0; t < r->prefs.threadCount; t++) {
-				avgRayTime += r->state.threadStates[t].avgRayTime;
+				avgSampleTime += r->state.threadStates[t].avgSampleTime;
 			}
-			finalAvg += avgRayTime / r->prefs.threadCount;
-			finalAvg /= ctr;
-			ctr++;
+			finalAvg += avgSampleTime / r->prefs.threadCount;
+			finalAvg /= ctr++;
 			sleepMSec(active_msec);
 		} else {
 			sleepMSec(paused_msec);
@@ -72,7 +71,7 @@ void render(struct renderer *r) {
 		
 		//Run the sample printing about 4x/s
 		if (pauser == 280 / active_msec) {
-			float timePerSingleTileSample = finalAvg * r->prefs.tileWidth * r->prefs.tileHeight;
+			float timePerSingleTileSample = finalAvg;
 			uint64_t totalTileSamples = r->state.tileCount * r->prefs.sampleCount;
 			uint64_t completedSamples = 0;
 			for (int t = 0; t < r->prefs.threadCount; ++t) {
@@ -80,15 +79,16 @@ void render(struct renderer *r) {
 			}
 			uint64_t remainingTileSamples = totalTileSamples - completedSamples;
 			uint64_t msecTillFinished = 0.001 * (timePerSingleTileSample * remainingTileSamples);
-			double sps = (1000000.0f/finalAvg) * r->prefs.threadCount;
+			float usPerRay = finalAvg / (r->prefs.tileHeight * r->prefs.tileWidth);
+			double sps = (1000000.0f/usPerRay) * r->prefs.threadCount;
 			char rem[64];
 			smartTime((msecTillFinished) / r->prefs.threadCount, rem);
-			float completion = ((float)r->state.finishedTileCount / r->state.tileCount) * 100;
+			float completion = ((float)completedSamples / totalTileSamples) * 100;
 			logr(info, "[%s%.0f%%%s] μs/ray: %.02f, etf: %s, %.02lfMs/s %s        \r",
 				 KBLU,
 				 KNRM,
 				 completion,
-				 finalAvg,
+				 usPerRay,
 				 rem,
 				 0.000001*sps,
 				 r->state.threadStates[0].paused ? "[PAUSED]" : "");
@@ -186,13 +186,13 @@ void *renderThread(void *arg) {
 	while (tile.tileNum != -1 && r->state.isRendering) {
 		hasHitObject = false;
 		long totalUsec = 0;
-		long rays = 0;
+		long samples = 0;
 		
 		while (tile.completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
+			startTimer(&timer);
 			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					if (r->state.renderAborted) return 0;
-					startTimer(&timer);
 					uint64_t pixIdx = y * r->state.image->width + x;
 					uint64_t uniqueIdx = pixIdx * r->prefs.sampleCount + tile.completedSamples;
 					pcg32_srandom_r(&rng, hash(uniqueIdx), 0);
@@ -270,22 +270,21 @@ void *renderThread(void *arg) {
 					
 					//And store the image data
 					blit(r->state.image, output, x, y);
-					
-					//For performance metrics
-					rays++;
-					totalUsec += getUs(timer);
 				}
 			}
+			//For performance metrics
+			samples++;
+			totalUsec += getUs(timer);
 			tile.completedSamples++;
+			++tinfo->totalSamples;
 			tinfo->completedSamples = tile.completedSamples;
 			if (tile.completedSamples > 25 && !hasHitObject) break; //Abort if we didn't hit anything within 25 samples
 			//Pause rendering when bool is set
 			while (tinfo->paused && !r->state.renderAborted) {
 				sleepMSec(100);
 			}
-			tinfo->avgRayTime = totalUsec / rays;
+			tinfo->avgSampleTime = totalUsec / samples;
 		}
-		tinfo->totalSamples += tile.completedSamples;
 		//Tile has finished rendering, get a new one and start rendering it.
 		r->state.renderTiles[tile.tileNum].isRendering = false;
 		r->state.renderTiles[tile.tileNum].renderComplete = true;

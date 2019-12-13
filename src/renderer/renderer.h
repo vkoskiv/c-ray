@@ -28,7 +28,7 @@ struct threadState {
 	
 	uint64_t totalSamples;
 	
-	long avgRayTime;
+	long avgSampleTime; //Single tile pass
 	
 	struct renderer *r;
 };
