@@ -181,6 +181,8 @@ void checkBuf() {
 #endif
 }
 
+
+//TODO: Make these consistent. Now I have to free getFilePath, but not getFileName
 /**
  Extract the filename from a given file path
 
@@ -201,7 +203,7 @@ char *getFileName(char *input) {
 }
 
 char *getFilePath(char *input) {
-	char *dir = calloc(256, sizeof(char));
+	char *dir = calloc(PATH_MAX, sizeof(char));
 #ifdef WINDOWS
 	//char *dir = calloc(256, sizeof(char));
 	//_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0); //Maybe works on MS-WinDOS?
