@@ -30,14 +30,14 @@ void render(struct renderer *r) {
 	
 	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->state.image->width, KNRM, KWHT, r->state.image->height, KNRM);
 	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
-	logr(info, "Rendering with %s%d%s%s thread",
+	logr(info, "Rendering with %s%d%s%s thread%s",
 		 KRED,
 		 r->prefs.fromSystem ? r->prefs.threadCount - 2 : r->prefs.threadCount,
 		 r->prefs.fromSystem ? "+2" : "",
-		 KNRM);
-	printf(r->prefs.threadCount > 1 ? "s.\n" : ".\n");
+		 KNRM,
+		 r->prefs.threadCount > 1 ? "s.\n" : ".\n");
 	
-	logr(info, "Pathtracing\n");
+	logr(info, "Pathtracing...\n");
 	
 	//Create threads
 	int t;

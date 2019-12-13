@@ -67,6 +67,7 @@ void printSceneStats(struct world *scene, unsigned long long ms) {
 }
 
 //Load the scene, allocate buffers, etc
+//FIXME: Rename this func and take parseJSON out to a separate call.
 int loadScene(struct renderer *r, int argc, char **argv) {
 	
 	bool fromStdin = false;
