@@ -757,6 +757,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
 	
 	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
+	const cJSON *intensity = cJSON_GetObjectItem(data, "intensity");
 	enum bsdfType type = lambertian;
 	
 	if (cJSON_IsString(bsdf)) {
@@ -766,6 +767,8 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 			type = metal;
 		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
 			type = glass;
+		} else if (strcmp(bsdf->valuestring, "emissive") == 0) {
+			type = emission;
 		} else {
 			type = lambertian;
 		}
@@ -794,6 +797,9 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 		//FIXME: this isn't right.
 		for (int i = 0; i < lastMesh(r)->materialCount; i++) {
 			lastMesh(r)->materials[i].type = type;
+			if (type == emission) {
+				lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);
+			}
 			assignBSDF(&lastMesh(r)->materials[i]);
 		}
 	}
