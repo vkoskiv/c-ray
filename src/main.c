@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 12/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #define VERSION "0.6.2"
@@ -24,7 +24,7 @@
 
 int main(int argc, char *argv[]) {
 	char *hash = gitHash(8);
-	logr(info, "C-ray v%s [%s], © 2015-2019 Valtteri Koskivuori\n", VERSION, hash);
+	logr(info, "C-ray v%s [%s], © 2015-2020 Valtteri Koskivuori\n", VERSION, hash);
 	initTerminal();
 	allocVertexBuffer();
 	struct renderer *r = newRenderer();

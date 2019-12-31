@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 19/02/2017.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -48,7 +48,7 @@ int initSDL(struct display *d) {
 	if (d->isBorderless) flags |= SDL_WINDOW_BORDERLESS;
 	flags |= SDL_WINDOW_RESIZABLE;
 	
-	d->window = SDL_CreateWindow("C-ray © VKoskiv 2015-2019",
+	d->window = SDL_CreateWindow("C-ray © VKoskiv 2015-2020",
 								 SDL_WINDOWPOS_UNDEFINED,
 								 SDL_WINDOWPOS_UNDEFINED,
 								 d->width * d->windowScale,

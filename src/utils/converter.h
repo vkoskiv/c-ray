@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 18/08/2017.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 //OBJ parser declares structures using typedefs, so have to include this here.

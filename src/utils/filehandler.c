@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../libraries/asprintf.h"
@@ -89,7 +89,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	info.time_defined = 1;
 	
 	char version[60];
-	sprintf(version, "C-ray v%s [%s], © 2015-2019 Valtteri Koskivuori", imginfo.crayVersion, imginfo.gitHash);
+	sprintf(version, "C-ray v%s [%s], © 2015-2020 Valtteri Koskivuori", imginfo.crayVersion, imginfo.gitHash);
 	char samples[16];
 	sprintf(samples, "%i", imginfo.samples);
 	char bounces[16];

@@ -3,7 +3,7 @@
 //  C-Ray
 //
 //  Created by Valtteri on 19/03/2019.
-//  Copyright © 2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 //Multi-platform stubs for thread-handling and other operations that differ on *nix and WIN32
