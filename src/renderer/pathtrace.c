@@ -14,6 +14,7 @@
 #include "../acceleration/bbox.h"
 #include "../acceleration/kdtree.h"
 #include "../datatypes/texture.h"
+#include "../datatypes/vertexbuffer.h"
 
 struct hitRecord getClosestIsect(struct lightRay *incidentRay, struct world *scene);
 struct color getBackground(struct lightRay *incidentRay, struct world *scene);
@@ -43,6 +44,27 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 	}
 }
 
+void computeSurfaceProps(struct poly p, struct coord uv, struct vector *hitPoint, struct vector *normal) {
+	float u = uv.x;
+	float v = uv.y;
+	float w = 1.0f - u - v;
+	vector ucomp = vecScale(vertexArray[p.vertexIndex[2]], u);
+	vector vcomp = vecScale(vertexArray[p.vertexIndex[1]], v);
+	vector wcomp = vecScale(vertexArray[p.vertexIndex[0]], w);
+	
+	*hitPoint = vecAdd(vecAdd(ucomp, vcomp), wcomp);
+	
+	if (p.hasNormals) {
+		vector upcomp = vecScale(normalArray[p.normalIndex[2]], u);
+		vector vpcomp = vecScale(normalArray[p.normalIndex[1]], v);
+		vector wpcomp = vecScale(normalArray[p.normalIndex[0]], w);
+		
+		*normal = vecNormalize(vecAdd(vecAdd(upcomp, vpcomp), wpcomp));
+	}
+	
+	*hitPoint = vecAdd(*hitPoint, vecScale(*normal, 0.0001f));
+}
+
 vector bumpmap(struct hitRecord *isect) {
 	struct material mtl = isect->end;
 	struct poly p = polygonArray[isect->polyIndex];
@@ -60,6 +82,7 @@ vector bumpmap(struct hitRecord *isect) {
 	struct color pixel = textureGetPixelFiltered(mtl.normalMap, x, y);
 	return vecNormalize((vector){(pixel.red * 2.0f) - 1.0f, (pixel.green * 2.0f) - 1.0f, pixel.blue * 0.5f});
 }
+
 /**
  Calculate the closest intersection point, and other relevant information based on a given lightRay and scene
  See the intersection struct for documentation of what this function calculates.
@@ -83,9 +106,12 @@ struct hitRecord getClosestIsect(struct lightRay *incidentRay, struct world *sce
 	for (int o = 0; o < scene->meshCount; o++) {
 		if (rayIntersectsWithNode(scene->meshes[o].tree, incidentRay, &isect)) {
 			isect.end = scene->meshes[o].materials[polygonArray[isect.polyIndex].materialIndex];
+			computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
+			
 			if (isect.end.hasNormalMap) {
 				isect.surfaceNormal = bumpmap(&isect);
 			}
+			
 			isect.didIntersect = true;
 		}
 	}
