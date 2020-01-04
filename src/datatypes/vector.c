@@ -8,6 +8,24 @@
 
 #include "../includes.h"
 #include "vector.h"
+#include "assert.h"
+
+struct base baseWithVec(struct vector i) {
+	//ASSERT(false);
+	//ASSERT(vecLength(i) == 1.0f);
+	struct base newBase;
+	newBase.i = i;
+	if (fabsf(i.x) > fabsf(i.y)) {
+		float len = sqrtf(i.x * i.x + i.z * i.z);
+		newBase.j = (vector){-i.z / len, 0.0f / len, i.x / len};
+	} else {
+		float len = sqrtf(i.y * i.y + i.z * i.z);
+		newBase.j = (vector){ 0.0f / len, i.z / len, -i.y / len};
+	}
+	//ASSERT(vecDot(newBase.i, newBase.j) == 0.0f);
+	newBase.k = vecCross(newBase.i, newBase.j);
+	return newBase;
+}
 
 /* Vector Functions */
 
@@ -175,6 +193,9 @@ float rndFloatRange(float min, float max, pcg32_random_t *rng) {
 	return (((float)pcg32_random_r(rng) / (float)UINT32_MAX) * (max - min)) + min;
 }
 
+
+/// Returns a random unit float (0.0-1.0)
+/// @param rng RNG instance to use
 float rndFloat(pcg32_random_t *rng) {
 	return (1.0f / (1ull << 32)) * pcg32_random_r(rng);
 }
@@ -204,6 +225,12 @@ struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_rand
 	return vecWithPos(center.x + rndFloatRange(-radius, radius, rng),
 						 center.y + rndFloatRange(-radius, radius, rng),
 						 center.z);
+}
+
+struct coord randomCoordOnDisc(pcg32_random_t *rng) {
+	float r = sqrtf(rndFloat(rng));
+	float theta = rndFloatRange(0, 2*PI, rng);
+	return (struct coord){r * cosf(theta), r * sinf(theta)};
 }
 
 struct vector vecNegate(struct vector v) {

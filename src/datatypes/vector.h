@@ -14,6 +14,10 @@ struct vector {
 
 typedef struct vector vector;
 
+struct base {
+	vector i, j, k;
+};
+
 struct coord {
 	float x, y;
 };
@@ -21,6 +25,9 @@ struct coord {
 struct intCoord {
 	int x, y;
 };
+
+//Compute two orthonormal vectors for this unit vector
+struct base baseWithVec(struct vector i);
 
 //Return a vector with given coordinates
 struct vector vecWithPos(float x, float y, float z);
@@ -68,6 +75,8 @@ struct vector getMidPoint(struct vector v1, struct vector v2, struct vector v3);
 struct vector getRandomVecOnRadius(struct vector center, float radius, pcg32_random_t *rng);
 
 struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_random_t *rng);
+
+struct coord randomCoordOnDisc(pcg32_random_t *rng);
 
 float rndFloatRange(float min, float max, pcg32_random_t *rng);
 
