@@ -100,9 +100,6 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 		default:
 			break;
 	}
-	if (fromStdin) {
-		free(input);
-	}
 	
 	transformCameraIntoView(r->scene->camera);
 	transformMeshes(r->scene);
