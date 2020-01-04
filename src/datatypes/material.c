@@ -322,6 +322,9 @@ void freeMaterial(struct material *mat) {
 	if (mat->textureFilePath) {
 		free(mat->textureFilePath);
 	}
+	if (mat->normalMapPath) {
+		free(mat->normalMapPath);
+	}
 	if (mat->name) {
 		free(mat->name);
 	}

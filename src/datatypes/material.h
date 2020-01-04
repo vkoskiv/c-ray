@@ -62,9 +62,12 @@ struct bsdf {
 
 struct material {
 	char *textureFilePath;
+	char *normalMapPath;
 	char *name;
 	bool hasTexture;
 	struct texture *texture;
+	bool hasNormalMap;
+	struct texture *normalMap;
 	struct color ambient;
 	struct color diffuse;
 	struct color specular;

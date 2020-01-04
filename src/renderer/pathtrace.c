@@ -43,6 +43,23 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 	}
 }
 
+vector bumpmap(struct hitRecord *isect) {
+	struct material mtl = isect->end;
+	struct poly p = polygonArray[isect->polyIndex];
+	float width = mtl.normalMap->width;
+	float heigh = mtl.normalMap->height;
+	float u = isect->uv.x;
+	float v = isect->uv.y;
+	float w = 1.0 - u - v;
+	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
+	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
+	struct coord wcomponent = coordScale(w, textureArray[p.textureIndex[0]]);
+	struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
+	float x = (textureXY.x*(width));
+	float y = (textureXY.y*(heigh));
+	struct color pixel = textureGetPixelFiltered(mtl.normalMap, x, y);
+	return vecNormalize((vector){(pixel.red * 2.0f) - 1.0f, (pixel.green * 2.0f) - 1.0f, pixel.blue * 0.5f});
+}
 /**
  Calculate the closest intersection point, and other relevant information based on a given lightRay and scene
  See the intersection struct for documentation of what this function calculates.
@@ -66,6 +83,9 @@ struct hitRecord getClosestIsect(struct lightRay *incidentRay, struct world *sce
 	for (int o = 0; o < scene->meshCount; o++) {
 		if (rayIntersectsWithNode(scene->meshes[o].tree, incidentRay, &isect)) {
 			isect.end = scene->meshes[o].materials[polygonArray[isect.polyIndex].materialIndex];
+			if (isect.end.hasNormalMap) {
+				isect.surfaceNormal = bumpmap(&isect);
+			}
 			isect.didIntersect = true;
 		}
 	}

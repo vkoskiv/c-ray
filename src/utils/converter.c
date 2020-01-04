@@ -73,6 +73,7 @@ struct material materialFromObj(obj_material *mat) {
 	
 	newMat.name = calloc(256, sizeof(char));
 	newMat.textureFilePath = calloc(500, sizeof(char));
+	newMat.normalMapPath = calloc(500, sizeof(char));
 	
 	newMat.hasTexture = false;
 	
@@ -83,7 +84,9 @@ struct material materialFromObj(obj_material *mat) {
 	
 	for (int i = 0; i < 500; i++) {
 		newMat.textureFilePath[i] = mat->texture_filename[i];
+		newMat.normalMapPath[i] = mat->displacement_filename[i];
 		newMat.textureFilePath[499] = '\0';
+		newMat.normalMapPath[499] = '\0';
 	}
 	
 	newMat.diffuse.red   = mat->diff[0];

@@ -38,6 +38,7 @@ struct sphere *lastSphere(struct renderer *r) {
 	return &r->scene->spheres[r->scene->sphereCount - 1];
 }
 
+//FIXME: Do something about this awful mess.
 void loadMeshTextures(struct mesh *mesh) {
 	for (int i = 0; i < mesh->materialCount; i++) {
 		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
@@ -53,6 +54,19 @@ void loadMeshTextures(struct mesh *mesh) {
 			}
 		} else {
 			mesh->materials[i].hasTexture = false;
+		}
+		
+		if (mesh->materials[i].normalMapPath) {
+			if (strcmp(mesh->materials[i].normalMapPath, "")) {
+				mesh->materials[i].normalMap = loadTexture(mesh->materials[i].normalMapPath);
+				if (mesh->materials[i].normalMap) {
+					mesh->materials[i].hasNormalMap = true;
+				}
+			} else {
+				mesh->materials[i].hasNormalMap = false;
+			}
+		} else {
+			mesh->materials[i].hasNormalMap = false;
 		}
 		
 	}
