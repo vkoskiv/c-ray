@@ -758,6 +758,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	
 	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
 	const cJSON *intensity = cJSON_GetObjectItem(data, "intensity");
+	const cJSON *roughness = cJSON_GetObjectItem(data, "roughness");
 	enum bsdfType type = lambertian;
 	
 	if (cJSON_IsString(bsdf)) {
@@ -800,6 +801,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 			if (type == emission) {
 				lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);
 			}
+			if (cJSON_IsNumber(roughness)) lastMesh(r)->materials[i].roughness = roughness->valuedouble;
 			assignBSDF(&lastMesh(r)->materials[i]);
 		}
 	}
