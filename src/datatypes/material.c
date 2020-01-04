@@ -198,7 +198,7 @@ struct vector randomInUnitSphere(pcg32_random_t *rng) {
 	struct vector vec;
 	do {
 		vec = vecScale(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
-		vec = vecSub(vec, vecWithPos(1.0, 1.0, 1.0));
+		vec = vecSub(vec, (vector){1.0, 1.0, 1.0});
 	} while (vecLengthSquared(vec) >= 1.0);
 	return vec;
 }
@@ -207,7 +207,7 @@ struct vector randomOnUnitSphere(pcg32_random_t *rng) {
 	struct vector vec;
 	do {
 		vec = vecScale(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
-		vec = vecSub(vec, vecWithPos(1.0, 1.0, 1.0));
+		vec = vecSub(vec, (vector){1.0, 1.0, 1.0});
 	} while (vecLengthSquared(vec) >= 1.0);
 	return vecNormalize(vec);
 }
