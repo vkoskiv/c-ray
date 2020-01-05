@@ -107,34 +107,21 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 	printSceneStats(r->scene, getMs(timer));
 	
 	//Quantize image into renderTiles
-	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);
+	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->prefs.imageWidth, r->prefs.imageHeight, r->prefs.tileWidth, r->prefs.tileHeight);
 	reorderTiles(&r->state.renderTiles, r->state.tileCount, r->prefs.tileOrder);
 	
 	//Compute the focal length for the camera
-	computeFocalLength(r->scene->camera, r->state.image->width);
-	
-	//Allocate memory and create array of pixels for image data
-	allocTextureBuffer(r->state.image, char_p, r->state.image->width, r->state.image->height, 3);
-	if (!r->state.image->byte_data) {
-		logr(error, "Failed to allocate memory for image data.");
-	}
-	
-	//Set a dark gray background for the render preview
-	for (unsigned x = 0; x < r->state.image->width; x++) {
-		for (unsigned y = 0; y < r->state.image->height; y++) {
-			blit(r->state.image, backgroundColor, x, y);
-		}
-	}
+	computeFocalLength(r->scene->camera, r->prefs.imageWidth);
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
 	r->state.renderBuffer = newTexture();
-	allocTextureBuffer(r->state.renderBuffer, float_p, r->state.image->width, r->state.image->height, 3);
+	allocTextureBuffer(r->state.renderBuffer, float_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
 	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
 	r->state.uiBuffer = newTexture();
-	allocTextureBuffer(r->state.uiBuffer, char_p, r->state.image->width, r->state.image->height, 4);
+	allocTextureBuffer(r->state.uiBuffer, char_p, r->prefs.imageWidth, r->prefs.imageHeight, 4);
 	
 	//Alloc memory for pthread_create() args
 	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(struct threadState));

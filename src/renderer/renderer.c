@@ -18,6 +18,7 @@
 #include "../utils/timer.h"
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
+#include "../utils/filehandler.h"
 
 //Main thread loop speeds
 #define paused_msec 100
@@ -25,10 +26,24 @@
 
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
-void render(struct renderer *r) {
-	logr(info, "Starting C-ray renderer for frame %i\n", r->state.image->count);
+struct texture *render(struct renderer *r) {
 	
-	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->state.image->width, KNRM, KWHT, r->state.image->height, KNRM);
+	struct texture *output = newTexture();
+	allocTextureBuffer(output, char_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
+	output->fileType = r->prefs.imgType;
+	copyString(r->prefs.imgFileName, &output->fileName);
+	copyString(r->prefs.imgFilePath, &output->filePath);
+	
+	//Set a dark gray background for the render preview
+	for (unsigned x = 0; x < r->prefs.imageWidth; x++) {
+		for (unsigned y = 0; y < r->prefs.imageHeight; y++) {
+			blit(output, backgroundColor, x, y);
+		}
+	}
+	
+	logr(info, "Starting C-ray renderer for frame %i\n", r->prefs.imgCount);
+	
+	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->prefs.imageWidth, KNRM, KWHT, r->prefs.imageHeight, KNRM);
 	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
 	logr(info, "Rendering with %s%d%s%s thread%s",
 		 KRED,
@@ -58,7 +73,7 @@ void render(struct renderer *r) {
 		getKeyboardInput(r);
 		
 		if (!r->state.threadStates[0].paused) {
-			drawWindow(r);
+			drawWindow(r, output);
 			for (int t = 0; t < r->prefs.threadCount; t++) {
 				avgSampleTime += r->state.threadStates[t].avgSampleTime;
 			}
@@ -103,6 +118,7 @@ void render(struct renderer *r) {
 				r->state.threadStates[t].thread_num = t;
 				r->state.threadStates[t].threadComplete = false;
 				r->state.threadStates[t].r = r;
+				r->state.threadStates[t].output = output;
 				r->state.activeThreads++;
 #ifdef WINDOWS
 				DWORD threadId;
@@ -150,6 +166,7 @@ void render(struct renderer *r) {
 		}
 #endif
 	}
+	return output;
 }
 
 uint64_t hash(uint64_t x) {
@@ -174,6 +191,7 @@ void *renderThread(void *arg) {
 	struct threadState *tinfo = (struct threadState*)arg;
 	
 	struct renderer *r = tinfo->r;
+	struct texture *image = tinfo->output;
 	pcg32_random_t rng;
 	
 	//First time setup for each thread
@@ -193,7 +211,7 @@ void *renderThread(void *arg) {
 			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					if (r->state.renderAborted) return 0;
-					uint64_t pixIdx = y * r->state.image->width + x;
+					uint64_t pixIdx = y * image->width + x;
 					uint64_t uniqueIdx = pixIdx * r->prefs.sampleCount + tile.completedSamples;
 					pcg32_srandom_r(&rng, hash(uniqueIdx), 0);
 					
@@ -209,9 +227,9 @@ void *renderThread(void *arg) {
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 					//imaginary plane in front of the origin. startPos is just the camera position.
-					struct vector direction = {(fracX - 0.5 * r->state.image->width)
+					struct vector direction = {(fracX - 0.5 * image->width)
 												/ r->scene->camera->focalLength,
-											   (fracY - 0.5 * r->state.image->height)
+											   (fracY - 0.5 * image->height)
 												/ r->scene->camera->focalLength,
 												1.0};
 					
@@ -269,7 +287,7 @@ void *renderThread(void *arg) {
 					output = toSRGB(output);
 					
 					//And store the image data
-					blit(r->state.image, output, x, y);
+					blit(image, output, x, y);
 				}
 			}
 			//For performance metrics
@@ -304,7 +322,6 @@ struct renderer *newRenderer() {
 	r->state.avgTileTime = (time_t)1;
 	r->state.timeSampleCount = 1;
 	r->prefs.fileMode = saveModeNormal;
-	r->state.image = newTexture();
 	
 	//TODO: Do we need all these heap allocs?
 	r->scene = calloc(1, sizeof(struct world));
@@ -336,10 +353,6 @@ void freeRenderer(struct renderer *r) {
 	if (r->scene) {
 		freeScene(r->scene);
 		free(r->scene);
-	}
-	if (r->state.image) {
-		freeTexture(r->state.image);
-		free(r->state.image);
 	}
 	if (r->state.renderTiles) {
 		free(r->state.renderTiles);

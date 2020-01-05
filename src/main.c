@@ -40,11 +40,11 @@ int main(int argc, char *argv[]) {
 	
 	time_t start, stop;
 	time(&start);
-	render(r);
+	struct texture *output = render(r);
 	time(&stop);
 	printDuration(difftime(stop, start));
 	
-	writeImage(r->state.image, r->prefs.fileMode, (struct renderInfo){
+	writeImage(output, r->prefs.fileMode, (struct renderInfo){
 		.bounces = r->prefs.bounces,
 		.samples = r->prefs.sampleCount,
 		.crayVersion = VERSION,
@@ -52,6 +52,7 @@ int main(int argc, char *argv[]) {
 		.renderTimeSeconds = difftime(stop, start),
 		.threadCount = r->prefs.threadCount
 	});
+	freeTexture(output);
 	free(hash);
 	freeRenderer(r);
 	freeVertexBuffer();

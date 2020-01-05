@@ -980,41 +980,41 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	filePath = cJSON_GetObjectItem(data, "outputFilePath");
 	if (filePath) {
 		if (cJSON_IsString(filePath)) {
-			copyString(filePath->valuestring, &r->state.image->filePath);
+			copyString(filePath->valuestring, &r->prefs.imgFilePath);
 		} else {
 			logr(warning, "Invalid filePath while parsing scene.\n");
 			return -1;
 		}
 	} else {
-		copyString(defaultFilePath, &r->state.image->filePath);
+		copyString(defaultFilePath, &r->prefs.imgFilePath);
 	}
 	
 	fileName = cJSON_GetObjectItem(data, "outputFileName");
 	if (fileName) {
 		if (cJSON_IsString(fileName)) {
-			copyString(fileName->valuestring, &r->state.image->fileName);
+			copyString(fileName->valuestring, &r->prefs.imgFileName);
 		} else {
 			logr(warning, "Invalid fileName while parsing scene.\n");
 			return -1;
 		}
 	} else {
-		copyString(defaultFileName, &r->state.image->fileName);
+		copyString(defaultFileName, &r->prefs.imgFileName);
 	}
 	
 	count = cJSON_GetObjectItem(data, "count");
 	if (count) {
 		if (cJSON_IsNumber(count)) {
 			if (count->valueint >= 0) {
-				r->state.image->count = count->valueint;
+				r->prefs.imgCount = count->valueint;
 			} else {
-				r->state.image->count = 0;
+				r->prefs.imgCount = 0;
 			}
 		} else {
 			logr(warning, "Invalid count while parsing scene.\n");
 			return -1;
 		}
 	} else {
-		r->state.image->count = defaultCount;
+		r->prefs.imgCount = defaultCount;
 	}
 	
 	//FIXME: This is super ugly
@@ -1022,10 +1022,10 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	if (width) {
 		if (cJSON_IsNumber(width)) {
 			if (width->valueint >= 0) {
-				r->state.image->width = width->valueint;
+				r->prefs.imageWidth = width->valueint;
 				r->mainDisplay->width = width->valueint;
 			} else {
-				r->state.image->width = 640;
+				r->prefs.imageWidth = 640;
 				r->mainDisplay->width = 640;
 			}
 		} else {
@@ -1033,7 +1033,7 @@ int parseScene(struct renderer *r, const cJSON *data) {
 			return -1;
 		}
 	} else {
-		r->state.image->width = defaultWidth;
+		r->prefs.imageWidth = defaultWidth;
 		r->mainDisplay->width = defaultWidth;
 	}
 	
@@ -1041,10 +1041,10 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	if (height) {
 		if (cJSON_IsNumber(height)) {
 			if (height->valueint >= 0) {
-				r->state.image->height = height->valueint;
+				r->prefs.imageHeight = height->valueint;
 				r->mainDisplay->height = height->valueint;
 			} else {
-				r->state.image->height = 400;
+				r->prefs.imageHeight = 400;
 				r->mainDisplay->height = 400;
 			}
 		} else {
@@ -1052,7 +1052,7 @@ int parseScene(struct renderer *r, const cJSON *data) {
 			return -1;
 		}
 	} else {
-		r->state.image->height = defaultHeight;
+		r->prefs.imageHeight = defaultHeight;
 		r->mainDisplay->height = defaultHeight;
 	}
 	
@@ -1060,18 +1060,18 @@ int parseScene(struct renderer *r, const cJSON *data) {
 	if (fileType) {
 		if (cJSON_IsString(fileType)) {
 			if (strcmp(fileType->valuestring, "png") == 0) {
-				r->state.image->fileType = png;
+				r->prefs.imgType = png;
 			} else if (strcmp(fileType->valuestring, "bmp") == 0) {
-				r->state.image->fileType = bmp;
+				r->prefs.imgType = bmp;
 			} else {
-				r->state.image->fileType = png;
+				r->prefs.imgType = png;
 			}
 		} else {
 			logr(warning, "Invalid fileType while parsing scene.\n");
 			return -1;
 		}
 	} else {
-		r->state.image->fileType = defaultFileType;
+		r->prefs.imgType = defaultFileType;
 	}
 	
 	ambientColor = cJSON_GetObjectItem(data, "ambientColor");

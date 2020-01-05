@@ -31,6 +31,7 @@ struct threadState {
 	long avgSampleTime; //Single tile pass
 	
 	struct renderer *r;
+	struct texture *output;
 };
 
 enum renderOrder {
@@ -43,7 +44,6 @@ enum renderOrder {
 
 /// Renderer state data
 struct state {
-	struct texture *image; //Output image
 	struct renderTile *renderTiles; //Array of renderTiles to render
 	int tileCount; //Total amount of render tiles
 	int finishedTileCount;
@@ -77,6 +77,13 @@ struct prefs {
 	int tileWidth;
 	int tileHeight;
 	
+	int imageWidth;
+	int imageHeight;
+	char *imgFilePath;
+	char *imgFileName;
+	int imgCount;
+	enum fileType imgType;
+	
 	bool antialiasing;
 };
 
@@ -106,7 +113,7 @@ void *renderThread(void *arg);
 struct renderer *newRenderer(void);
 
 //Start main render loop
-void render(struct renderer *r);
+struct texture *render(struct renderer *r);
 
 //Free renderer allocations
 void freeRenderer(struct renderer *r);

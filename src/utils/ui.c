@@ -245,7 +245,7 @@ void updateFrames(struct renderer *r) {
 	drawProgressBars(r);
 }
 
-void drawWindow(struct renderer *r) {
+void drawWindow(struct renderer *r, struct texture *t) {
 	if (aborted) {
 		r->prefs.fileMode = saveModeNone;
 		r->state.renderAborted = true;
@@ -254,8 +254,8 @@ void drawWindow(struct renderer *r) {
 	//Render frames
 	updateFrames(r);
 	//Update image data
-	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->state.image->byte_data, r->state.image->width * 3);
-	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer->byte_data, r->state.image->width * 4);
+	SDL_UpdateTexture(r->mainDisplay->texture, NULL, t->byte_data, t->width * 3);
+	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer->byte_data, t->width * 4);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
 	SDL_RenderPresent(r->mainDisplay->renderer);

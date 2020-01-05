@@ -32,4 +32,4 @@ void freeDisplay(struct display *disp);
 
 void printDuration(float time);
 void getKeyboardInput(struct renderer *r);
-void drawWindow(struct renderer *r);
+void drawWindow(struct renderer *r, struct texture *t);
