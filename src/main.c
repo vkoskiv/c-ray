@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 	
 	time_t start, stop;
 	time(&start);
-	struct texture *output = render(r);
+	struct texture *output = renderFrame(r);
 	time(&stop);
 	printDuration(difftime(stop, start));
 	

@@ -113,7 +113,7 @@ void *renderThread(void *arg);
 struct renderer *newRenderer(void);
 
 //Start main render loop
-struct texture *render(struct renderer *r);
+struct texture *renderFrame(struct renderer *r);
 
 //Free renderer allocations
 void freeRenderer(struct renderer *r);

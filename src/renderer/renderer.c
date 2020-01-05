@@ -29,7 +29,7 @@
 
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
-struct texture *render(struct renderer *r) {
+struct texture *renderFrame(struct renderer *r) {
 	
 	struct texture *output = newTexture();
 	allocTextureBuffer(output, char_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
