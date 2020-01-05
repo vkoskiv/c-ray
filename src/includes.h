@@ -76,3 +76,10 @@ enum fileMode {
 	saveModeTarga, //Save current render state
 	saveModeNone   //Don't save
 };
+
+enum fileType {
+	bmp,
+	png,
+	hdr,
+	buffer
+};

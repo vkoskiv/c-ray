@@ -6,13 +6,6 @@
 //  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
-enum fileType {
-	bmp,
-	png,
-	hdr,
-	buffer
-};
-
 struct dimensions {
 	int height;
 	int width;
