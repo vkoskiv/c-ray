@@ -10,7 +10,9 @@
 #include "camera.h"
 
 #include "scene.h"
-#include "../datatypes/texture.h"
+#include "texture.h"
+#include "vector.h"
+#include "transforms.h"
 
 /**
  Compute view direction transforms

@@ -16,6 +16,8 @@
 #include "../utils/logging.h"
 #include "../datatypes/texture.h"
 
+#include "../libraries/lodepng.h"
+
 #include <limits.h> //For SSIZE_MAX
 
 #ifndef WINDOWS

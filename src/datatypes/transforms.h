@@ -32,6 +32,7 @@ struct transform {
 };
 
 struct material;
+struct vector;
 
 float toRadians(float degrees);
 float fromRadians(float radians);

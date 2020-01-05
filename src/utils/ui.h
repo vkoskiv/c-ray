@@ -9,6 +9,11 @@
 #pragma once
 
 struct renderer;
+struct texture;
+
+#ifdef UI_ENABLED
+	#include "SDL.h"
+#endif
 
 //FIXME: This should be in datatypes
 struct display {

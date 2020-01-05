@@ -15,6 +15,9 @@
 #include "../acceleration/kdtree.h"
 #include "../datatypes/texture.h"
 #include "../datatypes/vertexbuffer.h"
+#include "../datatypes/sphere.h"
+#include "../datatypes/poly.h"
+#include "../datatypes/mesh.h"
 
 struct hitRecord getClosestIsect(struct lightRay *incidentRay, struct world *scene);
 struct color getBackground(struct lightRay *incidentRay, struct world *scene);

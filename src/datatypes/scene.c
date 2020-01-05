@@ -14,11 +14,13 @@
 #include "../utils/loaders/sceneloader.h"
 #include "../utils/logging.h"
 #include "../renderer/renderer.h"
-#include "../datatypes/texture.h"
-#include "../datatypes/camera.h"
-#include "../datatypes/vertexbuffer.h"
+#include "texture.h"
+#include "camera.h"
+#include "vertexbuffer.h"
 #include "../acceleration/kdtree.h"
-#include "../datatypes/tile.h"
+#include "tile.h"
+#include "mesh.h"
+#include "poly.h"
 
 void transformMeshes(struct world *scene) {
 	logr(info, "Running transforms: ");

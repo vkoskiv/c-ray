@@ -10,8 +10,9 @@
 #include "material.h"
 
 #include "../renderer/pathtrace.h"
-#include "../datatypes/vertexbuffer.h"
-#include "../datatypes/texture.h"
+#include "vertexbuffer.h"
+#include "texture.h"
+#include "poly.h"
 
 //FIXME: Temporary, eventually support full OBJ spec
 struct material newMaterial(struct color diffuse, float reflectivity) {

@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include "vector.h"
+#include "material.h"
+
 enum type {
 	rayTypeIncident,
 	rayTypeScattered,

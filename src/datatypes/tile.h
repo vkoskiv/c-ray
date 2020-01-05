@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "vector.h"
+
 struct renderer;
 
 /**

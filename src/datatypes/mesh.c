@@ -10,7 +10,11 @@
 #include "mesh.h"
 
 #include "../acceleration/kdtree.h"
-#include "../datatypes/vertexbuffer.h"
+#include "vertexbuffer.h"
+#include "transforms.h"
+#include "poly.h"
+#include "material.h"
+#include "vector.h"
 
 void addTransform(struct mesh *mesh, struct transform transform) {
 	if (mesh->transformCount == 0) {

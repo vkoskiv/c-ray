@@ -19,6 +19,9 @@
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
 #include "../utils/filehandler.h"
+#include "../datatypes/mesh.h"
+#include "../datatypes/sphere.h"
+
 
 //Main thread loop speeds
 #define paused_msec 100

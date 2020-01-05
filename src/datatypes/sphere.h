@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include "vector.h"
+#include "material.h"
+
 //Sphere
 struct sphere {
 	struct vector pos;

@@ -8,6 +8,9 @@
 
 #pragma once
 
+struct lightRay;
+struct hitRecord;
+
 struct kdTreeNode {
 	struct boundingBox *bbox;//Bounding box
 	struct kdTreeNode *left; //Pointer to left child

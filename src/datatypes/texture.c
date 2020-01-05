@@ -9,6 +9,7 @@
 #include "../includes.h"
 
 #include "texture.h"
+#include "color.h"
 
 //General-purpose blit function
 void blit(struct texture *t, struct color c, unsigned x, unsigned y) {

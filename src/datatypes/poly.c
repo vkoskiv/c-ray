@@ -8,7 +8,10 @@
 
 #include "../includes.h"
 #include "poly.h"
-#include "../datatypes/vertexbuffer.h"
+#include "vertexbuffer.h"
+
+#include "vector.h"
+#include "lightRay.h"
 
 //Main polygon array
 struct poly *polygonArray;

@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "color.h"
+
 struct renderer;
 
 /// World

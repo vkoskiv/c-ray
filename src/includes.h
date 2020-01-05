@@ -36,38 +36,16 @@
 #include <string.h>
 #include <float.h>
 
-#ifndef WINDOWS
-#include <sys/time.h> //for gettimeofday()
-#endif
-
 #ifdef WINDOWS
-#include <Windows.h>
-#include <stdint.h>
-#ifdef UI_ENABLED
-#include "SDL.h"
-#endif
+	#include <Windows.h>
+	#include <stdint.h>
 #else
-#include <pthread.h>
-#ifdef UI_ENABLED
-#include "SDL.h"
+	#include <pthread.h>
+	#include <sys/time.h> //for gettimeofday()
 #endif
-#endif
-#include "./libraries/lodepng.h"
 
 //PCG rng
 #include "./libraries/pcg_basic.h"
-
-//Project includes
-//FIXME: Remove these.
-#include "./datatypes/color.h"
-#include "./datatypes/material.h"
-#include "./datatypes/vector.h"
-#include "./datatypes/poly.h"
-#include "./libraries/list.h"
-#include "./datatypes/mesh.h"
-#include "./datatypes/sphere.h"
-#include "./datatypes/transforms.h"
-#include "./datatypes/lightRay.h"
 
 enum fileMode {
 	loadModeNormal,//Load scene def normally

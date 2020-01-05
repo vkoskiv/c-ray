@@ -8,13 +8,15 @@
 
 #pragma once
 
+#include "../datatypes/vector.h"
+#include "../datatypes/lightRay.h"
+
 /// Current bbox split axis
 enum bboxAxis {
 	X,
 	Y,
 	Z
 };
-
 
 /// Bounding box for a given set of primitives
 struct boundingBox {

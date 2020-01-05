@@ -8,6 +8,10 @@
 
 #pragma once
 
+#include "../datatypes/vector.h"
+#include "../datatypes/lightRay.h"
+#include "../datatypes/material.h"
+
 struct world;
 
 /**

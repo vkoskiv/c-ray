@@ -9,7 +9,9 @@
 #include "../includes.h"
 #include "converter.h"
 
-#include "../libraries/obj_parser.h"
+#include "../datatypes/vector.h"
+#include "../datatypes/poly.h"
+#include "../datatypes/material.h"
 
 /**
  Convert a given OBJ loader vector into a c-ray vector

@@ -10,6 +10,9 @@
 #include "objloader.h"
 
 #include "../../datatypes/mesh.h"
+#include "../../datatypes/vector.h"
+#include "../../datatypes/poly.h"
+#include "../../datatypes/material.h"
 #include "../../utils/logging.h"
 #include "../../utils/filehandler.h"
 #include "../../datatypes/vertexbuffer.h"

@@ -7,6 +7,9 @@
 //
 
 #pragma once
+
+#include "vector.h"
+
 struct camera {
 	float FOV;
 	float focalLength;

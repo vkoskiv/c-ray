@@ -16,6 +16,9 @@
 
 #include "../includes.h"
 
+#include "poly.h"
+#include "vector.h"
+
 struct vector *vertexArray;
 int vertexCount;
 struct vector *normalArray;

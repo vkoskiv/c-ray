@@ -10,6 +10,7 @@
 #include "transforms.h"
 
 #include "../utils/logging.h"
+#include "vector.h"
 
 //For ease of use
 float toRadians(float degrees) {
