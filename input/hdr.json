@@ -7,7 +7,13 @@
 		"antialiasing": true,
 		"tileWidth": 64,
 		"tileHeight": 64,
-		"tileOrder": "fromMiddle"
+		"tileOrder": "fromMiddle",
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 1280,
+		"height": 800
 	},
 	"display": {
 		"isFullscreen": false,
@@ -35,12 +41,6 @@
 		]
 	},
 	"scene": {
-		"outputFilePath": "output/",
-		"outputFileName": "rendered",
-		"fileType": "png",
-		"count": 0,
-		"width": 1280,
-		"height": 800,
 		"ambientColor": {
 			"hdr": "input/HDRs/rooitou_park_1k.hdr",
 			"offset": 0,

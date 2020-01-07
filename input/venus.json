@@ -7,7 +7,13 @@
 		"antialiasing": true,
 		"tileWidth": 64,
 		"tileHeight": 64,
-		"tileOrder": "fromMiddle"
+		"tileOrder": "fromMiddle",
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 800,
+		"height": 1280
 	},
 	"display": {
 		"isFullscreen": false,
@@ -35,12 +41,6 @@
 		]
 	},
 	"scene": {
-		"outputFilePath": "output/",
-		"outputFileName": "rendered",
-		"fileType": "png",
-		"count": 0,
-		"width": 800,
-		"height": 1280,
 		"ambientColor": {
 			"down": {
 				"r": 1.0,

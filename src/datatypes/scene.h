@@ -33,6 +33,6 @@ struct world {
 	int cameraCount;
 };
 
-int loadScene(struct renderer *r, int argc, char **argv);
+int loadScene(struct renderer *r, char *input);
 
 void freeScene(struct world *scene);

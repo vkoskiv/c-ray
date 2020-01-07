@@ -9,7 +9,6 @@
 #include "../includes.h"
 #include "scene.h"
 
-#include "../utils/filehandler.h"
 #include "../utils/timer.h"
 #include "../utils/loaders/sceneloader.h"
 #include "../utils/logging.h"
@@ -68,25 +67,16 @@ void printSceneStats(struct world *scene, unsigned long long ms) {
 		   scene->sphereCount);
 }
 
+//Split scene loading and prefs?
 //Load the scene, allocate buffers, etc
 //FIXME: Rename this func and take parseJSON out to a separate call.
-int loadScene(struct renderer *r, int argc, char **argv) {
-	
-	bool fromStdin = false;
-	char *input;
-	if (argc == 2) {
-		input = argv[1];
-		fromStdin = false;
-	} else {
-		input = readStdin();
-		fromStdin = true;
-	}
+int loadScene(struct renderer *r, char *input) {
 	
 	struct timeval timer = {0};
 	startTimer(&timer);
 	
 	//Build the scene
-	switch (parseJSON(r, input, fromStdin)) {
+	switch (parseJSON(r, input)) {
 		case -1:
 			logr(warning, "Scene builder failed due to previous error.\n");
 			return -1;
