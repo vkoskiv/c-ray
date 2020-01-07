@@ -21,11 +21,17 @@
 #include "../utils/filehandler.h"
 #include "../datatypes/mesh.h"
 #include "../datatypes/sphere.h"
-
+#include "../datatypes/vertexbuffer.h"
 
 //Main thread loop speeds
 #define paused_msec 100
 #define active_msec  16
+
+//If a tile has completed this many samples without
+//hitting anything but the ambient/hdr background,
+//we can pretty safely just bail out and go render
+//other parts of the image.
+#define no_mesh_bailout_threshold 25
 
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
@@ -299,7 +305,7 @@ void *renderThread(void *arg) {
 			tile.completedSamples++;
 			++tinfo->totalSamples;
 			tinfo->completedSamples = tile.completedSamples;
-			if (tile.completedSamples > 25 && !hasHitObject) break; //Abort if we didn't hit anything within 25 samples
+			if (tile.completedSamples > no_mesh_bailout_threshold && !hasHitObject) break;
 			//Pause rendering when bool is set
 			while (tinfo->paused && !r->state.renderAborted) {
 				sleepMSec(100);
@@ -332,6 +338,10 @@ struct renderer *newRenderer() {
 	r->scene->hdr = NULL; //Optional, to be loaded later
 	r->scene->meshes = calloc(1, sizeof(struct mesh));
 	r->scene->spheres = calloc(1, sizeof(struct sphere));
+	
+	if (!vertexArray) {
+		allocVertexBuffer();
+	}
 	
 #ifdef UI_ENABLED
 	r->mainDisplay = calloc(1, sizeof(struct display));
@@ -374,6 +384,10 @@ void freeRenderer(struct renderer *r) {
 	if (r->mainDisplay) {
 		freeDisplay(r->mainDisplay);
 		free(r->mainDisplay);
+	}
+	
+	if (vertexArray) {
+		freeVertexBuffer();
 	}
 	
 	free(r);
