@@ -6,56 +6,35 @@
 //  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#define VERSION "0.6.2"
-
 #include "includes.h"
 #include "main.h"
 
-#include "utils/logging.h"
-#include "utils/filehandler.h"
-#include "renderer/renderer.h"
-#include "datatypes/scene.h"
+#include "c-ray.h"
+
 #include "utils/ui.h"
-#include "utils/multiplatform.h"
-#include "datatypes/vertexbuffer.h"
-#include "utils/gitsha1.h"
-#include "datatypes/texture.h"
-#include "utils/hashtable.h"
+#include "utils/logging.h"
 
 int main(int argc, char *argv[]) {
-	char *hash = gitHash(8);
-	logr(info, "C-ray v%s [%s], © 2015-2020 Valtteri Koskivuori\n", VERSION, hash);
-	initTerminal();
-	allocVertexBuffer();
-	struct renderer *r = newRenderer();
+	char *hash = crGitHash(8);
+	crInitTerminal();
+	logr(info, "C-ray v%s [%s], © 2015-2020 Valtteri Koskivuori\n", crGetVersion(), hash);
+	crInitRenderer();
+	char *input;
+	size_t bytes = 0;
+	input = argc == 2 ? crLoadFile(argv[1], &bytes) : crReadStdin();
+	bytes == 0 ?: logr(info, "%zi bytes of input JSON loaded from file, parsing.\n", bytes);
+	if (!input) return -1;
 	
-	if (loadScene(r, argc, argv)) {
+	if (crLoadSceneFromBuf(input)) {
 		free(hash);
-		freeVertexBuffer();
-		freeRenderer(r);
+		crDestroyRenderer();
 		return -1;
 	}
-	
-	initSDL(r->mainDisplay);
-	
-	time_t start, stop;
-	time(&start);
-	struct texture *output = renderFrame(r);
-	time(&stop);
-	printDuration(difftime(stop, start));
-	
-	writeImage(output, r->prefs.fileMode, (struct renderInfo){
-		.bounces = r->prefs.bounces,
-		.samples = r->prefs.sampleCount,
-		.crayVersion = VERSION,
-		.gitHash = hash,
-		.renderTimeSeconds = difftime(stop, start),
-		.threadCount = r->prefs.threadCount
-	});
-	freeTexture(output);
+	initSDL(crGetDisplay());
+	crRenderSingleFrame();
+	crWriteImage();
 	free(hash);
-	freeRenderer(r);
-	freeVertexBuffer();
+	crDestroyRenderer();
 	logr(info, "Render finished, exiting.\n");
 	return 0;
 }
