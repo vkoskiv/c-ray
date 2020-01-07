@@ -8,11 +8,11 @@
 
 #include "../includes.h"
 #include "vector.h"
-#include "assert.h"
+#include "../utils/assert.h"
 
 struct base baseWithVec(struct vector i) {
-	//ASSERT(false);
-	//ASSERT(vecLength(i) == 1.0f);
+	ASSERT(false);
+	ASSERT(vecLength(i) == 1.0f);
 	struct base newBase;
 	newBase.i = i;
 	if (fabsf(i.x) > fabsf(i.y)) {
@@ -22,7 +22,7 @@ struct base baseWithVec(struct vector i) {
 		float len = sqrtf(i.y * i.y + i.z * i.z);
 		newBase.j = (vector){ 0.0f / len, i.z / len, -i.y / len};
 	}
-	//ASSERT(vecDot(newBase.i, newBase.j) == 0.0f);
+	ASSERT(vecDot(newBase.i, newBase.j) == 0.0f);
 	newBase.k = vecCross(newBase.i, newBase.j);
 	return newBase;
 }
