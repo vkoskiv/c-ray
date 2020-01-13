@@ -22,6 +22,7 @@
 	},
 	"camera": {
 		"FOV": 80.0,
+		"focalDistance": 450.0,
 		"aperture": 0.0,
 		"transforms": [
 			{

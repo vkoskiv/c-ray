@@ -210,6 +210,9 @@ void *renderThread(void *arg) {
 	bool hasHitObject = false;
 	struct timeval timer = {0};
 	
+	float aperture = r->scene->camera->aperture;
+	float focalDistance = r->scene->camera->focalDistance;
+	
 	while (tile.tileNum != -1 && r->state.isRendering) {
 		hasHitObject = false;
 		long totalUsec = 0;
@@ -236,11 +239,11 @@ void *renderThread(void *arg) {
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 					//imaginary plane in front of the origin. startPos is just the camera position.
-					struct vector direction = {(fracX - 0.5 * image->width)
+					struct vector direction = {(fracX - 0.5f * image->width)
 												/ r->scene->camera->focalLength,
-											   (fracY - 0.5 * image->height)
+											   (fracY - 0.5f * image->height)
 												/ r->scene->camera->focalLength,
-												1.0};
+												1.0f};
 					
 					//Normalize direction
 					direction = vecNormalize(direction);
@@ -251,22 +254,23 @@ void *renderThread(void *arg) {
 					//Run camera tranforms on direction vector
 					transformCameraView(r->scene->camera, &direction);
 					
-					//Now handle aperture
-					//FIXME: This is a 'square' aperture
-					float aperture = r->scene->camera->aperture;
-					if (aperture <= 0.0) {
-						incidentRay.start = startPos;
-					} else {
-						float randY = rndFloatRange(-aperture, aperture, &rng);
-						float randX = rndFloatRange(-aperture, aperture, &rng);
-						struct vector randomStart = vecAdd(vecAdd(startPos, vecScale(up, randY)), vecScale(left, randX));
-						
-						incidentRay.start = randomStart;
-					}
-					
+					incidentRay.start = startPos;
 					incidentRay.direction = direction;
 					incidentRay.rayType = rayTypeIncident;
 					incidentRay.remainingInteractions = r->prefs.bounces;
+					
+					//Now handle aperture
+					if (aperture <= 0.0f) {
+						incidentRay.start = startPos;
+					} else {
+						float ft = focalDistance / direction.z;
+						struct vector focusPoint = alongRay(incidentRay, ft);
+						
+						struct coord lensPoint = coordScale(aperture, randomCoordOnUnitDisc(&rng));
+						incidentRay.start = vecAdd(vecAdd(startPos, vecScale(up, lensPoint.y)), vecScale(left, lensPoint.x));
+						incidentRay.direction = vecNormalize(vecSub(focusPoint, incidentRay.start));
+						
+					}
 					
 					//For multi-sample rendering, we keep a running average of color values for each pixel
 					//The next block of code does this

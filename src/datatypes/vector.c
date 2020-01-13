@@ -227,7 +227,7 @@ struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_rand
 						 center.z);
 }
 
-struct coord randomCoordOnDisc(pcg32_random_t *rng) {
+struct coord randomCoordOnUnitDisc(pcg32_random_t *rng) {
 	float r = sqrtf(rndFloat(rng));
 	float theta = rndFloatRange(0, 2*PI, rng);
 	return (struct coord){r * cosf(theta), r * sinf(theta)};

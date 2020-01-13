@@ -734,6 +734,7 @@ int parseDisplay(struct display *d, const cJSON *data) {
 struct camera defaultCamera() {
 	return (struct camera){
 		.FOV = 80.0f,
+		.focalDistance = 10.0f,
 		.aperture = 0.0f
 	};
 }
@@ -741,6 +742,7 @@ struct camera defaultCamera() {
 int parseCamera(struct camera *c, const cJSON *data) {
 	if (!data) *c = defaultCamera();
 	const cJSON *FOV = NULL;
+	const cJSON *focalDistance = NULL;
 	const cJSON *aperture = NULL;
 	const cJSON *transforms = NULL;
 	
@@ -762,6 +764,22 @@ int parseCamera(struct camera *c, const cJSON *data) {
 		}
 	} else {
 		c->FOV = defaultCamera().FOV;
+	}
+	
+	focalDistance = cJSON_GetObjectItem(data, "focalDistance");
+	if (focalDistance) {
+		if (cJSON_IsNumber(focalDistance)) {
+			if (focalDistance->valuedouble >= 0.0) {
+				c->focalDistance = focalDistance->valuedouble;
+			} else {
+				c->focalDistance = 0.0f;
+			}
+		} else {
+			logr(warning, "Invalid focalDistance while parsing camera.\n");
+			return -1;
+		}
+	} else {
+		c->focalDistance = defaultCamera().focalDistance;
 	}
 	
 	aperture = cJSON_GetObjectItem(data, "aperture");
