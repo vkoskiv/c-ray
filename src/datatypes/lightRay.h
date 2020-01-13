@@ -23,7 +23,6 @@ struct lightRay {
 	struct vector start;
 	struct vector direction;
 	enum type rayType;
-	struct material currentMedium;
 	int remainingInteractions; //Reflections or refractions
 };
 
