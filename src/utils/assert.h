@@ -9,7 +9,7 @@
 #pragma once
 
 static void assertFailed(const char *file, const char *func, int line, const char *expr) {
-	printf("ASSERTION FAILED: In %s in function %s on line %i, expression \"%s\"", file, func, line, expr);
+	printf("ASSERTION FAILED: In %s in function %s on line %i, expression \"%s\"\n", file, func, line, expr);
 	abort();
 }
 
@@ -17,7 +17,7 @@ static void assertFailed(const char *file, const char *func, int line, const cha
 	if ((expr)) \
 		{} \
 	else \
-		assertFailed(__FILE__, __FUNCTION__, __LINE__, #expr)
+		assertFailed(__FILE_NAME__, __FUNCTION__, __LINE__, #expr)
 
 #define ASSERT_NOT_REACHED() \
 	assertFailed(__FILE__, __FUNCTION__, __LINE__, "ASSERT_NOT_REACHED")
