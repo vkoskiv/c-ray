@@ -13,9 +13,10 @@
 #include "utils/logging.h"
 
 int main(int argc, char *argv[]) {
-	char *hash = crGitHash(8);
 	crInitTerminal();
+	char *hash = crGitHash(8);
 	logr(info, "C-ray v%s [%s], © 2015-2020 Valtteri Koskivuori\n", crGetVersion(), hash);
+	free(hash);
 	crInitRenderer();
 	char *input;
 	size_t bytes = 0;
@@ -24,14 +25,12 @@ int main(int argc, char *argv[]) {
 	if (!input) return -1;
 	
 	if (crLoadSceneFromBuf(input)) {
-		free(hash);
 		crDestroyRenderer();
 		return -1;
 	}
 	crInitSDL();
 	crRenderSingleFrame();
 	crWriteImage();
-	free(hash);
 	crDestroySDL();
 	crDestroyRenderer();
 	logr(info, "Render finished, exiting.\n");
