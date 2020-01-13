@@ -18,6 +18,7 @@
 #include "utils/assert.h"
 #include "datatypes/texture.h"
 #include "utils/ui.h"
+#include "utils/timer.h"
 
 #define VERSION "0.6.2"
 
@@ -77,8 +78,8 @@ char *crLoadFile(char *filePath, size_t *bytes) {
 	return loadFile(filePath, bytes);
 }
 
-char *crReadStdin() {
-	return readStdin();
+char *crReadStdin(size_t *bytes) {
+	return readStdin(bytes);
 }
 
 void crInitRenderer() {
@@ -86,14 +87,12 @@ void crInitRenderer() {
 	grenderer = newRenderer();
 }
 
-//TODO: Remove
-struct display *crGetDisplay() {
-	return grenderer->mainDisplay;
-}
-
 void crDestroyRenderer() {
 	ASSERT(grenderer);
 	freeRenderer(grenderer);
+	if (currentImage) {
+		freeTexture(currentImage);
+	}
 }
 
 int crLoadSceneFromFile(char *filePath) {
@@ -110,18 +109,7 @@ int crLoadSceneFromFile(char *filePath) {
 }
 
 int crLoadSceneFromBuf(char *buf) {
-	if (loadScene(grenderer, buf) != 0) {
-		return -1;
-	}
-	return 0;
-}
-
-void crSetFileMode() {
-	ASSERT_NOT_REACHED();
-}
-
-enum fileMode crGetFileMode(void) {
-	return grenderer->prefs.fileMode;
+	return loadScene(grenderer, buf);
 }
 
 void crSetRenderOrder(void) {
@@ -213,10 +201,9 @@ bool crGetAntialiasing() {
 }
 
 void crRenderSingleFrame() {
-	time(&grenderer->state.start);
+	startTimer(&grenderer->state.timer);
 	currentImage = renderFrame(grenderer);
-	time(&grenderer->state.stop);
-	printDuration(difftime(grenderer->state.stop, grenderer->state.start));
+	printDuration(getMs(grenderer->state.timer));
 }
 
 //Interactive mode
