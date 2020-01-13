@@ -427,7 +427,7 @@ struct prefs defaultPrefs() {
 	return (struct prefs){
 		.fileMode = saveModeNormal,
 		.tileOrder = renderOrderFromMiddle,
-		.threadCount = 1, //We run getSysCores() for this
+		.threadCount = getSysCores(), //We run getSysCores() for this
 		.sampleCount = 25,
 		.bounces = 20,
 		.tileWidth = 32,
