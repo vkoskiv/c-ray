@@ -15,19 +15,19 @@ char *crGetVersion(void); //The current semantic version
 
 char *crGitHash(int chars); //The current git hash of the build
 
-void crInitTerminal(void);
+void crInitTerminal(void); //Disable output buffering and configure Windows terminals
+
 void crInitSDL(void);
 void crDestroySDL(void);
 
 struct renderInfo;
 struct texture;
-void crWriteImage(void);
+void crWriteImage(void); //Write out the current image
 
 char *crLoadFile(char *filePath, size_t *bytes);
-char *crReadStdin(void);
+char *crReadStdin(size_t *bytes);
 
 void crInitRenderer(void);
-struct display *crGetDisplay(void);
 void crDestroyRenderer(void);
 
 int crLoadSceneFromFile(char *filePath);

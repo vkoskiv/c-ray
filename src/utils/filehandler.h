@@ -32,7 +32,7 @@ char *getFileName(char *input);
 /// @param input Full path
 char *getFilePath(char *input);
 
-char *readStdin(void);
+char *readStdin(size_t *bytes);
 
 //FIXME: Move this to a better place
 bool stringEquals(const char *s1, const char *s2);
@@ -41,4 +41,4 @@ bool stringContains(const char *haystack, const char *needle);
 
 void copyString(const char *source, char **destination);
 
-int getFileSize(char *fileName);
+size_t getFileSize(char *fileName);

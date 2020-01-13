@@ -32,7 +32,6 @@
 #include <time.h>
 #include <stdbool.h>
 #include <math.h>
-#include <signal.h>
 #include <string.h>
 #include <float.h>
 

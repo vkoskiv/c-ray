@@ -102,9 +102,9 @@ struct texture *renderFrame(struct renderer *r) {
 				completedSamples += r->state.threadStates[t].totalSamples;
 			}
 			uint64_t remainingTileSamples = totalTileSamples - completedSamples;
-			uint64_t msecTillFinished = 0.001 * (timePerSingleTileSample * remainingTileSamples);
+			uint64_t msecTillFinished = 0.001f * (timePerSingleTileSample * remainingTileSamples);
 			float usPerRay = finalAvg / (r->prefs.tileHeight * r->prefs.tileWidth);
-			double sps = (1000000.0f/usPerRay) * r->prefs.threadCount;
+			float sps = (1000000.0f/usPerRay) * r->prefs.threadCount;
 			char rem[64];
 			smartTime((msecTillFinished) / r->prefs.threadCount, rem);
 			float completion = ((float)completedSamples / totalTileSamples) * 100;
@@ -114,7 +114,7 @@ struct texture *renderFrame(struct renderer *r) {
 				 completion,
 				 usPerRay,
 				 rem,
-				 0.000001*sps,
+				 0.000001f * sps,
 				 r->state.threadStates[0].paused ? "[PAUSED]" : "");
 			pauser = 0;
 		}
@@ -228,7 +228,7 @@ void *renderThread(void *arg) {
 					float fracY = (float)y;
 					
 					//A cheap 'antialiasing' of sorts. The more samples, the better this works
-					float jitter = 0.25;
+					float jitter = 0.25f;
 					if (r->prefs.antialiasing) {
 						fracX = rndFloatRange(fracX - jitter, fracX + jitter, &rng);
 						fracY = rndFloatRange(fracY - jitter, fracY + jitter, &rng);
@@ -267,7 +267,6 @@ void *renderThread(void *arg) {
 					incidentRay.direction = direction;
 					incidentRay.rayType = rayTypeIncident;
 					incidentRay.remainingInteractions = r->prefs.bounces;
-					incidentRay.currentMedium.IOR = AIR_IOR;
 					
 					//For multi-sample rendering, we keep a running average of color values for each pixel
 					//The next block of code does this
@@ -342,8 +341,8 @@ struct renderer *newRenderer() {
 		allocVertexBuffer();
 	}
 	
-#ifdef UI_ENABLED
 	r->mainDisplay = calloc(1, sizeof(struct display));
+#ifdef UI_ENABLED
 	r->mainDisplay->window = NULL;
 	r->mainDisplay->renderer = NULL;
 	r->mainDisplay->texture = NULL;

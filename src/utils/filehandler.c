@@ -26,7 +26,7 @@
 #endif
 
 //Prototypes for internal functions
-int getFileSize(char *fileName);
+size_t getFileSize(char *fileName);
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
 
 void encodeBMPFromArray(const char *filename, unsigned char *imgData, int width, int height) {
@@ -219,7 +219,7 @@ char *getFilePath(char *input) {
 
 #define chunksize 1024
 //Get scene data from stdin and return a pointer to it
-char *readStdin() {
+char *readStdin(size_t *bytes) {
 	checkBuf();
 	
 	char chunk[chunksize];
@@ -249,8 +249,7 @@ char *readStdin() {
 		return NULL;
 	}
 	
-	logr(info, "%zi bytes of input JSON loaded from stdin, parsing.\n", bufSize-1);
-	
+	if (bytes) *bytes = bufSize - 1;
 	return buf;
 }
 
@@ -384,12 +383,11 @@ void copyString(const char *source, char **destination) {
 	strcpy(*destination, source);
 }
 
-int getFileSize(char *fileName) {
-	FILE *file;
-	file = fopen(fileName, "r");
+size_t getFileSize(char *fileName) {
+	FILE *file = fopen(fileName, "r");
 	if (!file) return 0;
 	fseek(file, 0L, SEEK_END);
-	int size = (int)ftell(file);
+	size_t size = ftell(file);
 	fclose(file);
 	return size;
 }

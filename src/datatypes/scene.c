@@ -86,7 +86,7 @@ int loadScene(struct renderer *r, char *input) {
 			return -1;
 			break;
 		case -2:
-			logr(warning, "JSON parser failed.\n");
+			//JSON parser failed
 			return -1;
 			break;
 		default:
