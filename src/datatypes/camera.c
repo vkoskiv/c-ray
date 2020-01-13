@@ -21,7 +21,7 @@
  */
 void transformCameraView(struct camera *cam, struct vector *direction) {
 	for (int i = 1; i < cam->transformCount; i++) {
-		transformVector(direction, cam->transforms[i].A);
+		transformDirection(direction, cam->transforms[i].A);
 	}
 }
 
@@ -33,14 +33,15 @@ void computeFocalLength(struct camera *camera, int width) {
 }
 
 void initCamera(struct camera *cam) {
-	cam->transforms = calloc(1, sizeof(struct transform));
-	cam->pos = vecWithPos(0, 0, 0);
-	cam->up = vecWithPos(0, 1, 0);
-	cam->left = vecWithPos(-1, 0, 0);
+	if (!cam->transforms) cam->transforms = calloc(1, sizeof(struct transform));
+	cam->pos =  vecWithPos(0.0f, 0.0f, 0.0f);
+	cam->up =   vecWithPos(0.0f, 1.0f, 0.0f);
+	cam->left = vecWithPos(-1.0f, 0.0f, 0.0f);
 }
 
 //TODO: Fix so the translate transform is always performed correctly no matter what order transforms are given in
 void transformCameraIntoView(struct camera *cam) {
+	initCamera(cam);
 	//Compute transforms for position (place the camera in the scene)
 	transformVector(&cam->pos, cam->transforms[0].A);
 	
