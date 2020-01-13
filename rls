@@ -1,0 +1,3 @@
+#!/usr/local/bin/fish
+
+cmake . -DCMAKE_BUILD_TYPE=Release; and make
