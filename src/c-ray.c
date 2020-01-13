@@ -38,6 +38,20 @@ void crInitTerminal() {
 	initTerminal();
 }
 
+void crInitSDL() {
+#ifdef UI_ENABLED
+	ASSERT(!grenderer->mainDisplay->window);
+	initSDL(grenderer->mainDisplay);
+#endif
+}
+
+void crDestroySDL() {
+#ifdef UI_ENABLED
+	ASSERT(grenderer->mainDisplay->window);
+	freeDisplay(grenderer->mainDisplay);
+#endif
+}
+
 void crWriteImage() {
 	char *hash = gitHash(8);
 	char buf[64];

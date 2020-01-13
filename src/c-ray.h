@@ -16,6 +16,8 @@ char *crGetVersion(void); //The current semantic version
 char *crGitHash(int chars); //The current git hash of the build
 
 void crInitTerminal(void);
+void crInitSDL(void);
+void crDestroySDL(void);
 
 struct renderInfo;
 struct texture;

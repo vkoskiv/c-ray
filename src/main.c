@@ -10,8 +10,6 @@
 #include "main.h"
 
 #include "c-ray.h"
-
-#include "utils/ui.h"
 #include "utils/logging.h"
 
 int main(int argc, char *argv[]) {
@@ -30,10 +28,11 @@ int main(int argc, char *argv[]) {
 		crDestroyRenderer();
 		return -1;
 	}
-	initSDL(crGetDisplay());
+	crInitSDL();
 	crRenderSingleFrame();
 	crWriteImage();
 	free(hash);
+	crDestroySDL();
 	crDestroyRenderer();
 	logr(info, "Render finished, exiting.\n");
 	return 0;
