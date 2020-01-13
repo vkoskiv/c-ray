@@ -425,7 +425,6 @@ struct transform *parseTransforms(const cJSON *data) {
 
 struct prefs defaultPrefs() {
 	return (struct prefs){
-		.fileMode = saveModeNormal,
 		.tileOrder = renderOrderFromMiddle,
 		.threadCount = getSysCores(), //We run getSysCores() for this
 		.sampleCount = 25,

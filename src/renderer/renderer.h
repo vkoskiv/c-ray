@@ -56,7 +56,7 @@ struct state {
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
 	struct threadState *threadStates; //Info about threads
-	time_t start, stop;
+	struct timeval timer;
 #ifdef WINDOWS
 	HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
 #else
@@ -67,7 +67,6 @@ struct state {
 
 /// Preferences data (Set by user)
 struct prefs {
-	enum fileMode fileMode;
 	enum renderOrder tileOrder;
 	
 	int threadCount; //Amount of threads to render with

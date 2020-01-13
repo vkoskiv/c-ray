@@ -40,15 +40,21 @@ void crInitTerminal() {
 
 void crWriteImage() {
 	char *hash = gitHash(8);
+	char buf[64];
+	smartTime(getMs(grenderer->state.timer), buf);
 	if (currentImage) {
-		writeImage(currentImage, grenderer->prefs.fileMode, (struct renderInfo){
-			.bounces = crGetBounces(),
-			.samples = crGetSampleCount(),
-			.crayVersion = crGetVersion(),
-			.gitHash = hash,
-			.renderTimeSeconds = difftime(grenderer->state.stop, grenderer->state.start),
-			.threadCount = crGetThreadCount()
-		});
+		if (!grenderer->state.renderAborted) {
+			writeImage(currentImage, (struct renderInfo){
+				.bounces = crGetBounces(),
+				.samples = crGetSampleCount(),
+				.crayVersion = crGetVersion(),
+				.gitHash = hash,
+				.renderTime = buf,
+				.threadCount = crGetThreadCount()
+			});
+		} else {
+			logr(info, "Abort pressed, image won't be saved.\n");
+		}
 	}
 	free(hash);
 }

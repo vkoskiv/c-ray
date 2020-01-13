@@ -325,12 +325,11 @@ void *renderThread(void *arg) {
 	tinfo->currentTileNum = -1;
 	return 0;
 }
-	
+
 struct renderer *newRenderer() {
 	struct renderer *r = calloc(1, sizeof(struct renderer));
 	r->state.avgTileTime = (time_t)1;
 	r->state.timeSampleCount = 1;
-	r->prefs.fileMode = saveModeNormal;
 	
 	//TODO: Do we need all these heap allocs?
 	r->scene = calloc(1, sizeof(struct world));

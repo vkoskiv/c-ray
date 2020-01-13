@@ -122,7 +122,6 @@ void printDuration(float time) {
 
 void getKeyboardInput(struct renderer *r) {
 	if (aborted) {
-		r->prefs.fileMode = saveModeNone;
 		r->state.renderAborted = true;
 	}
 	//Check for CTRL-C
@@ -140,7 +139,6 @@ void getKeyboardInput(struct renderer *r) {
 			if (event.key.keysym.sym == SDLK_x) {
 				printf("\n");
 				logr(info, "Aborting render without saving\n");
-				r->prefs.fileMode = saveModeNone;
 				r->state.renderAborted = true;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
@@ -248,7 +246,6 @@ void updateFrames(struct renderer *r) {
 
 void drawWindow(struct renderer *r, struct texture *t) {
 	if (aborted) {
-		r->prefs.fileMode = saveModeNone;
 		r->state.renderAborted = true;
 	}
 #ifdef UI_ENABLED

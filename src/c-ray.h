@@ -35,9 +35,6 @@ void crLoadMeshFromFile(char *filePath);
 void crLoadMeshFromBuf(char *buf);
 
 //Preferences
-void crSetFileMode(void);
-enum fileMode crGetFileMode(void);
-
 void crSetRenderOrder(void);
 void crGetRenderOrder(void);
 

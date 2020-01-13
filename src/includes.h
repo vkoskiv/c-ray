@@ -47,14 +47,6 @@
 //PCG rng
 #include "./libraries/pcg_basic.h"
 
-enum fileMode {
-	loadModeNormal,//Load scene def normally
-	loadModeTarga, //Load previous render state
-	saveModeNormal,//Save image
-	saveModeTarga, //Save current render state
-	saveModeNone   //Don't save
-};
-
 enum fileType {
 	bmp,
 	png,

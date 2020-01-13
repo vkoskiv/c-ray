@@ -96,8 +96,8 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	sprintf(samples, "%i", imginfo.samples);
 	char bounces[16];
 	sprintf(bounces, "%i", imginfo.bounces);
-	char seconds[16];
-	sprintf(seconds, "%i", imginfo.renderTimeSeconds);
+	char seconds[64];
+	sprintf(seconds, "%s", imginfo.renderTime);
 	char threads[16];
 	sprintf(threads, "%i", imginfo.threadCount);
 #ifndef WINDOWS
@@ -111,7 +111,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	lodepng_add_text(&info, "C-ray Source", "https://github.com/vkoskiv/c-ray");
 	lodepng_add_text(&info, "C-ray Samples", samples);
 	lodepng_add_text(&info, "C-ray Bounces", bounces);
-	lodepng_add_text(&info, "C-ray RenderTime (seconds)", seconds);
+	lodepng_add_text(&info, "C-ray RenderTime", seconds);
 	lodepng_add_text(&info, "C-ray Threads", threads);
 #ifndef WINDOWS
 	lodepng_add_text(&info, "C-ray SysInfo", sysinfo);
@@ -295,29 +295,19 @@ void printFileSize(char *fileName) {
 	}
 }
 
-void writeImage(struct texture *image, enum fileMode mode, struct renderInfo imginfo) {
-	switch (mode) {
-		case saveModeNormal: {
-			//Save image data to a file
-			char *buf = NULL;
-			if (image->fileType == bmp){
-				asprintf(&buf, "%s%s_%04d.bmp", image->filePath, image->fileName, image->count);
-				encodeBMPFromArray(buf, image->byte_data, image->width, image->height);
-			} else if (image->fileType == png){
-				asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
-				encodePNGFromArray(buf, image->byte_data, image->width, image->height, imginfo);
-			}
-			logr(info, "Saving result in \"%s\"\n", buf);
-			printFileSize(buf);
-			free(buf);
-		}
-		break;
-		case saveModeNone:
-			logr(info, "Abort pressed, image won't be saved.\n");
-			break;
-		default:
-			break;
+void writeImage(struct texture *image, struct renderInfo imginfo) {
+	//Save image data to a file
+	char *buf = NULL;
+	if (image->fileType == bmp){
+		asprintf(&buf, "%s%s_%04d.bmp", image->filePath, image->fileName, image->count);
+		encodeBMPFromArray(buf, image->byte_data, image->width, image->height);
+	} else if (image->fileType == png){
+		asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
+		encodePNGFromArray(buf, image->byte_data, image->width, image->height, imginfo);
 	}
+	logr(info, "Saving result in \"%s\"\n", buf);
+	printFileSize(buf);
+	free(buf);
 	
 }
 
