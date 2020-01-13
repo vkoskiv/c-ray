@@ -108,16 +108,10 @@ void freeDisplay(struct display *disp) {
 #endif
 }
 
-void printDuration(float time) {
+void printDuration(uint64_t ms) {
 	logr(info, "Finished render in ");
-	if (time <= 60) {
-		printf("%.0f seconds.\n", time);
-	} else if (time <= 3600) {
-		printf("%.0f minute", time/60);
-		if (time/60 > 1) printf("s. (%.0f seconds)\n", time); else printf(". (%.0f seconds)\n", time);
-	} else {
-		printf("%.0f hours (%.0f min).\n", (time/60)/60, time/60);
-	}
+	printSmartTime(ms);
+	printf("                     \n");
 }
 
 void getKeyboardInput(struct renderer *r) {

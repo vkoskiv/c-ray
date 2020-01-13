@@ -35,6 +35,6 @@ struct display {
 int initSDL(struct display *d);
 void freeDisplay(struct display *disp);
 
-void printDuration(float time);
+void printDuration(uint64_t ms);
 void getKeyboardInput(struct renderer *r);
 void drawWindow(struct renderer *r, struct texture *t);
