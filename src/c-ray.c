@@ -82,6 +82,7 @@ char *crReadStdin() {
 }
 
 void crInitRenderer() {
+	ASSERT(!grenderer);
 	grenderer = newRenderer();
 }
 
@@ -91,6 +92,7 @@ struct display *crGetDisplay() {
 }
 
 void crDestroyRenderer() {
+	ASSERT(grenderer);
 	freeRenderer(grenderer);
 }
 
