@@ -10,9 +10,10 @@
 #include "ui.h"
 
 #include "../renderer/renderer.h"
-#include "../utils/logging.h"
+#include "logging.h"
 #include "../datatypes/tile.h"
 #include "../datatypes/texture.h"
+#include "../datatypes/color.h"
 
 //Signal handling
 void (*signal(int signo, void (*func )(int)))(int);
@@ -90,38 +91,31 @@ int initSDL(struct display *d) {
 	return 0;
 }
 
-void freeDisplay(struct display *disp) {
+void freeDisplay(struct display *d) {
 #ifdef UI_ENABLED
-	if (disp->window) {
-		SDL_DestroyWindow(disp->window);
+	if (d->window) {
+		SDL_DestroyWindow(d->window);
 	}
-	if (disp->renderer) {
-		SDL_DestroyRenderer(disp->renderer);
+	if (d->renderer) {
+		SDL_DestroyRenderer(d->renderer);
 	}
-	if (disp->texture) {
-		SDL_DestroyTexture(disp->texture);
+	if (d->texture) {
+		SDL_DestroyTexture(d->texture);
 	}
-	if (disp->overlayTexture) {
-		SDL_DestroyTexture(disp->overlayTexture);
+	if (d->overlayTexture) {
+		SDL_DestroyTexture(d->overlayTexture);
 	}
 #endif
 }
 
-void printDuration(float time) {
+void printDuration(uint64_t ms) {
 	logr(info, "Finished render in ");
-	if (time <= 60) {
-		printf("%.0f seconds.\n", time);
-	} else if (time <= 3600) {
-		printf("%.0f minute", time/60);
-		if (time/60 > 1) printf("s. (%.0f seconds)\n", time); else printf(". (%.0f seconds)\n", time);
-	} else {
-		printf("%.0f hours (%.0f min).\n", (time/60)/60, time/60);
-	}
+	printSmartTime(ms);
+	printf("                     \n");
 }
 
 void getKeyboardInput(struct renderer *r) {
 	if (aborted) {
-		r->prefs.fileMode = saveModeNone;
 		r->state.renderAborted = true;
 	}
 	//Check for CTRL-C
@@ -139,7 +133,6 @@ void getKeyboardInput(struct renderer *r) {
 			if (event.key.keysym.sym == SDLK_x) {
 				printf("\n");
 				logr(info, "Aborting render without saving\n");
-				r->prefs.fileMode = saveModeNone;
 				r->state.renderAborted = true;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
@@ -245,17 +238,16 @@ void updateFrames(struct renderer *r) {
 	drawProgressBars(r);
 }
 
-void drawWindow(struct renderer *r) {
+void drawWindow(struct renderer *r, struct texture *t) {
 	if (aborted) {
-		r->prefs.fileMode = saveModeNone;
 		r->state.renderAborted = true;
 	}
 #ifdef UI_ENABLED
 	//Render frames
 	updateFrames(r);
 	//Update image data
-	SDL_UpdateTexture(r->mainDisplay->texture, NULL, r->state.image->byte_data, r->state.image->width * 3);
-	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer->byte_data, r->state.image->width * 4);
+	SDL_UpdateTexture(r->mainDisplay->texture, NULL, t->byte_data, t->width * 3);
+	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer->byte_data, t->width * 4);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
 	SDL_RenderPresent(r->mainDisplay->renderer);

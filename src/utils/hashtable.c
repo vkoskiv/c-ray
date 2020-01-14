@@ -10,6 +10,7 @@
 #include "hashtable.h"
 
 #include "../utils/logging.h"
+#include "../datatypes/vector.h"
 
 // Fowler-Noll-Vo hash function
 uint64_t hashDataToU64(const char *data, size_t size) {

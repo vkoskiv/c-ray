@@ -76,7 +76,7 @@ struct vector getRandomVecOnRadius(struct vector center, float radius, pcg32_ran
 
 struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_random_t *rng);
 
-struct coord randomCoordOnDisc(pcg32_random_t *rng);
+struct coord randomCoordOnUnitDisc(pcg32_random_t *rng);
 
 float rndFloatRange(float min, float max, pcg32_random_t *rng);
 

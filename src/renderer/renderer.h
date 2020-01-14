@@ -31,6 +31,7 @@ struct threadState {
 	long avgSampleTime; //Single tile pass
 	
 	struct renderer *r;
+	struct texture *output;
 };
 
 enum renderOrder {
@@ -43,7 +44,6 @@ enum renderOrder {
 
 /// Renderer state data
 struct state {
-	struct texture *image; //Output image
 	struct renderTile *renderTiles; //Array of renderTiles to render
 	int tileCount; //Total amount of render tiles
 	int finishedTileCount;
@@ -56,7 +56,7 @@ struct state {
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
 	struct threadState *threadStates; //Info about threads
-	
+	struct timeval timer;
 #ifdef WINDOWS
 	HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
 #else
@@ -67,7 +67,6 @@ struct state {
 
 /// Preferences data (Set by user)
 struct prefs {
-	enum fileMode fileMode;
 	enum renderOrder tileOrder;
 	
 	int threadCount; //Amount of threads to render with
@@ -76,6 +75,14 @@ struct prefs {
 	int bounces;
 	int tileWidth;
 	int tileHeight;
+	
+	//Output prefs
+	int imageWidth;
+	int imageHeight;
+	char *imgFilePath;
+	char *imgFileName;
+	int imgCount;
+	enum fileType imgType;
 	
 	bool antialiasing;
 };
@@ -106,7 +113,7 @@ void *renderThread(void *arg);
 struct renderer *newRenderer(void);
 
 //Start main render loop
-void render(struct renderer *r);
+struct texture *renderFrame(struct renderer *r);
 
 //Free renderer allocations
 void freeRenderer(struct renderer *r);

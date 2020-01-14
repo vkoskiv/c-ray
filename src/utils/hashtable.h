@@ -8,6 +8,8 @@
 
 #pragma once
 
+struct vector;
+
 struct bucket {
 	bool used;
 	char *key;

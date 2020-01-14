@@ -15,6 +15,9 @@
 #include "../acceleration/kdtree.h"
 #include "../datatypes/texture.h"
 #include "../datatypes/vertexbuffer.h"
+#include "../datatypes/sphere.h"
+#include "../datatypes/poly.h"
+#include "../datatypes/mesh.h"
 
 struct hitRecord getClosestIsect(struct lightRay *incidentRay, struct world *scene);
 struct color getBackground(struct lightRay *incidentRay, struct world *scene);
@@ -95,7 +98,6 @@ struct hitRecord getClosestIsect(struct lightRay *incidentRay, struct world *sce
 	struct hitRecord isect;
 	isect.distance = 20000.0;
 	isect.incident = *incidentRay;
-	isect.start = incidentRay->currentMedium;
 	isect.didIntersect = false;
 	for (int i = 0; i < scene->sphereCount; i++) {
 		if (rayIntersectsWithSphere(&scene->spheres[i], incidentRay, &isect)) {

@@ -9,6 +9,11 @@
 #pragma once
 
 struct renderer;
+struct texture;
+
+#ifdef UI_ENABLED
+	#include "SDL.h"
+#endif
 
 //FIXME: This should be in datatypes
 struct display {
@@ -28,8 +33,8 @@ struct display {
 };
 
 int initSDL(struct display *d);
-void freeDisplay(struct display *disp);
+void freeDisplay(struct display *d);
 
-void printDuration(float time);
+void printDuration(uint64_t ms);
 void getKeyboardInput(struct renderer *r);
-void drawWindow(struct renderer *r);
+void drawWindow(struct renderer *r, struct texture *t);

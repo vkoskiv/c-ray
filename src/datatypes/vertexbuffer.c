@@ -16,6 +16,10 @@
 
 #include "../includes.h"
 
+#include "poly.h"
+#include "vector.h"
+#include "../utils/assert.h"
+
 struct vector *vertexArray;
 int vertexCount;
 struct vector *normalArray;
@@ -39,6 +43,7 @@ void freeVertexBuffer() {
 }
 
 void allocVertexBuffer() {
+	ASSERT(!vertexArray);
 	vertexArray = calloc(1, sizeof(struct vector));
 	normalArray = calloc(1, sizeof(struct vector));
 	textureArray = calloc(1, sizeof(struct coord));

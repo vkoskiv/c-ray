@@ -10,8 +10,9 @@
 #include "material.h"
 
 #include "../renderer/pathtrace.h"
-#include "../datatypes/vertexbuffer.h"
-#include "../datatypes/texture.h"
+#include "vertexbuffer.h"
+#include "texture.h"
+#include "poly.h"
 
 //FIXME: Temporary, eventually support full OBJ spec
 struct material newMaterial(struct color diffuse, float reflectivity) {
@@ -235,7 +236,7 @@ bool lambertianBSDF(struct hitRecord *isect, struct lightRay *ray, struct color 
 	struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
 	struct vector rand = randomInUnitSphere(rng);
 	struct vector scatterDir = vecSub(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
-	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered, isect->end, 0});
+	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered, 0});
 	*attenuation = diffuseColor(isect);
 	return true;
 }

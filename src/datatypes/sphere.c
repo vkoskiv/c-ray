@@ -10,6 +10,7 @@
 #include "sphere.h"
 
 #include "../renderer/pathtrace.h"
+#include "lightRay.h"
 
 struct sphere newSphere(struct vector pos, float radius, struct material material) {
 	return (struct sphere){pos, radius, material};

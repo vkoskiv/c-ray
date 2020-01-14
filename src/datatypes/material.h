@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "color.h"
+
 /*
  From: https://blenderartists.org/forum/showthread.php?71202-Material-IOR-Value-reference
  'Air': 1.000

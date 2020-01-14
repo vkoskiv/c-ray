@@ -9,6 +9,7 @@
 #include "../includes.h"
 
 #include "texture.h"
+#include "color.h"
 
 //General-purpose blit function
 void blit(struct texture *t, struct color c, unsigned x, unsigned y) {
@@ -91,6 +92,7 @@ void allocTextureBuffer(struct texture *t, enum precision p, int width, int heig
 	t->channels = channels;
 	if (channels > 3) t->hasAlpha = true;
 	
+	//FIXME: Error checking
 	switch (t->precision) {
 		case char_p:
 			t->byte_data = calloc(channels * width * height, sizeof(unsigned char));

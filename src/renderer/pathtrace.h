@@ -8,6 +8,10 @@
 
 #pragma once
 
+#include "../datatypes/vector.h"
+#include "../datatypes/lightRay.h"
+#include "../datatypes/material.h"
+
 struct world;
 
 /**
@@ -26,7 +30,6 @@ enum currentType {
  */
 struct hitRecord {
 	struct lightRay incident;			//Light ray that encountered this intersection
-	struct material start;			//Material of where that ray originates
 	struct material end;			//Material of the intersected object
 	struct vector hitPoint;			//Hit point vector in 3D space
 	struct vector surfaceNormal;	//Surface normal at that point of intersection

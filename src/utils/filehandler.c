@@ -16,6 +16,8 @@
 #include "../utils/logging.h"
 #include "../datatypes/texture.h"
 
+#include "../libraries/lodepng.h"
+
 #include <limits.h> //For SSIZE_MAX
 
 #ifndef WINDOWS
@@ -24,7 +26,7 @@
 #endif
 
 //Prototypes for internal functions
-int getFileSize(char *fileName);
+size_t getFileSize(char *fileName);
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
 
 void encodeBMPFromArray(const char *filename, unsigned char *imgData, int width, int height) {
@@ -94,8 +96,8 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	sprintf(samples, "%i", imginfo.samples);
 	char bounces[16];
 	sprintf(bounces, "%i", imginfo.bounces);
-	char seconds[16];
-	sprintf(seconds, "%i", imginfo.renderTimeSeconds);
+	char seconds[64];
+	sprintf(seconds, "%s", imginfo.renderTime);
 	char threads[16];
 	sprintf(threads, "%i", imginfo.threadCount);
 #ifndef WINDOWS
@@ -109,7 +111,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	lodepng_add_text(&info, "C-ray Source", "https://github.com/vkoskiv/c-ray");
 	lodepng_add_text(&info, "C-ray Samples", samples);
 	lodepng_add_text(&info, "C-ray Bounces", bounces);
-	lodepng_add_text(&info, "C-ray RenderTime (seconds)", seconds);
+	lodepng_add_text(&info, "C-ray RenderTime", seconds);
 	lodepng_add_text(&info, "C-ray Threads", threads);
 #ifndef WINDOWS
 	lodepng_add_text(&info, "C-ray SysInfo", sysinfo);
@@ -217,7 +219,7 @@ char *getFilePath(char *input) {
 
 #define chunksize 1024
 //Get scene data from stdin and return a pointer to it
-char *readStdin() {
+char *readStdin(size_t *bytes) {
 	checkBuf();
 	
 	char chunk[chunksize];
@@ -247,8 +249,7 @@ char *readStdin() {
 		return NULL;
 	}
 	
-	logr(info, "%zi bytes of input JSON loaded from stdin, parsing.\n", bufSize-1);
-	
+	if (bytes) *bytes = bufSize - 1;
 	return buf;
 }
 
@@ -293,29 +294,19 @@ void printFileSize(char *fileName) {
 	}
 }
 
-void writeImage(struct texture *image, enum fileMode mode, struct renderInfo imginfo) {
-	switch (mode) {
-		case saveModeNormal: {
-			//Save image data to a file
-			char *buf = NULL;
-			if (image->fileType == bmp){
-				asprintf(&buf, "%s%s_%04d.bmp", image->filePath, image->fileName, image->count);
-				encodeBMPFromArray(buf, image->byte_data, image->width, image->height);
-			} else if (image->fileType == png){
-				asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
-				encodePNGFromArray(buf, image->byte_data, image->width, image->height, imginfo);
-			}
-			logr(info, "Saving result in \"%s\"\n", buf);
-			printFileSize(buf);
-			free(buf);
-		}
-		break;
-		case saveModeNone:
-			logr(info, "Abort pressed, image won't be saved.\n");
-			break;
-		default:
-			break;
+void writeImage(struct texture *image, struct renderInfo imginfo) {
+	//Save image data to a file
+	char *buf = NULL;
+	if (image->fileType == bmp){
+		asprintf(&buf, "%s%s_%04d.bmp", image->filePath, image->fileName, image->count);
+		encodeBMPFromArray(buf, image->byte_data, image->width, image->height);
+	} else if (image->fileType == png){
+		asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
+		encodePNGFromArray(buf, image->byte_data, image->width, image->height, imginfo);
 	}
+	logr(info, "Saving result in \"%s\"\n", buf);
+	printFileSize(buf);
+	free(buf);
 	
 }
 
@@ -392,12 +383,11 @@ void copyString(const char *source, char **destination) {
 	strcpy(*destination, source);
 }
 
-int getFileSize(char *fileName) {
-	FILE *file;
-	file = fopen(fileName, "r");
+size_t getFileSize(char *fileName) {
+	FILE *file = fopen(fileName, "r");
 	if (!file) return 0;
 	fseek(file, 0L, SEEK_END);
-	int size = (int)ftell(file);
+	size_t size = ftell(file);
 	fclose(file);
 	return size;
 }

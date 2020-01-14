@@ -6,13 +6,6 @@
 //  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
-enum fileType {
-	bmp,
-	png,
-	hdr,
-	buffer
-};
-
 struct dimensions {
 	int height;
 	int width;
@@ -31,7 +24,7 @@ enum precision {
 struct renderInfo {
 	int samples;
 	int bounces;
-	int renderTimeSeconds;
+	char *renderTime;
 	int threadCount;
 	char *arch;
 	char *crayVersion;

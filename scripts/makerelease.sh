@@ -17,7 +17,7 @@ elif [[ "$unamestr" == 'FreeBSD' ]]; then
 	platform='freebsd'
 fi
 
-verstring="v$(grep '#define VERSION' src/main.c | cut -d \" -f2)"
+verstring="v$(grep '#define VERSION' src/c-ray.c | cut -d \" -f2)"
 
 cmake . -DNO_SDL2=True -DCMAKE_BUILD_TYPE=Release
 make

@@ -18,17 +18,41 @@
 #include "../utils/timer.h"
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
+#include "../utils/filehandler.h"
+#include "../datatypes/mesh.h"
+#include "../datatypes/sphere.h"
+#include "../datatypes/vertexbuffer.h"
 
 //Main thread loop speeds
 #define paused_msec 100
 #define active_msec  16
 
+//If a tile has completed this many samples without
+//hitting anything but the ambient/hdr background,
+//we can pretty safely just bail out and go render
+//other parts of the image.
+#define no_mesh_bailout_threshold 25
+
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
-void render(struct renderer *r) {
-	logr(info, "Starting C-ray renderer for frame %i\n", r->state.image->count);
+struct texture *renderFrame(struct renderer *r) {
 	
-	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->state.image->width, KNRM, KWHT, r->state.image->height, KNRM);
+	struct texture *output = newTexture();
+	allocTextureBuffer(output, char_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
+	output->fileType = r->prefs.imgType;
+	copyString(r->prefs.imgFileName, &output->fileName);
+	copyString(r->prefs.imgFilePath, &output->filePath);
+	
+	//Set a dark gray background for the render preview
+	for (unsigned x = 0; x < r->prefs.imageWidth; x++) {
+		for (unsigned y = 0; y < r->prefs.imageHeight; y++) {
+			blit(output, backgroundColor, x, y);
+		}
+	}
+	
+	logr(info, "Starting C-ray renderer for frame %i\n", r->prefs.imgCount);
+	
+	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->prefs.imageWidth, KNRM, KWHT, r->prefs.imageHeight, KNRM);
 	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
 	logr(info, "Rendering with %s%d%s%s thread%s",
 		 KRED,
@@ -58,7 +82,7 @@ void render(struct renderer *r) {
 		getKeyboardInput(r);
 		
 		if (!r->state.threadStates[0].paused) {
-			drawWindow(r);
+			drawWindow(r, output);
 			for (int t = 0; t < r->prefs.threadCount; t++) {
 				avgSampleTime += r->state.threadStates[t].avgSampleTime;
 			}
@@ -78,9 +102,9 @@ void render(struct renderer *r) {
 				completedSamples += r->state.threadStates[t].totalSamples;
 			}
 			uint64_t remainingTileSamples = totalTileSamples - completedSamples;
-			uint64_t msecTillFinished = 0.001 * (timePerSingleTileSample * remainingTileSamples);
+			uint64_t msecTillFinished = 0.001f * (timePerSingleTileSample * remainingTileSamples);
 			float usPerRay = finalAvg / (r->prefs.tileHeight * r->prefs.tileWidth);
-			double sps = (1000000.0f/usPerRay) * r->prefs.threadCount;
+			float sps = (1000000.0f/usPerRay) * r->prefs.threadCount;
 			char rem[64];
 			smartTime((msecTillFinished) / r->prefs.threadCount, rem);
 			float completion = ((float)completedSamples / totalTileSamples) * 100;
@@ -90,7 +114,7 @@ void render(struct renderer *r) {
 				 completion,
 				 usPerRay,
 				 rem,
-				 0.000001*sps,
+				 0.000001f * sps,
 				 r->state.threadStates[0].paused ? "[PAUSED]" : "");
 			pauser = 0;
 		}
@@ -103,6 +127,7 @@ void render(struct renderer *r) {
 				r->state.threadStates[t].thread_num = t;
 				r->state.threadStates[t].threadComplete = false;
 				r->state.threadStates[t].r = r;
+				r->state.threadStates[t].output = output;
 				r->state.activeThreads++;
 #ifdef WINDOWS
 				DWORD threadId;
@@ -150,6 +175,7 @@ void render(struct renderer *r) {
 		}
 #endif
 	}
+	return output;
 }
 
 uint64_t hash(uint64_t x) {
@@ -174,6 +200,7 @@ void *renderThread(void *arg) {
 	struct threadState *tinfo = (struct threadState*)arg;
 	
 	struct renderer *r = tinfo->r;
+	struct texture *image = tinfo->output;
 	pcg32_random_t rng;
 	
 	//First time setup for each thread
@@ -182,6 +209,9 @@ void *renderThread(void *arg) {
 	
 	bool hasHitObject = false;
 	struct timeval timer = {0};
+	
+	float aperture = r->scene->camera->aperture;
+	float focalDistance = r->scene->camera->focalDistance;
 	
 	while (tile.tileNum != -1 && r->state.isRendering) {
 		hasHitObject = false;
@@ -193,7 +223,7 @@ void *renderThread(void *arg) {
 			for (int y = (int)tile.end.y; y > (int)tile.begin.y; y--) {
 				for (int x = (int)tile.begin.x; x < (int)tile.end.x; x++) {
 					if (r->state.renderAborted) return 0;
-					uint64_t pixIdx = y * r->state.image->width + x;
+					uint64_t pixIdx = y * image->width + x;
 					uint64_t uniqueIdx = pixIdx * r->prefs.sampleCount + tile.completedSamples;
 					pcg32_srandom_r(&rng, hash(uniqueIdx), 0);
 					
@@ -201,7 +231,7 @@ void *renderThread(void *arg) {
 					float fracY = (float)y;
 					
 					//A cheap 'antialiasing' of sorts. The more samples, the better this works
-					float jitter = 0.25;
+					float jitter = 0.25f;
 					if (r->prefs.antialiasing) {
 						fracX = rndFloatRange(fracX - jitter, fracX + jitter, &rng);
 						fracY = rndFloatRange(fracY - jitter, fracY + jitter, &rng);
@@ -209,11 +239,11 @@ void *renderThread(void *arg) {
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 					//imaginary plane in front of the origin. startPos is just the camera position.
-					struct vector direction = {(fracX - 0.5 * r->state.image->width)
+					struct vector direction = {(fracX - 0.5f * image->width)
 												/ r->scene->camera->focalLength,
-											   (fracY - 0.5 * r->state.image->height)
+											   (fracY - 0.5f * image->height)
 												/ r->scene->camera->focalLength,
-												1.0};
+												1.0f};
 					
 					//Normalize direction
 					direction = vecNormalize(direction);
@@ -224,23 +254,23 @@ void *renderThread(void *arg) {
 					//Run camera tranforms on direction vector
 					transformCameraView(r->scene->camera, &direction);
 					
-					//Now handle aperture
-					//FIXME: This is a 'square' aperture
-					float aperture = r->scene->camera->aperture;
-					if (aperture <= 0.0) {
-						incidentRay.start = startPos;
-					} else {
-						float randY = rndFloatRange(-aperture, aperture, &rng);
-						float randX = rndFloatRange(-aperture, aperture, &rng);
-						struct vector randomStart = vecAdd(vecAdd(startPos, vecScale(up, randY)), vecScale(left, randX));
-						
-						incidentRay.start = randomStart;
-					}
-					
+					incidentRay.start = startPos;
 					incidentRay.direction = direction;
 					incidentRay.rayType = rayTypeIncident;
 					incidentRay.remainingInteractions = r->prefs.bounces;
-					incidentRay.currentMedium.IOR = AIR_IOR;
+					
+					//Now handle aperture
+					if (aperture <= 0.0f) {
+						incidentRay.start = startPos;
+					} else {
+						float ft = focalDistance / direction.z;
+						struct vector focusPoint = alongRay(incidentRay, ft);
+						
+						struct coord lensPoint = coordScale(aperture, randomCoordOnUnitDisc(&rng));
+						incidentRay.start = vecAdd(vecAdd(startPos, vecScale(up, lensPoint.y)), vecScale(left, lensPoint.x));
+						incidentRay.direction = vecNormalize(vecSub(focusPoint, incidentRay.start));
+						
+					}
 					
 					//For multi-sample rendering, we keep a running average of color values for each pixel
 					//The next block of code does this
@@ -269,7 +299,7 @@ void *renderThread(void *arg) {
 					output = toSRGB(output);
 					
 					//And store the image data
-					blit(r->state.image, output, x, y);
+					blit(image, output, x, y);
 				}
 			}
 			//For performance metrics
@@ -278,7 +308,7 @@ void *renderThread(void *arg) {
 			tile.completedSamples++;
 			++tinfo->totalSamples;
 			tinfo->completedSamples = tile.completedSamples;
-			if (tile.completedSamples > 25 && !hasHitObject) break; //Abort if we didn't hit anything within 25 samples
+			if (tile.completedSamples > no_mesh_bailout_threshold && !hasHitObject) break;
 			//Pause rendering when bool is set
 			while (tinfo->paused && !r->state.renderAborted) {
 				sleepMSec(100);
@@ -298,13 +328,11 @@ void *renderThread(void *arg) {
 	tinfo->currentTileNum = -1;
 	return 0;
 }
-	
+
 struct renderer *newRenderer() {
 	struct renderer *r = calloc(1, sizeof(struct renderer));
 	r->state.avgTileTime = (time_t)1;
 	r->state.timeSampleCount = 1;
-	r->prefs.fileMode = saveModeNormal;
-	r->state.image = newTexture();
 	
 	//TODO: Do we need all these heap allocs?
 	r->scene = calloc(1, sizeof(struct world));
@@ -313,8 +341,12 @@ struct renderer *newRenderer() {
 	r->scene->meshes = calloc(1, sizeof(struct mesh));
 	r->scene->spheres = calloc(1, sizeof(struct sphere));
 	
-#ifdef UI_ENABLED
+	if (!vertexArray) {
+		allocVertexBuffer();
+	}
+	
 	r->mainDisplay = calloc(1, sizeof(struct display));
+#ifdef UI_ENABLED
 	r->mainDisplay->window = NULL;
 	r->mainDisplay->renderer = NULL;
 	r->mainDisplay->texture = NULL;
@@ -337,10 +369,6 @@ void freeRenderer(struct renderer *r) {
 		freeScene(r->scene);
 		free(r->scene);
 	}
-	if (r->state.image) {
-		freeTexture(r->state.image);
-		free(r->state.image);
-	}
 	if (r->state.renderTiles) {
 		free(r->state.renderTiles);
 	}
@@ -358,6 +386,10 @@ void freeRenderer(struct renderer *r) {
 	if (r->mainDisplay) {
 		freeDisplay(r->mainDisplay);
 		free(r->mainDisplay);
+	}
+	
+	if (vertexArray) {
+		freeVertexBuffer();
 	}
 	
 	free(r);

@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "vector.h"
+
 struct renderer;
 
 /**
@@ -28,7 +30,7 @@ struct renderTile {
 struct texture;
 enum renderOrder;
 
-int quantizeImage(struct renderTile **renderTiles, struct texture *image, unsigned tileWidth, unsigned tileHeight);
+int quantizeImage(struct renderTile **renderTiles, int width, int height, unsigned tileWidth, unsigned tileHeight);
 
 void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder);
 

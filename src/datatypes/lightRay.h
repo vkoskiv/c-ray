@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include "vector.h"
+#include "material.h"
+
 enum type {
 	rayTypeIncident,
 	rayTypeScattered,
@@ -20,8 +23,9 @@ struct lightRay {
 	struct vector start;
 	struct vector direction;
 	enum type rayType;
-	struct material currentMedium;
 	int remainingInteractions; //Reflections or refractions
 };
 
 struct lightRay newRay(struct vector start, struct vector direction, enum type rayType);
+
+struct vector alongRay(struct lightRay ray, float t);

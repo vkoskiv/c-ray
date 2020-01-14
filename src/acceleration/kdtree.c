@@ -12,6 +12,7 @@
 
 #include "../renderer/pathtrace.h"
 #include "../datatypes/vertexbuffer.h"
+#include "../datatypes/poly.h"
 
 //Tree funcs
 
