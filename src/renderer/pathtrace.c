@@ -22,10 +22,9 @@
 struct hitRecord getClosestIsect(struct lightRay *incidentRay, struct world *scene);
 struct color getBackground(struct lightRay *incidentRay, struct world *scene);
 
-struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, int maxDepth, pcg32_random_t *rng, bool *hasHitObject) {
+struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, int maxDepth, pcg32_random_t *rng) {
 	struct hitRecord isect = getClosestIsect(incidentRay, scene);
 	if (isect.didIntersect) {
-		if (hasHitObject) *hasHitObject = true;
 		struct lightRay scattered;
 		struct color attenuation;
 		struct color emitted = isect.end.emission;
@@ -37,7 +36,7 @@ struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int de
 					return emitted;
 				}
 			}
-			struct color newColor = pathTrace(&scattered, scene, depth + 1, maxDepth, rng, hasHitObject);
+			struct color newColor = pathTrace(&scattered, scene, depth + 1, maxDepth, rng);
 			return colorCoef(1.0 / probability, addColors(emitted, multiplyColors(attenuation, newColor)));
 		} else {
 			return emitted;

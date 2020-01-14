@@ -27,12 +27,6 @@
 #define paused_msec 100
 #define active_msec  16
 
-//If a tile has completed this many samples without
-//hitting anything but the ambient/hdr background,
-//we can pretty safely just bail out and go render
-//other parts of the image.
-#define no_mesh_bailout_threshold 25
-
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 struct texture *renderFrame(struct renderer *r) {
@@ -207,14 +201,12 @@ void *renderThread(void *arg) {
 	struct renderTile tile = getTile(r);
 	tinfo->currentTileNum = tile.tileNum;
 	
-	bool hasHitObject = false;
 	struct timeval timer = {0};
 	
 	float aperture = r->scene->camera->aperture;
 	float focalDistance = r->scene->camera->focalDistance;
 	
 	while (tile.tileNum != -1 && r->state.isRendering) {
-		hasHitObject = false;
 		long totalUsec = 0;
 		long samples = 0;
 		
@@ -279,7 +271,7 @@ void *renderThread(void *arg) {
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y);
 					
 					//Get new sample (path tracing is initiated here)
-					struct color sample = pathTrace(&incidentRay, r->scene, 0, r->prefs.bounces, &rng, &hasHitObject);
+					struct color sample = pathTrace(&incidentRay, r->scene, 0, r->prefs.bounces, &rng);
 					
 					//And process the running average
 					output.red = output.red * (tile.completedSamples - 1);
@@ -308,7 +300,6 @@ void *renderThread(void *arg) {
 			tile.completedSamples++;
 			++tinfo->totalSamples;
 			tinfo->completedSamples = tile.completedSamples;
-			if (tile.completedSamples > no_mesh_bailout_threshold && !hasHitObject) break;
 			//Pause rendering when bool is set
 			while (tinfo->paused && !r->state.renderAborted) {
 				sleepMSec(100);
