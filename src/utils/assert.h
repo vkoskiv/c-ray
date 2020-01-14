@@ -17,7 +17,7 @@ static void assertFailed(const char *file, const char *func, int line, const cha
 	if ((expr)) \
 		{} \
 	else \
-		assertFailed(__FILE_NAME__, __FUNCTION__, __LINE__, #expr)
+		assertFailed(__FILE__, __FUNCTION__, __LINE__, #expr)
 
 #define ASSERT_NOT_REACHED() \
 	assertFailed(__FILE__, __FUNCTION__, __LINE__, "ASSERT_NOT_REACHED")
