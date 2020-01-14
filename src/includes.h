@@ -22,6 +22,7 @@
 
 //Master include file
 #ifdef __linux__
+#include <signal.h>
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 500
 #endif
