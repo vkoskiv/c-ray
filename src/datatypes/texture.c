@@ -11,12 +11,12 @@
 #include "texture.h"
 #include "color.h"
 #include "../utils/logging.h"
+#include "../utils/assert.h"
 
 //General-purpose blit function
 void blit(struct texture *t, struct color c, unsigned x, unsigned y) {
-	if ((x > t->width-1) || y < 0) return;
-	if ((y > t->height-1) || y < 0) return;
-
+	ASSERT(x < t->width); ASSERT(y < t->height);
+	ASSERT(x >= 0); ASSERT(y >= 0);
 	if (t->precision == char_p) {
 		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = (unsigned char)min(c.red * 255.0, 255.0);
 		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = (unsigned char)min(c.green * 255.0, 255.0);
