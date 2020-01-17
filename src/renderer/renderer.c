@@ -31,8 +31,7 @@
 /// @todo Clean this up, it's ugly.
 struct texture *renderFrame(struct renderer *r) {
 	
-	struct texture *output = newTexture();
-	allocTextureBuffer(output, char_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
+	struct texture *output = newTexture(char_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
 	output->fileType = r->prefs.imgType;
 	copyString(r->prefs.imgFileName, &output->fileName);
 	copyString(r->prefs.imgFilePath, &output->filePath);

@@ -21,8 +21,7 @@
 
 //This is to compensate for the non-standard coordinate system handedness
 struct texture *flipHorizontal(struct texture *t) {
-	struct texture *new = newTexture();
-	allocTextureBuffer(new, t->precision, t->width, t->height, t->channels);
+	struct texture *new = newTexture(t->precision, t->width, t->height, t->channels);
 	new->colorspace = t->colorspace;
 	new->count = t->count;
 	if (t->fileName) {
@@ -44,7 +43,7 @@ struct texture *flipHorizontal(struct texture *t) {
 }
 
 struct texture *loadTexture(char *filePath) {
-	struct texture *new = newTexture();
+	struct texture *new = newTexture(none, 0, 0, 0);
 	copyString(filePath, &new->filePath);
 	//Handle the trailing newline here
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.

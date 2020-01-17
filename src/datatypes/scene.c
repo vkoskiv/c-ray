@@ -107,13 +107,11 @@ int loadScene(struct renderer *r, char *input) {
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
-	r->state.renderBuffer = newTexture();
-	allocTextureBuffer(r->state.renderBuffer, float_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
+	r->state.renderBuffer = newTexture(float_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
 	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
-	r->state.uiBuffer = newTexture();
-	allocTextureBuffer(r->state.uiBuffer, char_p, r->prefs.imageWidth, r->prefs.imageHeight, 4);
+	r->state.uiBuffer = newTexture(char_p, r->prefs.imageWidth, r->prefs.imageHeight, 4);
 	
 	//Alloc memory for pthread_create() args
 	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(struct threadState));
