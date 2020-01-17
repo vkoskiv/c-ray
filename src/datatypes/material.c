@@ -13,6 +13,7 @@
 #include "vertexbuffer.h"
 #include "texture.h"
 #include "poly.h"
+#include "../utils/assert.h"
 
 //FIXME: Temporary, eventually support full OBJ spec
 struct material newMaterial(struct color diffuse, float reflectivity) {
@@ -147,17 +148,19 @@ struct color gradient(struct hitRecord *isect) {
 
 //FIXME: Make this configurable
 //This is a checkerboard pattern mapped to the surface coordinate space
+//Caveat: This only works for meshes that have texture coordinates.
 struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
+	ASSERT(isect->end.hasTexture);
 	struct poly p = polygonArray[isect->polyIndex];
 	
 	//barycentric coordinates for this polygon
 	float u = isect->uv.x;
 	float v = isect->uv.y;
-	float w = 1.0 - u - v; //1.0 - u - v
+	float w = 1.0 - u - v;
 	
 	//Weighted coordinates
-	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[1]]);
-	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[2]]);
+	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
+	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
 	struct coord wcomponent = coordScale(w,	textureArray[p.textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
@@ -166,21 +169,25 @@ struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
 	float sines = sin(coef*surfaceXY.x) * sin(coef*surfaceXY.y);
 	
 	if (sines < 0) {
-		return (struct color){0.4, 0.4, 0.4, 0.0};
+		return (struct color){0.1f, 0.1f, 0.1f, 0.0};
 	} else {
-		return (struct color){1.0, 1.0, 1.0, 0.0};
+		return (struct color){0.4f, 0.4f, 0.4f, 0.0};
 	}
 }
 
 //FIXME: Make this configurable
 //This is a spatial checkerboard, mapped to the world coordinate space (always axis aligned)
-struct color checkerBoard(struct hitRecord *isect, float coef) {
+struct color unmappedCheckerBoard(struct hitRecord *isect, float coef) {
 	float sines = sin(coef*isect->hitPoint.x) * sin(coef*isect->hitPoint.y) * sin(coef*isect->hitPoint.z);
 	if (sines < 0) {
-		return (struct color){0.4, 0.4, 0.4, 0.0};
+		return (struct color){0.1f, 0.1f, 0.1f, 0.0f};
 	} else {
-		return (struct color){1.0, 1.0, 1.0, 0.0};
+		return (struct color){0.4f, 0.4f, 0.4f, 0.0f};
 	}
+}
+
+struct color checkerBoard(struct hitRecord *isect, float coef) {
+	return isect->end.hasTexture ? mappedCheckerBoard(isect, coef) : unmappedCheckerBoard(isect, coef);
 }
 
 /**
