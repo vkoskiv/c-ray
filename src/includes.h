@@ -53,3 +53,11 @@ enum fileType {
 	hdr,
 	buffer
 };
+
+enum renderOrder {
+	renderOrderTopToBottom = 0,
+	renderOrderFromMiddle,
+	renderOrderToMiddle,
+	renderOrderNormal,
+	renderOrderRandom
+};

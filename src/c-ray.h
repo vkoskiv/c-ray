@@ -77,6 +77,7 @@ void crRenderSingleFrame(void);
 void crStartInteractive(void);
 void crPauseInteractive(void); //Toggle paused state
 void crGetCurrentImage(void); //Just get the current buffer
+void crRestartInteractive(void);
 
 void crTransformMesh(void); //Transform, recompute kd-tree, restart
 

@@ -136,15 +136,6 @@ void getKeyboardInput(struct renderer *r) {
 				r->state.renderAborted = true;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
-				
-				/*if (r->state.threadStates[0].paused) {
-					printf("\n");
-					logr(info, "Resuming render.\n");
-				} else {
-					printf("\n");
-					logr(info, "Pausing render.\n");
-				}*/
-				
 				for (int i = 0; i < r->prefs.threadCount; i++) {
 					if (r->state.threadStates[i].paused) {
 						r->state.threadStates[i].paused = false;
@@ -200,12 +191,11 @@ void drawProgressBars(struct renderer *r) {
  @param tile Given renderTile
  */
 void drawFrame(struct renderer *r, struct renderTile tile) {
-	int length = 8;
+	int length = tile.width < 16 ? 4 : 8;
 	struct color c = clearColor;
 	if (tile.isRendering) {
 		c = frameColor;
 	}
-	if (tile.width < 16) length = 4;
 	for (int i = 1; i < length; i++) {
 		//top left
 		blit(r->state.uiBuffer, c, tile.begin.x+i, tile.begin.y+1);

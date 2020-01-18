@@ -45,7 +45,7 @@ struct renderTile getTile(struct renderer *r) {
  
  @param scene scene object
  */
-int quantizeImage(struct renderTile **renderTiles, int width, int height, unsigned tileWidth, unsigned tileHeight) {
+int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight) {
 	
 	logr(info, "Quantizing render plane\n");
 	

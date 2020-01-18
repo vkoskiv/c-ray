@@ -107,7 +107,7 @@ void freeTable(struct hashtable *table) {
 }
 
 void printTableUsage(struct hashtable *t) {
-	for (int i = 0; i < t->size; ++i) {
+	for (uint64_t i = 0; i < t->size; ++i) {
 		printf("[%s]", t->data[i].used ? "x" : " ");
 	}
 	printf("\n");
@@ -138,8 +138,8 @@ void testTable() {
 	*/
 	logr(debug, "Testing overfill\n");
 	char buf[5];
-	for (int i = 0; i < defaultTableSize; i++) {
-		sprintf(buf, "%i", i);
+	for (uint64_t i = 0; i < defaultTableSize; i++) {
+		sprintf(buf, "%llu", i);
 		setFloat(table, buf, (float)i);
 		printTableUsage(table);
 	}

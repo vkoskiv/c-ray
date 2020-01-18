@@ -221,11 +221,20 @@ struct vector randomOnUnitSphere(pcg32_random_t *rng) {
 }
 
 bool emissiveBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	(void)isect;
+	(void)ray;
+	(void)attenuation;
+	(void)scattered;
+	(void)rng;
 	return false;
 }
 
 bool weightedBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
-	
+	(void)isect;
+	(void)ray;
+	(void)attenuation;
+	(void)scattered;
+	(void)rng;
 	/*
 	 This will be the internal shader weighting solver that runs a random distribution and chooses from the available
 	 discrete shaders.
@@ -240,6 +249,7 @@ struct color diffuseColor(struct hitRecord *isect) {
 }
 
 bool lambertianBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	(void)ray;
 	struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
 	struct vector rand = randomInUnitSphere(rng);
 	struct vector scatterDir = vecSub(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
@@ -249,6 +259,7 @@ bool lambertianBSDF(struct hitRecord *isect, struct lightRay *ray, struct color 
 }
 
 bool metallicBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	(void)ray;
 	struct vector normalizedDir = vecNormalize(isect->incident.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
 	//Roughness
@@ -286,6 +297,7 @@ float shlick(float cosine, float IOR) {
 
 // Only works on spheres for now. Reflections work but refractions don't
 bool dialectricBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	(void)ray;
 	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	float niOverNt;

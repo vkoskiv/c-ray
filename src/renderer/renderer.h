@@ -34,14 +34,6 @@ struct threadState {
 	struct texture *output;
 };
 
-enum renderOrder {
-	renderOrderTopToBottom = 0,
-	renderOrderFromMiddle,
-	renderOrderToMiddle,
-	renderOrderNormal,
-	renderOrderRandom
-};
-
 /// Renderer state data
 struct state {
 	struct renderTile *renderTiles; //Array of renderTiles to render
@@ -77,8 +69,8 @@ struct prefs {
 	int tileHeight;
 	
 	//Output prefs
-	int imageWidth;
-	int imageHeight;
+	unsigned imageWidth;
+	unsigned imageHeight;
 	char *imgFilePath;
 	char *imgFileName;
 	int imgCount;

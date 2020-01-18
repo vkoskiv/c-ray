@@ -121,7 +121,9 @@ void crGetRenderOrder(void) {
 }
 
 void crSetThreadCount(int threadCount, bool fromSystem) {
-	ASSERT_NOT_REACHED();
+	grenderer->prefs.threadCount = threadCount;
+	grenderer->prefs.fromSystem = fromSystem;
+	crRestartInteractive();
 }
 
 int crGetThreadCount(void) {
@@ -129,6 +131,7 @@ int crGetThreadCount(void) {
 }
 
 void crSetSampleCount(int sampleCount) {
+	(void)sampleCount;
 	ASSERT_NOT_REACHED();
 }
 
@@ -137,6 +140,7 @@ int crGetSampleCount(void) {
 }
 
 void crSetBounces(int bounces) {
+	(void)bounces;
 	ASSERT_NOT_REACHED();
 }
 
@@ -145,6 +149,7 @@ int crGetBounces(void) {
 }
 
 void crSetTileWidth(int width) {
+	(void)width;
 	ASSERT_NOT_REACHED();
 }
 
@@ -153,6 +158,7 @@ int crGetTileWidth(void) {
 }
 
 void crSetTileHeight(int height) {
+	(void)height;
 	ASSERT_NOT_REACHED();
 }
 
@@ -161,7 +167,8 @@ int crGetTileHeight(void) {
 }
 
 void crSetImageWidth(int width) {
-	ASSERT_NOT_REACHED();
+	grenderer->prefs.imageWidth = width;
+	crRestartInteractive();
 }
 
 int crGetImageWidth(void) {
@@ -169,6 +176,7 @@ int crGetImageWidth(void) {
 }
 
 void crSetImageHeight(int height) {
+	(void)height;
 	ASSERT_NOT_REACHED();
 }
 
@@ -177,6 +185,7 @@ int crGetImageHeight() {
 }
 
 void crSetFilePath(char *filePath) {
+	(void)filePath;
 	ASSERT_NOT_REACHED();
 }
 
@@ -185,6 +194,7 @@ char *crGetFilePath() {
 }
 
 void crSetFileName(char *fileName) {
+	(void)fileName;
 	ASSERT_NOT_REACHED();
 }
 
@@ -207,9 +217,23 @@ void crRenderSingleFrame() {
 }
 
 //Interactive mode
-void crStartInteractive(void);
-void crPauseInteractive(void); //Toggle paused state
-void crGetCurrentImage(void); //Just get the current buffer
+void crStartInteractive(void) {
+	ASSERT_NOT_REACHED();
+}
+
+//Toggle paused state
+void crPauseInteractive(void) {
+	ASSERT_NOT_REACHED();
+}
+
+//Just get the current buffer
+void crGetCurrentImage(void) {
+	ASSERT_NOT_REACHED();
+}
+void crRestartInteractive() {
+	//if (grenderer->prefs.interactive) { do the thing }
+	ASSERT_NOT_REACHED();
+}
 
 void crTransformMesh(void); //Transform, recompute kd-tree, restart
 

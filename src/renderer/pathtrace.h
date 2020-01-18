@@ -47,5 +47,4 @@ struct hitRecord {
 /// @param depth Current depth for recursive calls
 /// @param maxDepth Maximum depth of recursion
 /// @param rng A random number generator. One per execution thread.
-/// @param hasHitObject set to true if an object was hit in this pass
 struct color pathTrace(struct lightRay *incidentRay, struct world *scene, int depth, int maxDepth, pcg32_random_t *rng);

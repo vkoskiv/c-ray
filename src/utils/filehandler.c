@@ -116,8 +116,6 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	lodepng_add_text(&info, "C-ray SysInfo", sysinfo);
 #endif
 	
-	//TODO: Maybe platform info? arch, uname, etc.
-	
 	LodePNGState state;
 	lodepng_state_init(&state);
 	state.info_raw.bitdepth = 8;

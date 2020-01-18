@@ -23,7 +23,6 @@ int main(int argc, char *argv[]) {
 	char *input = argc == 2 ? crLoadFile(argv[1], &bytes) : crReadStdin(&bytes);
 	logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, argc == 2 ? "file" : "stdin");
 	if (!input) return -1;
-	
 	if (crLoadSceneFromBuf(input)) {
 		crDestroyRenderer();
 		return -1;
