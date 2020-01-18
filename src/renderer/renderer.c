@@ -30,18 +30,10 @@
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 struct texture *renderFrame(struct renderer *r) {
-	
 	struct texture *output = newTexture(char_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
 	output->fileType = r->prefs.imgType;
 	copyString(r->prefs.imgFileName, &output->fileName);
 	copyString(r->prefs.imgFilePath, &output->filePath);
-	
-	//Set a dark gray background for the render preview
-	for (unsigned x = 0; x < r->prefs.imageWidth; x++) {
-		for (unsigned y = 0; y < r->prefs.imageHeight; y++) {
-			blit(output, backgroundColor, x, y);
-		}
-	}
 	
 	logr(info, "Starting C-ray renderer for frame %i\n", r->prefs.imgCount);
 	
