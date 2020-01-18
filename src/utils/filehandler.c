@@ -35,9 +35,9 @@ void encodeBMPFromArray(const char *filename, unsigned char *imgData, int width,
 	unsigned char *bgrData = calloc(3 * width * height, sizeof(unsigned char));
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width; ++x) {
-			bgrData[(x + ((height - 1) - y) * width) * 3 + 0] = imgData[(x + (height - y) * width) * 3 + 2];
-			bgrData[(x + ((height - 1) - y) * width) * 3 + 1] = imgData[(x + (height - y) * width) * 3 + 1];
-			bgrData[(x + ((height - 1) - y) * width) * 3 + 2] = imgData[(x + (height - y) * width) * 3 + 0];
+			bgrData[(x + (height - (y + 1)) * width) * 3 + 0] = imgData[(x + (height - (y + 1)) * width) * 3 + 2];
+			bgrData[(x + (height - (y + 1)) * width) * 3 + 1] = imgData[(x + (height - (y + 1)) * width) * 3 + 1];
+			bgrData[(x + (height - (y + 1)) * width) * 3 + 2] = imgData[(x + (height - (y + 1)) * width) * 3 + 0];
 		}
 	}
 	int i;
