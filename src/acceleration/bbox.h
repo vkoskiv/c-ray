@@ -3,12 +3,13 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/04/2017.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-struct poly;
+#include "../datatypes/vector.h"
+#include "../datatypes/lightRay.h"
 
 /// Current bbox split axis
 enum bboxAxis {
@@ -16,7 +17,6 @@ enum bboxAxis {
 	Y,
 	Z
 };
-
 
 /// Bounding box for a given set of primitives
 struct boundingBox {

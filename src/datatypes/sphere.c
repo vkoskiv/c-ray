@@ -3,13 +3,14 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 #include "sphere.h"
 
 #include "../renderer/pathtrace.h"
+#include "lightRay.h"
 
 struct sphere newSphere(struct vector pos, float radius, struct material material) {
 	return (struct sphere){pos, radius, material};
@@ -39,7 +40,7 @@ bool intersect(struct lightRay *ray, struct sphere *sphere, float *t) {
 	float A = vecDot(ray->direction, ray->direction);
 	
 	//Distance between start of a lightRay and the sphere position
-	struct vector distance = vecSubtract(ray->start, sphere->pos);
+	struct vector distance = vecSub(ray->start, sphere->pos);
 	
 	float B = 2 * vecDot(ray->direction, distance);
 	
@@ -71,18 +72,18 @@ bool intersect(struct lightRay *ray, struct sphere *sphere, float *t) {
 	return intersects;
 }
 
-bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct intersection *isect) {
+bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct hitRecord *isect) {
 	//Pass the distance value to rayIntersectsWithSphere, where it's set
 	if (intersect(ray, sphere, &isect->distance)) {
 		isect->type = hitTypeSphere;
 		//Compute normal and store it to isect
-		struct vector scaled = vecScale(isect->distance, ray->direction);
+		struct vector scaled = vecScale(ray->direction, isect->distance);
 		struct vector hitpoint = vecAdd(ray->start, scaled);
-		struct vector surfaceNormal = vecSubtract(hitpoint, sphere->pos);
+		struct vector surfaceNormal = vecSub(hitpoint, sphere->pos);
 		float temp = vecDot(surfaceNormal, surfaceNormal);
 		if (temp == 0.0) return false; //FIXME: Check this later
 		temp = invsqrt(temp);
-		isect->surfaceNormal = vecScale(temp, surfaceNormal);
+		isect->surfaceNormal = vecScale(surfaceNormal, temp);
 		//Also store hitpoint
 		isect->hitPoint = hitpoint;
 		return true;

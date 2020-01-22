@@ -3,13 +3,15 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 18/08/2017.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 #include "converter.h"
 
-#include "../libraries/obj_parser.h"
+#include "../datatypes/vector.h"
+#include "../datatypes/poly.h"
+#include "../datatypes/material.h"
 
 /**
  Convert a given OBJ loader vector into a c-ray vector
@@ -73,6 +75,7 @@ struct material materialFromObj(obj_material *mat) {
 	
 	newMat.name = calloc(256, sizeof(char));
 	newMat.textureFilePath = calloc(500, sizeof(char));
+	newMat.normalMapPath = calloc(500, sizeof(char));
 	
 	newMat.hasTexture = false;
 	
@@ -83,7 +86,9 @@ struct material materialFromObj(obj_material *mat) {
 	
 	for (int i = 0; i < 500; i++) {
 		newMat.textureFilePath[i] = mat->texture_filename[i];
+		newMat.normalMapPath[i] = mat->displacement_filename[i];
 		newMat.textureFilePath[499] = '\0';
+		newMat.normalMapPath[499] = '\0';
 	}
 	
 	newMat.diffuse.red   = mat->diff[0];

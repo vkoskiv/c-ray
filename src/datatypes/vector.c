@@ -3,11 +3,29 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 #include "vector.h"
+#include "../utils/assert.h"
+
+struct base baseWithVec(struct vector i) {
+	ASSERT(false);
+	ASSERT(vecLength(i) == 1.0f);
+	struct base newBase;
+	newBase.i = i;
+	if (fabsf(i.x) > fabsf(i.y)) {
+		float len = sqrtf(i.x * i.x + i.z * i.z);
+		newBase.j = (vector){-i.z / len, 0.0f / len, i.x / len};
+	} else {
+		float len = sqrtf(i.y * i.y + i.z * i.z);
+		newBase.j = (vector){ 0.0f / len, i.z / len, -i.y / len};
+	}
+	ASSERT(vecDot(newBase.i, newBase.j) == 0.0f);
+	newBase.k = vecCross(newBase.i, newBase.j);
+	return newBase;
+}
 
 /* Vector Functions */
 
@@ -39,28 +57,32 @@ struct vector vecAdd(struct vector v1, struct vector v2) {
 }
 
 /**
- Compute the length of a vector
-
- @param v Vector to compute the length for
- @return Length of given vector
- */
-float vecLength(struct vector v) {
-	return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
-}
-
-float vecLengthSquared(struct vector v) {
-	return v.x * v.x + v.y * v.y + v.z * v.z;
-}
-
-/**
  Subtract a vector from another and return the resulting vector
 
  @param v1 Vector to be subtracted from
  @param v2 Vector to be subtracted
  @return Resulting vector
  */
-struct vector vecSubtract(const struct vector v1, const struct vector v2) {
+struct vector vecSub(const struct vector v1, const struct vector v2) {
 	return (struct vector){v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
+}
+
+struct vector vecMul(struct vector v1, struct vector v2) {
+	return (struct vector){v1.x * v2.x, v1.y * v2.y, v1.z * v2.z};
+}
+
+/**
+ Compute the length of a vector
+
+ @param v Vector to compute the length for
+ @return Length of given vector
+ */
+float vecLength(struct vector v) {
+	return sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
+}
+
+float vecLengthSquared(struct vector v) {
+	return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
 struct vector vecSubtractConst(const struct vector v, float n) {
@@ -85,7 +107,7 @@ float vecDot(const struct vector v1, const struct vector v2) {
  @param v Vector to be multiplied
  @return Multiplied vector
  */
-struct vector vecScale(const float c, const struct vector v) {
+struct vector vecScale(const struct vector v, const float c) {
 	return (struct vector){v.x * c, v.y * c, v.z * c};
 }
 
@@ -157,7 +179,7 @@ struct vector vecNormalize(struct vector v) {
  @return Mid-point of given vectors
  */
 struct vector getMidPoint(struct vector v1, struct vector v2, struct vector v3) {
-	return vecScale(1.0f/3.0f, vecAdd(vecAdd(v1, v2), v3));
+	return vecScale(vecAdd(vecAdd(v1, v2), v3), 1.0f/3.0f);
 }
 
 /**
@@ -171,6 +193,9 @@ float rndFloatRange(float min, float max, pcg32_random_t *rng) {
 	return (((float)pcg32_random_r(rng) / (float)UINT32_MAX) * (max - min)) + min;
 }
 
+
+/// Returns a random unit float (0.0-1.0)
+/// @param rng RNG instance to use
 float rndFloat(pcg32_random_t *rng) {
 	return (1.0f / (1ull << 32)) * pcg32_random_r(rng);
 }
@@ -202,18 +227,16 @@ struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_rand
 						 center.z);
 }
 
-struct vector vecMultiply(struct vector v1, struct vector v2) {
-	return (struct vector){v1.x * v2.x, v1.y * v2.y, v1.z * v2.z};
-}
-
-struct vector vecMultiplyConst(struct vector v, float c) {
-	return (struct vector){v.x * c, v.y * c, v.z * c};
+struct coord randomCoordOnUnitDisc(pcg32_random_t *rng) {
+	float r = sqrtf(rndFloat(rng));
+	float theta = rndFloatRange(0.0f, 2.0f * PI, rng);
+	return (struct coord){r * cosf(theta), r * sinf(theta)};
 }
 
 struct vector vecNegate(struct vector v) {
 	return (struct vector){-v.x, -v.y, -v.z};
 }
 
-struct vector reflect(const struct vector I, const struct vector N) {
-	return vecSubtract(I, vecMultiplyConst(N, vecDot(N, I) * 2.0f));
+struct vector vecReflect(const struct vector I, const struct vector N) {
+	return vecSub(I, vecScale(N, vecDot(N, I) * 2.0f));
 }

@@ -3,18 +3,20 @@
 //  C-ray
 //
 //  Created by Valtteri on 09/04/2019.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 
 #include "texture.h"
+#include "color.h"
+#include "../utils/logging.h"
+#include "../utils/assert.h"
 
 //General-purpose blit function
 void blit(struct texture *t, struct color c, unsigned x, unsigned y) {
-	if ((x > t->width-1) || y < 0) return;
-	if ((y > t->height-1) || y < 0) return;
-
+	ASSERT(x < t->width); ASSERT(y < t->height);
+	ASSERT(x >= 0); ASSERT(y >= 0);
 	if (t->precision == char_p) {
 		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = (unsigned char)min(c.red * 255.0, 255.0);
 		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = (unsigned char)min(c.green * 255.0, 255.0);
@@ -72,33 +74,46 @@ struct color textureGetPixelFiltered(struct texture *t, float x, float y) {
 	return lerp(lerp(topleft, topright, xcopy-xint), lerp(botleft, botright, xcopy-xint), ycopy-yint);
 }
 
-struct texture *newTexture() {
+struct texture *newTexture(enum precision p, int width, int height, int channels) {
 	struct texture *t = calloc(1, sizeof(struct texture));
-	t->byte_data = NULL;
-	t->float_data = NULL;
-	t->colorspace = linear;
-	t->count = 0;
-	t->hasAlpha = false;
-	t->fileType = buffer;
-	t->offset = 0.0f;
-	return t;
-}
-
-void allocTextureBuffer(struct texture *t, enum precision p, int width, int height, int channels) {
 	t->width = width;
 	t->height = height;
 	t->precision = p;
 	t->channels = channels;
-	if (channels > 3) t->hasAlpha = true;
+	t->hasAlpha = false;
+	t->byte_data = NULL;
+	t->float_data = NULL;
+	t->colorspace = linear;
+	t->count = 0;
+	t->fileType = buffer;
+	t->offset = 0.0f;
+	if (channels > 3) {
+		t->hasAlpha = true;
+	}
 	
 	switch (t->precision) {
-		case char_p:
+		case char_p: {
 			t->byte_data = calloc(channels * width * height, sizeof(unsigned char));
+			if (!t->byte_data) {
+				logr(warning, "Failed to allocate %ix%i texture.\n", width, height);
+				freeTexture(t);
+				return NULL;
+			}
+		}
 			break;
-		case float_p:
+		case float_p: {
 			t->float_data = calloc(channels * width * height, sizeof(float));
+			if (!t->float_data) {
+				logr(warning, "Failed to allocate %ix%i texture.\n", width, height);
+				freeTexture(t);
+				return NULL;
+			}
+		}
+			break;
+		default:
 			break;
 	}
+	return t;
 }
 
 void textureFromSRGB(struct texture *t) {

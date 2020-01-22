@@ -3,20 +3,14 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-struct mesh;
-struct material;
-struct sphere;
-struct camera;
-struct transform;
-struct poly;
-struct kdTreeNode;
+#include "color.h"
+
 struct renderer;
-struct display;
 
 /// World
 struct world {
@@ -39,6 +33,6 @@ struct world {
 	int cameraCount;
 };
 
-int loadScene(struct renderer *r, int argc, char **argv);
+int loadScene(struct renderer *r, char *input);
 
 void freeScene(struct world *scene);

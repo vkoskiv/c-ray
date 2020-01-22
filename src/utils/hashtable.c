@@ -3,13 +3,14 @@
 //  C-ray
 //
 //  Created by Valtteri on 17.11.2019.
-//  Copyright © 2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 #include "hashtable.h"
 
 #include "../utils/logging.h"
+#include "../datatypes/vector.h"
 
 // Fowler-Noll-Vo hash function
 uint64_t hashDataToU64(const char *data, size_t size) {
@@ -106,7 +107,7 @@ void freeTable(struct hashtable *table) {
 }
 
 void printTableUsage(struct hashtable *t) {
-	for (int i = 0; i < t->size; ++i) {
+	for (uint64_t i = 0; i < t->size; ++i) {
 		printf("[%s]", t->data[i].used ? "x" : " ");
 	}
 	printf("\n");
@@ -137,8 +138,8 @@ void testTable() {
 	*/
 	logr(debug, "Testing overfill\n");
 	char buf[5];
-	for (int i = 0; i < defaultTableSize; i++) {
-		sprintf(buf, "%i", i);
+	for (uint64_t i = 0; i < defaultTableSize; i++) {
+		sprintf(buf, "%llu", i);
 		setFloat(table, buf, (float)i);
 		printTableUsage(table);
 	}

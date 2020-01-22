@@ -3,33 +3,40 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 #include "scene.h"
 
-#include "../utils/filehandler.h"
 #include "../utils/timer.h"
 #include "../utils/loaders/sceneloader.h"
 #include "../utils/logging.h"
 #include "../renderer/renderer.h"
-#include "../datatypes/texture.h"
-#include "../datatypes/camera.h"
-#include "../datatypes/vertexbuffer.h"
+#include "texture.h"
+#include "camera.h"
+#include "vertexbuffer.h"
 #include "../acceleration/kdtree.h"
-#include "../datatypes/tile.h"
+#include "tile.h"
+#include "mesh.h"
+#include "poly.h"
 
 void transformMeshes(struct world *scene) {
-	logr(info, "Running transforms\n");
+	logr(info, "Running transforms: ");
+	struct timeval timer = {0};
+	startTimer(&timer);
 	for (int i = 0; i < scene->meshCount; ++i) {
 		transformMesh(&scene->meshes[i]);
 	}
+	printSmartTime(getMs(timer));
+	printf("\n");
 }
 
 //TODO: Parallelize this task
 void computeKDTrees(struct mesh *meshes, int meshCount) {
-	logr(info, "Computing KD-trees\n");
+	logr(info, "Computing KD-trees: ");
+	struct timeval timer = {0};
+	startTimer(&timer);
 	for (int i = 0; i < meshCount; ++i) {
 		int *indices = calloc(meshes[i].polyCount, sizeof(int));
 		for (int j = 0; j < meshes[i].polyCount; j++) {
@@ -44,35 +51,32 @@ void computeKDTrees(struct mesh *meshes, int meshCount) {
 			logr(warning, "Found %i/%i orphan nodes in %s kdtree\n", orphans, total, meshes[i].name);
 		}*/
 	}
+	printSmartTime(getMs(timer));
+	printf("\n");
 }
 
 void printSceneStats(struct world *scene, unsigned long long ms) {
-	logr(info, "Scene construction completed in %llums\n", ms);
-	logr(info, "Totals: %iV, %iN, %iP, %iS\n",
+	logr(info, "Scene construction completed in ");
+	printSmartTime(ms);
+	printf("\n");
+	logr(info, "Totals: %iV, %iN, %iT, %iP, %iS\n",
 		   vertexCount,
 		   normalCount,
+		   textureCount,
 		   polyCount,
 		   scene->sphereCount);
 }
 
+//Split scene loading and prefs?
 //Load the scene, allocate buffers, etc
-int loadScene(struct renderer *r, int argc, char **argv) {
-	
-	bool fromStdin = false;
-	char *input;
-	if (argc == 2) {
-		input = argv[1];
-		fromStdin = false;
-	} else {
-		input = readStdin();
-		fromStdin = true;
-	}
+//FIXME: Rename this func and take parseJSON out to a separate call.
+int loadScene(struct renderer *r, char *input) {
 	
 	struct timeval timer = {0};
 	startTimer(&timer);
 	
 	//Build the scene
-	switch (parseJSON(r, input, fromStdin)) {
+	switch (parseJSON(r, input)) {
 		case -1:
 			logr(warning, "Scene builder failed due to previous error.\n");
 			return -1;
@@ -82,14 +86,11 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 			return -1;
 			break;
 		case -2:
-			logr(warning, "JSON parser failed.\n");
+			//JSON parser failed
 			return -1;
 			break;
 		default:
 			break;
-	}
-	if (fromStdin) {
-		free(input);
 	}
 	
 	transformCameraIntoView(r->scene->camera);
@@ -98,34 +99,19 @@ int loadScene(struct renderer *r, int argc, char **argv) {
 	printSceneStats(r->scene, getMs(timer));
 	
 	//Quantize image into renderTiles
-	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->state.image, r->prefs.tileWidth, r->prefs.tileHeight);
+	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->prefs.imageWidth, r->prefs.imageHeight, r->prefs.tileWidth, r->prefs.tileHeight);
 	reorderTiles(&r->state.renderTiles, r->state.tileCount, r->prefs.tileOrder);
 	
 	//Compute the focal length for the camera
-	computeFocalLength(r->scene->camera, r->state.image->width);
-	
-	//Allocate memory and create array of pixels for image data
-	allocTextureBuffer(r->state.image, char_p, r->state.image->width, r->state.image->height, 3);
-	if (!r->state.image->byte_data) {
-		logr(error, "Failed to allocate memory for image data.");
-	}
-	
-	//Set a dark gray background for the render preview
-	for (unsigned x = 0; x < r->state.image->width; x++) {
-		for (unsigned y = 0; y < r->state.image->height; y++) {
-			blit(r->state.image, backgroundColor, x, y);
-		}
-	}
+	computeFocalLength(r->scene->camera, r->prefs.imageWidth);
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
-	r->state.renderBuffer = newTexture();
-	allocTextureBuffer(r->state.renderBuffer, float_p, r->state.image->width, r->state.image->height, 3);
+	r->state.renderBuffer = newTexture(float_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
 	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
-	r->state.uiBuffer = newTexture();
-	allocTextureBuffer(r->state.uiBuffer, char_p, r->state.image->width, r->state.image->height, 4);
+	r->state.uiBuffer = newTexture(char_p, r->prefs.imageWidth, r->prefs.imageHeight, 4);
 	
 	//Alloc memory for pthread_create() args
 	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(struct threadState));

@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
@@ -19,10 +19,14 @@ struct poly {
 };
 
 //Main polygon array
+//FIXME: Move to own file
 extern struct poly *polygonArray;
 extern int polyCount;
 
 struct lightRay;
+
+struct vector;
+struct coord;
 
 //Calculates intersection between a light ray and a polygon object. Returns true if intersection has happened.
 //result will be set to distance of intersect point, normal will be set to intersect normal, uv is the barycentric coord of that point

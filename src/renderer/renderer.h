@@ -3,15 +3,10 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 19/02/2017.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
-
-struct world;
-struct texture;
-struct display;
-
 /**
  Thread information struct to communicate with main thread
  */
@@ -31,22 +26,18 @@ struct threadState {
 	int currentTileNum;
 	int completedSamples;
 	
-	long avgRayTime;
+	uint64_t totalSamples;
+	
+	long avgSampleTime; //Single tile pass
 	
 	struct renderer *r;
+	struct texture *output;
 };
 
-enum renderOrder {
-	renderOrderTopToBottom = 0,
-	renderOrderFromMiddle,
-	renderOrderToMiddle,
-	renderOrderNormal,
-	renderOrderRandom
-};
+struct timeval;
 
 /// Renderer state data
 struct state {
-	struct texture *image; //Output image
 	struct renderTile *renderTiles; //Array of renderTiles to render
 	int tileCount; //Total amount of render tiles
 	int finishedTileCount;
@@ -59,7 +50,7 @@ struct state {
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
 	struct threadState *threadStates; //Info about threads
-	
+	struct timeval *timer;
 #ifdef WINDOWS
 	HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
 #else
@@ -70,14 +61,22 @@ struct state {
 
 /// Preferences data (Set by user)
 struct prefs {
-	enum fileMode fileMode;
 	enum renderOrder tileOrder;
 	
 	int threadCount; //Amount of threads to render with
+	bool fromSystem; //Did we ask the system for thread count
 	int sampleCount;
 	int bounces;
 	int tileWidth;
 	int tileHeight;
+	
+	//Output prefs
+	unsigned imageWidth;
+	unsigned imageHeight;
+	char *imgFilePath;
+	char *imgFileName;
+	int imgCount;
+	enum fileType imgType;
 	
 	bool antialiasing;
 };
@@ -86,12 +85,14 @@ struct prefs {
  Main renderer. Stores needed information to keep track of render status,
  as well as information needed for the rendering routines.
  */
+//FIXME: Completely hide state, scene and mainDisplay as opaque pointers and expose via API
 struct renderer {
 	struct world *scene; //Scene to render
 	struct state state;  //Internal state
 	struct prefs prefs;  //User prefs
 	
 	//TODO: Consider moving this out of renderer.
+	//FIXME: rename to just display
 	struct display *mainDisplay;
 };
 
@@ -106,7 +107,7 @@ void *renderThread(void *arg);
 struct renderer *newRenderer(void);
 
 //Start main render loop
-void render(struct renderer *r);
+struct texture *renderFrame(struct renderer *r);
 
 //Free renderer allocations
 void freeRenderer(struct renderer *r);

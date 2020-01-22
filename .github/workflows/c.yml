@@ -30,4 +30,4 @@ jobs:
       - name: cmake
         run: cmake -G "Visual Studio 16 2019" -A x64 .
       - name: build
-        run: msbuild c-ray.sln /p:Configuration=Release
+        run: msbuild c-ray.sln /p:Configuration=Release /p:WarningLevel=0

@@ -3,13 +3,16 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
 #include "objloader.h"
 
 #include "../../datatypes/mesh.h"
+#include "../../datatypes/vector.h"
+#include "../../datatypes/poly.h"
+#include "../../datatypes/material.h"
 #include "../../utils/logging.h"
 #include "../../utils/filehandler.h"
 #include "../../datatypes/vertexbuffer.h"

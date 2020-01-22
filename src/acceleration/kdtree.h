@@ -3,13 +3,13 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/04/2017.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-struct poly;
-struct boundingBox;
+struct lightRay;
+struct hitRecord;
 
 struct kdTreeNode {
 	struct boundingBox *bbox;//Bounding box
@@ -30,7 +30,7 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth);
 /// @param node Root node to start traversing from
 /// @param ray Ray to check intersection against
 /// @param isect Intersection information is saved to this struct
-bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct intersection *isect);
+bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct hitRecord *isect);
 
 /// Count total nodes in a given tree
 /// @param node root node of a tree to evaluate

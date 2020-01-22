@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 //Main vertex arrays
@@ -15,6 +15,10 @@
  */
 
 #include "../includes.h"
+
+#include "poly.h"
+#include "vector.h"
+#include "../utils/assert.h"
 
 struct vector *vertexArray;
 int vertexCount;
@@ -39,6 +43,7 @@ void freeVertexBuffer() {
 }
 
 void allocVertexBuffer() {
+	ASSERT(!vertexArray);
 	vertexArray = calloc(1, sizeof(struct vector));
 	normalArray = calloc(1, sizeof(struct vector));
 	textureArray = calloc(1, sizeof(struct coord));

@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 14/09/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
@@ -17,6 +17,9 @@ enum logType {
 	debug
 };
 
+//Xcode's awesome debugger doesn't have support for ANSI escapes,
+//so I want to declutter the output when running there.
+#ifndef XCODE_NO_COLOR
 //Terminal color codes
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -26,6 +29,16 @@ enum logType {
 #define KMAG  "\x1B[35m"
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
+#else
+#define KNRM  ""
+#define KRED  ""
+#define KGRN  ""
+#define KYEL  ""
+#define KBLU  ""
+#define KMAG  ""
+#define KCYN  ""
+#define KWHT  ""
+#endif
 
 /**
 C-ray internal formatted logger.
@@ -38,3 +51,5 @@ C-ray internal formatted logger.
 void logr(enum logType type, const char *fmt, ...);
 
 void smartTime(unsigned long long milliseconds, char *buf);
+
+void printSmartTime(unsigned long long ms);

@@ -1,13 +1,19 @@
 {
 	"version": 1.0,
 	"renderer": {
-		"threadCount": 0,
-		"sampleCount": 100,
+		"threads": 0,
+		"samples": 100,
 		"bounces": 25,
 		"antialiasing": true,
 		"tileWidth": 64,
 		"tileHeight": 64,
-		"tileOrder": "fromMiddle"
+		"tileOrder": "fromMiddle",
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 800,
+		"height": 1280
 	},
 	"display": {
 		"isFullscreen": false,
@@ -35,12 +41,6 @@
 		]
 	},
 	"scene": {
-		"outputFilePath": "output/",
-		"outputFileName": "rendered",
-		"fileType": "png",
-		"count": 0,
-		"width": 800,
-		"height": 1280,
 		"ambientColor": {
 			"down": {
 				"r": 1.0,

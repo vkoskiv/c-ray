@@ -3,20 +3,19 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-struct scene;
-struct renderer;
+struct texture;
 struct renderInfo;
 
 //Prints the file size of a given file to the console in a user-readable format
 void printFileSize(char *fileName);
 
 //Writes image data to file
-void writeImage(struct texture *image, enum fileMode mode, struct renderInfo info);
+void writeImage(struct texture *image, struct renderInfo imginfo);
 
 char *loadFile(char *inputFileName, size_t *bytes);
 
@@ -28,7 +27,12 @@ char *loadFile(char *inputFileName, size_t *bytes);
  */
 char *getFileName(char *input);
 
-char *readStdin(void);
+
+/// Extract the path from a given full path, excluding the filename
+/// @param input Full path
+char *getFilePath(char *input);
+
+char *readStdin(size_t *bytes);
 
 //FIXME: Move this to a better place
 bool stringEquals(const char *s1, const char *s2);
@@ -37,4 +41,4 @@ bool stringContains(const char *haystack, const char *needle);
 
 void copyString(const char *source, char **destination);
 
-int getFileSize(char *fileName);
+size_t getFileSize(char *fileName);

@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 06/07/2018.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -45,21 +45,21 @@ struct renderTile getTile(struct renderer *r) {
  
  @param scene scene object
  */
-int quantizeImage(struct renderTile **renderTiles, struct texture *image, unsigned tileWidth, unsigned tileHeight) {
+int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight) {
 	
 	logr(info, "Quantizing render plane\n");
 	
 	//Sanity check on tilesizes
-	if (tileWidth >= image->width) tileWidth = image->width;
-	if (tileHeight >= image->height) tileHeight = image->height;
+	if (tileWidth >= width) tileWidth = width;
+	if (tileHeight >= height) tileHeight = height;
 	if (tileWidth <= 0) tileWidth = 1;
 	if (tileHeight <= 0) tileHeight = 1;
 	
-	unsigned tilesX = image->width / tileWidth;
-	unsigned tilesY = image->height / tileHeight;
+	unsigned tilesX = width / tileWidth;
+	unsigned tilesY = height / tileHeight;
 	
-	tilesX = (image->width % tileWidth) != 0 ? tilesX + 1: tilesX;
-	tilesY = (image->height % tileHeight) != 0 ? tilesY + 1: tilesY;
+	tilesX = (width % tileWidth) != 0 ? tilesX + 1: tilesX;
+	tilesY = (height % tileHeight) != 0 ? tilesY + 1: tilesY;
 	
 	*renderTiles = calloc(tilesX*tilesY, sizeof(struct renderTile));
 	if (*renderTiles == NULL) {
@@ -80,8 +80,8 @@ int quantizeImage(struct renderTile **renderTiles, struct texture *image, unsign
 			tile->begin.y = y       * tileHeight;
 			tile->end.y   = (y + 1) * tileHeight;
 			
-			tile->end.x = min((x + 1) * tileWidth, image->width);
-			tile->end.y = min((y + 1) * tileHeight, image->height);
+			tile->end.x = min((x + 1) * tileWidth, width);
+			tile->end.y = min((y + 1) * tileHeight, height);
 			
 			//Samples have to start at 1, so the running average works
 			tile->completedSamples = 1;

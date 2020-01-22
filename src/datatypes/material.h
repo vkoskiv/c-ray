@@ -3,10 +3,12 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 20/05/2017.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
+
+#include "color.h"
 
 /*
  From: https://blenderartists.org/forum/showthread.php?71202-Material-IOR-Value-reference
@@ -43,9 +45,7 @@
  */
 
 struct lightRay;
-struct intersection;
-struct color;
-struct texture;
+struct hitRecord;
 
 enum bsdfType {
 	emission = 0,
@@ -59,14 +59,17 @@ enum bsdfType {
 struct bsdf {
 	enum bsdfType type;
 	float weights;
-	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
+	bool (*bsdf)(struct hitRecord*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
 };
 
 struct material {
 	char *textureFilePath;
+	char *normalMapPath;
 	char *name;
 	bool hasTexture;
 	struct texture *texture;
+	bool hasNormalMap;
+	struct texture *normalMap;
 	struct color ambient;
 	struct color diffuse;
 	struct color specular;
@@ -88,7 +91,7 @@ struct material {
 	
 	enum bsdfType type;
 	//isect record, ray, attenuation color, scattered ray, rng
-	bool (*bsdf)(struct intersection*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
+	bool (*bsdf)(struct hitRecord*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
 };
 
 //temporary newMaterial func
@@ -110,10 +113,10 @@ struct material emptyMaterial(void);
 struct material defaultMaterial(void);
 struct material warningMaterial(void);
 
-bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool dialectricBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool emissiveBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool lambertianBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool metallicBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool dialectricBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
 
 void assignBSDF(struct material *mat);
 

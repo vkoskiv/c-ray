@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 14/09/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -57,6 +57,12 @@ void logr(enum logType type, const char *fmt, ...) {
 		logr(info, "Aborting due to previous error.\n");
 		exit(-1);
 	}
+}
+
+void printSmartTime(unsigned long long ms) {
+	char buf[64];
+	smartTime(ms, buf);
+	printf("%s", buf);
 }
 
 // Print to buf a logically formatted string representing time given in milliseconds.

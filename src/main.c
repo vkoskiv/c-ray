@@ -3,58 +3,35 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 12/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#define VERSION "0.6.2"
-
-#include "includes.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "main.h"
 
+#include "c-ray.h"
 #include "utils/logging.h"
-#include "utils/filehandler.h"
-#include "renderer/renderer.h"
-#include "datatypes/scene.h"
-#include "utils/ui.h"
-#include "utils/multiplatform.h"
-#include "datatypes/vertexbuffer.h"
-#include "utils/gitsha1.h"
-#include "datatypes/texture.h"
-#include "utils/hashtable.h"
 
 int main(int argc, char *argv[]) {
-	char *hash = gitHash(8);
-	logr(info, "C-ray v%s [%s], © 2015-2019 Valtteri Koskivuori\n", VERSION, hash);
-	initTerminal();
-	allocVertexBuffer();
-	struct renderer *r = newRenderer();
-	
-	if (loadScene(r, argc, argv)) {
-		free(hash);
-		freeVertexBuffer();
-		freeRenderer(r);
+	crInitTerminal();
+	char *hash = crGitHash(8);
+	logr(info, "C-ray v%s [%s], © 2015-2020 Valtteri Koskivuori\n", crGetVersion(), hash);
+	free(hash);
+	crInitRenderer();
+	size_t bytes = 0;
+	char *input = argc == 2 ? crLoadFile(argv[1], &bytes) : crReadStdin(&bytes);
+	logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, argc == 2 ? "file" : "stdin");
+	if (!input) return -1;
+	if (crLoadSceneFromBuf(input)) {
+		crDestroyRenderer();
 		return -1;
 	}
-	
-	initSDL(r->mainDisplay);
-	
-	time_t start, stop;
-	time(&start);
-	render(r);
-	time(&stop);
-	printDuration(difftime(stop, start));
-	
-	writeImage(r->state.image, r->prefs.fileMode, (struct renderInfo){
-		.bounces = r->prefs.bounces,
-		.samples = r->prefs.sampleCount,
-		.crayVersion = VERSION,
-		.gitHash = hash,
-		.renderTimeSeconds = difftime(stop, start),
-		.threadCount = r->prefs.threadCount
-	});
-	free(hash);
-	freeRenderer(r);
-	freeVertexBuffer();
+	crInitSDL();
+	crRenderSingleFrame();
+	crWriteImage();
+	crDestroySDL();
+	crDestroyRenderer();
 	logr(info, "Render finished, exiting.\n");
 	return 0;
 }

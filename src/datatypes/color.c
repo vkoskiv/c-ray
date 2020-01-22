@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -77,6 +77,7 @@ struct color mixColors(struct color c1, struct color c2, float coeff) {
 	return add(muls(c1, 1.0f - coeff), muls(c2, coeff));
 }
 
+//TODO: Move to own file
 //sRGB transforms are from https://en.wikipedia.org/wiki/SRGB
 
 float linearToSRGB(float channel) {

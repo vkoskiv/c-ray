@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
@@ -16,6 +16,11 @@
 #include "../../datatypes/vector.h"
 #include "../../datatypes/camera.h"
 #include "../../datatypes/texture.h"
+#include "../../datatypes/mesh.h"
+#include "../../datatypes/sphere.h"
+#include "../../datatypes/material.h"
+#include "../../datatypes/poly.h"
+#include "../../datatypes/transforms.h"
 #include "../../utils/logging.h"
 #include "../../utils/ui.h"
 #include "../../utils/filehandler.h"
@@ -25,19 +30,6 @@
 #include "../converter.h"
 #include "textureloader.h"
 #include "objloader.h"
-
-/*struct renderer defaultSettings = (struct renderer){
-	.prefs = {
-		.fileMode = saveModeNormal,
-		.tileOrder = renderOrderFromMiddle,
-		.threadCount = 4,
-		.sampleCount = 25,
-		.bounces = 50,
-		.tileWidth = 32,
-		.tileHeight = 32,
-		.antialiasing = true
-	}
-};*/
 
 struct color parseColor(const cJSON *data);
 
@@ -51,6 +43,7 @@ struct sphere *lastSphere(struct renderer *r) {
 	return &r->scene->spheres[r->scene->sphereCount - 1];
 }
 
+//FIXME: Do something about this awful mess.
 void loadMeshTextures(struct mesh *mesh) {
 	for (int i = 0; i < mesh->materialCount; i++) {
 		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
@@ -66,6 +59,19 @@ void loadMeshTextures(struct mesh *mesh) {
 			}
 		} else {
 			mesh->materials[i].hasTexture = false;
+		}
+		
+		if (mesh->materials[i].normalMapPath) {
+			if (strcmp(mesh->materials[i].normalMapPath, "")) {
+				mesh->materials[i].normalMap = loadTexture(mesh->materials[i].normalMapPath);
+				if (mesh->materials[i].normalMap) {
+					mesh->materials[i].hasNormalMap = true;
+				}
+			} else {
+				mesh->materials[i].hasNormalMap = false;
+			}
+		} else {
+			mesh->materials[i].hasNormalMap = false;
 		}
 		
 	}
@@ -417,182 +423,394 @@ struct transform *parseTransforms(const cJSON *data) {
 	return transforms;
 }
 
-int parseRenderer(struct renderer *r, const cJSON *data) {
-	const cJSON *threadCount = NULL;
-	const cJSON *sampleCount = NULL;
+struct prefs defaultPrefs() {
+	return (struct prefs){
+		.tileOrder = renderOrderFromMiddle,
+		.threadCount = getSysCores(), //We run getSysCores() for this
+		.sampleCount = 25,
+		.bounces = 20,
+		.tileWidth = 32,
+		.tileHeight = 32,
+		.antialiasing = true,
+		.imgFilePath = "./",
+		.imgFileName = "rendered",
+		.imgCount = 0,
+		.imageWidth = 1280,
+		.imageHeight = 800,
+		.imgType = png
+	};
+}
+
+struct prefs parsePrefs(const cJSON *data) {
+	struct prefs p = defaultPrefs();
+	
+	if (!data) return p;
+	
+	const cJSON *threads = NULL;
+	const cJSON *samples = NULL;
 	const cJSON *antialiasing = NULL;
 	const cJSON *tileWidth = NULL;
 	const cJSON *tileHeight = NULL;
 	const cJSON *tileOrder = NULL;
 	const cJSON *bounces = NULL;
+	const cJSON *filePath = NULL;
+	const cJSON *fileName = NULL;
+	const cJSON *count = NULL;
+	const cJSON *width = NULL;
+	const cJSON *height = NULL;
+	const cJSON *fileType = NULL;
 	
-	threadCount = cJSON_GetObjectItem(data, "threadCount");
-	if (cJSON_IsNumber(threadCount)) {
-		if (threadCount->valueint > 0) {
-			r->prefs.threadCount = threadCount->valueint;
+	threads = cJSON_GetObjectItem(data, "threads");
+	if (threads) {
+		if (cJSON_IsNumber(threads)) {
+			if (threads->valueint > 0) {
+				p.threadCount = threads->valueint;
+				p.fromSystem = false;
+			} else {
+				p.threadCount = getSysCores() + 2;
+				p.fromSystem = true;
+			}
 		} else {
-			r->prefs.threadCount = getSysCores();
+			logr(warning, "Invalid threads while parsing renderer\n");
 		}
 	} else {
-		logr(warning, "Invalid threadCount while parsing renderer\n");
-		return -1;
+		p.threadCount = getSysCores() + 2;
+		p.fromSystem = true;
 	}
 	
-	sampleCount = cJSON_GetObjectItem(data, "sampleCount");
-	if (cJSON_IsNumber(sampleCount)) {
-		if (sampleCount->valueint >= 1) {
-			r->prefs.sampleCount = sampleCount->valueint;
+	samples = cJSON_GetObjectItem(data, "samples");
+	if (samples) {
+		if (cJSON_IsNumber(samples)) {
+			if (samples->valueint >= 1) {
+				p.sampleCount = samples->valueint;
+			} else {
+				p.sampleCount = 1;
+			}
 		} else {
-			r->prefs.sampleCount = 1;
+			logr(warning, "Invalid samples while parsing renderer\n");
 		}
 	} else {
-		logr(warning, "Invalid sampleCount while parsing renderer\n");
-		return -1;
+		p.sampleCount = defaultPrefs().sampleCount;
 	}
+	
 	
 	bounces = cJSON_GetObjectItem(data, "bounces");
-	if (cJSON_IsNumber(bounces)) {
-		if (bounces->valueint >= 0) {
-			r->prefs.bounces = bounces->valueint;
+	if (bounces) {
+		if (cJSON_IsNumber(bounces)) {
+			if (bounces->valueint >= 0) {
+				p.bounces = bounces->valueint;
+			} else {
+				p.bounces = 1;
+			}
 		} else {
-			r->prefs.bounces = 0;
+			logr(warning, "Invalid bounces while parsing renderer\n");
 		}
+	} else {
+		p.bounces = defaultPrefs().bounces;
 	}
 	
 	antialiasing = cJSON_GetObjectItem(data, "antialiasing");
-	if (cJSON_IsBool(antialiasing)) {
-		r->prefs.antialiasing = cJSON_IsTrue(antialiasing);
+	if (antialiasing) {
+		if (cJSON_IsBool(antialiasing)) {
+			p.antialiasing = cJSON_IsTrue(antialiasing);
+		} else {
+			logr(warning, "Invalid antialiasing bool while parsing renderer\n");
+		}
 	} else {
-		logr(warning, "Invalid antialiasing bool while parsing renderer\n");
-		return -1;
+		p.antialiasing = defaultPrefs().antialiasing;
 	}
 	
 	tileWidth = cJSON_GetObjectItem(data, "tileWidth");
-	if (cJSON_IsNumber(tileWidth)) {
-		if (tileWidth->valueint >= 1) {
-			r->prefs.tileWidth = tileWidth->valueint;
+	if (tileWidth) {
+		if (cJSON_IsNumber(tileWidth)) {
+			if (tileWidth->valueint >= 1) {
+				p.tileWidth = tileWidth->valueint;
+			} else {
+				p.tileWidth = 1;
+			}
 		} else {
-			r->prefs.tileWidth = 1;
+			logr(warning, "Invalid tileWidth while parsing renderer\n");
 		}
 	} else {
-		logr(warning, "Invalid tileWidth while parsing renderer\n");
-		return -1;
+		p.tileWidth = defaultPrefs().tileWidth;
 	}
 	
 	tileHeight = cJSON_GetObjectItem(data, "tileHeight");
-	if (cJSON_IsNumber(tileHeight)) {
-		if (tileHeight->valueint >= 1) {
-			r->prefs.tileHeight = tileHeight->valueint;
+	if (tileHeight) {
+		if (cJSON_IsNumber(tileHeight)) {
+			if (tileHeight->valueint >= 1) {
+				p.tileHeight = tileHeight->valueint;
+			} else {
+				p.tileHeight = 1;
+			}
 		} else {
-			r->prefs.tileHeight = 1;
+			logr(warning, "Invalid tileHeight while parsing renderer\n");
 		}
 	} else {
-		logr(warning, "Invalid tileHeight while parsing renderer\n");
-		return -1;
+		p.tileHeight = defaultPrefs().tileHeight;
 	}
 	
 	tileOrder = cJSON_GetObjectItem(data, "tileOrder");
-	if (cJSON_IsString(tileOrder)) {
-		if (strcmp(tileOrder->valuestring, "normal") == 0) {
-			r->prefs.tileOrder = renderOrderNormal;
-		} else if (strcmp(tileOrder->valuestring, "random") == 0) {
-			r->prefs.tileOrder = renderOrderRandom;
-		} else if (strcmp(tileOrder->valuestring, "topToBottom") == 0) {
-			r->prefs.tileOrder = renderOrderTopToBottom;
-		} else if (strcmp(tileOrder->valuestring, "fromMiddle") == 0) {
-			r->prefs.tileOrder = renderOrderFromMiddle;
-		} else if (strcmp(tileOrder->valuestring, "toMiddle") == 0) {
-			r->prefs.tileOrder = renderOrderToMiddle;
+	if (tileOrder) {
+		if (cJSON_IsString(tileOrder)) {
+			if (strcmp(tileOrder->valuestring, "normal") == 0) {
+				p.tileOrder = renderOrderNormal;
+			} else if (strcmp(tileOrder->valuestring, "random") == 0) {
+				p.tileOrder = renderOrderRandom;
+			} else if (strcmp(tileOrder->valuestring, "topToBottom") == 0) {
+				p.tileOrder = renderOrderTopToBottom;
+			} else if (strcmp(tileOrder->valuestring, "fromMiddle") == 0) {
+				p.tileOrder = renderOrderFromMiddle;
+			} else if (strcmp(tileOrder->valuestring, "toMiddle") == 0) {
+				p.tileOrder = renderOrderToMiddle;
+			} else {
+				p.tileOrder = renderOrderNormal;
+			}
 		} else {
-			r->prefs.tileOrder = renderOrderNormal;
+			logr(warning, "Invalid tileOrder while parsing renderer\n");
 		}
 	} else {
-		logr(warning, "Invalid tileOrder while parsing renderer\n");
-		return -1;
+		p.tileOrder = defaultPrefs().tileOrder;
 	}
 	
-	return 0;
+	filePath = cJSON_GetObjectItem(data, "outputFilePath");
+	if (filePath) {
+		if (cJSON_IsString(filePath)) {
+			copyString(filePath->valuestring, &p.imgFilePath);
+		} else {
+			logr(warning, "Invalid filePath while parsing scene.\n");
+		}
+	} else {
+		copyString(defaultPrefs().imgFilePath, &p.imgFilePath);
+	}
+	
+	fileName = cJSON_GetObjectItem(data, "outputFileName");
+	if (fileName) {
+		if (cJSON_IsString(fileName)) {
+			copyString(fileName->valuestring, &p.imgFileName);
+		} else {
+			logr(warning, "Invalid fileName while parsing scene.\n");
+		}
+	} else {
+		copyString(defaultPrefs().imgFileName, &p.imgFileName);
+	}
+	
+	count = cJSON_GetObjectItem(data, "count");
+	if (count) {
+		if (cJSON_IsNumber(count)) {
+			if (count->valueint >= 0) {
+				p.imgCount = count->valueint;
+			} else {
+				p.imgCount = 0;
+			}
+		} else {
+			logr(warning, "Invalid count while parsing scene.\n");
+		}
+	} else {
+		p.imgCount = defaultPrefs().imgCount;
+	}
+	
+	width = cJSON_GetObjectItem(data, "width");
+	if (width) {
+		if (cJSON_IsNumber(width)) {
+			if (width->valueint >= 0) {
+				p.imageWidth = width->valueint;
+			} else {
+				p.imageWidth = 640;
+			}
+		} else {
+			logr(warning, "Invalid width while parsing scene.\n");
+		}
+	} else {
+		p.imageWidth = defaultPrefs().imageWidth;
+	}
+	
+	height = cJSON_GetObjectItem(data, "height");
+	if (height) {
+		if (cJSON_IsNumber(height)) {
+			if (height->valueint >= 0) {
+				p.imageHeight = height->valueint;
+			} else {
+				p.imageHeight = 400;
+			}
+		} else {
+			logr(warning, "Invalid height while parsing scene.\n");
+		}
+	} else {
+		p.imageHeight = defaultPrefs().imageHeight;
+	}
+	
+	fileType = cJSON_GetObjectItem(data, "fileType");
+	if (fileType) {
+		if (cJSON_IsString(fileType)) {
+			if (strcmp(fileType->valuestring, "png") == 0) {
+				p.imgType = png;
+			} else if (strcmp(fileType->valuestring, "bmp") == 0) {
+				p.imgType = bmp;
+			} else {
+				p.imgType = png;
+			}
+		} else {
+			logr(warning, "Invalid fileType while parsing scene.\n");
+		}
+	} else {
+		p.imgType = defaultPrefs().imgType;
+	}
+	
+	return p;
 }
 
-int parseDisplay(struct renderer *r, const cJSON *data) {
-	
-#ifdef UI_ENABLED
+struct display defaultDisplay() {
+	return (struct display){
+		.enabled = true,
+		.isBorderless = false,
+		.isFullScreen = false,
+		.windowScale = 1.0f
+	};
+}
+
+int parseDisplay(struct display *d, const cJSON *data) {
+	if (!data) *d = defaultDisplay();
 	const cJSON *enabled = NULL;
 	const cJSON *isFullscreen = NULL;
 	const cJSON *isBorderless = NULL;
 	const cJSON *windowScale = NULL;
 	
 	enabled = cJSON_GetObjectItem(data, "enabled");
-	if (cJSON_IsBool(enabled)) {
-		r->mainDisplay->enabled = cJSON_IsTrue(enabled);
+	if (enabled) {
+		if (cJSON_IsBool(enabled)) {
+			d->enabled = cJSON_IsTrue(enabled);
+		} else {
+			logr(warning, "Invalid enabled while parsing display prefs.\n");
+			return -1;
+		}
 	} else {
-		r->mainDisplay->enabled = true;
+		d->enabled = defaultDisplay().enabled;
 	}
 	
 	isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
-	if (cJSON_IsBool(isFullscreen)) {
-		r->mainDisplay->isFullScreen = cJSON_IsTrue(isFullscreen);
+	if (isFullscreen) {
+		if (cJSON_IsBool(isFullscreen)) {
+			d->isFullScreen = cJSON_IsTrue(isFullscreen);
+		} else {
+			logr(warning, "Invalid isFullscreen while parsing display prefs.\n");
+			return -1;
+		}
+	} else {
+		d->isFullScreen = defaultDisplay().isFullScreen;
 	}
 	
 	isBorderless = cJSON_GetObjectItem(data, "isBorderless");
-	if (cJSON_IsBool(isBorderless)) {
-		r->mainDisplay->isBorderless = cJSON_IsTrue(isBorderless);
-	}
-	windowScale = cJSON_GetObjectItem(data, "windowScale");
-	if (cJSON_IsNumber(windowScale)) {
-		if (windowScale->valuedouble >= 0) {
-			r->mainDisplay->windowScale = windowScale->valuedouble;
+	if (isBorderless) {
+		if (cJSON_IsBool(isBorderless)) {
+			d->isBorderless = cJSON_IsTrue(isBorderless);
 		} else {
-			r->mainDisplay->windowScale = 0.5;
+			logr(warning, "Invalid isBorderless while parsing display prefs.\n");
+			return -1;
 		}
+	} else {
+		d->isBorderless = defaultDisplay().isBorderless;
 	}
-#endif
+	
+	windowScale = cJSON_GetObjectItem(data, "windowScale");
+	if (windowScale) {
+		if (cJSON_IsNumber(windowScale)) {
+			if (windowScale->valuedouble >= 0) {
+				d->windowScale = windowScale->valuedouble;
+			} else {
+				d->windowScale = 1.0f;
+			}
+		} else {
+			logr(warning, "Invalid isBorderless while parsing display prefs.\n");
+			return -1;
+		}
+	} else {
+		d->windowScale = defaultDisplay().windowScale;
+	}
+	
 	return 0;
 }
 
-int parseCamera(struct renderer *r, const cJSON *data) {
-	
+struct camera defaultCamera() {
+	return (struct camera){
+		.FOV = 80.0f,
+		.focalDistance = 10.0f,
+		.aperture = 0.0f
+	};
+}
+
+int parseCamera(struct camera *c, const cJSON *data) {
+	if (!data) *c = defaultCamera();
 	const cJSON *FOV = NULL;
+	const cJSON *focalDistance = NULL;
 	const cJSON *aperture = NULL;
 	const cJSON *transforms = NULL;
 	
 	FOV = cJSON_GetObjectItem(data, "FOV");
-	if (cJSON_IsNumber(FOV)) {
-		if (FOV->valuedouble >= 0.0) {
-			if (FOV->valuedouble > 180.0) {
-				r->scene->camera->FOV = 180.0;
+	if (FOV) {
+		if (cJSON_IsNumber(FOV)) {
+			if (FOV->valuedouble >= 0.0) {
+				if (FOV->valuedouble > 180.0) {
+					c->FOV = 180.0;
+				} else {
+					c->FOV = FOV->valuedouble;
+				}
 			} else {
-				r->scene->camera->FOV = FOV->valuedouble;
+				c->FOV = 80.0;
 			}
 		} else {
-			r->scene->camera->FOV = 80.0;
+			logr(warning, "Invalid FOV value while parsing camera.\n");
+			return -1;
 		}
 	} else {
-		logr(warning, "No FOV for camera found");
-		return -1;
+		c->FOV = defaultCamera().FOV;
+	}
+	
+	focalDistance = cJSON_GetObjectItem(data, "focalDistance");
+	if (focalDistance) {
+		if (cJSON_IsNumber(focalDistance)) {
+			if (focalDistance->valuedouble >= 0.0) {
+				c->focalDistance = focalDistance->valuedouble;
+			} else {
+				c->focalDistance = 0.0f;
+			}
+		} else {
+			logr(warning, "Invalid focalDistance while parsing camera.\n");
+			return -1;
+		}
+	} else {
+		c->focalDistance = defaultCamera().focalDistance;
 	}
 	
 	aperture = cJSON_GetObjectItem(data, "aperture");
-	if (cJSON_IsNumber(aperture)) {
-		if (aperture->valuedouble >= 0.0) {
-			r->scene->camera->aperture = aperture->valuedouble;
+	if (aperture) {
+		if (cJSON_IsNumber(aperture)) {
+			if (aperture->valuedouble >= 0.0) {
+				c->aperture = aperture->valuedouble;
+			} else {
+				c->aperture = 0.0;
+			}
 		} else {
-			r->scene->camera->aperture = 0.0;
+			logr(warning, "Invalid aperture while parsing camera.\n");
+			return -1;
 		}
 	} else {
-		logr(warning, "No aperture for camera found");
-		return -1;
+		c->aperture = defaultCamera().aperture;
 	}
 	
 	transforms = cJSON_GetObjectItem(data, "transforms");
-	if (cJSON_IsArray(transforms)) {
-		int tformCount = cJSON_GetArraySize(transforms);
-		struct transform *tforms = parseTransforms(transforms);
-		addCamTransforms(r->scene->camera, tforms, tformCount);
-		free(tforms);
+	if (transforms) {
+		if (cJSON_IsArray(transforms)) {
+			int tformCount = cJSON_GetArraySize(transforms);
+			struct transform *tforms = parseTransforms(transforms);
+			addCamTransforms(c, tforms, tformCount);
+			free(tforms);
+		} else {
+			logr(warning, "Invalid transforms while parsing camera.\n");
+			return -1;
+		}
 	} else {
-		logr(warning, "No transforms for camera found");
-		return -1;
+		initCamera(c);
 	}
 	
 	return 0;
@@ -635,6 +853,7 @@ struct color parseColor(const cJSON *data) {
 	return newColor;
 }
 
+//FIXME:
 int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *down = NULL;
 	const cJSON *up = NULL;
@@ -671,6 +890,8 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
 	
 	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
+	const cJSON *intensity = cJSON_GetObjectItem(data, "intensity");
+	const cJSON *roughness = cJSON_GetObjectItem(data, "roughness");
 	enum bsdfType type = lambertian;
 	
 	if (cJSON_IsString(bsdf)) {
@@ -680,6 +901,8 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 			type = metal;
 		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
 			type = glass;
+		} else if (strcmp(bsdf->valuestring, "emissive") == 0) {
+			type = emission;
 		} else {
 			type = lambertian;
 		}
@@ -708,11 +931,16 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 		//FIXME: this isn't right.
 		for (int i = 0; i < lastMesh(r)->materialCount; i++) {
 			lastMesh(r)->materials[i].type = type;
+			if (type == emission) {
+				lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);
+			}
+			if (cJSON_IsNumber(roughness)) lastMesh(r)->materials[i].roughness = roughness->valuedouble;
 			assignBSDF(&lastMesh(r)->materials[i]);
 		}
 	}
 }
 
+//FIXME:
 void parseMeshes(struct renderer *r, const cJSON *data) {
 	const cJSON *mesh = NULL;
 	int idx = 1;
@@ -851,120 +1079,49 @@ void parsePrimitives(struct renderer *r, const cJSON *data) {
 
 int parseScene(struct renderer *r, const cJSON *data) {
 	
-	const cJSON *filePath = NULL;
-	const cJSON *fileName = NULL;
-	const cJSON *count = NULL;
-	const cJSON *width = NULL;
-	const cJSON *height = NULL;
-	const cJSON *fileType = NULL;
 	const cJSON *ambientColor = NULL;
 	const cJSON *primitives = NULL;
 	const cJSON *meshes = NULL;
 	
-	filePath = cJSON_GetObjectItem(data, "outputFilePath");
-	if (cJSON_IsString(filePath)) {
-		copyString(filePath->valuestring, &r->state.image->filePath);
-	}
-	
-	fileName = cJSON_GetObjectItem(data, "outputFileName");
-	if (cJSON_IsString(fileName)) {
-		copyString(fileName->valuestring, &r->state.image->fileName);
-	}
-	
-	count = cJSON_GetObjectItem(data, "count");
-	if (cJSON_IsNumber(count)) {
-		if (count->valueint >= 0) {
-			r->state.image->count = count->valueint;
-		} else {
-			r->state.image->count = 0;
-		}
-	}
-	
-	//FIXME: This is super ugly
-	width = cJSON_GetObjectItem(data, "width");
-	if (cJSON_IsNumber(width)) {
-		if (width->valueint >= 0) {
-			r->state.image->width = width->valueint;
-#ifdef UI_ENABLED
-			r->mainDisplay->width = width->valueint;
-#endif
-		} else {
-			r->state.image->width = 640;
-#ifdef UI_ENABLED
-			r->mainDisplay->width = 640;
-#endif
-		}
-	}
-	
-	height = cJSON_GetObjectItem(data, "height");
-	if (cJSON_IsNumber(height)) {
-		if (height->valueint >= 0) {
-			r->state.image->height = height->valueint;
-#ifdef UI_ENABLED
-			r->mainDisplay->height = height->valueint;
-#endif
-		} else {
-			r->state.image->height = 640;
-#ifdef UI_ENABLED
-			r->mainDisplay->height = 640;
-#endif
-		}
-	}
-	
-	fileType = cJSON_GetObjectItem(data, "fileType");
-	if (cJSON_IsString(fileType)) {
-		if (strcmp(fileType->valuestring, "png") == 0) {
-			r->state.image->fileType = png;
-		} else if (strcmp(fileType->valuestring, "bmp") == 0) {
-			r->state.image->fileType = bmp;
-		} else {
-			r->state.image->fileType = png;
-		}
-	}
-	
 	ambientColor = cJSON_GetObjectItem(data, "ambientColor");
-	if (cJSON_IsObject(ambientColor)) {
-		if (parseAmbientColor(r, ambientColor) == -1) {
-			return -1;
+	if (ambientColor) {
+		if (cJSON_IsObject(ambientColor)) {
+			if (parseAmbientColor(r, ambientColor) == -1) {
+				logr(warning, "Invalid ambientColor while parsing scene.\n");
+				return -1;
+			}
 		}
+	} else {
+		r->scene->ambientColor = (struct gradient){
+			.down = (struct color){0.4f, 0.4f, 0.5f, 0.0f},
+			.up   = (struct color){0.8f, 0.8f, 1.0f, 0.0f}
+		};;
 	}
 	
 	primitives = cJSON_GetObjectItem(data, "primitives");
-	if (cJSON_IsArray(primitives)) {
-		parsePrimitives(r, primitives);
+	if (primitives) {
+		if (cJSON_IsArray(primitives)) {
+			parsePrimitives(r, primitives);
+		}
 	}
 	
 	meshes = cJSON_GetObjectItem(data, "meshes");
-	if (cJSON_IsArray(meshes)) {
-		parseMeshes(r, meshes);
+	if (meshes) {
+		if (cJSON_IsArray(meshes)) {
+			parseMeshes(r, meshes);
+		}
 	}
 	
 	return 0;
 }
 
-//input is either a file path to load if fromStdin = false, or a data buffer if stdin = true
-int parseJSON(struct renderer *r, char *input, bool fromStdin) {
+int parseJSON(struct renderer *r, char *input) {
 	
 	/*
 	 Note: Since we are freeing the JSON data (and its' pointers) after parsing,
 	 we need to *copy* all dynamically allocated strings with the copyString() function.
 	 */
-	
-	char *buf = NULL;
-	
-	if (fromStdin) {
-		buf = input;
-	} else {
-		size_t bytes = 0;
-		buf = loadFile(input, &bytes);
-		if (!buf) {
-			return -1;
-		}
-		logr(info, "%zi bytes of input JSON loaded from file, parsing.\n", bytes);
-	}
-	
-	cJSON *json = cJSON_Parse(buf);
-	free(buf);
+	cJSON *json = cJSON_Parse(input);
 	if (json == NULL) {
 		logr(warning, "Failed to parse JSON\n");
 		const char *errptr = cJSON_GetErrorPtr();
@@ -981,46 +1138,27 @@ int parseJSON(struct renderer *r, char *input, bool fromStdin) {
 	const cJSON *scene = NULL;
 	
 	renderer = cJSON_GetObjectItem(json, "renderer");
-	if (renderer != NULL) {
-		if (parseRenderer(r, renderer) == -1) {
-			logr(warning, "Renderer parse failed!\n");
-			return -2;
-		}
-	} else {
-		logr(warning, "No renderer found\n");
-		return -2;
-	}
+	r->prefs = parsePrefs(renderer);
 	
 	display = cJSON_GetObjectItem(json, "display");
-	if (display != NULL) {
-		if (parseDisplay(r, display) == -1) {
-			logr(warning, "Display parse failed!\n");
-			return -2;
-		}
-	} else {
-		logr(warning, "No display found\n");
+	if (parseDisplay(r->mainDisplay, display) == -1) {
+		logr(warning, "Display parse failed!\n");
 		return -2;
 	}
 	
+	//FIXME: Temporary
+	r->mainDisplay->width = r->prefs.imageWidth;
+	r->mainDisplay->height = r->prefs.imageHeight;
+	
 	camera = cJSON_GetObjectItem(json, "camera");
-	if (camera != NULL) {
-		if (parseCamera(r, camera) == -1) {
-			logr(warning, "Camera parse failed!\n");
-			return -2;
-		}
-	} else {
-		logr(warning, "No camera found\n");
+	if (parseCamera(r->scene->camera, camera) == -1) {
+		logr(warning, "Camera parse failed!\n");
 		return -2;
 	}
 	
 	scene = cJSON_GetObjectItem(json, "scene");
-	if (scene != NULL) {
-		if (parseScene(r, scene) == -1) {
-			logr(warning, "Scene parse failed!\n");
-			return -2;
-		}
-	} else {
-		logr(warning, "No scene found\n");
+	if (parseScene(r, scene) == -1) {
+		logr(warning, "Scene parse failed!\n");
 		return -2;
 	}
 	

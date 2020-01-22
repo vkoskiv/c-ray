@@ -70,6 +70,7 @@ void obj_set_material_defaults(obj_material *mtl)
 	mtl->shiny = 0;
 	mtl->refract_index = -1.0;
 	mtl->texture_filename[0] = '\0';
+	mtl->displacement_filename[0] = '\0';
 }
 
 int obj_parse_vertex_index(int *vertex_index, int *texture_index, int *normal_index)
@@ -336,6 +337,10 @@ int obj_parse_mtl_file(char *filename, list *material_list)
 		else if( strequal(current_token, "map_Kd") && material_open)
 		{
 			strncpy(current_mtl->texture_filename, strtok(NULL, " \t"), OBJ_FILENAME_LENGTH);
+		}
+		else if ( strequal(current_token, "norm") && material_open )
+		{
+			strncpy(current_mtl->displacement_filename, strtok(NULL, " \t"), OBJ_FILENAME_LENGTH);
 		}
 		else if ( strequal(current_token, "map_d") && material_open)
 		{

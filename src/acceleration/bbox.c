@@ -3,12 +3,14 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/04/2017.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 #include "bbox.h"
+
 #include "../datatypes/vertexbuffer.h"
+#include "../datatypes/poly.h"
 
 /**
  Get the longest axis of an axis-aligned bounding box
@@ -46,7 +48,7 @@ struct boundingBox *computeBoundingBox(int *polys, int count) {
 	float maxDistance = 0.0;
 	for (int i = 0; i < count; i++) {
 		for (int j = 0; j < 3; j++) {
-			struct vector fromCenter = vecSubtract(vertexArray[polygonArray[polys[i]].vertexIndex[j]], center);
+			struct vector fromCenter = vecSub(vertexArray[polygonArray[polys[i]].vertexIndex[j]], center);
 			maxDistance = max(maxDistance, pow(vecLength(fromCenter), 2));
 		}
 	}

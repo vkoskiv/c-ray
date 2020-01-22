@@ -1,13 +1,19 @@
 {
 	"version": 1.0,
 	"renderer": {
-		"threadCount": 0,
-		"sampleCount": 250,
+		"threads": 0,
+		"samples": 250,
 		"bounces": 30,
 		"antialiasing": true,
 		"tileWidth": 64,
 		"tileHeight": 64,
-		"tileOrder": "fromMiddle"
+		"tileOrder": "fromMiddle",
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 1280,
+		"height": 800
 	},
 	"display": {
 		"isFullscreen": false,
@@ -16,7 +22,8 @@
 	},
 	"camera": {
 		"FOV": 30.0,
-		"aperture": 0.0,
+		"focalDistance": 0.7,
+		"aperture": 0.01,
 		"transforms": [
 			{
 				"type": "translate",
@@ -35,12 +42,6 @@
 		]
 	},
 	"scene": {
-		"outputFilePath": "output/",
-		"outputFileName": "rendered",
-		"fileType": "png",
-		"count": 0,
-		"width": 1280,
-		"height": 800,
 		"ambientColor": {
 			"hdr": "input/HDRs/rooitou_park_1k.hdr",
 			"offset": 0,

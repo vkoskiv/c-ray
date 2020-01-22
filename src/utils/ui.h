@@ -3,12 +3,17 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 19/02/2017.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 struct renderer;
+struct texture;
+
+#ifdef UI_ENABLED
+	#include "SDL.h"
+#endif
 
 //FIXME: This should be in datatypes
 struct display {
@@ -23,13 +28,13 @@ struct display {
 	bool isFullScreen;
 	float windowScale;
 	
-	int height;
 	int width;
+	int height;
 };
 
 int initSDL(struct display *d);
-void freeDisplay(struct display *disp);
+void freeDisplay(struct display *d);
 
-void printDuration(float time);
+void printDuration(uint64_t ms);
 void getKeyboardInput(struct renderer *r);
-void drawWindow(struct renderer *r);
+void drawWindow(struct renderer *r, struct texture *t);

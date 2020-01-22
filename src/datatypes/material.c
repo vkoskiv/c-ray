@@ -3,15 +3,17 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 20/05/2017.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 #include "material.h"
 
 #include "../renderer/pathtrace.h"
-#include "../datatypes/vertexbuffer.h"
-#include "../datatypes/texture.h"
+#include "vertexbuffer.h"
+#include "texture.h"
+#include "poly.h"
+#include "../utils/assert.h"
 
 //FIXME: Temporary, eventually support full OBJ spec
 struct material newMaterial(struct color diffuse, float reflectivity) {
@@ -53,9 +55,9 @@ struct material emptyMaterial() {
 struct material defaultMaterial() {
 	struct material newMat = emptyMaterial();
 	newMat.diffuse = grayColor;
-	newMat.reflectivity = 1.0;
+	newMat.reflectivity = 1.0f;
 	newMat.type = lambertian;
-	newMat.IOR = 1.0;
+	newMat.IOR = 1.0f;
 	return newMat;
 }
 
@@ -63,7 +65,7 @@ struct material defaultMaterial() {
 struct material warningMaterial() {
 	struct material newMat = emptyMaterial();
 	newMat.type = lambertian;
-	newMat.diffuse = (struct color){1.0, 0.0, 0.5, 0.0};
+	newMat.diffuse = (struct color){1.0f, 0.0f, 0.5f, 0.0f};
 	return newMat;
 }
 
@@ -100,7 +102,7 @@ void assignBSDF(struct material *mat) {
 
 //Transform the intersection coordinates to the texture coordinate space
 //And grab the color at that point. Texture mapping.
-struct color colorForUV(struct intersection *isect) {
+struct color colorForUV(struct hitRecord *isect) {
 	struct color output;
 	struct material mtl = isect->end;
 	struct poly p = polygonArray[isect->polyIndex];
@@ -112,7 +114,7 @@ struct color colorForUV(struct intersection *isect) {
 	//barycentric coordinates for this polygon
 	float u = isect->uv.x;
 	float v = isect->uv.y;
-	float w = 1.0 - u - v;
+	float w = 1.0f - u - v;
 	
 	//Weighted texture coordinates
 	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
@@ -135,28 +137,30 @@ struct color colorForUV(struct intersection *isect) {
 	return output;
 }
 
-struct color gradient(struct intersection *isect) {
+struct color gradient(struct hitRecord *isect) {
 	//barycentric coordinates for this polygon
 	float u = isect->uv.x;
 	float v = isect->uv.y;
 	float w = 1.0 - u - v;
 	
-	return colorWithValues(u, v, w, 1.0);
+	return colorWithValues(u, v, w, 1.0f);
 }
 
 //FIXME: Make this configurable
 //This is a checkerboard pattern mapped to the surface coordinate space
-struct color mappedCheckerBoard(struct intersection *isect, float coef) {
+//Caveat: This only works for meshes that have texture coordinates.
+struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
+	ASSERT(isect->end.hasTexture);
 	struct poly p = polygonArray[isect->polyIndex];
 	
 	//barycentric coordinates for this polygon
 	float u = isect->uv.x;
 	float v = isect->uv.y;
-	float w = 1.0 - u - v; //1.0 - u - v
+	float w = 1.0f - u - v;
 	
 	//Weighted coordinates
-	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[1]]);
-	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[2]]);
+	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
+	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
 	struct coord wcomponent = coordScale(w,	textureArray[p.textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
@@ -164,22 +168,26 @@ struct color mappedCheckerBoard(struct intersection *isect, float coef) {
 	
 	float sines = sin(coef*surfaceXY.x) * sin(coef*surfaceXY.y);
 	
-	if (sines < 0) {
-		return (struct color){0.4, 0.4, 0.4, 0.0};
+	if (sines < 0.0f) {
+		return (struct color){0.1f, 0.1f, 0.1f, 0.0};
 	} else {
-		return (struct color){1.0, 1.0, 1.0, 0.0};
+		return (struct color){0.4f, 0.4f, 0.4f, 0.0};
 	}
 }
 
 //FIXME: Make this configurable
 //This is a spatial checkerboard, mapped to the world coordinate space (always axis aligned)
-struct color checkerBoard(struct intersection *isect, float coef) {
+struct color unmappedCheckerBoard(struct hitRecord *isect, float coef) {
 	float sines = sin(coef*isect->hitPoint.x) * sin(coef*isect->hitPoint.y) * sin(coef*isect->hitPoint.z);
-	if (sines < 0) {
-		return (struct color){0.4, 0.4, 0.4, 0.0};
+	if (sines < 0.0f) {
+		return (struct color){0.1f, 0.1f, 0.1f, 0.0f};
 	} else {
-		return (struct color){1.0, 1.0, 1.0, 0.0};
+		return (struct color){0.4f, 0.4f, 0.4f, 0.0f};
 	}
+}
+
+struct color checkerBoard(struct hitRecord *isect, float coef) {
+	return isect->end.hasTexture ? mappedCheckerBoard(isect, coef) : unmappedCheckerBoard(isect, coef);
 }
 
 /**
@@ -190,34 +198,43 @@ struct color checkerBoard(struct intersection *isect, float coef) {
  @return Reflected vector
  */
 struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
-	float reflect = 2.0 * vecDot(*incident, *normal);
-	return vecSubtract(*incident, vecScale(reflect, *normal));
+	float reflect = 2.0f * vecDot(*incident, *normal);
+	return vecSub(*incident, vecScale(*normal, reflect));
 }
 
 struct vector randomInUnitSphere(pcg32_random_t *rng) {
 	struct vector vec;
 	do {
-		vec = vecMultiplyConst(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
-		vec = vecSubtract(vec, vecWithPos(1.0, 1.0, 1.0));
-	} while (vecLengthSquared(vec) >= 1.0);
+		vec = vecScale(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0f);
+		vec = vecSub(vec, (vector){1.0f, 1.0f, 1.0f});
+	} while (vecLengthSquared(vec) >= 1.0f);
 	return vec;
 }
 
 struct vector randomOnUnitSphere(pcg32_random_t *rng) {
 	struct vector vec;
 	do {
-		vec = vecMultiplyConst(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0);
-		vec = vecSubtract(vec, vecWithPos(1.0, 1.0, 1.0));
-	} while (vecLengthSquared(vec) >= 1.0);
+		vec = vecScale(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0f);
+		vec = vecSub(vec, (vector){1.0f, 1.0f, 1.0f});
+	} while (vecLengthSquared(vec) >= 1.0f);
 	return vecNormalize(vec);
 }
 
-bool emissiveBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool emissiveBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	(void)isect;
+	(void)ray;
+	(void)attenuation;
+	(void)scattered;
+	(void)rng;
 	return false;
 }
 
-bool weightedBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
-	
+bool weightedBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	(void)isect;
+	(void)ray;
+	(void)attenuation;
+	(void)scattered;
+	(void)rng;
 	/*
 	 This will be the internal shader weighting solver that runs a random distribution and chooses from the available
 	 discrete shaders.
@@ -227,47 +244,45 @@ bool weightedBSDF(struct intersection *isect, struct lightRay *ray, struct color
 }
 
 //TODO: Make this a function ptr in the material?
-struct color diffuseColor(struct intersection *isect) {
-	if (isect->end.hasTexture) {
-		return colorForUV(isect);
-	} else {
-		return isect->end.diffuse;
-	}
+struct color diffuseColor(struct hitRecord *isect) {
+	return isect->end.hasTexture ? colorForUV(isect) : isect->end.diffuse;
 }
 
-bool lambertianBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool lambertianBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	(void)ray;
 	struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
 	struct vector rand = randomInUnitSphere(rng);
-	struct vector scatterDir = vecSubtract(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
-	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered, isect->end, 0});
+	struct vector scatterDir = vecSub(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
+	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered, 0});
 	*attenuation = diffuseColor(isect);
 	return true;
 }
 
-bool metallicBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
-	struct vector normalizedDir = vecNormalize(isect->ray.direction);
+bool metallicBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	(void)ray;
+	struct vector normalizedDir = vecNormalize(isect->incident.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
 	//Roughness
-	if (isect->end.roughness > 0.0) {
-		struct vector fuzz = vecMultiplyConst(randomInUnitSphere(rng), isect->end.roughness);
+	if (isect->end.roughness > 0.0f) {
+		struct vector fuzz = vecScale(randomInUnitSphere(rng), isect->end.roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
 	
 	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 	*attenuation = diffuseColor(isect);
-	return (vecDot(scattered->direction, isect->surfaceNormal) > 0);
+	return (vecDot(scattered->direction, isect->surfaceNormal) > 0.0f);
 }
 
 bool refract(struct vector in, struct vector normal, float niOverNt, struct vector *refracted) {
 	struct vector uv = vecNormalize(in);
 	float dt = vecDot(uv, normal);
-	float discriminant = 1.0 - niOverNt * niOverNt * (1 - dt * dt);
-	if (discriminant > 0) {
-		struct vector A = vecMultiplyConst(normal, dt);
-		struct vector B = vecSubtract(uv, A);
-		struct vector C = vecMultiplyConst(B, niOverNt);
-		struct vector D = vecMultiplyConst(normal, sqrt(discriminant));
-		*refracted = vecSubtract(C, D);
+	float discriminant = 1.0f - niOverNt * niOverNt * (1.0f - dt * dt);
+	if (discriminant > 0.0f) {
+		struct vector A = vecScale(normal, dt);
+		struct vector B = vecSub(uv, A);
+		struct vector C = vecScale(B, niOverNt);
+		struct vector D = vecScale(normal, sqrt(discriminant));
+		*refracted = vecSub(C, D);
 		return true;
 	} else {
 		return false;
@@ -275,41 +290,42 @@ bool refract(struct vector in, struct vector normal, float niOverNt, struct vect
 }
 
 float shlick(float cosine, float IOR) {
-	float r0 = (1 - IOR) / (1 + IOR);
+	float r0 = (1.0f - IOR) / (1.0f + IOR);
 	r0 = r0*r0;
-	return r0 + (1 - r0) * pow((1 - cosine), 5);
+	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);
 }
 
 // Only works on spheres for now. Reflections work but refractions don't
-bool dialectricBSDF(struct intersection *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool dialectricBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	(void)ray;
 	struct vector outwardNormal;
-	struct vector reflected = reflectVec(&isect->ray.direction, &isect->surfaceNormal);
+	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	float niOverNt;
 	*attenuation = diffuseColor(isect);
 	struct vector refracted;
 	float reflectionProbability;
 	float cosine;
 	
-	if (vecDot(isect->ray.direction, isect->surfaceNormal) > 0) {
+	if (vecDot(isect->incident.direction, isect->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(isect->surfaceNormal);
 		niOverNt = isect->end.IOR;
-		cosine = isect->end.IOR * vecDot(isect->ray.direction, isect->surfaceNormal) / vecLength(isect->ray.direction);
+		cosine = isect->end.IOR * vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction);
 	} else {
 		outwardNormal = isect->surfaceNormal;
-		niOverNt = 1.0 / isect->end.IOR;
-		cosine = -(vecDot(isect->ray.direction, isect->surfaceNormal) / vecLength(isect->ray.direction));
+		niOverNt = 1.0f / isect->end.IOR;
+		cosine = -(vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction));
 	}
 	
-	if (refract(isect->ray.direction, outwardNormal, niOverNt, &refracted)) {
+	if (refract(isect->incident.direction, outwardNormal, niOverNt, &refracted)) {
 		reflectionProbability = shlick(cosine, isect->end.IOR);
 	} else {
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
-		reflectionProbability = 1.0;
+		reflectionProbability = 1.0f;
 	}
 	
 	//Roughness
-	if (isect->end.roughness > 0.0) {
-		struct vector fuzz = vecMultiplyConst(randomInUnitSphere(rng), isect->end.roughness);
+	if (isect->end.roughness > 0.0f) {
+		struct vector fuzz = vecScale(randomInUnitSphere(rng), isect->end.roughness);
 		reflected = vecAdd(reflected, fuzz);
 		refracted = vecAdd(refracted, fuzz);
 	}
@@ -325,6 +341,9 @@ bool dialectricBSDF(struct intersection *isect, struct lightRay *ray, struct col
 void freeMaterial(struct material *mat) {
 	if (mat->textureFilePath) {
 		free(mat->textureFilePath);
+	}
+	if (mat->normalMapPath) {
+		free(mat->normalMapPath);
 	}
 	if (mat->name) {
 		free(mat->name);

@@ -3,10 +3,13 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
+
+#include "vector.h"
+#include "material.h"
 
 //Sphere
 struct sphere {
@@ -14,8 +17,6 @@ struct sphere {
 	float radius;
 	struct material material;
 };
-
-struct lightRay;
 
 //New sphere with given params
 struct sphere newSphere(struct vector pos, float radius, struct material material);
@@ -25,4 +26,4 @@ struct sphere newLightSphere(struct vector pos, float radius, struct color color
 struct sphere defaultSphere(void);
 
 //Calculates intersection between a light ray and a sphere
-bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct intersection *isect);
+bool rayIntersectsWithSphere(struct sphere *sphere, struct lightRay *ray, struct hitRecord *isect);

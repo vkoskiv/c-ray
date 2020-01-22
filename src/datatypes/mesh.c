@@ -3,14 +3,18 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 27/04/2017.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 #include "mesh.h"
 
 #include "../acceleration/kdtree.h"
-#include "../datatypes/vertexbuffer.h"
+#include "vertexbuffer.h"
+#include "transforms.h"
+#include "poly.h"
+#include "material.h"
+#include "vector.h"
 
 void addTransform(struct mesh *mesh, struct transform transform) {
 	if (mesh->transformCount == 0) {

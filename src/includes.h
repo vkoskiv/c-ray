@@ -3,25 +3,26 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 //Global constants
 #define MAX_CRAY_VERTEX_COUNT 3
-#define PIOVER180 0.017453292519943295769236907684886
-#define PI        3.141592653589793238462643383279502
+#define PIOVER180 0.017453292519943295769236907684886f
+#define PI        3.141592653589793238462643383279502f
 #define CRAY_MATERIAL_NAME_SIZE 256
 #define CRAY_MESH_FILENAME_LENGTH 500
 
 //Some macros
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
-#define invsqrt(x) (1.0 / sqrt(x))
+#define invsqrt(x) (1.0f / sqrt(x))
 
 //Master include file
 #ifdef __linux__
+#include <signal.h>
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 500
 #endif
@@ -32,47 +33,31 @@
 #include <time.h>
 #include <stdbool.h>
 #include <math.h>
-#include <signal.h>
 #include <string.h>
 #include <float.h>
 
-#ifndef WINDOWS
-#include <sys/time.h> //for gettimeofday()
-#endif
-
 #ifdef WINDOWS
-#include <Windows.h>
-#include <stdint.h>
-#ifdef UI_ENABLED
-#include "SDL.h"
-#endif
+	#include <Windows.h>
+	#include <stdint.h>
 #else
-#include <pthread.h>
-#ifdef UI_ENABLED
-#include "SDL.h"
+	#include <pthread.h>
+	#include <sys/time.h> //for gettimeofday()
 #endif
-#endif
-#include "./libraries/lodepng.h"
 
 //PCG rng
 #include "./libraries/pcg_basic.h"
 
-//Project includes
-//FIXME: Remove these.
-#include "./datatypes/color.h"
-#include "./datatypes/material.h"
-#include "./datatypes/vector.h"
-#include "./datatypes/poly.h"
-#include "./libraries/list.h"
-#include "./datatypes/mesh.h"
-#include "./datatypes/sphere.h"
-#include "./datatypes/transforms.h"
-#include "./datatypes/lightRay.h"
+enum fileType {
+	bmp,
+	png,
+	hdr,
+	buffer
+};
 
-enum fileMode {
-	loadModeNormal,//Load scene def normally
-	loadModeTarga, //Load previous render state
-	saveModeNormal,//Save image
-	saveModeTarga, //Save current render state
-	saveModeNone   //Don't save
+enum renderOrder {
+	renderOrderTopToBottom = 0,
+	renderOrderFromMiddle,
+	renderOrderToMiddle,
+	renderOrderNormal,
+	renderOrderRandom
 };

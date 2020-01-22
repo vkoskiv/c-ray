@@ -3,15 +3,8 @@
 //  C-ray
 //
 //  Created by Valtteri on 09/04/2019.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
-
-enum fileType {
-	bmp,
-	png,
-	hdr,
-	buffer
-};
 
 struct dimensions {
 	int height;
@@ -25,13 +18,14 @@ enum colorspace {
 
 enum precision {
 	char_p,
-	float_p
+	float_p,
+	none
 };
 
 struct renderInfo {
 	int samples;
 	int bounces;
-	int renderTimeSeconds;
+	char *renderTime;
 	int threadCount;
 	char *arch;
 	char *crayVersion;
@@ -56,8 +50,7 @@ struct texture {
 
 struct color;
 
-struct texture *newTexture(void);
-void allocTextureBuffer(struct texture *t, enum precision p, int width, int height, int channels);
+struct texture *newTexture(enum precision p, int width, int height, int channels);
 
 void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
 struct color textureGetPixel(struct texture *t, unsigned x, unsigned y);

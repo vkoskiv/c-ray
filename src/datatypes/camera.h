@@ -3,16 +3,17 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/03/2015.
-//  Copyright © 2015-2019 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-struct renderer;
+#include "vector.h"
 
 struct camera {
 	float FOV;
 	float focalLength;
+	float focalDistance;
 	float aperture;
 	
 	struct vector pos;
