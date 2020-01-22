@@ -9,7 +9,12 @@
 #include "../includes.h"
 #include "networking.h"
 
+//Windows is annoying, so it's just not going to have networking. Because it is annoying and proprietary.
+#ifndef WINDOWS
+
 #include "../utils/logging.h"
+#include <netdb.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -82,3 +87,4 @@ int start_interactive() {
 	return 0;
 }
 
+#endif
