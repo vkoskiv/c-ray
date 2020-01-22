@@ -92,6 +92,7 @@ void crDestroyRenderer() {
 	freeRenderer(grenderer);
 	if (currentImage) {
 		freeTexture(currentImage);
+		free(currentImage);
 	}
 }
 
