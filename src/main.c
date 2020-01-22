@@ -24,9 +24,11 @@ int main(int argc, char *argv[]) {
 	logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, argc == 2 ? "file" : "stdin");
 	if (!input) return -1;
 	if (crLoadSceneFromBuf(input)) {
+		free(input);
 		crDestroyRenderer();
 		return -1;
 	}
+	free(input);
 	crInitSDL();
 	crRenderSingleFrame();
 	crWriteImage();
