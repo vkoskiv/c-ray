@@ -289,7 +289,7 @@ void *renderThread(void *arg) {
 			samples++;
 			totalUsec += getUs(timer);
 			tile.completedSamples++;
-			++tinfo->totalSamples;
+			tinfo->totalSamples++;
 			tinfo->completedSamples = tile.completedSamples;
 			//Pause rendering when bool is set
 			while (tinfo->paused && !r->state.renderAborted) {
@@ -349,6 +349,9 @@ struct renderer *newRenderer() {
 }
 	
 void freeRenderer(struct renderer *r) {
+	if (r->state.timer) {
+		free(r->state.timer);
+	}
 	if (r->scene) {
 		freeScene(r->scene);
 		free(r->scene);
@@ -370,6 +373,12 @@ void freeRenderer(struct renderer *r) {
 	if (r->mainDisplay) {
 		freeDisplay(r->mainDisplay);
 		free(r->mainDisplay);
+	}
+	if (r->prefs.imgFileName) {
+		free(r->prefs.imgFileName);
+	}
+	if (r->prefs.imgFilePath) {
+		free(r->prefs.imgFilePath);
 	}
 	
 	if (vertexArray) {

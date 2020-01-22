@@ -100,11 +100,13 @@ int crLoadSceneFromFile(char *filePath) {
 	char *input = loadFile(filePath, &bytes);
 	if (input) {
 		if (loadScene(grenderer, filePath) != 0) {
+			free(input);
 			return -1;
 		}
 	} else {
 		return -1;
 	}
+	free(input);
 	return 0;
 }
 
