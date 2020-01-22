@@ -56,7 +56,7 @@ void crDestroySDL() {
 void crWriteImage() {
 	char *hash = gitHash(8);
 	char buf[64];
-	smartTime(getMs(grenderer->state.timer), buf);
+	smartTime(getMs(*grenderer->state.timer), buf);
 	if (currentImage) {
 		if (!grenderer->state.renderAborted) {
 			writeImage(currentImage, (struct renderInfo){
@@ -211,9 +211,9 @@ bool crGetAntialiasing() {
 }
 
 void crRenderSingleFrame() {
-	startTimer(&grenderer->state.timer);
+	startTimer(grenderer->state.timer);
 	currentImage = renderFrame(grenderer);
-	printDuration(getMs(grenderer->state.timer));
+	printDuration(getMs(*grenderer->state.timer));
 }
 
 //Interactive mode

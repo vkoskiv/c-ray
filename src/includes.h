@@ -10,15 +10,15 @@
 
 //Global constants
 #define MAX_CRAY_VERTEX_COUNT 3
-#define PIOVER180 0.017453292519943295769236907684886
-#define PI        3.141592653589793238462643383279502
+#define PIOVER180 0.017453292519943295769236907684886f
+#define PI        3.141592653589793238462643383279502f
 #define CRAY_MATERIAL_NAME_SIZE 256
 #define CRAY_MESH_FILENAME_LENGTH 500
 
 //Some macros
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
-#define invsqrt(x) (1.0 / sqrt(x))
+#define invsqrt(x) (1.0f / sqrt(x))
 
 //Master include file
 #ifdef __linux__

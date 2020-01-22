@@ -78,7 +78,7 @@ struct vector vecMul(struct vector v1, struct vector v2) {
  @return Length of given vector
  */
 float vecLength(struct vector v) {
-	return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+	return sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 
 float vecLengthSquared(struct vector v) {
@@ -229,7 +229,7 @@ struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_rand
 
 struct coord randomCoordOnUnitDisc(pcg32_random_t *rng) {
 	float r = sqrtf(rndFloat(rng));
-	float theta = rndFloatRange(0, 2*PI, rng);
+	float theta = rndFloatRange(0.0f, 2.0f * PI, rng);
 	return (struct coord){r * cosf(theta), r * sinf(theta)};
 }
 

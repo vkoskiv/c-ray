@@ -34,6 +34,8 @@ struct threadState {
 	struct texture *output;
 };
 
+struct timeval;
+
 /// Renderer state data
 struct state {
 	struct renderTile *renderTiles; //Array of renderTiles to render
@@ -48,7 +50,7 @@ struct state {
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
 	struct threadState *threadStates; //Info about threads
-	struct timeval timer;
+	struct timeval *timer;
 #ifdef WINDOWS
 	HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
 #else

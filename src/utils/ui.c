@@ -15,6 +15,8 @@
 #include "../datatypes/texture.h"
 #include "../datatypes/color.h"
 
+#include <signal.h>
+
 //Signal handling
 void (*signal(int signo, void (*func )(int)))(int);
 typedef void sigfunc(int);

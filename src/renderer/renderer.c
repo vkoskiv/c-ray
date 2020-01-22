@@ -316,6 +316,8 @@ struct renderer *newRenderer() {
 	r->state.avgTileTime = (time_t)1;
 	r->state.timeSampleCount = 1;
 	
+	r->state.timer = calloc(1, sizeof(struct timeval));
+	
 	//TODO: Do we need all these heap allocs?
 	r->scene = calloc(1, sizeof(struct world));
 	r->scene->camera = calloc(1, sizeof(struct camera));
