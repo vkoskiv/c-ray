@@ -29,10 +29,8 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	free(input);
-	crInitSDL();
 	crRenderSingleFrame();
 	crWriteImage();
-	crDestroySDL();
 	crDestroyRenderer();
 	logr(info, "Render finished, exiting.\n");
 	return 0;

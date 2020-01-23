@@ -17,9 +17,6 @@ char *crGitHash(int chars); //The current git hash of the build
 
 void crInitTerminal(void); //Disable output buffering and configure Windows terminals
 
-void crInitSDL(void);
-void crDestroySDL(void);
-
 struct renderInfo;
 struct texture;
 void crWriteImage(void); //Write out the current image

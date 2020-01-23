@@ -214,9 +214,11 @@ bool crGetAntialiasing() {
 }
 
 void crRenderSingleFrame() {
+	crInitSDL();
 	startTimer(grenderer->state.timer);
 	currentImage = renderFrame(grenderer);
 	printDuration(getMs(*grenderer->state.timer));
+	crDestroySDL();
 }
 
 //Interactive mode
