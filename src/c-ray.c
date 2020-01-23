@@ -20,7 +20,7 @@
 #include "utils/ui.h"
 #include "utils/timer.h"
 
-#define VERSION "0.6.2"
+#define VERSION "0.6.3"
 
 //Internal renderer state
 struct renderer *grenderer = NULL;
