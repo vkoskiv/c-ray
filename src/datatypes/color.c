@@ -11,18 +11,18 @@
 
 //Some standard colours
 //TODO: Prefix these so it's obvious they are extern variables
-struct color redColor =   {1.0, 0.0, 0.0, 1.0};
-struct color greenColor = {0.0, 1.0, 0.0, 1.0};
-struct color blueColor =  {0.0, 0.0, 1.0, 1.0};
-struct color blackColor = {0.0, 0.0, 0.0, 1.0};
-struct color grayColor =  {0.5, 0.5, 0.5, 1.0};
-struct color whiteColor = {1.0, 1.0, 1.0, 1.0};
-struct color clearColor = {0.0, 0.0, 0.0, 0.0};
+struct color redColor =   {1.0f, 0.0f, 0.0f, 1.0f};
+struct color greenColor = {0.0f, 1.0f, 0.0f, 1.0f};
+struct color blueColor =  {0.0f, 0.0f, 1.0f, 1.0f};
+struct color blackColor = {0.0f, 0.0f, 0.0f, 1.0f};
+struct color grayColor =  {0.5f, 0.5f, 0.5f, 1.0f};
+struct color whiteColor = {1.0f, 1.0f, 1.0f, 1.0f};
+struct color clearColor = {0.0f, 0.0f, 0.0f, 0.0f};
 
 //Colors for the SDL elements
-struct color backgroundColor = {0.1921568627, 0.2, 0.2117647059, 1.0};
-struct color frameColor = {1.0, 0.5, 0.0, 1.0};
-struct color progColor  = {0.2549019608, 0.4509803922, 0.9607843137, 1.0};
+struct color backgroundColor = {0.1921568627f, 0.2f, 0.2117647059f, 1.0f};
+struct color frameColor = {1.0f, 0.5f, 0.0f, 1.0f};
+struct color progColor  = {0.2549019608f, 0.4509803922f, 0.9607843137f, 1.0f};
 
 //Color functions
 //Return a color with given values
@@ -30,32 +30,32 @@ struct color colorWithValues(float red, float green, float blue, float alpha) {
 	return (struct color){red, green, blue, alpha};
 }
 
-struct color colorWithRGBAValues(int R, int G, int B, int A) {
-	return (struct color){R / 255.0, G / 255.0, B / 255.0, A / 255.0};
+struct color colorWithRGBAValues(unsigned char R, unsigned char G, unsigned char B, unsigned char A) {
+	return (struct color){R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f};
 }
 
 //Multiply two colors
 struct color multiplyColors(struct color c1, struct color c2) {
-	return (struct color){c1.red * c2.red, c1.green * c2.green, c1.blue * c2.blue, 0.0};
+	return (struct color){c1.red * c2.red, c1.green * c2.green, c1.blue * c2.blue, c1.alpha * c2.alpha};
 }
 
 //Add two colors
 struct color addColors(struct color c1, struct color c2) {
-	return (struct color){c1.red + c2.red, c1.green + c2.green, c1.blue + c2.blue, 0.0};
+	return (struct color){c1.red + c2.red, c1.green + c2.green, c1.blue + c2.blue, c1.alpha + c2.alpha};
 }
 
 struct color grayscale(struct color c) {
-	float b = (c.red+c.green+c.blue)/3;
-	return (struct color){b, b, b, 0.0};
+	float b = (c.red+c.green+c.blue) / 3.0f;
+	return (struct color){b, b, b, 0.0f};
 }
 
 //Multiply a color with a coefficient value
 struct color colorCoef(float coef, struct color c) {
-	return (struct color){c.red * coef, c.green * coef, c.blue * coef, 0.0};
+	return (struct color){c.red * coef, c.green * coef, c.blue * coef, c.alpha * coef};
 }
 
 struct color add(struct color c1, struct color c2) {
-	struct color result = (struct color){0, 0, 0, 0};
+	struct color result = (struct color){0.0f, 0.0f, 0.0f, 0.0f};
 	result.red = c1.red + c2.red;
 	result.green = c1.green + c2.green;
 	result.blue = c1.blue + c2.blue;
@@ -64,7 +64,7 @@ struct color add(struct color c1, struct color c2) {
 }
 
 struct color muls(struct color c, float coeff) {
-	struct color result = (struct color){0, 0, 0, 0};
+	struct color result = (struct color){0.0f, 0.0f, 0.0f, 0.0f};
 	result.red = c.red * coeff;
 	result.green = c.green * coeff;
 	result.blue = c.blue * coeff;
@@ -81,24 +81,24 @@ struct color mixColors(struct color c1, struct color c2, float coeff) {
 //sRGB transforms are from https://en.wikipedia.org/wiki/SRGB
 
 float linearToSRGB(float channel) {
-	if (channel <= 0.0031308) {
-		return 12.92 * channel;
+	if (channel <= 0.0031308f) {
+		return 12.92f * channel;
 	} else {
-		return (1.055 * pow(channel, 0.4166666667)) - 0.055;
+		return (1.055f * pow(channel, 0.4166666667f)) - 0.055f;
 	}
 }
 
 float SRGBToLinear(float channel) {
-	if (channel <= 0.04045) {
-		return channel / 12.92;
+	if (channel <= 0.04045f) {
+		return channel / 12.92f;
 	} else {
-		return pow(((channel + 0.055) / 1.055), 2.4);
+		return pow(((channel + 0.055f) / 1.055f), 2.4f);
 	}
 }
 
 //Convert from linear (0.0-1.0) to sRGB
 struct color toSRGB(struct color c) {
-	struct color srgb = (struct color){0.0, 0.0, 0.0, 0.0};
+	struct color srgb = (struct color){0.0f, 0.0f, 0.0f, 0.0f};
 	srgb.red = linearToSRGB(c.red);
 	srgb.green = linearToSRGB(c.green);
 	srgb.blue = linearToSRGB(c.blue);
@@ -108,7 +108,7 @@ struct color toSRGB(struct color c) {
 
 //Convert from sRGB to linear (0.0-1.0)
 struct color fromSRGB(struct color c) {
-	struct color linear = (struct color){0.0, 0.0, 0.0, 0.0};
+	struct color linear = (struct color){0.0f, 0.0f, 0.0f, 0.0f};
 	linear.red = SRGBToLinear(c.red);
 	linear.green = SRGBToLinear(c.green);
 	linear.blue = SRGBToLinear(c.blue);
