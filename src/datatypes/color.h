@@ -57,3 +57,5 @@ struct color toSRGB(struct color c);
 struct color fromSRGB(struct color c);
 
 struct color lerp(struct color start, struct color end, float t);
+
+struct color colorForKelvin(float kelvin);
