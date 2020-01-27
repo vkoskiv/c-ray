@@ -11,6 +11,7 @@
 
 #include "../datatypes/vertexbuffer.h"
 #include "../datatypes/poly.h"
+#include "../utils/assert.h"
 
 /**
  Get the longest axis of an axis-aligned bounding box
@@ -34,6 +35,8 @@ enum bboxAxis getLongestAxis(struct boundingBox *bbox) {
  @return Axis-aligned bounding box
  */
 struct boundingBox *computeBoundingBox(int *polys, int count) {
+	ASSERT(polys);
+	ASSERT(count > 0);
 	struct boundingBox *bbox = calloc(1, sizeof(struct boundingBox));
 	struct vector minPoint = vecWithPos(FLT_MAX, FLT_MAX, FLT_MAX);
 	struct vector maxPoint = vecWithPos(-FLT_MAX, -FLT_MAX, -FLT_MAX);
@@ -102,9 +105,9 @@ bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, float *
 	return true;
 }
 
-float findSurfaceArea(struct boundingBox box) {
-	float width = box.end.x - box.start.x;
-	float height = box.end.y - box.start.y;
-	float length = box.end.z - box.start.z;
+float findSurfaceArea(struct boundingBox *box) {
+	float width = box->end.x - box->start.x;
+	float height = box->end.y - box->start.y;
+	float length = box->end.z - box->start.z;
 	return 2 * (length * width) + 2 * (length * height) + 2 * (width * height);
 }

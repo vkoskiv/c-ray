@@ -40,4 +40,4 @@ bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, float *
 
 /// Compute the surface area of a given bounding box
 /// @param box Bounding box to compute surface area for
-float findSurfaceArea(struct boundingBox box);
+float findSurfaceArea(struct boundingBox *box);
