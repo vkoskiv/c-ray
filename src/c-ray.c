@@ -39,6 +39,10 @@ void crInitTerminal() {
 	initTerminal();
 }
 
+void crRestoreTerminal() {
+	restoreTerminal();
+}
+
 void crInitSDL() {
 #ifdef UI_ENABLED
 	ASSERT(!grenderer->mainDisplay->window);

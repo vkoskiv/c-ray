@@ -16,6 +16,7 @@ char *crGetVersion(void); //The current semantic version
 char *crGitHash(int chars); //The current git hash of the build
 
 void crInitTerminal(void); //Disable output buffering and configure Windows terminals
+void crRestoreTerminal(void);
 
 struct renderInfo;
 struct texture;

@@ -19,9 +19,23 @@
 #include <unistd.h>
 #endif
 
+void showCursor(bool show) {
+  if (show) {
+    fputs("\e[?25h", stdout);
+  }
+  else {
+    fputs("\e[?25l", stdout);
+  }
+}
+
 void initTerminal() {
 	//Disable output buffering
 	setbuf(stdout, NULL);
+	
+	//If we're on a reasonable (non-windows) terminal, hide the cursor.
+#ifndef WINDOWS
+	showCursor(false);
+#endif
 	
 	//Configure Windows terminals to handle color escape codes
 #ifdef WINDOWS
@@ -34,6 +48,10 @@ void initTerminal() {
 		}
 	}
 #endif
+}
+
+void restoreTerminal() {
+	showCursor(true);
 }
 
 int getSysCores() {
