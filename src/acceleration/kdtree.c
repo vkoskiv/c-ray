@@ -66,11 +66,10 @@ struct kdTreeNode *getNewNode() {
 	return node;
 }
 
-struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
+struct kdTreeNode *buildTree(int *polygons, int polyCount) {
 	struct kdTreeNode *node = getNewNode();
 	node->polygons = polygons;
 	node->polyCount = polyCount;
-	node->depth = depth;
 	
 	if (polyCount == 0)
 		return node;
@@ -137,8 +136,8 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 		if (rightPolys.used > 0 && !rightFreed) freeArray(&rightPolys);
 	} else {
 		//Keep going
-		node->left = buildTree(leftPolys.array, (int)leftPolys.used, depth + 1);
-		node->right = buildTree(rightPolys.array, (int)rightPolys.used, depth + 1);
+		node->left = buildTree(leftPolys.array, (int)leftPolys.used);
+		node->right = buildTree(rightPolys.array, (int)rightPolys.used);
 	}
 	
 	return node;
