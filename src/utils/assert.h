@@ -8,10 +8,7 @@
 
 #pragma once
 
-static void assertFailed(const char *file, const char *func, int line, const char *expr) {
-	printf("ASSERTION FAILED: In %s in function %s on line %i, expression \"%s\"\n", file, func, line, expr);
-	abort();
-}
+void assertFailed(const char *file, const char *func, int line, const char *expr);
 
 #define ASSERT(expr) \
 	if ((expr)) \
