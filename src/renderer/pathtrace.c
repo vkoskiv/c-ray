@@ -99,7 +99,7 @@ struct hitRecord getClosestIsect(struct lightRay *incidentRay, struct world *sce
 	isect.incident = *incidentRay;
 	isect.didIntersect = false;
 	for (int i = 0; i < scene->sphereCount; i++) {
-		if (rayIntersectsWithSphere(&scene->spheres[i], incidentRay, &isect)) {
+		if (rayIntersectsWithSphere(incidentRay, &scene->spheres[i], &isect)) {
 			isect.end = scene->spheres[i].material;
 			isect.didIntersect = true;
 		}
