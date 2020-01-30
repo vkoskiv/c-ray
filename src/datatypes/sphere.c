@@ -33,7 +33,7 @@ struct sphere newLightSphere(struct vector pos, float radius, struct color color
 }
 
 //Calculates intersection with a sphere and a light ray
-bool intersect(struct lightRay *ray, struct sphere *sphere, float *t) {
+bool intersect(const struct lightRay *ray, const struct sphere *sphere, float *t) {
 	bool intersects = false;
 	
 	//Vector dot product of the direction
@@ -72,7 +72,7 @@ bool intersect(struct lightRay *ray, struct sphere *sphere, float *t) {
 	return intersects;
 }
 
-bool rayIntersectsWithSphere(struct lightRay *ray, struct sphere *sphere, struct hitRecord *isect) {
+bool rayIntersectsWithSphere(const struct lightRay *ray, const struct sphere *sphere, struct hitRecord *isect) {
 	//Pass the distance value to rayIntersectsWithSphere, where it's set
 	if (intersect(ray, sphere, &isect->distance)) {
 		isect->type = hitTypeSphere;

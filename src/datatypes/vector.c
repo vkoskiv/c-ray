@@ -11,7 +11,6 @@
 #include "../utils/assert.h"
 
 struct base baseWithVec(struct vector i) {
-	ASSERT(false);
 	ASSERT(vecLength(i) == 1.0f);
 	struct base newBase;
 	newBase.i = i;

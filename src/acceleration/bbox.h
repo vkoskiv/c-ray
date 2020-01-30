@@ -26,18 +26,18 @@ struct boundingBox {
 /// Computes a bounding box for a given array of polygons
 /// @param polys Array of polygons to process
 /// @param count Amount of polygons given
-struct boundingBox *computeBoundingBox(int *polys, int count);
+struct boundingBox *computeBoundingBox(const int *polys, const int count);
 
 /// Compute the longest axis of a given bounding box
 /// @param bbox Bounding box to process
-enum bboxAxis getLongestAxis(struct boundingBox *bbox);
+enum bboxAxis getLongestAxis(const struct boundingBox *bbox);
 
 /// Checks  for an intersection between a given ray and bounding box
 /// @param box Bounding box to check intersection against
 /// @param ray Ray to intersect
 /// @param t Distance the intersection occurred at along the ray
-bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, float *t);
+bool rayIntersectWithAABB(const struct boundingBox *box, const struct lightRay *ray, float *t);
 
 /// Compute the surface area of a given bounding box
 /// @param box Bounding box to compute surface area for
-float findSurfaceArea(struct boundingBox *box);
+float findSurfaceArea(const struct boundingBox *box);

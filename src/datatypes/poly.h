@@ -30,4 +30,4 @@ struct coord;
 
 //Calculates intersection between a light ray and a polygon object. Returns true if intersection has happened.
 //result will be set to distance of intersect point, normal will be set to intersect normal, uv is the barycentric coord of that point
-bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, float *result, struct vector *normal, struct coord *uv);
+bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *poly, float *result, struct vector *normal, struct coord *uv);

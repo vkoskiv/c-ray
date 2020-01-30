@@ -66,7 +66,7 @@ struct kdTreeNode *getNewNode() {
 	return node;
 }
 
-struct kdTreeNode *buildTree(int *polygons, int polyCount) {
+struct kdTreeNode *buildTree(int *polygons, const int polyCount) {
 	struct kdTreeNode *node = getNewNode();
 	node->polygons = polygons;
 	node->polyCount = polyCount;
@@ -144,7 +144,7 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount) {
 }
 
 //Recurse through tree and count orphan nodes with no polygons
-int checkTree(struct kdTreeNode *node) {
+int checkTree(const struct kdTreeNode *node) {
 	int orphans = 0;
 	if (node) {
 		if (node->polyCount == 0) {
@@ -160,7 +160,7 @@ int checkTree(struct kdTreeNode *node) {
 	return orphans;
 }
 
-int countNodes(struct kdTreeNode *node) {
+int countNodes(const struct kdTreeNode *node) {
 	int nodes = 0;
 	if (node) {
 		if (node->left) {
@@ -174,7 +174,7 @@ int countNodes(struct kdTreeNode *node) {
 	return nodes;
 }
 
-bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct hitRecord *isect) {
+bool rayIntersectsWithNode(const struct kdTreeNode *node, const struct lightRay *ray, struct hitRecord *isect) {
 	if (!node) return false;
 	//A bit of a hack, but it does work...!
 	float fakeIsect = 20000.0;
