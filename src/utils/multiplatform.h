@@ -11,6 +11,9 @@
 ///Prepare terminal. On *nix this disables output buffering, on WIN32 it enables ANSI escape codes.
 void initTerminal(void);
 
+/// Restore previous terminal state. On *nix it un-hides the cursor.
+void restoreTerminal(void);
+
 /// Get amount of logical processing cores on the system
 /// @remark Is unaware of NUMA nodes on high core count systems
 /// @return Amount of logical processing cores

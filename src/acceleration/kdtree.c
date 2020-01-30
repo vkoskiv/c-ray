@@ -66,11 +66,10 @@ struct kdTreeNode *getNewNode() {
 	return node;
 }
 
-struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
+struct kdTreeNode *buildTree(int *polygons, const int polyCount) {
 	struct kdTreeNode *node = getNewNode();
 	node->polygons = polygons;
 	node->polyCount = polyCount;
-	node->depth = depth;
 	
 	if (polyCount == 0)
 		return node;
@@ -82,7 +81,7 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 	}
 	
 	node->bbox = computeBoundingBox(node->polygons, node->polyCount);
-	float currentSAHCost = node->polyCount * findSurfaceArea(*node->bbox);
+	float currentSAHCost = node->polyCount * findSurfaceArea(node->bbox);
 	
 	struct vector midPoint = node->bbox->midPoint;
 	
@@ -123,8 +122,8 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 	struct boundingBox *leftBBox = computeBoundingBox(leftPolys.array, (int)leftPolys.used);
 	struct boundingBox *rightBBox = computeBoundingBox(rightPolys.array, (int)rightPolys.used);
 	
-	float leftSAHCost = leftPolys.used * findSurfaceArea(*leftBBox);
-	float rightSAHCost = rightPolys.used * findSurfaceArea(*rightBBox);
+	float leftSAHCost = leftPolys.used * findSurfaceArea(leftBBox);
+	float rightSAHCost = rightPolys.used * findSurfaceArea(rightBBox);
 	
 	free(leftBBox);
 	free(rightBBox);
@@ -137,15 +136,15 @@ struct kdTreeNode *buildTree(int *polygons, int polyCount, int depth) {
 		if (rightPolys.used > 0 && !rightFreed) freeArray(&rightPolys);
 	} else {
 		//Keep going
-		node->left = buildTree(leftPolys.array, (int)leftPolys.used, depth + 1);
-		node->right = buildTree(rightPolys.array, (int)rightPolys.used, depth + 1);
+		node->left = buildTree(leftPolys.array, (int)leftPolys.used);
+		node->right = buildTree(rightPolys.array, (int)rightPolys.used);
 	}
 	
 	return node;
 }
 
 //Recurse through tree and count orphan nodes with no polygons
-int checkTree(struct kdTreeNode *node) {
+int checkTree(const struct kdTreeNode *node) {
 	int orphans = 0;
 	if (node) {
 		if (node->polyCount == 0) {
@@ -161,7 +160,7 @@ int checkTree(struct kdTreeNode *node) {
 	return orphans;
 }
 
-int countNodes(struct kdTreeNode *node) {
+int countNodes(const struct kdTreeNode *node) {
 	int nodes = 0;
 	if (node) {
 		if (node->left) {
@@ -175,7 +174,7 @@ int countNodes(struct kdTreeNode *node) {
 	return nodes;
 }
 
-bool rayIntersectsWithNode(struct kdTreeNode *node, struct lightRay *ray, struct hitRecord *isect) {
+bool rayIntersectsWithNode(const struct kdTreeNode *node, const struct lightRay *ray, struct hitRecord *isect) {
 	if (!node) return false;
 	//A bit of a hack, but it does work...!
 	float fakeIsect = 20000.0;

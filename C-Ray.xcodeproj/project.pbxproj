@@ -74,6 +74,8 @@
 		9058A51222231E9F00193385 /* learn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50F22231E9E00193385 /* learn.c */; };
 		9058A51522231EB100193385 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
 		907CD47A2240DFFF003947B0 /* multiplatform.c in Sources */ = {isa = PBXBuildFile; fileRef = 907CD4792240DFFF003947B0 /* multiplatform.c */; };
+		90908A6F23E0707E0081377B /* assert.c in Sources */ = {isa = PBXBuildFile; fileRef = 90908A6E23E0707E0081377B /* assert.c */; };
+		90908A7023E0707E0081377B /* assert.c in Sources */ = {isa = PBXBuildFile; fileRef = 90908A6E23E0707E0081377B /* assert.c */; };
 		9095392523C15A7B0017037C /* c-ray.c in Sources */ = {isa = PBXBuildFile; fileRef = 9095392423C15A7B0017037C /* c-ray.c */; };
 		9095392623C15A7B0017037C /* c-ray.c in Sources */ = {isa = PBXBuildFile; fileRef = 9095392423C15A7B0017037C /* c-ray.c */; };
 		9095392923C15AAB0017037C /* networking.c in Sources */ = {isa = PBXBuildFile; fileRef = 9095392823C15AAB0017037C /* networking.c */; };
@@ -178,6 +180,7 @@
 		9058A51422231EB100193385 /* Tinn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Tinn.c; sourceTree = "<group>"; };
 		907CD4782240DFFF003947B0 /* multiplatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multiplatform.h; sourceTree = "<group>"; };
 		907CD4792240DFFF003947B0 /* multiplatform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = multiplatform.c; sourceTree = "<group>"; };
+		90908A6E23E0707E0081377B /* assert.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = assert.c; sourceTree = "<group>"; };
 		9095392323C15A7B0017037C /* c-ray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "c-ray.h"; sourceTree = "<group>"; };
 		9095392423C15A7B0017037C /* c-ray.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "c-ray.c"; sourceTree = "<group>"; };
 		9095392723C15AAB0017037C /* networking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = networking.h; sourceTree = "<group>"; };
@@ -351,6 +354,7 @@
 				90FB15CA22596E79008D6AAA /* gitsha1.c.in */,
 				90FB15C922596E79008D6AAA /* gitsha1.h */,
 				90204C7823A07F2C00B01EEF /* assert.h */,
+				90908A6E23E0707E0081377B /* assert.c */,
 				9095392723C15AAB0017037C /* networking.h */,
 				9095392823C15AAB0017037C /* networking.c */,
 			);
@@ -497,6 +501,7 @@
 				905842EB236651FC009D92F1 /* texture.c in Sources */,
 				905842EC236651FC009D92F1 /* objloader.c in Sources */,
 				905842ED236651FC009D92F1 /* lightRay.c in Sources */,
+				90908A7023E0707E0081377B /* assert.c in Sources */,
 				905842EE236651FC009D92F1 /* pcg_basic.c in Sources */,
 				905842EF236651FC009D92F1 /* gitsha1.c in Sources */,
 				905842F0236651FC009D92F1 /* learn.c in Sources */,
@@ -545,6 +550,7 @@
 				90FB15CE225C6D85008D6AAA /* texture.c in Sources */,
 				90CA851D2252C90C00BA7702 /* objloader.c in Sources */,
 				900BA131220B4603005B8EE7 /* lightRay.c in Sources */,
+				90908A6F23E0707E0081377B /* assert.c in Sources */,
 				90369CCC222E012F008D215B /* pcg_basic.c in Sources */,
 				90FB15CB22596E79008D6AAA /* gitsha1.c in Sources */,
 				9058A51222231E9F00193385 /* learn.c in Sources */,

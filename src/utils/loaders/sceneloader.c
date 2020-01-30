@@ -102,7 +102,7 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFilePath) == 0) {
 		printf("\n");
-		logr(warning, "Mesh %s not found!\n", getFileName(inputFilePath));
+		logr(warning, "Mesh %s not found!", getFileName(inputFilePath));
 		return false;
 	}
 	
@@ -940,7 +940,6 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	}
 }
 
-//FIXME:
 void parseMeshes(struct renderer *r, const cJSON *data) {
 	const cJSON *mesh = NULL;
 	int idx = 1;

@@ -16,12 +16,11 @@
 //General-purpose blit function
 void blit(struct texture *t, struct color c, unsigned x, unsigned y) {
 	ASSERT(x < t->width); ASSERT(y < t->height);
-	ASSERT(x >= 0); ASSERT(y >= 0);
 	if (t->precision == char_p) {
-		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = (unsigned char)min(c.red * 255.0, 255.0);
-		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = (unsigned char)min(c.green * 255.0, 255.0);
-		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 2] = (unsigned char)min(c.blue * 255.0, 255.0);
-		if (t->hasAlpha) t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = (unsigned char)min(c.alpha * 255.0, 255.0);
+		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = (unsigned char)min(c.red * 255.0f, 255.0f);
+		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = (unsigned char)min(c.green * 255.0f, 255.0f);
+		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 2] = (unsigned char)min(c.blue * 255.0f, 255.0f);
+		if (t->hasAlpha) t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = (unsigned char)min(c.alpha * 255.0f, 255.0f);
 	}
 	else if (t->precision == float_p) {
 		t->float_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = c.red;
@@ -31,7 +30,7 @@ void blit(struct texture *t, struct color c, unsigned x, unsigned y) {
 	}
 }
 
-struct color textureGetPixel(struct texture *t, unsigned x, unsigned y) {
+struct color textureGetPixel(const struct texture *t, unsigned x, unsigned y) {
 	struct color output = {0.0, 0.0, 0.0, 0.0};
 	int pitch = 0;
 	if (t->hasAlpha) {
@@ -62,7 +61,7 @@ struct color textureGetPixel(struct texture *t, unsigned x, unsigned y) {
 }
 
 //Bilinearly interpolated (smoothed) output. Requires float precision, i.e. 0.0->width-1.0
-struct color textureGetPixelFiltered(struct texture *t, float x, float y) {
+struct color textureGetPixelFiltered(const struct texture *t, float x, float y) {
 	float xcopy = x - 0.5;
 	float ycopy = y - 0.5;
 	int xint = (int)xcopy;

@@ -42,7 +42,7 @@ void computeKDTrees(struct mesh *meshes, int meshCount) {
 		for (int j = 0; j < meshes[i].polyCount; j++) {
 			indices[j] = meshes[i].firstPolyIndex + j;
 		}
-		meshes[i].tree = buildTree(indices, meshes[i].polyCount, 0);
+		meshes[i].tree = buildTree(indices, meshes[i].polyCount);
 		
 		// Optional tree checking
 		/*int orphans = checkTree(meshes[i].tree);

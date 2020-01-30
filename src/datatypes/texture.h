@@ -53,9 +53,17 @@ struct color;
 struct texture *newTexture(enum precision p, int width, int height, int channels);
 
 void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
-struct color textureGetPixel(struct texture *t, unsigned x, unsigned y);
-struct color textureGetPixelFiltered(struct texture *t, float x, float y);
+struct color textureGetPixel(const struct texture *t, unsigned x, unsigned y);
+struct color textureGetPixelFiltered(const struct texture *t, float x, float y);
+
+/// Convert texture from sRGB to linear color space
+/// @remarks The texture data will be modified directly.
+/// @param t Texture to convert
 void textureFromSRGB(struct texture *t);
+
+/// Convert texture from linear color space to sRGB.
+/// @remarks The texture data will be modified directly.
+/// @param t Texture to convert
 void textureToSRGB(struct texture *t);
 
 void freeTexture(struct texture *tex);

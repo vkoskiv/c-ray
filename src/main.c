@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
 	crRenderSingleFrame();
 	crWriteImage();
 	crDestroyRenderer();
+	crRestoreTerminal();
 	logr(info, "Render finished, exiting.\n");
 	return 0;
 }

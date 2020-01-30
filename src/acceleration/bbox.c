@@ -11,6 +11,7 @@
 
 #include "../datatypes/vertexbuffer.h"
 #include "../datatypes/poly.h"
+#include "../utils/assert.h"
 
 /**
  Get the longest axis of an axis-aligned bounding box
@@ -18,7 +19,7 @@
  @param bbox Bounding box to compute longest axis for
  @return Longest axis as an enum
  */
-enum bboxAxis getLongestAxis(struct boundingBox *bbox) {
+enum bboxAxis getLongestAxis(const struct boundingBox *bbox) {
 	float x = fabs(bbox->start.x - bbox->end.x);
 	float y = fabs(bbox->start.y - bbox->end.y);
 	float z = fabs(bbox->start.z - bbox->end.z);
@@ -33,7 +34,9 @@ enum bboxAxis getLongestAxis(struct boundingBox *bbox) {
  @param count Amount of polygons indices given
  @return Axis-aligned bounding box
  */
-struct boundingBox *computeBoundingBox(int *polys, int count) {
+struct boundingBox *computeBoundingBox(const int *polys, const int count) {
+	ASSERT(polys);
+	ASSERT(count > 0);
 	struct boundingBox *bbox = calloc(1, sizeof(struct boundingBox));
 	struct vector minPoint = vecWithPos(FLT_MAX, FLT_MAX, FLT_MAX);
 	struct vector maxPoint = vecWithPos(-FLT_MAX, -FLT_MAX, -FLT_MAX);
@@ -67,14 +70,11 @@ struct boundingBox *computeBoundingBox(int *polys, int count) {
  @param t Current max t value for the ray
  @return true if intersected, false otherwise
  */
-bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, float *t) {
+bool rayIntersectWithAABB(const struct boundingBox *box, const struct lightRay *ray, float *t) {
 	//If a mesh has no polygons, it won't have a root bbox either.
 	if (!box) return false;
 	
-	struct vector dirfrac;
-	dirfrac.x = 1.0 / ray->direction.x;
-	dirfrac.y = 1.0 / ray->direction.y;
-	dirfrac.z = 1.0 / ray->direction.z;
+	struct vector dirfrac = vecWithPos(1.0f / ray->direction.x, 1.0f / ray->direction.y, 1.0f / ray->direction.z);
 
 	float t1 = (box->start.x - ray->start.x)*dirfrac.x;
 	float t2 = (box->  end.x - ray->start.x)*dirfrac.x;
@@ -102,9 +102,9 @@ bool rayIntersectWithAABB(struct boundingBox *box, struct lightRay *ray, float *
 	return true;
 }
 
-float findSurfaceArea(struct boundingBox box) {
-	float width = box.end.x - box.start.x;
-	float height = box.end.y - box.start.y;
-	float length = box.end.z - box.start.z;
+float findSurfaceArea(const struct boundingBox *box) {
+	float width = box->end.x - box->start.x;
+	float height = box->end.y - box->start.y;
+	float length = box->end.z - box->start.z;
 	return 2 * (length * width) + 2 * (length * height) + 2 * (width * height);
 }

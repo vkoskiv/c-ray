@@ -220,7 +220,7 @@ struct vector randomOnUnitSphere(pcg32_random_t *rng) {
 	return vecNormalize(vec);
 }
 
-bool emissiveBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool emissiveBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	(void)isect;
 	(void)ray;
 	(void)attenuation;
@@ -229,7 +229,7 @@ bool emissiveBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *a
 	return false;
 }
 
-bool weightedBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool weightedBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	(void)isect;
 	(void)ray;
 	(void)attenuation;
@@ -248,7 +248,7 @@ struct color diffuseColor(struct hitRecord *isect) {
 	return isect->end.hasTexture ? colorForUV(isect) : isect->end.diffuse;
 }
 
-bool lambertianBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool lambertianBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	(void)ray;
 	struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
 	struct vector rand = randomInUnitSphere(rng);
@@ -258,7 +258,7 @@ bool lambertianBSDF(struct hitRecord *isect, struct lightRay *ray, struct color 
 	return true;
 }
 
-bool metallicBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool metallicBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	(void)ray;
 	struct vector normalizedDir = vecNormalize(isect->incident.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
@@ -296,7 +296,7 @@ float shlick(float cosine, float IOR) {
 }
 
 // Only works on spheres for now. Reflections work but refractions don't
-bool dialectricBSDF(struct hitRecord *isect, struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool dialectricBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
 	(void)ray;
 	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);

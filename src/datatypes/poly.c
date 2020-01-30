@@ -17,7 +17,7 @@
 struct poly *polygonArray;
 int polyCount;
 
-bool rayIntersectsWithPolygon(struct lightRay *ray, struct poly *poly, float *result, struct vector *normal, struct coord *uv) {
+bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *poly, float *result, struct vector *normal, struct coord *uv) {
 	float orientation, inverseOrientation;
 	struct vector edge1 = vecSub(vertexArray[poly->vertexIndex[2]], vertexArray[poly->vertexIndex[0]]);
 	struct vector edge2 = vecSub(vertexArray[poly->vertexIndex[1]], vertexArray[poly->vertexIndex[0]]);
