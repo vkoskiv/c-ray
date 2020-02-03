@@ -83,6 +83,9 @@ int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned heig
 			tile->end.x = min((x + 1) * tileWidth, width);
 			tile->end.y = min((y + 1) * tileHeight, height);
 			
+			tile->width = tile->end.x - tile->begin.x;
+			tile->height = tile->end.y - tile->begin.y;
+			
 			//Samples have to start at 1, so the running average works
 			tile->completedSamples = 1;
 			tile->isRendering = false;
