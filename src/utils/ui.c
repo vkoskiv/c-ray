@@ -193,10 +193,15 @@ void drawProgressBars(struct renderer *r) {
  @param tile Given renderTile
  */
 void drawFrame(struct renderer *r, struct renderTile tile) {
-	int length = tile.width < 16 ? 4 : 8;
+	int length = tile.width  < 16 ? 4 : 8;
+		length = tile.height < 16 ? 4 : 8;
 	struct color c = clearColor;
 	if (tile.isRendering) {
 		c = frameColor;
+	} else if (tile.renderComplete) {
+		c = clearColor;
+	} else {
+		return;
 	}
 	for (int i = 1; i < length; i++) {
 		//top left
