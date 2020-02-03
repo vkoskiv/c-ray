@@ -348,32 +348,22 @@ struct renderer *newRenderer() {
 	return r;
 }
 	
-void freeRenderer(struct renderer *r) {
+void destroyRenderer(struct renderer *r) {
 	if (r->state.timer) {
 		free(r->state.timer);
 	}
-	if (r->scene) {
-		freeScene(r->scene);
-		free(r->scene);
-	}
+	destroyScene(r->scene);
 	if (r->state.renderTiles) {
 		free(r->state.renderTiles);
 	}
-	if (r->state.renderBuffer) {
-		freeTexture(r->state.renderBuffer);
-		free(r->state.renderBuffer);
-	}
-	if (r->state.uiBuffer) {
-		freeTexture(r->state.uiBuffer);
-		free(r->state.uiBuffer);
-	}
+	
+	destroyTexture(r->state.renderBuffer);
+	destroyTexture(r->state.uiBuffer);
+	
 	if (r->state.threadStates) {
 		free(r->state.threadStates);
 	}
-	if (r->mainDisplay) {
-		freeDisplay(r->mainDisplay);
-		free(r->mainDisplay);
-	}
+	destroyDisplay(r->mainDisplay);
 	if (r->prefs.imgFileName) {
 		free(r->prefs.imgFileName);
 	}
@@ -382,7 +372,7 @@ void freeRenderer(struct renderer *r) {
 	}
 	
 	if (vertexArray) {
-		freeVertexBuffer();
+		destroyVertexBuffer();
 	}
 	
 	free(r);

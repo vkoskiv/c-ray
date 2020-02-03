@@ -110,4 +110,4 @@ struct renderer *newRenderer(void);
 struct texture *renderFrame(struct renderer *r);
 
 //Free renderer allocations
-void freeRenderer(struct renderer *r);
+void destroyRenderer(struct renderer *r);

@@ -53,7 +53,7 @@ void crInitSDL() {
 void crDestroySDL() {
 #ifdef UI_ENABLED
 	ASSERT(grenderer->mainDisplay->window);
-	freeDisplay(grenderer->mainDisplay);
+	destroyDisplay(grenderer->mainDisplay);
 #endif
 }
 
@@ -93,11 +93,8 @@ void crInitRenderer() {
 
 void crDestroyRenderer() {
 	ASSERT(grenderer);
-	freeRenderer(grenderer);
-	if (currentImage) {
-		freeTexture(currentImage);
-		free(currentImage);
-	}
+	destroyRenderer(grenderer);
+	destroyTexture(currentImage);
 }
 
 int crLoadSceneFromFile(char *filePath) {

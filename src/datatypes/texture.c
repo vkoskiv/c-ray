@@ -95,7 +95,7 @@ struct texture *newTexture(enum precision p, int width, int height, int channels
 			t->byte_data = calloc(channels * width * height, sizeof(unsigned char));
 			if (!t->byte_data) {
 				logr(warning, "Failed to allocate %ix%i texture.\n", width, height);
-				freeTexture(t);
+				destroyTexture(t);
 				return NULL;
 			}
 		}
@@ -104,7 +104,7 @@ struct texture *newTexture(enum precision p, int width, int height, int channels
 			t->float_data = calloc(channels * width * height, sizeof(float));
 			if (!t->float_data) {
 				logr(warning, "Failed to allocate %ix%i texture.\n", width, height);
-				freeTexture(t);
+				destroyTexture(t);
 				return NULL;
 			}
 		}
@@ -135,17 +135,20 @@ void textureToSRGB(struct texture *t) {
 	t->colorspace = sRGB;
 }
 
-void freeTexture(struct texture *t) {
-	if (t->fileName) {
-		free(t->fileName);
-	}
-	if (t->filePath) {
-		free(t->filePath);
-	}
-	if (t->byte_data) {
-		free(t->byte_data);
-	}
-	if (t->float_data) {
-		free(t->float_data);
+void destroyTexture(struct texture *t) {
+	if (t) {
+		if (t->fileName) {
+			free(t->fileName);
+		}
+		if (t->filePath) {
+			free(t->filePath);
+		}
+		if (t->byte_data) {
+			free(t->byte_data);
+		}
+		if (t->float_data) {
+			free(t->float_data);
+		}
+		free(t);
 	}
 }

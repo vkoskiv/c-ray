@@ -35,4 +35,4 @@ struct world {
 
 int loadScene(struct renderer *r, char *input);
 
-void freeScene(struct world *scene);
+void destroyScene(struct world *scene);

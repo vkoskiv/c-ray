@@ -93,19 +93,22 @@ int initSDL(struct display *d) {
 	return 0;
 }
 
-void freeDisplay(struct display *d) {
+void destroyDisplay(struct display *d) {
 #ifdef UI_ENABLED
-	if (d->window) {
-		SDL_DestroyWindow(d->window);
-	}
-	if (d->renderer) {
-		SDL_DestroyRenderer(d->renderer);
-	}
-	if (d->texture) {
-		SDL_DestroyTexture(d->texture);
-	}
-	if (d->overlayTexture) {
-		SDL_DestroyTexture(d->overlayTexture);
+	if (d) {
+		if (d->window) {
+			SDL_DestroyWindow(d->window);
+		}
+		if (d->renderer) {
+			SDL_DestroyRenderer(d->renderer);
+		}
+		if (d->texture) {
+			SDL_DestroyTexture(d->texture);
+		}
+		if (d->overlayTexture) {
+			SDL_DestroyTexture(d->overlayTexture);
+		}
+		free(d);
 	}
 #endif
 }

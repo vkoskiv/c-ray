@@ -58,7 +58,7 @@ void transformMesh(struct mesh *mesh) {
 	free(ntformed);
 }
 
-void freeMesh(struct mesh *mesh) {
+void destroyMesh(struct mesh *mesh) {
 	if (mesh->name) {
 		free(mesh->name);
 	}
@@ -68,11 +68,11 @@ void freeMesh(struct mesh *mesh) {
 		}
 	}
 	if (mesh->tree) {
-		freeTree(mesh->tree);
+		destroyTree(mesh->tree);
 	}
 	if (mesh->materials) {
 		for (int i = 0; i < mesh->materialCount; i++) {
-			freeMaterial(&mesh->materials[i]);
+			destroyMaterial(&mesh->materials[i]);
 		}
 		free(mesh->materials);
 	}

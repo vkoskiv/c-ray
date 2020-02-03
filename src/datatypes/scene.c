@@ -130,23 +130,21 @@ int loadScene(struct renderer *r, char *input) {
 }
 
 //Free scene data
-void freeScene(struct world *scene) {
-	if (scene->hdr) {
-		freeTexture(scene->hdr);
-		free(scene->hdr);
-	}
-	
-	if (scene->meshes) {
-		for (int i = 0; i < scene->meshCount; i++) {
-			freeMesh(&scene->meshes[i]);
+void destroyScene(struct world *scene) {
+	if (scene) {
+		destroyTexture(scene->hdr);
+		if (scene->meshes) {
+			for (int i = 0; i < scene->meshCount; i++) {
+				destroyMesh(&scene->meshes[i]);
+			}
+			free(scene->meshes);
 		}
-		free(scene->meshes);
-	}
-	if (scene->spheres) {
-		free(scene->spheres);
-	}
-	if (scene->camera) {
-		freeCamera(scene->camera);
-		free(scene->camera);
+		if (scene->spheres) {
+			free(scene->spheres);
+		}
+		if (scene->camera) {
+			destroyCamera(scene->camera);
+		}
+		free(scene);
 	}
 }

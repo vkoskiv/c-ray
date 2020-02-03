@@ -33,7 +33,7 @@ struct display {
 };
 
 int initSDL(struct display *d);
-void freeDisplay(struct display *d);
+void destroyDisplay(struct display *d);
 
 void printDuration(uint64_t ms);
 void getKeyboardInput(struct renderer *r);

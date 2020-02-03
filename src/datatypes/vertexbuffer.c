@@ -27,7 +27,20 @@ int normalCount;
 struct coord *textureArray;
 int textureCount;
 
-void freeVertexBuffer() {
+void allocVertexBuffer() {
+	ASSERT(!vertexArray);
+	vertexArray = calloc(1, sizeof(struct vector));
+	normalArray = calloc(1, sizeof(struct vector));
+	textureArray = calloc(1, sizeof(struct coord));
+	polygonArray = calloc(1, sizeof(struct poly));
+	
+	vertexCount = 0;
+	normalCount = 0;
+	textureCount = 0;
+	polyCount = 0;
+}
+
+void destroyVertexBuffer() {
 	if (vertexArray) {
 		free(vertexArray);
 	}
@@ -40,17 +53,4 @@ void freeVertexBuffer() {
 	if (polygonArray) {
 		free(polygonArray);
 	}
-}
-
-void allocVertexBuffer() {
-	ASSERT(!vertexArray);
-	vertexArray = calloc(1, sizeof(struct vector));
-	normalArray = calloc(1, sizeof(struct vector));
-	textureArray = calloc(1, sizeof(struct coord));
-	polygonArray = calloc(1, sizeof(struct poly));
-	
-	vertexCount = 0;
-	normalCount = 0;
-	textureCount = 0;
-	polyCount = 0;
 }

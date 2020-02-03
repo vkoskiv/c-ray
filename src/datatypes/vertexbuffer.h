@@ -19,4 +19,4 @@ extern struct coord *textureArray;
 extern int textureCount;
 
 void allocVertexBuffer(void);
-void freeVertexBuffer(void);
+void destroyVertexBuffer(void);

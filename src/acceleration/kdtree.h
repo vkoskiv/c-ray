@@ -41,4 +41,4 @@ int checkTree(const struct kdTreeNode *node);
 
 /// Free a given tree
 /// @param node Root node of a tree to free
-void freeTree(struct kdTreeNode *node);
+void destroyTree(struct kdTreeNode *node);

@@ -338,7 +338,7 @@ bool dialectricBSDF(struct hitRecord *isect, const struct lightRay *ray, struct 
 	return true;
 }
 
-void freeMaterial(struct material *mat) {
+void destroyMaterial(struct material *mat) {
 	if (mat->textureFilePath) {
 		free(mat->textureFilePath);
 	}
@@ -349,9 +349,6 @@ void freeMaterial(struct material *mat) {
 		free(mat->name);
 	}
 	if (mat->hasTexture) {
-		if (mat->texture) {
-			freeTexture(mat->texture);
-			free(mat->texture);
-		}
+		destroyTexture(mat->texture);
 	}
 }

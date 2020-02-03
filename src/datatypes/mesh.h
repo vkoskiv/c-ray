@@ -51,4 +51,4 @@ struct mesh {
 void addTransform(struct mesh *mesh, struct transform transform);
 void transformMesh(struct mesh *mesh);
 
-void freeMesh(struct mesh *mesh);
+void destroyMesh(struct mesh *mesh);

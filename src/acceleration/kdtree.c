@@ -208,10 +208,10 @@ bool rayIntersectsWithNode(const struct kdTreeNode *node, const struct lightRay 
 	return false;
 }
 
-void freeTree(struct kdTreeNode *node) {
+void destroyTree(struct kdTreeNode *node) {
 	if (node) {
-		freeTree(node->left);
-		freeTree(node->right);
+		destroyTree(node->left);
+		destroyTree(node->right);
 		if (node->bbox) free(node->bbox);
 		if (node->polygons) free(node->polygons);
 		free(node);

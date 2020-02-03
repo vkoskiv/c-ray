@@ -55,8 +55,7 @@ struct texture *loadTexture(char *filePath) {
 		new->float_data = stbi_loadf(filePath, (int*)&new->width, (int*)&new->height, &new->channels, 0);
 		new->precision = float_p;
 		if (!new->float_data) {
-			freeTexture(new);
-			free(new);
+			destroyTexture(new);
 			logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
 			return NULL;
 		}
@@ -66,8 +65,7 @@ struct texture *loadTexture(char *filePath) {
 		new->byte_data = stbi_load(filePath, (int*)&new->width, (int*)&new->height, &new->channels, 3);
 		if (!new->byte_data) {
 			logr(warning, "Error while loading texture from %s - Does the file exist?\n", filePath);
-			freeTexture(new);
-			free(new);
+			destroyTexture(new);
 			return NULL;
 		}
 		new->fileType = buffer;

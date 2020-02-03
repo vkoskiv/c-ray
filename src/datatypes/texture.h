@@ -66,4 +66,4 @@ void textureFromSRGB(struct texture *t);
 /// @param t Texture to convert
 void textureToSRGB(struct texture *t);
 
-void freeTexture(struct texture *tex);
+void destroyTexture(struct texture *tex);

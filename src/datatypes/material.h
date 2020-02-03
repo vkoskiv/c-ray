@@ -120,4 +120,4 @@ bool dialectricBSDF(struct hitRecord *isect, const struct lightRay *ray, struct 
 
 void assignBSDF(struct material *mat);
 
-void freeMaterial(struct material *mat);
+void destroyMaterial(struct material *mat);
