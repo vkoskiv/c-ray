@@ -363,7 +363,6 @@ void destroyRenderer(struct renderer *r) {
 	if (r->state.threadStates) {
 		free(r->state.threadStates);
 	}
-	destroyDisplay(r->mainDisplay);
 	if (r->prefs.imgFileName) {
 		free(r->prefs.imgFileName);
 	}
