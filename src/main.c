@@ -15,9 +15,7 @@
 
 int main(int argc, char *argv[]) {
 	crInitTerminal();
-	char *hash = crGitHash(8);
-	logr(info, "C-ray v%s [%s], © 2015-2020 Valtteri Koskivuori\n", crGetVersion(), hash);
-	free(hash);
+	logr(info, "C-ray v%s [%.8s], © 2015-2020 Valtteri Koskivuori\n", crGetVersion(), crGitHash());
 	crInitRenderer();
 	size_t bytes = 0;
 	char *input = argc == 2 ? crLoadFile(argv[1], &bytes) : crReadStdin(&bytes);

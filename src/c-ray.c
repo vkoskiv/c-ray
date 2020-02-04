@@ -31,8 +31,8 @@ char *crGetVersion() {
 	return VERSION;
 }
 
-char *crGitHash(int chars) {
-	return gitHash(chars);
+char *crGitHash() {
+	return gitHash();
 }
 
 void crInitTerminal() {
@@ -58,7 +58,6 @@ void crDestroySDL() {
 }
 
 void crWriteImage() {
-	char *hash = gitHash(8);
 	char buf[64];
 	smartTime(getMs(*grenderer->state.timer), buf);
 	if (currentImage) {
@@ -67,7 +66,7 @@ void crWriteImage() {
 				.bounces = crGetBounces(),
 				.samples = crGetSampleCount(),
 				.crayVersion = crGetVersion(),
-				.gitHash = hash,
+				.gitHash = crGitHash(),
 				.renderTime = buf,
 				.threadCount = crGetThreadCount()
 			});
@@ -75,7 +74,6 @@ void crWriteImage() {
 			logr(info, "Abort pressed, image won't be saved.\n");
 		}
 	}
-	free(hash);
 }
 
 char *crLoadFile(char *filePath, size_t *bytes) {

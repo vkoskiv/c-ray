@@ -6,11 +6,6 @@ const char git_sha1[] = GIT_SHA1;
 
 /// Return current build time git hash
 /// @param chars bytes of hash to return
-char *gitHash(int chars) {
-	if (chars > 40) chars = 40;
-	if (chars < 1) chars = 1;
-	char *newStr = malloc((chars+1)*sizeof(char));
-	memcpy(newStr, git_sha1, chars);
-	newStr[chars] = '\0';
-	return newStr;
+char *gitHash() {
+	return GIT_SHA1;
 }

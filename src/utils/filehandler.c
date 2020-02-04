@@ -90,7 +90,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	info.time_defined = 1;
 	
 	char version[60];
-	sprintf(version, "C-ray v%s [%s], © 2015-2020 Valtteri Koskivuori", imginfo.crayVersion, imginfo.gitHash);
+	sprintf(version, "C-ray v%s [%.8s], © 2015-2020 Valtteri Koskivuori", imginfo.crayVersion, imginfo.gitHash);
 	char samples[16];
 	sprintf(samples, "%i", imginfo.samples);
 	char bounces[16];
