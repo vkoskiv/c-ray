@@ -203,7 +203,7 @@ char *getFileName(char *input) {
 
 //For Windows
 #ifndef PATH_MAX
-#define PATH_MAX 1024
+#define PATH_MAX 4096
 #endif
 char *getFilePath(char *input) {
 	char *dir = calloc(PATH_MAX, sizeof(char));
