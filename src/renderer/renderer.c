@@ -93,7 +93,7 @@ struct texture *renderFrame(struct renderer *r) {
 			char rem[64];
 			smartTime((msecTillFinished) / r->prefs.threadCount, rem);
 			float completion = ((float)completedSamples / totalTileSamples) * 100;
-			logr(info, "[%s%.0f%%%s] μs/ray: %.02f, etf: %s, %.02lfMs/s %s        \r",
+			logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
 				 KBLU,
 				 KNRM,
 				 completion,
@@ -222,14 +222,11 @@ void *renderThread(void *arg) {
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
 					//imaginary plane in front of the origin. startPos is just the camera position.
-					struct vector direction = {(fracX - 0.5f * image->width)
-												/ r->scene->camera->focalLength,
-											   (fracY - 0.5f * image->height)
-												/ r->scene->camera->focalLength,
-												1.0f};
-					
-					//Normalize direction
-					direction = vecNormalize(direction);
+					struct vector direction = vecNormalize((struct vector){
+												(fracX - 0.5f * image->width) / r->scene->camera->focalLength,
+											    (fracY - 0.5f * image->height) / r->scene->camera->focalLength,
+												1.0f
+											});
 					struct vector startPos = r->scene->camera->pos;
 					struct vector left = r->scene->camera->left;
 					struct vector up = r->scene->camera->up;
@@ -265,9 +262,7 @@ void *renderThread(void *arg) {
 					struct color sample = pathTrace(&incidentRay, r->scene, 0, r->prefs.bounces, &rng);
 					
 					//And process the running average
-					output.red = output.red * (tile.completedSamples - 1);
-					output.green = output.green * (tile.completedSamples - 1);
-					output.blue = output.blue * (tile.completedSamples - 1);
+					output = colorCoef((float)(tile.completedSamples - 1), output);
 					
 					output = addColors(output, sample);
 					
