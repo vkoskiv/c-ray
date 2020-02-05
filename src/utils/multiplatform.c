@@ -20,12 +20,7 @@
 #endif
 
 void showCursor(bool show) {
-  if (show) {
-    fputs("\e[?25h", stdout);
-  }
-  else {
-    fputs("\e[?25l", stdout);
-  }
+	show ? fputs("\e[?25h", stdout) : fputs("\e[?25l", stdout);
 }
 
 void initTerminal() {
