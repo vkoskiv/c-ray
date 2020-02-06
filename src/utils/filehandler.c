@@ -212,10 +212,8 @@ char *getFilePath(char *input) {
 	//_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0); //Maybe works on MS-WinDOS?
 #else
 	copyString(dirname(input), &dir);
-	size_t dirlen = strlen(dirname(input));
-	dir[dirlen] = '/';
 #endif
-	return dir;
+	return concatString(dir, "/");
 }
 
 #define chunksize 1024
