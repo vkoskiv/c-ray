@@ -137,8 +137,8 @@ int crGetThreadCount(void) {
 }
 
 void crSetSampleCount(int sampleCount) {
-	(void)sampleCount;
-	ASSERT_NOT_REACHED();
+	ASSERT(sampleCount > 0);
+	grenderer->prefs.sampleCount = sampleCount;
 }
 
 int crGetSampleCount(void) {
