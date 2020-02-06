@@ -48,6 +48,7 @@ Please see the [Wiki](https://github.com/VKoskiv/c-ray/wiki) for details on how 
 
 - CMake for the build system
 - SDL2 (Optional, CMake will link and enable it if it is found on your system.)
+- Python3 (Optional, it's used for some utility scripts)
 - Standard C99/GNU99 with some standard libraries
 
 All other libraries are included as source
@@ -102,7 +103,7 @@ OBJ Loader library: http://www.kixor.net/dev/objloader/
 
 lodePNG PNG compression library: http://lodev.org/lodepng/
 
-stb\_image.h by Sean Barrett: https://github.com/nothings/stb/blob/master/stb\_image.h
+stb\_image.h by Sean Barrett: https://github.com/nothings/stb/blob/master/stb_image.h
 
 SDL2: https://www.libsdl.org/index.php (Optional)
 
