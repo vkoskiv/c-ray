@@ -102,7 +102,9 @@ OBJ Loader library: http://www.kixor.net/dev/objloader/
 
 lodePNG PNG compression library: http://lodev.org/lodepng/
 
-SDL2: https://www.libsdl.org/index.php
+stb\_image.h by Sean Barrett: https://github.com/nothings/stb/blob/master/stb\_image.h
+
+SDL2: https://www.libsdl.org/index.php (Optional)
 
 JSON parsing library: https://github.com/DaveGamble/cJSON
 
@@ -110,6 +112,6 @@ PCG random number generator: http://www.pcg-random.org
 
 ## Contributors
 
-If you know more than me, please do get in touch at vkoskiv [at] gmail (dot) com!
+Please file an issue detailing any improvements you're planning on making. I openly welcome contributions!
 
-You can also ping me on **Discord!**: `vkoskiv#3100`
+You can also ping me on **Discord**: `vkoskiv#3100`
