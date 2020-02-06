@@ -12,7 +12,6 @@ import os
 import shutil
 import json
 import datetime
-import ntpath
 
 datestring = datetime.datetime.now().replace(microsecond=0).isoformat()
 
@@ -61,7 +60,7 @@ if __name__ == '__main__':
 	print("Packing file", str(sys.argv[1]))
 	filename = sys.argv[1]
 	assetPath = just_path(sys.argv[1])
-	destPath = os.path.splitext(ntpath.basename(filename))[0] + '-' + datestring
+	destPath = os.path.splitext(os.path.basename(filename))[0] + '-' + datestring
 
 	with open(filename) as f:
 		jsondata = json.load(f)
@@ -101,6 +100,6 @@ if __name__ == '__main__':
 	shutil.make_archive(destPath, 'zip', destPath)
 	shutil.rmtree(destPath)
 	print('\n\nBundle ' + destPath + '.zip created!')
-	example = os.path.splitext(ntpath.basename(filename))[0]
+	example = os.path.splitext(os.path.basename(filename))[0]
 	print('To use it, do \'unzip -d ' + example + ' ' + destPath +'.zip\'')
 	print('And then \'./bin/c-ray ' + example +'/' + example + '.json\'')
