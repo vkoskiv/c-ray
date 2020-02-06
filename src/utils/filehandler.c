@@ -17,6 +17,7 @@
 #include "../datatypes/texture.h"
 
 #include "../libraries/lodepng.h"
+#include "assert.h"
 
 #include <limits.h> //For SSIZE_MAX
 
@@ -202,18 +203,17 @@ char *getFileName(char *input) {
 }
 
 //For Windows
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
+#define CRAY_PATH_MAX 4096
+
 char *getFilePath(char *input) {
-	char *dir = calloc(PATH_MAX, sizeof(char));
+	char *dir = calloc(CRAY_PATH_MAX, sizeof(char));
 #ifdef WINDOWS
 	//char *dir = calloc(256, sizeof(char));
 	//_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0); //Maybe works on MS-WinDOS?
 #else
 	copyString(dirname(input), &dir);
-	dir[strlen(dirname(input))] = '/';
-	dir[strlen(dirname(input))+1] = '\0';
+	size_t dirlen = strlen(dirname(input));
+	dir[dirlen] = '/';
 #endif
 	return dir;
 }
@@ -382,6 +382,14 @@ size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
 void copyString(const char *source, char **destination) {
 	*destination = malloc(strlen(source) + 1);
 	strcpy(*destination, source);
+}
+
+char *concatString(const char *str1, const char *str2) {
+	ASSERT(str1); ASSERT(str2);
+	char *new = malloc(strlen(str1) + strlen(str2) + 1);
+	strcpy(new, str1);
+	strcat(new, str2);
+	return new;
 }
 
 size_t getFileSize(char *fileName) {

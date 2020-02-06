@@ -43,6 +43,10 @@ void crRestoreTerminal() {
 	restoreTerminal();
 }
 
+char *crGetFilePath(char *fullPath) {
+	return getFilePath(fullPath);
+}
+
 void crInitSDL() {
 #ifdef UI_ENABLED
 	ASSERT(!grenderer->mainDisplay->window);
@@ -186,12 +190,11 @@ int crGetImageHeight() {
 	return grenderer->prefs.imageHeight;
 }
 
-void crSetFilePath(char *filePath) {
-	(void)filePath;
-	ASSERT_NOT_REACHED();
+void crSetOutputPath(char *filePath) {
+	grenderer->prefs.imgFilePath = filePath;
 }
 
-char *crGetFilePath() {
+char *crGetOutputPath() {
 	return grenderer->prefs.imgFilePath;
 }
 
@@ -202,6 +205,14 @@ void crSetFileName(char *fileName) {
 
 char *crGetFileName() {
 	return grenderer->prefs.imgFileName;
+}
+
+void crSetAssetPath(char *assetPath) {
+	grenderer->prefs.assetPath = assetPath;
+}
+
+char *crGetAssetPath(void) {
+	return grenderer->prefs.assetPath;
 }
 
 void crSetAntialiasing(bool on) {

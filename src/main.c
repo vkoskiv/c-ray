@@ -19,11 +19,12 @@ int main(int argc, char *argv[]) {
 	crInitRenderer();
 	size_t bytes = 0;
 	char *input = argc == 2 ? crLoadFile(argv[1], &bytes) : crReadStdin(&bytes);
+	crSetAssetPath(argc == 2 ? crGetFilePath(argv[1]) : "./");
 	logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, argc == 2 ? "file" : "stdin");
-	if (!input) return -1;
-	if (crLoadSceneFromBuf(input)) {
-		free(input);
+	if (!input || crLoadSceneFromBuf(input)) {
+		if (input) free(input);
 		crDestroyRenderer();
+		crRestoreTerminal();
 		return -1;
 	}
 	free(input);

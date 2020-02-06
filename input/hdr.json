@@ -23,7 +23,7 @@
 	"camera": {
 		"FOV": 30.0,
 		"focalDistance": 0.7,
-		"aperture": 0.01,
+		"aperture": 0.005,
 		"transforms": [
 			{
 				"type": "translate",
@@ -43,7 +43,7 @@
 	},
 	"scene": {
 		"ambientColor": {
-			"hdr": "input/HDRs/rooitou_park_1k.hdr",
+			"hdr": "HDRs/roof_garden_1k.hdr",
 			"offset": 0,
 			"down": {
 				"r": 1.0,
@@ -103,8 +103,59 @@
 				},
 				"bsdf": "glass",
 				"IOR": 1.9,
-				"roughness": 0.01,
+				"roughness": 0,
 				"radius": 0.05
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": -0.15,
+					"y": 0.025,
+					"z": 0.05
+				},
+				"color": {
+					"r": 1.0,
+					"g": 0.1,
+					"b": 0.1
+				},
+				"bsdf": "glass",
+				"IOR": 1.9,
+				"roughness": 0,
+				"radius": 0.025
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": -0.120,
+					"y": 0.025,
+					"z": 0.1
+				},
+				"color": {
+					"r": 0.1,
+					"g": 1.0,
+					"b": 0.1
+				},
+				"bsdf": "glass",
+				"IOR": 1.9,
+				"roughness": 0,
+				"radius": 0.025
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": -0.090,
+					"y": 0.025,
+					"z": 0.15
+				},
+				"color": {
+					"r": 0.1,
+					"g": 0.1,
+					"b": 1.0
+				},
+				"bsdf": "glass",
+				"IOR": 1.9,
+				"roughness": 0,
+				"radius": 0.025
 			},
 			{
 				"type": "sphere",
@@ -173,15 +224,90 @@
 		],
 		"meshes": [
 			{
-				"fileName": "input/shapes/plane.obj",
+				"fileName": "shapes/gridplane.obj",
 				"bsdf": "lambertian",
 				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 0.25
+					},
 					{
 						"type": "rotateX",
 						"degrees": 0
 					}
 				]
-			}	
+			},
+			{
+				"fileName": "venusscaled.obj",
+				"bsdf": "metal",
+				"roughness": 0.5,
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 0.05
+					},
+					{
+						"type": "translate",
+						"X": 0.08
+					}
+				]
+			},
+			{
+				"fileName": "shapes/bunny.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 0.25
+					},
+					{
+						"type": "translate",
+						"X": 0.05,
+						"Y": 0,
+						"Z": -0.25
+					}
+				]
+			},
+			{
+				"fileName": "teapot_white.obj",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 0.025
+					},
+					{
+						"type": "rotateY",
+						"degrees": 45
+					},
+					{
+						"type": "translate",
+						"x": -0.06,
+						"y": 0,
+						"z": -0.02
+					}
+				]
+			},
+			{
+				"fileName": "tonni.objd",
+				"bsdf": "lambertian",
+				"transforms": [
+					{
+						"type": "scaleUniform",
+						"scale": 0.25
+					},
+					{
+						"type": "rotateY",
+						"degrees": 45
+					},
+					{
+						"type": "translate",
+						"x": 0.06,
+						"y": 0,
+						"z": -0.02
+					}
+				]
+			}
 		]
 	}
 }

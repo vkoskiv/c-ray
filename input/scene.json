@@ -170,7 +170,7 @@
 		],
 		"meshes": [
 			{
-				"fileName": "input/tonni.obj",
+				"fileName": "tonni.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{
@@ -198,12 +198,12 @@
 				]
 			},
 			{
-				"fileName": "input/newScene.obj",
+				"fileName": "newScene.obj",
 				"bsdf": "lambertian",
 				"transforms": []
 			},
 			{
-				"fileName": "input/torus.obj",
+				"fileName": "torus.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{
@@ -219,7 +219,7 @@
 				]
 			},
 			{
-				"fileName": "input/teapot.obj",
+				"fileName": "teapot.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{
@@ -239,7 +239,7 @@
 				]
 			},
 			{
-				"fileName": "input/teapot.obj",
+				"fileName": "teapot.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{
@@ -259,7 +259,7 @@
 				]
 			},
 			{
-				"fileName": "input/teapot.obj",
+				"fileName": "teapot.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{
@@ -279,7 +279,7 @@
 				]
 			},
 			{
-				"fileName": "input/teapot_green.obj",
+				"fileName": "teapot_green.obj",
 				"overridemtls": [["teapot.mtl", "teapot_green.mtl"]],
 				"bsdf": "lambertian",
 				"transforms": [
@@ -300,7 +300,7 @@
 				]
 			},
 			{
-				"fileName": "input/teapot_green.obj",
+				"fileName": "teapot_green.obj",
 				"overridemtls": [["teapot.mtl", "teapot_green.mtl"]],
 				"bsdf": "lambertian",
 				"transforms": [
@@ -321,7 +321,7 @@
 				]
 			},
 			{
-				"fileName": "input/teapot_green.obj",
+				"fileName": "teapot_green.obj",
 				"overridemtls": [["teapot.mtl", "teapot_green.mtl"]],
 				"bsdf": "lambertian",
 				"transforms": [
@@ -342,7 +342,7 @@
 				]
 			},
 			{
-				"fileName": "input/teapot_blue.obj",
+				"fileName": "teapot_blue.obj",
 				"overridemtls": [["teapot.mtl", "teapot_blue.mtl"]],
 				"bsdf": "lambertian",
 				"transforms": [
@@ -363,7 +363,7 @@
 				]
 			},
 			{
-				"fileName": "input/teapot_blue.obj",
+				"fileName": "teapot_blue.obj",
 				"overridemtls": [["teapot.mtl", "teapot_blue.mtl"]],
 				"bsdf": "lambertian",
 				"transforms": [
@@ -384,7 +384,7 @@
 				]
 			},
 			{
-				"fileName": "input/teapot_blue.obj",
+				"fileName": "teapot_blue.obj",
 				"overridemtls": [["teapot.mtl", "teapot_blue.mtl"]],
 				"bsdf": "lambertian",
 				"transforms": [

@@ -41,4 +41,6 @@ bool stringContains(const char *haystack, const char *needle);
 
 void copyString(const char *source, char **destination);
 
+char *concatString(const char *str1, const char *str2);
+
 size_t getFileSize(char *fileName);

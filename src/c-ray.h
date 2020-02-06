@@ -18,6 +18,8 @@ char *crGitHash(void); //The current git hash of the build
 void crInitTerminal(void); //Disable output buffering and configure Windows terminals
 void crRestoreTerminal(void);
 
+char *crGetFilePath(char *fullPath);
+
 struct renderInfo;
 struct texture;
 void crWriteImage(void); //Write out the current image
@@ -59,11 +61,14 @@ int crGetImageWidth(void);
 void crSetImageHeight(int height);
 int crGetImageHeight(void);
 
-void crSetFilePath(char *filePath);
-char *crGetFilePath(void);
+void crSetOutputPath(char *filePath);
+char *crGetOutputPath(void);
 
 void crSetFileName(char *fileName);
 char *crGetFileName(void);
+
+void crSetAssetPath(char *assetPath);
+char *crGetAssetPath(void);
 
 void crSetAntialiasing(bool on);
 bool crGetAntialiasing(void);

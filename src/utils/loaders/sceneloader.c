@@ -44,15 +44,19 @@ struct sphere *lastSphere(struct renderer *r) {
 }
 
 //FIXME: Do something about this awful mess.
-void loadMeshTextures(struct mesh *mesh) {
+void loadMeshTextures(char *assetPath, struct mesh *mesh) {
 	for (int i = 0; i < mesh->materialCount; i++) {
 		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
 		if (mesh->materials[i].textureFilePath) {
 			if (strcmp(mesh->materials[i].textureFilePath, "")) {
 				//TODO: Set the shader for this obj to an obnoxious checker pattern if the texture wasn't found
-				mesh->materials[i].texture = loadTexture(mesh->materials[i].textureFilePath);
+				char *fullPath = concatString(assetPath, mesh->materials[i].textureFilePath);
+				mesh->materials[i].texture = loadTexture(fullPath);
+				free(fullPath);
 				if (mesh->materials[i].texture) {
 					mesh->materials[i].hasTexture = true;
+				} else {
+					mesh->materials[i].hasTexture = false;
 				}
 			} else {
 				mesh->materials[i].hasTexture = false;
@@ -63,9 +67,13 @@ void loadMeshTextures(struct mesh *mesh) {
 		
 		if (mesh->materials[i].normalMapPath) {
 			if (strcmp(mesh->materials[i].normalMapPath, "")) {
-				mesh->materials[i].normalMap = loadTexture(mesh->materials[i].normalMapPath);
+				char *fullPath = concatString(assetPath, mesh->materials[i].normalMapPath);
+				mesh->materials[i].normalMap = loadTexture(fullPath);
+				free(fullPath);
 				if (mesh->materials[i].normalMap) {
 					mesh->materials[i].hasNormalMap = true;
+				} else {
+					mesh->materials[i].hasNormalMap = false;
 				}
 			} else {
 				mesh->materials[i].hasNormalMap = false;
@@ -89,7 +97,7 @@ bool loadMeshNew(struct renderer *r, char *inputFilePath) {
 		r->scene->meshes[r->scene->meshCount] = *newMesh;
 		free(newMesh);
 		valid = true;
-		loadMeshTextures(&r->scene->meshes[r->scene->meshCount]);
+		loadMeshTextures(r->prefs.assetPath, &r->scene->meshes[r->scene->meshCount]);
 	}
 	
 	r->scene->meshCount++;
@@ -102,7 +110,7 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFilePath) == 0) {
 		printf("\n");
-		logr(warning, "Mesh %s not found!", getFileName(inputFilePath));
+		logr(warning, "Mesh %s not found!\n", getFileName(inputFilePath));
 		return false;
 	}
 	
@@ -177,7 +185,7 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	}
 	
 	//Load textures for meshes
-	loadMeshTextures(newMesh);
+	loadMeshTextures(r->prefs.assetPath, newMesh);
 	
 	//Delete OBJ data
 	delete_obj_data(&data);
@@ -872,7 +880,9 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	
 	hdr = cJSON_GetObjectItem(data, "hdr");
 	if (cJSON_IsString(hdr)) {
-		r->scene->hdr = loadTexture(hdr->valuestring);
+		char *fullPath = concatString(r->prefs.assetPath, hdr->valuestring);
+		r->scene->hdr = loadTexture(fullPath);
+		free(fullPath);
 	}
 	
 	offset = cJSON_GetObjectItem(data, "offset");
@@ -912,9 +922,12 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	
 	bool meshValid = false;
 	if (fileName != NULL && cJSON_IsString(fileName)) {
-		if (loadMesh(r, fileName->valuestring, idx, meshCount)) {
+		char *fullPath = concatString(r->prefs.assetPath, fileName->valuestring);
+		if (loadMesh(r, fullPath, idx, meshCount)) {
 			meshValid = true;
+			free(fullPath);
 		} else {
+			free(fullPath);
 			return;
 		}
 	}
@@ -950,7 +963,6 @@ void parseMeshes(struct renderer *r, const cJSON *data) {
 			idx++;
 		}
 	}
-	printf("\n");
 }
 
 struct vector parseCoordinate(const cJSON *data) {
@@ -1137,7 +1149,11 @@ int parseJSON(struct renderer *r, char *input) {
 	const cJSON *scene = NULL;
 	
 	renderer = cJSON_GetObjectItem(json, "renderer");
+	
+	//FIXME: Hack
+	char *assetPath = r->prefs.assetPath;
 	r->prefs = parsePrefs(renderer);
+	r->prefs.assetPath = assetPath;
 	
 	display = cJSON_GetObjectItem(json, "display");
 	if (parseDisplay(r->mainDisplay, display) == -1) {

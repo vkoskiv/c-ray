@@ -149,12 +149,12 @@
 		],
 		"meshes": [
 			{
-				"fileName": "input/newScene.obj",
+				"fileName": "newScene.obj",
 				"bsdf": "lambertian",
 				"transforms": []
 			},
 			{
-				"fileName": "input/fence.obj",
+				"fileName": "fence.obj",
 				"bsdf": "lambertian",
 				"transforms": [
 					{

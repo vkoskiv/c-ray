@@ -36,7 +36,7 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "YES"
-      customWorkingDirectory = "/Users/vkoskiv/Documents/dev/c-ray"
+      customWorkingDirectory = "/Users/vkoskiv/c-ray"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
@@ -53,7 +53,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "input/scene.json"
+            argument = "input/hdr.json"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

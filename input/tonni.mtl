@@ -10,5 +10,5 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 0.000000
 illum 1
-map_Kd ./input/tonninseteli.png
-map_d ./input/tonninseteli.png
+map_Kd tonninseteli.png
+map_d tonninseteli.png

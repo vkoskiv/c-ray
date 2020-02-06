@@ -75,6 +75,7 @@ struct prefs {
 	unsigned imageHeight;
 	char *imgFilePath;
 	char *imgFileName;
+	char *assetPath;
 	int imgCount;
 	enum fileType imgType;
 	
