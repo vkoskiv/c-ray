@@ -77,9 +77,8 @@ void transformDirection(struct vector *vec, struct matrix4x4 mtx) {
 	vec->z = temp.z;
 }
 
-struct transform newTransformRotateX(float degrees) {
+struct transform newTransformRotateX(float rads) {
 	struct transform transform = newTransform();
-	float rads = toRadians(degrees);
 	transform.type = transformTypeXRotate;
 	transform.A.mtx[0][0] = 1;
 	transform.A.mtx[1][1] = cos(rads);
@@ -91,9 +90,8 @@ struct transform newTransformRotateX(float degrees) {
 	return transform;
 }
 
-struct transform newTransformRotateY(float degrees) {
+struct transform newTransformRotateY(float rads) {
 	struct transform transform = newTransform();
-	float rads = toRadians(degrees);
 	transform.type = transformTypeYRotate;
 	transform.A.mtx[0][0] = cos(rads);
 	transform.A.mtx[0][2] = sin(rads);
@@ -105,9 +103,8 @@ struct transform newTransformRotateY(float degrees) {
 	return transform;
 }
 
-struct transform newTransformRotateZ(float degrees) {
+struct transform newTransformRotateZ(float rads) {
 	struct transform transform = newTransform();
-	float rads = toRadians(degrees);
 	transform.type = transformTypeZRotate;
 	transform.A.mtx[0][0] = cos(rads);
 	transform.A.mtx[0][1] = -sin(rads);

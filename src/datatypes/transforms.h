@@ -41,9 +41,9 @@ float fromRadians(float radians);
 struct transform newTransformScale(float x, float y, float z);
 struct transform newTransformScaleUniform(float scale);
 struct transform newTransformTranslate(float x, float y, float z);
-struct transform newTransformRotateX(float degrees);
-struct transform newTransformRotateY(float degrees);
-struct transform newTransformRotateZ(float degrees);
+struct transform newTransformRotateX(float radians);
+struct transform newTransformRotateY(float radians);
+struct transform newTransformRotateZ(float radians);
 struct transform newTransform(void);
 
 struct matrix4x4 inverse(struct matrix4x4 mtx);

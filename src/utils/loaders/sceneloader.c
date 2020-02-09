@@ -368,25 +368,25 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 	
 	if (strcmp(type->valuestring, "rotateX") == 0) {
 		if (validDegrees) {
-			return newTransformRotateX(degrees->valuedouble);
+			return newTransformRotateX(toRadians(degrees->valuedouble));
 		} else if (validRadians) {
-			return newTransformRotateX(fromRadians(radians->valuedouble));
+			return newTransformRotateX(radians->valuedouble);
 		} else {
 			logr(warning, "Found rotateX transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "rotateY") == 0) {
 		if (validDegrees) {
-			return newTransformRotateY(degrees->valuedouble);
+			return newTransformRotateY(toRadians(degrees->valuedouble));
 		} else if (validRadians) {
-			return newTransformRotateY(fromRadians(radians->valuedouble));
+			return newTransformRotateY(radians->valuedouble);
 		} else {
 			logr(warning, "Found rotateY transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
 	} else if (strcmp(type->valuestring, "rotateZ") == 0) {
 		if (validDegrees) {
-			return newTransformRotateZ(degrees->valuedouble);
+			return newTransformRotateZ(toRadians(degrees->valuedouble));
 		} else if (validRadians) {
-			return newTransformRotateZ(fromRadians(radians->valuedouble));
+			return newTransformRotateZ(radians->valuedouble);
 		} else {
 			logr(warning, "Found rotateZ transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
