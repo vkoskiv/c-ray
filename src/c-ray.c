@@ -49,15 +49,19 @@ char *crGetFilePath(char *fullPath) {
 
 void crInitSDL() {
 #ifdef UI_ENABLED
-	ASSERT(!grenderer->mainDisplay->window);
-	initSDL(grenderer->mainDisplay);
+	if (grenderer->mainDisplay->enabled) {
+		ASSERT(!grenderer->mainDisplay->window);
+		initSDL(grenderer->mainDisplay);
+	}
 #endif
 }
 
 void crDestroySDL() {
 #ifdef UI_ENABLED
-	ASSERT(grenderer->mainDisplay->window);
-	destroyDisplay(grenderer->mainDisplay);
+	if (grenderer->mainDisplay->enabled) {
+		ASSERT(grenderer->mainDisplay->window);
+		destroyDisplay(grenderer->mainDisplay);
+	}
 #endif
 }
 
