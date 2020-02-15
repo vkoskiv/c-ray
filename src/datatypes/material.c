@@ -94,6 +94,9 @@ void assignBSDF(struct material *mat) {
 		case glass:
 			mat->bsdf = dialectricBSDF;
 			break;
+        case plastic:
+            mat->bsdf = plasticBSDF;
+            break;
 		default:
 			mat->bsdf = lambertianBSDF;
 			break;
@@ -293,6 +296,73 @@ float shlick(float cosine, float IOR) {
 	float r0 = (1.0f - IOR) / (1.0f + IOR);
 	r0 = r0*r0;
 	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);
+}
+
+bool shinyBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	(void)ray;
+	struct vector outwardNormal;
+	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
+	float niOverNt;
+	*attenuation = whiteColor;//diffuseColor(isect);
+	float cosine;
+	
+	if (vecDot(isect->incident.direction, isect->surfaceNormal) > 0.0f) {
+		outwardNormal = vecNegate(isect->surfaceNormal);
+		niOverNt = isect->end.IOR;
+		cosine = isect->end.IOR * vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction);
+	} else {
+		outwardNormal = isect->surfaceNormal;
+		niOverNt = 1.0f / isect->end.IOR;
+		cosine = -(vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction));
+	}
+	
+	//Roughness
+	if (isect->end.roughness > 0.0f) {
+		struct vector fuzz = vecScale(randomInUnitSphere(rng), isect->end.roughness);
+		reflected = vecAdd(reflected, fuzz);
+	}
+	
+	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
+	
+	return true;
+}
+
+// Glossy plastic
+bool plasticBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+	(void)ray;
+	struct vector outwardNormal;
+	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
+	float niOverNt;
+	*attenuation = diffuseColor(isect);
+	struct vector refracted;
+	float reflectionProbability;
+	float cosine;
+	
+	//TODO: Maybe don't hard code it like this.
+	isect->end.IOR = 1.45f; // Car paint
+	if (vecDot(isect->incident.direction, isect->surfaceNormal) > 0.0f) {
+		outwardNormal = vecNegate(isect->surfaceNormal);
+		niOverNt = isect->end.IOR;
+		cosine = isect->end.IOR * vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction);
+	} else {
+		outwardNormal = isect->surfaceNormal;
+		niOverNt = 1.0f / isect->end.IOR;
+		cosine = -(vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction));
+	}
+	
+	if (refract(isect->incident.direction, outwardNormal, niOverNt, &refracted)) {
+		reflectionProbability = shlick(cosine, isect->end.IOR);
+	} else {
+		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
+		reflectionProbability = 1.0f;
+	}
+	
+	if (rndFloat(rng) < reflectionProbability) {
+		return shinyBSDF(isect, ray, attenuation, scattered, rng);
+	} else {
+		return lambertianBSDF(isect, ray, attenuation, scattered, rng);
+	}
+	return true;
 }
 
 // Only works on spheres for now. Reflections work but refractions don't

@@ -493,8 +493,9 @@ int obj_parse_obj_file(obj_growable_scene_data *growable_data, char *filepath)
 		else if( strequal(current_token, "s") ) //smoothing
 		{ }
 		else if( strequal(current_token, "g") ) // group
-		{ }		
-
+		{ }
+		else if( strequal(current_token, "l"))  // line
+		{}
 		else
 		{
 			printf("Unknown command '%s' in scene code at line %i: \"%s\".\n",

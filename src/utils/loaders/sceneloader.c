@@ -904,6 +904,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *roughness = cJSON_GetObjectItem(data, "roughness");
 	enum bsdfType type = lambertian;
 	
+	//TODO: Wrap this into a function
 	if (cJSON_IsString(bsdf)) {
 		if (strcmp(bsdf->valuestring, "lambertian") == 0) {
 			type = lambertian;
@@ -911,6 +912,8 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 			type = metal;
 		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
 			type = glass;
+		} else if (strcmp(bsdf->valuestring, "plastic") == 0) {
+			type = plastic;
 		} else if (strcmp(bsdf->valuestring, "emissive") == 0) {
 			type = emission;
 		} else {
@@ -995,6 +998,7 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	
 	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
 	
+	//TODO: Break this out to a function
 	if (cJSON_IsString(bsdf)) {
 		if (strcmp(bsdf->valuestring, "lambertian") == 0) {
 			newSphere.material.type = lambertian;
@@ -1002,6 +1006,8 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 			newSphere.material.type = metal;
 		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
 			newSphere.material.type = glass;
+		} else if (strcmp(bsdf->valuestring, "plastic") == 0) {
+			newSphere.material.type = plastic;
 		} else if (strcmp(bsdf->valuestring, "emissive") == 0) {
 			newSphere.material.type = emission;
 		}

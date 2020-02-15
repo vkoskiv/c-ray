@@ -51,6 +51,7 @@ enum bsdfType {
 	emission = 0,
 	lambertian,
 	glass,
+    plastic,
 	metal,
 	translucent,
 	transparent
@@ -116,6 +117,7 @@ struct material warningMaterial(void);
 bool emissiveBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
 bool lambertianBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
 bool metallicBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool plasticBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
 bool dialectricBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
 
 void assignBSDF(struct material *mat);
