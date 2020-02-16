@@ -206,7 +206,7 @@ char *getFileName(char *input) {
 #define CRAY_PATH_MAX 4096
 
 char *getFilePath(char *input) {
-	char *dir = calloc(CRAY_PATH_MAX, sizeof(char));
+	char *dir = NULL;
 #ifdef WINDOWS
 	//char *dir = calloc(256, sizeof(char));
 	//_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0); //Maybe works on MS-WinDOS?
