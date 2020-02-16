@@ -52,7 +52,6 @@ def copy_file(src, dest):
 
 if __name__ == '__main__':
 	# Do the thing
-	mtls_from_obj('input/teapot_white.obj')
 	print("C-ray scene bundler v0.1")
 	if len(sys.argv) != 2:
 		print("Usage: ", str(sys.argv[0]), "<somefile>.json")
