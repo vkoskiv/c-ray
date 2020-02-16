@@ -237,7 +237,6 @@ void *renderThread(void *arg) {
 					incidentRay.start = startPos;
 					incidentRay.direction = direction;
 					incidentRay.rayType = rayTypeIncident;
-					incidentRay.remainingInteractions = r->prefs.bounces;
 					
 					//Now handle aperture
 					if (aperture <= 0.0f) {

@@ -10,7 +10,7 @@
 #include "lightRay.h"
 
 struct lightRay newRay(struct vector start, struct vector direction, enum type rayType) {
-	return (struct lightRay){start, direction, rayType, rayTypeIncident};
+	return (struct lightRay){start, direction, rayType};
 }
 
 struct vector alongRay(struct lightRay ray, float t) {

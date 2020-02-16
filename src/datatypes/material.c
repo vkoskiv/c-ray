@@ -256,7 +256,7 @@ bool lambertianBSDF(struct hitRecord *isect, const struct lightRay *ray, struct 
 	struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
 	struct vector rand = randomInUnitSphere(rng);
 	struct vector scatterDir = vecSub(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
-	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered, 0});
+	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered});
 	*attenuation = diffuseColor(isect);
 	return true;
 }
