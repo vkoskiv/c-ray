@@ -95,8 +95,8 @@ struct texture *renderFrame(struct renderer *r) {
 			float completion = ((float)completedSamples / totalTileSamples) * 100;
 			logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
 				 KBLU,
-				 KNRM,
 				 completion,
+				 KNRM,
 				 usPerRay,
 				 rem,
 				 0.000001f * sps,
