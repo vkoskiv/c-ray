@@ -53,6 +53,7 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	r->state.isRendering = true;
 	r->state.renderAborted = false;
+	r->state.saveImage = true;
 #ifndef WINDOWS
 	pthread_attr_init(&r->state.renderThreadAttributes);
 	pthread_attr_setdetachstate(&r->state.renderThreadAttributes, PTHREAD_CREATE_JOINABLE);
