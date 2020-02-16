@@ -2,10 +2,15 @@
 	<img src="https://i.imgur.com/fPBuCTG.png" width="256">
 </p>
 
-## Example render (2500 samples, 2560x1600, 512 max bounces, 1h 22min)
+## Example renders
 
 <p align="center">
 	<img src="https://teensyimg.com/images/qv0JtPxJ7c.png" width="768">
+	<br>(2500 samples, 2560x1600, 512 max bounces, 1h 22min)
+</p>
+<p align="center">
+	<img src="https://teensyimg.com/images/AJRDYdERsy.png" width="768">
+	<br>(1000 samples, 1920x1080, 512 max bounces, 1h 23min)
 </p>
 
 ## Status
@@ -14,31 +19,41 @@
 
 ## Synopsis
 
-C-ray is a simple path tracer built for studying computer graphics. It's also a great platform for developing your own raytracing algorithms. Just write your own rayTrace() function! Multithreading, 3D model loading and render previews are handled by C-ray, so you can concentrate on the core principles.
+C-ray is a research oriented, physically accurate rendering engine built for learning. The source code is intended to be readable wherever possible, so feel free to explore and perhaps even expand upon the current functionality. See the contributing section in the wiki for more details.
 
-C-ray currently supports:
+C-ray currently has:
+- A simple unidirectional unbiased integrator
 - Real-time render preview using SDL
 - Easy scene compositing using JSON
-- Multithreading
-- OBJ loading with matrix transforms for compositing a scene
+- Multithreading (pthreads and WIN32 threads)
+- OBJ loading with transforms for compositing a scene
 - PNG and BMP file output
 - k-d tree acceleration structure for fast intersection checks even with millions of primitives
 - Antialiasing
 - Multi-sampling
-- Russian Roulette path optimization
+- HDR environment maps for realistic lighting
+- Gouraud interpolated smooth shading
+- Benchmarking metrics
 
-The default recursive path tracing algorithm supports:
+The default integrator supports:
 - metal
 - glass
 - lambertian diffuse
+- plastic
 - triangles and spheres
 - Depth of field
+- Russian Roulette path optimization
 - Diffuse textures
 
 Things I'm looking to implement:
 - Built a more robust API with a scene state.
 - Some procedural textures
-- Expand the default path tracer to use PBR
+- Python API wrapper
+- Better materials
+- Networking and clustered rendering
+- Volumetric rendering
+- Subsurface scattering
+- Spectral rendering
 
 ## Usage
 
