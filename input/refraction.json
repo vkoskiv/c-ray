@@ -22,7 +22,7 @@
 	},
 	"camera": {
 		"FOV": 15.0,
-		"aperture": 0.0,
+		"fstops": 0.0,
 		"transforms": [
 			{
 				"type": "translate",

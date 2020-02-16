@@ -94,9 +94,9 @@ void assignBSDF(struct material *mat) {
 		case glass:
 			mat->bsdf = dialectricBSDF;
 			break;
-        case plastic:
-            mat->bsdf = plasticBSDF;
-            break;
+		case plastic:
+			mat->bsdf = plasticBSDF;
+			break;
 		default:
 			mat->bsdf = lambertianBSDF;
 			break;

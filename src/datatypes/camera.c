@@ -27,9 +27,25 @@ void transformCameraView(struct camera *cam, struct vector *direction) {
 
 //FIXME: Move image to camera and fix this
 void computeFocalLength(struct camera *camera, int width) {
-	if (camera->FOV > 0.0 && camera->FOV < 189.0) {
-		camera->focalLength = 0.5 * width / toRadians(0.5 * camera->FOV);
+	// aperture = 0.5 * (focalLength / fstops)
+	if (camera->FOV > 0.0f && camera->FOV < 189.0f) {
+		camera->focalLength = 0.5f * width / toRadians(0.5f * camera->FOV);
 	}
+	
+	//FIXME: This assumes a 35mm sensor, which we aren't really dealing with most of the time.
+	//TODO: Properly identify sensor dimensions and compute this in a more reasonable way.
+	float w = 0.036f;
+	float flenght = 0.5f * w / toRadians(0.5f * camera->FOV);
+	//Recompute aperture based on fstops
+	if (camera->fstops != 0.0f) camera->aperture = 0.5f * (flenght / camera->fstops);
+	return;
+}
+
+float acomputeFocalLength(float FOV, unsigned width) {
+	if (FOV > 0.0f && FOV < 189.0f) {
+		return 0.5f * width / toRadians(0.5f * FOV);
+	}
+	return 0.5f * width / toRadians(0.5f * 80.0f);
 }
 
 void initCamera(struct camera *cam) {

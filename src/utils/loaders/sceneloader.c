@@ -110,7 +110,7 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFilePath) == 0) {
 		printf("\n");
-		logr(warning, "Mesh %s not found!\n", getFileName(inputFilePath));
+		logr(warning, "Mesh \"%s\" not found!\n", getFileName(inputFilePath));
 		return false;
 	}
 	
@@ -790,13 +790,13 @@ int parseCamera(struct camera *c, const cJSON *data) {
 		c->focalDistance = defaultCamera().focalDistance;
 	}
 	
-	aperture = cJSON_GetObjectItem(data, "aperture");
+	aperture = cJSON_GetObjectItem(data, "fstops");
 	if (aperture) {
 		if (cJSON_IsNumber(aperture)) {
 			if (aperture->valuedouble >= 0.0) {
-				c->aperture = aperture->valuedouble;
+				c->fstops = aperture->valuedouble;
 			} else {
-				c->aperture = 0.0;
+				c->fstops = 0.0f;
 			}
 		} else {
 			logr(warning, "Invalid aperture while parsing camera.\n");

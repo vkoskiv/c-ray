@@ -23,7 +23,7 @@
 	"camera": {
 		"FOV": 30.0,
 		"focalDistance": 0.7,
-		"aperture": 0.005,
+		"fstops": 6.5,
 		"transforms": [
 			{
 				"type": "translate",
@@ -81,9 +81,25 @@
 					"z": 0
 				},
 				"color": {
-					"r": 1.0,
-					"g": 1.0,
-					"b": 1.0
+					"r": 0.8,
+					"g": 0.8,
+					"b": 0.8
+				},
+				"bsdf": "plastic",
+				"roughness": 0.00,
+				"radius": 0.05
+			},
+			{
+				"type": "sphere",
+				"pos": {
+					"x": 0.05,
+					"y": 0.05,
+					"z": 0.1
+				},
+				"color": {
+					"r": 0.0,
+					"g": 0.8,
+					"b": 0.0
 				},
 				"bsdf": "metal",
 				"roughness": 0.00,
@@ -239,8 +255,8 @@
 			},
 			{
 				"fileName": "venusscaled.obj",
-				"bsdf": "metal",
-				"roughness": 0.5,
+				"bsdf": "plastic",
+				"roughness": 0.0,
 				"transforms": [
 					{
 						"type": "scaleUniform",

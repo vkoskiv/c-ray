@@ -14,6 +14,7 @@ struct camera {
 	float FOV;
 	float focalLength;
 	float focalDistance;
+	float fstops;
 	float aperture;
 	
 	struct vector pos;

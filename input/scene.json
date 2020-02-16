@@ -2,7 +2,7 @@
 	"version": 1.0,
 	"renderer": {
 		"threads": 0,
-		"samples": 50,
+		"samples": 1,
 		"bounces": 50,
 		"antialiasing": true,
 		"tileWidth": 64,
@@ -23,7 +23,7 @@
 	"camera": {
 		"FOV": 80.0,
 		"focalDistance": 450.0,
-		"aperture": 0.0,
+		"fstops": 0.0,
 		"transforms": [
 			{
 				"type": "translate",
