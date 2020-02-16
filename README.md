@@ -10,7 +10,7 @@
 </p>
 <p align="center">
 	<img src="https://teensyimg.com/images/AJRDYdERsy.png" width="768">
-	<br>(1000 samples, 1920x1080, 512 max bounces, 1h 23min)
+	<br>(1000 samples, 1920x1080, 512 max bounces, 1h 23min, scene by <a href="https://www.blendswap.com/blend/13953">Scott Graham</a>)
 </p>
 
 ## Status
