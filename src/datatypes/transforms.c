@@ -80,11 +80,13 @@ void transformDirection(struct vector *vec, struct matrix4x4 mtx) {
 struct transform newTransformRotateX(float rads) {
 	struct transform transform = newTransform();
 	transform.type = transformTypeXRotate;
+	float cosRads = cosf(rads);
+	float sinRads = sinf(rads);
 	transform.A.mtx[0][0] = 1;
-	transform.A.mtx[1][1] = cos(rads);
-	transform.A.mtx[1][2] = -sin(rads);
-	transform.A.mtx[2][1] = sin(rads);
-	transform.A.mtx[2][2] = cos(rads);
+	transform.A.mtx[1][1] = cosRads;
+	transform.A.mtx[1][2] = -sinRads;
+	transform.A.mtx[2][1] = sinRads;
+	transform.A.mtx[2][2] = cosRads;
 	transform.A.mtx[3][3] = 1;
 	transform.Ainv = inverse(transform.A);
 	return transform;
@@ -93,11 +95,13 @@ struct transform newTransformRotateX(float rads) {
 struct transform newTransformRotateY(float rads) {
 	struct transform transform = newTransform();
 	transform.type = transformTypeYRotate;
-	transform.A.mtx[0][0] = cos(rads);
-	transform.A.mtx[0][2] = sin(rads);
+	float cosRads = cosf(rads);
+	float sinRads = sinf(rads);
+	transform.A.mtx[0][0] = cosRads;
+	transform.A.mtx[0][2] = sinRads;
 	transform.A.mtx[1][1] = 1;
-	transform.A.mtx[2][0] = -sin(rads);
-	transform.A.mtx[2][2] = cos(rads);
+	transform.A.mtx[2][0] = -sinRads;
+	transform.A.mtx[2][2] = cosRads;
 	transform.A.mtx[3][3] = 1;
 	transform.Ainv = inverse(transform.A);
 	return transform;
@@ -106,10 +110,12 @@ struct transform newTransformRotateY(float rads) {
 struct transform newTransformRotateZ(float rads) {
 	struct transform transform = newTransform();
 	transform.type = transformTypeZRotate;
-	transform.A.mtx[0][0] = cos(rads);
-	transform.A.mtx[0][1] = -sin(rads);
-	transform.A.mtx[1][0] = sin(rads);
-	transform.A.mtx[1][1] = cos(rads);
+	float cosRads = cosf(rads);
+	float sinRads = sinf(rads);
+	transform.A.mtx[0][0] = cosRads;
+	transform.A.mtx[0][1] = -sinRads;
+	transform.A.mtx[1][0] = sinRads;
+	transform.A.mtx[1][1] = cosRads;
 	transform.A.mtx[2][2] = 1;
 	transform.A.mtx[3][3] = 1;
 	transform.Ainv = inverse(transform.A);
