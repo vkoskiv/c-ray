@@ -134,11 +134,13 @@ void getKeyboardInput(struct renderer *r) {
 				printf("\n");
 				logr(info, "Aborting render, saving\n");
 				r->state.renderAborted = true;
+				r->state.saveImage = true;
 			}
 			if (event.key.keysym.sym == SDLK_x) {
 				printf("\n");
 				logr(info, "Aborting render without saving\n");
 				r->state.renderAborted = true;
+				r->state.saveImage = false;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
 				for (int i = 0; i < r->prefs.threadCount; i++) {

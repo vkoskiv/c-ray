@@ -69,7 +69,7 @@ void crWriteImage() {
 	char buf[64];
 	smartTime(getMs(*grenderer->state.timer), buf);
 	if (currentImage) {
-		if (!grenderer->state.renderAborted) {
+		if (grenderer->state.saveImage) {
 			writeImage(currentImage, (struct renderInfo){
 				.bounces = crGetBounces(),
 				.samples = crGetSampleCount(),
