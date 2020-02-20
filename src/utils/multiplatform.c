@@ -138,11 +138,11 @@ void *threadStub(void *arg) {
 int spawnThread(struct crThread *t) {
 #ifdef WINDOWS
 	DWORD threadId; //FIXME: Just pass in &t.thread_id instead like below?
-	t.thread_handle = CreateThread(NULL, 0, threadStub, &t, 0, &threadId);
-	if (t.thread_handle == NULL) {
+	t->thread_handle = CreateThread(NULL, 0, threadStub, &t, 0, &threadId);
+	if (t->thread_handle == NULL) {
 		return -1;
 	}
-	t.thread_id = threadId;
+	t->thread_id = threadId;
 #else
 	pthread_attr_init(&t->renderThreadAttributes);
 	pthread_attr_setdetachstate(&t->renderThreadAttributes, PTHREAD_CREATE_JOINABLE);
