@@ -29,6 +29,8 @@
 #define paused_msec 100
 #define active_msec  16
 
+void *renderThread(void *arg);
+
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 struct texture *renderFrame(struct renderer *r) {
@@ -56,23 +58,29 @@ struct texture *renderFrame(struct renderer *r) {
 	r->state.isRendering = true;
 	r->state.renderAborted = false;
 	r->state.saveImage = true;
-#ifndef WINDOWS
-	pthread_attr_init(&r->state.renderThreadAttributes);
-	pthread_attr_setdetachstate(&r->state.renderThreadAttributes, PTHREAD_CREATE_JOINABLE);
-#endif
+	
 	//Main loop (input)
-	bool threadsHaveStarted = false;
 	float avgSampleTime = 0.0f;
 	int pauser = 0;
 	float finalAvg = 0.0f;
 	int ctr = 1;
+	
+	//Create render threads
+	for (t = 0; t < r->prefs.threadCount; t++) {
+		r->state.threads[t] = (struct crThread){.thread_num = t, .threadComplete = false, .r = r, .output = output, .threadFunc = renderThread};
+		r->state.activeThreads++;
+		if (spawnThread(&r->state.threads[t])) {
+			logr(error, "Failed to create a crThread.\n");
+		}
+	}
+	
 	while (r->state.isRendering) {
 		getKeyboardInput(r);
 		
-		if (!r->state.threadStates[0].paused) {
+		if (!r->state.threads[0].paused) {
 			drawWindow(r, output);
 			for (int t = 0; t < r->prefs.threadCount; t++) {
-				avgSampleTime += r->state.threadStates[t].avgSampleTime;
+				avgSampleTime += r->state.threads[t].avgSampleTime;
 			}
 			finalAvg += avgSampleTime / r->prefs.threadCount;
 			finalAvg /= ctr++;
@@ -87,7 +95,7 @@ struct texture *renderFrame(struct renderer *r) {
 			uint64_t totalTileSamples = r->state.tileCount * r->prefs.sampleCount;
 			uint64_t completedSamples = 0;
 			for (int t = 0; t < r->prefs.threadCount; ++t) {
-				completedSamples += r->state.threadStates[t].totalSamples;
+				completedSamples += r->state.threads[t].totalSamples;
 			}
 			uint64_t remainingTileSamples = totalTileSamples - completedSamples;
 			uint64_t msecTillFinished = 0.001f * (timePerSingleTileSample * remainingTileSamples);
@@ -103,49 +111,16 @@ struct texture *renderFrame(struct renderer *r) {
 				 usPerRay,
 				 rem,
 				 0.000001f * sps,
-				 r->state.threadStates[0].paused ? "[PAUSED]" : "");
+				 r->state.threads[0].paused ? "[PAUSED]" : "");
 			pauser = 0;
 		}
 		pauser++;
 		
-		if (!threadsHaveStarted) {
-			threadsHaveStarted = true;
-			//Create render threads
-			for (t = 0; t < r->prefs.threadCount; t++) {
-				r->state.threadStates[t].thread_num = t;
-				r->state.threadStates[t].threadComplete = false;
-				r->state.threadStates[t].r = r;
-				r->state.threadStates[t].output = output;
-				r->state.activeThreads++;
-#ifdef WINDOWS
-				DWORD threadId;
-				r->state.threadStates[t].thread_handle = CreateThread(NULL, 0, renderThread, &r->state.threadStates[t], 0, &threadId);
-				if (r->state.threadStates[t].thread_handle == NULL) {
-					logr(error, "Failed to create thread.\n");
-					exit(-1);
-				}
-				r->state.threadStates[t].thread_id = threadId;
-#else
-				if (pthread_create(&r->state.threadStates[t].thread_id, &r->state.renderThreadAttributes, renderThread, &r->state.threadStates[t])) {
-					logr(error, "Failed to create a thread.\n");
-				}
-#endif
-			}
-			
-			r->state.threadStates->threadComplete = false;
-			
-#ifndef WINDOWS
-			if (pthread_attr_destroy(&r->state.renderThreadAttributes)) {
-				logr(warning, "Failed to destroy pthread.\n");
-			}
-#endif
-		}
-		
 		//Wait for render threads to finish (Render finished)
 		for (t = 0; t < r->prefs.threadCount; t++) {
-			if (r->state.threadStates[t].threadComplete && r->state.threadStates[t].thread_num != -1) {
+			if (r->state.threads[t].threadComplete && r->state.threads[t].thread_num != -1) {
 				r->state.activeThreads--;
-				r->state.threadStates[t].thread_num = -1;
+				r->state.threads[t].thread_num = -1;
 			}
 			if (r->state.activeThreads == 0 || r->state.renderAborted) {
 				r->state.isRendering = false;
@@ -153,15 +128,9 @@ struct texture *renderFrame(struct renderer *r) {
 		}
 	}
 	
-	//Make sure render threads are finished before continuing
+	//Make sure render threads are terminated before continuing (This blocks)
 	for (t = 0; t < r->prefs.threadCount; t++) {
-#ifdef WINDOWS
-		WaitForSingleObjectEx(r->state.threadStates[t].thread_handle, INFINITE, FALSE);
-#else
-		if (pthread_join(r->state.threadStates[t].thread_id, NULL)) {
-			logr(warning, "Thread %t frozen.", t);
-		}
-#endif
+		checkThread(&r->state.threads[t]);
 	}
 	return output;
 }
@@ -179,21 +148,16 @@ uint64_t hash(uint64_t x) {
  @param arg Thread information (see threadInfo struct)
  @return Exits when thread is done
  */
-#ifdef WINDOWS
-DWORD WINAPI renderThread(LPVOID arg) {
-#else
 void *renderThread(void *arg) {
-#endif
 	struct lightRay incidentRay;
-	struct threadState *tinfo = (struct threadState*)arg;
-	
-	struct renderer *r = tinfo->r;
-	struct texture *image = tinfo->output;
+	struct crThread *thread = (struct crThread*)arg;
+	struct renderer *r = thread->r;
+	struct texture *image = thread->output;
 	pcg32_random_t rng;
 	
 	//First time setup for each thread
 	struct renderTile tile = getTile(r);
-	tinfo->currentTileNum = tile.tileNum;
+	thread->currentTileNum = tile.tileNum;
 	
 	struct timeval timer = {0};
 	
@@ -227,7 +191,7 @@ void *renderThread(void *arg) {
 					//imaginary plane in front of the origin. startPos is just the camera position.
 					struct vector direction = vecNormalize((struct vector){
 												(fracX - 0.5f * image->width) / r->scene->camera->focalLength,
-											    (fracY - 0.5f * image->height) / r->scene->camera->focalLength,
+												(fracY - 0.5f * image->height) / r->scene->camera->focalLength,
 												1.0f
 											});
 					struct vector startPos = r->scene->camera->pos;
@@ -286,25 +250,25 @@ void *renderThread(void *arg) {
 			samples++;
 			totalUsec += getUs(timer);
 			tile.completedSamples++;
-			tinfo->totalSamples++;
-			tinfo->completedSamples = tile.completedSamples;
+			thread->totalSamples++;
+			thread->completedSamples = tile.completedSamples;
 			//Pause rendering when bool is set
-			while (tinfo->paused && !r->state.renderAborted) {
+			while (thread->paused && !r->state.renderAborted) {
 				sleepMSec(100);
 			}
-			tinfo->avgSampleTime = totalUsec / samples;
+			thread->avgSampleTime = totalUsec / samples;
 		}
 		//Tile has finished rendering, get a new one and start rendering it.
 		r->state.renderTiles[tile.tileNum].isRendering = false;
 		r->state.renderTiles[tile.tileNum].renderComplete = true;
-		tinfo->currentTileNum = -1;
-		tinfo->completedSamples = 0;
+		thread->currentTileNum = -1;
+		thread->completedSamples = 0;
 		tile = getTile(r);
-		tinfo->currentTileNum = tile.tileNum;
+		thread->currentTileNum = tile.tileNum;
 	}
 	//No more tiles to render, exit thread. (render done)
-	tinfo->threadComplete = true;
-	tinfo->currentTileNum = -1;
+	thread->threadComplete = true;
+	thread->currentTileNum = -1;
 	return 0;
 }
 
@@ -353,8 +317,8 @@ void destroyRenderer(struct renderer *r) {
 	destroyTexture(r->state.renderBuffer);
 	destroyTexture(r->state.uiBuffer);
 	
-	if (r->state.threadStates) {
-		free(r->state.threadStates);
+	if (r->state.threads) {
+		free(r->state.threads);
 	}
 	if (r->prefs.imgFileName) {
 		free(r->prefs.imgFileName);

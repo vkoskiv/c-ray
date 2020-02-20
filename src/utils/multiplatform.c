@@ -15,6 +15,7 @@
 #include "multiplatform.h"
 
 #include "../includes.h"
+#include "../utils/logging.h"
 
 //These are for multi-platform physical core detection
 #ifdef __APPLE__
@@ -84,6 +85,8 @@ int getSysCores() {
 #endif
 }
 
+// Multiplatform mutexes
+
 struct crMutex *createMutex() {
 	struct crMutex *new = calloc(1, sizeof(struct crMutex));
 	#ifdef WINDOWS
@@ -108,4 +111,46 @@ void releaseMutex(struct crMutex *m) {
 	#else
 		pthread_mutex_unlock(&m->tileMutex);
 	#endif
+}
+
+// Multiplatform threads
+
+void checkThread(struct crThread *t) {
+#ifdef WINDOWS
+	WaitForSingleObjectEx(t->thread_handle, INFINITE, FALSE);
+#else
+	if (pthread_join(t->thread_id, NULL)) {
+		logr(warning, "Thread %i frozen.", t);
+	}
+#endif
+}
+
+// Multiplatform thread stub
+#ifdef WINDOWS
+DWORD WINAPI threadStub(LPVOID arg) {
+#else
+void *threadStub(void *arg) {
+#endif
+	struct crThread *thread = (struct crThread*)arg;
+	return thread->threadFunc(arg);
+}
+
+int spawnThread(struct crThread *t) {
+#ifdef WINDOWS
+	DWORD threadId; //FIXME: Just pass in &t.thread_id instead like below?
+	t.thread_handle = CreateThread(NULL, 0, threadStub, &t, 0, &threadId);
+	if (t.thread_handle == NULL) {
+		return -1;
+	}
+	t.thread_id = threadId;
+#else
+	pthread_attr_init(&t->renderThreadAttributes);
+	pthread_attr_setdetachstate(&t->renderThreadAttributes, PTHREAD_CREATE_JOINABLE);
+	int ret = pthread_create(&t->thread_id, &t->renderThreadAttributes, threadStub, t);
+	if (pthread_attr_destroy(&t->renderThreadAttributes)) {
+		logr(error, "Failed to destroy pthread attrs\n");
+		return -1;
+	}
+	return ret;
+#endif
 }

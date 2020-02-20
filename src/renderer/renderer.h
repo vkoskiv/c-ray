@@ -7,32 +7,6 @@
 //
 
 #pragma once
-/**
- Thread information struct to communicate with main thread
- */
-struct threadState {
-#ifdef WINDOWS
-	HANDLE thread_handle;
-	DWORD thread_id;
-#else
-	pthread_t thread_id;
-#endif
-	int thread_num;
-	bool threadComplete;
-	
-	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.
-	
-	//Share info about the current tile with main thread
-	int currentTileNum;
-	int completedSamples;
-	
-	uint64_t totalSamples;
-	
-	long avgSampleTime; //Single tile pass
-	
-	struct renderer *r;
-	struct texture *output;
-};
 
 /// Renderer state data
 struct state {
@@ -48,13 +22,10 @@ struct state {
 	unsigned long long avgTileTime;//Used for render duration estimation (milliseconds)
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
-	struct threadState *threadStates; //Info about threads
+	struct crThread *threads; //Render threads
 	struct timeval *timer;
 	
 	struct crMutex *tileMutex;
-#ifndef WINDOWS
-	pthread_attr_t renderThreadAttributes;
-#endif
 };
 
 /// Preferences data (Set by user)
@@ -94,13 +65,6 @@ struct renderer {
 	//FIXME: rename to just display
 	struct display *mainDisplay;
 };
-
-//Renderer
-#ifdef WINDOWS
-DWORD WINAPI renderThread(LPVOID arg);
-#else
-void *renderThread(void *arg);
-#endif
 
 //Initialize a new renderer
 struct renderer *newRenderer(void);

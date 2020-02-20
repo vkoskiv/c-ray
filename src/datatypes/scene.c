@@ -20,6 +20,7 @@
 #include "tile.h"
 #include "mesh.h"
 #include "poly.h"
+#include "../utils/multiplatform.h"
 
 void transformMeshes(struct world *scene) {
 	logr(info, "Running transforms: ");
@@ -113,10 +114,10 @@ int loadScene(struct renderer *r, char *input) {
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
 	r->state.uiBuffer = newTexture(char_p, r->prefs.imageWidth, r->prefs.imageHeight, 4);
 	
-	//Alloc memory for pthread_create() args
-	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(struct threadState));
-	if (r->state.threadStates == NULL) {
-		logr(error, "Failed to allocate memory for threadInfo args.\n");
+	//Alloc memory for crThreads
+	r->state.threads = calloc(r->prefs.threadCount, sizeof(struct crThread));
+	if (r->state.threads == NULL) {
+		logr(error, "Failed to allocate memory for crThreads.\n");
 	}
 	
 	//Print a useful warning to user if the defined tile size results in less renderThreads

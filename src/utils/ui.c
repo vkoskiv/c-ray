@@ -14,6 +14,7 @@
 #include "../datatypes/tile.h"
 #include "../datatypes/texture.h"
 #include "../datatypes/color.h"
+#include "../utils/multiplatform.h"
 
 #include <signal.h>
 
@@ -144,10 +145,10 @@ void getKeyboardInput(struct renderer *r) {
 			}
 			if (event.key.keysym.sym == SDLK_p) {
 				for (int i = 0; i < r->prefs.threadCount; i++) {
-					if (r->state.threadStates[i].paused) {
-						r->state.threadStates[i].paused = false;
+					if (r->state.threads[i].paused) {
+						r->state.threads[i].paused = false;
 					} else {
-						r->state.threadStates[i].paused = true;
+						r->state.threads[i].paused = true;
 					}
 				}
 			}
@@ -173,9 +174,9 @@ void clearProgBar(struct renderer *r, struct renderTile temp) {
  */
 void drawProgressBars(struct renderer *r) {
 	for (int t = 0; t < r->prefs.threadCount; t++) {
-		if (r->state.threadStates[t].currentTileNum != -1) {
-			struct renderTile temp = r->state.renderTiles[r->state.threadStates[t].currentTileNum];
-			int completedSamples = r->state.threadStates[t].completedSamples;
+		if (r->state.threads[t].currentTileNum != -1) {
+			struct renderTile temp = r->state.renderTiles[r->state.threads[t].currentTileNum];
+			int completedSamples = r->state.threads[t].completedSamples;
 			int totalSamples = r->prefs.sampleCount;
 			
 			float prc = ((float)completedSamples / (float)totalSamples);
