@@ -71,7 +71,7 @@ void encodeBMPFromArray(const char *filename, unsigned char *imgData, int width,
 	if (error != 40) {
 		logr(warning, "Error writing BMP info header data\n");
 	}
-	for (i = 1; i <= height; i++) {
+	for (i = 1; i <= height; ++i) {
 		error = (unsigned int)fwrite(bgrData+(width*(height - i)*3),3,width,f);
 		if (error != width) {
 			logr(warning, "Error writing image line to BMP\n");

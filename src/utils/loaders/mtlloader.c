@@ -105,7 +105,7 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 	
 	*mtlCount = count;
 	
-	for (int i = 0; i < *mtlCount; i++) {
+	for (int i = 0; i < *mtlCount; ++i) {
 		newMaterials[i].name[strcspn(newMaterials[i].name, "\n")] = 0;
 	}
 	

@@ -144,7 +144,7 @@ void getKeyboardInput(struct renderer *r) {
 				r->state.saveImage = false;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
-				for (int i = 0; i < r->prefs.threadCount; i++) {
+				for (int i = 0; i < r->prefs.threadCount; ++i) {
 					if (r->state.threads[i].paused) {
 						r->state.threads[i].paused = false;
 					} else {
@@ -158,7 +158,7 @@ void getKeyboardInput(struct renderer *r) {
 }
 
 void clearProgBar(struct renderer *r, struct renderTile temp) {
-	for (unsigned i = 0; i < temp.width; i++) {
+	for (unsigned i = 0; i < temp.width; ++i) {
 		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1);
 		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5))    );
 		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1);
@@ -173,7 +173,7 @@ void clearProgBar(struct renderer *r, struct renderTile temp) {
  around that.
  */
 void drawProgressBars(struct renderer *r) {
-	for (int t = 0; t < r->prefs.threadCount; t++) {
+	for (int t = 0; t < r->prefs.threadCount; ++t) {
 		if (r->state.threads[t].currentTileNum != -1) {
 			struct renderTile temp = r->state.renderTiles[r->state.threads[t].currentTileNum];
 			int completedSamples = r->state.threads[t].completedSamples;
@@ -183,7 +183,7 @@ void drawProgressBars(struct renderer *r) {
 			int pixels2draw = (int)((float)temp.width*(float)prc);
 			
 			//And then draw the bar
-			for (int i = 0; i < pixels2draw; i++) {
+			for (int i = 0; i < pixels2draw; ++i) {
 				blit(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1);
 				blit(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5))    );
 				blit(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1);
@@ -209,7 +209,7 @@ void drawFrame(struct renderer *r, struct renderTile tile) {
 	} else {
 		return;
 	}
-	for (int i = 1; i < length; i++) {
+	for (int i = 1; i < length; ++i) {
 		//top left
 		blit(r->state.uiBuffer, c, tile.begin.x+i, tile.begin.y+1);
 		blit(r->state.uiBuffer, c, tile.begin.x+1, tile.begin.y+i);
@@ -230,7 +230,7 @@ void drawFrame(struct renderer *r, struct renderTile tile) {
 
 void updateFrames(struct renderer *r) {
 	if (r->prefs.tileWidth < 8 || r->prefs.tileHeight < 8) return;
-	for (int i = 0; i < r->state.tileCount; i++) {
+	for (int i = 0; i < r->state.tileCount; ++i) {
 		//For every tile, if it's currently rendering, draw the frame
 		//If it is NOT rendering, clear any frame present
 		drawFrame(r, r->state.renderTiles[i]);

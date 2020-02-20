@@ -17,7 +17,7 @@ uint64_t hashDataToU64(const char *data, size_t size) {
 	static const uint64_t FNVOffsetBasis = 14695981039346656037U;
 	static const uint64_t FNVPrime = 1099511628211;
 	uint64_t hash = FNVOffsetBasis;
-	for (size_t i = 0; i < size; i++) {
+	for (size_t i = 0; i < size; ++i) {
 		char dataByte = data[i];
 		hash = (~0xFF & hash) | (0xFF & (hash ^ dataByte));
 		hash = hash * FNVPrime;
@@ -28,7 +28,7 @@ uint64_t hashDataToU64(const char *data, size_t size) {
 struct bucket *getBucketPtr(struct hashtable *e, const char *key) {
 	struct bucket *result;
 	uint64_t index = hashDataToU64(key, strlen(key)) % e->size;
-	for (; index < e->size; index++) {
+	for (; index < e->size; ++index) {
 		result = &e->data[index];
 		if (result->used && result->key != NULL) {
 			if (!strcmp(key, result->key)) return result;
@@ -85,7 +85,7 @@ struct hashtable *newTable() {
 	struct hashtable *table = malloc(sizeof(struct hashtable));
 	table->size = defaultTableSize;
 	table->data = malloc(sizeof(struct bucket) * defaultTableSize);
-	for (uint64_t i = 0; i < defaultTableSize; i++) {
+	for (uint64_t i = 0; i < defaultTableSize; ++i) {
 		table->data[i].used = false;
 		table->data[i].value = NULL;
 		table->data[i].key = NULL;
@@ -96,7 +96,7 @@ struct hashtable *newTable() {
 void freeTable(struct hashtable *table) {
 	if (!table) return;
 	
-	for (uint64_t i = 0; i < defaultTableSize; i++) {
+	for (uint64_t i = 0; i < defaultTableSize; ++i) {
 		if (table->data[i].used) {
 			free(table->data[i].value);
 			free(table->data[i].key);
@@ -131,14 +131,14 @@ void testTable() {
 	setFloat(table, "Baz", 0.4);
 	logr(debug, "Value at %s is %f\n", "Baz", getFloat(table, "Baz"));
 	/*printUsage(table);
-	for (int i = 0; i < 10000000; i++) {
+	for (int i = 0; i < 10000000; ++i) {
 		setFloat(table, "Yeet", 3.3333);
 	}
 	printUsage(table);
 	*/
 	logr(debug, "Testing overfill\n");
 	char buf[5];
-	for (uint64_t i = 0; i < defaultTableSize; i++) {
+	for (uint64_t i = 0; i < defaultTableSize; ++i) {
 		sprintf(buf, "%llu", i);
 		setFloat(table, buf, (float)i);
 		printTableUsage(table);

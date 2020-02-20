@@ -98,13 +98,13 @@ struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struc
 	isect.distance = 20000.0;
 	isect.incident = *incidentRay;
 	isect.didIntersect = false;
-	for (int i = 0; i < scene->sphereCount; i++) {
+	for (int i = 0; i < scene->sphereCount; ++i) {
 		if (rayIntersectsWithSphere(incidentRay, &scene->spheres[i], &isect)) {
 			isect.end = scene->spheres[i].material;
 			isect.didIntersect = true;
 		}
 	}
-	for (int o = 0; o < scene->meshCount; o++) {
+	for (int o = 0; o < scene->meshCount; ++o) {
 		if (rayIntersectsWithNode(scene->meshes[o].tree, incidentRay, &isect)) {
 			isect.end = scene->meshes[o].materials[polygonArray[isect.polyIndex].materialIndex];
 			computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);

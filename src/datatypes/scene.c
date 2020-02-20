@@ -40,7 +40,7 @@ void computeKDTrees(struct mesh *meshes, int meshCount) {
 	startTimer(&timer);
 	for (int i = 0; i < meshCount; ++i) {
 		int *indices = calloc(meshes[i].polyCount, sizeof(int));
-		for (int j = 0; j < meshes[i].polyCount; j++) {
+		for (int j = 0; j < meshes[i].polyCount; ++j) {
 			indices[j] = meshes[i].firstPolyIndex + j;
 		}
 		meshes[i].tree = buildTree(indices, meshes[i].polyCount);
@@ -135,7 +135,7 @@ void destroyScene(struct world *scene) {
 	if (scene) {
 		destroyTexture(scene->hdr);
 		if (scene->meshes) {
-			for (int i = 0; i < scene->meshCount; i++) {
+			for (int i = 0; i < scene->meshCount; ++i) {
 				destroyMesh(&scene->meshes[i]);
 			}
 			free(scene->meshes);

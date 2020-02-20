@@ -66,7 +66,7 @@ struct texture *renderFrame(struct renderer *r) {
 	int ctr = 1;
 	
 	//Create render threads
-	for (t = 0; t < r->prefs.threadCount; t++) {
+	for (t = 0; t < r->prefs.threadCount; ++t) {
 		r->state.threads[t] = (struct crThread){.thread_num = t, .threadComplete = false, .r = r, .output = output, .threadFunc = renderThread};
 		r->state.activeThreads++;
 		if (spawnThread(&r->state.threads[t])) {
@@ -79,7 +79,7 @@ struct texture *renderFrame(struct renderer *r) {
 		
 		if (!r->state.threads[0].paused) {
 			drawWindow(r, output);
-			for (int t = 0; t < r->prefs.threadCount; t++) {
+			for (int t = 0; t < r->prefs.threadCount; ++t) {
 				avgSampleTime += r->state.threads[t].avgSampleTime;
 			}
 			finalAvg += avgSampleTime / r->prefs.threadCount;
@@ -117,7 +117,7 @@ struct texture *renderFrame(struct renderer *r) {
 		pauser++;
 		
 		//Wait for render threads to finish (Render finished)
-		for (t = 0; t < r->prefs.threadCount; t++) {
+		for (t = 0; t < r->prefs.threadCount; ++t) {
 			if (r->state.threads[t].threadComplete && r->state.threads[t].thread_num != -1) {
 				r->state.activeThreads--;
 				r->state.threads[t].thread_num = -1;
@@ -129,7 +129,7 @@ struct texture *renderFrame(struct renderer *r) {
 	}
 	
 	//Make sure render threads are terminated before continuing (This blocks)
-	for (t = 0; t < r->prefs.threadCount; t++) {
+	for (t = 0; t < r->prefs.threadCount; ++t) {
 		checkThread(&r->state.threads[t]);
 	}
 	return output;

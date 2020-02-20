@@ -92,7 +92,7 @@ struct kdTreeNode *buildTree(int *polygons, const int polyCount) {
 	
 	enum bboxAxis axis = getLongestAxis(node->bbox);
 	
-	for (int i = 0; i < node->polyCount; i++) {
+	for (int i = 0; i < node->polyCount; ++i) {
 		struct vector polyMidPoint = getMidPoint(vertexArray[polygonArray[node->polygons[i]].vertexIndex[0]],
 									   vertexArray[polygonArray[node->polygons[i]].vertexIndex[1]],
 									   vertexArray[polygonArray[node->polygons[i]].vertexIndex[2]]);
@@ -189,7 +189,7 @@ bool rayIntersectsWithNode(const struct kdTreeNode *node, const struct lightRay 
 			return hitLeft || hitRight;
 		} else {
 			//This is a leaf, so check all polys
-			for (int i = 0; i < node->polyCount; i++) {
+			for (int i = 0; i < node->polyCount; ++i) {
 				struct poly p = polygonArray[node->polygons[i]];
 				if (rayIntersectsWithPolygon(ray, &p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
 					hasHit = true;

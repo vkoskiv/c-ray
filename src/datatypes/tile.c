@@ -62,8 +62,8 @@ int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned heig
 	}
 	
 	unsigned tileCount = 0;
-	for (unsigned y = 0; y < tilesY; y++) {
-		for (unsigned x = 0; x < tilesX; x++) {
+	for (unsigned y = 0; y < tilesY; ++y) {
+		for (unsigned x = 0; x < tilesX; ++x) {
 			struct renderTile *tile = &(*renderTiles)[x + y*tilesX];
 			tile->width  = tileWidth;
 			tile->height = tileHeight;
@@ -101,7 +101,7 @@ void reorderTopToBottom(struct renderTile **tiles, int tileCount) {
 	
 	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < tileCount; i++) {
+	for (int i = 0; i < tileCount; ++i) {
 		tempArray[i] = (*tiles)[endIndex--];
 	}
 	
@@ -131,7 +131,7 @@ unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_random_t *r
 void reorderRandom(struct renderTile **tiles, int tileCount) {
 	pcg32_random_t *rng = calloc(1, sizeof(pcg32_random_t));
 	pcg32_srandom_r(rng, 3141592, 0);
-	for (int i = 0; i < tileCount; i++) {
+	for (int i = 0; i < tileCount; ++i) {
 		unsigned int random = rand_interval(0, tileCount - 1, rng);
 		
 		struct renderTile temp = (*tiles)[i];
@@ -154,7 +154,7 @@ void reorderFromMiddle(struct renderTile **tiles, int tileCount) {
 	
 	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < tileCount; i++) {
+	for (int i = 0; i < tileCount; ++i) {
 		if (isRight) {
 			tempArray[i] = (*tiles)[midRight++];
 			isRight = false;
@@ -181,7 +181,7 @@ void reorderToMiddle(struct renderTile **tiles, int tileCount) {
 	
 	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < tileCount; i++) {
+	for (int i = 0; i < tileCount; ++i) {
 		if (isRight) {
 			tempArray[i] = (*tiles)[right--];
 			isRight = false;

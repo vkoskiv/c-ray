@@ -30,10 +30,10 @@ void transformMesh(struct mesh *mesh) {
 	//Bit of a hack here, using way more memory than needed. Should also work on 32-bit now
 	bool *tformed = (bool *)calloc(mesh->vertexCount, sizeof(bool));
 	bool *ntformed = (bool *)calloc(mesh->normalCount, sizeof(bool));
-	for (int tf = 0; tf < mesh->transformCount; tf++) {
+	for (int tf = 0; tf < mesh->transformCount; ++tf) {
 		//Perform transforms
-		for (int p = mesh->firstPolyIndex; p < (mesh->firstPolyIndex + mesh->polyCount); p++) {
-			for (int v = 0; v < polygonArray[p].vertexCount; v++) {
+		for (int p = mesh->firstPolyIndex; p < (mesh->firstPolyIndex + mesh->polyCount); ++p) {
+			for (int v = 0; v < polygonArray[p].vertexCount; ++v) {
 				//vec
 				if (!tformed[polygonArray[p].vertexIndex[v] - mesh->firstVectorIndex]) {
 					transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], mesh->transforms[tf].A);
@@ -41,7 +41,7 @@ void transformMesh(struct mesh *mesh) {
 				}
 			}
 		}
-		for (int n = mesh->firstNormalIndex; n < (mesh->firstNormalIndex + mesh->normalCount); n++) {
+		for (int n = mesh->firstNormalIndex; n < (mesh->firstNormalIndex + mesh->normalCount); ++n) {
 			//normal, skip translates and do inverse transpose
 			if (!ntformed[n - mesh->firstNormalIndex]) {
 				if (mesh->transforms[tf].type != transformTypeTranslate) {
@@ -71,7 +71,7 @@ void destroyMesh(struct mesh *mesh) {
 		destroyTree(mesh->tree);
 	}
 	if (mesh->materials) {
-		for (int i = 0; i < mesh->materialCount; i++) {
+		for (int i = 0; i < mesh->materialCount; ++i) {
 			destroyMaterial(&mesh->materials[i]);
 		}
 		free(mesh->materials);

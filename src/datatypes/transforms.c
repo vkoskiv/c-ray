@@ -23,8 +23,8 @@ float fromRadians(float radians) {
 
 struct matrix4x4 identityMatrix() {
 	struct matrix4x4 mtx;
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
 			mtx.mtx[i][j] = 0;
 		}
 	}
@@ -162,8 +162,8 @@ void getCofactor(float A[4][4], float cofactors[4][4], int p, int q, int n) {
 	int i = 0;
 	int j = 0;
 	
-	for (int row = 0; row < n; row++) {
-		for (int col = 0; col < n; col++) {
+	for (int row = 0; row < n; ++row) {
+		for (int col = 0; col < n; ++col) {
 			if (row != p && col != q) {
 				cofactors[i][j++] = A[row][col];
 				if (j == n - 1) {
@@ -195,7 +195,7 @@ float findDeterminant(float A[4][4], int n) {
 	float cofactors[4][4];
 	float sign = 1.0;
 	
-	for (int f = 0; f < n; f++) {
+	for (int f = 0; f < n; ++f) {
 		getCofactor(A, cofactors, 0, f, n);
 		det += sign * A[0][f] * findDeterminant(cofactors, n - 1);
 		sign = -sign;
@@ -208,8 +208,8 @@ void findAdjoint(float A[4][4], float adjoint[4][4]) {
 	int sign = 1;
 	float temp[4][4];
 	
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
 			getCofactor(A, temp, i, j, 4);
 			sign = ((i+j)%2 == 0) ? 1 : -1;
 			adjoint[i][j] = (sign)*(findDeterminant(temp, 3));
@@ -228,8 +228,8 @@ struct matrix4x4 inverse(struct matrix4x4 mtx) {
 	float adjoint[4][4];
 	findAdjoint(mtx.mtx, adjoint);
 	
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
 			inverse.mtx[i][j] = adjoint[i][j] / det;
 		}
 	}
@@ -284,8 +284,8 @@ char *transformTypeString(enum transformType type) {
 
 void printMatrix(struct matrix4x4 mtx) {
 	printf("\n");
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
 			printf("mtx.mtx[%i][%i]=%s%f ",i,j, mtx.mtx[i][j] < 0 ? "" : " " ,mtx.mtx[i][j]);
 		}
 		printf("\n");

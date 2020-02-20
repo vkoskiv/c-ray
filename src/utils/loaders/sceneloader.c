@@ -45,7 +45,7 @@ struct sphere *lastSphere(struct renderer *r) {
 
 //FIXME: Do something about this awful mess.
 void loadMeshTextures(char *assetPath, struct mesh *mesh) {
-	for (int i = 0; i < mesh->materialCount; i++) {
+	for (int i = 0; i < mesh->materialCount; ++i) {
 		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
 		if (mesh->materials[i].textureFilePath) {
 			if (strcmp(mesh->materials[i].textureFilePath, "")) {
@@ -145,23 +145,23 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	//Data loaded, now convert everything
 	//Convert vectors
 	vertexArray = realloc(vertexArray, vertexCount * sizeof(struct vector));
-	for (int i = 0; i < data.vertex_count; i++) {
+	for (int i = 0; i < data.vertex_count; ++i) {
 		vertexArray[newMesh->firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
 	}
 	
 	//Convert normals
 	normalArray = realloc(normalArray, normalCount * sizeof(struct vector));
-	for (int i = 0; i < data.vertex_normal_count; i++) {
+	for (int i = 0; i < data.vertex_normal_count; ++i) {
 		normalArray[newMesh->firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture vectors
 	textureArray = realloc(textureArray, textureCount * sizeof(struct coord));
-	for (int i = 0; i < data.vertex_texture_count; i++) {
+	for (int i = 0; i < data.vertex_texture_count; ++i) {
 		textureArray[newMesh->firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
 	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
-	for (int i = 0; i < data.face_count; i++) {
+	for (int i = 0; i < data.face_count; ++i) {
 		polygonArray[newMesh->firstPolyIndex + i] = polyFromObj(data.face_list[i],
 																newMesh->firstVectorIndex,
 																newMesh->firstNormalIndex,
@@ -179,7 +179,7 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 		newMesh->materialCount++;
 	} else {
 		//Loop to add materials to mesh (We already set the material indices in polyFromObj)
-		for (int i = 0; i < data.material_count; i++) {
+		for (int i = 0; i < data.material_count; ++i) {
 			addMaterialToMesh(newMesh, materialFromObj(data.material_list[i]));
 		}
 	}
@@ -219,7 +219,7 @@ void addCamTransform(struct camera *cam, struct transform transform) {
 }
 
 void addCamTransforms(struct camera *cam, struct transform *transforms, int count) {
-	for (int i = 0; i < count; i++) {
+	for (int i = 0; i < count; ++i) {
 		addCamTransform(cam, transforms[i]);
 	}
 }
@@ -424,7 +424,7 @@ struct transform *parseTransforms(const cJSON *data) {
 	
 	cJSON *transform = NULL;
 	
-	for (int i = 0; i < transformCount; i++) {
+	for (int i = 0; i < transformCount; ++i) {
 		transform = cJSON_GetArrayItem(data, i);
 		transforms[i] = parseTransform(transform, "camera");
 	}
@@ -945,7 +945,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 		}
 		
 		//FIXME: this isn't right.
-		for (int i = 0; i < lastMesh(r)->materialCount; i++) {
+		for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
 			lastMesh(r)->materials[i].type = type;
 			if (type == emission) {
 				lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);

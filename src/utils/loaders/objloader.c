@@ -76,7 +76,7 @@ int convert(int amount, int index) {
 }
 
 void convertIndices(int amount, int *indices) {
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 3; ++i) {
 		indices[i] = convert(amount, indices[i]);
 	}
 }
@@ -89,7 +89,7 @@ struct poly parsePoly(struct mesh mesh) {
 	convertIndices(normalCount, p.normalIndex);
 	convertIndices(textureCount, p.textureIndex);*/
 	
-	for (int i = 0; i < p.vertexCount; i++) {
+	for (int i = 0; i < p.vertexCount; ++i) {
 		if (p.normalIndex[i] == 0) {
 			p.hasNormals = false;
 		}
@@ -103,7 +103,7 @@ struct poly parsePoly(struct mesh mesh) {
 }
 
 int findMaterialIndex(struct mesh *mesh, char *mtlName) {
-	for (int i = 0; i < mesh->materialCount; i++) {
+	for (int i = 0; i < mesh->materialCount; ++i) {
 		if (stringEquals(mesh->materials[i].name, mtlName)) {
 			return i;
 		}

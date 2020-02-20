@@ -50,13 +50,13 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
 	//If no materials are found (missing .mtl), we will just patch in a bright pink material to show that
 	polygon.materialIndex = face->material_index == -1 ? 0 : face->material_index;
 	polygon.polyIndex = polyIndex;
-	for (int i = 0; i < polygon.vertexCount; i++) {
+	for (int i = 0; i < polygon.vertexCount; ++i) {
 		polygon.vertexIndex[i] = firstVertexIndex + face->vertex_index[i];
 	}
-	for (int i = 0; i < polygon.vertexCount; i++) {
+	for (int i = 0; i < polygon.vertexCount; ++i) {
 		polygon.normalIndex[i] = firstNormalIndex + face->normal_index[i];
 	}
-	for (int i = 0; i < polygon.vertexCount; i++) {
+	for (int i = 0; i < polygon.vertexCount; ++i) {
 		polygon.textureIndex[i] = firstTextureIndex + face->texture_index[i];
 	}
 	
@@ -79,12 +79,12 @@ struct material materialFromObj(obj_material *mat) {
 	
 	newMat.hasTexture = false;
 	
-	for (int i = 0; i < 255; i++) {
+	for (int i = 0; i < 255; ++i) {
 		newMat.name[i] = mat->name[i];
 		newMat.name[255] = '\0';
 	}
 	
-	for (int i = 0; i < 500; i++) {
+	for (int i = 0; i < 500; ++i) {
 		newMat.textureFilePath[i] = mat->texture_filename[i];
 		newMat.normalMapPath[i] = mat->displacement_filename[i];
 		newMat.textureFilePath[499] = '\0';
