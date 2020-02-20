@@ -34,8 +34,6 @@ struct threadState {
 	struct texture *output;
 };
 
-struct timeval;
-
 /// Renderer state data
 struct state {
 	struct renderTile *renderTiles; //Array of renderTiles to render
@@ -52,11 +50,10 @@ struct state {
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
 	struct threadState *threadStates; //Info about threads
 	struct timeval *timer;
-#ifdef WINDOWS
-	HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
-#else
+	
+	struct crMutex *tileMutex;
+#ifndef WINDOWS
 	pthread_attr_t renderThreadAttributes;
-	pthread_mutex_t tileMutex; // = PTHREAD_MUTEX_INITIALIZER;
 #endif
 };
 

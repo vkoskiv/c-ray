@@ -12,6 +12,7 @@
 #include "../renderer/renderer.h"
 #include "../utils/logging.h"
 #include "../datatypes/texture.h"
+#include "../utils/multiplatform.h"
 
 /**
  Gets the next tile from renderTiles in mainRenderer
@@ -22,21 +23,14 @@ struct renderTile getTile(struct renderer *r) {
 	struct renderTile tile;
 	memset(&tile, 0, sizeof(tile));
 	tile.tileNum = -1;
-#ifdef WINDOWS
-	WaitForSingleObject(r->state.tileMutex, INFINITE);
-#else
-	pthread_mutex_lock(&r->state.tileMutex);
-#endif
+	lockMutex(r->state.tileMutex);
 	if (r->state.finishedTileCount < r->state.tileCount) {
 		tile = r->state.renderTiles[r->state.finishedTileCount];
 		r->state.renderTiles[r->state.finishedTileCount].isRendering = true;
 		tile.tileNum = r->state.finishedTileCount++;
 	}
-#ifdef WINDOWS
-	ReleaseMutex(r->state.tileMutex);
-#else
-	pthread_mutex_unlock(&r->state.tileMutex);
-#endif
+	
+	releaseMutex(r->state.tileMutex);
 	return tile;
 }
 

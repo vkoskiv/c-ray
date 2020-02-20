@@ -21,3 +21,18 @@ int getSysCores(void);
 
 //Thread handling
 
+//Multi-platform mutex
+
+struct crMutex {
+	#ifdef WINDOWS
+		HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
+	#else
+		pthread_mutex_t tileMutex; // = PTHREAD_MUTEX_INITIALIZER;
+	#endif
+};
+
+struct crMutex *createMutex(void);
+
+void lockMutex(struct crMutex *m);
+
+void releaseMutex(struct crMutex *m);

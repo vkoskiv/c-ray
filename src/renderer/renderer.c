@@ -7,6 +7,8 @@
 //
 
 #include "../includes.h"
+
+#include "../utils/multiplatform.h"
 #include "renderer.h"
 
 #include "../datatypes/camera.h"
@@ -335,11 +337,7 @@ struct renderer *newRenderer() {
 #endif
 	
 	//Mutex
-#ifdef WINDOWS
-	r->state.tileMutex = CreateMutex(NULL, FALSE, NULL);
-#else
-	r->state.tileMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
-#endif
+	r->state.tileMutex = createMutex();
 	return r;
 }
 	
