@@ -60,7 +60,7 @@ enum bsdfType {
 struct bsdf {
 	enum bsdfType type;
 	float weights;
-	bool (*bsdf)(struct hitRecord*, struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
+	bool (*bsdf)(struct hitRecord*, struct color*, struct lightRay*, pcg32_random_t*);
 };
 
 struct material {
@@ -92,7 +92,7 @@ struct material {
 	
 	enum bsdfType type;
 	//isect record, ray, attenuation color, scattered ray, rng
-	bool (*bsdf)(struct hitRecord*, const struct lightRay*, struct color*, struct lightRay*, pcg32_random_t*);
+	bool (*bsdf)(struct hitRecord*, struct color*, struct lightRay*, pcg32_random_t*);
 };
 
 //temporary newMaterial func
@@ -114,11 +114,11 @@ struct material emptyMaterial(void);
 struct material defaultMaterial(void);
 struct material warningMaterial(void);
 
-bool emissiveBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool lambertianBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool metallicBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool plasticBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool dialectricBSDF(struct hitRecord *isect, const struct lightRay *ray, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool   emissiveBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool lambertianBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool   metallicBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool    plasticBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool dielectricBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
 
 void assignBSDF(struct material *mat);
 

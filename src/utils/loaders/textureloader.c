@@ -64,7 +64,7 @@ struct texture *loadTexture(char *filePath) {
 	} else {
 		new->byte_data = stbi_load(filePath, (int*)&new->width, (int*)&new->height, &new->channels, 3);
 		if (!new->byte_data) {
-			logr(warning, "Error while loading texture from %s - Does the file exist?\n", filePath);
+			logr(warning, "Error while loading texture from \"%s\" - Does the file exist?\n", filePath);
 			destroyTexture(new);
 			return NULL;
 		}
