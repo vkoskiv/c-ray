@@ -144,13 +144,11 @@ int spawnThread(struct crThread *t) {
 	}
 	t->thread_id = threadId;
 #else
-	pthread_attr_init(&t->renderThreadAttributes);
-	pthread_attr_setdetachstate(&t->renderThreadAttributes, PTHREAD_CREATE_JOINABLE);
-	int ret = pthread_create(&t->thread_id, &t->renderThreadAttributes, threadStub, t);
-	if (pthread_attr_destroy(&t->renderThreadAttributes)) {
-		logr(error, "Failed to destroy pthread attrs\n");
-		return -1;
-	}
+	pthread_attr_t attribs;
+	pthread_attr_init(&attribs);
+	pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
+	int ret = pthread_create(&t->thread_id, &attribs, threadStub, t);
+	pthread_attr_destroy(&attribs);
 	return ret;
 #endif
 }

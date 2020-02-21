@@ -48,7 +48,6 @@ struct crThread {
 	DWORD thread_id;
 #else
 	pthread_t thread_id;
-	pthread_attr_t renderThreadAttributes;
 #endif
 	int thread_num;
 	bool threadComplete;
