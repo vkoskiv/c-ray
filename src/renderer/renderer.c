@@ -52,21 +52,18 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	logr(info, "Pathtracing...\n");
 	
-	//Create threads
-	int t;
-	
 	r->state.isRendering = true;
 	r->state.renderAborted = false;
-	r->state.saveImage = true;
+	r->state.saveImage = true; // Set to false if user presses X
 	
 	//Main loop (input)
 	float avgSampleTime = 0.0f;
-	int pauser = 0;
 	float finalAvg = 0.0f;
+	int pauser = 0;
 	int ctr = 1;
 	
-	//Create render threads
-	for (t = 0; t < r->prefs.threadCount; ++t) {
+	//Create render threads (Nonblocking)
+	for (int t = 0; t < r->prefs.threadCount; ++t) {
 		r->state.threads[t] = (struct crThread){.thread_num = t, .threadComplete = false, .r = r, .output = output, .threadFunc = renderThread};
 		r->state.activeThreads++;
 		if (spawnThread(&r->state.threads[t])) {
@@ -74,6 +71,7 @@ struct texture *renderFrame(struct renderer *r) {
 		}
 	}
 	
+	//Start main thread loop to handle SDL and statistics computation
 	while (r->state.isRendering) {
 		getKeyboardInput(r);
 		
@@ -117,19 +115,19 @@ struct texture *renderFrame(struct renderer *r) {
 		pauser++;
 		
 		//Wait for render threads to finish (Render finished)
-		for (t = 0; t < r->prefs.threadCount; ++t) {
+		for (int t = 0; t < r->prefs.threadCount; ++t) {
 			if (r->state.threads[t].threadComplete && r->state.threads[t].thread_num != -1) {
-				r->state.activeThreads--;
-				r->state.threads[t].thread_num = -1;
+				--r->state.activeThreads;
+				r->state.threads[t].thread_num = -1; //Mark as checked
 			}
-			if (r->state.activeThreads == 0 || r->state.renderAborted) {
+			if (!r->state.activeThreads || r->state.renderAborted) {
 				r->state.isRendering = false;
 			}
 		}
 	}
 	
 	//Make sure render threads are terminated before continuing (This blocks)
-	for (t = 0; t < r->prefs.threadCount; ++t) {
+	for (int t = 0; t < r->prefs.threadCount; ++t) {
 		checkThread(&r->state.threads[t]);
 	}
 	return output;
