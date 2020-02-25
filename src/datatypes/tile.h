@@ -26,10 +26,13 @@ struct renderTile {
 	int tileNum;
 };
 
-struct texture;
+/// Quantize the render plane into an array of tiles, with properties as specified in the parameters below
+/// @param renderTiles Array to place renderTiles into
+/// @param width Render plane width
+/// @param height Render plane height
+/// @param tileWidth Tile width
+/// @param tileHeight Tile height
+/// @param tileOrder Order for the renderer to render the tiles in
+int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum renderOrder tileOrder);
 
-int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight);
-
-void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder);
-
-struct renderTile getTile(struct renderer *r);
+struct renderTile nextTile(struct renderer *r);

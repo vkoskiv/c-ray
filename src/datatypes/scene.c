@@ -100,8 +100,12 @@ int loadScene(struct renderer *r, char *input) {
 	printSceneStats(r->scene, getMs(timer));
 	
 	//Quantize image into renderTiles
-	r->state.tileCount = quantizeImage(&r->state.renderTiles, r->prefs.imageWidth, r->prefs.imageHeight, r->prefs.tileWidth, r->prefs.tileHeight);
-	reorderTiles(&r->state.renderTiles, r->state.tileCount, r->prefs.tileOrder);
+	r->state.tileCount = quantizeImage(&r->state.renderTiles,
+									   r->prefs.imageWidth,
+									   r->prefs.imageHeight,
+									   r->prefs.tileWidth,
+									   r->prefs.tileHeight,
+									   r->prefs.tileOrder);
 	
 	//Compute the focal length for the camera
 	computeFocalLength(r->scene->camera, r->prefs.imageWidth);

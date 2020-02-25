@@ -11,15 +11,16 @@
 
 #include "../renderer/renderer.h"
 #include "../utils/logging.h"
-#include "../datatypes/texture.h"
 #include "../utils/multiplatform.h"
+
+void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder);
 
 /**
  Gets the next tile from renderTiles in mainRenderer
  
  @return A renderTile to be rendered
  */
-struct renderTile getTile(struct renderer *r) {
+struct renderTile nextTile(struct renderer *r) {
 	struct renderTile tile;
 	memset(&tile, 0, sizeof(tile));
 	tile.tileNum = -1;
@@ -39,7 +40,7 @@ struct renderTile getTile(struct renderer *r) {
  
  @param scene scene object
  */
-int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight) {
+int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum renderOrder tileOrder) {
 	
 	logr(info, "Quantizing render plane\n");
 	
@@ -89,6 +90,8 @@ int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned heig
 		}
 	}
 	logr(info, "Quantized image into %i tiles. (%ix%i)\n", (tilesX*tilesY), tilesX, tilesY);
+	
+	reorderTiles(renderTiles, tileCount, tileOrder);
 	
 	return tileCount;
 }
@@ -168,7 +171,6 @@ void reorderFromMiddle(struct renderTile **tiles, int tileCount) {
 	*tiles = tempArray;
 }
 
-
 /**
  Reorder renderTiles to start from ends, towards the middle
  */
@@ -203,24 +205,16 @@ void reorderToMiddle(struct renderTile **tiles, int tileCount) {
 void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder) {
 	switch (tileOrder) {
 		case renderOrderFromMiddle:
-		{
 			reorderFromMiddle(tiles, tileCount);
-		}
 			break;
 		case renderOrderToMiddle:
-		{
 			reorderToMiddle(tiles, tileCount);
-		}
 			break;
 		case renderOrderTopToBottom:
-		{
 			reorderTopToBottom(tiles, tileCount);
-		}
 			break;
 		case renderOrderRandom:
-		{
 			reorderRandom(tiles, tileCount);
-		}
 			break;
 		default:
 			break;

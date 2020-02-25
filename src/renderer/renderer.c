@@ -156,7 +156,7 @@ void *renderThread(void *arg) {
 	pcg32_random_t rng;
 	
 	//First time setup for each thread
-	struct renderTile tile = getTile(r);
+	struct renderTile tile = nextTile(r);
 	thread->currentTileNum = tile.tileNum;
 	
 	struct timeval timer = {0};
@@ -263,7 +263,7 @@ void *renderThread(void *arg) {
 		r->state.renderTiles[tile.tileNum].renderComplete = true;
 		thread->currentTileNum = -1;
 		thread->completedSamples = 0;
-		tile = getTile(r);
+		tile = nextTile(r);
 		thread->currentTileNum = tile.tileNum;
 	}
 	//No more tiles to render, exit thread. (render done)
