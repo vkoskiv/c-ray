@@ -11,6 +11,11 @@
 struct texture;
 struct renderInfo;
 
+
+/// Returns a string containing `bytes` converted into a more human readable format.
+/// @param bytes How many bytes you have
+char *humanFileSize(unsigned long bytes);
+
 //Prints the file size of a given file to the console in a user-readable format
 void printFileSize(char *fileName);
 

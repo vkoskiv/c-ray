@@ -96,8 +96,8 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	sprintf(samples, "%i", imginfo.samples);
 	char bounces[16];
 	sprintf(bounces, "%i", imginfo.bounces);
-	char seconds[64];
-	sprintf(seconds, "%s", imginfo.renderTime);
+	char renderTime[64];
+	smartTime(imginfo.renderTime, renderTime);
 	char threads[16];
 	sprintf(threads, "%i", imginfo.threadCount);
 #ifndef WINDOWS
@@ -111,7 +111,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, int width,
 	lodepng_add_text(&info, "C-ray Source", "https://github.com/vkoskiv/c-ray");
 	lodepng_add_text(&info, "C-ray Samples", samples);
 	lodepng_add_text(&info, "C-ray Bounces", bounces);
-	lodepng_add_text(&info, "C-ray RenderTime", seconds);
+	lodepng_add_text(&info, "C-ray RenderTime", renderTime);
 	lodepng_add_text(&info, "C-ray Threads", threads);
 #ifndef WINDOWS
 	lodepng_add_text(&info, "C-ray SysInfo", sysinfo);
@@ -269,28 +269,36 @@ bool stringContains(const char *haystack, const char *needle) {
 	}
 }
 
-//TODO: Refactor this to just return file size as a string so it can be reused elsewhere
-void printFileSize(char *fileName) {
-	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
-	//This will work for all image formats
-	long bytes, kilobytes, megabytes, gigabytes, terabytes; // <- Futureproofing?!
-	bytes = getFileSize(fileName);
+char *humanFileSize(unsigned long bytes) {
+	unsigned long kilobytes, megabytes, gigabytes, terabytes; // <- Futureproofing?!
 	kilobytes = bytes / 1000;
 	megabytes = kilobytes / 1000;
 	gigabytes = megabytes / 1000;
 	terabytes = gigabytes / 1000;
 	
+	char *buf = calloc(64, sizeof(char));
+	
 	if (gigabytes > 1000) {
-		logr(info, "Wrote %ldTB to file.\n", terabytes);
+		sprintf(buf, "%ldTB", terabytes);
 	} else if (megabytes > 1000) {
-		logr(info, "Wrote %ldGB to file.\n", gigabytes);
+		sprintf(buf, "%ldGB", gigabytes);
 	} else if (kilobytes > 1000) {
-		logr(info, "Wrote %ldMB to file.\n", megabytes);
+		sprintf(buf, "%ldMB", megabytes);
 	} else if (bytes > 1000) {
-		logr(info, "Wrote %ldKB to file.\n", kilobytes);
+		sprintf(buf, "%ldKB", kilobytes);
 	} else {
-		logr(info, "Wrote %ldB to file.\n", bytes);
+		sprintf(buf, "%ldB", bytes);
 	}
+	return buf;
+}
+
+void printFileSize(char *fileName) {
+	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
+	//This will work for all image formats
+	unsigned long bytes = getFileSize(fileName);
+	char *sizeString = humanFileSize(bytes);
+	logr(info, "Wrote %s to file.\n", sizeString);
+	free(sizeString);
 }
 
 void writeImage(struct texture *image, struct renderInfo imginfo) {

@@ -25,7 +25,7 @@ enum precision {
 struct renderInfo {
 	int samples;
 	int bounces;
-	char *renderTime;
+	unsigned long long renderTime;
 	int threadCount;
 	char *arch;
 	char *crayVersion;

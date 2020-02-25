@@ -66,8 +66,6 @@ void crDestroySDL() {
 }
 
 void crWriteImage() {
-	char buf[64];
-	smartTime(getMs(*grenderer->state.timer), buf);
 	if (currentImage) {
 		if (grenderer->state.saveImage) {
 			writeImage(currentImage, (struct renderInfo){
@@ -75,7 +73,7 @@ void crWriteImage() {
 				.samples = crGetSampleCount(),
 				.crayVersion = crGetVersion(),
 				.gitHash = crGitHash(),
-				.renderTime = buf,
+				.renderTime = getMs(*grenderer->state.timer),
 				.threadCount = crGetThreadCount()
 			});
 		} else {
