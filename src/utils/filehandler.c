@@ -208,8 +208,8 @@ char *getFileName(char *input) {
 char *getFilePath(char *input) {
 	char *dir = NULL;
 #ifdef WINDOWS
-	//char *dir = calloc(256, sizeof(char));
-	//_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0); //Maybe works on MS-WinDOS?
+	dir = calloc(256, sizeof(char));
+	_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0);
 #else
 	copyString(dirname(input), &dir);
 #endif

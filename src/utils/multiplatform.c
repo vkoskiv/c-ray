@@ -32,11 +32,10 @@ void showCursor(bool show) {
 }
 
 void initTerminal() {
-	//Disable output buffering
-	setbuf(stdout, NULL);
-	
 	//If we're on a reasonable (non-windows) terminal, hide the cursor.
 #ifndef WINDOWS
+	//Disable output buffering
+	setbuf(stdout, NULL);
 	showCursor(false);
 #endif
 	
@@ -54,7 +53,9 @@ void initTerminal() {
 }
 
 void restoreTerminal() {
+#ifndef WINDOWS
 	showCursor(true);
+#endif
 }
 
 int getSysCores() {
@@ -138,11 +139,12 @@ void *threadStub(void *arg) {
 int spawnThread(struct crThread *t) {
 #ifdef WINDOWS
 	DWORD threadId; //FIXME: Just pass in &t.thread_id instead like below?
-	t->thread_handle = CreateThread(NULL, 0, threadStub, &t, 0, &threadId);
+	t->thread_handle = CreateThread(NULL, 0, threadStub, t, 0, &threadId);
 	if (t->thread_handle == NULL) {
 		return -1;
 	}
 	t->thread_id = threadId;
+	return 0;
 #else
 	pthread_attr_t attribs;
 	pthread_attr_init(&attribs);
