@@ -55,6 +55,15 @@ Things I'm looking to implement:
 - Subsurface scattering
 - Spectral rendering
 
+## Compatibility
+
+C-ray has been verified to work on the following architectures
+- x86 & x86_64 (Primarily developed on x86_64)
+- ARMv6, ARMv7 and ARMv8 (Various Raspberry Pi systems)
+- PowerPC 7xx and 74xx (PowerPC G3 and G4 systems)
+- MIPS R5000 (1996 SGI O2)
+- SuperSPARC II (1992 SUN SparcStation 10)
+
 ## Usage
 
 Please see the [Wiki](https://github.com/VKoskiv/c-ray/wiki) for details on how to use the JSON scene interface!
