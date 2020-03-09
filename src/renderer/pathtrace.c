@@ -29,15 +29,15 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 		struct color attenuation;
 		struct color emitted = isect.end.emission;
 		if (depth < maxDepth && isect.end.bsdf(&isect, &attenuation, &scattered, rng)) {
-			float probability = 1;
-			if (depth >= 2) {
+			float probability = 1.0f;
+			if (depth >= 4) {
 				probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
 				if (rndFloat(rng) > probability) {
 					return emitted;
 				}
 			}
 			struct color newColor = pathTrace(&scattered, scene, depth + 1, maxDepth, rng);
-			return colorCoef(1.0 / probability, addColors(emitted, multiplyColors(attenuation, newColor)));
+			return colorCoef(1.0f / probability, addColors(emitted, multiplyColors(attenuation, newColor)));
 		} else {
 			return emitted;
 		}
