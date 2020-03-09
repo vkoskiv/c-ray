@@ -295,30 +295,14 @@ float shlick(float cosine, float IOR) {
 }
 
 bool shinyBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
-	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
-	float niOverNt;
 	*attenuation = whiteColor;
-	float cosine;
-	
-	if (vecDot(isect->incident.direction, isect->surfaceNormal) > 0.0f) {
-		outwardNormal = vecNegate(isect->surfaceNormal);
-		niOverNt = isect->end.IOR;
-		cosine = isect->end.IOR * vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction);
-	} else {
-		outwardNormal = isect->surfaceNormal;
-		niOverNt = 1.0f / isect->end.IOR;
-		cosine = -(vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction));
-	}
-	
 	//Roughness
 	if (isect->end.roughness > 0.0f) {
 		struct vector fuzz = vecScale(randomInUnitSphere(rng), isect->end.roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
-	
 	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
-	
 	return true;
 }
 
