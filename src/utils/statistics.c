@@ -12,7 +12,6 @@
 #include "../utils/assert.h"
 #include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 struct stats {
 	bool enabled;
@@ -38,65 +37,60 @@ struct stats {
 	unsigned long calls_to_free;
 };
 
-//Global statistics here
-static struct stats g_stats = {0};
-
-void clear_stats() {
-	memset(&g_stats, 0, sizeof(g_stats));
+void clear_stats(struct stats *s) {
+	memset(s, 0, sizeof(*s));
 }
 
-struct stats *copy_stats() {
-	struct stats *copy = malloc(sizeof(copy));
-	*copy = g_stats;
-	return copy;
+void toggle_stats(struct stats *s) {
+	s->enabled = !s->enabled;
 }
 
-void toggle_stats() {
-	g_stats.enabled = !g_stats.enabled;
+bool stats_enabled(struct stats *s) {
+	return s->enabled;
 }
 
-void increment(enum counter c, unsigned long amount) {
-	if (!g_stats.enabled) return;
+void increment(struct stats *s, enum counter c, unsigned long amount) {
+	if (!s->enabled) return;
 	
 	switch (c) {
 		case kd_tree_bytes:
-			g_stats.kd_tree_bytes += amount;
+			s->kd_tree_bytes += amount;
 			break;
 		case image_buffer_bytes:
-			g_stats.image_buffer_bytes += amount;
+			s->image_buffer_bytes += amount;
 			break;
 		case mesh_bytes:
-			g_stats.mesh_bytes += amount;
+			s->mesh_bytes += amount;
 			break;
 		case raw_bytes_allocated:
-			g_stats.raw_bytes_allocated += amount;
+			s->raw_bytes_allocated += amount;
 			break;
 		case raw_bytes_freed:
-			g_stats.raw_bytes_freed += amount;
+			s->raw_bytes_freed += amount;
 			break;
 		case lights:
-			g_stats.lights += amount;
+			s->lights += amount;
 			break;
 		case materials:
-			g_stats.materials += amount;
+			s->materials += amount;
 			break;
 		case meshes:
-			g_stats.meshes += amount;
+			s->meshes += amount;
 			break;
 		case spheres:
-			g_stats.spheres += amount;
+			s->spheres += amount;
 			break;
 		case paths:
-			g_stats.paths += amount;
+			s->paths += amount;
 			break;
 		case path_lengths:
-			g_stats.path_lengths += amount;
+			s->path_lengths += amount;
 			break;
 		case calls_to_allocate:
-			g_stats.calls_to_allocate += amount;
+			s->calls_to_allocate += amount;
 			break;
 		case calls_to_free:
-			g_stats.calls_to_free += amount;
+			s->calls_to_free += amount;
 			break;
 		default:
 			ASSERT_NOT_REACHED();
@@ -104,46 +98,49 @@ void increment(enum counter c, unsigned long amount) {
 	}
 }
 
-unsigned long get_value(enum counter c) {
+unsigned long get_value(struct stats *s, enum counter c) {
 	switch (c) {
 		case kd_tree_bytes:
-			return g_stats.kd_tree_bytes;
+			return s->kd_tree_bytes;
 			break;
 		case image_buffer_bytes:
-			return g_stats.image_buffer_bytes;
+			return s->image_buffer_bytes;
 			break;
 		case mesh_bytes:
-			return g_stats.mesh_bytes;
+			return s->mesh_bytes;
 			break;
 		case raw_bytes_allocated:
-			return g_stats.raw_bytes_allocated;
+			return s->raw_bytes_allocated;
 			break;
 		case raw_bytes_freed:
-			return g_stats.raw_bytes_freed;
+			return s->raw_bytes_freed;
 			break;
 		case lights:
-			return g_stats.lights;
+			return s->lights;
 			break;
 		case materials:
-			return g_stats.materials;
+			return s->materials;
 			break;
 		case meshes:
-			return g_stats.meshes;
+			return s->meshes;
 			break;
 		case spheres:
-			return g_stats.spheres;
+			return s->spheres;
 			break;
 		case paths:
-			return g_stats.paths;
+			return s->paths;
 			break;
 		case path_lengths:
-			return g_stats.path_lengths;
+			return s->path_lengths;
+			break;
+		case avg_path_length:
+			return 0;
 			break;
 		case calls_to_allocate:
-			return g_stats.calls_to_allocate;
+			return s->calls_to_allocate;
 			break;
 		case calls_to_free:
-			return g_stats.calls_to_free;
+			return s->calls_to_free;
 			break;
 		default:
 			ASSERT_NOT_REACHED();

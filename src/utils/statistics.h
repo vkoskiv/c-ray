@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 enum counter {
 	//Memory
 	kd_tree_bytes,
@@ -26,6 +28,7 @@ enum counter {
 	//Counters
 	paths,
 	path_lengths,//div by paths to get avg path length
+	avg_path_length,
 	
 	calls_to_allocate,
 	calls_to_free
@@ -33,13 +36,14 @@ enum counter {
 
 struct stats;
 
-void clear_stats(void);
-
-struct stats *copy_stats(void);
+void clear_stats(struct stats *s);
 
 /// Toggle statistics gathering on or off
-void toggle_stats(void);
+void toggle_stats(struct stats *s);
 
-void increment(enum counter c, unsigned long amount);
+bool stats_enabled(struct stats *s);
+
+void increment(struct stats *s, enum counter c, unsigned long amount);
+unsigned long get_value(struct stats *s, enum counter c);
 
 void print_stats(void);
