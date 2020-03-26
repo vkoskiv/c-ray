@@ -3,6 +3,11 @@ project (c-ray C)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/)
 
+if (DEFINED ENV{CRAY_EXPORT_CMDS})
+	message(STATUS "Exporting compile commands")
+	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif()
+
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
