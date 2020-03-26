@@ -111,10 +111,6 @@ On Windows, download from `https://www.libsdl.org/release/SDL2-devel-2.0.8-VC.zi
 
 On Linux using APT, run `sudo apt install libsdl2-dev`
 
-## Writing your own raytracing algorithm
-
-See [writing your own rayTrace()](https://github.com/VKoskiv/c-ray/wiki/Writing-your-own-rayTrace()-function)
-
 ## Tests
 
 No tests yet! Maybe soon!
