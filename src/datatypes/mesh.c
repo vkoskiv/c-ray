@@ -9,7 +9,7 @@
 #include "../includes.h"
 #include "mesh.h"
 
-#include "../acceleration/kdtree.h"
+#include "../accelerators/kdtree.h"
 #include "vertexbuffer.h"
 #include "transforms.h"
 #include "poly.h"
