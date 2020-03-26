@@ -9,6 +9,7 @@ output/*
 *.vcxproj.filters
 *.sln
 *.mp4
+.clangd
 
 # Heavy HDR files, just include a small one for demo
 input/HDRs/*
