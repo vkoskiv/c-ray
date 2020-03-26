@@ -26,7 +26,7 @@
 #include "../../utils/filehandler.h"
 #include "../../utils/multiplatform.h"
 #include "../../renderer/renderer.h"
-#include "../../acceleration/kdtree.h"
+#include "../../accelerators/kdtree.h"
 #include "../converter.h"
 #include "textureloader.h"
 #include "objloader.h"

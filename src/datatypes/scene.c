@@ -16,7 +16,7 @@
 #include "texture.h"
 #include "camera.h"
 #include "vertexbuffer.h"
-#include "../acceleration/kdtree.h"
+#include "../accelerators/kdtree.h"
 #include "tile.h"
 #include "mesh.h"
 #include "poly.h"
