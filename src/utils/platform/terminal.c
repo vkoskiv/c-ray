@@ -10,6 +10,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#ifdef WINDOWS
+#include <Windows.h>
+#endif
+
 void showCursor(bool show) {
 	show ? fputs("\e[?25h", stdout) : fputs("\e[?25l", stdout);
 }
