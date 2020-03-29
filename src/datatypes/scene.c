@@ -20,7 +20,7 @@
 #include "tile.h"
 #include "mesh.h"
 #include "poly.h"
-#include "../utils/multiplatform.h"
+#include "../utils/platform/thread.h"
 
 void transformMeshes(struct world *scene) {
 	logr(info, "Running transforms: ");

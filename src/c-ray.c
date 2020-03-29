@@ -14,7 +14,7 @@
 #include "utils/gitsha1.h"
 #include "utils/logging.h"
 #include "utils/filehandler.h"
-#include "utils/multiplatform.h"
+#include "utils/platform/terminal.h"
 #include "utils/assert.h"
 #include "datatypes/texture.h"
 #include "utils/ui.h"

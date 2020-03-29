@@ -9,6 +9,8 @@
 #include "../../includes.h"
 #include "sceneloader.h"
 
+//FIXME: We should only need to include c-ray.h here!
+
 #include "../../libraries/cJSON.h"
 #include "../../libraries/obj_parser.h"
 #include "../../datatypes/scene.h"
@@ -21,10 +23,10 @@
 #include "../../datatypes/material.h"
 #include "../../datatypes/poly.h"
 #include "../../datatypes/transforms.h"
-#include "../../utils/logging.h"
-#include "../../utils/ui.h"
-#include "../../utils/filehandler.h"
-#include "../../utils/multiplatform.h"
+#include "../logging.h"
+#include "../ui.h"
+#include "../filehandler.h"
+#include "../platform/capabilities.h"
 #include "../../renderer/renderer.h"
 #include "../../accelerators/kdtree.h"
 #include "../converter.h"
