@@ -11,7 +11,7 @@
 
 #include "../renderer/renderer.h"
 #include "../utils/logging.h"
-#include "../utils/multiplatform.h"
+#include "../utils/platform/mutex.h"
 
 void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder);
 

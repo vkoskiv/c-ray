@@ -14,7 +14,7 @@
 #include "../datatypes/tile.h"
 #include "../datatypes/texture.h"
 #include "../datatypes/color.h"
-#include "../utils/multiplatform.h"
+#include "../utils/platform/thread.h"
 
 #include <signal.h>
 

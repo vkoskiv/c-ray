@@ -8,7 +8,6 @@
 
 #include "../includes.h"
 
-#include "../utils/multiplatform.h"
 #include "renderer.h"
 
 #include "../datatypes/camera.h"
@@ -24,6 +23,8 @@
 #include "../datatypes/mesh.h"
 #include "../datatypes/sphere.h"
 #include "../datatypes/vertexbuffer.h"
+#include "../utils/platform/thread.h"
+#include "../utils/platform/mutex.h"
 
 //Main thread loop speeds
 #define paused_msec 100
@@ -66,7 +67,7 @@ struct texture *renderFrame(struct renderer *r) {
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
 		r->state.threads[t] = (struct crThread){.thread_num = t, .threadComplete = false, .r = r, .output = output, .threadFunc = renderThread};
 		r->state.activeThreads++;
-		if (spawnThread(&r->state.threads[t])) {
+		if (startThread(&r->state.threads[t])) {
 			logr(error, "Failed to create a crThread.\n");
 		}
 	}

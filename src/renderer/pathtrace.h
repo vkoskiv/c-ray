@@ -14,6 +14,8 @@
 
 struct world;
 
+//FIXME: These datatypes should be hidden inside the implementation!
+
 /**
  Ray intersection type enum
  */
