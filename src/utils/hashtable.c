@@ -11,6 +11,7 @@
 
 #include "../utils/logging.h"
 #include "../datatypes/vector.h"
+#include "assert.h"
 
 // Fowler-Noll-Vo hash function
 uint64_t hashDataToU64(const char *data, size_t size) {
@@ -66,6 +67,25 @@ void setFloat(struct hashtable *e, const char *key, float value) {
 
 float getFloat(struct hashtable *e, const char *key) {
 	return *(float*)getBucketPtr(e, key)->value;
+}
+
+void setTag(struct hashtable *e, const char *key) {
+	struct bucket *ptr = getBucketPtr(e, key);
+	ptr->used = true;
+}
+
+void setString(struct hashtable *e, const char *key, const char *value, int len) {
+	struct bucket *ptr = getBucketPtr(e, key);
+	if (!ptr->used)
+		ptr->value = malloc(len * sizeof(char));
+	ptr->used = true;
+	ASSERT(strlen(value) == len);
+	strncpy((char*)ptr->value, value, len);
+}
+
+char *getString(struct hashtable *e, const char *key) {
+	struct bucket *ptr = getBucketPtr(e, key);
+	return ptr->used ? (char*)ptr->value : NULL;
 }
 
 void setInt(struct hashtable *e, const char *key, int value) {
