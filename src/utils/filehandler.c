@@ -160,6 +160,14 @@ char *loadFile(char *inputFileName, size_t *bytes) {
 	return buf;
 }
 
+bool isValidFile(char *path) {
+	bool valid = false;
+	FILE *f = fopen(path, "r");
+	if (f) valid = true;
+	fclose(f);
+	return valid;
+}
+
 //Wait for 2 secs and abort if nothing is coming in from stdin
 void checkBuf() {
 #ifndef WINDOWS

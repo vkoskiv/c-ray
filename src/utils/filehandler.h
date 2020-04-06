@@ -24,6 +24,11 @@ void writeImage(struct texture *image, struct renderInfo imginfo);
 
 char *loadFile(char *inputFileName, size_t *bytes);
 
+
+/// Returns true if the file at the given path exists and is readable.
+/// @param path Path to check
+bool isValidFile(char *path);
+
 /**
  Extract the filename from a given file path
 
