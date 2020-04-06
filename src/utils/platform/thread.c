@@ -30,7 +30,7 @@ void checkThread(struct crThread *t) {
 
 int startThread(struct crThread *t) {
 #ifdef WINDOWS
-	t->thread_handle = CreateThread(NULL, 0, threadStub, t, 0, &t->threadId);
+	t->thread_handle = CreateThread(NULL, 0, threadStub, t, 0, &t->thread_id);
 	if (t->thread_handle == NULL) return -1;
 	return 0;
 #else
