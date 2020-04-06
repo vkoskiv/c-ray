@@ -118,6 +118,8 @@ int loadScene(struct renderer *r, char *input) {
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
 	r->state.uiBuffer = newTexture(char_p, r->prefs.imageWidth, r->prefs.imageHeight, 4);
 	
+	//Some of this stuff seems like it should be in newRenderer(), but notice
+	//how it depends on r->prefs, which is populated by parseJSON
 	//Alloc memory for crThreads
 	r->state.threads = calloc(r->prefs.threadCount, sizeof(struct crThread));
 	if (r->state.threads == NULL) {

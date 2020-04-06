@@ -14,12 +14,13 @@
 #include "utils/logging.h"
 
 int main(int argc, char *argv[]) {
+	crParseOptions(argc, argv);
 	crInitTerminal();
 	logr(info, "C-ray v%s [%.8s], © 2015-2020 Valtteri Koskivuori\n", crGetVersion(), crGitHash());
 	crInitRenderer();
 	size_t bytes = 0;
-	char *input = argc == 2 ? crLoadFile(argv[1], &bytes) : crReadStdin(&bytes);
-	crSetAssetPath(argc == 2 ? crGetFilePath(argv[1]) : "./");
+	char *input = crOptionIsSet("inputFile") ? crLoadFile(crPathArg(), &bytes) : crReadStdin(&bytes);
+	crSetAssetPath(crOptionIsSet("inputFile") ? crGetFilePath(crPathArg()) : "./");
 	logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, argc == 2 ? "file" : "stdin");
 	if (!input || crLoadSceneFromBuf(input)) {
 		if (input) free(input);
