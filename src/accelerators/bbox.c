@@ -27,6 +27,15 @@ enum bboxAxis getLongestAxis(const struct boundingBox *bbox) {
 	return x > y && x > z ? X : y > z ? Y : Z;
 }
 
+/// Compute the surface area of a given bounding box
+/// @param box Bounding box to compute surface area for
+float findSurfaceArea(const struct boundingBox *box) {
+	float width = box->end.x - box->start.x;
+	float height = box->end.y - box->start.y;
+	float length = box->end.z - box->start.z;
+	return 2 * (length * width) + 2 * (length * height) + 2 * (width * height);
+}
+
 /**
  Compute the bounding box for a given array of polygons
 
@@ -58,6 +67,7 @@ struct boundingBox *computeBoundingBox(const int *polys, const int count) {
 	bbox->start = minPoint;
 	bbox->end = maxPoint;
 	bbox->midPoint = center;
+	bbox->surfaceArea = findSurfaceArea(bbox);
 	return bbox;
 }
 
@@ -100,11 +110,4 @@ bool rayIntersectWithAABB(const struct boundingBox *box, const struct lightRay *
 	
 	*t = tmin;
 	return true;
-}
-
-float findSurfaceArea(const struct boundingBox *box) {
-	float width = box->end.x - box->start.x;
-	float height = box->end.y - box->start.y;
-	float length = box->end.z - box->start.z;
-	return 2 * (length * width) + 2 * (length * height) + 2 * (width * height);
 }

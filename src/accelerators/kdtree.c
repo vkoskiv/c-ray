@@ -81,7 +81,7 @@ struct kdTreeNode *buildTree(int *polygons, const int polyCount) {
 	}
 	
 	node->bbox = computeBoundingBox(node->polygons, node->polyCount);
-	float currentSAHCost = node->polyCount * findSurfaceArea(node->bbox);
+	float currentSAHCost = node->polyCount * node->bbox->surfaceArea;
 	
 	struct vector midPoint = node->bbox->midPoint;
 	
@@ -122,8 +122,8 @@ struct kdTreeNode *buildTree(int *polygons, const int polyCount) {
 	struct boundingBox *leftBBox = computeBoundingBox(leftPolys.array, (int)leftPolys.used);
 	struct boundingBox *rightBBox = computeBoundingBox(rightPolys.array, (int)rightPolys.used);
 	
-	float leftSAHCost = leftPolys.used * findSurfaceArea(leftBBox);
-	float rightSAHCost = rightPolys.used * findSurfaceArea(rightBBox);
+	float leftSAHCost = leftPolys.used * leftBBox->surfaceArea;
+	float rightSAHCost = rightPolys.used * rightBBox->surfaceArea;
 	
 	free(leftBBox);
 	free(rightBBox);

@@ -21,6 +21,7 @@ enum bboxAxis {
 /// Bounding box for a given set of primitives
 struct boundingBox {
 	struct vector start, end, midPoint;
+	float surfaceArea;
 };
 
 /// Computes a bounding box for a given array of polygons
@@ -37,7 +38,3 @@ enum bboxAxis getLongestAxis(const struct boundingBox *bbox);
 /// @param ray Ray to intersect
 /// @param t Distance the intersection occurred at along the ray
 bool rayIntersectWithAABB(const struct boundingBox *box, const struct lightRay *ray, float *t);
-
-/// Compute the surface area of a given bounding box
-/// @param box Bounding box to compute surface area for
-float findSurfaceArea(const struct boundingBox *box);
