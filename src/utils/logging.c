@@ -11,6 +11,7 @@
 
 #include <stdarg.h>
 #include "../renderer/renderer.h"
+#include "args.h"
 
 void printPrefix(enum logType type) {
 	switch (type) {
@@ -45,6 +46,8 @@ void printDate() {
 
 void logr(enum logType type, const char *fmt, ...) {
 	if (!fmt) return;
+	if (type == debug && !isSet("v")) return;
+	
 	printPrefix(type);
 	printDate();
 	char buf[512];

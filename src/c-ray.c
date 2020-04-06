@@ -19,6 +19,7 @@
 #include "datatypes/texture.h"
 #include "utils/ui.h"
 #include "utils/timer.h"
+#include "utils/args.h"
 
 #define VERSION "0.6.3"
 
@@ -41,6 +42,18 @@ void crInitTerminal() {
 
 void crRestoreTerminal() {
 	restoreTerminal();
+}
+
+void crParseOptions(int argc, char **argv) {
+	parseOptions(argc, argv);
+}
+
+bool crOptionIsSet(char *key) {
+	return isSet(key);
+}
+
+char *crPathArg() {
+	return pathArg();
 }
 
 char *crGetFilePath(char *fullPath) {

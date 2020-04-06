@@ -72,6 +72,8 @@
 		9058A51122231E9F00193385 /* denoiser.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50D22231E9E00193385 /* denoiser.c */; };
 		9058A51222231E9F00193385 /* learn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50F22231E9E00193385 /* learn.c */; };
 		9058A51522231EB100193385 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
+		9062FA09243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
+		9062FA0A243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
 		9076FB4D243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB4E243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB51243002B00003B327 /* mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB50243002B00003B327 /* mutex.c */; };
@@ -188,6 +190,8 @@
 		9058A51022231E9F00193385 /* denoiser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = denoiser.h; sourceTree = "<group>"; };
 		9058A51322231EB100193385 /* Tinn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tinn.h; sourceTree = "<group>"; };
 		9058A51422231EB100193385 /* Tinn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Tinn.c; sourceTree = "<group>"; };
+		9062FA07243BBD0900420889 /* args.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = args.h; sourceTree = "<group>"; };
+		9062FA08243BBD0900420889 /* args.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = args.c; sourceTree = "<group>"; };
 		9076FB4B243002A40003B327 /* terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = terminal.h; sourceTree = "<group>"; };
 		9076FB4C243002A40003B327 /* terminal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = terminal.c; sourceTree = "<group>"; };
 		9076FB4F243002B00003B327 /* mutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
@@ -353,6 +357,8 @@
 			children = (
 				9076FB4A242D59F20003B327 /* platform */,
 				90CA85152252C90C00BA7702 /* loaders */,
+				9062FA07243BBD0900420889 /* args.h */,
+				9062FA08243BBD0900420889 /* args.c */,
 				90CFA7DD2381BF0900061288 /* hashtable.h */,
 				90CFA7DE2381BF0900061288 /* hashtable.c */,
 				9058A51022231E9F00193385 /* denoiser.h */,
@@ -540,6 +546,7 @@
 				905842EA236651FC009D92F1 /* vector.c in Sources */,
 				905842EB236651FC009D92F1 /* texture.c in Sources */,
 				905842EC236651FC009D92F1 /* objloader.c in Sources */,
+				9062FA0A243BBD0900420889 /* args.c in Sources */,
 				905842ED236651FC009D92F1 /* lightRay.c in Sources */,
 				90908A7023E0707E0081377B /* assert.c in Sources */,
 				905842EE236651FC009D92F1 /* pcg_basic.c in Sources */,
@@ -594,6 +601,7 @@
 				900BA130220B4603005B8EE7 /* vector.c in Sources */,
 				90FB15CE225C6D85008D6AAA /* texture.c in Sources */,
 				90CA851D2252C90C00BA7702 /* objloader.c in Sources */,
+				9062FA09243BBD0900420889 /* args.c in Sources */,
 				900BA131220B4603005B8EE7 /* lightRay.c in Sources */,
 				90908A6F23E0707E0081377B /* assert.c in Sources */,
 				90369CCC222E012F008D215B /* pcg_basic.c in Sources */,
@@ -846,7 +854,7 @@
 					"$(inherited)",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
 					UI_ENABLED,
 					"DEBUG=1",
@@ -891,7 +899,7 @@
 					"$(inherited)",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = UI_ENABLED;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
