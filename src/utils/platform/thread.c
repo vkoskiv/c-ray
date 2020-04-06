@@ -30,12 +30,8 @@ void checkThread(struct crThread *t) {
 
 int startThread(struct crThread *t) {
 #ifdef WINDOWS
-	DWORD threadId; //FIXME: Just pass in &t.thread_id instead like below?
-	t->thread_handle = CreateThread(NULL, 0, threadStub, t, 0, &threadId);
-	if (t->thread_handle == NULL) {
-		return -1;
-	}
-	t->thread_id = threadId;
+	t->thread_handle = CreateThread(NULL, 0, threadStub, t, 0, &t->threadId);
+	if (t->thread_handle == NULL) return -1;
 	return 0;
 #else
 	pthread_attr_t attribs;
