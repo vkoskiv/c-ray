@@ -15,8 +15,7 @@ DWORD WINAPI threadStub(LPVOID arg) {
 #else
 void *threadStub(void *arg) {
 #endif
-	struct crThread *thread = (struct crThread*)arg;
-	return thread->threadFunc(arg);
+	return ((struct crThread*)arg)->threadFunc(arg);
 }
 
 void checkThread(struct crThread *t) {
