@@ -6,138 +6,22 @@
 //  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../libraries/asprintf.h"
 #include "../includes.h"
 #include "filehandler.h"
 
-#include "../datatypes/camera.h"
-#include "../datatypes/scene.h"
-#include "../renderer/renderer.h"
 #include "../utils/logging.h"
-#include "../datatypes/texture.h"
 
-#include "../libraries/lodepng.h"
 #include "assert.h"
 
 #include <limits.h> //For SSIZE_MAX
 
 #ifndef WINDOWS
-#include <sys/utsname.h>
 #include <libgen.h>
 #endif
 
 //Prototypes for internal functions
 size_t getFileSize(char *fileName);
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
-
-void encodeBMPFromArray(const char *filename, unsigned char *imgData, int width, int height) {
-	//Apparently BMP is BGR, whereas C-ray's internal buffer is RGB (Like it should be)
-	//So we need to convert the image data before writing to file.
-	unsigned char *bgrData = calloc(3 * width * height, sizeof(unsigned char));
-	for (int y = 0; y < height; ++y) {
-		for (int x = 0; x < width; ++x) {
-			bgrData[(x + (height - (y + 1)) * width) * 3 + 0] = imgData[(x + (height - (y + 1)) * width) * 3 + 2];
-			bgrData[(x + (height - (y + 1)) * width) * 3 + 1] = imgData[(x + (height - (y + 1)) * width) * 3 + 1];
-			bgrData[(x + (height - (y + 1)) * width) * 3 + 2] = imgData[(x + (height - (y + 1)) * width) * 3 + 0];
-		}
-	}
-	int i;
-	int error;
-	FILE *f;
-	int filesize = 54 + 3 * width * height;
-	unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
-	unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
-	unsigned char bmppadding[3] = {0,0,0};
-	//Create header with filesize data
-	bmpfileheader[2] = (unsigned char)(filesize    );
-	bmpfileheader[3] = (unsigned char)(filesize>> 8);
-	bmpfileheader[4] = (unsigned char)(filesize>>16);
-	bmpfileheader[5] = (unsigned char)(filesize>>24);
-	//create header width and height info
-	bmpinfoheader[ 4] = (unsigned char)(width    );
-	bmpinfoheader[ 5] = (unsigned char)(width>>8 );
-	bmpinfoheader[ 6] = (unsigned char)(width>>16);
-	bmpinfoheader[ 7] = (unsigned char)(width>>24);
-	bmpinfoheader[ 8] = (unsigned char)(height    );
-	bmpinfoheader[ 9] = (unsigned char)(height>>8 );
-	bmpinfoheader[10] = (unsigned char)(height>>16);
-	bmpinfoheader[11] = (unsigned char)(height>>24);
-	f = fopen(filename,"wb");
-	error = (unsigned int)fwrite(bmpfileheader,1,14,f);
-	if (error != 14) {
-		logr(warning, "Error writing BMP file header data\n");
-	}
-	error = (unsigned int)fwrite(bmpinfoheader,1,40,f);
-	if (error != 40) {
-		logr(warning, "Error writing BMP info header data\n");
-	}
-	for (i = 1; i <= height; ++i) {
-		error = (unsigned int)fwrite(bgrData+(width*(height - i)*3),3,width,f);
-		if (error != width) {
-			logr(warning, "Error writing image line to BMP\n");
-		}
-		error = (unsigned int)fwrite(bmppadding,1,(4-(width*3)%4)%4,f);
-		if (error != (4-(width*3)%4)%4) {
-			logr(warning, "Error writing BMP padding data\n");
-		}
-	}
-	free(bgrData);
-	fclose(f);
-}
-
-void encodePNGFromArray(const char *filename, unsigned char *imgData, int width, int height, struct renderInfo imginfo) {
-	LodePNGInfo info;
-	lodepng_info_init(&info);
-	info.time_defined = 1;
-	
-	char version[60];
-	sprintf(version, "C-ray v%s [%.8s], © 2015-2020 Valtteri Koskivuori", imginfo.crayVersion, imginfo.gitHash);
-	char samples[16];
-	sprintf(samples, "%i", imginfo.samples);
-	char bounces[16];
-	sprintf(bounces, "%i", imginfo.bounces);
-	char renderTime[64];
-	smartTime(imginfo.renderTime, renderTime);
-	char threads[16];
-	sprintf(threads, "%i", imginfo.threadCount);
-#ifndef WINDOWS
-	char sysinfo[1300];
-	struct utsname name;
-	uname(&name);
-	sprintf(sysinfo, "%s %s %s %s %s", name.machine, name.nodename, name.release, name.sysname, name.version);
-#endif
-	
-	lodepng_add_text(&info, "C-ray Version", version);
-	lodepng_add_text(&info, "C-ray Source", "https://github.com/vkoskiv/c-ray");
-	lodepng_add_text(&info, "C-ray Samples", samples);
-	lodepng_add_text(&info, "C-ray Bounces", bounces);
-	lodepng_add_text(&info, "C-ray RenderTime", renderTime);
-	lodepng_add_text(&info, "C-ray Threads", threads);
-#ifndef WINDOWS
-	lodepng_add_text(&info, "C-ray SysInfo", sysinfo);
-#endif
-	
-	LodePNGState state;
-	lodepng_state_init(&state);
-	state.info_raw.bitdepth = 8;
-	state.info_raw.colortype = LCT_RGB;
-	lodepng_info_copy(&state.info_png, &info);
-	state.encoder.add_id = 1;
-	state.encoder.text_compression = 0;
-	
-	size_t bytes = 0;
-	unsigned char *buf = NULL;
-	
-	unsigned error = lodepng_encode(&buf, &bytes, imgData, width, height, &state);
-	if (error) logr(warning, "Error %u: %s\n", error, lodepng_error_text(error));
-	
-	error = lodepng_save_file(buf, bytes, filename);
-	if (error) logr(warning, "Error %u: %s\n", error, lodepng_error_text(error));
-	
-	lodepng_info_cleanup(&info);
-	lodepng_state_cleanup(&state);
-	free(buf);
-}
 
 //TODO: Use this for textures and HDRs too.
 char *loadFile(char *inputFileName, size_t *bytes) {
@@ -307,22 +191,6 @@ void printFileSize(char *fileName) {
 	char *sizeString = humanFileSize(bytes);
 	logr(info, "Wrote %s to file.\n", sizeString);
 	free(sizeString);
-}
-
-void writeImage(struct texture *image, struct renderInfo imginfo) {
-	//Save image data to a file
-	char *buf = NULL;
-	if (image->fileType == bmp){
-		asprintf(&buf, "%s%s_%04d.bmp", image->filePath, image->fileName, image->count);
-		encodeBMPFromArray(buf, image->byte_data, image->width, image->height);
-	} else if (image->fileType == png){
-		asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
-		encodePNGFromArray(buf, image->byte_data, image->width, image->height, imginfo);
-	}
-	logr(info, "Saving result in \"%s\"\n", buf);
-	printFileSize(buf);
-	free(buf);
-	
 }
 
 //For Windows support, we need our own getdelim()
