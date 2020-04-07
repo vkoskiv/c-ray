@@ -12,6 +12,7 @@
 #include <stdarg.h>
 #include "../renderer/renderer.h"
 #include "args.h"
+#include "platform/terminal.h"
 
 void printPrefix(enum logType type) {
 	switch (type) {
@@ -58,6 +59,7 @@ void logr(enum logType type, const char *fmt, ...) {
 	printf("%s", buf);
 	if (type == error) {
 		logr(info, "Aborting due to previous error.\n");
+		restoreTerminal();
 		exit(-1);
 	}
 }

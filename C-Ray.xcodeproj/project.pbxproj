@@ -74,6 +74,8 @@
 		9058A51522231EB100193385 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
 		9062FA09243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
 		9062FA0A243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
+		9062FA0D243CC4B200420889 /* signal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA0C243CC4B200420889 /* signal.c */; };
+		9062FA0E243CC4B200420889 /* signal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA0C243CC4B200420889 /* signal.c */; };
 		9076FB4D243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB4E243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB51243002B00003B327 /* mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB50243002B00003B327 /* mutex.c */; };
@@ -192,6 +194,8 @@
 		9058A51422231EB100193385 /* Tinn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Tinn.c; sourceTree = "<group>"; };
 		9062FA07243BBD0900420889 /* args.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = args.h; sourceTree = "<group>"; };
 		9062FA08243BBD0900420889 /* args.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = args.c; sourceTree = "<group>"; };
+		9062FA0B243CC4B200420889 /* signal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = signal.h; sourceTree = "<group>"; };
+		9062FA0C243CC4B200420889 /* signal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = signal.c; sourceTree = "<group>"; };
 		9076FB4B243002A40003B327 /* terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = terminal.h; sourceTree = "<group>"; };
 		9076FB4C243002A40003B327 /* terminal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = terminal.c; sourceTree = "<group>"; };
 		9076FB4F243002B00003B327 /* mutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
@@ -401,6 +405,8 @@
 				9076FB54243002B90003B327 /* thread.c */,
 				9076FB57243002D60003B327 /* capabilities.h */,
 				9076FB58243002D60003B327 /* capabilities.c */,
+				9062FA0B243CC4B200420889 /* signal.h */,
+				9062FA0C243CC4B200420889 /* signal.c */,
 			);
 			path = platform;
 			sourceTree = "<group>";
@@ -559,6 +565,7 @@
 				90A51A0523FCB7FF0014DF6B /* memory.c in Sources */,
 				905842F5236651FC009D92F1 /* mesh.c in Sources */,
 				905842F6236651FC009D92F1 /* cJSON.c in Sources */,
+				9062FA0E243CC4B200420889 /* signal.c in Sources */,
 				9076FB52243002B00003B327 /* mutex.c in Sources */,
 				905842F7236651FC009D92F1 /* color.c in Sources */,
 				90EE4F3D237DD49F0071894E /* meshloader.c in Sources */,
@@ -614,6 +621,7 @@
 				90A51A0423FCB7FF0014DF6B /* memory.c in Sources */,
 				90189DA6224EB302007FA268 /* mesh.c in Sources */,
 				900BA13E220B4603005B8EE7 /* cJSON.c in Sources */,
+				9062FA0D243CC4B200420889 /* signal.c in Sources */,
 				9076FB51243002B00003B327 /* mutex.c in Sources */,
 				900BA139220B4603005B8EE7 /* color.c in Sources */,
 				90EE4F3C237DD49F0071894E /* meshloader.c in Sources */,

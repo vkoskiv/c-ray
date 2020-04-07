@@ -15,20 +15,14 @@
 #include "../datatypes/texture.h"
 #include "../datatypes/color.h"
 #include "../utils/platform/thread.h"
-
-#include <signal.h>
-
-//Signal handling
-void (*signal(int signo, void (*func )(int)))(int);
-typedef void sigfunc(int);
-sigfunc *signal(int, sigfunc*);
+#include "../utils/platform/signal.h"
 
 static bool aborted = false;
 
 //FIXME: This won't work on linux, it'll just abort the execution.
 //Take a look at the docs for sigaction() and implement that.
 void sigHandler(int sig) {
-	if (sig == SIGINT) {
+	if (sig == 2) { //SIGINT
 		printf("\n");
 		logr(info, "Received ^C, aborting render without saving\n");
 		aborted = true;
@@ -124,9 +118,14 @@ void getKeyboardInput(struct renderer *r) {
 	if (aborted) {
 		r->state.renderAborted = true;
 	}
+	static bool sigRegistered = false;
 	//Check for CTRL-C
-	if (signal(SIGINT, sigHandler) == SIG_ERR)
-		logr(warning, "Couldn't catch SIGINT\n");
+	if (!sigRegistered) {
+		if (registerHandler(sigint, sigHandler)) {
+			logr(warning, "Unable to catch SIGINT\n");
+		}
+		sigRegistered = true;
+	}
 #ifdef UI_ENABLED
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
@@ -199,8 +198,8 @@ void drawProgressBars(struct renderer *r) {
  @param tile Given renderTile
  */
 void drawFrame(struct renderer *r, struct renderTile tile) {
-	int length = tile.width  < 16 ? 4 : 8;
-		length = tile.height < 16 ? 4 : 8;
+	int length = tile.width  <= 16 ? 4 : 8;
+		length = tile.height <= 16 ? 4 : 8;
 	struct color c = clearColor;
 	if (tile.isRendering) {
 		c = frameColor;
