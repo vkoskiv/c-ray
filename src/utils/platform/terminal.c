@@ -9,16 +9,32 @@
 #include "terminal.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifdef WINDOWS
 #include <Windows.h>
 #endif
 
+#include "signal.h"
+#include "../logging.h"
+
 void showCursor(bool show) {
 	show ? fputs("\e[?25h", stdout) : fputs("\e[?25l", stdout);
 }
 
+void handler(int sig) {
+	if (sig == 2) { //SIGINT
+		printf("\n");
+		logr(info, "Aborting initialization.\n");
+		restoreTerminal();
+		exit(0);
+	}
+}
+
 void initTerminal() {
+	if (registerHandler(sigint, handler)) {
+		logr(warning, "Unable to catch SIGINT\n");
+	}
 	//If we're on a reasonable (non-windows) terminal, hide the cursor.
 #ifndef WINDOWS
 	//Disable output buffering
