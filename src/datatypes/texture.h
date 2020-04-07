@@ -52,7 +52,21 @@ struct color;
 
 struct texture *newTexture(enum precision p, int width, int height, int channels);
 
+
+/// Blit a color value to a given pixel in a texture
+/// @param t Texture to blit into
+/// @param c Colour to blit
+/// @param x X coordinate of pixel
+/// @param y Y coordinate of pixel
+/// @remarks While not technically thread-safe, the way C-ray assigns work to threads
+///			 mitigates this issue. No two writes shuld be happening to the same memory concurrently.
 void blit(struct texture *t, struct color c, unsigned int x, unsigned int y);
+
+
+/// Get the color of a pixel from a given texture
+/// @param t Texture to retrieve color from
+/// @param x X coordinate of pixel
+/// @param y Y coordinate of pixel
 struct color textureGetPixel(const struct texture *t, unsigned x, unsigned y);
 struct color textureGetPixelFiltered(const struct texture *t, float x, float y);
 
@@ -66,4 +80,6 @@ void textureFromSRGB(struct texture *t);
 /// @param t Texture to convert
 void textureToSRGB(struct texture *t);
 
+/// Deallocate a given texture
+/// @param tex Texture to deallocate
 void destroyTexture(struct texture *tex);

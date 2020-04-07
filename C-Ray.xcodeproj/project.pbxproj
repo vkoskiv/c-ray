@@ -76,6 +76,12 @@
 		9062FA0A243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
 		9062FA0D243CC4B200420889 /* signal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA0C243CC4B200420889 /* signal.c */; };
 		9062FA0E243CC4B200420889 /* signal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA0C243CC4B200420889 /* signal.c */; };
+		9062FA12243D236600420889 /* png.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA11243D236600420889 /* png.c */; };
+		9062FA13243D236600420889 /* png.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA11243D236600420889 /* png.c */; };
+		9062FA16243D237200420889 /* bmp.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA15243D237200420889 /* bmp.c */; };
+		9062FA17243D237200420889 /* bmp.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA15243D237200420889 /* bmp.c */; };
+		9062FA1A243D23A400420889 /* encoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA19243D23A400420889 /* encoder.c */; };
+		9062FA1B243D23A400420889 /* encoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA19243D23A400420889 /* encoder.c */; };
 		9076FB4D243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB4E243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB51243002B00003B327 /* mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB50243002B00003B327 /* mutex.c */; };
@@ -196,6 +202,12 @@
 		9062FA08243BBD0900420889 /* args.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = args.c; sourceTree = "<group>"; };
 		9062FA0B243CC4B200420889 /* signal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = signal.h; sourceTree = "<group>"; };
 		9062FA0C243CC4B200420889 /* signal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = signal.c; sourceTree = "<group>"; };
+		9062FA10243D236600420889 /* png.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = png.h; sourceTree = "<group>"; };
+		9062FA11243D236600420889 /* png.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = png.c; sourceTree = "<group>"; };
+		9062FA14243D237200420889 /* bmp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bmp.h; sourceTree = "<group>"; };
+		9062FA15243D237200420889 /* bmp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bmp.c; sourceTree = "<group>"; };
+		9062FA18243D23A400420889 /* encoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = encoder.h; sourceTree = "<group>"; };
+		9062FA19243D23A400420889 /* encoder.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = encoder.c; sourceTree = "<group>"; };
 		9076FB4B243002A40003B327 /* terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = terminal.h; sourceTree = "<group>"; };
 		9076FB4C243002A40003B327 /* terminal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = terminal.c; sourceTree = "<group>"; };
 		9076FB4F243002B00003B327 /* mutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
@@ -361,6 +373,7 @@
 			children = (
 				9076FB4A242D59F20003B327 /* platform */,
 				90CA85152252C90C00BA7702 /* loaders */,
+				9062FA0F243D233E00420889 /* encoders */,
 				9062FA07243BBD0900420889 /* args.h */,
 				9062FA08243BBD0900420889 /* args.c */,
 				90CFA7DD2381BF0900061288 /* hashtable.h */,
@@ -392,6 +405,27 @@
 				90A51A0323FCB7FF0014DF6B /* memory.c */,
 			);
 			path = utils;
+			sourceTree = "<group>";
+		};
+		9062FA0F243D233E00420889 /* encoders */ = {
+			isa = PBXGroup;
+			children = (
+				9062FA1C243D23AC00420889 /* formats */,
+				9062FA18243D23A400420889 /* encoder.h */,
+				9062FA19243D23A400420889 /* encoder.c */,
+			);
+			path = encoders;
+			sourceTree = "<group>";
+		};
+		9062FA1C243D23AC00420889 /* formats */ = {
+			isa = PBXGroup;
+			children = (
+				9062FA10243D236600420889 /* png.h */,
+				9062FA11243D236600420889 /* png.c */,
+				9062FA14243D237200420889 /* bmp.h */,
+				9062FA15243D237200420889 /* bmp.c */,
+			);
+			path = formats;
 			sourceTree = "<group>";
 		};
 		9076FB4A242D59F20003B327 /* platform */ = {
@@ -563,10 +597,12 @@
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
 				90A51A0523FCB7FF0014DF6B /* memory.c in Sources */,
+				9062FA17243D237200420889 /* bmp.c in Sources */,
 				905842F5236651FC009D92F1 /* mesh.c in Sources */,
 				905842F6236651FC009D92F1 /* cJSON.c in Sources */,
 				9062FA0E243CC4B200420889 /* signal.c in Sources */,
 				9076FB52243002B00003B327 /* mutex.c in Sources */,
+				9062FA1B243D23A400420889 /* encoder.c in Sources */,
 				905842F7236651FC009D92F1 /* color.c in Sources */,
 				90EE4F3D237DD49F0071894E /* meshloader.c in Sources */,
 				905842F8236651FC009D92F1 /* renderer.c in Sources */,
@@ -576,6 +612,7 @@
 				905842FC236651FC009D92F1 /* transforms.c in Sources */,
 				905842FD236651FC009D92F1 /* ui.c in Sources */,
 				905842FE236651FC009D92F1 /* bbox.c in Sources */,
+				9062FA13243D236600420889 /* png.c in Sources */,
 				905842FF236651FC009D92F1 /* sceneloader.c in Sources */,
 				9076FB4E243002A40003B327 /* terminal.c in Sources */,
 				90CFA7E02381BF0900061288 /* hashtable.c in Sources */,
@@ -619,10 +656,12 @@
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
 				90A51A0423FCB7FF0014DF6B /* memory.c in Sources */,
+				9062FA16243D237200420889 /* bmp.c in Sources */,
 				90189DA6224EB302007FA268 /* mesh.c in Sources */,
 				900BA13E220B4603005B8EE7 /* cJSON.c in Sources */,
 				9062FA0D243CC4B200420889 /* signal.c in Sources */,
 				9076FB51243002B00003B327 /* mutex.c in Sources */,
+				9062FA1A243D23A400420889 /* encoder.c in Sources */,
 				900BA139220B4603005B8EE7 /* color.c in Sources */,
 				90EE4F3C237DD49F0071894E /* meshloader.c in Sources */,
 				900BA12E220B4603005B8EE7 /* renderer.c in Sources */,
@@ -632,6 +671,7 @@
 				900BA133220B4603005B8EE7 /* transforms.c in Sources */,
 				900BA141220B4603005B8EE7 /* ui.c in Sources */,
 				900BA12B220B4603005B8EE7 /* bbox.c in Sources */,
+				9062FA12243D236600420889 /* png.c in Sources */,
 				90CA85212252CB3800BA7702 /* sceneloader.c in Sources */,
 				9076FB4D243002A40003B327 /* terminal.c in Sources */,
 				90CFA7DF2381BF0900061288 /* hashtable.c in Sources */,
