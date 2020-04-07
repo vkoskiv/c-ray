@@ -14,8 +14,19 @@
 #include "logging.h"
 #include "filehandler.h"
 #include "assert.h"
+#include "platform/terminal.h"
+#include <stdlib.h>
 
 static struct hashtable *options;
+
+void printUsage(const char *progname) {
+	logr(info, "Usage: %s [-v] [input_json...]\n", progname);
+	logr(info, "	Available options are:\n");
+	logr(info, "		[-h] -> Show this message\n");
+	logr(info, "		[-v] -> Enable verbose mode\n");
+	restoreTerminal();
+	exit(0);
+}
 
 void parseOptions(int argc, char **argv) {
 	options = newTable();
@@ -25,9 +36,10 @@ void parseOptions(int argc, char **argv) {
 		if (isValidFile(argv[i]) && !inputFileSet) {
 			setString(options, "inputFile", argv[i], (int)strlen(argv[i]));
 			inputFileSet = true;
+		} else if (strncmp(argv[i], "-h", 2) == 0) {
+			printUsage(argv[0]);
 		} else if (strncmp(argv[i], "-", 1) == 0) {
 			setTag(options, ++argv[i]);
-		} else {
 		}
 	}
 	logr(debug, "Verbose mode enabled\n");
