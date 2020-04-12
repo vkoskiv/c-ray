@@ -12,7 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define GIT_SHA1 "@GIT_SHA1@"
+#define GIT_SHA1 "?"
 
 char *gitHash() {
 	return GIT_SHA1;
