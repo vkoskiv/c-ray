@@ -12,6 +12,7 @@
 #include "../utils/logging.h"
 #include "../datatypes/vector.h"
 #include "assert.h"
+#include "../utils/filehandler.h"
 
 // Fowler-Noll-Vo hash function
 uint64_t hashDataToU64(const char *data, size_t size) {
@@ -75,12 +76,13 @@ void setTag(struct hashtable *e, const char *key) {
 }
 
 void setString(struct hashtable *e, const char *key, const char *value, int len) {
+	ASSERT((int)strlen(value) == len);
 	struct bucket *ptr = getBucketPtr(e, key);
-	if (!ptr->used)
+	if (!ptr->used) {
 		ptr->value = malloc(len * sizeof(char));
+		copyString(value, (char**)&(ptr->value));
+	}
 	ptr->used = true;
-	ASSERT(strlen(value) == len);
-	strncpy((char*)ptr->value, value, len);
 }
 
 char *getString(struct hashtable *e, const char *key) {
