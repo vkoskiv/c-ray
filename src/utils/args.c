@@ -53,3 +53,7 @@ char *pathArg() {
 	ASSERT(exists(options, "inputFile"));
 	return getString(options, "inputFile");
 }
+
+void destroyOptions() {
+	freeTable(options);
+}

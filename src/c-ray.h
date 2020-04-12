@@ -21,6 +21,7 @@ void crRestoreTerminal(void);
 void crParseOptions(int argc, char **argv);
 bool crOptionIsSet(char *key);
 char *crPathArg(void);
+void crDestroyOptions(void);
 
 char *crGetFilePath(char *fullPath);
 

@@ -57,6 +57,10 @@ char *crPathArg() {
 	return pathArg();
 }
 
+void crDestroyOptions() {
+	destroyOptions();
+}
+
 char *crGetFilePath(char *fullPath) {
 	return getFilePath(fullPath);
 }
