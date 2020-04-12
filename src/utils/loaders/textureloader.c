@@ -10,9 +10,9 @@
 #include "textureloader.h"
 #include "../../utils/filehandler.h"
 #include "../../utils/logging.h"
-
 #include "../../datatypes/texture.h"
 #include "../../datatypes/color.h"
+#include "../../utils/string.h"
 
 #define STBI_NO_PSD
 #define STBI_NO_GIF
