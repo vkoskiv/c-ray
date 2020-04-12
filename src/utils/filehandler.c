@@ -8,16 +8,13 @@
 
 #include "../includes.h"
 #include "filehandler.h"
-
 #include "../utils/logging.h"
-
 #include "assert.h"
-
 #include <limits.h> //For SSIZE_MAX
-
 #ifndef WINDOWS
 #include <libgen.h>
 #endif
+#include "string.h"
 
 //Prototypes for internal functions
 size_t getFileSize(char *fileName);
@@ -144,23 +141,6 @@ char *readStdin(size_t *bytes) {
 	return buf;
 }
 
-//FIXME: Move this to a better place
-bool stringEquals(const char *s1, const char *s2) {
-	if (strcmp(s1, s2) == 0) {
-		return true;
-	} else {
-		return false;
-	}
-}
-//FIXME: Move this to a better place
-bool stringContains(const char *haystack, const char *needle) {
-	if (strstr(haystack, needle) == NULL) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
 char *humanFileSize(unsigned long bytes) {
 	unsigned long kilobytes, megabytes, gigabytes, terabytes; // <- Futureproofing?!
 	kilobytes = bytes / 1000;
@@ -257,21 +237,6 @@ size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
 	
 	*pos = '\0';
 	return bytes;
-}
-
-//Copies source over to the destination pointer.
-//TODO: Move this to a better time
-void copyString(const char *source, char **destination) {
-	*destination = malloc(strlen(source) + 1);
-	strcpy(*destination, source);
-}
-
-char *concatString(const char *str1, const char *str2) {
-	ASSERT(str1); ASSERT(str2);
-	char *new = malloc(strlen(str1) + strlen(str2) + 1);
-	strcpy(new, str1);
-	strcat(new, str2);
-	return new;
 }
 
 size_t getFileSize(char *fileName) {

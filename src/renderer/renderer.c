@@ -19,7 +19,7 @@
 #include "../utils/timer.h"
 #include "../datatypes/texture.h"
 #include "../utils/loaders/textureloader.h"
-#include "../utils/filehandler.h"
+#include "../utils/string.h"
 #include "../datatypes/mesh.h"
 #include "../datatypes/sphere.h"
 #include "../datatypes/vertexbuffer.h"

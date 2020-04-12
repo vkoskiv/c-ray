@@ -96,6 +96,8 @@
 		9095392623C15A7B0017037C /* c-ray.c in Sources */ = {isa = PBXBuildFile; fileRef = 9095392423C15A7B0017037C /* c-ray.c */; };
 		9095392923C15AAB0017037C /* networking.c in Sources */ = {isa = PBXBuildFile; fileRef = 9095392823C15AAB0017037C /* networking.c */; };
 		9095392A23C15AAB0017037C /* networking.c in Sources */ = {isa = PBXBuildFile; fileRef = 9095392823C15AAB0017037C /* networking.c */; };
+		909D136D24439069006D0A86 /* string.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D136C24439069006D0A86 /* string.c */; };
+		909D136E24439069006D0A86 /* string.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D136C24439069006D0A86 /* string.c */; };
 		90A51A0023FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A51A0423FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
@@ -221,6 +223,8 @@
 		9095392423C15A7B0017037C /* c-ray.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "c-ray.c"; sourceTree = "<group>"; };
 		9095392723C15AAB0017037C /* networking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = networking.h; sourceTree = "<group>"; };
 		9095392823C15AAB0017037C /* networking.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = networking.c; sourceTree = "<group>"; };
+		909D136B24439069006D0A86 /* string.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = string.h; sourceTree = "<group>"; };
+		909D136C24439069006D0A86 /* string.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = string.c; sourceTree = "<group>"; };
 		90A519FE23FB5DFC0014DF6B /* statistics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = statistics.h; sourceTree = "<group>"; };
 		90A519FF23FB5DFC0014DF6B /* statistics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = statistics.c; sourceTree = "<group>"; };
 		90A51A0223FCB7FF0014DF6B /* memory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = memory.h; sourceTree = "<group>"; };
@@ -384,6 +388,8 @@
 				9058A50F22231E9E00193385 /* learn.c */,
 				900BA123220B4602005B8EE7 /* filehandler.h */,
 				900BA11E220B4602005B8EE7 /* filehandler.c */,
+				909D136B24439069006D0A86 /* string.h */,
+				909D136C24439069006D0A86 /* string.c */,
 				900BA124220B4602005B8EE7 /* timer.h */,
 				900BA11F220B4602005B8EE7 /* timer.c */,
 				900BA120220B4602005B8EE7 /* ui.h */,
@@ -589,6 +595,7 @@
 				9062FA0A243BBD0900420889 /* args.c in Sources */,
 				905842ED236651FC009D92F1 /* lightRay.c in Sources */,
 				90908A7023E0707E0081377B /* assert.c in Sources */,
+				909D136E24439069006D0A86 /* string.c in Sources */,
 				905842EE236651FC009D92F1 /* pcg_basic.c in Sources */,
 				905842EF236651FC009D92F1 /* gitsha1.c in Sources */,
 				905842F0236651FC009D92F1 /* learn.c in Sources */,
@@ -648,6 +655,7 @@
 				9062FA09243BBD0900420889 /* args.c in Sources */,
 				900BA131220B4603005B8EE7 /* lightRay.c in Sources */,
 				90908A6F23E0707E0081377B /* assert.c in Sources */,
+				909D136D24439069006D0A86 /* string.c in Sources */,
 				90369CCC222E012F008D215B /* pcg_basic.c in Sources */,
 				90FB15CB22596E79008D6AAA /* gitsha1.c in Sources */,
 				9058A51222231E9F00193385 /* learn.c in Sources */,
@@ -902,7 +910,7 @@
 					"$(inherited)",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
 					UI_ENABLED,
 					"DEBUG=1",
@@ -947,7 +955,7 @@
 					"$(inherited)",
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = UI_ENABLED;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;

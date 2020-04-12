@@ -13,7 +13,7 @@
 
 #include "../../datatypes/material.h"
 #include "../../utils/logging.h"
-#include "../../utils/filehandler.h" //for copyString FIXME
+#include "../../utils/string.h"
 
 // Parse a list of materials and return an array of materials.
 // mtlCount is the amount of materials loaded.

@@ -13,6 +13,7 @@
 #include "../datatypes/vector.h"
 #include "assert.h"
 #include "../utils/filehandler.h"
+#include "../utils/string.h"
 
 // Fowler-Noll-Vo hash function
 uint64_t hashDataToU64(const char *data, size_t size) {

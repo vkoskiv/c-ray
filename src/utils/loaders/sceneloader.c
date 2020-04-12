@@ -26,6 +26,7 @@
 #include "../logging.h"
 #include "../ui.h"
 #include "../filehandler.h"
+#include "../string.h"
 #include "../platform/capabilities.h"
 #include "../../renderer/renderer.h"
 #include "../../accelerators/kdtree.h"

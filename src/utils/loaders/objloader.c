@@ -14,7 +14,7 @@
 #include "../../datatypes/poly.h"
 #include "../../datatypes/material.h"
 #include "../../utils/logging.h"
-#include "../../utils/filehandler.h"
+#include "../../utils/string.h"
 #include "../../datatypes/vertexbuffer.h"
 #include "mtlloader.h"
 
