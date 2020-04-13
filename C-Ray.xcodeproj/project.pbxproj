@@ -98,6 +98,8 @@
 		9095392A23C15AAB0017037C /* networking.c in Sources */ = {isa = PBXBuildFile; fileRef = 9095392823C15AAB0017037C /* networking.c */; };
 		909D136D24439069006D0A86 /* string.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D136C24439069006D0A86 /* string.c */; };
 		909D136E24439069006D0A86 /* string.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D136C24439069006D0A86 /* string.c */; };
+		909D13712443B4E7006D0A86 /* textbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D13702443B4E7006D0A86 /* textbuffer.c */; };
+		909D13722443B4E7006D0A86 /* textbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D13702443B4E7006D0A86 /* textbuffer.c */; };
 		90A51A0023FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A51A0423FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
@@ -225,6 +227,8 @@
 		9095392823C15AAB0017037C /* networking.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = networking.c; sourceTree = "<group>"; };
 		909D136B24439069006D0A86 /* string.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = string.h; sourceTree = "<group>"; };
 		909D136C24439069006D0A86 /* string.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = string.c; sourceTree = "<group>"; };
+		909D136F2443B4E7006D0A86 /* textbuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = textbuffer.h; sourceTree = "<group>"; };
+		909D13702443B4E7006D0A86 /* textbuffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = textbuffer.c; sourceTree = "<group>"; };
 		90A519FE23FB5DFC0014DF6B /* statistics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = statistics.h; sourceTree = "<group>"; };
 		90A519FF23FB5DFC0014DF6B /* statistics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = statistics.c; sourceTree = "<group>"; };
 		90A51A0223FCB7FF0014DF6B /* memory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = memory.h; sourceTree = "<group>"; };
@@ -378,6 +382,8 @@
 				9076FB4A242D59F20003B327 /* platform */,
 				90CA85152252C90C00BA7702 /* loaders */,
 				9062FA0F243D233E00420889 /* encoders */,
+				909D136F2443B4E7006D0A86 /* textbuffer.h */,
+				909D13702443B4E7006D0A86 /* textbuffer.c */,
 				9062FA07243BBD0900420889 /* args.h */,
 				9062FA08243BBD0900420889 /* args.c */,
 				90CFA7DD2381BF0900061288 /* hashtable.h */,
@@ -606,6 +612,7 @@
 				90A51A0523FCB7FF0014DF6B /* memory.c in Sources */,
 				9062FA17243D237200420889 /* bmp.c in Sources */,
 				905842F5236651FC009D92F1 /* mesh.c in Sources */,
+				909D13722443B4E7006D0A86 /* textbuffer.c in Sources */,
 				905842F6236651FC009D92F1 /* cJSON.c in Sources */,
 				9062FA0E243CC4B200420889 /* signal.c in Sources */,
 				9076FB52243002B00003B327 /* mutex.c in Sources */,
@@ -666,6 +673,7 @@
 				90A51A0423FCB7FF0014DF6B /* memory.c in Sources */,
 				9062FA16243D237200420889 /* bmp.c in Sources */,
 				90189DA6224EB302007FA268 /* mesh.c in Sources */,
+				909D13712443B4E7006D0A86 /* textbuffer.c in Sources */,
 				900BA13E220B4603005B8EE7 /* cJSON.c in Sources */,
 				9062FA0D243CC4B200420889 /* signal.c in Sources */,
 				9076FB51243002B00003B327 /* mutex.c in Sources */,
