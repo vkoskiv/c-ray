@@ -24,14 +24,6 @@
 struct texture *flipHorizontal(struct texture *t) {
 	struct texture *new = newTexture(t->precision, t->width, t->height, t->channels);
 	new->colorspace = t->colorspace;
-	new->count = t->count;
-	if (t->fileName) {
-		copyString(t->fileName, &new->fileName);
-	}
-	if (t->filePath) {
-		copyString(t->filePath, &new->filePath);
-	}
-	new->fileType = t->fileType;
 	
 	for (unsigned y = 0; y < new->height; ++y) {
 		for (unsigned x = 0; x < new->width; ++x) {
@@ -45,13 +37,11 @@ struct texture *flipHorizontal(struct texture *t) {
 
 struct hdr *loadHDRI(char *filePath) {
 	struct hdr *new = newHDRI();
-	copyString(filePath, &new->t->filePath);
 	//Handle the trailing newline here
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
 	if (stbi_is_hdr(filePath)) {
 		logr(info, "Loading HDR...");
-		new->t->fileType = hdr;
 		new->t->data.float_p = stbi_loadf(filePath, (int*)&new->t->width, (int*)&new->t->height, &new->t->channels, 0);
 		new->t->precision = float_p;
 		if (!new->t->data.float_p) {
@@ -69,7 +59,6 @@ struct hdr *loadHDRI(char *filePath) {
 
 struct texture *loadTexture(char *filePath) {
 	struct texture *new = newTexture(none, 0, 0, 0);
-	copyString(filePath, &new->filePath);
 	//Handle the trailing newline here
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
@@ -80,7 +69,6 @@ struct texture *loadTexture(char *filePath) {
 		destroyTexture(new);
 		return NULL;
 	}
-	new->fileType = buffer;
 	//new = flipHorizontal(new);
 	new->precision = char_p;
 	

@@ -9,6 +9,7 @@
 #include "includes.h"
 #include "c-ray.h"
 
+#include "datatypes/image/imagefile.h"
 #include "renderer/renderer.h"
 #include "datatypes/scene.h"
 #include "utils/gitsha1.h"
@@ -87,7 +88,8 @@ void crDestroySDL() {
 void crWriteImage() {
 	if (currentImage) {
 		if (grenderer->state.saveImage) {
-			writeImage(currentImage, (struct renderInfo){
+			struct imageFile *file = newImageFile(currentImage, grenderer->prefs.imgFilePath, grenderer->prefs.imgFileName, grenderer->prefs.imgCount, grenderer->prefs.imgType);
+			writeImage(file, (struct renderInfo){
 				.bounces = crGetBounces(),
 				.samples = crGetSampleCount(),
 				.crayVersion = crGetVersion(),

@@ -36,12 +36,8 @@ struct renderInfo {
 
 struct texture {
 	bool hasAlpha;
-	enum fileType fileType;
 	enum colorspace colorspace;
 	enum precision precision;
-	char *filePath;
-	char *fileName;
-	int count;
 	union {
 		unsigned char *byte_p; //For 24/32bit
 		float *float_p; //For hdr

@@ -83,8 +83,6 @@ struct texture *newTexture(enum precision p, int width, int height, int channels
 	t->data.byte_p = NULL;
 	t->data.float_p = NULL;
 	t->colorspace = linear;
-	t->count = 0;
-	t->fileType = buffer;
 	if (channels > 3) {
 		t->hasAlpha = true;
 	}
@@ -136,13 +134,7 @@ void textureToSRGB(struct texture *t) {
 
 void destroyTexture(struct texture *t) {
 	if (t) {
-		if (t->fileName) {
-			free(t->fileName);
-		}
-		if (t->filePath) {
-			free(t->filePath);
-		}
-		if (t->data.byte_p) {
+		if (t->data.byte_p) { //Union, will also free float_p
 			free(t->data.byte_p);
 		}
 		free(t);

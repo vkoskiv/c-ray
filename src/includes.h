@@ -47,13 +47,6 @@
 //PCG rng
 #include "./libraries/pcg_basic.h"
 
-enum fileType {
-	bmp,
-	png,
-	hdr,
-	buffer
-};
-
 enum renderOrder {
 	renderOrderTopToBottom = 0,
 	renderOrderFromMiddle,
