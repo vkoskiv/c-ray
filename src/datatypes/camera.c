@@ -10,7 +10,6 @@
 #include "camera.h"
 
 #include "scene.h"
-#include "texture.h"
 #include "vector.h"
 #include "transforms.h"
 

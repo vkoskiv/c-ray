@@ -9,7 +9,7 @@
 #include "encoder.h"
 
 #include "../../includes.h"
-#include "../../datatypes/texture.h"
+#include "../../datatypes/image/texture.h"
 #include "../logging.h"
 #include "../filehandler.h"
 #include "../../libraries/asprintf.h"
@@ -22,10 +22,10 @@ void writeImage(struct texture *image, struct renderInfo imginfo) {
 	char *buf = NULL;
 	if (image->fileType == bmp){
 		asprintf(&buf, "%s%s_%04d.bmp", image->filePath, image->fileName, image->count);
-		encodeBMPFromArray(buf, image->byte_data, image->width, image->height);
+		encodeBMPFromArray(buf, image->data.byte_p, image->width, image->height);
 	} else if (image->fileType == png){
 		asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
-		encodePNGFromArray(buf, image->byte_data, image->width, image->height, imginfo);
+		encodePNGFromArray(buf, image->data.byte_p, image->width, image->height, imginfo);
 	}
 	logr(info, "Saving result in \"%s\"\n", buf);
 	printFileSize(buf);

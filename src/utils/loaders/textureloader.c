@@ -10,7 +10,8 @@
 #include "textureloader.h"
 #include "../../utils/filehandler.h"
 #include "../../utils/logging.h"
-#include "../../datatypes/texture.h"
+#include "../../datatypes/image/texture.h"
+#include "../../datatypes/image/hdr.h"
 #include "../../datatypes/color.h"
 #include "../../utils/string.h"
 
@@ -42,6 +43,30 @@ struct texture *flipHorizontal(struct texture *t) {
 	return new;
 }
 
+struct hdr *loadHDRI(char *filePath) {
+	struct hdr *new = newHDRI();
+	copyString(filePath, &new->t->filePath);
+	//Handle the trailing newline here
+	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
+	filePath[strcspn(filePath, "\n")] = 0;
+	if (stbi_is_hdr(filePath)) {
+		logr(info, "Loading HDR...");
+		new->t->fileType = hdr;
+		new->t->data.float_p = stbi_loadf(filePath, (int*)&new->t->width, (int*)&new->t->height, &new->t->channels, 0);
+		new->t->precision = float_p;
+		if (!new->t->data.float_p) {
+			destroyHDRI(new);
+			logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
+			return NULL;
+		}
+		float MB = (((getFileSize(filePath))/1000.0)/1000.0);
+		printf(" %.1fMB\n", MB);
+	} else {
+		destroyHDRI(new);
+	}
+	return new;
+}
+
 struct texture *loadTexture(char *filePath) {
 	struct texture *new = newTexture(none, 0, 0, 0);
 	copyString(filePath, &new->filePath);
@@ -49,29 +74,15 @@ struct texture *loadTexture(char *filePath) {
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
 	
-	if (stbi_is_hdr(filePath)) {
-		logr(info, "Loading HDR...");
-		new->fileType = hdr;
-		new->float_data = stbi_loadf(filePath, (int*)&new->width, (int*)&new->height, &new->channels, 0);
-		new->precision = float_p;
-		if (!new->float_data) {
-			destroyTexture(new);
-			logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
-			return NULL;
-		}
-		float MB = (((getFileSize(filePath))/1000.0)/1000.0);
-		printf(" %.1fMB\n", MB);
-	} else {
-		new->byte_data = stbi_load(filePath, (int*)&new->width, (int*)&new->height, &new->channels, 3);
-		if (!new->byte_data) {
-			logr(warning, "Error while loading texture from \"%s\" - Does the file exist?\n", filePath);
-			destroyTexture(new);
-			return NULL;
-		}
-		new->fileType = buffer;
-		//new = flipHorizontal(new);
-		new->precision = char_p;
+	new->data.byte_p = stbi_load(filePath, (int*)&new->width, (int*)&new->height, &new->channels, 3);
+	if (!new->data.byte_p) {
+		logr(warning, "Error while loading texture from \"%s\" - Does the file exist?\n", filePath);
+		destroyTexture(new);
+		return NULL;
 	}
+	new->fileType = buffer;
+	//new = flipHorizontal(new);
+	new->precision = char_p;
 	
 	return new;
 }

@@ -12,7 +12,7 @@
 #include "../libraries/cJSON.h"
 #include "../utils/logging.h"
 #include "../utils/filehandler.h"
-#include "../datatypes/texture.h"
+#include "../datatypes/image/texture.h"
 #include "../utils/loaders/textureloader.h"
 
 #include "learn.h"
@@ -258,7 +258,7 @@ struct data *loadTrainingData(struct texture *low, struct renderTile *lowTile, s
 	//Source
 	for (int x = 0; x < lowTile->width; x++) {
 		for (int y = 0; y < lowTile->height; y++) {
-			struct color px = getPixelFromBuffer(&low->byte_data, lowTile->width, lowTile->height, x, y);
+			struct color px = getPixelFromBuffer(&low->data.byte_p, lowTile->width, lowTile->height, x, y);
 			new->source[0][x][y] = (float)px.red;
 			new->source[1][x][y] = (float)px.green;
 			new->source[2][x][y] = (float)px.blue;
@@ -268,7 +268,7 @@ struct data *loadTrainingData(struct texture *low, struct renderTile *lowTile, s
 	//Target
 	for (int x = 0; x < highTile->width; x++) {
 		for (int y = 0; y < highTile->height; y++) {
-			struct color px = getPixelFromBuffer(&high->byte_data, highTile->width, highTile->height, x, y);
+			struct color px = getPixelFromBuffer(&high->data.byte_p, highTile->width, highTile->height, x, y);
 			new->target[0][x][y] = (float)px.red;
 			new->target[1][x][y] = (float)px.green;
 			new->target[2][x][y] = (float)px.blue;
