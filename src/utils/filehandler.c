@@ -42,11 +42,12 @@ char *loadFile(char *inputFileName, size_t *bytes) {
 }
 
 bool isValidFile(char *path) {
-	bool valid = false;
 	FILE *f = fopen(path, "r");
-	if (f) valid = true;
-	fclose(f);
-	return valid;
+	if (f) {
+		fclose(f);
+		return true;
+	}
+	return false;
 }
 
 //Wait for 2 secs and abort if nothing is coming in from stdin
