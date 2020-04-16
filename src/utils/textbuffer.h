@@ -28,13 +28,19 @@ struct _textBuffer {
 typedef struct _textBuffer textBuffer;
 typedef struct _textBuffer lineBuffer;
 
+textBuffer *newTextView(textBuffer *original, const size_t start, const size_t lines);
+
 textBuffer *newTextBuffer(char *contents);
+
+void dumpBuffer(textBuffer *buffer);
 
 char *goToLine(textBuffer *file, size_t line);
 
 char *nextLine(textBuffer *file);
 
 char *firstLine(textBuffer *file);
+
+char *currentLine(textBuffer *file);
 
 char *lastLine(textBuffer *file);
 
