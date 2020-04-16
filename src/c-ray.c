@@ -134,8 +134,27 @@ int crLoadSceneFromFile(char *filePath) {
 	return 0;
 }
 
+void crLoadMeshFromFile(char *filePath) {
+	(void)filePath;
+	ASSERT_NOT_REACHED();
+}
+
+void crLoadMeshFromBuf(char *buf) {
+	(void)buf;
+	ASSERT_NOT_REACHED();
+}
+
 int crLoadSceneFromBuf(char *buf) {
 	return loadScene(grenderer, buf);
+}
+
+void crLog(const char *fmt, ...) {
+	char buf[512];
+	va_list vl;
+	va_start(vl, fmt);
+	vsnprintf(buf, sizeof(buf), fmt, vl);
+	va_end(vl);
+	logr(info, "%s", buf);
 }
 
 void crSetRenderOrder(void) {
