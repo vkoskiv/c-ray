@@ -6,15 +6,6 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifdef WINDOWS
-#include <Windows.h>
-#else
-#include <pthread.h>
-#endif
-
-#include <stdbool.h>
-#include <stdint.h>
-
 //Multi-platform threading
 /**
  Thread information struct to communicate with main thread
