@@ -21,6 +21,7 @@
 #include "utils/timer.h"
 #include "utils/args.h"
 #include "utils/encoders/encoder.h"
+#include <stdarg.h>
 
 #define VERSION "0.6.3"
 
