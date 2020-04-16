@@ -10,7 +10,11 @@
 
 //C-ray texture parser
 
-/// Load a generic texture. Currently supports: JPEG, PNG, BMP, TGA, HDR, PIC, PNM
-/// HDR files result in float type textures
+
+/// Load a radiance HDRI file.
+/// @param filePath Path to image file on disk.
+struct hdr *loadHDRI(char *filePath);
+
+/// Load a generic texture. Currently supports: JPEG, PNG, BMP, TGA, PIC, PNM
 /// @param filePath Path to image file on disk
 struct texture *loadTexture(char *filePath);

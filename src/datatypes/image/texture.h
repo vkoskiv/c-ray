@@ -6,6 +6,8 @@
 //  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdbool.h>
+
 struct dimensions {
 	int height;
 	int width;
@@ -40,10 +42,11 @@ struct texture {
 	char *filePath;
 	char *fileName;
 	int count;
-	unsigned char *byte_data; //For 24/32bit
-	float *float_data; //For hdr
-	int channels; //For hdr
-	float offset; //radians, for hdr
+	union {
+		unsigned char *byte_p; //For 24/32bit
+		float *float_p; //For hdr
+	} data;
+	int channels;
 	unsigned width;
 	unsigned height;
 };
@@ -51,7 +54,6 @@ struct texture {
 struct color;
 
 struct texture *newTexture(enum precision p, int width, int height, int channels);
-
 
 /// Blit a color value to a given pixel in a texture
 /// @param t Texture to blit into

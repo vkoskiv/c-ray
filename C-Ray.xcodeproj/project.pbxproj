@@ -104,6 +104,10 @@
 		90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A51A0423FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
 		90A51A0523FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
+		90C5D5542448CE9000C58643 /* hdr.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5532448CE9000C58643 /* hdr.c */; };
+		90C5D5552448CE9000C58643 /* hdr.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5532448CE9000C58643 /* hdr.c */; };
+		90C5D5582448CEAB00C58643 /* outputfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* outputfile.c */; };
+		90C5D5592448CEAB00C58643 /* outputfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* outputfile.c */; };
 		90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85182252C90C00BA7702 /* mtlloader.c */; };
 		90CA851D2252C90C00BA7702 /* objloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85192252C90C00BA7702 /* objloader.c */; };
 		90CA851E2252C90C00BA7702 /* textureloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA851B2252C90C00BA7702 /* textureloader.c */; };
@@ -234,6 +238,10 @@
 		90A51A0223FCB7FF0014DF6B /* memory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = memory.h; sourceTree = "<group>"; };
 		90A51A0323FCB7FF0014DF6B /* memory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = memory.c; sourceTree = "<group>"; };
 		90BAE9362328344100B1EBF0 /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		90C5D5522448CE9000C58643 /* hdr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hdr.h; sourceTree = "<group>"; };
+		90C5D5532448CE9000C58643 /* hdr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hdr.c; sourceTree = "<group>"; };
+		90C5D5562448CEAB00C58643 /* outputfile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = outputfile.h; sourceTree = "<group>"; };
+		90C5D5572448CEAB00C58643 /* outputfile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = outputfile.c; sourceTree = "<group>"; };
 		90CA85162252C90C00BA7702 /* objloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objloader.h; sourceTree = "<group>"; };
 		90CA85172252C90C00BA7702 /* textureloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = textureloader.h; sourceTree = "<group>"; };
 		90CA85182252C90C00BA7702 /* mtlloader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mtlloader.c; sourceTree = "<group>"; };
@@ -325,6 +333,7 @@
 		900BA0FB220B4602005B8EE7 /* datatypes */ = {
 			isa = PBXGroup;
 			children = (
+				90C5D5512448CC8400C58643 /* image */,
 				900BA108220B4602005B8EE7 /* poly.h */,
 				900BA0FC220B4602005B8EE7 /* poly.c */,
 				900BA0FD220B4602005B8EE7 /* tile.h */,
@@ -349,8 +358,6 @@
 				900BA106220B4602005B8EE7 /* transforms.c */,
 				90CA85222252D99600BA7702 /* vertexbuffer.h */,
 				90CA85232252D99700BA7702 /* vertexbuffer.c */,
-				90FB15CC225C6D85008D6AAA /* texture.h */,
-				90FB15CD225C6D85008D6AAA /* texture.c */,
 			);
 			path = datatypes;
 			sourceTree = "<group>";
@@ -455,6 +462,19 @@
 				9062FA0C243CC4B200420889 /* signal.c */,
 			);
 			path = platform;
+			sourceTree = "<group>";
+		};
+		90C5D5512448CC8400C58643 /* image */ = {
+			isa = PBXGroup;
+			children = (
+				90FB15CC225C6D85008D6AAA /* texture.h */,
+				90FB15CD225C6D85008D6AAA /* texture.c */,
+				90C5D5522448CE9000C58643 /* hdr.h */,
+				90C5D5532448CE9000C58643 /* hdr.c */,
+				90C5D5562448CEAB00C58643 /* outputfile.h */,
+				90C5D5572448CEAB00C58643 /* outputfile.c */,
+			);
+			path = image;
 			sourceTree = "<group>";
 		};
 		90CA85152252C90C00BA7702 /* loaders */ = {
@@ -590,6 +610,7 @@
 				905842E4236651FC009D92F1 /* pathtrace.c in Sources */,
 				905842E5236651FC009D92F1 /* list.c in Sources */,
 				905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */,
+				90C5D5592448CEAB00C58643 /* outputfile.c in Sources */,
 				9076FB56243002B90003B327 /* thread.c in Sources */,
 				905842E7236651FC009D92F1 /* material.c in Sources */,
 				9095392A23C15AAB0017037C /* networking.c in Sources */,
@@ -609,6 +630,7 @@
 				905842F2236651FC009D92F1 /* converter.c in Sources */,
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
+				90C5D5552448CE9000C58643 /* hdr.c in Sources */,
 				90A51A0523FCB7FF0014DF6B /* memory.c in Sources */,
 				9062FA17243D237200420889 /* bmp.c in Sources */,
 				905842F5236651FC009D92F1 /* mesh.c in Sources */,
@@ -651,6 +673,7 @@
 				900BA12D220B4603005B8EE7 /* pathtrace.c in Sources */,
 				900BA13B220B4603005B8EE7 /* list.c in Sources */,
 				90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */,
+				90C5D5582448CEAB00C58643 /* outputfile.c in Sources */,
 				9076FB55243002B90003B327 /* thread.c in Sources */,
 				900BA135220B4603005B8EE7 /* material.c in Sources */,
 				9095392923C15AAB0017037C /* networking.c in Sources */,
@@ -670,6 +693,7 @@
 				900BA142220B4603005B8EE7 /* converter.c in Sources */,
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
+				90C5D5542448CE9000C58643 /* hdr.c in Sources */,
 				90A51A0423FCB7FF0014DF6B /* memory.c in Sources */,
 				9062FA16243D237200420889 /* bmp.c in Sources */,
 				90189DA6224EB302007FA268 /* mesh.c in Sources */,
@@ -947,6 +971,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
+				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "";
 			};
 			name = Debug;
@@ -989,6 +1014,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
+				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "";
 			};
 			name = Release;

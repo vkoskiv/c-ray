@@ -17,7 +17,7 @@
 #include "../../datatypes/vertexbuffer.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/camera.h"
-#include "../../datatypes/texture.h"
+#include "../../datatypes/image/hdr.h"
 #include "../../datatypes/mesh.h"
 #include "../../datatypes/sphere.h"
 #include "../../datatypes/material.h"
@@ -884,7 +884,7 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	hdr = cJSON_GetObjectItem(data, "hdr");
 	if (cJSON_IsString(hdr)) {
 		char *fullPath = concatString(r->prefs.assetPath, hdr->valuestring);
-		r->scene->hdr = loadTexture(fullPath);
+		r->scene->hdr = loadHDRI(fullPath);
 		free(fullPath);
 	}
 	

@@ -16,7 +16,7 @@
 #include "utils/filehandler.h"
 #include "utils/platform/terminal.h"
 #include "utils/assert.h"
-#include "datatypes/texture.h"
+#include "datatypes/image/texture.h"
 #include "utils/ui.h"
 #include "utils/timer.h"
 #include "utils/args.h"

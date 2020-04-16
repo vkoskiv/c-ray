@@ -13,7 +13,8 @@
 #include "../datatypes/camera.h"
 #include "../accelerators/bbox.h"
 #include "../accelerators/kdtree.h"
-#include "../datatypes/texture.h"
+#include "../datatypes/image/texture.h"
+#include "../datatypes/image/hdr.h"
 #include "../datatypes/vertexbuffer.h"
 #include "../datatypes/sphere.h"
 #include "../datatypes/poly.h"
@@ -127,7 +128,7 @@ float wrapMinMax(float x, float min, float max) {
 	return min + wrapMax(x - min, max - min);
 }
 
-struct color getHDRI(const struct lightRay *incidentRay, const struct texture *hdr) {
+struct color getHDRI(const struct lightRay *incidentRay, const struct hdr *hdr) {
 	//Unit direction vector
 	struct vector ud = vecNormalize(incidentRay->direction);
 	
@@ -142,10 +143,10 @@ struct color getHDRI(const struct lightRay *incidentRay, const struct texture *h
 	u = wrapMinMax(u, 0, 1);
 	v = wrapMinMax(v, 0, 1);
 	
-	float x = (v * hdr->width);
-	float y = (u * hdr->height);
+	float x = (v * hdr->t->width);
+	float y = (u * hdr->t->height);
 	
-	struct color newColor = textureGetPixelFiltered(hdr, x, y);
+	struct color newColor = textureGetPixelFiltered(hdr->t, x, y);
 	
 	return newColor;
 }

@@ -12,7 +12,7 @@
 #include "../renderer/renderer.h"
 #include "logging.h"
 #include "../datatypes/tile.h"
-#include "../datatypes/texture.h"
+#include "../datatypes/image/texture.h"
 #include "../datatypes/color.h"
 #include "../utils/platform/thread.h"
 #include "../utils/platform/signal.h"
@@ -248,8 +248,8 @@ void drawWindow(struct renderer *r, struct texture *t) {
 	//Render frames
 	updateFrames(r);
 	//Update image data
-	SDL_UpdateTexture(r->mainDisplay->texture, NULL, t->byte_data, t->width * 3);
-	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer->byte_data, t->width * 4);
+	SDL_UpdateTexture(r->mainDisplay->texture, NULL, t->data.byte_p, t->width * 3);
+	SDL_UpdateTexture(r->mainDisplay->overlayTexture, NULL, r->state.uiBuffer->data.byte_p, t->width * 4);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
 	SDL_RenderPresent(r->mainDisplay->renderer);

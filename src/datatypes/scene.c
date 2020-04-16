@@ -13,7 +13,8 @@
 #include "../utils/loaders/sceneloader.h"
 #include "../utils/logging.h"
 #include "../renderer/renderer.h"
-#include "texture.h"
+#include "image/texture.h"
+#include "image/hdr.h"
 #include "camera.h"
 #include "vertexbuffer.h"
 #include "../accelerators/kdtree.h"
@@ -139,7 +140,7 @@ int loadScene(struct renderer *r, char *input) {
 //Free scene data
 void destroyScene(struct world *scene) {
 	if (scene) {
-		destroyTexture(scene->hdr);
+		destroyHDRI(scene->hdr);
 		if (scene->meshes) {
 			for (int i = 0; i < scene->meshCount; ++i) {
 				destroyMesh(&scene->meshes[i]);

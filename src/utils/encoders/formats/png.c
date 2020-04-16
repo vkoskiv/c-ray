@@ -7,7 +7,7 @@
 //
 
 #include "../../../includes.h"
-#include "../../../datatypes/texture.h"
+#include "../../../datatypes/image/texture.h"
 #include "png.h"
 
 #include <stdio.h>

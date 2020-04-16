@@ -11,7 +11,7 @@
 
 #include "../renderer/pathtrace.h"
 #include "vertexbuffer.h"
-#include "texture.h"
+#include "image/texture.h"
 #include "poly.h"
 #include "../utils/assert.h"
 

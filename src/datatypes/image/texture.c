@@ -6,27 +6,27 @@
 //  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../includes.h"
+#include "../../includes.h"
 
 #include "texture.h"
-#include "color.h"
-#include "../utils/logging.h"
-#include "../utils/assert.h"
+#include "../color.h"
+#include "../../utils/logging.h"
+#include "../../utils/assert.h"
 
 //General-purpose blit function
 void blit(struct texture *t, struct color c, unsigned x, unsigned y) {
 	ASSERT(x < t->width); ASSERT(y < t->height);
 	if (t->precision == char_p) {
-		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = (unsigned char)min(c.red * 255.0f, 255.0f);
-		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = (unsigned char)min(c.green * 255.0f, 255.0f);
-		t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 2] = (unsigned char)min(c.blue * 255.0f, 255.0f);
-		if (t->hasAlpha) t->byte_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = (unsigned char)min(c.alpha * 255.0f, 255.0f);
+		t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = (unsigned char)min(c.red * 255.0f, 255.0f);
+		t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = (unsigned char)min(c.green * 255.0f, 255.0f);
+		t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 2] = (unsigned char)min(c.blue * 255.0f, 255.0f);
+		if (t->hasAlpha) t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = (unsigned char)min(c.alpha * 255.0f, 255.0f);
 	}
 	else if (t->precision == float_p) {
-		t->float_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = c.red;
-		t->float_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = c.green;
-		t->float_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 2] = c.blue;
-		if (t->hasAlpha) t->float_data[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = c.alpha;
+		t->data.float_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = c.red;
+		t->data.float_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = c.green;
+		t->data.float_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 2] = c.blue;
+		if (t->hasAlpha) t->data.float_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = c.alpha;
 	}
 }
 
@@ -46,15 +46,15 @@ struct color textureGetPixel(const struct texture *t, unsigned x, unsigned y) {
 	y = y < 0 ? 0 : y;
 	
 	if (t->precision == float_p) {
-		output.red = t->float_data[(x + ((t->height-1) - y) * t->width)*pitch + 0];
-		output.green = t->float_data[(x + ((t->height-1) - y) * t->width)*pitch + 1];
-		output.blue = t->float_data[(x + ((t->height-1) - y) * t->width)*pitch + 2];
-		output.alpha = t->hasAlpha ? t->float_data[(x + ((t->height-1) - y) * t->width)*pitch + 3] : 1.0;
+		output.red = t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 0];
+		output.green = t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 1];
+		output.blue = t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 2];
+		output.alpha = t->hasAlpha ? t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 3] : 1.0;
 	} else {
-		output.red = t->byte_data[(x + ((t->height-1) - y) * t->width)*pitch + 0]/255.0;
-		output.green = t->byte_data[(x + ((t->height-1) - y) * t->width)*pitch + 1]/255.0;
-		output.blue = t->byte_data[(x + ((t->height-1) - y) * t->width)*pitch + 2]/255.0;
-		output.alpha = t->hasAlpha ? t->byte_data[(x + (t->height - y) * t->width)*pitch + 3]/255.0 : 1.0;
+		output.red = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 0]/255.0;
+		output.green = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 1]/255.0;
+		output.blue = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 2]/255.0;
+		output.alpha = t->hasAlpha ? t->data.byte_p[(x + (t->height - y) * t->width)*pitch + 3]/255.0 : 1.0;
 	}
 	
 	return output;
@@ -80,20 +80,19 @@ struct texture *newTexture(enum precision p, int width, int height, int channels
 	t->precision = p;
 	t->channels = channels;
 	t->hasAlpha = false;
-	t->byte_data = NULL;
-	t->float_data = NULL;
+	t->data.byte_p = NULL;
+	t->data.float_p = NULL;
 	t->colorspace = linear;
 	t->count = 0;
 	t->fileType = buffer;
-	t->offset = 0.0f;
 	if (channels > 3) {
 		t->hasAlpha = true;
 	}
 	
 	switch (t->precision) {
 		case char_p: {
-			t->byte_data = calloc(channels * width * height, sizeof(unsigned char));
-			if (!t->byte_data) {
+			t->data.byte_p = calloc(channels * width * height, sizeof(unsigned char));
+			if (!t->data.byte_p) {
 				logr(warning, "Failed to allocate %ix%i texture.\n", width, height);
 				destroyTexture(t);
 				return NULL;
@@ -101,8 +100,8 @@ struct texture *newTexture(enum precision p, int width, int height, int channels
 		}
 			break;
 		case float_p: {
-			t->float_data = calloc(channels * width * height, sizeof(float));
-			if (!t->float_data) {
+			t->data.float_p = calloc(channels * width * height, sizeof(float));
+			if (!t->data.float_p) {
 				logr(warning, "Failed to allocate %ix%i texture.\n", width, height);
 				destroyTexture(t);
 				return NULL;
@@ -143,11 +142,8 @@ void destroyTexture(struct texture *t) {
 		if (t->filePath) {
 			free(t->filePath);
 		}
-		if (t->byte_data) {
-			free(t->byte_data);
-		}
-		if (t->float_data) {
-			free(t->float_data);
+		if (t->data.byte_p) {
+			free(t->data.byte_p);
 		}
 		free(t);
 	}
