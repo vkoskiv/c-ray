@@ -12,6 +12,7 @@
 #include "../utils/timer.h"
 #include "../utils/loaders/sceneloader.h"
 #include "../utils/logging.h"
+#include "image/imagefile.h"
 #include "../renderer/renderer.h"
 #include "image/texture.h"
 #include "image/hdr.h"

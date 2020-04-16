@@ -8,8 +8,8 @@
 
 #include "../includes.h"
 
+#include "../datatypes/image/imagefile.h"
 #include "renderer.h"
-
 #include "../datatypes/camera.h"
 #include "../datatypes/scene.h"
 #include "pathtrace.h"
@@ -36,9 +36,6 @@ void *renderThread(void *arg);
 /// @todo Clean this up, it's ugly.
 struct texture *renderFrame(struct renderer *r) {
 	struct texture *output = newTexture(char_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
-	output->fileType = r->prefs.imgType;
-	copyString(r->prefs.imgFileName, &output->fileName);
-	copyString(r->prefs.imgFilePath, &output->filePath);
 	
 	logr(info, "Starting C-ray renderer for frame %i\n", r->prefs.imgCount);
 	

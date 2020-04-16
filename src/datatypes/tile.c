@@ -9,6 +9,7 @@
 #include "../includes.h"
 #include "tile.h"
 
+#include "../datatypes/image/imagefile.h"
 #include "../renderer/renderer.h"
 #include "../utils/logging.h"
 #include "../utils/platform/mutex.h"

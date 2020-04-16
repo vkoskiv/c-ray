@@ -10,7 +10,6 @@
 #include "logging.h"
 
 #include <stdarg.h>
-#include "../renderer/renderer.h"
 #include "args.h"
 #include "platform/terminal.h"
 

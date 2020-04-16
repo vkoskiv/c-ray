@@ -9,6 +9,7 @@
 #include "../includes.h"
 #include "ui.h"
 
+#include "../datatypes/image/imagefile.h"
 #include "../renderer/renderer.h"
 #include "logging.h"
 #include "../datatypes/tile.h"
