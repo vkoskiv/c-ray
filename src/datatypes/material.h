@@ -46,12 +46,13 @@
 
 struct lightRay;
 struct hitRecord;
+struct color;
 
 enum bsdfType {
 	emission = 0,
 	lambertian,
 	glass,
-    plastic,
+	plastic,
 	metal,
 	translucent,
 	transparent

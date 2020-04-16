@@ -30,7 +30,6 @@ struct renderTile nextTile(struct renderer *r) {
 		r->state.renderTiles[r->state.finishedTileCount].isRendering = true;
 		tile.tileNum = r->state.finishedTileCount++;
 	}
-	
 	releaseMutex(r->state.tileMutex);
 	return tile;
 }

@@ -35,4 +35,7 @@ struct renderTile {
 /// @param tileOrder Order for the renderer to render the tiles in
 int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum renderOrder tileOrder);
 
+
+/// Grab the next tile from the queue
+/// @param r It's the renderer, yo.
 struct renderTile nextTile(struct renderer *r);
