@@ -39,21 +39,18 @@
 		905842DF236651FC009D92F1 /* obj_parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA119220B4602005B8EE7 /* obj_parser.c */; };
 		905842E0236651FC009D92F1 /* textureloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA851B2252C90C00BA7702 /* textureloader.c */; };
 		905842E1236651FC009D92F1 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA127220B4602005B8EE7 /* logging.c */; };
-		905842E2236651FC009D92F1 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
 		905842E3236651FC009D92F1 /* timer.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11F220B4602005B8EE7 /* timer.c */; };
 		905842E4236651FC009D92F1 /* pathtrace.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F7220B4602005B8EE7 /* pathtrace.c */; };
 		905842E5236651FC009D92F1 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA116220B4602005B8EE7 /* list.c */; };
 		905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85232252D99700BA7702 /* vertexbuffer.c */; };
 		905842E7236651FC009D92F1 /* material.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA10A220B4602005B8EE7 /* material.c */; };
 		905842E8236651FC009D92F1 /* lodepng.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11B220B4602005B8EE7 /* lodepng.c */; };
-		905842E9236651FC009D92F1 /* denoiser.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50D22231E9E00193385 /* denoiser.c */; };
 		905842EA236651FC009D92F1 /* vector.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0FE220B4602005B8EE7 /* vector.c */; };
 		905842EB236651FC009D92F1 /* texture.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15CD225C6D85008D6AAA /* texture.c */; };
 		905842EC236651FC009D92F1 /* objloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85192252C90C00BA7702 /* objloader.c */; };
 		905842ED236651FC009D92F1 /* lightRay.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA102220B4602005B8EE7 /* lightRay.c */; };
 		905842EE236651FC009D92F1 /* pcg_basic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90369CCA222E012F008D215B /* pcg_basic.c */; };
 		905842EF236651FC009D92F1 /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15C822596E79008D6AAA /* gitsha1.c */; };
-		905842F0236651FC009D92F1 /* learn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50F22231E9E00193385 /* learn.c */; };
 		905842F1236651FC009D92F1 /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F5220B4602005B8EE7 /* kdtree.c */; };
 		905842F2236651FC009D92F1 /* converter.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA126220B4602005B8EE7 /* converter.c */; };
 		905842F3236651FC009D92F1 /* mtlloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85182252C90C00BA7702 /* mtlloader.c */; };
@@ -69,9 +66,6 @@
 		905842FD236651FC009D92F1 /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA125220B4602005B8EE7 /* ui.c */; };
 		905842FE236651FC009D92F1 /* bbox.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F4220B4602005B8EE7 /* bbox.c */; };
 		905842FF236651FC009D92F1 /* sceneloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85202252CB3800BA7702 /* sceneloader.c */; };
-		9058A51122231E9F00193385 /* denoiser.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50D22231E9E00193385 /* denoiser.c */; };
-		9058A51222231E9F00193385 /* learn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A50F22231E9E00193385 /* learn.c */; };
-		9058A51522231EB100193385 /* Tinn.c in Sources */ = {isa = PBXBuildFile; fileRef = 9058A51422231EB100193385 /* Tinn.c */; };
 		9062FA09243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
 		9062FA0A243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
 		9062FA0D243CC4B200420889 /* signal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA0C243CC4B200420889 /* signal.c */; };
@@ -200,12 +194,6 @@
 		90369CCA222E012F008D215B /* pcg_basic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pcg_basic.c; sourceTree = "<group>"; };
 		90369CCB222E012F008D215B /* pcg_basic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pcg_basic.h; sourceTree = "<group>"; };
 		90584305236651FC009D92F1 /* C-Ray Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9058A50D22231E9E00193385 /* denoiser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = denoiser.c; sourceTree = "<group>"; };
-		9058A50E22231E9E00193385 /* learn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = learn.h; sourceTree = "<group>"; };
-		9058A50F22231E9E00193385 /* learn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = learn.c; sourceTree = "<group>"; };
-		9058A51022231E9F00193385 /* denoiser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = denoiser.h; sourceTree = "<group>"; };
-		9058A51322231EB100193385 /* Tinn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tinn.h; sourceTree = "<group>"; };
-		9058A51422231EB100193385 /* Tinn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Tinn.c; sourceTree = "<group>"; };
 		9062FA07243BBD0900420889 /* args.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = args.h; sourceTree = "<group>"; };
 		9062FA08243BBD0900420889 /* args.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = args.c; sourceTree = "<group>"; };
 		9062FA0B243CC4B200420889 /* signal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = signal.h; sourceTree = "<group>"; };
@@ -368,8 +356,6 @@
 				90E2DB28223D575600E7A305 /* asprintf.h */,
 				90369CCA222E012F008D215B /* pcg_basic.c */,
 				90369CCB222E012F008D215B /* pcg_basic.h */,
-				9058A51322231EB100193385 /* Tinn.h */,
-				9058A51422231EB100193385 /* Tinn.c */,
 				900BA113220B4602005B8EE7 /* lodepng.h */,
 				900BA11B220B4602005B8EE7 /* lodepng.c */,
 				900BA114220B4602005B8EE7 /* obj_parser.h */,
@@ -395,10 +381,6 @@
 				9062FA08243BBD0900420889 /* args.c */,
 				90CFA7DD2381BF0900061288 /* hashtable.h */,
 				90CFA7DE2381BF0900061288 /* hashtable.c */,
-				9058A51022231E9F00193385 /* denoiser.h */,
-				9058A50D22231E9E00193385 /* denoiser.c */,
-				9058A50E22231E9E00193385 /* learn.h */,
-				9058A50F22231E9E00193385 /* learn.c */,
 				900BA123220B4602005B8EE7 /* filehandler.h */,
 				900BA11E220B4602005B8EE7 /* filehandler.c */,
 				909D136B24439069006D0A86 /* string.h */,
@@ -605,7 +587,6 @@
 				905842E0236651FC009D92F1 /* textureloader.c in Sources */,
 				905842E1236651FC009D92F1 /* logging.c in Sources */,
 				9076FB5A243002D60003B327 /* capabilities.c in Sources */,
-				905842E2236651FC009D92F1 /* Tinn.c in Sources */,
 				905842E3236651FC009D92F1 /* timer.c in Sources */,
 				905842E4236651FC009D92F1 /* pathtrace.c in Sources */,
 				905842E5236651FC009D92F1 /* list.c in Sources */,
@@ -615,7 +596,6 @@
 				905842E7236651FC009D92F1 /* material.c in Sources */,
 				9095392A23C15AAB0017037C /* networking.c in Sources */,
 				905842E8236651FC009D92F1 /* lodepng.c in Sources */,
-				905842E9236651FC009D92F1 /* denoiser.c in Sources */,
 				905842EA236651FC009D92F1 /* vector.c in Sources */,
 				905842EB236651FC009D92F1 /* texture.c in Sources */,
 				905842EC236651FC009D92F1 /* objloader.c in Sources */,
@@ -625,7 +605,6 @@
 				909D136E24439069006D0A86 /* string.c in Sources */,
 				905842EE236651FC009D92F1 /* pcg_basic.c in Sources */,
 				905842EF236651FC009D92F1 /* gitsha1.c in Sources */,
-				905842F0236651FC009D92F1 /* learn.c in Sources */,
 				905842F1236651FC009D92F1 /* kdtree.c in Sources */,
 				905842F2236651FC009D92F1 /* converter.c in Sources */,
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
@@ -668,7 +647,6 @@
 				90CA851E2252C90C00BA7702 /* textureloader.c in Sources */,
 				900BA143220B4603005B8EE7 /* logging.c in Sources */,
 				9076FB59243002D60003B327 /* capabilities.c in Sources */,
-				9058A51522231EB100193385 /* Tinn.c in Sources */,
 				900BA140220B4603005B8EE7 /* timer.c in Sources */,
 				900BA12D220B4603005B8EE7 /* pathtrace.c in Sources */,
 				900BA13B220B4603005B8EE7 /* list.c in Sources */,
@@ -678,7 +656,6 @@
 				900BA135220B4603005B8EE7 /* material.c in Sources */,
 				9095392923C15AAB0017037C /* networking.c in Sources */,
 				900BA13D220B4603005B8EE7 /* lodepng.c in Sources */,
-				9058A51122231E9F00193385 /* denoiser.c in Sources */,
 				900BA130220B4603005B8EE7 /* vector.c in Sources */,
 				90FB15CE225C6D85008D6AAA /* texture.c in Sources */,
 				90CA851D2252C90C00BA7702 /* objloader.c in Sources */,
@@ -688,7 +665,6 @@
 				909D136D24439069006D0A86 /* string.c in Sources */,
 				90369CCC222E012F008D215B /* pcg_basic.c in Sources */,
 				90FB15CB22596E79008D6AAA /* gitsha1.c in Sources */,
-				9058A51222231E9F00193385 /* learn.c in Sources */,
 				900BA12C220B4603005B8EE7 /* kdtree.c in Sources */,
 				900BA142220B4603005B8EE7 /* converter.c in Sources */,
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
