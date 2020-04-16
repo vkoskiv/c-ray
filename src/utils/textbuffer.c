@@ -15,6 +15,41 @@
 #include "filehandler.h"
 #include "logging.h"
 #include "string.h"
+#include <stdio.h>
+#include "assert.h"
+
+size_t strlen_newline(const char *str) {
+	size_t len = 0;
+	while (*(str++) != '\n')
+		++len;
+	return len;
+}
+
+textBuffer *newTextView(textBuffer *original, const size_t start, const size_t lines) {
+	ASSERT(original);
+	ASSERT(lines > 0);
+	ASSERT(start >= 0);
+	ASSERT(start + lines <= original->amountOf.lines);
+	
+	char *head = goToLine(original, start);
+	size_t start_offset = original->currentByteOffset;
+	head = goToLine(original, start + (lines - 1));
+	size_t len = strlen(head) + 1;
+	size_t end_offset = original->currentByteOffset + len;
+	head = goToLine(original, start);
+	size_t bytes = end_offset - start_offset;
+
+	char *buf = malloc(bytes * sizeof(char));
+	memcpy(buf, head, bytes);
+	
+	textBuffer *new = calloc(1, sizeof(textBuffer));
+	new->buf = buf;
+	new->buflen = bytes;
+	new->amountOf.lines = lines;
+	new->current.line = 0;
+	logr(debug, "Created new textView handle of size %zu, that has %zu lines\n", new->buflen, new->amountOf.lines);
+	return new;
+}
 
 textBuffer *newTextBuffer(char *contents) {
 	char *buf = contents;
@@ -38,8 +73,19 @@ textBuffer *newTextBuffer(char *contents) {
 	return new;
 }
 
+void dumpBuffer(textBuffer *buffer) {
+	logr(debug, "Dumping buffer:\n\n\n");
+	char *head = firstLine(buffer);
+	while (head) {
+		printf("%s\n", head);
+		head = nextLine(buffer);
+	}
+	printf("\n\n");
+}
+
 char *goToLine(textBuffer *file, size_t line) {
 	if (line < file->amountOf.lines) {
+		file->currentByteOffset = 0;
 		char *head = file->buf;
 		for (size_t i = 0; i < line; ++i) {
 			size_t offset = strlen(head) + 1;
@@ -71,6 +117,10 @@ char *firstLine(textBuffer *file) {
 	file->current.line = 0;
 	file->currentByteOffset = 0;
 	return head;
+}
+
+char *currentLine(textBuffer *file) {
+	return file->buf;
 }
 
 char *lastLine(textBuffer *file) {
@@ -126,4 +176,46 @@ void freeLineBuffer(lineBuffer *line) {
 	if (line) {
 		if (line->buf) free(line->buf);
 	}
+}
+
+//TODO: Tests for all of these.
+void testTextView() {
+	logr(debug, "Testing textView\n");
+	char *string = NULL;
+	copyString("This is a\nMultiline\nstring!\n", &string);
+	logr(debug, "\n%s\n", string);
+	
+	textBuffer *original = newTextBuffer(string);
+	dumpBuffer(original);
+	
+	textBuffer *view = newTextView(original, 0, 1);
+	ASSERT(stringEquals(currentLine(view), "This is a"));
+	freeTextBuffer(view);
+	view = newTextView(original, 1, 1);
+	ASSERT(stringEquals(currentLine(view), "Multiline"));
+	freeTextBuffer(view);
+	view = newTextView(original, 2, 1);
+	ASSERT(stringEquals(currentLine(view), "string!"));
+	freeTextBuffer(view);
+}
+
+void testTokenizer(char *filePath) {
+	char *rawText = loadFile(filePath, NULL);
+	textBuffer *file = newTextBuffer(rawText);
+	
+	char *currentLine = firstLine(file);
+	lineBuffer line = {0};
+	while (currentLine) {
+		fillLineBuffer(&line, currentLine, " ");
+		char *currentToken = firstToken(&line);
+		printf("Line %zu: ", file->current.line);
+		while (currentToken) {
+			printf("%s ", currentToken);
+			currentToken = nextToken(&line);
+		}
+		printf("\n");
+		currentLine = nextLine(file);
+	}
+	freeLineBuffer(&line);
+	freeTextBuffer(file);
 }
