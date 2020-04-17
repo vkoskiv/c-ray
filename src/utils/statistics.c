@@ -144,6 +144,7 @@ unsigned long get_value(struct stats *s, enum counter c) {
 			break;
 		default:
 			ASSERT_NOT_REACHED();
+			return 0;
 			break;
 	}
 }

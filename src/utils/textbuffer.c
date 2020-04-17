@@ -28,7 +28,6 @@ size_t strlen_newline(const char *str) {
 textBuffer *newTextView(textBuffer *original, const size_t start, const size_t lines) {
 	ASSERT(original);
 	ASSERT(lines > 0);
-	ASSERT(start >= 0);
 	ASSERT(start + lines <= original->amountOf.lines);
 	
 	char *head = goToLine(original, start);
