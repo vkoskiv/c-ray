@@ -12,7 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define GIT_SHA1 "?"
+#define GIT_SHA1 "759b0addc33a7e805e27092763088316ffabb41d"
 
 char *gitHash() {
 	return GIT_SHA1;
