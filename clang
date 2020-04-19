@@ -1,3 +1,0 @@
-#!/usr/local/bin/fish
-
-cmake . -DCMAKE_C_COMPILER="clang"; and make

@@ -1,0 +1,2 @@
+#!/bin/sh
+cmake . -DCMAKE_C_COMPILER="gcc-9" && make -j"$(nproc)"
