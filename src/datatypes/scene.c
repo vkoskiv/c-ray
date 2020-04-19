@@ -23,6 +23,8 @@
 #include "mesh.h"
 #include "poly.h"
 #include "../utils/platform/thread.h"
+#include "../utils/args.h"
+#include "../utils/ui.h"
 
 void transformMeshes(struct world *scene) {
 	logr(info, "Running transforms: ");
@@ -70,6 +72,27 @@ void printSceneStats(struct world *scene, unsigned long long ms) {
 		   scene->sphereCount);
 }
 
+void checkAndSetCliOverrides(struct renderer *r) {
+	//Update threadCount if it's overridden
+	if (isSet("thread_override")) {
+		int threads = intPref("thread_override");
+		logr(info, "Overriding thread count to %i\n", threads);
+		r->prefs.threadCount = threads;
+		r->prefs.fromSystem = false;
+	}
+	
+	//Update image dimensions if it's overridden
+	if (isSet("dims_override")) {
+		int width = intPref("dims_width");
+		int height = intPref("dims_height");
+		logr(info, "Overriding image dimensions to %ix%i\n", width, height);
+		r->prefs.imageWidth = intPref("dims_width");
+		r->prefs.imageHeight = intPref("dims_height");
+		r->mainDisplay->width = r->prefs.imageWidth;
+		r->mainDisplay->height = r->prefs.imageHeight;
+	}
+}
+
 //Split scene loading and prefs?
 //Load the scene, allocate buffers, etc
 //FIXME: Rename this func and take parseJSON out to a separate call.
@@ -92,6 +115,12 @@ int loadScene(struct renderer *r, char *input) {
 		default:
 			break;
 	}
+	
+	//FIXME: Temporary. Just make the ui module configure itself.
+	r->mainDisplay->width = r->prefs.imageWidth;
+	r->mainDisplay->height = r->prefs.imageHeight;
+	
+	checkAndSetCliOverrides(r);
 	
 	transformCameraIntoView(r->scene->camera);
 	transformMeshes(r->scene);

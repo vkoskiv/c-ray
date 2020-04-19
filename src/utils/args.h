@@ -12,6 +12,8 @@ void parseOptions(int argc, char **argv);
 
 bool isSet(char *key);
 
+int intPref(char *key);
+
 char *pathArg(void);
 
 void destroyOptions(void);
