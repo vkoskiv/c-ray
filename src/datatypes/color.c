@@ -84,7 +84,7 @@ float linearToSRGB(float channel) {
 	if (channel <= 0.0031308f) {
 		return 12.92f * channel;
 	} else {
-		return (1.055f * pow(channel, 0.4166666667f)) - 0.055f;
+		return (1.055f * powf(channel, 0.4166666667f)) - 0.055f;
 	}
 }
 
@@ -92,7 +92,7 @@ float SRGBToLinear(float channel) {
 	if (channel <= 0.04045f) {
 		return channel / 12.92f;
 	} else {
-		return pow(((channel + 0.055f) / 1.055f), 2.4f);
+		return powf(((channel + 0.055f) / 1.055f), 2.4f);
 	}
 }
 

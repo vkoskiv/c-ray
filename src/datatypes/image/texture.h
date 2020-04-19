@@ -49,7 +49,7 @@ struct texture {
 
 struct color;
 
-struct texture *newTexture(enum precision p, int width, int height, int channels);
+struct texture *newTexture(enum precision p, unsigned width, unsigned height, int channels);
 
 /// Blit a color value to a given pixel in a texture
 /// @param t Texture to blit into

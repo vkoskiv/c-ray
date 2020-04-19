@@ -17,7 +17,7 @@ struct sphere newSphere(struct vector pos, float radius, struct material materia
 }
 
 struct sphere defaultSphere() {
-	return (struct sphere){vecZero(), 10.0, defaultMaterial()};
+	return (struct sphere){vecZero(), 10.0f, defaultMaterial()};
 }
 
 //FIXME: dirty hack
@@ -25,7 +25,7 @@ struct sphere newLightSphere(struct vector pos, float radius, struct color color
 	struct sphere newSphere;
 	newSphere.pos = pos;
 	newSphere.radius = radius;
-	newSphere.material = newMaterial(color, 0.0);
+	newSphere.material = newMaterial(color, 0.0f);
 	newSphere.material.emission = colorCoef(intensity, color);
 	newSphere.material.type = emission;
 	assignBSDF(&newSphere.material);
@@ -52,7 +52,7 @@ bool intersect(const struct lightRay *ray, const struct sphere *sphere, float *t
 	if (trigDiscriminant < 0) {
 		intersects = false;
 	} else {
-		float sqrtOfDiscriminant = sqrt(trigDiscriminant);
+		float sqrtOfDiscriminant = sqrtf(trigDiscriminant);
 		float t0 = (-B + sqrtOfDiscriminant)/(2);
 		float t1 = (-B - sqrtOfDiscriminant)/(2);
 		

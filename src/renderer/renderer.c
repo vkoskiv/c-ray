@@ -18,8 +18,6 @@
 #include "../datatypes/tile.h"
 #include "../utils/timer.h"
 #include "../datatypes/image/texture.h"
-#include "../utils/loaders/textureloader.h"
-#include "../utils/string.h"
 #include "../datatypes/mesh.h"
 #include "../datatypes/sphere.h"
 #include "../datatypes/vertexbuffer.h"
@@ -166,8 +164,8 @@ void *renderThread(void *arg) {
 		
 		while (tile.completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
 			startTimer(&timer);
-			for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
-				for (int x = tile.begin.x; x < tile.end.x; ++x) {
+			for (unsigned y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
+				for (unsigned x = tile.begin.x; x < tile.end.x; ++x) {
 					if (r->state.renderAborted) return 0;
 					uint64_t pixIdx = y * image->width + x;
 					uint64_t uniqueIdx = pixIdx * r->prefs.sampleCount + tile.completedSamples;

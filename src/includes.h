@@ -18,7 +18,7 @@
 //Some macros
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
-#define invsqrt(x) (1.0f / sqrt(x))
+#define invsqrt(x) (1.0f / sqrtf(x))
 
 //Master include file
 #ifdef __linux__

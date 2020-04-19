@@ -75,7 +75,7 @@ vector bumpmap(const struct hitRecord *isect) {
 	float heigh = mtl.normalMap->height;
 	float u = isect->uv.x;
 	float v = isect->uv.y;
-	float w = 1.0 - u - v;
+	float w = 1.0f - u - v;
 	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
 	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
 	struct coord wcomponent = coordScale(w, textureArray[p.textureIndex[0]]);
@@ -96,7 +96,7 @@ vector bumpmap(const struct hitRecord *isect) {
  */
 struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene) {
 	struct hitRecord isect;
-	isect.distance = 20000.0;
+	isect.distance = 20000.0f;
 	isect.incident = *incidentRay;
 	isect.didIntersect = false;
 	for (int i = 0; i < scene->sphereCount; ++i) {
@@ -121,7 +121,7 @@ struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struc
 }
 
 float wrapMax(float x, float max) {
-	return fmod(max + fmod(x, max), max);
+	return fmodf(max + fmodf(x, max), max);
 }
 
 float wrapMinMax(float x, float min, float max) {
@@ -154,8 +154,8 @@ struct color getHDRI(const struct lightRay *incidentRay, const struct hdr *hdr) 
 //Linearly interpolate based on the Y component
 struct color getAmbientColor(const struct lightRay *incidentRay, struct gradient color) {
 	struct vector unitDirection = vecNormalize(incidentRay->direction);
-	float t = 0.5 * (unitDirection.y + 1.0);
-	return addColors(colorCoef(1.0 - t, color.down), colorCoef(t, color.up));
+	float t = 0.5f * (unitDirection.y + 1.0f);
+	return addColors(colorCoef(1.0f - t, color.down), colorCoef(t, color.up));
 }
 
 struct color getBackground(const struct lightRay *incidentRay, const struct world *scene) {

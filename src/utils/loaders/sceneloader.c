@@ -238,10 +238,10 @@ struct material *parseMaterial(const cJSON *data) {
 	//bool validRoughness = false;
 	bool validIntensity = false;
 	
-	float IORValue = 1.0;
+	float IORValue = 1.0f;
 	//float roughnessValue;
 	struct color colorValue = blackColor;
-	float intensityValue = 1.0;
+	float intensityValue = 1.0f;
 	
 	struct material *mat = calloc(1, sizeof(struct material));
 	
@@ -259,7 +259,7 @@ struct material *parseMaterial(const cJSON *data) {
 		if (intensity->valuedouble >= 0) {
 			intensityValue = intensity->valuedouble;
 		} else {
-			intensityValue = 1.0;
+			intensityValue = 1.0f;
 		}
 	}
 	
@@ -269,7 +269,7 @@ struct material *parseMaterial(const cJSON *data) {
 		if (IOR->valuedouble >= 0) {
 			IORValue = IOR->valuedouble;
 		} else {
-			IORValue = 1.0;
+			IORValue = 1.0f;
 		}
 	}
 	
@@ -344,9 +344,9 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 	}
 	
 	//For translate, we want the default to be 0. For scaling, def should be 1
-	float def = 0.0;
+	float def = 0.0f;
 	if (strcmp(type->valuestring, "scale") == 0) {
-		def = 1.0;
+		def = 1.0f;
 	}
 	
 	int validCoords = 0; //Accept if we have at least one provided
@@ -417,7 +417,7 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 	}
 	
 	//Hack. This is essentially just a NOP transform that does nothing.
-	return newTransformTranslate(0.0, 0.0, 0.0);
+	return newTransformTranslate(0.0f, 0.0f, 0.0f);
 }
 
 //Parse JSON array of transforms, and return a pointer to an array of corresponding transforms
@@ -565,9 +565,7 @@ struct prefs parsePrefs(const cJSON *data) {
 	tileOrder = cJSON_GetObjectItem(data, "tileOrder");
 	if (tileOrder) {
 		if (cJSON_IsString(tileOrder)) {
-			if (strcmp(tileOrder->valuestring, "normal") == 0) {
-				p.tileOrder = renderOrderNormal;
-			} else if (strcmp(tileOrder->valuestring, "random") == 0) {
+			if (strcmp(tileOrder->valuestring, "random") == 0) {
 				p.tileOrder = renderOrderRandom;
 			} else if (strcmp(tileOrder->valuestring, "topToBottom") == 0) {
 				p.tileOrder = renderOrderTopToBottom;
@@ -655,9 +653,7 @@ struct prefs parsePrefs(const cJSON *data) {
 	fileType = cJSON_GetObjectItem(data, "fileType");
 	if (fileType) {
 		if (cJSON_IsString(fileType)) {
-			if (strcmp(fileType->valuestring, "png") == 0) {
-				p.imgType = png;
-			} else if (strcmp(fileType->valuestring, "bmp") == 0) {
+			if (strcmp(fileType->valuestring, "bmp") == 0) {
 				p.imgType = bmp;
 			} else {
 				p.imgType = png;
@@ -763,12 +759,12 @@ int parseCamera(struct camera *c, const cJSON *data) {
 		if (cJSON_IsNumber(FOV)) {
 			if (FOV->valuedouble >= 0.0) {
 				if (FOV->valuedouble > 180.0) {
-					c->FOV = 180.0;
+					c->FOV = 180.0f;
 				} else {
 					c->FOV = FOV->valuedouble;
 				}
 			} else {
-				c->FOV = 80.0;
+				c->FOV = 80.0f;
 			}
 		} else {
 			logr(warning, "Invalid FOV value while parsing camera.\n");
@@ -859,7 +855,7 @@ struct color parseColor(const cJSON *data) {
 	if (R != NULL && cJSON_IsNumber(A)) {
 		newColor.alpha = A->valuedouble;
 	} else {
-		newColor.alpha = 0.0;
+		newColor.alpha = 0.0f;
 	}
 	
 	return newColor;
@@ -892,7 +888,7 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	offset = cJSON_GetObjectItem(data, "offset");
 	if (cJSON_IsNumber(offset)) {
 		if (r->scene->hdr) {
-			r->scene->hdr->offset = toRadians(offset->valuedouble)/4;
+			r->scene->hdr->offset = toRadians(offset->valuedouble) / 4.0f;
 		}
 	}
 	
@@ -910,9 +906,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	
 	//TODO: Wrap this into a function
 	if (cJSON_IsString(bsdf)) {
-		if (strcmp(bsdf->valuestring, "lambertian") == 0) {
-			type = lambertian;
-		} else if (strcmp(bsdf->valuestring, "metal") == 0) {
+		if (strcmp(bsdf->valuestring, "metal") == 0) {
 			type = metal;
 		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
 			type = glass;
@@ -987,7 +981,7 @@ struct vector parseCoordinate(const cJSON *data) {
 	}
 	logr(warning, "Invalid coordinate parsed! Returning 0,0,0\n");
 	logr(warning, "Faulty JSON: %s\n", cJSON_Print(data));
-	return (struct vector){0.0,0.0,0.0};
+	return (struct vector){0.0f,0.0f,0.0f};
 }
 
 void parseSphere(struct renderer *r, const cJSON *data) {
@@ -1054,21 +1048,21 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	if (roughness != NULL && cJSON_IsNumber(roughness)) {
 		newSphere.material.roughness = roughness->valuedouble;
 	} else {
-		newSphere.material.roughness = 0.0;
+		newSphere.material.roughness = 0.0f;
 	}
 	
 	IOR = cJSON_GetObjectItem(data, "IOR");
 	if (IOR != NULL && cJSON_IsNumber(IOR)) {
 		newSphere.material.IOR = IOR->valuedouble;
 	} else {
-		newSphere.material.IOR = 1.0;
+		newSphere.material.IOR = 1.0f;
 	}
 	
 	radius = cJSON_GetObjectItem(data, "radius");
 	if (radius != NULL && cJSON_IsNumber(radius)) {
 		newSphere.radius = radius->valuedouble;
 	} else {
-		newSphere.radius = 10;
+		newSphere.radius = 10.0f;
 		logr(warning, "No radius specified for sphere, setting to %.0f\n", newSphere.radius);
 	}
 	
@@ -1116,7 +1110,7 @@ int parseScene(struct renderer *r, const cJSON *data) {
 		r->scene->ambientColor = (struct gradient){
 			.down = (struct color){0.4f, 0.4f, 0.5f, 0.0f},
 			.up   = (struct color){0.8f, 0.8f, 1.0f, 0.0f}
-		};;
+		};
 	}
 	
 	primitives = cJSON_GetObjectItem(data, "primitives");

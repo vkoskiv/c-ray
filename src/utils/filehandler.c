@@ -17,7 +17,6 @@
 #include "string.h"
 
 //Prototypes for internal functions
-size_t getFileSize(char *fileName);
 size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
 
 //TODO: Use this for textures and HDRs too.

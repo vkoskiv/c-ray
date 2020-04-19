@@ -100,17 +100,6 @@ struct material {
 struct material newMaterial(struct color diffuse, float reflectivity);
 struct material *materialForName(struct material *materials, int count, char *name);
 
-//Full obj spec material
-struct material newMaterialFull(struct color ambient,
-								struct color diffuse,
-								struct color specular,
-								float reflectivity,
-								float refractivity,
-								float IOR,
-								float transparency,
-								float sharpness,
-								float glossiness);
-
 struct material emptyMaterial(void);
 struct material defaultMaterial(void);
 struct material warningMaterial(void);

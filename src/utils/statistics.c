@@ -102,50 +102,35 @@ unsigned long get_value(struct stats *s, enum counter c) {
 	switch (c) {
 		case kd_tree_bytes:
 			return s->kd_tree_bytes;
-			break;
 		case image_buffer_bytes:
 			return s->image_buffer_bytes;
-			break;
 		case mesh_bytes:
 			return s->mesh_bytes;
-			break;
 		case raw_bytes_allocated:
 			return s->raw_bytes_allocated;
-			break;
 		case raw_bytes_freed:
 			return s->raw_bytes_freed;
-			break;
 		case lights:
 			return s->lights;
-			break;
 		case materials:
 			return s->materials;
-			break;
 		case meshes:
 			return s->meshes;
-			break;
 		case spheres:
 			return s->spheres;
-			break;
 		case paths:
 			return s->paths;
-			break;
 		case path_lengths:
 			return s->path_lengths;
-			break;
 		case avg_path_length:
 			return 0;
-			break;
 		case calls_to_allocate:
 			return s->calls_to_allocate;
-			break;
 		case calls_to_free:
 			return s->calls_to_free;
-			break;
 		default:
 			ASSERT_NOT_REACHED();
 			return 0;
-			break;
 	}
 }
 

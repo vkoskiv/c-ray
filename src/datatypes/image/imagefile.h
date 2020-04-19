@@ -23,3 +23,5 @@ struct imageFile {
 };
 
 struct imageFile *newImageFile(struct texture *t, char *filePath, char *fileName, int count, enum fileType type);
+
+void destroyImageFile(struct imageFile *file);

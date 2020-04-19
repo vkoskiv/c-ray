@@ -141,9 +141,9 @@ void testTable() {
 	
 	printTableUsage(table);
 	
-	setFloat(table, "Foo", 0.1);
-	setFloat(table, "Bar", 0.2);
-	setFloat(table, "Baz", 0.3);
+	setFloat(table, "Foo", 0.1f);
+	setFloat(table, "Bar", 0.2f);
+	setFloat(table, "Baz", 0.3f);
 	
 	printTableUsage(table);
 	
@@ -151,7 +151,7 @@ void testTable() {
 	logr(debug, "Value at %s is %f\n", "Bar", getFloat(table, "Bar"));
 	logr(debug, "Value at %s is %f\n", "Baz", getFloat(table, "Baz"));
 	
-	setFloat(table, "Baz", 0.4);
+	setFloat(table, "Baz", 0.4f);
 	logr(debug, "Value at %s is %f\n", "Baz", getFloat(table, "Baz"));
 	/*printUsage(table);
 	for (int i = 0; i < 10000000; ++i) {
