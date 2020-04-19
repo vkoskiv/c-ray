@@ -6,7 +6,6 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../../includes.h"
 #include "../../../datatypes/image/texture.h"
 #include "png.h"
 
@@ -20,7 +19,7 @@
 #include <sys/utsname.h>
 #endif
 
-void encodePNGFromArray(const char *filename, unsigned char *imgData, int width, int height, struct renderInfo imginfo) {
+void encodePNGFromArray(const char *filename, unsigned char *imgData, unsigned width, unsigned height, struct renderInfo imginfo) {
 	LodePNGInfo info;
 	lodepng_info_init(&info);
 	info.time_defined = 1;

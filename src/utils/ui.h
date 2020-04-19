@@ -28,8 +28,8 @@ struct display {
 	bool isFullScreen;
 	float windowScale;
 	
-	int width;
-	int height;
+	unsigned width;
+	unsigned height;
 };
 
 int initSDL(struct display *d);

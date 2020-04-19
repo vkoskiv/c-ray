@@ -13,7 +13,6 @@
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/image/hdr.h"
 #include "../../datatypes/color.h"
-#include "../../utils/string.h"
 
 #define STBI_NO_PSD
 #define STBI_NO_GIF
@@ -49,7 +48,7 @@ struct hdr *loadHDRI(char *filePath) {
 			logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
 			return NULL;
 		}
-		float MB = (((getFileSize(filePath))/1000.0)/1000.0);
+		float MB = (((getFileSize(filePath))/1000.0f)/1000.0f);
 		printf(" %.1fMB\n", MB);
 	} else {
 		destroyHDRI(new);

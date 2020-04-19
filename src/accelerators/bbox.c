@@ -20,9 +20,9 @@
  @return Longest axis as an enum
  */
 enum bboxAxis getLongestAxis(const struct boundingBox *bbox) {
-	float x = fabs(bbox->start.x - bbox->end.x);
-	float y = fabs(bbox->start.y - bbox->end.y);
-	float z = fabs(bbox->start.z - bbox->end.z);
+	float x = fabsf(bbox->start.x - bbox->end.x);
+	float y = fabsf(bbox->start.y - bbox->end.y);
+	float z = fabsf(bbox->start.z - bbox->end.z);
 
 	return x > y && x > z ? X : y > z ? Y : Z;
 }
@@ -56,8 +56,8 @@ struct boundingBox *computeBoundingBox(const int *polys, const int count) {
 			maxPoint = vecMax(maxPoint, vertexArray[polygonArray[polys[i]].vertexIndex[j]]);
 		}
 	}
-	struct vector center = vecWithPos(0.5 * (minPoint.x + maxPoint.x), 0.5 * (minPoint.y + maxPoint.y), 0.5 * (minPoint.z + maxPoint.z));
-	float maxDistance = 0.0;
+	struct vector center = vecWithPos(0.5f * (minPoint.x + maxPoint.x), 0.5f * (minPoint.y + maxPoint.y), 0.5f * (minPoint.z + maxPoint.z));
+	float maxDistance = 0.0f;
 	for (int i = 0; i < count; ++i) {
 		for (int j = 0; j < 3; ++j) {
 			struct vector fromCenter = vecSub(vertexArray[polygonArray[polys[i]].vertexIndex[j]], center);

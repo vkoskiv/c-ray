@@ -10,7 +10,6 @@
 
 //C-ray texture parser
 
-
 /// Load a radiance HDRI file.
 /// @param filePath Path to image file on disk.
 struct hdr *loadHDRI(char *filePath);

@@ -10,4 +10,4 @@
 
 //Main C-ray OBJ parsing logic
 
-struct mesh *parseOBJFile(char *filePath);
+struct mesh *parseOBJFile(char *filePath, size_t *meshCount);

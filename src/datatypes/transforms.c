@@ -193,7 +193,7 @@ float findDeterminant(float A[4][4], int n) {
 		return A[0][0];
 	
 	float cofactors[4][4];
-	float sign = 1.0;
+	float sign = 1.0f;
 	
 	for (int f = 0; f < n; ++f) {
 		getCofactor(A, cofactors, 0, f, n);
@@ -251,34 +251,24 @@ char *transformTypeString(enum transformType type) {
 	switch (type) {
 		case transformTypeXRotate:
 			return "transformTypeXRotate";
-			break;
 		case transformTypeYRotate:
 			return "transformTypeYRotate";
-			break;
 		case transformTypeZRotate:
 			return "transformTypeZRotate";
-			break;
 		case transformTypeTranslate:
 			return "transformTypeTranslate";
-			break;
 		case transformTypeScale:
 			return "transformTypeScale";
-			break;
 		case transformTypeMultiplication:
 			return "transformTypeMultiplication";
-			break;
 		case transformTypeIdentity:
 			return "transformTypeIdentity";
-			break;
 		case transformTypeInverse:
 			return "transformTypeInverse";
-			break;
 		case transformTypeTranspose:
 			return "transformTypeTranspose";
-			break;
 		default:
 			return "unknownTransform";
-			break;
 	}
 }
 
@@ -300,23 +290,23 @@ void printTransform(struct transform tf) {
 }
 
 void testStuff() {
-	struct transform rotateX = newTransformRotateX(33.3);
-	struct transform rotateY = newTransformRotateY(33.3);
-	struct transform rotateZ = newTransformRotateZ(33.3);
+	struct transform rotateX = newTransformRotateX(33.3f);
+	struct transform rotateY = newTransformRotateY(33.3f);
+	struct transform rotateZ = newTransformRotateZ(33.3f);
 	printTransform(rotateX);
 	printTransform(rotateY);
 	printTransform(rotateZ);
 	
-	struct transform scale = newTransformScaleUniform(33.3);
+	struct transform scale = newTransformScaleUniform(33.3f);
 	printTransform(scale);
 	
-	struct transform scaleX = newTransformScale(33.3, 1, 1);
-	struct transform scaleY = newTransformScale(1, 33.3, 1);
-	struct transform scaleZ = newTransformScale(1, 1, 33.3);
+	struct transform scaleX = newTransformScale(33.3f, 1.0f, 1.0f);
+	struct transform scaleY = newTransformScale(1.0f, 33.3f, 1.0f);
+	struct transform scaleZ = newTransformScale(1.0f, 1.0f, 33.3f);
 	printTransform(scaleX);
 	printTransform(scaleY);
 	printTransform(scaleZ);
 	
-	struct transform move = newTransformTranslate(33.333, 33.333, 33.333);
+	struct transform move = newTransformTranslate(33.333f, 33.333f, 33.333f);
 	printTransform(move);
 }

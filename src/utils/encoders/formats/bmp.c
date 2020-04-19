@@ -12,19 +12,18 @@
 #include <stdio.h>
 #include "../../logging.h"
 
-void encodeBMPFromArray(const char *filename, unsigned char *imgData, int width, int height) {
+void encodeBMPFromArray(const char *filename, unsigned char *imgData, unsigned width, unsigned height) {
 	//Apparently BMP is BGR, whereas C-ray's internal buffer is RGB (Like it should be)
 	//So we need to convert the image data before writing to file.
 	unsigned char *bgrData = calloc(3 * width * height, sizeof(unsigned char));
-	for (int y = 0; y < height; ++y) {
-		for (int x = 0; x < width; ++x) {
+	for (unsigned y = 0; y < height; ++y) {
+		for (unsigned x = 0; x < width; ++x) {
 			bgrData[(x + (height - (y + 1)) * width) * 3 + 0] = imgData[(x + (height - (y + 1)) * width) * 3 + 2];
 			bgrData[(x + (height - (y + 1)) * width) * 3 + 1] = imgData[(x + (height - (y + 1)) * width) * 3 + 1];
 			bgrData[(x + (height - (y + 1)) * width) * 3 + 2] = imgData[(x + (height - (y + 1)) * width) * 3 + 0];
 		}
 	}
-	int i;
-	int error;
+	unsigned error;
 	FILE *f;
 	int filesize = 54 + 3 * width * height;
 	unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
@@ -45,20 +44,20 @@ void encodeBMPFromArray(const char *filename, unsigned char *imgData, int width,
 	bmpinfoheader[10] = (unsigned char)(height>>16);
 	bmpinfoheader[11] = (unsigned char)(height>>24);
 	f = fopen(filename,"wb");
-	error = (unsigned int)fwrite(bmpfileheader,1,14,f);
+	error = (unsigned)fwrite(bmpfileheader,1,14,f);
 	if (error != 14) {
 		logr(warning, "Error writing BMP file header data\n");
 	}
-	error = (unsigned int)fwrite(bmpinfoheader,1,40,f);
+	error = (unsigned)fwrite(bmpinfoheader,1,40,f);
 	if (error != 40) {
 		logr(warning, "Error writing BMP info header data\n");
 	}
-	for (i = 1; i <= height; ++i) {
-		error = (unsigned int)fwrite(bgrData+(width*(height - i)*3),3,width,f);
+	for (unsigned i = 1; i <= height; ++i) {
+		error = (unsigned)fwrite(bgrData+(width*(height - i)*3),3,width,f);
 		if (error != width) {
 			logr(warning, "Error writing image line to BMP\n");
 		}
-		error = (unsigned int)fwrite(bmppadding,1,(4-(width*3)%4)%4,f);
+		error = (unsigned)fwrite(bmppadding,1,(4-(width*3)%4)%4,f);
 		if (error != (4-(width*3)%4)%4) {
 			logr(warning, "Error writing BMP padding data\n");
 		}

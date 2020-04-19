@@ -14,7 +14,7 @@
 #include "../utils/logging.h"
 #include "../utils/platform/mutex.h"
 
-void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder);
+void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder);
 
 /**
  Gets the next tile from renderTiles in mainRenderer
@@ -40,7 +40,7 @@ struct renderTile nextTile(struct renderer *r) {
  
  @param scene scene object
  */
-int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum renderOrder tileOrder) {
+unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum renderOrder tileOrder) {
 	
 	logr(info, "Quantizing render plane\n");
 	
@@ -84,9 +84,7 @@ int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned heig
 			//Samples have to start at 1, so the running average works
 			tile->completedSamples = 1;
 			tile->isRendering = false;
-			tile->tileNum = tileCount;
-			
-			tileCount++;
+			tile->tileNum = (int)tileCount++;
 		}
 	}
 	logr(info, "Quantized image into %i tiles. (%ix%i)\n", (tilesX*tilesY), tilesX, tilesY);
@@ -99,12 +97,12 @@ int quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned heig
 /**
  Reorder renderTiles to start from top
  */
-void reorderTopToBottom(struct renderTile **tiles, int tileCount) {
-	int endIndex = tileCount - 1;
+void reorderTopToBottom(struct renderTile **tiles, unsigned tileCount) {
+	unsigned endIndex = tileCount - 1;
 	
 	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < tileCount; ++i) {
+	for (unsigned i = 0; i < tileCount; ++i) {
 		tempArray[i] = (*tiles)[endIndex--];
 	}
 	
@@ -131,11 +129,11 @@ unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_random_t *r
 /**
  Shuffle renderTiles into a random order
  */
-void reorderRandom(struct renderTile **tiles, int tileCount) {
+void reorderRandom(struct renderTile **tiles, unsigned tileCount) {
 	pcg32_random_t *rng = calloc(1, sizeof(pcg32_random_t));
 	pcg32_srandom_r(rng, 3141592, 0);
-	for (int i = 0; i < tileCount; ++i) {
-		unsigned int random = rand_interval(0, tileCount - 1, rng);
+	for (unsigned i = 0; i < tileCount; ++i) {
+		unsigned random = rand_interval(0, tileCount - 1, rng);
 		
 		struct renderTile temp = (*tiles)[i];
 		(*tiles)[i] = (*tiles)[random];
@@ -147,7 +145,7 @@ void reorderRandom(struct renderTile **tiles, int tileCount) {
 /**
  Reorder renderTiles to start from middle
  */
-void reorderFromMiddle(struct renderTile **tiles, int tileCount) {
+void reorderFromMiddle(struct renderTile **tiles, unsigned tileCount) {
 	int midLeft = 0;
 	int midRight = 0;
 	bool isRight = true;
@@ -157,7 +155,7 @@ void reorderFromMiddle(struct renderTile **tiles, int tileCount) {
 	
 	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < tileCount; ++i) {
+	for (unsigned i = 0; i < tileCount; ++i) {
 		if (isRight) {
 			tempArray[i] = (*tiles)[midRight++];
 			isRight = false;
@@ -174,16 +172,16 @@ void reorderFromMiddle(struct renderTile **tiles, int tileCount) {
 /**
  Reorder renderTiles to start from ends, towards the middle
  */
-void reorderToMiddle(struct renderTile **tiles, int tileCount) {
-	int left = 0;
-	int right = 0;
+void reorderToMiddle(struct renderTile **tiles, unsigned tileCount) {
+	unsigned left = 0;
+	unsigned right = 0;
 	bool isRight = true;
 	
 	right = tileCount - 1;
 	
 	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
 	
-	for (int i = 0; i < tileCount; ++i) {
+	for (unsigned i = 0; i < tileCount; ++i) {
 		if (isRight) {
 			tempArray[i] = (*tiles)[right--];
 			isRight = false;
@@ -202,7 +200,7 @@ void reorderToMiddle(struct renderTile **tiles, int tileCount) {
  
  @param order Render order to be applied
  */
-void reorderTiles(struct renderTile **tiles, int tileCount, enum renderOrder tileOrder) {
+void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder) {
 	switch (tileOrder) {
 		case renderOrderFromMiddle:
 			reorderFromMiddle(tiles, tileCount);

@@ -23,31 +23,6 @@ struct material newMaterial(struct color diffuse, float reflectivity) {
 	return newMaterial;
 }
 
-
-struct material newMaterialFull(struct color ambient,
-								struct color diffuse,
-								struct color specular,
-								float reflectivity,
-								float refractivity,
-								float IOR,
-								float transparency,
-								float sharpness,
-								float glossiness) {
-	struct material mat;
-	
-	mat.ambient = ambient;
-	mat.diffuse = diffuse;
-	mat.specular = specular;
-	mat.reflectivity = reflectivity;
-	mat.refractivity = refractivity;
-	mat.IOR = IOR;
-	mat.transparency = transparency;
-	mat.sharpness = sharpness;
-	mat.glossiness = glossiness;
-	
-	return mat;
-}
-
 struct material emptyMaterial() {
 	return (struct material){0};
 }
@@ -144,7 +119,7 @@ struct color gradient(struct hitRecord *isect) {
 	//barycentric coordinates for this polygon
 	float u = isect->uv.x;
 	float v = isect->uv.y;
-	float w = 1.0 - u - v;
+	float w = 1.0f - u - v;
 	
 	return colorWithValues(u, v, w, 1.0f);
 }
@@ -169,19 +144,19 @@ struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
 	struct coord surfaceXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
 	
-	float sines = sin(coef*surfaceXY.x) * sin(coef*surfaceXY.y);
+	float sines = sinf(coef*surfaceXY.x) * sinf(coef*surfaceXY.y);
 	
 	if (sines < 0.0f) {
-		return (struct color){0.1f, 0.1f, 0.1f, 0.0};
+		return (struct color){0.1f, 0.1f, 0.1f, 0.0f};
 	} else {
-		return (struct color){0.4f, 0.4f, 0.4f, 0.0};
+		return (struct color){0.4f, 0.4f, 0.4f, 0.0f};
 	}
 }
 
 //FIXME: Make this configurable
 //This is a spatial checkerboard, mapped to the world coordinate space (always axis aligned)
 struct color unmappedCheckerBoard(struct hitRecord *isect, float coef) {
-	float sines = sin(coef*isect->hitPoint.x) * sin(coef*isect->hitPoint.y) * sin(coef*isect->hitPoint.z);
+	float sines = sinf(coef*isect->hitPoint.x) * sinf(coef*isect->hitPoint.y) * sinf(coef*isect->hitPoint.z);
 	if (sines < 0.0f) {
 		return (struct color){0.1f, 0.1f, 0.1f, 0.0f};
 	} else {
@@ -280,7 +255,7 @@ bool refract(struct vector in, struct vector normal, float niOverNt, struct vect
 		struct vector A = vecScale(normal, dt);
 		struct vector B = vecSub(uv, A);
 		struct vector C = vecScale(B, niOverNt);
-		struct vector D = vecScale(normal, sqrt(discriminant));
+		struct vector D = vecScale(normal, sqrtf(discriminant));
 		*refracted = vecSub(C, D);
 		return true;
 	} else {
@@ -340,7 +315,6 @@ bool plasticBSDF(struct hitRecord *isect, struct color *attenuation, struct ligh
 	} else {
 		return lambertianBSDF(isect, attenuation, scattered, rng);
 	}
-	return true;
 }
 
 // Only works on spheres for now. Reflections work but refractions don't

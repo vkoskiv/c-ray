@@ -31,7 +31,7 @@ void blit(struct texture *t, struct color c, unsigned x, unsigned y) {
 }
 
 struct color textureGetPixel(const struct texture *t, unsigned x, unsigned y) {
-	struct color output = {0.0, 0.0, 0.0, 0.0};
+	struct color output = {0.0f, 0.0f, 0.0f, 0.0f};
 	int pitch = 0;
 	if (t->hasAlpha) {
 		pitch = 4;
@@ -47,12 +47,12 @@ struct color textureGetPixel(const struct texture *t, unsigned x, unsigned y) {
 		output.red = t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 0];
 		output.green = t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 1];
 		output.blue = t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 2];
-		output.alpha = t->hasAlpha ? t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 3] : 1.0;
+		output.alpha = t->hasAlpha ? t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 3] : 1.0f;
 	} else {
-		output.red = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 0]/255.0;
-		output.green = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 1]/255.0;
-		output.blue = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 2]/255.0;
-		output.alpha = t->hasAlpha ? t->data.byte_p[(x + (t->height - y) * t->width)*pitch + 3]/255.0 : 1.0;
+		output.red = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 0] / 255.0f;
+		output.green = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 1] / 255.0f;
+		output.blue = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 2] / 255.0f;
+		output.alpha = t->hasAlpha ? t->data.byte_p[(x + (t->height - y) * t->width)*pitch + 3] / 255.0f : 1.0f;
 	}
 	
 	return output;
@@ -60,8 +60,8 @@ struct color textureGetPixel(const struct texture *t, unsigned x, unsigned y) {
 
 //Bilinearly interpolated (smoothed) output. Requires float precision, i.e. 0.0->width-1.0
 struct color textureGetPixelFiltered(const struct texture *t, float x, float y) {
-	float xcopy = x - 0.5;
-	float ycopy = y - 0.5;
+	float xcopy = x - 0.5f;
+	float ycopy = y - 0.5f;
 	int xint = (int)xcopy;
 	int yint = (int)ycopy;
 	struct color topleft = textureGetPixel(t, xint, yint);
@@ -71,7 +71,7 @@ struct color textureGetPixelFiltered(const struct texture *t, float x, float y) 
 	return lerp(lerp(topleft, topright, xcopy-xint), lerp(botleft, botright, xcopy-xint), ycopy-yint);
 }
 
-struct texture *newTexture(enum precision p, int width, int height, int channels) {
+struct texture *newTexture(enum precision p, unsigned width, unsigned height, int channels) {
 	struct texture *t = calloc(1, sizeof(struct texture));
 	t->width = width;
 	t->height = height;

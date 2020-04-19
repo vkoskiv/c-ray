@@ -8,6 +8,7 @@
 
 #include "meshloader.h"
 
+#include <stddef.h>
 #include "objloader.h"
 
 //TODO: Implement more mesh loaders and switch between 'em here.

@@ -23,7 +23,7 @@ struct coord {
 };
 
 struct intCoord {
-	int x, y;
+	unsigned x, y;
 };
 
 //Compute two orthonormal vectors for this unit vector

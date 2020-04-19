@@ -8,7 +8,6 @@
 
 #include "signal.h"
 #include <signal.h>
-#include "../logging.h"
 
 //Signal handling
 void (*signal(int signo, void (*func )(int)))(int);

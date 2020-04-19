@@ -198,8 +198,8 @@ void drawProgressBars(struct renderer *r) {
  @param tile Given renderTile
  */
 void drawFrame(struct renderer *r, struct renderTile tile) {
-	int length = tile.width  <= 16 ? 4 : 8;
-		length = tile.height <= 16 ? 4 : 8;
+	unsigned length = tile.width  <= 16 ? 4 : 8;
+			 length = tile.height <= 16 ? 4 : 8;
 	length = length > tile.width ? tile.width : length;
 	length = length > tile.height ? tile.height : length;
 	struct color c = clearColor;
@@ -210,7 +210,7 @@ void drawFrame(struct renderer *r, struct renderTile tile) {
 	} else {
 		return;
 	}
-	for (int i = 1; i < length; ++i) {
+	for (unsigned i = 1; i < length; ++i) {
 		//top left
 		blit(r->state.uiBuffer, c, tile.begin.x+i, tile.begin.y+1);
 		blit(r->state.uiBuffer, c, tile.begin.x+1, tile.begin.y+i);

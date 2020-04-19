@@ -66,14 +66,14 @@ struct kdTreeNode *getNewNode() {
 	return node;
 }
 
-struct kdTreeNode *buildTree(int *polygons, const int polyCount) {
+struct kdTreeNode *buildTree(int *polygons, const int count) {
 	struct kdTreeNode *node = getNewNode();
 	node->polygons = polygons;
-	node->polyCount = polyCount;
+	node->polyCount = count;
 	
-	if (polyCount == 0)
+	if (count == 0)
 		return node;
-	if (polyCount == 1) {
+	if (count == 1) {
 		node->bbox = computeBoundingBox(&node->polygons[0], 1);
 		node->left = NULL;
 		node->right = NULL;
@@ -81,7 +81,7 @@ struct kdTreeNode *buildTree(int *polygons, const int polyCount) {
 	}
 	
 	node->bbox = computeBoundingBox(node->polygons, node->polyCount);
-	float currentSAHCost = node->polyCount * node->bbox->surfaceArea;
+	float currentSAHCost = (float)node->polyCount * node->bbox->surfaceArea;
 	
 	struct vector midPoint = node->bbox->midPoint;
 	
@@ -177,7 +177,7 @@ int countNodes(const struct kdTreeNode *node) {
 bool rayIntersectsWithNode(const struct kdTreeNode *node, const struct lightRay *ray, struct hitRecord *isect) {
 	if (!node) return false;
 	//A bit of a hack, but it does work...!
-	float fakeIsect = 20000.0;
+	float fakeIsect = 20000.0f;
 	if (rayIntersectWithAABB(node->bbox, ray, &fakeIsect)) {
 		bool hasHit = false;
 		

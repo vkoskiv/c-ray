@@ -97,6 +97,7 @@ void crWriteImage() {
 				.renderTime = getMs(*grenderer->state.timer),
 				.threadCount = crGetThreadCount()
 			});
+			destroyImageFile(file);
 		} else {
 			logr(info, "Abort pressed, image won't be saved.\n");
 		}
@@ -119,7 +120,6 @@ void crInitRenderer() {
 void crDestroyRenderer() {
 	ASSERT(grenderer);
 	destroyRenderer(grenderer);
-	destroyTexture(currentImage);
 }
 
 int crLoadSceneFromFile(char *filePath) {

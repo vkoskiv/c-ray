@@ -83,15 +83,12 @@ int loadScene(struct renderer *r, char *input) {
 		case -1:
 			logr(warning, "Scene builder failed due to previous error.\n");
 			return -1;
-			break;
 		case 4:
 			logr(warning, "Scene debug mode enabled, won't render image.\n");
 			return -1;
-			break;
 		case -2:
 			//JSON parser failed
 			return -1;
-			break;
 		default:
 			break;
 	}
