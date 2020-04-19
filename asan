@@ -1,3 +1,0 @@
-#!/usr/local/bin/fish
-
-cmake . -DCMAKE_BUILD_TYPE=Debug -DASAN=True; and make
