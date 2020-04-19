@@ -23,6 +23,7 @@ int registerHandler(enum sigtype type, void (*handler)(int)) {
 			break;
 		case sigabrt:
 			sig = SIGABRT;
+			break;
 		default:
 			sig = SIGINT;
 			break;

@@ -31,11 +31,10 @@ void sigHandler(int sig) {
 }
 
 int initSDL(struct display *d) {
-#ifdef UI_ENABLED
 	if (!d->enabled) {
 		return 0;
 	}
-	
+#ifdef UI_ENABLED
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		logr(warning, "SDL couldn't initialize, error: \"%s\"\n", SDL_GetError());
@@ -90,8 +89,8 @@ int initSDL(struct display *d) {
 }
 
 void destroyDisplay(struct display *d) {
-#ifdef UI_ENABLED
 	if (d) {
+#ifdef UI_ENABLED
 		if (d->window) {
 			SDL_DestroyWindow(d->window);
 		}
@@ -104,9 +103,9 @@ void destroyDisplay(struct display *d) {
 		if (d->overlayTexture) {
 			SDL_DestroyTexture(d->overlayTexture);
 		}
+#endif
 		free(d);
 	}
-#endif
 }
 
 void printDuration(uint64_t ms) {
@@ -254,5 +253,7 @@ void drawWindow(struct renderer *r, struct texture *t) {
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->texture, NULL, NULL);
 	SDL_RenderCopy(r->mainDisplay->renderer, r->mainDisplay->overlayTexture, NULL, NULL);
 	SDL_RenderPresent(r->mainDisplay->renderer);
+#else
+	(void)t;
 #endif
 }

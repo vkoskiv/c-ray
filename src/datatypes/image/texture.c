@@ -42,8 +42,6 @@ struct color textureGetPixel(const struct texture *t, unsigned x, unsigned y) {
 	//bilinear lerp might tweak the values, so just clamp here to be safe.
 	x = x > t->width-1 ? t->width-1 : x;
 	y = y > t->height-1 ? t->height-1 : y;
-	x = x < 0 ? 0 : x;
-	y = y < 0 ? 0 : y;
 	
 	if (t->precision == float_p) {
 		output.red = t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 0];

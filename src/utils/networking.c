@@ -66,7 +66,6 @@ int start_interactive() {
 		while (active) {
 			size_t read = recv(connfd, buf, MAXRCVLEN, 0);
 			if (!read) break;
-			if (read < 0) logr(error, "Read failed\n");
 			
 			char *dst = calloc(read, sizeof(char));
 			memcpy(dst, buf, read);
@@ -77,7 +76,7 @@ int start_interactive() {
 			free(dst);
 			
 			size_t err = send(connfd, buf, read, 0);
-			if (err < 0) logr(error, "Write failed\n");
+			if (err) logr(error, "send() failed\n");
 			close(connfd);
 			break;
 		}
