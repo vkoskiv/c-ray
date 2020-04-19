@@ -90,21 +90,25 @@ void loadMeshTextures(char *assetPath, struct mesh *mesh) {
 }
 
 bool loadMeshNew(struct renderer *r, char *inputFilePath) {
-	logr(info, "Loading mesh %s\n", inputFilePath);
-	
-	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + 1) * sizeof(struct mesh));
+	logr(info, "Loading OBJ %s... ", inputFilePath);
 	
 	bool valid = false;
 	
-	struct mesh *newMesh = parseOBJFile(inputFilePath);
-	if (newMesh != NULL) {
-		r->scene->meshes[r->scene->meshCount] = *newMesh;
-		free(newMesh);
-		valid = true;
-		loadMeshTextures(r->prefs.assetPath, &r->scene->meshes[r->scene->meshCount]);
+	size_t meshCount = 0;
+	struct mesh *newMeshes = parseOBJFile(inputFilePath, &meshCount);
+	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + meshCount) * sizeof(struct mesh));
+	if (newMeshes) {
+		for (size_t m = 0; m < meshCount; ++m) {
+			r->scene->meshes[r->scene->meshCount + m] = newMeshes[m];
+			free(&newMeshes[m]);
+			valid = true;
+			loadMeshTextures(r->prefs.assetPath, &r->scene->meshes[r->scene->meshCount + m]);
+		}
 	}
 	
-	r->scene->meshCount++;
+	logr(info, "Found %zu meshes\n", meshCount);
+	
+	r->scene->meshCount += meshCount;
 	return valid;
 }
 
@@ -1164,10 +1168,6 @@ int parseJSON(struct renderer *r, char *input) {
 		logr(warning, "Display parse failed!\n");
 		return -2;
 	}
-	
-	//FIXME: Temporary
-	r->mainDisplay->width = r->prefs.imageWidth;
-	r->mainDisplay->height = r->prefs.imageHeight;
 	
 	camera = cJSON_GetObjectItem(json, "camera");
 	if (parseCamera(r->scene->camera, camera) == -1) {

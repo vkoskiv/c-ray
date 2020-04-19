@@ -17,6 +17,12 @@
 #include "../../utils/string.h"
 #include "../../datatypes/vertexbuffer.h"
 #include "mtlloader.h"
+#include "../filehandler.h"
+#include "../../utils/assert.h"
+#include "../../utils/textbuffer.h"
+
+//TODO: REMOVE
+#include "../../utils/platform/terminal.h"
 
 #define ws " \t\n\r"
 
@@ -111,10 +117,72 @@ int findMaterialIndex(struct mesh *mesh, char *mtlName) {
 	return 0;
 }
 
+struct mesh parseOBJMesh(textBuffer *segment) {
+	(void)segment;
+	return (struct mesh){0};
+}
+
+size_t countMeshes(textBuffer *buffer) {
+	size_t meshCount = 0;
+	char *head = firstLine(buffer);
+	lineBuffer line = {0};
+	while (head) {
+		fillLineBuffer(&line, head, " ");
+		char *first = firstToken(&line);
+		if (first[0] == 'o') meshCount++;
+		head = nextLine(buffer);
+	}
+	logr(debug, "File contains %zu meshes\n", meshCount);
+	head = firstLine(buffer);
+	return meshCount;
+}
+
+struct mesh *parseOBJFile(char *filePath, size_t *meshCountOut) {
+	logr(debug, "Loading OBJ file\n");
+	char *rawText = loadFile(filePath, NULL);
+	textBuffer *file = newTextBuffer(rawText);
+	
+	//Figure out how many meshes this file contains
+	size_t meshCount = countMeshes(file);
+
+	//Get the offsets
+	char *head = firstLine(file);
+	lineBuffer line = {0};
+	size_t *meshOffsets = malloc(meshCount * sizeof(size_t));
+	int i = 0;
+	while (head) {
+		fillLineBuffer(&line, head, " ");
+		char *first = firstToken(&line);
+		if (first[0] == 'o') meshOffsets[i++] = file->current.line;
+		head = nextLine(file);
+	}
+	logr(debug, "They start on lines:\n");
+	
+	for (size_t l = 0; l < meshCount; ++l) {
+		logr(debug, "%zu\n", meshOffsets[l]);
+	}
+	head = firstLine(file);
+	
+	struct mesh *meshes = calloc(meshCount, sizeof(struct mesh));
+	
+	for (size_t m = 0; m < meshCount; ++m) {
+		textBuffer *segment = newTextView(file, meshOffsets[m], meshOffsets[m + 1] - meshOffsets[m]);
+		meshes[m] = parseOBJMesh(segment);
+		freeTextBuffer(segment);
+	}
+	
+	freeLineBuffer(&line);
+	freeTextBuffer(file);
+	restoreTerminal();
+	if (meshCountOut) *meshCountOut = meshCount;
+	exit(0);
+	return NULL;
+}
+
 //Parse a Wavefront OBJ file and return a generic mesh.
 //Note: This will also alter the global vertex arrays
 //We will add vertices to them as the OBJ is loaded.
-struct mesh *parseOBJFile(char *filePath) {
+struct mesh *parseOBJFilea(char *filePath) {
 	struct mesh *newMesh = calloc(1, sizeof(struct mesh));
 	
 	int linenum = 0;
