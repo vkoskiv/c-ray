@@ -27,7 +27,7 @@ bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *pol
 	
 	orientation = vecDot(edge1, s1);
 	
-	if (orientation > -0.00000001f && orientation < 0.00000001f) {
+	if (orientation > -FLT_MIN && orientation < FLT_MIN) {
 		return false;
 	}
 	
