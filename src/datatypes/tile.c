@@ -62,10 +62,10 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 		return 0;
 	}
 	
-	unsigned tileCount = 0;
+	int tileCount = 0;
 	for (unsigned y = 0; y < tilesY; ++y) {
 		for (unsigned x = 0; x < tilesX; ++x) {
-			struct renderTile *tile = &(*renderTiles)[x + y*tilesX];
+			struct renderTile *tile = &(*renderTiles)[x + y * tilesX];
 			tile->width  = tileWidth;
 			tile->height = tileHeight;
 			
@@ -84,7 +84,7 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 			//Samples have to start at 1, so the running average works
 			tile->completedSamples = 1;
 			tile->isRendering = false;
-			tile->tileNum = (int)tileCount++;
+			tile->tileNum = tileCount++;
 		}
 	}
 	logr(info, "Quantized image into %i tiles. (%ix%i)\n", (tilesX*tilesY), tilesX, tilesY);
