@@ -47,8 +47,8 @@ void crRestoreTerminal() {
 	restoreTerminal();
 }
 
-void crParseOptions(int argc, char **argv) {
-	parseOptions(argc, argv);
+void crParseArgs(int argc, char **argv) {
+	parseArgs(argc, argv);
 }
 
 bool crOptionIsSet(char *key) {

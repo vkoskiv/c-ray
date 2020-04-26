@@ -13,7 +13,7 @@
 #include "c-ray.h"
 
 int main(int argc, char *argv[]) {
-	crParseOptions(argc, argv);
+	crParseArgs(argc, argv);
 	crInitTerminal();
 	crLog("C-ray v%s [%.8s], © 2015-2020 Valtteri Koskivuori\n", crGetVersion(), crGitHash());
 	crInitRenderer();

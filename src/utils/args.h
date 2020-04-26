@@ -8,7 +8,7 @@
 
 #pragma once
 
-void parseOptions(int argc, char **argv);
+void parseArgs(int argc, char **argv);
 
 bool isSet(char *key);
 

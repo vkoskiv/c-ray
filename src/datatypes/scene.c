@@ -81,6 +81,12 @@ void checkAndSetCliOverrides(struct renderer *r) {
 		r->prefs.fromSystem = false;
 	}
 	
+	if (isSet("samples_override")) {
+		int samples = intPref("samples_override");
+		logr(info, "Overriding sample count to %i\n", samples);
+		r->prefs.sampleCount = samples;
+	}
+	
 	//Update image dimensions if it's overridden
 	if (isSet("dims_override")) {
 		int width = intPref("dims_width");

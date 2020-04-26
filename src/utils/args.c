@@ -32,7 +32,7 @@ void printUsage(const char *progname) {
 	exit(0);
 }
 
-void parseOptions(int argc, char **argv) {
+void parseArgs(int argc, char **argv) {
 	options = newTable();
 	static bool inputFileSet = false;
 	//Always omit the first argument.
@@ -51,6 +51,15 @@ void parseOptions(int argc, char **argv) {
 				setInt(options, "thread_override", n);
 			} else {
 				logr(warning, "Invalid -j parameter given!\n");
+			}
+		} else if (strncmp(argv[i], "-s", 2) == 0) {
+			char *sampleStr = argv[i + 1];
+			if (sampleStr) {
+				int n = atoi(sampleStr);
+				n = n < 1 ? 1 : n;
+				setInt(options, "samples_override", n);
+			} else {
+				logr(warning, "Invalid -s parameter given!\n");
 			}
 		} else if (strncmp(argv[i], "-d", 2) == 0) {
 			char *dimstr = argv[i + 1];
