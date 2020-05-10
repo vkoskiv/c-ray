@@ -68,7 +68,7 @@ char *crGetFilePath(char *fullPath) {
 }
 
 void crInitSDL() {
-#ifdef UI_ENABLED
+#ifdef CRAY_SDL_ENABLED
 	if (grenderer->mainDisplay->enabled) {
 		ASSERT(!grenderer->mainDisplay->window);
 		initSDL(grenderer->mainDisplay);
@@ -77,7 +77,7 @@ void crInitSDL() {
 }
 
 void crDestroySDL() {
-#ifdef UI_ENABLED
+#ifdef CRAY_SDL_ENABLED
 	if (grenderer->mainDisplay->enabled) {
 		ASSERT(grenderer->mainDisplay->window);
 		destroyDisplay(grenderer->mainDisplay);

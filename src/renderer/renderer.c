@@ -286,7 +286,7 @@ struct renderer *newRenderer() {
 	}
 	
 	r->mainDisplay = calloc(1, sizeof(struct display));
-#ifdef UI_ENABLED
+#ifdef CRAY_SDL_ENABLED
 	r->mainDisplay->window = NULL;
 	r->mainDisplay->renderer = NULL;
 	r->mainDisplay->texture = NULL;

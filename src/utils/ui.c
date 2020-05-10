@@ -34,7 +34,7 @@ int initSDL(struct display *d) {
 	if (!d->enabled) {
 		return 0;
 	}
-#ifdef UI_ENABLED
+#ifdef CRAY_SDL_ENABLED
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		logr(warning, "SDL couldn't initialize, error: \"%s\"\n", SDL_GetError());
@@ -90,7 +90,7 @@ int initSDL(struct display *d) {
 
 void destroyDisplay(struct display *d) {
 	if (d) {
-#ifdef UI_ENABLED
+#ifdef CRAY_SDL_ENABLED
 		if (d->window) {
 			SDL_DestroyWindow(d->window);
 		}
@@ -126,7 +126,7 @@ void getKeyboardInput(struct renderer *r) {
 		}
 		sigRegistered = true;
 	}
-#ifdef UI_ENABLED
+#ifdef CRAY_SDL_ENABLED
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
@@ -246,7 +246,7 @@ void drawWindow(struct renderer *r, struct texture *t) {
 	if (aborted) {
 		r->state.renderAborted = true;
 	}
-#ifdef UI_ENABLED
+#ifdef CRAY_SDL_ENABLED
 	//Render frames
 	updateFrames(r);
 	//Update image data

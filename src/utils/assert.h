@@ -10,6 +10,8 @@
 
 void assertFailed(const char *file, const char *func, int line, const char *expr);
 
+#ifdef CRAY_DEBUG_ENABLED
+
 #define ASSERT(expr) \
 	if ((expr)) \
 		{} \
@@ -18,3 +20,11 @@ void assertFailed(const char *file, const char *func, int line, const char *expr
 
 #define ASSERT_NOT_REACHED() \
 	assertFailed(__FILE__, __FUNCTION__, __LINE__, "ASSERT_NOT_REACHED")
+
+#else
+
+#define ASSERT(expr)
+
+#define ASSERT_NOT_REACHED()
+
+#endif

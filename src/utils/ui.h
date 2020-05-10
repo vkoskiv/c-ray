@@ -11,13 +11,13 @@
 struct renderer;
 struct texture;
 
-#ifdef UI_ENABLED
+#ifdef CRAY_SDL_ENABLED
 	#include "SDL.h"
 #endif
 
 //FIXME: This should be in datatypes
 struct display {
-#ifdef UI_ENABLED
+#ifdef CRAY_SDL_ENABLED
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	SDL_Texture *texture;
