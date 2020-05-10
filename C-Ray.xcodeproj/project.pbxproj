@@ -94,6 +94,14 @@
 		909D136E24439069006D0A86 /* string.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D136C24439069006D0A86 /* string.c */; };
 		909D13712443B4E7006D0A86 /* textbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D13702443B4E7006D0A86 /* textbuffer.c */; };
 		909D13722443B4E7006D0A86 /* textbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D13702443B4E7006D0A86 /* textbuffer.c */; };
+		90A21CF124589E6A002C742E /* sampler.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CF024589E6A002C742E /* sampler.c */; };
+		90A21CF224589E6A002C742E /* sampler.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CF024589E6A002C742E /* sampler.c */; };
+		90A21CF524589E84002C742E /* hammersley.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CF424589E84002C742E /* hammersley.c */; };
+		90A21CF624589E84002C742E /* hammersley.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CF424589E84002C742E /* hammersley.c */; };
+		90A21CF924589FDD002C742E /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CF824589FDD002C742E /* common.c */; };
+		90A21CFA24589FDD002C742E /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CF824589FDD002C742E /* common.c */; };
+		90A21CFD2458A2D8002C742E /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CFC2458A2D8002C742E /* random.c */; };
+		90A21CFE2458A2D8002C742E /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CFC2458A2D8002C742E /* random.c */; };
 		90A51A0023FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A51A0423FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
@@ -102,6 +110,8 @@
 		90C5D5552448CE9000C58643 /* hdr.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5532448CE9000C58643 /* hdr.c */; };
 		90C5D5582448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
 		90C5D5592448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
+		90C792CB245209E20067E787 /* halton.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C792CA245209E20067E787 /* halton.c */; };
+		90C792CC245209E20067E787 /* halton.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C792CA245209E20067E787 /* halton.c */; };
 		90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85182252C90C00BA7702 /* mtlloader.c */; };
 		90CA851D2252C90C00BA7702 /* objloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85192252C90C00BA7702 /* objloader.c */; };
 		90CA851E2252C90C00BA7702 /* textureloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA851B2252C90C00BA7702 /* textureloader.c */; };
@@ -221,6 +231,14 @@
 		909D136C24439069006D0A86 /* string.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = string.c; sourceTree = "<group>"; };
 		909D136F2443B4E7006D0A86 /* textbuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = textbuffer.h; sourceTree = "<group>"; };
 		909D13702443B4E7006D0A86 /* textbuffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = textbuffer.c; sourceTree = "<group>"; };
+		90A21CEF24589E6A002C742E /* sampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sampler.h; sourceTree = "<group>"; };
+		90A21CF024589E6A002C742E /* sampler.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sampler.c; sourceTree = "<group>"; };
+		90A21CF324589E84002C742E /* hammersley.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hammersley.h; sourceTree = "<group>"; };
+		90A21CF424589E84002C742E /* hammersley.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hammersley.c; sourceTree = "<group>"; };
+		90A21CF724589FDD002C742E /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		90A21CF824589FDD002C742E /* common.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = common.c; sourceTree = "<group>"; };
+		90A21CFB2458A2D8002C742E /* random.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = random.h; sourceTree = "<group>"; };
+		90A21CFC2458A2D8002C742E /* random.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = random.c; sourceTree = "<group>"; };
 		90A519FE23FB5DFC0014DF6B /* statistics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = statistics.h; sourceTree = "<group>"; };
 		90A519FF23FB5DFC0014DF6B /* statistics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = statistics.c; sourceTree = "<group>"; };
 		90A51A0223FCB7FF0014DF6B /* memory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = memory.h; sourceTree = "<group>"; };
@@ -230,6 +248,8 @@
 		90C5D5532448CE9000C58643 /* hdr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hdr.c; sourceTree = "<group>"; };
 		90C5D5562448CEAB00C58643 /* imagefile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imagefile.h; sourceTree = "<group>"; };
 		90C5D5572448CEAB00C58643 /* imagefile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = imagefile.c; sourceTree = "<group>"; };
+		90C792C9245209E20067E787 /* halton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = halton.h; sourceTree = "<group>"; };
+		90C792CA245209E20067E787 /* halton.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = halton.c; sourceTree = "<group>"; };
 		90CA85162252C90C00BA7702 /* objloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objloader.h; sourceTree = "<group>"; };
 		90CA85172252C90C00BA7702 /* textureloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = textureloader.h; sourceTree = "<group>"; };
 		90CA85182252C90C00BA7702 /* mtlloader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mtlloader.c; sourceTree = "<group>"; };
@@ -310,6 +330,7 @@
 		900BA0F6220B4602005B8EE7 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
+				90A21CEE24589E4E002C742E /* samplers */,
 				900BA0F9220B4602005B8EE7 /* pathtrace.h */,
 				900BA0F7220B4602005B8EE7 /* pathtrace.c */,
 				900BA0F8220B4602005B8EE7 /* renderer.h */,
@@ -444,6 +465,23 @@
 				9062FA0C243CC4B200420889 /* signal.c */,
 			);
 			path = platform;
+			sourceTree = "<group>";
+		};
+		90A21CEE24589E4E002C742E /* samplers */ = {
+			isa = PBXGroup;
+			children = (
+				90A21CF724589FDD002C742E /* common.h */,
+				90A21CF824589FDD002C742E /* common.c */,
+				90C792C9245209E20067E787 /* halton.h */,
+				90C792CA245209E20067E787 /* halton.c */,
+				90A21CF324589E84002C742E /* hammersley.h */,
+				90A21CF424589E84002C742E /* hammersley.c */,
+				90A21CFB2458A2D8002C742E /* random.h */,
+				90A21CFC2458A2D8002C742E /* random.c */,
+				90A21CEF24589E6A002C742E /* sampler.h */,
+				90A21CF024589E6A002C742E /* sampler.c */,
+			);
+			path = samplers;
 			sourceTree = "<group>";
 		};
 		90C5D5512448CC8400C58643 /* image */ = {
@@ -582,6 +620,7 @@
 				905842DC236651FC009D92F1 /* sphere.c in Sources */,
 				905842DE236651FC009D92F1 /* poly.c in Sources */,
 				9095392623C15A7B0017037C /* c-ray.c in Sources */,
+				90A21CFE2458A2D8002C742E /* random.c in Sources */,
 				905842DF236651FC009D92F1 /* obj_parser.c in Sources */,
 				90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */,
 				905842E0236651FC009D92F1 /* textureloader.c in Sources */,
@@ -590,12 +629,16 @@
 				905842E3236651FC009D92F1 /* timer.c in Sources */,
 				905842E4236651FC009D92F1 /* pathtrace.c in Sources */,
 				905842E5236651FC009D92F1 /* list.c in Sources */,
+				90A21CF224589E6A002C742E /* sampler.c in Sources */,
 				905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */,
 				90C5D5592448CEAB00C58643 /* imagefile.c in Sources */,
 				9076FB56243002B90003B327 /* thread.c in Sources */,
 				905842E7236651FC009D92F1 /* material.c in Sources */,
 				9095392A23C15AAB0017037C /* networking.c in Sources */,
+				90A21CFA24589FDD002C742E /* common.c in Sources */,
 				905842E8236651FC009D92F1 /* lodepng.c in Sources */,
+				90C792CC245209E20067E787 /* halton.c in Sources */,
+				90A21CF624589E84002C742E /* hammersley.c in Sources */,
 				905842EA236651FC009D92F1 /* vector.c in Sources */,
 				905842EB236651FC009D92F1 /* texture.c in Sources */,
 				905842EC236651FC009D92F1 /* objloader.c in Sources */,
@@ -642,6 +685,7 @@
 				900BA136220B4603005B8EE7 /* sphere.c in Sources */,
 				900BA12F220B4603005B8EE7 /* poly.c in Sources */,
 				9095392523C15A7B0017037C /* c-ray.c in Sources */,
+				90A21CFD2458A2D8002C742E /* random.c in Sources */,
 				900BA13C220B4603005B8EE7 /* obj_parser.c in Sources */,
 				90A51A0023FB5DFC0014DF6B /* statistics.c in Sources */,
 				90CA851E2252C90C00BA7702 /* textureloader.c in Sources */,
@@ -650,12 +694,16 @@
 				900BA140220B4603005B8EE7 /* timer.c in Sources */,
 				900BA12D220B4603005B8EE7 /* pathtrace.c in Sources */,
 				900BA13B220B4603005B8EE7 /* list.c in Sources */,
+				90A21CF124589E6A002C742E /* sampler.c in Sources */,
 				90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */,
 				90C5D5582448CEAB00C58643 /* imagefile.c in Sources */,
 				9076FB55243002B90003B327 /* thread.c in Sources */,
 				900BA135220B4603005B8EE7 /* material.c in Sources */,
 				9095392923C15AAB0017037C /* networking.c in Sources */,
+				90A21CF924589FDD002C742E /* common.c in Sources */,
 				900BA13D220B4603005B8EE7 /* lodepng.c in Sources */,
+				90C792CB245209E20067E787 /* halton.c in Sources */,
+				90A21CF524589E84002C742E /* hammersley.c in Sources */,
 				900BA130220B4603005B8EE7 /* vector.c in Sources */,
 				90FB15CE225C6D85008D6AAA /* texture.c in Sources */,
 				90CA851D2252C90C00BA7702 /* objloader.c in Sources */,

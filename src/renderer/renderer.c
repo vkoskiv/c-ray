@@ -23,6 +23,7 @@
 #include "../datatypes/vertexbuffer.h"
 #include "../utils/platform/thread.h"
 #include "../utils/platform/mutex.h"
+#include "samplers/sampler.h"
 
 //Main thread loop speeds
 #define paused_msec 100
@@ -129,13 +130,6 @@ struct texture *renderFrame(struct renderer *r) {
 	return output;
 }
 
-uint64_t hash(uint64_t x) {
-	x = (x ^ (x >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
-	x = (x ^ (x >> 27)) * UINT64_C(0x94d049bb133111eb);
-	x = x ^ (x >> 31);
-	return x;
-}
-
 /**
  A render thread
  
@@ -147,7 +141,7 @@ void *renderThread(void *arg) {
 	struct crThread *thread = (struct crThread*)arg;
 	struct renderer *r = thread->r;
 	struct texture *image = thread->output;
-	pcg32_random_t rng;
+	sampler *sampler = newSampler();
 	
 	//First time setup for each thread
 	struct renderTile tile = nextTile(r);
@@ -167,9 +161,8 @@ void *renderThread(void *arg) {
 			for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 				for (int x = tile.begin.x; x < tile.end.x; ++x) {
 					if (r->state.renderAborted) return 0;
-					uint64_t pixIdx = y * image->width + x;
-					uint64_t uniqueIdx = pixIdx * r->prefs.sampleCount + tile.completedSamples;
-					pcg32_srandom_r(&rng, hash(uniqueIdx), 0);
+					uint32_t pixIdx = y * image->width + x;
+					initSampler(sampler, Halton, tile.completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					float fracX = (float)x;
 					float fracY = (float)y;
@@ -177,8 +170,8 @@ void *renderThread(void *arg) {
 					//A cheap 'antialiasing' of sorts. The more samples, the better this works
 					float jitter = 0.25f;
 					if (r->prefs.antialiasing) {
-						fracX = rndFloatRange(fracX - jitter, fracX + jitter, &rng);
-						fracY = rndFloatRange(fracY - jitter, fracY + jitter, &rng);
+						fracX = rndFloatRange(fracX - jitter, fracX + jitter, sampler);
+						fracY = rndFloatRange(fracY - jitter, fracY + jitter, sampler);
 					}
 					
 					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
@@ -206,7 +199,7 @@ void *renderThread(void *arg) {
 						float ft = focalDistance / direction.z;
 						struct vector focusPoint = alongRay(incidentRay, ft);
 						
-						struct coord lensPoint = coordScale(aperture, randomCoordOnUnitDisc(&rng));
+						struct coord lensPoint = coordScale(aperture, randomCoordOnUnitDisc(sampler));
 						incidentRay.start = vecAdd(vecAdd(startPos, vecScale(up, lensPoint.y)), vecScale(left, lensPoint.x));
 						incidentRay.direction = vecNormalize(vecSub(focusPoint, incidentRay.start));
 						
@@ -219,7 +212,8 @@ void *renderThread(void *arg) {
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y);
 					
 					//Get new sample (path tracing is initiated here)
-					struct color sample = pathTrace(&incidentRay, r->scene, 0, r->prefs.bounces, &rng);
+					//struct color sample = pathTracePreview(&incidentRay, r->scene, 0, r->prefs.bounces, &rng);
+					struct color sample = pathTrace(&incidentRay, r->scene, 0, r->prefs.bounces, sampler);
 					
 					//And process the running average
 					output = colorCoef((float)(tile.completedSamples - 1), output);
@@ -261,6 +255,7 @@ void *renderThread(void *arg) {
 		tile = nextTile(r);
 		thread->currentTileNum = tile.tileNum;
 	}
+	destroySampler(sampler);
 	//No more tiles to render, exit thread. (render done)
 	thread->threadComplete = true;
 	thread->currentTileNum = -1;

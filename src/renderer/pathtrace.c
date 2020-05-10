@@ -19,25 +19,26 @@
 #include "../datatypes/sphere.h"
 #include "../datatypes/poly.h"
 #include "../datatypes/mesh.h"
+#include "samplers/sampler.h"
 
 struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene);
 struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
 
-struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int depth, int maxDepth, pcg32_random_t *rng) {
+struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int depth, int maxDepth, sampler *sampler) {
 	struct hitRecord isect = getClosestIsect(incidentRay, scene);
 	if (isect.didIntersect) {
 		struct lightRay scattered;
 		struct color attenuation;
 		struct color emitted = isect.end.emission;
-		if (depth < maxDepth && isect.end.bsdf(&isect, &attenuation, &scattered, rng)) {
+		if (depth < maxDepth && isect.end.bsdf(&isect, &attenuation, &scattered, sampler)) {
 			float probability = 1.0f;
 			if (depth >= 4) {
 				probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
-				if (rndFloat(rng) > probability) {
+				if (getDimension(sampler) > probability) {
 					return emitted;
 				}
 			}
-			struct color newColor = pathTrace(&scattered, scene, depth + 1, maxDepth, rng);
+			struct color newColor = pathTrace(&scattered, scene, depth + 1, maxDepth, sampler);
 			return colorCoef(1.0f / probability, addColors(emitted, multiplyColors(attenuation, newColor)));
 		} else {
 			return emitted;
@@ -118,14 +119,6 @@ struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struc
 		}
 	}
 	return isect;
-}
-
-float wrapMax(float x, float max) {
-	return fmodf(max + fmodf(x, max), max);
-}
-
-float wrapMinMax(float x, float min, float max) {
-	return min + wrapMax(x - min, max - min);
 }
 
 struct color getHDRI(const struct lightRay *incidentRay, const struct hdr *hdr) {

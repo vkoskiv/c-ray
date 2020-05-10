@@ -180,29 +180,19 @@ struct vector reflectVec(const struct vector *incident, const struct vector *nor
 	return vecSub(*incident, vecScale(*normal, reflect));
 }
 
-struct vector randomInUnitSphere(pcg32_random_t *rng) {
-	struct vector vec;
-	do {
-		vec = vecScale(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0f);
-		vec = vecSub(vec, (vector){1.0f, 1.0f, 1.0f});
-	} while (vecLengthSquared(vec) >= 1.0f);
-	return vec;
+struct vector randomOnUnitSphere(sampler *sampler) {
+	float sample_x = getDimension(sampler);
+	float sample_y = getDimension(sampler);
+	float a = sample_x * (2.0f * PI);
+	float s = 2.0f * sqrtf(max(0.0f, sample_y * (1.0f - sample_y)));
+	return (struct vector){cosf(a) * s, sinf(a) * s, 1.0f - 2.0f * sample_y};
 }
 
-struct vector randomOnUnitSphere(pcg32_random_t *rng) {
-	struct vector vec;
-	do {
-		vec = vecScale(vecWithPos(rndFloat(rng), rndFloat(rng), rndFloat(rng)), 2.0f);
-		vec = vecSub(vec, (vector){1.0f, 1.0f, 1.0f});
-	} while (vecLengthSquared(vec) >= 1.0f);
-	return vecNormalize(vec);
-}
-
-bool emissiveBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool emissiveBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	(void)isect;
 	(void)attenuation;
 	(void)scattered;
-	(void)rng;
+	(void)sampler;
 	return false;
 }
 
@@ -224,21 +214,21 @@ struct color diffuseColor(struct hitRecord *isect) {
 	return isect->end.hasTexture ? colorForUV(isect) : isect->end.diffuse;
 }
 
-bool lambertianBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
-	struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
-	struct vector rand = randomInUnitSphere(rng);
-	struct vector scatterDir = vecSub(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
+bool lambertianBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
+	//struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
+	//struct vector rand = randomOnUnitSphere(sampler);
+	struct vector scatterDir = vecNormalize(vecAdd(isect->surfaceNormal, randomOnUnitSphere(sampler)));//vecSub(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
 	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered});
 	*attenuation = diffuseColor(isect);
 	return true;
 }
 
-bool metallicBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool metallicBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	struct vector normalizedDir = vecNormalize(isect->incident.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
 	//Roughness
 	if (isect->end.roughness > 0.0f) {
-		struct vector fuzz = vecScale(randomInUnitSphere(rng), isect->end.roughness);
+		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
 	
@@ -263,18 +253,18 @@ bool refract(struct vector in, struct vector normal, float niOverNt, struct vect
 	}
 }
 
-float shlick(float cosine, float IOR) {
+float schlick(float cosine, float IOR) {
 	float r0 = (1.0f - IOR) / (1.0f + IOR);
 	r0 = r0*r0;
 	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);
 }
 
-bool shinyBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool shinyBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	*attenuation = whiteColor;
 	//Roughness
 	if (isect->end.roughness > 0.0f) {
-		struct vector fuzz = vecScale(randomInUnitSphere(rng), isect->end.roughness);
+		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
 	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
@@ -282,7 +272,7 @@ bool shinyBSDF(struct hitRecord *isect, struct color *attenuation, struct lightR
 }
 
 // Glossy plastic
-bool plasticBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool plasticBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	float niOverNt;
@@ -304,21 +294,21 @@ bool plasticBSDF(struct hitRecord *isect, struct color *attenuation, struct ligh
 	}
 	
 	if (refract(isect->incident.direction, outwardNormal, niOverNt, &refracted)) {
-		reflectionProbability = shlick(cosine, isect->end.IOR);
+		reflectionProbability = schlick(cosine, isect->end.IOR);
 	} else {
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 		reflectionProbability = 1.0f;
 	}
 	
-	if (rndFloat(rng) < reflectionProbability) {
-		return shinyBSDF(isect, attenuation, scattered, rng);
+	if (getDimension(sampler) < reflectionProbability) {
+		return shinyBSDF(isect, attenuation, scattered, sampler);
 	} else {
-		return lambertianBSDF(isect, attenuation, scattered, rng);
+		return lambertianBSDF(isect, attenuation, scattered, sampler);
 	}
 }
 
 // Only works on spheres for now. Reflections work but refractions don't
-bool dielectricBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool dielectricBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	float niOverNt;
@@ -338,7 +328,7 @@ bool dielectricBSDF(struct hitRecord *isect, struct color *attenuation, struct l
 	}
 	
 	if (refract(isect->incident.direction, outwardNormal, niOverNt, &refracted)) {
-		reflectionProbability = shlick(cosine, isect->end.IOR);
+		reflectionProbability = schlick(cosine, isect->end.IOR);
 	} else {
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 		reflectionProbability = 1.0f;
@@ -346,14 +336,22 @@ bool dielectricBSDF(struct hitRecord *isect, struct color *attenuation, struct l
 	
 	//Roughness
 	if (isect->end.roughness > 0.0f) {
-		struct vector fuzz = vecScale(randomInUnitSphere(rng), isect->end.roughness);
+		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
 		reflected = vecAdd(reflected, fuzz);
 		refracted = vecAdd(refracted, fuzz);
 	}
 	
-	if (rndFloat(rng) < reflectionProbability) {
+	if (getDimension(sampler) < reflectionProbability) {
+		if (isect->end.roughness > 0.0f) {
+			struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
+			reflected = vecAdd(reflected, fuzz);
+		}
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 	} else {
+		if (isect->end.roughness > 0.0f) {
+			struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
+			refracted = vecAdd(refracted, fuzz);
+		}
 		*scattered = newRay(isect->hitPoint, refracted, rayTypeRefracted);
 	}
 	return true;

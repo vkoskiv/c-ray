@@ -9,6 +9,7 @@
 #pragma once
 
 #include "color.h"
+#include "../renderer/samplers/sampler.h"
 
 /*
  From: https://blenderartists.org/forum/showthread.php?71202-Material-IOR-Value-reference
@@ -93,7 +94,7 @@ struct material {
 	
 	enum bsdfType type;
 	//isect record, ray, attenuation color, scattered ray, rng
-	bool (*bsdf)(struct hitRecord*, struct color*, struct lightRay*, pcg32_random_t*);
+	bool (*bsdf)(struct hitRecord*, struct color*, struct lightRay*, sampler*);
 };
 
 //temporary newMaterial func
@@ -104,11 +105,11 @@ struct material emptyMaterial(void);
 struct material defaultMaterial(void);
 struct material warningMaterial(void);
 
-bool   emissiveBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool lambertianBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool   metallicBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool    plasticBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
-bool dielectricBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng);
+bool   emissiveBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler);
+bool lambertianBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler);
+bool   metallicBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler);
+bool    plasticBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler);
+bool dielectricBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler);
 
 void assignBSDF(struct material *mat);
 

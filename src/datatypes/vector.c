@@ -10,6 +10,7 @@
 #include "vector.h"
 #include "../utils/assert.h"
 
+// PBRT
 struct base baseWithVec(struct vector i) {
 	ASSERT(vecLength(i) == 1.0f);
 	struct base newBase;
@@ -181,54 +182,13 @@ struct vector getMidPoint(struct vector v1, struct vector v2, struct vector v3) 
 	return vecScale(vecAdd(vecAdd(v1, v2), v3), 1.0f/3.0f);
 }
 
-/**
- Returns a random float between min and max
- 
- @param min Minimum value
- @param max Maximum value
- @return Random float between min and max
- */
-float rndFloatRange(float min, float max, pcg32_random_t *rng) {
-	return (((float)pcg32_random_r(rng) / (float)UINT32_MAX) * (max - min)) + min;
+float rndFloatRange(float min, float max, sampler *sampler) {
+	return ((getDimension(sampler)) * (max - min)) + min;
 }
 
-
-/// Returns a random unit float (0.0-1.0)
-/// @param rng RNG instance to use
-float rndFloat(pcg32_random_t *rng) {
-	return (1.0f / (1ull << 32)) * pcg32_random_r(rng);
-}
-
-/**
- Returns a randomized position in a radius around a given point
- 
- @param center Center point for random distribution
- @param radius Maximum distance from center point
- @return Vector of a random position within a radius of center point
- */
-struct vector getRandomVecOnRadius(struct vector center, float radius, pcg32_random_t *rng) {
-	return vecWithPos(center.x + rndFloatRange(-radius, radius, rng),
-					  center.y + rndFloatRange(-radius, radius, rng),
-					  center.z + rndFloatRange(-radius, radius, rng));
-}
-
-/**
- Returns a randomized position on a plane in a radius around a given point
- 
- @param center Center point for random distribution
- @param radius Maximum distance from center point
- @return Vector of a random position on a plane within a radius of center point
- */
-struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_random_t *rng) {
-	//FIXME: This only works in one orientation!
-	return vecWithPos(center.x + rndFloatRange(-radius, radius, rng),
-						 center.y + rndFloatRange(-radius, radius, rng),
-						 center.z);
-}
-
-struct coord randomCoordOnUnitDisc(pcg32_random_t *rng) {
-	float r = sqrtf(rndFloat(rng));
-	float theta = rndFloatRange(0.0f, 2.0f * PI, rng);
+struct coord randomCoordOnUnitDisc(sampler *sampler) {
+	float r = sqrtf(getDimension(sampler));
+	float theta = rndFloatRange(0.0f, 2.0f * PI, sampler);
 	return (struct coord){r * cosf(theta), r * sinf(theta)};
 }
 
@@ -238,4 +198,12 @@ struct vector vecNegate(struct vector v) {
 
 struct vector vecReflect(const struct vector I, const struct vector N) {
 	return vecSub(I, vecScale(N, vecDot(N, I) * 2.0f));
+}
+
+float wrapMax(float x, float max) {
+	return fmodf(max + fmodf(x, max), max);
+}
+
+float wrapMinMax(float x, float min, float max) {
+	return min + wrapMax(x - min, max - min);
 }

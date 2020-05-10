@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "../renderer/samplers/sampler.h"
+
 struct vector {
 	float x, y, z;
 };
@@ -76,9 +78,9 @@ struct vector getRandomVecOnRadius(struct vector center, float radius, pcg32_ran
 
 struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_random_t *rng);
 
-struct coord randomCoordOnUnitDisc(pcg32_random_t *rng);
+float rndFloatRange(float min, float max, sampler *sampler);
 
-float rndFloatRange(float min, float max, pcg32_random_t *rng);
+struct coord randomCoordOnUnitDisc(sampler *sampler);
 
 float rndFloat(pcg32_random_t *rng);
 
@@ -92,3 +94,6 @@ Returns the reflected ray vector from a surface
 @return Vector of the reflected ray vector from a surface
 */
 struct vector reflect(const struct vector I, const struct vector N);
+
+float wrapMax(float x, float max);
+float wrapMinMax(float x, float min, float max);

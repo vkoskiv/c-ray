@@ -56,6 +56,10 @@
             argument = "./input/hdr.json"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-v"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
