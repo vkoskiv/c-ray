@@ -13,8 +13,8 @@
 #include "../../utils/logging.h"
 #include "../../utils/assert.h"
 
-//General-purpose blit function
-void blit(struct texture *t, struct color c, unsigned x, unsigned y) {
+//General-purpose setPixel function
+void setPixel(struct texture *t, struct color c, unsigned x, unsigned y) {
 	ASSERT(x < t->width); ASSERT(y < t->height);
 	if (t->precision == char_p) {
 		t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = (unsigned char)min(c.red * 255.0f, 255.0f);
@@ -114,7 +114,7 @@ void textureFromSRGB(struct texture *t) {
 	if (t->colorspace == sRGB) return;
 	for (unsigned x = 0; x < t->width; ++x) {
 		for (unsigned y = 0; y < t->height; ++y) {
-			blit(t, fromSRGB(textureGetPixel(t, x, y)), x, y);
+			setPixel(t, fromSRGB(textureGetPixel(t, x, y)), x, y);
 		}
 	}
 	t->colorspace = linear;
@@ -124,7 +124,7 @@ void textureToSRGB(struct texture *t) {
 	if (t->colorspace == linear) return;
 	for (unsigned x = 0; x < t->width; ++x) {
 		for (unsigned y = 0; y < t->height; ++y) {
-			blit(t, toSRGB(textureGetPixel(t, x, y)), x, y);
+			setPixel(t, toSRGB(textureGetPixel(t, x, y)), x, y);
 		}
 	}
 	t->colorspace = sRGB;

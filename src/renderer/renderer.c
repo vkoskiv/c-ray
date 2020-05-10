@@ -226,18 +226,19 @@ void *renderThread(void *arg) {
 					
 					output = addColors(output, sample);
 					
-					output.red = output.red / tile.completedSamples;
-					output.green = output.green / tile.completedSamples;
-					output.blue = output.blue / tile.completedSamples;
+					float t = 1.0f / tile.completedSamples;
+					output.red = t * output.red;
+					output.green = t * output.green;
+					output.blue = t * output.blue;
 					
 					//Store internal render buffer (float precision)
-					blit(r->state.renderBuffer, output, x, y);
+					setPixel(r->state.renderBuffer, output, x, y);
 					
 					//Gamma correction
 					output = toSRGB(output);
 					
 					//And store the image data
-					blit(image, output, x, y);
+					setPixel(image, output, x, y);
 				}
 			}
 			//For performance metrics

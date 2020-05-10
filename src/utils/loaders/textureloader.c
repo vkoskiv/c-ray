@@ -26,7 +26,7 @@ struct texture *flipHorizontal(struct texture *t) {
 	
 	for (unsigned y = 0; y < new->height; ++y) {
 		for (unsigned x = 0; x < new->width; ++x) {
-			blit(new, textureGetPixel(t, ((t->width-1) - x), y), x, y);
+			setPixel(new, textureGetPixel(t, ((t->width-1) - x), y), x, y);
 		}
 	}
 	

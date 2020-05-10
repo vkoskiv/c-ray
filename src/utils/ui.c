@@ -158,9 +158,9 @@ void getKeyboardInput(struct renderer *r) {
 
 void clearProgBar(struct renderer *r, struct renderTile temp) {
 	for (unsigned i = 0; i < temp.width; ++i) {
-		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1);
-		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5))    );
-		blit(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1);
+		setPixel(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1);
+		setPixel(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5))    );
+		setPixel(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1);
 	}
 }
 
@@ -183,9 +183,9 @@ void drawProgressBars(struct renderer *r) {
 			
 			//And then draw the bar
 			for (int i = 0; i < pixels2draw; ++i) {
-				blit(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1);
-				blit(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5))    );
-				blit(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1);
+				setPixel(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1);
+				setPixel(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5))    );
+				setPixel(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) + 1);
 			}
 		}
 	}
@@ -212,20 +212,20 @@ void drawFrame(struct renderer *r, struct renderTile tile) {
 	}
 	for (unsigned i = 1; i < length; ++i) {
 		//top left
-		blit(r->state.uiBuffer, c, tile.begin.x+i, tile.begin.y+1);
-		blit(r->state.uiBuffer, c, tile.begin.x+1, tile.begin.y+i);
+		setPixel(r->state.uiBuffer, c, tile.begin.x+i, tile.begin.y+1);
+		setPixel(r->state.uiBuffer, c, tile.begin.x+1, tile.begin.y+i);
 		
 		//top right
-		blit(r->state.uiBuffer, c, tile.end.x-i, tile.begin.y+1);
-		blit(r->state.uiBuffer, c, tile.end.x-1, tile.begin.y+i);
+		setPixel(r->state.uiBuffer, c, tile.end.x-i, tile.begin.y+1);
+		setPixel(r->state.uiBuffer, c, tile.end.x-1, tile.begin.y+i);
 		
 		//Bottom left
-		blit(r->state.uiBuffer, c, tile.begin.x+i, tile.end.y-1);
-		blit(r->state.uiBuffer, c, tile.begin.x+1, tile.end.y-i);
+		setPixel(r->state.uiBuffer, c, tile.begin.x+i, tile.end.y-1);
+		setPixel(r->state.uiBuffer, c, tile.begin.x+1, tile.end.y-i);
 		
 		//bottom right
-		blit(r->state.uiBuffer, c, tile.end.x-i, tile.end.y-1);
-		blit(r->state.uiBuffer, c, tile.end.x-1, tile.end.y-i);
+		setPixel(r->state.uiBuffer, c, tile.end.x-i, tile.end.y-1);
+		setPixel(r->state.uiBuffer, c, tile.end.x-1, tile.end.y-i);
 	}
 }
 
