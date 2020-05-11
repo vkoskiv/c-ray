@@ -6,12 +6,14 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdint.h>
 #include <stdlib.h>
 #include "halton.h"
 #include "hammersley.h"
 #include "random.h"
 #include "sampler.h"
 #include "common.h"
+#include "../../utils/logging.h"
 
 struct sampler {
 	enum samplerType type;
@@ -44,17 +46,20 @@ void initSampler(sampler *sampler, enum samplerType type, int pass, int maxPasse
 }
 
 float getDimension(struct sampler *sampler) {
+	float f;
 	switch (sampler->type) {
 		case Hammersley:
-			return getHammersley(&sampler->sampler.hammersley);
+			f = getHammersley(&sampler->sampler.hammersley);
 			break;
 		case Halton:
-			return getHalton(&sampler->sampler.halton);
+			f = getHalton(&sampler->sampler.halton);
 			break;
 		case Random:
-			return getRandom(&sampler->sampler.random);
+			f = getRandom(&sampler->sampler.random);
 			break;
 	}
+	//logr(debug, "%.02f\n", f);
+	return f;
 }
 
 void destroySampler(struct sampler *sampler) {
