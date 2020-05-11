@@ -76,9 +76,11 @@ void checkAndSetCliOverrides(struct renderer *r) {
 	//Update threadCount if it's overridden
 	if (isSet("thread_override")) {
 		int threads = intPref("thread_override");
-		logr(info, "Overriding thread count to %i\n", threads);
-		r->prefs.threadCount = threads;
-		r->prefs.fromSystem = false;
+		if (r->prefs.threadCount != threads) {
+			logr(info, "Overriding thread count to %i\n", threads);
+			r->prefs.threadCount = threads;
+			r->prefs.fromSystem = false;
+		}
 	}
 	
 	if (isSet("samples_override")) {
