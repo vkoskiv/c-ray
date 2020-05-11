@@ -176,32 +176,22 @@ int countNodes(const struct kdTreeNode *node) {
 
 bool rayIntersectsWithNode(const struct kdTreeNode *node, const struct lightRay *ray, struct hitRecord *isect) {
 	if (!node) return false;
-	//A bit of a hack, but it does work...!
 	float fakeIsect = 20000.0f;
-	if (rayIntersectWithAABB(node->bbox, ray, &fakeIsect)) {
-		bool hasHit = false;
-		
-		if (node->left != NULL || node->right != NULL) {
-			//Recurse down both sides
-			bool hitLeft  = rayIntersectsWithNode(node->left, ray, isect);
-			bool hitRight = rayIntersectsWithNode(node->right, ray, isect);
-			
-			return hitLeft || hitRight;
-		} else {
-			//This is a leaf, so check all polys
-			for (int i = 0; i < node->polyCount; ++i) {
-				struct poly p = polygonArray[node->polygons[i]];
-				if (rayIntersectsWithPolygon(ray, &p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
-					hasHit = true;
-					isect->type = hitTypePolygon;
-					isect->polyIndex = p.polyIndex;
-				}
-			}
-			if (hasHit) {
+	if (!rayIntersectWithAABB(node->bbox, ray, &fakeIsect)) return false;
+	if (node->left != NULL || node->right != NULL) {
+		//Recurse down both sides
+		bool hitLeft  = rayIntersectsWithNode(node->left, ray, isect);
+		bool hitRight = rayIntersectsWithNode(node->right, ray, isect);
+		return hitLeft || hitRight;
+	} else {
+		//This is a leaf, so check all polys
+		for (int i = 0; i < node->polyCount; ++i) {
+			struct poly p = polygonArray[node->polygons[i]];
+			if (rayIntersectsWithPolygon(ray, &p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
 				isect->didIntersect = true;
+				isect->type = hitTypePolygon;
+				isect->polyIndex = p.polyIndex;
 				return true;
-			} else {
-				return false;
 			}
 		}
 	}
