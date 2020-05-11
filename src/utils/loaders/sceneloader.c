@@ -834,8 +834,15 @@ struct color parseColor(const cJSON *data) {
 	const cJSON *G = NULL;
 	const cJSON *B = NULL;
 	const cJSON *A = NULL;
+	const cJSON *kelvin = NULL;
 	
 	struct color newColor;
+	
+	kelvin = cJSON_GetObjectItem(data, "blackbody");
+	if (kelvin && cJSON_IsNumber(kelvin)) {
+		newColor = colorForKelvin(kelvin->valuedouble);
+		return newColor;
+	}
 	
 	R = cJSON_GetObjectItem(data, "r");
 	if (R != NULL && cJSON_IsNumber(R)) {
