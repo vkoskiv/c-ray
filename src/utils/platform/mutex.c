@@ -24,7 +24,7 @@ struct crMutex {
 };
 
 struct crMutex *createMutex() {
-	struct crMutex *new = calloc(1, sizeof(struct crMutex));
+	struct crMutex *new = calloc(1, sizeof(*new));
 #ifdef WINDOWS
 	new->tileMutex = CreateMutex(NULL, FALSE, NULL);
 #else

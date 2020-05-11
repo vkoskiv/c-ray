@@ -29,10 +29,10 @@ int textureCount;
 
 void allocVertexBuffer() {
 	ASSERT(!vertexArray);
-	vertexArray = calloc(1, sizeof(struct vector));
-	normalArray = calloc(1, sizeof(struct vector));
-	textureArray = calloc(1, sizeof(struct coord));
-	polygonArray = calloc(1, sizeof(struct poly));
+	vertexArray = calloc(1, sizeof(*vertexArray));
+	normalArray = calloc(1, sizeof(*normalArray));
+	textureArray = calloc(1, sizeof(*textureArray));
+	polygonArray = calloc(1, sizeof(*polygonArray));
 	
 	vertexCount = 0;
 	normalCount = 0;

@@ -14,7 +14,7 @@
 #include "../../utils/assert.h"
 
 static const unsigned int primes[] = {2, 3, 5, 7, 11, 13};
-static const unsigned int primes_count = 6;
+static const unsigned int primesCount = 6;
 
 void initHalton(haltonSampler *s, int pass, uint32_t seed) {
 	s->rndOffset = uintToUnitReal(seed);
@@ -24,7 +24,7 @@ void initHalton(haltonSampler *s, int pass, uint32_t seed) {
 
 float getHalton(haltonSampler *s) {
 	// Wrapping around trick by @lycium
-	float v = wrapAdd(radicalInverse(s->currPass, primes[s->currPrime++ % primes_count]), s->rndOffset);
+	float v = wrapAdd(radicalInverse(s->currPass, primes[s->currPrime++ % primesCount]), s->rndOffset);
 	ASSERT(v >= 0);
 	ASSERT(v < 1);
 	return v;

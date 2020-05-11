@@ -177,11 +177,11 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 																newMesh->firstPolyIndex + i);
 	}
 	
-	newMesh->materials = calloc(1, sizeof(struct material));
+	newMesh->materials = calloc(1, sizeof(*newMesh->materials));
 	//Parse materials
 	if (data.material_count == 0) {
 		//No material, set to something obscene to make it noticeable
-		newMesh->materials = calloc(1, sizeof(struct material));
+		newMesh->materials = calloc(1, sizeof(*newMesh->materials));
 		newMesh->materials[0] = warningMaterial();
 		assignBSDF(&newMesh->materials[0]);
 		newMesh->materialCount++;
@@ -217,7 +217,7 @@ void addSphere(struct world *scene, struct sphere newSphere) {
 
 void addCamTransform(struct camera *cam, struct transform transform) {
 	if (cam->transformCount == 0) {
-		cam->transforms = calloc(1, sizeof(struct transform));
+		cam->transforms = calloc(1, sizeof(*cam->transforms));
 	} else {
 		cam->transforms = realloc(cam->transforms, (cam->transformCount + 1) * sizeof(struct transform));
 	}
@@ -247,7 +247,7 @@ struct material *parseMaterial(const cJSON *data) {
 	struct color colorValue = blackColor;
 	float intensityValue = 1.0f;
 	
-	struct material *mat = calloc(1, sizeof(struct material));
+	struct material *mat = calloc(1, sizeof(*mat));
 	
 	color = cJSON_GetObjectItem(data, "color");
 	if (cJSON_IsObject(color)) {
@@ -428,7 +428,7 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 struct transform *parseTransforms(const cJSON *data) {
 	
 	int transformCount = cJSON_GetArraySize(data);
-	struct transform *transforms = calloc(transformCount, sizeof(struct transform));
+	struct transform *transforms = calloc(transformCount, sizeof(*transforms));
 	
 	cJSON *transform = NULL;
 	

@@ -105,9 +105,9 @@ int getInt(struct hashtable *e, const char *key) {
 
 static const uint64_t defaultTableSize = 256;
 struct hashtable *newTable() {
-	struct hashtable *table = malloc(sizeof(struct hashtable));
+	struct hashtable *table = malloc(sizeof(*table));
 	table->size = defaultTableSize;
-	table->data = malloc(sizeof(struct bucket) * defaultTableSize);
+	table->data = malloc(sizeof(*table->data) * defaultTableSize);
 	for (uint64_t i = 0; i < defaultTableSize; ++i) {
 		table->data[i].used = false;
 		table->data[i].value = NULL;

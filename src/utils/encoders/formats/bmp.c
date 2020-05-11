@@ -15,7 +15,7 @@
 void encodeBMPFromArray(const char *filename, unsigned char *imgData, unsigned width, unsigned height) {
 	//Apparently BMP is BGR, whereas C-ray's internal buffer is RGB (Like it should be)
 	//So we need to convert the image data before writing to file.
-	unsigned char *bgrData = calloc(3 * width * height, sizeof(unsigned char));
+	unsigned char *bgrData = calloc(3 * width * height, sizeof(*bgrData));
 	for (unsigned y = 0; y < height; ++y) {
 		for (unsigned x = 0; x < width; ++x) {
 			bgrData[(x + (height - (y + 1)) * width) * 3 + 0] = imgData[(x + (height - (y + 1)) * width) * 3 + 2];

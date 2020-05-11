@@ -52,7 +52,7 @@ int start_interactive() {
 	logr(debug, "Listening on port %i\n", C_RAY_PORT);
 	
 	len = sizeof(client_address);
-	char *buf = calloc(MAXRCVLEN, sizeof(char));
+	char *buf = calloc(MAXRCVLEN, sizeof(*buf));
 	
 	bool active = true;
 	
@@ -67,7 +67,7 @@ int start_interactive() {
 			size_t read = recv(connfd, buf, MAXRCVLEN, 0);
 			if (!read) break;
 			
-			char *dst = calloc(read, sizeof(char));
+			char *dst = calloc(read, sizeof(*dst));
 			memcpy(dst, buf, read);
 			logr(debug, "Got from client: %s\n", dst);
 			if (strncmp(dst, "exit", 4) == 0) {

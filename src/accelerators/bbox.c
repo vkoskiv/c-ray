@@ -46,7 +46,7 @@ float findSurfaceArea(const struct boundingBox *box) {
 struct boundingBox *computeBoundingBox(const int *polys, const int count) {
 	ASSERT(polys);
 	ASSERT(count > 0);
-	struct boundingBox *bbox = calloc(1, sizeof(struct boundingBox));
+	struct boundingBox *bbox = calloc(1, sizeof(*bbox));
 	struct vector minPoint = vecWithPos(FLT_MAX, FLT_MAX, FLT_MAX);
 	struct vector maxPoint = vecWithPos(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 	

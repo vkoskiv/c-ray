@@ -72,7 +72,7 @@ struct color textureGetPixelFiltered(const struct texture *t, float x, float y) 
 }
 
 struct texture *newTexture(enum precision p, unsigned width, unsigned height, int channels) {
-	struct texture *t = calloc(1, sizeof(struct texture));
+	struct texture *t = calloc(1, sizeof(*t));
 	t->width = width;
 	t->height = height;
 	t->precision = p;
@@ -87,7 +87,7 @@ struct texture *newTexture(enum precision p, unsigned width, unsigned height, in
 	
 	switch (t->precision) {
 		case char_p: {
-			t->data.byte_p = calloc(channels * width * height, sizeof(unsigned char));
+			t->data.byte_p = calloc(channels * width * height, sizeof(*t->data.byte_p));
 			if (!t->data.byte_p) {
 				logr(warning, "Failed to allocate %ix%i texture.\n", width, height);
 				destroyTexture(t);
@@ -96,7 +96,7 @@ struct texture *newTexture(enum precision p, unsigned width, unsigned height, in
 		}
 			break;
 		case float_p: {
-			t->data.float_p = calloc(channels * width * height, sizeof(float));
+			t->data.float_p = calloc(channels * width * height, sizeof(*t->data.float_p));
 			if (!t->data.float_p) {
 				logr(warning, "Failed to allocate %ix%i texture.\n", width, height);
 				destroyTexture(t);

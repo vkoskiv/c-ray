@@ -35,7 +35,7 @@ struct Array {
 };
 
 void initArray(struct Array *a, size_t initialSize) {
-	a->array = malloc(initialSize * sizeof(int));
+	a->array = malloc(initialSize * sizeof(*a->array));
 	a->used = 0;
 	a->size = initialSize;
 }
@@ -45,7 +45,7 @@ void insertArray(struct Array *a, int element) {
 	// Therefore a->used can go up to a->size
 	if (a->used == a->size) {
 		a->size *= 2;
-		a->array = realloc(a->array, a->size * sizeof(int));
+		a->array = realloc(a->array, a->size * sizeof(a->array));
 	}
 	a->array[a->used++] = element;
 }
@@ -57,7 +57,7 @@ void freeArray(struct Array *a) {
 }
 
 struct kdTreeNode *getNewNode() {
-	struct kdTreeNode *node = calloc(1, sizeof(struct kdTreeNode));
+	struct kdTreeNode *node = calloc(1, sizeof(*node));
 	node->bbox = NULL;
 	node->left = NULL;
 	node->right = NULL;

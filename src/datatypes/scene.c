@@ -43,7 +43,7 @@ void computeKDTrees(struct mesh *meshes, int meshCount) {
 	struct timeval timer = {0};
 	startTimer(&timer);
 	for (int i = 0; i < meshCount; ++i) {
-		int *indices = calloc(meshes[i].polyCount, sizeof(int));
+		int *indices = calloc(meshes[i].polyCount, sizeof(*indices));
 		for (int j = 0; j < meshes[i].polyCount; ++j) {
 			indices[j] = meshes[i].firstPolyIndex + j;
 		}
@@ -155,7 +155,7 @@ int loadScene(struct renderer *r, char *input) {
 	//Some of this stuff seems like it should be in newRenderer(), but notice
 	//how it depends on r->prefs, which is populated by parseJSON
 	//Alloc memory for crThreads
-	r->state.threads = calloc(r->prefs.threadCount, sizeof(struct crThread));
+	r->state.threads = calloc(r->prefs.threadCount, sizeof(*r->state.threads));
 	if (r->state.threads == NULL) {
 		logr(error, "Failed to allocate memory for crThreads.\n");
 	}

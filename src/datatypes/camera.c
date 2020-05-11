@@ -46,7 +46,7 @@ float acomputeFocalLength(float FOV, unsigned width) {
 }
 
 void initCamera(struct camera *cam) {
-	if (!cam->transforms) cam->transforms = calloc(1, sizeof(struct transform));
+	if (!cam->transforms) cam->transforms = calloc(1, sizeof(*cam->transforms));
 	cam->pos =  vecWithPos(0.0f, 0.0f, 0.0f);
 	cam->up =   vecWithPos(0.0f, 1.0f, 0.0f);
 	cam->left = vecWithPos(-1.0f, 0.0f, 0.0f);

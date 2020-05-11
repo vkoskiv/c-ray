@@ -73,9 +73,9 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
 struct material materialFromObj(obj_material *mat) {
 	struct material newMat;
 	
-	newMat.name = calloc(256, sizeof(char));
-	newMat.textureFilePath = calloc(500, sizeof(char));
-	newMat.normalMapPath = calloc(500, sizeof(char));
+	newMat.name = calloc(256, sizeof(*newMat.name));
+	newMat.textureFilePath = calloc(500, sizeof(*newMat.textureFilePath));
+	newMat.normalMapPath = calloc(500, sizeof(*newMat.normalMapPath));
 	
 	newMat.hasTexture = false;
 	

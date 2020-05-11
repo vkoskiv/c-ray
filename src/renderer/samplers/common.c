@@ -47,8 +47,7 @@ float radicalInverse(int pass, int base) {
 
 float uintToUnitReal(uint32_t v) {
 	// Trick from MTGP: generate an uniformly distributed single precision number in [1,2) and subtract 1
-	union
-	{
+	union {
 		uint32_t u;
 		float f;
 	} x;

@@ -25,7 +25,7 @@ struct sampler {
 };
 
 struct sampler *newSampler() {
-	return calloc(1, sizeof(struct sampler));
+	return calloc(1, sizeof(*newSampler()));
 }
 
 void initSampler(sampler *sampler, enum samplerType type, int pass, int maxPasses, uint32_t pixelIndex) {
@@ -46,20 +46,14 @@ void initSampler(sampler *sampler, enum samplerType type, int pass, int maxPasse
 }
 
 float getDimension(struct sampler *sampler) {
-	float f;
 	switch (sampler->type) {
 		case Hammersley:
-			f = getHammersley(&sampler->sampler.hammersley);
-			break;
+			return getHammersley(&sampler->sampler.hammersley);
 		case Halton:
-			f = getHalton(&sampler->sampler.halton);
-			break;
+			return getHalton(&sampler->sampler.halton);
 		case Random:
-			f = getRandom(&sampler->sampler.random);
-			break;
+			return getRandom(&sampler->sampler.random);
 	}
-	//logr(debug, "%.02f\n", f);
-	return f;
 }
 
 void destroySampler(struct sampler *sampler) {

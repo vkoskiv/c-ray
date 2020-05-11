@@ -148,7 +148,7 @@ struct mesh *parseOBJFile(char *filePath, size_t *meshCountOut) {
 	//Get the offsets
 	char *head = firstLine(file);
 	lineBuffer line = {0};
-	size_t *meshOffsets = malloc(meshCount * sizeof(size_t));
+	size_t *meshOffsets = malloc(meshCount * sizeof(*meshOffsets));
 	int i = 0;
 	while (head) {
 		fillLineBuffer(&line, head, " ");
@@ -163,7 +163,7 @@ struct mesh *parseOBJFile(char *filePath, size_t *meshCountOut) {
 	}
 	head = firstLine(file);
 	
-	struct mesh *meshes = calloc(meshCount, sizeof(struct mesh));
+	struct mesh *meshes = calloc(meshCount, sizeof(*meshes));
 	
 	for (size_t m = 0; m < meshCount; ++m) {
 		textBuffer *segment = newTextView(file, meshOffsets[m], meshOffsets[m + 1] - meshOffsets[m]);
@@ -183,7 +183,7 @@ struct mesh *parseOBJFile(char *filePath, size_t *meshCountOut) {
 //Note: This will also alter the global vertex arrays
 //We will add vertices to them as the OBJ is loaded.
 struct mesh *parseOBJFilea(char *filePath) {
-	struct mesh *newMesh = calloc(1, sizeof(struct mesh));
+	struct mesh *newMesh = calloc(1, sizeof(*newMesh));
 	
 	int linenum = 0;
 	char *token;
@@ -296,7 +296,7 @@ struct mesh *parseOBJFilea(char *filePath) {
 				newMesh->materialCount = mtlCount;
 				newMesh->materials = newMats;
 			} else {
-				newMesh->materials = calloc(1, sizeof(struct material));
+				newMesh->materials = calloc(1, sizeof(*newMesh->materials));
 				newMesh->materials[0] = warningMaterial();
 				newMesh->materialCount = 1;
 			}

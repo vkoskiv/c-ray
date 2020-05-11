@@ -18,9 +18,9 @@
 
 void addTransform(struct mesh *mesh, struct transform transform) {
 	if (mesh->transformCount == 0) {
-		mesh->transforms = calloc(1, sizeof(struct transform));
+		mesh->transforms = calloc(1, sizeof(*mesh->transforms));
 	} else {
-		mesh->transforms = realloc(mesh->transforms, (mesh->transformCount + 1) * sizeof(struct transform));
+		mesh->transforms = realloc(mesh->transforms, (mesh->transformCount + 1) * sizeof(*mesh->transforms));
 	}
 	mesh->transforms[mesh->transformCount] = transform;
 	mesh->transformCount++;
@@ -28,8 +28,8 @@ void addTransform(struct mesh *mesh, struct transform transform) {
 
 void transformMesh(struct mesh *mesh) {
 	//Bit of a hack here, using way more memory than needed. Should also work on 32-bit now
-	bool *tformed = (bool *)calloc(mesh->vertexCount, sizeof(bool));
-	bool *ntformed = (bool *)calloc(mesh->normalCount, sizeof(bool));
+	bool *tformed = (bool *)calloc(mesh->vertexCount, sizeof(*tformed));
+	bool *ntformed = (bool *)calloc(mesh->normalCount, sizeof(*ntformed));
 	for (int tf = 0; tf < mesh->transformCount; ++tf) {
 		//Perform transforms
 		for (int p = mesh->firstPolyIndex; p < (mesh->firstPolyIndex + mesh->polyCount); ++p) {

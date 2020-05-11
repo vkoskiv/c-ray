@@ -56,7 +56,7 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 	tilesX = (width % tileWidth) != 0 ? tilesX + 1: tilesX;
 	tilesY = (height % tileHeight) != 0 ? tilesY + 1: tilesY;
 	
-	*renderTiles = calloc(tilesX*tilesY, sizeof(struct renderTile));
+	*renderTiles = calloc(tilesX*tilesY, sizeof(**renderTiles));
 	if (*renderTiles == NULL) {
 		logr(error, "Failed to allocate renderTiles array.\n");
 		return 0;
@@ -100,7 +100,7 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 void reorderTopToBottom(struct renderTile **tiles, unsigned tileCount) {
 	unsigned endIndex = tileCount - 1;
 	
-	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = calloc(tileCount, sizeof(*tempArray));
 	
 	for (unsigned i = 0; i < tileCount; ++i) {
 		tempArray[i] = (*tiles)[endIndex--];
@@ -130,7 +130,7 @@ unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_random_t *r
  Shuffle renderTiles into a random order
  */
 void reorderRandom(struct renderTile **tiles, unsigned tileCount) {
-	pcg32_random_t *rng = calloc(1, sizeof(pcg32_random_t));
+	pcg32_random_t *rng = calloc(1, sizeof(*rng));
 	pcg32_srandom_r(rng, 3141592, 0);
 	for (unsigned i = 0; i < tileCount; ++i) {
 		unsigned random = rand_interval(0, tileCount - 1, rng);
@@ -153,7 +153,7 @@ void reorderFromMiddle(struct renderTile **tiles, unsigned tileCount) {
 	midRight = ceil(tileCount / 2);
 	midLeft = midRight - 1;
 	
-	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = calloc(tileCount, sizeof(*tempArray));
 	
 	for (unsigned i = 0; i < tileCount; ++i) {
 		if (isRight) {
@@ -179,7 +179,7 @@ void reorderToMiddle(struct renderTile **tiles, unsigned tileCount) {
 	
 	right = tileCount - 1;
 	
-	struct renderTile *tempArray = calloc(tileCount, sizeof(struct renderTile));
+	struct renderTile *tempArray = calloc(tileCount, sizeof(*tempArray));
 	
 	for (unsigned i = 0; i < tileCount; ++i) {
 		if (isRight) {

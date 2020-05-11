@@ -263,24 +263,24 @@ void *renderThread(void *arg) {
 }
 
 struct renderer *newRenderer() {
-	struct renderer *r = calloc(1, sizeof(struct renderer));
+	struct renderer *r = calloc(1, sizeof(*r));
 	r->state.avgTileTime = (time_t)1;
 	r->state.timeSampleCount = 1;
 	
-	r->state.timer = calloc(1, sizeof(struct timeval));
+	r->state.timer = calloc(1, sizeof(*r->state.timer));
 	
 	//TODO: Do we need all these heap allocs?
-	r->scene = calloc(1, sizeof(struct world));
-	r->scene->camera = calloc(1, sizeof(struct camera));
+	r->scene = calloc(1, sizeof(*r->scene));
+	r->scene->camera = calloc(1, sizeof(*r->scene->camera));
 	r->scene->hdr = NULL; //Optional, to be loaded later
-	r->scene->meshes = calloc(1, sizeof(struct mesh));
-	r->scene->spheres = calloc(1, sizeof(struct sphere));
+	r->scene->meshes = calloc(1, sizeof(*r->scene->meshes));
+	r->scene->spheres = calloc(1, sizeof(*r->scene->spheres));
 	
 	if (!vertexArray) {
 		allocVertexBuffer();
 	}
 	
-	r->mainDisplay = calloc(1, sizeof(struct display));
+	r->mainDisplay = calloc(1, sizeof(*r->mainDisplay));
 #ifdef CRAY_SDL_ENABLED
 	r->mainDisplay->window = NULL;
 	r->mainDisplay->renderer = NULL;

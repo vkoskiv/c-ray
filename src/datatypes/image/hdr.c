@@ -11,7 +11,7 @@
 #include "hdr.h"
 
 struct hdr *newHDRI() {
-	struct hdr *hdr = calloc(1, sizeof(struct texture));
+	struct hdr *hdr = calloc(1, sizeof(*hdr));
 	hdr->t = newTexture(none, 0, 0, 0);
 	return hdr;
 }

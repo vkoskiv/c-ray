@@ -97,7 +97,7 @@ char *getFileName(char *input) {
 char *getFilePath(char *input) {
 	char *dir = NULL;
 #ifdef WINDOWS
-	dir = calloc(256, sizeof(char));
+	dir = calloc(256, sizeof(*dir));
 	_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0);
 #else
 	copyString(dirname(input), &dir);
@@ -113,7 +113,7 @@ char *readStdin(size_t *bytes) {
 	char chunk[chunksize];
 	
 	size_t bufSize = 1;
-	char *buf = malloc(chunksize * sizeof(char));
+	char *buf = malloc(chunksize * sizeof(*buf));
 	if (!buf) {
 		logr(error, "Failed to malloc stdin buffer\n");
 		return NULL;
@@ -148,7 +148,7 @@ char *humanFileSize(unsigned long bytes) {
 	gigabytes = megabytes / 1000;
 	terabytes = gigabytes / 1000;
 	
-	char *buf = calloc(64, sizeof(char));
+	char *buf = calloc(64, sizeof(*buf));
 	
 	if (gigabytes > 1000) {
 		sprintf(buf, "%ldTB", terabytes);

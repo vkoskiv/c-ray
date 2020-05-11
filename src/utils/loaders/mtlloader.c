@@ -46,8 +46,8 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 			count++;
 			newMaterials = realloc(newMaterials, count * sizeof(struct material));
 			currMat = &newMaterials[count-1];
-			currMat->name = calloc(CRAY_MATERIAL_NAME_SIZE, sizeof(char));
-			currMat->textureFilePath = calloc(CRAY_MESH_FILENAME_LENGTH, sizeof(char));
+			currMat->name = calloc(CRAY_MATERIAL_NAME_SIZE, sizeof(*currMat->name));
+			currMat->textureFilePath = calloc(CRAY_MESH_FILENAME_LENGTH, sizeof(*currMat->textureFilePath));
 			strncpy(currMat->name, strtok(NULL, " \t"), CRAY_MATERIAL_NAME_SIZE);
 			matOpen = true;
 		} else if (stringEquals(token, "Ka") && matOpen) {

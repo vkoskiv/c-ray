@@ -38,10 +38,10 @@ textBuffer *newTextView(textBuffer *original, const size_t start, const size_t l
 	head = goToLine(original, start);
 	size_t bytes = end_offset - start_offset;
 
-	char *buf = malloc(bytes * sizeof(char));
+	char *buf = malloc(bytes * sizeof(*buf));
 	memcpy(buf, head, bytes);
 	
-	textBuffer *new = calloc(1, sizeof(textBuffer));
+	textBuffer *new = calloc(1, sizeof(*new));
 	new->buf = buf;
 	new->buflen = bytes;
 	new->amountOf.lines = lines;
@@ -53,7 +53,7 @@ textBuffer *newTextView(textBuffer *original, const size_t start, const size_t l
 textBuffer *newTextBuffer(char *contents) {
 	char *buf = contents;
 	if (!buf) return NULL;
-	textBuffer *new = calloc(1, sizeof(textBuffer));
+	textBuffer *new = calloc(1, sizeof(*new));
 	new->buf = buf;
 	new->buflen = strlen(contents);
 	

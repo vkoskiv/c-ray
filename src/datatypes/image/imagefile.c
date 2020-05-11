@@ -12,7 +12,7 @@
 #include "../../utils/string.h"
 
 struct imageFile *newImageFile(struct texture *t, char *filePath, char *fileName, int count, enum fileType type) {
-	struct imageFile *file = calloc(1, sizeof(struct imageFile));
+	struct imageFile *file = calloc(1, sizeof(*file));
 	file->t = t;
 	copyString(filePath, &file->filePath);
 	copyString(fileName, &file->fileName);
