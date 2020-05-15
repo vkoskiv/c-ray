@@ -176,23 +176,26 @@ int countNodes(const struct kdTreeNode *node) {
 
 bool rayIntersectsWithNode(const struct kdTreeNode *node, const struct lightRay *ray, struct hitRecord *isect) {
 	if (!node) return false;
-	float fakeIsect = 20000.0f;
-	if (!rayIntersectWithAABB(node->bbox, ray, &fakeIsect)) return false;
-	if (node->left != NULL || node->right != NULL) {
+	if (!rayIntersectsWithAABB(node->bbox, ray)) return false;
+	if (node->left || node->right) {
 		//Recurse down both sides
 		bool hitLeft  = rayIntersectsWithNode(node->left, ray, isect);
 		bool hitRight = rayIntersectsWithNode(node->right, ray, isect);
 		return hitLeft || hitRight;
 	} else {
+		bool hasHit = false;
 		//This is a leaf, so check all polys
 		for (int i = 0; i < node->polyCount; ++i) {
 			struct poly p = polygonArray[node->polygons[i]];
 			if (rayIntersectsWithPolygon(ray, &p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
-				isect->didIntersect = true;
+				hasHit = true;
 				isect->type = hitTypePolygon;
 				isect->polyIndex = p.polyIndex;
-				return true;
 			}
+		}
+		if (hasHit) { // Return only after checking every polygon to make sure we got the closest one.
+			isect->didIntersect = true;
+			return true;
 		}
 	}
 	return false;

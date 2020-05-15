@@ -71,16 +71,7 @@ struct boundingBox *computeBoundingBox(const int *polys, const int count) {
 	return bbox;
 }
 
-
-/**
- Check if a ray intersects with an axis-aligned bounding box
-
- @param box Given bounding box to check against
- @param ray Given light ray to intersect
- @param t Current max t value for the ray
- @return true if intersected, false otherwise
- */
-bool rayIntersectWithAABB(const struct boundingBox *box, const struct lightRay *ray, float *t) {
+bool rayIntersectsWithAABB(const struct boundingBox *box, const struct lightRay *ray) {
 	//If a mesh has no polygons, it won't have a root bbox either.
 	if (!box) return false;
 	
@@ -98,16 +89,11 @@ bool rayIntersectWithAABB(const struct boundingBox *box, const struct lightRay *
 	
 	// if tmax < 0, ray is intersecting AABB, but the whole AABB is behind us
 	if (tmax < 0) {
-		*t = tmax;
 		return false;
 	}
-	
 	// if tmin > tmax, ray doesn't intersect AABB
 	if (tmin > tmax) {
-		*t = tmax;
 		return false;
 	}
-	
-	*t = tmin;
 	return true;
 }

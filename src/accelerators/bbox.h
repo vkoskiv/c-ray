@@ -36,5 +36,4 @@ enum bboxAxis getLongestAxis(const struct boundingBox *bbox);
 /// Checks  for an intersection between a given ray and bounding box
 /// @param box Bounding box to check intersection against
 /// @param ray Ray to intersect
-/// @param t Distance the intersection occurred at along the ray
-bool rayIntersectWithAABB(const struct boundingBox *box, const struct lightRay *ray, float *t);
+bool rayIntersectsWithAABB(const struct boundingBox *box, const struct lightRay *ray);
