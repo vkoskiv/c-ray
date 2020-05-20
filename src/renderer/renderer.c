@@ -98,10 +98,9 @@ struct texture *renderFrame(struct renderer *r) {
 			float sps = (1000000.0f/usPerRay) * r->prefs.threadCount;
 			char rem[64];
 			smartTime((msecTillFinished) / r->prefs.threadCount, rem);
-			float completion = ((float)completedSamples / totalTileSamples) * 100;
 			logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
 				 KBLU,
-				 completion,
+				 ((float)r->state.finishedTileCount / (float)r->state.tileCount) * 100.0f,
 				 KNRM,
 				 usPerRay,
 				 rem,
