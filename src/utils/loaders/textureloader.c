@@ -46,7 +46,7 @@ struct hdr *loadHDRI(char *filePath) {
 		if (!new->t->data.float_p) {
 			destroyHDRI(new);
 			new = NULL;
-			logr(warning, "Error while loading HDR from %s - Does the file exist?\n");
+			logr(warning, "Error while loading HDR from %s - Does the file exist?\n", filePath);
 			return NULL;
 		}
 		float MB = (((getFileSize(filePath))/1000.0f)/1000.0f);
