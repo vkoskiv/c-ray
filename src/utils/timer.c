@@ -48,6 +48,11 @@ long getUs(struct timeval timer) {
 	return ((tmr2.tv_sec - timer.tv_sec) * 1000000) + (tmr2.tv_usec - timer.tv_usec);
 }
 
+#ifdef __linux__
+#define _BSD_SOURCE
+#include <unistd.h>
+#endif
+
 /**
  Sleep for a given amount of milliseconds
  
