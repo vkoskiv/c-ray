@@ -279,16 +279,6 @@ struct renderer *newRenderer() {
 		allocVertexBuffer();
 	}
 	
-	r->mainDisplay = calloc(1, sizeof(*r->mainDisplay));
-#ifdef CRAY_SDL_ENABLED
-	r->mainDisplay->window = NULL;
-	r->mainDisplay->renderer = NULL;
-	r->mainDisplay->texture = NULL;
-	r->mainDisplay->overlayTexture = NULL;
-#else
-	logr(warning, "Render preview is disabled. (No SDL2)\n");
-#endif
-	
 	//Mutex
 	r->state.tileMutex = createMutex();
 	return r;

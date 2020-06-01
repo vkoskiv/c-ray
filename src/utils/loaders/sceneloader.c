@@ -453,7 +453,10 @@ struct prefs defaultPrefs() {
 		.imgCount = 0,
 		.imageWidth = 1280,
 		.imageHeight = 800,
-		.imgType = png
+		.imgType = png,
+		.fullscreen = false,
+		.borderless = false,
+		.scale = 1.0f
 	};
 }
 
@@ -672,17 +675,13 @@ struct prefs parsePrefs(const cJSON *data) {
 	return p;
 }
 
-struct display defaultDisplay() {
-	return (struct display){
-		.enabled = true,
-		.isBorderless = false,
-		.isFullScreen = false,
-		.windowScale = 1.0f
-	};
-}
-
-int parseDisplay(struct display *d, const cJSON *data) {
-	if (!data) *d = defaultDisplay();
+int parseDisplay(struct prefs *prefs, const cJSON *data) {
+	if (!data) {
+		prefs->enabled = true;
+		prefs->fullscreen = false;
+		prefs->borderless = false;
+		prefs->scale = 1.0f;
+	}
 	const cJSON *enabled = NULL;
 	const cJSON *isFullscreen = NULL;
 	const cJSON *isBorderless = NULL;
@@ -691,53 +690,53 @@ int parseDisplay(struct display *d, const cJSON *data) {
 	enabled = cJSON_GetObjectItem(data, "enabled");
 	if (enabled) {
 		if (cJSON_IsBool(enabled)) {
-			d->enabled = cJSON_IsTrue(enabled);
+			prefs->enabled = cJSON_IsTrue(enabled);
 		} else {
 			logr(warning, "Invalid enabled while parsing display prefs.\n");
 			return -1;
 		}
 	} else {
-		d->enabled = defaultDisplay().enabled;
+		prefs->enabled = false;
 	}
 	
 	isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
 	if (isFullscreen) {
 		if (cJSON_IsBool(isFullscreen)) {
-			d->isFullScreen = cJSON_IsTrue(isFullscreen);
+			prefs->fullscreen = cJSON_IsTrue(isFullscreen);
 		} else {
 			logr(warning, "Invalid isFullscreen while parsing display prefs.\n");
 			return -1;
 		}
 	} else {
-		d->isFullScreen = defaultDisplay().isFullScreen;
+		prefs->fullscreen = false;
 	}
 	
 	isBorderless = cJSON_GetObjectItem(data, "isBorderless");
 	if (isBorderless) {
 		if (cJSON_IsBool(isBorderless)) {
-			d->isBorderless = cJSON_IsTrue(isBorderless);
+			prefs->borderless = cJSON_IsTrue(isBorderless);
 		} else {
 			logr(warning, "Invalid isBorderless while parsing display prefs.\n");
 			return -1;
 		}
 	} else {
-		d->isBorderless = defaultDisplay().isBorderless;
+		prefs->borderless = false;
 	}
 	
 	windowScale = cJSON_GetObjectItem(data, "windowScale");
 	if (windowScale) {
 		if (cJSON_IsNumber(windowScale)) {
 			if (windowScale->valuedouble >= 0) {
-				d->windowScale = windowScale->valuedouble;
+				prefs->scale = windowScale->valuedouble;
 			} else {
-				d->windowScale = 1.0f;
+				prefs->scale = 1.0f;
 			}
 		} else {
 			logr(warning, "Invalid isBorderless while parsing display prefs.\n");
 			return -1;
 		}
 	} else {
-		d->windowScale = defaultDisplay().windowScale;
+		prefs->scale = 1.0f;
 	}
 	
 	return 0;
@@ -1103,6 +1102,20 @@ void parsePrimitives(struct renderer *r, const cJSON *data) {
 	}
 }
 
+int initializeParser(char *input) {
+	cJSON *json = cJSON_Parse(input);
+	if (!json) {
+		logr(warning, "Failed to parse JSON\n");
+		const char *err = cJSON_GetErrorPtr();
+		if (err) {
+			cJSON_Delete(json);
+			logr(warning, "Error before: %s\n", err);
+			return -1;
+		}
+	}
+	return 0;
+}
+
 int parseScene(struct renderer *r, const cJSON *data) {
 	
 	const cJSON *ambientColor = NULL;
@@ -1170,8 +1183,9 @@ int parseJSON(struct renderer *r, char *input) {
 	r->prefs = parsePrefs(renderer);
 	r->prefs.assetPath = assetPath;
 	
+	//FIXME: Another hack.
 	display = cJSON_GetObjectItem(json, "display");
-	if (parseDisplay(r->mainDisplay, display) == -1) {
+	if (parseDisplay(&r->prefs, display) == -1) {
 		logr(warning, "Display parse failed!\n");
 		return -2;
 	}

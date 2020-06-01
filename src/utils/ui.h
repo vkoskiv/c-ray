@@ -15,25 +15,8 @@ struct texture;
 	#include "SDL.h"
 #endif
 
-//FIXME: This should be in datatypes
-struct display {
-#ifdef CRAY_SDL_ENABLED
-	SDL_Window *window;
-	SDL_Renderer *renderer;
-	SDL_Texture *texture;
-	SDL_Texture *overlayTexture;
-#endif
-	bool enabled;
-	bool isBorderless;
-	bool isFullScreen;
-	float windowScale;
-	
-	unsigned width;
-	unsigned height;
-};
-
-int initSDL(struct display *d);
-void destroyDisplay(struct display *d);
+void initDisplay(bool fullscreen, bool borderless, int width, int height, float scale);
+void destroyDisplay(void);
 
 void printDuration(uint64_t ms);
 void getKeyboardInput(struct renderer *r);

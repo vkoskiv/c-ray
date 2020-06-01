@@ -48,6 +48,13 @@ struct prefs {
 	int imgCount;
 	enum fileType imgType;
 	
+	//Preview window prefs
+	//These are passed to initDisplay(), shouldn't have these here.
+	bool enabled;
+	bool fullscreen;
+	bool borderless;
+	float scale;
+	
 	bool antialiasing;
 };
 
@@ -60,10 +67,6 @@ struct renderer {
 	struct world *scene; //Scene to render
 	struct state state;  //Internal state
 	struct prefs prefs;  //User prefs
-	
-	//TODO: Consider moving this out of renderer.
-	//FIXME: rename to just display
-	struct display *mainDisplay;
 };
 
 //Initialize a new renderer

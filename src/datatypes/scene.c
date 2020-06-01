@@ -96,8 +96,6 @@ void checkAndSetCliOverrides(struct renderer *r) {
 		logr(info, "Overriding image dimensions to %ix%i\n", width, height);
 		r->prefs.imageWidth = intPref("dims_width");
 		r->prefs.imageHeight = intPref("dims_height");
-		r->mainDisplay->width = r->prefs.imageWidth;
-		r->mainDisplay->height = r->prefs.imageHeight;
 	}
 }
 
@@ -123,10 +121,6 @@ int loadScene(struct renderer *r, char *input) {
 		default:
 			break;
 	}
-	
-	//FIXME: Temporary. Just make the ui module configure itself.
-	r->mainDisplay->width = r->prefs.imageWidth;
-	r->mainDisplay->height = r->prefs.imageHeight;
 	
 	checkAndSetCliOverrides(r);
 	

@@ -67,24 +67,6 @@ char *crGetFilePath(char *fullPath) {
 	return getFilePath(fullPath);
 }
 
-void crInitSDL() {
-#ifdef CRAY_SDL_ENABLED
-	if (grenderer->mainDisplay->enabled) {
-		ASSERT(!grenderer->mainDisplay->window);
-		initSDL(grenderer->mainDisplay);
-	}
-#endif
-}
-
-void crDestroySDL() {
-#ifdef CRAY_SDL_ENABLED
-	if (grenderer->mainDisplay->enabled) {
-		ASSERT(grenderer->mainDisplay->window);
-		destroyDisplay(grenderer->mainDisplay);
-	}
-#endif
-}
-
 void crWriteImage() {
 	if (currentImage) {
 		if (grenderer->state.saveImage) {
@@ -266,11 +248,11 @@ bool crGetAntialiasing() {
 }
 
 void crRenderSingleFrame() {
-	crInitSDL();
+	initDisplay(grenderer->prefs.fullscreen, grenderer->prefs.borderless, grenderer->prefs.imageWidth, grenderer->prefs.imageHeight, grenderer->prefs.scale);
 	startTimer(grenderer->state.timer);
 	currentImage = renderFrame(grenderer);
 	printDuration(getMs(*grenderer->state.timer));
-	crDestroySDL();
+	destroyDisplay();
 }
 
 //Interactive mode
