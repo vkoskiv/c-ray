@@ -75,3 +75,15 @@ struct texture *loadTexture(char *filePath) {
 	
 	return new;
 }
+
+struct texture *loadTextureFromBuffer(unsigned char *buffer, unsigned int buflen) {
+	struct texture *new = newTexture(none, 0, 0, 0);
+	new->data.byte_p = stbi_load_from_memory(buffer, buflen, (int*)&new->width, (int*)&new->height, &new->channels, 0);
+	if (!new->data.byte_p) {
+		logr(warning, "Failed to decode texture from memory buffer of size %u", buflen);
+		destroyTexture(new);
+		return NULL;
+	}
+	new->precision = char_p;
+	return new;
+}

@@ -17,3 +17,5 @@ struct hdr *loadHDRI(char *filePath);
 /// Load a generic texture. Currently supports: JPEG, PNG, BMP, TGA, PIC, PNM
 /// @param filePath Path to image file on disk
 struct texture *loadTexture(char *filePath);
+
+struct texture *loadTextureFromBuffer(unsigned char *buffer, unsigned int buflen);
