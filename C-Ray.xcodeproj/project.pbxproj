@@ -227,6 +227,7 @@
 		9095392423C15A7B0017037C /* c-ray.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "c-ray.c"; sourceTree = "<group>"; };
 		9095392723C15AAB0017037C /* networking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = networking.h; sourceTree = "<group>"; };
 		9095392823C15AAB0017037C /* networking.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = networking.c; sourceTree = "<group>"; };
+		90999AE22486DA8200381CB3 /* logo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logo.h; sourceTree = "<group>"; };
 		909D136B24439069006D0A86 /* string.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = string.h; sourceTree = "<group>"; };
 		909D136C24439069006D0A86 /* string.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = string.c; sourceTree = "<group>"; };
 		909D136F2443B4E7006D0A86 /* textbuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = textbuffer.h; sourceTree = "<group>"; };
@@ -425,6 +426,7 @@
 				90A519FF23FB5DFC0014DF6B /* statistics.c */,
 				90A51A0223FCB7FF0014DF6B /* memory.h */,
 				90A51A0323FCB7FF0014DF6B /* memory.c */,
+				90999AE22486DA8200381CB3 /* logo.h */,
 			);
 			path = utils;
 			sourceTree = "<group>";

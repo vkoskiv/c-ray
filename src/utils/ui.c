@@ -15,9 +15,11 @@
 #include "../datatypes/tile.h"
 #include "../datatypes/image/texture.h"
 #include "../datatypes/color.h"
-#include "../utils/platform/thread.h"
-#include "../utils/platform/signal.h"
-#include "../utils/assert.h"
+#include "platform/thread.h"
+#include "platform/signal.h"
+#include "assert.h"
+#include "logo.h"
+#include "loaders/textureloader.h"
 
 struct display {
 #ifdef CRAY_SDL_ENABLED
@@ -46,6 +48,30 @@ void sigHandler(int sig) {
 		logr(info, "Received ^C, aborting render without saving\n");
 		aborted = true;
 	}
+}
+
+static void setWindowIcon(SDL_Window *window) {
+	struct texture *icon = loadTextureFromBuffer(logo_png_data, logo_png_data_len);
+	Uint32 rmask;
+	Uint32 gmask;
+	Uint32 bmask;
+	Uint32 amask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	int shift = (icon->channels == 3) ? 8 : 0;
+	rmask = 0xff000000 >> shift;
+	gmask = 0x00ff0000 >> shift;
+	bmask = 0x0000ff00 >> shift;
+	amask = 0x000000ff >> shift;
+#else
+	rmask = 0x000000ff;
+	gmask = 0x0000ff00;
+	bmask = 0x00ff0000;
+	amask = (icon->channels == 3) ? 0 : 0xff000000;
+#endif
+	SDL_Surface *iconSurface = SDL_CreateRGBSurfaceFrom(icon->data.byte_p, icon->width, icon->height, icon->channels * 8, icon->channels * icon->width, rmask, gmask, bmask, amask);
+	SDL_SetWindowIcon(window, iconSurface);
+	SDL_FreeSurface(iconSurface);
+	destroyTexture(icon);
 }
 
 void initDisplay(bool fullscreen, bool borderless, int width, int height, float scale) {
@@ -103,6 +129,9 @@ void initDisplay(bool fullscreen, bool borderless, int width, int height, float 
 	//And set blend modes for textures too
 	SDL_SetTextureBlendMode(gdisplay->texture, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(gdisplay->overlayTexture, SDL_BLENDMODE_BLEND);
+	
+	setWindowIcon(gdisplay->window);
+	
 #else
 	(void)fullscreen; (void)borderless; (void)width; (void)height; (void)scale;
 	logr(warning, "Render preview is disabled. (No SDL2)\n");
