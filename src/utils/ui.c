@@ -50,6 +50,7 @@ void sigHandler(int sig) {
 	}
 }
 
+#ifdef CRAY_SDL_ENABLED
 static void setWindowIcon(SDL_Window *window) {
 	struct texture *icon = loadTextureFromBuffer(logo_png_data, logo_png_data_len);
 	Uint32 rmask;
@@ -73,6 +74,7 @@ static void setWindowIcon(SDL_Window *window) {
 	SDL_FreeSurface(iconSurface);
 	destroyTexture(icon);
 }
+#endif
 
 void initDisplay(bool fullscreen, bool borderless, int width, int height, float scale) {
 #ifdef CRAY_SDL_ENABLED
