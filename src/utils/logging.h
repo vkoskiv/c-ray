@@ -48,7 +48,8 @@ C-ray internal formatted logger.
 @param fmt Log message formatted like printf
 @param ...
 */
-void logr(enum logType type, const char *fmt, ...);
+void logr(enum logType type, const char *fmt, ...)
+			__attribute__ ((format (printf, 2, 3)));
 
 void smartTime(unsigned long long milliseconds, char *buf);
 
