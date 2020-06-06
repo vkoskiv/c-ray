@@ -49,7 +49,10 @@ C-ray internal formatted logger.
 @param ...
 */
 void logr(enum logType type, const char *fmt, ...)
-			__attribute__ ((format (printf, 2, 3)));
+#ifndef WINDOWS
+			__attribute__ ((format (printf, 2, 3)))
+#endif
+;
 
 void smartTime(unsigned long long milliseconds, char *buf);
 
