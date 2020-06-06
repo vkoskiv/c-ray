@@ -150,7 +150,6 @@ void initDisplay(bool fullscreen, bool borderless, int width, int height, float 
 
 void destroyDisplay() {
 #ifdef CRAY_SDL_ENABLED
-	ASSERT(gdisplay);
 	if (gdisplay) {
 		if (gdisplay->window) {
 			SDL_DestroyWindow(gdisplay->window);
@@ -165,6 +164,7 @@ void destroyDisplay() {
 			SDL_DestroyTexture(gdisplay->overlayTexture);
 		}
 		free(gdisplay);
+		gdisplay = NULL;
 	}
 #endif
 }
@@ -308,6 +308,7 @@ void drawWindow(struct renderer *r, struct texture *t) {
 		r->state.renderAborted = true;
 	}
 #ifdef CRAY_SDL_ENABLED
+	if (!gdisplay) return;
 	//Render frames
 	updateFrames(r);
 	//Update image data
