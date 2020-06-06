@@ -105,11 +105,15 @@ void initDisplay(bool fullscreen, bool borderless, int width, int height, float 
 								 flags);
 	if (gdisplay->window == NULL) {
 		logr(warning, "Window couldn't be created, error: \"%s\"\n", SDL_GetError());
+		destroyDisplay();
+		return;
 	}
 	//Init renderer
 	gdisplay->renderer = SDL_CreateRenderer(gdisplay->window, -1, SDL_RENDERER_ACCELERATED);
 	if (gdisplay->renderer == NULL) {
 		logr(warning, "Renderer couldn't be created, error: \"%s\"\n", SDL_GetError());
+		destroyDisplay();
+		return;
 	}
 	
 	SDL_RenderSetLogicalSize(gdisplay->renderer, gdisplay->width, gdisplay->height);
@@ -121,11 +125,15 @@ void initDisplay(bool fullscreen, bool borderless, int width, int height, float 
 	gdisplay->texture = SDL_CreateTexture(gdisplay->renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, gdisplay->width, gdisplay->height);
 	if (gdisplay->texture == NULL) {
 		logr(warning, "Texture couldn't be created, error: \"%s\"\n", SDL_GetError());
+		destroyDisplay();
+		return;
 	}
 	//Init overlay texture (for UI info)
 	gdisplay->overlayTexture = SDL_CreateTexture(gdisplay->renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, gdisplay->width, gdisplay->height);
 	if (gdisplay->overlayTexture == NULL) {
 		logr(warning, "Overlay texture couldn't be created, error: \"%s\"\n", SDL_GetError());
+		destroyDisplay();
+		return;
 	}
 	
 	//And set blend modes for textures too
