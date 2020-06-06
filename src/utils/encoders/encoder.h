@@ -12,4 +12,4 @@ struct imageFile;
 struct renderInfo;
 
 //Writes image data to file
-void writeImage(struct imageFile *image, struct renderInfo imginfo);
+void writeImage(struct imageFile *image);

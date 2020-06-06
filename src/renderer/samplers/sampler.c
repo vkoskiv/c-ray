@@ -54,6 +54,7 @@ float getDimension(struct sampler *sampler) {
 		case Random:
 			return getRandom(&sampler->sampler.random);
 	}
+	return 0;
 }
 
 void destroySampler(struct sampler *sampler) {

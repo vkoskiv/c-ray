@@ -71,14 +71,15 @@ void crWriteImage() {
 	if (currentImage) {
 		if (grenderer->state.saveImage) {
 			struct imageFile *file = newImageFile(currentImage, grenderer->prefs.imgFilePath, grenderer->prefs.imgFileName, grenderer->prefs.imgCount, grenderer->prefs.imgType);
-			writeImage(file, (struct renderInfo){
+			file->info = (struct renderInfo){
 				.bounces = crGetBounces(),
 				.samples = crGetSampleCount(),
 				.crayVersion = crGetVersion(),
 				.gitHash = crGitHash(),
 				.renderTime = getMs(*grenderer->state.timer),
 				.threadCount = crGetThreadCount()
-			});
+			};
+			writeImage(file);
 			destroyImageFile(file);
 		} else {
 			logr(info, "Abort pressed, image won't be saved.\n");

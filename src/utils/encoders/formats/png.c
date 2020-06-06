@@ -6,7 +6,7 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../../datatypes/image/texture.h"
+#include "../../../datatypes/image/imagefile.h"
 #include "png.h"
 
 #include <stdio.h>

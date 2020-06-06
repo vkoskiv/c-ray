@@ -18,7 +18,7 @@
 #include "formats/png.h"
 #include "formats/bmp.h"
 
-void writeImage(struct imageFile *image, struct renderInfo imginfo) {
+void writeImage(struct imageFile *image) {
 	//Save image data to a file
 	char *buf = NULL;
 	if (image->type == bmp){
@@ -26,7 +26,7 @@ void writeImage(struct imageFile *image, struct renderInfo imginfo) {
 		encodeBMPFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height);
 	} else if (image->type == png){
 		asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
-		encodePNGFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height, imginfo);
+		encodePNGFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height, image->info);
 	}
 	logr(info, "Saving result in \"%s\"\n", buf);
 	printFileSize(buf);

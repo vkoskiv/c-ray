@@ -8,11 +8,6 @@
 
 #include <stdbool.h>
 
-struct dimensions {
-	int height;
-	int width;
-};
-
 enum colorspace {
 	linear,
 	sRGB
@@ -22,16 +17,6 @@ enum precision {
 	char_p,
 	float_p,
 	none
-};
-
-struct renderInfo {
-	int samples;
-	int bounces;
-	unsigned long long renderTime;
-	int threadCount;
-	char *arch;
-	char *crayVersion;
-	char *gitHash;
 };
 
 struct texture {

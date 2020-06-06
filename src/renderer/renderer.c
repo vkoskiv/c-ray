@@ -61,10 +61,11 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		r->state.threads[t] = (struct crThread){.thread_num = t, .threadComplete = false, .r = r, .output = output, .threadFunc = renderThread};
-		r->state.activeThreads++;
+		r->state.threads[t] = (struct crThread){.thread_num = t, .threadComplete = false, .renderer = r, .output = output, .threadFunc = renderThread};
 		if (startThread(&r->state.threads[t])) {
 			logr(error, "Failed to create a crThread.\n");
+		} else {
+			r->state.activeThreads++;
 		}
 	}
 	
@@ -138,7 +139,7 @@ struct texture *renderFrame(struct renderer *r) {
 void *renderThread(void *arg) {
 	struct lightRay incidentRay;
 	struct crThread *thread = (struct crThread*)arg;
-	struct renderer *r = thread->r;
+	struct renderer *r = thread->renderer;
 	struct texture *image = thread->output;
 	sampler *sampler = newSampler();
 	

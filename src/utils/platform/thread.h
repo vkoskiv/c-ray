@@ -30,7 +30,7 @@ struct crThread {
 	
 	long avgSampleTime; //Single tile pass
 	
-	struct renderer *r;
+	struct renderer *renderer;
 	struct texture *output;
 	
 	void *(*threadFunc)(void *);
