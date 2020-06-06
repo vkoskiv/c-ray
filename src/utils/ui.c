@@ -90,6 +90,8 @@ void initDisplay(bool fullscreen, bool borderless, int width, int height, float 
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		logr(warning, "SDL couldn't initialize, error: \"%s\"\n", SDL_GetError());
+		destroyDisplay();
+		return;
 	}
 	//Init window
 	SDL_WindowFlags flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
