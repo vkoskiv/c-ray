@@ -13,8 +13,8 @@
 #include "c-ray.h"
 
 int main(int argc, char *argv[]) {
+	crInitialize();
 	crParseArgs(argc, argv);
-	crInitTerminal();
 	crLog("C-ray v%s [%.8s], © 2015-2020 Valtteri Koskivuori\n", crGetVersion(), crGitHash());
 	crInitRenderer();
 	size_t bytes = 0;
@@ -24,14 +24,12 @@ int main(int argc, char *argv[]) {
 	if (!input || crLoadSceneFromBuf(input)) {
 		if (input) free(input);
 		crDestroyRenderer();
-		crRestoreTerminal();
 		return -1;
 	}
 	free(input);
 	crRenderSingleFrame();
 	crWriteImage();
 	crDestroyRenderer();
-	crRestoreTerminal();
 	crDestroyOptions();
 	crLog("Render finished, exiting.\n");
 	return 0;

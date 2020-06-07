@@ -39,12 +39,13 @@ char *crGitHash() {
 	return gitHash();
 }
 
-void crInitTerminal() {
-	initTerminal();
+void atExit() {
+	restoreTerminal();
 }
 
-void crRestoreTerminal() {
-	restoreTerminal();
+void crInitialize() {
+	initTerminal();
+	atexit(atExit);
 }
 
 void crParseArgs(int argc, char **argv) {
