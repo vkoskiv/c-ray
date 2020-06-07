@@ -303,16 +303,16 @@ static inline bool rayIntersectsWithBvhNode(
 	const struct bvhNode *node,
 	const vector *invDir,
 	const vector *scaledStart,
-	int ox, int oy, int oz,
+	const int* octant,
 	float maxDist,
 	float* tEntry)
 {
-	float tMinX = fastMultiplyAdd(node->bounds[0 * 2 +     ox], invDir->x, scaledStart->x);
-	float tMaxX = fastMultiplyAdd(node->bounds[0 * 2 + 1 - ox], invDir->x, scaledStart->x);
-	float tMinY = fastMultiplyAdd(node->bounds[1 * 2 +     oy], invDir->y, scaledStart->y);
-	float tMaxY = fastMultiplyAdd(node->bounds[1 * 2 + 1 - oy], invDir->y, scaledStart->y);
-	float tMinZ = fastMultiplyAdd(node->bounds[2 * 2 +     oz], invDir->z, scaledStart->z);
-	float tMaxZ = fastMultiplyAdd(node->bounds[2 * 2 + 1 - oz], invDir->z, scaledStart->z);
+	float tMinX = fastMultiplyAdd(node->bounds[0 * 2 +     octant[0]], invDir->x, scaledStart->x);
+	float tMaxX = fastMultiplyAdd(node->bounds[0 * 2 + 1 - octant[0]], invDir->x, scaledStart->x);
+	float tMinY = fastMultiplyAdd(node->bounds[1 * 2 +     octant[1]], invDir->y, scaledStart->y);
+	float tMaxY = fastMultiplyAdd(node->bounds[1 * 2 + 1 - octant[1]], invDir->y, scaledStart->y);
+	float tMinZ = fastMultiplyAdd(node->bounds[2 * 2 +     octant[2]], invDir->z, scaledStart->z);
+	float tMaxZ = fastMultiplyAdd(node->bounds[2 * 2 + 1 - octant[2]], invDir->z, scaledStart->z);
 	// Note the order here is important.
 	// Because the comparisons are of the form x < y ? x : y, they
 	// are guaranteed not to produce NaNs if the right hand side is not a NaN.
@@ -331,19 +331,25 @@ bool rayIntersectsWithBvh(const struct bvh *bvh, const struct lightRay *ray, str
 	const struct bvhNode *stack[MAX_BVH_DEPTH + 1];
 	int stackSize = 0;
 
-	// Special case when the BVH is just a single leaf
-	if (bvh->nodeCount == 1)
-		return rayIntersectsWithBvhLeaf(bvh, bvh->nodes, ray, isect);
-
 	// Precompute ray octant and inverse direction
-	int ox = ray->direction.x < 0 ? 1 : 0;
-	int oy = ray->direction.y < 0 ? 1 : 0;
-	int oz = ray->direction.z < 0 ? 1 : 0;
+	int octant[] = {
+		ray->direction.x < 0 ? 1 : 0,
+		ray->direction.y < 0 ? 1 : 0,
+		ray->direction.z < 0 ? 1 : 0
+	};
 	vector invDir = { 1.0f / ray->direction.x, 1.0f / ray->direction.y, 1.0f / ray->direction.z };
 	vector scaledStart = vecScale(vecMul(ray->start, invDir), -1.0f);
+	float maxDist = isect->didIntersect ? isect->distance : FLT_MAX;
+
+	// Special case when the BVH is just a single leaf
+	if (bvh->nodeCount == 1) {
+		float tEntry;
+		if (rayIntersectsWithBvhNode(bvh->nodes, &invDir, &scaledStart, octant, maxDist, &tEntry))
+			return rayIntersectsWithBvhLeaf(bvh, bvh->nodes, ray, isect);
+		return false;
+	}
 
 	const struct bvhNode *node = bvh->nodes;
-	float maxDist = isect->didIntersect ? isect->distance : FLT_MAX;
 	bool hasHit = false;
 	while (true) {
 		unsigned firstChild = node->firstChildOrPrim;
@@ -351,8 +357,8 @@ bool rayIntersectsWithBvh(const struct bvh *bvh, const struct lightRay *ray, str
 		const struct bvhNode *rightNode = &bvh->nodes[firstChild + 1];
 
 		float tEntryLeft, tEntryRight;
-		bool hitLeft = rayIntersectsWithBvhNode(leftNode, &invDir, &scaledStart, ox, oy, oz, maxDist, &tEntryLeft);
-		bool hitRight = rayIntersectsWithBvhNode(rightNode, &invDir, &scaledStart, ox, oy, oz, maxDist, &tEntryRight);
+		bool hitLeft = rayIntersectsWithBvhNode(leftNode, &invDir, &scaledStart, octant, maxDist, &tEntryLeft);
+		bool hitRight = rayIntersectsWithBvhNode(rightNode, &invDir, &scaledStart, octant, maxDist, &tEntryRight);
 
 		if (hitLeft) {
 			if (leftNode->isLeaf) {
