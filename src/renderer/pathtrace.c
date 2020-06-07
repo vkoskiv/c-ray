@@ -13,6 +13,7 @@
 #include "../datatypes/camera.h"
 #include "../accelerators/bbox.h"
 #include "../accelerators/kdtree.h"
+#include "../accelerators/bvh.h"
 #include "../datatypes/image/texture.h"
 #include "../datatypes/image/hdr.h"
 #include "../datatypes/vertexbuffer.h"
@@ -107,7 +108,11 @@ struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struc
 		}
 	}
 	for (int o = 0; o < scene->meshCount; ++o) {
+#ifdef OLD_KD_TREE
 		if (rayIntersectsWithNode(scene->meshes[o].tree, incidentRay, &isect)) {
+#else
+		if (rayIntersectsWithBvh(scene->meshes[o].bvh, incidentRay, &isect)) {
+#endif
 			isect.end = scene->meshes[o].materials[polygonArray[isect.polyIndex].materialIndex];
 			computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 			

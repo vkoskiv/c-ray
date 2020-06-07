@@ -10,6 +10,7 @@
 #include "mesh.h"
 
 #include "../accelerators/kdtree.h"
+#include "../accelerators/bvh.h"
 #include "vertexbuffer.h"
 #include "transforms.h"
 #include "poly.h"
@@ -67,9 +68,15 @@ void destroyMesh(struct mesh *mesh) {
 			free(mesh->transforms);
 		}
 	}
+#ifdef OLD_KD_TREE
 	if (mesh->tree) {
 		destroyTree(mesh->tree);
 	}
+#else
+	if (mesh->bvh) {
+		destroyBvh(mesh->bvh);
+	}
+#endif
 	if (mesh->materials) {
 		for (int i = 0; i < mesh->materialCount; ++i) {
 			destroyMaterial(&mesh->materials[i]);
