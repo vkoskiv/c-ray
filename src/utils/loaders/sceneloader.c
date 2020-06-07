@@ -440,6 +440,10 @@ struct transform *parseTransforms(const cJSON *data) {
 }
 
 struct prefs defaultPrefs() {
+    char* imgFilePath;
+    char* imgFileName;
+    copyString("./", &imgFilePath);
+    copyString("rendered", &imgFileName);
 	return (struct prefs){
 		.tileOrder = renderOrderFromMiddle,
 		.threadCount = getSysCores(), //We run getSysCores() for this
@@ -448,8 +452,8 @@ struct prefs defaultPrefs() {
 		.tileWidth = 32,
 		.tileHeight = 32,
 		.antialiasing = true,
-		.imgFilePath = "./",
-		.imgFileName = "rendered",
+		.imgFilePath = imgFilePath,
+		.imgFileName = imgFileName,
 		.imgCount = 0,
 		.imageWidth = 1280,
 		.imageHeight = 800,
