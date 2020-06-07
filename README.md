@@ -28,7 +28,7 @@ C-ray currently has:
 - Multithreading (pthreads and WIN32 threads)
 - OBJ loading with transforms for compositing a scene
 - PNG and BMP file output
-- k-d tree acceleration structure for fast intersection checks even with millions of primitives
+- BVH acceleration structures by @madmann91
 - Antialiasing
 - Multi-sampling
 - HDR environment maps for realistic lighting
@@ -132,6 +132,8 @@ JSON parsing library: https://github.com/DaveGamble/cJSON
 PCG random number generator: http://www.pcg-random.org
 
 ## Contributors
+
+- @madmann91 - BVH accelerator and overall ~60% performance improvement. Thanks!
 
 Please file an issue detailing any improvements you're planning on making. I openly welcome contributions!
 
