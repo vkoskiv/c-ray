@@ -1,7 +1,9 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.9)
 project (c-ray C)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/)
+
+set(CMAKE_C_COMPILER "gcc-9")
 
 if (DEFINED ENV{CRAY_EXPORT_CMDS})
 	message(STATUS "Exporting compile commands")
@@ -36,7 +38,7 @@ if (MSVC)
 	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/DEBUG /MANIFEST:NO /INCREMENTAL:NO /OPT:REF,ICF" CACHE STRING "" FORCE)
 else()
 	# set(CMAKE_C_FLAGS "-Wall -Wextra -pedantic -Wconversion -std=gnu99")
-	set(CMAKE_C_FLAGS "-Wall -Wextra -std=gnu99 -march=native")
+	set(CMAKE_C_FLAGS "-Wall -Wextra -std=gnu99 -march=native -D_GNU_SOURCE")
 	set(CMAKE_C_FLAGS_RELEASE "-O3 -ftree-vectorize")
 	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -g")
 	if (ASAN)
@@ -66,6 +68,8 @@ list(APPEND SOURCES "${c-ray_BINARY_DIR}/src/utils/gitsha1.c" "${c-ray_SOURCE_DI
 
 FILE(GLOB_RECURSE CSources src/*.c)
 add_executable(c-ray ${CSources})
+
+set_property(TARGET c-ray PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 if (NOT NO_SDL2)
 	find_package(SDL2 QUIET)
