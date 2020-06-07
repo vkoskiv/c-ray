@@ -1,3 +1,11 @@
+//
+//  bvh.c
+//  C-ray
+//
+//  Created by Arsène Pérard-Gayot on 07/06/2020.
+//  Copyright © 2020 Arsène Pérard-Gayot (@madmann91). All rights reserved.
+//
+
 #include "../includes.h"
 #include "bvh.h"
 
