@@ -19,9 +19,9 @@ bool stringEquals(const char *s1, const char *s2);
 bool stringContains(const char *haystack, const char *needle);
 
 /// Copy strings
-/// @param source Source string
-/// @param destination Destination string
-void copyString(const char *source, char **destination);
+/// @param source String to be copied
+/// @return New heap-allocated string
+char *copyString(const char *source);
 
 /// Concatenate given strings
 /// @param str1 Original string

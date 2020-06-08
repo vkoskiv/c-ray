@@ -14,8 +14,8 @@
 struct imageFile *newImageFile(struct texture *t, char *filePath, char *fileName, int count, enum fileType type) {
 	struct imageFile *file = calloc(1, sizeof(*file));
 	file->t = t;
-	copyString(filePath, &file->filePath);
-	copyString(fileName, &file->fileName);
+	file->filePath = copyString(filePath);
+	file->fileName = copyString(fileName);
 	file->count = count;
 	file->type = type;
 	return file;

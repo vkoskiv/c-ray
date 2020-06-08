@@ -78,10 +78,10 @@ void setTag(struct hashtable *e, const char *key) {
 
 void setString(struct hashtable *e, const char *key, const char *value, int len) {
 	ASSERT((int)strlen(value) == len);
+	(void)len;
 	struct bucket *ptr = getBucketPtr(e, key);
 	if (!ptr->used) {
-		ptr->value = malloc(len * sizeof(char));
-		copyString(value, (char**)&(ptr->value));
+		ptr->value = copyString(value);
 	}
 	ptr->used = true;
 }
