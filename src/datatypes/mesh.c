@@ -60,27 +60,21 @@ void transformMesh(struct mesh *mesh) {
 }
 
 void destroyMesh(struct mesh *mesh) {
-	if (mesh->name) {
+	if (mesh) {
 		free(mesh->name);
-	}
-	if (mesh->transformCount > 0) {
-		if (mesh->transforms) {
+		if (mesh->transformCount > 0) {
 			free(mesh->transforms);
 		}
-	}
 #ifdef OLD_KD_TREE
-	if (mesh->tree) {
 		destroyTree(mesh->tree);
-	}
 #else
-	if (mesh->bvh) {
 		destroyBvh(mesh->bvh);
-	}
 #endif
-	if (mesh->materials) {
-		for (int i = 0; i < mesh->materialCount; ++i) {
-			destroyMaterial(&mesh->materials[i]);
+		if (mesh->materials) {
+			for (int i = 0; i < mesh->materialCount; ++i) {
+				destroyMaterial(&mesh->materials[i]);
+			}
+			free(mesh->materials);
 		}
-		free(mesh->materials);
 	}
 }

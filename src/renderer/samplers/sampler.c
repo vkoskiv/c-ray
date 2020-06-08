@@ -58,5 +58,5 @@ float getDimension(struct sampler *sampler) {
 }
 
 void destroySampler(struct sampler *sampler) {
-	if (sampler) free(sampler);
+	free(sampler);
 }

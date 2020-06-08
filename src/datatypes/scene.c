@@ -179,18 +179,12 @@ int loadScene(struct renderer *r, char *input) {
 void destroyScene(struct world *scene) {
 	if (scene) {
 		destroyHDRI(scene->hdr);
-		if (scene->meshes) {
-			for (int i = 0; i < scene->meshCount; ++i) {
-				destroyMesh(&scene->meshes[i]);
-			}
-			free(scene->meshes);
+		destroyCamera(scene->camera);
+		for (int i = 0; i < scene->meshCount; ++i) {
+			destroyMesh(&scene->meshes[i]);
 		}
-		if (scene->spheres) {
-			free(scene->spheres);
-		}
-		if (scene->camera) {
-			destroyCamera(scene->camera);
-		}
+		free(scene->meshes);
+		free(scene->spheres);
 		free(scene);
 	}
 }

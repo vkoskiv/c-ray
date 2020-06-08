@@ -205,8 +205,8 @@ void destroyTree(struct kdTreeNode *node) {
 	if (node) {
 		destroyTree(node->left);
 		destroyTree(node->right);
-		if (node->bbox) free(node->bbox);
-		if (node->polygons) free(node->polygons);
+		free(node->bbox);
+		free(node->polygons);
 		free(node);
 	}
 }

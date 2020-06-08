@@ -64,7 +64,7 @@ void transformCameraIntoView(struct camera *cam) {
 }
 
 void destroyCamera(struct camera *cam) {
-	if (cam->transforms) {
+	if (cam) {
 		free(cam->transforms);
 		free(cam);
 	}

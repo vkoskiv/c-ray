@@ -23,9 +23,9 @@ struct imageFile *newImageFile(struct texture *t, char *filePath, char *fileName
 
 void destroyImageFile(struct imageFile *file) {
 	if (file) {
-		if (file->t) destroyTexture(file->t);
-		if (file->fileName) free(file->fileName);
-		if (file->filePath) free(file->filePath);
+		destroyTexture(file->t);
+		free(file->fileName);
+		free(file->filePath);
 		free(file);
 	}
 }
