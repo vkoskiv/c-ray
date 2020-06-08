@@ -15,7 +15,7 @@
 
 ## Status
 
-[![Build Status](https://semaphoreci.com/api/v1/vkoskiv/c-ray/branches/master/badge.svg)](https://semaphoreci.com/vkoskiv/c-ray)
+[![Build Status](https://github.com/VKoskiv/c-ray/workflows/C-ray%20CI/badge.svg)](https://github.com/VKoskiv/c-ray/actions?query=workflow%3A%22C-ray+CI%22)
 
 ## Synopsis
 
@@ -28,7 +28,7 @@ C-ray currently has:
 - Multithreading (pthreads and WIN32 threads)
 - OBJ loading with transforms for compositing a scene
 - PNG and BMP file output
-- k-d tree acceleration structure for fast intersection checks even with millions of primitives
+- BVH acceleration structures by @madmann91
 - Antialiasing
 - Multi-sampling
 - HDR environment maps for realistic lighting
@@ -132,6 +132,8 @@ JSON parsing library: https://github.com/DaveGamble/cJSON
 PCG random number generator: http://www.pcg-random.org
 
 ## Contributors
+
+- @madmann91 - BVH accelerator and overall ~60% performance improvement. Thanks!
 
 Please file an issue detailing any improvements you're planning on making. I openly welcome contributions!
 
