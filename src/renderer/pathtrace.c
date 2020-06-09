@@ -33,7 +33,7 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 	for (int depth = 0; depth < maxDepth; ++depth) {
 		struct hitRecord isect = getClosestIsect(&currentRay, scene);
 		if (!isect.didIntersect) {
-			finalColor = addColors(finalColor, multiplyColors(weight, getBackground(incidentRay, scene)));
+			finalColor = addColors(finalColor, multiplyColors(weight, getBackground(&currentRay, scene)));
 			break;
 		}
 
