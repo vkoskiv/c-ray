@@ -46,7 +46,6 @@ struct hitRecord {
 /// Recursive path tracer.
 /// @param incidentRay View ray to be casted into the scene
 /// @param scene Scene to cast the ray into
-/// @param depth Current depth for recursive calls
 /// @param maxDepth Maximum depth of recursion
 /// @param rng A random number generator. One per execution thread.
-struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int depth, int maxDepth, sampler *sampler);
+struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler);
