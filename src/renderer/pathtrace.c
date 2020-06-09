@@ -25,28 +25,34 @@
 struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene);
 struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
 
-struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int depth, int maxDepth, sampler *sampler) {
-	struct hitRecord isect = getClosestIsect(incidentRay, scene);
-	if (isect.didIntersect) {
-		struct lightRay scattered;
-		struct color attenuation;
-		struct color emitted = isect.end.emission;
-		if (depth < maxDepth && isect.end.bsdf(&isect, &attenuation, &scattered, sampler)) {
-			float probability = 1.0f;
-			if (depth >= 4) {
-				probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
-				if (getDimension(sampler) > probability) {
-					return emitted;
-				}
-			}
-			struct color newColor = pathTrace(&scattered, scene, depth + 1, maxDepth, sampler);
-			return colorCoef(1.0f / probability, addColors(emitted, multiplyColors(attenuation, newColor)));
-		} else {
-			return emitted;
+struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
+	struct color weight = whiteColor; // Current path weight
+	struct color finalColor = blackColor; // Final path contribution
+	struct lightRay currentRay = *incidentRay;
+
+	for (int depth = 0; depth < maxDepth; ++depth) {
+		struct hitRecord isect = getClosestIsect(&currentRay, scene);
+		if (!isect.didIntersect) {
+			finalColor = addColors(finalColor, multiplyColors(weight, getBackground(&currentRay, scene)));
+			break;
 		}
-	} else {
-		return getBackground(incidentRay, scene);
+
+		finalColor = addColors(finalColor, multiplyColors(weight, isect.end.emission));
+
+		struct color attenuation;
+		if (!isect.end.bsdf(&isect, &attenuation, &currentRay, sampler))
+			break;
+
+		float probability = 1.0f;
+		if (depth >= 4) {
+			probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
+			if (getDimension(sampler) > probability)
+				break;
+		}
+
+		weight = colorCoef(1.0f / probability, multiplyColors(attenuation, weight));
 	}
+	return finalColor;
 }
 
 void computeSurfaceProps(struct poly p, struct coord uv, struct vector *hitPoint, struct vector *normal) {
