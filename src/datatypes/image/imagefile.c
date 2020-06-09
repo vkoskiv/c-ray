@@ -14,8 +14,8 @@
 struct imageFile *newImageFile(struct texture *t, char *filePath, char *fileName, int count, enum fileType type) {
 	struct imageFile *file = calloc(1, sizeof(*file));
 	file->t = t;
-	copyString(filePath, &file->filePath);
-	copyString(fileName, &file->fileName);
+	file->filePath = copyString(filePath);
+	file->fileName = copyString(fileName);
 	file->count = count;
 	file->type = type;
 	return file;
@@ -23,9 +23,9 @@ struct imageFile *newImageFile(struct texture *t, char *filePath, char *fileName
 
 void destroyImageFile(struct imageFile *file) {
 	if (file) {
-		if (file->t) destroyTexture(file->t);
-		if (file->fileName) free(file->fileName);
-		if (file->filePath) free(file->filePath);
+		destroyTexture(file->t);
+		free(file->fileName);
+		free(file->filePath);
 		free(file);
 	}
 }

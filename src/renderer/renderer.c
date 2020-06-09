@@ -286,30 +286,16 @@ struct renderer *newRenderer() {
 }
 	
 void destroyRenderer(struct renderer *r) {
-	if (r->state.timer) {
-		free(r->state.timer);
-	}
-	destroyScene(r->scene);
-	if (r->state.renderTiles) {
-		free(r->state.renderTiles);
-	}
-	
-	destroyTexture(r->state.renderBuffer);
-	destroyTexture(r->state.uiBuffer);
-	
-	if (r->state.threads) {
-		free(r->state.threads);
-	}
-	if (r->prefs.imgFileName) {
-		free(r->prefs.imgFileName);
-	}
-	if (r->prefs.imgFilePath) {
-		free(r->prefs.imgFilePath);
-	}
-	
-	if (vertexArray) {
+	if (r) {
+		destroyScene(r->scene);
+		destroyTexture(r->state.renderBuffer);
+		destroyTexture(r->state.uiBuffer);
 		destroyVertexBuffer();
+		free(r->state.timer);
+		free(r->state.renderTiles);
+		free(r->state.threads);
+		free(r->prefs.imgFileName);
+		free(r->prefs.imgFilePath);
+		free(r);
 	}
-	
-	free(r);
 }

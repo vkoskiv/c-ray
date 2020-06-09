@@ -18,7 +18,7 @@ struct hdr *newHDRI() {
 
 void destroyHDRI(struct hdr *hdr) {
 	if (hdr) {
-		if (hdr->t) destroyTexture(hdr->t);
+		destroyTexture(hdr->t);
 		free(hdr);
 	}
 }

@@ -142,7 +142,7 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	
 	newMesh->materialCount = 0;
 	//Set name
-	copyString(getFileName(inputFilePath), &newMesh->name);
+	newMesh->name = copyString(getFileName(inputFilePath));
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
@@ -442,8 +442,8 @@ struct transform *parseTransforms(const cJSON *data) {
 struct prefs defaultPrefs() {
 	char* imgFilePath;
 	char* imgFileName;
-	copyString("./", &imgFilePath);
-	copyString("rendered", &imgFileName);
+	imgFilePath = copyString("./");
+	imgFileName = copyString("rendered");
 	return (struct prefs){
 		.tileOrder = renderOrderFromMiddle,
 		.threadCount = getSysCores(), //We run getSysCores() for this
@@ -597,23 +597,23 @@ struct prefs parsePrefs(const cJSON *data) {
 	filePath = cJSON_GetObjectItem(data, "outputFilePath");
 	if (filePath) {
 		if (cJSON_IsString(filePath)) {
-			copyString(filePath->valuestring, &p.imgFilePath);
+			p.imgFilePath = copyString(filePath->valuestring);
 		} else {
 			logr(warning, "Invalid filePath while parsing scene.\n");
 		}
 	} else {
-		copyString(defaultPrefs().imgFilePath, &p.imgFilePath);
+		p.imgFilePath = copyString(defaultPrefs().imgFilePath);
 	}
 	
 	fileName = cJSON_GetObjectItem(data, "outputFileName");
 	if (fileName) {
 		if (cJSON_IsString(fileName)) {
-			copyString(fileName->valuestring, &p.imgFileName);
+			p.imgFileName = copyString(fileName->valuestring);
 		} else {
 			logr(warning, "Invalid fileName while parsing scene.\n");
 		}
 	} else {
-		copyString(defaultPrefs().imgFileName, &p.imgFileName);
+		p.imgFileName = copyString(defaultPrefs().imgFileName);
 	}
 	
 	count = cJSON_GetObjectItem(data, "count");
