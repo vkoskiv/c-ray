@@ -139,7 +139,7 @@ void fillLineBuffer(lineBuffer *line, char *contents, char *delimiters) {
 	char *buf = contents;
 	if (!buf) return;
 	if (line->buf) free(line->buf);
-	copyString(buf, &line->buf);
+	line->buf = copyString(buf);
 	line->buflen = strlen(line->buf);
 	
 	size_t tokens = 0;
@@ -181,7 +181,7 @@ void freeLineBuffer(lineBuffer *line) {
 void testTextView() {
 	logr(debug, "Testing textView\n");
 	char *string = NULL;
-	copyString("This is a\nMultiline\nstring!\n", &string);
+	string = copyString("This is a\nMultiline\nstring!\n");
 	logr(debug, "\n%s\n", string);
 	
 	textBuffer *original = newTextBuffer(string);

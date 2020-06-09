@@ -100,7 +100,7 @@ char *getFilePath(char *input) {
 	dir = calloc(256, sizeof(*dir));
 	_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0);
 #else
-	copyString(dirname(input), &dir);
+	dir = copyString(dirname(input));
 #endif
 	return concatString(dir, "/");
 }

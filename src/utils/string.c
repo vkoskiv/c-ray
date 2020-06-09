@@ -29,9 +29,10 @@ bool stringContains(const char *haystack, const char *needle) {
 }
 
 //Copies source over to the destination pointer.
-void copyString(const char *source, char **destination) {
-	*destination = malloc(strlen(source) + 1);
-	strcpy(*destination, source);
+char *copyString(const char *source) {
+	char *copy = malloc(strlen(source) + 1);
+	strcpy(copy, source);
+	return copy;
 }
 
 char *concatString(const char *str1, const char *str2) {

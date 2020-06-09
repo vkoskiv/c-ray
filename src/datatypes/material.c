@@ -358,16 +358,12 @@ bool dielectricBSDF(struct hitRecord *isect, struct color *attenuation, struct l
 }
 
 void destroyMaterial(struct material *mat) {
-	if (mat->textureFilePath) {
+	if (mat) {
 		free(mat->textureFilePath);
-	}
-	if (mat->normalMapPath) {
 		free(mat->normalMapPath);
-	}
-	if (mat->name) {
 		free(mat->name);
-	}
-	if (mat->hasTexture) {
-		destroyTexture(mat->texture);
+		if (mat->hasTexture) {
+			destroyTexture(mat->texture);
+		}
 	}
 }

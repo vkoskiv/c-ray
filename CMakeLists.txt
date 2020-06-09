@@ -3,12 +3,12 @@ project (c-ray C)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/)
 
-set(CMAKE_C_COMPILER "gcc-9")
-
 if (DEFINED ENV{CRAY_EXPORT_CMDS})
 	message(STATUS "Exporting compile commands")
 	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
+
+message(STATUS "The C compiler is: ${CMAKE_C_COMPILER}")
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
@@ -69,8 +69,14 @@ list(APPEND SOURCES "${c-ray_BINARY_DIR}/src/utils/gitsha1.c" "${c-ray_SOURCE_DI
 FILE(GLOB_RECURSE CSources src/*.c)
 add_executable(c-ray ${CSources})
 
-set_property(TARGET c-ray PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-
+include(CheckIPOSupported)
+check_ipo_supported(RESULT result OUTPUT output)
+if (result)
+	message(STATUS "Enabling IPO")
+	set_property(TARGET c-ray PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+	message(WARNING "IPO is not supported by this compiler. Everything will work, just a lot slower for now!")
+endif()
 if (NOT NO_SDL2)
 	find_package(SDL2 QUIET)
 

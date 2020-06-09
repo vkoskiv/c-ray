@@ -132,9 +132,7 @@ void textureToSRGB(struct texture *t) {
 
 void destroyTexture(struct texture *t) {
 	if (t) {
-		if (t->data.byte_p) { //Union, will also free float_p
-			free(t->data.byte_p);
-		}
+		free(t->data.byte_p);
 		free(t);
 	}
 }

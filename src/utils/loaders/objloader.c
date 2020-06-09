@@ -303,7 +303,7 @@ struct mesh *parseOBJFilea(char *filePath) {
 			free(fullPath);
 		} else if (stringEquals(token, "o")) {
 			//object name
-			copyString(strtok(NULL, ws), &newMesh->name);
+			newMesh->name = copyString(strtok(NULL, ws));
 		} else if (stringEquals(token, "s")) {
 			//smoothShading
 			//TODO

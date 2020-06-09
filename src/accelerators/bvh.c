@@ -412,7 +412,9 @@ bool rayIntersectsWithBvh(const struct bvh *bvh, const struct lightRay *ray, str
 }
 
 void destroyBvh(struct bvh *bvh) {
-	free(bvh->nodes);
-	free(bvh->primIndices);
-	free(bvh);
+	if (bvh) {
+		free(bvh->nodes);
+		free(bvh->primIndices);
+		free(bvh);
+	}
 }
