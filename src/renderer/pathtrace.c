@@ -40,7 +40,7 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 		finalColor = addColors(finalColor, multiplyColors(weight, isect.end.emission));
 
 		struct color attenuation;
-		if (depth >= maxDepth || !isect.end.bsdf(&isect, &attenuation, &currentRay, sampler))
+		if (!isect.end.bsdf(&isect, &attenuation, &currentRay, sampler))
 			break;
 
 		float probability = 1.0f;
