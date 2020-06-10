@@ -86,6 +86,6 @@ void smartTime(unsigned long long milliseconds, char *buf) {
 	} else if (secs > 0) {
 		sprintf(buf, "%.2fs", (float)milliseconds / 1000);
 	} else {
-		sprintf(buf, "%llums", milliseconds);
+		sprintf(buf, "%"PRIu64"ms", milliseconds);
 	}
 }

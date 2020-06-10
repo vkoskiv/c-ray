@@ -162,7 +162,7 @@ void testTable() {
 	logr(debug, "Testing overfill\n");
 	char buf[5];
 	for (uint64_t i = 0; i < defaultTableSize; ++i) {
-		sprintf(buf, "%llu", i);
+		sprintf(buf, "%"PRIu64, i);
 		setFloat(table, buf, (float)i);
 		printTableUsage(table);
 	}
