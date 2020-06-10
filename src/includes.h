@@ -35,10 +35,10 @@
 #include <math.h>
 #include <string.h>
 #include <float.h>
+#include <stdint.h>
 
 #ifdef WINDOWS
 	#include <Windows.h>
-	#include <stdint.h>
 #else
 	#include <pthread.h>
 	#include <sys/time.h> //for gettimeofday()
