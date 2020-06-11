@@ -69,6 +69,7 @@ list(APPEND SOURCES "${c-ray_BINARY_DIR}/src/utils/gitsha1.c" "${c-ray_SOURCE_DI
 FILE(GLOB_RECURSE CSources src/*.c)
 add_executable(c-ray ${CSources})
 
+include(CheckIPOSupported)
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
 	check_ipo_supported(RESULT ipo_supported OUTPUT ipo_errors)
 	if (ipo_supported)
