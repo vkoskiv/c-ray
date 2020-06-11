@@ -179,6 +179,7 @@ void printDuration(uint64_t ms) {
 
 void getKeyboardInput(struct renderer *r) {
 	if (aborted) {
+		r->state.saveImage = false;
 		r->state.renderAborted = true;
 	}
 	static bool sigRegistered = false;
