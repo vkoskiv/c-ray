@@ -69,6 +69,16 @@ list(APPEND SOURCES "${c-ray_BINARY_DIR}/src/utils/gitsha1.c" "${c-ray_SOURCE_DI
 FILE(GLOB_RECURSE CSources src/*.c)
 add_executable(c-ray ${CSources})
 
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+	check_ipo_supported(RESULT ipo_supported OUTPUT ipo_errors)
+	if (ipo_supported)
+		message(STATUS "Enabling IPO")
+		set_property(TARGET c-ray PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+	else()
+		message(WARNING "IPO is not supported by this compiler. Everything will work, just a bit slower for now!")
+	endif()
+endif()
+
 if (NOT NO_SDL2)
 	find_package(SDL2 QUIET)
 
