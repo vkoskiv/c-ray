@@ -40,7 +40,11 @@ int crLoadSceneFromBuf(char *buf);
 void crLoadMeshFromFile(char *filePath);
 void crLoadMeshFromBuf(char *buf);
 
-void crLog(const char *fmt, ...);
+void crLog(const char *fmt, ...)
+#ifndef WINDOWS
+__attribute__ ((format (printf, 1, 2)))
+#endif
+;
 
 //Preferences
 void crSetRenderOrder(void);
