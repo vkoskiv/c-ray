@@ -82,28 +82,28 @@ void assignBSDF(struct material *mat) {
 //And grab the color at that point. Texture mapping.
 struct color colorForUV(struct hitRecord *isect) {
 	struct color output;
-	struct material mtl = isect->end;
-	struct poly p = polygonArray[isect->polyIndex];
+	const struct material mtl = isect->end;
+	const struct poly p = polygonArray[isect->polyIndex];
 	
 	//Texture width and height for this material
-	float width = mtl.texture->width;
-	float heigh = mtl.texture->height;
+	const float width = mtl.texture->width;
+	const float heigh = mtl.texture->height;
 
 	//barycentric coordinates for this polygon
-	float u = isect->uv.x;
-	float v = isect->uv.y;
-	float w = 1.0f - u - v;
+	const float u = isect->uv.x;
+	const float v = isect->uv.y;
+	const float w = 1.0f - u - v;
 	
 	//Weighted texture coordinates
-	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
-	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
-	struct coord wcomponent = coordScale(w, textureArray[p.textureIndex[0]]);
+	const struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
+	const struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
+	const struct coord wcomponent = coordScale(w, textureArray[p.textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
-	struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
+	const struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
 	
-	float x = (textureXY.x*(width));
-	float y = (textureXY.y*(heigh));
+	const float x = (textureXY.x*(width));
+	const float y = (textureXY.y*(heigh));
 	
 	//Get the color value at these XY coordinates
 	output = textureGetPixelFiltered(mtl.texture, x, y);
@@ -117,9 +117,9 @@ struct color colorForUV(struct hitRecord *isect) {
 
 struct color gradient(struct hitRecord *isect) {
 	//barycentric coordinates for this polygon
-	float u = isect->uv.x;
-	float v = isect->uv.y;
-	float w = 1.0f - u - v;
+	const float u = isect->uv.x;
+	const float v = isect->uv.y;
+	const float w = 1.0f - u - v;
 	
 	return colorWithValues(u, v, w, 1.0f);
 }
@@ -129,22 +129,22 @@ struct color gradient(struct hitRecord *isect) {
 //Caveat: This only works for meshes that have texture coordinates (i.e. were UV-unwrapped).
 struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
 	ASSERT(isect->end.hasTexture);
-	struct poly p = polygonArray[isect->polyIndex];
+	const struct poly p = polygonArray[isect->polyIndex];
 	
 	//barycentric coordinates for this polygon
-	float u = isect->uv.x;
-	float v = isect->uv.y;
-	float w = 1.0f - u - v;
+	const float u = isect->uv.x;
+	const float v = isect->uv.y;
+	const float w = 1.0f - u - v;
 	
 	//Weighted coordinates
-	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
-	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
-	struct coord wcomponent = coordScale(w,	textureArray[p.textureIndex[0]]);
+	const struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
+	const struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
+	const struct coord wcomponent = coordScale(w,	textureArray[p.textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
-	struct coord surfaceXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
+	const struct coord surfaceXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
 	
-	float sines = sinf(coef*surfaceXY.x) * sinf(coef*surfaceXY.y);
+	const float sines = sinf(coef*surfaceXY.x) * sinf(coef*surfaceXY.y);
 	
 	if (sines < 0.0f) {
 		return (struct color){0.1f, 0.1f, 0.1f, 0.0f};
@@ -156,7 +156,7 @@ struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
 //FIXME: Make this configurable
 //This is a spatial checkerboard, mapped to the world coordinate space (always axis aligned)
 struct color unmappedCheckerBoard(struct hitRecord *isect, float coef) {
-	float sines = sinf(coef*isect->hitPoint.x) * sinf(coef*isect->hitPoint.y) * sinf(coef*isect->hitPoint.z);
+	const float sines = sinf(coef*isect->hitPoint.x) * sinf(coef*isect->hitPoint.y) * sinf(coef*isect->hitPoint.z);
 	if (sines < 0.0f) {
 		return (struct color){0.1f, 0.1f, 0.1f, 0.0f};
 	} else {
@@ -176,15 +176,15 @@ struct color checkerBoard(struct hitRecord *isect, float coef) {
  @return Reflected vector
  */
 struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
-	float reflect = 2.0f * vecDot(*incident, *normal);
+	const float reflect = 2.0f * vecDot(*incident, *normal);
 	return vecSub(*incident, vecScale(*normal, reflect));
 }
 
 struct vector randomOnUnitSphere(sampler *sampler) {
-	float sample_x = getDimension(sampler);
-	float sample_y = getDimension(sampler);
-	float a = sample_x * (2.0f * PI);
-	float s = 2.0f * sqrtf(max(0.0f, sample_y * (1.0f - sample_y)));
+	const float sample_x = getDimension(sampler);
+	const float sample_y = getDimension(sampler);
+	const float a = sample_x * (2.0f * PI);
+	const float s = 2.0f * sqrtf(max(0.0f, sample_y * (1.0f - sample_y)));
 	return (struct vector){cosf(a) * s, sinf(a) * s, 1.0f - 2.0f * sample_y};
 }
 
@@ -217,18 +217,18 @@ struct color diffuseColor(struct hitRecord *isect) {
 bool lambertianBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	//struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
 	//struct vector rand = randomOnUnitSphere(sampler);
-	struct vector scatterDir = vecNormalize(vecAdd(isect->surfaceNormal, randomOnUnitSphere(sampler)));//vecSub(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
+	const struct vector scatterDir = vecNormalize(vecAdd(isect->surfaceNormal, randomOnUnitSphere(sampler)));//vecSub(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
 	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered});
 	*attenuation = diffuseColor(isect);
 	return true;
 }
 
 bool metallicBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
-	struct vector normalizedDir = vecNormalize(isect->incident.direction);
+	const struct vector normalizedDir = vecNormalize(isect->incident.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
 	//Roughness
 	if (isect->end.roughness > 0.0f) {
-		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
+		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
 	
@@ -238,14 +238,14 @@ bool metallicBSDF(struct hitRecord *isect, struct color *attenuation, struct lig
 }
 
 bool refract(struct vector in, struct vector normal, float niOverNt, struct vector *refracted) {
-	struct vector uv = vecNormalize(in);
-	float dt = vecDot(uv, normal);
-	float discriminant = 1.0f - niOverNt * niOverNt * (1.0f - dt * dt);
+	const struct vector uv = vecNormalize(in);
+	const float dt = vecDot(uv, normal);
+	const float discriminant = 1.0f - niOverNt * niOverNt * (1.0f - dt * dt);
 	if (discriminant > 0.0f) {
-		struct vector A = vecScale(normal, dt);
-		struct vector B = vecSub(uv, A);
-		struct vector C = vecScale(B, niOverNt);
-		struct vector D = vecScale(normal, sqrtf(discriminant));
+		const struct vector A = vecScale(normal, dt);
+		const struct vector B = vecSub(uv, A);
+		const struct vector C = vecScale(B, niOverNt);
+		const struct vector D = vecScale(normal, sqrtf(discriminant));
 		*refracted = vecSub(C, D);
 		return true;
 	} else {
@@ -264,7 +264,7 @@ bool shinyBSDF(struct hitRecord *isect, struct color *attenuation, struct lightR
 	*attenuation = whiteColor;
 	//Roughness
 	if (isect->end.roughness > 0.0f) {
-		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
+		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
 	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
