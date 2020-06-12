@@ -1,8 +1,0 @@
-{
-	"modelPath":	"./models/model.json",
-	"nips":	256,
-	"nops":	256,
-	"nhid":	1024,
-	"sessions":	4,
-	"iterations":	192000
-}
