@@ -1,2 +1,2 @@
 #!/bin/sh
-cloc --exclude-dir=libraries src
+scc --exclude-dir=libraries src 2> /dev/null || cloc --exclude-dir=libraries src 2> /dev/null || echo "This script requires either cloc or scc to be installed."
