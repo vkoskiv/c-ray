@@ -24,6 +24,10 @@ struct lightRay {
 	enum type rayType;
 };
 
-struct lightRay newRay(struct vector start, struct vector direction, enum type rayType);
+static inline struct lightRay newRay(struct vector start, struct vector direction, enum type rayType) {
+	return (struct lightRay){start, direction, rayType};
+}
 
-struct vector alongRay(struct lightRay ray, float t);
+static inline struct vector alongRay(struct lightRay ray, float t) {
+	return vecAdd(ray.start, vecScale(ray.direction, t));
+}
