@@ -27,7 +27,7 @@
 #define VERSION "0.6.3"
 
 //Internal renderer state
-struct renderer *grenderer = NULL;
+struct renderer *g_renderer = NULL;
 
 struct texture *currentImage = NULL;
 
@@ -70,14 +70,14 @@ char *crGetFilePath(char *fullPath) {
 
 void crWriteImage() {
 	if (currentImage) {
-		if (grenderer->state.saveImage) {
-			struct imageFile *file = newImageFile(currentImage, grenderer->prefs.imgFilePath, grenderer->prefs.imgFileName, grenderer->prefs.imgCount, grenderer->prefs.imgType);
+		if (g_renderer->state.saveImage) {
+			struct imageFile *file = newImageFile(currentImage, g_renderer->prefs.imgFilePath, g_renderer->prefs.imgFileName, g_renderer->prefs.imgCount, g_renderer->prefs.imgType);
 			file->info = (struct renderInfo){
 				.bounces = crGetBounces(),
 				.samples = crGetSampleCount(),
 				.crayVersion = crGetVersion(),
 				.gitHash = crGitHash(),
-				.renderTime = getMs(*grenderer->state.timer),
+				.renderTime = getMs(*g_renderer->state.timer),
 				.threadCount = crGetThreadCount()
 			};
 			writeImage(file);
@@ -97,20 +97,20 @@ char *crReadStdin(size_t *bytes) {
 }
 
 void crInitRenderer() {
-	ASSERT(!grenderer);
-	grenderer = newRenderer();
+	ASSERT(!g_renderer);
+	g_renderer = newRenderer();
 }
 
 void crDestroyRenderer() {
-	ASSERT(grenderer);
-	destroyRenderer(grenderer);
+	ASSERT(g_renderer);
+	destroyRenderer(g_renderer);
 }
 
 int crLoadSceneFromFile(char *filePath) {
 	size_t bytes = 0;
 	char *input = loadFile(filePath, &bytes);
 	if (input) {
-		if (loadScene(grenderer, filePath) != 0) {
+		if (loadScene(g_renderer, filePath) != 0) {
 			free(input);
 			return -1;
 		}
@@ -132,7 +132,7 @@ void crLoadMeshFromBuf(char *buf) {
 }
 
 int crLoadSceneFromBuf(char *buf) {
-	return loadScene(grenderer, buf);
+	return loadScene(g_renderer, buf);
 }
 
 void crLog(const char *fmt, ...) {
@@ -153,22 +153,22 @@ void crGetRenderOrder(void) {
 }
 
 void crSetThreadCount(int threadCount, bool fromSystem) {
-	grenderer->prefs.threadCount = threadCount;
-	grenderer->prefs.fromSystem = fromSystem;
+	g_renderer->prefs.threadCount = threadCount;
+	g_renderer->prefs.fromSystem = fromSystem;
 	crRestartInteractive();
 }
 
 int crGetThreadCount(void) {
-	return grenderer->prefs.threadCount;
+	return g_renderer->prefs.threadCount;
 }
 
 void crSetSampleCount(int sampleCount) {
 	ASSERT(sampleCount > 0);
-	grenderer->prefs.sampleCount = sampleCount;
+	g_renderer->prefs.sampleCount = sampleCount;
 }
 
 int crGetSampleCount(void) {
-	return grenderer->prefs.sampleCount;
+	return g_renderer->prefs.sampleCount;
 }
 
 void crSetBounces(int bounces) {
@@ -177,7 +177,7 @@ void crSetBounces(int bounces) {
 }
 
 int crGetBounces(void) {
-	return grenderer->prefs.bounces;
+	return g_renderer->prefs.bounces;
 }
 
 void crSetTileWidth(int width) {
@@ -186,7 +186,7 @@ void crSetTileWidth(int width) {
 }
 
 int crGetTileWidth(void) {
-	return grenderer->prefs.tileWidth;
+	return g_renderer->prefs.tileWidth;
 }
 
 void crSetTileHeight(int height) {
@@ -195,16 +195,16 @@ void crSetTileHeight(int height) {
 }
 
 int crGetTileHeight(void) {
-	return grenderer->prefs.tileHeight;
+	return g_renderer->prefs.tileHeight;
 }
 
 void crSetImageWidth(int width) {
-	grenderer->prefs.imageWidth = width;
+	g_renderer->prefs.imageWidth = width;
 	crRestartInteractive();
 }
 
 int crGetImageWidth(void) {
-	return grenderer->prefs.imageWidth;
+	return g_renderer->prefs.imageWidth;
 }
 
 void crSetImageHeight(int height) {
@@ -213,15 +213,15 @@ void crSetImageHeight(int height) {
 }
 
 int crGetImageHeight() {
-	return grenderer->prefs.imageHeight;
+	return g_renderer->prefs.imageHeight;
 }
 
 void crSetOutputPath(char *filePath) {
-	grenderer->prefs.imgFilePath = filePath;
+	g_renderer->prefs.imgFilePath = filePath;
 }
 
 char *crGetOutputPath() {
-	return grenderer->prefs.imgFilePath;
+	return g_renderer->prefs.imgFilePath;
 }
 
 void crSetFileName(char *fileName) {
@@ -230,30 +230,30 @@ void crSetFileName(char *fileName) {
 }
 
 char *crGetFileName() {
-	return grenderer->prefs.imgFileName;
+	return g_renderer->prefs.imgFileName;
 }
 
 void crSetAssetPath(char *assetPath) {
-	grenderer->prefs.assetPath = assetPath;
+	g_renderer->prefs.assetPath = assetPath;
 }
 
 char *crGetAssetPath(void) {
-	return grenderer->prefs.assetPath;
+	return g_renderer->prefs.assetPath;
 }
 
 void crSetAntialiasing(bool on) {
-	grenderer->prefs.antialiasing = on;
+	g_renderer->prefs.antialiasing = on;
 }
 
 bool crGetAntialiasing() {
-	return grenderer->prefs.antialiasing;
+	return g_renderer->prefs.antialiasing;
 }
 
 void crRenderSingleFrame() {
-	initDisplay(grenderer->prefs.fullscreen, grenderer->prefs.borderless, grenderer->prefs.imageWidth, grenderer->prefs.imageHeight, grenderer->prefs.scale);
-	startTimer(grenderer->state.timer);
-	currentImage = renderFrame(grenderer);
-	printDuration(getMs(*grenderer->state.timer));
+	initDisplay(g_renderer->prefs.fullscreen, g_renderer->prefs.borderless, g_renderer->prefs.imageWidth, g_renderer->prefs.imageHeight, g_renderer->prefs.scale);
+	startTimer(g_renderer->state.timer);
+	currentImage = renderFrame(g_renderer);
+	printDuration(getMs(*g_renderer->state.timer));
 	destroyDisplay();
 }
 

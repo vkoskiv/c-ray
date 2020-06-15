@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include "textbuffer.h"
 
-static struct hashtable *options;
+static struct hashtable *g_options;
 
 void printUsage(const char *progname) {
 	logr(info, "Usage: %s [-hjdv] [input_json...]\n", progname);
@@ -33,12 +33,12 @@ void printUsage(const char *progname) {
 }
 
 void parseArgs(int argc, char **argv) {
-	options = newTable();
+	g_options = newTable();
 	static bool inputFileSet = false;
 	//Always omit the first argument.
 	for (int i = 1; i < argc; ++i) {
 		if (isValidFile(argv[i]) && !inputFileSet) {
-			setString(options, "inputFile", argv[i], (int)strlen(argv[i]));
+			setString(g_options, "inputFile", argv[i], (int)strlen(argv[i]));
 			inputFileSet = true;
 		} else if (strncmp(argv[i], "-h", 2) == 0) {
 			printUsage(argv[0]);
@@ -48,7 +48,7 @@ void parseArgs(int argc, char **argv) {
 				int n = atoi(threadstr);
 				n = n < 1 ? 1 : n;
 				n = n > getSysCores() * 2 ? getSysCores() * 2 : n;
-				setInt(options, "thread_override", n);
+				setInt(g_options, "thread_override", n);
 			} else {
 				logr(warning, "Invalid -j parameter given!\n");
 			}
@@ -57,7 +57,7 @@ void parseArgs(int argc, char **argv) {
 			if (sampleStr) {
 				int n = atoi(sampleStr);
 				n = n < 1 ? 1 : n;
-				setInt(options, "samples_override", n);
+				setInt(g_options, "samples_override", n);
 			} else {
 				logr(warning, "Invalid -s parameter given!\n");
 			}
@@ -75,34 +75,34 @@ void parseArgs(int argc, char **argv) {
 					height = height > 65536 ? 65536 : height;
 					width = width < 1 ? 1 : width;
 					height = height < 1 ? 1 : height;
-					setTag(options, "dims_override");
-					setInt(options, "dims_width", width);
-					setInt(options, "dims_height", height);
+					setTag(g_options, "dims_override");
+					setInt(g_options, "dims_width", width);
+					setInt(g_options, "dims_height", height);
 				} else {
 					logr(warning, "Invalid -d parameter given!\n");
 				}
 			}
 		} else if (strncmp(argv[i], "-", 1) == 0) {
-			setTag(options, ++argv[i]);
+			setTag(g_options, ++argv[i]);
 		}
 	}
 	logr(debug, "Verbose mode enabled\n");
 }
 
 bool isSet(char *key) {
-	return exists(options, key);
+	return exists(g_options, key);
 }
 
 int intPref(char *key) {
-	ASSERT(exists(options, key));
-	return getInt(options, key);
+	ASSERT(exists(g_options, key));
+	return getInt(g_options, key);
 }
 
 char *pathArg() {
-	ASSERT(exists(options, "inputFile"));
-	return getString(options, "inputFile");
+	ASSERT(exists(g_options, "inputFile"));
+	return getString(g_options, "inputFile");
 }
 
 void destroyOptions() {
-	freeTable(options);
+	freeTable(g_options);
 }
