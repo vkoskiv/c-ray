@@ -74,6 +74,8 @@
 		9062FA17243D237200420889 /* bmp.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA15243D237200420889 /* bmp.c */; };
 		9062FA1A243D23A400420889 /* encoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA19243D23A400420889 /* encoder.c */; };
 		9062FA1B243D23A400420889 /* encoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA19243D23A400420889 /* encoder.c */; };
+		906479C024982155003772CE /* sky.c in Sources */ = {isa = PBXBuildFile; fileRef = 906479BE24982155003772CE /* sky.c */; };
+		906479C124982155003772CE /* sky.c in Sources */ = {isa = PBXBuildFile; fileRef = 906479BE24982155003772CE /* sky.c */; };
 		9076FB4D243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB4E243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB51243002B00003B327 /* mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB50243002B00003B327 /* mutex.c */; };
@@ -210,6 +212,8 @@
 		9062FA15243D237200420889 /* bmp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bmp.c; sourceTree = "<group>"; };
 		9062FA18243D23A400420889 /* encoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = encoder.h; sourceTree = "<group>"; };
 		9062FA19243D23A400420889 /* encoder.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = encoder.c; sourceTree = "<group>"; };
+		906479BE24982155003772CE /* sky.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sky.c; sourceTree = "<group>"; };
+		906479BF24982155003772CE /* sky.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sky.h; sourceTree = "<group>"; };
 		9076FB4B243002A40003B327 /* terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = terminal.h; sourceTree = "<group>"; };
 		9076FB4C243002A40003B327 /* terminal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = terminal.c; sourceTree = "<group>"; };
 		9076FB4F243002B00003B327 /* mutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
@@ -333,6 +337,8 @@
 				900BA0F7220B4602005B8EE7 /* pathtrace.c */,
 				900BA0F8220B4602005B8EE7 /* renderer.h */,
 				900BA0FA220B4602005B8EE7 /* renderer.c */,
+				906479BE24982155003772CE /* sky.c */,
+				906479BF24982155003772CE /* sky.h */,
 			);
 			path = renderer;
 			sourceTree = "<group>";
@@ -654,6 +660,7 @@
 				905842F6236651FC009D92F1 /* cJSON.c in Sources */,
 				9062FA0E243CC4B200420889 /* signal.c in Sources */,
 				9076FB52243002B00003B327 /* mutex.c in Sources */,
+				906479C124982155003772CE /* sky.c in Sources */,
 				9062FA1B243D23A400420889 /* encoder.c in Sources */,
 				905842F7236651FC009D92F1 /* color.c in Sources */,
 				90EE4F3D237DD49F0071894E /* meshloader.c in Sources */,
@@ -717,6 +724,7 @@
 				900BA13E220B4603005B8EE7 /* cJSON.c in Sources */,
 				9062FA0D243CC4B200420889 /* signal.c in Sources */,
 				9076FB51243002B00003B327 /* mutex.c in Sources */,
+				906479C024982155003772CE /* sky.c in Sources */,
 				9062FA1A243D23A400420889 /* encoder.c in Sources */,
 				900BA139220B4603005B8EE7 /* color.c in Sources */,
 				90EE4F3C237DD49F0071894E /* meshloader.c in Sources */,
