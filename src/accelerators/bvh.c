@@ -15,6 +15,7 @@
 #include "../datatypes/poly.h"
 #include "../datatypes/vector.h"
 #include "../datatypes/lightRay.h"
+#include "../datatypes/mesh.h"
 
 /*
  * This BVH builder is based on "On fast Construction of SAH-based Bounding Volume Hierarchies",
@@ -280,6 +281,44 @@ struct bvh *buildBvh(int *polys, unsigned count) {
 	bvh->nodes = realloc(bvh->nodes, sizeof(struct bvhNode) * bvh->nodeCount);
 	for (unsigned i = 0; i < count; ++i)
 		primIndices[i] = polys[primIndices[i]];
+	free(centers);
+	free(bboxes);
+	return bvh;
+}
+
+vector centerFromBBox(struct bBox box) {
+	return (vector){
+		box.min.x + (0.5f * (box.max.x - box.min.x)),
+		box.min.y + (0.5f * (box.max.y - box.min.y)),
+		box.min.z + (0.5f * (box.max.z - box.min.z))
+	};
+}
+
+struct bvh *topLevelBvh(struct mesh *meshes, unsigned meshCount) {
+	vector *centers = malloc(sizeof(vector) * meshCount);
+	bBox *bboxes = malloc(sizeof(bBox) * meshCount);
+	int *primIndices = malloc(sizeof(int) * meshCount);
+	
+	bBox rootBBox = emptyBBox;
+	
+	//Gather up the bboxes and centres
+	for (unsigned i = 0; i < meshCount; ++i) {
+		loadBBoxFromNode(&bboxes[i], &meshes[i].bvh->nodes[0]);
+		centers[i] = centerFromBBox(bboxes[i]);
+		rootBBox.min = vecMin(rootBBox.min, bboxes[i].min);
+		rootBBox.max = vecMax(rootBBox.max, bboxes[i].max);
+		primIndices[i] = i;
+	}
+	
+	unsigned maxNodes = 2 * meshCount - 1;
+	struct bvh *bvh = malloc(sizeof(struct bvh));
+	bvh->nodeCount = 1;
+	bvh->nodes = malloc(sizeof(struct bvhNode) * maxNodes);
+	bvh->primIndices = primIndices;
+	storeBBoxInNode(&bvh->nodes[0], &rootBBox);
+	
+	buildBvhRecursive(0, bvh, bboxes, centers, 0, meshCount, 0);
+	bvh->nodes = realloc(bvh->nodes, sizeof(struct bvhNode) * bvh->nodeCount);
 	free(centers);
 	free(bboxes);
 	return bvh;

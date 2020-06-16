@@ -57,14 +57,16 @@ void computeAccels(struct mesh *meshes, int meshCount) {
 #else
 		meshes[i].bvh = buildBvh(indices, meshes[i].polyCount);
 #endif
-		
-		// Optional tree checking
-		/*int orphans = checkTree(meshes[i].tree);
-		if (orphans > 0) {
-			int total = countNodes(meshes[i].tree);
-			logr(warning, "Found %i/%i orphan nodes in %s kdtree\n", orphans, total, meshes[i].name);
-		}*/
 	}
+	printSmartTime(getMs(timer));
+	printf("\n");
+}
+
+void computeTopLevelBvh(struct world *scene) {
+	logr(info, "Computing top-level BVH: ");
+	struct timeval timer = {0};
+	startTimer(&timer);
+	scene->topLevel = topLevelBvh(scene->meshes, scene->meshCount);
 	printSmartTime(getMs(timer));
 	printf("\n");
 }
@@ -132,10 +134,10 @@ int loadScene(struct renderer *r, char *input) {
 	}
 	
 	checkAndSetCliOverrides(r);
-	
 	transformCameraIntoView(r->scene->camera);
 	transformMeshes(r->scene);
 	computeAccels(r->scene->meshes, r->scene->meshCount);
+	computeTopLevelBvh(r->scene);
 	printSceneStats(r->scene, getMs(timer));
 	
 	//Quantize image into renderTiles

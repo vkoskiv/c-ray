@@ -12,9 +12,10 @@ struct poly {
 	int vertexIndex[MAX_CRAY_VERTEX_COUNT];
 	int normalIndex[MAX_CRAY_VERTEX_COUNT];
 	int textureIndex[MAX_CRAY_VERTEX_COUNT];
-	int materialIndex;
+	int materialIndex: 16;
+	int meshIndex: 16; //FIXME: This shouldn't be here.
 	int polyIndex;
-	int vertexCount;
+	int vertexCount: 3;
 	bool hasNormals;
 };
 

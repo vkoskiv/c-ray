@@ -174,7 +174,8 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 																newMesh->firstVectorIndex,
 																newMesh->firstNormalIndex,
 																newMesh->firstTextureIndex,
-																newMesh->firstPolyIndex + i);
+																newMesh->firstPolyIndex + i,
+																idx - 1);
 	}
 	
 	newMesh->materials = calloc(1, sizeof(*newMesh->materials));

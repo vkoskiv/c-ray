@@ -12,6 +12,7 @@
 
 struct lightRay;
 struct hitRecord;
+struct mesh;
 
 struct bvhNode {
 	float bounds[6]; // Node bounds (min x, max x, min y, max y, ...)
@@ -30,6 +31,8 @@ struct bvh {
 /// @param polygons Array of polygons to process
 /// @param count Amount of polygons given
 struct bvh *buildBvh(int *polygons, unsigned count);
+
+struct bvh *topLevelBvh(struct mesh *meshes, unsigned meshCount);
 
 /// Intersects a ray with the given BVH
 bool rayIntersectsWithBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
