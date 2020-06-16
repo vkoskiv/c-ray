@@ -14,18 +14,7 @@ struct lightRay;
 struct hitRecord;
 struct mesh;
 
-struct bvhNode {
-	float bounds[6]; // Node bounds (min x, max x, min y, max y, ...)
-	unsigned firstChildOrPrim; // Index to the first child or primitive (if the node is a leaf)
-	unsigned primCount : 30;
-	bool isLeaf : 1;
-};
-
-struct bvh {
-	struct bvhNode* nodes;
-	int *primIndices;
-	unsigned nodeCount;
-};
+struct bvh;
 
 /// Builds a BVH
 /// @param polygons Array of polygons to process

@@ -32,6 +32,19 @@
 #define TRAVERSAL_COST 1.5f // Ratio (cost of traversing a node / cost of intersecting a primitive)
 #define BIN_COUNT      32   // Number of bins to use to approximate the SAH
 
+struct bvhNode {
+	float bounds[6]; // Node bounds (min x, max x, min y, max y, ...)
+	unsigned firstChildOrPrim; // Index to the first child or primitive (if the node is a leaf)
+	unsigned primCount : 30;
+	bool isLeaf : 1;
+};
+
+struct bvh {
+	struct bvhNode* nodes;
+	int *primIndices;
+	unsigned nodeCount;
+};
+
 // Bin used to approximate the SAH.
 typedef struct Bin {
 	struct boundingBox bbox;
