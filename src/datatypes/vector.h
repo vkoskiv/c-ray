@@ -30,9 +30,6 @@ struct intCoord {
 	int x, y;
 };
 
-// Some useful defaults
-static const vector up = (vector){0.0f, 1.0f, 0.0f};
-
 /**
  Create a vector with given position values and return it.
 

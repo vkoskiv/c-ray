@@ -32,6 +32,7 @@ static const float rayleighZenithLength = 8.4E3f;
 static const float mieZenithLength = 1.25E3f;
 static const float sunIntensity = 1000.0f;
 static const struct color primaryWavelengths = (struct color){680E-9f, 550E-9f, 450E-9f, 1.0f};
+static const vector up = (vector){0.0f, 1.0f, 0.0f};
 
 static const struct color K = (struct color){0.686f, 0.678f, 0.666f};
 
