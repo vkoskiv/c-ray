@@ -340,7 +340,7 @@ static inline bool rayIntersectsWithBvhNode(
 	return tMin <= tMax;
 }
 
-bool rayIntersectsWithGenericBvh(const struct bvh *bvh,
+bool rayIntersectsWithBvhGeneric(const struct bvh *bvh,
 								 bool (*traverseLeaf)(const struct bvh*, const struct bvhNode*, const struct lightRay*, struct hitRecord*),
 								 const struct lightRay *ray,
 								 struct hitRecord *isect) {
@@ -433,16 +433,19 @@ static inline bool rayIntersectsWithBvhLeaf(const struct bvh *bvh, const struct 
 	return found;
 }
 
-static inline bool rayIntersectsWithBvh(const struct bvh *bvh, const struct bvhNode *leaf, const struct lightRay *ray, struct hitRecord *isect) {
-	return rayIntersectsWithGenericBvh(bvh, rayIntersectsWithBvhLeaf, ray, isect);
-}
+static inline bool rayIntersectsWithBvh(const struct bvh *bvh, const struct bvhNode *leaf, const struct lightRay *ray, struct hitRecord *isect);
 
 bool rayIntersectsWithTopLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect) {
-	return rayIntersectsWithGenericBvh(bvh, rayIntersectsWithBvh, ray, isect);
+	return rayIntersectsWithBvhGeneric(bvh, rayIntersectsWithBvh, ray, isect);
 }
 
 bool rayIntersectsWithBottomLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect) {
-	return rayIntersectsWithGenericBvh(bvh, rayIntersectsWithBvhLeaf, ray, isect);
+	return rayIntersectsWithBvhGeneric(bvh, rayIntersectsWithBvhLeaf, ray, isect);
+}
+
+static inline bool rayIntersectsWithBvh(const struct bvh *bvh, const struct bvhNode *leaf, const struct lightRay *ray, struct hitRecord *isect) {
+	(void)leaf;
+	return rayIntersectsWithBottomLevelBvh(bvh, ray, isect);
 }
 
 void destroyBvh(struct bvh *bvh) {
