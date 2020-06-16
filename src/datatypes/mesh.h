@@ -42,13 +42,8 @@ struct mesh {
 	int materialCount;
 	struct material *materials;
 	
-#ifdef OLD_KD_TREE
-	//Root node of the kd-tree for this mesh
-	struct kdTreeNode *tree;
-#else
 	struct bvh *bvh;
-#endif
-	
+
 	char *name;
 };
 

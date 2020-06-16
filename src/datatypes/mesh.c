@@ -9,7 +9,6 @@
 #include "../includes.h"
 #include "mesh.h"
 
-#include "../accelerators/kdtree.h"
 #include "../accelerators/bvh.h"
 #include "vertexbuffer.h"
 #include "transforms.h"
@@ -65,11 +64,7 @@ void destroyMesh(struct mesh *mesh) {
 		if (mesh->transformCount > 0) {
 			free(mesh->transforms);
 		}
-#ifdef OLD_KD_TREE
-		destroyTree(mesh->tree);
-#else
 		destroyBvh(mesh->bvh);
-#endif
 		if (mesh->materials) {
 			for (int i = 0; i < mesh->materialCount; ++i) {
 				destroyMaterial(&mesh->materials[i]);

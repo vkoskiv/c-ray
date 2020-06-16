@@ -18,7 +18,6 @@
 #include "image/hdr.h"
 #include "camera.h"
 #include "vertexbuffer.h"
-#include "../accelerators/kdtree.h"
 #include "../accelerators/bvh.h"
 #include "tile.h"
 #include "mesh.h"
@@ -40,11 +39,7 @@ void transformMeshes(struct world *scene) {
 
 //TODO: Parallelize this task
 void computeAccels(struct mesh *meshes, int meshCount) {
-#ifdef OLD_KD_TREE
-	logr(info, "Computing KD-trees: ");
-#else
 	logr(info, "Computing BVHs: ");
-#endif
 	struct timeval timer = {0};
 	startTimer(&timer);
 	for (int i = 0; i < meshCount; ++i) {
@@ -52,11 +47,7 @@ void computeAccels(struct mesh *meshes, int meshCount) {
 		for (int j = 0; j < meshes[i].polyCount; ++j) {
 			indices[j] = meshes[i].firstPolyIndex + j;
 		}
-#ifdef OLD_KD_TREE
-		meshes[i].tree = buildTree(indices, meshes[i].polyCount);
-#else
 		meshes[i].bvh = buildBvh(indices, meshes[i].polyCount);
-#endif
 	}
 	printSmartTime(getMs(timer));
 	printf("\n");
@@ -66,7 +57,7 @@ void computeTopLevelBvh(struct world *scene) {
 	logr(info, "Computing top-level BVH: ");
 	struct timeval timer = {0};
 	startTimer(&timer);
-	scene->topLevel = topLevelBvh(scene->meshes, scene->meshCount);
+	scene->topLevel = buildTopLevelBvh(scene->meshes, scene->meshCount);
 	printSmartTime(getMs(timer));
 	printf("\n");
 }

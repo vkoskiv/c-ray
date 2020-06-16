@@ -11,8 +11,6 @@
 
 #include "../datatypes/scene.h"
 #include "../datatypes/camera.h"
-#include "../accelerators/bbox.h"
-#include "../accelerators/kdtree.h"
 #include "../accelerators/bvh.h"
 #include "../datatypes/image/texture.h"
 #include "../datatypes/image/hdr.h"
