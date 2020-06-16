@@ -47,7 +47,7 @@ void computeAccels(struct mesh *meshes, int meshCount) {
 		for (int j = 0; j < meshes[i].polyCount; ++j) {
 			indices[j] = meshes[i].firstPolyIndex + j;
 		}
-		meshes[i].bvh = buildBvh(indices, meshes[i].polyCount);
+		meshes[i].bvh = buildBottomLevelBvh(indices, meshes[i].polyCount);
 	}
 	printSmartTime(getMs(timer));
 	printf("\n");

@@ -113,16 +113,16 @@ struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struc
 		}
 	}
 	
-	/*if (rayIntersectsWithBvh(scene->topLevel, incidentRay, &isect)) {
+	if (rayIntersectsWithTopLevelBvh(scene->topLevel, incidentRay, &isect)) {
 		isect.end = scene->meshes[polygonArray[isect.polyIndex].meshIndex].materials[polygonArray[isect.polyIndex].materialIndex];
 		computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 		if (isect.end.hasNormalMap)
 			isect.surfaceNormal = bumpmap(&isect);
 		isect.didIntersect = true;
-	}*/
+	}
 	
-	for (int o = 0; o < scene->meshCount; ++o) {
-		if (rayIntersectsWithBvh(scene->meshes[o].bvh, incidentRay, &isect)) {
+	/*for (int o = 0; o < scene->meshCount; ++o) {
+		if (rayIntersectsWithBottomLevelBvh(scene->meshes[o].bvh, incidentRay, &isect)) {
 			isect.end = scene->meshes[o].materials[polygonArray[isect.polyIndex].materialIndex];
 			computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 			
@@ -132,7 +132,7 @@ struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struc
 			
 			isect.didIntersect = true;
 		}
-	}
+	}*/
 	return isect;
 }
 

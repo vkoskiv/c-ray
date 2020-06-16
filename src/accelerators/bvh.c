@@ -287,7 +287,7 @@ static void getPolyBBoxAndCenter(void* userData, unsigned i, struct boundingBox 
 	bbox->max = vecMax(v0, vecMax(v1, v2));
 }
 
-struct bvh *buildBvh(int *polys, unsigned count) {
+struct bvh *buildBottomLevelBvh(int *polys, unsigned count) {
 	struct bvh *bvh = buildBvhGeneric(polys, getPolyBBoxAndCenter, count);
 	for (unsigned i = 0; i < count; ++i)
 		bvh->primIndices[i] = polys[bvh->primIndices[i]];
@@ -302,20 +302,6 @@ static void getMeshBBoxAndCenter(void* userData, unsigned i, struct boundingBox 
 
 struct bvh *buildTopLevelBvh(struct mesh *meshes, unsigned meshCount) {
 	return buildBvhGeneric(meshes, getMeshBBoxAndCenter, meshCount);
-}
-
-static inline bool rayIntersectsWithBvhLeaf(const struct bvh *bvh, const struct bvhNode *leaf, const struct lightRay *ray, struct hitRecord *isect) {
-	bool found = false;
-	for (int i = 0; i < leaf->primCount; ++i) {
-		struct poly p = polygonArray[bvh->primIndices[leaf->firstChildOrPrim + i]];
-		if (rayIntersectsWithPolygon(ray, &p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
-			isect->didIntersect = true;
-			isect->type = hitTypePolygon;
-			isect->polyIndex = p.polyIndex;
-			found = true;
-		}
-	}
-	return found;
 }
 
 static inline float fastMultiplyAdd(float a, float b, float c) {
@@ -354,7 +340,10 @@ static inline bool rayIntersectsWithBvhNode(
 	return tMin <= tMax;
 }
 
-bool rayIntersectsWithBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect) {
+bool rayIntersectsWithGenericBvh(const struct bvh *bvh,
+								 bool (*traverseLeaf)(const struct bvh*, const struct bvhNode*, const struct lightRay*, struct hitRecord*),
+								 const struct lightRay *ray,
+								 struct hitRecord *isect) {
 	const struct bvhNode *stack[MAX_BVH_DEPTH + 1];
 	int stackSize = 0;
 
@@ -372,7 +361,7 @@ bool rayIntersectsWithBvh(const struct bvh *bvh, const struct lightRay *ray, str
 	if (bvh->nodeCount == 1) {
 		float tEntry;
 		if (rayIntersectsWithBvhNode(bvh->nodes, &invDir, &scaledStart, octant, maxDist, &tEntry))
-			return rayIntersectsWithBvhLeaf(bvh, bvh->nodes, ray, isect);
+			return traverseLeaf(bvh, bvh->nodes, ray, isect);
 		return false;
 	}
 
@@ -389,7 +378,7 @@ bool rayIntersectsWithBvh(const struct bvh *bvh, const struct lightRay *ray, str
 
 		if (hitLeft) {
 			if (leftNode->isLeaf) {
-				if (rayIntersectsWithBvhLeaf(bvh, leftNode, ray, isect)) {
+				if (traverseLeaf(bvh, leftNode, ray, isect)) {
 					maxDist = isect->distance;
 					hasHit = true;
 				}
@@ -400,7 +389,7 @@ bool rayIntersectsWithBvh(const struct bvh *bvh, const struct lightRay *ray, str
 
 		if (hitRight) {
 			if (rightNode->isLeaf) {
-				if (rayIntersectsWithBvhLeaf(bvh, rightNode, ray, isect)) {
+				if (traverseLeaf(bvh, rightNode, ray, isect)) {
 					maxDist = isect->distance;
 					hasHit = true;
 				}
@@ -428,6 +417,32 @@ bool rayIntersectsWithBvh(const struct bvh *bvh, const struct lightRay *ray, str
 		}
 	}
 	return hasHit;
+}
+
+static inline bool rayIntersectsWithBvhLeaf(const struct bvh *bvh, const struct bvhNode *leaf, const struct lightRay *ray, struct hitRecord *isect) {
+	bool found = false;
+	for (int i = 0; i < leaf->primCount; ++i) {
+		struct poly p = polygonArray[bvh->primIndices[leaf->firstChildOrPrim + i]];
+		if (rayIntersectsWithPolygon(ray, &p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
+			isect->didIntersect = true;
+			isect->type = hitTypePolygon;
+			isect->polyIndex = p.polyIndex;
+			found = true;
+		}
+	}
+	return found;
+}
+
+static inline bool rayIntersectsWithBvh(const struct bvh *bvh, const struct bvhNode *leaf, const struct lightRay *ray, struct hitRecord *isect) {
+	return rayIntersectsWithGenericBvh(bvh, rayIntersectsWithBvhLeaf, ray, isect);
+}
+
+bool rayIntersectsWithTopLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect) {
+	return rayIntersectsWithGenericBvh(bvh, rayIntersectsWithBvh, ray, isect);
+}
+
+bool rayIntersectsWithBottomLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect) {
+	return rayIntersectsWithGenericBvh(bvh, rayIntersectsWithBvhLeaf, ray, isect);
 }
 
 void destroyBvh(struct bvh *bvh) {

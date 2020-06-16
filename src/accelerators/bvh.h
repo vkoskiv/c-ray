@@ -16,15 +16,18 @@ struct mesh;
 
 struct bvh;
 
-/// Builds a BVH
+/// Builds a BVH for a given set of polygons
 /// @param polygons Array of polygons to process
 /// @param count Amount of polygons given
-struct bvh *buildBvh(int *polygons, unsigned count);
+struct bvh *buildBottomLevelBvh(int *polygons, unsigned count);
 
+/// Builds a top-level BVH for a given set of meshes
+/// @param meshes Meshes to build a top-level BVH for
+/// @param meshCount Amount of meshes
 struct bvh *buildTopLevelBvh(struct mesh *meshes, unsigned meshCount);
 
-/// Intersects a ray with the given BVH
-bool rayIntersectsWithBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
+/// Intersect a ray with a scene top-level BVH
+bool rayIntersectsWithTopLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
 
 /// Frees the memory allocated by the given BVH
 void destroyBvh(struct bvh *);
