@@ -13,7 +13,7 @@
 
 /// Bounding box for a given set of primitives
 struct boundingBox {
-    struct vector min, max;
+	struct vector min, max;
 };
 
 static const struct boundingBox emptyBBox = {
@@ -32,5 +32,5 @@ static inline void extendBBox(struct boundingBox *dst, const struct boundingBox 
 }
 
 static inline vector bboxCenter(const struct boundingBox* bbox) {
-    return vecScale(vecAdd(bbox->max, bbox->min), 0.5f);
+	return vecScale(vecAdd(bbox->max, bbox->min), 0.5f);
 }
