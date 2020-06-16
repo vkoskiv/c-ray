@@ -54,7 +54,7 @@ struct color invertColor(float invert, struct color c) {
 
 struct color totalMie(struct color primaryWavelengths, struct color K, float T) {
 	float c = (0.2f * T) * 10E-18;
-	return colorCoef(0.434f * c * PI, multiplyColors(colorPow(invertColor((2.0f * PI), primaryWavelengths),(struct color){2.0f, 2.0f, 2.0f}), K));
+	return colorCoef(0.434f * c * PI, multiplyColors(colorPow(invertColor((2.0f * PI), primaryWavelengths),(struct color){2.0f, 2.0f, 2.0f, 1.0f}), K));
 }
 
 float rayleighPhase(float cosViewSunAngle) {
@@ -80,7 +80,7 @@ struct color sky(struct lightRay incidentRay) {
 	float cosUpViewAngle = vecDot(up, incidentRay.direction);
 	
 	float sunE = getSunIntensity(cosSunUpAngle);
-	struct color rayleighAtX = (struct color){5.176821E-6f, 1.2785348E-5f, 2.8530756E-5f};
+	struct color rayleighAtX = (struct color){5.176821E-6f, 1.2785348E-5f, 2.8530756E-5f, 1.0f};
 	struct color mieAtX = colorCoef(mieCoefficient, totalMie(primaryWavelengths, K, turbidity));
 	float zenithAngle = max(0.0f, cosUpViewAngle);
 	float rayleighOpticalLength = rayleighZenithLength / zenithAngle;
