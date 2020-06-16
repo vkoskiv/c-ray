@@ -193,7 +193,7 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	}
 	
 	//Load textures for meshes
-	loadMeshTextures(r->prefs.assetPath, newMesh);
+	loadMeshTextures(getFilePath(inputFilePath), newMesh);
 	
 	//Delete OBJ data
 	delete_obj_data(&data);

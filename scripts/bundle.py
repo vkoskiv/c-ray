@@ -95,7 +95,7 @@ if __name__ == '__main__':
 								texs = textures_from_mtl(assetPath + path_offset + mtl)
 								for tex in texs:
 									mkdir_if_need(destPath + '/' + path_offset + dest_offset)
-									copy_file(assetPath + tex, destPath + '/' + path_offset + dest_offset)
+									copy_file(assetPath + path_offset + tex, destPath + '/' + path_offset + dest_offset)
 	shutil.make_archive(destPath, 'zip', destPath)
 	shutil.rmtree(destPath)
 	print('\n\nBundle ' + destPath + '.zip created!')
