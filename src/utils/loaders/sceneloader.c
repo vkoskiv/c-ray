@@ -30,7 +30,6 @@
 #include "../platform/capabilities.h"
 #include "../../datatypes/image/imagefile.h"
 #include "../../renderer/renderer.h"
-#include "../../accelerators/kdtree.h"
 #include "../converter.h"
 #include "textureloader.h"
 #include "objloader.h"
