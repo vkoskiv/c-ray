@@ -6,11 +6,11 @@
 
 <p align="center">
 	<img src="https://teensyimg.com/images/qv0JtPxJ7c.png" width="768">
-	<br>(2500 samples, 2560x1600, 512 max bounces, 1h 22min)
+	<br>(2500 samples, 2560x1600, 512 max bounces, 43min)
 </p>
 <p align="center">
 	<img src="https://teensyimg.com/images/AJRDYdERsy.png" width="768">
-	<br>(1000 samples, 1920x1080, 512 max bounces, 1h 23min, scene by <a href="https://www.blendswap.com/blend/13953">Scott Graham</a>)
+	<br>(1000 samples, 1920x1080, 512 max bounces, 26min, scene by <a href="https://www.blendswap.com/blend/13953">Scott Graham</a>)
 </p>
 
 ## Status
