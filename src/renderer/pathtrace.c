@@ -113,7 +113,7 @@ struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struc
 		}
 	}
 	
-	if (rayIntersectsWithTopLevelBvh(scene->topLevel, incidentRay, &isect)) {
+	if (traverseTopLevelBvh(scene->topLevel, incidentRay, &isect)) {
 		isect.end = scene->meshes[polygonArray[isect.polyIndex].meshIndex].materials[polygonArray[isect.polyIndex].materialIndex];
 		computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 		if (isect.end.hasNormalMap)
