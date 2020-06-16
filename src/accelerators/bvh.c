@@ -312,7 +312,7 @@ static inline float fastMultiplyAdd(float a, float b, float c) {
 #endif
 }
 
-static inline bool traverseBvhNode(
+static inline bool intersectsWithBvhNode(
 	const struct bvhNode *node,
 	const vector *invDir,
 	const vector *scaledStart,
@@ -340,7 +340,7 @@ static inline bool traverseBvhNode(
 	return tMin <= tMax;
 }
 
-bool traverseBvhGeneric(const struct bvh *bvh,
+static inline bool traverseBvhGeneric(const struct bvh *bvh,
 								 bool (*traverseLeaf)(const struct bvh*, const struct bvhNode*, const struct lightRay*, struct hitRecord*),
 								 const struct lightRay *ray,
 								 struct hitRecord *isect) {
@@ -360,7 +360,7 @@ bool traverseBvhGeneric(const struct bvh *bvh,
 	// Special case when the BVH is just a single leaf
 	if (bvh->nodeCount == 1) {
 		float tEntry;
-		if (traverseBvhNode(bvh->nodes, &invDir, &scaledStart, octant, maxDist, &tEntry))
+		if (intersectsWithBvhNode(bvh->nodes, &invDir, &scaledStart, octant, maxDist, &tEntry))
 			return traverseLeaf(bvh, bvh->nodes, ray, isect);
 		return false;
 	}
@@ -373,8 +373,8 @@ bool traverseBvhGeneric(const struct bvh *bvh,
 		const struct bvhNode *rightNode = &bvh->nodes[firstChild + 1];
 
 		float tEntryLeft, tEntryRight;
-		bool hitLeft = traverseBvhNode(leftNode, &invDir, &scaledStart, octant, maxDist, &tEntryLeft);
-		bool hitRight = traverseBvhNode(rightNode, &invDir, &scaledStart, octant, maxDist, &tEntryRight);
+		bool hitLeft = intersectsWithBvhNode(leftNode, &invDir, &scaledStart, octant, maxDist, &tEntryLeft);
+		bool hitRight = intersectsWithBvhNode(rightNode, &invDir, &scaledStart, octant, maxDist, &tEntryRight);
 
 		if (hitLeft) {
 			if (leftNode->isLeaf) {
@@ -439,7 +439,7 @@ bool traverseTopLevelBvh(const struct bvh *bvh, const struct lightRay *ray, stru
 	return traverseBvhGeneric(bvh, traverseBvh, ray, isect);
 }
 
-bool traverseBottomLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect) {
+static inline bool traverseBottomLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect) {
 	return traverseBvhGeneric(bvh, traverseBvhLeaf, ray, isect);
 }
 
