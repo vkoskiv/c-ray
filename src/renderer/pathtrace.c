@@ -118,7 +118,6 @@ struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struc
 		computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 		if (isect.end.hasNormalMap)
 			isect.surfaceNormal = bumpmap(&isect);
-		isect.didIntersect = true;
 	}
 	return isect;
 }
