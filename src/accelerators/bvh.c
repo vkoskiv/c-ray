@@ -320,12 +320,12 @@ static inline bool intersectNode(
 	float maxDist,
 	float* tEntry)
 {
-	float tMinX = fastMultiplyAdd((node->bounds + 0)[    octant[0]], invDir->x, scaledStart->x);
-	float tMaxX = fastMultiplyAdd((node->bounds + 0)[1 - octant[0]], invDir->x, scaledStart->x);
-	float tMinY = fastMultiplyAdd((node->bounds + 2)[    octant[1]], invDir->y, scaledStart->y);
-	float tMaxY = fastMultiplyAdd((node->bounds + 2)[1 - octant[1]], invDir->y, scaledStart->y);
-	float tMinZ = fastMultiplyAdd((node->bounds + 4)[    octant[2]], invDir->z, scaledStart->z);
-	float tMaxZ = fastMultiplyAdd((node->bounds + 4)[1 - octant[2]], invDir->z, scaledStart->z);
+	float tMinX = fastMultiplyAdd(node->bounds[0 +     octant[0]], invDir->x, scaledStart->x);
+	float tMaxX = fastMultiplyAdd(node->bounds[0 + 1 - octant[0]], invDir->x, scaledStart->x);
+	float tMinY = fastMultiplyAdd(node->bounds[2 +     octant[1]], invDir->y, scaledStart->y);
+	float tMaxY = fastMultiplyAdd(node->bounds[2 + 1 - octant[1]], invDir->y, scaledStart->y);
+	float tMinZ = fastMultiplyAdd(node->bounds[4 +     octant[2]], invDir->z, scaledStart->z);
+	float tMaxZ = fastMultiplyAdd(node->bounds[4 + 1 - octant[2]], invDir->z, scaledStart->z);
 	// Note the order here is important.
 	// Because the comparisons are of the form x < y ? x : y, they
 	// are guaranteed not to produce NaNs if the right hand side is not a NaN.
