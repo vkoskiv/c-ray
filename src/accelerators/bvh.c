@@ -242,7 +242,7 @@ static void buildBvhRecursive(
 // Builds a BVH using the provided callback to obtain bounding boxes and centers for each primitive
 static inline struct bvh *buildBvhGeneric(
 	void* userData,
-	void (*getBBoxAndCenter)(void *, unsigned, struct boundingBox *, vector *),
+	void (*getBBoxAndCenter)(void*, unsigned, struct boundingBox*, vector*),
 	unsigned count)
 {
 	vector *centers = malloc(sizeof(vector) * count);
@@ -277,7 +277,7 @@ static inline struct bvh *buildBvhGeneric(
 	return bvh;
 }
 
-static void getPolyBBoxAndCenter(void* userData, unsigned i, struct boundingBox *bbox, vector *center) {
+static void getPolyBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, vector *center) {
 	int* polys = userData;
 	vector v0 = vertexArray[polygonArray[polys[i]].vertexIndex[0]];
 	vector v1 = vertexArray[polygonArray[polys[i]].vertexIndex[1]];
@@ -294,7 +294,7 @@ struct bvh *buildBottomLevelBvh(int *polys, unsigned count) {
 	return bvh;
 }
 
-static void getMeshBBoxAndCenter(void* userData, unsigned i, struct boundingBox *bbox, vector *center) {
+static void getMeshBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, vector *center) {
 	struct mesh *meshes = userData;
 	loadBBoxFromNode(bbox, &meshes[i].bvh->nodes[0]);
 	*center = bboxCenter(bbox);
@@ -312,7 +312,7 @@ static inline float fastMultiplyAdd(float a, float b, float c) {
 #endif
 }
 
-static inline bool intersectsWithBvhNode(
+static inline bool intersectNode(
 	const struct bvhNode *node,
 	const vector *invDir,
 	const vector *scaledStart,
@@ -340,10 +340,12 @@ static inline bool intersectsWithBvhNode(
 	return tMin <= tMax;
 }
 
-static inline bool traverseBvhGeneric(const struct bvh *bvh,
-								 bool (*traverseLeaf)(const struct bvh*, const struct bvhNode*, const struct lightRay*, struct hitRecord*),
-								 const struct lightRay *ray,
-								 struct hitRecord *isect) {
+static inline bool traverseBvhGeneric(
+	void* userData,
+	const struct bvh *bvh,
+	bool (*intersectLeaf)(void*, const struct bvh*, const struct bvhNode*, const struct lightRay*, struct hitRecord*),
+	const struct lightRay *ray,
+	struct hitRecord *isect) {
 	const struct bvhNode *stack[MAX_BVH_DEPTH + 1];
 	int stackSize = 0;
 
@@ -360,8 +362,8 @@ static inline bool traverseBvhGeneric(const struct bvh *bvh,
 	// Special case when the BVH is just a single leaf
 	if (bvh->nodeCount == 1) {
 		float tEntry;
-		if (intersectsWithBvhNode(bvh->nodes, &invDir, &scaledStart, octant, maxDist, &tEntry))
-			return traverseLeaf(bvh, bvh->nodes, ray, isect);
+		if (intersectNode(bvh->nodes, &invDir, &scaledStart, octant, maxDist, &tEntry))
+			return intersectLeaf(userData, bvh, bvh->nodes, ray, isect);
 		return false;
 	}
 
@@ -373,12 +375,12 @@ static inline bool traverseBvhGeneric(const struct bvh *bvh,
 		const struct bvhNode *rightNode = &bvh->nodes[firstChild + 1];
 
 		float tEntryLeft, tEntryRight;
-		bool hitLeft = intersectsWithBvhNode(leftNode, &invDir, &scaledStart, octant, maxDist, &tEntryLeft);
-		bool hitRight = intersectsWithBvhNode(rightNode, &invDir, &scaledStart, octant, maxDist, &tEntryRight);
+		bool hitLeft = intersectNode(leftNode, &invDir, &scaledStart, octant, maxDist, &tEntryLeft);
+		bool hitRight = intersectNode(rightNode, &invDir, &scaledStart, octant, maxDist, &tEntryRight);
 
 		if (hitLeft) {
 			if (leftNode->isLeaf) {
-				if (traverseLeaf(bvh, leftNode, ray, isect)) {
+				if (intersectLeaf(userData, bvh, leftNode, ray, isect)) {
 					maxDist = isect->distance;
 					hasHit = true;
 				}
@@ -389,7 +391,7 @@ static inline bool traverseBvhGeneric(const struct bvh *bvh,
 
 		if (hitRight) {
 			if (rightNode->isLeaf) {
-				if (traverseLeaf(bvh, rightNode, ray, isect)) {
+				if (intersectLeaf(userData, bvh, rightNode, ray, isect)) {
 					maxDist = isect->distance;
 					hasHit = true;
 				}
@@ -419,33 +421,58 @@ static inline bool traverseBvhGeneric(const struct bvh *bvh,
 	return hasHit;
 }
 
-static inline bool traverseBvhLeaf(const struct bvh *bvh, const struct bvhNode *leaf, const struct lightRay *ray, struct hitRecord *isect) {
+static inline bool intersectBottomLevelLeaf(
+	void *userData,
+	const struct bvh *bvh,
+	const struct bvhNode *leaf,
+	const struct lightRay *ray,
+	struct hitRecord *isect)
+{
+	const struct poly *polygons = userData;
 	bool found = false;
 	for (int i = 0; i < leaf->primCount; ++i) {
-		struct poly p = polygonArray[bvh->primIndices[leaf->firstChildOrPrim + i]];
-		if (rayIntersectsWithPolygon(ray, &p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
+		const struct poly *p = &polygons[bvh->primIndices[leaf->firstChildOrPrim + i]];
+		if (rayIntersectsWithPolygon(ray, p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
 			isect->didIntersect = true;
 			isect->type = hitTypePolygon;
-			isect->polyIndex = p.polyIndex;
+			isect->polyIndex = p->polyIndex;
 			found = true;
 		}
 	}
 	return found;
 }
 
-static inline bool traverseBvh(const struct bvh *bvh, const struct bvhNode *leaf, const struct lightRay *ray, struct hitRecord *isect);
-
-bool traverseTopLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect) {
-	return traverseBvhGeneric(bvh, traverseBvh, ray, isect);
-}
-
 static inline bool traverseBottomLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect) {
-	return traverseBvhGeneric(bvh, traverseBvhLeaf, ray, isect);
+	// Note: polygonArray is a global variable, so we *could* avoid passing it as user data.
+	// However, it is good practice to do so, since it might be the case in the future that
+	// it is turned into private scene data.
+	return traverseBvhGeneric(polygonArray, bvh, intersectBottomLevelLeaf, ray, isect);
 }
 
-static inline bool traverseBvh(const struct bvh *bvh, const struct bvhNode *leaf, const struct lightRay *ray, struct hitRecord *isect) {
-	(void)leaf;
-	return traverseBottomLevelBvh(bvh, ray, isect);
+static inline bool intersectTopLevelLeaf(
+	void *userData,
+	const struct bvh *bvh,
+	const struct bvhNode *leaf,
+	const struct lightRay *ray,
+	struct hitRecord *isect)
+{
+	const struct mesh *meshes = userData;
+	bool found = false;
+	for (int i = 0; i < leaf->primCount; ++i) {
+		const struct mesh *m = &meshes[bvh->primIndices[leaf->firstChildOrPrim + i]];
+		if (traverseBottomLevelBvh(m->bvh, ray, isect))
+			found = true;
+	}
+	return found;
+}
+
+bool traverseTopLevelBvh(
+	const struct mesh *meshes,
+	const struct bvh *bvh,
+	const struct lightRay *ray,
+	struct hitRecord *isect)
+{
+	return traverseBvhGeneric((void*)meshes, bvh, intersectTopLevelLeaf, ray, isect);
 }
 
 void destroyBvh(struct bvh *bvh) {
