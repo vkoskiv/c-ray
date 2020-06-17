@@ -320,12 +320,12 @@ static inline bool intersectNode(
 	float maxDist,
 	float* tEntry)
 {
-	float tMinX = fastMultiplyAdd(node->bounds[0 * 2 +     octant[0]], invDir->x, scaledStart->x);
-	float tMaxX = fastMultiplyAdd(node->bounds[0 * 2 + 1 - octant[0]], invDir->x, scaledStart->x);
-	float tMinY = fastMultiplyAdd(node->bounds[1 * 2 +     octant[1]], invDir->y, scaledStart->y);
-	float tMaxY = fastMultiplyAdd(node->bounds[1 * 2 + 1 - octant[1]], invDir->y, scaledStart->y);
-	float tMinZ = fastMultiplyAdd(node->bounds[2 * 2 +     octant[2]], invDir->z, scaledStart->z);
-	float tMaxZ = fastMultiplyAdd(node->bounds[2 * 2 + 1 - octant[2]], invDir->z, scaledStart->z);
+	float tMinX = fastMultiplyAdd((node->bounds + 0)[    octant[0]], invDir->x, scaledStart->x);
+	float tMaxX = fastMultiplyAdd((node->bounds + 0)[1 - octant[0]], invDir->x, scaledStart->x);
+	float tMinY = fastMultiplyAdd((node->bounds + 2)[    octant[1]], invDir->y, scaledStart->y);
+	float tMaxY = fastMultiplyAdd((node->bounds + 2)[1 - octant[1]], invDir->y, scaledStart->y);
+	float tMinZ = fastMultiplyAdd((node->bounds + 4)[    octant[2]], invDir->z, scaledStart->z);
+	float tMaxZ = fastMultiplyAdd((node->bounds + 4)[1 - octant[2]], invDir->z, scaledStart->z);
 	// Note the order here is important.
 	// Because the comparisons are of the form x < y ? x : y, they
 	// are guaranteed not to produce NaNs if the right hand side is not a NaN.
@@ -379,7 +379,7 @@ static inline bool traverseBvhGeneric(
 		bool hitRight = intersectNode(rightNode, &invDir, &scaledStart, octant, maxDist, &tEntryRight);
 
 		if (hitLeft) {
-			if (leftNode->isLeaf) {
+			if (unlikely(leftNode->isLeaf)) {
 				if (intersectLeaf(userData, bvh, leftNode, ray, isect)) {
 					maxDist = isect->distance;
 					hasHit = true;
@@ -390,7 +390,7 @@ static inline bool traverseBvhGeneric(
 			leftNode = NULL;
 
 		if (hitRight) {
-			if (rightNode->isLeaf) {
+			if (unlikely(rightNode->isLeaf)) {
 				if (intersectLeaf(userData, bvh, rightNode, ray, isect)) {
 					maxDist = isect->distance;
 					hasHit = true;

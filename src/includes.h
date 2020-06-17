@@ -19,6 +19,13 @@
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define invsqrt(x) (1.0f / sqrtf(x))
+#if defined(__GNUC__) || defined(__clang__)
+#define unlikely(x) __builtin_expect(x, false)
+#define likely(x)   __builtin_expect(x, true)
+#else
+#define unlikely(x) (x)
+#define likely(x)   (x)
+#endif
 
 //Master include file
 #ifdef __linux__
