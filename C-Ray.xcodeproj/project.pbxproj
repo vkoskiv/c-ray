@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		900BA12B220B4603005B8EE7 /* bbox.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F4220B4602005B8EE7 /* bbox.c */; };
-		900BA12C220B4603005B8EE7 /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F5220B4602005B8EE7 /* kdtree.c */; };
 		900BA12D220B4603005B8EE7 /* pathtrace.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F7220B4602005B8EE7 /* pathtrace.c */; };
 		900BA12E220B4603005B8EE7 /* renderer.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0FA220B4602005B8EE7 /* renderer.c */; };
 		900BA12F220B4603005B8EE7 /* poly.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0FC220B4602005B8EE7 /* poly.c */; };
@@ -49,7 +47,6 @@
 		905842EC236651FC009D92F1 /* objloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85192252C90C00BA7702 /* objloader.c */; };
 		905842EE236651FC009D92F1 /* pcg_basic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90369CCA222E012F008D215B /* pcg_basic.c */; };
 		905842EF236651FC009D92F1 /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15C822596E79008D6AAA /* gitsha1.c */; };
-		905842F1236651FC009D92F1 /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F5220B4602005B8EE7 /* kdtree.c */; };
 		905842F2236651FC009D92F1 /* converter.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA126220B4602005B8EE7 /* converter.c */; };
 		905842F3236651FC009D92F1 /* mtlloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85182252C90C00BA7702 /* mtlloader.c */; };
 		905842F4236651FC009D92F1 /* tile.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA107220B4602005B8EE7 /* tile.c */; };
@@ -62,7 +59,6 @@
 		905842FB236651FC009D92F1 /* filehandler.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11E220B4602005B8EE7 /* filehandler.c */; };
 		905842FC236651FC009D92F1 /* transforms.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA106220B4602005B8EE7 /* transforms.c */; };
 		905842FD236651FC009D92F1 /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA125220B4602005B8EE7 /* ui.c */; };
-		905842FE236651FC009D92F1 /* bbox.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F4220B4602005B8EE7 /* bbox.c */; };
 		905842FF236651FC009D92F1 /* sceneloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85202252CB3800BA7702 /* sceneloader.c */; };
 		9062FA09243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
 		9062FA0A243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
@@ -146,10 +142,6 @@
 
 /* Begin PBXFileReference section */
 		900BA0F0220B4602005B8EE7 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
-		900BA0F2220B4602005B8EE7 /* bbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bbox.h; sourceTree = "<group>"; };
-		900BA0F3220B4602005B8EE7 /* kdtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kdtree.h; sourceTree = "<group>"; };
-		900BA0F4220B4602005B8EE7 /* bbox.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bbox.c; sourceTree = "<group>"; };
-		900BA0F5220B4602005B8EE7 /* kdtree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kdtree.c; sourceTree = "<group>"; };
 		900BA0F7220B4602005B8EE7 /* pathtrace.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pathtrace.c; sourceTree = "<group>"; };
 		900BA0F8220B4602005B8EE7 /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer.h; sourceTree = "<group>"; };
 		900BA0F9220B4602005B8EE7 /* pathtrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pathtrace.h; sourceTree = "<group>"; };
@@ -214,6 +206,7 @@
 		9062FA19243D23A400420889 /* encoder.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = encoder.c; sourceTree = "<group>"; };
 		906479BE24982155003772CE /* sky.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sky.c; sourceTree = "<group>"; };
 		906479BF24982155003772CE /* sky.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sky.h; sourceTree = "<group>"; };
+		906479C224996499003772CE /* bbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bbox.h; sourceTree = "<group>"; };
 		9076FB4B243002A40003B327 /* terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = terminal.h; sourceTree = "<group>"; };
 		9076FB4C243002A40003B327 /* terminal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = terminal.c; sourceTree = "<group>"; };
 		9076FB4F243002B00003B327 /* mutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
@@ -319,10 +312,6 @@
 		900BA0F1220B4602005B8EE7 /* accelerators */ = {
 			isa = PBXGroup;
 			children = (
-				900BA0F2220B4602005B8EE7 /* bbox.h */,
-				900BA0F4220B4602005B8EE7 /* bbox.c */,
-				900BA0F3220B4602005B8EE7 /* kdtree.h */,
-				900BA0F5220B4602005B8EE7 /* kdtree.c */,
 				904CDBB7248D74380092E564 /* bvh.c */,
 				904CDBB6248D74380092E564 /* bvh.h */,
 			);
@@ -347,6 +336,7 @@
 			isa = PBXGroup;
 			children = (
 				90C5D5512448CC8400C58643 /* image */,
+				906479C224996499003772CE /* bbox.h */,
 				900BA108220B4602005B8EE7 /* poly.h */,
 				900BA0FC220B4602005B8EE7 /* poly.c */,
 				900BA0FD220B4602005B8EE7 /* tile.h */,
@@ -648,7 +638,6 @@
 				909D136E24439069006D0A86 /* string.c in Sources */,
 				905842EE236651FC009D92F1 /* pcg_basic.c in Sources */,
 				905842EF236651FC009D92F1 /* gitsha1.c in Sources */,
-				905842F1236651FC009D92F1 /* kdtree.c in Sources */,
 				905842F2236651FC009D92F1 /* converter.c in Sources */,
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
@@ -670,7 +659,6 @@
 				905842FB236651FC009D92F1 /* filehandler.c in Sources */,
 				905842FC236651FC009D92F1 /* transforms.c in Sources */,
 				905842FD236651FC009D92F1 /* ui.c in Sources */,
-				905842FE236651FC009D92F1 /* bbox.c in Sources */,
 				9062FA13243D236600420889 /* png.c in Sources */,
 				905842FF236651FC009D92F1 /* sceneloader.c in Sources */,
 				9076FB4E243002A40003B327 /* terminal.c in Sources */,
@@ -712,7 +700,6 @@
 				909D136D24439069006D0A86 /* string.c in Sources */,
 				90369CCC222E012F008D215B /* pcg_basic.c in Sources */,
 				90FB15CB22596E79008D6AAA /* gitsha1.c in Sources */,
-				900BA12C220B4603005B8EE7 /* kdtree.c in Sources */,
 				900BA142220B4603005B8EE7 /* converter.c in Sources */,
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
@@ -734,7 +721,6 @@
 				900BA13F220B4603005B8EE7 /* filehandler.c in Sources */,
 				900BA133220B4603005B8EE7 /* transforms.c in Sources */,
 				900BA141220B4603005B8EE7 /* ui.c in Sources */,
-				900BA12B220B4603005B8EE7 /* bbox.c in Sources */,
 				9062FA12243D236600420889 /* png.c in Sources */,
 				90CA85212252CB3800BA7702 /* sceneloader.c in Sources */,
 				9076FB4D243002A40003B327 /* terminal.c in Sources */,

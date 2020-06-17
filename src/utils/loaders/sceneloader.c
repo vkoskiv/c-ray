@@ -30,7 +30,6 @@
 #include "../platform/capabilities.h"
 #include "../../datatypes/image/imagefile.h"
 #include "../../renderer/renderer.h"
-#include "../../accelerators/kdtree.h"
 #include "../converter.h"
 #include "textureloader.h"
 #include "objloader.h"
@@ -174,7 +173,8 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 																newMesh->firstVectorIndex,
 																newMesh->firstNormalIndex,
 																newMesh->firstTextureIndex,
-																newMesh->firstPolyIndex + i);
+																newMesh->firstPolyIndex + i,
+																idx - 1);
 	}
 	
 	newMesh->materials = calloc(1, sizeof(*newMesh->materials));

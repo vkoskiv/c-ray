@@ -11,8 +11,6 @@
 
 #include "../datatypes/scene.h"
 #include "../datatypes/camera.h"
-#include "../accelerators/bbox.h"
-#include "../accelerators/kdtree.h"
 #include "../accelerators/bvh.h"
 #include "../datatypes/image/texture.h"
 #include "../datatypes/image/hdr.h"
@@ -21,6 +19,7 @@
 #include "../datatypes/poly.h"
 #include "../datatypes/mesh.h"
 #include "samplers/sampler.h"
+#include "sky.h"
 
 struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene);
 struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
@@ -113,21 +112,12 @@ struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struc
 			isect.didIntersect = true;
 		}
 	}
-	for (int o = 0; o < scene->meshCount; ++o) {
-#ifdef OLD_KD_TREE
-		if (rayIntersectsWithNode(scene->meshes[o].tree, incidentRay, &isect)) {
-#else
-		if (rayIntersectsWithBvh(scene->meshes[o].bvh, incidentRay, &isect)) {
-#endif
-			isect.end = scene->meshes[o].materials[polygonArray[isect.polyIndex].materialIndex];
-			computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
-			
-			if (isect.end.hasNormalMap) {
-				isect.surfaceNormal = bumpmap(&isect);
-			}
-			
-			isect.didIntersect = true;
-		}
+
+	if (traverseTopLevelBvh(scene->meshes, scene->topLevel, incidentRay, &isect)) {
+		isect.end = scene->meshes[polygonArray[isect.polyIndex].meshIndex].materials[polygonArray[isect.polyIndex].materialIndex];
+		computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
+		if (isect.end.hasNormalMap)
+			isect.surfaceNormal = bumpmap(&isect);
 	}
 	return isect;
 }

@@ -35,9 +35,10 @@ struct coord coordFromObj(obj_vector *vec) {
  @param firstNormalIndex First normal index of the new polygon
  @param firstTextureIndex First texture index of the new polygon
  @param polyIndex polygonArray index offset
+ @param meshIndex Mesh this polygon belongs to.
  @return c-ray polygon
  */
-struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex, int polyIndex) {
+struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex, int polyIndex, int meshIndex) {
 	struct poly polygon;
 	
 	if (face->normal_index[0] == -1) {
@@ -50,6 +51,7 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
 	//If no materials are found (missing .mtl), we will just patch in a bright pink material to show that
 	polygon.materialIndex = face->material_index == -1 ? 0 : face->material_index;
 	polygon.polyIndex = polyIndex;
+	polygon.meshIndex = meshIndex;
 	for (int i = 0; i < polygon.vertexCount; ++i) {
 		polygon.vertexIndex[i] = firstVertexIndex + face->vertex_index[i];
 	}
