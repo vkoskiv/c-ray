@@ -19,18 +19,17 @@
 
 ## Synopsis
 
-C-ray is a research oriented, physically accurate rendering engine built for learning. The source code is intended to be readable wherever possible, so feel free to explore and perhaps even expand upon the current functionality. See the contributing section in the wiki for more details.
+C-ray is a research oriented, hackable rendering engine built for learning. The source code is intended to be readable wherever possible, so feel free to explore and perhaps even expand upon the current functionality. See the contributing section in the wiki for more details.
 
 C-ray currently has:
-- A simple unidirectional unbiased integrator
+- A simple unidirectional Monte Carlo integrator
 - Real-time render preview using SDL
 - Easy scene compositing using JSON
-- Multithreading (pthreads and WIN32 threads)
-- OBJ loading with transforms for compositing a scene
+- Multithreading (using pthreads or WIN32 threads)
+- OBJ mesh loading with transforms for compositing a scene
 - PNG and BMP file output
-- BVH acceleration structures by @madmann91
+- Two levels of BVH acceleration structures (by @madmann92)
 - Antialiasing
-- Multi-sampling
 - HDR environment maps for realistic lighting
 - Gouraud interpolated smooth shading
 - Benchmarking metrics
@@ -44,6 +43,7 @@ The default integrator supports:
 - Depth of field
 - Russian Roulette path optimization
 - Diffuse textures
+- Normal maps
 
 Things I'm looking to implement:
 - Built a more robust API with a scene state.
@@ -133,7 +133,7 @@ PCG random number generator: http://www.pcg-random.org
 
 ## Contributors
 
-- @madmann91 - BVH accelerator and overall ~60% performance improvement. Thanks!
+- Huge thanks to @madmann91 for the new BVH accelerator and overall ~60% performance improvement!
 
 Please file an issue detailing any improvements you're planning on making. I openly welcome contributions!
 
