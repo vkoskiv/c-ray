@@ -27,6 +27,7 @@
 #include "../utils/ui.h"
 
 void transformMeshes(struct world *scene) {
+	printf("\n");
 	logr(info, "Running transforms: ");
 	struct timeval timer = {0};
 	startTimer(&timer);
