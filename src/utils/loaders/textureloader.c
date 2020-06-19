@@ -20,7 +20,7 @@
 #include "../../libraries/stb_image.h"
 
 //This is to compensate for the non-standard coordinate system handedness
-struct texture *flipHorizontal(struct texture *t) {
+static struct texture *flipHorizontal(struct texture *t) {
 	struct texture *new = newTexture(t->precision, t->width, t->height, t->channels);
 	new->colorspace = t->colorspace;
 	

@@ -34,20 +34,20 @@
 #include "textureloader.h"
 #include "objloader.h"
 
-struct color parseColor(const cJSON *data);
+static struct color parseColor(const cJSON *data);
 
-void addMaterialToMesh(struct mesh *mesh, struct material newMaterial);
+static void addMaterialToMesh(struct mesh *mesh, struct material newMaterial);
 
-struct mesh *lastMesh(struct renderer *r) {
+static struct mesh *lastMesh(struct renderer *r) {
 	return &r->scene->meshes[r->scene->meshCount - 1];
 }
 
-struct sphere *lastSphere(struct renderer *r) {
+static struct sphere *lastSphere(struct renderer *r) {
 	return &r->scene->spheres[r->scene->sphereCount - 1];
 }
 
 //FIXME: Do something about this awful mess.
-void loadMeshTextures(char *assetPath, struct mesh *mesh) {
+static void loadMeshTextures(char *assetPath, struct mesh *mesh) {
 	for (int i = 0; i < mesh->materialCount; ++i) {
 		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
 		if (mesh->materials[i].textureFilePath) {
@@ -88,7 +88,7 @@ void loadMeshTextures(char *assetPath, struct mesh *mesh) {
 	}
 }
 
-bool loadMeshNew(struct renderer *r, char *inputFilePath) {
+static bool loadMeshNew(struct renderer *r, char *inputFilePath) {
 	logr(info, "Loading OBJ %s... ", inputFilePath);
 	
 	bool valid = false;
@@ -111,7 +111,7 @@ bool loadMeshNew(struct renderer *r, char *inputFilePath) {
 	return valid;
 }
 
-bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
+static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	logr(info, "Loading mesh %i/%i\r", idx, meshCount);
 	
 	obj_scene_data data;
@@ -203,19 +203,19 @@ bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	return true;
 }
 
-void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
+static void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
 	mesh->materials = realloc(mesh->materials, (mesh->materialCount + 1) * sizeof(struct material));
 	mesh->materials[mesh->materialCount++] = newMaterial;
 }
 
 //FIXME: change + 1 to ++scene->someCount and just pass the count to array access
 //In the future, maybe just pass a list and size and copy at once to save time (large counts)
-void addSphere(struct world *scene, struct sphere newSphere) {
+static void addSphere(struct world *scene, struct sphere newSphere) {
 	scene->spheres = realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(struct sphere));
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
-void addCamTransform(struct camera *cam, struct transform transform) {
+static void addCamTransform(struct camera *cam, struct transform transform) {
 	if (cam->transformCount == 0) {
 		cam->transforms = calloc(1, sizeof(*cam->transforms));
 	} else {
@@ -226,13 +226,13 @@ void addCamTransform(struct camera *cam, struct transform transform) {
 	cam->transformCount++;
 }
 
-void addCamTransforms(struct camera *cam, struct transform *transforms, int count) {
+static void addCamTransforms(struct camera *cam, struct transform *transforms, int count) {
 	for (int i = 0; i < count; ++i) {
 		addCamTransform(cam, transforms[i]);
 	}
 }
 
-struct material *parseMaterial(const cJSON *data) {
+static struct material *parseMaterial(const cJSON *data) {
 	cJSON *bsdf = NULL;
 	cJSON *IOR = NULL;
 	//cJSON *roughness = NULL;
@@ -312,7 +312,7 @@ struct material *parseMaterial(const cJSON *data) {
 	return mat;
 }
 
-struct transform parseTransform(const cJSON *data, char *targetName) {
+static struct transform parseTransform(const cJSON *data, char *targetName) {
 	cJSON *type = cJSON_GetObjectItem(data, "type");
 	if (!cJSON_IsString(type)) {
 		logr(warning, "Failed to parse transform! No type found\n");
@@ -425,7 +425,7 @@ struct transform parseTransform(const cJSON *data, char *targetName) {
 }
 
 //Parse JSON array of transforms, and return a pointer to an array of corresponding transforms
-struct transform *parseTransforms(const cJSON *data) {
+static struct transform *parseTransforms(const cJSON *data) {
 	
 	int transformCount = cJSON_GetArraySize(data);
 	struct transform *transforms = calloc(transformCount, sizeof(*transforms));
@@ -439,7 +439,7 @@ struct transform *parseTransforms(const cJSON *data) {
 	return transforms;
 }
 
-struct prefs defaultPrefs() {
+static struct prefs defaultPrefs() {
 	char* imgFilePath;
 	char* imgFileName;
 	imgFilePath = copyString("./");
@@ -464,7 +464,7 @@ struct prefs defaultPrefs() {
 	};
 }
 
-struct prefs parsePrefs(const cJSON *data) {
+static struct prefs parsePrefs(const cJSON *data) {
 	struct prefs p = defaultPrefs();
 	
 	if (!data) return p;
@@ -679,7 +679,7 @@ struct prefs parsePrefs(const cJSON *data) {
 	return p;
 }
 
-int parseDisplay(struct prefs *prefs, const cJSON *data) {
+static int parseDisplay(struct prefs *prefs, const cJSON *data) {
 	if (!data) {
 		prefs->enabled = true;
 		prefs->fullscreen = false;
@@ -746,7 +746,7 @@ int parseDisplay(struct prefs *prefs, const cJSON *data) {
 	return 0;
 }
 
-struct camera defaultCamera() {
+static struct camera defaultCamera() {
 	return (struct camera){
 		.FOV = 80.0f,
 		.focalDistance = 10.0f,
@@ -754,7 +754,7 @@ struct camera defaultCamera() {
 	};
 }
 
-int parseCamera(struct camera *c, const cJSON *data) {
+static int parseCamera(struct camera *c, const cJSON *data) {
 	if (!data) *c = defaultCamera();
 	const cJSON *FOV = NULL;
 	const cJSON *focalDistance = NULL;
@@ -831,7 +831,7 @@ int parseCamera(struct camera *c, const cJSON *data) {
 	return 0;
 }
 
-struct color parseColor(const cJSON *data) {
+static struct color parseColor(const cJSON *data) {
 	
 	const cJSON *R = NULL;
 	const cJSON *G = NULL;
@@ -876,7 +876,7 @@ struct color parseColor(const cJSON *data) {
 }
 
 //FIXME:
-int parseAmbientColor(struct renderer *r, const cJSON *data) {
+static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *down = NULL;
 	const cJSON *up = NULL;
 	const cJSON *hdr = NULL;
@@ -910,7 +910,7 @@ int parseAmbientColor(struct renderer *r, const cJSON *data) {
 }
 
 //FIXME: Only parse everything else if the mesh is found and is valid
-void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
+static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
 	
 	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
@@ -968,7 +968,7 @@ void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	}
 }
 
-void parseMeshes(struct renderer *r, const cJSON *data) {
+static void parseMeshes(struct renderer *r, const cJSON *data) {
 	const cJSON *mesh = NULL;
 	int idx = 1;
 	int meshCount = cJSON_GetArraySize(data);
@@ -980,7 +980,7 @@ void parseMeshes(struct renderer *r, const cJSON *data) {
 	}
 }
 
-struct vector parseCoordinate(const cJSON *data) {
+static struct vector parseCoordinate(const cJSON *data) {
 	const cJSON *X = NULL;
 	const cJSON *Y = NULL;
 	const cJSON *Z = NULL;
@@ -998,7 +998,7 @@ struct vector parseCoordinate(const cJSON *data) {
 	return (struct vector){0.0f,0.0f,0.0f};
 }
 
-void parseSphere(struct renderer *r, const cJSON *data) {
+static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *pos = NULL;
 	const cJSON *color = NULL;
 	const cJSON *roughness = NULL;
@@ -1085,7 +1085,7 @@ void parseSphere(struct renderer *r, const cJSON *data) {
 	assignBSDF(&lastSphere(r)->material);
 }
 
-void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {
+static void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {
 	const cJSON *type = NULL;
 	type = cJSON_GetObjectItem(data, "type");
 	if (strcmp(type->valuestring, "sphere") == 0) {
@@ -1095,7 +1095,7 @@ void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {
 	}
 }
 
-void parsePrimitives(struct renderer *r, const cJSON *data) {
+static void parsePrimitives(struct renderer *r, const cJSON *data) {
 	const cJSON *primitive = NULL;
 	if (data != NULL && cJSON_IsArray(data)) {
 		int i = 0;
@@ -1106,7 +1106,7 @@ void parsePrimitives(struct renderer *r, const cJSON *data) {
 	}
 }
 
-int initializeParser(char *input) {
+static int initializeParser(char *input) {
 	cJSON *json = cJSON_Parse(input);
 	if (!json) {
 		logr(warning, "Failed to parse JSON\n");
@@ -1120,7 +1120,7 @@ int initializeParser(char *input) {
 	return 0;
 }
 
-int parseScene(struct renderer *r, const cJSON *data) {
+static int parseScene(struct renderer *r, const cJSON *data) {
 	
 	const cJSON *ambientColor = NULL;
 	const cJSON *primitives = NULL;

@@ -26,15 +26,15 @@
 
 #define ws " \t\n\r"
 
-struct vector parseVertex() {
+static struct vector parseVertex() {
 	return (struct vector){atof(strtok(NULL, ws)), atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
 }
 
-struct coord parseCoord() {
+static struct coord parseCoord() {
 	return (struct coord){atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
 }
 
-int parseIndices(int *vertexIndex, int *normalIndex, int *textureIndex) {
+static int parseIndices(int *vertexIndex, int *normalIndex, int *textureIndex) {
 	
 	char *tempstr;
 	char *token;
@@ -72,7 +72,7 @@ int parseIndices(int *vertexIndex, int *normalIndex, int *textureIndex) {
 	return vertexCount;
 }
 
-int convert(int amount, int index) {
+static int convert(int amount, int index) {
 	if (index == 0)
 		return -1;
 	if (index < 0)
@@ -81,13 +81,13 @@ int convert(int amount, int index) {
 	return index - 1;
 }
 
-void convertIndices(int amount, int *indices) {
+static void convertIndices(int amount, int *indices) {
 	for (int i = 0; i < 3; ++i) {
 		indices[i] = convert(amount, indices[i]);
 	}
 }
 
-struct poly parsePoly(struct mesh mesh) {
+static struct poly parsePoly(struct mesh mesh) {
 	struct poly p;
 	p.vertexCount = parseIndices(p.vertexIndex, p.normalIndex, p.textureIndex);
 	
@@ -108,7 +108,7 @@ struct poly parsePoly(struct mesh mesh) {
 	return p;
 }
 
-int findMaterialIndex(struct mesh *mesh, char *mtlName) {
+static int findMaterialIndex(struct mesh *mesh, char *mtlName) {
 	for (int i = 0; i < mesh->materialCount; ++i) {
 		if (stringEquals(mesh->materials[i].name, mtlName)) {
 			return i;
@@ -117,12 +117,12 @@ int findMaterialIndex(struct mesh *mesh, char *mtlName) {
 	return 0;
 }
 
-struct mesh parseOBJMesh(textBuffer *segment) {
+static struct mesh parseOBJMesh(textBuffer *segment) {
 	(void)segment;
 	return (struct mesh){0};
 }
 
-size_t countMeshes(textBuffer *buffer) {
+static size_t countMeshes(textBuffer *buffer) {
 	size_t meshCount = 0;
 	char *head = firstLine(buffer);
 	lineBuffer line = {0};

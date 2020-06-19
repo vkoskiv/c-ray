@@ -80,7 +80,7 @@ void assignBSDF(struct material *mat) {
 
 //Transform the intersection coordinates to the texture coordinate space
 //And grab the color at that point. Texture mapping.
-struct color colorForUV(struct hitRecord *isect) {
+static struct color colorForUV(struct hitRecord *isect) {
 	struct color output;
 	const struct material mtl = isect->end;
 	const struct poly p = polygonArray[isect->polyIndex];
@@ -115,7 +115,7 @@ struct color colorForUV(struct hitRecord *isect) {
 	return output;
 }
 
-struct color gradient(struct hitRecord *isect) {
+static struct color gradient(struct hitRecord *isect) {
 	//barycentric coordinates for this polygon
 	const float u = isect->uv.x;
 	const float v = isect->uv.y;
@@ -127,7 +127,7 @@ struct color gradient(struct hitRecord *isect) {
 //FIXME: Make this configurable
 //This is a checkerboard pattern mapped to the surface coordinate space
 //Caveat: This only works for meshes that have texture coordinates (i.e. were UV-unwrapped).
-struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
+static struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
 	ASSERT(isect->end.hasTexture);
 	const struct poly p = polygonArray[isect->polyIndex];
 	
@@ -155,7 +155,7 @@ struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
 
 //FIXME: Make this configurable
 //This is a spatial checkerboard, mapped to the world coordinate space (always axis aligned)
-struct color unmappedCheckerBoard(struct hitRecord *isect, float coef) {
+static struct color unmappedCheckerBoard(struct hitRecord *isect, float coef) {
 	const float sines = sinf(coef*isect->hitPoint.x) * sinf(coef*isect->hitPoint.y) * sinf(coef*isect->hitPoint.z);
 	if (sines < 0.0f) {
 		return (struct color){0.1f, 0.1f, 0.1f, 0.0f};
@@ -164,23 +164,16 @@ struct color unmappedCheckerBoard(struct hitRecord *isect, float coef) {
 	}
 }
 
-struct color checkerBoard(struct hitRecord *isect, float coef) {
+static struct color checkerBoard(struct hitRecord *isect, float coef) {
 	return isect->end.hasTexture ? mappedCheckerBoard(isect, coef) : unmappedCheckerBoard(isect, coef);
 }
 
-/**
- Compute reflection vector from a given vector and surface normal
- 
- @param vec Incident ray to reflect
- @param normal Surface normal at point of reflection
- @return Reflected vector
- */
-struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
+static struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
 	const float reflect = 2.0f * vecDot(*incident, *normal);
 	return vecSub(*incident, vecScale(*normal, reflect));
 }
 
-struct vector randomOnUnitSphere(sampler *sampler) {
+static struct vector randomOnUnitSphere(sampler *sampler) {
 	const float sample_x = getDimension(sampler);
 	const float sample_y = getDimension(sampler);
 	const float a = sample_x * (2.0f * PI);
@@ -210,7 +203,7 @@ bool weightedBSDF(struct hitRecord *isect, struct color *attenuation, struct lig
 }
 
 //TODO: Make this a function ptr in the material?
-struct color diffuseColor(struct hitRecord *isect) {
+static struct color diffuseColor(struct hitRecord *isect) {
 	return isect->end.hasTexture ? colorForUV(isect) : isect->end.diffuse;
 }
 
@@ -237,7 +230,7 @@ bool metallicBSDF(struct hitRecord *isect, struct color *attenuation, struct lig
 	return (vecDot(scattered->direction, isect->surfaceNormal) > 0.0f);
 }
 
-bool refract(struct vector in, struct vector normal, float niOverNt, struct vector *refracted) {
+static bool refract(struct vector in, struct vector normal, float niOverNt, struct vector *refracted) {
 	const struct vector uv = vecNormalize(in);
 	const float dt = vecDot(uv, normal);
 	const float discriminant = 1.0f - niOverNt * niOverNt * (1.0f - dt * dt);
@@ -253,7 +246,7 @@ bool refract(struct vector in, struct vector normal, float niOverNt, struct vect
 	}
 }
 
-float schlick(float cosine, float IOR) {
+static float schlick(float cosine, float IOR) {
 	float r0 = (1.0f - IOR) / (1.0f + IOR);
 	r0 = r0*r0;
 	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);

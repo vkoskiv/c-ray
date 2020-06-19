@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include "assert.h"
 
-size_t strlen_newline(const char *str) {
+static size_t strlen_newline(const char *str) {
 	size_t len = 0;
 	while (*(str++) != '\n')
 		++len;
@@ -178,7 +178,7 @@ void freeLineBuffer(lineBuffer *line) {
 }
 
 //TODO: Tests for all of these.
-void testTextView() {
+static void testTextView() {
 	logr(debug, "Testing textView\n");
 	char *string = NULL;
 	string = copyString("This is a\nMultiline\nstring!\n");
@@ -198,7 +198,7 @@ void testTextView() {
 	freeTextBuffer(view);
 }
 
-void testTokenizer(char *filePath) {
+static void testTokenizer(char *filePath) {
 	char *rawText = loadFile(filePath, NULL);
 	textBuffer *file = newTextBuffer(rawText);
 	

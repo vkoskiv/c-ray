@@ -21,7 +21,7 @@ float fromRadians(float radians) {
 	return radians * (180/PI);
 }
 
-struct matrix4x4 identityMatrix() {
+static struct matrix4x4 identityMatrix() {
 	struct matrix4x4 mtx;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -158,7 +158,7 @@ struct transform newTransformScaleUniform(float scale) {
 	return transform;
 }
 
-void getCofactor(float A[4][4], float cofactors[4][4], int p, int q, int n) {
+static void getCofactor(float A[4][4], float cofactors[4][4], int p, int q, int n) {
 	int i = 0;
 	int j = 0;
 	
@@ -177,7 +177,7 @@ void getCofactor(float A[4][4], float cofactors[4][4], int p, int q, int n) {
 
 //I really, really hope this is faster than the generic one
 //I wrote this by hand...
-float findDeterminant4x4(float A[4][4]) {
+static float findDeterminant4x4(float A[4][4]) {
 	float topLeft = A[0][0] * ((A[1][1] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) + (A[1][3] * ((A[2][1]*A[3][2])-(A[2][2]*A[3][1]))));
 	float topRigh = A[0][1] * ((A[1][0] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][2])-(A[2][2]*A[3][0]))));
 	float botLeft = A[0][2] * ((A[1][0] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) - (A[1][1] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][1])-(A[2][1]*A[3][0]))));
@@ -186,7 +186,7 @@ float findDeterminant4x4(float A[4][4]) {
 }
 
 //Find det of a given 4x4 matrix A
-float findDeterminant(float A[4][4], int n) {
+static float findDeterminant(float A[4][4], int n) {
 	float det = 0;
 	
 	if (n == 1)
@@ -204,7 +204,7 @@ float findDeterminant(float A[4][4], int n) {
 	return det;
 }
 
-void findAdjoint(float A[4][4], float adjoint[4][4]) {
+static void findAdjoint(float A[4][4], float adjoint[4][4]) {
 	int sign = 1;
 	float temp[4][4];
 	
@@ -247,7 +247,7 @@ struct matrix4x4 transpose(struct matrix4x4 tf) {
 }
 
 //Tests, this is dead code for now until I get a testing suite.
-char *transformTypeString(enum transformType type) {
+static char *transformTypeString(enum transformType type) {
 	switch (type) {
 		case transformTypeXRotate:
 			return "transformTypeXRotate";
@@ -272,7 +272,7 @@ char *transformTypeString(enum transformType type) {
 	}
 }
 
-void printMatrix(struct matrix4x4 mtx) {
+static void printMatrix(struct matrix4x4 mtx) {
 	printf("\n");
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -283,13 +283,13 @@ void printMatrix(struct matrix4x4 mtx) {
 	printf("\n");
 }
 
-void printTransform(struct transform tf) {
+static void printTransform(struct transform tf) {
 	printf("%s", transformTypeString(tf.type));
 	printMatrix(tf.A);
 	printMatrix(tf.Ainv);
 }
 
-void testStuff() {
+static void testStuff() {
 	struct transform rotateX = newTransformRotateX(33.3f);
 	struct transform rotateY = newTransformRotateY(33.3f);
 	struct transform rotateZ = newTransformRotateZ(33.3f);

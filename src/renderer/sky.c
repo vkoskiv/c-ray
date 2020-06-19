@@ -36,11 +36,11 @@ static const vector up = {0.0f, 1.0f, 0.0f};
 
 static const struct color K = {0.686f, 0.678f, 0.666f, 1.0f};
 
-float getSunIntensity(const float zenithAngleCos) {
+static float getSunIntensity(const float zenithAngleCos) {
 	return sunIntensity * max(0.0f, 1.0f - expf(-((cutoffAngle - acosf(zenithAngleCos)) / steepness)));
 }
 
-struct color colorPow(struct color c1, struct color c2) {
+static struct color colorPow(struct color c1, struct color c2) {
 	return (struct color){
 		powf(c1.red, c2.red),
 		powf(c1.green, c2.green),
@@ -49,28 +49,28 @@ struct color colorPow(struct color c1, struct color c2) {
 	};
 }
 
-struct color invertColor(float invert, struct color c) {
+static struct color invertColor(float invert, struct color c) {
 	return (struct color){invert / c.red, invert/ c.green, invert / primaryWavelengths.blue, invert / primaryWavelengths.alpha};
 }
 
-struct color totalMie(struct color primaryWavelengths, struct color K, float T) {
+static struct color totalMie(struct color primaryWavelengths, struct color K, float T) {
 	float c = (0.2f * T) * 10E-18;
 	return colorCoef(0.434f * c * PI, multiplyColors(colorPow(invertColor((2.0f * PI), primaryWavelengths),(struct color){2.0f, 2.0f, 2.0f, 1.0f}), K));
 }
 
-float rayleighPhase(float cosViewSunAngle) {
+static float rayleighPhase(float cosViewSunAngle) {
 	return (3.0f / (16.0f * PI)) * (1.0f * powf(cosViewSunAngle, 2.0f));
 }
 
-float hgPhase(float cosViewSunAngle, float g) {
+static float hgPhase(float cosViewSunAngle, float g) {
 	return (1.0f / (4.0f * PI)) * ((1.0f - powf(g, 2.0f)) / powf(1.0f - 2.0f * g * cosViewSunAngle + powf(g, 2.0f), 1.0f));
 }
 
-struct color divideColors(struct color c1, struct color c2) {
+static struct color divideColors(struct color c1, struct color c2) {
 	return (struct color){c1.red / c2.red, c1.green / c2.green, c1.blue / c2.blue, c1.alpha / c2.alpha};
 }
 
-float clamp(float value, float min, float max) {
+static float clamp(float value, float min, float max) {
 	return min(max(value, min), max);
 }
 

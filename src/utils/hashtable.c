@@ -129,7 +129,7 @@ void freeTable(struct hashtable *table) {
 	free(table);
 }
 
-void printTableUsage(struct hashtable *t) {
+static void printTableUsage(struct hashtable *t) {
 	for (uint64_t i = 0; i < t->size; ++i) {
 		printf("[%s]", t->data[i].used ? "x" : " ");
 	}

@@ -326,8 +326,8 @@
 				900BA0F7220B4602005B8EE7 /* pathtrace.c */,
 				900BA0F8220B4602005B8EE7 /* renderer.h */,
 				900BA0FA220B4602005B8EE7 /* renderer.c */,
-				906479BE24982155003772CE /* sky.c */,
 				906479BF24982155003772CE /* sky.h */,
+				906479BE24982155003772CE /* sky.c */,
 			);
 			path = renderer;
 			sourceTree = "<group>";
@@ -584,7 +584,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */;
+			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -1039,7 +1039,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */ = {
+		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				90D99AF91D08ADB10015A854 /* Debug */,

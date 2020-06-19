@@ -21,7 +21,7 @@
 
 static struct hashtable *g_options;
 
-void printUsage(const char *progname) {
+static void printUsage(const char *progname) {
 	logr(info, "Usage: %s [-hjdv] [input_json...]\n", progname);
 	logr(info, "	Available options are:\n");
 	logr(info, "		[-h]         -> Show this message\n");

@@ -21,8 +21,8 @@
 #include "samplers/sampler.h"
 #include "sky.h"
 
-struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene);
-struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
+static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene);
+static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
 
 struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
 	struct color weight = whiteColor; // Current path weight
@@ -54,7 +54,7 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 	return finalColor;
 }
 
-void computeSurfaceProps(struct poly p, struct coord uv, struct vector *hitPoint, struct vector *normal) {
+static void computeSurfaceProps(struct poly p, struct coord uv, struct vector *hitPoint, struct vector *normal) {
 	float u = uv.x;
 	float v = uv.y;
 	float w = 1.0f - u - v;
@@ -75,7 +75,7 @@ void computeSurfaceProps(struct poly p, struct coord uv, struct vector *hitPoint
 	*hitPoint = vecAdd(*hitPoint, vecScale(*normal, 0.0001f));
 }
 
-vector bumpmap(const struct hitRecord *isect) {
+static vector bumpmap(const struct hitRecord *isect) {
 	struct material mtl = isect->end;
 	struct poly p = polygonArray[isect->polyIndex];
 	float width = mtl.normalMap->width;
@@ -101,7 +101,7 @@ vector bumpmap(const struct hitRecord *isect) {
  @param scene  Given scene to cast that ray into
  @return intersection struct with the appropriate values set
  */
-struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene) {
+static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene) {
 	struct hitRecord isect;
 	isect.distance = 20000.0f;
 	isect.incident = *incidentRay;
@@ -122,7 +122,7 @@ struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struc
 	return isect;
 }
 
-struct color getHDRI(const struct lightRay *incidentRay, const struct hdr *hdr) {
+static struct color getHDRI(const struct lightRay *incidentRay, const struct hdr *hdr) {
 	//Unit direction vector
 	struct vector ud = vecNormalize(incidentRay->direction);
 	
@@ -146,12 +146,12 @@ struct color getHDRI(const struct lightRay *incidentRay, const struct hdr *hdr) 
 }
 
 //Linearly interpolate based on the Y component
-struct color getAmbientColor(const struct lightRay *incidentRay, struct gradient color) {
+static struct color getAmbientColor(const struct lightRay *incidentRay, struct gradient color) {
 	struct vector unitDirection = vecNormalize(incidentRay->direction);
 	float t = 0.5f * (unitDirection.y + 1.0f);
 	return addColors(colorCoef(1.0f - t, color.down), colorCoef(t, color.up));
 }
 
-struct color getBackground(const struct lightRay *incidentRay, const struct world *scene) {
+static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene) {
 	return scene->hdr ? getHDRI(incidentRay, scene->hdr) : getAmbientColor(incidentRay, scene->ambientColor);
 }

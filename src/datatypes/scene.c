@@ -26,7 +26,7 @@
 #include "../utils/args.h"
 #include "../utils/ui.h"
 
-void transformMeshes(struct world *scene) {
+static void transformMeshes(struct world *scene) {
 	printf("\n");
 	logr(info, "Running transforms: ");
 	struct timeval timer = {0};
@@ -39,7 +39,7 @@ void transformMeshes(struct world *scene) {
 }
 
 //TODO: Parallelize this task
-void computeAccels(struct mesh *meshes, int meshCount) {
+static void computeAccels(struct mesh *meshes, int meshCount) {
 	logr(info, "Computing BVHs: ");
 	struct timeval timer = {0};
 	startTimer(&timer);
@@ -54,7 +54,7 @@ void computeAccels(struct mesh *meshes, int meshCount) {
 	printf("\n");
 }
 
-void computeTopLevelBvh(struct world *scene) {
+static void computeTopLevelBvh(struct world *scene) {
 	logr(info, "Computing top-level BVH: ");
 	struct timeval timer = {0};
 	startTimer(&timer);
@@ -63,7 +63,7 @@ void computeTopLevelBvh(struct world *scene) {
 	printf("\n");
 }
 
-void printSceneStats(struct world *scene, unsigned long long ms) {
+static void printSceneStats(struct world *scene, unsigned long long ms) {
 	logr(info, "Scene construction completed in ");
 	printSmartTime(ms);
 	printf("\n");
@@ -75,7 +75,7 @@ void printSceneStats(struct world *scene, unsigned long long ms) {
 		   scene->sphereCount);
 }
 
-void checkAndSetCliOverrides(struct renderer *r) {
+static void checkAndSetCliOverrides(struct renderer *r) {
 	//Update threadCount if it's overridden
 	if (isSet("thread_override")) {
 		int threads = intPref("thread_override");

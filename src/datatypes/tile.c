@@ -14,7 +14,7 @@
 #include "../utils/logging.h"
 #include "../utils/platform/mutex.h"
 
-void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder);
+static void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder);
 
 /**
  Gets the next tile from renderTiles in mainRenderer
@@ -97,7 +97,7 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 /**
  Reorder renderTiles to start from top
  */
-void reorderTopToBottom(struct renderTile **tiles, unsigned tileCount) {
+static void reorderTopToBottom(struct renderTile **tiles, unsigned tileCount) {
 	unsigned endIndex = tileCount - 1;
 	
 	struct renderTile *tempArray = calloc(tileCount, sizeof(*tempArray));
@@ -110,7 +110,7 @@ void reorderTopToBottom(struct renderTile **tiles, unsigned tileCount) {
 	*tiles = tempArray;
 }
 
-unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_random_t *rng) {
+static unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_random_t *rng) {
 	unsigned int r;
 	const unsigned int range = 1 + max - min;
 	const unsigned int buckets = UINT32_MAX / range;
@@ -129,7 +129,7 @@ unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_random_t *r
 /**
  Shuffle renderTiles into a random order
  */
-void reorderRandom(struct renderTile **tiles, unsigned tileCount) {
+static void reorderRandom(struct renderTile **tiles, unsigned tileCount) {
 	pcg32_random_t *rng = calloc(1, sizeof(*rng));
 	pcg32_srandom_r(rng, 3141592, 0);
 	for (unsigned i = 0; i < tileCount; ++i) {
@@ -145,7 +145,7 @@ void reorderRandom(struct renderTile **tiles, unsigned tileCount) {
 /**
  Reorder renderTiles to start from middle
  */
-void reorderFromMiddle(struct renderTile **tiles, unsigned tileCount) {
+static void reorderFromMiddle(struct renderTile **tiles, unsigned tileCount) {
 	int midLeft = 0;
 	int midRight = 0;
 	bool isRight = true;
@@ -172,7 +172,7 @@ void reorderFromMiddle(struct renderTile **tiles, unsigned tileCount) {
 /**
  Reorder renderTiles to start from ends, towards the middle
  */
-void reorderToMiddle(struct renderTile **tiles, unsigned tileCount) {
+static void reorderToMiddle(struct renderTile **tiles, unsigned tileCount) {
 	unsigned left = 0;
 	unsigned right = 0;
 	bool isRight = true;
@@ -200,7 +200,7 @@ void reorderToMiddle(struct renderTile **tiles, unsigned tileCount) {
  
  @param order Render order to be applied
  */
-void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder) {
+static void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder) {
 	switch (tileOrder) {
 		case renderOrderFromMiddle:
 			reorderFromMiddle(tiles, tileCount);

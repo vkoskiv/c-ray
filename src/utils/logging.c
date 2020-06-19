@@ -13,7 +13,7 @@
 #include "args.h"
 #include "platform/terminal.h"
 
-void printPrefix(enum logType type) {
+static void printPrefix(enum logType type) {
 	switch (type) {
 		case info:
 			printf("[%sINFO%s]", KGRN, KNRM);
@@ -32,7 +32,7 @@ void printPrefix(enum logType type) {
 	}
 }
 
-void printDate() {
+static void printDate() {
 	time_t curTime = time(NULL);
 	struct tm time = *localtime(&curTime);
 	printf("[%d-%02d-%02d %02d:%02d:%02d]: ",

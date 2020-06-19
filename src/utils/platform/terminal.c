@@ -18,11 +18,11 @@
 #include "signal.h"
 #include "../logging.h"
 
-void showCursor(bool show) {
+static void showCursor(bool show) {
 	show ? fputs("\e[?25h", stdout) : fputs("\e[?25l", stdout);
 }
 
-void handler(int sig) {
+static void handler(int sig) {
 	if (sig == 2) { //SIGINT
 		printf("\n");
 		logr(info, "Aborting initialization.\n");

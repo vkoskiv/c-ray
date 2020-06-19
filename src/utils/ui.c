@@ -220,7 +220,7 @@ void getKeyboardInput(struct renderer *r) {
 #endif
 }
 
-void clearProgBar(struct renderer *r, struct renderTile temp) {
+static void clearProgBar(struct renderer *r, struct renderTile temp) {
 	for (unsigned i = 0; i < temp.width; ++i) {
 		setPixel(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5)) - 1);
 		setPixel(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height/5))    );
@@ -235,7 +235,7 @@ void clearProgBar(struct renderer *r, struct renderTile temp) {
  I didn't want to put any mutex locks in the main render loop, so this gets
  around that.
  */
-void drawProgressBars(struct renderer *r) {
+static void drawProgressBars(struct renderer *r) {
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
 		if (r->state.threads[t].currentTileNum != -1) {
 			struct renderTile temp = r->state.renderTiles[r->state.threads[t].currentTileNum];
@@ -261,7 +261,7 @@ void drawProgressBars(struct renderer *r) {
  @param r Renderer
  @param tile Given renderTile
  */
-void drawFrame(struct renderer *r, struct renderTile tile) {
+static void drawFrame(struct renderer *r, struct renderTile tile) {
 	unsigned length = tile.width  <= 16 ? 4 : 8;
 			 length = tile.height <= 16 ? 4 : 8;
 	length = length > tile.width ? tile.width : length;
@@ -293,7 +293,7 @@ void drawFrame(struct renderer *r, struct renderTile tile) {
 	}
 }
 
-void updateFrames(struct renderer *r) {
+static void updateFrames(struct renderer *r) {
 	if (r->prefs.tileWidth < 8 || r->prefs.tileHeight < 8) return;
 	for (int i = 0; i < r->state.tileCount; ++i) {
 		//For every tile, if it's currently rendering, draw the frame
