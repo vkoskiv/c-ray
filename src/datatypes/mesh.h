@@ -31,8 +31,8 @@ struct mesh {
 	int firstTextureIndex;
 	
 	//Faces
+	struct poly *polygons;
 	int polyCount;
-	int firstPolyIndex;
 	
 	//Transforms to perform before rendering
 	int transformCount;

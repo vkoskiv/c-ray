@@ -134,7 +134,6 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 	newMesh->firstTextureIndex = textureCount;
 	newMesh->textureCount = data.vertex_texture_count;
 	//Poly data
-	newMesh->firstPolyIndex = polyCount;
 	newMesh->polyCount = data.face_count;
 	//Transforms init
 	newMesh->transformCount = 0;
@@ -147,7 +146,6 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 	vertexCount += data.vertex_count;
 	normalCount += data.vertex_normal_count;
 	textureCount += data.vertex_texture_count;
-	polyCount += data.face_count;
 	
 	//Data loaded, now convert everything
 	//Convert vectors
@@ -167,14 +165,13 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 		textureArray[newMesh->firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
-	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
+	newMesh->polygons = malloc(data.face_count * sizeof(struct poly));
 	for (int i = 0; i < data.face_count; ++i) {
-		polygonArray[newMesh->firstPolyIndex + i] = polyFromObj(data.face_list[i],
-																newMesh->firstVectorIndex,
-																newMesh->firstNormalIndex,
-																newMesh->firstTextureIndex,
-																newMesh->firstPolyIndex + i,
-																idx - 1);
+		newMesh->polygons[i] = polyFromObj(data.face_list[i],
+										   newMesh->firstVectorIndex,
+										   newMesh->firstNormalIndex,
+										   newMesh->firstTextureIndex,
+										   idx - 1);
 	}
 	
 	newMesh->materials = calloc(1, sizeof(*newMesh->materials));

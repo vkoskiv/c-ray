@@ -13,13 +13,14 @@
 struct lightRay;
 struct hitRecord;
 struct mesh;
+struct poly;
 
 struct bvh;
 
 /// Builds a BVH for a given set of polygons
 /// @param polygons Array of polygons to process
 /// @param count Amount of polygons given
-struct bvh *buildBottomLevelBvh(int *polygons, unsigned count);
+struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count);
 
 /// Builds a top-level BVH for a given set of meshes
 /// @param meshes Meshes to build a top-level BVH for
@@ -29,7 +30,7 @@ struct bvh *buildTopLevelBvh(struct mesh *meshes, unsigned meshCount);
 /// Intersect a ray with a scene top-level BVH
 bool traverseTopLevelBvh(const struct mesh *meshes, const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
 
-bool traverseBottomLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
+bool traverseBottomLevelBvh(const struct mesh *mesh, const struct lightRay *ray, struct hitRecord *isect);
 
 /// Frees the memory allocated by the given BVH
 void destroyBvh(struct bvh *);

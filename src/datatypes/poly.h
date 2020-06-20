@@ -14,15 +14,9 @@ struct poly {
 	int textureIndex[MAX_CRAY_VERTEX_COUNT];
 	int materialIndex: 16;
 	int meshIndex: 16; //FIXME: This shouldn't be here.
-	int polyIndex;
 	int vertexCount: 3;
 	bool hasNormals;
 };
-
-//Main polygon array
-//FIXME: Move to own file
-extern struct poly *polygonArray;
-extern int polyCount;
 
 struct lightRay;
 

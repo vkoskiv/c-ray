@@ -44,11 +44,7 @@ static void computeAccels(struct mesh *meshes, int meshCount) {
 	struct timeval timer = {0};
 	startTimer(&timer);
 	for (int i = 0; i < meshCount; ++i) {
-		int *indices = calloc(meshes[i].polyCount, sizeof(*indices));
-		for (int j = 0; j < meshes[i].polyCount; ++j) {
-			indices[j] = meshes[i].firstPolyIndex + j;
-		}
-		meshes[i].bvh = buildBottomLevelBvh(indices, meshes[i].polyCount);
+		meshes[i].bvh = buildBottomLevelBvh(meshes[i].polygons, meshes[i].polyCount);
 	}
 	printSmartTime(getMs(timer));
 	printf("\n");
@@ -66,13 +62,17 @@ static void computeTopLevelBvh(struct world *scene) {
 static void printSceneStats(struct world *scene, unsigned long long ms) {
 	logr(info, "Scene construction completed in ");
 	printSmartTime(ms);
+	unsigned polys = 0;
+	for (int m = 0; m < scene->meshCount; ++m)
+		polys += scene->meshes[m].polyCount;
 	printf("\n");
-	logr(info, "Totals: %iV, %iN, %iT, %iP, %iS\n",
+	logr(info, "Totals: %iV, %iN, %iT, %iP, %iS, %iM\n",
 		   vertexCount,
 		   normalCount,
 		   textureCount,
-		   polyCount,
-		   scene->sphereCount);
+		   polys,
+		   scene->sphereCount,
+		   scene->meshCount);
 }
 
 static void checkAndSetCliOverrides(struct renderer *r) {
@@ -80,7 +80,8 @@ static void checkAndSetCliOverrides(struct renderer *r) {
 	if (isSet("thread_override")) {
 		int threads = intPref("thread_override");
 		if (r->prefs.threadCount != threads) {
-			logr(info, "Overriding thread count to %i\n", threads);
+			printf("\n");
+			logr(info, "Overriding thread count to %i", threads);
 			r->prefs.threadCount = threads;
 			r->prefs.fromSystem = false;
 		}
@@ -88,7 +89,8 @@ static void checkAndSetCliOverrides(struct renderer *r) {
 	
 	if (isSet("samples_override")) {
 		int samples = intPref("samples_override");
-		logr(info, "Overriding sample count to %i\n", samples);
+		printf("\n");
+		logr(info, "Overriding sample count to %i", samples);
 		r->prefs.sampleCount = samples;
 	}
 	
@@ -96,7 +98,8 @@ static void checkAndSetCliOverrides(struct renderer *r) {
 	if (isSet("dims_override")) {
 		int width = intPref("dims_width");
 		int height = intPref("dims_height");
-		logr(info, "Overriding image dimensions to %ix%i\n", width, height);
+		printf("\n");
+		logr(info, "Overriding image dimensions to %ix%i", width, height);
 		r->prefs.imageWidth = intPref("dims_width");
 		r->prefs.imageHeight = intPref("dims_height");
 	}

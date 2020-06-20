@@ -13,10 +13,6 @@
 #include "vector.h"
 #include "lightRay.h"
 
-//Main polygon array
-struct poly *polygonArray;
-int polyCount;
-
 bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *poly, float *result, struct vector *normal, struct coord *uv) {
 	float orientation, inverseOrientation;
 	struct vector edge1 = vecSub(vertexArray[poly->vertexIndex[2]], vertexArray[poly->vertexIndex[0]]);

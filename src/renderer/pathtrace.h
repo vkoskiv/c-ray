@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../datatypes/vector.h"
+#include "../datatypes/poly.h"
 #include "../datatypes/lightRay.h"
 #include "../datatypes/material.h"
 
@@ -39,7 +40,7 @@ struct hitRecord {
 	enum currentType type;			//Type of object ray intersected with
 	bool didIntersect;				//True if ray intersected
 	float distance;					//Distance to intersection point
-	int polyIndex;					//mesh polygon index
+	struct poly *polygon;			//ptr to polygon that was encountered
 };
 
 

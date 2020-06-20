@@ -32,12 +32,10 @@ void allocVertexBuffer() {
 	vertexArray = calloc(1, sizeof(*vertexArray));
 	normalArray = calloc(1, sizeof(*normalArray));
 	textureArray = calloc(1, sizeof(*textureArray));
-	polygonArray = calloc(1, sizeof(*polygonArray));
 	
 	vertexCount = 0;
 	normalCount = 0;
 	textureCount = 0;
-	polyCount = 0;
 }
 
 void destroyVertexBuffer() {
@@ -49,8 +47,5 @@ void destroyVertexBuffer() {
 	}
 	if (textureArray) {
 		free(textureArray);
-	}
-	if (polygonArray) {
-		free(polygonArray);
 	}
 }

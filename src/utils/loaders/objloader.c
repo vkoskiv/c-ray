@@ -223,7 +223,6 @@ struct mesh *parseOBJFilea(char *filePath) {
 	newMesh->firstVectorIndex = vertexCount;
 	newMesh->firstNormalIndex = normalCount;
 	newMesh->firstTextureIndex = textureCount;
-	newMesh->firstPolyIndex = polyCount;
 	
 	newMesh->vertexCount = vCount;
 	newMesh->normalCount = nCount;
@@ -236,8 +235,8 @@ struct mesh *parseOBJFilea(char *filePath) {
 	normalArray = realloc(normalArray, normalCount * sizeof(struct vector));
 	textureCount += tCount;
 	textureArray = realloc(textureArray, textureCount * sizeof(struct coord));
-	polyCount += pCount;
-	polygonArray = realloc(polygonArray, polyCount * sizeof(struct poly));
+	
+	newMesh->polygons = malloc(pCount * sizeof(struct poly));
 	
 	//newMesh->name;
 	//newMesh->materials;
@@ -272,8 +271,7 @@ struct mesh *parseOBJFilea(char *filePath) {
 			//Polygon
 			struct poly p = parsePoly(*newMesh);
 			p.materialIndex = currMatIdx;
-			p.polyIndex = currPolIdx;
-			polygonArray[newMesh->firstPolyIndex + currPolIdx] = p;
+			newMesh->polygons[currPolIdx] = p;
 			currPolIdx++;
 		} else if (stringEquals(token, "usemtl")) {
 			//current material index

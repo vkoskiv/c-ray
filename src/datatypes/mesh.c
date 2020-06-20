@@ -32,12 +32,12 @@ void transformMesh(struct mesh *mesh) {
 	bool *ntformed = (bool *)calloc(mesh->normalCount, sizeof(*ntformed));
 	for (int tf = 0; tf < mesh->transformCount; ++tf) {
 		//Perform transforms
-		for (int p = mesh->firstPolyIndex; p < (mesh->firstPolyIndex + mesh->polyCount); ++p) {
-			for (int v = 0; v < polygonArray[p].vertexCount; ++v) {
+		for (int p = 0; p < mesh->polyCount; ++p) {
+			for (int v = 0; v < mesh->polygons[p].vertexCount; ++v) {
 				//vec
-				if (!tformed[polygonArray[p].vertexIndex[v] - mesh->firstVectorIndex]) {
-					transformVector(&vertexArray[polygonArray[p].vertexIndex[v]], mesh->transforms[tf].A);
-					tformed[polygonArray[p].vertexIndex[v] - mesh->firstVectorIndex] = true;
+				if (!tformed[mesh->polygons[p].vertexIndex[v] - mesh->firstVectorIndex]) {
+					transformVector(&vertexArray[mesh->polygons[p].vertexIndex[v]], mesh->transforms[tf].A);
+					tformed[mesh->polygons[p].vertexIndex[v] - mesh->firstVectorIndex] = true;
 				}
 			}
 		}

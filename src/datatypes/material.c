@@ -83,7 +83,7 @@ void assignBSDF(struct material *mat) {
 static struct color colorForUV(struct hitRecord *isect) {
 	struct color output;
 	const struct material mtl = isect->end;
-	const struct poly p = polygonArray[isect->polyIndex];
+	const struct poly *p = isect->polygon;
 	
 	//Texture width and height for this material
 	const float width = mtl.texture->width;
@@ -95,9 +95,9 @@ static struct color colorForUV(struct hitRecord *isect) {
 	const float w = 1.0f - u - v;
 	
 	//Weighted texture coordinates
-	const struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
-	const struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
-	const struct coord wcomponent = coordScale(w, textureArray[p.textureIndex[0]]);
+	const struct coord ucomponent = coordScale(u, textureArray[p->textureIndex[2]]);
+	const struct coord vcomponent = coordScale(v, textureArray[p->textureIndex[1]]);
+	const struct coord wcomponent = coordScale(w, textureArray[p->textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
 	const struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
@@ -129,7 +129,7 @@ static struct color gradient(struct hitRecord *isect) {
 //Caveat: This only works for meshes that have texture coordinates (i.e. were UV-unwrapped).
 static struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
 	ASSERT(isect->end.hasTexture);
-	const struct poly p = polygonArray[isect->polyIndex];
+	const struct poly *p = isect->polygon;
 	
 	//barycentric coordinates for this polygon
 	const float u = isect->uv.x;
@@ -137,9 +137,9 @@ static struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
 	const float w = 1.0f - u - v;
 	
 	//Weighted coordinates
-	const struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
-	const struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
-	const struct coord wcomponent = coordScale(w,	textureArray[p.textureIndex[0]]);
+	const struct coord ucomponent = coordScale(u, textureArray[p->textureIndex[2]]);
+	const struct coord vcomponent = coordScale(v, textureArray[p->textureIndex[1]]);
+	const struct coord wcomponent = coordScale(w, textureArray[p->textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
 	const struct coord surfaceXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);

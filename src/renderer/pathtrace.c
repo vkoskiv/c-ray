@@ -56,20 +56,20 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 	return finalColor;
 }
 
-static void computeSurfaceProps(struct poly p, struct coord uv, struct vector *hitPoint, struct vector *normal) {
-	float u = uv.x;
-	float v = uv.y;
+static void computeSurfaceProps(const struct poly *p, const struct coord *uv, struct vector *hitPoint, struct vector *normal) {
+	float u = uv->x;
+	float v = uv->y;
 	float w = 1.0f - u - v;
-	vector ucomp = vecScale(vertexArray[p.vertexIndex[2]], u);
-	vector vcomp = vecScale(vertexArray[p.vertexIndex[1]], v);
-	vector wcomp = vecScale(vertexArray[p.vertexIndex[0]], w);
+	vector ucomp = vecScale(vertexArray[p->vertexIndex[2]], u);
+	vector vcomp = vecScale(vertexArray[p->vertexIndex[1]], v);
+	vector wcomp = vecScale(vertexArray[p->vertexIndex[0]], w);
 	
 	*hitPoint = vecAdd(vecAdd(ucomp, vcomp), wcomp);
 	
-	if (p.hasNormals) {
-		vector upcomp = vecScale(normalArray[p.normalIndex[2]], u);
-		vector vpcomp = vecScale(normalArray[p.normalIndex[1]], v);
-		vector wpcomp = vecScale(normalArray[p.normalIndex[0]], w);
+	if (p->hasNormals) {
+		vector upcomp = vecScale(normalArray[p->normalIndex[2]], u);
+		vector vpcomp = vecScale(normalArray[p->normalIndex[1]], v);
+		vector wpcomp = vecScale(normalArray[p->normalIndex[0]], w);
 		
 		*normal = vecNormalize(vecAdd(vecAdd(upcomp, vpcomp), wpcomp));
 	}
@@ -79,15 +79,15 @@ static void computeSurfaceProps(struct poly p, struct coord uv, struct vector *h
 
 static vector bumpmap(const struct hitRecord *isect) {
 	struct material mtl = isect->end;
-	struct poly p = polygonArray[isect->polyIndex];
+	struct poly *p = isect->polygon;
 	float width = mtl.normalMap->width;
 	float heigh = mtl.normalMap->height;
 	float u = isect->uv.x;
 	float v = isect->uv.y;
 	float w = 1.0f - u - v;
-	struct coord ucomponent = coordScale(u, textureArray[p.textureIndex[2]]);
-	struct coord vcomponent = coordScale(v, textureArray[p.textureIndex[1]]);
-	struct coord wcomponent = coordScale(w, textureArray[p.textureIndex[0]]);
+	struct coord ucomponent = coordScale(u, textureArray[p->textureIndex[2]]);
+	struct coord vcomponent = coordScale(v, textureArray[p->textureIndex[1]]);
+	struct coord wcomponent = coordScale(w, textureArray[p->textureIndex[0]]);
 	struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
 	float x = (textureXY.x*(width));
 	float y = (textureXY.y*(heigh));
@@ -117,17 +117,17 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 	
 #ifdef LINEAR
 	for (int o = 0; o < scene->meshCount; ++o) {
-		if (traverseBottomLevelBvh(scene->meshes[o].bvh, incidentRay, &isect)) {
-			isect.end = scene->meshes[polygonArray[isect.polyIndex].meshIndex].materials[polygonArray[isect.polyIndex].materialIndex];
-			computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
+		if (traverseBottomLevelBvh(&scene->meshes[o], incidentRay, &isect)) {
+			isect.end = scene->meshes[isect.polygon->meshIndex].materials[isect.polygon->materialIndex];
+			computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 			if (isect.end.hasNormalMap)
 				isect.surfaceNormal = bumpmap(&isect);
 		}
 	}
 #else
 	if (traverseTopLevelBvh(scene->meshes, scene->topLevel, incidentRay, &isect)) {
-		isect.end = scene->meshes[polygonArray[isect.polyIndex].meshIndex].materials[polygonArray[isect.polyIndex].materialIndex];
-		computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
+		isect.end = scene->meshes[isect.polygon->meshIndex].materials[isect.polygon->materialIndex];
+		computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 		if (isect.end.hasNormalMap)
 			isect.surfaceNormal = bumpmap(&isect);
 	}
