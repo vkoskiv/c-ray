@@ -29,5 +29,7 @@ struct bvh *buildTopLevelBvh(struct mesh *meshes, unsigned meshCount);
 /// Intersect a ray with a scene top-level BVH
 bool traverseTopLevelBvh(const struct mesh *meshes, const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
 
+bool traverseBottomLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
+
 /// Frees the memory allocated by the given BVH
 void destroyBvh(struct bvh *);

@@ -442,7 +442,7 @@ static inline bool intersectBottomLevelLeaf(
 	return found;
 }
 
-static inline bool traverseBottomLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect) {
+bool traverseBottomLevelBvh(const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect) {
 	// Note: polygonArray is a global variable, so we *could* avoid passing it as user data.
 	// However, it is good practice to do so, since it might be the case in the future that
 	// it is turned into private scene data.

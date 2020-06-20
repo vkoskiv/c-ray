@@ -21,6 +21,8 @@
 #include "samplers/sampler.h"
 #include "sky.h"
 
+//#define LINEAR
+
 static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene);
 static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
 
@@ -112,13 +114,24 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 			isect.didIntersect = true;
 		}
 	}
-
+	
+#ifdef LINEAR
+	for (int o = 0; o < scene->meshCount; ++o) {
+		if (traverseBottomLevelBvh(scene->meshes[o].bvh, incidentRay, &isect)) {
+			isect.end = scene->meshes[polygonArray[isect.polyIndex].meshIndex].materials[polygonArray[isect.polyIndex].materialIndex];
+			computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
+			if (isect.end.hasNormalMap)
+				isect.surfaceNormal = bumpmap(&isect);
+		}
+	}
+#else
 	if (traverseTopLevelBvh(scene->meshes, scene->topLevel, incidentRay, &isect)) {
 		isect.end = scene->meshes[polygonArray[isect.polyIndex].meshIndex].materials[polygonArray[isect.polyIndex].materialIndex];
 		computeSurfaceProps(polygonArray[isect.polyIndex], isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 		if (isect.end.hasNormalMap)
 			isect.surfaceNormal = bumpmap(&isect);
 	}
+#endif
 	return isect;
 }
 
