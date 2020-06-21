@@ -29,7 +29,7 @@ struct coord coordFromObj(obj_vector *vec);
  @param polyIndex polygonArray index offset
  @return c-ray polygon
  */
-struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex, int meshIndex);
+struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalIndex, int firstTextureIndex);
 
 /**
  Convert a given OBJ loader material into a c-ray material

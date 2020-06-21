@@ -112,12 +112,12 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath) {
 }
 
 static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
+	printf("\r");
 	logr(info, "Loading mesh %i/%i\r", idx, meshCount);
 	
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFilePath) == 0) {
-		printf("\n");
-		logr(warning, "Mesh \"%s\" not found!", getFileName(inputFilePath));
+		logr(warning, "Mesh \"%s\" not found!\n", getFileName(inputFilePath));
 		return false;
 	}
 	
@@ -170,8 +170,7 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 		newMesh->polygons[i] = polyFromObj(data.face_list[i],
 										   newMesh->firstVectorIndex,
 										   newMesh->firstNormalIndex,
-										   newMesh->firstTextureIndex,
-										   idx - 1);
+										   newMesh->firstTextureIndex);
 	}
 	
 	newMesh->materials = calloc(1, sizeof(*newMesh->materials));

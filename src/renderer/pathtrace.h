@@ -41,6 +41,7 @@ struct hitRecord {
 	bool didIntersect;				//True if ray intersected
 	float distance;					//Distance to intersection point
 	struct poly *polygon;			//ptr to polygon that was encountered
+	unsigned meshIndex : 16;
 };
 
 
