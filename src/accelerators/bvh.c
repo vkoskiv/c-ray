@@ -342,7 +342,8 @@ static inline bool traverseBvhGeneric(
 	const struct bvh *bvh,
 	bool (*intersectLeaf)(void*, const struct bvh*, const struct bvhNode*, const struct lightRay*, struct hitRecord*),
 	const struct lightRay *ray,
-	struct hitRecord *isect) {
+	struct hitRecord *isect)
+{
 	const struct bvhNode *stack[MAX_BVH_DEPTH + 1];
 	int stackSize = 0;
 
@@ -440,9 +441,6 @@ static inline bool intersectBottomLevelLeaf(
 }
 
 bool traverseBottomLevelBvh(const struct mesh *mesh, const struct lightRay *ray, struct hitRecord *isect) {
-	// Note: polygonArray is a global variable, so we *could* avoid passing it as user data.
-	// However, it is good practice to do so, since it might be the case in the future that
-	// it is turned into private scene data.
 	return traverseBvhGeneric(mesh->polygons, mesh->bvh, intersectBottomLevelLeaf, ray, isect);
 }
 
