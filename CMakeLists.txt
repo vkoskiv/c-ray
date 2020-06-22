@@ -68,7 +68,7 @@ configure_file("${c-ray_SOURCE_DIR}/src/utils/gitsha1.c.in" "${c-ray_BINARY_DIR}
 list(APPEND SOURCES "${c-ray_BINARY_DIR}/src/utils/gitsha1.c")
 
 add_executable(c-ray ${SOURCES})
-target_include_directories(c-ray PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(c-ray PRIVATE ${c-ray_SOURCE_DIR}/src)
 if (NOT MSVC)
 	target_link_libraries(c-ray PRIVATE -lpthread -lm)
 endif ()
@@ -89,7 +89,8 @@ if (NOT NO_SDL2)
 
 	if (SDL2_FOUND)
 		message(STATUS "SDL2 found! Enabling UI components.")
-		target_link_libraries(c-ray PRIVATE SDL2)
+		target_link_libraries(c-ray PRIVATE ${SDL2_LIBRARY})
+		target_include_directories(c-ray PRIVATE ${SDL2_INCLUDE_DIR})
 	else()
 		message(STATUS "SDL2 not found! You should install it, it'll be awesome! See README for instructions.")
 	endif()
