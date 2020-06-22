@@ -69,6 +69,7 @@ list(APPEND SOURCES "${c-ray_BINARY_DIR}/src/utils/gitsha1.c")
 
 add_executable(c-ray ${SOURCES})
 target_include_directories(c-ray PRIVATE ${c-ray_SOURCE_DIR}/src)
+target_include_directories(c-ray PRIVATE ...)
 if (NOT MSVC)
 	target_link_libraries(c-ray PRIVATE -lpthread -lm)
 endif ()
