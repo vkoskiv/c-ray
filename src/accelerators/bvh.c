@@ -459,7 +459,7 @@ static inline bool intersectTopLevelLeaf(
 		const struct mesh *m = &meshes[bvh->primIndices[leaf->firstChildOrPrim + i]];
 		if (traverseBottomLevelBvh(m, ray, isect)) {
 			found = true;
-			isect->meshIndex = i;
+			isect->meshIndex = bvh->primIndices[leaf->firstChildOrPrim + i];
 		}
 	}
 	return found;

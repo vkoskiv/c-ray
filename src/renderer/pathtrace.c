@@ -118,7 +118,7 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 #ifdef LINEAR
 	for (int o = 0; o < scene->meshCount; ++o) {
 		if (traverseBottomLevelBvh(&scene->meshes[o], incidentRay, &isect)) {
-			isect.end = scene->meshes[isect.polygon->meshIndex].materials[isect.polygon->materialIndex];
+			isect.end = scene->meshes[isect.meshIndex].materials[isect.polygon->materialIndex];
 			computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 			if (isect.end.hasNormalMap)
 				isect.surfaceNormal = bumpmap(&isect);
