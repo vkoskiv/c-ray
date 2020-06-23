@@ -46,7 +46,6 @@
 		905842EB236651FC009D92F1 /* texture.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15CD225C6D85008D6AAA /* texture.c */; };
 		905842EC236651FC009D92F1 /* objloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85192252C90C00BA7702 /* objloader.c */; };
 		905842EE236651FC009D92F1 /* pcg_basic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90369CCA222E012F008D215B /* pcg_basic.c */; };
-		905842EF236651FC009D92F1 /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15C822596E79008D6AAA /* gitsha1.c */; };
 		905842F2236651FC009D92F1 /* converter.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA126220B4602005B8EE7 /* converter.c */; };
 		905842F3236651FC009D92F1 /* mtlloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85182252C90C00BA7702 /* mtlloader.c */; };
 		905842F4236651FC009D92F1 /* tile.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA107220B4602005B8EE7 /* tile.c */; };
@@ -113,9 +112,10 @@
 		90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85232252D99700BA7702 /* vertexbuffer.c */; };
 		90CFA7DF2381BF0900061288 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CFA7DE2381BF0900061288 /* hashtable.c */; };
 		90CFA7E02381BF0900061288 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CFA7DE2381BF0900061288 /* hashtable.c */; };
+		90D5F02624A208100068FC60 /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90D5F02524A208100068FC60 /* gitsha1.c */; };
+		90D5F02724A208100068FC60 /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90D5F02524A208100068FC60 /* gitsha1.c */; };
 		90EE4F3C237DD49F0071894E /* meshloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90EE4F3B237DD49F0071894E /* meshloader.c */; };
 		90EE4F3D237DD49F0071894E /* meshloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90EE4F3B237DD49F0071894E /* meshloader.c */; };
-		90FB15CB22596E79008D6AAA /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15C822596E79008D6AAA /* gitsha1.c */; };
 		90FB15CE225C6D85008D6AAA /* texture.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15CD225C6D85008D6AAA /* texture.c */; };
 /* End PBXBuildFile section */
 
@@ -255,11 +255,11 @@
 		90CA85232252D99700BA7702 /* vertexbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vertexbuffer.c; sourceTree = "<group>"; };
 		90CFA7DD2381BF0900061288 /* hashtable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hashtable.h; sourceTree = "<group>"; };
 		90CFA7DE2381BF0900061288 /* hashtable.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hashtable.c; sourceTree = "<group>"; };
+		90D5F02524A208100068FC60 /* gitsha1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gitsha1.c; path = generated/gitsha1.c; sourceTree = SOURCE_ROOT; };
 		90D99AF41D08ADB10015A854 /* C-Ray Fast */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Fast"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90E2DB28223D575600E7A305 /* asprintf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asprintf.h; sourceTree = "<group>"; };
 		90EE4F3A237DD49F0071894E /* meshloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = meshloader.h; sourceTree = "<group>"; };
 		90EE4F3B237DD49F0071894E /* meshloader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = meshloader.c; sourceTree = "<group>"; };
-		90FB15C822596E79008D6AAA /* gitsha1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gitsha1.c; sourceTree = "<group>"; };
 		90FB15C922596E79008D6AAA /* gitsha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gitsha1.h; sourceTree = "<group>"; };
 		90FB15CA22596E79008D6AAA /* gitsha1.c.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gitsha1.c.in; sourceTree = "<group>"; };
 		90FB15CC225C6D85008D6AAA /* texture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = texture.h; sourceTree = "<group>"; };
@@ -406,8 +406,8 @@
 				900BA126220B4602005B8EE7 /* converter.c */,
 				900BA122220B4602005B8EE7 /* logging.h */,
 				900BA127220B4602005B8EE7 /* logging.c */,
-				90FB15C822596E79008D6AAA /* gitsha1.c */,
 				90FB15CA22596E79008D6AAA /* gitsha1.c.in */,
+				90D5F02524A208100068FC60 /* gitsha1.c */,
 				90FB15C922596E79008D6AAA /* gitsha1.h */,
 				90204C7823A07F2C00B01EEF /* assert.h */,
 				90908A6E23E0707E0081377B /* assert.c */,
@@ -635,9 +635,9 @@
 				9062FA0A243BBD0900420889 /* args.c in Sources */,
 				904CDBB9248D74380092E564 /* bvh.c in Sources */,
 				90908A7023E0707E0081377B /* assert.c in Sources */,
+				90D5F02724A208100068FC60 /* gitsha1.c in Sources */,
 				909D136E24439069006D0A86 /* string.c in Sources */,
 				905842EE236651FC009D92F1 /* pcg_basic.c in Sources */,
-				905842EF236651FC009D92F1 /* gitsha1.c in Sources */,
 				905842F2236651FC009D92F1 /* converter.c in Sources */,
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
@@ -697,9 +697,9 @@
 				9062FA09243BBD0900420889 /* args.c in Sources */,
 				904CDBB8248D74380092E564 /* bvh.c in Sources */,
 				90908A6F23E0707E0081377B /* assert.c in Sources */,
+				90D5F02624A208100068FC60 /* gitsha1.c in Sources */,
 				909D136D24439069006D0A86 /* string.c in Sources */,
 				90369CCC222E012F008D215B /* pcg_basic.c in Sources */,
-				90FB15CB22596E79008D6AAA /* gitsha1.c in Sources */,
 				900BA142220B4603005B8EE7 /* converter.c in Sources */,
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
