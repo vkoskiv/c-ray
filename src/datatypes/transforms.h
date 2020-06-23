@@ -8,6 +8,16 @@
 
 #pragma once
 
+/*
+ C-ray's matrices use a *row-major* notation.
+ _______________
+ | 00 01 02 03 |
+ | 10 11 12 13 |
+ | 20 21 22 23 |
+ | 30 31 32 33 |
+ ---------------
+ */
+
 enum transformType {
 	transformTypeXRotate,
 	transformTypeYRotate,
@@ -51,3 +61,5 @@ struct matrix4x4 transpose(struct matrix4x4 tf);
 
 void transformVector(struct vector *vec, struct matrix4x4 mtx);
 void transformDirection(struct vector *vec, struct matrix4x4 mtx);
+
+void testStuff(void);

@@ -240,10 +240,36 @@ struct matrix4x4 inverse(struct matrix4x4 mtx) {
 }
 
 struct matrix4x4 transpose(struct matrix4x4 tf) {
-	return fromParams(tf.mtx[0][0], tf.mtx[1][0], tf.mtx[2][0], tf.mtx[3][0],
-					  tf.mtx[0][1], tf.mtx[1][1], tf.mtx[2][1], tf.mtx[3][1],
-					  tf.mtx[0][2], tf.mtx[1][2], tf.mtx[2][2], tf.mtx[3][2],
-					  tf.mtx[0][3], tf.mtx[1][3], tf.mtx[2][3], tf.mtx[3][3]);
+	return fromParams(
+					tf.mtx[0][0], tf.mtx[1][0], tf.mtx[2][0], tf.mtx[3][0],
+					tf.mtx[0][1], tf.mtx[1][1], tf.mtx[2][1], tf.mtx[3][1],
+					tf.mtx[0][2], tf.mtx[1][2], tf.mtx[2][2], tf.mtx[3][2],
+					tf.mtx[0][3], tf.mtx[1][3], tf.mtx[2][3], tf.mtx[3][3]
+					);
+}
+
+struct matrix4x4 multiply(struct matrix4x4 A, struct matrix4x4 B) {
+	return fromParams(
+					A.mtx[0][0] * B.mtx[0][0] + A.mtx[0][1] * B.mtx[1][0] + A.mtx[0][2] * B.mtx[2][0] + A.mtx[0][3] * B.mtx[3][0],
+					A.mtx[0][0] * B.mtx[0][1] + A.mtx[0][1] * B.mtx[1][1] + A.mtx[0][2] * B.mtx[2][1] + A.mtx[0][3] * B.mtx[3][1],
+					A.mtx[0][0] * B.mtx[0][2] + A.mtx[0][1] * B.mtx[1][2] + A.mtx[0][2] * B.mtx[2][2] + A.mtx[0][3] * B.mtx[3][2],
+					A.mtx[0][0] * B.mtx[0][3] + A.mtx[0][1] * B.mtx[1][3] + A.mtx[0][2] * B.mtx[2][3] + A.mtx[0][3] * B.mtx[3][3],
+					
+					A.mtx[1][0] * B.mtx[0][0] + A.mtx[1][1] * B.mtx[1][0] + A.mtx[1][2] * B.mtx[2][0] + A.mtx[1][3] * B.mtx[3][0],
+					A.mtx[1][0] * B.mtx[0][1] + A.mtx[1][1] * B.mtx[1][1] + A.mtx[1][2] * B.mtx[2][1] + A.mtx[1][3] * B.mtx[3][1],
+					A.mtx[1][0] * B.mtx[0][2] + A.mtx[1][1] * B.mtx[1][2] + A.mtx[1][2] * B.mtx[2][2] + A.mtx[1][3] * B.mtx[3][2],
+					A.mtx[1][0] * B.mtx[0][3] + A.mtx[1][1] * B.mtx[1][3] + A.mtx[1][2] * B.mtx[2][3] + A.mtx[1][3] * B.mtx[3][3],
+					
+					A.mtx[2][0] * B.mtx[0][0] + A.mtx[2][1] * B.mtx[1][0] + A.mtx[2][2] * B.mtx[2][0] + A.mtx[2][3] * B.mtx[3][0],
+					A.mtx[2][0] * B.mtx[0][1] + A.mtx[2][1] * B.mtx[1][1] + A.mtx[2][2] * B.mtx[2][1] + A.mtx[2][3] * B.mtx[3][1],
+					A.mtx[2][0] * B.mtx[0][2] + A.mtx[2][1] * B.mtx[1][2] + A.mtx[2][2] * B.mtx[2][2] + A.mtx[2][3] * B.mtx[3][2],
+					A.mtx[2][0] * B.mtx[0][3] + A.mtx[2][1] * B.mtx[1][3] + A.mtx[2][2] * B.mtx[2][3] + A.mtx[2][3] * B.mtx[3][3],
+					
+					A.mtx[3][0] * B.mtx[0][0] + A.mtx[3][1] * B.mtx[1][0] + A.mtx[3][2] * B.mtx[2][0] + A.mtx[3][3] * B.mtx[3][0],
+					A.mtx[3][0] * B.mtx[0][1] + A.mtx[3][1] * B.mtx[1][1] + A.mtx[3][2] * B.mtx[2][1] + A.mtx[3][3] * B.mtx[3][1],
+					A.mtx[3][0] * B.mtx[0][2] + A.mtx[3][1] * B.mtx[1][2] + A.mtx[3][2] * B.mtx[2][2] + A.mtx[3][3] * B.mtx[3][2],
+					A.mtx[3][0] * B.mtx[0][3] + A.mtx[3][1] * B.mtx[1][3] + A.mtx[3][2] * B.mtx[2][3] + A.mtx[3][3] * B.mtx[3][3]
+			);
 }
 
 //Tests, this is dead code for now until I get a testing suite.
@@ -289,7 +315,17 @@ static void printTransform(struct transform tf) {
 	printMatrix(tf.Ainv);
 }
 
-static void testStuff() {
+bool equality(struct matrix4x4 A, struct matrix4x4 B) {
+	bool matches = true;
+	for (unsigned j = 0; j < 4; ++j) {
+		for (unsigned i = 0; i < 4; ++i) {
+			if (A.mtx[i][j] != B.mtx[i][j]) matches = false;
+		}
+	}
+	return matches;
+}
+
+void testStuff() {
 	struct transform rotateX = newTransformRotateX(33.3f);
 	struct transform rotateY = newTransformRotateY(33.3f);
 	struct transform rotateZ = newTransformRotateZ(33.3f);
@@ -309,4 +345,31 @@ static void testStuff() {
 	
 	struct transform move = newTransformTranslate(33.333f, 33.333f, 33.333f);
 	printTransform(move);
+	
+	logr(info, "And now, for our grand finalé, matrix multiplication!\n");
+	
+	struct matrix4x4 A = fromParams(5, 7, 9, 10,
+									2, 3, 3, 8,
+									8, 10, 2, 3,
+									3, 3, 4, 8);
+	printf("A:\n");
+	printMatrix(A);
+	struct matrix4x4 B = fromParams(3, 10, 12, 18,
+									12, 1, 4, 9,
+									9, 10, 12, 2,
+									3, 12, 4, 10);
+	printf("B:\n");
+	printMatrix(B);
+	
+	printf("AxB:\n");
+	struct matrix4x4 AB = multiply(A, B);
+	printMatrix(AB);
+	
+	struct matrix4x4 expectedResult = fromParams(210, 267, 236, 271,
+												 93, 149, 104, 149,
+												 171, 146, 172, 268,
+												 105, 169, 128, 169
+												 );
+	
+	logr(info, "Did it work? %s\n", equality(AB, expectedResult) ? "YES!" : "NO :(");
 }
