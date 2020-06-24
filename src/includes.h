@@ -45,6 +45,7 @@
 
 #ifdef WINDOWS
 	#include <Windows.h>
+	#include <time.h>
 #else
 	#include <pthread.h>
 	#include <sys/time.h> //for gettimeofday()
