@@ -51,9 +51,6 @@
 	#include <sys/time.h> //for gettimeofday()
 #endif
 
-//PCG rng
-#include "./libraries/pcg_basic.h"
-
 enum renderOrder {
 	renderOrderTopToBottom = 0,
 	renderOrderFromMiddle,

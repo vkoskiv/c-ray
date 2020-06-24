@@ -13,6 +13,7 @@
 #include "../renderer/renderer.h"
 #include "../utils/logging.h"
 #include "../utils/platform/mutex.h"
+#include "../libraries/pcg_basic.h"
 
 static void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder);
 

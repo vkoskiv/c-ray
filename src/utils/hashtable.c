@@ -9,6 +9,7 @@
 #include "../includes.h"
 #include "hashtable.h"
 
+#include <inttypes.h>
 #include "../utils/logging.h"
 #include "../datatypes/vector.h"
 #include "assert.h"
