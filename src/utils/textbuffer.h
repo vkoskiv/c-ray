@@ -49,7 +49,7 @@ char *lastLine(textBuffer *file);
 void freeTextBuffer(textBuffer *file);
 
 
-void fillLineBuffer(lineBuffer *buffer, char *contents, char *delimiters);
+void fillLineBuffer(lineBuffer *buffer, const char *contents, char *delimiters);
 
 char *goToToken(lineBuffer *line, size_t token);
 

@@ -135,8 +135,8 @@ void freeTextBuffer(textBuffer *file) {
 	}
 }
 
-void fillLineBuffer(lineBuffer *line, char *contents, char *delimiters) {
-	char *buf = contents;
+void fillLineBuffer(lineBuffer *line, const char *contents, char *delimiters) {
+	const char *buf = contents;
 	if (!buf) return;
 	if (line->buf) free(line->buf);
 	line->buf = copyString(buf);
