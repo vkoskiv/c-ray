@@ -113,7 +113,14 @@ On Linux using APT, run `sudo apt install libsdl2-dev`
 
 ## Tests
 
-No tests yet! Maybe soon!
+You can run the integrated test suite by first compiling like so:
+`cmake . -DTESTING=True && make`
+And then invoking the test suite like this:
+`./bin/c-ray --test`
+
+
+You will get a log of all the tests, and their status.
+This system could probably use a lot of improvement, as all of the tests are currently run in the same process, so if one of the tests causes a segfault, the test suite stops execution altogether. At the moment we'll just consider that a 'failed' test, and work from there! 
 
 ## Credits
 
