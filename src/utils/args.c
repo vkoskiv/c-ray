@@ -23,15 +23,39 @@
 static struct hashtable *g_options;
 
 static void printUsage(const char *progname) {
-	logr(info, "Usage: %s [-hjdv] [input_json...]\n", progname);
+	logr(info, "Usage: %s [-hjsdtv] [input_json...]\n", progname);
 	logr(info, "	Available options are:\n");
 	logr(info, "		[-h]         -> Show this message\n");
 	logr(info, "		[-j <n>]     -> Override thread count to n\n");
+	logr(info, "		[-s <n>]     -> Override sample count to n\n");
 	logr(info, "		[-d <w>x<h>] -> Override image dimensions to <w>x<h>\n");
+	logr(info, "		[-t <w>x<h>] -> Override tile  dimensions to <w>x<h>\n");
 	logr(info, "		[-v]         -> Enable verbose mode\n");
 	logr(info, "		[--test]     -> Run the test suite");
 	restoreTerminal();
 	exit(0);
+}
+
+bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
+	if (dimStr) {
+		lineBuffer buf = {0};
+		fillLineBuffer(&buf, dimStr, "x");
+		char *widthStr = firstToken(&buf);
+		char *heightStr = nextToken(&buf);
+		if (widthStr && heightStr) {
+			int width = atoi(widthStr);
+			int height = atoi(heightStr);
+			width = width > 65536 ? 65536 : width;
+			height = height > 65536 ? 65536 : height;
+			width = width < 1 ? 1 : width;
+			height = height < 1 ? 1 : height;
+			
+			if (widthOut) *widthOut = width;
+			if (heightOut) *heightOut = height;
+			return true;
+		}
+	}
+	return false;
 }
 
 void parseArgs(int argc, char **argv) {
@@ -65,24 +89,25 @@ void parseArgs(int argc, char **argv) {
 			}
 		} else if (strncmp(argv[i], "-d", 2) == 0) {
 			char *dimstr = argv[i + 1];
-			if (dimstr) {
-				lineBuffer buf = {0};
-				fillLineBuffer(&buf, dimstr, "x");
-				char *widthStr = firstToken(&buf);
-				char *heightStr = nextToken(&buf);
-				if (widthStr && heightStr) {
-					int width = atoi(widthStr);
-					int height = atoi(heightStr);
-					width = width > 65536 ? 65536 : width;
-					height = height > 65536 ? 65536 : height;
-					width = width < 1 ? 1 : width;
-					height = height < 1 ? 1 : height;
-					setTag(g_options, "dims_override");
-					setInt(g_options, "dims_width", width);
-					setInt(g_options, "dims_height", height);
-				} else {
-					logr(warning, "Invalid -d parameter given!\n");
-				}
+			int width = 0;
+			int height = 0;
+			if (parseDims(dimstr, &width, &height)) {
+				setTag(g_options, "dims_override");
+				setInt(g_options, "dims_width", width);
+				setInt(g_options, "dims_height", height);
+			} else {
+				logr(warning, "Invalid -d parameter given!\n");
+			}
+		} else if (strncmp(argv[i], "-t", 2) == 0) {
+			char *dimstr = argv[i + 1];
+			int width = 0;
+			int height = 0;
+			if (parseDims(dimstr, &width, &height)) {
+				setTag(g_options, "tiledims_override");
+				setInt(g_options, "tile_width", width);
+				setInt(g_options, "tile_height", height);
+			} else {
+				logr(warning, "Invalid -t parameter given!\n");
 			}
 		} else if (strncmp(argv[i], "--test", 6) == 0) {
 			setTag(g_options, "runTests");

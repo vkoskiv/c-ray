@@ -27,7 +27,6 @@
 #include "../utils/ui.h"
 
 static void transformMeshes(struct world *scene) {
-	printf("\n");
 	logr(info, "Running transforms: ");
 	struct timeval timer = {0};
 	startTimer(&timer);
@@ -80,8 +79,7 @@ static void checkAndSetCliOverrides(struct renderer *r) {
 	if (isSet("thread_override")) {
 		int threads = intPref("thread_override");
 		if (r->prefs.threadCount != threads) {
-			printf("\n");
-			logr(info, "Overriding thread count to %i", threads);
+			logr(info, "Overriding thread count to %i\n", threads);
 			r->prefs.threadCount = threads;
 			r->prefs.fromSystem = false;
 		}
@@ -89,8 +87,7 @@ static void checkAndSetCliOverrides(struct renderer *r) {
 	
 	if (isSet("samples_override")) {
 		int samples = intPref("samples_override");
-		printf("\n");
-		logr(info, "Overriding sample count to %i", samples);
+		logr(info, "Overriding sample count to %i\n", samples);
 		r->prefs.sampleCount = samples;
 	}
 	
@@ -98,10 +95,17 @@ static void checkAndSetCliOverrides(struct renderer *r) {
 	if (isSet("dims_override")) {
 		int width = intPref("dims_width");
 		int height = intPref("dims_height");
-		printf("\n");
-		logr(info, "Overriding image dimensions to %ix%i", width, height);
-		r->prefs.imageWidth = intPref("dims_width");
-		r->prefs.imageHeight = intPref("dims_height");
+		logr(info, "Overriding image dimensions to %ix%i\n", width, height);
+		r->prefs.imageWidth = width;
+		r->prefs.imageHeight = height;
+	}
+	
+	if (isSet("tiledims_override")) {
+		int width = intPref("tile_width");
+		int height = intPref("tile_height");
+		logr(info, "Overriding tile  dimensions to %ix%i\n", width, height);
+		r->prefs.tileWidth = width;
+		r->prefs.tileHeight = height;
 	}
 }
 
