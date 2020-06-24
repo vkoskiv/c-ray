@@ -113,10 +113,11 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath) {
 
 static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
 	printf("\r");
-	logr(info, "Loading mesh %i/%i\r", idx, meshCount);
+	logr(info, "Loading mesh %i/%i%s", idx, meshCount, idx == meshCount ? "\n" : "\r");
 	
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFilePath) == 0) {
+		if (idx != meshCount) printf("\n");
 		logr(warning, "Mesh \"%s\" not found!\n", getFileName(inputFilePath));
 		return false;
 	}
