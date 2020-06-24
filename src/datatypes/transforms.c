@@ -21,7 +21,7 @@ float fromRadians(float radians) {
 	return radians * (180/PI);
 }
 
-static struct matrix4x4 identityMatrix() {
+struct matrix4x4 identityMatrix() {
 	struct matrix4x4 mtx;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -177,7 +177,7 @@ static void getCofactor(float A[4][4], float cofactors[4][4], int p, int q, int 
 
 //I really, really hope this is faster than the generic one
 //I wrote this by hand...
-static float findDeterminant4x4(float A[4][4]) {
+float findDeterminant4x4(float A[4][4]) {
 	float topLeft = A[0][0] * ((A[1][1] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) + (A[1][3] * ((A[2][1]*A[3][2])-(A[2][2]*A[3][1]))));
 	float topRigh = A[0][1] * ((A[1][0] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][2])-(A[2][2]*A[3][0]))));
 	float botLeft = A[0][2] * ((A[1][0] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) - (A[1][1] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][1])-(A[2][1]*A[3][0]))));
@@ -186,7 +186,7 @@ static float findDeterminant4x4(float A[4][4]) {
 }
 
 //Find det of a given 4x4 matrix A
-static float findDeterminant(float A[4][4], int n) {
+float findDeterminant(float A[4][4], int n) {
 	float det = 0;
 	
 	if (n == 1)
@@ -272,7 +272,6 @@ struct matrix4x4 multiply(struct matrix4x4 A, struct matrix4x4 B) {
 			);
 }
 
-//Tests, this is dead code for now until I get a testing suite.
 static char *transformTypeString(enum transformType type) {
 	switch (type) {
 		case transformTypeXRotate:
@@ -309,13 +308,13 @@ static void printMatrix(struct matrix4x4 mtx) {
 	printf("\n");
 }
 
-static void printTransform(struct transform tf) {
+/*static void printTransform(struct transform tf) {
 	printf("%s", transformTypeString(tf.type));
 	printMatrix(tf.A);
 	printMatrix(tf.Ainv);
-}
+}*/
 
-bool equality(struct matrix4x4 A, struct matrix4x4 B) {
+bool areEqual(struct matrix4x4 A, struct matrix4x4 B) {
 	bool matches = true;
 	for (unsigned j = 0; j < 4; ++j) {
 		for (unsigned i = 0; i < 4; ++i) {
@@ -323,53 +322,4 @@ bool equality(struct matrix4x4 A, struct matrix4x4 B) {
 		}
 	}
 	return matches;
-}
-
-void testStuff() {
-	struct transform rotateX = newTransformRotateX(33.3f);
-	struct transform rotateY = newTransformRotateY(33.3f);
-	struct transform rotateZ = newTransformRotateZ(33.3f);
-	printTransform(rotateX);
-	printTransform(rotateY);
-	printTransform(rotateZ);
-	
-	struct transform scale = newTransformScaleUniform(33.3f);
-	printTransform(scale);
-	
-	struct transform scaleX = newTransformScale(33.3f, 1.0f, 1.0f);
-	struct transform scaleY = newTransformScale(1.0f, 33.3f, 1.0f);
-	struct transform scaleZ = newTransformScale(1.0f, 1.0f, 33.3f);
-	printTransform(scaleX);
-	printTransform(scaleY);
-	printTransform(scaleZ);
-	
-	struct transform move = newTransformTranslate(33.333f, 33.333f, 33.333f);
-	printTransform(move);
-	
-	logr(info, "And now, for our grand finalé, matrix multiplication!\n");
-	
-	struct matrix4x4 A = fromParams(5, 7, 9, 10,
-									2, 3, 3, 8,
-									8, 10, 2, 3,
-									3, 3, 4, 8);
-	printf("A:\n");
-	printMatrix(A);
-	struct matrix4x4 B = fromParams(3, 10, 12, 18,
-									12, 1, 4, 9,
-									9, 10, 12, 2,
-									3, 12, 4, 10);
-	printf("B:\n");
-	printMatrix(B);
-	
-	printf("AxB:\n");
-	struct matrix4x4 AB = multiply(A, B);
-	printMatrix(AB);
-	
-	struct matrix4x4 expectedResult = fromParams(210, 267, 236, 271,
-												 93, 149, 104, 149,
-												 171, 146, 172, 268,
-												 105, 169, 128, 169
-												 );
-	
-	logr(info, "Did it work? %s\n", equality(AB, expectedResult) ? "YES!" : "NO :(");
 }

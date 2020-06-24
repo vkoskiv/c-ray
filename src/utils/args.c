@@ -18,6 +18,7 @@
 #include "platform/capabilities.h"
 #include <stdlib.h>
 #include "textbuffer.h"
+#include "testrunner.h"
 
 static struct hashtable *g_options;
 
@@ -28,6 +29,7 @@ static void printUsage(const char *progname) {
 	logr(info, "		[-j <n>]     -> Override thread count to n\n");
 	logr(info, "		[-d <w>x<h>] -> Override image dimensions to <w>x<h>\n");
 	logr(info, "		[-v]         -> Enable verbose mode\n");
+	logr(info, "		[--test]     -> Run the test suite");
 	restoreTerminal();
 	exit(0);
 }
@@ -82,11 +84,23 @@ void parseArgs(int argc, char **argv) {
 					logr(warning, "Invalid -d parameter given!\n");
 				}
 			}
+		} else if (strncmp(argv[i], "--test", 6) == 0) {
+			setTag(g_options, "runTests");
 		} else if (strncmp(argv[i], "-", 1) == 0) {
 			setTag(g_options, ++argv[i]);
 		}
 	}
 	logr(debug, "Verbose mode enabled\n");
+	
+	if (isSet("runTests")) {
+#ifdef CRAY_TESTING
+		exit(runTests());
+#else
+		logr(warning, "You need to compile with tests enabled.\n");
+		logr(warning, "Run: `cmake . -DTESTING=True` and then `make`\n");
+		exit(-1);
+#endif
+	}
 }
 
 bool isSet(char *key) {

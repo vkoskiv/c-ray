@@ -178,7 +178,7 @@ void freeLineBuffer(lineBuffer *line) {
 }
 
 //TODO: Tests for all of these.
-static void testTextView() {
+int testTextView(void) {
 	logr(debug, "Testing textView\n");
 	char *string = NULL;
 	string = copyString("This is a\nMultiline\nstring!\n");
@@ -196,6 +196,7 @@ static void testTextView() {
 	view = newTextView(original, 2, 1);
 	ASSERT(stringEquals(currentLine(view), "string!"));
 	freeTextBuffer(view);
+	return 0;
 }
 
 static void testTokenizer(char *filePath) {

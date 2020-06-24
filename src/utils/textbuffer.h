@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <stddef.h>
+
 struct _textBuffer {
 	char *buf;
 	size_t buflen;
@@ -58,3 +60,5 @@ char *firstToken(lineBuffer *line);
 char *lastToken(lineBuffer *line);
 
 void freeLineBuffer(lineBuffer *line);
+
+int testTextView(void);
