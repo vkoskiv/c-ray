@@ -62,7 +62,7 @@ enum bsdfType {
 struct bsdf {
 	enum bsdfType type;
 	float weights;
-	bool (*bsdf)(struct hitRecord*, struct color*, struct lightRay*, pcg32_random_t*);
+	bool (*bsdf)(struct hitRecord*, struct color*, struct lightRay*, sampler*);
 };
 
 struct material {

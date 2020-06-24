@@ -189,11 +189,11 @@ bool emissiveBSDF(struct hitRecord *isect, struct color *attenuation, struct lig
 	return false;
 }
 
-bool weightedBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, pcg32_random_t *rng) {
+bool weightedBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	(void)isect;
 	(void)attenuation;
 	(void)scattered;
-	(void)rng;
+	(void)sampler;
 	/*
 	 This will be the internal shader weighting solver that runs a random distribution and chooses from the available
 	 discrete shaders.
