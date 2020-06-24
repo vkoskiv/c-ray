@@ -104,7 +104,7 @@ int getInt(struct hashtable *e, const char *key) {
 	return *(int*)getBucketPtr(e, key)->value;
 }
 
-static const uint64_t defaultTableSize = 256;
+static const uint64_t defaultTableSize = 2048;
 struct hashtable *newTable() {
 	struct hashtable *table = malloc(sizeof(*table));
 	table->size = defaultTableSize;
