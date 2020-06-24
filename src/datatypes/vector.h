@@ -182,17 +182,11 @@ static inline float rndFloatRange(float min, float max, sampler *sampler) {
 	return ((getDimension(sampler)) * (max - min)) + min;
 }
 
-struct vector getRandomVecOnRadius(struct vector center, float radius, pcg32_random_t *rng);
-
-struct vector getRandomVecOnPlane(struct vector center, float radius, pcg32_random_t *rng);
-
 static inline struct coord randomCoordOnUnitDisc(sampler *sampler) {
 	float r = sqrtf(getDimension(sampler));
 	float theta = rndFloatRange(0.0f, 2.0f * PI, sampler);
 	return (struct coord){r * cosf(theta), r * sinf(theta)};
 }
-
-float rndFloat(pcg32_random_t *rng);
 
 static inline struct vector vecNegate(struct vector v) {
 	return (struct vector){-v.x, -v.y, -v.z};
