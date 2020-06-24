@@ -14,24 +14,24 @@
 
 //For ease of use
 float toRadians(float degrees) {
-	return (degrees * PI) / 180;
+	return (degrees * PI) / 180.0f;
 }
 
 float fromRadians(float radians) {
-	return radians * (180/PI);
+	return radians * (180.0f / PI);
 }
 
 struct matrix4x4 identityMatrix() {
 	struct matrix4x4 mtx;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			mtx.mtx[i][j] = 0;
+			mtx.mtx[i][j] = 0.0f;
 		}
 	}
-	mtx.mtx[0][0] = 1;
-	mtx.mtx[1][1] = 1;
-	mtx.mtx[2][2] = 1;
-	mtx.mtx[3][3] = 1;
+	mtx.mtx[0][0] = 1.0f;
+	mtx.mtx[1][1] = 1.0f;
+	mtx.mtx[2][2] = 1.0f;
+	mtx.mtx[3][3] = 1.0f;
 	return mtx;
 }
 
@@ -82,12 +82,12 @@ struct transform newTransformRotateX(float rads) {
 	transform.type = transformTypeXRotate;
 	float cosRads = cosf(rads);
 	float sinRads = sinf(rads);
-	transform.A.mtx[0][0] = 1;
+	transform.A.mtx[0][0] = 1.0f;
 	transform.A.mtx[1][1] = cosRads;
 	transform.A.mtx[1][2] = -sinRads;
 	transform.A.mtx[2][1] = sinRads;
 	transform.A.mtx[2][2] = cosRads;
-	transform.A.mtx[3][3] = 1;
+	transform.A.mtx[3][3] = 1.0f;
 	transform.Ainv = inverse(transform.A);
 	return transform;
 }
@@ -99,10 +99,10 @@ struct transform newTransformRotateY(float rads) {
 	float sinRads = sinf(rads);
 	transform.A.mtx[0][0] = cosRads;
 	transform.A.mtx[0][2] = sinRads;
-	transform.A.mtx[1][1] = 1;
+	transform.A.mtx[1][1] = 1.0f;
 	transform.A.mtx[2][0] = -sinRads;
 	transform.A.mtx[2][2] = cosRads;
-	transform.A.mtx[3][3] = 1;
+	transform.A.mtx[3][3] = 1.0f;
 	transform.Ainv = inverse(transform.A);
 	return transform;
 }
@@ -116,8 +116,8 @@ struct transform newTransformRotateZ(float rads) {
 	transform.A.mtx[0][1] = -sinRads;
 	transform.A.mtx[1][0] = sinRads;
 	transform.A.mtx[1][1] = cosRads;
-	transform.A.mtx[2][2] = 1;
-	transform.A.mtx[3][3] = 1;
+	transform.A.mtx[2][2] = 1.0f;
+	transform.A.mtx[3][3] = 1.0f;
 	transform.Ainv = inverse(transform.A);
 	return transform;
 }
@@ -125,10 +125,10 @@ struct transform newTransformRotateZ(float rads) {
 struct transform newTransformTranslate(float x, float y, float z) {
 	struct transform transform = newTransform();
 	transform.type = transformTypeTranslate;
-	transform.A.mtx[0][0] = 1;
-	transform.A.mtx[1][1] = 1;
-	transform.A.mtx[2][2] = 1;
-	transform.A.mtx[3][3] = 1;
+	transform.A.mtx[0][0] = 1.0f;
+	transform.A.mtx[1][1] = 1.0f;
+	transform.A.mtx[2][2] = 1.0f;
+	transform.A.mtx[3][3] = 1.0f;
 	transform.A.mtx[0][3] = x;
 	transform.A.mtx[1][3] = y;
 	transform.A.mtx[2][3] = z;
@@ -142,7 +142,7 @@ struct transform newTransformScale(float x, float y, float z) {
 	transform.A.mtx[0][0] = x;
 	transform.A.mtx[1][1] = y;
 	transform.A.mtx[2][2] = z;
-	transform.A.mtx[3][3] = 1;
+	transform.A.mtx[3][3] = 1.0f;
 	transform.Ainv = inverse(transform.A);
 	return transform;
 }
@@ -153,7 +153,7 @@ struct transform newTransformScaleUniform(float scale) {
 	transform.A.mtx[0][0] = scale;
 	transform.A.mtx[1][1] = scale;
 	transform.A.mtx[2][2] = scale;
-	transform.A.mtx[3][3] = 1;
+	transform.A.mtx[3][3] = 1.0f;
 	transform.Ainv = inverse(transform.A);
 	return transform;
 }
@@ -187,7 +187,7 @@ float findDeterminant4x4(float A[4][4]) {
 
 //Find det of a given 4x4 matrix A
 float findDeterminant(float A[4][4], int n) {
-	float det = 0;
+	float det = 0.0f;
 	
 	if (n == 1)
 		return A[0][0];
@@ -221,7 +221,7 @@ struct matrix4x4 inverse(struct matrix4x4 mtx) {
 	struct matrix4x4 inverse = {{{0}}};
 	
 	float det = findDeterminant4x4(mtx.mtx);
-	if (det <= 0.0) {
+	if (det <= 0.0f) {
 		logr(error, "No inverse for given transform!\n");
 	}
 	
