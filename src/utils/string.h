@@ -27,3 +27,5 @@ char *copyString(const char *source);
 /// @param str1 Original string
 /// @param str2 Concatenated string
 char *concatString(const char *str1, const char *str2);
+
+char *lowerCase(const char *str);

@@ -42,3 +42,14 @@ char *concatString(const char *str1, const char *str2) {
 	strcat(new, str2);
 	return new;
 }
+
+char *lowerCase(const char *orig) {
+	char *str = copyString(orig);
+	size_t len = strlen(str);
+	for (size_t i = 0; i < len; ++i) {
+		if (str[i] > 64 && str[i] < 91) { // A-Z ASCII
+			str[i] += 32; // Offset to lowercase
+		}
+	}
+	return str;
+}
