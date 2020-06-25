@@ -8,6 +8,14 @@
 
 #pragma once
 
+enum renderOrder {
+	renderOrderTopToBottom = 0,
+	renderOrderFromMiddle,
+	renderOrderToMiddle,
+	renderOrderNormal,
+	renderOrderRandom
+};
+
 /// Renderer state data
 struct state {
 	struct renderTile *renderTiles; //Array of renderTiles to render

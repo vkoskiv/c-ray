@@ -51,10 +51,4 @@
 	#include <sys/time.h> //for gettimeofday()
 #endif
 
-enum renderOrder {
-	renderOrderTopToBottom = 0,
-	renderOrderFromMiddle,
-	renderOrderToMiddle,
-	renderOrderNormal,
-	renderOrderRandom
-};
+

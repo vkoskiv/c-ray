@@ -7,10 +7,10 @@
 //
 
 #include "../includes.h"
-#include "tile.h"
-
 #include "../datatypes/image/imagefile.h"
 #include "../renderer/renderer.h"
+#include "tile.h"
+
 #include "../utils/logging.h"
 #include "../utils/platform/mutex.h"
 #include "../libraries/pcg_basic.h"
