@@ -8,6 +8,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "args.h"
 #include "hashtable.h"
 #include <string.h>
@@ -23,15 +24,15 @@
 static struct hashtable *g_options;
 
 static void printUsage(const char *progname) {
-	logr(info, "Usage: %s [-hjsdtv] [input_json...]\n", progname);
-	logr(info, "	Available options are:\n");
-	logr(info, "		[-h]         -> Show this message\n");
-	logr(info, "		[-j <n>]     -> Override thread count to n\n");
-	logr(info, "		[-s <n>]     -> Override sample count to n\n");
-	logr(info, "		[-d <w>x<h>] -> Override image dimensions to <w>x<h>\n");
-	logr(info, "		[-t <w>x<h>] -> Override tile  dimensions to <w>x<h>\n");
-	logr(info, "		[-v]         -> Enable verbose mode\n");
-	logr(info, "		[--test]     -> Run the test suite");
+	printf("Usage: %s [-hjsdtv] [input_json...]\n", progname);
+	printf("  Available options are:\n");
+	printf("    [-h]         -> Show this message\n");
+	printf("    [-j <n>]     -> Override thread count to n\n");
+	printf("    [-s <n>]     -> Override sample count to n\n");
+	printf("    [-d <w>x<h>] -> Override image dimensions to <w>x<h>\n");
+	printf("    [-t <w>x<h>] -> Override tile  dimensions to <w>x<h>\n");
+	printf("    [-v]         -> Enable verbose mode\n");
+	printf("    [--test]     -> Run the test suite");
 	restoreTerminal();
 	exit(0);
 }
