@@ -15,7 +15,7 @@
 
 typedef struct {
 	char *testName;
-	int (*func)(void);
+	bool (*func)(void);
 } test;
 
 static test tests[] = {

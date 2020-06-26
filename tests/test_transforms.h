@@ -20,7 +20,7 @@ struct matrix4x4 identityMatrix(void);
 struct matrix4x4 multiply(struct matrix4x4 A, struct matrix4x4 B);
 bool areEqual(struct matrix4x4 A, struct matrix4x4 B);
 
-int transform_multiply() {
+bool transform_multiply() {
 	bool pass = true;
 	struct matrix4x4 A = fromParams(
 									5, 7, 9, 10,
@@ -45,7 +45,7 @@ int transform_multiply() {
 	return pass;
 }
 
-int transform_transpose() {
+bool transform_transpose() {
 	bool pass = true;
 	
 	// Identity matrices don't care about transpose
@@ -70,7 +70,7 @@ int transform_transpose() {
 	return pass;
 }
 
-int transform_determinant() {
+bool transform_determinant() {
 	bool pass = true;
 	struct matrix4x4 mtx = fromParams(1, 2, 0, 0,
 									  1, 1, 3, 0,
@@ -80,7 +80,7 @@ int transform_determinant() {
 	return pass;
 }
 
-int transform_determinant4x4() {
+bool transform_determinant4x4() {
 	bool pass = true;
 	struct matrix4x4 mtx = fromParams(1, 2, 0, 0,
 									  1, 1, 3, 0,
