@@ -60,5 +60,3 @@ char *firstToken(lineBuffer *line);
 char *lastToken(lineBuffer *line);
 
 void freeLineBuffer(lineBuffer *line);
-
-int testTextView(void);

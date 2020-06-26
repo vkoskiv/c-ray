@@ -22,7 +22,9 @@ static test tests[] = {
 	{"transforms::transpose", transform_transpose},
 	{"transforms::multiply", transform_multiply},
 	{"transforms::determinant", transform_determinant},
-	{"transforms::determinant4x4", transform_determinant4x4}
+	{"transforms::determinant4x4", transform_determinant4x4},
+	{"textbuffer::textview", textbuffer_textview},
+	{"textbuffer::tokenizer", textbuffer_tokenizer}
 };
 
 #define testCount (sizeof(tests) / sizeof(test))
