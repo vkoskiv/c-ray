@@ -24,7 +24,6 @@
 #include "../../datatypes/poly.h"
 #include "../../datatypes/transforms.h"
 #include "../logging.h"
-#include "../ui.h"
 #include "../filehandler.h"
 #include "../string.h"
 #include "../platform/capabilities.h"
