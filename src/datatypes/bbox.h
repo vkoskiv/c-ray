@@ -22,7 +22,7 @@ static const struct boundingBox emptyBBox = {
 };
 
 static inline float bboxHalfArea(const struct boundingBox *bbox) {
-	vector extent = vecSub(bbox->max, bbox->min);
+	struct vector extent = vecSub(bbox->max, bbox->min);
 	return extent.x * (extent.y + extent.z) + extent.y * extent.z;
 }
 
@@ -31,6 +31,6 @@ static inline void extendBBox(struct boundingBox *dst, const struct boundingBox 
 	dst->max = vecMax(dst->max, src->max);
 }
 
-static inline vector bboxCenter(const struct boundingBox* bbox) {
+static inline struct vector bboxCenter(const struct boundingBox* bbox) {
 	return vecScale(vecAdd(bbox->max, bbox->min), 0.5f);
 }

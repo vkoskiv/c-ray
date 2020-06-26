@@ -82,7 +82,7 @@ static inline void makeLeaf(struct bvhNode* node, unsigned begin, unsigned primC
 	node->primCount = primCount;
 }
 
-static inline unsigned computeBinIndex(int axis, const vector *center, float min, float max) {
+static inline unsigned computeBinIndex(int axis, const struct vector *center, float min, float max) {
 	float centerToBin = BIN_COUNT / (max - min);
 	float coord = axis == 0 ? center->x : (axis == 1 ? center->y : center->z);
 	float floatIndex = (coord - min) * centerToBin;
@@ -93,7 +93,7 @@ static inline unsigned computeBinIndex(int axis, const vector *center, float min
 static inline unsigned partitionPrimitiveIndices(
 	const struct bvhNode *node,
 	const struct bvh *bvh,
-	const vector *centers,
+	const struct vector *centers,
 	unsigned axis, unsigned bin,
 	unsigned begin, unsigned end)
 {
@@ -131,7 +131,7 @@ static void buildBvhRecursive(
 	unsigned nodeId,
 	struct bvh *bvh,
 	const struct boundingBox *bboxes,
-	const vector *centers,
+	const struct vector *centers,
 	unsigned begin, unsigned end,
 	unsigned depth)
 {
@@ -242,10 +242,10 @@ static void buildBvhRecursive(
 // Builds a BVH using the provided callback to obtain bounding boxes and centers for each primitive
 static inline struct bvh *buildBvhGeneric(
 	void* userData,
-	void (*getBBoxAndCenter)(void*, unsigned, struct boundingBox*, vector*),
+	void (*getBBoxAndCenter)(void*, unsigned, struct boundingBox*, struct vector*),
 	unsigned count)
 {
-	vector *centers = malloc(sizeof(vector) * count);
+	struct vector *centers = malloc(sizeof(struct vector) * count);
 	struct boundingBox *bboxes = malloc(sizeof(struct boundingBox) * count);
 	int *primIndices = malloc(sizeof(int) * count);
 
@@ -277,11 +277,11 @@ static inline struct bvh *buildBvhGeneric(
 	return bvh;
 }
 
-static void getPolyBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, vector *center) {
+static void getPolyBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
 	struct poly *polys = userData;
-	vector v0 = vertexArray[polys[i].vertexIndex[0]];
-	vector v1 = vertexArray[polys[i].vertexIndex[1]];
-	vector v2 = vertexArray[polys[i].vertexIndex[2]];
+	struct vector v0 = vertexArray[polys[i].vertexIndex[0]];
+	struct vector v1 = vertexArray[polys[i].vertexIndex[1]];
+	struct vector v2 = vertexArray[polys[i].vertexIndex[2]];
 	*center = getMidPoint(v0, v1, v2);
 	bbox->min = vecMin(v0, vecMin(v1, v2));
 	bbox->max = vecMax(v0, vecMax(v1, v2));
@@ -291,7 +291,7 @@ struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count) {
 	return buildBvhGeneric(polys, getPolyBBoxAndCenter, count);
 }
 
-static void getMeshBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, vector *center) {
+static void getMeshBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
 	struct mesh *meshes = userData;
 	loadBBoxFromNode(bbox, &meshes[i].bvh->nodes[0]);
 	*center = bboxCenter(bbox);
@@ -311,8 +311,8 @@ static inline float fastMultiplyAdd(float a, float b, float c) {
 
 static inline bool intersectNode(
 	const struct bvhNode *node,
-	const vector *invDir,
-	const vector *scaledStart,
+	const struct vector *invDir,
+	const struct vector *scaledStart,
 	const int* octant,
 	float maxDist,
 	float* tEntry)
@@ -353,8 +353,8 @@ static inline bool traverseBvhGeneric(
 		ray->direction.y < 0 ? 1 : 0,
 		ray->direction.z < 0 ? 1 : 0
 	};
-	vector invDir = { 1.0f / ray->direction.x, 1.0f / ray->direction.y, 1.0f / ray->direction.z };
-	vector scaledStart = vecScale(vecMul(ray->start, invDir), -1.0f);
+	struct vector invDir = { 1.0f / ray->direction.x, 1.0f / ray->direction.y, 1.0f / ray->direction.z };
+	struct vector scaledStart = vecScale(vecMul(ray->start, invDir), -1.0f);
 	float maxDist = isect->didIntersect ? isect->distance : FLT_MAX;
 
 	// Special case when the BVH is just a single leaf

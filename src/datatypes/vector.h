@@ -16,10 +16,8 @@ struct vector {
 	float x, y, z;
 };
 
-typedef struct vector vector;
-
 struct base {
-	vector i, j, k;
+	struct vector i, j, k;
 };
 
 struct coord {
@@ -219,10 +217,10 @@ static inline struct base baseWithVec(struct vector i) {
 	newBase.i = i;
 	if (fabsf(i.x) > fabsf(i.y)) {
 		float len = sqrtf(i.x * i.x + i.z * i.z);
-		newBase.j = (vector){-i.z / len, 0.0f / len, i.x / len};
+		newBase.j = (struct vector){-i.z / len, 0.0f / len, i.x / len};
 	} else {
 		float len = sqrtf(i.y * i.y + i.z * i.z);
-		newBase.j = (vector){ 0.0f / len, i.z / len, -i.y / len};
+		newBase.j = (struct vector){ 0.0f / len, i.z / len, -i.y / len};
 	}
 	ASSERT(vecDot(newBase.i, newBase.j) == 0.0f);
 	newBase.k = vecCross(newBase.i, newBase.j);

@@ -32,7 +32,7 @@ static const float rayleighZenithLength = 8.4E3f;
 static const float mieZenithLength = 1.25E3f;
 static const float sunIntensity = 1000.0f;
 static const struct color primaryWavelengths = {680E-9f, 550E-9f, 450E-9f, 1.0f};
-static const vector up = {0.0f, 1.0f, 0.0f};
+static const struct vector up = {0.0f, 1.0f, 0.0f};
 
 static const struct color K = {0.686f, 0.678f, 0.666f, 1.0f};
 
@@ -74,7 +74,7 @@ static float clamp(float value, float min, float max) {
 	return min(max(value, min), max);
 }
 
-static const vector sunDirection = {0.0f, 0.2f, 1.0f};
+static const struct vector sunDirection = {0.0f, 0.2f, 1.0f};
 struct color sky(struct lightRay incidentRay) {
 	float cosViewSunAngle = vecDot(incidentRay.direction, sunDirection);
 	float cosSunUpAngle = vecDot(sunDirection, up);

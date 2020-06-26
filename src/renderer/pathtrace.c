@@ -60,16 +60,16 @@ static void computeSurfaceProps(const struct poly *p, const struct coord *uv, st
 	float u = uv->x;
 	float v = uv->y;
 	float w = 1.0f - u - v;
-	vector ucomp = vecScale(vertexArray[p->vertexIndex[2]], u);
-	vector vcomp = vecScale(vertexArray[p->vertexIndex[1]], v);
-	vector wcomp = vecScale(vertexArray[p->vertexIndex[0]], w);
+	struct vector ucomp = vecScale(vertexArray[p->vertexIndex[2]], u);
+	struct vector vcomp = vecScale(vertexArray[p->vertexIndex[1]], v);
+	struct vector wcomp = vecScale(vertexArray[p->vertexIndex[0]], w);
 	
 	*hitPoint = vecAdd(vecAdd(ucomp, vcomp), wcomp);
 	
 	if (p->hasNormals) {
-		vector upcomp = vecScale(normalArray[p->normalIndex[2]], u);
-		vector vpcomp = vecScale(normalArray[p->normalIndex[1]], v);
-		vector wpcomp = vecScale(normalArray[p->normalIndex[0]], w);
+		struct vector upcomp = vecScale(normalArray[p->normalIndex[2]], u);
+		struct vector vpcomp = vecScale(normalArray[p->normalIndex[1]], v);
+		struct vector wpcomp = vecScale(normalArray[p->normalIndex[0]], w);
 		
 		*normal = vecNormalize(vecAdd(vecAdd(upcomp, vpcomp), wpcomp));
 	}
@@ -77,7 +77,7 @@ static void computeSurfaceProps(const struct poly *p, const struct coord *uv, st
 	*hitPoint = vecAdd(*hitPoint, vecScale(*normal, 0.0001f));
 }
 
-static vector bumpmap(const struct hitRecord *isect) {
+static struct vector bumpmap(const struct hitRecord *isect) {
 	struct material mtl = isect->end;
 	struct poly *p = isect->polygon;
 	float width = mtl.normalMap->width;
@@ -92,7 +92,7 @@ static vector bumpmap(const struct hitRecord *isect) {
 	float x = (textureXY.x*(width));
 	float y = (textureXY.y*(heigh));
 	struct color pixel = textureGetPixelFiltered(mtl.normalMap, x, y);
-	return vecNormalize((vector){(pixel.red * 2.0f) - 1.0f, (pixel.green * 2.0f) - 1.0f, pixel.blue * 0.5f});
+	return vecNormalize((struct vector){(pixel.red * 2.0f) - 1.0f, (pixel.green * 2.0f) - 1.0f, pixel.blue * 0.5f});
 }
 
 /**
