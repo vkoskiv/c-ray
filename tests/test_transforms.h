@@ -41,7 +41,7 @@ bool transform_multiply() {
 												 171, 146, 172, 268,
 												 105, 169, 128, 169
 												 );
-	pass = areEqual(AB, expectedResult);
+	test_assert(areEqual(AB, expectedResult));
 	return pass;
 }
 
@@ -49,7 +49,7 @@ bool transform_transpose() {
 	bool pass = true;
 	
 	// Identity matrices don't care about transpose
-	pass = areEqual(identityMatrix(), transpose(identityMatrix()));
+	test_assert(areEqual(identityMatrix(), transpose(identityMatrix())));
 	
 	struct matrix4x4 transposable = fromParams(
 											0, 0, 0, 1,
@@ -65,7 +65,7 @@ bool transform_transpose() {
 										1, 0, 0, 0
 										);
 	
-	pass = areEqual(transpose(transposable), expected);
+	test_assert(areEqual(transpose(transposable), expected));
 	
 	return pass;
 }
@@ -76,7 +76,7 @@ bool transform_determinant() {
 									  1, 1, 3, 0,
 									  0, 2, -2, 0,
 									  0, 0, 3, 1);
-	pass = findDeterminant(mtx.mtx, 4) == -4.0f;
+	test_assert(findDeterminant(mtx.mtx, 4) == -4.0f);
 	return pass;
 }
 
@@ -86,7 +86,7 @@ bool transform_determinant4x4() {
 									  1, 1, 3, 0,
 									  0, 2, -2, 0,
 									  0, 0, 3, 1);
-	pass = findDeterminant4x4(mtx.mtx) == -4.0f;
+	test_assert(findDeterminant4x4(mtx.mtx) == -4.0f);
 	return pass;
 }
 

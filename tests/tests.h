@@ -8,6 +8,9 @@
 
 #pragma once
 
+//Test assert
+#define test_assert(x) if (!(x)) {pass = false; logr(warning, "Test failed: [%s]\n", #x);}
+
 // Testable modules
 #include "test_textbuffer.h"
 #include "test_transforms.h"

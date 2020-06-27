@@ -17,25 +17,26 @@ bool textbuffer_textview(void) {
 	
 	textBuffer *original = newTextBuffer(string);
 	//dumpBuffer(original);
-	pass = original->amountOf.lines == 3;
+	
+	test_assert(original->amountOf.lines == 4);
 	
 	textBuffer *view = newTextView(original, 0, 1);
-	pass = stringEquals(currentLine(view), "This is a");
+	test_assert(stringEquals(currentLine(view), "This is a"));
 	freeTextBuffer(view);
-	pass = view == NULL;
+	test_assert(view == NULL);
 	
 	view = newTextView(original, 1, 1);
-	pass = stringEquals(currentLine(view), "Multiline");
+	test_assert(stringEquals(currentLine(view), "Multiline"));
 	freeTextBuffer(view);
-	pass = view == NULL;
+	test_assert(view == NULL);
 	
 	view = newTextView(original, 2, 1);
-	pass = stringEquals(currentLine(view), "string!");
+	test_assert(stringEquals(currentLine(view), "string!"));
 	freeTextBuffer(view);
-	pass = view == NULL;
+	test_assert(view == NULL);
 	
 	freeTextBuffer(original);
-	pass = original == NULL;
+	test_assert(view == NULL);
 	free(string);
 	
 	return pass;
@@ -51,19 +52,19 @@ bool textbuffer_tokenizer(void) {
 	
 	fillLineBuffer(&line, currentLine, " ");
 	char *currentToken = firstToken(&line);
-	pass = stringEquals(currentToken, "This");
+	test_assert(stringEquals(currentToken, "This"));
 	currentToken = nextToken(&line);
-	pass = stringEquals(currentToken, "is");
+	test_assert(stringEquals(currentToken, "is"));
 	currentToken = nextToken(&line);
-	pass = stringEquals(currentToken, "a");
+	test_assert(stringEquals(currentToken, "a"));
 	currentToken = firstToken(&line);
-	pass = stringEquals(currentToken, "This");
+	test_assert(stringEquals(currentToken, "This"));
 	
 	fillLineBuffer(&line, nextLine(file), " ");
 	currentToken = firstToken(&line);
-	pass = stringEquals(currentToken, "Multiline");
+	test_assert(stringEquals(currentToken, "Multiline"));
 	currentToken = lastToken(&line);
-	pass = stringEquals(currentToken, "string!");
+	test_assert(stringEquals(currentToken, "string!"));
 	
 	freeLineBuffer(&line);
 	freeTextBuffer(file);
