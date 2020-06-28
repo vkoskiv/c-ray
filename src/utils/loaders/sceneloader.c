@@ -593,6 +593,7 @@ static struct prefs parsePrefs(const cJSON *data) {
 	filePath = cJSON_GetObjectItem(data, "outputFilePath");
 	if (filePath) {
 		if (cJSON_IsString(filePath)) {
+			free(p.imgFilePath);
 			p.imgFilePath = copyString(filePath->valuestring);
 		} else {
 			logr(warning, "Invalid filePath while parsing scene.\n");
@@ -604,6 +605,7 @@ static struct prefs parsePrefs(const cJSON *data) {
 	fileName = cJSON_GetObjectItem(data, "outputFileName");
 	if (fileName) {
 		if (cJSON_IsString(fileName)) {
+			free(p.imgFileName);
 			p.imgFileName = copyString(fileName->valuestring);
 		} else {
 			logr(warning, "Invalid fileName while parsing scene.\n");

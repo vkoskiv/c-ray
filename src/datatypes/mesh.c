@@ -61,6 +61,7 @@ void transformMesh(struct mesh *mesh) {
 void destroyMesh(struct mesh *mesh) {
 	if (mesh) {
 		free(mesh->name);
+		free(mesh->polygons);
 		if (mesh->transformCount > 0) {
 			free(mesh->transforms);
 		}

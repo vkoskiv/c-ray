@@ -299,6 +299,7 @@ void destroyRenderer(struct renderer *r) {
 		free(r->state.timer);
 		free(r->state.renderTiles);
 		free(r->state.threads);
+		free(r->state.threadStates);
 		free(r->prefs.imgFileName);
 		free(r->prefs.imgFilePath);
 		free(r);

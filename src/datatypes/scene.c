@@ -178,6 +178,7 @@ void destroyScene(struct world *scene) {
 		for (int i = 0; i < scene->meshCount; ++i) {
 			destroyMesh(&scene->meshes[i]);
 		}
+		destroyBvh(scene->topLevel);
 		free(scene->meshes);
 		free(scene->spheres);
 		free(scene);
