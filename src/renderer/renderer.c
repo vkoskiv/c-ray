@@ -59,9 +59,13 @@ struct texture *renderFrame(struct renderer *r) {
 	int pauser = 0;
 	int ctr = 1;
 	
+	r->state.threads = calloc(r->prefs.threadCount, sizeof(*r->state.threads));
+	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(*r->state.threadStates));
+	
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		r->state.threads[t] = (struct crThread){.thread_num = t, .threadComplete = false, .renderer = r, .output = output, .threadFunc = renderThread};
+		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output};
+		r->state.threads[t] = (struct crThread){.threadFunc = renderThread, .userData = &r->state.threadStates[t]};
 		if (startThread(&r->state.threads[t])) {
 			logr(error, "Failed to create a crThread.\n");
 		} else {
@@ -73,10 +77,10 @@ struct texture *renderFrame(struct renderer *r) {
 	while (r->state.isRendering) {
 		getKeyboardInput(r);
 		
-		if (!r->state.threads[0].paused) {
+		if (!r->state.threadStates[0].paused) {
 			drawWindow(r, output);
 			for (int t = 0; t < r->prefs.threadCount; ++t) {
-				avgSampleTime += r->state.threads[t].avgSampleTime;
+				avgSampleTime += r->state.threadStates[t].avgSampleTime;
 			}
 			finalAvg += avgSampleTime / r->prefs.threadCount;
 			finalAvg /= ctr++;
@@ -91,7 +95,7 @@ struct texture *renderFrame(struct renderer *r) {
 			uint64_t totalTileSamples = r->state.tileCount * r->prefs.sampleCount;
 			uint64_t completedSamples = 0;
 			for (int t = 0; t < r->prefs.threadCount; ++t) {
-				completedSamples += r->state.threads[t].totalSamples;
+				completedSamples += r->state.threadStates[t].totalSamples;
 			}
 			uint64_t remainingTileSamples = totalTileSamples - completedSamples;
 			uint64_t msecTillFinished = 0.001f * (timePerSingleTileSample * remainingTileSamples);
@@ -106,16 +110,16 @@ struct texture *renderFrame(struct renderer *r) {
 				 usPerRay,
 				 rem,
 				 0.000001f * sps,
-				 r->state.threads[0].paused ? "[PAUSED]" : "");
+				 r->state.threadStates[0].paused ? "[PAUSED]" : "");
 			pauser = 0;
 		}
 		pauser++;
 		
 		//Wait for render threads to finish (Render finished)
 		for (int t = 0; t < r->prefs.threadCount; ++t) {
-			if (r->state.threads[t].threadComplete && r->state.threads[t].thread_num != -1) {
+			if (r->state.threadStates[t].threadComplete && r->state.threadStates[t].thread_num != -1) {
 				--r->state.activeThreads;
-				r->state.threads[t].thread_num = -1; //Mark as checked
+				r->state.threadStates[t].thread_num = -1; //Mark as checked
 			}
 			if (!r->state.activeThreads || r->state.renderAborted) {
 				r->state.isRendering = false;
@@ -139,13 +143,14 @@ struct texture *renderFrame(struct renderer *r) {
 void *renderThread(void *arg) {
 	struct lightRay incidentRay;
 	struct crThread *thread = (struct crThread*)arg;
-	struct renderer *r = thread->renderer;
-	struct texture *image = thread->output;
+	struct renderThreadState *threadState = (struct renderThreadState*)thread->userData;
+	struct renderer *r = threadState->renderer;
+	struct texture *image = threadState->output;
 	sampler *sampler = newSampler();
 	
 	//First time setup for each thread
 	struct renderTile tile = nextTile(r);
-	thread->currentTileNum = tile.tileNum;
+	threadState->currentTileNum = tile.tileNum;
 	
 	struct timeval timer = {0};
 	
@@ -239,26 +244,26 @@ void *renderThread(void *arg) {
 			samples++;
 			totalUsec += getUs(timer);
 			tile.completedSamples++;
-			thread->totalSamples++;
-			thread->completedSamples = tile.completedSamples;
+			threadState->totalSamples++;
+			threadState->completedSamples = tile.completedSamples;
 			//Pause rendering when bool is set
-			while (thread->paused && !r->state.renderAborted) {
+			while (threadState->paused && !r->state.renderAborted) {
 				sleepMSec(100);
 			}
-			thread->avgSampleTime = totalUsec / samples;
+			threadState->avgSampleTime = totalUsec / samples;
 		}
 		//Tile has finished rendering, get a new one and start rendering it.
 		r->state.renderTiles[tile.tileNum].isRendering = false;
 		r->state.renderTiles[tile.tileNum].renderComplete = true;
-		thread->currentTileNum = -1;
-		thread->completedSamples = 0;
+		threadState->currentTileNum = -1;
+		threadState->completedSamples = 0;
 		tile = nextTile(r);
-		thread->currentTileNum = tile.tileNum;
+		threadState->currentTileNum = tile.tileNum;
 	}
 	destroySampler(sampler);
 	//No more tiles to render, exit thread. (render done)
-	thread->threadComplete = true;
-	thread->currentTileNum = -1;
+	threadState->threadComplete = true;
+	threadState->currentTileNum = -1;
 	return 0;
 }
 

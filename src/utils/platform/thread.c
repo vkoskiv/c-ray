@@ -32,7 +32,7 @@ void checkThread(struct crThread *t) {
 	WaitForSingleObjectEx(t->thread_handle, INFINITE, FALSE);
 #else
 	if (pthread_join(t->thread_id, NULL)) {
-		logr(warning, "Thread %i frozen.", t->thread_num);
+		logr(warning, "Thread frozen! (This shouldn't happen.)");
 	}
 #endif
 }

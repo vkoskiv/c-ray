@@ -147,6 +147,9 @@ int loadScene(struct renderer *r, char *input) {
 									   r->prefs.tileHeight,
 									   r->prefs.tileOrder);
 	
+	// Some of this stuff seems like it should be in newRenderer(), but notice
+	// how they depend on r->prefs, which is populated by parseJSON
+	
 	//Compute the focal length for the camera
 	computeFocalLength(r->scene->camera, r->prefs.imageWidth);
 	
@@ -158,20 +161,11 @@ int loadScene(struct renderer *r, char *input) {
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
 	r->state.uiBuffer = newTexture(char_p, r->prefs.imageWidth, r->prefs.imageHeight, 4);
 	
-	//Some of this stuff seems like it should be in newRenderer(), but notice
-	//how it depends on r->prefs, which is populated by parseJSON
-	//Alloc memory for crThreads
-	r->state.threads = calloc(r->prefs.threadCount, sizeof(*r->state.threads));
-	if (r->state.threads == NULL) {
-		logr(error, "Failed to allocate memory for crThreads.\n");
-	}
-	
 	//Print a useful warning to user if the defined tile size results in less renderThreads
 	if (r->state.tileCount < r->prefs.threadCount) {
 		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
-		logr(warning, "Reducing thread count from %i to ", r->prefs.threadCount);
+		logr(warning, "Reducing thread count from %i to %i\n", r->prefs.threadCount, r->state.tileCount);
 		r->prefs.threadCount = r->state.tileCount;
-		printf("%i\n", r->prefs.threadCount);
 	}
 	return 0;
 }

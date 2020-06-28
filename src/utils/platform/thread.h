@@ -17,23 +17,8 @@ struct crThread {
 #else
 	pthread_t thread_id;
 #endif
-	int thread_num;
-	bool threadComplete;
-	
-	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.
-	
-	//Share info about the current tile with main thread
-	int currentTileNum;
-	int completedSamples;
-	
-	uint64_t totalSamples;
-	
-	long avgSampleTime; //Single tile pass
-	
-	struct renderer *renderer;
-	struct texture *output;
-	
-	void *(*threadFunc)(void *);
+	void *userData; // Thread I/O.
+	void *(*threadFunc)(void *); // Code you want to run.
 };
 
 /// Spawn a new C-ray platform abstracted thread

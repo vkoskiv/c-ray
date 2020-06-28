@@ -16,6 +16,24 @@ enum renderOrder {
 	renderOrderRandom
 };
 
+struct renderThreadState {
+	int thread_num;
+	bool threadComplete;
+	
+	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.
+	
+	//Share info about the current tile with main thread
+	int currentTileNum;
+	int completedSamples;
+	
+	uint64_t totalSamples;
+	
+	long avgSampleTime; //Single tile pass
+	
+	struct renderer *renderer;
+	struct texture *output;
+};
+
 /// Renderer state data
 struct state {
 	struct renderTile *renderTiles; //Array of renderTiles to render
@@ -31,6 +49,7 @@ struct state {
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
 	struct crThread *threads; //Render threads
+	struct renderThreadState *threadStates;
 	struct timeval *timer;
 	
 	struct crMutex *tileMutex;
