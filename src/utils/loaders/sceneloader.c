@@ -149,20 +149,20 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 	
 	//Data loaded, now convert everything
 	//Convert vectors
-	vertexArray = realloc(vertexArray, vertexCount * sizeof(struct vector));
+	g_vertices = realloc(g_vertices, vertexCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_count; ++i) {
-		vertexArray[newMesh->firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
+		g_vertices[newMesh->firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
 	}
 	
 	//Convert normals
-	normalArray = realloc(normalArray, normalCount * sizeof(struct vector));
+	g_normals = realloc(g_normals, normalCount * sizeof(struct vector));
 	for (int i = 0; i < data.vertex_normal_count; ++i) {
-		normalArray[newMesh->firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
+		g_normals[newMesh->firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
 	}
 	//Convert texture vectors
-	textureArray = realloc(textureArray, textureCount * sizeof(struct coord));
+	g_textureCoords = realloc(g_textureCoords, textureCount * sizeof(struct coord));
 	for (int i = 0; i < data.vertex_texture_count; ++i) {
-		textureArray[newMesh->firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
+		g_textureCoords[newMesh->firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
 	}
 	//Convert polygons
 	newMesh->polygons = malloc(data.face_count * sizeof(struct poly));

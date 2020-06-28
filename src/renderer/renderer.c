@@ -281,8 +281,8 @@ struct renderer *newRenderer() {
 	r->scene->meshes = calloc(1, sizeof(*r->scene->meshes));
 	r->scene->spheres = calloc(1, sizeof(*r->scene->spheres));
 	
-	if (!vertexArray) {
-		allocVertexBuffer();
+	if (!g_vertices) {
+		allocVertexBuffers();
 	}
 	
 	//Mutex
@@ -295,7 +295,7 @@ void destroyRenderer(struct renderer *r) {
 		destroyScene(r->scene);
 		destroyTexture(r->state.renderBuffer);
 		destroyTexture(r->state.uiBuffer);
-		destroyVertexBuffer();
+		destroyVertexBuffers();
 		free(r->state.timer);
 		free(r->state.renderTiles);
 		free(r->state.threads);

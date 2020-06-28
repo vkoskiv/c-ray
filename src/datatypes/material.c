@@ -95,9 +95,9 @@ static struct color colorForUV(struct hitRecord *isect) {
 	const float w = 1.0f - u - v;
 	
 	//Weighted texture coordinates
-	const struct coord ucomponent = coordScale(u, textureArray[p->textureIndex[2]]);
-	const struct coord vcomponent = coordScale(v, textureArray[p->textureIndex[1]]);
-	const struct coord wcomponent = coordScale(w, textureArray[p->textureIndex[0]]);
+	const struct coord ucomponent = coordScale(u, g_textureCoords[p->textureIndex[2]]);
+	const struct coord vcomponent = coordScale(v, g_textureCoords[p->textureIndex[1]]);
+	const struct coord wcomponent = coordScale(w, g_textureCoords[p->textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
 	const struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
@@ -137,9 +137,9 @@ static struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
 	const float w = 1.0f - u - v;
 	
 	//Weighted coordinates
-	const struct coord ucomponent = coordScale(u, textureArray[p->textureIndex[2]]);
-	const struct coord vcomponent = coordScale(v, textureArray[p->textureIndex[1]]);
-	const struct coord wcomponent = coordScale(w, textureArray[p->textureIndex[0]]);
+	const struct coord ucomponent = coordScale(u, g_textureCoords[p->textureIndex[2]]);
+	const struct coord vcomponent = coordScale(v, g_textureCoords[p->textureIndex[1]]);
+	const struct coord wcomponent = coordScale(w, g_textureCoords[p->textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
 	const struct coord surfaceXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);

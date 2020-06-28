@@ -9,14 +9,14 @@
 #pragma once
 
 //Main vector arrays
-extern struct vector *vertexArray;
+extern struct vector *g_vertices;
 extern int vertexCount;
 
-extern struct vector *normalArray;
+extern struct vector *g_normals;
 extern int normalCount;
 
-extern struct coord *textureArray;
+extern struct coord *g_textureCoords;
 extern int textureCount;
 
-void allocVertexBuffer(void);
-void destroyVertexBuffer(void);
+void allocVertexBuffers(void);
+void destroyVertexBuffers(void);

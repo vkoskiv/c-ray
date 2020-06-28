@@ -279,9 +279,9 @@ static inline struct bvh *buildBvhGeneric(
 
 static void getPolyBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
 	struct poly *polys = userData;
-	struct vector v0 = vertexArray[polys[i].vertexIndex[0]];
-	struct vector v1 = vertexArray[polys[i].vertexIndex[1]];
-	struct vector v2 = vertexArray[polys[i].vertexIndex[2]];
+	struct vector v0 = g_vertices[polys[i].vertexIndex[0]];
+	struct vector v1 = g_vertices[polys[i].vertexIndex[1]];
+	struct vector v2 = g_vertices[polys[i].vertexIndex[2]];
 	*center = getMidPoint(v0, v1, v2);
 	bbox->min = vecMin(v0, vecMin(v1, v2));
 	bbox->max = vecMax(v0, vecMax(v1, v2));

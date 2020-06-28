@@ -230,11 +230,11 @@ struct mesh *parseOBJFilea(char *filePath) {
 	newMesh->polyCount = pCount;
 	
 	vertexCount += vCount;
-	vertexArray = realloc(vertexArray, vertexCount * sizeof(struct vector));
+	g_vertices = realloc(g_vertices, vertexCount * sizeof(struct vector));
 	normalCount += nCount;
-	normalArray = realloc(normalArray, normalCount * sizeof(struct vector));
+	g_normals = realloc(g_normals, normalCount * sizeof(struct vector));
 	textureCount += tCount;
-	textureArray = realloc(textureArray, textureCount * sizeof(struct coord));
+	g_textureCoords = realloc(g_textureCoords, textureCount * sizeof(struct coord));
 	
 	newMesh->polygons = malloc(pCount * sizeof(struct poly));
 	
@@ -257,15 +257,15 @@ struct mesh *parseOBJFilea(char *filePath) {
 			continue;
 		} else if (stringEquals(token, "v")) {
 			//Vertex
-			vertexArray[newMesh->firstVectorIndex + currVecIdx] = parseVertex();
+			g_vertices[newMesh->firstVectorIndex + currVecIdx] = parseVertex();
 			currVecIdx++;
 		} else if (stringEquals(token, "vn")) {
 			//Normal
-			normalArray[newMesh->firstNormalIndex + currNorIdx] = parseVertex();
+			g_normals[newMesh->firstNormalIndex + currNorIdx] = parseVertex();
 			currNorIdx++;
 		} else if (stringEquals(token, "vt")) {
 			//Texture coord
-			textureArray[newMesh->firstTextureIndex + currTexIdx] = parseCoord();
+			g_textureCoords[newMesh->firstTextureIndex + currTexIdx] = parseCoord();
 			currTexIdx++;
 		} else if (stringEquals(token, "f")) {
 			//Polygon

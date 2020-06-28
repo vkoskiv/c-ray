@@ -10,7 +10,7 @@
 
 /*
  Note:
- C-Ray stores all vectors and polygons in shared arrays, and uses data structures
+ C-Ray stores all vertex data in shared arrays, and uses data structures
  to keep track of them.
  */
 
@@ -20,32 +20,32 @@
 #include "vector.h"
 #include "../utils/assert.h"
 
-struct vector *vertexArray;
+struct vector *g_vertices;
 int vertexCount;
-struct vector *normalArray;
+struct vector *g_normals;
 int normalCount;
-struct coord *textureArray;
+struct coord *g_textureCoords;
 int textureCount;
 
-void allocVertexBuffer() {
-	ASSERT(!vertexArray);
-	vertexArray = calloc(1, sizeof(*vertexArray));
-	normalArray = calloc(1, sizeof(*normalArray));
-	textureArray = calloc(1, sizeof(*textureArray));
+void allocVertexBuffers() {
+	ASSERT(!g_vertices);
+	g_vertices = calloc(1, sizeof(*g_vertices));
+	g_normals = calloc(1, sizeof(*g_normals));
+	g_textureCoords = calloc(1, sizeof(*g_textureCoords));
 	
 	vertexCount = 0;
 	normalCount = 0;
 	textureCount = 0;
 }
 
-void destroyVertexBuffer() {
-	if (vertexArray) {
-		free(vertexArray);
+void destroyVertexBuffers() {
+	if (g_vertices) {
+		free(g_vertices);
 	}
-	if (normalArray) {
-		free(normalArray);
+	if (g_normals) {
+		free(g_normals);
 	}
-	if (textureArray) {
-		free(textureArray);
+	if (g_textureCoords) {
+		free(g_textureCoords);
 	}
 }

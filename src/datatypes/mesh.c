@@ -36,7 +36,7 @@ void transformMesh(struct mesh *mesh) {
 			for (int v = 0; v < mesh->polygons[p].vertexCount; ++v) {
 				//vec
 				if (!tformed[mesh->polygons[p].vertexIndex[v] - mesh->firstVectorIndex]) {
-					transformVector(&vertexArray[mesh->polygons[p].vertexIndex[v]], mesh->transforms[tf].A);
+					transformVector(&g_vertices[mesh->polygons[p].vertexIndex[v]], mesh->transforms[tf].A);
 					tformed[mesh->polygons[p].vertexIndex[v] - mesh->firstVectorIndex] = true;
 				}
 			}
@@ -45,7 +45,7 @@ void transformMesh(struct mesh *mesh) {
 			//normal, skip translates and do inverse transpose
 			if (!ntformed[n - mesh->firstNormalIndex]) {
 				if (mesh->transforms[tf].type != transformTypeTranslate) {
-					transformVector(&normalArray[n], transpose(mesh->transforms[tf].Ainv));
+					transformVector(&g_normals[n], transpose(mesh->transforms[tf].Ainv));
 					ntformed[n - mesh->firstNormalIndex] = true;
 				}
 			}
