@@ -40,6 +40,28 @@ char *loadFile(char *inputFileName, size_t *bytes) {
 	return buf;
 }
 
+void writeFile(const unsigned char *buf, size_t bufsize, const char *filename) {
+	FILE* file;
+	file = fopen(filename, "wb" );
+	char *backupPath = NULL;
+	if(!file) {
+		backupPath = concatString("./", getFileName(filename));
+		file = fopen(backupPath, "wb");
+		if (file) {
+			char *path = getFilePath(filename);
+			logr(warning, "The specified output directory \"%s\" was not writeable, dumping the file in CWD instead.\n", path);
+			free(path);
+		} else {
+			logr(warning, "Neither the specified output directory nor the current working directory were writeable. Image can't be saved. Fix your permissions!");
+			return;
+		}
+	}
+	logr(info, "Saving result in \"%s\"\n", backupPath ? backupPath : filename);
+	fwrite(buf, 1, bufsize, file);
+	fclose(file);
+	printFileSize(backupPath ? backupPath : filename);
+}
+
 bool isValidFile(char *path) {
 	FILE *f = fopen(path, "r");
 	if (f) {
@@ -94,7 +116,7 @@ char *getFileName(char *input) {
 //For Windows
 #define CRAY_PATH_MAX 4096
 
-char *getFilePath(char *input) {
+char *getFilePath(const char *input) {
 	char *dir = NULL;
 #ifdef WINDOWS
 	dir = calloc(256, sizeof(*dir));
@@ -102,7 +124,10 @@ char *getFilePath(char *input) {
 #else
 	dir = copyString(dirname(input));
 #endif
-	return concatString(dir, "/");
+	logr(debug, "dirname got \"%s\", returned: \"%s\"\n", input, dir);
+	char *final = concatString(dir, "/");
+	free(dir);
+	return final;
 }
 
 #define chunksize 1024
@@ -164,7 +189,7 @@ char *humanFileSize(unsigned long bytes) {
 	return buf;
 }
 
-void printFileSize(char *fileName) {
+void printFileSize(const char *fileName) {
 	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
 	//This will work for all image formats
 	unsigned long bytes = getFileSize(fileName);
@@ -239,7 +264,7 @@ size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
 	return bytes;
 }
 
-size_t getFileSize(char *fileName) {
+size_t getFileSize(const char *fileName) {
 	FILE *file = fopen(fileName, "r");
 	if (!file) return 0;
 	fseek(file, 0L, SEEK_END);

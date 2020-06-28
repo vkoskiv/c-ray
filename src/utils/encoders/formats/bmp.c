@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include "../../logging.h"
 
+//FIXME: Make this use writeFile() instead of directly encoding to the file like this.
+//Or maybe just delete it, and rewrite.
 void encodeBMPFromArray(const char *filename, unsigned char *imgData, unsigned width, unsigned height) {
 	//Apparently BMP is BGR, whereas C-ray's internal buffer is RGB (Like it should be)
 	//So we need to convert the image data before writing to file.

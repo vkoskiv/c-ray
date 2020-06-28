@@ -14,9 +14,13 @@
 char *humanFileSize(unsigned long bytes);
 
 //Prints the file size of a given file to the console in a user-readable format
-void printFileSize(char *fileName);
+void printFileSize(const char *fileName);
 
 char *loadFile(char *inputFileName, size_t *bytes);
+
+// This is a more robust file writing function, that will seek alternate directories
+// if the specified one wasn't writeable.
+void writeFile(const unsigned char *buf, size_t bufsize, const char *filename);
 
 /// Returns true if the file at the given path exists and is readable.
 /// @param path Path to check
@@ -32,7 +36,7 @@ char *getFileName(char *input);
 
 /// Extract the path from a given full path, excluding the filename
 /// @param input Full path
-char *getFilePath(char *input);
+char *getFilePath(const char *input);
 
 /// Await for input on stdin for up to 2 seconds. If nothing shows up, return NULL
 /// @param bytes Bytes read, if successful.
@@ -40,4 +44,4 @@ char *readStdin(size_t *bytes);
 
 /// Check the size of a given file in bytes.
 /// @param fileName File to check
-size_t getFileSize(char *fileName);
+size_t getFileSize(const char *fileName);

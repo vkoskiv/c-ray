@@ -6,6 +6,7 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "../../../includes.h"
 #include "../../../datatypes/image/imagefile.h"
 #include "png.h"
 
@@ -14,6 +15,7 @@
 #include "../../logging.h"
 
 #include "../../../libraries/lodepng.h"
+#include "../../../utils/filehandler.h"
 
 #ifndef WINDOWS
 #include <sys/utsname.h>
@@ -65,8 +67,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, unsigned w
 	unsigned error = lodepng_encode(&buf, &bytes, imgData, width, height, &state);
 	if (error) logr(warning, "Error %u: %s\n", error, lodepng_error_text(error));
 	
-	error = lodepng_save_file(buf, bytes, filename);
-	if (error) logr(warning, "Error %u: %s\n", error, lodepng_error_text(error));
+	writeFile(buf, bytes, filename);
 	
 	lodepng_info_cleanup(&info);
 	lodepng_state_cleanup(&state);

@@ -28,7 +28,5 @@ void writeImage(struct imageFile *image) {
 		asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
 		encodePNGFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height, image->info);
 	}
-	logr(info, "Saving result in \"%s\"\n", buf);
-	printFileSize(buf);
 	free(buf);
 }
