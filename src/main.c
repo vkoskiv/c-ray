@@ -19,7 +19,6 @@ int main(int argc, char *argv[]) {
 	crInitRenderer();
 	size_t bytes = 0;
 	char *input = crOptionIsSet("inputFile") ? crLoadFile(crPathArg(), &bytes) : crReadStdin(&bytes);
-	crSetAssetPath(crOptionIsSet("inputFile") ? crGetFilePath(crPathArg()) : "./");
 	if (input) crLog("%zi bytes of input JSON loaded from %s, parsing.\n", bytes, crOptionIsSet("inputFile") ? "file" : "stdin");
 	if (!input || crLoadSceneFromBuf(input)) {
 		if (input) free(input);

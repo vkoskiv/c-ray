@@ -77,7 +77,7 @@ char *crGetOutputPath(void);
 void crSetFileName(char *fileName);
 char *crGetFileName(void);
 
-void crSetAssetPath(char *assetPath);
+void crSetAssetPath(void);
 char *crGetAssetPath(void);
 
 void crSetAntialiasing(bool on);

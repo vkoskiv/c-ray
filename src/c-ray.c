@@ -23,6 +23,7 @@
 #include "utils/args.h"
 #include "utils/encoders/encoder.h"
 #include <stdarg.h>
+#include "utils/string.h"
 
 #define VERSION "0.6.3"
 
@@ -99,6 +100,7 @@ char *crReadStdin(size_t *bytes) {
 void crInitRenderer() {
 	ASSERT(!g_renderer);
 	g_renderer = newRenderer();
+	crSetAssetPath();
 }
 
 void crDestroyRenderer() {
@@ -233,8 +235,8 @@ char *crGetFileName() {
 	return g_renderer->prefs.imgFileName;
 }
 
-void crSetAssetPath(char *assetPath) {
-	g_renderer->prefs.assetPath = assetPath;
+void crSetAssetPath(void) {
+	g_renderer->prefs.assetPath = crOptionIsSet("inputFile") ? crGetFilePath(crPathArg()) : copyString("./");
 }
 
 char *crGetAssetPath(void) {

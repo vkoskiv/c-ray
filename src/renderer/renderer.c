@@ -303,6 +303,7 @@ void destroyRenderer(struct renderer *r) {
 		free(r->state.tileMutex);
 		free(r->prefs.imgFileName);
 		free(r->prefs.imgFilePath);
+		free(r->prefs.assetPath);
 		free(r);
 	}
 }
