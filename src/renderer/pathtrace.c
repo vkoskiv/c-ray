@@ -26,6 +26,16 @@
 static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene);
 static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
 
+struct color debugNormals(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
+	(void)maxDepth;
+	(void)sampler;
+	struct lightRay currentRay = *incidentRay;
+	struct hitRecord isect = getClosestIsect(&currentRay, scene);
+	if (!isect.didIntersect) return getBackground(&currentRay, scene);
+	struct vector normal = vecNormalize(isect.surfaceNormal);
+	return colorWithValues(fabs(normal.x), fabs(normal.y), fabs(normal.z), 1.0f);
+}
+
 struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
 	struct color weight = whiteColor; // Current path weight
 	struct color finalColor = blackColor; // Final path contribution

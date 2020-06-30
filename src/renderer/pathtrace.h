@@ -51,3 +51,5 @@ struct hitRecord {
 /// @param maxDepth Maximum depth of recursion
 /// @param rng A random number generator. One per execution thread.
 struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler);
+
+struct color debugNormals(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler);
