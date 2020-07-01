@@ -174,47 +174,50 @@ int crGetSampleCount(void) {
 }
 
 void crSetBounces(int bounces) {
-	(void)bounces;
-	ASSERT_NOT_REACHED();
+	ASSERT(bounces > 0);
+	g_renderer->prefs.bounces = bounces;
 }
 
 int crGetBounces(void) {
 	return g_renderer->prefs.bounces;
 }
 
-void crSetTileWidth(int width) {
-	(void)width;
-	ASSERT_NOT_REACHED();
+void crSetTileWidth(unsigned width) {
+	ASSERT(width > 0);
+	ASSERT(width <= g_renderer->prefs.imageWidth);
+	g_renderer->prefs.imageWidth = width;
 }
 
-int crGetTileWidth(void) {
+unsigned crGetTileWidth(void) {
 	return g_renderer->prefs.tileWidth;
 }
 
-void crSetTileHeight(int height) {
-	(void)height;
-	ASSERT_NOT_REACHED();
+void crSetTileHeight(unsigned height) {
+	ASSERT(height > 0);
+	ASSERT(height <= g_renderer->prefs.imageHeight);
+	g_renderer->prefs.imageHeight = height;
 }
 
-int crGetTileHeight(void) {
+unsigned crGetTileHeight(void) {
 	return g_renderer->prefs.tileHeight;
 }
 
-void crSetImageWidth(int width) {
+void crSetImageWidth(unsigned width) {
+	ASSERT(width > g_renderer->prefs.tileWidth);
 	g_renderer->prefs.imageWidth = width;
 	crRestartInteractive();
 }
 
-int crGetImageWidth(void) {
+unsigned crGetImageWidth(void) {
 	return g_renderer->prefs.imageWidth;
 }
 
-void crSetImageHeight(int height) {
-	(void)height;
-	ASSERT_NOT_REACHED();
+void crSetImageHeight(unsigned height) {
+	ASSERT(height > g_renderer->prefs.tileHeight);
+	g_renderer->prefs.imageHeight = height;
 }
 
-int crGetImageHeight() {
+unsigned crGetImageHeight() {
 	return g_renderer->prefs.imageHeight;
 }
 

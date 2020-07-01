@@ -59,17 +59,17 @@ int crGetSampleCount(void);
 void crSetBounces(int bounces);
 int crGetBounces(void);
 
-void crSetTileWidth(int width);
-int crGetTileWidth(void);
+void crSetTileWidth(unsigned width);
+unsigned crGetTileWidth(void);
 
-void crSetTileHeight(int height);
-int crGetTileHeight(void);
+void crSetTileHeight(unsigned height);
+unsigned crGetTileHeight(void);
 
-void crSetImageWidth(int width);
-int crGetImageWidth(void);
+void crSetImageWidth(unsigned width);
+unsigned crGetImageWidth(void);
 
-void crSetImageHeight(int height);
-int crGetImageHeight(void);
+void crSetImageHeight(unsigned height);
+unsigned crGetImageHeight(void);
 
 void crSetOutputPath(char *filePath);
 char *crGetOutputPath(void);

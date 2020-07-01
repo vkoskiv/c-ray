@@ -63,8 +63,8 @@ struct prefs {
 	bool fromSystem; //Did we ask the system for thread count
 	int sampleCount;
 	int bounces;
-	int tileWidth;
-	int tileHeight;
+	unsigned tileWidth;
+	unsigned tileHeight;
 	
 	//Output prefs
 	unsigned imageWidth;
