@@ -130,6 +130,19 @@ void textureToSRGB(struct texture *t) {
 	t->colorspace = sRGB;
 }
 
+struct texture *flipHorizontal(struct texture *t) {
+	struct texture *new = newTexture(t->precision, t->width, t->height, t->channels);
+	new->colorspace = t->colorspace;
+	
+	for (unsigned y = 0; y < new->height; ++y) {
+		for (unsigned x = 0; x < new->width; ++x) {
+			setPixel(new, textureGetPixel(t, ((t->width-1) - x), y), x, y);
+		}
+	}
+	
+	free(t);
+	return new;
+}
 void destroyTexture(struct texture *t) {
 	if (t) {
 		free(t->data.byte_p);

@@ -19,21 +19,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../libraries/stb_image.h"
 
-//This is to compensate for the non-standard coordinate system handedness
-static struct texture *flipHorizontal(struct texture *t) {
-	struct texture *new = newTexture(t->precision, t->width, t->height, t->channels);
-	new->colorspace = t->colorspace;
-	
-	for (unsigned y = 0; y < new->height; ++y) {
-		for (unsigned x = 0; x < new->width; ++x) {
-			setPixel(new, textureGetPixel(t, ((t->width-1) - x), y), x, y);
-		}
-	}
-	
-	free(t);
-	return new;
-}
-
 struct hdr *loadHDRI(char *filePath) {
 	struct hdr *new = newHDRI();
 	//Handle the trailing newline here

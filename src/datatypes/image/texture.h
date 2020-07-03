@@ -55,6 +55,7 @@ void textureFromSRGB(struct texture *t);
 /// @param t Texture to convert
 void textureToSRGB(struct texture *t);
 
+struct texture *flipHorizontal(struct texture *t);
 /// Deallocate a given texture
 /// @param tex Texture to deallocate
 void destroyTexture(struct texture *tex);
