@@ -122,9 +122,10 @@ char *getFilePath(const char *input) {
 	dir = calloc(256, sizeof(*dir));
 	_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0);
 #else
-	dir = copyString(dirname(input));
+	char *inputCopy = copyString(input);
+	dir = copyString(dirname(inputCopy));
+	free(inputCopy);
 #endif
-	logr(debug, "dirname got \"%s\", returned: \"%s\"\n", input, dir);
 	char *final = concatString(dir, "/");
 	free(dir);
 	return final;
