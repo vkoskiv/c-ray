@@ -32,7 +32,7 @@ static void printUsage(const char *progname) {
 	printf("    [-d <w>x<h>] -> Override image dimensions to <w>x<h>\n");
 	printf("    [-t <w>x<h>] -> Override tile  dimensions to <w>x<h>\n");
 	printf("    [-v]         -> Enable verbose mode\n");
-	printf("    [--test]     -> Run the test suite");
+	printf("    [--test]     -> Run the test suite\n");
 	restoreTerminal();
 	exit(0);
 }
