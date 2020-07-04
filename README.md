@@ -61,8 +61,8 @@ C-ray has been verified to work on the following architectures
 - x86 & x86_64 (Primarily developed on x86_64)
 - ARMv6, ARMv7 and ARMv8 (Various Raspberry Pi systems)
 - PowerPC 7xx and 74xx (PowerPC G3 and G4 systems)
-- MIPS R5000 (1996 SGI O2)
-- SuperSPARC II (1992 SUN SparcStation 10)
+- MIPS R5000 ([1996 SGI O2](https://twitter.com/vkoskiv/status/1236419126555488257?s=20))
+- SuperSPARC II ([1992 SUN SparcStation 10](https://twitter.com/vkoskiv/status/1234515380200235008?s=20))
 
 ## Usage
 
