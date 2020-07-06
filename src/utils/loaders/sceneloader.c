@@ -117,7 +117,6 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 	// FIXME: Hack, fix the actual getFileName implementation!
 	char *fpcopy = copyString(inputFilePath);
 	char *fileName = getFileName(fpcopy);
-	free(fpcopy);
 	
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFilePath) == 0) {
@@ -146,6 +145,8 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 	newMesh->materialCount = 0;
 	//Set name
 	newMesh->name = copyString(fileName);
+	
+	free(fpcopy);
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
