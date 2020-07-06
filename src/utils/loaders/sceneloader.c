@@ -110,7 +110,7 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath) {
 	return valid;
 }
 
-static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshCount) {
+static bool loadMesh(struct renderer *r, const char *inputFilePath, int idx, int meshCount) {
 	printf("\r");
 	logr(info, "Loading mesh %i/%i%s", idx, meshCount, idx == meshCount ? "\n" : "\r");
 	
@@ -119,11 +119,13 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 	char *fileName = getFileName(fpcopy);
 	
 	obj_scene_data data;
-	if (parse_obj_scene(&data, inputFilePath) == 0) {
+	char *fpcopy2 = copyString(inputFilePath);
+	if (parse_obj_scene(&data, fpcopy2) == 0) {
 		if (idx != meshCount) printf("\n");
 		logr(warning, "Mesh \"%s\" not found!\n", fileName);
 		return false;
 	}
+	free(fpcopy2);
 	
 	//Create mesh to keep track of meshes
 	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + 1) * sizeof(struct mesh));
@@ -196,7 +198,7 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 	
 	//Load textures for meshes
 	char *filePath = getFilePath(inputFilePath);
-	loadMeshTextures(getFilePath(inputFilePath), newMesh);
+	loadMeshTextures(filePath, newMesh);
 	free(filePath);
 	
 	//Delete OBJ data
