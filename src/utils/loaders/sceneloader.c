@@ -114,10 +114,15 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 	printf("\r");
 	logr(info, "Loading mesh %i/%i%s", idx, meshCount, idx == meshCount ? "\n" : "\r");
 	
+	// FIXME: Hack, fix the actual getFileName implementation!
+	char *fpcopy = copyString(inputFilePath);
+	char *fileName = getFileName(fpcopy);
+	free(fpcopy);
+	
 	obj_scene_data data;
 	if (parse_obj_scene(&data, inputFilePath) == 0) {
 		if (idx != meshCount) printf("\n");
-		logr(warning, "Mesh \"%s\" not found!\n", getFileName(inputFilePath));
+		logr(warning, "Mesh \"%s\" not found!\n", fileName);
 		return false;
 	}
 	
@@ -140,7 +145,7 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 	
 	newMesh->materialCount = 0;
 	//Set name
-	newMesh->name = copyString(getFileName(inputFilePath));
+	newMesh->name = copyString(fileName);
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;
@@ -189,7 +194,9 @@ static bool loadMesh(struct renderer *r, char *inputFilePath, int idx, int meshC
 	}
 	
 	//Load textures for meshes
+	char *filePath = getFilePath(inputFilePath);
 	loadMeshTextures(getFilePath(inputFilePath), newMesh);
+	free(filePath);
 	
 	//Delete OBJ data
 	delete_obj_data(&data);
