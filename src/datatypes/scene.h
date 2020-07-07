@@ -24,6 +24,9 @@ struct world {
 	struct mesh *meshes;
 	int meshCount;
 	
+	struct instance *instances;
+	int instanceCount;
+	
 	struct bvh *topLevel;
 	
 	//Spheres

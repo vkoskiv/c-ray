@@ -116,6 +116,8 @@
 		90D5F02724A208100068FC60 /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90D5F02524A208100068FC60 /* gitsha1.c */; };
 		90EE4F3C237DD49F0071894E /* meshloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90EE4F3B237DD49F0071894E /* meshloader.c */; };
 		90EE4F3D237DD49F0071894E /* meshloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90EE4F3B237DD49F0071894E /* meshloader.c */; };
+		90FAD26924A26F0B00F8CA79 /* instance.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FAD26824A26F0B00F8CA79 /* instance.c */; };
+		90FAD26A24A26F0B00F8CA79 /* instance.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FAD26824A26F0B00F8CA79 /* instance.c */; };
 		90FAD27124A2ADE400F8CA79 /* testrunner.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FAD27024A2ADE400F8CA79 /* testrunner.c */; };
 		90FAD27224A2ADE400F8CA79 /* testrunner.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FAD27024A2ADE400F8CA79 /* testrunner.c */; };
 		90FB15CE225C6D85008D6AAA /* texture.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15CD225C6D85008D6AAA /* texture.c */; };
@@ -266,6 +268,8 @@
 		90E2DB28223D575600E7A305 /* asprintf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asprintf.h; sourceTree = "<group>"; };
 		90EE4F3A237DD49F0071894E /* meshloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = meshloader.h; sourceTree = "<group>"; };
 		90EE4F3B237DD49F0071894E /* meshloader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = meshloader.c; sourceTree = "<group>"; };
+		90FAD26724A26F0B00F8CA79 /* instance.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = instance.h; sourceTree = "<group>"; };
+		90FAD26824A26F0B00F8CA79 /* instance.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = instance.c; sourceTree = "<group>"; };
 		90FAD26F24A2ADE400F8CA79 /* testrunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testrunner.h; sourceTree = "<group>"; };
 		90FAD27024A2ADE400F8CA79 /* testrunner.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = testrunner.c; sourceTree = "<group>"; };
 		90FB15C922596E79008D6AAA /* gitsha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gitsha1.h; sourceTree = "<group>"; };
@@ -367,6 +371,8 @@
 				900BA106220B4602005B8EE7 /* transforms.c */,
 				90CA85222252D99600BA7702 /* vertexbuffer.h */,
 				90CA85232252D99700BA7702 /* vertexbuffer.c */,
+				90FAD26724A26F0B00F8CA79 /* instance.h */,
+				90FAD26824A26F0B00F8CA79 /* instance.c */,
 			);
 			path = datatypes;
 			sourceTree = "<group>";
@@ -630,6 +636,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90FAD26A24A26F0B00F8CA79 /* instance.c in Sources */,
 				905842DB236651FC009D92F1 /* main.c in Sources */,
 				905842DC236651FC009D92F1 /* sphere.c in Sources */,
 				905842DE236651FC009D92F1 /* poly.c in Sources */,
@@ -693,6 +700,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90FAD26924A26F0B00F8CA79 /* instance.c in Sources */,
 				900BA144220B4603005B8EE7 /* main.c in Sources */,
 				900BA136220B4603005B8EE7 /* sphere.c in Sources */,
 				900BA12F220B4603005B8EE7 /* poly.c in Sources */,
