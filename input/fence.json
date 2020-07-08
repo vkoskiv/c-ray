@@ -151,27 +151,35 @@
 			{
 				"fileName": "newScene.obj",
 				"bsdf": "lambertian",
-				"transforms": []
+				"instances": [
+					{
+						"transforms": []
+					}
+				]
 			},
 			{
 				"fileName": "fence.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "rotateY",
-						"degrees": 90
-					},
-					{
-						"type": "scale",
-						"x": 100,
-						"y": 100,
-						"z": 50
-					},
-					{
-						"type": "translate",
-						"x": 1000,
-						"y": 380,
-						"z": 960
+						"transforms": [
+							{
+							"type": "rotateY",
+							"degrees": 90
+							},
+						{
+							"type": "scale",
+							"x": 100,
+							"y": 100,
+							"z": 50
+						},
+						{
+							"type": "translate",
+							"x": 1000,
+							"y": 380,
+							"z": 960
+						}
+						]
 					}
 				]
 			}

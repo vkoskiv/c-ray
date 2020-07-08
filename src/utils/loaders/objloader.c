@@ -144,6 +144,7 @@ struct mesh *parseOBJFile(char *filePath, size_t *meshCountOut) {
 	
 	//Figure out how many meshes this file contains
 	size_t meshCount = countMeshes(file);
+	if (!meshCount) return NULL;
 
 	//Get the offsets
 	char *head = firstLine(file);

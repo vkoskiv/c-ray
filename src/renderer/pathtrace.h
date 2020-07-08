@@ -42,6 +42,7 @@ struct hitRecord {
 	float distance;					//Distance to intersection point
 	struct poly *polygon;			//ptr to polygon that was encountered
 	unsigned meshIndex : 16;
+	unsigned instIndex: 16;
 };
 
 

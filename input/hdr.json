@@ -242,14 +242,18 @@
 			{
 				"fileName": "shapes/gridplane.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 0.25
-					},
-					{
-						"type": "rotateX",
-						"degrees": 0
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 0.25
+							},
+							{
+								"type": "rotateX",
+								"degrees": 0
+							}
+						]
 					}
 				]
 			},
@@ -257,70 +261,86 @@
 				"fileName": "venusscaled.obj",
 				"bsdf": "plastic",
 				"roughness": 0.0,
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 0.05
-					},
-					{
-						"type": "translate",
-						"X": 0.08
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 0.05
+							},
+							{
+								"type": "translate",
+								"X": 0.08
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "shapes/bunny.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 0.25
-					},
-					{
-						"type": "translate",
-						"X": 0.05,
-						"Y": 0,
-						"Z": -0.25
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 0.25
+							},
+							{
+								"type": "translate",
+								"X": 0.05,
+								"Y": 0,
+								"Z": -0.25
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot_white.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 0.025
-					},
-					{
-						"type": "rotateY",
-						"degrees": 45
-					},
-					{
-						"type": "translate",
-						"x": -0.06,
-						"y": 0,
-						"z": -0.02
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 0.025
+							},
+							{
+								"type": "rotateY",
+								"degrees": 45
+							},
+							{
+								"type": "translate",
+								"x": -0.06,
+								"y": 0,
+								"z": -0.02
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "tonni.objd",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 0.25
-					},
-					{
-						"type": "rotateY",
-						"degrees": 45
-					},
-					{
-						"type": "translate",
-						"x": 0.06,
-						"y": 0,
-						"z": -0.02
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 0.25
+							},
+							{
+								"type": "rotateY",
+								"degrees": 45
+							},
+							{
+								"type": "translate",
+								"x": 0.06,
+								"y": 0,
+								"z": -0.02
+							}
+						]
 					}
 				]
 			}

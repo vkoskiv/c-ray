@@ -27,7 +27,8 @@ enum transformType {
 	transformTypeMultiplication,
 	transformTypeIdentity,
 	transformTypeInverse,
-	transformTypeTranspose
+	transformTypeTranspose,
+	transformTypeComposite
 };
 
 struct matrix4x4 {
@@ -58,6 +59,11 @@ struct transform newTransform(void);
 
 struct matrix4x4 inverse(struct matrix4x4 mtx);
 struct matrix4x4 transpose(struct matrix4x4 tf);
+struct matrix4x4 multiply(struct matrix4x4 A, struct matrix4x4 B); //FIXME: Maybe don't expose this.
 
 void transformVector(struct vector *vec, struct matrix4x4 mtx);
 void transformDirection(struct vector *vec, struct matrix4x4 mtx);
+
+bool isRotation(struct transform t);
+bool isScale(struct transform t);
+bool isTranslate(struct transform t);

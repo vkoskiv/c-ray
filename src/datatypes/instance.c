@@ -6,22 +6,12 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
-struct instance {
-	struct transform *composite;
-	int meshIdx;
-};
-
 #include "../includes.h"
 #include "vector.h"
+#include "../datatypes/transforms.h"
 #include "instance.h"
 #include "transforms.h"
 #include "scene.h"
-
-/*struct instance newInstance(vector *rot, vector *scale, vector *translate) {
-	struct instance newInstance;
-	
-	mul
-}*/
 
 void addInstanceToScene(struct world *scene, struct instance instance) {
 	if (scene->instanceCount == 0) {

@@ -32,6 +32,7 @@
 #include "../converter.h"
 #include "textureloader.h"
 #include "objloader.h"
+#include "../../datatypes/instance.h"
 
 static struct color parseColor(const cJSON *data);
 
@@ -917,6 +918,55 @@ static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	return 0;
 }
 
+struct transform parseTransformComposite(const cJSON *transforms) {
+	// Combine found list of discerete transforms into a single matrix.
+	ASSERT(cJSON_IsArray(transforms));
+	const cJSON *transform = NULL;
+	size_t count = cJSON_GetArraySize(transforms);
+	struct transform *tforms = calloc(count, sizeof(*tforms));
+	size_t idx = 0;
+	cJSON_ArrayForEach(transform, transforms) {
+		tforms[idx++] = parseTransform(transform, "compositeBuilder");
+	}
+	
+	struct transform composite = newTransform();
+	
+	// Order is: scales/rotates, then translates
+	
+	// Then translates
+	for (size_t i = 0; i < count; ++i) {
+		if (isTranslate(tforms[i])) {
+			composite.A = multiply(composite.A, tforms[i].A);
+		}
+	}
+	
+	// Then rotates
+	for (size_t i = 0; i < count; ++i) {
+		if (isRotation(tforms[i])) {
+			composite.A = multiply(composite.A, tforms[i].A);
+		}
+	}
+	
+	// Apply scales
+	for (size_t i = 0; i < count; ++i) {
+		if (isScale(tforms[i])) {
+			composite.A = multiply(composite.A, tforms[i].A);
+		}
+	}
+	
+	composite.Ainv = inverse(composite.A);
+	composite.type = transformTypeComposite;
+	return composite;
+}
+
+struct instance parseInstance(int meshIdx, const cJSON *instance) {
+	struct instance new = {0};
+	const cJSON *transforms = cJSON_GetObjectItem(instance, "transforms");
+	new.composite = parseTransformComposite(transforms);
+	new.meshIdx = meshIdx;
+	return new;
+}
+
 //FIXME: Only parse everything else if the mesh is found and is valid
 static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
@@ -955,12 +1005,11 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		}
 	}
 	if (meshValid) {
-		const cJSON *transforms = cJSON_GetObjectItem(data, "transforms");
-		const cJSON *transform = NULL;
-		//TODO: Use parseTransforms for this
-		if (transforms != NULL && cJSON_IsArray(transforms)) {
-			cJSON_ArrayForEach(transform, transforms) {
-				addTransform(lastMesh(r), parseTransform(transform, lastMesh(r)->name));
+		const cJSON *instances = cJSON_GetObjectItem(data, "instances");
+		const cJSON *instance = NULL;
+		if (instances != NULL && cJSON_IsArray(instances)) {
+			cJSON_ArrayForEach(instance, instances) {
+				addInstanceToScene(r->scene, parseInstance(r->scene->meshCount - 1, instance));
 			}
 		}
 		

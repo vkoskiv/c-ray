@@ -20,8 +20,10 @@
 #include "../datatypes/mesh.h"
 #include "samplers/sampler.h"
 #include "sky.h"
+#include "../datatypes/transforms.h"
+#include "../datatypes/instance.h"
 
-//#define LINEAR
+#define LINEAR
 
 static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene);
 static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
@@ -53,7 +55,12 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 		struct color attenuation;
 		if (!isect.end.bsdf(&isect, &attenuation, &currentRay, sampler))
 			break;
-
+		
+		if (isect.instIndex != 9909) {
+			transformVector(&currentRay.start, scene->instances[isect.instIndex].composite.A);
+			transformVector(&currentRay.direction, transpose(scene->instances[isect.instIndex].composite.Ainv));
+			//transformDirection(&isect.surfaceNormal, transpose(scene->instances[i].composite.Ainv));
+		}
 		float probability = 1.0f;
 		if (depth >= 4) {
 			probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
@@ -122,13 +129,23 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 		if (rayIntersectsWithSphere(incidentRay, &scene->spheres[i], &isect)) {
 			isect.end = scene->spheres[i].material;
 			isect.didIntersect = true;
+			isect.instIndex = 9909;
 		}
 	}
 	
 #ifdef LINEAR
-	for (int o = 0; o < scene->meshCount; ++o) {
-		if (traverseBottomLevelBvh(&scene->meshes[o], incidentRay, &isect)) {
-			isect.end = scene->meshes[isect.meshIndex].materials[isect.polygon->materialIndex];
+	for (int i = 0; i < scene->instanceCount; ++i) {
+		struct lightRay copy;
+		copy.start = incidentRay->start;
+		copy.direction = incidentRay->direction;
+		copy.rayType = incidentRay->rayType;
+		
+		transformVector(&copy.start, scene->instances[i].composite.Ainv);
+		transformDirection(&copy.direction, scene->instances[i].composite.Ainv);
+		if (traverseBottomLevelBvh(&scene->meshes[scene->instances[i].meshIdx], &copy, &isect)) {
+			isect.end = scene->meshes[scene->instances[i].meshIdx].materials[isect.polygon->materialIndex];
+			
+			isect.instIndex = i;
 			computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 			if (isect.end.hasNormalMap)
 				isect.surfaceNormal = bumpmap(&isect);

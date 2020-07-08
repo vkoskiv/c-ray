@@ -9,7 +9,11 @@
 #pragma once
 
 struct world;
+struct matrix4x4;
 
-struct instance newInstance(struct vector *rot, struct vector *scale, struct vector *translate);
+struct instance {
+	struct transform composite;
+	int meshIdx;
+};
 
 void addInstanceToScene(struct world *scene, struct instance instance);
