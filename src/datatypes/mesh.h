@@ -34,10 +34,6 @@ struct mesh {
 	struct poly *polygons;
 	int polyCount;
 	
-	//Transforms to perform before rendering
-	int transformCount;
-	struct transform *transforms;
-	
 	//Materials
 	int materialCount;
 	struct material *materials;
@@ -47,7 +43,6 @@ struct mesh {
 	char *name;
 };
 
-void addTransform(struct mesh *mesh, struct transform transform);
 void transformMesh(struct mesh *mesh);
 
 void destroyMesh(struct mesh *mesh);

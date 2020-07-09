@@ -14,6 +14,7 @@ struct lightRay;
 struct hitRecord;
 struct mesh;
 struct poly;
+struct instance;
 
 struct bvh;
 
@@ -22,10 +23,10 @@ struct bvh;
 /// @param count Amount of polygons given
 struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count);
 
-/// Builds a top-level BVH for a given set of meshes
-/// @param meshes Meshes to build a top-level BVH for
-/// @param meshCount Amount of meshes
-struct bvh *buildTopLevelBvh(struct mesh *meshes, unsigned meshCount);
+/// Builds a top-level BVH for a given set of instances
+/// @param instances Instances to build a top-level BVH for
+/// @param instanceCount Amount of instances
+struct bvh *buildTopLevelBvh(struct instance *instances, unsigned instanceCount);
 
 /// Intersect a ray with a scene top-level BVH
 bool traverseTopLevelBvh(const struct mesh *meshes, const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);

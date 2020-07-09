@@ -33,6 +33,7 @@ char *loadFile(char *inputFileName, size_t *bytes) {
 		if (bytes) *bytes = bytesRead;
 	} else {
 		logr(warning, "Failed to read input file from %s", inputFileName);
+		free(buf);
 		fclose(f);
 		return NULL;
 	}

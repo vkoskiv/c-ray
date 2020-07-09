@@ -8,12 +8,15 @@
 
 #pragma once
 
+#include "transforms.h"
+
 struct world;
 struct matrix4x4;
 
 struct instance {
 	struct transform composite;
-	int meshIdx;
+	void *object;
 };
 
 void addInstanceToScene(struct world *scene, struct instance instance);
+void addSphereInstanceToScene(struct world *scene, struct instance instance);

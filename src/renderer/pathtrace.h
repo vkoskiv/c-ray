@@ -21,9 +21,9 @@ struct world;
  Ray intersection type enum
  */
 enum currentType {
+	hitTypeNone,
 	hitTypePolygon,
-	hitTypeSphere,
-	hitTypeNone
+	hitTypeSphere
 };
 
 /**
@@ -38,7 +38,6 @@ struct hitRecord {
 	struct vector surfaceNormal;	//Surface normal at that point of intersection
 	struct coord uv;				//UV barycentric coordinates for intersection point
 	enum currentType type;			//Type of object ray intersected with
-	bool didIntersect;				//True if ray intersected
 	float distance;					//Distance to intersection point
 	struct poly *polygon;			//ptr to polygon that was encountered
 	unsigned meshIndex : 16;

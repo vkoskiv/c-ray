@@ -17,6 +17,7 @@
 #include "../datatypes/bbox.h"
 #include "../datatypes/lightRay.h"
 #include "../datatypes/mesh.h"
+#include "../datatypes/instance.h"
 
 /*
  * This BVH builder is based on "On fast Construction of SAH-based Bounding Volume Hierarchies",
@@ -291,14 +292,22 @@ struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count) {
 	return buildBvhGeneric(polys, getPolyBBoxAndCenter, count);
 }
 
-static void getMeshBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
+/*static void getMeshBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
 	struct mesh *meshes = userData;
 	loadBBoxFromNode(bbox, &meshes[i].bvh->nodes[0]);
 	*center = bboxCenter(bbox);
+}*/
+
+static void getInstanceBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
+	struct instance *instances = userData;
+	struct mesh *mesh = (struct mesh*)instances[i].object;
+	loadBBoxFromNode(bbox, &mesh->bvh->nodes[0]);
+	transformBBox(bbox, &instances[i].composite.A);
+	*center = bboxCenter(bbox);
 }
 
-struct bvh *buildTopLevelBvh(struct mesh *meshes, unsigned meshCount) {
-	return buildBvhGeneric(meshes, getMeshBBoxAndCenter, meshCount);
+struct bvh *buildTopLevelBvh(struct instance *instances, unsigned instanceCount) {
+	return buildBvhGeneric(instances, getInstanceBBoxAndCenter, instanceCount);
 }
 
 static inline float fastMultiplyAdd(float a, float b, float c) {
@@ -355,7 +364,7 @@ static inline bool traverseBvhGeneric(
 	};
 	struct vector invDir = { 1.0f / ray->direction.x, 1.0f / ray->direction.y, 1.0f / ray->direction.z };
 	struct vector scaledStart = vecScale(vecMul(ray->start, invDir), -1.0f);
-	float maxDist = isect->didIntersect ? isect->distance : FLT_MAX;
+	float maxDist = !(isect->type == hitTypeNone) ? isect->distance : FLT_MAX;
 
 	// Special case when the BVH is just a single leaf
 	if (bvh->nodeCount == 1) {
@@ -431,7 +440,6 @@ static inline bool intersectBottomLevelLeaf(
 	for (int i = 0; i < leaf->primCount; ++i) {
 		struct poly *p = &polygons[bvh->primIndices[leaf->firstChildOrPrim + i]];
 		if (rayIntersectsWithPolygon(ray, p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
-			isect->didIntersect = true;
 			isect->type = hitTypePolygon;
 			isect->polygon = p;
 			found = true;

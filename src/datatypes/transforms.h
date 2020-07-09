@@ -44,6 +44,7 @@ struct transform {
 
 struct material;
 struct vector;
+struct boundingBox;
 
 float toRadians(float degrees);
 float fromRadians(float radians);
@@ -63,6 +64,7 @@ struct matrix4x4 multiply(struct matrix4x4 A, struct matrix4x4 B); //FIXME: Mayb
 
 void transformVector(struct vector *vec, struct matrix4x4 mtx);
 void transformDirection(struct vector *vec, struct matrix4x4 mtx);
+void transformBBox(struct boundingBox *bbox, struct matrix4x4 *mtx);
 
 bool isRotation(struct transform t);
 bool isScale(struct transform t);

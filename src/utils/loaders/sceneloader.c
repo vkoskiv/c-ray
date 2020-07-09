@@ -129,7 +129,6 @@ static bool loadMesh(struct renderer *r, const char *inputFilePath, int idx, int
 	free(fpcopy2);
 	
 	//Create mesh to keep track of meshes
-	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + 1) * sizeof(struct mesh));
 	struct mesh *newMesh = &r->scene->meshes[r->scene->meshCount];
 	//Vertex data
 	newMesh->firstVectorIndex = vertexCount;
@@ -142,8 +141,6 @@ static bool loadMesh(struct renderer *r, const char *inputFilePath, int idx, int
 	newMesh->textureCount = data.vertex_texture_count;
 	//Poly data
 	newMesh->polyCount = data.face_count;
-	//Transforms init
-	newMesh->transformCount = 0;
 	
 	newMesh->materialCount = 0;
 	//Set name
@@ -218,7 +215,6 @@ static void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
 //FIXME: change + 1 to ++scene->someCount and just pass the count to array access
 //In the future, maybe just pass a list and size and copy at once to save time (large counts)
 static void addSphere(struct world *scene, struct sphere newSphere) {
-	scene->spheres = realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(struct sphere));
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
@@ -933,21 +929,21 @@ struct transform parseTransformComposite(const cJSON *transforms) {
 	
 	// Order is: scales/rotates, then translates
 	
-	// Then translates
+	// Translates
 	for (size_t i = 0; i < count; ++i) {
 		if (isTranslate(tforms[i])) {
 			composite.A = multiply(composite.A, tforms[i].A);
 		}
 	}
 	
-	// Then rotates
+	// Rotates
 	for (size_t i = 0; i < count; ++i) {
 		if (isRotation(tforms[i])) {
 			composite.A = multiply(composite.A, tforms[i].A);
 		}
 	}
 	
-	// Apply scales
+	// Scales
 	for (size_t i = 0; i < count; ++i) {
 		if (isScale(tforms[i])) {
 			composite.A = multiply(composite.A, tforms[i].A);
@@ -959,11 +955,11 @@ struct transform parseTransformComposite(const cJSON *transforms) {
 	return composite;
 }
 
-struct instance parseInstance(int meshIdx, const cJSON *instance) {
-	struct instance new = {0};
+struct instance parseInstance(struct mesh *mesh, const cJSON *instance) {
+	struct instance new;
 	const cJSON *transforms = cJSON_GetObjectItem(instance, "transforms");
 	new.composite = parseTransformComposite(transforms);
-	new.meshIdx = meshIdx;
+	new.object = mesh;
 	return new;
 }
 
@@ -1009,7 +1005,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		const cJSON *instance = NULL;
 		if (instances != NULL && cJSON_IsArray(instances)) {
 			cJSON_ArrayForEach(instance, instances) {
-				addInstanceToScene(r->scene, parseInstance(r->scene->meshCount - 1, instance));
+				addInstanceToScene(r->scene, parseInstance(lastMesh(r), instance));
 			}
 		}
 		
@@ -1029,6 +1025,7 @@ static void parseMeshes(struct renderer *r, const cJSON *data) {
 	const cJSON *mesh = NULL;
 	int idx = 1;
 	int meshCount = cJSON_GetArraySize(data);
+	r->scene->meshes = calloc(meshCount, sizeof(*r->scene->meshes));
 	if (data != NULL && cJSON_IsArray(data)) {
 		cJSON_ArrayForEach(mesh, data) {
 			parseMesh(r, mesh, idx, meshCount);
@@ -1139,6 +1136,12 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	
 	//FIXME: Proper materials for spheres
 	addSphere(r->scene, newSphere);
+	
+	struct instance new;
+	new.composite = newTransformTranslate(newSphere.pos.x, newSphere.pos.y, newSphere.pos.z);
+	new.object = lastSphere(r);
+	addSphereInstanceToScene(r->scene, new);
+	
 	assignBSDF(&lastSphere(r)->material);
 }
 
@@ -1154,6 +1157,9 @@ static void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {
 
 static void parsePrimitives(struct renderer *r, const cJSON *data) {
 	const cJSON *primitive = NULL;
+	int primCount = cJSON_GetArraySize(data);
+	r->scene->spheres = calloc(primCount, sizeof(*r->scene->spheres));
+	
 	if (data != NULL && cJSON_IsArray(data)) {
 		int i = 0;
 		cJSON_ArrayForEach(primitive, data) {

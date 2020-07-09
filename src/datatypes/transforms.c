@@ -11,6 +11,7 @@
 
 #include "../utils/logging.h"
 #include "vector.h"
+#include "bbox.h"
 
 //For ease of use
 float toRadians(float degrees) {
@@ -65,6 +66,11 @@ void transformVector(struct vector *vec, struct matrix4x4 mtx) {
 	vec->x = temp.x;
 	vec->y = temp.y;
 	vec->z = temp.z;
+}
+
+void transformBBox(struct boundingBox *bbox, struct matrix4x4 *mtx) {
+	transformVector(&bbox->max, *mtx);
+	transformVector(&bbox->min, *mtx);
 }
 
 void transformDirection(struct vector *vec, struct matrix4x4 mtx) {

@@ -33,6 +33,9 @@ struct world {
 	struct sphere *spheres;
 	int sphereCount;
 	
+	struct instance *sphereInstances;
+	int sphereInstanceCount;
+	
 	//Currently only one camera supported
 	struct camera *camera;
 	int cameraCount;
