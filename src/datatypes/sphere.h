@@ -18,11 +18,6 @@ struct sphere {
 	struct material material;
 };
 
-//New sphere with given params
-struct sphere newSphere(struct vector pos, float radius, struct material material);
-
-struct sphere newLightSphere(struct vector pos, float radius, struct color color, float intensity);
-
 struct sphere defaultSphere(void);
 
 //Calculates intersection between a light ray and a sphere

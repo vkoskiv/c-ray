@@ -28,6 +28,6 @@ static inline struct lightRay newRay(struct vector start, struct vector directio
 	return (struct lightRay){start, direction, rayType};
 }
 
-static inline struct vector alongRay(struct lightRay ray, float t) {
+static inline struct vector alongRay(const struct lightRay ray, float t) {
 	return vecAdd(ray.start, vecScale(ray.direction, t));
 }
