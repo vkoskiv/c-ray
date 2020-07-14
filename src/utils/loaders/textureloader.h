@@ -18,4 +18,4 @@ struct hdr *loadHDRI(char *filePath);
 /// @param filePath Path to image file on disk
 struct texture *loadTexture(char *filePath);
 
-struct texture *loadTextureFromBuffer(unsigned char *buffer, unsigned int buflen);
+struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigned int buflen, int reqComp);
