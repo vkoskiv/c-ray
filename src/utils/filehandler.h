@@ -16,7 +16,7 @@ char *humanFileSize(unsigned long bytes);
 //Prints the file size of a given file to the console in a user-readable format
 void printFileSize(const char *fileName);
 
-char *loadFile(char *inputFileName, size_t *bytes);
+char *loadFile(const char *fileName, size_t *bytes);
 
 // This is a more robust file writing function, that will seek alternate directories
 // if the specified one wasn't writeable.

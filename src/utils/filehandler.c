@@ -15,28 +15,23 @@
 #include <libgen.h>
 #endif
 #include "string.h"
+#include <errno.h>
 
-//Prototypes for internal functions
-size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream);
-
-//TODO: Use this for textures and HDRs too.
-char *loadFile(char *inputFileName, size_t *bytes) {
-	FILE *f = fopen(inputFileName, "rb");
+char *loadFile(const char *fileName, size_t *bytes) {
+	FILE *f = fopen(fileName, "rb");
 	if (!f) {
-		logr(warning, "No file found at %s\n", inputFileName);
+		logr(warning, "Can't access '%.*s', error: \"%s (%i)\"\n", (int)strlen(fileName) - 1, fileName, strerror(errno), errno);
 		return NULL;
 	}
-	char *buf = NULL;
-	size_t len;
-	size_t bytesRead = getDelim(&buf, &len, '\0', f);
-	if (bytesRead > 0) {
-		if (bytes) *bytes = bytesRead;
+	size_t len = getFileSize(fileName);
+	char *buf = malloc(len * sizeof(char));
+	fread(buf, sizeof(char), len, f);
+	if (ferror(f) != 0) {
+		logr(warning, "Error reading file\n");
 	} else {
-		logr(warning, "Failed to read input file from %s", inputFileName);
-		fclose(f);
-		return NULL;
+		buf[len] = '\0';
 	}
-	fclose(f);
+	if (bytes) *bytes = len;
 	return buf;
 }
 
@@ -197,72 +192,6 @@ void printFileSize(const char *fileName) {
 	char *sizeString = humanFileSize(bytes);
 	logr(info, "Wrote %s to file.\n", sizeString);
 	free(sizeString);
-}
-
-//For Windows support, we need our own getdelim()
-#if defined(_WIN32) || defined(__linux__)
-#ifndef LONG_MAX
-#define	LONG_MAX	2147483647L	/* max signed long */
-#endif
-#endif
-#define	SSIZE_MAX	LONG_MAX	/* max value for a ssize_t */
-size_t getDelim(char **lineptr, size_t *n, int delimiter, FILE *stream) {
-	char *buf, *pos;
-	int c;
-	size_t bytes;
-	
-	if (lineptr == NULL || n == NULL) {
-		return 0;
-	}
-	if (stream == NULL) {
-		return 0;
-	}
-	
-	/* resize (or allocate) the line buffer if necessary */
-	buf = *lineptr;
-	if (buf == NULL || *n < 4) {
-		buf = (char*)realloc(*lineptr, 128);
-		if (buf == NULL) {
-			/* ENOMEM */
-			return 0;
-		}
-		*n = 128;
-		*lineptr = buf;
-	}
-	
-	/* read characters until delimiter is found, end of file is reached, or an
-	 error occurs. */
-	bytes = 0;
-	pos = buf;
-	while ((c = getc(stream)) != -1) {
-		if (bytes + 1 >= SSIZE_MAX) {
-			return 0;
-		}
-		bytes++;
-		if (bytes >= *n - 1) {
-			buf = realloc(*lineptr, *n + 128);
-			if (buf == NULL) {
-				/* ENOMEM */
-				return 0;
-			}
-			*n += 128;
-			pos = buf + bytes - 1;
-			*lineptr = buf;
-		}
-		
-		*pos++ = (char) c;
-		if (c == delimiter) {
-			break;
-		}
-	}
-	
-	if (ferror(stream) || (feof(stream) && (bytes == 0))) {
-		/* EOF, or an error from getc(). */
-		return 0;
-	}
-	
-	*pos = '\0';
-	return bytes;
 }
 
 size_t getFileSize(const char *fileName) {
