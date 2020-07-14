@@ -111,6 +111,15 @@ char *nextLine(textBuffer *file) {
 	}
 }
 
+char *peekNextLine(textBuffer *file) {
+	char *head = file->buf + file->currentByteOffset;
+	if (file->current.line + 1 < file->amountOf.lines) {
+		return head;
+	} else {
+		return NULL;
+	}
+}
+
 char *firstLine(textBuffer *file) {
 	char *head = file->buf;
 	file->current.line = 0;
@@ -161,6 +170,10 @@ char *goToToken(lineBuffer *line, size_t token) {
 
 char *nextToken(lineBuffer *line) {
 	return nextLine(line);
+}
+
+char *peekNextToken(lineBuffer *line) {
+	return peekNextLine(line);
 }
 
 char *firstToken(lineBuffer *line) {
