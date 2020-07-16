@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct material *parseMTLFile(char *filePath, int *mtlCount);
+struct material *parseMTLFile(char *filePath, size_t *mtlCount);

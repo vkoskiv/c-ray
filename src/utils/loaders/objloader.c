@@ -137,7 +137,50 @@ static size_t countMeshes(textBuffer *buffer) {
 	return meshCount;
 }
 
-struct mesh *parseOBJFile(char *filePath, size_t *meshCountOut) {
+enum currentMode {
+	None,
+	Mesh
+};
+
+struct mesh *parseOBJFile(char *filePath, size_t *finalMeshCount) {
+	logr(debug, "Loading OBJ at %s\n", filePath);
+	char *rawText = loadFile(filePath, NULL);
+	textBuffer *file = newTextBuffer(rawText);
+	
+	//Start processing line-by-line, state machine style.
+	size_t meshCount = countMeshes(file);
+	size_t currentMesh = 0;
+	
+	struct material *currentMaterialSet = NULL;
+	size_t currentMaterialSetMaterialCount = 0;
+	
+	struct mesh *meshes = calloc(meshCount, sizeof(*meshes));
+	struct mesh *currentMeshPtr = NULL;
+	
+	char *head = firstLine(file);
+	lineBuffer line = {0};
+	while (head) {
+		fillLineBuffer(&line, head, " ");
+		char *first = firstToken(&line);
+		if (first[0] == '#') {
+			head = nextLine(file);
+			continue;
+		} else if (first[0] == 'o') {
+			currentMeshPtr = &meshes[currentMesh++];
+			currentMeshPtr->name = copyString(peekNextToken(&line));
+		} else if (stringEquals(first, "newmtl")) {
+			char *mtlFilePath = concatString(getFilePath(filePath), peekNextToken(&line));
+			currentMaterialSet = parseMTLFile(mtlFilePath, &currentMaterialSetMaterialCount);
+		}
+		head = nextLine(file);
+	}
+	
+	if (finalMeshCount) *finalMeshCount = meshCount;
+	exit(0);
+	return NULL;
+}
+
+struct mesh *parseOBJFileNah(char *filePath, size_t *meshCountOut) {
 	logr(debug, "Loading OBJ file\n");
 	char *rawText = loadFile(filePath, NULL);
 	textBuffer *file = newTextBuffer(rawText);
@@ -166,11 +209,14 @@ struct mesh *parseOBJFile(char *filePath, size_t *meshCountOut) {
 	struct mesh *meshes = calloc(meshCount, sizeof(*meshes));
 	
 	for (size_t m = 0; m < meshCount; ++m) {
-		textBuffer *segment = newTextView(file, meshOffsets[m], meshOffsets[m + 1] - meshOffsets[m]);
+		size_t start = meshOffsets[m];
+		size_t end = meshCount == 1 ? file->amountOf.lines : meshOffsets[m + 1] - meshOffsets[m];
+		textBuffer *segment = newTextView(file, start, end);
 		meshes[m] = parseOBJMesh(segment);
 		freeTextBuffer(segment);
 	}
 	
+	free(meshOffsets);
 	freeLineBuffer(&line);
 	freeTextBuffer(file);
 	restoreTerminal();
