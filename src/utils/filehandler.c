@@ -35,15 +35,16 @@ char *loadFile(const char *fileName, size_t *bytes) {
 	return buf;
 }
 
-void writeFile(const unsigned char *buf, size_t bufsize, const char *filename) {
-	FILE* file;
-	file = fopen(filename, "wb" );
+void writeFile(const unsigned char *buf, size_t bufsize, const char *filePath) {
+	FILE *file = fopen(filePath, "wb" );
 	char *backupPath = NULL;
 	if(!file) {
-		backupPath = concatString("./", getFileName(filename));
+		char *name = getFileName(filePath);
+		backupPath = concatString("./", name);
+		free(name);
 		file = fopen(backupPath, "wb");
 		if (file) {
-			char *path = getFilePath(filename);
+			char *path = getFilePath(filePath);
 			logr(warning, "The specified output directory \"%s\" was not writeable, dumping the file in CWD instead.\n", path);
 			free(path);
 		} else {
@@ -51,10 +52,10 @@ void writeFile(const unsigned char *buf, size_t bufsize, const char *filename) {
 			return;
 		}
 	}
-	logr(info, "Saving result in \"%s\"\n", backupPath ? backupPath : filename);
+	logr(info, "Saving result in \"%s\"\n", backupPath ? backupPath : filePath);
 	fwrite(buf, 1, bufsize, file);
 	fclose(file);
-	printFileSize(backupPath ? backupPath : filename);
+	printFileSize(backupPath ? backupPath : filePath);
 }
 
 bool isValidFile(char *path) {
@@ -87,25 +88,28 @@ void checkBuf() {
 #endif
 }
 
-
-//TODO: Make these consistent. Now I have to free getFilePath, but not getFileName
 /**
  Extract the filename from a given file path
 
  @param input File path to be processed
  @return Filename string, including file type extension
  */
-char *getFileName(char *input) {
+char *getFileName(const char *input) {
+	//FIXME: We're doing two copies here, maybe just rework the algorithm instead.
+	char *copy = copyString(input);
 	char *fn;
 	
 	/* handle trailing '/' e.g.
 	 input == "/home/me/myprogram/" */
-	if (input[(strlen(input) - 1)] == '/')
-		input[(strlen(input) - 1)] = '\0';
+	if (copy[(strlen(copy) - 1)] == '/')
+		copy[(strlen(copy) - 1)] = '\0';
 	
-	(fn = strrchr(input, '/')) ? ++fn : (fn = input);
+	(fn = strrchr(copy, '/')) ? ++fn : (fn = copy);
 	
-	return fn;
+	char *ret = copyString(fn);
+	free(copy);
+	
+	return ret;
 }
 
 //For Windows

@@ -20,7 +20,7 @@ char *loadFile(const char *fileName, size_t *bytes);
 
 // This is a more robust file writing function, that will seek alternate directories
 // if the specified one wasn't writeable.
-void writeFile(const unsigned char *buf, size_t bufsize, const char *filename);
+void writeFile(const unsigned char *buf, size_t bufsize, const char *filePath);
 
 /// Returns true if the file at the given path exists and is readable.
 /// @param path Path to check
@@ -32,7 +32,7 @@ bool isValidFile(char *path);
  @param input File path to be processed
  @return Filename string, including file type extension
  */
-char *getFileName(char *input);
+char *getFileName(const char *input);
 
 /// Extract the path from a given full path, excluding the filename
 /// @param input Full path
