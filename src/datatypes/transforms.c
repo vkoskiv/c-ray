@@ -40,7 +40,7 @@ struct transform newTransform() {
 	struct transform tf;
 	tf.type = transformTypeIdentity;
 	tf.A = identityMatrix();
-	tf.Ainv = inverse(identityMatrix());
+	tf.Ainv = tf.A; // Inverse of I == I
 	return tf;
 }
 
