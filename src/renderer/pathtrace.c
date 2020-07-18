@@ -56,14 +56,6 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 		if (!isect.end.bsdf(&isect, &attenuation, &currentRay, sampler))
 			break;
 		
-		if (isect.type == hitTypePolygon) {
-			transformVector(&currentRay.start, scene->instances[isect.instIndex].composite.A);
-			transformDirection(&currentRay.direction, transpose(scene->instances[isect.instIndex].composite.Ainv));
-		} else if (isect.type == hitTypeSphere) {
-			transformVector(&currentRay.start, scene->sphereInstances[isect.instIndex].composite.A);
-			transformDirection(&currentRay.direction, transpose(scene->sphereInstances[isect.instIndex].composite.Ainv));
-		}
-		
 		float probability = 1.0f;
 		if (depth >= 4) {
 			probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
@@ -127,6 +119,7 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 	struct hitRecord isect;
 	isect.distance = 20000.0f;
 	isect.incident = *incidentRay;
+	isect.type = hitTypeNone;
 	
 	for (int i = 0; i < scene->sphereInstanceCount; ++i) {
 		struct lightRay copy;
@@ -141,7 +134,7 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 			isect.end = ((struct sphere*)scene->sphereInstances[i].object)->material;
 			isect.instIndex = i;
 		}
-	 }
+	}
 	
 #ifdef LINEAR
 	for (int i = 0; i < scene->instanceCount; ++i) {
@@ -156,7 +149,6 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 		if (traverseBottomLevelBvh(scene->instances[i].object, &copy, &isect)) {
 			isect.end = ((struct mesh*)scene->instances[i].object)->materials[isect.polygon->materialIndex];
 			isect.instIndex = i;
-			computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 			if (isect.end.hasNormalMap)
 				isect.surfaceNormal = bumpmap(&isect);
 		}
@@ -169,6 +161,19 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 			isect.surfaceNormal = bumpmap(&isect);
 	}
 #endif
+	
+	// Note: Commenting out the two transformDirection() calls below
+	// seems to make the materials behave right again.
+	// But of course the normals are wrong then, which becomes more evident
+	// when rotating meshes more around the Y axis.
+	if (isect.type == hitTypePolygon) {
+		computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
+		transformVector(&isect.hitPoint, scene->instances[isect.instIndex].composite.A);
+		transformDirection(&isect.surfaceNormal, transpose(scene->instances[isect.instIndex].composite.Ainv));
+	} else if (isect.type == hitTypeSphere) {
+		transformVector(&isect.hitPoint, scene->sphereInstances[isect.instIndex].composite.A);
+		transformDirection(&isect.surfaceNormal, transpose(scene->sphereInstances[isect.instIndex].composite.Ainv));
+	}
 	return isect;
 }
 
