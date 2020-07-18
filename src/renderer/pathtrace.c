@@ -127,8 +127,8 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 		copy.direction = incidentRay->direction;
 		copy.rayType = incidentRay->rayType;
 		
-		transformVector(&copy.start, scene->sphereInstances[i].composite.Ainv);
-		transformDirection(&copy.direction, scene->sphereInstances[i].composite.Ainv);
+		transformPoint(&copy.start, scene->sphereInstances[i].composite.Ainv);
+		transformVector(&copy.direction, scene->sphereInstances[i].composite.Ainv);
 		
 		if (rayIntersectsWithSphere(incidentRay, scene->sphereInstances[i].object, &isect)) {
 			isect.end = ((struct sphere*)scene->sphereInstances[i].object)->material;
@@ -143,8 +143,8 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 		copy.direction = incidentRay->direction;
 		copy.rayType = incidentRay->rayType;
 		
-		transformVector(&copy.start, scene->instances[i].composite.Ainv);
-		transformDirection(&copy.direction, scene->instances[i].composite.Ainv);
+		transformPoint(&copy.start, scene->instances[i].composite.Ainv);
+		transformVector(&copy.direction, scene->instances[i].composite.Ainv);
 		
 		if (traverseBottomLevelBvh(scene->instances[i].object, &copy, &isect)) {
 			isect.end = ((struct mesh*)scene->instances[i].object)->materials[isect.polygon->materialIndex];
@@ -164,11 +164,11 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 	
 	if (isect.type == hitTypePolygon) {
 		computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
-		transformVector(&isect.hitPoint, scene->instances[isect.instIndex].composite.A);
-		transformDirection(&isect.surfaceNormal, transpose(scene->instances[isect.instIndex].composite.Ainv));
+		transformPoint(&isect.hitPoint, scene->instances[isect.instIndex].composite.A);
+		transformVector(&isect.surfaceNormal, transpose(scene->instances[isect.instIndex].composite.Ainv));
 	} else if (isect.type == hitTypeSphere) {
-		transformVector(&isect.hitPoint, scene->sphereInstances[isect.instIndex].composite.A);
-		transformDirection(&isect.surfaceNormal, transpose(scene->sphereInstances[isect.instIndex].composite.Ainv));
+		transformPoint(&isect.hitPoint, scene->sphereInstances[isect.instIndex].composite.A);
+		transformVector(&isect.surfaceNormal, transpose(scene->sphereInstances[isect.instIndex].composite.Ainv));
 	}
 	isect.surfaceNormal = vecNormalize(isect.surfaceNormal);
 	return isect;

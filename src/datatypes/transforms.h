@@ -62,8 +62,8 @@ struct matrix4x4 inverse(struct matrix4x4 mtx);
 struct matrix4x4 transpose(struct matrix4x4 tf);
 struct matrix4x4 multiply(struct matrix4x4 A, struct matrix4x4 B); //FIXME: Maybe don't expose this.
 
+void transformPoint(struct vector *vec, struct matrix4x4 mtx);
 void transformVector(struct vector *vec, struct matrix4x4 mtx);
-void transformDirection(struct vector *vec, struct matrix4x4 mtx);
 void transformBBox(struct boundingBox *bbox, struct matrix4x4 *mtx);
 
 bool isRotation(struct transform t);

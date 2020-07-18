@@ -274,7 +274,7 @@
 							},
 							{
 								"type": "rotateY",
-								"degrees": 180
+								"degrees": 0
 							}
 						]
 					}
