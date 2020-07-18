@@ -162,10 +162,6 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 	}
 #endif
 	
-	// Note: Commenting out the two transformDirection() calls below
-	// seems to make the materials behave right again.
-	// But of course the normals are wrong then, which becomes more evident
-	// when rotating meshes more around the Y axis.
 	if (isect.type == hitTypePolygon) {
 		computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 		transformVector(&isect.hitPoint, scene->instances[isect.instIndex].composite.A);
@@ -174,6 +170,7 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 		transformVector(&isect.hitPoint, scene->sphereInstances[isect.instIndex].composite.A);
 		transformDirection(&isect.surfaceNormal, transpose(scene->sphereInstances[isect.instIndex].composite.Ainv));
 	}
+	isect.surfaceNormal = vecNormalize(isect.surfaceNormal);
 	return isect;
 }
 
