@@ -88,7 +88,6 @@ bool rayIntersectsWithSphere(const struct lightRay *ray, const struct sphere *sp
 		isect->hitPoint = hitpoint;
 		return true;
 	} else {
-		isect->type = hitTypeNone;
 		return false;
 	}
 }
