@@ -23,8 +23,6 @@
 #include "../datatypes/transforms.h"
 #include "../datatypes/instance.h"
 
-#define LINEAR
-
 static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene);
 static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
 
@@ -130,7 +128,7 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 		transformPoint(&copy.start, scene->sphereInstances[i].composite.Ainv);
 		transformVector(&copy.direction, scene->sphereInstances[i].composite.Ainv);
 		
-		if (rayIntersectsWithSphere(incidentRay, scene->sphereInstances[i].object, &isect)) {
+		if (rayIntersectsWithSphere(&copy, scene->sphereInstances[i].object, &isect)) {
 			isect.end = ((struct sphere*)scene->sphereInstances[i].object)->material;
 			isect.instIndex = i;
 		}

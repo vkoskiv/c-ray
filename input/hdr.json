@@ -59,11 +59,18 @@
 		"primitives": [
 			{
 				"type": "sphere",
-				"pos": {
-					"x": -0.25,
-					"y": 0.1001,
-					"z": 0.3
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": -0.25,
+								"y": 0.1001,
+								"z": 0.3
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 0.0,
@@ -75,11 +82,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 0,
-					"y": 0.05,
-					"z": 0
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 0,
+								"y": 0.05,
+								"z": 0
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 0.8,
 					"g": 0.8,
@@ -91,11 +105,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 0.05,
-					"y": 0.05,
-					"z": 0.1
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 0.05,
+								"y": 0.05,
+								"z": 0.1
+							}
+						]
+					}
+				],		
 				"color": {
 					"r": 0.0,
 					"g": 0.8,
@@ -107,11 +128,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 0.15,
-					"y": 0.05,
-					"z": 0
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 0.15,
+								"y": 0.05,
+								"z": 0
+							}
+						]
+					}
+				],	
 				"color": {
 					"r": 1.0,
 					"g": 1.0,
@@ -124,11 +152,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": -0.15,
-					"y": 0.025,
-					"z": 0.05
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": -0.15,
+								"y": 0.025,
+								"z": 0.05
+							}
+						]
+					}
+				],	
 				"color": {
 					"r": 1.0,
 					"g": 0.1,
@@ -141,11 +176,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": -0.120,
-					"y": 0.025,
-					"z": 0.1
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": -0.120,
+								"y": 0.025,
+								"z": 0.1
+							}
+						]
+					}
+				],	
 				"color": {
 					"r": 0.1,
 					"g": 1.0,
@@ -158,11 +200,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": -0.090,
-					"y": 0.025,
-					"z": 0.15
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": -0.090,
+								"y": 0.025,
+								"z": 0.15
+							}
+						]
+					}
+				],	
 				"color": {
 					"r": 0.1,
 					"g": 0.1,
@@ -175,11 +224,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": -0.03,
-					"y": 0.01,
-					"z": -0.25
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": -0.03,
+								"y": 0.01,
+								"z": -0.25
+							}
+						]
+					}
+				],	
 				"radius": 0.01,
 				"color": {
 					"r": 1.0,
@@ -191,11 +247,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1070,
-					"y": 310,
-					"z": 820
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1070,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],	
 				"radius": 2.5,
 				"color": {
 					"r": 0.0,
@@ -207,11 +270,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1090,
-					"y": 310,
-					"z": 820
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1090,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],	
 				"radius": 2.5,
 				"color": {
 					"r": 0.0,
@@ -223,11 +293,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 950,
-					"y": 420,
-					"z": 1500
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 950,
+								"y": 420,
+								"z": 1500
+							}
+						]
+					}
+				],	
 				"color": {
 					"r": 1.0,
 					"g": 1.0,

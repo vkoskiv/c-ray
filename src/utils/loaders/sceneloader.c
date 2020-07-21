@@ -955,11 +955,11 @@ struct transform parseTransformComposite(const cJSON *transforms) {
 	return composite;
 }
 
-struct instance parseInstance(struct mesh *mesh, const cJSON *instance) {
+struct instance parseInstance(void *object, const cJSON *instance) {
 	struct instance new;
 	const cJSON *transforms = cJSON_GetObjectItem(instance, "transforms");
 	new.composite = parseTransformComposite(transforms);
-	new.object = mesh;
+	new.object = object;
 	return new;
 }
 
@@ -1053,7 +1053,6 @@ static struct vector parseCoordinate(const cJSON *data) {
 }
 
 static void parseSphere(struct renderer *r, const cJSON *data) {
-	const cJSON *pos = NULL;
 	const cJSON *color = NULL;
 	const cJSON *roughness = NULL;
 	const cJSON *IOR = NULL;
@@ -1081,12 +1080,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 		logr(warning, "Sphere BSDF not found, defaulting to lambertian.\n");
 	}
 	
-	pos = cJSON_GetObjectItem(data, "pos");
-	if (pos != NULL) {
-		newSphere.pos = parseCoordinate(pos);
-	} else {
-		logr(warning, "No position specified for sphere\n");
-	}
+	struct vector position;
 	
 	color = cJSON_GetObjectItem(data, "color");
 	if (color != NULL) {
@@ -1137,10 +1131,13 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	//FIXME: Proper materials for spheres
 	addSphere(r->scene, newSphere);
 	
-	struct instance new;
-	new.composite = newTransformTranslate(newSphere.pos.x, newSphere.pos.y, newSphere.pos.z);
-	new.object = lastSphere(r);
-	addSphereInstanceToScene(r->scene, new);
+	const cJSON *instances = cJSON_GetObjectItem(data, "instances");
+	const cJSON *instance = NULL;
+	if (cJSON_IsArray(instances)) {
+		cJSON_ArrayForEach(instance, instances) {
+			addSphereInstanceToScene(r->scene, parseInstance(lastSphere(r), instance));
+		}
+	}
 	
 	assignBSDF(&lastSphere(r)->material);
 }

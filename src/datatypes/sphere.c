@@ -12,18 +12,17 @@
 #include "../renderer/pathtrace.h"
 #include "lightRay.h"
 
-struct sphere newSphere(struct vector pos, float radius, struct material material) {
-	return (struct sphere){pos, radius, material};
+struct sphere newSphere(float radius, struct material material) {
+	return (struct sphere){radius, material};
 }
 
 struct sphere defaultSphere() {
-	return (struct sphere){vecZero(), 10.0f, defaultMaterial()};
+	return (struct sphere){10.0f, defaultMaterial()};
 }
 
 //FIXME: dirty hack
-struct sphere newLightSphere(struct vector pos, float radius, struct color color, float intensity) {
+struct sphere newLightSphere(float radius, struct color color, float intensity) {
 	struct sphere newSphere;
-	newSphere.pos = pos;
 	newSphere.radius = radius;
 	newSphere.material = newMaterial(color, 0.0f);
 	newSphere.material.emission = colorCoef(intensity, color);
@@ -40,7 +39,7 @@ bool intersect(const struct lightRay *ray, const struct sphere *sphere, float *t
 	float A = vecDot(ray->direction, ray->direction);
 	
 	//Distance between start of a lightRay and the sphere position
-	struct vector distance = vecSub(ray->start, sphere->pos);
+	struct vector distance = vecSub(ray->start, vecZero());
 	
 	float B = 2 * vecDot(ray->direction, distance);
 	
@@ -79,7 +78,7 @@ bool rayIntersectsWithSphere(const struct lightRay *ray, const struct sphere *sp
 		//Compute normal and store it to isect
 		struct vector scaled = vecScale(ray->direction, isect->distance);
 		struct vector hitpoint = vecAdd(ray->start, scaled);
-		struct vector surfaceNormal = vecSub(hitpoint, sphere->pos);
+		struct vector surfaceNormal = vecSub(hitpoint, vecZero());
 		float temp = vecDot(surfaceNormal, surfaceNormal);
 		if (temp == 0.0) return false; //FIXME: Check this later
 		temp = invsqrt(temp);
