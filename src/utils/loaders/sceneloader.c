@@ -951,6 +951,7 @@ struct transform parseTransformComposite(const cJSON *transforms) {
 	}
 	
 	composite.Ainv = inverse(composite.A);
+	composite.AinvT = transpose(composite.Ainv);
 	composite.type = transformTypeComposite;
 	return composite;
 }

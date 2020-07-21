@@ -95,6 +95,7 @@ struct transform newTransformRotateX(float rads) {
 	transform.A.mtx[2][2] = cosRads;
 	transform.A.mtx[3][3] = 1.0f;
 	transform.Ainv = inverse(transform.A);
+	transform.AinvT = transpose(transform.Ainv);
 	return transform;
 }
 
@@ -110,6 +111,7 @@ struct transform newTransformRotateY(float rads) {
 	transform.A.mtx[2][2] = cosRads;
 	transform.A.mtx[3][3] = 1.0f;
 	transform.Ainv = inverse(transform.A);
+	transform.AinvT = transpose(transform.Ainv);
 	return transform;
 }
 
@@ -125,6 +127,7 @@ struct transform newTransformRotateZ(float rads) {
 	transform.A.mtx[2][2] = 1.0f;
 	transform.A.mtx[3][3] = 1.0f;
 	transform.Ainv = inverse(transform.A);
+	transform.AinvT = transpose(transform.Ainv);
 	return transform;
 }
 
@@ -139,6 +142,7 @@ struct transform newTransformTranslate(float x, float y, float z) {
 	transform.A.mtx[1][3] = y;
 	transform.A.mtx[2][3] = z;
 	transform.Ainv = inverse(transform.A);
+	transform.AinvT = transpose(transform.Ainv);
 	return transform;
 }
 
@@ -150,6 +154,7 @@ struct transform newTransformScale(float x, float y, float z) {
 	transform.A.mtx[2][2] = z;
 	transform.A.mtx[3][3] = 1.0f;
 	transform.Ainv = inverse(transform.A);
+	transform.AinvT = transpose(transform.Ainv);
 	return transform;
 }
 
@@ -161,6 +166,7 @@ struct transform newTransformScaleUniform(float scale) {
 	transform.A.mtx[2][2] = scale;
 	transform.A.mtx[3][3] = 1.0f;
 	transform.Ainv = inverse(transform.A);
+	transform.AinvT = transpose(transform.Ainv);
 	return transform;
 }
 

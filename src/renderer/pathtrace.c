@@ -163,10 +163,10 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 	if (isect.type == hitTypePolygon) {
 		computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
 		transformPoint(&isect.hitPoint, scene->instances[isect.instIndex].composite.A);
-		transformVector(&isect.surfaceNormal, transpose(scene->instances[isect.instIndex].composite.Ainv));
+		transformVector(&isect.surfaceNormal, scene->instances[isect.instIndex].composite.AinvT);
 	} else if (isect.type == hitTypeSphere) {
 		transformPoint(&isect.hitPoint, scene->sphereInstances[isect.instIndex].composite.A);
-		transformVector(&isect.surfaceNormal, transpose(scene->sphereInstances[isect.instIndex].composite.Ainv));
+		transformVector(&isect.surfaceNormal, scene->sphereInstances[isect.instIndex].composite.AinvT);
 	}
 	isect.surfaceNormal = vecNormalize(isect.surfaceNormal);
 	return isect;

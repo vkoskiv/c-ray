@@ -40,6 +40,7 @@ struct transform {
 	enum transformType type;
 	struct matrix4x4 A;
 	struct matrix4x4 Ainv;
+	struct matrix4x4 AinvT;
 };
 
 struct material;
