@@ -57,11 +57,18 @@
 		"primitives": [
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 650,
-					"y": 450,
-					"z": 1650
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 650,
+								"y": 450,
+								"z": 1650
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 0.0,
@@ -73,11 +80,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 950,
-					"y": 350,
-					"z": 1500
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 950,
+								"y": 350,
+								"z": 1500
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 1.0,
@@ -89,11 +103,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1100,
-					"y": 350,
-					"z": 1500
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1100,
+								"y": 350,
+								"z": 1500
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 0.87,
@@ -105,11 +126,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1050,
-					"y": 310,
-					"z": 820
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1050,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],
 				"radius": 2.5,
 				"color": {
 					"r": 1.0,
@@ -121,11 +149,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1070,
-					"y": 310,
-					"z": 820
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1070,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],
 				"radius": 2.5,
 				"color": {
 					"r": 0.0,
@@ -137,11 +172,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1090,
-					"y": 310,
-					"z": 820
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1090,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],
 				"radius": 2.5,
 				"color": {
 					"r": 0.0,
@@ -153,11 +195,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 950,
-					"y": 420,
-					"z": 1500
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 950,
+								"y": 420,
+								"z": 1500
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 1.0,
