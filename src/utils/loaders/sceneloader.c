@@ -38,6 +38,10 @@ static struct color parseColor(const cJSON *data);
 
 static void addMaterialToMesh(struct mesh *mesh, struct material newMaterial);
 
+static struct instance *lastInstance(struct renderer *r) {
+	return &r->scene->instances[r->scene->instanceCount - 1];
+}
+
 static struct mesh *lastMesh(struct renderer *r) {
 	return &r->scene->meshes[r->scene->meshCount - 1];
 }
@@ -931,37 +935,33 @@ struct transform parseTransformComposite(const cJSON *transforms) {
 	
 	// Translates
 	for (size_t i = 0; i < count; ++i) {
-		if (isTranslate(tforms[i])) {
-			composite.A = multiply(composite.A, tforms[i].A);
+		if (isTranslate(&tforms[i])) {
+			composite.A = multiplyMatrices(&composite.A, &tforms[i].A);
 		}
 	}
 	
 	// Rotates
 	for (size_t i = 0; i < count; ++i) {
-		if (isRotation(tforms[i])) {
-			composite.A = multiply(composite.A, tforms[i].A);
+		if (isRotation(&tforms[i])) {
+			composite.A = multiplyMatrices(&composite.A, &tforms[i].A);
 		}
 	}
 	
 	// Scales
 	for (size_t i = 0; i < count; ++i) {
-		if (isScale(tforms[i])) {
-			composite.A = multiply(composite.A, tforms[i].A);
+		if (isScale(&tforms[i])) {
+			composite.A = multiplyMatrices(&composite.A, &tforms[i].A);
 		}
 	}
 	
-	composite.Ainv = inverse(composite.A);
-	composite.AinvT = transpose(composite.Ainv);
+	composite.Ainv = inverseMatrix(&composite.A);
 	composite.type = transformTypeComposite;
 	return composite;
 }
 
-struct instance parseInstance(void *object, const cJSON *instance) {
-	struct instance new;
+static struct transform parseInstanceTransform(const cJSON *instance) {
 	const cJSON *transforms = cJSON_GetObjectItem(instance, "transforms");
-	new.composite = parseTransformComposite(transforms);
-	new.object = object;
-	return new;
+	return parseTransformComposite(transforms);
 }
 
 //FIXME: Only parse everything else if the mesh is found and is valid
@@ -1006,7 +1006,8 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		const cJSON *instance = NULL;
 		if (instances != NULL && cJSON_IsArray(instances)) {
 			cJSON_ArrayForEach(instance, instances) {
-				addInstanceToScene(r->scene, parseInstance(lastMesh(r), instance));
+				addInstanceToScene(r->scene, newMeshInstance(lastMesh(r)));
+				lastInstance(r)->composite = parseInstanceTransform(instance);
 			}
 		}
 		
@@ -1081,8 +1082,6 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 		logr(warning, "Sphere BSDF not found, defaulting to lambertian.\n");
 	}
 	
-	struct vector position;
-	
 	color = cJSON_GetObjectItem(data, "color");
 	if (color != NULL) {
 		switch (newSphere.material.type) {
@@ -1136,7 +1135,8 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *instance = NULL;
 	if (cJSON_IsArray(instances)) {
 		cJSON_ArrayForEach(instance, instances) {
-			addSphereInstanceToScene(r->scene, parseInstance(lastSphere(r), instance));
+			addInstanceToScene(r->scene, newSphereInstance(lastSphere(r)));
+			lastInstance(r)->composite = parseInstanceTransform(instance);
 		}
 	}
 	

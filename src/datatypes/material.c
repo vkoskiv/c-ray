@@ -82,7 +82,7 @@ void assignBSDF(struct material *mat) {
 //And grab the color at that point. Texture mapping.
 static struct color colorForUV(struct hitRecord *isect) {
 	struct color output;
-	const struct material mtl = isect->end;
+	const struct material mtl = isect->material;
 	const struct poly *p = isect->polygon;
 	
 	//Texture width and height for this material
@@ -128,7 +128,7 @@ static struct color gradient(struct hitRecord *isect) {
 //This is a checkerboard pattern mapped to the surface coordinate space
 //Caveat: This only works for meshes that have texture coordinates (i.e. were UV-unwrapped).
 static struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
-	ASSERT(isect->end.hasTexture);
+	ASSERT(isect->material.hasTexture);
 	const struct poly *p = isect->polygon;
 	
 	//barycentric coordinates for this polygon
@@ -165,7 +165,7 @@ static struct color unmappedCheckerBoard(struct hitRecord *isect, float coef) {
 }
 
 static struct color checkerBoard(struct hitRecord *isect, float coef) {
-	return isect->end.hasTexture ? mappedCheckerBoard(isect, coef) : unmappedCheckerBoard(isect, coef);
+	return isect->material.hasTexture ? mappedCheckerBoard(isect, coef) : unmappedCheckerBoard(isect, coef);
 }
 
 static struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
@@ -204,7 +204,7 @@ bool weightedBSDF(struct hitRecord *isect, struct color *attenuation, struct lig
 
 //TODO: Make this a function ptr in the material?
 static struct color diffuseColor(struct hitRecord *isect) {
-	return isect->end.hasTexture ? colorForUV(isect) : isect->end.diffuse;
+	return isect->material.hasTexture ? colorForUV(isect) : isect->material.diffuse;
 }
 
 bool lambertianBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
@@ -220,8 +220,8 @@ bool metallicBSDF(struct hitRecord *isect, struct color *attenuation, struct lig
 	const struct vector normalizedDir = vecNormalize(isect->incident.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
 	//Roughness
-	if (isect->end.roughness > 0.0f) {
-		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
+	if (isect->material.roughness > 0.0f) {
+		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->material.roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
 	
@@ -256,8 +256,8 @@ bool shinyBSDF(struct hitRecord *isect, struct color *attenuation, struct lightR
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	*attenuation = whiteColor;
 	//Roughness
-	if (isect->end.roughness > 0.0f) {
-		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
+	if (isect->material.roughness > 0.0f) {
+		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->material.roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
 	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
@@ -275,19 +275,19 @@ bool plasticBSDF(struct hitRecord *isect, struct color *attenuation, struct ligh
 	float cosine;
 	
 	//TODO: Maybe don't hard code it like this.
-	isect->end.IOR = 1.45f; // Car paint
+	isect->material.IOR = 1.45f; // Car paint
 	if (vecDot(isect->incident.direction, isect->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(isect->surfaceNormal);
-		niOverNt = isect->end.IOR;
-		cosine = isect->end.IOR * vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction);
+		niOverNt = isect->material.IOR;
+		cosine = isect->material.IOR * vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction);
 	} else {
 		outwardNormal = isect->surfaceNormal;
-		niOverNt = 1.0f / isect->end.IOR;
+		niOverNt = 1.0f / isect->material.IOR;
 		cosine = -(vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction));
 	}
 	
 	if (refract(isect->incident.direction, outwardNormal, niOverNt, &refracted)) {
-		reflectionProbability = schlick(cosine, isect->end.IOR);
+		reflectionProbability = schlick(cosine, isect->material.IOR);
 	} else {
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 		reflectionProbability = 1.0f;
@@ -312,37 +312,37 @@ bool dielectricBSDF(struct hitRecord *isect, struct color *attenuation, struct l
 	
 	if (vecDot(isect->incident.direction, isect->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(isect->surfaceNormal);
-		niOverNt = isect->end.IOR;
-		cosine = isect->end.IOR * vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction);
+		niOverNt = isect->material.IOR;
+		cosine = isect->material.IOR * vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction);
 	} else {
 		outwardNormal = isect->surfaceNormal;
-		niOverNt = 1.0f / isect->end.IOR;
+		niOverNt = 1.0f / isect->material.IOR;
 		cosine = -(vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction));
 	}
 	
 	if (refract(isect->incident.direction, outwardNormal, niOverNt, &refracted)) {
-		reflectionProbability = schlick(cosine, isect->end.IOR);
+		reflectionProbability = schlick(cosine, isect->material.IOR);
 	} else {
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 		reflectionProbability = 1.0f;
 	}
 	
 	//Roughness
-	if (isect->end.roughness > 0.0f) {
-		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
+	if (isect->material.roughness > 0.0f) {
+		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->material.roughness);
 		reflected = vecAdd(reflected, fuzz);
 		refracted = vecAdd(refracted, fuzz);
 	}
 	
 	if (getDimension(sampler) < reflectionProbability) {
-		if (isect->end.roughness > 0.0f) {
-			struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
+		if (isect->material.roughness > 0.0f) {
+			struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->material.roughness);
 			reflected = vecAdd(reflected, fuzz);
 		}
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 	} else {
-		if (isect->end.roughness > 0.0f) {
-			struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->end.roughness);
+		if (isect->material.roughness > 0.0f) {
+			struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->material.roughness);
 			refracted = vecAdd(refracted, fuzz);
 		}
 		*scattered = newRay(isect->hitPoint, refracted, rayTypeRefracted);

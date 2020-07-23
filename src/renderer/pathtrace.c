@@ -31,7 +31,8 @@ struct color debugNormals(const struct lightRay *incidentRay, const struct world
 	(void)sampler;
 	struct lightRay currentRay = *incidentRay;
 	struct hitRecord isect = getClosestIsect(&currentRay, scene);
-	if (isect.type == hitTypeNone) return getBackground(&currentRay, scene);
+	if (isect.instIndex < 0)
+		return getBackground(&currentRay, scene);
 	struct vector normal = vecNormalize(isect.surfaceNormal);
 	return colorWithValues(fabs(normal.x), fabs(normal.y), fabs(normal.z), 1.0f);
 }
@@ -43,15 +44,15 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 
 	for (int depth = 0; depth < maxDepth; ++depth) {
 		struct hitRecord isect = getClosestIsect(&currentRay, scene);
-		if (isect.type == hitTypeNone) {
+		if (isect.instIndex < 0) {
 			finalColor = addColors(finalColor, multiplyColors(weight, getBackground(&currentRay, scene)));
 			break;
 		}
 
-		finalColor = addColors(finalColor, multiplyColors(weight, isect.end.emission));
+		finalColor = addColors(finalColor, multiplyColors(weight, isect.material.emission));
 		
 		struct color attenuation;
-		if (!isect.end.bsdf(&isect, &attenuation, &currentRay, sampler))
+		if (!isect.material.bsdf(&isect, &attenuation, &currentRay, sampler))
 			break;
 		
 		float probability = 1.0f;
@@ -88,7 +89,7 @@ static inline void computeSurfaceProps(const struct poly *p, const struct coord 
 }
 
 static struct vector bumpmap(const struct hitRecord *isect) {
-	struct material mtl = isect->end;
+	struct material mtl = isect->material;
 	struct poly *p = isect->polygon;
 	float width = mtl.normalMap->width;
 	float heigh = mtl.normalMap->height;
@@ -115,24 +116,10 @@ static struct vector bumpmap(const struct hitRecord *isect) {
  */
 static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene) {
 	struct hitRecord isect;
-	isect.distance = 20000.0f;
+	isect.instIndex = -1;
+	isect.distance = FLT_MAX;
 	isect.incident = *incidentRay;
-	isect.type = hitTypeNone;
-	
-	for (int i = 0; i < scene->sphereInstanceCount; ++i) {
-		struct lightRay copy;
-		copy.start = incidentRay->start;
-		copy.direction = incidentRay->direction;
-		copy.rayType = incidentRay->rayType;
-		
-		transformPoint(&copy.start, scene->sphereInstances[i].composite.Ainv);
-		transformVector(&copy.direction, scene->sphereInstances[i].composite.Ainv);
-		
-		if (rayIntersectsWithSphere(&copy, scene->sphereInstances[i].object, &isect)) {
-			isect.end = ((struct sphere*)scene->sphereInstances[i].object)->material;
-			isect.instIndex = i;
-		}
-	}
+	isect.polygon = NULL;
 	
 #ifdef LINEAR
 	for (int i = 0; i < scene->instanceCount; ++i) {
@@ -144,30 +131,21 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 		transformPoint(&copy.start, scene->instances[i].composite.Ainv);
 		transformVector(&copy.direction, scene->instances[i].composite.Ainv);
 		
-		if (traverseBottomLevelBvh(scene->instances[i].object, &copy, &isect)) {
-			isect.end = ((struct mesh*)scene->instances[i].object)->materials[isect.polygon->materialIndex];
+		if (scene->instances[i].intersectFn(scene->instances[i].object, &copy, &isect))
 			isect.instIndex = i;
-			if (isect.end.hasNormalMap)
-				isect.surfaceNormal = bumpmap(&isect);
-		}
 	}
 #else
-	if (traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect)) {
-		isect.end = ((struct mesh*)scene->instances[isect.instIndex].object)->materials[isect.polygon->materialIndex];
-		computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
-		if (isect.end.hasNormalMap)
-			isect.surfaceNormal = bumpmap(&isect);
-	}
+	traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect);
 #endif
 	
-	if (isect.type == hitTypePolygon) {
+	if (isect.polygon) {
+		isect.material = ((struct mesh*)scene->instances[isect.instIndex].object)->materials[isect.polygon->materialIndex];
 		computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
-		transformPoint(&isect.hitPoint, scene->instances[isect.instIndex].composite.A);
-		transformVector(&isect.surfaceNormal, scene->instances[isect.instIndex].composite.AinvT);
-	} else if (isect.type == hitTypeSphere) {
-		transformPoint(&isect.hitPoint, scene->sphereInstances[isect.instIndex].composite.A);
-		transformVector(&isect.surfaceNormal, scene->sphereInstances[isect.instIndex].composite.AinvT);
+		if (isect.material.hasNormalMap)
+			isect.surfaceNormal = bumpmap(&isect);
 	}
+	transformPoint(&isect.hitPoint, &scene->instances[isect.instIndex].composite.A);
+	transformVectorWithTranspose(&isect.surfaceNormal, &scene->instances[isect.instIndex].composite.Ainv);
 	isect.surfaceNormal = vecNormalize(isect.surfaceNormal);
 	return isect;
 }

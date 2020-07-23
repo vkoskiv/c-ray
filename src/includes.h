@@ -16,7 +16,7 @@
 #define CRAY_MESH_FILENAME_LENGTH 500
 
 //#define DBG_NORMALS //Normal debugging mode
-#define LINEAR      //Skip top-level BVH traversal
+//#define LINEAR      //Skip top-level BVH traversal
 
 //Some macros
 #define min(a,b) (((a) < (b)) ? (a) : (b))
