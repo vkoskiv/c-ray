@@ -45,6 +45,7 @@ struct transform {
 struct material;
 struct vector;
 struct boundingBox;
+struct lightRay;
 
 float toRadians(float degrees);
 float fromRadians(float radians);
@@ -67,6 +68,7 @@ void transformPoint(struct vector *vec, const struct matrix4x4 *mtx);
 void transformVector(struct vector *vec, const struct matrix4x4 *mtx);
 void transformVectorWithTranspose(struct vector *vec, const struct matrix4x4 *mtx);
 void transformBBox(struct boundingBox *bbox, const struct matrix4x4 *mtx);
+void transformRay(struct lightRay *ray, const struct matrix4x4 *mtx);
 
 bool isRotation(const struct transform *t);
 bool isScale(const struct transform *t);

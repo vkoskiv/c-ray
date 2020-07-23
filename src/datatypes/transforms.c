@@ -12,6 +12,7 @@
 #include "../utils/logging.h"
 #include "vector.h"
 #include "bbox.h"
+#include "lightRay.h"
 
 //For ease of use
 float toRadians(float degrees) {
@@ -60,10 +61,12 @@ struct matrix4x4 matrixFromParams(
 struct matrix4x4 absoluteMatrix(const struct matrix4x4 *mtx) {
 	return (struct matrix4x4) {
 		.mtx = {
-			{ fabsf(mtx->mtx[0][0]), fabsf(mtx->mtx[0][1]), fabsf(mtx->mtx[0][2]), fabsf(mtx->mtx[0][3]) },
-			{ fabsf(mtx->mtx[1][0]), fabsf(mtx->mtx[1][1]), fabsf(mtx->mtx[1][2]), fabsf(mtx->mtx[1][3]) },
-			{ fabsf(mtx->mtx[2][0]), fabsf(mtx->mtx[2][1]), fabsf(mtx->mtx[2][2]), fabsf(mtx->mtx[2][3]) },
-			{ fabsf(mtx->mtx[3][0]), fabsf(mtx->mtx[3][1]), fabsf(mtx->mtx[3][2]), fabsf(mtx->mtx[3][3]) }
+			// The last column is the translation, and should be kept intact
+			{ fabsf(mtx->mtx[0][0]), fabsf(mtx->mtx[0][1]), fabsf(mtx->mtx[0][2]), mtx->mtx[0][3] },
+			{ fabsf(mtx->mtx[1][0]), fabsf(mtx->mtx[1][1]), fabsf(mtx->mtx[1][2]), mtx->mtx[1][3] },
+			{ fabsf(mtx->mtx[2][0]), fabsf(mtx->mtx[2][1]), fabsf(mtx->mtx[2][2]), mtx->mtx[2][3] },
+			// These coefficients are not used anyway
+			{ mtx->mtx[3][0], mtx->mtx[3][1], mtx->mtx[3][2], mtx->mtx[3][3] }
 		}
 	};
 }
@@ -105,6 +108,11 @@ void transformVectorWithTranspose(struct vector *vec, const struct matrix4x4 *mt
 	// to inline the calls to transformVector() and transposeMatrix()
 	struct matrix4x4 t = transposeMatrix(mtx);
 	transformVector(vec, &t);
+}
+
+void transformRay(struct lightRay *ray, const struct matrix4x4 *mtx) {
+	transformPoint(&ray->start, mtx);
+	transformVector(&ray->direction, mtx);
 }
 
 struct transform newTransformRotateX(float rads) {

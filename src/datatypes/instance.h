@@ -21,8 +21,8 @@ struct mesh;
 
 struct instance {
 	struct transform composite;
-	bool (*intersectFn)(void*, const struct lightRay*, struct hitRecord*);
-	void (*getBBoxAndCenterFn)(void*, struct boundingBox*, struct vector*);
+	bool (*intersectFn)(const struct instance*, const struct lightRay*, struct hitRecord*);
+	void (*getBBoxAndCenterFn)(const struct instance*, struct boundingBox*, struct vector*);
 	void *object;
 };
 

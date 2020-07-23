@@ -298,8 +298,7 @@ struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count) {
 
 static void getInstanceBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
 	struct instance *instances = userData;
-	instances[i].getBBoxAndCenterFn(instances[i].object, bbox, center);
-	transformBBox(bbox, &instances[i].composite.A);
+	instances[i].getBBoxAndCenterFn(&instances[i], bbox, center);
 }
 
 struct bvh *buildTopLevelBvh(struct instance *instances, unsigned instanceCount) {
@@ -458,13 +457,7 @@ static inline bool intersectTopLevelLeaf(
 	bool found = false;
 	for (int i = 0; i < leaf->primCount; ++i) {
 		int currIndex = bvh->primIndices[leaf->firstChildOrPrim + i];
-		void *object = instances[currIndex].object;
-		
-		struct lightRay copy = *ray;
-		transformPoint(&copy.start, &instances[currIndex].composite.Ainv);
-		transformVector(&copy.direction, &instances[currIndex].composite.Ainv);
-
-		if (instances[currIndex].intersectFn(object, &copy, isect)) {
+		if (instances[currIndex].intersectFn(&instances[currIndex], ray, isect)) {
 			isect->instIndex = currIndex;
 			found = true;
 		}
