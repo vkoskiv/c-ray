@@ -288,22 +288,18 @@ static void getPolyBBoxAndCenter(void *userData, unsigned i, struct boundingBox 
 	bbox->max = vecMax(v0, vecMax(v1, v2));
 }
 
+void getRootBoundingBox(const struct bvh *bvh, struct boundingBox *bbox) {
+	loadBBoxFromNode(bbox, &bvh->nodes[0]);
+}
+
 struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count) {
 	return buildBvhGeneric(polys, getPolyBBoxAndCenter, count);
 }
 
-/*static void getMeshBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
-	struct mesh *meshes = userData;
-	loadBBoxFromNode(bbox, &meshes[i].bvh->nodes[0]);
-	*center = bboxCenter(bbox);
-}*/
-
 static void getInstanceBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
 	struct instance *instances = userData;
-	struct mesh *mesh = (struct mesh*)instances[i].object;
-	loadBBoxFromNode(bbox, &mesh->bvh->nodes[0]);
+	instances[i].getBBoxAndCenterFn(instances[i].object, bbox, center);
 	transformBBox(bbox, &instances[i].composite.A);
-	*center = bboxCenter(bbox);
 }
 
 struct bvh *buildTopLevelBvh(struct instance *instances, unsigned instanceCount) {
@@ -364,7 +360,7 @@ static inline bool traverseBvhGeneric(
 	};
 	struct vector invDir = { 1.0f / ray->direction.x, 1.0f / ray->direction.y, 1.0f / ray->direction.z };
 	struct vector scaledStart = vecScale(vecMul(ray->start, invDir), -1.0f);
-	float maxDist = !(isect->type == hitTypeNone) ? isect->distance : FLT_MAX;
+	float maxDist = isect->distance;
 
 	// Special case when the BVH is just a single leaf
 	if (bvh->nodeCount == 1) {
@@ -440,7 +436,6 @@ static inline bool intersectBottomLevelLeaf(
 	for (int i = 0; i < leaf->primCount; ++i) {
 		struct poly *p = &polygons[bvh->primIndices[leaf->firstChildOrPrim + i]];
 		if (rayIntersectsWithPolygon(ray, p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
-			isect->type = hitTypePolygon;
 			isect->polygon = p;
 			found = true;
 		}
@@ -463,15 +458,15 @@ static inline bool intersectTopLevelLeaf(
 	bool found = false;
 	for (int i = 0; i < leaf->primCount; ++i) {
 		int currIndex = bvh->primIndices[leaf->firstChildOrPrim + i];
-		const struct mesh *m = (struct mesh*)instances[currIndex].object;
+		void *object = instances[currIndex].object;
 		
 		struct lightRay copy = *ray;
-		transformPoint(&copy.start, instances[currIndex].composite.Ainv);
-		transformVector(&copy.direction, instances[currIndex].composite.Ainv);
-		
-		if (traverseBottomLevelBvh(m, &copy, isect)) {
-			found = true;
+		transformPoint(&copy.start, &instances[currIndex].composite.Ainv);
+		transformVector(&copy.direction, &instances[currIndex].composite.Ainv);
+
+		if (instances[currIndex].intersectFn(object, &copy, isect)) {
 			isect->instIndex = currIndex;
+			found = true;
 		}
 	}
 	return found;

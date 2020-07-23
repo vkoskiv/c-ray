@@ -33,8 +33,6 @@ struct sphere newLightSphere(float radius, struct color color, float intensity) 
 
 //Calculates intersection with a sphere and a light ray
 bool intersect(const struct lightRay *ray, const struct sphere *sphere, float *t) {
-	bool intersects = false;
-	
 	//Vector dot product of the direction
 	float A = vecDot(ray->direction, ray->direction);
 	
@@ -48,45 +46,36 @@ bool intersect(const struct lightRay *ray, const struct sphere *sphere, float *t
 	float trigDiscriminant = B * B - 4 * A * C;
 	
 	//If discriminant is negative, no real roots and the ray has missed the sphere
-	if (trigDiscriminant < 0) {
-		intersects = false;
-	} else {
-		float sqrtOfDiscriminant = sqrtf(trigDiscriminant);
-		float t0 = (-B + sqrtOfDiscriminant)/(2);
-		float t1 = (-B - sqrtOfDiscriminant)/(2);
-		
-		//Pick closest intersection
-		if (t0 > t1) {
-			t0 = t1;
-		}
-		
-		//Verify intersection is larger than 0 and less than the original distance
-		if ((t0 > 0.00001f) && (t0 < *t)) {
-			*t = t0;
-			intersects = true;
-		} else {
-			intersects = false;
-		}
+	if (trigDiscriminant < 0)
+		return false;
+
+	float sqrtOfDiscriminant = sqrtf(trigDiscriminant);
+	float t0 = (-B + sqrtOfDiscriminant)/(2);
+	float t1 = (-B - sqrtOfDiscriminant)/(2);
+
+	//Pick closest intersection
+	if (t0 > t1 && t1 > 0) {
+		t0 = t1;
 	}
-	return intersects;
+
+	//Verify intersection is larger than 0 and less than the original distance
+	if (t0 < 0.00001f || t0 > *t)
+		return false;
+
+	*t = t0;
+	return true;
 }
 
 bool rayIntersectsWithSphere(const struct lightRay *ray, const struct sphere *sphere, struct hitRecord *isect) {
 	//Pass the distance value to rayIntersectsWithSphere, where it's set
 	if (intersect(ray, sphere, &isect->distance)) {
-		isect->type = hitTypeSphere;
 		//Compute normal and store it to isect
 		struct vector scaled = vecScale(ray->direction, isect->distance);
-		struct vector hitpoint = vecAdd(ray->start, scaled);
-		struct vector surfaceNormal = vecSub(hitpoint, vecZero());
-		float temp = vecDot(surfaceNormal, surfaceNormal);
-		if (temp == 0.0) return false; //FIXME: Check this later
-		temp = invsqrt(temp);
-		isect->surfaceNormal = vecScale(surfaceNormal, temp);
-		//Also store hitpoint
-		isect->hitPoint = hitpoint;
+		struct vector hitPoint = vecAdd(ray->start, scaled);
+		isect->surfaceNormal = vecSub(hitPoint, vecZero());
+		isect->hitPoint = hitPoint;
+		isect->polygon = NULL;
 		return true;
-	} else {
-		return false;
 	}
+	return false;
 }

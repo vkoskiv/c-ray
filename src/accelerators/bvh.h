@@ -15,8 +15,12 @@ struct hitRecord;
 struct mesh;
 struct poly;
 struct instance;
+struct boundingBox;
 
 struct bvh;
+
+/// Returns the bounding box of the root of the given BVH
+void getRootBoundingBox(const struct bvh *bvh, struct boundingBox *bbox);
 
 /// Builds a BVH for a given set of polygons
 /// @param polygons Array of polygons to process
