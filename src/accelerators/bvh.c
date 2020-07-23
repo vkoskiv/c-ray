@@ -459,26 +459,31 @@ static inline bool intersectTopLevelLeaf(
 	const struct lightRay *ray,
 	struct hitRecord *isect)
 {
-	const struct mesh *meshes = userData;
+	const struct instance *instances = userData;
 	bool found = false;
 	for (int i = 0; i < leaf->primCount; ++i) {
 		int currIndex = bvh->primIndices[leaf->firstChildOrPrim + i];
-		const struct mesh *m = &meshes[currIndex];
-		if (traverseBottomLevelBvh(m, ray, isect)) {
+		const struct mesh *m = (struct mesh*)instances[currIndex].object;
+		
+		struct lightRay copy = *ray;
+		transformPoint(&copy.start, instances[currIndex].composite.Ainv);
+		transformVector(&copy.direction, instances[currIndex].composite.Ainv);
+		
+		if (traverseBottomLevelBvh(m, &copy, isect)) {
 			found = true;
-			isect->meshIndex = currIndex;
+			isect->instIndex = currIndex;
 		}
 	}
 	return found;
 }
 
 bool traverseTopLevelBvh(
-	const struct mesh *meshes,
+	const struct instance *instances,
 	const struct bvh *bvh,
 	const struct lightRay *ray,
 	struct hitRecord *isect)
 {
-	return traverseBvhGeneric((void*)meshes, bvh, intersectTopLevelLeaf, ray, isect);
+	return traverseBvhGeneric((void*)instances, bvh, intersectTopLevelLeaf, ray, isect);
 }
 
 void destroyBvh(struct bvh *bvh) {

@@ -29,7 +29,7 @@ struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count);
 struct bvh *buildTopLevelBvh(struct instance *instances, unsigned instanceCount);
 
 /// Intersect a ray with a scene top-level BVH
-bool traverseTopLevelBvh(const struct mesh *meshes, const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
+bool traverseTopLevelBvh(const struct instance *instances, const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
 
 bool traverseBottomLevelBvh(const struct mesh *mesh, const struct lightRay *ray, struct hitRecord *isect);
 
