@@ -17,20 +17,30 @@
 #include "sphere.h"
 #include "scene.h"
 
-static bool intersectSphere(void *object, const struct lightRay *ray, struct hitRecord *isect) {
-	if (rayIntersectsWithSphere(ray, (struct sphere*)object, isect)) {
+static bool intersectSphere(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect) {
+	struct lightRay copy = *ray;
+	transformRay(&copy, &instance->composite.Ainv);
+
+	if (rayIntersectsWithSphere(&copy, (struct sphere*)instance->object, isect)) {
 		isect->polygon = NULL;
-		isect->material = ((struct sphere*)object)->material;
+		isect->material = ((struct sphere*)instance->object)->material;
 		return true;
 	}
 	return false;
 }
 
-static void getSphereBBoxAndCenter(void *object, struct boundingBox *bbox, struct vector *center) {
-	struct sphere *sphere = (struct sphere*)object;
+static void getSphereBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
+	struct sphere *sphere = (struct sphere*)instance->object;
+	*center = vecZero();
+	transformPoint(center, &instance->composite.A);
 	bbox->min = vecWithPos(-sphere->radius, -sphere->radius, -sphere->radius);
 	bbox->max = vecWithPos( sphere->radius,  sphere->radius,  sphere->radius);
-	*center = vecZero();
+	if (!isRotation(&instance->composite) || !isTranslate(&instance->composite))
+		transformBBox(bbox, &instance->composite.A);
+	else {
+		bbox->min = vecAdd(bbox->min, *center);
+		bbox->max = vecAdd(bbox->max, *center);
+	}
 }
 
 struct instance newSphereInstance(struct sphere *sphere) {
@@ -42,13 +52,15 @@ struct instance newSphereInstance(struct sphere *sphere) {
 	};
 }
 
-static bool intersectMesh(void *object, const struct lightRay *ray, struct hitRecord *isect) {
-	return traverseBottomLevelBvh((struct mesh*)object, ray, isect);
+static bool intersectMesh(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect) {
+	struct lightRay copy = *ray;
+	transformRay(&copy, &instance->composite.Ainv);
+	return traverseBottomLevelBvh((struct mesh*)instance->object, &copy, isect);
 }
 
-static void getMeshBBoxAndCenter(void *object, struct boundingBox *bbox, struct vector *center) {
-	struct mesh *mesh = (struct mesh*)object;
-	getRootBoundingBox(mesh->bvh, bbox);
+static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
+	getRootBoundingBox(((struct mesh*)instance->object)->bvh, bbox);
+	transformBBox(bbox, &instance->composite.A);
 	*center = bboxCenter(bbox);
 }
 
