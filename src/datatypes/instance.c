@@ -35,7 +35,7 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 	transformPoint(center, &instance->composite.A);
 	bbox->min = vecWithPos(-sphere->radius, -sphere->radius, -sphere->radius);
 	bbox->max = vecWithPos( sphere->radius,  sphere->radius,  sphere->radius);
-	if (!isRotation(&instance->composite) || !isTranslate(&instance->composite))
+	if (!isRotation(&instance->composite) && !isTranslate(&instance->composite))
 		transformBBox(bbox, &instance->composite.A);
 	else {
 		bbox->min = vecAdd(bbox->min, *center);
