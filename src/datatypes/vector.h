@@ -139,7 +139,7 @@ static inline struct vector vecMax(struct vector v1, struct vector v2) {
 
 //calculate length^2 of vector
 static inline float vecLengthSquared(struct vector v) {
-    return vecDot(v, v);
+	return vecDot(v, v);
 }
 
 /**

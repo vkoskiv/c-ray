@@ -218,7 +218,13 @@ void *renderThread(void *arg) {
 					
 					//Get new sample (path tracing is initiated here)
 					//struct color sample = pathTracePreview(&incidentRay, r->scene, 0, r->prefs.bounces, &rng);
+					
+					
+#ifdef DBG_NORMALS
+					struct color sample = debugNormals(&incidentRay, r->scene, r->prefs.bounces, sampler);
+#else
 					struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
+#endif
 					
 					//And process the running average
 					output = colorCoef((float)(tile.completedSamples - 1), output);

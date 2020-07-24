@@ -25,17 +25,7 @@
 #include "../utils/platform/thread.h"
 #include "../utils/args.h"
 #include "../utils/ui.h"
-
-static void transformMeshes(struct world *scene) {
-	logr(info, "Running transforms: ");
-	struct timeval timer = {0};
-	startTimer(&timer);
-	for (int i = 0; i < scene->meshCount; ++i) {
-		transformMesh(&scene->meshes[i]);
-	}
-	printSmartTime(getMs(timer));
-	printf("\n");
-}
+#include "../datatypes/instance.h"
 
 //TODO: Parallelize this task
 static void computeAccels(struct mesh *meshes, int meshCount) {
@@ -49,21 +39,23 @@ static void computeAccels(struct mesh *meshes, int meshCount) {
 	printf("\n");
 }
 
-static void computeTopLevelBvh(struct world *scene) {
+struct bvh *computeTopLevelBvh(struct instance *instances, int instanceCount) {
 	logr(info, "Computing top-level BVH: ");
 	struct timeval timer = {0};
 	startTimer(&timer);
-	scene->topLevel = buildTopLevelBvh(scene->meshes, scene->meshCount);
+	struct bvh *new = buildTopLevelBvh(instances, instanceCount);
 	printSmartTime(getMs(timer));
 	printf("\n");
+	return new;
 }
 
 static void printSceneStats(struct world *scene, unsigned long long ms) {
 	logr(info, "Scene construction completed in ");
 	printSmartTime(ms);
 	unsigned polys = 0;
-	for (int m = 0; m < scene->meshCount; ++m)
-		polys += scene->meshes[m].polyCount;
+	for (int i = 0; i < scene->meshCount; ++i) {
+		polys += scene->meshes[i].polyCount;
+	}
 	printf("\n");
 	logr(info, "Totals: %iV, %iN, %iT, %iP, %iS, %iM\n",
 		   vertexCount,
@@ -134,9 +126,8 @@ int loadScene(struct renderer *r, char *input) {
 	
 	checkAndSetCliOverrides(r);
 	transformCameraIntoView(r->scene->camera);
-	transformMeshes(r->scene);
 	computeAccels(r->scene->meshes, r->scene->meshCount);
-	computeTopLevelBvh(r->scene);
+	r->scene->topLevel = computeTopLevelBvh(r->scene->instances, r->scene->instanceCount);
 	printSceneStats(r->scene, getMs(timer));
 	
 	//Quantize image into renderTiles

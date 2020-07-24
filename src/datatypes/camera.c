@@ -19,7 +19,7 @@
  */
 void transformCameraView(struct camera *cam, struct vector *direction) {
 	for (int i = 1; i < cam->transformCount; ++i) {
-		transformDirection(direction, cam->transforms[i].A);
+		transformVector(direction, &cam->transforms[i].A);
 	}
 }
 
@@ -56,7 +56,7 @@ void initCamera(struct camera *cam) {
 void transformCameraIntoView(struct camera *cam) {
 	initCamera(cam);
 	//Compute transforms for position (place the camera in the scene)
-	transformVector(&cam->pos, cam->transforms[0].A);
+	transformPoint(&cam->pos, &cam->transforms[0].A);
 	
 	//...and compute rotation transforms for camera orientation (point the camera)
 	transformCameraView(cam, &cam->left);

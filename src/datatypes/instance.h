@@ -8,8 +8,25 @@
 
 #pragma once
 
-struct world;
+#include <stdbool.h>
+#include "transforms.h"
 
-struct instance newInstance(struct vector *rot, struct vector *scale, struct vector *translate);
+struct world;
+struct matrix4x4;
+struct lightRay;
+struct hitRecord;
+
+struct sphere;
+struct mesh;
+
+struct instance {
+	struct transform composite;
+	bool (*intersectFn)(const struct instance*, const struct lightRay*, struct hitRecord*);
+	void (*getBBoxAndCenterFn)(const struct instance*, struct boundingBox*, struct vector*);
+	void *object;
+};
+
+struct instance newSphereInstance(struct sphere *sphere);
+struct instance newMeshInstance(struct mesh *mesh);
 
 void addInstanceToScene(struct world *scene, struct instance instance);

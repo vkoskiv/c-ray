@@ -11,6 +11,8 @@
 
 #include "../utils/logging.h"
 #include "vector.h"
+#include "bbox.h"
+#include "lightRay.h"
 
 //For ease of use
 float toRadians(float degrees) {
@@ -39,14 +41,15 @@ struct transform newTransform() {
 	struct transform tf;
 	tf.type = transformTypeIdentity;
 	tf.A = identityMatrix();
-	tf.Ainv = inverse(identityMatrix());
+	tf.Ainv = tf.A; // Inverse of I == I
 	return tf;
 }
 
-struct matrix4x4 fromParams(float t00, float t01, float t02, float t03,
-							float t10, float t11, float t12, float t13,
-							float t20, float t21, float t22, float t23,
-							float t30, float t31, float t32, float t33) {
+struct matrix4x4 matrixFromParams(
+	float t00, float t01, float t02, float t03,
+	float t10, float t11, float t12, float t13,
+	float t20, float t21, float t22, float t23,
+	float t30, float t31, float t32, float t33) {
 	struct matrix4x4 new = {{{0}}};
 	new.mtx[0][0] = t00; new.mtx[0][1] = t01; new.mtx[0][2] = t02; new.mtx[0][3] = t03;
 	new.mtx[1][0] = t10; new.mtx[1][1] = t11; new.mtx[1][2] = t12; new.mtx[1][3] = t13;
@@ -55,26 +58,61 @@ struct matrix4x4 fromParams(float t00, float t01, float t02, float t03,
 	return new;
 }
 
+struct matrix4x4 absoluteMatrix(const struct matrix4x4 *mtx) {
+	return (struct matrix4x4) {
+		.mtx = {
+			// The last column is the translation, and should be kept intact
+			{ fabsf(mtx->mtx[0][0]), fabsf(mtx->mtx[0][1]), fabsf(mtx->mtx[0][2]), mtx->mtx[0][3] },
+			{ fabsf(mtx->mtx[1][0]), fabsf(mtx->mtx[1][1]), fabsf(mtx->mtx[1][2]), mtx->mtx[1][3] },
+			{ fabsf(mtx->mtx[2][0]), fabsf(mtx->mtx[2][1]), fabsf(mtx->mtx[2][2]), mtx->mtx[2][3] },
+			// These coefficients are not used anyway
+			{ mtx->mtx[3][0], mtx->mtx[3][1], mtx->mtx[3][2], mtx->mtx[3][3] }
+		}
+	};
+}
+
 //http://tinyurl.com/hte35pq
 //TODO: Boolean switch to inverse, or just feed m4x4 directly
-void transformVector(struct vector *vec, struct matrix4x4 mtx) {
+void transformPoint(struct vector *vec, const struct matrix4x4 *mtx) {
 	struct vector temp;
-	temp.x = (mtx.mtx[0][0] * vec->x) + (mtx.mtx[0][1] * vec->y) + (mtx.mtx[0][2] * vec->z) + mtx.mtx[0][3];
-	temp.y = (mtx.mtx[1][0] * vec->x) + (mtx.mtx[1][1] * vec->y) + (mtx.mtx[1][2] * vec->z) + mtx.mtx[1][3];
-	temp.z = (mtx.mtx[2][0] * vec->x) + (mtx.mtx[2][1] * vec->y) + (mtx.mtx[2][2] * vec->z) + mtx.mtx[2][3];
+	temp.x = (mtx->mtx[0][0] * vec->x) + (mtx->mtx[0][1] * vec->y) + (mtx->mtx[0][2] * vec->z) + mtx->mtx[0][3];
+	temp.y = (mtx->mtx[1][0] * vec->x) + (mtx->mtx[1][1] * vec->y) + (mtx->mtx[1][2] * vec->z) + mtx->mtx[1][3];
+	temp.z = (mtx->mtx[2][0] * vec->x) + (mtx->mtx[2][1] * vec->y) + (mtx->mtx[2][2] * vec->z) + mtx->mtx[2][3];
 	vec->x = temp.x;
 	vec->y = temp.y;
 	vec->z = temp.z;
 }
 
-void transformDirection(struct vector *vec, struct matrix4x4 mtx) {
+void transformBBox(struct boundingBox *bbox, const struct matrix4x4 *mtx) {
+	struct matrix4x4 abs = absoluteMatrix(mtx);
+	struct vector center = vecScale(vecAdd(bbox->min, bbox->max), 0.5f);
+	struct vector halfExtents = vecScale(vecSub(bbox->max, bbox->min), 0.5f);
+	transformVector(&halfExtents, &abs);
+	transformPoint(&center, &abs);
+	bbox->min = vecSub(center, halfExtents);
+	bbox->max = vecAdd(center, halfExtents);
+}
+
+void transformVector(struct vector *vec, const struct matrix4x4 *mtx) {
 	struct vector temp;
-	temp.x = (mtx.mtx[0][0] * vec->x) + (mtx.mtx[0][1] * vec->y) + (mtx.mtx[0][2] * vec->z);
-	temp.y = (mtx.mtx[1][0] * vec->x) + (mtx.mtx[1][1] * vec->y) + (mtx.mtx[1][2] * vec->z);
-	temp.z = (mtx.mtx[2][0] * vec->x) + (mtx.mtx[2][1] * vec->y) + (mtx.mtx[2][2] * vec->z);
+	temp.x = (mtx->mtx[0][0] * vec->x) + (mtx->mtx[0][1] * vec->y) + (mtx->mtx[0][2] * vec->z);
+	temp.y = (mtx->mtx[1][0] * vec->x) + (mtx->mtx[1][1] * vec->y) + (mtx->mtx[1][2] * vec->z);
+	temp.z = (mtx->mtx[2][0] * vec->x) + (mtx->mtx[2][1] * vec->y) + (mtx->mtx[2][2] * vec->z);
 	vec->x = temp.x;
 	vec->y = temp.y;
 	vec->z = temp.z;
+}
+
+void transformVectorWithTranspose(struct vector *vec, const struct matrix4x4 *mtx) {
+	// Doing this here gives an opportunity for the compiler
+	// to inline the calls to transformVector() and transposeMatrix()
+	struct matrix4x4 t = transposeMatrix(mtx);
+	transformVector(vec, &t);
+}
+
+void transformRay(struct lightRay *ray, const struct matrix4x4 *mtx) {
+	transformPoint(&ray->start, mtx);
+	transformVector(&ray->direction, mtx);
 }
 
 struct transform newTransformRotateX(float rads) {
@@ -88,7 +126,7 @@ struct transform newTransformRotateX(float rads) {
 	transform.A.mtx[2][1] = sinRads;
 	transform.A.mtx[2][2] = cosRads;
 	transform.A.mtx[3][3] = 1.0f;
-	transform.Ainv = inverse(transform.A);
+	transform.Ainv = inverseMatrix(&transform.A);
 	return transform;
 }
 
@@ -103,7 +141,7 @@ struct transform newTransformRotateY(float rads) {
 	transform.A.mtx[2][0] = -sinRads;
 	transform.A.mtx[2][2] = cosRads;
 	transform.A.mtx[3][3] = 1.0f;
-	transform.Ainv = inverse(transform.A);
+	transform.Ainv = inverseMatrix(&transform.A);
 	return transform;
 }
 
@@ -118,7 +156,7 @@ struct transform newTransformRotateZ(float rads) {
 	transform.A.mtx[1][1] = cosRads;
 	transform.A.mtx[2][2] = 1.0f;
 	transform.A.mtx[3][3] = 1.0f;
-	transform.Ainv = inverse(transform.A);
+	transform.Ainv = inverseMatrix(&transform.A);
 	return transform;
 }
 
@@ -132,7 +170,7 @@ struct transform newTransformTranslate(float x, float y, float z) {
 	transform.A.mtx[0][3] = x;
 	transform.A.mtx[1][3] = y;
 	transform.A.mtx[2][3] = z;
-	transform.Ainv = inverse(transform.A);
+	transform.Ainv = inverseMatrix(&transform.A);
 	return transform;
 }
 
@@ -143,7 +181,7 @@ struct transform newTransformScale(float x, float y, float z) {
 	transform.A.mtx[1][1] = y;
 	transform.A.mtx[2][2] = z;
 	transform.A.mtx[3][3] = 1.0f;
-	transform.Ainv = inverse(transform.A);
+	transform.Ainv = inverseMatrix(&transform.A);
 	return transform;
 }
 
@@ -154,11 +192,11 @@ struct transform newTransformScaleUniform(float scale) {
 	transform.A.mtx[1][1] = scale;
 	transform.A.mtx[2][2] = scale;
 	transform.A.mtx[3][3] = 1.0f;
-	transform.Ainv = inverse(transform.A);
+	transform.Ainv = inverseMatrix(&transform.A);
 	return transform;
 }
 
-static void getCofactor(float A[4][4], float cofactors[4][4], int p, int q, int n) {
+static void getCofactor(const float A[4][4], float cofactors[4][4], int p, int q, int n) {
 	int i = 0;
 	int j = 0;
 	
@@ -177,7 +215,7 @@ static void getCofactor(float A[4][4], float cofactors[4][4], int p, int q, int 
 
 //I really, really hope this is faster than the generic one
 //I wrote this by hand...
-float findDeterminant4x4(float A[4][4]) {
+float findDeterminant4x4(const float A[4][4]) {
 	float topLeft = A[0][0] * ((A[1][1] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) + (A[1][3] * ((A[2][1]*A[3][2])-(A[2][2]*A[3][1]))));
 	float topRigh = A[0][1] * ((A[1][0] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][2])-(A[2][2]*A[3][0]))));
 	float botLeft = A[0][2] * ((A[1][0] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) - (A[1][1] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][1])-(A[2][1]*A[3][0]))));
@@ -204,7 +242,7 @@ float findDeterminant(float A[4][4], int n) {
 	return det;
 }
 
-static void findAdjoint(float A[4][4], float adjoint[4][4]) {
+static void findAdjoint(const float A[4][4], float adjoint[4][4]) {
 	int sign = 1;
 	float temp[4][4];
 	
@@ -217,16 +255,16 @@ static void findAdjoint(float A[4][4], float adjoint[4][4]) {
 	}
 }
 
-struct matrix4x4 inverse(struct matrix4x4 mtx) {
+struct matrix4x4 inverseMatrix(const struct matrix4x4 *mtx) {
 	struct matrix4x4 inverse = {{{0}}};
 	
-	float det = findDeterminant4x4(mtx.mtx);
+	float det = findDeterminant4x4(mtx->mtx);
 	if (det <= 0.0f) {
 		logr(error, "No inverse for given transform!\n");
 	}
 	
 	float adjoint[4][4];
-	findAdjoint(mtx.mtx, adjoint);
+	findAdjoint(mtx->mtx, adjoint);
 	
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -236,40 +274,39 @@ struct matrix4x4 inverse(struct matrix4x4 mtx) {
 	
 	//Not sure why I need to transpose here, but doing so
 	//gives correct results
-	return transpose(inverse);
+	return transposeMatrix(&inverse);
 }
 
-struct matrix4x4 transpose(struct matrix4x4 tf) {
-	return fromParams(
-					tf.mtx[0][0], tf.mtx[1][0], tf.mtx[2][0], tf.mtx[3][0],
-					tf.mtx[0][1], tf.mtx[1][1], tf.mtx[2][1], tf.mtx[3][1],
-					tf.mtx[0][2], tf.mtx[1][2], tf.mtx[2][2], tf.mtx[3][2],
-					tf.mtx[0][3], tf.mtx[1][3], tf.mtx[2][3], tf.mtx[3][3]
-					);
+struct matrix4x4 transposeMatrix(const struct matrix4x4 *tf) {
+	return matrixFromParams(
+		tf->mtx[0][0], tf->mtx[1][0], tf->mtx[2][0], tf->mtx[3][0],
+		tf->mtx[0][1], tf->mtx[1][1], tf->mtx[2][1], tf->mtx[3][1],
+		tf->mtx[0][2], tf->mtx[1][2], tf->mtx[2][2], tf->mtx[3][2],
+		tf->mtx[0][3], tf->mtx[1][3], tf->mtx[2][3], tf->mtx[3][3]
+	);
 }
 
-struct matrix4x4 multiply(struct matrix4x4 A, struct matrix4x4 B) {
-	return fromParams(
-					A.mtx[0][0] * B.mtx[0][0] + A.mtx[0][1] * B.mtx[1][0] + A.mtx[0][2] * B.mtx[2][0] + A.mtx[0][3] * B.mtx[3][0],
-					A.mtx[0][0] * B.mtx[0][1] + A.mtx[0][1] * B.mtx[1][1] + A.mtx[0][2] * B.mtx[2][1] + A.mtx[0][3] * B.mtx[3][1],
-					A.mtx[0][0] * B.mtx[0][2] + A.mtx[0][1] * B.mtx[1][2] + A.mtx[0][2] * B.mtx[2][2] + A.mtx[0][3] * B.mtx[3][2],
-					A.mtx[0][0] * B.mtx[0][3] + A.mtx[0][1] * B.mtx[1][3] + A.mtx[0][2] * B.mtx[2][3] + A.mtx[0][3] * B.mtx[3][3],
-					
-					A.mtx[1][0] * B.mtx[0][0] + A.mtx[1][1] * B.mtx[1][0] + A.mtx[1][2] * B.mtx[2][0] + A.mtx[1][3] * B.mtx[3][0],
-					A.mtx[1][0] * B.mtx[0][1] + A.mtx[1][1] * B.mtx[1][1] + A.mtx[1][2] * B.mtx[2][1] + A.mtx[1][3] * B.mtx[3][1],
-					A.mtx[1][0] * B.mtx[0][2] + A.mtx[1][1] * B.mtx[1][2] + A.mtx[1][2] * B.mtx[2][2] + A.mtx[1][3] * B.mtx[3][2],
-					A.mtx[1][0] * B.mtx[0][3] + A.mtx[1][1] * B.mtx[1][3] + A.mtx[1][2] * B.mtx[2][3] + A.mtx[1][3] * B.mtx[3][3],
-					
-					A.mtx[2][0] * B.mtx[0][0] + A.mtx[2][1] * B.mtx[1][0] + A.mtx[2][2] * B.mtx[2][0] + A.mtx[2][3] * B.mtx[3][0],
-					A.mtx[2][0] * B.mtx[0][1] + A.mtx[2][1] * B.mtx[1][1] + A.mtx[2][2] * B.mtx[2][1] + A.mtx[2][3] * B.mtx[3][1],
-					A.mtx[2][0] * B.mtx[0][2] + A.mtx[2][1] * B.mtx[1][2] + A.mtx[2][2] * B.mtx[2][2] + A.mtx[2][3] * B.mtx[3][2],
-					A.mtx[2][0] * B.mtx[0][3] + A.mtx[2][1] * B.mtx[1][3] + A.mtx[2][2] * B.mtx[2][3] + A.mtx[2][3] * B.mtx[3][3],
-					
-					A.mtx[3][0] * B.mtx[0][0] + A.mtx[3][1] * B.mtx[1][0] + A.mtx[3][2] * B.mtx[2][0] + A.mtx[3][3] * B.mtx[3][0],
-					A.mtx[3][0] * B.mtx[0][1] + A.mtx[3][1] * B.mtx[1][1] + A.mtx[3][2] * B.mtx[2][1] + A.mtx[3][3] * B.mtx[3][1],
-					A.mtx[3][0] * B.mtx[0][2] + A.mtx[3][1] * B.mtx[1][2] + A.mtx[3][2] * B.mtx[2][2] + A.mtx[3][3] * B.mtx[3][2],
-					A.mtx[3][0] * B.mtx[0][3] + A.mtx[3][1] * B.mtx[1][3] + A.mtx[3][2] * B.mtx[2][3] + A.mtx[3][3] * B.mtx[3][3]
-			);
+struct matrix4x4 multiplyMatrices(const struct matrix4x4 *A, const struct matrix4x4 *B) {
+	return matrixFromParams(
+		A->mtx[0][0] * B->mtx[0][0] + A->mtx[0][1] * B->mtx[1][0] + A->mtx[0][2] * B->mtx[2][0] + A->mtx[0][3] * B->mtx[3][0],
+		A->mtx[0][0] * B->mtx[0][1] + A->mtx[0][1] * B->mtx[1][1] + A->mtx[0][2] * B->mtx[2][1] + A->mtx[0][3] * B->mtx[3][1],
+		A->mtx[0][0] * B->mtx[0][2] + A->mtx[0][1] * B->mtx[1][2] + A->mtx[0][2] * B->mtx[2][2] + A->mtx[0][3] * B->mtx[3][2],
+		A->mtx[0][0] * B->mtx[0][3] + A->mtx[0][1] * B->mtx[1][3] + A->mtx[0][2] * B->mtx[2][3] + A->mtx[0][3] * B->mtx[3][3],
+
+		A->mtx[1][0] * B->mtx[0][0] + A->mtx[1][1] * B->mtx[1][0] + A->mtx[1][2] * B->mtx[2][0] + A->mtx[1][3] * B->mtx[3][0],
+		A->mtx[1][0] * B->mtx[0][1] + A->mtx[1][1] * B->mtx[1][1] + A->mtx[1][2] * B->mtx[2][1] + A->mtx[1][3] * B->mtx[3][1],
+		A->mtx[1][0] * B->mtx[0][2] + A->mtx[1][1] * B->mtx[1][2] + A->mtx[1][2] * B->mtx[2][2] + A->mtx[1][3] * B->mtx[3][2],
+		A->mtx[1][0] * B->mtx[0][3] + A->mtx[1][1] * B->mtx[1][3] + A->mtx[1][2] * B->mtx[2][3] + A->mtx[1][3] * B->mtx[3][3],
+
+		A->mtx[2][0] * B->mtx[0][0] + A->mtx[2][1] * B->mtx[1][0] + A->mtx[2][2] * B->mtx[2][0] + A->mtx[2][3] * B->mtx[3][0],
+		A->mtx[2][0] * B->mtx[0][1] + A->mtx[2][1] * B->mtx[1][1] + A->mtx[2][2] * B->mtx[2][1] + A->mtx[2][3] * B->mtx[3][1],
+		A->mtx[2][0] * B->mtx[0][2] + A->mtx[2][1] * B->mtx[1][2] + A->mtx[2][2] * B->mtx[2][2] + A->mtx[2][3] * B->mtx[3][2],
+		A->mtx[2][0] * B->mtx[0][3] + A->mtx[2][1] * B->mtx[1][3] + A->mtx[2][2] * B->mtx[2][3] + A->mtx[2][3] * B->mtx[3][3],
+
+		A->mtx[3][0] * B->mtx[0][0] + A->mtx[3][1] * B->mtx[1][0] + A->mtx[3][2] * B->mtx[2][0] + A->mtx[3][3] * B->mtx[3][0],
+		A->mtx[3][0] * B->mtx[0][1] + A->mtx[3][1] * B->mtx[1][1] + A->mtx[3][2] * B->mtx[2][1] + A->mtx[3][3] * B->mtx[3][1],
+		A->mtx[3][0] * B->mtx[0][2] + A->mtx[3][1] * B->mtx[1][2] + A->mtx[3][2] * B->mtx[2][2] + A->mtx[3][3] * B->mtx[3][2],
+		A->mtx[3][0] * B->mtx[0][3] + A->mtx[3][1] * B->mtx[1][3] + A->mtx[3][2] * B->mtx[2][3] + A->mtx[3][3] * B->mtx[3][3]);
 }
 
 static char *transformTypeString(enum transformType type) {
@@ -292,16 +329,30 @@ static char *transformTypeString(enum transformType type) {
 			return "transformTypeInverse";
 		case transformTypeTranspose:
 			return "transformTypeTranspose";
+		case transformTypeComposite:
+			return "transformTypeComposite";
 		default:
 			return "unknownTransform";
 	}
 }
 
-static void printMatrix(struct matrix4x4 mtx) {
+bool isRotation(const struct transform *t) {
+	return (t->type == transformTypeXRotate) || (t->type == transformTypeYRotate) || (t->type == transformTypeZRotate);
+}
+
+bool isScale(const struct transform *t) {
+	return t->type == transformTypeScale;
+}
+
+bool isTranslate(const struct transform *t) {
+	return t->type == transformTypeTranslate;
+}
+
+static void printMatrix(const struct matrix4x4 *mtx) {
 	printf("\n");
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			printf("mtx.mtx[%i][%i]=%s%f ",i,j, mtx.mtx[i][j] < 0 ? "" : " " ,mtx.mtx[i][j]);
+			printf("mtx.mtx[%i][%i]=%s%f ",i,j, mtx->mtx[i][j] < 0 ? "" : " " ,mtx->mtx[i][j]);
 		}
 		printf("\n");
 	}
@@ -312,13 +363,14 @@ static void printMatrix(struct matrix4x4 mtx) {
 	printf("%s", transformTypeString(tf.type));
 	printMatrix(tf.A);
 	printMatrix(tf.Ainv);
-}*/
+}
+*/
 
-bool areEqual(struct matrix4x4 A, struct matrix4x4 B) {
+bool areMatricesEqual(const struct matrix4x4 *A, const struct matrix4x4 *B) {
 	bool matches = true;
 	for (unsigned j = 0; j < 4; ++j) {
 		for (unsigned i = 0; i < 4; ++i) {
-			if (A.mtx[i][j] != B.mtx[i][j]) matches = false;
+			if (A->mtx[i][j] != B->mtx[i][j]) matches = false;
 		}
 	}
 	return matches;

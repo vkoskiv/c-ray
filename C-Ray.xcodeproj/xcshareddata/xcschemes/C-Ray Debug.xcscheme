@@ -54,7 +54,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "./input/hdr.json"
+            argument = "./input/hdrInstanceTest.json"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

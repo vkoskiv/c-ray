@@ -57,11 +57,18 @@
 		"primitives": [
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 650,
-					"y": 450,
-					"z": 1650
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 650,
+								"y": 450,
+								"z": 1650
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 0.0,
@@ -73,11 +80,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 950,
-					"y": 350,
-					"z": 1500
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 950,
+								"y": 350,
+								"z": 1500
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 1.0,
@@ -89,11 +103,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1100,
-					"y": 350,
-					"z": 1500
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1100,
+								"y": 350,
+								"z": 1500
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 0.87,
@@ -105,11 +126,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1050,
-					"y": 310,
-					"z": 820
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1050,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],
 				"radius": 2.5,
 				"color": {
 					"r": 1.0,
@@ -121,11 +149,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1070,
-					"y": 310,
-					"z": 820
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1070,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],
 				"radius": 2.5,
 				"color": {
 					"r": 0.0,
@@ -137,11 +172,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1090,
-					"y": 310,
-					"z": 820
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1090,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],
 				"radius": 2.5,
 				"color": {
 					"r": 0.0,
@@ -153,11 +195,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 950,
-					"y": 420,
-					"z": 1500
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 950,
+								"y": 420,
+								"z": 1500
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 1.0,
@@ -172,109 +221,121 @@
 			{
 				"fileName": "tonni.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 100
-					},
-					{
-						"type": "rotateX",
-						"degrees": 90
-					},
-					{
-						"type": "rotateY",
-						"radians": 3.14
-					},
-					{
-						"type": "rotateZ",
-						"degrees": 180
-					},
-					{
-						"type": "translate",
-						"x": 1100,
-						"y": 360,
-						"z": 1050
-				 	}
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 100
+							},
+							{
+								"type": "rotateX",
+								"degrees": 90
+							},
+							{
+								"type": "rotateY",
+								"radians": 3.14
+							},
+							{
+								"type": "rotateZ",
+								"degrees": 180
+							},
+							{
+								"type": "translate",
+								"x": 1100,
+								"y": 360,
+								"z": 1050
+							}
+						]
+					}
 				]
 			},
 			{
 				"fileName": "newScene.obj",
 				"bsdf": "lambertian",
-				"transforms": []
+				"instances": [
+					{
+						"transforms": []
+					}
+				]
 			},
 			{
 				"fileName": "torus.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 40
-					},
-					{
-						"type": "translate",
-						"x": 1070,
-						"y": 310,
-						"z": 820
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 40
+							},
+							{
+								"type": "translate",
+								"x": 1070,
+								"y": 310,
+								"z": 820
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 45
+							},
+							{
+								"type": "translate",
+								"x": 740,
+								"y": 299,
+								"z": 900
+							}
+						]
 					},
 					{
-						"type": "rotateY",
-						"degrees": 45
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 45
+							},
+							{
+								"type": "translate",
+								"x": 740,
+								"y": 299,
+								"z": 1050
+							}
+						]
 					},
 					{
-						"type": "translate",
-						"x": 740,
-						"y": 299,
-						"z": 900
-					}
-				]
-			},
-			{
-				"fileName": "teapot.obj",
-				"bsdf": "lambertian",
-				"transforms": [
-					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 45
-					},
-					{
-						"type": "translate",
-						"x": 740,
-						"y": 299,
-						"z": 1050
-					}
-				]
-			},
-			{
-				"fileName": "teapot.obj",
-				"bsdf": "lambertian",
-				"transforms": [
-					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 45
-					},
-					{
-						"type": "translate",
-						"x": 740,
-						"y": 299,
-						"z": 1200
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 45
+							},
+							{
+								"type": "translate",
+								"x": 740,
+								"y": 299,
+								"z": 1200
+							}
+						]
 					}
 				]
 			},
@@ -282,83 +343,60 @@
 				"fileName": "teapot_green.obj",
 				"overridemtls": [["teapot.mtl", "teapot_green.mtl"]],
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 20
+							},
+							{
+								"type": "translate",
+								"x": 970,
+								"y": 299,
+								"z": 900
+							}
+						]
 					},
 					{
-						"type": "rotateY",
-						"degrees": 20
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 20
+							},
+							{
+								"type": "translate",
+								"x": 970,
+								"y": 299,
+								"z": 1050
+							}
+						]
 					},
 					{
-						"type": "translate",
-						"x": 970,
-						"y": 299,
-						"z": 900
-					}
-				]
-			},
-			{
-				"fileName": "teapot_green.obj",
-				"overridemtls": [["teapot.mtl", "teapot_green.mtl"]],
-				"bsdf": "lambertian",
-				"transforms": [
-					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 20
-					},
-					{
-						"type": "translate",
-						"x": 970,
-						"y": 299,
-						"z": 1050
-					}
-				]
-			},
-			{
-				"fileName": "teapot_green.obj",
-				"overridemtls": [["teapot.mtl", "teapot_green.mtl"]],
-				"bsdf": "lambertian",
-				"transforms": [
-					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 20
-					},
-					{
-						"type": "translate",
-						"x": 970,
-						"y": 299,
-						"z": 1200
-					}
-				]
-			},
-			{
-				"fileName": "teapot_blue.obj",
-				"overridemtls": [["teapot.mtl", "teapot_blue.mtl"]],
-				"bsdf": "lambertian",
-				"transforms": [
-					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 155
-					},
-					{
-						"type": "translate",
-						"x": 1210,
-						"y": 299,
-						"z": 900
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 20
+							},
+							{
+								"type": "translate",
+								"x": 970,
+								"y": 299,
+								"z": 1200
+							}
+						]
 					}
 				]
 			},
@@ -366,41 +404,60 @@
 				"fileName": "teapot_blue.obj",
 				"overridemtls": [["teapot.mtl", "teapot_blue.mtl"]],
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 155
+							},
+							{
+								"type": "translate",
+								"x": 1210,
+								"y": 299,
+								"z": 900
+							}
+						]
 					},
 					{
-						"type": "rotateY",
-						"degrees": 155
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 155
+							},
+							{
+								"type": "translate",
+								"x": 1210,
+								"y": 299,
+								"z": 1050
+							}
+						]
 					},
 					{
-						"type": "translate",
-						"x": 1210,
-						"y": 299,
-						"z": 1050
-					}
-				]
-			},
-			{
-				"fileName": "teapot_blue.obj",
-				"overridemtls": [["teapot.mtl", "teapot_blue.mtl"]],
-				"bsdf": "lambertian",
-				"transforms": [
-					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 155
-					},
-					{
-						"type": "translate",
-						"x": 1210,
-						"y": 299,
-						"z": 1200
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 155
+							},
+							{
+								"type": "translate",
+								"x": 1210,
+								"y": 299,
+								"z": 1200
+							}
+						]
 					}
 				]
 			}

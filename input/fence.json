@@ -52,11 +52,18 @@
 		"primitives": [
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 650,
-					"y": 450,
-					"z": 1650
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 650,
+								"y": 450,
+								"z": 1650
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 0.0,
@@ -68,11 +75,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 950,
-					"y": 350,
-					"z": 1500
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 950,
+								"y": 350,
+								"z": 1500
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 1.0,
@@ -84,11 +98,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1100,
-					"y": 350,
-					"z": 1500
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1100,
+								"y": 350,
+								"z": 1500
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 0.87,
@@ -100,11 +121,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 900,
-					"y": 350,
-					"z": 1020
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 900,
+								"y": 350,
+								"z": 1020
+							}
+						]
+					}
+				],
 				"radius": 8,
 				"color": {
 					"r": 1.0,
@@ -116,11 +144,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1000,
-					"y": 350,
-					"z": 1020
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1000,
+								"y": 350,
+								"z": 1020
+							}
+						]
+					}
+				],
 				"radius": 8,
 				"color": {
 					"r": 0.0,
@@ -132,11 +167,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1100,
-					"y": 350,
-					"z": 1020
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1100,
+								"y": 350,
+								"z": 1020
+							}
+						]
+					}
+				],
 				"radius": 8,
 				"color": {
 					"r": 0.0,
@@ -151,27 +193,35 @@
 			{
 				"fileName": "newScene.obj",
 				"bsdf": "lambertian",
-				"transforms": []
+				"instances": [
+					{
+						"transforms": []
+					}
+				]
 			},
 			{
 				"fileName": "fence.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "rotateY",
-						"degrees": 90
-					},
-					{
-						"type": "scale",
-						"x": 100,
-						"y": 100,
-						"z": 50
-					},
-					{
-						"type": "translate",
-						"x": 1000,
-						"y": 380,
-						"z": 960
+						"transforms": [
+							{
+								"type": "rotateY",
+								"degrees": 90
+							},
+							{
+								"type": "scale",
+								"x": 100,
+								"y": 100,
+								"z": 50
+							},
+							{
+								"type": "translate",
+								"x": 1000,
+								"y": 380,
+								"z": 960
+							}
+						]
 					}
 				]
 			}

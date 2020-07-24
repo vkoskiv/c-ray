@@ -6,28 +6,78 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
-struct instance {
-	struct transform *composite;
-	int meshIdx;
-};
-
 #include "../includes.h"
+#include "../accelerators/bvh.h"
+#include "../renderer/pathtrace.h"
 #include "vector.h"
 #include "instance.h"
 #include "transforms.h"
+#include "bbox.h"
+#include "mesh.h"
+#include "sphere.h"
 #include "scene.h"
 
-/*struct instance newInstance(vector *rot, vector *scale, vector *translate) {
-	struct instance newInstance;
-	
-	mul
-}*/
+static bool intersectSphere(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect) {
+	struct lightRay copy = *ray;
+	transformRay(&copy, &instance->composite.Ainv);
+
+	if (rayIntersectsWithSphere(&copy, (struct sphere*)instance->object, isect)) {
+		isect->polygon = NULL;
+		isect->material = ((struct sphere*)instance->object)->material;
+		return true;
+	}
+	return false;
+}
+
+static void getSphereBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
+	struct sphere *sphere = (struct sphere*)instance->object;
+	*center = vecZero();
+	transformPoint(center, &instance->composite.A);
+	bbox->min = vecWithPos(-sphere->radius, -sphere->radius, -sphere->radius);
+	bbox->max = vecWithPos( sphere->radius,  sphere->radius,  sphere->radius);
+	if (!isRotation(&instance->composite) && !isTranslate(&instance->composite))
+		transformBBox(bbox, &instance->composite.A);
+	else {
+		bbox->min = vecAdd(bbox->min, *center);
+		bbox->max = vecAdd(bbox->max, *center);
+	}
+}
+
+struct instance newSphereInstance(struct sphere *sphere) {
+	return (struct instance) {
+		.object = sphere,
+		.composite = newTransform(),
+		.intersectFn = intersectSphere,
+		.getBBoxAndCenterFn = getSphereBBoxAndCenter
+	};
+}
+
+static bool intersectMesh(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect) {
+	struct lightRay copy = *ray;
+	transformRay(&copy, &instance->composite.Ainv);
+	return traverseBottomLevelBvh((struct mesh*)instance->object, &copy, isect);
+}
+
+static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
+	getRootBoundingBox(((struct mesh*)instance->object)->bvh, bbox);
+	transformBBox(bbox, &instance->composite.A);
+	*center = bboxCenter(bbox);
+}
+
+struct instance newMeshInstance(struct mesh *mesh) {
+	return (struct instance) {
+		.object = mesh,
+		.composite = newTransform(),
+		.intersectFn = intersectMesh,
+		.getBBoxAndCenterFn = getMeshBBoxAndCenter
+	};
+}
 
 void addInstanceToScene(struct world *scene, struct instance instance) {
 	if (scene->instanceCount == 0) {
-		scene->instances = calloc(1, sizeof(struct instance));
+		scene->instances = calloc(1, sizeof(*scene->instances));
 	} else {
-		scene->instances = realloc(scene->instances, (scene->instanceCount + 1) * sizeof(struct instance));
+		scene->instances = realloc(scene->instances, (scene->instanceCount + 1) * sizeof(*scene->instances));
 	}
 	scene->instances[scene->instanceCount++] = instance;
 }

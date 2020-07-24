@@ -56,11 +56,18 @@
 		"primitives": [
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 650,
-					"y": 450,
-					"z": 1650
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 650,
+								"y": 450,
+								"z": 1650
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 0.0,
@@ -72,11 +79,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 950,
-					"y": 350,
-					"z": 1500
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 950,
+								"y": 350,
+								"z": 1500
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 1.0,
 					"g": 1.0,
@@ -88,11 +102,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1100,
-					"y": 350,
-					"z": 1500
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1100,
+								"y": 350,
+								"z": 1500
+							}
+						]
+					}
+				],
 				"color": {
 					"r": 0.0,
 					"b": 0.0,
@@ -104,11 +125,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1050,
-					"y": 310,
-					"z": 820
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1050,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],
 				"radius": 2.5,
 				"color": {
 					"r": 1.0,
@@ -120,11 +148,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 450,
-					"y": 460,
-					"z": 1700
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 450,
+								"y": 460,
+								"z": 1700
+							}
+						]
+					}
+				],
 				"radius": 60,
 				"color": {
 					"r": 1.0,
@@ -136,11 +171,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1070,
-					"y": 310,
-					"z": 820
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1070,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],
 				"radius": 2.5,
 				"color": {
 					"r": 0.0,
@@ -152,11 +194,18 @@
 			},
 			{
 				"type": "sphere",
-				"pos": {
-					"x": 1090,
-					"y": 310,
-					"z": 820
-				},
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1090,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],
 				"radius": 2.5,
 				"color": {
 					"r": 0.0,
@@ -171,309 +220,373 @@
 			{
 				"fileName": "venusscaled.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 70
-					},
-					{
-						"type": "rotateY",
-						"degrees": -90
-					},
-					{
-						"type": "translate",
-						"x": 700,
-						"y": 310,
-						"z": 750
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 70
+							},
+							{
+								"type": "rotateY",
+								"degrees": -90
+							},
+							{
+								"type": "translate",
+								"x": 700,
+								"y": 310,
+								"z": 750
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "instanssi.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 300
-					},
-					{
-						"type": "rotateX",
-						"degrees": 0
-					},
-					{
-						"type": "rotateY",
-						"degrees": 145
-					},
-					{
-						"type": "rotateZ",
-						"degrees": 0
-					},
-					{
-						"type": "translate",
-						"x": 500,
-						"y": 460,
-						"z": 1650
-				 	}
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 300
+							},
+							{
+								"type": "rotateX",
+								"degrees": 0
+							},
+							{
+								"type": "rotateY",
+								"degrees": 145
+							},
+							{
+								"type": "rotateZ",
+								"degrees": 0
+							},
+							{
+								"type": "translate",
+								"x": 500,
+								"y": 460,
+								"z": 1650
+							}
+						]
+					}
 				]
 			},
 			{
 				"fileName": "icanvas.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 450
-					},
-					{
-						"type": "rotateY",
-						"degrees": -90
-					},
-					{
-						"type": "translate",
-						"x": 200,
-						"y": 550,
-						"z": 1050
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 450
+							},
+							{
+								"type": "rotateY",
+								"degrees": -90
+							},
+							{
+								"type": "translate",
+								"x": 200,
+								"y": 550,
+								"z": 1050
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "newScene.obj",
 				"bsdf": "lambertian",
-				"transforms": []
+				"instances": [
+					{
+						"transforms": []
+					}
+				]
 			},
 			{
 				"fileName": "teht1.objdisabled",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 40
-					},
-					{
-						"type": "rotateX",
-						"degrees": 90
-					},
-					{
-						"type": "translate",
-						"x": 870,
-						"y": 350,
-						"z": 800
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 40
+							},
+							{
+								"type": "rotateX",
+								"degrees": 90
+							},
+							{
+								"type": "translate",
+								"x": 870,
+								"y": 350,
+								"z": 800
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "torus.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 40
-					},
-					{
-						"type": "translate",
-						"x": 1070,
-						"y": 310,
-						"z": 820
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 40
+							},
+							{
+								"type": "translate",
+								"x": 1070,
+								"y": 310,
+								"z": 820
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 45
-					},
-					{
-						"type": "translate",
-						"x": 740,
-						"y": 299,
-						"z": 900
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 45
+							},
+							{
+								"type": "translate",
+								"x": 740,
+								"y": 299,
+								"z": 900
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 45
-					},
-					{
-						"type": "translate",
-						"x": 740,
-						"y": 299,
-						"z": 1050
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 45
+							},
+							{
+								"type": "translate",
+								"x": 740,
+								"y": 299,
+								"z": 1050
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 45
-					},
-					{
-						"type": "translate",
-						"x": 740,
-						"y": 299,
-						"z": 1200
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 45
+							},
+							{
+								"type": "translate",
+								"x": 740,
+								"y": 299,
+								"z": 1200
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot_white.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 45
-					},
-					{
-						"type": "translate",
-						"x": 855,
-						"y": 299,
-						"z": 1125
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 45
+							},
+							{
+								"type": "translate",
+								"x": 855,
+								"y": 299,
+								"z": 1125
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot_green.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 20
-					},
-					{
-						"type": "translate",
-						"x": 970,
-						"y": 299,
-						"z": 900
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 20
+							},
+							{
+								"type": "translate",
+								"x": 970,
+								"y": 299,
+								"z": 900
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot_green.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 20
-					},
-					{
-						"type": "translate",
-						"x": 970,
-						"y": 299,
-						"z": 1050
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 20
+							},
+							{
+								"type": "translate",
+								"x": 970,
+								"y": 299,
+								"z": 1050
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot_green.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 20
-					},
-					{
-						"type": "translate",
-						"x": 970,
-						"y": 299,
-						"z": 1200
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 20
+							},
+							{
+								"type": "translate",
+								"x": 970,
+								"y": 299,
+								"z": 1200
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot_blue.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 155
-					},
-					{
-						"type": "translate",
-						"x": 1210,
-						"y": 299,
-						"z": 900
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 155
+							},
+							{
+								"type": "translate",
+								"x": 1210,
+								"y": 299,
+								"z": 900
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot_blue.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 155
-					},
-					{
-						"type": "translate",
-						"x": 1210,
-						"y": 299,
-						"z": 1050
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 155
+							},
+							{
+								"type": "translate",
+								"x": 1210,
+								"y": 299,
+								"z": 1050
+							}
+						]
 					}
 				]
 			},
 			{
 				"fileName": "teapot_blue.obj",
 				"bsdf": "lambertian",
-				"transforms": [
+				"instances": [
 					{
-						"type": "scaleUniform",
-						"scale": 80
-					},
-					{
-						"type": "rotateY",
-						"degrees": 155
-					},
-					{
-						"type": "translate",
-						"x": 1210,
-						"y": 299,
-						"z": 1200
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 80
+							},
+							{
+								"type": "rotateY",
+								"degrees": 155
+							},
+							{
+								"type": "translate",
+								"x": 1210,
+								"y": 299,
+								"z": 1200
+							}
+						]
 					}
 				]
 			}

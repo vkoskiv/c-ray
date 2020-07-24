@@ -32,10 +32,15 @@
 #include "../converter.h"
 #include "textureloader.h"
 #include "objloader.h"
+#include "../../datatypes/instance.h"
 
 static struct color parseColor(const cJSON *data);
 
 static void addMaterialToMesh(struct mesh *mesh, struct material newMaterial);
+
+static struct instance *lastInstance(struct renderer *r) {
+	return &r->scene->instances[r->scene->instanceCount - 1];
+}
 
 static struct mesh *lastMesh(struct renderer *r) {
 	return &r->scene->meshes[r->scene->meshCount - 1];
@@ -126,7 +131,6 @@ static bool loadMesh(struct renderer *r, const char *inputFilePath, int idx, int
 	free(pathCopy);
 	
 	//Create mesh to keep track of meshes
-	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + 1) * sizeof(struct mesh));
 	struct mesh *newMesh = &r->scene->meshes[r->scene->meshCount];
 	//Vertex data
 	newMesh->firstVectorIndex = vertexCount;
@@ -139,8 +143,6 @@ static bool loadMesh(struct renderer *r, const char *inputFilePath, int idx, int
 	newMesh->textureCount = data.vertex_texture_count;
 	//Poly data
 	newMesh->polyCount = data.face_count;
-	//Transforms init
-	newMesh->transformCount = 0;
 	
 	newMesh->materialCount = 0;
 	//Set name
@@ -213,7 +215,6 @@ static void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
 //FIXME: change + 1 to ++scene->someCount and just pass the count to array access
 //In the future, maybe just pass a list and size and copy at once to save time (large counts)
 static void addSphere(struct world *scene, struct sphere newSphere) {
-	scene->spheres = realloc(scene->spheres, (scene->sphereCount + 1) * sizeof(struct sphere));
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
@@ -913,6 +914,52 @@ static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	return 0;
 }
 
+struct transform parseTransformComposite(const cJSON *transforms) {
+	// Combine found list of discerete transforms into a single matrix.
+	ASSERT(cJSON_IsArray(transforms));
+	const cJSON *transform = NULL;
+	size_t count = cJSON_GetArraySize(transforms);
+	struct transform *tforms = calloc(count, sizeof(*tforms));
+	size_t idx = 0;
+	cJSON_ArrayForEach(transform, transforms) {
+		tforms[idx++] = parseTransform(transform, "compositeBuilder");
+	}
+	
+	struct transform composite = newTransform();
+	
+	// Order is: scales/rotates, then translates
+	
+	// Translates
+	for (size_t i = 0; i < count; ++i) {
+		if (isTranslate(&tforms[i])) {
+			composite.A = multiplyMatrices(&composite.A, &tforms[i].A);
+		}
+	}
+	
+	// Rotates
+	for (size_t i = 0; i < count; ++i) {
+		if (isRotation(&tforms[i])) {
+			composite.A = multiplyMatrices(&composite.A, &tforms[i].A);
+		}
+	}
+	
+	// Scales
+	for (size_t i = 0; i < count; ++i) {
+		if (isScale(&tforms[i])) {
+			composite.A = multiplyMatrices(&composite.A, &tforms[i].A);
+		}
+	}
+	
+	composite.Ainv = inverseMatrix(&composite.A);
+	composite.type = transformTypeComposite;
+	return composite;
+}
+
+static struct transform parseInstanceTransform(const cJSON *instance) {
+	const cJSON *transforms = cJSON_GetObjectItem(instance, "transforms");
+	return parseTransformComposite(transforms);
+}
+
 //FIXME: Only parse everything else if the mesh is found and is valid
 static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
@@ -951,12 +998,12 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		}
 	}
 	if (meshValid) {
-		const cJSON *transforms = cJSON_GetObjectItem(data, "transforms");
-		const cJSON *transform = NULL;
-		//TODO: Use parseTransforms for this
-		if (transforms != NULL && cJSON_IsArray(transforms)) {
-			cJSON_ArrayForEach(transform, transforms) {
-				addTransform(lastMesh(r), parseTransform(transform, lastMesh(r)->name));
+		const cJSON *instances = cJSON_GetObjectItem(data, "instances");
+		const cJSON *instance = NULL;
+		if (instances != NULL && cJSON_IsArray(instances)) {
+			cJSON_ArrayForEach(instance, instances) {
+				addInstanceToScene(r->scene, newMeshInstance(lastMesh(r)));
+				lastInstance(r)->composite = parseInstanceTransform(instance);
 			}
 		}
 		
@@ -976,6 +1023,7 @@ static void parseMeshes(struct renderer *r, const cJSON *data) {
 	const cJSON *mesh = NULL;
 	int idx = 1;
 	int meshCount = cJSON_GetArraySize(data);
+	r->scene->meshes = calloc(meshCount, sizeof(*r->scene->meshes));
 	if (data != NULL && cJSON_IsArray(data)) {
 		cJSON_ArrayForEach(mesh, data) {
 			parseMesh(r, mesh, idx, meshCount);
@@ -1003,7 +1051,6 @@ static struct vector parseCoordinate(const cJSON *data) {
 }
 
 static void parseSphere(struct renderer *r, const cJSON *data) {
-	const cJSON *pos = NULL;
 	const cJSON *color = NULL;
 	const cJSON *roughness = NULL;
 	const cJSON *IOR = NULL;
@@ -1029,13 +1076,6 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 		}
 	} else {
 		logr(warning, "Sphere BSDF not found, defaulting to lambertian.\n");
-	}
-	
-	pos = cJSON_GetObjectItem(data, "pos");
-	if (pos != NULL) {
-		newSphere.pos = parseCoordinate(pos);
-	} else {
-		logr(warning, "No position specified for sphere\n");
 	}
 	
 	color = cJSON_GetObjectItem(data, "color");
@@ -1086,6 +1126,16 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	
 	//FIXME: Proper materials for spheres
 	addSphere(r->scene, newSphere);
+	
+	const cJSON *instances = cJSON_GetObjectItem(data, "instances");
+	const cJSON *instance = NULL;
+	if (cJSON_IsArray(instances)) {
+		cJSON_ArrayForEach(instance, instances) {
+			addInstanceToScene(r->scene, newSphereInstance(lastSphere(r)));
+			lastInstance(r)->composite = parseInstanceTransform(instance);
+		}
+	}
+	
 	assignBSDF(&lastSphere(r)->material);
 }
 
@@ -1101,6 +1151,9 @@ static void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {
 
 static void parsePrimitives(struct renderer *r, const cJSON *data) {
 	const cJSON *primitive = NULL;
+	int primCount = cJSON_GetArraySize(data);
+	r->scene->spheres = calloc(primCount, sizeof(*r->scene->spheres));
+	
 	if (data != NULL && cJSON_IsArray(data)) {
 		int i = 0;
 		cJSON_ArrayForEach(primitive, data) {

@@ -18,30 +18,19 @@ struct world;
 //FIXME: These datatypes should be hidden inside the implementation!
 
 /**
- Ray intersection type enum
- */
-enum currentType {
-	hitTypePolygon,
-	hitTypeSphere,
-	hitTypeNone
-};
-
-/**
  Shading/intersection information, used to perform shading and rendering logic.
  @note uv, mtlIndex and polyIndex are only set if the ray hits a polygon (mesh)
  @todo Consider moving start, end materials to lightRay instead
  */
 struct hitRecord {
 	struct lightRay incident;		//Light ray that encountered this intersection
-	struct material end;			//Material of the intersected object
+	struct material material;	    //Material of the intersected object
 	struct vector hitPoint;			//Hit point vector in 3D space
 	struct vector surfaceNormal;	//Surface normal at that point of intersection
 	struct coord uv;				//UV barycentric coordinates for intersection point
-	enum currentType type;			//Type of object ray intersected with
-	bool didIntersect;				//True if ray intersected
 	float distance;					//Distance to intersection point
 	struct poly *polygon;			//ptr to polygon that was encountered
-	unsigned meshIndex : 16;
+	int instIndex;                  //Instance index, negative if no intersection
 };
 
 

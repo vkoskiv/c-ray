@@ -27,7 +27,8 @@ enum transformType {
 	transformTypeMultiplication,
 	transformTypeIdentity,
 	transformTypeInverse,
-	transformTypeTranspose
+	transformTypeTranspose,
+	transformTypeComposite
 };
 
 struct matrix4x4 {
@@ -43,6 +44,8 @@ struct transform {
 
 struct material;
 struct vector;
+struct boundingBox;
+struct lightRay;
 
 float toRadians(float degrees);
 float fromRadians(float radians);
@@ -56,8 +59,19 @@ struct transform newTransformRotateY(float radians);
 struct transform newTransformRotateZ(float radians);
 struct transform newTransform(void);
 
-struct matrix4x4 inverse(struct matrix4x4 mtx);
-struct matrix4x4 transpose(struct matrix4x4 tf);
+struct matrix4x4 inverseMatrix(const struct matrix4x4 *mtx);
+struct matrix4x4 transposeMatrix(const struct matrix4x4 *tf);
+struct matrix4x4 multiplyMatrices(const struct matrix4x4 *A, const struct matrix4x4 *B); //FIXME: Maybe don't expose this.
+struct matrix4x4 absoluteMatrix(const struct matrix4x4 *mtx);
 
-void transformVector(struct vector *vec, struct matrix4x4 mtx);
-void transformDirection(struct vector *vec, struct matrix4x4 mtx);
+void transformPoint(struct vector *vec, const struct matrix4x4 *mtx);
+void transformVector(struct vector *vec, const struct matrix4x4 *mtx);
+void transformVectorWithTranspose(struct vector *vec, const struct matrix4x4 *mtx);
+void transformBBox(struct boundingBox *bbox, const struct matrix4x4 *mtx);
+void transformRay(struct lightRay *ray, const struct matrix4x4 *mtx);
+
+bool isRotation(const struct transform *t);
+bool isScale(const struct transform *t);
+bool isTranslate(const struct transform *t);
+
+bool areMatricesEqual(const struct matrix4x4 *A, const struct matrix4x4 *B);

@@ -14,21 +14,26 @@ struct lightRay;
 struct hitRecord;
 struct mesh;
 struct poly;
+struct instance;
+struct boundingBox;
 
 struct bvh;
+
+/// Returns the bounding box of the root of the given BVH
+void getRootBoundingBox(const struct bvh *bvh, struct boundingBox *bbox);
 
 /// Builds a BVH for a given set of polygons
 /// @param polygons Array of polygons to process
 /// @param count Amount of polygons given
 struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count);
 
-/// Builds a top-level BVH for a given set of meshes
-/// @param meshes Meshes to build a top-level BVH for
-/// @param meshCount Amount of meshes
-struct bvh *buildTopLevelBvh(struct mesh *meshes, unsigned meshCount);
+/// Builds a top-level BVH for a given set of instances
+/// @param instances Instances to build a top-level BVH for
+/// @param instanceCount Amount of instances
+struct bvh *buildTopLevelBvh(struct instance *instances, unsigned instanceCount);
 
 /// Intersect a ray with a scene top-level BVH
-bool traverseTopLevelBvh(const struct mesh *meshes, const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
+bool traverseTopLevelBvh(const struct instance *instances, const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
 
 bool traverseBottomLevelBvh(const struct mesh *mesh, const struct lightRay *ray, struct hitRecord *isect);
 
