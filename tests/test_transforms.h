@@ -17,7 +17,8 @@ struct matrix4x4 matrixFromParams(
 	float t10, float t11, float t12, float t13,
 	float t20, float t21, float t22, float t23,
 	float t30, float t31, float t32, float t33);
-struct matrix4x4 identityMatrix();
+
+struct matrix4x4 identityMatrix(void);
 
 bool transform_multiply() {
 	bool pass = true;
