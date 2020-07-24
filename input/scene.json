@@ -300,13 +300,7 @@
 								"z": 900
 							}
 						]
-					}
-				]
-			},
-			{
-				"fileName": "teapot.obj",
-				"bsdf": "lambertian",
-				"instances": [
+					},
 					{
 						"transforms": [
 							{
@@ -324,13 +318,7 @@
 								"z": 1050
 							}
 						]
-					}
-				]
-			},
-			{
-				"fileName": "teapot.obj",
-				"bsdf": "lambertian",
-				"instances": [
+					},
 					{
 						"transforms": [
 							{
@@ -373,14 +361,7 @@
 								"z": 900
 							}
 						]
-					}
-				]
-			},
-			{
-				"fileName": "teapot_green.obj",
-				"overridemtls": [["teapot.mtl", "teapot_green.mtl"]],
-				"bsdf": "lambertian",
-				"instances": [
+					},
 					{
 						"transforms": [
 							{
@@ -398,14 +379,7 @@
 								"z": 1050
 							}
 						]
-					}
-				]
-			},
-			{
-				"fileName": "teapot_green.obj",
-				"overridemtls": [["teapot.mtl", "teapot_green.mtl"]],
-				"bsdf": "lambertian",
-				"instances": [
+					},
 					{
 						"transforms": [
 							{
@@ -448,14 +422,7 @@
 								"z": 900
 							}
 						]
-					}
-				]
-			},
-			{
-				"fileName": "teapot_blue.obj",
-				"overridemtls": [["teapot.mtl", "teapot_blue.mtl"]],
-				"bsdf": "lambertian",
-				"instances": [
+					},
 					{
 						"transforms": [
 							{
@@ -473,14 +440,7 @@
 								"z": 1050
 							}
 						]
-					}
-				]
-			},
-			{
-				"fileName": "teapot_blue.obj",
-				"overridemtls": [["teapot.mtl", "teapot_blue.mtl"]],
-				"bsdf": "lambertian",
-				"instances": [
+					},
 					{
 						"transforms": [
 							{
