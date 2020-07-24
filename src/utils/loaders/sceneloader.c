@@ -93,7 +93,7 @@ static void loadMeshTextures(char *assetPath, struct mesh *mesh) {
 }
 
 static bool loadMeshNew(struct renderer *r, char *inputFilePath) {
-	logr(info, "Loading OBJ %s... ", inputFilePath);
+	logr(info, "Loading OBJ %s...\n", inputFilePath);
 	
 	bool valid = false;
 	
@@ -119,18 +119,16 @@ static bool loadMesh(struct renderer *r, const char *inputFilePath, int idx, int
 	printf("\r");
 	logr(info, "Loading mesh %i/%i%s", idx, meshCount, idx == meshCount ? "\n" : "\r");
 	
-	// FIXME: Hack, fix the actual getFileName implementation!
-	char *fpcopy = copyString(inputFilePath);
-	char *fileName = getFileName(fpcopy);
-	
+	char *fileName = getFileName(inputFilePath);
 	obj_scene_data data;
-	char *fpcopy2 = copyString(inputFilePath);
-	if (parse_obj_scene(&data, fpcopy2) == 0) {
+	char *pathCopy = copyString(inputFilePath); //Yuck.
+	if (parse_obj_scene(&data, pathCopy) == 0) {
 		if (idx != meshCount) printf("\n");
 		logr(warning, "Mesh \"%s\" not found!\n", fileName);
+		free(pathCopy);
 		return false;
 	}
-	free(fpcopy2);
+	free(pathCopy);
 	
 	//Create mesh to keep track of meshes
 	struct mesh *newMesh = &r->scene->meshes[r->scene->meshCount];
@@ -148,9 +146,7 @@ static bool loadMesh(struct renderer *r, const char *inputFilePath, int idx, int
 	
 	newMesh->materialCount = 0;
 	//Set name
-	newMesh->name = copyString(fileName);
-	
-	free(fpcopy);
+	newMesh->name = fileName;
 	
 	//Update vector and poly counts
 	vertexCount += data.vertex_count;

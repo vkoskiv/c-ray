@@ -40,6 +40,8 @@ char *goToLine(textBuffer *file, size_t line);
 
 char *nextLine(textBuffer *file);
 
+char *peekNextLine(textBuffer *file);
+
 char *firstLine(textBuffer *file);
 
 char *currentLine(textBuffer *file);
@@ -54,6 +56,8 @@ void fillLineBuffer(lineBuffer *buffer, const char *contents, char *delimiters);
 char *goToToken(lineBuffer *line, size_t token);
 
 char *nextToken(lineBuffer *line);
+
+char *peekNextToken(lineBuffer *line);
 
 char *firstToken(lineBuffer *line);
 

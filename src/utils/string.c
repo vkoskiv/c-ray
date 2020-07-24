@@ -13,6 +13,7 @@
 #include "assert.h"
 
 bool stringEquals(const char *s1, const char *s2) {
+	ASSERT(s1); ASSERT(s2);
 	if (strcmp(s1, s2) == 0) {
 		return true;
 	} else {
@@ -21,6 +22,7 @@ bool stringEquals(const char *s1, const char *s2) {
 }
 
 bool stringContains(const char *haystack, const char *needle) {
+	ASSERT(haystack); ASSERT(needle);
 	if (strstr(haystack, needle) == NULL) {
 		return false;
 	} else {
@@ -30,6 +32,7 @@ bool stringContains(const char *haystack, const char *needle) {
 
 //Copies source over to the destination pointer.
 char *copyString(const char *source) {
+	ASSERT(source);
 	char *copy = malloc(strlen(source) + 1);
 	strcpy(copy, source);
 	return copy;

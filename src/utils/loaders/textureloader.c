@@ -20,18 +20,21 @@
 #include "../../libraries/stb_image.h"
 
 struct hdr *loadHDRI(char *filePath) {
-	struct hdr *new = newHDRI();
+	size_t len = 0;
 	//Handle the trailing newline here
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
+	const unsigned char *file = (unsigned char*)loadFile(filePath, &len);
+	if (!file) return NULL;
+	struct hdr *new = newHDRI();
 	if (stbi_is_hdr(filePath)) {
 		logr(info, "Loading HDR...");
-		new->t->data.float_p = stbi_loadf(filePath, (int*)&new->t->width, (int*)&new->t->height, &new->t->channels, 0);
+		new->t->data.float_p = stbi_loadf_from_memory(file, (int)len, (int*)&new->t->width, (int*)&new->t->height, &new->t->channels, 0);
 		new->t->precision = float_p;
 		if (!new->t->data.float_p) {
 			destroyHDRI(new);
 			new = NULL;
-			logr(warning, "Error while loading HDR from %s - Does the file exist?\n", filePath);
+			logr(warning, "Error while decoding HDR from %s - Corrupted?\n", filePath);
 			return NULL;
 		}
 		float MB = (((getFileSize(filePath))/1000.0f)/1000.0f);
@@ -44,26 +47,24 @@ struct hdr *loadHDRI(char *filePath) {
 }
 
 struct texture *loadTexture(char *filePath) {
-	struct texture *new = newTexture(none, 0, 0, 0);
+	size_t len = 0;
 	//Handle the trailing newline here
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
-	
-	new->data.byte_p = stbi_load(filePath, (int*)&new->width, (int*)&new->height, &new->channels, 3);
-	if (!new->data.byte_p) {
-		logr(warning, "Error while loading texture from \"%s\" - Does the file exist?\n", filePath);
+	const unsigned char *file = (unsigned char*)loadFile(filePath, &len);
+	if (!file) return NULL;
+	struct texture *new = loadTextureFromBuffer(file, (unsigned int)len, 3);
+	if (!new) {
+		logr(warning, "^That happened while decoding texture \"%s\" - Corrupted?\n", filePath);
 		destroyTexture(new);
 		return NULL;
 	}
-	//new = flipHorizontal(new);
-	new->precision = char_p;
-	
 	return new;
 }
 
-struct texture *loadTextureFromBuffer(unsigned char *buffer, unsigned int buflen) {
+struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigned int buflen, int reqComp) {
 	struct texture *new = newTexture(none, 0, 0, 0);
-	new->data.byte_p = stbi_load_from_memory(buffer, buflen, (int*)&new->width, (int*)&new->height, &new->channels, 0);
+	new->data.byte_p = stbi_load_from_memory(buffer, buflen, (int*)&new->width, (int*)&new->height, &new->channels, reqComp);
 	if (!new->data.byte_p) {
 		logr(warning, "Failed to decode texture from memory buffer of size %u", buflen);
 		destroyTexture(new);

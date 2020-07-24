@@ -39,7 +39,7 @@ void initSampler(sampler *sampler, enum samplerType type, int pass, int maxPasse
 			sampler->type = Hammersley;
 			break;
 		case Random:
-			initRandom(&sampler->sampler.random, hash64(pixelIndex));
+			initRandom(&sampler->sampler.random, hash64(pixelIndex * maxPasses + pass));
 			sampler->type = Random;
 			break;
 	}

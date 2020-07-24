@@ -20,6 +20,7 @@ struct sphere defaultSphere() {
 	return (struct sphere){10.0f, defaultMaterial()};
 }
 
+
 //FIXME: dirty hack
 struct sphere newLightSphere(float radius, struct color color, float intensity) {
 	struct sphere newSphere;
@@ -41,18 +42,18 @@ bool intersect(const struct lightRay *ray, const struct sphere *sphere, float *t
 	
 	float C = vecDot(ray->start, ray->start) - (sphere->radius * sphere->radius);
 	
-	float trigDiscriminant = B * B - 4 * A * C;
-	
+	float trigDiscriminant = B * B - 4.0f * A * C;
+  
 	//If discriminant is negative, no real roots and the ray has missed the sphere
-	if (trigDiscriminant < 0)
+	if (trigDiscriminant < 0.0f)
 		return false;
 
 	float sqrtOfDiscriminant = sqrtf(trigDiscriminant);
-	float t0 = (-B + sqrtOfDiscriminant)/(2);
-	float t1 = (-B - sqrtOfDiscriminant)/(2);
+	float t0 = (-B + sqrtOfDiscriminant)/(2.0f);
+	float t1 = (-B - sqrtOfDiscriminant)/(2.0f);
 
 	//Pick closest intersection
-	if (t0 > t1 && t1 > 0) {
+	if (t0 > t1 && t1 > 0.0f) {
 		t0 = t1;
 	}
 
