@@ -29,10 +29,7 @@ char *loadFile(const char *fileName, size_t *bytes) {
 	if (ferror(f) != 0) {
 		logr(warning, "Error reading file\n");
 	} else {
-		logr(warning, "Failed to read input file from %s", inputFileName);
-		free(buf);
-		fclose(f);
-		return NULL;
+		buf[len] = '\0';
 	}
 	if (bytes) *bytes = len;
 	return buf;
