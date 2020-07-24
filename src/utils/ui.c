@@ -208,11 +208,7 @@ void getKeyboardInput(struct renderer *r) {
 			}
 			if (event.key.keysym.sym == SDLK_p) {
 				for (int i = 0; i < r->prefs.threadCount; ++i) {
-					if (r->state.threadStates[i].paused) {
-						r->state.threadStates[i].paused = false;
-					} else {
-						r->state.threadStates[i].paused = true;
-					}
+					r->state.threadStates[i].paused = !r->state.threadStates[i].paused;
 				}
 			}
 		}
