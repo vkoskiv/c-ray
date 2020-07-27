@@ -53,8 +53,8 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 	logr(info, "Scene construction completed in ");
 	printSmartTime(ms);
 	unsigned polys = 0;
-	for (int i = 0; i < scene->meshCount; ++i) {
-		polys += scene->meshes[i].polyCount;
+	for (int i = 0; i < scene->instanceCount; ++i) {
+		if (scene->instances[i].type == Mesh) polys += ((struct mesh*)scene->instances[i].object)->polyCount;
 	}
 	printf("\n");
 	logr(info, "Totals: %iV, %iN, %iT, %iP, %iS, %iM\n",

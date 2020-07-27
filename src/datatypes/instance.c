@@ -45,6 +45,7 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 
 struct instance newSphereInstance(struct sphere *sphere) {
 	return (struct instance) {
+		.type = Sphere,
 		.object = sphere,
 		.composite = newTransform(),
 		.intersectFn = intersectSphere,
@@ -66,6 +67,7 @@ static void getMeshBBoxAndCenter(const struct instance *instance, struct boundin
 
 struct instance newMeshInstance(struct mesh *mesh) {
 	return (struct instance) {
+		.type = Mesh,
 		.object = mesh,
 		.composite = newTransform(),
 		.intersectFn = intersectMesh,

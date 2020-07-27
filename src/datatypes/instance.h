@@ -20,6 +20,7 @@ struct sphere;
 struct mesh;
 
 struct instance {
+	enum {Mesh, Sphere} type;
 	struct transform composite;
 	bool (*intersectFn)(const struct instance*, const struct lightRay*, struct hitRecord*);
 	void (*getBBoxAndCenterFn)(const struct instance*, struct boundingBox*, struct vector*);
