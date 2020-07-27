@@ -19,7 +19,7 @@
 
 ## Synopsis
 
-C-ray is a research oriented, hackable, offline CPU rendering engine built for learning. The source code is intended to be readable wherever possible, so feel free to explore and perhaps even expand upon the current functionality. See the contributing section in the wiki for more details.
+C-ray is a research oriented, hackable, offline CPU rendering engine built for learning. The source code is intended to be readable wherever possible, so feel free to explore and perhaps even expand upon the current functionality. See the [contributing section](https://github.com/vkoskiv/c-ray/wiki/Contributing) in the wiki for more details.
 
 C-ray currently has:
 - A simple unidirectional Monte Carlo integrator
@@ -27,6 +27,7 @@ C-ray currently has:
 - Easy scene compositing using a JSON interface
 - Multithreading (using pthreads or WIN32 threads)
 - Wavefront OBJ mesh loading with transforms for compositing a scene
+- Object instancing
 - PNG and BMP file output
 - Two levels of BVH acceleration structures (by @madmann92)
 - Antialiasing (MSAA)
@@ -35,21 +36,21 @@ C-ray currently has:
 - Benchmarking metrics
 
 The default integrator supports:
-- metal
-- glass
-- lambertian diffuse
-- plastic
-- triangles and spheres
+- Metal
+- Glass
+- Lambertian diffuse
+- Plastic
+- Triangles and spheres
 - Depth of field
 - Russian Roulette path optimization
 - Diffuse textures
 - Normal maps
 
 Things I'm looking to implement:
-- Built a more robust API with a scene state.
+- Proper physically based materials in place of the current ad-hoc implementations
+- Built a more robust API with an interactive scene state.
 - Some procedural textures
 - Python API wrapper
-- Better materials
 - Networking and clustered rendering
 - Volumetric rendering
 - Subsurface scattering
@@ -75,7 +76,7 @@ Please see the [Wiki](https://github.com/VKoskiv/c-ray/wiki) for details on how 
 - Python3 (Optional, it's used for some utility scripts)
 - Standard C99/GNU99 with some standard libraries
 
-All other libraries are included as source
+All other dependencies are included as source
 
 ## Installation
 
@@ -93,7 +94,7 @@ Linux:
 3. Run `make` to build the project
 4. Run binary: `./bin/c-ray ./input/scene.json` (Making sure the working dir is the root directory). You can also pipe files into `C-ray` and it will read from there. This is useful for scripts that invoke `C-ray`.
 Example: `cat input/scene.json | ./bin/c-ray`
-*Note: Reading the json from `stdin` assumes that the asset path is `./`, so keep that in mind.*
+*Note: Reading the json from `stdin` assumes that the asset path is `./`*
 
 Windows:
 1. Download SDL2 Development libaries from here and extract: https://www.libsdl.org/download-2.0.php (https://www.libsdl.org/release/SDL2-devel-2.0.8-VC.zip)
@@ -140,7 +141,7 @@ PCG random number generator: http://www.pcg-random.org
 
 ## Contributors
 
-- Huge thanks to @madmann91 for the new BVH accelerator and overall ~60% performance improvement!
+- Huge thanks to [@madmann91](https://github.com/madmann91) for the new BVH accelerator and overall ~60% performance improvement!
 
 Please file an issue detailing any improvements you're planning on making. I openly welcome contributions!
 
