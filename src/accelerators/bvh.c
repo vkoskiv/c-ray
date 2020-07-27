@@ -246,6 +246,13 @@ static inline struct bvh *buildBvhGeneric(
 	void (*getBBoxAndCenter)(void*, unsigned, struct boundingBox*, struct vector*),
 	unsigned count)
 {
+	if (count < 1) {
+		struct bvh *bvh = malloc(sizeof(struct bvh));
+		bvh->nodeCount = 0;
+		bvh->nodes = NULL;
+		bvh->primIndices = NULL;
+		return bvh;
+	}
 	struct vector *centers = malloc(sizeof(struct vector) * count);
 	struct boundingBox *bboxes = malloc(sizeof(struct boundingBox) * count);
 	int *primIndices = malloc(sizeof(int) * count);
@@ -360,6 +367,8 @@ static inline bool traverseBvhGeneric(
 	struct vector invDir = { 1.0f / ray->direction.x, 1.0f / ray->direction.y, 1.0f / ray->direction.z };
 	struct vector scaledStart = vecScale(vecMul(ray->start, invDir), -1.0f);
 	float maxDist = isect->distance;
+	
+	if (bvh->nodeCount < 1) return false;
 
 	// Special case when the BVH is just a single leaf
 	if (bvh->nodeCount == 1) {
@@ -476,8 +485,8 @@ bool traverseTopLevelBvh(
 
 void destroyBvh(struct bvh *bvh) {
 	if (bvh) {
-		free(bvh->nodes);
-		free(bvh->primIndices);
+		if (bvh->nodes) free(bvh->nodes);
+		if (bvh->primIndices) free(bvh->primIndices);
 		free(bvh);
 	}
 }
