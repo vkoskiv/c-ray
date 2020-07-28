@@ -24,7 +24,7 @@ char *loadFile(const char *fileName, size_t *bytes) {
 		return NULL;
 	}
 	size_t len = getFileSize(fileName);
-	char *buf = malloc(len * sizeof(char));
+	char *buf = malloc(len + 1 * sizeof(char));
 	fread(buf, sizeof(char), len, f);
 	if (ferror(f) != 0) {
 		logr(warning, "Error reading file\n");
