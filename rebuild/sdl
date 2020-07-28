@@ -1,0 +1,2 @@
+#!/bin/sh
+cmake . -DNO_SDL2=False && make -j"$(nproc)"
