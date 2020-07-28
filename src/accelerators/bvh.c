@@ -355,6 +355,10 @@ static inline bool traverseBvhGeneric(
 	const struct lightRay *ray,
 	struct hitRecord *isect)
 {
+	if (bvh->nodeCount < 1) {
+		isect->instIndex = -1;
+		return false;
+	}
 	const struct bvhNode *stack[MAX_BVH_DEPTH + 1];
 	int stackSize = 0;
 

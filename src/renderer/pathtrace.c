@@ -135,11 +135,8 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 			isect.instIndex = i;
 	}
 #else
-	if (scene->instanceCount < 1) {
-		isect.instIndex = -1;
+	if (!traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect))
 		return isect;
-	}
-	traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect);
 #endif
 	
 	if (isect.polygon) {
