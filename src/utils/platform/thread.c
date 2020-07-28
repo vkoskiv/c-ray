@@ -18,6 +18,11 @@
 #include "thread.h"
 #include "../logging.h"
 
+
+void *threadUserData(void *arg) {
+	struct crThread *thread = (struct crThread*)arg;
+	return thread->userData;
+}
 // Multiplatform thread stub
 #ifdef WINDOWS
 DWORD WINAPI threadStub(LPVOID arg) {

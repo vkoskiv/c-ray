@@ -142,8 +142,7 @@ struct texture *renderFrame(struct renderer *r) {
  */
 void *renderThread(void *arg) {
 	struct lightRay incidentRay;
-	struct crThread *thread = (struct crThread*)arg;
-	struct renderThreadState *threadState = (struct renderThreadState*)thread->userData;
+	struct renderThreadState *threadState = (struct renderThreadState*)threadUserData(arg);
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
 	sampler *sampler = newSampler();

@@ -34,8 +34,7 @@ struct bvhBuildTask {
 };
 
 void *bvhBuildThread(void *arg) {
-	struct crThread *thread = (struct crThread*)arg;
-	struct bvhBuildTask *task = (struct bvhBuildTask*)thread->userData;
+	struct bvhBuildTask *task = (struct bvhBuildTask*)threadUserData(arg);
 	task->bvh = buildBottomLevelBvh(task->polygons, task->polyCount);
 	return NULL;
 }

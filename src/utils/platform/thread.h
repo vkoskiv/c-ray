@@ -21,6 +21,8 @@ struct crThread {
 	void *(*threadFunc)(void *); // Code you want to run.
 };
 
+void *threadUserData(void *arg);
+
 /// Spawn a new C-ray platform abstracted thread
 /// @param t Pointer to the thread to be spawned
 int startThread(struct crThread *t);
