@@ -27,15 +27,46 @@
 #include "../utils/ui.h"
 #include "../datatypes/instance.h"
 
-//TODO: Parallelize this task
+struct bvhBuildTask {
+	struct bvh *bvh;
+	struct poly *polygons;
+	int polyCount;
+};
+
+void *bvhBuildThread(void *arg) {
+	struct crThread *thread = (struct crThread*)arg;
+	struct bvhBuildTask *task = (struct bvhBuildTask*)thread->userData;
+	task->bvh = buildBottomLevelBvh(task->polygons, task->polyCount);
+	return NULL;
+}
+
 static void computeAccels(struct mesh *meshes, int meshCount) {
 	logr(info, "Computing BVHs: ");
 	struct timeval timer = {0};
 	startTimer(&timer);
-	for (int i = 0; i < meshCount; ++i) {
-		meshes[i].bvh = buildBottomLevelBvh(meshes[i].polygons, meshes[i].polyCount);
+	struct bvhBuildTask *tasks = calloc(meshCount, sizeof(*tasks));
+	struct crThread *buildThreads = calloc(meshCount, sizeof(*buildThreads));
+	for (int t = 0; t < meshCount; ++t) {
+		tasks[t] = (struct bvhBuildTask){
+			.polygons = meshes[t].polygons,
+			.polyCount = meshes[t].polyCount
+		};
+		buildThreads[t] = (struct crThread){
+			.threadFunc = bvhBuildThread,
+			.userData = &tasks[t]
+		};
+		if (startThread(&buildThreads[t])) {
+			logr(error, "Failed to create a bvhBuildTask\n");
+		}
+	}
+	
+	for (int t = 0; t < meshCount; ++t) {
+		checkThread(&buildThreads[t]);
+		meshes[t].bvh = tasks[t].bvh;
 	}
 	printSmartTime(getMs(timer));
+	free(tasks);
+	free(buildThreads);
 	printf("\n");
 }
 
