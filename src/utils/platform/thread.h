@@ -23,10 +23,10 @@ struct crThread {
 
 void *threadUserData(void *arg);
 
-/// Spawn a new C-ray platform abstracted thread
-/// @param t Pointer to the thread to be spawned
-int startThread(struct crThread *t);
+/// Start a new C-ray platform abstracted thread
+/// @param t Pointer to the thread to be started
+int threadStart(struct crThread *t);
 
 /// Block until the given thread has terminated.
 /// @param t Pointer to the thread to be checked.
-void checkThread(struct crThread *t);
+void threadWait(struct crThread *t);

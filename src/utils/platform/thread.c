@@ -32,7 +32,7 @@ void *threadStub(void *arg) {
 	return ((struct crThread*)arg)->threadFunc(arg);
 }
 
-void checkThread(struct crThread *t) {
+void threadWait(struct crThread *t) {
 #ifdef WINDOWS
 	WaitForSingleObjectEx(t->thread_handle, INFINITE, FALSE);
 #else
@@ -42,7 +42,7 @@ void checkThread(struct crThread *t) {
 #endif
 }
 
-int startThread(struct crThread *t) {
+int threadStart(struct crThread *t) {
 #ifdef WINDOWS
 	t->thread_handle = CreateThread(NULL, 0, threadStub, t, 0, &t->thread_id);
 	if (t->thread_handle == NULL) return -1;

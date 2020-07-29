@@ -54,13 +54,13 @@ static void computeAccels(struct mesh *meshes, int meshCount) {
 			.threadFunc = bvhBuildThread,
 			.userData = &tasks[t]
 		};
-		if (startThread(&buildThreads[t])) {
+		if (threadStart(&buildThreads[t])) {
 			logr(error, "Failed to create a bvhBuildTask\n");
 		}
 	}
 	
 	for (int t = 0; t < meshCount; ++t) {
-		checkThread(&buildThreads[t]);
+		threadWait(&buildThreads[t]);
 		meshes[t].bvh = tasks[t].bvh;
 	}
 	printSmartTime(getMs(timer));

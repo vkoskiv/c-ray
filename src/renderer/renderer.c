@@ -66,7 +66,7 @@ struct texture *renderFrame(struct renderer *r) {
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
 		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output};
 		r->state.threads[t] = (struct crThread){.threadFunc = renderThread, .userData = &r->state.threadStates[t]};
-		if (startThread(&r->state.threads[t])) {
+		if (threadStart(&r->state.threads[t])) {
 			logr(error, "Failed to create a crThread.\n");
 		} else {
 			r->state.activeThreads++;
@@ -129,7 +129,7 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Make sure render threads are terminated before continuing (This blocks)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		checkThread(&r->state.threads[t]);
+		threadWait(&r->state.threads[t]);
 	}
 	return output;
 }
