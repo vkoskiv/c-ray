@@ -12,8 +12,8 @@
 		"outputFileName": "rendered",
 		"fileType": "png",
 		"count": 0,
-		"width": 5120,
-		"height": 3200
+		"width": 1280,
+		"height": 800
 	},
 	"display": {
 		"isFullscreen": false,
