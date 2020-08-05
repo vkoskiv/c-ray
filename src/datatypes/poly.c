@@ -26,15 +26,17 @@ bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *pol
 
 	float u = vecDot(r, e2) * invDet;
 	float v = vecDot(r, e1) * invDet;
-	if (u < 0.0f || v < 0.0f || u + v > 1.0f)
-		return false;
 
-	float t = vecDot(n, c) * invDet;
-	if (t < 0.0f || t > *result)
-		return false;
-
-	*uv = (struct coord) { u, v };
-	*result = t;
-	*normal = vecNormalize(n);
-	return true;
+	// This order of comparisons guarantees that none of u, v, or t, are NaNs:
+	// IEEE-754 mandates that they compare to false if the left hand side is a NaN.
+	if (u >= 0.0f && v >= 0.0f && u + v <= 1.0f) {
+		float t = vecDot(n, c) * invDet;
+		if (t >= 0.0f && t < *result) {
+			*uv = (struct coord) { u, v };
+			*result = t;
+			*normal = vecNormalize(n);
+			return true;
+		}
+	}
+	return false;
 }
