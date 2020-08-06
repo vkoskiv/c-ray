@@ -14,43 +14,29 @@
 #include "lightRay.h"
 
 bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *poly, float *result, struct vector *normal, struct coord *uv) {
-	float orientation, inverseOrientation;
-	struct vector edge1 = vecSub(g_vertices[poly->vertexIndex[2]], g_vertices[poly->vertexIndex[0]]);
-	struct vector edge2 = vecSub(g_vertices[poly->vertexIndex[1]], g_vertices[poly->vertexIndex[0]]);
-	
-	//Find the cross product of edge 2 and the current ray direction
-	struct vector s1 = vecCross(ray->direction, edge2);
-	
-	orientation = vecDot(edge1, s1);
-	
-	if (orientation > -FLT_MIN && orientation < FLT_MIN) {
-		return false;
+	// Moeller-Trumbore ray-triangle intersection routine
+	// (see "Fast, Minimum Storage Ray-Triangle Intersection", by T. Moeller and B. Trumbore)
+	struct vector e1 = vecSub(g_vertices[poly->vertexIndex[0]], g_vertices[poly->vertexIndex[1]]);
+	struct vector e2 = vecSub(g_vertices[poly->vertexIndex[2]], g_vertices[poly->vertexIndex[0]]);
+	struct vector n = vecCross(e1, e2);
+
+	struct vector c = vecSub(g_vertices[poly->vertexIndex[0]], ray->start);
+	struct vector r = vecCross(ray->direction, c);
+	float invDet = 1.0f / vecDot(n, ray->direction);
+
+	float u = vecDot(r, e2) * invDet;
+	float v = vecDot(r, e1) * invDet;
+
+	// This order of comparisons guarantees that none of u, v, or t, are NaNs:
+	// IEEE-754 mandates that they compare to false if the left hand side is a NaN.
+	if (u >= 0.0f && v >= 0.0f && u + v <= 1.0f) {
+		float t = vecDot(n, c) * invDet;
+		if (t >= 0.0f && t < *result) {
+			*uv = (struct coord) { u, v };
+			*result = t;
+			*normal = vecNormalize(n);
+			return true;
+		}
 	}
-	
-	inverseOrientation = 1.0f/orientation;
-	
-	struct vector s2 = vecSub(ray->start, g_vertices[poly->vertexIndex[0]]);
-	float u = vecDot(s2, s1) * inverseOrientation;
-	if (u < 0.0f || u > 1.0f) {
-		return false;
-	}
-	
-	struct vector s3 = vecCross(s2, edge1);
-	float v = vecDot(ray->direction, s3) * inverseOrientation;
-	if (v < 0.0f || (u+v) > 1.0f) {
-		return false;
-	}
-	
-	float temp = vecDot(edge2, s3) * inverseOrientation;
-	
-	if ((temp < 0.0f) || (temp > *result)) {
-		return false;
-	}
-	
-	//For barycentric coordinates
-	//Used for texturing and smooth shading
-	*uv = (struct coord){u, v};
-	*result = temp;
-	*normal = vecNormalize(vecCross(edge2, edge1));
-	return true;
+	return false;
 }
