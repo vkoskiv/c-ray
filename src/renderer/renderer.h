@@ -89,7 +89,6 @@ struct prefs {
  Main renderer. Stores needed information to keep track of render status,
  as well as information needed for the rendering routines.
  */
-//FIXME: Completely hide state, scene and mainDisplay as opaque pointers and expose via API
 struct renderer {
 	struct world *scene; //Scene to render
 	struct state state;  //Internal state

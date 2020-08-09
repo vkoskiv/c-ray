@@ -8,7 +8,9 @@
 
 #pragma once
 
+#include "transforms.h"
 #include "vector.h"
+#include "lightRay.h"
 
 struct camera {
 	float FOV;
@@ -17,18 +19,19 @@ struct camera {
 	float fstops;
 	float aperture;
 	
-	struct vector pos;
 	struct vector up;
-	struct vector left;
+	struct vector right;
+	struct vector lookAt;
+	struct vector forward;
 	
-	struct transform *transforms;
-	int transformCount;
+	struct transform composite;
+	
+	int width;
+	int height;
 };
 
-//Compute focal length for camera
-void computeFocalLength(struct camera *camera, unsigned width);
-void initCamera(struct camera *cam);
-void transformCameraView(struct camera *cam, struct vector *direction); //For transforming direction in renderer
-void transformCameraIntoView(struct camera *cam); //Run once in scene.c to calculate pos, up, left
+struct camera *newCamera(int width, int height);
+
+struct lightRay getCameraRay(struct camera *cam, int x, int y);
 
 void destroyCamera(struct camera *cam);
