@@ -168,56 +168,8 @@ void *renderThread(void *arg) {
 					uint32_t pixIdx = y * image->width + x;
 					initSampler(sampler, Halton, tile.completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
-					float fracX = (float)x;
-					float fracY = (float)y;
-					
-					//A cheap 'antialiasing' of sorts. The more samples, the better this works
-					float jitter = 0.25f;
-					if (r->prefs.antialiasing) {
-						fracX = rndFloatRange(fracX - jitter, fracX + jitter, sampler);
-						fracY = rndFloatRange(fracY - jitter, fracY + jitter, sampler);
-					}
-					
-					//Set up the light ray to be casted. direction is pointing towards the X,Y coordinate on the
-					//imaginary plane in front of the origin. startPos is just the camera position.
-					struct vector direction = vecNormalize((struct vector){
-												(fracX - 0.5f * image->width) / r->scene->camera->focalLength,
-												(fracY - 0.5f * image->height) / r->scene->camera->focalLength,
-												1.0f
-											});
-					struct vector startPos = r->scene->camera->pos;
-					struct vector left = r->scene->camera->left;
-					struct vector up = r->scene->camera->up;
-					
-					//Run camera tranforms on direction vector
-					transformCameraView(r->scene->camera, &direction);
-					
-					incidentRay.start = startPos;
-					incidentRay.direction = direction;
-					incidentRay.rayType = rayTypeIncident;
-					
-					//Now handle aperture
-					if (aperture <= 0.0f) {
-						incidentRay.start = startPos;
-					} else {
-						float ft = focalDistance / direction.z;
-						struct vector focusPoint = alongRay(incidentRay, ft);
-						
-						struct coord lensPoint = coordScale(aperture, randomCoordOnUnitDisc(sampler));
-						incidentRay.start = vecAdd(vecAdd(startPos, vecScale(up, lensPoint.y)), vecScale(left, lensPoint.x));
-						incidentRay.direction = vecNormalize(vecSub(focusPoint, incidentRay.start));
-						
-					}
-					
-					//For multi-sample rendering, we keep a running average of color values for each pixel
-					//The next block of code does this
-					
-					//Get previous color value from render buffer
+					incidentRay = getCameraRay(r->scene->camera, x, y);
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y);
-					
-					//Get new sample (path tracing is initiated here)
-					//struct color sample = pathTracePreview(&incidentRay, r->scene, 0, r->prefs.bounces, &rng);
-					
 					
 #ifdef DBG_NORMALS
 					struct color sample = debugNormals(&incidentRay, r->scene, r->prefs.bounces, sampler);

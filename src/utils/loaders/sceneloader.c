@@ -34,6 +34,8 @@
 #include "objloader.h"
 #include "../../datatypes/instance.h"
 
+struct transform parseTransformComposite(const cJSON *transforms);
+
 static struct color parseColor(const cJSON *data);
 
 static void addMaterialToMesh(struct mesh *mesh, struct material newMaterial);
@@ -216,23 +218,6 @@ static void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
 //In the future, maybe just pass a list and size and copy at once to save time (large counts)
 static void addSphere(struct world *scene, struct sphere newSphere) {
 	scene->spheres[scene->sphereCount++] = newSphere;
-}
-
-static void addCamTransform(struct camera *cam, struct transform transform) {
-	if (cam->transformCount == 0) {
-		cam->transforms = calloc(1, sizeof(*cam->transforms));
-	} else {
-		cam->transforms = realloc(cam->transforms, (cam->transformCount + 1) * sizeof(struct transform));
-	}
-	
-	cam->transforms[cam->transformCount] = transform;
-	cam->transformCount++;
-}
-
-static void addCamTransforms(struct camera *cam, struct transform *transforms, int count) {
-	for (int i = 0; i < count; ++i) {
-		addCamTransform(cam, transforms[i]);
-	}
 }
 
 static struct material *parseMaterial(const cJSON *data) {
@@ -821,16 +806,11 @@ static int parseCamera(struct camera *c, const cJSON *data) {
 	transforms = cJSON_GetObjectItem(data, "transforms");
 	if (transforms) {
 		if (cJSON_IsArray(transforms)) {
-			int tformCount = cJSON_GetArraySize(transforms);
-			struct transform *tforms = parseTransforms(transforms);
-			addCamTransforms(c, tforms, tformCount);
-			free(tforms);
+			c->composite = parseTransformComposite(transforms);
 		} else {
 			logr(warning, "Invalid transforms while parsing camera.\n");
 			return -1;
 		}
-	} else {
-		initCamera(c);
 	}
 	
 	return 0;

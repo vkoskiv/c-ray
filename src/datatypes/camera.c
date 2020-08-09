@@ -7,65 +7,60 @@
 //
 
 #include "../includes.h"
+#include "transforms.h"
 #include "camera.h"
 
 #include "vector.h"
-#include "transforms.h"
 
-/**
- Compute view direction transforms
- 
- @param direction Direction vector to be transformed
- */
-void transformCameraView(struct camera *cam, struct vector *direction) {
-	for (int i = 1; i < cam->transformCount; ++i) {
-		transformVector(direction, &cam->transforms[i].A);
-	}
+void updateCam(struct camera *cam) {
+	cam->forward = vecNormalize(cam->lookAt);
+	cam->right = vecCross(worldUp, cam->forward);
+	cam->up = vecCross(cam->forward, cam->right);
 }
 
-//FIXME: Move image to camera and fix this
-void computeFocalLength(struct camera *camera, unsigned width) {
-	// aperture = 0.5 * (focalLength / fstops)
-	if (camera->FOV > 0.0f && camera->FOV < 189.0f) {
-		camera->focalLength = 0.5f * (float)width / toRadians(0.5f * camera->FOV);
-	}
+struct camera *newCamera(int width, int height) {
+	struct camera *cam = calloc(1, sizeof(*cam));
+	cam->width = width;
+	cam->height = height;
+	updateCam(cam);
+	return cam;
+}
+
+void camSetLookAt(struct camera *cam, struct vector lookAt) {
+	cam->lookAt = lookAt;
+	updateCam(cam);
+}
+
+struct lightRay getCameraRay(struct camera *cam, int x, int y) {
+	struct lightRay newRay = {0};
 	
-	//FIXME: This assumes a 35mm sensor, which we aren't really dealing with most of the time.
-	//TODO: Properly identify sensor dimensions and compute this in a more reasonable way.
-	float w = 0.036f;
-	float flenght = 0.5f * w / toRadians(0.5f * camera->FOV);
-	//Recompute aperture based on fstops
-	if (camera->fstops != 0.0f) camera->aperture = 0.5f * (flenght / camera->fstops);
-}
-
-float acomputeFocalLength(float FOV, unsigned width) {
-	if (FOV > 0.0f && FOV < 189.0f) {
-		return 0.5f * (float)width / toRadians(0.5f * FOV);
-	}
-	return 0.5f * (float)width / toRadians(0.5f * 80.0f);
-}
-
-void initCamera(struct camera *cam) {
-	if (!cam->transforms) cam->transforms = calloc(1, sizeof(*cam->transforms));
-	cam->pos =  vecWithPos(0.0f, 0.0f, 0.0f);
-	cam->up =   vecWithPos(0.0f, 1.0f, 0.0f);
-	cam->left = vecWithPos(-1.0f, 0.0f, 0.0f);
-}
-
-//TODO: Fix so the translate transform is always performed correctly no matter what order transforms are given in
-void transformCameraIntoView(struct camera *cam) {
-	initCamera(cam);
-	//Compute transforms for position (place the camera in the scene)
-	transformPoint(&cam->pos, &cam->transforms[0].A);
+	newRay.start = vecZero();
 	
-	//...and compute rotation transforms for camera orientation (point the camera)
-	transformCameraView(cam, &cam->left);
-	transformCameraView(cam, &cam->up);
+	float aspectRatio = cam->width / cam->height;
+	float sensorWidth = 2.0f * tanf(toRadians(cam->FOV) / 2.0f);
+	float sensorHeight = sensorWidth / aspectRatio;
+	
+	camSetLookAt(cam, (struct vector){0.0f, 0.0f, 1.0f});
+	
+	struct vector pixX = vecScale(cam->right, (sensorWidth / cam->width));
+	struct vector pixY = vecScale(cam->up, (sensorHeight / cam->height));
+	struct vector pixV = vecAdd(
+							cam->forward,
+							vecAdd(
+								vecScale(pixX, x - cam->width * 0.5f),
+								vecScale(pixY, y - cam->height * 0.5f)
+							)
+						);
+	
+	newRay.direction = vecNormalize(pixV);
+	
+	//To world space
+	transformRay(&newRay, &cam->composite.A);
+	return newRay;
 }
 
 void destroyCamera(struct camera *cam) {
 	if (cam) {
-		free(cam->transforms);
 		free(cam);
 	}
 }

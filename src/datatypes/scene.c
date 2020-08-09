@@ -155,7 +155,6 @@ int loadScene(struct renderer *r, char *input) {
 	}
 	
 	checkAndSetCliOverrides(r);
-	transformCameraIntoView(r->scene->camera);
 	computeAccels(r->scene->meshes, r->scene->meshCount);
 	r->scene->topLevel = computeTopLevelBvh(r->scene->instances, r->scene->instanceCount);
 	printSceneStats(r->scene, getMs(timer));
@@ -171,8 +170,8 @@ int loadScene(struct renderer *r, char *input) {
 	// Some of this stuff seems like it should be in newRenderer(), but notice
 	// how they depend on r->prefs, which is populated by parseJSON
 	
-	//Compute the focal length for the camera
-	computeFocalLength(r->scene->camera, r->prefs.imageWidth);
+	r->scene->camera->width = r->prefs.imageWidth;
+	r->scene->camera->height = r->prefs.imageHeight;
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
