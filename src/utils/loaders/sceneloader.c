@@ -744,74 +744,83 @@ static struct camera defaultCamera() {
 	};
 }
 
-static int parseCamera(struct camera *c, const cJSON *data) {
+static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, unsigned height) {
 	if (!data) return 0;
 	const cJSON *FOV = NULL;
 	const cJSON *focalDistance = NULL;
 	const cJSON *aperture = NULL;
 	const cJSON *transforms = NULL;
 	
+	float camFOV = 0.0f;
+	float camFocalDistance = 0.0f;
+	float camFstops = 0.0f;
+	struct transform camComposite;
+	
 	FOV = cJSON_GetObjectItem(data, "FOV");
 	if (FOV) {
 		if (cJSON_IsNumber(FOV)) {
 			if (FOV->valuedouble >= 0.0) {
 				if (FOV->valuedouble > 180.0) {
-					c->FOV = 180.0f;
+					camFOV = 180.0f;
 				} else {
-					c->FOV = FOV->valuedouble;
+					camFOV = FOV->valuedouble;
 				}
 			} else {
-				c->FOV = 80.0f;
+				camFOV = 80.0f;
 			}
 		} else {
 			logr(warning, "Invalid FOV value while parsing camera.\n");
 			return -1;
 		}
 	} else {
-		c->FOV = defaultCamera().FOV;
+		camFOV = defaultCamera().FOV;
 	}
 	
 	focalDistance = cJSON_GetObjectItem(data, "focalDistance");
 	if (focalDistance) {
 		if (cJSON_IsNumber(focalDistance)) {
 			if (focalDistance->valuedouble >= 0.0) {
-				c->focalDistance = focalDistance->valuedouble;
+				camFocalDistance = focalDistance->valuedouble;
 			} else {
-				c->focalDistance = 0.0f;
+				camFocalDistance = 0.0f;
 			}
 		} else {
 			logr(warning, "Invalid focalDistance while parsing camera.\n");
 			return -1;
 		}
 	} else {
-		c->focalDistance = defaultCamera().focalDistance;
+		camFocalDistance = defaultCamera().focalDistance;
 	}
 	
 	aperture = cJSON_GetObjectItem(data, "fstops");
 	if (aperture) {
 		if (cJSON_IsNumber(aperture)) {
 			if (aperture->valuedouble >= 0.0) {
-				c->fstops = aperture->valuedouble;
+				camFstops = aperture->valuedouble;
 			} else {
-				c->fstops = 0.0f;
+				camFstops = 0.0f;
 			}
 		} else {
 			logr(warning, "Invalid aperture while parsing camera.\n");
 			return -1;
 		}
 	} else {
-		c->aperture = defaultCamera().aperture;
+		camFstops = defaultCamera().aperture;
 	}
 	
 	transforms = cJSON_GetObjectItem(data, "transforms");
 	if (transforms) {
 		if (cJSON_IsArray(transforms)) {
-			c->composite = parseTransformComposite(transforms);
+			camComposite = parseTransformComposite(transforms);
 		} else {
 			logr(warning, "Invalid transforms while parsing camera.\n");
 			return -1;
 		}
+	} else {
+		camComposite = newTransform();
 	}
+	
+	*cam = newCamera(width, height, camFOV, camFocalDistance, camFstops, camComposite);
 	
 	return 0;
 }
@@ -1232,8 +1241,7 @@ int parseJSON(struct renderer *r, char *input) {
 	}
 	
 	camera = cJSON_GetObjectItem(json, "camera");
-	r->scene->camera = newCamera(r->prefs.imageWidth, r->prefs.imageHeight);
-	if (parseCamera(r->scene->camera, camera) == -1) {
+	if (parseCamera(&r->scene->camera, camera, r->prefs.imageWidth, r->prefs.imageHeight) == -1) {
 		logr(warning, "Camera parse failed!\n");
 		return -2;
 	}

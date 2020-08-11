@@ -18,6 +18,8 @@ struct camera {
 	float focalDistance;
 	float fstops;
 	float aperture;
+	float aspectRatio;
+	struct coord sensorSize;
 	
 	struct vector up;
 	struct vector right;
@@ -30,7 +32,7 @@ struct camera {
 	int height;
 };
 
-struct camera *newCamera(int width, int height);
+struct camera *newCamera(unsigned width, unsigned height, float FOV, float focalDistance, float fstops, struct transform composite);
 
 struct lightRay getCameraRay(struct camera *cam, int x, int y, struct sampler *sampler);
 
