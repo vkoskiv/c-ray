@@ -170,9 +170,6 @@ int loadScene(struct renderer *r, char *input) {
 	// Some of this stuff seems like it should be in newRenderer(), but notice
 	// how they depend on r->prefs, which is populated by parseJSON
 	
-	r->scene->camera->width = r->prefs.imageWidth;
-	r->scene->camera->height = r->prefs.imageHeight;
-	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
 	r->state.renderBuffer = newTexture(float_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);

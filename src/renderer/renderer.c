@@ -153,9 +153,6 @@ void *renderThread(void *arg) {
 	
 	struct timeval timer = {0};
 	
-	float aperture = r->scene->camera->aperture;
-	float focalDistance = r->scene->camera->focalDistance;
-	
 	while (tile.tileNum != -1 && r->state.isRendering) {
 		long totalUsec = 0;
 		long samples = 0;
@@ -168,7 +165,7 @@ void *renderThread(void *arg) {
 					uint32_t pixIdx = y * image->width + x;
 					initSampler(sampler, Halton, tile.completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
-					incidentRay = getCameraRay(r->scene->camera, x, y);
+					incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y);
 					
 #ifdef DBG_NORMALS
@@ -233,7 +230,6 @@ struct renderer *newRenderer() {
 	
 	//TODO: Do we need all these heap allocs?
 	r->scene = calloc(1, sizeof(*r->scene));
-	r->scene->camera = calloc(1, sizeof(*r->scene->camera));
 	r->scene->hdr = NULL; //Optional, to be loaded later
 	r->scene->meshes = calloc(1, sizeof(*r->scene->meshes));
 	r->scene->spheres = calloc(1, sizeof(*r->scene->spheres));
