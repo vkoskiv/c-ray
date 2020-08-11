@@ -32,6 +32,6 @@ struct camera {
 
 struct camera *newCamera(int width, int height);
 
-struct lightRay getCameraRay(struct camera *cam, int x, int y);
+struct lightRay getCameraRay(struct camera *cam, int x, int y, struct sampler *sampler);
 
 void destroyCamera(struct camera *cam);

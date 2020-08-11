@@ -745,7 +745,7 @@ static struct camera defaultCamera() {
 }
 
 static int parseCamera(struct camera *c, const cJSON *data) {
-	if (!data) *c = defaultCamera();
+	if (!data) return 0;
 	const cJSON *FOV = NULL;
 	const cJSON *focalDistance = NULL;
 	const cJSON *aperture = NULL;
@@ -1232,6 +1232,7 @@ int parseJSON(struct renderer *r, char *input) {
 	}
 	
 	camera = cJSON_GetObjectItem(json, "camera");
+	r->scene->camera = newCamera(r->prefs.imageWidth, r->prefs.imageHeight);
 	if (parseCamera(r->scene->camera, camera) == -1) {
 		logr(warning, "Camera parse failed!\n");
 		return -2;

@@ -70,10 +70,6 @@ static struct color divideColors(struct color c1, struct color c2) {
 	return (struct color){c1.red / c2.red, c1.green / c2.green, c1.blue / c2.blue, c1.alpha / c2.alpha};
 }
 
-static float clamp(float value, float min, float max) {
-	return min(max(value, min), max);
-}
-
 static const struct vector sunDirection = {0.0f, 0.2f, 1.0f};
 struct color sky(struct lightRay incidentRay) {
 	float cosViewSunAngle = vecDot(incidentRay.direction, sunDirection);
