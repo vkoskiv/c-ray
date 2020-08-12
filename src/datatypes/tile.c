@@ -14,6 +14,7 @@
 #include "../utils/logging.h"
 #include "../utils/platform/mutex.h"
 #include "../libraries/pcg_basic.h"
+#include "../utils/args.h"
 
 static void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder);
 
@@ -31,6 +32,25 @@ struct renderTile nextTile(struct renderer *r) {
 		tile = r->state.renderTiles[r->state.finishedTileCount];
 		r->state.renderTiles[r->state.finishedTileCount].isRendering = true;
 		tile.tileNum = r->state.finishedTileCount++;
+	}
+	releaseMutex(r->state.tileMutex);
+	return tile;
+}
+
+struct renderTile nextTileInteractive(struct renderer *r) {
+	struct renderTile tile;
+	memset(&tile, 0, sizeof(tile));
+	tile.tileNum = -1;
+	lockMutex(r->state.tileMutex);
+	if (r->state.finishedPasses < r->prefs.sampleCount) {
+		if (r->state.finishedTileCount < r->state.tileCount) {
+			tile = r->state.renderTiles[r->state.finishedTileCount];
+			r->state.renderTiles[r->state.finishedTileCount].isRendering = true;
+			tile.tileNum = r->state.finishedTileCount++;
+		} else {
+			r->state.finishedPasses++;
+			r->state.finishedTileCount = 0;
+		}
 	}
 	releaseMutex(r->state.tileMutex);
 	return tile;
@@ -83,7 +103,6 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 			tile->height = tile->end.y - tile->begin.y;
 			
 			//Samples have to start at 1, so the running average works
-			tile->completedSamples = 1;
 			tile->isRendering = false;
 			tile->tileNum = tileCount++;
 		}
