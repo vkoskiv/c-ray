@@ -26,13 +26,14 @@ static struct hashtable *g_options;
 static void printUsage(const char *progname) {
 	printf("Usage: %s [-hjsdtv] [input_json...]\n", progname);
 	printf("  Available options are:\n");
-	printf("    [-h]         -> Show this message\n");
-	printf("    [-j <n>]     -> Override thread count to n\n");
-	printf("    [-s <n>]     -> Override sample count to n\n");
-	printf("    [-d <w>x<h>] -> Override image dimensions to <w>x<h>\n");
-	printf("    [-t <w>x<h>] -> Override tile  dimensions to <w>x<h>\n");
-	printf("    [-v]         -> Enable verbose mode\n");
-	printf("    [--test]     -> Run the test suite\n");
+	printf("    [-h]            -> Show this message\n");
+	printf("    [-j <n>]        -> Override thread count to n\n");
+	printf("    [-s <n>]        -> Override sample count to n\n");
+	printf("    [-d <w>x<h>]    -> Override image dimensions to <w>x<h>\n");
+	printf("    [-t <w>x<h>]    -> Override tile  dimensions to <w>x<h>\n");
+	printf("    [-v]            -> Enable verbose mode\n");
+	printf("    [--interactive] -> Start in interactive mode (Experimental)\n");
+	printf("    [--test]        -> Run the test suite\n");
 	restoreTerminal();
 	exit(0);
 }
@@ -112,6 +113,8 @@ void parseArgs(int argc, char **argv) {
 			}
 		} else if (strncmp(argv[i], "--test", 6) == 0) {
 			setTag(g_options, "runTests");
+		} else if (strncmp(argv[i], "--interactive", 13) == 0) {
+			setTag(g_options, "interactive");
 		} else if (strncmp(argv[i], "-", 1) == 0) {
 			setTag(g_options, ++argv[i]);
 		}

@@ -20,7 +20,6 @@ struct renderTile {
 	unsigned height;
 	struct intCoord begin;
 	struct intCoord end;
-	int completedSamples;
 	bool isRendering;
 	bool renderComplete;
 	int tileNum;
@@ -39,3 +38,5 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 /// Grab the next tile from the queue
 /// @param r It's the renderer, yo.
 struct renderTile nextTile(struct renderer *r);
+
+struct renderTile nextTileInteractive(struct renderer *r);

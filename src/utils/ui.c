@@ -20,6 +20,7 @@
 #include "assert.h"
 #include "logo.h"
 #include "loaders/textureloader.h"
+#include "args.h"
 
 struct display {
 #ifdef CRAY_SDL_ENABLED
@@ -309,7 +310,7 @@ void drawWindow(struct renderer *r, struct texture *t) {
 #ifdef CRAY_SDL_ENABLED
 	if (!gdisplay) return;
 	//Render frames
-	updateFrames(r);
+	if (!isSet("interactive")) updateFrames(r);
 	//Update image data
 	SDL_UpdateTexture(gdisplay->texture, NULL, t->data.byte_p, t->width * 3);
 	SDL_UpdateTexture(gdisplay->overlayTexture, NULL, r->state.uiBuffer->data.byte_p, t->width * 4);

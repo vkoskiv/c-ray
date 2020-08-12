@@ -39,6 +39,7 @@ struct state {
 	struct renderTile *renderTiles; //Array of renderTiles to render
 	int tileCount; //Total amount of render tiles
 	int finishedTileCount;
+	int finishedPasses; // For interactive mode
 	struct texture *renderBuffer;  //float-precision buffer for multisampling
 	struct texture *uiBuffer; //UI element buffer
 	int activeThreads; //Amount of threads currently rendering
