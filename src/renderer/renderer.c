@@ -203,7 +203,7 @@ void *renderThreadInteractive(void *arg) {
 		//threadState->avgSampleTime = totalUsec / r->state.finishedPasses;
 		
 		//Tile has finished rendering, get a new one and start rendering it.
-		r->state.renderTiles[tile.tileNum].isRendering = false;
+		if (tile.tileNum != -1) r->state.renderTiles[tile.tileNum].isRendering = false;
 		threadState->currentTileNum = -1;
 		threadState->completedSamples = r->state.finishedPasses;
 		tile = nextTileInteractive(r);
