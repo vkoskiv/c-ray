@@ -24,13 +24,13 @@ struct world;
  */
 struct hitRecord {
 	struct lightRay incident;		//Light ray that encountered this intersection
-	struct material material;	    //Material of the intersected object
+	struct material material;		//Material of the intersected object
 	struct vector hitPoint;			//Hit point vector in 3D space
 	struct vector surfaceNormal;	//Surface normal at that point of intersection
 	struct coord uv;				//UV barycentric coordinates for intersection point
 	float distance;					//Distance to intersection point
 	struct poly *polygon;			//ptr to polygon that was encountered
-	int instIndex;                  //Instance index, negative if no intersection
+	int instIndex;					//Instance index, negative if no intersection
 };
 
 
