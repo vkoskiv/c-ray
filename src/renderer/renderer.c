@@ -169,13 +169,9 @@ void *renderThreadInteractive(void *arg) {
 				
 				//And process the running average
 				output = colorCoef((float)(r->state.finishedPasses - 1), output);
-				
 				output = addColors(output, sample);
-				
 				float t = 1.0f / r->state.finishedPasses;
-				output.red = t * output.red;
-				output.green = t * output.green;
-				output.blue = t * output.blue;
+				output = colorCoef(t, output);
 				
 				//Store internal render buffer (float precision)
 				setPixel(r->state.renderBuffer, output, x, y);
@@ -250,13 +246,9 @@ void *renderThread(void *arg) {
 					
 					//And process the running average
 					output = colorCoef((float)(threadState->completedSamples - 1), output);
-					
 					output = addColors(output, sample);
-					
 					float t = 1.0f / threadState->completedSamples;
-					output.red = t * output.red;
-					output.green = t * output.green;
-					output.blue = t * output.blue;
+					output = colorCoef(t, output);
 					
 					//Store internal render buffer (float precision)
 					setPixel(r->state.renderBuffer, output, x, y);
