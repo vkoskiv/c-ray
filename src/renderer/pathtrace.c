@@ -38,6 +38,9 @@ struct color debugNormals(const struct lightRay *incidentRay, const struct world
 }
 
 struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
+#ifdef DBG_NORMALS
+	return debugNormals(incidentRay, scene, maxDepth, sampler);
+#endif
 	struct color weight = whiteColor; // Current path weight
 	struct color finalColor = blackColor; // Final path contribution
 	struct lightRay currentRay = *incidentRay;

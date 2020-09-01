@@ -165,12 +165,7 @@ void *renderThreadInteractive(void *arg) {
 				
 				incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
 				struct color output = textureGetPixel(r->state.renderBuffer, x, y);
-				
-#ifdef DBG_NORMALS
-				struct color sample = debugNormals(&incidentRay, r->scene, r->prefs.bounces, sampler);
-#else
 				struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
-#endif
 				
 				//And process the running average
 				output = colorCoef((float)(r->state.finishedPasses - 1), output);
@@ -251,12 +246,7 @@ void *renderThread(void *arg) {
 					
 					incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y);
-					
-#ifdef DBG_NORMALS
-					struct color sample = debugNormals(&incidentRay, r->scene, r->prefs.bounces, sampler);
-#else
 					struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
-#endif
 					
 					//And process the running average
 					output = colorCoef((float)(threadState->completedSamples - 1), output);
