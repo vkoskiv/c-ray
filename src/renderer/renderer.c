@@ -57,9 +57,10 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Main loop (input)
 	float avgSampleTime = 0.0f;
-	float finalAvg = 0.0f;
+	float avgTimePerTilePass = 0.0f;
 	int pauser = 0;
 	int ctr = 1;
+	bool interactive = isSet("interactive");
 	
 	r->state.threads = calloc(r->prefs.threadCount, sizeof(*r->state.threads));
 	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(*r->state.threadStates));
@@ -67,7 +68,7 @@ struct texture *renderFrame(struct renderer *r) {
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
 		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output};
-		r->state.threads[t] = (struct crThread){.threadFunc = isSet("interactive") ? renderThreadInteractive : renderThread, .userData = &r->state.threadStates[t]};
+		r->state.threads[t] = (struct crThread){.threadFunc = interactive ? renderThreadInteractive : renderThread, .userData = &r->state.threadStates[t]};
 		if (threadStart(&r->state.threads[t])) {
 			logr(error, "Failed to create a crThread.\n");
 		} else {
@@ -79,13 +80,14 @@ struct texture *renderFrame(struct renderer *r) {
 	while (r->state.isRendering) {
 		getKeyboardInput(r);
 		
+		//Gather and maintain this average constantly.
 		if (!r->state.threadStates[0].paused) {
 			drawWindow(r, output);
 			for (int t = 0; t < r->prefs.threadCount; ++t) {
 				avgSampleTime += r->state.threadStates[t].avgSampleTime;
 			}
-			finalAvg += avgSampleTime / r->prefs.threadCount;
-			finalAvg /= ctr++;
+			avgTimePerTilePass += avgSampleTime / r->prefs.threadCount;
+			avgTimePerTilePass /= ctr++;
 			sleepMSec(active_msec);
 		} else {
 			sleepMSec(paused_msec);
@@ -93,26 +95,26 @@ struct texture *renderFrame(struct renderer *r) {
 		
 		//Run the sample printing about 4x/s
 		if (pauser == 280 / active_msec) {
-			float timePerSingleTileSample = finalAvg;
-			uint64_t totalTileSamples = r->state.tileCount * r->prefs.sampleCount;
+			float usPerRay = avgTimePerTilePass / (r->prefs.tileHeight * r->prefs.tileWidth);
 			uint64_t completedSamples = 0;
 			for (int t = 0; t < r->prefs.threadCount; ++t) {
 				completedSamples += r->state.threadStates[t].totalSamples;
 			}
-			uint64_t remainingTileSamples = totalTileSamples - completedSamples;
-			uint64_t msecTillFinished = 0.001f * (timePerSingleTileSample * remainingTileSamples);
-			float usPerRay = finalAvg / (r->prefs.tileHeight * r->prefs.tileWidth);
+			uint64_t remainingTileSamples = (r->state.tileCount * r->prefs.sampleCount) - completedSamples;
+			uint64_t msecTillFinished = 0.001f * (avgTimePerTilePass * remainingTileSamples);
 			float sps = (1000000.0f/usPerRay) * r->prefs.threadCount;
 			char rem[64];
 			smartTime((msecTillFinished) / r->prefs.threadCount, rem);
 			logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
 				 KBLU,
-				 ((float)r->state.finishedTileCount / (float)r->state.tileCount) * 100.0f,
+				 interactive ? ((float)r->state.finishedPasses / (float)r->prefs.sampleCount) * 100.0f :
+							   ((float)r->state.finishedTileCount / (float)r->state.tileCount) * 100.0f,
 				 KNRM,
 				 usPerRay,
 				 rem,
 				 0.000001f * sps,
 				 r->state.threadStates[0].paused ? "[PAUSED]" : "");
+			
 			pauser = 0;
 		}
 		pauser++;
@@ -191,7 +193,7 @@ void *renderThreadInteractive(void *arg) {
 		while (threadState->paused && !r->state.renderAborted) {
 			sleepMSec(100);
 		}
-		//threadState->avgSampleTime = totalUsec / r->state.finishedPasses;
+		threadState->avgSampleTime = totalUsec / r->state.finishedPasses;
 		
 		//Tile has finished rendering, get a new one and start rendering it.
 		if (tile.tileNum != -1) r->state.renderTiles[tile.tileNum].isRendering = false;
