@@ -17,7 +17,7 @@
 #include "../../utils/string.h"
 #include "../../datatypes/vertexbuffer.h"
 #include "mtlloader.h"
-#include "../filehandler.h"
+#include "../ioutils.h"
 #include "../../utils/assert.h"
 #include "../../utils/textbuffer.h"
 

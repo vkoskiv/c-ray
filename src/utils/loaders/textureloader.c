@@ -8,8 +8,8 @@
 
 #include "../../includes.h"
 #include "textureloader.h"
-#include "../../utils/filehandler.h"
-#include "../../utils/logging.h"
+#include "../ioutils.h"
+#include "../logging.h"
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/image/hdr.h"
 #include "../../datatypes/color.h"
