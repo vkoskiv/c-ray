@@ -12,7 +12,7 @@
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/image/imagefile.h"
 #include "../logging.h"
-#include "../filehandler.h"
+#include "../ioutils.h"
 #include "../../libraries/asprintf.h"
 
 #include "formats/png.h"

@@ -7,7 +7,7 @@
 //
 
 #include "../includes.h"
-#include "filehandler.h"
+#include "ioutils.h"
 #include "../utils/logging.h"
 #include "assert.h"
 #include <limits.h> //For SSIZE_MAX
@@ -201,7 +201,7 @@ char *humanFileSize(unsigned long bytes) {
 	} else if (bytes > 1000) {
 		sprintf(buf, "%.02fkB", kilobytes);
 	} else {
-		sprintf(buf, "%lldB", bytes);
+		sprintf(buf, "%ldB", bytes);
 	}
 	return buf;
 }

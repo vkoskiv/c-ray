@@ -15,7 +15,7 @@
 #include "../../logging.h"
 
 #include "../../../libraries/lodepng.h"
-#include "../../../utils/filehandler.h"
+#include "../../ioutils.h"
 
 #ifndef WINDOWS
 #include <sys/utsname.h>
