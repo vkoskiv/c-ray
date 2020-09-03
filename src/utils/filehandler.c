@@ -167,24 +167,41 @@ char *readStdin(size_t *bytes) {
 }
 
 char *humanFileSize(unsigned long bytes) {
-	unsigned long kilobytes, megabytes, gigabytes, terabytes; // <- Futureproofing?!
-	kilobytes = bytes / 1000;
-	megabytes = kilobytes / 1000;
-	gigabytes = megabytes / 1000;
-	terabytes = gigabytes / 1000;
+	float kilobytes, megabytes, gigabytes, terabytes, petabytes, exabytes, zettabytes, yottabytes; // <- Futureproofing?!
+	kilobytes  = bytes      / 1000.0f;
+	megabytes  = kilobytes  / 1000.0f;
+	gigabytes  = megabytes  / 1000.0f;
+	terabytes  = gigabytes  / 1000.0f;
+	petabytes  = terabytes  / 1000.0f;
+	exabytes   = petabytes  / 1000.0f;
+	zettabytes = exabytes   / 1000.0f;
+	yottabytes = zettabytes / 1000.0f;
+	
+	// Okay, okay. In reality, this never gets even close to a zettabyte,
+	// it'll overflow at around 18 exabytes.
+	// I *did* get it to go to yottabytes using __uint128_t, but that's
+	// not in C99. Maybe in the future.
 	
 	char *buf = calloc(64, sizeof(*buf));
 	
-	if (gigabytes > 1000) {
-		sprintf(buf, "%ldTB", terabytes);
+	if (zettabytes > 1000) {
+		sprintf(buf, "%.02fYB", yottabytes);
+	} else if (exabytes > 1000) {
+		sprintf(buf, "%.02fZB", zettabytes);
+	} else if (petabytes > 1000) {
+		sprintf(buf, "%.02fEB", exabytes);
+	} else if (terabytes > 1000) {
+		sprintf(buf, "%.02fPB", petabytes);
+	} else if (gigabytes > 1000) {
+		sprintf(buf, "%.02fTB", terabytes);
 	} else if (megabytes > 1000) {
-		sprintf(buf, "%ldGB", gigabytes);
+		sprintf(buf, "%.02fGB", gigabytes);
 	} else if (kilobytes > 1000) {
-		sprintf(buf, "%ldMB", megabytes);
+		sprintf(buf, "%.02fMB", megabytes);
 	} else if (bytes > 1000) {
-		sprintf(buf, "%ldKB", kilobytes);
+		sprintf(buf, "%.02fkB", kilobytes);
 	} else {
-		sprintf(buf, "%ldB", bytes);
+		sprintf(buf, "%lldB", bytes);
 	}
 	return buf;
 }
