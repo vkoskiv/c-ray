@@ -8,7 +8,7 @@
 
 #include "../../includes.h"
 #include "textureloader.h"
-#include "../ioutils.h"
+#include "../fileio.h"
 #include "../logging.h"
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/image/hdr.h"
