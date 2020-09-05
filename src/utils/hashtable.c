@@ -13,7 +13,7 @@
 #include "logging.h"
 #include "../datatypes/vector.h"
 #include "assert.h"
-#include "ioutils.h"
+#include "fileio.h"
 #include "string.h"
 
 // Fowler-Noll-Vo hash function

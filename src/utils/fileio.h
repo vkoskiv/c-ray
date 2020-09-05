@@ -1,5 +1,5 @@
 //
-//  filehandler.h
+//  fileio.h
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
@@ -13,9 +13,9 @@
 /// @return A human readable file size string.
 char *humanFileSize(unsigned long bytes);
 
-//Prints the file size of a given file to the console in a user-readable format
-void printFileSize(const char *fileName);
-
+/// Load a file from a given path
+/// @param fileName Path to file
+/// @param bytes Will be set to amount of bytes read, if provided.
 char *loadFile(const char *fileName, size_t *bytes);
 
 // This is a more robust file writing function, that will seek alternate directories

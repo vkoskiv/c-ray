@@ -13,7 +13,7 @@
 #include "hashtable.h"
 #include <string.h>
 #include "logging.h"
-#include "ioutils.h"
+#include "fileio.h"
 #include "assert.h"
 #include "platform/terminal.h"
 #include "platform/capabilities.h"

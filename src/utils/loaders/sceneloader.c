@@ -24,7 +24,7 @@
 #include "../../datatypes/poly.h"
 #include "../../datatypes/transforms.h"
 #include "../logging.h"
-#include "../ioutils.h"
+#include "../fileio.h"
 #include "../string.h"
 #include "../platform/capabilities.h"
 #include "../../datatypes/image/imagefile.h"

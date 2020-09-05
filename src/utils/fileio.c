@@ -1,5 +1,5 @@
 //
-//  filehandler.c
+//  fileio.c
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
@@ -7,7 +7,7 @@
 //
 
 #include "../includes.h"
-#include "ioutils.h"
+#include "fileio.h"
 #include "../utils/logging.h"
 #include "assert.h"
 #include <limits.h> //For SSIZE_MAX
@@ -55,7 +55,13 @@ void writeFile(const unsigned char *buf, size_t bufsize, const char *filePath) {
 	logr(info, "Saving result in \"%s\"\n", backupPath ? backupPath : filePath);
 	fwrite(buf, 1, bufsize, file);
 	fclose(file);
-	printFileSize(backupPath ? backupPath : filePath);
+	
+	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
+	//This will work for all image formats
+	unsigned long bytes = getFileSize(backupPath ? backupPath : filePath);
+	char *sizeString = humanFileSize(bytes);
+	logr(info, "Wrote %s to file.\n", sizeString);
+	free(sizeString);
 }
 
 bool isValidFile(char *path) {
@@ -204,15 +210,6 @@ char *humanFileSize(unsigned long bytes) {
 		sprintf(buf, "%ldB", bytes);
 	}
 	return buf;
-}
-
-void printFileSize(const char *fileName) {
-	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
-	//This will work for all image formats
-	unsigned long bytes = getFileSize(fileName);
-	char *sizeString = humanFileSize(bytes);
-	logr(info, "Wrote %s to file.\n", sizeString);
-	free(sizeString);
 }
 
 size_t getFileSize(const char *fileName) {
