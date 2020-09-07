@@ -15,6 +15,8 @@
 #include "test_textbuffer.h"
 #include "test_transforms.h"
 #include "test_vector.h"
+#include "test_fileio.h"
+#include "test_string.h"
 
 typedef struct {
 	char *testName;
@@ -26,8 +28,19 @@ static test tests[] = {
 	{"transforms::multiply", transform_multiply},
 	{"transforms::determinant", transform_determinant},
 	{"transforms::determinant4x4", transform_determinant4x4},
-	{"textbuffer::textview", textbuffer_textview},
-	{"textbuffer::tokenizer", textbuffer_tokenizer}
+	
+	//{"textbuffer::textview", textbuffer_textview},
+	//{"textbuffer::tokenizer", textbuffer_tokenizer},
+	
+	{"fileio::humanFileSize", fileio_humanFileSize},
+	{"fileio::getFileName", fileio_getFileName},
+	{"fileio::getFilePath", fileio_getFilePath},
+	
+	{"string::stringEquals", string_stringEquals},
+	{"string::stringContains", string_stringContains},
+	{"string::copyString", string_copyString},
+	{"string::concatString", string_concatString},
+	{"string::lowerCase", string_lowerCase},
 };
 
 #define testCount (sizeof(tests) / sizeof(test))
