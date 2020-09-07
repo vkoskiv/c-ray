@@ -190,21 +190,21 @@ char *humanFileSize(unsigned long bytes) {
 	
 	char *buf = calloc(64, sizeof(*buf));
 	
-	if (zettabytes > 1000) {
+	if (zettabytes >= 1000) {
 		sprintf(buf, "%.02fYB", yottabytes);
-	} else if (exabytes > 1000) {
+	} else if (exabytes >= 1000) {
 		sprintf(buf, "%.02fZB", zettabytes);
-	} else if (petabytes > 1000) {
+	} else if (petabytes >= 1000) {
 		sprintf(buf, "%.02fEB", exabytes);
-	} else if (terabytes > 1000) {
+	} else if (terabytes >= 1000) {
 		sprintf(buf, "%.02fPB", petabytes);
-	} else if (gigabytes > 1000) {
+	} else if (gigabytes >= 1000) {
 		sprintf(buf, "%.02fTB", terabytes);
-	} else if (megabytes > 1000) {
+	} else if (megabytes >= 1000) {
 		sprintf(buf, "%.02fGB", gigabytes);
-	} else if (kilobytes > 1000) {
+	} else if (kilobytes >= 1000) {
 		sprintf(buf, "%.02fMB", megabytes);
-	} else if (bytes > 1000) {
+	} else if (bytes >= 1000) {
 		sprintf(buf, "%.02fkB", kilobytes);
 	} else {
 		sprintf(buf, "%ldB", bytes);
