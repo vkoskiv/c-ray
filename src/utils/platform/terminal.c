@@ -13,13 +13,24 @@
 
 #ifdef WINDOWS
 #include <Windows.h>
+#include <io.h>
+#else
+#include <unistd.h>
 #endif
 
 #include "signal.h"
 #include "../logging.h"
 
+bool isTeleType(void) {
+#ifdef WINDOWS
+	return _isatty(_fileno(stdout));
+#else
+	return isatty(fileno(stdout));
+#endif
+}
+
 static void showCursor(bool show) {
-	show ? fputs("\e[?25h", stdout) : fputs("\e[?25l", stdout);
+	if (isTeleType()) show ? fputs("\e[?25h", stdout) : fputs("\e[?25l", stdout);
 }
 
 static void handler(int sig) {
