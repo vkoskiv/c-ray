@@ -1,0 +1,2 @@
+#!/bin/sh
+cmake . -DTESTING=False && make -j"$(nproc)"
