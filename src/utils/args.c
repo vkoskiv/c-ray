@@ -63,6 +63,7 @@ bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
 void parseArgs(int argc, char **argv) {
 	g_options = newTable();
 	static bool inputFileSet = false;
+	int testIdx = -1;
 	//Always omit the first argument.
 	for (int i = 1; i < argc; ++i) {
 		if (isValidFile(argv[i]) && !inputFileSet) {
@@ -113,6 +114,15 @@ void parseArgs(int argc, char **argv) {
 			}
 		} else if (strncmp(argv[i], "--test", 6) == 0) {
 			setTag(g_options, "runTests");
+			char *testIdxStr = argv[i + 1];
+			if (testIdxStr) {
+				int n = atoi(testIdxStr);
+				n = n < 0 ? 0 : n;
+				testIdx = n;
+			}
+		} else if (strncmp(argv[i], "--tcount", 8) == 0) {
+			setTag(g_options, "runTests");
+			testIdx = -2;
 		} else if (strncmp(argv[i], "--interactive", 13) == 0) {
 			setTag(g_options, "interactive");
 		} else if (strncmp(argv[i], "-", 1) == 0) {
@@ -123,12 +133,25 @@ void parseArgs(int argc, char **argv) {
 	
 	if (isSet("runTests")) {
 #ifdef CRAY_TESTING
-		exit(runTests());
+		switch (testIdx) {
+			case -2:
+				printf("%i", getTestCount());
+				exit(0);
+				break;
+			case -1:
+				exit(runTests());
+				break;
+			default:
+				exit(runTest(testIdx));
+				break;
+		}
 #else
 		logr(warning, "You need to compile with tests enabled.\n");
 		logr(warning, "Run: `cmake . -DTESTING=True` and then `make`\n");
 		exit(-1);
 #endif
+	} else {
+		setTag(g_options, "printVersion");
 	}
 }
 
