@@ -33,6 +33,7 @@
 #include "textureloader.h"
 #include "objloader.h"
 #include "../../datatypes/instance.h"
+#include "../../utils/args.h"
 
 struct transform parseTransformComposite(const cJSON *transforms);
 
@@ -664,6 +665,38 @@ static struct prefs parsePrefs(const cJSON *data) {
 		}
 	} else {
 		p.imgType = defaultPrefs().imgType;
+	}
+	
+	// Now check and apply potential CLI overrides.
+	if (isSet("thread_override")) {
+		int threads = intPref("thread_override");
+		if (p.threadCount != threads) {
+			logr(info, "Overriding thread count to %i\n", threads);
+			p.threadCount = threads;
+			p.fromSystem = false;
+		}
+	}
+	
+	if (isSet("samples_override")) {
+		int samples = intPref("samples_override");
+		logr(info, "Overriding sample count to %i\n", samples);
+		p.sampleCount = samples;
+	}
+	
+	if (isSet("dims_override")) {
+		int width = intPref("dims_width");
+		int height = intPref("dims_height");
+		logr(info, "Overriding image dimensions to %ix%i\n", width, height);
+		p.imageWidth = width;
+		p.imageHeight = height;
+	}
+	
+	if (isSet("tiledims_override")) {
+		int width = intPref("tile_width");
+		int height = intPref("tile_height");
+		logr(info, "Overriding tile  dimensions to %ix%i\n", width, height);
+		p.tileWidth = width;
+		p.tileHeight = height;
 	}
 	
 	return p;

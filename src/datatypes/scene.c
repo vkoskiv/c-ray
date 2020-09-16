@@ -23,7 +23,6 @@
 #include "mesh.h"
 #include "poly.h"
 #include "../utils/platform/thread.h"
-#include "../utils/args.h"
 #include "../utils/ui.h"
 #include "../datatypes/instance.h"
 
@@ -96,41 +95,6 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 		   scene->meshCount);
 }
 
-static void checkAndSetCliOverrides(struct renderer *r) {
-	//Update threadCount if it's overridden
-	if (isSet("thread_override")) {
-		int threads = intPref("thread_override");
-		if (r->prefs.threadCount != threads) {
-			logr(info, "Overriding thread count to %i\n", threads);
-			r->prefs.threadCount = threads;
-			r->prefs.fromSystem = false;
-		}
-	}
-	
-	if (isSet("samples_override")) {
-		int samples = intPref("samples_override");
-		logr(info, "Overriding sample count to %i\n", samples);
-		r->prefs.sampleCount = samples;
-	}
-	
-	//Update image dimensions if it's overridden
-	if (isSet("dims_override")) {
-		int width = intPref("dims_width");
-		int height = intPref("dims_height");
-		logr(info, "Overriding image dimensions to %ix%i\n", width, height);
-		r->prefs.imageWidth = width;
-		r->prefs.imageHeight = height;
-	}
-	
-	if (isSet("tiledims_override")) {
-		int width = intPref("tile_width");
-		int height = intPref("tile_height");
-		logr(info, "Overriding tile  dimensions to %ix%i\n", width, height);
-		r->prefs.tileWidth = width;
-		r->prefs.tileHeight = height;
-	}
-}
-
 //Split scene loading and prefs?
 //Load the scene, allocate buffers, etc
 //FIXME: Rename this func and take parseJSON out to a separate call.
@@ -154,7 +118,6 @@ int loadScene(struct renderer *r, char *input) {
 			break;
 	}
 	
-	checkAndSetCliOverrides(r);
 	computeAccels(r->scene->meshes, r->scene->meshCount);
 	r->scene->topLevel = computeTopLevelBvh(r->scene->instances, r->scene->instanceCount);
 	printSceneStats(r->scene, getMs(timer));
