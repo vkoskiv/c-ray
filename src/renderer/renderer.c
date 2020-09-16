@@ -88,9 +88,6 @@ struct texture *renderFrame(struct renderer *r) {
 			}
 			avgTimePerTilePass += avgSampleTime / r->prefs.threadCount;
 			avgTimePerTilePass /= ctr++;
-			sleepMSec(active_msec);
-		} else {
-			sleepMSec(paused_msec);
 		}
 		
 		//Run the sample printing about 4x/s
@@ -129,6 +126,7 @@ struct texture *renderFrame(struct renderer *r) {
 				r->state.isRendering = false;
 			}
 		}
+		sleepMSec(r->state.threadStates[0].paused ? paused_msec : active_msec);
 	}
 	
 	//Make sure render threads are terminated before continuing (This blocks)
