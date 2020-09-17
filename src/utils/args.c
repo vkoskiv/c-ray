@@ -67,7 +67,7 @@ void parseArgs(int argc, char **argv) {
 	//Always omit the first argument.
 	for (int i = 1; i < argc; ++i) {
 		if (isValidFile(argv[i]) && !inputFileSet) {
-			setString(g_options, "inputFile", argv[i], (int)strlen(argv[i]));
+			setString(g_options, "inputFile", argv[i]);
 			inputFileSet = true;
 		} else if (strncmp(argv[i], "-h", 2) == 0) {
 			printUsage(argv[0]);

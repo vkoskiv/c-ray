@@ -36,7 +36,7 @@ float getFloat(struct hashtable *e, const char *key);
 //No data is stored. This key is just occupied, and can be checked for with exists()
 void setTag(struct hashtable *e, const char *key);
 
-void setString(struct hashtable *e, const char *key, const char *value, int len);
+void setString(struct hashtable *e, const char *key, const char *value);
 
 char *getString(struct hashtable *e, const char *key);
 
