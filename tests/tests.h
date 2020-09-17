@@ -9,7 +9,7 @@
 #pragma once
 
 //Test assert
-#define test_assert(x) if (!(x)) {pass = false; logr(warning, "Test failed: [%s]\n", #x);}
+#define test_assert(x) if (!(x)) { pass = false; logr(warning, "Test failed: [%s]\n", #x);}
 
 // Testable modules
 #include "test_textbuffer.h"
@@ -17,6 +17,7 @@
 #include "test_vector.h"
 #include "test_fileio.h"
 #include "test_string.h"
+#include "test_hashtable.h"
 
 typedef struct {
 	char *testName;
@@ -41,6 +42,9 @@ static test tests[] = {
 	{"string::copyString", string_copyString},
 	{"string::concatString", string_concatString},
 	{"string::lowerCase", string_lowerCase},
+	
+	{"hashtable::mixed", hashtable_mixed},
+	{"hashtable::fill", hashtable_fill},
 };
 
 #define testCount (sizeof(tests) / sizeof(test))
