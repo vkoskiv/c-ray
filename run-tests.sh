@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rebuild/testing-on || exit
+rebuild/testing-on 2>&1 > /dev/null || exit
 
 count=$(./bin/c-ray --tcount | awk 'FNR==2 {print $0}')
 
