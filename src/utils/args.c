@@ -150,8 +150,6 @@ void parseArgs(int argc, char **argv) {
 		logr(warning, "Run: `cmake . -DTESTING=True` and then `make`\n");
 		exit(-1);
 #endif
-	} else {
-		setTag(g_options, "printVersion");
 	}
 }
 

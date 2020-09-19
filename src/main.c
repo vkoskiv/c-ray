@@ -13,9 +13,9 @@
 #include "c-ray.h"
 
 int main(int argc, char *argv[]) {
+	crLog("C-ray v%s [%.8s], © 2015-2020 Valtteri Koskivuori\n", crGetVersion(), crGitHash());
 	crInitialize();
 	crParseArgs(argc, argv);
-	if (crOptionIsSet("printVersion")) crLog("C-ray v%s [%.8s], © 2015-2020 Valtteri Koskivuori\n", crGetVersion(), crGitHash());
 	crInitRenderer();
 	size_t bytes = 0;
 	char *input = crOptionIsSet("inputFile") ? crLoadFile(crPathArg(), &bytes) : crReadStdin(&bytes);
