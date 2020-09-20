@@ -80,7 +80,7 @@ void assignBSDF(struct material *mat) {
 
 //Transform the intersection coordinates to the texture coordinate space
 //And grab the color at that point. Texture mapping.
-static struct color colorForUV(struct hitRecord *isect) {
+static struct color colorForUV(const struct hitRecord *isect) {
 	struct color output;
 	const struct material mtl = isect->material;
 	const struct poly *p = isect->polygon;
@@ -181,7 +181,7 @@ static struct vector randomOnUnitSphere(sampler *sampler) {
 	return (struct vector){cosf(a) * s, sinf(a) * s, 1.0f - 2.0f * sample_y};
 }
 
-bool emissiveBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
+bool emissiveBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	(void)isect;
 	(void)attenuation;
 	(void)scattered;
@@ -203,11 +203,11 @@ bool weightedBSDF(struct hitRecord *isect, struct color *attenuation, struct lig
 }
 
 //TODO: Make this a function ptr in the material?
-static struct color diffuseColor(struct hitRecord *isect) {
+static struct color diffuseColor(const struct hitRecord *isect) {
 	return isect->material.hasTexture ? colorForUV(isect) : isect->material.diffuse;
 }
 
-bool lambertianBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
+bool lambertianBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	//struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
 	//struct vector rand = randomOnUnitSphere(sampler);
 	const struct vector scatterDir = vecNormalize(vecAdd(isect->surfaceNormal, randomOnUnitSphere(sampler)));//vecSub(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
@@ -216,7 +216,7 @@ bool lambertianBSDF(struct hitRecord *isect, struct color *attenuation, struct l
 	return true;
 }
 
-bool metallicBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
+bool metallicBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	const struct vector normalizedDir = vecNormalize(isect->incident.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
 	//Roughness
@@ -252,7 +252,7 @@ static float schlick(float cosine, float IOR) {
 	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);
 }
 
-bool shinyBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
+bool shinyBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	*attenuation = whiteColor;
 	//Roughness
@@ -265,7 +265,7 @@ bool shinyBSDF(struct hitRecord *isect, struct color *attenuation, struct lightR
 }
 
 // Glossy plastic
-bool plasticBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
+bool plasticBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	float niOverNt;
@@ -274,8 +274,6 @@ bool plasticBSDF(struct hitRecord *isect, struct color *attenuation, struct ligh
 	float reflectionProbability;
 	float cosine;
 	
-	//TODO: Maybe don't hard code it like this.
-	isect->material.IOR = 1.45f; // Car paint
 	if (vecDot(isect->incident.direction, isect->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(isect->surfaceNormal);
 		niOverNt = isect->material.IOR;
@@ -301,7 +299,7 @@ bool plasticBSDF(struct hitRecord *isect, struct color *attenuation, struct ligh
 }
 
 // Only works on spheres for now. Reflections work but refractions don't
-bool dielectricBSDF(struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
+bool dielectricBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	float niOverNt;
@@ -323,7 +321,6 @@ bool dielectricBSDF(struct hitRecord *isect, struct color *attenuation, struct l
 	if (refract(isect->incident.direction, outwardNormal, niOverNt, &refracted)) {
 		reflectionProbability = schlick(cosine, isect->material.IOR);
 	} else {
-		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 		reflectionProbability = 1.0f;
 	}
 	

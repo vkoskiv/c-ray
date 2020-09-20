@@ -296,6 +296,10 @@ static struct material *parseMaterial(const cJSON *data) {
 			logr(warning, "Emission shader defined, but no intensity given\n");
 			logr(error, "Material data: %s\n", cJSON_Print(data));
 		}
+	} else if (stringEquals(bsdf->valuestring, "plastic")) {
+		mat->type = plastic;
+		//TODO: Maybe don't hard code it like this.
+		mat->IOR = 1.45;
 	}
 	assignBSDF(mat);
 	return mat;
