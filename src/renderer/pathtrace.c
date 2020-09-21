@@ -124,23 +124,8 @@ static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, cons
 	isect.incident = *incidentRay;
 	isect.polygon = NULL;
 	
-#ifdef LINEAR
-	for (int i = 0; i < scene->instanceCount; ++i) {
-		struct lightRay copy;
-		copy.start = incidentRay->start;
-		copy.direction = incidentRay->direction;
-		copy.rayType = incidentRay->rayType;
-		
-		transformPoint(&copy.start, scene->instances[i].composite.Ainv);
-		transformVector(&copy.direction, scene->instances[i].composite.Ainv);
-		
-		if (scene->instances[i].intersectFn(scene->instances[i].object, &copy, &isect))
-			isect.instIndex = i;
-	}
-#else
 	if (!traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect))
 		return isect;
-#endif
 	
 	if (isect.polygon) {
 		isect.material = ((struct mesh*)scene->instances[isect.instIndex].object)->materials[isect.polygon->materialIndex];
