@@ -30,8 +30,21 @@ static test tests[] = {
 	{"transforms::determinant", transform_determinant},
 	{"transforms::determinant4x4", transform_determinant4x4},
 	
-	//{"textbuffer::textview", textbuffer_textview},
-	//{"textbuffer::tokenizer", textbuffer_tokenizer},
+	{"transforms::rotateX", transform_rotate_X},
+	{"transforms::rotateY", transform_rotate_Y},
+	{"transforms::rotateZ", transform_rotate_Z},
+	{"transforms::translateX", transform_translate_X},
+	{"transforms::translateY", transform_translate_Y},
+	{"transforms::translateZ", transform_translate_Z},
+	{"transforms::translateAll", transform_translate_all},
+	{"transforms::scaleX", transform_scale_X},
+	{"transforms::scaleY", transform_scale_Y},
+	{"transforms::scaleZ", transform_scale_Z},
+	{"transforms::scaleAll", transform_scale_all},
+	{"transforms::inverse", transform_inverse},
+	
+	{"textbuffer::textview", textbuffer_textview},
+	{"textbuffer::tokenizer", textbuffer_tokenizer},
 	
 	{"fileio::humanFileSize", fileio_humanFileSize},
 	{"fileio::getFileName", fileio_getFileName},

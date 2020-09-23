@@ -233,3 +233,6 @@ static inline struct base baseWithVec(struct vector i) {
 	return newBase;
 }
 
+static inline bool vecEquals(struct vector a, struct vector b) {
+	return a.x == b.x && a.y == b.y && a.z == b.z;
+}

@@ -7,6 +7,7 @@
 //
 
 #include "../src/datatypes/transforms.h"
+#include "../src/datatypes/vector.h"
 
 // Grab private functions
 //FIXME: This is a bit of a hack. Maybe find a better way?
@@ -92,10 +93,125 @@ bool transform_determinant4x4() {
 
 // Rotations
 
+bool transform_rotate_X() {
+	bool pass = true;
+	
+	struct transform rotX = newTransformRotateX(toRadians(45.0f));
+	struct vector vec = (struct vector){0.5f, 0.0f, 0.0f};
+	//vec = vecNormalize(vec);
+	transformPoint(&vec, &rotX.A);
+	test_assert(vecEquals(vec, (struct vector){0.0f, 1.0f, 0.0f}));
+	
+	return pass;
+}
+
+bool transform_rotate_Y() {
+	bool pass = true;
+	pass = false;
+	return pass;
+}
+
+bool transform_rotate_Z() {
+	bool pass = true;
+	pass = false;
+	return pass;
+}
+
 // Translate
 
+bool transform_translate_X() {
+	bool pass = true;
+	struct vector vec = (struct vector){-10.0f, 0.0f, 0.0f};
+	
+	struct transform tr = newTransformTranslate(1.0f, 0.0f, 0.0f);
+	transformPoint(&vec, &tr.A);
+	test_assert(vecEquals(vec, (struct vector){-9.0f, 0.0f, 0.0f}));
+	
+	return pass;
+}
+
+bool transform_translate_Y() {
+	bool pass = true;
+	struct vector vec = (struct vector){0.0f, -10.0f, 0.0f};
+	
+	struct transform tr = newTransformTranslate(0.0f, 1.0f, 0.0f);
+	transformPoint(&vec, &tr.A);
+	test_assert(vecEquals(vec, (struct vector){0.0f, -9.0f, 0.0f}));
+	
+	return pass;
+}
+
+bool transform_translate_Z() {
+	bool pass = true;
+	struct vector vec = (struct vector){0.0f, 0.0f, -10.0f};
+	
+	struct transform tr = newTransformTranslate(0.0f, 0.0f, 1.0f);
+	transformPoint(&vec, &tr.A);
+	test_assert(vecEquals(vec, (struct vector){0.0f, 0.0f, -9.0f}));
+	
+	return pass;
+}
+
+bool transform_translate_all() {
+	bool pass = true;
+	struct vector vec = (struct vector){0.0f, 0.0f, 0.0f};
+	
+	struct transform tr = newTransformTranslate(-1.0f, -10.0f, -100.0f);
+	transformPoint(&vec, &tr.A);
+	test_assert(vecEquals(vec, (struct vector){-1.0f, -10.0f, -100.0f}));
+	
+	return pass;
+}
+
+
 // Scale
+bool transform_scale_X() {
+	bool pass = true;
+	struct vector vec = (struct vector){-10.0f, 0.0f, 0.0f};
+	
+	struct transform tr = newTransformScale(3.0f, 1.0f, 1.0f);
+	transformPoint(&vec, &tr.A);
+	test_assert(vecEquals(vec, (struct vector){-30.0f, 0.0f, 0.0f}));
+	
+	return pass;
+}
+
+bool transform_scale_Y() {
+	bool pass = true;
+	struct vector vec = (struct vector){0.0f, -10.0f, 0.0f};
+	
+	struct transform tr = newTransformScale(1.0f, 3.0f, 1.0f);
+	transformPoint(&vec, &tr.A);
+	test_assert(vecEquals(vec, (struct vector){0.0f, -30.0f, 0.0f}));
+	
+	return pass;
+}
+
+bool transform_scale_Z() {
+	bool pass = true;
+	struct vector vec = (struct vector){0.0f, 0.0f, -10.0f};
+	
+	struct transform tr = newTransformScale(1.0f, 1.0f, 3.0f);
+	transformPoint(&vec, &tr.A);
+	test_assert(vecEquals(vec, (struct vector){0.0f, 0.0f, -30.0f}));
+	
+	return pass;
+}
+
+bool transform_scale_all() {
+	bool pass = true;
+	struct vector vec = (struct vector){1.0f, 2.0f, 3.0f};
+	
+	struct transform tr = newTransformScaleUniform(3.0f);
+	transformPoint(&vec, &tr.A);
+	test_assert(vecEquals(vec, (struct vector){3.0f, 6.0f, 9.0f}));
+	
+	return pass;
+}
 
 // Inverse
-
-// Determinant
+bool transform_inverse() {
+	bool pass = true;
+	pass = false;
+	return pass;
+}

@@ -175,6 +175,9 @@ struct transform newTransformTranslate(float x, float y, float z) {
 }
 
 struct transform newTransformScale(float x, float y, float z) {
+	ASSERT(x != 0.0f);
+	ASSERT(y != 0.0f);
+	ASSERT(z != 0.0f);
 	struct transform transform = newTransform();
 	transform.type = transformTypeScale;
 	transform.A.mtx[0][0] = x;

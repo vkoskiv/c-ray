@@ -9,10 +9,6 @@
 #include "../src/utils/hashtable.h"
 #include "../src/datatypes/vector.h"
 
-bool vecEquals(struct vector a, struct vector b) {
-	return a.x == b.x && a.y == b.y && a.z == b.z;
-}
-
 bool hashtable_mixed(void) {
 	bool pass = true;
 	
