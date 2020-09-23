@@ -51,17 +51,16 @@ textBuffer *newTextView(textBuffer *original, const size_t start, const size_t l
 }
 
 textBuffer *newTextBuffer(char *contents) {
-	char *buf = contents;
-	if (!buf) return NULL;
+	if (!contents) return NULL;
 	textBuffer *new = calloc(1, sizeof(*new));
-	new->buf = buf;
+	new->buf = copyString(contents);
 	new->buflen = strlen(contents);
 	
 	//Figure out the line count and convert newlines
 	size_t lines = 0;
 	for (size_t i = 0; i < new->buflen; ++i) {
-		if (buf[i] == '\n') {
-			buf[i] = '\0';
+		if (new->buf[i] == '\n') {
+			new->buf[i] = '\0';
 			lines++;
 		}
 	}
