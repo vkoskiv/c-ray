@@ -25,6 +25,7 @@
 #include "../utils/platform/thread.h"
 #include "../utils/ui.h"
 #include "../datatypes/instance.h"
+#include "../datatypes/bbox.h"
 
 struct bvhBuildTask {
 	struct bvh *bvh;
@@ -120,6 +121,8 @@ int loadScene(struct renderer *r, char *input) {
 	
 	computeAccels(r->scene->meshes, r->scene->meshCount);
 	r->scene->topLevel = computeTopLevelBvh(r->scene->instances, r->scene->instanceCount);
+	r->scene->rayOffset = 0.00000001f * bboxDiagonal(getRootBoundingBox(r->scene->topLevel));
+	logr(debug, "Computed ray offset is: %.08f\n", r->scene->rayOffset);
 	printSceneStats(r->scene, getMs(timer));
 	
 	//Quantize image into renderTiles

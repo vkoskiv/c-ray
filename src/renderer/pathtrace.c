@@ -116,7 +116,7 @@ static struct vector bumpmap(const struct hitRecord *isect) {
  @return intersection struct with the appropriate values set
  */
 static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene) {
-	incidentRay->start = vecAdd(incidentRay->start, vecScale(incidentRay->direction, 0.0001));
+	incidentRay->start = vecAdd(incidentRay->start, vecScale(incidentRay->direction, scene->rayOffset));
 	struct hitRecord isect;
 	isect.instIndex = -1;
 	isect.distance = FLT_MAX;

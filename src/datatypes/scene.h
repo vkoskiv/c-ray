@@ -36,6 +36,9 @@ struct world {
 	//Currently only one camera supported
 	struct camera *camera;
 	int cameraCount;
+	
+	//This value is scene-specific
+	float rayOffset;
 };
 
 int loadScene(struct renderer *r, char *input);

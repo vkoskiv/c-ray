@@ -34,3 +34,8 @@ static inline void extendBBox(struct boundingBox *dst, const struct boundingBox 
 static inline struct vector bboxCenter(const struct boundingBox* bbox) {
 	return vecScale(vecAdd(bbox->max, bbox->min), 0.5f);
 }
+
+static inline float bboxDiagonal(const struct boundingBox bbox) {
+	struct vector extent = vecSub(bbox.max, bbox.min);
+	return vecLength(extent);
+}
