@@ -230,7 +230,7 @@ bool metallicBSDF(const struct hitRecord *isect, struct color *attenuation, stru
 	return (vecDot(scattered->direction, isect->surfaceNormal) > 0.0f);
 }
 
-static bool refract(struct vector in, struct vector normal, float niOverNt, struct vector *refracted) {
+static inline bool refract(struct vector in, struct vector normal, float niOverNt, struct vector *refracted) {
 	const struct vector uv = vecNormalize(in);
 	const float dt = vecDot(uv, normal);
 	const float discriminant = 1.0f - niOverNt * niOverNt * (1.0f - dt * dt);
@@ -246,7 +246,7 @@ static bool refract(struct vector in, struct vector normal, float niOverNt, stru
 	}
 }
 
-static float schlick(float cosine, float IOR) {
+static inline float schlick(float cosine, float IOR) {
 	float r0 = (1.0f - IOR) / (1.0f + IOR);
 	r0 = r0*r0;
 	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);
@@ -332,16 +332,8 @@ bool dielectricBSDF(const struct hitRecord *isect, struct color *attenuation, st
 	}
 	
 	if (getDimension(sampler) < reflectionProbability) {
-		if (isect->material.roughness > 0.0f) {
-			struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->material.roughness);
-			reflected = vecAdd(reflected, fuzz);
-		}
 		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 	} else {
-		if (isect->material.roughness > 0.0f) {
-			struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->material.roughness);
-			refracted = vecAdd(refracted, fuzz);
-		}
 		*scattered = newRay(isect->hitPoint, refracted, rayTypeRefracted);
 	}
 	return true;
