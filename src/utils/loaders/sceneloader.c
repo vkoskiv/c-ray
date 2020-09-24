@@ -1039,6 +1039,14 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 			if (type == emission) {
 				lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);
 			}
+			if (type == glass) {
+				const cJSON *IOR = cJSON_GetObjectItem(data, "IOR");
+				if (cJSON_IsNumber(IOR)) {
+					lastMesh(r)->materials[i].IOR = IOR->valuedouble;
+				}
+			} else if (type == plastic) {
+				lastMesh(r)->materials[i].IOR = 1.45;
+			}
 			if (cJSON_IsNumber(roughness)) lastMesh(r)->materials[i].roughness = roughness->valuedouble;
 			assignBSDF(&lastMesh(r)->materials[i]);
 		}
