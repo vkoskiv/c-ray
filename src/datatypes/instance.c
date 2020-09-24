@@ -60,7 +60,7 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 }
 
 static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
-	getRootBoundingBox(((struct mesh*)instance->object)->bvh, bbox);
+	*bbox = getRootBoundingBox(((struct mesh*)instance->object)->bvh);
 	transformBBox(bbox, &instance->composite.A);
 	*center = bboxCenter(bbox);
 }

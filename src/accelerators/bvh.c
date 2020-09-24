@@ -295,8 +295,10 @@ static void getPolyBBoxAndCenter(void *userData, unsigned i, struct boundingBox 
 	bbox->max = vecMax(v0, vecMax(v1, v2));
 }
 
-void getRootBoundingBox(const struct bvh *bvh, struct boundingBox *bbox) {
-	loadBBoxFromNode(bbox, &bvh->nodes[0]);
+struct boundingBox getRootBoundingBox(const struct bvh *bvh) {
+	struct boundingBox box;
+	loadBBoxFromNode(&box, &bvh->nodes[0]);
+	return box;
 }
 
 struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count) {
