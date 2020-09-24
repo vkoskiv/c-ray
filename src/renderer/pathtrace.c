@@ -23,7 +23,7 @@
 #include "../datatypes/transforms.h"
 #include "../datatypes/instance.h"
 
-static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene);
+static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene);
 static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
 
 struct color debugNormals(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
@@ -87,8 +87,6 @@ static inline void computeSurfaceProps(const struct poly *p, const struct coord 
 		
 		*normal = vecNormalize(vecAdd(vecAdd(upcomp, vpcomp), wpcomp));
 	}
-	
-	*hitPoint = vecAdd(*hitPoint, vecScale(*normal, 0.0001f));
 }
 
 static struct vector bumpmap(const struct hitRecord *isect) {
@@ -117,7 +115,8 @@ static struct vector bumpmap(const struct hitRecord *isect) {
  @param scene  Given scene to cast that ray into
  @return intersection struct with the appropriate values set
  */
-static struct hitRecord getClosestIsect(const struct lightRay *incidentRay, const struct world *scene) {
+static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene) {
+	incidentRay->start = vecAdd(incidentRay->start, vecScale(incidentRay->direction, 0.0001));
 	struct hitRecord isect;
 	isect.instIndex = -1;
 	isect.distance = FLT_MAX;
