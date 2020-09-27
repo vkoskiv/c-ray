@@ -212,6 +212,16 @@ bool transform_scale_all() {
 // Inverse
 bool transform_inverse() {
 	bool pass = true;
-	pass = false;
+	struct matrix4x4 normal = matrixFromParams(0, 0, 0, 1,
+											   0, 0, 1, 0,
+											   0, 2, 0, 0,
+											   2, 0, 0, 0
+											);
+	struct matrix4x4 inv = inverseMatrix(&normal);
+	struct matrix4x4 inv_correct = matrixFromParams(0, 0, 0, 0.5,
+													0, 0, 0.5, 0,
+													0, 1, 0, 0,
+													1, 0, 0, 0);
+	test_assert(areMatricesEqual(&inv, &inv_correct));
 	return pass;
 }
