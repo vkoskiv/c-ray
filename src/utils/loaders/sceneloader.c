@@ -900,7 +900,7 @@ static struct color parseColor(const cJSON *data) {
 	if (R != NULL && cJSON_IsNumber(A)) {
 		newColor.alpha = A->valuedouble;
 	} else {
-		newColor.alpha = 0.0f;
+		newColor.alpha = 1.0f;
 	}
 	
 	return newColor;
