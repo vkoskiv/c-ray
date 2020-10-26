@@ -80,7 +80,7 @@ void assignBSDF(struct material *mat) {
 
 //Transform the intersection coordinates to the texture coordinate space
 //And grab the color at that point. Texture mapping.
-static struct color colorForUV(const struct hitRecord *isect) {
+struct color colorForUV(const struct hitRecord *isect) {
 	struct color output;
 	const struct material mtl = isect->material;
 	const struct poly *p = isect->polygon;

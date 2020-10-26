@@ -113,4 +113,6 @@ bool dielectricBSDF(const struct hitRecord *isect, struct color *attenuation, st
 
 void assignBSDF(struct material *mat);
 
+struct color colorForUV(const struct hitRecord *isect);
+
 void destroyMaterial(struct material *mat);

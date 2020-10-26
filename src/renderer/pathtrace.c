@@ -23,14 +23,14 @@
 #include "../datatypes/transforms.h"
 #include "../datatypes/instance.h"
 
-static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene);
+static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler);
 static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
 
 struct color debugNormals(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
 	(void)maxDepth;
 	(void)sampler;
 	struct lightRay currentRay = *incidentRay;
-	struct hitRecord isect = getClosestIsect(&currentRay, scene);
+	struct hitRecord isect = getClosestIsect(&currentRay, scene, sampler);
 	if (isect.instIndex < 0)
 		return getBackground(&currentRay, scene);
 	struct vector normal =  isect.surfaceNormal;
@@ -46,7 +46,7 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 	struct lightRay currentRay = *incidentRay;
 
 	for (int depth = 0; depth < maxDepth; ++depth) {
-		const struct hitRecord isect = getClosestIsect(&currentRay, scene);
+		const struct hitRecord isect = getClosestIsect(&currentRay, scene, sampler);
 		if (isect.instIndex < 0) {
 			finalColor = addColors(finalColor, multiplyColors(weight, getBackground(&currentRay, scene)));
 			break;
@@ -115,7 +115,7 @@ static struct vector bumpmap(const struct hitRecord *isect) {
  @param scene  Given scene to cast that ray into
  @return intersection struct with the appropriate values set
  */
-static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene) {
+static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler) {
 	incidentRay->start = vecAdd(incidentRay->start, vecScale(incidentRay->direction, scene->rayOffset));
 	struct hitRecord isect;
 	isect.instIndex = -1;
@@ -134,6 +134,15 @@ static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const stru
 	}
 	transformPoint(&isect.hitPoint, &scene->instances[isect.instIndex].composite.A);
 	transformVectorWithTranspose(&isect.surfaceNormal, &scene->instances[isect.instIndex].composite.Ainv);
+	
+	float prob = isect.material.hasTexture ? colorForUV(&isect).alpha : isect.material.diffuse.alpha;
+	if (prob < 1.0f) {
+		if (getDimension(sampler) > prob) {
+			struct lightRay next = {isect.hitPoint, incidentRay->direction, rayTypeIncident};
+			return getClosestIsect(&next, scene, sampler);
+		}
+	}
+	
 	isect.surfaceNormal = vecNormalize(isect.surfaceNormal);
 	return isect;
 }
