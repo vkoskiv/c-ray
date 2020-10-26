@@ -53,7 +53,7 @@ struct texture *loadTexture(char *filePath) {
 	filePath[strcspn(filePath, "\n")] = 0;
 	const unsigned char *file = (unsigned char*)loadFile(filePath, &len);
 	if (!file) return NULL;
-	struct texture *new = loadTextureFromBuffer(file, (unsigned int)len, 3);
+	struct texture *new = loadTextureFromBuffer(file, (unsigned int)len, 4);
 	if (!new) {
 		logr(warning, "^That happened while decoding texture \"%s\" - Corrupted?\n", filePath);
 		destroyTexture(new);
@@ -69,6 +69,9 @@ struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigne
 		logr(warning, "Failed to decode texture from memory buffer of size %u", buflen);
 		destroyTexture(new);
 		return NULL;
+	}
+	if (new->channels > 3) {
+		new->hasAlpha = true;
 	}
 	new->precision = char_p;
 	return new;
