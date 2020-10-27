@@ -20,7 +20,7 @@
 char *loadFile(const char *fileName, size_t *bytes) {
 	FILE *f = fopen(fileName, "rb");
 	if (!f) {
-		logr(warning, "Can't access '%.*s', error: \"%s (%i)\"\n", (int)strlen(fileName) - 1, fileName, strerror(errno), errno);
+		logr(warning, "Can't access '%.*s': %s (%i)\n", (int)strlen(fileName), fileName, strerror(errno), errno);
 		return NULL;
 	}
 	size_t len = getFileSize(fileName);
