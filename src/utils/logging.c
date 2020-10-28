@@ -34,8 +34,9 @@ static void printPrefix(enum logType type) {
 }
 
 static void printDate() {
-	time_t curTime = time(NULL);
-	struct tm time = *localtime(&curTime);
+	const time_t curTime = time(NULL);
+	struct tm time;
+	localtime_r(&curTime, &time);
 	printf("[%d-%02d-%02d %02d:%02d:%02d]: ",
 		   time.tm_year + 1900,
 		   time.tm_mon + 1,
