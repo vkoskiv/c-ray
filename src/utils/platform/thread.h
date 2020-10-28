@@ -6,6 +6,8 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#pragma once
+
 //Multi-platform threading
 /**
  Thread information struct to communicate with main thread

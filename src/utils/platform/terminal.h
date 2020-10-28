@@ -6,6 +6,8 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#pragma once
+
 ///Prepare terminal. On *nix this disables output buffering, on WIN32 it enables ANSI escape codes.
 void initTerminal(void);
 

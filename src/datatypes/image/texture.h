@@ -6,6 +6,8 @@
 //  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#pragma once
+
 #include <stdbool.h>
 
 enum colorspace {

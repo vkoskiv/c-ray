@@ -6,6 +6,8 @@
 //  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#pragma once
+
 //OBJ parser declares structures using typedefs, so have to include this here.
 #include "../libraries/obj_parser.h"
 

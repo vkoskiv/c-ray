@@ -6,6 +6,8 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#pragma once
+
 //Platform-agnostic mutexes
 
 struct crMutex;
