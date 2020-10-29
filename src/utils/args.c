@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include "textbuffer.h"
 #include "testrunner.h"
+#include "string.h"
 
 static struct hashtable *g_options;
 
@@ -64,12 +65,18 @@ void parseArgs(int argc, char **argv) {
 	g_options = newTable();
 	static bool inputFileSet = false;
 	int testIdx = -1;
+	char *alternatePath = NULL;
 	//Always omit the first argument.
 	for (int i = 1; i < argc; ++i) {
 		if (isValidFile(argv[i]) && !inputFileSet) {
 			setString(g_options, "inputFile", argv[i]);
 			inputFileSet = true;
-		} else if (strncmp(argv[i], "-h", 2) == 0) {
+		} else if (isValidFile((alternatePath = concatString(argv[i], ".json"))) && !inputFileSet) {
+			setString(g_options, "inputFile", alternatePath);
+			inputFileSet = true;
+			free(alternatePath);
+			alternatePath = NULL;
+		}else if (strncmp(argv[i], "-h", 2) == 0) {
 			printUsage(argv[0]);
 		} else if (strncmp(argv[i], "-j", 2) == 0) {
 			char *threadstr = argv[i + 1];
