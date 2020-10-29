@@ -1,7 +1,8 @@
 #!/bin/sh
 
+echo "Compiling..."
 rebuild/testing-on 2>&1 > /dev/null || exit
-
+echo "Done, running tests."
 count=$(./bin/c-ray --tcount | awk 'FNR==2 {print $0}')
 
 echo "C-ray test framework v0.2"

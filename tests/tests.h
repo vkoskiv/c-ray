@@ -8,8 +8,10 @@
 
 #pragma once
 
+static char *failed_expression;
+
 //Test assert
-#define test_assert(x) if (!(x)) { pass = false; logr(warning, "Test failed: [%s]\n", #x);}
+#define test_assert(x) if (!(x)) { pass = false; failed_expression = #x;}
 
 // Testable modules
 #include "test_textbuffer.h"
