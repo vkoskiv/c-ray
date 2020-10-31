@@ -39,20 +39,19 @@ struct color textureGetPixel(const struct texture *t, unsigned x, unsigned y) {
 		pitch = 3;
 	}
 	
-	//bilinear lerp might tweak the values, so just clamp here to be safe.
-	x = x > t->width-1 ? t->width-1 : x;
-	y = y > t->height-1 ? t->height-1 : y;
+	x = x % t->width;
+	y = y % t->height;
 	
 	if (t->precision == float_p) {
-		output.red = t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 0];
-		output.green = t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 1];
-		output.blue = t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 2];
-		output.alpha = t->hasAlpha ? t->data.float_p[(x + ((t->height-1) - y) * t->width)*pitch + 3] : 1.0f;
+		output.red   = t->data.float_p[(x + ((t->height-1) - y) * t->width) * pitch + 0];
+		output.green = t->data.float_p[(x + ((t->height-1) - y) * t->width) * pitch + 1];
+		output.blue  = t->data.float_p[(x + ((t->height-1) - y) * t->width) * pitch + 2];
+		output.alpha = t->hasAlpha ? t->data.float_p[(x + ((t->height-1) - y) * t->width) * pitch + 3] : 1.0f;
 	} else {
-		output.red = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 0] / 255.0f;
-		output.green = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 1] / 255.0f;
-		output.blue = t->data.byte_p[(x + ((t->height-1) - y) * t->width)*pitch + 2] / 255.0f;
-		output.alpha = t->hasAlpha ? t->data.byte_p[(x + (t->height - y) * t->width)*pitch + 3] / 255.0f : 1.0f;
+		output.red =   t->data.byte_p[(x + ((t->height-1) - y) * t->width) * pitch + 0] / 255.0f;
+		output.green = t->data.byte_p[(x + ((t->height-1) - y) * t->width) * pitch + 1] / 255.0f;
+		output.blue =  t->data.byte_p[(x + ((t->height-1) - y) * t->width) * pitch + 2] / 255.0f;
+		output.alpha = t->hasAlpha ? t->data.byte_p[(x + (t->height - y) * t->width) * pitch + 3] / 255.0f : 1.0f;
 	}
 	
 	return output;
