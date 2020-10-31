@@ -12,9 +12,10 @@
 
 #include "vector.h"
 #include "lightRay.h"
+#include "../renderer/pathtrace.h"
 
-bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *poly, float *result, struct vector *normal, struct coord *uv) {
-	// Moeller-Trumbore ray-triangle intersection routine
+bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *poly, struct hitRecord *isect) {
+	// Möller-Trumbore ray-triangle intersection routine
 	// (see "Fast, Minimum Storage Ray-Triangle Intersection", by T. Moeller and B. Trumbore)
 	struct vector e1 = vecSub(g_vertices[poly->vertexIndex[0]], g_vertices[poly->vertexIndex[1]]);
 	struct vector e2 = vecSub(g_vertices[poly->vertexIndex[2]], g_vertices[poly->vertexIndex[0]]);
@@ -31,10 +32,11 @@ bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *pol
 	// IEEE-754 mandates that they compare to false if the left hand side is a NaN.
 	if (u >= 0.0f && v >= 0.0f && u + v <= 1.0f) {
 		float t = vecDot(n, c) * invDet;
-		if (t >= 0.0f && t < *result) {
-			*uv = (struct coord) { u, v };
-			*result = t;
-			*normal = vecNormalize(n);
+		if (t >= 0.0f && t < isect->distance) {
+			isect->uv = (struct coord) { u, v };
+			isect->distance = t;
+			isect->surfaceNormal = vecNormalize(n);
+			isect->hitPoint = alongRay(ray, t);
 			return true;
 		}
 	}

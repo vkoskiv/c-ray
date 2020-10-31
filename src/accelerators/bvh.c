@@ -449,7 +449,7 @@ static inline bool intersectBottomLevelLeaf(
 	bool found = false;
 	for (int i = 0; i < leaf->primCount; ++i) {
 		struct poly *p = &polygons[bvh->primIndices[leaf->firstChildOrPrim + i]];
-		if (rayIntersectsWithPolygon(ray, p, &isect->distance, &isect->surfaceNormal, &isect->uv)) {
+		if (rayIntersectsWithPolygon(ray, p, isect)) {
 			isect->polygon = p;
 			found = true;
 		}

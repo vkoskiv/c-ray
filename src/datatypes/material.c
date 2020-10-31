@@ -248,7 +248,7 @@ static inline bool refract(struct vector in, struct vector normal, float niOverN
 
 static inline float schlick(float cosine, float IOR) {
 	float r0 = (1.0f - IOR) / (1.0f + IOR);
-	r0 = r0*r0;
+	r0 = r0 * r0;
 	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);
 }
 

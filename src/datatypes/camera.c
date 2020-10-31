@@ -76,7 +76,7 @@ struct lightRay getCameraRay(struct camera *cam, int x, int y, struct sampler *s
 	
 	if (cam->aperture > 0.0f) {
 		float ft = cam->focalDistance / vecDot(newRay.direction, cam->forward);
-		struct vector focusPoint = alongRay(newRay, ft);
+		struct vector focusPoint = alongRay(&newRay, ft);
 		struct coord lensPoint = coordScale(cam->aperture, randomCoordOnUnitDisc(sampler));
 		newRay.start = vecAdd(newRay.start, vecAdd(vecScale(cam->right, lensPoint.x), vecScale(cam->up, lensPoint.y)));
 		newRay.direction = vecNormalize(vecSub(focusPoint, newRay.start));

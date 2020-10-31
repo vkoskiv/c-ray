@@ -70,25 +70,6 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 	return finalColor;
 }
 
-static inline void computeSurfaceProps(const struct poly *p, const struct coord *uv, struct vector *hitPoint, struct vector *normal) {
-	float u = uv->x;
-	float v = uv->y;
-	float w = 1.0f - u - v;
-	struct vector ucomp = vecScale(g_vertices[p->vertexIndex[1]], u);
-	struct vector vcomp = vecScale(g_vertices[p->vertexIndex[2]], v);
-	struct vector wcomp = vecScale(g_vertices[p->vertexIndex[0]], w);
-	
-	*hitPoint = vecAdd(vecAdd(ucomp, vcomp), wcomp);
-	
-	if (p->hasNormals) {
-		struct vector upcomp = vecScale(g_normals[p->normalIndex[1]], u);
-		struct vector vpcomp = vecScale(g_normals[p->normalIndex[2]], v);
-		struct vector wpcomp = vecScale(g_normals[p->normalIndex[0]], w);
-		
-		*normal = vecNormalize(vecAdd(vecAdd(upcomp, vpcomp), wpcomp));
-	}
-}
-
 static struct vector bumpmap(const struct hitRecord *isect) {
 	struct material mtl = isect->material;
 	struct poly *p = isect->polygon;
@@ -106,6 +87,22 @@ static struct vector bumpmap(const struct hitRecord *isect) {
 	struct color pixel = textureGetPixelFiltered(mtl.normalMap, x, y);
 	return vecNormalize((struct vector){(pixel.red * 2.0f) - 1.0f, (pixel.green * 2.0f) - 1.0f, pixel.blue * 0.5f});
 }
+
+//FIXME: Find out why our computed normals for polygons are garbage. This should be deleted once that issue is fixed.
+static inline void recomputeNormal(const struct poly *p, const struct coord *uv, struct vector *normal) {
+	const float u = uv->x;
+	const float v = uv->y;
+	const float w = 1.0f - u - v;
+	
+	if (p->hasNormals) {
+		struct vector upcomp = vecScale(g_normals[p->normalIndex[1]], u);
+		struct vector vpcomp = vecScale(g_normals[p->normalIndex[2]], v);
+		struct vector wpcomp = vecScale(g_normals[p->normalIndex[0]], w);
+		
+		*normal = vecNormalize(vecAdd(vecAdd(upcomp, vpcomp), wpcomp));
+	}
+}
+
 
 /**
  Calculate the closest intersection point, and other relevant information based on a given lightRay and scene
@@ -127,13 +124,10 @@ static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const stru
 		return isect;
 	
 	if (isect.polygon) {
-		isect.material = ((struct mesh*)scene->instances[isect.instIndex].object)->materials[isect.polygon->materialIndex];
-		computeSurfaceProps(isect.polygon, &isect.uv, &isect.hitPoint, &isect.surfaceNormal);
+		recomputeNormal(isect.polygon, &isect.uv, &isect.surfaceNormal); // Kludge, shouldn't need this.
 		if (isect.material.hasNormalMap)
 			isect.surfaceNormal = bumpmap(&isect);
 	}
-	transformPoint(&isect.hitPoint, &scene->instances[isect.instIndex].composite.A);
-	transformVectorWithTranspose(&isect.surfaceNormal, &scene->instances[isect.instIndex].composite.Ainv);
 	
 	float prob = isect.material.hasTexture ? colorForUV(&isect).alpha : isect.material.diffuse.alpha;
 	if (prob < 1.0f) {
@@ -142,8 +136,6 @@ static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const stru
 			return getClosestIsect(&next, scene, sampler);
 		}
 	}
-	
-	isect.surfaceNormal = vecNormalize(isect.surfaceNormal);
 	return isect;
 }
 
@@ -153,14 +145,14 @@ static struct color getHDRI(const struct lightRay *incidentRay, const struct hdr
 	
 	//To polar from cartesian
 	float r = 1.0f; //Normalized above
-	float phi = (atan2f(ud.z, ud.x)/4) + hdr->offset;
-	float theta = acosf((-ud.y/r));
+	float phi = (atan2f(ud.z, ud.x) / 4.0f) + hdr->offset;
+	float theta = acosf((-ud.y / r));
 	
 	float u = theta / PI;
-	float v = (phi / (PI/2));
+	float v = (phi / (PI / 2.0f));
 	
-	u = wrapMinMax(u, 0, 1);
-	v = wrapMinMax(v, 0, 1);
+	u = wrapMinMax(u, 0.0f, 1.0f);
+	v = wrapMinMax(v, 0.0f, 1.0f);
 	
 	float x = (v * hdr->t->width);
 	float y = (u * hdr->t->height);

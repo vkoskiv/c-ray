@@ -20,10 +20,11 @@
 static bool intersectSphere(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect) {
 	struct lightRay copy = *ray;
 	transformRay(&copy, &instance->composite.Ainv);
-
 	if (rayIntersectsWithSphere(&copy, (struct sphere*)instance->object, isect)) {
 		isect->polygon = NULL;
 		isect->material = ((struct sphere*)instance->object)->material;
+		transformPoint(&isect->hitPoint, &instance->composite.A);
+		transformVectorWithTranspose(&isect->surfaceNormal, &instance->composite.Ainv);
 		return true;
 	}
 	return false;
@@ -56,7 +57,13 @@ struct instance newSphereInstance(struct sphere *sphere) {
 static bool intersectMesh(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect) {
 	struct lightRay copy = *ray;
 	transformRay(&copy, &instance->composite.Ainv);
-	return traverseBottomLevelBvh((struct mesh*)instance->object, &copy, isect);
+	if (traverseBottomLevelBvh((struct mesh*)instance->object, &copy, isect)) {
+		isect->material = ((struct mesh*)instance->object)->materials[isect->polygon->materialIndex];
+		transformPoint(&isect->hitPoint, &instance->composite.A);
+		transformVectorWithTranspose(&isect->surfaceNormal, &instance->composite.Ainv);
+		return true;
+	}
+	return false;
 }
 
 static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
