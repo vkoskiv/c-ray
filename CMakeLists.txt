@@ -85,6 +85,10 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 	endif()
 endif()
 
+if (NO_LOGO)
+	target_compile_definitions(c-ray PRIVATE -DNO_LOGO)
+endif()
+
 if (NOT NO_SDL2)
 	find_package(SDL2 QUIET)
 
