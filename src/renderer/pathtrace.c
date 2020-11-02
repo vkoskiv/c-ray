@@ -157,9 +157,7 @@ static struct color getHDRI(const struct lightRay *incidentRay, const struct hdr
 	float x = (v * hdr->t->width);
 	float y = (u * hdr->t->height);
 	
-	struct color newColor = textureGetPixelFiltered(hdr->t, x, y);
-	
-	return newColor;
+	return textureGetPixelFiltered(hdr->t, x, y);
 }
 
 //Linearly interpolate based on the Y component
