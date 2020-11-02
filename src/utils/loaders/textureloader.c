@@ -53,18 +53,19 @@ struct texture *loadTexture(char *filePath) {
 	filePath[strcspn(filePath, "\n")] = 0;
 	const unsigned char *file = (unsigned char*)loadFile(filePath, &len);
 	if (!file) return NULL;
-	struct texture *new = loadTextureFromBuffer(file, (unsigned int)len, 4);
+	struct texture *new = loadTextureFromBuffer(file, (unsigned int)len);
 	if (!new) {
 		logr(warning, "^That happened while decoding texture \"%s\" - Corrupted?\n", filePath);
 		destroyTexture(new);
 		return NULL;
 	}
+	
 	return new;
 }
 
-struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigned int buflen, int reqComp) {
+struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigned int buflen) {
 	struct texture *new = newTexture(none, 0, 0, 0);
-	new->data.byte_p = stbi_load_from_memory(buffer, buflen, (int*)&new->width, (int*)&new->height, &new->channels, reqComp);
+	new->data.byte_p = stbi_load_from_memory(buffer, buflen, (int*)&new->width, (int*)&new->height, &new->channels, 0);
 	if (!new->data.byte_p) {
 		logr(warning, "Failed to decode texture from memory buffer of size %u", buflen);
 		destroyTexture(new);

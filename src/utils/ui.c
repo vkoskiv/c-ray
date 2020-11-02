@@ -54,7 +54,7 @@ void sigHandler(int sig) {
 #ifdef CRAY_SDL_ENABLED
 static void setWindowIcon(SDL_Window *window) {
 #ifndef NO_LOGO
-	struct texture *icon = loadTextureFromBuffer(logo_png_data, logo_png_data_len, 0);
+	struct texture *icon = loadTextureFromBuffer(logo_png_data, logo_png_data_len);
 	Uint32 rmask;
 	Uint32 gmask;
 	Uint32 bmask;
