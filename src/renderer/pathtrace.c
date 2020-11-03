@@ -71,21 +71,9 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 }
 
 static struct vector bumpmap(const struct hitRecord *isect) {
-	struct material mtl = isect->material;
-	struct poly *p = isect->polygon;
-	float width = mtl.normalMap->width;
-	float heigh = mtl.normalMap->height;
-	float u = isect->uv.x;
-	float v = isect->uv.y;
-	float w = 1.0f - u - v;
-	struct coord ucomponent = coordScale(u, g_textureCoords[p->textureIndex[1]]);
-	struct coord vcomponent = coordScale(v, g_textureCoords[p->textureIndex[2]]);
-	struct coord wcomponent = coordScale(w, g_textureCoords[p->textureIndex[0]]);
-	struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
-	float x = (textureXY.x*(width));
-	float y = (textureXY.y*(heigh));
-	struct color pixel = textureGetPixelFiltered(mtl.normalMap, x, y);
-	return vecNormalize((struct vector){(pixel.red * 2.0f) - 1.0f, (pixel.green * 2.0f) - 1.0f, pixel.blue * 0.5f});
+	struct color pixel = colorForUV(isect);
+	struct vector normal = vecNormalize((struct vector){(pixel.red * 2.0f) - 1.0f, (pixel.green * 2.0f) - 1.0f, pixel.blue * 0.5f});
+	return normal;
 }
 
 //FIXME: Find out why our computed normals for polygons are garbage. This should be deleted once that issue is fixed.
