@@ -27,6 +27,7 @@ bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *pol
 
 	float u = vecDot(r, e2) * invDet;
 	float v = vecDot(r, e1) * invDet;
+	float w = 1.0f - u - v;
 
 	// This order of comparisons guarantees that none of u, v, or t, are NaNs:
 	// IEEE-754 mandates that they compare to false if the left hand side is a NaN.
@@ -35,7 +36,15 @@ bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *pol
 		if (t >= 0.0f && t < isect->distance) {
 			isect->uv = (struct coord) { u, v };
 			isect->distance = t;
-			isect->surfaceNormal = vecNormalize(n);
+			if (likely(poly->hasNormals)) {
+				struct vector upcomp = vecScale(g_normals[poly->normalIndex[1]], u);
+				struct vector vpcomp = vecScale(g_normals[poly->normalIndex[2]], v);
+				struct vector wpcomp = vecScale(g_normals[poly->normalIndex[0]], w);
+				
+				isect->surfaceNormal = vecAdd(vecAdd(upcomp, vpcomp), wpcomp);
+			} else {
+				isect->surfaceNormal = n;
+			}
 			isect->hitPoint = alongRay(ray, t);
 			return true;
 		}

@@ -61,6 +61,7 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 		isect->material = ((struct mesh*)instance->object)->materials[isect->polygon->materialIndex];
 		transformPoint(&isect->hitPoint, &instance->composite.A);
 		transformVectorWithTranspose(&isect->surfaceNormal, &instance->composite.Ainv);
+		isect->surfaceNormal = vecNormalize(isect->surfaceNormal);
 		return true;
 	}
 	return false;

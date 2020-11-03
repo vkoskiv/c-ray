@@ -76,22 +76,6 @@ static struct vector bumpmap(const struct hitRecord *isect) {
 	return normal;
 }
 
-//FIXME: Find out why our computed normals for polygons are garbage. This should be deleted once that issue is fixed.
-static inline void recomputeNormal(const struct poly *p, const struct coord *uv, struct vector *normal) {
-	const float u = uv->x;
-	const float v = uv->y;
-	const float w = 1.0f - u - v;
-	
-	if (p->hasNormals) {
-		struct vector upcomp = vecScale(g_normals[p->normalIndex[1]], u);
-		struct vector vpcomp = vecScale(g_normals[p->normalIndex[2]], v);
-		struct vector wpcomp = vecScale(g_normals[p->normalIndex[0]], w);
-		
-		*normal = vecNormalize(vecAdd(vecAdd(upcomp, vpcomp), wpcomp));
-	}
-}
-
-
 /**
  Calculate the closest intersection point, and other relevant information based on a given lightRay and scene
  See the intersection struct for documentation of what this function calculates.
@@ -112,7 +96,6 @@ static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const stru
 		return isect;
 	
 	if (isect.polygon) {
-		recomputeNormal(isect.polygon, &isect.uv, &isect.surfaceNormal); // Kludge, shouldn't need this.
 		if (isect.material.hasNormalMap)
 			isect.surfaceNormal = bumpmap(&isect);
 	}
