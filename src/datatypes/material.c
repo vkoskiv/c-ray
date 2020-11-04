@@ -15,15 +15,7 @@
 #include "poly.h"
 #include "../utils/assert.h"
 
-//FIXME: Temporary, eventually support full OBJ spec
-struct material newMaterial(struct color diffuse, float reflectivity) {
-	struct material newMaterial = {0};
-	newMaterial.reflectivity = reflectivity;
-	newMaterial.diffuse = diffuse;
-	return newMaterial;
-}
-
-struct material emptyMaterial() {
+static struct material emptyMaterial() {
 	return (struct material){0};
 }
 
@@ -123,7 +115,6 @@ struct color colorForUV(const struct hitRecord *isect, enum textureType type) {
 	output = textureGetPixelFiltered(tex, x, y);
 	
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
-	//FIXME: Maybe ask lodepng if we actually need to do this transform
 	if (type == Diffuse) output = fromSRGB(output);
 	
 	return output;

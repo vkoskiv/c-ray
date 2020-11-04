@@ -100,11 +100,8 @@ struct material {
 	bool (*bsdf)(const struct hitRecord*, struct color*, struct lightRay*, sampler*);
 };
 
-//temporary newMaterial func
-struct material newMaterial(struct color diffuse, float reflectivity);
 struct material *materialForName(struct material *materials, int count, char *name);
 
-struct material emptyMaterial(void);
 struct material defaultMaterial(void);
 struct material warningMaterial(void);
 

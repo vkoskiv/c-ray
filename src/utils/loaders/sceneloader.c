@@ -232,8 +232,6 @@ static void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
 	mesh->materials[mesh->materialCount++] = newMaterial;
 }
 
-//FIXME: change + 1 to ++scene->someCount and just pass the count to array access
-//In the future, maybe just pass a list and size and copy at once to save time (large counts)
 static void addSphere(struct world *scene, struct sphere newSphere) {
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
@@ -1050,7 +1048,6 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 			}
 		}
 		
-		//FIXME: this isn't right.
 		for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
 			lastMesh(r)->materials[i].type = type;
 			if (type == emission) {
@@ -1295,7 +1292,6 @@ int parseJSON(struct renderer *r, char *input) {
 	r->prefs = parsePrefs(renderer);
 	r->prefs.assetPath = assetPath;
 	
-	//FIXME: Another hack.
 	display = cJSON_GetObjectItem(json, "display");
 	if (parseDisplay(&r->prefs, display) == -1) {
 		logr(warning, "Display parse failed!\n");

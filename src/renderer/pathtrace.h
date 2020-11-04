@@ -15,8 +15,6 @@
 
 struct world;
 
-//FIXME: These datatypes should be hidden inside the implementation!
-
 /**
  Shading/intersection information, used to perform shading and rendering logic.
  @note uv, mtlIndex and polyIndex are only set if the ray hits a polygon (mesh)

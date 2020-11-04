@@ -22,7 +22,6 @@
 struct envMap *loadEnvMap(char *filePath) {
 	size_t len = 0;
 	//Handle the trailing newline here
-	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
 	const unsigned char *file = (unsigned char*)loadFile(filePath, &len);
 	if (!file) return NULL;
@@ -46,7 +45,6 @@ struct envMap *loadEnvMap(char *filePath) {
 struct texture *loadTexture(char *filePath) {
 	size_t len = 0;
 	//Handle the trailing newline here
-	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
 	const unsigned char *file = (unsigned char*)loadFile(filePath, &len);
 	if (!file) return NULL;

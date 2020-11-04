@@ -10,7 +10,6 @@
 #include "../src/datatypes/vector.h"
 
 // Grab private functions
-//FIXME: This is a bit of a hack. Maybe find a better way?
 float findDeterminant(float A[4][4], int n);
 float findDeterminant4x4(float A[4][4]);
 struct matrix4x4 matrixFromParams(
