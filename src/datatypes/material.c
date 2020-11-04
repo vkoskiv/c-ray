@@ -40,7 +40,7 @@ struct material defaultMaterial() {
 struct material warningMaterial() {
 	struct material newMat = emptyMaterial();
 	newMat.type = lambertian;
-	newMat.diffuse = (struct color){1.0f, 0.0f, 0.5f, 0.0f};
+	newMat.diffuse = (struct color){1.0f, 0.0f, 0.5f, 1.0f};
 	return newMat;
 }
 
