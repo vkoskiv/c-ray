@@ -8,7 +8,6 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "main.h"
 
 #include "c-ray.h"
 
