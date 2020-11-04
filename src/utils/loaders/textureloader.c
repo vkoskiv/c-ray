@@ -11,7 +11,7 @@
 #include "../fileio.h"
 #include "../logging.h"
 #include "../../datatypes/image/texture.h"
-#include "../../datatypes/image/hdr.h"
+#include "../../renderer/envmap.h"
 #include "../../datatypes/color.h"
 
 #define STBI_NO_PSD
@@ -19,31 +19,28 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../libraries/stb_image.h"
 
-struct hdr *loadHDRI(char *filePath) {
+struct envMap *loadEnvMap(char *filePath) {
 	size_t len = 0;
 	//Handle the trailing newline here
 	//FIXME: This crashes if there is no newline, even though SO said it shouldn't.
 	filePath[strcspn(filePath, "\n")] = 0;
 	const unsigned char *file = (unsigned char*)loadFile(filePath, &len);
 	if (!file) return NULL;
-	struct hdr *new = newHDRI();
 	if (stbi_is_hdr(filePath)) {
 		logr(info, "Loading HDR...");
-		new->t->data.float_p = stbi_loadf_from_memory(file, (int)len, (int*)&new->t->width, (int*)&new->t->height, &new->t->channels, 0);
-		new->t->precision = float_p;
-		if (!new->t->data.float_p) {
-			destroyHDRI(new);
-			new = NULL;
+		struct texture *tex = newTexture(float_p, 0, 0, 0);
+		tex->data.float_p = stbi_loadf_from_memory(file, (int)len, (int*)&tex->width, (int*)&tex->height, &tex->channels, 0);
+		tex->precision = float_p;
+		if (!tex->data.float_p) {
+			destroyTexture(tex);
 			logr(warning, "Error while decoding HDR from %s - Corrupted?\n", filePath);
 			return NULL;
 		}
 		float MB = (((getFileSize(filePath))/1000.0f)/1000.0f);
 		printf(" %.1fMB\n", MB);
-	} else {
-		destroyHDRI(new);
-		new = NULL;
+		return newEnvMap(tex);
 	}
-	return new;
+	return NULL;
 }
 
 struct texture *loadTexture(char *filePath) {

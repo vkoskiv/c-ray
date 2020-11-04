@@ -17,7 +17,6 @@
 #include "../../datatypes/vertexbuffer.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/camera.h"
-#include "../../datatypes/image/hdr.h"
 #include "../../datatypes/mesh.h"
 #include "../../datatypes/sphere.h"
 #include "../../datatypes/material.h"
@@ -34,6 +33,7 @@
 #include "objloader.h"
 #include "../../datatypes/instance.h"
 #include "../../utils/args.h"
+#include "../../renderer/envmap.h"
 
 struct transform parseTransformComposite(const cJSON *transforms);
 
@@ -943,7 +943,7 @@ static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	hdr = cJSON_GetObjectItem(data, "hdr");
 	if (cJSON_IsString(hdr)) {
 		char *fullPath = concatString(r->prefs.assetPath, hdr->valuestring);
-		r->scene->hdr = loadHDRI(fullPath);
+		r->scene->hdr = loadEnvMap(fullPath);
 		free(fullPath);
 	}
 	

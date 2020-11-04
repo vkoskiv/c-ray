@@ -89,6 +89,8 @@
 		909D136E24439069006D0A86 /* string.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D136C24439069006D0A86 /* string.c */; };
 		909D13712443B4E7006D0A86 /* textbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D13702443B4E7006D0A86 /* textbuffer.c */; };
 		909D13722443B4E7006D0A86 /* textbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 909D13702443B4E7006D0A86 /* textbuffer.c */; };
+		90A0B3BE2553633300F298F1 /* envmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A0B3BC2553633300F298F1 /* envmap.c */; };
+		90A0B3BF2553633300F298F1 /* envmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A0B3BC2553633300F298F1 /* envmap.c */; };
 		90A21CF124589E6A002C742E /* sampler.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CF024589E6A002C742E /* sampler.c */; };
 		90A21CF224589E6A002C742E /* sampler.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CF024589E6A002C742E /* sampler.c */; };
 		90A21CF524589E84002C742E /* hammersley.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CF424589E84002C742E /* hammersley.c */; };
@@ -99,8 +101,6 @@
 		90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A51A0423FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
 		90A51A0523FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
-		90C5D5542448CE9000C58643 /* hdr.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5532448CE9000C58643 /* hdr.c */; };
-		90C5D5552448CE9000C58643 /* hdr.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5532448CE9000C58643 /* hdr.c */; };
 		90C5D5582448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
 		90C5D5592448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
 		90C792CB245209E20067E787 /* halton.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C792CA245209E20067E787 /* halton.c */; };
@@ -145,7 +145,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		900BA0F0220B4602005B8EE7 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
 		900BA0F7220B4602005B8EE7 /* pathtrace.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pathtrace.c; sourceTree = "<group>"; };
 		900BA0F8220B4602005B8EE7 /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer.h; sourceTree = "<group>"; };
 		900BA0F9220B4602005B8EE7 /* pathtrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pathtrace.h; sourceTree = "<group>"; };
@@ -235,6 +234,9 @@
 		909D136C24439069006D0A86 /* string.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = string.c; sourceTree = "<group>"; };
 		909D136F2443B4E7006D0A86 /* textbuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = textbuffer.h; sourceTree = "<group>"; };
 		909D13702443B4E7006D0A86 /* textbuffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = textbuffer.c; sourceTree = "<group>"; };
+		90A0B3BC2553633300F298F1 /* envmap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = envmap.c; sourceTree = "<group>"; };
+		90A0B3BD2553633300F298F1 /* envmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = envmap.h; sourceTree = "<group>"; };
+		90A0DDD92547595800F3313D /* alpha.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = alpha.json; path = input/alpha.json; sourceTree = "<group>"; };
 		90A21CEF24589E6A002C742E /* sampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sampler.h; sourceTree = "<group>"; };
 		90A21CF024589E6A002C742E /* sampler.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sampler.c; sourceTree = "<group>"; };
 		90A21CF324589E84002C742E /* hammersley.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hammersley.h; sourceTree = "<group>"; };
@@ -247,8 +249,6 @@
 		90A51A0223FCB7FF0014DF6B /* memory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = memory.h; sourceTree = "<group>"; };
 		90A51A0323FCB7FF0014DF6B /* memory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = memory.c; sourceTree = "<group>"; };
 		90BAE9362328344100B1EBF0 /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
-		90C5D5522448CE9000C58643 /* hdr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hdr.h; sourceTree = "<group>"; };
-		90C5D5532448CE9000C58643 /* hdr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hdr.c; sourceTree = "<group>"; };
 		90C5D5562448CEAB00C58643 /* imagefile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imagefile.h; sourceTree = "<group>"; };
 		90C5D5572448CEAB00C58643 /* imagefile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = imagefile.c; sourceTree = "<group>"; };
 		90C792C9245209E20067E787 /* halton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = halton.h; sourceTree = "<group>"; };
@@ -311,7 +311,6 @@
 			children = (
 				9095392323C15A7B0017037C /* c-ray.h */,
 				9095392423C15A7B0017037C /* c-ray.c */,
-				900BA0F0220B4602005B8EE7 /* main.h */,
 				900BA129220B4602005B8EE7 /* main.c */,
 				900BA12A220B4602005B8EE7 /* includes.h */,
 				900BA128220B4602005B8EE7 /* .editorconfig */,
@@ -327,8 +326,8 @@
 		900BA0F1220B4602005B8EE7 /* accelerators */ = {
 			isa = PBXGroup;
 			children = (
-				904CDBB7248D74380092E564 /* bvh.c */,
 				904CDBB6248D74380092E564 /* bvh.h */,
+				904CDBB7248D74380092E564 /* bvh.c */,
 			);
 			path = accelerators;
 			sourceTree = "<group>";
@@ -343,6 +342,8 @@
 				900BA0FA220B4602005B8EE7 /* renderer.c */,
 				906479BF24982155003772CE /* sky.h */,
 				906479BE24982155003772CE /* sky.c */,
+				90A0B3BD2553633300F298F1 /* envmap.h */,
+				90A0B3BC2553633300F298F1 /* envmap.c */,
 			);
 			path = renderer;
 			sourceTree = "<group>";
@@ -500,8 +501,6 @@
 			children = (
 				90FB15CC225C6D85008D6AAA /* texture.h */,
 				90FB15CD225C6D85008D6AAA /* texture.c */,
-				90C5D5522448CE9000C58643 /* hdr.h */,
-				90C5D5532448CE9000C58643 /* hdr.c */,
 				90C5D5562448CEAB00C58643 /* imagefile.h */,
 				90C5D5572448CEAB00C58643 /* imagefile.c */,
 			);
@@ -618,7 +617,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */;
+			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -678,7 +677,6 @@
 				905842F2236651FC009D92F1 /* converter.c in Sources */,
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
-				90C5D5552448CE9000C58643 /* hdr.c in Sources */,
 				90A51A0523FCB7FF0014DF6B /* memory.c in Sources */,
 				9062FA17243D237200420889 /* bmp.c in Sources */,
 				905842F5236651FC009D92F1 /* mesh.c in Sources */,
@@ -692,6 +690,7 @@
 				90EE4F3D237DD49F0071894E /* meshloader.c in Sources */,
 				905842F8236651FC009D92F1 /* renderer.c in Sources */,
 				905842F9236651FC009D92F1 /* camera.c in Sources */,
+				90A0B3BF2553633300F298F1 /* envmap.c in Sources */,
 				905842FA236651FC009D92F1 /* scene.c in Sources */,
 				905842FC236651FC009D92F1 /* transforms.c in Sources */,
 				905842FD236651FC009D92F1 /* ui.c in Sources */,
@@ -742,7 +741,6 @@
 				900BA142220B4603005B8EE7 /* converter.c in Sources */,
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
-				90C5D5542448CE9000C58643 /* hdr.c in Sources */,
 				90A51A0423FCB7FF0014DF6B /* memory.c in Sources */,
 				9062FA16243D237200420889 /* bmp.c in Sources */,
 				90189DA6224EB302007FA268 /* mesh.c in Sources */,
@@ -756,6 +754,7 @@
 				90EE4F3C237DD49F0071894E /* meshloader.c in Sources */,
 				900BA12E220B4603005B8EE7 /* renderer.c in Sources */,
 				900BA137220B4603005B8EE7 /* camera.c in Sources */,
+				90A0B3BE2553633300F298F1 /* envmap.c in Sources */,
 				900BA132220B4603005B8EE7 /* scene.c in Sources */,
 				900BA133220B4603005B8EE7 /* transforms.c in Sources */,
 				900BA141220B4603005B8EE7 /* ui.c in Sources */,
@@ -1078,7 +1077,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */ = {
+		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				90D99AF91D08ADB10015A854 /* Debug */,

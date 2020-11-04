@@ -10,9 +10,9 @@
 
 //C-ray texture parser
 
-/// Load a radiance HDRI file.
+/// Load a radiance HDRI environment map.
 /// @param filePath Path to image file on disk.
-struct hdr *loadHDRI(char *filePath);
+struct envMap *loadEnvMap(char *filePath);
 
 /// Load a generic texture. Currently supports: JPEG, PNG, BMP, TGA, PIC, PNM
 /// @param filePath Path to image file on disk

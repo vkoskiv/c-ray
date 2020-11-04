@@ -15,7 +15,7 @@
 #include "image/imagefile.h"
 #include "../renderer/renderer.h"
 #include "image/texture.h"
-#include "image/hdr.h"
+#include "../renderer/envmap.h"
 #include "camera.h"
 #include "vertexbuffer.h"
 #include "../accelerators/bvh.h"
@@ -156,7 +156,7 @@ int loadScene(struct renderer *r, char *input) {
 //Free scene data
 void destroyScene(struct world *scene) {
 	if (scene) {
-		destroyHDRI(scene->hdr);
+		destroyEnvMap(scene->hdr);
 		destroyCamera(scene->camera);
 		for (int i = 0; i < scene->meshCount; ++i) {
 			destroyMesh(&scene->meshes[i]);

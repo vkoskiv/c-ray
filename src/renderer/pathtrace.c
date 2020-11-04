@@ -13,13 +13,13 @@
 #include "../datatypes/camera.h"
 #include "../accelerators/bvh.h"
 #include "../datatypes/image/texture.h"
-#include "../datatypes/image/hdr.h"
 #include "../datatypes/vertexbuffer.h"
 #include "../datatypes/sphere.h"
 #include "../datatypes/poly.h"
 #include "../datatypes/mesh.h"
 #include "samplers/sampler.h"
 #include "sky.h"
+#include "envmap.h"
 #include "../datatypes/transforms.h"
 #include "../datatypes/instance.h"
 
@@ -99,13 +99,13 @@ static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const stru
 	return isect;
 }
 
-static struct color getHDRI(const struct lightRay *incidentRay, const struct hdr *hdr) {
+static struct color getHDRI(const struct lightRay *incidentRay, const struct envMap *map) {
 	//Unit direction vector
 	struct vector ud = vecNormalize(incidentRay->direction);
 	
 	//To polar from cartesian
 	float r = 1.0f; //Normalized above
-	float phi = (atan2f(ud.z, ud.x) / 4.0f) + hdr->offset;
+	float phi = (atan2f(ud.z, ud.x) / 4.0f) + map->offset;
 	float theta = acosf((-ud.y / r));
 	
 	float u = theta / PI;
@@ -114,10 +114,10 @@ static struct color getHDRI(const struct lightRay *incidentRay, const struct hdr
 	u = wrapMinMax(u, 0.0f, 1.0f);
 	v = wrapMinMax(v, 0.0f, 1.0f);
 	
-	float x = (v * hdr->t->width);
-	float y = (u * hdr->t->height);
+	float x = (v * map->hdr->width);
+	float y = (u * map->hdr->height);
 	
-	return textureGetPixelFiltered(hdr->t, x, y);
+	return textureGetPixelFiltered(map->hdr, x, y);
 }
 
 //Linearly interpolate based on the Y component
