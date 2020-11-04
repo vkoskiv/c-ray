@@ -18,11 +18,6 @@
 
 static void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder);
 
-/**
- Gets the next tile from renderTiles in mainRenderer
- 
- @return A renderTile to be rendered
- */
 struct renderTile nextTile(struct renderer *r) {
 	struct renderTile tile;
 	memset(&tile, 0, sizeof(tile));
@@ -56,11 +51,6 @@ struct renderTile nextTileInteractive(struct renderer *r) {
 	return tile;
 }
 
-/**
- Create tiles from render plane, and add those to mainRenderer
- 
- @param scene scene object
- */
 unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum renderOrder tileOrder) {
 	
 	logr(info, "Quantizing render plane\n");
@@ -114,9 +104,6 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 	return tileCount;
 }
 
-/**
- Reorder renderTiles to start from top
- */
 static void reorderTopToBottom(struct renderTile **tiles, unsigned tileCount) {
 	unsigned endIndex = tileCount - 1;
 	
@@ -146,9 +133,6 @@ static unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_rand
 	return min + (r / buckets);
 }
 
-/**
- Shuffle renderTiles into a random order
- */
 static void reorderRandom(struct renderTile **tiles, unsigned tileCount) {
 	pcg32_random_t *rng = calloc(1, sizeof(*rng));
 	pcg32_srandom_r(rng, 3141592, 0);
@@ -162,9 +146,6 @@ static void reorderRandom(struct renderTile **tiles, unsigned tileCount) {
 	free(rng);
 }
 
-/**
- Reorder renderTiles to start from middle
- */
 static void reorderFromMiddle(struct renderTile **tiles, unsigned tileCount) {
 	int midLeft = 0;
 	int midRight = 0;
@@ -189,9 +170,6 @@ static void reorderFromMiddle(struct renderTile **tiles, unsigned tileCount) {
 	*tiles = tempArray;
 }
 
-/**
- Reorder renderTiles to start from ends, towards the middle
- */
 static void reorderToMiddle(struct renderTile **tiles, unsigned tileCount) {
 	unsigned left = 0;
 	unsigned right = 0;
@@ -215,11 +193,6 @@ static void reorderToMiddle(struct renderTile **tiles, unsigned tileCount) {
 	*tiles = tempArray;
 }
 
-/**
- Reorder renderTiles in given order
- 
- @param order Render order to be applied
- */
 static void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder) {
 	switch (tileOrder) {
 		case renderOrderFromMiddle:
