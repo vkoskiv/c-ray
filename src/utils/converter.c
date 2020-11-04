@@ -12,6 +12,7 @@
 #include "../datatypes/vector.h"
 #include "../datatypes/poly.h"
 #include "../datatypes/material.h"
+#include "../utils/string.h"
 
 /**
  Convert a given OBJ loader vector into a c-ray vector
@@ -74,8 +75,8 @@ struct material materialFromObj(obj_material *mat) {
 	struct material newMat;
 	
 	newMat.name = calloc(256, sizeof(*newMat.name));
-	newMat.textureFilePath = calloc(500, sizeof(*newMat.textureFilePath));
 	newMat.normalMapPath = calloc(500, sizeof(*newMat.normalMapPath));
+	newMat.specularMapPath = calloc(500, sizeof(*newMat.specularMapPath));
 	
 	newMat.hasTexture = false;
 	
@@ -84,12 +85,9 @@ struct material materialFromObj(obj_material *mat) {
 		newMat.name[255] = '\0';
 	}
 	
-	for (int i = 0; i < 500; ++i) {
-		newMat.textureFilePath[i] = mat->texture_filename[i];
-		newMat.normalMapPath[i] = mat->displacement_filename[i];
-		newMat.textureFilePath[499] = '\0';
-		newMat.normalMapPath[499] = '\0';
-	}
+	newMat.textureFilePath = copyString(mat->texture_filename);
+	newMat.normalMapPath = copyString(mat->displacement_filename);
+	newMat.specularMapPath = copyString(mat->specular_filename);
 	
 	newMat.diffuse.red   = mat->diff[0];
 	newMat.diffuse.green = mat->diff[1];

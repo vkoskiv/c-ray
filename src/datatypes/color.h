@@ -60,8 +60,8 @@ static inline struct color addColors(struct color c1, struct color c2) {
 }
 
 static inline struct color grayscale(struct color c) {
-	float b = (c.red+c.green+c.blue) / 3.0f;
-	return (struct color){b, b, b, 0.0f};
+	float b = (c.red + c.green + c.blue) / 3.0f;
+	return (struct color){b, b, b, 1.0f};
 }
 
 //Multiply a color with a coefficient value

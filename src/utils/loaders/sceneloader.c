@@ -92,6 +92,23 @@ static void loadMeshTextures(char *assetPath, struct mesh *mesh) {
 			mesh->materials[i].hasNormalMap = false;
 		}
 		
+		if (mesh->materials[i].specularMapPath) {
+			if (strcmp(mesh->materials[i].specularMapPath, "")) {
+				char *fullPath = concatString(assetPath, mesh->materials[i].specularMapPath);
+				mesh->materials[i].specularMap = loadTexture(fullPath);
+				free(fullPath);
+				if (mesh->materials[i].specularMap) {
+					mesh->materials[i].hasSpecularMap = true;
+				} else {
+					mesh->materials[i].hasSpecularMap = false;
+				}
+			} else {
+				mesh->materials[i].hasSpecularMap = false;
+			}
+		} else {
+			mesh->materials[i].hasSpecularMap = false;
+		}
+		
 	}
 }
 

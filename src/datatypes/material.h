@@ -68,11 +68,14 @@ struct bsdf {
 struct material {
 	char *textureFilePath;
 	char *normalMapPath;
+	char *specularMapPath;
 	char *name;
 	bool hasTexture;
 	struct texture *texture;
 	bool hasNormalMap;
 	struct texture *normalMap;
+	bool hasSpecularMap;
+	struct texture *specularMap;
 	struct color ambient;
 	struct color diffuse;
 	struct color specular;
@@ -113,6 +116,12 @@ bool dielectricBSDF(const struct hitRecord *isect, struct color *attenuation, st
 
 void assignBSDF(struct material *mat);
 
-struct color colorForUV(const struct hitRecord *isect);
+enum textureType {
+	Diffuse,
+	Normal,
+	Specular
+};
+
+struct color colorForUV(const struct hitRecord *isect, enum textureType type);
 
 void destroyMaterial(struct material *mat);

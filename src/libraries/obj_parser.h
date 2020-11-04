@@ -40,6 +40,7 @@ typedef struct {
 	char name[MATERIAL_NAME_SIZE + 1];
 	char texture_filename[OBJ_FILENAME_LENGTH + 1];
 	char displacement_filename[OBJ_FILENAME_LENGTH + 1];
+	char specular_filename[OBJ_FILENAME_LENGTH + 1];
 	double amb[3];
 	double diff[3];
 	double spec[3];

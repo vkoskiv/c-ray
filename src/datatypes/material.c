@@ -80,14 +80,28 @@ void assignBSDF(struct material *mat) {
 
 //Transform the intersection coordinates to the texture coordinate space
 //And grab the color at that point. Texture mapping.
-struct color colorForUV(const struct hitRecord *isect) {
+struct color colorForUV(const struct hitRecord *isect, enum textureType type) {
 	struct color output;
-	const struct material mtl = isect->material;
+	const struct texture *tex = NULL;
+	switch (type) {
+		case Normal:
+			tex = isect->material.hasNormalMap ? isect->material.normalMap : NULL;
+			break;
+		case Specular:
+			tex = isect->material.hasSpecularMap ? isect->material.specularMap : NULL;
+			break;
+		default:
+			tex = isect->material.hasTexture ? isect->material.texture : NULL;
+			break;
+	}
+	tex = NULL;
+	if (!tex) return warningMaterial().diffuse;
+	
 	const struct poly *p = isect->polygon;
 	
 	//Texture width and height for this material
-	const float width = mtl.texture->width;
-	const float heigh = mtl.texture->height;
+	const float width = tex->width;
+	const float heigh = tex->height;
 
 	//barycentric coordinates for this polygon
 	const float u = isect->uv.x;
@@ -106,11 +120,11 @@ struct color colorForUV(const struct hitRecord *isect) {
 	const float y = (textureXY.y*(heigh));
 	
 	//Get the color value at these XY coordinates
-	output = textureGetPixelFiltered(mtl.texture, x, y);
+	output = textureGetPixelFiltered(tex, x, y);
 	
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	//FIXME: Maybe ask lodepng if we actually need to do this transform
-	output = fromSRGB(output);
+	if (type == Diffuse) output = fromSRGB(output);
 	
 	return output;
 }
@@ -204,13 +218,15 @@ bool weightedBSDF(struct hitRecord *isect, struct color *attenuation, struct lig
 
 //TODO: Make this a function ptr in the material?
 static struct color diffuseColor(const struct hitRecord *isect) {
-	return isect->material.hasTexture ? colorForUV(isect) : isect->material.diffuse;
+	return isect->material.hasTexture ? colorForUV(isect, Diffuse) : isect->material.diffuse;
+}
+
+static float roughnessValue(const struct hitRecord *isect) {
+	return isect->material.hasSpecularMap ? colorForUV(isect, Specular).red : isect->material.roughness;
 }
 
 bool lambertianBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
-	//struct vector temp = vecAdd(isect->hitPoint, isect->surfaceNormal);
-	//struct vector rand = randomOnUnitSphere(sampler);
-	const struct vector scatterDir = vecNormalize(vecAdd(isect->surfaceNormal, randomOnUnitSphere(sampler)));//vecSub(vecAdd(temp, rand), isect->hitPoint); //Randomized scatter direction
+	const struct vector scatterDir = vecNormalize(vecAdd(isect->surfaceNormal, randomOnUnitSphere(sampler)));
 	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered});
 	*attenuation = diffuseColor(isect);
 	return true;
@@ -220,8 +236,9 @@ bool metallicBSDF(const struct hitRecord *isect, struct color *attenuation, stru
 	const struct vector normalizedDir = vecNormalize(isect->incident.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &isect->surfaceNormal);
 	//Roughness
-	if (isect->material.roughness > 0.0f) {
-		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->material.roughness);
+	float roughness = roughnessValue(isect);
+	if (roughness > 0.0f) {
+		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
 	
@@ -256,8 +273,9 @@ bool shinyBSDF(const struct hitRecord *isect, struct color *attenuation, struct 
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	*attenuation = whiteColor;
 	//Roughness
-	if (isect->material.roughness > 0.0f) {
-		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->material.roughness);
+	float roughness = roughnessValue(isect);
+	if (roughness > 0.0f) {
+		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
 	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
@@ -325,8 +343,9 @@ bool dielectricBSDF(const struct hitRecord *isect, struct color *attenuation, st
 	}
 	
 	//Roughness
-	if (isect->material.roughness > 0.0f) {
-		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), isect->material.roughness);
+	float roughness = roughnessValue(isect);
+	if (roughness > 0.0f) {
+		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
 		refracted = vecAdd(refracted, fuzz);
 	}

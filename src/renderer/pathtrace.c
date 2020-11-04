@@ -70,12 +70,6 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 	return finalColor;
 }
 
-static struct vector bumpmap(const struct hitRecord *isect) {
-	struct color pixel = colorForUV(isect);
-	struct vector normal = vecNormalize((struct vector){(pixel.red * 2.0f) - 1.0f, (pixel.green * 2.0f) - 1.0f, pixel.blue * 0.5f});
-	return normal;
-}
-
 /**
  Calculate the closest intersection point, and other relevant information based on a given lightRay and scene
  See the intersection struct for documentation of what this function calculates.
@@ -95,12 +89,7 @@ static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const stru
 	if (!traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect))
 		return isect;
 	
-	if (isect.polygon) {
-		if (isect.material.hasNormalMap)
-			isect.surfaceNormal = bumpmap(&isect);
-	}
-	
-	float prob = isect.material.hasTexture ? colorForUV(&isect).alpha : isect.material.diffuse.alpha;
+	float prob = isect.material.hasTexture ? colorForUV(&isect, Diffuse).alpha : isect.material.diffuse.alpha;
 	if (prob < 1.0f) {
 		if (getDimension(sampler) > prob) {
 			struct lightRay next = {isect.hitPoint, incidentRay->direction, rayTypeIncident};
