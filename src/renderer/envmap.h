@@ -9,6 +9,7 @@
 #pragma once
 
 struct texture;
+struct lightRay;
 
 struct envMap {
 	struct texture *hdr;
@@ -16,5 +17,7 @@ struct envMap {
 };
 
 struct envMap *newEnvMap(struct texture *);
+
+struct color getEnvMap(const struct lightRay *incidentRay, const struct envMap *map);
 
 void destroyEnvMap(struct envMap *map);

@@ -99,27 +99,6 @@ static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const stru
 	return isect;
 }
 
-static struct color getHDRI(const struct lightRay *incidentRay, const struct envMap *map) {
-	//Unit direction vector
-	struct vector ud = vecNormalize(incidentRay->direction);
-	
-	//To polar from cartesian
-	float r = 1.0f; //Normalized above
-	float phi = (atan2f(ud.z, ud.x) / 4.0f) + map->offset;
-	float theta = acosf((-ud.y / r));
-	
-	float u = theta / PI;
-	float v = (phi / (PI / 2.0f));
-	
-	u = wrapMinMax(u, 0.0f, 1.0f);
-	v = wrapMinMax(v, 0.0f, 1.0f);
-	
-	float x = (v * map->hdr->width);
-	float y = (u * map->hdr->height);
-	
-	return textureGetPixelFiltered(map->hdr, x, y);
-}
-
 //Linearly interpolate based on the Y component
 static struct color getAmbientColor(const struct lightRay *incidentRay, struct gradient color) {
 	struct vector unitDirection = vecNormalize(incidentRay->direction);
@@ -128,5 +107,5 @@ static struct color getAmbientColor(const struct lightRay *incidentRay, struct g
 }
 
 static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene) {
-	return scene->hdr ? getHDRI(incidentRay, scene->hdr) : getAmbientColor(incidentRay, scene->ambientColor);
+	return scene->hdr ? getEnvMap(incidentRay, scene->hdr) : getAmbientColor(incidentRay, scene->ambientColor);
 }
