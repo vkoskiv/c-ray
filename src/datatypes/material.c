@@ -86,7 +86,7 @@ struct color colorForUV(const struct hitRecord *isect, enum textureType type) {
 			tex = isect->material.hasTexture ? isect->material.texture : NULL;
 			break;
 	}
-	tex = NULL;
+	
 	if (!tex) return warningMaterial().diffuse;
 	
 	const struct poly *p = isect->polygon;
