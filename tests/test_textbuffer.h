@@ -11,6 +11,110 @@
 
 #define MULTILINE "This is a\nMultiline\nstring!\n"
 
+bool textbuffer_new(void) {
+	bool pass = true;
+	char *string = MULTILINE;
+	
+	test_assert(!newTextBuffer(NULL));
+	
+	textBuffer *empty = newTextBuffer("");
+	test_assert(empty->amountOf.lines == 0);
+	test_assert(empty->buflen == 0);
+	freeTextBuffer(empty);
+	
+	textBuffer *original = newTextBuffer(string);
+	test_assert(original->amountOf.lines == 3);
+	test_assert(original->buflen == strlen(string));
+	
+	return pass;
+}
+
+bool textbuffer_gotoline(void) {
+	bool pass = true;
+	char *string = MULTILINE;
+	textBuffer *original = newTextBuffer(string);
+	
+	test_assert(stringEquals(goToLine(original, 0), "This is a"));
+	
+	test_assert(original->current.line == 0);
+	
+	test_assert(stringEquals(goToLine(original, 1), "Multiline"));
+	
+	test_assert(original->current.line == 1);
+	
+	test_assert(stringEquals(goToLine(original, 2), "string!"));
+	
+	test_assert(original->current.line == 2);
+	
+	test_assert(!goToLine(original, 3));
+	
+	test_assert(original->current.line == 2);
+	
+	test_assert(!goToLine(original, -1));
+	
+	test_assert(original->current.line == 2);
+	
+	return pass;
+}
+
+bool textbuffer_peekline(void) {
+	bool pass = true;
+	char *string = MULTILINE;
+	textBuffer *original = newTextBuffer(string);
+	
+	test_assert(stringEquals(peekLine(original, 0), "This is a"));
+	
+	test_assert(original->current.line == 0);
+	
+	test_assert(stringEquals(peekLine(original, 1), "Multiline"));
+	
+	test_assert(original->current.line == 0);
+	
+	test_assert(stringEquals(peekLine(original, 2), "string!"));
+	
+	test_assert(original->current.line == 0);
+	
+	test_assert(!peekLine(original, 3));
+	
+	test_assert(!peekLine(original, -1));
+	
+	return pass;
+}
+
+bool textbuffer_nextline(void) {
+	bool pass = true;
+	char *string = MULTILINE;
+	textBuffer *original = newTextBuffer(string);
+	
+	test_assert(stringEquals(nextLine(original), "Multiline"));
+	
+	test_assert(stringEquals(nextLine(original), "string!"));
+	
+	test_assert(!nextLine(original));
+	
+	return pass;
+}
+
+bool textbuffer_previousline(void) {
+	bool pass = true;
+	char *string = MULTILINE;
+	textBuffer *original = newTextBuffer(string);
+	
+	lastLine(original);
+	
+	test_assert(stringEquals(previousLine(original), "Multiline"));
+	
+	test_assert(stringEquals(previousLine(original), "This is a"));
+	
+	test_assert(stringEquals(nextLine(original), "Multiline"));
+	
+	test_assert(stringEquals(previousLine(original), "This is a"));
+	
+	test_assert(!previousLine(original));
+	
+	return pass;
+}
+
 bool textbuffer_peeknextline(void) {
 	bool pass = true;
 	char *string = MULTILINE;

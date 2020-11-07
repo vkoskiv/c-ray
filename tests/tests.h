@@ -47,6 +47,11 @@ static test tests[] = {
 	
 	{"textbuffer::textview", textbuffer_textview},
 	{"textbuffer::tokenizer", textbuffer_tokenizer},
+	{"textbuffer::new", textbuffer_new},
+	{"textbuffer::gotoline", textbuffer_gotoline},
+	{"textbuffer::peekline", textbuffer_peekline},
+	{"textbuffer::nextline", textbuffer_nextline},
+	{"textbuffer::previousline", textbuffer_previousline},
 	{"textbuffer::peeknextline", textbuffer_peeknextline},
 	{"textbuffer::firstline", textbuffer_firstline},
 	{"textbuffer::currentline", textbuffer_currentline},
