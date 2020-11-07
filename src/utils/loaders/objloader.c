@@ -142,9 +142,11 @@ enum currentMode {
 	Mesh
 };
 
-struct mesh *parseOBJFile(char *filePath, size_t *finalMeshCount) {
+struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	logr(debug, "Loading OBJ at %s\n", filePath);
-	char *rawText = loadFile(filePath, NULL);
+	size_t bytes = 0;
+	char *rawText = loadFile(filePath, &bytes);
+	ASSERT(rawText);
 	textBuffer *file = newTextBuffer(rawText);
 	
 	//Start processing line-by-line, state machine style.

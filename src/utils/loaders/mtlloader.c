@@ -14,6 +14,22 @@
 #include "../../datatypes/material.h"
 #include "../../utils/logging.h"
 #include "../../utils/string.h"
+#include "../../utils/textbuffer.h"
+
+static size_t countMaterials(textBuffer *buffer) {
+	size_t mtlCount = 0;
+	char *head = firstLine(buffer);
+	lineBuffer line = {0};
+	while (head) {
+		fillLineBuffer(&line, head, " ");
+		char *first = firstToken(&line);
+		if (stringEquals(first, "newmtl")) mtlCount++;
+		head = nextLine(buffer);
+	}
+	logr(debug, "File contains %zu materials\n", mtlCount);
+	head = firstLine(buffer);
+	return mtlCount;
+}
 
 // Parse a list of materials and return an array of materials.
 // mtlCount is the amount of materials loaded.

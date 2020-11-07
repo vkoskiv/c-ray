@@ -118,7 +118,7 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath) {
 	bool valid = false;
 	
 	size_t meshCount = 0;
-	struct mesh *newMeshes = parseOBJFile(inputFilePath, &meshCount);
+	struct mesh *newMeshes = parseWavefront(inputFilePath, &meshCount);
 	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + meshCount) * sizeof(struct mesh));
 	if (newMeshes) {
 		for (size_t m = 0; m < meshCount; ++m) {

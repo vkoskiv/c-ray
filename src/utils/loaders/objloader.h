@@ -8,6 +8,4 @@
 
 #pragma once
 
-//Main C-ray OBJ parsing logic
-
-struct mesh *parseOBJFile(char *filePath, size_t *meshCount);
+struct mesh *parseWavefront(const char *filePath, size_t *meshCount);
