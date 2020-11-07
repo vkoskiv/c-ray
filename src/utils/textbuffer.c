@@ -106,7 +106,8 @@ char *nextLine(textBuffer *file) {
 char *peekNextLine(textBuffer *file) {
 	char *head = file->buf + file->currentByteOffset;
 	if (file->current.line + 1 < file->amountOf.lines) {
-		return head;
+		size_t offset = strlen(head) + 1;
+		return head + offset;
 	} else {
 		return NULL;
 	}
