@@ -18,13 +18,6 @@
 #include <stdio.h>
 #include "assert.h"
 
-static size_t strlen_newline(const char *str) {
-	size_t len = 0;
-	while (*(str++) != '\n')
-		++len;
-	return len;
-}
-
 textBuffer *newTextView(textBuffer *original, const size_t start, const size_t lines) {
 	ASSERT(original);
 	ASSERT(lines > 0);
