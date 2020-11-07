@@ -10,6 +10,29 @@
 #include "../src/utils/string.h"
 
 //TODO: Tests for all of these.
+
+bool textbuffer_currentline(void) {
+	bool pass = true;
+	char *string = "This is a\nMultiline\nstring!\n";
+	textBuffer *original = newTextBuffer(string);
+	
+	test_assert(stringEquals(currentLine(original), "This is a"));
+	
+	test_assert(stringEquals(nextLine(original), "Multiline"));
+	
+	test_assert(stringEquals(currentLine(original), "Multiline"));
+	
+	test_assert(stringEquals(nextLine(original), "string!"));
+	
+	test_assert(stringEquals(currentLine(original), "string!"));
+	
+	test_assert(stringEquals(firstLine(original), "This is a"));
+	
+	test_assert(stringEquals(currentLine(original), "This is a"));
+	
+	return pass;
+}
+
 bool textbuffer_textview(void) {
 	bool pass = true;
 	char *string = "This is a\nMultiline\nstring!\n";

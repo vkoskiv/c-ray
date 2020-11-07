@@ -127,7 +127,7 @@ char *firstLine(textBuffer *file) {
 }
 
 char *currentLine(textBuffer *file) {
-	return file->buf;
+	return file->buf + file->currentByteOffset;
 }
 
 char *lastLine(textBuffer *file) {

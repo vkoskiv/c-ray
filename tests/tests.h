@@ -47,6 +47,7 @@ static test tests[] = {
 	
 	{"textbuffer::textview", textbuffer_textview},
 	{"textbuffer::tokenizer", textbuffer_tokenizer},
+	{"textbuffer::currentline", textbuffer_currentline},
 	
 	{"fileio::humanFileSize", fileio_humanFileSize},
 	{"fileio::getFileName", fileio_getFileName},
