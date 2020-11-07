@@ -9,11 +9,37 @@
 #include "../src/utils/textbuffer.h"
 #include "../src/utils/string.h"
 
-//TODO: Tests for all of these.
+#define MULTILINE "This is a\nMultiline\nstring!\n"
+
+bool textbuffer_peeknextline(void) {
+	bool pass = true;
+	char *string = MULTILINE;
+	textBuffer *original = newTextBuffer(string);
+	
+	test_assert(stringEquals(peekNextLine(original), "Multiline"));
+	
+	nextLine(original);
+	
+	test_assert(stringEquals(peekNextLine(original), "string!"));
+	
+	return pass;
+}
+
+bool textbuffer_firstline(void) {
+	bool pass = true;
+	char *string = MULTILINE;
+	textBuffer *original = newTextBuffer(string);
+	
+	lastLine(original);
+	
+	test_assert(stringEquals(firstLine(original), "This is a"));
+	
+	return pass;
+}
 
 bool textbuffer_currentline(void) {
 	bool pass = true;
-	char *string = "This is a\nMultiline\nstring!\n";
+	char *string = MULTILINE;
 	textBuffer *original = newTextBuffer(string);
 	
 	test_assert(stringEquals(currentLine(original), "This is a"));
@@ -33,25 +59,37 @@ bool textbuffer_currentline(void) {
 	return pass;
 }
 
-bool textbuffer_textview(void) {
+bool textbuffer_lastline(void) {
 	bool pass = true;
-	char *string = "This is a\nMultiline\nstring!\n";
+	char *string = MULTILINE;
 	
 	textBuffer *original = newTextBuffer(string);
-	//dumpBuffer(original);
+	test_assert(stringEquals(lastLine(original), "string!"));
+	
+	return pass;
+}
+
+bool textbuffer_textview(void) {
+	bool pass = true;
+	char *string = MULTILINE;
+	
+	textBuffer *original = newTextBuffer(string);
 	
 	test_assert(original->amountOf.lines == 3);
 	
 	textBuffer *view = newTextView(original, 0, 1);
 	test_assert(stringEquals(currentLine(view), "This is a"));
+	test_assert(view->amountOf.lines == 1);
 	freeTextBuffer(view);
 	
 	view = newTextView(original, 1, 1);
 	test_assert(stringEquals(currentLine(view), "Multiline"));
+	test_assert(view->amountOf.lines == 1);
 	freeTextBuffer(view);
 	
 	view = newTextView(original, 2, 1);
 	test_assert(stringEquals(currentLine(view), "string!"));
+	test_assert(view->amountOf.lines == 1);
 	freeTextBuffer(view);
 	
 	freeTextBuffer(original);
@@ -61,7 +99,7 @@ bool textbuffer_textview(void) {
 
 bool textbuffer_tokenizer(void) {
 	bool pass = true;
-	char *rawText = "This is a\nMultiline\nstring!\n";
+	char *rawText = MULTILINE;
 	textBuffer *file = newTextBuffer(rawText);
 	
 	char *currentLine = firstLine(file);
