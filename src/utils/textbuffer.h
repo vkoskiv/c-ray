@@ -30,15 +30,20 @@ struct _textBuffer {
 typedef struct _textBuffer textBuffer;
 typedef struct _textBuffer lineBuffer;
 
-textBuffer *newTextView(textBuffer *original, const size_t start, const size_t lines);
+textBuffer *newTextBuffer(const char *contents);
 
-textBuffer *newTextBuffer(char *contents);
+// A subset of a textBuffer
+textBuffer *newTextView(textBuffer *original, const size_t start, const size_t lines);
 
 void dumpBuffer(textBuffer *buffer);
 
 char *goToLine(textBuffer *file, size_t line);
 
+char *peekLine(textBuffer *file, size_t line);
+
 char *nextLine(textBuffer *file);
+
+char *previousLine(textBuffer *file);
 
 char *peekNextLine(textBuffer *file);
 
@@ -55,7 +60,11 @@ void fillLineBuffer(lineBuffer *buffer, const char *contents, char *delimiters);
 
 char *goToToken(lineBuffer *line, size_t token);
 
+char *peekToken(lineBuffer *line, size_t token);
+
 char *nextToken(lineBuffer *line);
+
+char *previousToken(lineBuffer *line);
 
 char *peekNextToken(lineBuffer *line);
 

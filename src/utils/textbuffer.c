@@ -43,7 +43,7 @@ textBuffer *newTextView(textBuffer *original, const size_t start, const size_t l
 	return new;
 }
 
-textBuffer *newTextBuffer(char *contents) {
+textBuffer *newTextBuffer(const char *contents) {
 	if (!contents) return NULL;
 	textBuffer *new = calloc(1, sizeof(*new));
 	new->buf = copyString(contents);
@@ -80,10 +80,23 @@ char *goToLine(textBuffer *file, size_t line) {
 		char *head = file->buf;
 		for (size_t i = 0; i < line; ++i) {
 			size_t offset = strlen(head) + 1;
-			head += strlen(head) + 1;
+			head += offset;
 			file->currentByteOffset += offset;
 		}
 		file->current.line = line;
+		return head;
+	} else {
+		return NULL;
+	}
+}
+
+char *peekLine(textBuffer *file, size_t line) {
+	if (line < file->amountOf.lines) {
+		char *head = file->buf;
+		for (size_t i = 0; i < line; ++i) {
+			size_t offset = strlen(head) + 1;
+			head += offset;
+		}
 		return head;
 	} else {
 		return NULL;
@@ -94,13 +107,17 @@ char *nextLine(textBuffer *file) {
 	char *head = file->buf + file->currentByteOffset;
 	if (file->current.line + 1 < file->amountOf.lines) {
 		size_t offset = strlen(head) + 1;
-		head += offset;
 		file->current.line++;
 		file->currentByteOffset += offset;
-		return head;
+		return head + offset;
 	} else {
 		return NULL;
 	}
+}
+
+char *previousLine(textBuffer *file) {
+	char *head = goToLine(file, file->current.line - 1);
+	return head;
 }
 
 char *peekNextLine(textBuffer *file) {
@@ -161,8 +178,16 @@ char *goToToken(lineBuffer *line, size_t token) {
 	return goToLine(line, token);
 }
 
+char *peekToken(lineBuffer *line, size_t token) {
+	return peekLine(line, token);
+}
+
 char *nextToken(lineBuffer *line) {
 	return nextLine(line);
+}
+
+char *previousToken(lineBuffer *line) {
+	return previousLine(line);
 }
 
 char *peekNextToken(lineBuffer *line) {
