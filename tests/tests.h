@@ -32,9 +32,9 @@ static test tests[] = {
 	{"transforms::determinant", transform_determinant},
 	{"transforms::determinant4x4", transform_determinant4x4},
 	
-	{"transforms::rotateX", transform_rotate_X},
-	{"transforms::rotateY", transform_rotate_Y},
-	{"transforms::rotateZ", transform_rotate_Z},
+	//{"transforms::rotateX", transform_rotate_X},
+	//{"transforms::rotateY", transform_rotate_Y},
+	//{"transforms::rotateZ", transform_rotate_Z},
 	{"transforms::translateX", transform_translate_X},
 	{"transforms::translateY", transform_translate_Y},
 	{"transforms::translateZ", transform_translate_Z},
