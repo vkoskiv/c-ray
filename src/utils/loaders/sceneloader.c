@@ -432,21 +432,6 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 	return newTransformTranslate(0.0f, 0.0f, 0.0f);
 }
 
-//Parse JSON array of transforms, and return a pointer to an array of corresponding transforms
-static struct transform *parseTransforms(const cJSON *data) {
-	
-	int transformCount = cJSON_GetArraySize(data);
-	struct transform *transforms = calloc(transformCount, sizeof(*transforms));
-	
-	cJSON *transform = NULL;
-	
-	for (int i = 0; i < transformCount; ++i) {
-		transform = cJSON_GetArrayItem(data, i);
-		transforms[i] = parseTransform(transform, "camera");
-	}
-	return transforms;
-}
-
 static struct prefs defaultPrefs() {
 	char* imgFilePath;
 	char* imgFileName;
@@ -1209,20 +1194,6 @@ static void parsePrimitives(struct renderer *r, const cJSON *data) {
 			i++;
 		}
 	}
-}
-
-static int initializeParser(char *input) {
-	cJSON *json = cJSON_Parse(input);
-	if (!json) {
-		logr(warning, "Failed to parse JSON\n");
-		const char *err = cJSON_GetErrorPtr();
-		if (err) {
-			cJSON_Delete(json);
-			logr(warning, "Error before: %s\n", err);
-			return -1;
-		}
-	}
-	return 0;
 }
 
 static int parseScene(struct renderer *r, const cJSON *data) {

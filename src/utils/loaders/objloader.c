@@ -72,21 +72,6 @@ static int parseIndices(int *vertexIndex, int *normalIndex, int *textureIndex) {
 	return vertexCount;
 }
 
-static int convert(int amount, int index) {
-	if (index == 0)
-		return -1;
-	if (index < 0)
-		return amount + index;
-	
-	return index - 1;
-}
-
-static void convertIndices(int amount, int *indices) {
-	for (int i = 0; i < 3; ++i) {
-		indices[i] = convert(amount, indices[i]);
-	}
-}
-
 static struct poly parsePoly(struct mesh mesh) {
 	struct poly p;
 	p.vertexCount = parseIndices(p.vertexIndex, p.normalIndex, p.textureIndex);
