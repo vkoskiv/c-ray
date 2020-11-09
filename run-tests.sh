@@ -9,6 +9,13 @@ echo "C-ray test framework v0.2"
 echo "Running $count tests."
 
 i=0; while [ $i -le $(($count - 1)) ]; do
-	./bin/c-ray --test $i | awk 'FNR==2 {print $0}'
-	i=$(( i + 1))
+	output=$(./bin/c-ray --test $i)
+	if [[ $? -eq 0 ]]
+	then
+		echo "$output" | awk 'FNR==2 { print $0 }'
+	else
+		echo "$output" | awk 'FNR==2 { printf "%s", $0 }'
+		echo "[\033[0;31mCRSH\033[0m]"
+	fi
+	i=$(( i + 1 ))
 done

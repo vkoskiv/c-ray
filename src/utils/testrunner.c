@@ -38,18 +38,22 @@ int runTests(void) {
 
 int runTest(unsigned t) {
 	t = t < totalTests ? t : totalTests - 1;
+	logr(info,
+		 "[%3i/%i] "
+		 "%-32s ",
+		 t + 1, totalTests,
+		 tests[t].testName);
+	
 	struct timeval test;
 	startTimer(&test);
 	bool pass = tests[t].func();
 	time_t usecs = getUs(test);
-	logr(pass ? info : warning,
-		 "[%3i/%i] "
-		 "%-32s "
+	
+	printf(
 		 "[%s%s%s] "
 		 "(%6ld μs) "
 		 "%s\n",
-		 t + 1, totalTests,
-		 tests[t].testName,
+		 
 		 pass ? KGRN : KRED, pass ? "PASS" : "FAIL", KNRM,
 		 usecs,
 		 pass ? "" : failed_expression ? failed_expression : "(no expression)"
