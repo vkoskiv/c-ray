@@ -12,6 +12,9 @@ bool string_stringEquals(void) {
 	test_assert(!stringEquals("TestStringOne", "TestStringTwo"));
 	test_assert(stringEquals("12345", "12345"));
 	
+	test_assert(!stringEquals("test-test-test", "test-test"));
+	test_assert(!stringEquals("test-test", "test-test-test"));
+	
 	test_assert(stringEquals("", ""));
 	test_assert(stringEquals(" ", " "));
 	
@@ -33,15 +36,20 @@ bool string_copyString(void) {
 	bool pass = true;
 	
 	char *staticString = "Statically allocated string here";
-	
 	char *dynamicString = copyString(staticString);
 	
 	test_assert(dynamicString);
 	test_assert(strlen(dynamicString) == strlen(staticString));
+	test_assert(stringEquals(staticString, dynamicString));
+	
+	char *secondString = copyString(dynamicString);
+	
+	test_assert(secondString);
+	test_assert(strlen(secondString) == strlen(dynamicString));
+	test_assert(stringEquals(dynamicString, secondString));
 	
 	free(dynamicString);
-	dynamicString = NULL;
-	test_assert(!dynamicString);
+	free(secondString);
 	
 	return pass;
 }
