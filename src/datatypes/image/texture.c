@@ -146,7 +146,7 @@ struct texture *flipHorizontal(struct texture *t) {
 		}
 	}
 	
-	free(t);
+	destroyTexture(t);
 	return new;
 }
 void destroyTexture(struct texture *t) {
