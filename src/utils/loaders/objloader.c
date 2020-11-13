@@ -154,9 +154,9 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 			continue;
 		} else if (first[0] == 'o') {
 			currentMeshPtr = &meshes[currentMesh++];
-			currentMeshPtr->name = copyString(peekNextToken(&line));
+			currentMeshPtr->name = stringCopy(peekNextToken(&line));
 		} else if (stringEquals(first, "newmtl")) {
-			char *mtlFilePath = concatString(getFilePath(filePath), peekNextToken(&line));
+			char *mtlFilePath = stringConcat(getFilePath(filePath), peekNextToken(&line));
 			currentMaterialSet = parseMTLFile(mtlFilePath, &currentMaterialSetMaterialCount);
 		}
 		head = nextLine(file);
@@ -335,7 +335,7 @@ struct mesh *parseOBJFilea(char *filePath) {
 			free(fullPath);
 		} else if (stringEquals(token, "o")) {
 			//object name
-			newMesh->name = copyString(strtok(NULL, ws));
+			newMesh->name = stringCopy(strtok(NULL, ws));
 		} else if (stringEquals(token, "s")) {
 			//smoothShading
 			//TODO

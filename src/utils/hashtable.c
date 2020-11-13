@@ -80,7 +80,7 @@ void setTag(struct hashtable *e, const char *key) {
 void setString(struct hashtable *e, const char *key, const char *value) {
 	struct bucket *ptr = getBucketPtr(e, key);
 	if (!ptr->used) {
-		ptr->value = copyString(value);
+		ptr->value = stringCopy(value);
 	}
 	ptr->used = true;
 }

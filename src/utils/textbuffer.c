@@ -46,7 +46,7 @@ textBuffer *newTextView(textBuffer *original, const size_t start, const size_t l
 textBuffer *newTextBuffer(const char *contents) {
 	if (!contents) return NULL;
 	textBuffer *new = calloc(1, sizeof(*new));
-	new->buf = copyString(contents);
+	new->buf = stringCopy(contents);
 	new->buflen = strlen(contents);
 	
 	//Figure out the line count and convert newlines
@@ -158,7 +158,7 @@ void fillLineBuffer(lineBuffer *line, const char *contents, char *delimiters) {
 	const char *buf = contents;
 	if (!buf) return;
 	if (line->buf) free(line->buf);
-	line->buf = copyString(buf);
+	line->buf = stringCopy(buf);
 	line->buflen = strlen(line->buf);
 	
 	size_t tokens = 0;

@@ -85,9 +85,9 @@ struct material materialFromObj(obj_material *mat) {
 		newMat.name[255] = '\0';
 	}
 	
-	newMat.textureFilePath = copyString(mat->texture_filename);
-	newMat.normalMapPath = copyString(mat->displacement_filename);
-	newMat.specularMapPath = copyString(mat->specular_filename);
+	newMat.textureFilePath = stringCopy(mat->texture_filename);
+	newMat.normalMapPath = stringCopy(mat->displacement_filename);
+	newMat.specularMapPath = stringCopy(mat->specular_filename);
 	
 	newMat.diffuse.red   = mat->diff[0];
 	newMat.diffuse.green = mat->diff[1];

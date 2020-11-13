@@ -60,7 +60,7 @@ static void loadMeshTextures(char *assetPath, struct mesh *mesh) {
 		if (mesh->materials[i].textureFilePath) {
 			if (strcmp(mesh->materials[i].textureFilePath, "")) {
 				//TODO: Set the shader for this obj to an obnoxious checker pattern if the texture wasn't found
-				char *fullPath = concatString(assetPath, mesh->materials[i].textureFilePath);
+				char *fullPath = stringConcat(assetPath, mesh->materials[i].textureFilePath);
 				mesh->materials[i].texture = loadTexture(fullPath);
 				free(fullPath);
 				if (mesh->materials[i].texture) {
@@ -77,7 +77,7 @@ static void loadMeshTextures(char *assetPath, struct mesh *mesh) {
 		
 		if (mesh->materials[i].normalMapPath) {
 			if (strcmp(mesh->materials[i].normalMapPath, "")) {
-				char *fullPath = concatString(assetPath, mesh->materials[i].normalMapPath);
+				char *fullPath = stringConcat(assetPath, mesh->materials[i].normalMapPath);
 				mesh->materials[i].normalMap = loadTexture(fullPath);
 				free(fullPath);
 				if (mesh->materials[i].normalMap) {
@@ -94,7 +94,7 @@ static void loadMeshTextures(char *assetPath, struct mesh *mesh) {
 		
 		if (mesh->materials[i].specularMapPath) {
 			if (strcmp(mesh->materials[i].specularMapPath, "")) {
-				char *fullPath = concatString(assetPath, mesh->materials[i].specularMapPath);
+				char *fullPath = stringConcat(assetPath, mesh->materials[i].specularMapPath);
 				mesh->materials[i].specularMap = loadTexture(fullPath);
 				free(fullPath);
 				if (mesh->materials[i].specularMap) {
@@ -141,7 +141,7 @@ static bool loadMesh(struct renderer *r, const char *inputFilePath, int idx, int
 	
 	char *fileName = getFileName(inputFilePath);
 	obj_scene_data data;
-	char *pathCopy = copyString(inputFilePath); //Yuck.
+	char *pathCopy = stringCopy(inputFilePath); //Yuck.
 	if (parse_obj_scene(&data, pathCopy) == 0) {
 		if (idx != meshCount) printf("\n");
 		logr(warning, "Mesh \"%s\" not found!\n", fileName);
@@ -435,8 +435,8 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 static struct prefs defaultPrefs() {
 	char* imgFilePath;
 	char* imgFileName;
-	imgFilePath = copyString("./");
-	imgFileName = copyString("rendered");
+	imgFilePath = stringCopy("./");
+	imgFileName = stringCopy("rendered");
 	return (struct prefs){
 		.tileOrder = renderOrderFromMiddle,
 		.threadCount = getSysCores(), //We run getSysCores() for this
@@ -591,24 +591,24 @@ static struct prefs parsePrefs(const cJSON *data) {
 	if (filePath) {
 		if (cJSON_IsString(filePath)) {
 			free(p.imgFilePath);
-			p.imgFilePath = copyString(filePath->valuestring);
+			p.imgFilePath = stringCopy(filePath->valuestring);
 		} else {
 			logr(warning, "Invalid filePath while parsing scene.\n");
 		}
 	} else {
-		p.imgFilePath = copyString(defaultPrefs().imgFilePath);
+		p.imgFilePath = stringCopy(defaultPrefs().imgFilePath);
 	}
 	
 	fileName = cJSON_GetObjectItem(data, "outputFileName");
 	if (fileName) {
 		if (cJSON_IsString(fileName)) {
 			free(p.imgFileName);
-			p.imgFileName = copyString(fileName->valuestring);
+			p.imgFileName = stringCopy(fileName->valuestring);
 		} else {
 			logr(warning, "Invalid fileName while parsing scene.\n");
 		}
 	} else {
-		p.imgFileName = copyString(defaultPrefs().imgFileName);
+		p.imgFileName = stringCopy(defaultPrefs().imgFileName);
 	}
 	
 	count = cJSON_GetObjectItem(data, "count");
@@ -925,7 +925,7 @@ static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	
 	hdr = cJSON_GetObjectItem(data, "hdr");
 	if (cJSON_IsString(hdr)) {
-		char *fullPath = concatString(r->prefs.assetPath, hdr->valuestring);
+		char *fullPath = stringConcat(r->prefs.assetPath, hdr->valuestring);
 		r->scene->hdr = loadEnvMap(fullPath);
 		free(fullPath);
 	}
@@ -1014,7 +1014,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 	
 	bool meshValid = false;
 	if (fileName != NULL && cJSON_IsString(fileName)) {
-		char *fullPath = concatString(r->prefs.assetPath, fileName->valuestring);
+		char *fullPath = stringConcat(r->prefs.assetPath, fileName->valuestring);
 		if (loadMesh(r, fullPath, idx, meshCount)) {
 			meshValid = true;
 			free(fullPath);
@@ -1238,7 +1238,7 @@ int parseJSON(struct renderer *r, char *input) {
 	
 	/*
 	 Note: Since we are freeing the JSON data (and its' pointers) after parsing,
-	 we need to *copy* all dynamically allocated strings with the copyString() function.
+	 we need to *copy* all dynamically allocated strings with the stringCopy() function.
 	 */
 	cJSON *json = cJSON_Parse(input);
 	if (json == NULL) {

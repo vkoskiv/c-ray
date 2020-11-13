@@ -23,14 +23,14 @@ bool stringContains(const char *haystack, const char *needle) {
 }
 
 //Copies source over to the destination pointer.
-char *copyString(const char *source) {
+char *stringCopy(const char *source) {
 	ASSERT(source);
 	char *copy = malloc(strlen(source) + 1);
 	strcpy(copy, source);
 	return copy;
 }
 
-char *concatString(const char *str1, const char *str2) {
+char *stringConcat(const char *str1, const char *str2) {
 	ASSERT(str1); ASSERT(str2);
 	char *new = malloc(strlen(str1) + strlen(str2) + 1);
 	strcpy(new, str1);
@@ -38,8 +38,8 @@ char *concatString(const char *str1, const char *str2) {
 	return new;
 }
 
-char *lowerCase(const char *orig) {
-	char *str = copyString(orig);
+char *stringToLower(const char *orig) {
+	char *str = stringCopy(orig);
 	size_t len = strlen(str);
 	for (size_t i = 0; i < len; ++i) {
 		if (str[i] > 64 && str[i] < 91) { // A-Z ASCII

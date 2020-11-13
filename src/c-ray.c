@@ -239,7 +239,7 @@ char *crGetFileName() {
 }
 
 void crSetAssetPath(void) {
-	g_renderer->prefs.assetPath = crOptionIsSet("inputFile") ? crGetFilePath(crPathArg()) : copyString("./");
+	g_renderer->prefs.assetPath = crOptionIsSet("inputFile") ? crGetFilePath(crPathArg()) : stringCopy("./");
 }
 
 char *crGetAssetPath(void) {

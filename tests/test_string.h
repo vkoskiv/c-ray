@@ -36,13 +36,13 @@ bool string_copyString(void) {
 	bool pass = true;
 	
 	char *staticString = "Statically allocated string here";
-	char *dynamicString = copyString(staticString);
+	char *dynamicString = stringCopy(staticString);
 	
 	test_assert(dynamicString);
 	test_assert(strlen(dynamicString) == strlen(staticString));
 	test_assert(stringEquals(staticString, dynamicString));
 	
-	char *secondString = copyString(dynamicString);
+	char *secondString = stringCopy(dynamicString);
 	
 	test_assert(secondString);
 	test_assert(strlen(secondString) == strlen(dynamicString));
@@ -60,7 +60,7 @@ bool string_concatString(void) {
 	char *hello = "Hello, ";
 	char *world = "world!";
 	
-	char *concatenated = concatString(hello, world);
+	char *concatenated = stringConcat(hello, world);
 	test_assert(concatenated);
 	
 	test_assert(strlen(hello) + strlen(world) == strlen(concatenated));
@@ -76,7 +76,7 @@ bool string_lowerCase(void) {
 	
 	char *spongetext = "ThiS is A STRING cONtaINing REALLy CoNfUSing CasinG.";
 	
-	char *lowercase = lowerCase(spongetext);
+	char *lowercase = stringToLower(spongetext);
 	test_assert(lowercase);
 	
 	test_assert(stringEquals(lowercase, "this is a string containing really confusing casing."));

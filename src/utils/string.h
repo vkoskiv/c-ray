@@ -21,11 +21,11 @@ bool stringContains(const char *haystack, const char *needle);
 /// Copy strings
 /// @param source String to be copied
 /// @return New heap-allocated string
-char *copyString(const char *source);
+char *stringCopy(const char *source);
 
 /// Concatenate given strings
 /// @param str1 Original string
 /// @param str2 Concatenated string
-char *concatString(const char *str1, const char *str2);
+char *stringConcat(const char *str1, const char *str2);
 
-char *lowerCase(const char *str);
+char *stringToLower(const char *str);

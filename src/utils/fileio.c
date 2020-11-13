@@ -41,7 +41,7 @@ void writeFile(const unsigned char *buf, size_t bufsize, const char *filePath) {
 	char *backupPath = NULL;
 	if(!file) {
 		char *name = getFileName(filePath);
-		backupPath = concatString("./", name);
+		backupPath = stringConcat("./", name);
 		free(name);
 		file = fopen(backupPath, "wb");
 		if (file) {
@@ -103,7 +103,7 @@ void checkBuf() {
  */
 char *getFileName(const char *input) {
 	//FIXME: We're doing two copies here, maybe just rework the algorithm instead.
-	char *copy = copyString(input);
+	char *copy = stringCopy(input);
 	char *fn;
 	
 	/* handle trailing '/' e.g.
@@ -113,7 +113,7 @@ char *getFileName(const char *input) {
 	
 	(fn = strrchr(copy, '/')) ? ++fn : (fn = copy);
 	
-	char *ret = copyString(fn);
+	char *ret = stringCopy(fn);
 	free(copy);
 	
 	return ret;
@@ -128,11 +128,11 @@ char *getFilePath(const char *input) {
 	dir = calloc(256, sizeof(*dir));
 	_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0);
 #else
-	char *inputCopy = copyString(input);
-	dir = copyString(dirname(inputCopy));
+	char *inputCopy = stringCopy(input);
+	dir = stringCopy(dirname(inputCopy));
 	free(inputCopy);
 #endif
-	char *final = concatString(dir, "/");
+	char *final = stringConcat(dir, "/");
 	free(dir);
 	return final;
 }
