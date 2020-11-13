@@ -71,7 +71,12 @@ static void setWindowIcon(SDL_Window *window) {
 	bmask = 0x00ff0000;
 	amask = (icon->channels == 3) ? 0 : 0xff000000;
 #endif
-	SDL_Surface *iconSurface = SDL_CreateRGBSurfaceFrom(icon->data.byte_p, icon->width, icon->height, icon->channels * 8, icon->channels * icon->width, rmask, gmask, bmask, amask);
+	SDL_Surface *iconSurface = SDL_CreateRGBSurfaceFrom(icon->data.byte_p,
+														(int)icon->width,
+														(int)icon->height,
+														(int)icon->channels * 8,
+														(int)(icon->channels * icon->width),
+														rmask, gmask, bmask, amask);
 	SDL_SetWindowIcon(window, iconSurface);
 	SDL_FreeSurface(iconSurface);
 	destroyTexture(icon);
@@ -314,8 +319,8 @@ void drawWindow(struct renderer *r, struct texture *t) {
 	//Render frames
 	if (!isSet("interactive")) updateFrames(r);
 	//Update image data
-	SDL_UpdateTexture(gdisplay->texture, NULL, t->data.byte_p, t->width * 3);
-	SDL_UpdateTexture(gdisplay->overlayTexture, NULL, r->state.uiBuffer->data.byte_p, t->width * 4);
+	SDL_UpdateTexture(gdisplay->texture, NULL, t->data.byte_p, (int)t->width * 3);
+	SDL_UpdateTexture(gdisplay->overlayTexture, NULL, r->state.uiBuffer->data.byte_p, (int)t->width * 4);
 	SDL_RenderCopy(gdisplay->renderer, gdisplay->texture, NULL, NULL);
 	SDL_RenderCopy(gdisplay->renderer, gdisplay->overlayTexture, NULL, NULL);
 	SDL_RenderPresent(gdisplay->renderer);

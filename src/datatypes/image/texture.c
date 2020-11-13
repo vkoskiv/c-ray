@@ -14,7 +14,7 @@
 #include "../../utils/assert.h"
 
 //General-purpose setPixel function
-void setPixel(struct texture *t, struct color c, unsigned x, unsigned y) {
+void setPixel(struct texture *t, struct color c, size_t x, size_t y) {
 	ASSERT(x < t->width); ASSERT(y < t->height);
 	if (t->precision == char_p) {
 		t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = (unsigned char)min(c.red * 255.0f, 255.0f);
@@ -30,7 +30,7 @@ void setPixel(struct texture *t, struct color c, unsigned x, unsigned y) {
 	}
 }
 
-struct color textureGetPixel(const struct texture *t, unsigned x, unsigned y) {
+struct color textureGetPixel(const struct texture *t, size_t x, size_t y) {
 	struct color output = {0.0f, 0.0f, 0.0f, 0.0f};
 	x = x % t->width;
 	y = y % t->height;
@@ -76,7 +76,7 @@ struct color textureGetPixelFiltered(const struct texture *t, float x, float y) 
 	return lerp(lerp(topleft, topright, xcopy-xint), lerp(botleft, botright, xcopy-xint), ycopy-yint);
 }
 
-struct texture *newTexture(enum precision p, unsigned width, unsigned height, int channels) {
+struct texture *newTexture(enum precision p, size_t width, size_t height, size_t channels) {
 	struct texture *t = calloc(1, sizeof(*t));
 	t->width = width;
 	t->height = height;
@@ -94,7 +94,7 @@ struct texture *newTexture(enum precision p, unsigned width, unsigned height, in
 		case char_p: {
 			t->data.byte_p = calloc(channels * width * height, sizeof(*t->data.byte_p));
 			if (!t->data.byte_p) {
-				logr(warning, "Failed to allocate %ix%i texture.\n", width, height);
+				logr(warning, "Failed to allocate %zux%zu texture.\n", width, height);
 				destroyTexture(t);
 				return NULL;
 			}
@@ -103,13 +103,14 @@ struct texture *newTexture(enum precision p, unsigned width, unsigned height, in
 		case float_p: {
 			t->data.float_p = calloc(channels * width * height, sizeof(*t->data.float_p));
 			if (!t->data.float_p) {
-				logr(warning, "Failed to allocate %ix%i texture.\n", width, height);
+				logr(warning, "Failed to allocate %zux%zu texture.\n", width, height);
 				destroyTexture(t);
 				return NULL;
 			}
 		}
 			break;
 		default:
+			ASSERT_NOT_REACHED();
 			break;
 	}
 	return t;
@@ -139,9 +140,9 @@ struct texture *flipHorizontal(struct texture *t) {
 	struct texture *new = newTexture(t->precision, t->width, t->height, t->channels);
 	new->colorspace = t->colorspace;
 	
-	for (unsigned y = 0; y < new->height; ++y) {
-		for (unsigned x = 0; x < new->width; ++x) {
-			setPixel(new, textureGetPixel(t, ((t->width-1) - x), y), x, y);
+	for (size_t y = 0; y < new->height; ++y) {
+		for (size_t x = 0; x < new->width; ++x) {
+			setPixel(new, textureGetPixel(t, ((t->width - 1) - x), y), x, y);
 		}
 	}
 	

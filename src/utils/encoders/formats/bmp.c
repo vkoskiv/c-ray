@@ -6,6 +6,8 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "../../../includes.h"
+
 #include "bmp.h"
 
 #include <stdlib.h>
@@ -14,7 +16,7 @@
 
 //FIXME: Make this use writeFile() instead of directly encoding to the file like this.
 //Or maybe just delete it, and rewrite.
-void encodeBMPFromArray(const char *filename, unsigned char *imgData, unsigned width, unsigned height) {
+void encodeBMPFromArray(const char *filename, unsigned char *imgData, size_t width, size_t height) {
 	//Apparently BMP is BGR, whereas C-ray's internal buffer is RGB (Like it should be)
 	//So we need to convert the image data before writing to file.
 	unsigned char *bgrData = calloc(3 * width * height, sizeof(*bgrData));
@@ -27,7 +29,7 @@ void encodeBMPFromArray(const char *filename, unsigned char *imgData, unsigned w
 	}
 	unsigned error;
 	FILE *f;
-	int filesize = 54 + 3 * width * height;
+	size_t filesize = 54 + 3 * width * height;
 	unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
 	unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
 	unsigned char bmppadding[3] = {0,0,0};

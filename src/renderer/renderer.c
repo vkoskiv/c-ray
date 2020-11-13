@@ -160,7 +160,7 @@ void *renderThreadInteractive(void *arg) {
 		for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 			for (int x = tile.begin.x; x < tile.end.x; ++x) {
 				if (r->state.renderAborted) return 0;
-				uint32_t pixIdx = y * image->width + x;
+				uint32_t pixIdx = (uint32_t)(y * image->width + x);
 				initSampler(sampler, Halton, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
 				incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
@@ -237,7 +237,7 @@ void *renderThread(void *arg) {
 			for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 				for (int x = tile.begin.x; x < tile.end.x; ++x) {
 					if (r->state.renderAborted) return 0;
-					uint32_t pixIdx = y * image->width + x;
+					uint32_t pixIdx = (uint32_t)(y * image->width + x);
 					initSampler(sampler, Halton, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					incidentRay = getCameraRay(r->scene->camera, x, y, sampler);

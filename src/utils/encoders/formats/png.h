@@ -8,4 +8,4 @@
 
 #pragma once
 
-void encodePNGFromArray(const char *filename, unsigned char *imgData, unsigned width, unsigned height, struct renderInfo imginfo);
+void encodePNGFromArray(const char *filename, unsigned char *imgData, size_t width, size_t height, struct renderInfo imginfo);

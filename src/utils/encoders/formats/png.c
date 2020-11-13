@@ -21,7 +21,7 @@
 #include <sys/utsname.h>
 #endif
 
-void encodePNGFromArray(const char *filename, unsigned char *imgData, unsigned width, unsigned height, struct renderInfo imginfo) {
+void encodePNGFromArray(const char *filename, unsigned char *imgData, size_t width, size_t height, struct renderInfo imginfo) {
 	LodePNGInfo info;
 	lodepng_info_init(&info);
 	info.time_defined = 1;
@@ -64,7 +64,7 @@ void encodePNGFromArray(const char *filename, unsigned char *imgData, unsigned w
 	size_t bytes = 0;
 	unsigned char *buf = NULL;
 	
-	unsigned error = lodepng_encode(&buf, &bytes, imgData, width, height, &state);
+	unsigned error = lodepng_encode(&buf, &bytes, imgData, (unsigned)width, (unsigned)height, &state);
 	if (error) logr(warning, "Error %u: %s\n", error, lodepng_error_text(error));
 	
 	writeFile(buf, bytes, filename);

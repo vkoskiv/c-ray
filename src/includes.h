@@ -44,6 +44,7 @@
 #include <string.h>
 #include <float.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef WINDOWS
 	#include <Windows.h>

@@ -28,7 +28,7 @@ struct envMap *loadEnvMap(char *filePath) {
 	if (stbi_is_hdr(filePath)) {
 		logr(info, "Loading HDR...");
 		struct texture *tex = newTexture(float_p, 0, 0, 0);
-		tex->data.float_p = stbi_loadf_from_memory(file, (int)len, (int*)&tex->width, (int*)&tex->height, &tex->channels, 0);
+		tex->data.float_p = stbi_loadf_from_memory(file, (int)len, (int *)&tex->width, (int *)&tex->height, (int *)&tex->channels, 0);
 		tex->precision = float_p;
 		if (!tex->data.float_p) {
 			destroyTexture(tex);
@@ -60,7 +60,7 @@ struct texture *loadTexture(char *filePath) {
 
 struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigned int buflen) {
 	struct texture *new = newTexture(none, 0, 0, 0);
-	new->data.byte_p = stbi_load_from_memory(buffer, buflen, (int*)&new->width, (int*)&new->height, &new->channels, 0);
+	new->data.byte_p = stbi_load_from_memory(buffer, buflen, (int *)&new->width, (int *)&new->height, (int *)&new->channels, 0);
 	if (!new->data.byte_p) {
 		logr(warning, "Failed to decode texture from memory buffer of size %u", buflen);
 		destroyTexture(new);

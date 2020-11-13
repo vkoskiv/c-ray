@@ -29,22 +29,22 @@ struct texture {
 		unsigned char *byte_p; //For 24/32bit
 		float *float_p; //For hdr
 	} data;
-	int channels;
-	unsigned width;
-	unsigned height;
+	size_t channels;
+	size_t width;
+	size_t height;
 };
 
 struct color;
 
-struct texture *newTexture(enum precision p, unsigned width, unsigned height, int channels);
+struct texture *newTexture(enum precision p, size_t width, size_t height, size_t channels);
 
-void setPixel(struct texture *t, struct color c, unsigned int x, unsigned int y);
+void setPixel(struct texture *t, struct color c, size_t x, size_t y);
 
 /// Get the color of a pixel from a given texture
 /// @param t Texture to retrieve color from
 /// @param x X coordinate of pixel
 /// @param y Y coordinate of pixel
-struct color textureGetPixel(const struct texture *t, unsigned x, unsigned y);
+struct color textureGetPixel(const struct texture *t, size_t x, size_t y);
 struct color textureGetPixelFiltered(const struct texture *t, float x, float y);
 
 /// Convert texture from sRGB to linear color space

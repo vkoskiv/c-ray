@@ -33,6 +33,6 @@ struct imageFile {
 	struct renderInfo info;
 };
 
-struct imageFile *newImageFile(struct texture *t, char *filePath, char *fileName, int count, enum fileType type);
+struct imageFile *newImageFile(struct texture *t, const char *filePath, const char *fileName, int count, enum fileType type);
 
 void destroyImageFile(struct imageFile *file);

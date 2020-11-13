@@ -6,12 +6,14 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "../../includes.h"
+
 #include "imagefile.h"
 #include "texture.h"
 #include <stdlib.h>
 #include "../../utils/string.h"
 
-struct imageFile *newImageFile(struct texture *t, char *filePath, char *fileName, int count, enum fileType type) {
+struct imageFile *newImageFile(struct texture *t, const char *filePath, const char *fileName, int count, enum fileType type) {
 	struct imageFile *file = calloc(1, sizeof(*file));
 	file->t = t;
 	file->filePath = copyString(filePath);

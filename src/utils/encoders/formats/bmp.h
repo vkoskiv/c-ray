@@ -8,4 +8,4 @@
 
 #pragma once
 
-void encodeBMPFromArray(const char *filename, unsigned char *imgData, unsigned width, unsigned height);
+void encodeBMPFromArray(const char *filename, unsigned char *imgData, size_t width, size_t height);
