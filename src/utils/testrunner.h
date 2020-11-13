@@ -14,6 +14,9 @@
 
 #ifdef CRAY_TESTING
 int runTests(void);
+int runPerfTests(void);
 int runTest(unsigned);
+int runPerfTest(unsigned);
 int getTestCount(void);
+int getPerfTestCount(void);
 #endif

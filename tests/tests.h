@@ -10,9 +10,6 @@
 
 static char *failed_expression;
 
-//Test assert
-#define test_assert(x) if (!(x)) { pass = false; failed_expression = #x;}
-
 // Testable modules
 #include "test_textbuffer.h"
 #include "test_transforms.h"
@@ -20,11 +17,6 @@ static char *failed_expression;
 #include "test_fileio.h"
 #include "test_string.h"
 #include "test_hashtable.h"
-
-typedef struct {
-	char *testName;
-	bool (*func)(void);
-} test;
 
 static test tests[] = {
 	{"transforms::transpose", transform_transpose},

@@ -236,7 +236,9 @@
 		909D13702443B4E7006D0A86 /* textbuffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = textbuffer.c; sourceTree = "<group>"; };
 		90A0B3BC2553633300F298F1 /* envmap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = envmap.c; sourceTree = "<group>"; };
 		90A0B3BD2553633300F298F1 /* envmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = envmap.h; sourceTree = "<group>"; };
-		90A0DDD92547595800F3313D /* alpha.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = alpha.json; path = input/alpha.json; sourceTree = "<group>"; };
+		90A0B3C1255A12E100F298F1 /* perf_texture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = perf_texture.h; sourceTree = "<group>"; };
+		90A0B3C2255A132F00F298F1 /* tests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tests.h; sourceTree = "<group>"; };
+		90A0B3C3255A191F00F298F1 /* perf_fileio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = perf_fileio.h; sourceTree = "<group>"; };
 		90A21CEF24589E6A002C742E /* sampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sampler.h; sourceTree = "<group>"; };
 		90A21CF024589E6A002C742E /* sampler.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sampler.c; sourceTree = "<group>"; };
 		90A21CF324589E84002C742E /* hammersley.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hammersley.h; sourceTree = "<group>"; };
@@ -480,6 +482,16 @@
 			path = platform;
 			sourceTree = "<group>";
 		};
+		90A0B3C0255A12C800F298F1 /* perf */ = {
+			isa = PBXGroup;
+			children = (
+				90A0B3C1255A12E100F298F1 /* perf_texture.h */,
+				90A0B3C3255A191F00F298F1 /* perf_fileio.h */,
+				90A0B3C2255A132F00F298F1 /* tests.h */,
+			);
+			path = perf;
+			sourceTree = "<group>";
+		};
 		90A21CEE24589E4E002C742E /* samplers */ = {
 			isa = PBXGroup;
 			children = (
@@ -555,6 +567,7 @@
 		90FAD27424A2AE7900F8CA79 /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				90A0B3C0255A12C800F298F1 /* perf */,
 				907E9D1524A2AEDB001C5A60 /* test_textbuffer.h */,
 				907E9D1424A2AEDA001C5A60 /* test_transforms.h */,
 				907E9D1624A2AEF6001C5A60 /* test_vector.h */,

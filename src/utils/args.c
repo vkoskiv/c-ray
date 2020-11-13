@@ -127,29 +127,44 @@ void parseArgs(int argc, char **argv) {
 				n = n < 0 ? 0 : n;
 				testIdx = n;
 			}
-		} else if (strncmp(argv[i], "--tcount", 8) == 0) {
+		} else if (stringEquals(argv[i], "--test-perf")) {
+			setTag(g_options, "runPerfTests");
+			char *testIdxStr = argv[i + 1];
+			if (testIdxStr) {
+				int n = atoi(testIdxStr);
+				n = n < 0 ? 0 : n;
+				testIdx = n;
+			}
+		} else if (stringEquals(argv[i], "--tcount")) {
 			setTag(g_options, "runTests");
 			testIdx = -2;
-		} else if (strncmp(argv[i], "--interactive", 13) == 0) {
+		} else if (stringEquals(argv[i], "--ptcount")) {
+			setTag(g_options, "runTests");
+			testIdx = -3;
+		} else if (stringEquals(argv[i], "--interactive")) {
 			setTag(g_options, "interactive");
-		} else if (strncmp(argv[i], "-", 1) == 0) {
+		} else if (stringEquals(argv[i], "-")) {
 			setTag(g_options, ++argv[i]);
 		}
 	}
 	logr(debug, "Verbose mode enabled\n");
 	
-	if (isSet("runTests")) {
+	if (isSet("runTests") || isSet("runPerfTests")) {
 #ifdef CRAY_TESTING
 		switch (testIdx) {
+			case -3:
+				printf("%i", getPerfTestCount());
+				exit(0);
+				break;
 			case -2:
 				printf("%i", getTestCount());
 				exit(0);
 				break;
 			case -1:
-				exit(runTests());
+				exit(isSet("runPerfTests") ? runPerfTests() : runTests());
 				break;
 			default:
-				exit(runTest(testIdx));
+				exit(isSet("runPerfTests") ? runPerfTest(testIdx) : runTest(testIdx));
 				break;
 		}
 #else
