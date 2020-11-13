@@ -14,20 +14,12 @@
 
 bool stringEquals(const char *s1, const char *s2) {
 	ASSERT(s1); ASSERT(s2);
-	if (strcmp(s1, s2) == 0) {
-		return true;
-	} else {
-		return false;
-	}
+	return strcmp(s1, s2) == 0;
 }
 
 bool stringContains(const char *haystack, const char *needle) {
 	ASSERT(haystack); ASSERT(needle);
-	if (strstr(haystack, needle) == NULL) {
-		return false;
-	} else {
-		return true;
-	}
+	return strstr(haystack, needle);
 }
 
 //Copies source over to the destination pointer.
