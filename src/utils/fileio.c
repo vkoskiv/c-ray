@@ -18,19 +18,20 @@
 #include <errno.h>
 
 char *loadFile(const char *fileName, size_t *bytes) {
-	FILE *f = fopen(fileName, "rb");
-	if (!f) {
+	FILE *file = fopen(fileName, "rb");
+	if (!file) {
 		logr(warning, "Can't access '%.*s': %s (%i)\n", (int)strlen(fileName), fileName, strerror(errno), errno);
 		return NULL;
 	}
 	size_t len = getFileSize(fileName);
 	char *buf = malloc(len + 1 * sizeof(char));
-	fread(buf, sizeof(char), len, f);
-	if (ferror(f) != 0) {
+	fread(buf, sizeof(char), len, file);
+	if (ferror(file) != 0) {
 		logr(warning, "Error reading file\n");
 	} else {
 		buf[len] = '\0';
 	}
+	fclose(file);
 	if (bytes) *bytes = len;
 	return buf;
 }
