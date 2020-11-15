@@ -76,9 +76,9 @@ void parseArgs(int argc, char **argv) {
 			inputFileSet = true;
 			free(alternatePath);
 			alternatePath = NULL;
-		}else if (strncmp(argv[i], "-h", 2) == 0) {
+		}else if (stringEquals(argv[i], "-h")) {
 			printUsage(argv[0]);
-		} else if (strncmp(argv[i], "-j", 2) == 0) {
+		} else if (stringEquals(argv[i], "-j")) {
 			char *threadstr = argv[i + 1];
 			if (threadstr) {
 				int n = atoi(threadstr);
@@ -88,7 +88,7 @@ void parseArgs(int argc, char **argv) {
 			} else {
 				logr(warning, "Invalid -j parameter given!\n");
 			}
-		} else if (strncmp(argv[i], "-s", 2) == 0) {
+		} else if (stringEquals(argv[i], "-s")) {
 			char *sampleStr = argv[i + 1];
 			if (sampleStr) {
 				int n = atoi(sampleStr);
@@ -97,7 +97,7 @@ void parseArgs(int argc, char **argv) {
 			} else {
 				logr(warning, "Invalid -s parameter given!\n");
 			}
-		} else if (strncmp(argv[i], "-d", 2) == 0) {
+		} else if (stringEquals(argv[i], "-d")) {
 			char *dimstr = argv[i + 1];
 			int width = 0;
 			int height = 0;
@@ -108,7 +108,7 @@ void parseArgs(int argc, char **argv) {
 			} else {
 				logr(warning, "Invalid -d parameter given!\n");
 			}
-		} else if (strncmp(argv[i], "-t", 2) == 0) {
+		} else if (stringEquals(argv[i], "-t")) {
 			char *dimstr = argv[i + 1];
 			int width = 0;
 			int height = 0;
@@ -119,7 +119,7 @@ void parseArgs(int argc, char **argv) {
 			} else {
 				logr(warning, "Invalid -t parameter given!\n");
 			}
-		} else if (strncmp(argv[i], "--test", 6) == 0) {
+		} else if (stringEquals(argv[i], "--test")) {
 			setTag(g_options, "runTests");
 			char *testIdxStr = argv[i + 1];
 			if (testIdxStr) {
