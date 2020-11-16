@@ -139,7 +139,6 @@ struct texture *renderFrame(struct renderer *r) {
 // An interactive render thread that progressively
 // renders samples up to a limit
 void *renderThreadInteractive(void *arg) {
-	struct lightRay incidentRay;
 	struct renderThreadState *threadState = (struct renderThreadState*)threadUserData(arg);
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
@@ -163,8 +162,8 @@ void *renderThreadInteractive(void *arg) {
 				uint32_t pixIdx = (uint32_t)(y * image->width + x);
 				initSampler(sampler, Halton, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
-				incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
 				struct color output = textureGetPixel(r->state.renderBuffer, x, y);
+				struct lightRay incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
 				struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
 				
 				//And process the running average
@@ -215,7 +214,6 @@ void *renderThreadInteractive(void *arg) {
  @return Exits when thread is done
  */
 void *renderThread(void *arg) {
-	struct lightRay incidentRay;
 	struct renderThreadState *threadState = (struct renderThreadState*)threadUserData(arg);
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
@@ -240,8 +238,8 @@ void *renderThread(void *arg) {
 					uint32_t pixIdx = (uint32_t)(y * image->width + x);
 					initSampler(sampler, Halton, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
-					incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y);
+					struct lightRay incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
 					struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
 					
 					//And process the running average
