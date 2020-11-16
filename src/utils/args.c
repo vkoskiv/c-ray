@@ -143,7 +143,7 @@ void parseArgs(int argc, char **argv) {
 			testIdx = -3;
 		} else if (stringEquals(argv[i], "--interactive")) {
 			setTag(g_options, "interactive");
-		} else if (stringEquals(argv[i], "-")) {
+		} else if (strncmp(argv[i], "-", 1) == 0) {
 			setTag(g_options, ++argv[i]);
 		}
 	}
