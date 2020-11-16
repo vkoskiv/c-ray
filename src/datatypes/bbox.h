@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "../includes.h"
 #include <float.h>
 #include "../datatypes/vector.h"
 
@@ -38,4 +39,8 @@ static inline struct vector bboxCenter(const struct boundingBox* bbox) {
 static inline float bboxDiagonal(const struct boundingBox bbox) {
 	struct vector extent = vecSub(bbox.max, bbox.min);
 	return vecLength(extent);
+}
+
+static inline float rayOffset(const struct boundingBox bbox) {
+	return RAY_OFFSET_MULTIPLIER * bboxDiagonal(bbox);
 }

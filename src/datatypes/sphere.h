@@ -15,6 +15,7 @@
 struct sphere {
 	float radius;
 	struct material material;
+	float rayOffset;
 };
 
 struct sphere defaultSphere(void);

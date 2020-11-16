@@ -16,10 +16,13 @@
 #include "mesh.h"
 #include "sphere.h"
 #include "scene.h"
+#include "../utils/logging.h"
 
 static bool intersectSphere(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect) {
 	struct lightRay copy = *ray;
 	transformRay(&copy, &instance->composite.Ainv);
+	float offset = ((struct sphere*)instance->object)->rayOffset;
+	copy.start = vecAdd(copy.start, vecScale(copy.direction, offset));
 	if (rayIntersectsWithSphere(&copy, (struct sphere*)instance->object, isect)) {
 		isect->polygon = NULL;
 		isect->material = ((struct sphere*)instance->object)->material;
@@ -42,6 +45,8 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 		bbox->min = vecAdd(bbox->min, *center);
 		bbox->max = vecAdd(bbox->max, *center);
 	}
+	sphere->rayOffset = rayOffset(*bbox);
+	logr(debug, "sphere offset: %f\n", sphere->rayOffset);
 }
 
 struct instance newSphereInstance(struct sphere *sphere) {
@@ -57,6 +62,8 @@ struct instance newSphereInstance(struct sphere *sphere) {
 static bool intersectMesh(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect) {
 	struct lightRay copy = *ray;
 	transformRay(&copy, &instance->composite.Ainv);
+	float offset = ((struct mesh*)instance->object)->rayOffset;
+	copy.start = vecAdd(copy.start, vecScale(copy.direction, offset));
 	if (traverseBottomLevelBvh((struct mesh*)instance->object, &copy, isect)) {
 		isect->material = ((struct mesh*)instance->object)->materials[isect->polygon->materialIndex];
 		transformPoint(&isect->hitPoint, &instance->composite.A);
@@ -75,9 +82,12 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 }
 
 static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
-	*bbox = getRootBoundingBox(((struct mesh*)instance->object)->bvh);
+	struct mesh *mesh = (struct mesh*)instance->object;
+	*bbox = getRootBoundingBox(mesh->bvh);
 	transformBBox(bbox, &instance->composite.A);
 	*center = bboxCenter(bbox);
+	mesh->rayOffset = rayOffset(*bbox);
+	logr(debug, "mesh %s offset: %f\n", mesh->name, mesh->rayOffset);
 }
 
 struct instance newMeshInstance(struct mesh *mesh) {

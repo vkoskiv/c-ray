@@ -15,6 +15,8 @@
 #define CRAY_MATERIAL_NAME_SIZE 256
 #define CRAY_MESH_FILENAME_LENGTH 500
 
+#define RAY_OFFSET_MULTIPLIER 0.0001f
+
 //#define DBG_NORMALS //Normal debugging mode
 
 //Some macros

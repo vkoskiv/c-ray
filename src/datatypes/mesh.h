@@ -39,6 +39,8 @@ struct mesh {
 	struct material *materials;
 	
 	struct bvh *bvh;
+	
+	float rayOffset;
 
 	char *name;
 };

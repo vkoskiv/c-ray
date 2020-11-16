@@ -79,7 +79,6 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
  @return intersection struct with the appropriate values set
  */
 static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler) {
-	incidentRay->start = vecAdd(incidentRay->start, vecScale(incidentRay->direction, scene->rayOffset));
 	struct hitRecord isect;
 	isect.instIndex = -1;
 	isect.distance = FLT_MAX;
