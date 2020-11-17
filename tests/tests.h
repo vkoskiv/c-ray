@@ -36,6 +36,7 @@ static test tests[] = {
 	{"transforms::scaleZ", transform_scale_Z},
 	{"transforms::scaleAll", transform_scale_all},
 	{"transforms::inverse", transform_inverse},
+	{"transforms::equal", matrix_equal},
 	
 	{"textbuffer::textview", textbuffer_textview},
 	{"textbuffer::tokenizer", textbuffer_tokenizer},

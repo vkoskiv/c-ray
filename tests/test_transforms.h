@@ -224,3 +224,23 @@ bool transform_inverse() {
 	test_assert(areMatricesEqual(&inv, &inv_correct));
 	return pass;
 }
+
+bool matrix_equal() {
+	bool pass = true;
+	
+	struct matrix4x4 A = matrixFromParams(1, 0, 1, 0,
+										  0, 1, 0, 1,
+										  1, 0, 1, 0,
+										  0, 1, 0, 1);
+	
+	struct matrix4x4 B = matrixFromParams(1, 0, 1, 0,
+										  0, 1, 0, 1,
+										  1, 0, 1, 0,
+										  0, 1, 0, 2);
+	
+	test_assert(!areMatricesEqual(&A, &B));
+	test_assert(areMatricesEqual(&A, &A));
+	test_assert(areMatricesEqual(&B, &B));
+	
+	return pass;
+}
