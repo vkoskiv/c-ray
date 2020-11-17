@@ -352,11 +352,10 @@ bool isTranslate(const struct transform *t) {
 }
 
 bool areMatricesEqual(const struct matrix4x4 *A, const struct matrix4x4 *B) {
-	bool matches = true;
 	for (unsigned j = 0; j < 4; ++j) {
 		for (unsigned i = 0; i < 4; ++i) {
-			if (A->mtx[i][j] != B->mtx[i][j]) matches = false;
+			if (A->mtx[i][j] != B->mtx[i][j]) return false;
 		}
 	}
-	return matches;
+	return true;
 }
