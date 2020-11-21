@@ -110,7 +110,6 @@ struct texture *newTexture(enum precision p, size_t width, size_t height, size_t
 		}
 			break;
 		default:
-			ASSERT_NOT_REACHED();
 			break;
 	}
 	return t;
