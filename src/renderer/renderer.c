@@ -65,6 +65,9 @@ struct texture *renderFrame(struct renderer *r) {
 	int ctr = 1;
 	bool interactive = isSet("interactive");
 	
+	// Map of threads that have finished, so we don't check them again.
+	bool *checkedThreads = calloc(r->prefs.threadCount, sizeof(*checkedThreads));
+	
 	r->state.threads = calloc(r->prefs.threadCount, sizeof(*r->state.threads));
 	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(*r->state.threadStates));
 	
@@ -121,9 +124,9 @@ struct texture *renderFrame(struct renderer *r) {
 		
 		//Wait for render threads to finish (Render finished)
 		for (int t = 0; t < r->prefs.threadCount; ++t) {
-			if (r->state.threadStates[t].threadComplete && r->state.threadStates[t].thread_num != -1) {
+			if (r->state.threadStates[t].threadComplete && !checkedThreads[t]) {
 				--r->state.activeThreads;
-				r->state.threadStates[t].thread_num = -1; //Mark as checked
+				checkedThreads[t] = true; //Mark as checked
 			}
 			if (!r->state.activeThreads || r->state.renderAborted) {
 				r->state.isRendering = false;
@@ -136,6 +139,7 @@ struct texture *renderFrame(struct renderer *r) {
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
 		threadWait(&r->state.threads[t]);
 	}
+	free(checkedThreads);
 	return output;
 }
 
