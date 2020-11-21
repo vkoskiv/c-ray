@@ -25,6 +25,7 @@
 #include "../utils/platform/mutex.h"
 #include "samplers/sampler.h"
 #include "../utils/args.h"
+#include "../utils/platform/capabilities.h"
 
 //Main thread loop speeds
 #define paused_msec 100
@@ -40,12 +41,14 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	logr(info, "Starting C-ray renderer for frame %i\n", r->prefs.imgCount);
 	
+	bool threadsReduced = getSysCores() > r->prefs.threadCount;
+	
 	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->prefs.imageWidth, KNRM, KWHT, r->prefs.imageHeight, KNRM);
 	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
 	logr(info, "Rendering with %s%d%s%s thread%s",
 		 KRED,
-		 r->prefs.fromSystem ? r->prefs.threadCount - 2 : r->prefs.threadCount,
-		 r->prefs.fromSystem ? "+2" : "",
+		 r->prefs.fromSystem && !threadsReduced ? r->prefs.threadCount - 2 : r->prefs.threadCount,
+		 r->prefs.fromSystem && !threadsReduced ? "+2" : "",
 		 KNRM,
 		 r->prefs.threadCount > 1 ? "s.\n" : ".\n");
 	
