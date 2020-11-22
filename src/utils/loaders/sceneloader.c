@@ -1023,13 +1023,13 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 	}
 	
 	struct mesh *m = lastMesh(r);
-	logr(info, "Vertices:\n");
+	logr(debug, "Vertices:\n");
 	for (int i = 0; i < m->vertexCount; ++i) {
 		logr(debug, "\t{%.2f, %.2f, %.2f}\n", g_vertices[m->firstVectorIndex + i].x, g_vertices[m->firstVectorIndex + i].y, g_vertices[m->firstVectorIndex + i].z);
 	}
 	
 	int amount = m->polyCount > 50 ? 50 : m->polyCount;
-	logr(info, "First 50 faces:\n", amount);
+	logr(debug, "First %i faces:\n", amount);
 	for (int i = 0; i < amount; ++i) {
 		logr(debug, "\tvertexIndex: {%i, %i, %i}\n", m->polygons[i].vertexIndex[0], m->polygons[i].vertexIndex[1], m->polygons[i].vertexIndex[2]);
 		logr(debug, "\tnormalIndex: {%i, %i, %i}\n", m->polygons[i].normalIndex[0], m->polygons[i].normalIndex[1], m->polygons[i].normalIndex[2]);
