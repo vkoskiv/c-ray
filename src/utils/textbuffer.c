@@ -84,7 +84,7 @@ char *goToLine(textBuffer *file, size_t line) {
 			file->currentByteOffset += offset;
 		}
 		file->current.line = line;
-		return *head == '\0' ? NULL : head;
+		return head;
 	} else {
 		return NULL;
 	}
@@ -97,7 +97,7 @@ char *peekLine(textBuffer *file, size_t line) {
 			size_t offset = strlen(head) + 1;
 			head += offset;
 		}
-		return *head == '\0' ? NULL : head;
+		return head;
 	} else {
 		return NULL;
 	}
@@ -109,8 +109,7 @@ char *nextLine(textBuffer *file) {
 		size_t offset = strlen(head) + 1;
 		file->current.line++;
 		file->currentByteOffset += offset;
-		head += offset;
-		return *head == '\0' ? NULL : head;
+		return head + offset;
 	} else {
 		return NULL;
 	}
@@ -118,15 +117,14 @@ char *nextLine(textBuffer *file) {
 
 char *previousLine(textBuffer *file) {
 	char *head = goToLine(file, file->current.line - 1);
-	return *head == '\0' ? NULL : head;
+	return head;
 }
 
 char *peekNextLine(textBuffer *file) {
 	char *head = file->buf + file->currentByteOffset;
 	if (file->current.line + 1 < file->amountOf.lines) {
 		size_t offset = strlen(head) + 1;
-		head += offset;
-		return *head == '\0' ? NULL : head;
+		return head + offset;
 	} else {
 		return NULL;
 	}
@@ -136,18 +134,17 @@ char *firstLine(textBuffer *file) {
 	char *head = file->buf;
 	file->current.line = 0;
 	file->currentByteOffset = 0;
-	return *head == '\0' ? NULL : head;
+	return head;
 }
 
 char *currentLine(textBuffer *file) {
-	char *head = file->buf + file->currentByteOffset;
-	return *head == '\0' ? NULL : head;
+	return file->buf + file->currentByteOffset;
 }
 
 char *lastLine(textBuffer *file) {
 	char *head = goToLine(file, file->amountOf.lines - 1);
 	file->current.line = file->amountOf.lines - 1;
-	return *head == '\0' ? NULL : head;
+	return head;
 }
 
 void freeTextBuffer(textBuffer *file) {
