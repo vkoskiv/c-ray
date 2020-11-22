@@ -123,7 +123,7 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath) {
 	if (newMeshes) {
 		for (size_t m = 0; m < meshCount; ++m) {
 			r->scene->meshes[r->scene->meshCount + m] = newMeshes[m];
-			free(&newMeshes[m]);
+			//free(&newMeshes[m]);
 			valid = true;
 			loadMeshTextures(r->prefs.assetPath, &r->scene->meshes[r->scene->meshCount + m]);
 		}
@@ -1015,6 +1015,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 	bool meshValid = false;
 	if (fileName != NULL && cJSON_IsString(fileName)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, fileName->valuestring);
+		//if (loadMeshNew(r, fullPath)) {
 		if (loadMesh(r, fullPath, idx, meshCount)) {
 			meshValid = true;
 			free(fullPath);
@@ -1023,6 +1024,11 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 			return;
 		}
 	}
+	
+	//for (int i = 0; i < vertexCount; ++i) {
+	//	logr(info, "{%.2f, %.2f, %.2f}\n", g_vertices[i].x, g_vertices[i].y, g_vertices[i].z);
+	//}
+	
 	if (meshValid) {
 		const cJSON *instances = cJSON_GetObjectItem(data, "instances");
 		const cJSON *instance = NULL;

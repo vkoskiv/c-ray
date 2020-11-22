@@ -20,19 +20,12 @@
 #include "../fileio.h"
 #include "../../utils/assert.h"
 #include "../../utils/textbuffer.h"
+#include "../../datatypes/vertexbuffer.h"
 
 //TODO: REMOVE
 #include "../../utils/platform/terminal.h"
 
 #define ws " \t\n\r"
-
-static struct vector parseVertex() {
-	return (struct vector){atof(strtok(NULL, ws)), atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
-}
-
-static struct coord parseCoord() {
-	return (struct coord){atof(strtok(NULL, ws)), atof(strtok(NULL, ws))};
-}
 
 static int parseIndices(int *vertexIndex, int *normalIndex, int *textureIndex) {
 	
@@ -72,7 +65,7 @@ static int parseIndices(int *vertexIndex, int *normalIndex, int *textureIndex) {
 	return vertexCount;
 }
 
-static struct poly parsePoly(struct mesh mesh) {
+static struct poly parsePolyOld(struct mesh mesh) {
 	struct poly p;
 	p.vertexCount = parseIndices(p.vertexIndex, p.normalIndex, p.textureIndex);
 	
@@ -107,19 +100,20 @@ static struct mesh parseOBJMesh(textBuffer *segment) {
 	return (struct mesh){0};
 }
 
-static size_t countMeshes(textBuffer *buffer) {
-	size_t meshCount = 0;
+// Count lines starting with thing
+static size_t count(textBuffer *buffer, const char *thing) {
+	size_t thingCount = 0;
 	char *head = firstLine(buffer);
 	lineBuffer line = {0};
 	while (head) {
 		fillLineBuffer(&line, head, " ");
 		char *first = firstToken(&line);
-		if (first[0] == 'o') meshCount++;
+		if (stringEquals(first, thing)) thingCount++;
 		head = nextLine(buffer);
 	}
-	logr(debug, "File contains %zu meshes\n", meshCount);
+	logr(debug, "File contains %zu of %s\n", thingCount, thing);
 	head = firstLine(buffer);
-	return meshCount;
+	return thingCount;
 }
 
 enum currentMode {
@@ -127,19 +121,95 @@ enum currentMode {
 	Mesh
 };
 
+/*
+ o = new object starting, so for us that's a new 'segment'
+ mtllib = new material set. Usually one per file, is it always that?
+ v = new vector
+ vn = new normal
+ f = new face
+ usemtl = switch to that material
+ 
+ 
+ */
+
+/*
+struct mesh {
+	//Vertices
+	int vertexCount;
+	int firstVectorIndex;
+	//Normals
+	int normalCount;
+	int firstNormalIndex;
+	//Texture coordinates
+	int textureCount;
+	int firstTextureIndex;
+	//Faces
+	struct poly *polygons;
+	int polyCount;
+	//Materials
+	int materialCount;
+	struct material *materials;
+	struct bvh *bvh;
+	float rayOffset;
+	char *name;
+};*/
+
+static struct vector parseVertex(lineBuffer *line) {
+	ASSERT(line->amountOf.tokens == 4);
+	return (struct vector){atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line))};
+}
+
+static struct coord parseCoord(lineBuffer *line) {
+	ASSERT(line->amountOf.tokens == 3);
+	return (struct coord){atof(nextToken(line)), atof(nextToken(line))};
+}
+
+static struct poly parsePolygon(lineBuffer *line) {
+	ASSERT(line->amountOf.tokens == 4);
+	struct poly p = {0};
+	p.vertexCount = MAX_CRAY_VERTEX_COUNT;
+	for (int i = 0; i < p.vertexCount; ++i) {
+		// Order goes v/vt/vn
+		lineBuffer batch = {0};
+		fillLineBuffer(&batch, nextToken(line), "/");
+		p.vertexIndex[i] = atoi(firstToken(&batch));
+		p.textureIndex[i] = nextToken(&batch) ? atoi(currentToken(&batch)) : 0; // Optional
+		p.normalIndex[i] = atoi(nextToken(&batch));
+	}
+	// Wavefront indices always begin from 1, and we zero above^
+	p.hasNormals = p.normalIndex[0] == 0;
+	return p;
+}
+
 struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	logr(debug, "Loading OBJ at %s\n", filePath);
 	size_t bytes = 0;
 	char *rawText = loadFile(filePath, &bytes);
-	ASSERT(rawText);
+	if (!rawText) return NULL;
 	textBuffer *file = newTextBuffer(rawText);
 	
 	//Start processing line-by-line, state machine style.
-	size_t meshCount = countMeshes(file);
+	size_t meshCount = count(file, "o");
 	size_t currentMesh = 0;
+	size_t valid_meshes = 0;
 	
-	struct material *currentMaterialSet = NULL;
-	size_t currentMaterialSetMaterialCount = 0;
+	// Allocate local buffers (memcpy these to global buffers if parsing succeeds)
+	size_t fileVertices = count(file, "v");
+	size_t currentVertex = 0;
+	struct vector *vertices = malloc(fileVertices * sizeof(*vertices));
+	size_t fileTexCoords = count(file, "vt");
+	size_t currentTextureCoord = 0;
+	struct coord *texCoords = malloc(fileTexCoords * sizeof(*texCoords));
+	size_t fileNormals = count(file, "vn");
+	size_t currentNormal = 0;
+	struct vector *normals = malloc(fileNormals * sizeof(*normals));
+	size_t filePolys = count(file, "f");
+	size_t currentPoly = 0;
+	struct poly *polygons = malloc(filePolys * sizeof(*polygons));
+	
+	struct material *materialSet = NULL;
+	int materialCount = 0;
+	int currentMaterial = 0;
 	
 	struct mesh *meshes = calloc(meshCount, sizeof(*meshes));
 	struct mesh *currentMeshPtr = NULL;
@@ -155,16 +225,71 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 		} else if (first[0] == 'o') {
 			currentMeshPtr = &meshes[currentMesh++];
 			currentMeshPtr->name = stringCopy(peekNextToken(&line));
+			valid_meshes++;
+		} else if (first[0] == 'g') {
+			// New object group, ignore for now.
+		} else if (stringEquals(first, "v")) {
+			vertices[currentVertex++] = parseVertex(&line);
+			currentMeshPtr->vertexCount++;
+		} else if (stringEquals(first, "vt")) {
+			texCoords[currentTextureCoord++] = parseCoord(&line);
+			currentMeshPtr->textureCount++;
+		} else if (stringEquals(first, "vn")) {
+			normals[currentNormal++] = parseVertex(&line);
+			currentMeshPtr->normalCount++;
+		} else if (first[0] == 'f') {
+			struct poly p = parsePolygon(&line);
+			p.materialIndex = currentMaterial;
+			polygons[currentPoly++] = p;
 		} else if (stringEquals(first, "newmtl")) {
 			char *mtlFilePath = stringConcat(getFilePath(filePath), peekNextToken(&line));
-			currentMaterialSet = parseMTLFile(mtlFilePath, &currentMaterialSetMaterialCount);
+			materialSet = parseMTLFile(mtlFilePath, &materialCount);
+			free(mtlFilePath);
 		}
 		head = nextLine(file);
 	}
 	
-	if (finalMeshCount) *finalMeshCount = meshCount;
-	exit(0);
-	return NULL;
+	if (finalMeshCount) *finalMeshCount = valid_meshes;
+	freeTextBuffer(file);
+	free(rawText);
+
+	/*for (size_t i = 0; i < meshCount; ++i) {
+		meshes[i].materials = materialSet;
+		meshes[i].materialCount = materialCount;
+	}*/
+	currentMeshPtr->materials = calloc(1, sizeof(struct material));
+	currentMeshPtr->materials[0] = warningMaterial();//materialSet;
+	currentMeshPtr->materialCount = 1;//materialCount;
+	currentMeshPtr->polygons = polygons;
+	currentMeshPtr->polyCount = (int)filePolys;
+	currentMeshPtr->firstVectorIndex = vertexCount;
+	currentMeshPtr->firstNormalIndex = normalCount;
+	currentMeshPtr->firstTextureIndex = textureCount;
+	
+	vertexCount += fileVertices;
+	normalCount += fileNormals;
+	textureCount+= fileTexCoords;
+	
+	g_vertices = realloc(g_vertices, vertexCount * sizeof(struct vector));
+	for (size_t i = 0; i < fileVertices; ++i) {
+		g_vertices[currentMeshPtr->firstVectorIndex + i] = vertices[i];
+	}
+	//memcpy(g_vertices + vertexCount, vertices, fileVertices * sizeof(*vertices));
+	
+	g_normals = realloc(g_normals, normalCount * sizeof(struct vector));
+	for (size_t i = 0; i < fileNormals; ++i) {
+		g_normals[currentMeshPtr->firstNormalIndex + i] = normals[i];
+	}
+	//memcpy(g_normals + normalCount, normals, fileNormals * sizeof(*normals));
+	
+	g_textureCoords = realloc(g_textureCoords, textureCount * sizeof(struct coord));
+	for (size_t i = 0; i < fileTexCoords; ++i) {
+		g_textureCoords[currentMeshPtr->firstTextureIndex + i] = texCoords[i];
+	}
+	//memcpy(g_textureCoords + textureCount, texCoords, fileTexCoords * sizeof(*texCoords));
+	
+	//exit(0);
+	return meshes;
 }
 
 struct mesh *parseOBJFileNah(char *filePath, size_t *meshCountOut) {
@@ -173,7 +298,7 @@ struct mesh *parseOBJFileNah(char *filePath, size_t *meshCountOut) {
 	textBuffer *file = newTextBuffer(rawText);
 	
 	//Figure out how many meshes this file contains
-	size_t meshCount = countMeshes(file);
+	size_t meshCount = count(file, "o");
 	if (!meshCount) return NULL;
 
 	//Get the offsets
@@ -291,21 +416,21 @@ struct mesh *parseOBJFilea(char *filePath) {
 			continue;
 		} else if (stringEquals(token, "v")) {
 			//Vertex
-			g_vertices[newMesh->firstVectorIndex + currVecIdx] = parseVertex();
+			//g_vertices[newMesh->firstVectorIndex + currVecIdx] = parseVertex();
 			currVecIdx++;
 		} else if (stringEquals(token, "vn")) {
 			//Normal
-			g_normals[newMesh->firstNormalIndex + currNorIdx] = parseVertex();
+			//g_normals[newMesh->firstNormalIndex + currNorIdx] = parseVertex();
 			currNorIdx++;
 		} else if (stringEquals(token, "vt")) {
 			//Texture coord
-			g_textureCoords[newMesh->firstTextureIndex + currTexIdx] = parseCoord();
+			//g_textureCoords[newMesh->firstTextureIndex + currTexIdx] = parseCoord();
 			currTexIdx++;
 		} else if (stringEquals(token, "f")) {
 			//Polygon
-			struct poly p = parsePoly(*newMesh);
-			p.materialIndex = currMatIdx;
-			newMesh->polygons[currPolIdx] = p;
+			//struct poly p = parsePoly(*newMesh);
+			//p.materialIndex = currMatIdx;
+			//newMesh->polygons[currPolIdx] = p;
 			currPolIdx++;
 		} else if (stringEquals(token, "usemtl")) {
 			//current material index

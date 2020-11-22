@@ -33,7 +33,7 @@ static size_t countMaterials(textBuffer *buffer) {
 
 // Parse a list of materials and return an array of materials.
 // mtlCount is the amount of materials loaded.
-struct material *parseMTLFile(char *filePath, size_t *mtlCount) {
+struct material *parseMTLFile(char *filePath, int *mtlCount) {
 	struct material *newMaterials = NULL;
 	
 	int count = 0;
@@ -119,9 +119,9 @@ struct material *parseMTLFile(char *filePath, size_t *mtlCount) {
 	
 	fclose(fileStream);
 	
-	*mtlCount = count;
+	if (mtlCount) *mtlCount = count;
 	
-	for (size_t i = 0; i < *mtlCount; ++i) {
+	for (int i = 0; i < count; ++i) {
 		newMaterials[i].name[strcspn(newMaterials[i].name, "\n")] = 0;
 	}
 	
