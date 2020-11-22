@@ -46,7 +46,8 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 		bbox->max = vecAdd(bbox->max, *center);
 	}
 	sphere->rayOffset = rayOffset(*bbox);
-	logr(debug, "sphere offset: %f\n", sphere->rayOffset);
+	printf("\n");
+	logr(debug, "sphere offset: %f", sphere->rayOffset);
 }
 
 struct instance newSphereInstance(struct sphere *sphere) {
@@ -87,7 +88,8 @@ static void getMeshBBoxAndCenter(const struct instance *instance, struct boundin
 	transformBBox(bbox, &instance->composite.A);
 	*center = bboxCenter(bbox);
 	mesh->rayOffset = rayOffset(*bbox);
-	logr(debug, "mesh %s offset: %f\n", mesh->name, mesh->rayOffset);
+	printf("\n");
+	logr(debug, "mesh \"%s\" offset: %f", mesh->name, mesh->rayOffset);
 }
 
 struct instance newMeshInstance(struct mesh *mesh) {
