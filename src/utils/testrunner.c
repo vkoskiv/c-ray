@@ -26,11 +26,11 @@ typedef struct {
 	time_t (*func)(void);
 } perfTest;
 
+#ifdef CRAY_TESTING
+
 // Grab tests
 #include "../../tests/tests.h"
 #include "../../tests/perf/tests.h"
-
-#ifdef CRAY_TESTING
 
 unsigned totalTests = testCount;
 unsigned performanceTests = perfTestCount;
