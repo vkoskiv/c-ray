@@ -22,9 +22,6 @@
 #include "../../utils/textbuffer.h"
 #include "../../datatypes/vertexbuffer.h"
 
-//TODO: REMOVE
-#include "../../utils/platform/terminal.h"
-
 #define ws " \t\n\r"
 
 static int parseIndices(int *vertexIndex, int *normalIndex, int *textureIndex) {
@@ -173,19 +170,37 @@ static struct poly parsePolygon(lineBuffer *line) {
 		lineBuffer batch = {0};
 		fillLineBuffer(&batch, nextToken(line), "/");
 		p.vertexIndex[i] = atoi(firstToken(&batch));
-		p.textureIndex[i] = nextToken(&batch) ? atoi(currentToken(&batch)) : 0; // Optional
+		p.textureIndex[i] = *nextToken(&batch) == '\0' ? atoi(currentToken(&batch)) : 0; // Optional
 		p.normalIndex[i] = atoi(nextToken(&batch));
 	}
-	// Wavefront indices always begin from 1, and we zero above^
-	p.hasNormals = p.normalIndex[0] == 0;
 	return p;
 }
 
+static int fixIndex(size_t max, int oldIndex) {
+	if (oldIndex == 0) {// Unused
+		return -1;
+	}
+	
+	if (oldIndex < 0) { // Relative to end of list
+		return (int)max + oldIndex;
+	}
+	
+	return oldIndex - 1;// Normal indexing
+}
+
+static void fixIndices(struct poly *p, size_t totalVertices, size_t totalTexCoords, size_t totalNormals) {
+	for (int i = 0; i < MAX_CRAY_VERTEX_COUNT; ++i) {
+		p->vertexIndex[i] = fixIndex(totalVertices, p->vertexIndex[i]);
+		p->textureIndex[i] = fixIndex(totalTexCoords, p->textureIndex[i]);
+		p->normalIndex[i] = fixIndex(totalNormals, p->normalIndex[i]);
+	}
+}
+
 struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
-	logr(debug, "Loading OBJ at %s\n", filePath);
 	size_t bytes = 0;
 	char *rawText = loadFile(filePath, &bytes);
 	if (!rawText) return NULL;
+	logr(debug, "Loading OBJ at %s\n", filePath);
 	textBuffer *file = newTextBuffer(rawText);
 	
 	//Start processing line-by-line, state machine style.
@@ -237,9 +252,11 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 		} else if (stringEquals(first, "vn")) {
 			normals[currentNormal++] = parseVertex(&line);
 			currentMeshPtr->normalCount++;
-		} else if (first[0] == 'f') {
+		} else if (stringEquals(first, "f")) {
 			struct poly p = parsePolygon(&line);
 			p.materialIndex = currentMaterial;
+			fixIndices(&p, fileVertices, fileTexCoords, fileNormals);
+			p.hasNormals = p.normalIndex[0] != 0;
 			polygons[currentPoly++] = p;
 		} else if (stringEquals(first, "newmtl")) {
 			char *mtlFilePath = stringConcat(getFilePath(filePath), peekNextToken(&line));
@@ -332,7 +349,6 @@ struct mesh *parseOBJFileNah(char *filePath, size_t *meshCountOut) {
 	free(meshOffsets);
 	freeLineBuffer(&line);
 	freeTextBuffer(file);
-	restoreTerminal();
 	if (meshCountOut) *meshCountOut = meshCount;
 	exit(0);
 	return NULL;
