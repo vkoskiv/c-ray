@@ -198,6 +198,10 @@ char *firstToken(lineBuffer *line) {
 	return firstLine(line);
 }
 
+char *currentToken(lineBuffer *line) {
+	return currentLine(line);
+}
+
 char *lastToken(lineBuffer *line) {
 	return lastLine(line);
 }

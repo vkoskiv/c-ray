@@ -23,8 +23,8 @@ struct _textBuffer {
 		size_t token;
 	} current;
 	size_t currentByteOffset;
-	char *delimiters;
-	size_t delimCount;
+	char *delimiters; //TODO: Needed?
+	size_t delimCount;//TODO: Needed?
 };
 
 typedef struct _textBuffer textBuffer;
@@ -69,6 +69,8 @@ char *previousToken(lineBuffer *line);
 char *peekNextToken(lineBuffer *line);
 
 char *firstToken(lineBuffer *line);
+
+char *currentToken(lineBuffer *line);
 
 char *lastToken(lineBuffer *line);
 
