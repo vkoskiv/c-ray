@@ -942,7 +942,7 @@ static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 
 struct transform parseTransformComposite(const cJSON *transforms) {
 	// Combine found list of discerete transforms into a single matrix.
-	ASSERT(cJSON_IsArray(transforms));
+	if (!transforms) return newTransform();
 	const cJSON *transform = NULL;
 	size_t count = cJSON_GetArraySize(transforms);
 	struct transform *tforms = calloc(count, sizeof(*tforms));
