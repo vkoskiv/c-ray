@@ -17,6 +17,7 @@
 #include "sphere.h"
 #include "scene.h"
 #include "../utils/logging.h"
+#include "../utils/args.h"
 
 static bool intersectSphere(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect) {
 	struct lightRay copy = *ray;
@@ -46,7 +47,7 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 		bbox->max = vecAdd(bbox->max, *center);
 	}
 	sphere->rayOffset = rayOffset(*bbox);
-	printf("\n");
+	if (isSet("v")) printf("\n");
 	logr(debug, "sphere offset: %f", sphere->rayOffset);
 }
 
@@ -88,7 +89,7 @@ static void getMeshBBoxAndCenter(const struct instance *instance, struct boundin
 	transformBBox(bbox, &instance->composite.A);
 	*center = bboxCenter(bbox);
 	mesh->rayOffset = rayOffset(*bbox);
-	printf("\n");
+	if (isSet("v")) printf("\n");
 	logr(debug, "mesh \"%s\" offset: %f", mesh->name, mesh->rayOffset);
 }
 
