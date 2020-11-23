@@ -118,39 +118,6 @@ enum currentMode {
 	Mesh
 };
 
-/*
- o = new object starting, so for us that's a new 'segment'
- mtllib = new material set. Usually one per file, is it always that?
- v = new vector
- vn = new normal
- f = new face
- usemtl = switch to that material
- 
- 
- */
-
-/*
-struct mesh {
-	//Vertices
-	int vertexCount;
-	int firstVectorIndex;
-	//Normals
-	int normalCount;
-	int firstNormalIndex;
-	//Texture coordinates
-	int textureCount;
-	int firstTextureIndex;
-	//Faces
-	struct poly *polygons;
-	int polyCount;
-	//Materials
-	int materialCount;
-	struct material *materials;
-	struct bvh *bvh;
-	float rayOffset;
-	char *name;
-};*/
-
 static struct vector parseVertex(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
 	return (struct vector){atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line))};
@@ -190,9 +157,9 @@ static int fixIndex(size_t max, int oldIndex) {
 
 static void fixIndices(struct poly *p, size_t totalVertices, size_t totalTexCoords, size_t totalNormals) {
 	for (int i = 0; i < MAX_CRAY_VERTEX_COUNT; ++i) {
-		p->vertexIndex[i] = fixIndex(totalVertices, p->vertexIndex[i]);
-		p->textureIndex[i] = fixIndex(totalTexCoords, p->textureIndex[i]);
-		p->normalIndex[i] = fixIndex(totalNormals, p->normalIndex[i]);
+		p->vertexIndex[i] = vertexCount + (fixIndex(totalVertices, p->vertexIndex[i]));
+		p->textureIndex[i] = textureCount + (fixIndex(totalTexCoords, p->textureIndex[i]));
+		p->normalIndex[i] = normalCount + (fixIndex(totalNormals, p->normalIndex[i]));
 	}
 }
 
@@ -237,6 +204,9 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 		if (first[0] == '#') {
 			head = nextLine(file);
 			continue;
+		} else if (first[0] == '\0') {
+			head = nextLine(file);
+			continue;
 		} else if (first[0] == 'o') {
 			currentMeshPtr = &meshes[currentMesh++];
 			currentMeshPtr->name = stringCopy(peekNextToken(&line));
@@ -258,10 +228,11 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 			fixIndices(&p, fileVertices, fileTexCoords, fileNormals);
 			p.hasNormals = p.normalIndex[0] != 0;
 			polygons[currentPoly++] = p;
-		} else if (stringEquals(first, "newmtl")) {
+		} else if (stringEquals(first, "mtllib")) {
 			char *mtlFilePath = stringConcat(getFilePath(filePath), peekNextToken(&line));
 			materialSet = parseMTLFile(mtlFilePath, &materialCount);
 			free(mtlFilePath);
+			//exit(0);
 		}
 		head = nextLine(file);
 	}
@@ -270,13 +241,19 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	freeTextBuffer(file);
 	free(rawText);
 
-	/*for (size_t i = 0; i < meshCount; ++i) {
-		meshes[i].materials = materialSet;
-		meshes[i].materialCount = materialCount;
-	}*/
-	currentMeshPtr->materials = calloc(1, sizeof(struct material));
-	currentMeshPtr->materials[0] = warningMaterial();//materialSet;
-	currentMeshPtr->materialCount = 1;//materialCount;
+	if (materialSet) {
+		for (size_t i = 0; i < meshCount; ++i) {
+			meshes[i].materials = materialSet;
+			meshes[i].materialCount = materialCount;
+		}
+	} else {
+		for (size_t i = 0; i < meshCount; ++i) {
+			meshes[i].materials = calloc(1, sizeof(struct material));
+			meshes[i].materials[0] = warningMaterial();
+			meshes[i].materialCount = 1;
+		}
+	}
+	
 	currentMeshPtr->polygons = polygons;
 	currentMeshPtr->polyCount = (int)filePolys;
 	currentMeshPtr->firstVectorIndex = vertexCount;
