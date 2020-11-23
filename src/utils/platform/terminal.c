@@ -30,7 +30,10 @@ bool isTeleType(void) {
 }
 
 static void showCursor(bool show) {
+	(void)show;
+#ifndef XCODE_NO_COLOR
 	if (isTeleType()) show ? fputs("\e[?25h", stdout) : fputs("\e[?25l", stdout);
+#endif
 }
 
 static void handler(int sig) {
