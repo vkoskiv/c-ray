@@ -15,6 +15,8 @@
 #include "../../utils/logging.h"
 #include "../../utils/string.h"
 #include "../../utils/textbuffer.h"
+#include "../../utils/fileio.h"
+#include "../../utils/assert.h"
 
 static size_t countMaterials(textBuffer *buffer) {
 	size_t mtlCount = 0;
@@ -31,9 +33,86 @@ static size_t countMaterials(textBuffer *buffer) {
 	return mtlCount;
 }
 
+struct color parseColor(lineBuffer *line) {
+	ASSERT(line->amountOf.tokens == 4);
+	return (struct color){atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line))};
+}
+
+struct material *parseMTLFile(char *filePath, int *mtlCount) {
+	size_t bytes = 0;
+	char *rawText = loadFile(filePath, &bytes);
+	if (!rawText) return NULL;
+	logr(debug, "Loading MTL at %s\n", filePath);
+	textBuffer *file = newTextBuffer(rawText);
+	
+	size_t materialAmount = countMaterials(file);
+	struct material *materials = calloc(materialAmount, sizeof(*materials));
+	size_t currentMaterialIdx = 0;
+	struct material *current = NULL;
+	
+	char *head = firstLine(file);
+	lineBuffer line = {0};
+	while (head) {
+		fillLineBuffer(&line, head, " ");
+		char *first = firstToken(&line);
+		if (first[0] == '#') {
+			head = nextLine(file);
+			continue;
+		} else if (head[0] == '\0') {
+			logr(debug, "empty line\n");
+			head = nextLine(file);
+			continue;
+		} else if (stringEquals(first, "newmtl")) {
+			current = &materials[currentMaterialIdx++];
+			if (!peekNextToken(&line)) {
+				logr(warning, "newmtl without a name on line %zu\n", line.current.line);
+				free(materials);
+				return NULL;
+			}
+			current->name = stringCopy(peekNextToken(&line));
+		} else if (stringEquals(first, "Ka")) {
+			current->ambient = parseColor(&line);
+		} else if (stringEquals(first, "Kd")) {
+			current->diffuse = parseColor(&line);
+		} else if (stringEquals(first, "Ks")) {
+			current->specular = parseColor(&line);
+		} else if (stringEquals(first, "Ke")) {
+			current->emission = parseColor(&line);
+		} else if (stringEquals(first, "Ns")) {
+			// Shinyness, unused
+			head = nextLine(file);
+			continue;
+		} else if (stringEquals(first, "d")) {
+			current->transparency = atof(nextToken(&line));
+		} else if (stringEquals(first, "r")) {
+			current->reflectivity = atof(nextToken(&line));
+		} else if (stringEquals(first, "sharpness")) {
+			current->glossiness = atof(nextToken(&line));
+		} else if (stringEquals(first, "Ni")) {
+			current->IOR = atof(nextToken(&line));
+		} else if (stringEquals(first, "map_Kd")) {
+			//TODO: Maybe just load up the texture right in here?
+			current->textureFilePath = stringCopy(nextToken(&line));
+		} else if (stringEquals(first, "norm")) {
+			current->normalMapPath = stringCopy(nextToken(&line));
+		} else if (stringEquals(first, "map_Ns")) {
+			current->specularMapPath = stringCopy(nextToken(&line));
+		} else {
+			char *fileName = getFileName(filePath);
+			logr(warning, "Unknown statement %s in MTL at \"%s\" on line %zu\n",
+				first, fileName, file->current.line);
+			free(fileName);
+		}
+		head = nextLine(file);
+	}
+	
+	if (mtlCount) *mtlCount = (int)materialAmount;
+	return materials;
+}
+
 // Parse a list of materials and return an array of materials.
 // mtlCount is the amount of materials loaded.
-struct material *parseMTLFile(char *filePath, int *mtlCount) {
+struct material *parseMTLFileOld(char *filePath, int *mtlCount) {
 	struct material *newMaterials = NULL;
 	
 	int count = 0;
