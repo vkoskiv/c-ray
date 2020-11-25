@@ -354,7 +354,7 @@ void destroyMaterial(struct material *mat) {
 		free(mat->name);
 		if (mat->texture) destroyTexture(mat->texture);
 		if (mat->normalMap) destroyTexture(mat->normalMap);
-		if (mat->specularMap) destroyTexture(mat->normalMap);
+		if (mat->specularMap) destroyTexture(mat->specularMap);
 	}
 	//FIXME: Free mat here and fix destroyMesh() to work with that
 }
