@@ -40,26 +40,26 @@ static void printUsage(const char *progname) {
 }
 
 bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
-	if (dimStr) {
-		lineBuffer *buf = newLineBuffer();
-		fillLineBuffer(buf, dimStr, "x");
-		char *widthStr = firstToken(buf);
-		char *heightStr = nextToken(buf);
-		if (widthStr && heightStr) {
-			int width = atoi(widthStr);
-			int height = atoi(heightStr);
-			width = width > 65536 ? 65536 : width;
-			height = height > 65536 ? 65536 : height;
-			width = width < 1 ? 1 : width;
-			height = height < 1 ? 1 : height;
-			
-			if (widthOut) *widthOut = width;
-			if (heightOut) *heightOut = height;
-			return true;
-		}
+	if (!dimStr) return false;
+	lineBuffer *buf = newLineBuffer();
+	fillLineBuffer(buf, dimStr, "x");
+	char *widthStr = firstToken(buf);
+	char *heightStr = nextToken(buf);
+	if (!widthStr && !heightStr) {
 		destroyLineBuffer(buf);
+		return false;
 	}
-	return false;
+	int width = atoi(widthStr);
+	int height = atoi(heightStr);
+	width = width > 65536 ? 65536 : width;
+	height = height > 65536 ? 65536 : height;
+	width = width < 1 ? 1 : width;
+	height = height < 1 ? 1 : height;
+	
+	if (widthOut) *widthOut = width;
+	if (heightOut) *heightOut = height;
+	destroyLineBuffer(buf);
+	return true;
 }
 
 void parseArgs(int argc, char **argv) {
