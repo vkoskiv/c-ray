@@ -76,4 +76,4 @@ char *currentToken(lineBuffer *line);
 
 char *lastToken(lineBuffer *line);
 
-void freeLineBuffer(lineBuffer *line);
+void destroyLineBuffer(lineBuffer *line);
