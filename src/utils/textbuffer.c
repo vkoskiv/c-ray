@@ -6,6 +6,8 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "includes.h"
+
 #include <stddef.h>
 #include "textbuffer.h"
 
@@ -161,18 +163,16 @@ void freeTextBuffer(textBuffer *file) {
 }
 
 void fillLineBuffer(lineBuffer *line, const char *contents, char *delimiters) {
-	const char *buf = contents;
-	if (!buf) return;
-	size_t contentLen = strlen(buf);
-	size_t copyLen = contentLen < LINEBUFFER_MAXSIZE ? contentLen : LINEBUFFER_MAXSIZE;
-	memcpy(line->buf, buf, copyLen);
+	if (!contents || !delimiters) return;
+	size_t copyLen = min(strlen(contents), LINEBUFFER_MAXSIZE);
+	memcpy(line->buf, contents, copyLen);
 	line->buf[copyLen] = '\0';
 	line->buflen = copyLen;
-	size_t delimLength = strlen(delimiters);
+	size_t delimiterAmount = strlen(delimiters);
 	
 	size_t tokens = 0;
 	for (size_t i = 0; i < line->buflen + 1; ++i) {
-		for (size_t d = 0; d < delimLength; ++d) {
+		for (size_t d = 0; d < delimiterAmount; ++d) {
 			if (line->buf[i] == delimiters[d] || line->buf[i] == '\0') {
 				line->buf[i] = '\0';
 				tokens++;
