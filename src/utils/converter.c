@@ -13,6 +13,7 @@
 #include "../datatypes/poly.h"
 #include "../datatypes/material.h"
 #include "../utils/string.h"
+#include "../utils/loaders/textureloader.h" // FIXME: remove
 
 /**
  Convert a given OBJ loader vector into a c-ray vector
@@ -71,23 +72,22 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
  @param mat OBJ loader material
  @return c-ray material
  */
-struct material materialFromObj(obj_material *mat) {
+struct material materialFromObj(char *assetPath, obj_material *mat) {
 	struct material newMat;
 	
-	newMat.name = calloc(256, sizeof(*newMat.name));
-	newMat.normalMapPath = calloc(500, sizeof(*newMat.normalMapPath));
-	newMat.specularMapPath = calloc(500, sizeof(*newMat.specularMapPath));
+	newMat.name = stringCopy(mat->name);
 	
-	newMat.hasTexture = false;
+	char *fullPath = stringConcat(assetPath, mat->texture_filename);
+	newMat.texture = mat->texture_filename[0] != '\0' ? loadTexture(fullPath) : NULL;
+	free(fullPath);
 	
-	for (int i = 0; i < 255; ++i) {
-		newMat.name[i] = mat->name[i];
-		newMat.name[255] = '\0';
-	}
+	fullPath = stringConcat(assetPath, mat->displacement_filename);
+	newMat.normalMap = mat->displacement_filename[0] != '\0' ? loadTexture(fullPath) : NULL;
+	free(fullPath);
 	
-	newMat.textureFilePath = stringCopy(mat->texture_filename);
-	newMat.normalMapPath = stringCopy(mat->displacement_filename);
-	newMat.specularMapPath = stringCopy(mat->specular_filename);
+	fullPath = stringConcat(assetPath, mat->specular_filename);
+	newMat.specularMap = mat->specular_filename[0] != '\0' ? loadTexture(fullPath) : NULL;
+	free(fullPath);
 	
 	newMat.diffuse.red   = mat->diff[0];
 	newMat.diffuse.green = mat->diff[1];

@@ -53,65 +53,6 @@ static struct sphere *lastSphere(struct renderer *r) {
 	return &r->scene->spheres[r->scene->sphereCount - 1];
 }
 
-//FIXME: Do something about this awful mess.
-static void loadMeshTextures(char *assetPath, struct mesh *mesh) {
-	for (int i = 0; i < mesh->materialCount; ++i) {
-		//FIXME: do this check in materialFromOBJ and just check against hasTexture here
-		if (mesh->materials[i].textureFilePath) {
-			if (strcmp(mesh->materials[i].textureFilePath, "")) {
-				//TODO: Set the shader for this obj to an obnoxious checker pattern if the texture wasn't found
-				char *fullPath = stringConcat(assetPath, mesh->materials[i].textureFilePath);
-				mesh->materials[i].texture = loadTexture(fullPath);
-				free(fullPath);
-				if (mesh->materials[i].texture) {
-					mesh->materials[i].hasTexture = true;
-				} else {
-					mesh->materials[i].hasTexture = false;
-				}
-			} else {
-				mesh->materials[i].hasTexture = false;
-			}
-		} else {
-			mesh->materials[i].hasTexture = false;
-		}
-		
-		if (mesh->materials[i].normalMapPath) {
-			if (strcmp(mesh->materials[i].normalMapPath, "")) {
-				char *fullPath = stringConcat(assetPath, mesh->materials[i].normalMapPath);
-				mesh->materials[i].normalMap = loadTexture(fullPath);
-				free(fullPath);
-				if (mesh->materials[i].normalMap) {
-					mesh->materials[i].hasNormalMap = true;
-				} else {
-					mesh->materials[i].hasNormalMap = false;
-				}
-			} else {
-				mesh->materials[i].hasNormalMap = false;
-			}
-		} else {
-			mesh->materials[i].hasNormalMap = false;
-		}
-		
-		if (mesh->materials[i].specularMapPath) {
-			if (strcmp(mesh->materials[i].specularMapPath, "")) {
-				char *fullPath = stringConcat(assetPath, mesh->materials[i].specularMapPath);
-				mesh->materials[i].specularMap = loadTexture(fullPath);
-				free(fullPath);
-				if (mesh->materials[i].specularMap) {
-					mesh->materials[i].hasSpecularMap = true;
-				} else {
-					mesh->materials[i].hasSpecularMap = false;
-				}
-			} else {
-				mesh->materials[i].hasSpecularMap = false;
-			}
-		} else {
-			mesh->materials[i].hasSpecularMap = false;
-		}
-		
-	}
-}
-
 static bool loadMeshNew(struct renderer *r, char *inputFilePath) {
 	bool valid = false;
 	size_t meshCount = 0;
@@ -122,7 +63,7 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath) {
 			r->scene->meshes[r->scene->meshCount + m] = newMeshes[m];
 			//free(&newMeshes[m]);
 			valid = true;
-			loadMeshTextures(r->prefs.assetPath, &r->scene->meshes[r->scene->meshCount + m]);
+			//loadMeshTextures(r->prefs.assetPath, &r->scene->meshes[r->scene->meshCount + m]);
 		}
 	}
 	
@@ -196,6 +137,7 @@ static bool loadMesh(struct renderer *r, const char *inputFilePath, int idx, int
 										   newMesh->firstTextureIndex);
 	}
 	
+	char *assetPath = getFilePath(inputFilePath);
 	newMesh->materials = calloc(1, sizeof(*newMesh->materials));
 	//Parse materials
 	if (data.material_count == 0) {
@@ -207,14 +149,10 @@ static bool loadMesh(struct renderer *r, const char *inputFilePath, int idx, int
 	} else {
 		//Loop to add materials to mesh (We already set the material indices in polyFromObj)
 		for (int i = 0; i < data.material_count; ++i) {
-			addMaterialToMesh(newMesh, materialFromObj(data.material_list[i]));
+			addMaterialToMesh(newMesh, materialFromObj(assetPath, data.material_list[i]));
 		}
 	}
-	
-	//Load textures for meshes
-	char *filePath = getFilePath(inputFilePath);
-	loadMeshTextures(filePath, newMesh);
-	free(filePath);
+	free(assetPath);
 	
 	//Delete OBJ data
 	delete_obj_data(&data);
@@ -233,7 +171,7 @@ static void addSphere(struct world *scene, struct sphere newSphere) {
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
-static struct material *parseMaterial(const cJSON *data) {
+/*static struct material *parseMaterial(const cJSON *data) {
 	cJSON *bsdf = NULL;
 	cJSON *IOR = NULL;
 	//cJSON *roughness = NULL;
@@ -315,7 +253,7 @@ static struct material *parseMaterial(const cJSON *data) {
 	}
 	assignBSDF(mat);
 	return mat;
-}
+}*/
 
 static struct transform parseTransform(const cJSON *data, char *targetName) {
 	cJSON *type = cJSON_GetObjectItem(data, "type");

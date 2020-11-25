@@ -39,4 +39,4 @@ struct poly polyFromObj(obj_face *face, int firstVertexIndex, int firstNormalInd
  @param mat OBJ loader material
  @return c-ray material
  */
-struct material materialFromObj(obj_material *mat);
+struct material materialFromObj(char *assetPath, obj_material *mat);

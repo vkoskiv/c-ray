@@ -77,13 +77,13 @@ struct color colorForUV(const struct hitRecord *isect, enum textureType type) {
 	const struct texture *tex = NULL;
 	switch (type) {
 		case Normal:
-			tex = isect->material.hasNormalMap ? isect->material.normalMap : NULL;
+			tex = isect->material.normalMap ? isect->material.normalMap : NULL;
 			break;
 		case Specular:
-			tex = isect->material.hasSpecularMap ? isect->material.specularMap : NULL;
+			tex = isect->material.specularMap ? isect->material.specularMap : NULL;
 			break;
 		default:
-			tex = isect->material.hasTexture ? isect->material.texture : NULL;
+			tex = isect->material.texture ? isect->material.texture : NULL;
 			break;
 	}
 	
@@ -133,7 +133,7 @@ static struct color gradient(struct hitRecord *isect) {
 //This is a checkerboard pattern mapped to the surface coordinate space
 //Caveat: This only works for meshes that have texture coordinates (i.e. were UV-unwrapped).
 static struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
-	ASSERT(isect->material.hasTexture);
+	ASSERT(isect->material.texture);
 	const struct poly *p = isect->polygon;
 	
 	//barycentric coordinates for this polygon
@@ -170,7 +170,7 @@ static struct color unmappedCheckerBoard(struct hitRecord *isect, float coef) {
 }
 
 static struct color checkerBoard(struct hitRecord *isect, float coef) {
-	return isect->material.hasTexture ? mappedCheckerBoard(isect, coef) : unmappedCheckerBoard(isect, coef);
+	return isect->material.texture ? mappedCheckerBoard(isect, coef) : unmappedCheckerBoard(isect, coef);
 }
 
 static struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
@@ -209,11 +209,11 @@ bool weightedBSDF(struct hitRecord *isect, struct color *attenuation, struct lig
 
 //TODO: Make this a function ptr in the material?
 static struct color diffuseColor(const struct hitRecord *isect) {
-	return isect->material.hasTexture ? colorForUV(isect, Diffuse) : isect->material.diffuse;
+	return isect->material.texture ? colorForUV(isect, Diffuse) : isect->material.diffuse;
 }
 
 static float roughnessValue(const struct hitRecord *isect) {
-	return isect->material.hasSpecularMap ? colorForUV(isect, Specular).red : isect->material.roughness;
+	return isect->material.specularMap ? colorForUV(isect, Specular).red : isect->material.roughness;
 }
 
 bool lambertianBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
@@ -351,11 +351,10 @@ bool dielectricBSDF(const struct hitRecord *isect, struct color *attenuation, st
 
 void destroyMaterial(struct material *mat) {
 	if (mat) {
-		free(mat->textureFilePath);
-		free(mat->normalMapPath);
 		free(mat->name);
-		if (mat->hasTexture) {
-			destroyTexture(mat->texture);
-		}
+		if (mat->texture) destroyTexture(mat->texture);
+		if (mat->normalMap) destroyTexture(mat->normalMap);
+		if (mat->specularMap) destroyTexture(mat->normalMap);
 	}
+	//FIXME: Free mat here and fix destroyMesh() to work with that
 }

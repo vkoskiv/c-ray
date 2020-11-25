@@ -88,7 +88,7 @@ static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const stru
 	if (!traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect))
 		return isect;
 	
-	float prob = isect.material.hasTexture ? colorForUV(&isect, Diffuse).alpha : isect.material.diffuse.alpha;
+	float prob = isect.material.texture ? colorForUV(&isect, Diffuse).alpha : isect.material.diffuse.alpha;
 	if (prob < 1.0f) {
 		if (getDimension(sampler) > prob) {
 			struct lightRay next = {isect.hitPoint, incidentRay->direction, rayTypeIncident};

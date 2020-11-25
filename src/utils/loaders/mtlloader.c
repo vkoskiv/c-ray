@@ -17,6 +17,7 @@
 #include "../../utils/textbuffer.h"
 #include "../../utils/fileio.h"
 #include "../../utils/assert.h"
+#include "../../utils/loaders/textureloader.h"
 
 static size_t countMaterials(textBuffer *buffer) {
 	size_t mtlCount = 0;
@@ -44,6 +45,8 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 	if (!rawText) return NULL;
 	logr(debug, "Loading MTL at %s\n", filePath);
 	textBuffer *file = newTextBuffer(rawText);
+	
+	char *assetPath = getFilePath(filePath);
 	
 	size_t materialAmount = countMaterials(file);
 	struct material *materials = calloc(materialAmount, sizeof(*materials));
@@ -91,12 +94,17 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 		} else if (stringEquals(first, "Ni")) {
 			current->IOR = atof(nextToken(&line));
 		} else if (stringEquals(first, "map_Kd")) {
-			//TODO: Maybe just load up the texture right in here?
-			current->textureFilePath = stringCopy(nextToken(&line));
+			char *path = stringConcat(assetPath, nextToken(line));
+			current->texture = loadTexture(path);
+			free(path);
 		} else if (stringEquals(first, "norm")) {
-			current->normalMapPath = stringCopy(nextToken(&line));
+			char *path = stringConcat(assetPath, nextToken(line));
+			current->normalMap = loadTexture(path);
+			free(path);
 		} else if (stringEquals(first, "map_Ns")) {
-			current->specularMapPath = stringCopy(nextToken(&line));
+			char *path = stringConcat(assetPath, nextToken(line));
+			current->specularMap = loadTexture(path);
+			free(path);
 		} else {
 			char *fileName = getFileName(filePath);
 			logr(warning, "Unknown statement %s in MTL at \"%s\" on line %zu\n",
@@ -106,6 +114,7 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 		head = nextLine(file);
 	}
 	
+	free(assetPath);
 	if (mtlCount) *mtlCount = (int)materialAmount;
 	return materials;
 }
@@ -142,7 +151,7 @@ struct material *parseMTLFileOld(char *filePath, int *mtlCount) {
 			newMaterials = realloc(newMaterials, count * sizeof(struct material));
 			currMat = &newMaterials[count-1];
 			currMat->name = calloc(CRAY_MATERIAL_NAME_SIZE, sizeof(*currMat->name));
-			currMat->textureFilePath = calloc(CRAY_MESH_FILENAME_LENGTH, sizeof(*currMat->textureFilePath));
+			//currMat->textureFilePath = calloc(CRAY_MESH_FILENAME_LENGTH, sizeof(*currMat->textureFilePath));
 			strncpy(currMat->name, strtok(NULL, " \t"), CRAY_MATERIAL_NAME_SIZE);
 			matOpen = true;
 		} else if (stringEquals(token, "Ka") && matOpen) {
@@ -185,7 +194,7 @@ struct material *parseMTLFileOld(char *filePath, int *mtlCount) {
 			//UNUSED
 		} else if (stringEquals(token, "map_Kd") && matOpen) {
 			//Diffuse texture map
-			strncpy(currMat->textureFilePath, strtok(NULL, " \t"), CRAY_MESH_FILENAME_LENGTH);
+			//strncpy(currMat->textureFilePath, strtok(NULL, " \t"), CRAY_MESH_FILENAME_LENGTH);
 		} else if ((stringEquals(token, "map_bump") || stringEquals(token, "bump")) && matOpen) {
 			//Bump map
 			//TODO

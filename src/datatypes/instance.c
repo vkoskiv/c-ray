@@ -70,7 +70,7 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 		isect->material = ((struct mesh*)instance->object)->materials[isect->polygon->materialIndex];
 		transformPoint(&isect->hitPoint, &instance->composite.A);
 		transformVectorWithTranspose(&isect->surfaceNormal, &instance->composite.Ainv);
-		if (likely(!isect->material.hasNormalMap)) {
+		if (likely(!isect->material.normalMap)) {
 			isect->surfaceNormal = vecNormalize(isect->surfaceNormal);
 		} else {
 			//struct color pixel = colorForUV(isect, Normal);
