@@ -18,6 +18,8 @@ bool stringEquals(const char *s1, const char *s2);
 /// @param needle String to search for
 bool stringContains(const char *haystack, const char *needle);
 
+bool stringStartsWith(const char *prefix, const char *string);
+
 /// Copy strings
 /// @param source String to be copied
 /// @return New heap-allocated string

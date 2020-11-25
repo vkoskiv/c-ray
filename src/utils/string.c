@@ -22,6 +22,13 @@ bool stringContains(const char *haystack, const char *needle) {
 	return strstr(haystack, needle);
 }
 
+bool stringStartsWith(const char *prefix, const char *string) {
+	ASSERT(prefix); ASSERT(string);
+	size_t prefix_len = strlen(prefix);
+	size_t string_len = strlen(string);
+	return string_len < prefix_len ? false : memcmp(prefix, string, prefix_len) == 0;
+}
+
 //Copies source over to the destination pointer.
 char *stringCopy(const char *source) {
 	ASSERT(source);

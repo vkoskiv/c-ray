@@ -59,6 +59,7 @@ static test tests[] = {
 	{"string::copyString", string_copyString},
 	{"string::concatString", string_concatString},
 	{"string::lowerCase", string_lowerCase},
+	{"string::startsWith", string_startsWith},
 	
 	{"hashtable::mixed", hashtable_mixed},
 	{"hashtable::fill", hashtable_fill},

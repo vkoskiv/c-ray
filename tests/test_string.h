@@ -85,3 +85,29 @@ bool string_lowerCase(void) {
 	
 	return pass;
 }
+
+bool string_startsWith(void) {
+	bool pass = true;
+	
+	char *string = "abcdefghijklmn";
+	
+	test_assert(stringStartsWith("a", string));
+	test_assert(stringStartsWith("ab", string));
+	test_assert(stringStartsWith("abc", string));
+	test_assert(stringStartsWith("abcd", string));
+	test_assert(stringStartsWith("abcde", string));
+	test_assert(stringStartsWith("abcdef", string));
+	test_assert(stringStartsWith("abcdefg", string));
+	test_assert(stringStartsWith("abcdefgh", string));
+	test_assert(stringStartsWith("abcdefghi", string));
+	test_assert(stringStartsWith("abcdefghij", string));
+	test_assert(stringStartsWith("abcdefghijk", string));
+	test_assert(stringStartsWith("abcdefghijkl", string));
+	test_assert(stringStartsWith("abcdefghijklm", string));
+	test_assert(stringStartsWith("abcdefghijklmn", string));
+	
+	test_assert(!stringStartsWith("bcde", string));
+	test_assert(!stringStartsWith("acde", string));
+	
+	return pass;
+}
