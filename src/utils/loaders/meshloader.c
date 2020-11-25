@@ -9,7 +9,7 @@
 #include <stddef.h>
 
 #include "meshloader.h"
-#include "formats/wavefront.h"
+#include "formats/wavefront/wavefront.h"
 
 //TODO: Detect and support more formats than wavefront
 struct mesh *loadMesh(char *filePath, size_t *meshCount) {

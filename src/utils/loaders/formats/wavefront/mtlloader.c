@@ -8,16 +8,16 @@
 
 // C-ray MTL file parser
 
-#include "../../includes.h"
+#include "../../../../includes.h"
 #include "mtlloader.h"
 
-#include "../../datatypes/material.h"
-#include "../../utils/logging.h"
-#include "../../utils/string.h"
-#include "../../utils/textbuffer.h"
-#include "../../utils/fileio.h"
-#include "../../utils/assert.h"
-#include "../../utils/loaders/textureloader.h"
+#include "../../../../datatypes/material.h"
+#include "../../../logging.h"
+#include "../../../string.h"
+#include "../../../textbuffer.h"
+#include "../../../fileio.h"
+#include "../../../assert.h"
+#include "../../textureloader.h"
 
 static size_t countMaterials(textBuffer *buffer) {
 	size_t mtlCount = 0;

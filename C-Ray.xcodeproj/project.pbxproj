@@ -511,10 +511,20 @@
 		90AB1E02256EF63000EFDF5A /* formats */ = {
 			isa = PBXGroup;
 			children = (
-				90CA85162252C90C00BA7702 /* wavefront.h */,
-				90CA85192252C90C00BA7702 /* wavefront.c */,
+				90AB1E03256EFD8700EFDF5A /* wavefront */,
 			);
 			path = formats;
+			sourceTree = "<group>";
+		};
+		90AB1E03256EFD8700EFDF5A /* wavefront */ = {
+			isa = PBXGroup;
+			children = (
+				90CA85162252C90C00BA7702 /* wavefront.h */,
+				90CA85192252C90C00BA7702 /* wavefront.c */,
+				90CA851A2252C90C00BA7702 /* mtlloader.h */,
+				90CA85182252C90C00BA7702 /* mtlloader.c */,
+			);
+			path = wavefront;
 			sourceTree = "<group>";
 		};
 		90C5D5512448CC8400C58643 /* image */ = {
@@ -536,8 +546,6 @@
 				90EE4F3B237DD49F0071894E /* meshloader.c */,
 				90CA85172252C90C00BA7702 /* textureloader.h */,
 				90CA851B2252C90C00BA7702 /* textureloader.c */,
-				90CA851A2252C90C00BA7702 /* mtlloader.h */,
-				90CA85182252C90C00BA7702 /* mtlloader.c */,
 				90CA851F2252CB3800BA7702 /* sceneloader.h */,
 				90CA85202252CB3800BA7702 /* sceneloader.c */,
 			);
