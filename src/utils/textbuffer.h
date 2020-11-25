@@ -10,6 +10,8 @@
 
 #include <stddef.h>
 
+#define LINEBUFFER_MAXSIZE 2048
+
 struct _textBuffer {
 	char *buf;
 	size_t buflen;
@@ -23,14 +25,14 @@ struct _textBuffer {
 		size_t token;
 	} current;
 	size_t currentByteOffset;
-	char *delimiters; //TODO: Needed?
-	size_t delimCount;//TODO: Needed?
 };
 
 typedef struct _textBuffer textBuffer;
 typedef struct _textBuffer lineBuffer;
 
 textBuffer *newTextBuffer(const char *contents);
+
+lineBuffer *newLineBuffer(void);
 
 // A subset of a textBuffer
 textBuffer *newTextView(textBuffer *original, const size_t start, const size_t lines);

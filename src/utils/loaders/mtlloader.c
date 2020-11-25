@@ -22,11 +22,8 @@
 static size_t countMaterials(textBuffer *buffer) {
 	size_t mtlCount = 0;
 	char *head = firstLine(buffer);
-	lineBuffer line = {0};
 	while (head) {
-		fillLineBuffer(&line, head, " ");
-		char *first = firstToken(&line);
-		if (stringEquals(first, "newmtl")) mtlCount++;
+		if (stringStartsWith("newmtl", head)) mtlCount++;
 		head = nextLine(buffer);
 	}
 	logr(debug, "File contains %zu materials\n", mtlCount);
@@ -36,7 +33,7 @@ static size_t countMaterials(textBuffer *buffer) {
 
 struct color parseColor(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
-	return (struct color){atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line))};
+	return (struct color){atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line)), 1.0f};
 }
 
 struct material *parseMTLFile(char *filePath, int *mtlCount) {
@@ -54,10 +51,10 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 	struct material *current = NULL;
 	
 	char *head = firstLine(file);
-	lineBuffer line = {0};
+	lineBuffer *line = newLineBuffer();
 	while (head) {
-		fillLineBuffer(&line, head, " ");
-		char *first = firstToken(&line);
+		fillLineBuffer(line, head, " ");
+		char *first = firstToken(line);
 		if (first[0] == '#') {
 			head = nextLine(file);
 			continue;
@@ -67,32 +64,32 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 			continue;
 		} else if (stringEquals(first, "newmtl")) {
 			current = &materials[currentMaterialIdx++];
-			if (!peekNextToken(&line)) {
-				logr(warning, "newmtl without a name on line %zu\n", line.current.line);
+			if (!peekNextToken(line)) {
+				logr(warning, "newmtl without a name on line %zu\n", line->current.line);
 				free(materials);
 				return NULL;
 			}
-			current->name = stringCopy(peekNextToken(&line));
+			current->name = stringCopy(peekNextToken(line));
 		} else if (stringEquals(first, "Ka")) {
-			current->ambient = parseColor(&line);
+			current->ambient = parseColor(line);
 		} else if (stringEquals(first, "Kd")) {
-			current->diffuse = parseColor(&line);
+			current->diffuse = parseColor(line);
 		} else if (stringEquals(first, "Ks")) {
-			current->specular = parseColor(&line);
+			current->specular = parseColor(line);
 		} else if (stringEquals(first, "Ke")) {
-			current->emission = parseColor(&line);
+			current->emission = parseColor(line);
 		} else if (stringEquals(first, "Ns")) {
 			// Shinyness, unused
 			head = nextLine(file);
 			continue;
 		} else if (stringEquals(first, "d")) {
-			current->transparency = atof(nextToken(&line));
+			current->transparency = atof(nextToken(line));
 		} else if (stringEquals(first, "r")) {
-			current->reflectivity = atof(nextToken(&line));
+			current->reflectivity = atof(nextToken(line));
 		} else if (stringEquals(first, "sharpness")) {
-			current->glossiness = atof(nextToken(&line));
+			current->glossiness = atof(nextToken(line));
 		} else if (stringEquals(first, "Ni")) {
-			current->IOR = atof(nextToken(&line));
+			current->IOR = atof(nextToken(line));
 		} else if (stringEquals(first, "map_Kd")) {
 			char *path = stringConcat(assetPath, nextToken(line));
 			current->texture = loadTexture(path);
@@ -107,13 +104,14 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 			free(path);
 		} else {
 			char *fileName = getFileName(filePath);
-			logr(warning, "Unknown statement %s in MTL at \"%s\" on line %zu\n",
+			logr(warning, "Unknown statement \"%s\" in MTL \"%s\" on line %zu\n",
 				first, fileName, file->current.line);
 			free(fileName);
 		}
 		head = nextLine(file);
 	}
 	
+	destroyLineBuffer(line);
 	free(assetPath);
 	if (mtlCount) *mtlCount = (int)materialAmount;
 	return materials;
@@ -159,21 +157,25 @@ struct material *parseMTLFileOld(char *filePath, int *mtlCount) {
 			currMat->ambient.red = atof(strtok(NULL, " \t"));
 			currMat->ambient.green = atof(strtok(NULL, " \t"));
 			currMat->ambient.blue = atof(strtok(NULL, " \t"));
+			currMat->ambient.alpha = 1.0f;
 		} else if (stringEquals(token, "Kd") && matOpen) {
 			//Diffuse color
 			currMat->diffuse.red = atof(strtok(NULL, " \t"));
 			currMat->diffuse.green = atof(strtok(NULL, " \t"));
 			currMat->diffuse.blue = atof(strtok(NULL, " \t"));
+			currMat->diffuse.alpha = 1.0f;
 		} else if (stringEquals(token, "Ks") && matOpen) {
 			//Specular color
 			currMat->specular.red = atof(strtok(NULL, " \t"));
 			currMat->specular.green = atof(strtok(NULL, " \t"));
 			currMat->specular.blue = atof(strtok(NULL, " \t"));
+			currMat->specular.alpha = 1.0f;
 		} else if (stringEquals(token, "Ke") && matOpen) {
 			//Emissive color
 			currMat->emission.red = atof(strtok(NULL, " \t"));
 			currMat->emission.green = atof(strtok(NULL, " \t"));
 			currMat->emission.blue = atof(strtok(NULL, " \t"));
+			currMat->emission.alpha = 1.0f;
 		} else if (stringEquals(token, "Ns") && matOpen) {
 			//Shinyness
 			//UNUSED

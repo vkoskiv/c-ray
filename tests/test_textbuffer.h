@@ -206,39 +206,38 @@ bool textbuffer_tokenizer(void) {
 	char *rawText = MULTILINE;
 	textBuffer *file = newTextBuffer(rawText);
 	
-	char *currentLine = firstLine(file);
-	lineBuffer line = {0};
+	lineBuffer *line = newLineBuffer();
 	
-	fillLineBuffer(&line, currentLine, " ");
-	char *currentToken = firstToken(&line);
+	fillLineBuffer(line, firstLine(file), " ");
+	char *currentToken = firstToken(line);
 	test_assert(stringEquals(currentToken, "This"));
-	currentToken = nextToken(&line);
+	currentToken = nextToken(line);
 	test_assert(stringEquals(currentToken, "is"));
-	currentToken = nextToken(&line);
+	currentToken = nextToken(line);
 	test_assert(stringEquals(currentToken, "a"));
-	currentToken = firstToken(&line);
+	currentToken = firstToken(line);
 	test_assert(stringEquals(currentToken, "This"));
-	currentToken = lastToken(&line);
+	currentToken = lastToken(line);
 	test_assert(stringEquals(currentToken, "a"));
 	
-	currentToken = nextToken(&line);
+	currentToken = nextToken(line);
 	test_assert(!currentToken);
 	
-	fillLineBuffer(&line, nextLine(file), " ");
-	currentToken = firstToken(&line);
+	fillLineBuffer(line, nextLine(file), " ");
+	currentToken = firstToken(line);
 	test_assert(stringEquals(currentToken, "Multiline"));
 	
-	fillLineBuffer(&line, nextLine(file), " ");
-	currentToken = lastToken(&line);
+	fillLineBuffer(line, nextLine(file), " ");
+	currentToken = lastToken(line);
 	test_assert(stringEquals(currentToken, "string!"));
 	
-	currentToken = firstToken(&line);
+	currentToken = firstToken(line);
 	test_assert(stringEquals(currentToken, "string!"));
 	
-	currentToken = nextToken(&line);
+	currentToken = nextToken(line);
 	test_assert(!currentToken);
 	
-	freeLineBuffer(&line);
+	destroyLineBuffer(line);
 	freeTextBuffer(file);
 	
 	return pass;

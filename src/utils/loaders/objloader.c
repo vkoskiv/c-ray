@@ -101,11 +101,8 @@ static struct mesh parseOBJMesh(textBuffer *segment) {
 static size_t count(textBuffer *buffer, const char *thing) {
 	size_t thingCount = 0;
 	char *head = firstLine(buffer);
-	lineBuffer line = {0};
 	while (head) {
-		fillLineBuffer(&line, head, " ");
-		char *first = firstToken(&line);
-		if (stringEquals(first, thing)) thingCount++;
+		if (stringStartsWith(thing, head)) thingCount++;
 		head = nextLine(buffer);
 	}
 	logr(debug, "File contains %zu of %s\n", thingCount, thing);
@@ -131,15 +128,16 @@ static struct coord parseCoord(lineBuffer *line) {
 static struct poly parsePolygon(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
 	struct poly p = {0};
+	lineBuffer *batch = newLineBuffer();
 	p.vertexCount = MAX_CRAY_VERTEX_COUNT;
 	for (int i = 0; i < p.vertexCount; ++i) {
 		// Order goes v/vt/vn
-		lineBuffer batch = {0};
-		fillLineBuffer(&batch, nextToken(line), "/");
-		p.vertexIndex[i] = atoi(firstToken(&batch));
-		p.textureIndex[i] = *nextToken(&batch) == '\0' ? atoi(currentToken(&batch)) : 0; // Optional
-		p.normalIndex[i] = atoi(nextToken(&batch));
+		fillLineBuffer(batch, nextToken(line), "/");
+		p.vertexIndex[i] = atoi(firstToken(batch));
+		p.textureIndex[i] = *nextToken(batch) == '\0' ? atoi(currentToken(batch)) : 0; // Optional
+		p.normalIndex[i] = atoi(nextToken(batch));
 	}
+	destroyLineBuffer(batch);
 	return p;
 }
 
@@ -170,8 +168,12 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	logr(debug, "Loading OBJ at %s\n", filePath);
 	textBuffer *file = newTextBuffer(rawText);
 	
+	char *assetPath = getFilePath(filePath);
+	
 	//Start processing line-by-line, state machine style.
-	size_t meshCount = count(file, "o");
+	size_t meshCount = 0;
+	meshCount += count(file, "o");
+	meshCount += count(file, "g");
 	size_t currentMesh = 0;
 	size_t valid_meshes = 0;
 	
@@ -197,49 +199,55 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	struct mesh *currentMeshPtr = NULL;
 	
 	char *head = firstLine(file);
-	lineBuffer line = {0};
+	lineBuffer *line = newLineBuffer();
 	while (head) {
-		fillLineBuffer(&line, head, " ");
-		char *first = firstToken(&line);
+		fillLineBuffer(line, head, " ");
+		char *first = firstToken(line);
 		if (first[0] == '#') {
 			head = nextLine(file);
 			continue;
 		} else if (first[0] == '\0') {
 			head = nextLine(file);
 			continue;
-		} else if (first[0] == 'o') {
+		} else if (first[0] == 'o' || first[0] == 'g') {
+			//FIXME: o and g probably have a distinction for a reason?
 			currentMeshPtr = &meshes[currentMesh++];
-			currentMeshPtr->name = stringCopy(peekNextToken(&line));
+			currentMeshPtr->name = stringCopy(peekNextToken(line));
 			valid_meshes++;
-		} else if (first[0] == 'g') {
-			// New object group, ignore for now.
 		} else if (stringEquals(first, "v")) {
-			vertices[currentVertex++] = parseVertex(&line);
+			vertices[currentVertex++] = parseVertex(line);
 			currentMeshPtr->vertexCount++;
 		} else if (stringEquals(first, "vt")) {
-			texCoords[currentTextureCoord++] = parseCoord(&line);
+			texCoords[currentTextureCoord++] = parseCoord(line);
 			currentMeshPtr->textureCount++;
 		} else if (stringEquals(first, "vn")) {
-			normals[currentNormal++] = parseVertex(&line);
+			normals[currentNormal++] = parseVertex(line);
 			currentMeshPtr->normalCount++;
 		} else if (stringEquals(first, "f")) {
-			struct poly p = parsePolygon(&line);
+			struct poly p = parsePolygon(line);
 			p.materialIndex = currentMaterial;
 			fixIndices(&p, fileVertices, fileTexCoords, fileNormals);
 			p.hasNormals = p.normalIndex[0] != 0;
 			polygons[currentPoly++] = p;
 		} else if (stringEquals(first, "mtllib")) {
-			char *mtlFilePath = stringConcat(getFilePath(filePath), peekNextToken(&line));
+			char *mtlFilePath = stringConcat(assetPath, peekNextToken(line));
 			materialSet = parseMTLFile(mtlFilePath, &materialCount);
 			free(mtlFilePath);
 			//exit(0);
+		} else {
+			char *fileName = getFileName(filePath);
+			logr(warning, "Unknown statement \"%s\" in OBJ \"%s\" on line %zu\n",
+				 first, fileName, file->current.line);
+			free(fileName);
 		}
 		head = nextLine(file);
 	}
+	destroyLineBuffer(line);
 	
 	if (finalMeshCount) *finalMeshCount = valid_meshes;
 	freeTextBuffer(file);
 	free(rawText);
+	free(assetPath);
 
 	if (materialSet) {
 		for (size_t i = 0; i < meshCount; ++i) {
@@ -324,7 +332,7 @@ struct mesh *parseOBJFileNah(char *filePath, size_t *meshCountOut) {
 	}
 	
 	free(meshOffsets);
-	freeLineBuffer(&line);
+	destroyLineBuffer(&line);
 	freeTextBuffer(file);
 	if (meshCountOut) *meshCountOut = meshCount;
 	exit(0);

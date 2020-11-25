@@ -64,6 +64,12 @@ textBuffer *newTextBuffer(const char *contents) {
 	return new;
 }
 
+lineBuffer *newLineBuffer(void) {
+	lineBuffer *new = calloc(1, sizeof(*new));
+	new->buf = calloc(LINEBUFFER_MAXSIZE, sizeof(char));
+	return new;
+}
+
 void dumpBuffer(textBuffer *buffer) {
 	logr(debug, "Dumping buffer:\n\n\n");
 	char *head = firstLine(buffer);
@@ -157,13 +163,16 @@ void freeTextBuffer(textBuffer *file) {
 void fillLineBuffer(lineBuffer *line, const char *contents, char *delimiters) {
 	const char *buf = contents;
 	if (!buf) return;
-	if (line->buf) free(line->buf);
-	line->buf = stringCopy(buf);
-	line->buflen = strlen(line->buf);
+	size_t contentLen = strlen(buf);
+	size_t copyLen = contentLen < LINEBUFFER_MAXSIZE ? contentLen : LINEBUFFER_MAXSIZE;
+	memcpy(line->buf, buf, copyLen);
+	line->buf[copyLen] = '\0';
+	line->buflen = copyLen;
+	size_t delimLength = strlen(delimiters);
 	
 	size_t tokens = 0;
 	for (size_t i = 0; i < line->buflen + 1; ++i) {
-		for (size_t d = 0; d < strlen(delimiters); ++d) {
+		for (size_t d = 0; d < delimLength; ++d) {
 			if (line->buf[i] == delimiters[d] || line->buf[i] == '\0') {
 				line->buf[i] = '\0';
 				tokens++;
@@ -206,8 +215,9 @@ char *lastToken(lineBuffer *line) {
 	return lastLine(line);
 }
 
-void freeLineBuffer(lineBuffer *line) {
+void destroyLineBuffer(lineBuffer *line) {
 	if (line) {
 		if (line->buf) free(line->buf);
+		free(line);
 	}
 }
