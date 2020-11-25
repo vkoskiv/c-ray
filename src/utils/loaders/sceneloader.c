@@ -54,7 +54,9 @@ static struct sphere *lastSphere(struct renderer *r) {
 	return &r->scene->spheres[r->scene->sphereCount - 1];
 }
 
-static bool loadMeshNew(struct renderer *r, char *inputFilePath) {
+static bool loadMeshNew(struct renderer *r, char *inputFilePath, int idx, int totalMeshes) {
+	printf("\r");
+	logr(info, "Loading mesh %i/%i%s", idx, totalMeshes, idx == totalMeshes ? "\n" : "\r");
 	bool valid = false;
 	size_t meshCount = 0;
 	struct mesh *newMeshes = parseWavefront(inputFilePath, &meshCount);
@@ -67,8 +69,6 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath) {
 			//loadMeshTextures(r->prefs.assetPath, &r->scene->meshes[r->scene->meshCount + m]);
 		}
 	}
-	
-	logr(info, "Found %zu meshes\n", meshCount);
 	
 	r->scene->meshCount += meshCount;
 	return valid;
@@ -974,7 +974,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		struct timeval timer;
 		startTimer(&timer);
 		success = loadMesh(r, fullPath, idx, meshCount);
-		//success = loadMeshNew(r, fullPath);
+		//success = loadMeshNew(r, fullPath, idx, meshCount);
 		long ms = getMs(timer);
 		if (success) logr(debug, "Mesh parsing took %zu milliseconds\n", ms);
 		if (success) {
