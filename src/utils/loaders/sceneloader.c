@@ -60,13 +60,12 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath, int idx, int to
 	bool valid = false;
 	size_t meshCount = 0;
 	struct mesh *newMeshes = loadMesh(inputFilePath, &meshCount);
-	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + meshCount) * sizeof(struct mesh));
+	ASSERT(meshCount == 1); //FIXME: Remove this
 	if (newMeshes) {
 		for (size_t m = 0; m < meshCount; ++m) {
 			r->scene->meshes[r->scene->meshCount + m] = newMeshes[m];
-			//free(&newMeshes[m]);
+			free(&newMeshes[m]);
 			valid = true;
-			//loadMeshTextures(r->prefs.assetPath, &r->scene->meshes[r->scene->meshCount + m]);
 		}
 	}
 	
@@ -1021,6 +1020,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 static void parseMeshes(struct renderer *r, const cJSON *data) {
 	const cJSON *mesh = NULL;
 	int idx = 1;
+	//FIXME: This doesn't account for wavefront files with multiple meshes.
 	int meshCount = cJSON_GetArraySize(data);
 	r->scene->meshes = calloc(meshCount, sizeof(*r->scene->meshes));
 	if (data != NULL && cJSON_IsArray(data)) {
