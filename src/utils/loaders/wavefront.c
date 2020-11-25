@@ -1,5 +1,5 @@
 //
-//  objloader.c
+//  wavefront.c
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
@@ -7,7 +7,7 @@
 //
 
 #include "../../includes.h"
-#include "objloader.h"
+#include "wavefront.h"
 
 #include "../../datatypes/mesh.h"
 #include "../../datatypes/vector.h"

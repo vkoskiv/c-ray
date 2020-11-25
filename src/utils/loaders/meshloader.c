@@ -6,12 +6,12 @@
 //  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "meshloader.h"
-
 #include <stddef.h>
-#include "objloader.h"
 
-//TODO: Implement more mesh loaders and switch between 'em here.
-/*struct mesh *parseMesh(char *filePath) {
-	return parseOBJFile(filePath);
-}*/
+#include "meshloader.h"
+#include "wavefront.h"
+
+//TODO: Detect and support more formats than wavefront
+struct mesh *loadMesh(char *filePath, size_t *meshCount) {
+	return parseWavefront(filePath, meshCount);
+}

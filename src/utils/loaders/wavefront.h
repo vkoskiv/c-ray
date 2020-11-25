@@ -1,5 +1,5 @@
 //
-//  objloader.h
+//  wavefront.h
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.

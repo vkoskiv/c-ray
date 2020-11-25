@@ -8,4 +8,4 @@
 
 #pragma once
 
-//struct mesh *parseMesh(char *filePath);
+struct mesh *loadMesh(char *filePath, size_t *meshCount);

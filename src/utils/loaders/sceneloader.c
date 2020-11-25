@@ -30,11 +30,11 @@
 #include "../../renderer/renderer.h"
 #include "../converter.h"
 #include "textureloader.h"
-#include "objloader.h"
 #include "../../datatypes/instance.h"
 #include "../../utils/args.h"
 #include "../../renderer/envmap.h"
 #include "../../utils/timer.h"
+#include "meshloader.h"
 
 struct transform parseTransformComposite(const cJSON *transforms);
 
@@ -59,7 +59,7 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath, int idx, int to
 	logr(info, "Loading mesh %i/%i%s", idx, totalMeshes, idx == totalMeshes ? "\n" : "\r");
 	bool valid = false;
 	size_t meshCount = 0;
-	struct mesh *newMeshes = parseWavefront(inputFilePath, &meshCount);
+	struct mesh *newMeshes = loadMesh(inputFilePath, &meshCount);
 	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + meshCount) * sizeof(struct mesh));
 	if (newMeshes) {
 		for (size_t m = 0; m < meshCount; ++m) {
@@ -74,7 +74,7 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath, int idx, int to
 	return valid;
 }
 
-static bool loadMesh(struct renderer *r, const char *inputFilePath, int idx, int meshCount) {
+static bool loadMeshOld(struct renderer *r, const char *inputFilePath, int idx, int meshCount) {
 	printf("\r");
 	logr(info, "Loading mesh %i/%i%s", idx, meshCount, idx == meshCount ? "\n" : "\r");
 	
@@ -973,7 +973,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		bool success = false;
 		struct timeval timer;
 		startTimer(&timer);
-		success = loadMesh(r, fullPath, idx, meshCount);
+		success = loadMeshOld(r, fullPath, idx, meshCount);
 		//success = loadMeshNew(r, fullPath, idx, meshCount);
 		long ms = getMs(timer);
 		if (success) logr(debug, "Mesh parsing took %zu milliseconds\n", ms);
