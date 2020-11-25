@@ -1,7 +1,5 @@
 # Created by https://www.gitignore.io/api/cmake,xcode,visualstudio
 
-*
-
 ### Custom ###
 *.png
 *.bmp
@@ -12,6 +10,7 @@ output/*
 *.sln
 *.mp4
 .clangd
+generated/*
 
 # Heavy HDR files, just include a small one for demo
 input/HDRs/*
