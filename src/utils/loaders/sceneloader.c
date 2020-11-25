@@ -34,6 +34,7 @@
 #include "../../datatypes/instance.h"
 #include "../../utils/args.h"
 #include "../../renderer/envmap.h"
+#include "../../utils/timer.h"
 
 struct transform parseTransformComposite(const cJSON *transforms);
 
@@ -950,19 +951,27 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 	bool meshValid = false;
 	if (fileName != NULL && cJSON_IsString(fileName)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, fileName->valuestring);
-		//if (loadMeshNew(r, fullPath)) {
-		if (loadMesh(r, fullPath, idx, meshCount)) {
+		bool success = false;
+		struct timeval timer;
+		startTimer(&timer);
+		success = loadMesh(r, fullPath, idx, meshCount);
+		//success = loadMeshNew(r, fullPath);
+		long ms = getMs(timer);
+		if (success) logr(debug, "Mesh parsing took %zu milliseconds\n", ms);
+		if (success) {
 			meshValid = true;
 			free(fullPath);
 		} else {
 			free(fullPath);
 			return;
 		}
+		//exit(0);
 	}
 	
 	struct mesh *m = lastMesh(r);
-	logr(debug, "Vertices:\n");
-	for (int i = 0; i < m->vertexCount; ++i) {
+	int vtxAmount = m->vertexCount > 50 ? 50 : m->vertexCount;
+	logr(debug, "First %i vertices:\n", vtxAmount);
+	for (int i = 0; i < vtxAmount; ++i) {
 		logr(debug, "\t{%.2f, %.2f, %.2f}\n", g_vertices[m->firstVectorIndex + i].x, g_vertices[m->firstVectorIndex + i].y, g_vertices[m->firstVectorIndex + i].z);
 	}
 	
@@ -982,8 +991,9 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		const cJSON *instance = NULL;
 		if (instances != NULL && cJSON_IsArray(instances)) {
 			cJSON_ArrayForEach(instance, instances) {
-				addInstanceToScene(r->scene, newMeshInstance(lastMesh(r)));
-				lastInstance(r)->composite = parseInstanceTransform(instance);
+				struct instance new = newMeshInstance(lastMesh(r));
+				new.composite = parseInstanceTransform(instance);
+				addInstanceToScene(r->scene, new);
 			}
 		}
 		
@@ -1019,7 +1029,7 @@ static void parseMeshes(struct renderer *r, const cJSON *data) {
 	}
 }
 
-static struct vector parseCoordinate(const cJSON *data) {
+/*static struct vector parseCoordinate(const cJSON *data) {
 	const cJSON *X = NULL;
 	const cJSON *Y = NULL;
 	const cJSON *Z = NULL;
@@ -1035,7 +1045,7 @@ static struct vector parseCoordinate(const cJSON *data) {
 	logr(warning, "Invalid coordinate parsed! Returning 0,0,0\n");
 	logr(warning, "Faulty JSON: %s\n", cJSON_Print(data));
 	return (struct vector){0.0f,0.0f,0.0f};
-}
+}*/
 
 static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *color = NULL;

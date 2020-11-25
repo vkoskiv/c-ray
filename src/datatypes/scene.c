@@ -104,7 +104,7 @@ int loadScene(struct renderer *r, char *input) {
 	struct timeval timer = {0};
 	startTimer(&timer);
 	
-	//Build the scene
+	//Load configuration and assets
 	switch (parseJSON(r, input)) {
 		case -1:
 			logr(warning, "Scene builder failed due to previous error.\n");
@@ -119,7 +119,10 @@ int loadScene(struct renderer *r, char *input) {
 			break;
 	}
 	
+	// Do some pre-render preparations
+	// Compute BVH acceleration structures for all objects in the scene
 	computeAccels(r->scene->meshes, r->scene->meshCount);
+	// And then compute a single top-level BVH that contains all the objects
 	r->scene->topLevel = computeTopLevelBvh(r->scene->instances, r->scene->instanceCount);
 	printSceneStats(r->scene, getMs(timer));
 	
