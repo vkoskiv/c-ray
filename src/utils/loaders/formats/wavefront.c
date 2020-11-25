@@ -6,21 +6,21 @@
 //  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../includes.h"
+#include "../../../includes.h"
 #include "wavefront.h"
 
-#include "../../datatypes/mesh.h"
-#include "../../datatypes/vector.h"
-#include "../../datatypes/poly.h"
-#include "../../datatypes/material.h"
-#include "../../utils/logging.h"
-#include "../../utils/string.h"
-#include "../../datatypes/vertexbuffer.h"
-#include "mtlloader.h"
-#include "../fileio.h"
-#include "../../utils/assert.h"
-#include "../../utils/textbuffer.h"
-#include "../../datatypes/vertexbuffer.h"
+#include "../../../datatypes/mesh.h"
+#include "../../../datatypes/vector.h"
+#include "../../../datatypes/poly.h"
+#include "../../../datatypes/material.h"
+#include "../../logging.h"
+#include "../../string.h"
+#include "../../../datatypes/vertexbuffer.h"
+#include "../mtlloader.h"
+#include "../../fileio.h"
+#include "../../assert.h"
+#include "../../textbuffer.h"
+#include "../../../datatypes/vertexbuffer.h"
 
 #define ws " \t\n\r"
 

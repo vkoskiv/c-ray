@@ -508,6 +508,15 @@
 			path = samplers;
 			sourceTree = "<group>";
 		};
+		90AB1E02256EF63000EFDF5A /* formats */ = {
+			isa = PBXGroup;
+			children = (
+				90CA85162252C90C00BA7702 /* wavefront.h */,
+				90CA85192252C90C00BA7702 /* wavefront.c */,
+			);
+			path = formats;
+			sourceTree = "<group>";
+		};
 		90C5D5512448CC8400C58643 /* image */ = {
 			isa = PBXGroup;
 			children = (
@@ -522,10 +531,9 @@
 		90CA85152252C90C00BA7702 /* loaders */ = {
 			isa = PBXGroup;
 			children = (
+				90AB1E02256EF63000EFDF5A /* formats */,
 				90EE4F3A237DD49F0071894E /* meshloader.h */,
 				90EE4F3B237DD49F0071894E /* meshloader.c */,
-				90CA85162252C90C00BA7702 /* wavefront.h */,
-				90CA85192252C90C00BA7702 /* wavefront.c */,
 				90CA85172252C90C00BA7702 /* textureloader.h */,
 				90CA851B2252C90C00BA7702 /* textureloader.c */,
 				90CA851A2252C90C00BA7702 /* mtlloader.h */,
