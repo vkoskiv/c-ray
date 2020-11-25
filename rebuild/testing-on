@@ -1,2 +1,2 @@
 #!/bin/sh
-cmake . -DTESTING=True && make -j"$(nproc)"
+cmake . -DCMAKE_BUILD_TYPE=Debug -DTESTING=True && make -j"$(nproc)"
