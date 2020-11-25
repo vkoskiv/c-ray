@@ -22,9 +22,9 @@
 #include "../../../textbuffer.h"
 #include "mtlloader.h"
 
-static int findMaterialIndex(struct mesh *mesh, char *mtlName) {
-	for (int i = 0; i < mesh->materialCount; ++i) {
-		if (stringEquals(mesh->materials[i].name, mtlName)) {
+static int findMaterialIndex(struct material *materialSet, int materialCount, char *mtlName) {
+	for (int i = 0; i < materialCount; ++i) {
+		if (stringEquals(materialSet[i].name, mtlName)) {
 			return i;
 		}
 	}
@@ -162,6 +162,8 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 			p.materialIndex = currentMaterialIndex;
 			p.hasNormals = p.normalIndex[0] != -1;
 			polygons[currentPoly++] = p;
+		} else if (stringEquals(first, "usemtl")) {
+			currentMaterialIndex = findMaterialIndex(materialSet, materialCount, peekNextToken(line));
 		} else if (stringEquals(first, "mtllib")) {
 			char *mtlFilePath = stringConcat(assetPath, peekNextToken(line));
 			materialSet = parseMTLFile(mtlFilePath, &materialCount);
