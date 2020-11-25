@@ -110,10 +110,10 @@ static size_t count(textBuffer *buffer, const char *thing) {
 	return thingCount;
 }
 
-enum currentMode {
+/*enum currentMode {
 	None,
 	Mesh
-};
+};*/
 
 static struct vector parseVertex(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
@@ -125,6 +125,13 @@ static struct coord parseCoord(lineBuffer *line) {
 	return (struct coord){atof(nextToken(line)), atof(nextToken(line))};
 }
 
+//FIXME: Make this aware of more variants.
+// Wavefront supports different indexing types like
+// f v1 v2 v3
+// f v1/vt1 v2/vt2 v3/vt3
+// f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
+// f v1//vn1 v2//vn2 v3//vn3
+// Also need to deal with the case we get more than 3 of these.
 static struct poly parsePolygon(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
 	struct poly p = {0};
@@ -134,7 +141,7 @@ static struct poly parsePolygon(lineBuffer *line) {
 		// Order goes v/vt/vn
 		fillLineBuffer(batch, nextToken(line), "/");
 		p.vertexIndex[i] = atoi(firstToken(batch));
-		p.textureIndex[i] = *nextToken(batch) == '\0' ? atoi(currentToken(batch)) : 0; // Optional
+		p.textureIndex[i] = atoi(nextToken(batch));
 		p.normalIndex[i] = atoi(nextToken(batch));
 	}
 	destroyLineBuffer(batch);
@@ -142,13 +149,11 @@ static struct poly parsePolygon(lineBuffer *line) {
 }
 
 static int fixIndex(size_t max, int oldIndex) {
-	if (oldIndex == 0) {// Unused
+	if (oldIndex == 0) // Unused
 		return -1;
-	}
 	
-	if (oldIndex < 0) { // Relative to end of list
+	if (oldIndex < 0) // Relative to end of list
 		return (int)max + oldIndex;
-	}
 	
 	return oldIndex - 1;// Normal indexing
 }
@@ -167,7 +172,6 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	if (!rawText) return NULL;
 	logr(debug, "Loading OBJ at %s\n", filePath);
 	textBuffer *file = newTextBuffer(rawText);
-	
 	char *assetPath = getFilePath(filePath);
 	
 	//Start processing line-by-line, state machine style.
@@ -227,16 +231,15 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 			struct poly p = parsePolygon(line);
 			p.materialIndex = currentMaterial;
 			fixIndices(&p, fileVertices, fileTexCoords, fileNormals);
-			p.hasNormals = p.normalIndex[0] != 0;
+			p.hasNormals = p.normalIndex[0] != -1;
 			polygons[currentPoly++] = p;
 		} else if (stringEquals(first, "mtllib")) {
 			char *mtlFilePath = stringConcat(assetPath, peekNextToken(line));
 			materialSet = parseMTLFile(mtlFilePath, &materialCount);
 			free(mtlFilePath);
-			//exit(0);
 		} else {
 			char *fileName = getFileName(filePath);
-			logr(warning, "Unknown statement \"%s\" in OBJ \"%s\" on line %zu\n",
+			logr(debug, "Unknown statement \"%s\" in OBJ \"%s\" on line %zu\n",
 				 first, fileName, file->current.line);
 			free(fileName);
 		}

@@ -104,7 +104,7 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 			free(path);
 		} else {
 			char *fileName = getFileName(filePath);
-			logr(warning, "Unknown statement \"%s\" in MTL \"%s\" on line %zu\n",
+			logr(debug, "Unknown statement \"%s\" in MTL \"%s\" on line %zu\n",
 				first, fileName, file->current.line);
 			free(fileName);
 		}
