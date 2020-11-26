@@ -913,6 +913,7 @@ struct transform parseTransformComposite(const cJSON *transforms) {
 	
 	composite.Ainv = inverseMatrix(&composite.A);
 	composite.type = transformTypeComposite;
+	free(tforms);
 	return composite;
 }
 
