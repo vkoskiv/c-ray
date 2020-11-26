@@ -27,7 +27,7 @@ struct envMap *loadEnvMap(char *filePath) {
 	if (!file) return NULL;
 	if (stbi_is_hdr(filePath)) {
 		logr(info, "Loading HDR...");
-		struct texture *tex = newTexture(float_p, 0, 0, 0);
+		struct texture *tex = newTexture(none, 0, 0, 0);
 		tex->data.float_p = stbi_loadf_from_memory(file, (int)len, (int *)&tex->width, (int *)&tex->height, (int *)&tex->channels, 0);
 		tex->precision = float_p;
 		free(file);
