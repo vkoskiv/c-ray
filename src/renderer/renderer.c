@@ -300,9 +300,6 @@ struct renderer *newRenderer() {
 	
 	//TODO: Do we need all these heap allocs?
 	r->scene = calloc(1, sizeof(*r->scene));
-	r->scene->hdr = NULL; //Optional, to be loaded later
-	r->scene->meshes = calloc(1, sizeof(*r->scene->meshes));
-	r->scene->spheres = calloc(1, sizeof(*r->scene->spheres));
 	
 	if (!g_vertices) {
 		allocVertexBuffers();
