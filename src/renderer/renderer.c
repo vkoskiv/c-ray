@@ -210,7 +210,6 @@ void *renderThreadInteractive(void *arg) {
 	//No more tiles to render, exit thread. (render done)
 	threadState->threadComplete = true;
 	threadState->currentTileNum = -1;
-	logr(debug, "thread %i did %i passes\n", threadState->thread_num, r->state.finishedPasses);
 	return 0;
 }
 
