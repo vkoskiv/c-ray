@@ -956,8 +956,11 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		startTimer(&timer);
 		success = loadMeshOld(r, fullPath, idx, meshCount);
 		//success = loadMeshNew(r, fullPath, idx, meshCount);
-		long ms = getMs(timer);
-		if (success) logr(debug, "Mesh parsing took %zu milliseconds\n", ms);
+		long us = getUs(timer);
+		if (success) {
+			long ms = us / 1000;
+			logr(debug, "Parsing mesh %-35s took %zu %s\n", lastMesh(r)->name, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");
+		}
 		if (success) {
 			meshValid = true;
 			free(fullPath);
