@@ -69,10 +69,17 @@ void parseArgs(int argc, char **argv) {
 	char *alternatePath = NULL;
 	//Always omit the first argument.
 	for (int i = 1; i < argc; ++i) {
+		
+		if (alternatePath) {
+			free(alternatePath);
+			alternatePath = NULL;
+		}
+		alternatePath = stringConcat(argv[i], ".json");
+		
 		if (isValidFile(argv[i]) && !inputFileSet) {
 			setString(g_options, "inputFile", argv[i]);
 			inputFileSet = true;
-		} else if (isValidFile((alternatePath = stringConcat(argv[i], ".json"))) && !inputFileSet) {
+		} else if (isValidFile(alternatePath) && !inputFileSet) {
 			setString(g_options, "inputFile", alternatePath);
 			inputFileSet = true;
 			free(alternatePath);
