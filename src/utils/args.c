@@ -82,8 +82,6 @@ void parseArgs(int argc, char **argv) {
 		} else if (isValidFile(alternatePath) && !inputFileSet) {
 			setString(g_options, "inputFile", alternatePath);
 			inputFileSet = true;
-			free(alternatePath);
-			alternatePath = NULL;
 		}else if (stringEquals(argv[i], "-h")) {
 			printUsage(argv[0]);
 		} else if (stringEquals(argv[i], "-j")) {
@@ -156,6 +154,11 @@ void parseArgs(int argc, char **argv) {
 		}
 	}
 	logr(debug, "Verbose mode enabled\n");
+	
+	if (alternatePath) {
+		free(alternatePath);
+		alternatePath = NULL;
+	}
 	
 	if (isSet("runTests") || isSet("runPerfTests")) {
 #ifdef CRAY_TESTING
