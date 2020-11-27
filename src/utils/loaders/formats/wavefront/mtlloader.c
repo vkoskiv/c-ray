@@ -42,6 +42,7 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 	if (!rawText) return NULL;
 	logr(debug, "Loading MTL at %s\n", filePath);
 	textBuffer *file = newTextBuffer(rawText);
+	free(rawText);
 	
 	char *assetPath = getFilePath(filePath);
 	
@@ -112,6 +113,7 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 	}
 	
 	destroyLineBuffer(line);
+	freeTextBuffer(file);
 	free(assetPath);
 	if (mtlCount) *mtlCount = (int)materialAmount;
 	return materials;

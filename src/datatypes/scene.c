@@ -163,6 +163,7 @@ void destroyScene(struct world *scene) {
 			destroyMesh(&scene->meshes[i]);
 		}
 		destroyBvh(scene->topLevel);
+		free(scene->instances);
 		free(scene->meshes);
 		free(scene->spheres);
 		free(scene);

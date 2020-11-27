@@ -913,31 +913,13 @@ struct transform parseTransformComposite(const cJSON *transforms) {
 	
 	composite.Ainv = inverseMatrix(&composite.A);
 	composite.type = transformTypeComposite;
+	free(tforms);
 	return composite;
 }
 
 static struct transform parseInstanceTransform(const cJSON *instance) {
 	const cJSON *transforms = cJSON_GetObjectItem(instance, "transforms");
 	return parseTransformComposite(transforms);
-}
-
-void dumpMeshHeader(struct mesh *m) {
-	int vtxAmount = m->vertexCount > 5 ? 5 : m->vertexCount;
-	logr(debug, "First %i vertices:\n", vtxAmount);
-	for (int i = 0; i < vtxAmount; ++i) {
-		logr(debug, "\t{%.2f, %.2f, %.2f}\n", g_vertices[m->firstVectorIndex + i].x, g_vertices[m->firstVectorIndex + i].y, g_vertices[m->firstVectorIndex + i].z);
-	}
-	
-	int amount = m->polyCount > 5 ? 5 : m->polyCount;
-	logr(debug, "First %i faces:\n", amount);
-	for (int i = 0; i < amount; ++i) {
-		logr(debug, "\tvertexIndex: {%i, %i, %i}\n", m->polygons[i].vertexIndex[0], m->polygons[i].vertexIndex[1], m->polygons[i].vertexIndex[2]);
-		logr(debug, "\tnormalIndex: {%i, %i, %i}\n", m->polygons[i].normalIndex[0], m->polygons[i].normalIndex[1], m->polygons[i].normalIndex[2]);
-		logr(debug, "\ttexturIndex: {%i, %i, %i}\n", m->polygons[i].textureIndex[0], m->polygons[i].textureIndex[1], m->polygons[i].textureIndex[2]);
-		logr(debug, "\tmaterialIndex: %i\n", m->polygons[i].materialIndex);
-		logr(debug, "\tvertexCount: %i\n", m->polygons[i].vertexCount);
-		logr(debug, "\thasNormals: %s\n\n", m->polygons[i].hasNormals ? "true": "false");
-	}
 }
 
 //FIXME: Only parse everything else if the mesh is found and is valid
@@ -974,8 +956,11 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		startTimer(&timer);
 		success = loadMeshOld(r, fullPath, idx, meshCount);
 		//success = loadMeshNew(r, fullPath, idx, meshCount);
-		long ms = getMs(timer);
-		if (success) logr(debug, "Mesh parsing took %zu milliseconds\n", ms);
+		long us = getUs(timer);
+		if (success) {
+			long ms = us / 1000;
+			logr(debug, "Parsing mesh %-35s took %zu %s\n", lastMesh(r)->name, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");
+		}
 		if (success) {
 			meshValid = true;
 			free(fullPath);
@@ -984,8 +969,6 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 			return;
 		}
 	}
-	
-	if (isSet("v")) dumpMeshHeader(lastMesh(r));
 	
 	if (meshValid) {
 		const cJSON *instances = cJSON_GetObjectItem(data, "instances");

@@ -161,6 +161,7 @@ void initDisplay(bool fullscreen, bool borderless, int width, int height, float 
 void destroyDisplay() {
 #ifdef CRAY_SDL_ENABLED
 	if (gdisplay) {
+		SDL_Quit();
 		if (gdisplay->window) {
 			SDL_DestroyWindow(gdisplay->window);
 		}

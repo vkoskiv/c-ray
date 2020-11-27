@@ -23,13 +23,14 @@ struct envMap *loadEnvMap(char *filePath) {
 	size_t len = 0;
 	//Handle the trailing newline here
 	filePath[strcspn(filePath, "\n")] = 0;
-	const unsigned char *file = (unsigned char*)loadFile(filePath, &len);
+	unsigned char *file = (unsigned char*)loadFile(filePath, &len);
 	if (!file) return NULL;
 	if (stbi_is_hdr(filePath)) {
 		logr(info, "Loading HDR...");
-		struct texture *tex = newTexture(float_p, 0, 0, 0);
+		struct texture *tex = newTexture(none, 0, 0, 0);
 		tex->data.float_p = stbi_loadf_from_memory(file, (int)len, (int *)&tex->width, (int *)&tex->height, (int *)&tex->channels, 0);
 		tex->precision = float_p;
+		free(file);
 		if (!tex->data.float_p) {
 			destroyTexture(tex);
 			logr(warning, "Error while decoding HDR from %s - Corrupted?\n", filePath);
@@ -39,6 +40,7 @@ struct envMap *loadEnvMap(char *filePath) {
 		printf(" %.1fMB\n", MB);
 		return newEnvMap(tex);
 	}
+	free(file);
 	return NULL;
 }
 
@@ -46,9 +48,10 @@ struct texture *loadTexture(char *filePath) {
 	size_t len = 0;
 	//Handle the trailing newline here
 	filePath[strcspn(filePath, "\n")] = 0;
-	const unsigned char *file = (unsigned char*)loadFile(filePath, &len);
+	unsigned char *file = (unsigned char*)loadFile(filePath, &len);
 	if (!file) return NULL;
 	struct texture *new = loadTextureFromBuffer(file, (unsigned int)len);
+	free(file);
 	if (!new) {
 		logr(warning, "^That happened while decoding texture \"%s\" - Corrupted?\n", filePath);
 		destroyTexture(new);
