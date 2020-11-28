@@ -23,16 +23,17 @@ char *loadFile(const char *fileName, size_t *bytes) {
 		logr(warning, "Can't access '%.*s': %s\n", (int)strlen(fileName), fileName, strerror(errno));
 		return NULL;
 	}
-	size_t len = getFileSize(fileName);
-	char *buf = malloc(len + 1 * sizeof(char));
-	fread(buf, sizeof(char), len, file);
+	size_t fileBytes = getFileSize(fileName);
+	char *buf = malloc(fileBytes + 1 * sizeof(char));
+	size_t readBytes = fread(buf, sizeof(char), fileBytes, file);
+	ASSERT(readBytes == fileBytes);
 	if (ferror(file) != 0) {
 		logr(warning, "Error reading file\n");
 	} else {
-		buf[len] = '\0';
+		buf[fileBytes] = '\0';
 	}
 	fclose(file);
-	if (bytes) *bytes = len;
+	if (bytes) *bytes = fileBytes;
 	return buf;
 }
 
