@@ -12,7 +12,6 @@
 //FIXME: We should only need to include c-ray.h here!
 
 #include "../../libraries/cJSON.h"
-#include "../../libraries/obj_parser.h"
 #include "../../datatypes/scene.h"
 #include "../../datatypes/vertexbuffer.h"
 #include "../../datatypes/vector.h"
@@ -28,7 +27,6 @@
 #include "../platform/capabilities.h"
 #include "../../datatypes/image/imagefile.h"
 #include "../../renderer/renderer.h"
-#include "../converter.h"
 #include "textureloader.h"
 #include "../../datatypes/instance.h"
 #include "../../utils/args.h"
@@ -39,8 +37,6 @@
 struct transform parseTransformComposite(const cJSON *transforms);
 
 static struct color parseColor(const cJSON *data);
-
-static void addMaterialToMesh(struct mesh *mesh, struct material newMaterial);
 
 static struct instance *lastInstance(struct renderer *r) {
 	return &r->scene->instances[r->scene->instanceCount - 1];
@@ -71,100 +67,6 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath, int idx, int to
 	
 	r->scene->meshCount += meshCount;
 	return valid;
-}
-
-static bool loadMeshOld(struct renderer *r, const char *inputFilePath, int idx, int meshCount) {
-	printf("\r");
-	logr(info, "Loading mesh %i/%i%s", idx, meshCount, idx == meshCount ? "\n" : "\r");
-	
-	char *fileName = getFileName(inputFilePath);
-	obj_scene_data data;
-	char *pathCopy = stringCopy(inputFilePath); //Yuck.
-	if (parse_obj_scene(&data, pathCopy) == 0) {
-		if (idx != meshCount) printf("\n");
-		logr(warning, "Mesh \"%s\" not found!\n", fileName);
-		free(pathCopy);
-		return false;
-	}
-	free(pathCopy);
-	
-	//Create mesh to keep track of meshes
-	struct mesh *newMesh = &r->scene->meshes[r->scene->meshCount];
-	//Vertex data
-	newMesh->firstVectorIndex = vertexCount;
-	newMesh->vertexCount = data.vertex_count;
-	//Normal data
-	newMesh->firstNormalIndex = normalCount;
-	newMesh->normalCount = data.vertex_normal_count;
-	//Texture vector data
-	newMesh->firstTextureIndex = textureCount;
-	newMesh->textureCount = data.vertex_texture_count;
-	//Poly data
-	newMesh->polyCount = data.face_count;
-	
-	newMesh->materialCount = 0;
-	//Set name
-	newMesh->name = fileName;
-	
-	//Update vector and poly counts
-	vertexCount += data.vertex_count;
-	normalCount += data.vertex_normal_count;
-	textureCount += data.vertex_texture_count;
-	
-	//Data loaded, now convert everything
-	//Convert vectors
-	g_vertices = realloc(g_vertices, vertexCount * sizeof(struct vector));
-	for (int i = 0; i < data.vertex_count; ++i) {
-		g_vertices[newMesh->firstVectorIndex + i] = vectorFromObj(data.vertex_list[i]);
-	}
-	
-	//Convert normals
-	g_normals = realloc(g_normals, normalCount * sizeof(struct vector));
-	for (int i = 0; i < data.vertex_normal_count; ++i) {
-		g_normals[newMesh->firstNormalIndex + i] = vectorFromObj(data.vertex_normal_list[i]);
-	}
-	//Convert texture vectors
-	g_textureCoords = realloc(g_textureCoords, textureCount * sizeof(struct coord));
-	for (int i = 0; i < data.vertex_texture_count; ++i) {
-		g_textureCoords[newMesh->firstTextureIndex + i] = coordFromObj(data.vertex_texture_list[i]);
-	}
-	//Convert polygons
-	newMesh->polygons = malloc(data.face_count * sizeof(struct poly));
-	for (int i = 0; i < data.face_count; ++i) {
-		newMesh->polygons[i] = polyFromObj(data.face_list[i],
-										   newMesh->firstVectorIndex,
-										   newMesh->firstNormalIndex,
-										   newMesh->firstTextureIndex);
-	}
-	
-	char *assetPath = getFilePath(inputFilePath);
-	newMesh->materials = calloc(1, sizeof(*newMesh->materials));
-	//Parse materials
-	if (data.material_count == 0) {
-		//No material, set to something obscene to make it noticeable
-		newMesh->materials = calloc(1, sizeof(*newMesh->materials));
-		newMesh->materials[0] = warningMaterial();
-		assignBSDF(&newMesh->materials[0]);
-		newMesh->materialCount++;
-	} else {
-		//Loop to add materials to mesh (We already set the material indices in polyFromObj)
-		for (int i = 0; i < data.material_count; ++i) {
-			addMaterialToMesh(newMesh, materialFromObj(assetPath, data.material_list[i]));
-		}
-	}
-	free(assetPath);
-	
-	//Delete OBJ data
-	delete_obj_data(&data);
-	
-	//Mesh added, update count
-	r->scene->meshCount++;
-	return true;
-}
-
-static void addMaterialToMesh(struct mesh *mesh, struct material newMaterial) {
-	mesh->materials = realloc(mesh->materials, (mesh->materialCount + 1) * sizeof(struct material));
-	mesh->materials[mesh->materialCount++] = newMaterial;
 }
 
 static void addSphere(struct world *scene, struct sphere newSphere) {
@@ -954,8 +856,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		bool success = false;
 		struct timeval timer;
 		startTimer(&timer);
-		success = loadMeshOld(r, fullPath, idx, meshCount);
-		//success = loadMeshNew(r, fullPath, idx, meshCount);
+		success = loadMeshNew(r, fullPath, idx, meshCount);
 		long us = getUs(timer);
 		if (success) {
 			long ms = us / 1000;

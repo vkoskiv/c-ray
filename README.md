@@ -125,8 +125,6 @@ In either case, you will get a log of all the tests, and their status.
 
 3rd party libraries included in this project
 
-OBJ Loader library: http://www.kixor.net/dev/objloader/
-
 lodePNG PNG compression library: http://lodev.org/lodepng/
 
 stb\_image.h by Sean Barrett: https://github.com/nothings/stb/blob/master/stb\_image.h
