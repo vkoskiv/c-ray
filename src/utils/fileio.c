@@ -33,7 +33,7 @@ char *loadFile(const char *fileName, size_t *bytes) {
 		buf[fileBytes] = '\0';
 	}
 	fclose(file);
-	if (bytes) *bytes = fileBytes;
+	if (bytes) *bytes = readBytes;
 	return buf;
 }
 
@@ -102,6 +102,7 @@ void checkBuf() {
  @param input File path to be processed
  @return Filename string, including file type extension
  */
+//FIXME: Just return a pointer to the first byte of the filename? Why do we do all this
 char *getFileName(const char *input) {
 	//FIXME: We're doing two copies here, maybe just rework the algorithm instead.
 	char *copy = stringCopy(input);
