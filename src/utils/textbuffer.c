@@ -164,7 +164,7 @@ void freeTextBuffer(textBuffer *file) {
 
 void fillLineBuffer(lineBuffer *line, const char *contents, char delimiter) {
 	if (!contents) return;
-	size_t copyLen = min(strlen(contents), LINEBUFFER_MAXSIZE);
+	size_t copyLen = min(strlen(contents), LINEBUFFER_MAXSIZE - 1);
 	memcpy(line->buf, contents, copyLen);
 	line->buf[copyLen] = '\0';
 	line->buflen = copyLen;
