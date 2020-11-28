@@ -30,6 +30,7 @@ void writeImage(struct imageFile *image) {
 			break;
 		case bmp:
 			encodeBMPFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height);
+			break;
 		default:
 			ASSERT_NOT_REACHED();
 			break;
