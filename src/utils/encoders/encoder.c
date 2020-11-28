@@ -14,19 +14,25 @@
 #include "../logging.h"
 #include "../fileio.h"
 #include "../../libraries/asprintf.h"
+#include "../assert.h"
 
 #include "formats/png.h"
 #include "formats/bmp.h"
 
 void writeImage(struct imageFile *image) {
-	//Save image data to a file
 	char *buf = NULL;
-	if (image->type == bmp){
-		asprintf(&buf, "%s%s_%04d.bmp", image->filePath, image->fileName, image->count);
-		encodeBMPFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height);
-	} else if (image->type == png){
-		asprintf(&buf, "%s%s_%04d.png", image->filePath, image->fileName, image->count);
-		encodePNGFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height, image->info);
+	if (asprintf(&buf, "%s%s_%04d.%s", image->filePath, image->fileName, image->count, image->type == png ? "png" : "bmp") < 0) {
+		logr(error, "asprintf failed in writeImage for file %s\n", image->fileName);
+	}
+	switch (image->type) {
+		case png:
+			encodePNGFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height, image->info);
+			break;
+		case bmp:
+			encodeBMPFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height);
+		default:
+			ASSERT_NOT_REACHED();
+			break;
 	}
 	free(buf);
 }
