@@ -120,15 +120,6 @@ struct color colorForUV(const struct hitRecord *isect, enum textureType type) {
 	return output;
 }
 
-static struct color gradient(struct hitRecord *isect) {
-	//barycentric coordinates for this polygon
-	const float u = isect->uv.x;
-	const float v = isect->uv.y;
-	const float w = 1.0f - u - v;
-	
-	return colorWithValues(u, v, w, 1.0f);
-}
-
 //FIXME: Make this configurable
 //This is a checkerboard pattern mapped to the surface coordinate space
 //Caveat: This only works for meshes that have texture coordinates (i.e. were UV-unwrapped).
