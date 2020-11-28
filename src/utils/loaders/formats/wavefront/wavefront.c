@@ -68,7 +68,7 @@ static struct poly parsePolygon(lineBuffer *line) {
 	p.vertexCount = MAX_CRAY_VERTEX_COUNT;
 	for (int i = 0; i < p.vertexCount; ++i) {
 		// Order goes v/vt/vn
-		fillLineBuffer(batch, nextToken(line), "/");
+		fillLineBuffer(batch, nextToken(line), '/');
 		p.vertexIndex[i] = atoi(firstToken(batch));
 		p.textureIndex[i] = atoi(nextToken(batch));
 		p.normalIndex[i] = atoi(nextToken(batch));
@@ -134,7 +134,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	char *head = firstLine(file);
 	lineBuffer *line = newLineBuffer();
 	while (head) {
-		fillLineBuffer(line, head, " ");
+		fillLineBuffer(line, head, ' ');
 		char *first = firstToken(line);
 		if (first[0] == '#') {
 			head = nextLine(file);

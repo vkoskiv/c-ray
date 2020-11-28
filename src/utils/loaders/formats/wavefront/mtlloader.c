@@ -54,7 +54,7 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 	char *head = firstLine(file);
 	lineBuffer *line = newLineBuffer();
 	while (head) {
-		fillLineBuffer(line, head, " ");
+		fillLineBuffer(line, head, ' ');
 		char *first = firstToken(line);
 		if (first[0] == '#') {
 			head = nextLine(file);

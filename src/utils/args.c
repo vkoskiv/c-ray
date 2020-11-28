@@ -42,7 +42,7 @@ static void printUsage(const char *progname) {
 bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
 	if (!dimStr) return false;
 	lineBuffer *buf = newLineBuffer();
-	fillLineBuffer(buf, dimStr, "x");
+	fillLineBuffer(buf, dimStr, 'x');
 	char *widthStr = firstToken(buf);
 	char *heightStr = nextToken(buf);
 	if (!widthStr && !heightStr) {

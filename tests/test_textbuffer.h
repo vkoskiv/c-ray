@@ -208,7 +208,7 @@ bool textbuffer_tokenizer(void) {
 	
 	lineBuffer *line = newLineBuffer();
 	
-	fillLineBuffer(line, firstLine(file), " ");
+	fillLineBuffer(line, firstLine(file), ' ');
 	char *currentToken = firstToken(line);
 	test_assert(stringEquals(currentToken, "This"));
 	currentToken = nextToken(line);
@@ -223,11 +223,11 @@ bool textbuffer_tokenizer(void) {
 	currentToken = nextToken(line);
 	test_assert(!currentToken);
 	
-	fillLineBuffer(line, nextLine(file), " ");
+	fillLineBuffer(line, nextLine(file), ' ');
 	currentToken = firstToken(line);
 	test_assert(stringEquals(currentToken, "Multiline"));
 	
-	fillLineBuffer(line, nextLine(file), " ");
+	fillLineBuffer(line, nextLine(file), ' ');
 	currentToken = lastToken(line);
 	test_assert(stringEquals(currentToken, "string!"));
 	

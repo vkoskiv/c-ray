@@ -162,21 +162,18 @@ void freeTextBuffer(textBuffer *file) {
 	}
 }
 
-void fillLineBuffer(lineBuffer *line, const char *contents, char *delimiters) {
-	if (!contents || !delimiters) return;
+void fillLineBuffer(lineBuffer *line, const char *contents, char delimiter) {
+	if (!contents) return;
 	size_t copyLen = min(strlen(contents), LINEBUFFER_MAXSIZE);
 	memcpy(line->buf, contents, copyLen);
 	line->buf[copyLen] = '\0';
 	line->buflen = copyLen;
-	size_t delimiterAmount = strlen(delimiters);
 	
 	size_t tokens = 0;
 	for (size_t i = 0; i < line->buflen + 1; ++i) {
-		for (size_t d = 0; d < delimiterAmount; ++d) {
-			if (line->buf[i] == delimiters[d] || line->buf[i] == '\0') {
-				line->buf[i] = '\0';
-				tokens++;
-			}
+		if (line->buf[i] == delimiter || line->buf[i] == '\0') {
+			line->buf[i] = '\0';
+			tokens++;
 		}
 	}
 	
