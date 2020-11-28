@@ -54,6 +54,6 @@ void logr(enum logType type, const char *fmt, ...)
 #endif
 ;
 
-void smartTime(unsigned long long milliseconds, char *buf);
+void smartTime(unsigned long milliseconds, char *buf);
 
 void printSmartTime(unsigned long long ms);

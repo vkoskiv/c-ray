@@ -32,9 +32,9 @@ bool hashtable_mixed(void) {
 	return pass;
 }
 
-uint64_t used_count(struct hashtable *t) {
-	uint64_t used = 0;
-	for (uint64_t i = 0; i < t->size; ++i) {
+size_t used_count(struct hashtable *t) {
+	size_t used = 0;
+	for (size_t i = 0; i < t->size; ++i) {
 		if (t->data[i].used) used++;
 	}
 	return used;
@@ -48,9 +48,9 @@ bool hashtable_fill(void) {
 	char buf[20];
 	
 	// Collides at i == 203
-	for (uint64_t i = 0; i < 200 && pass; ++i) {
+	for (size_t i = 0; i < 200 && pass; ++i) {
 		test_assert(used_count(table) == i);
-		sprintf(buf, "key%llu", i);
+		sprintf(buf, "key%lu", i);
 		setTag(table, buf);
 	}
 	

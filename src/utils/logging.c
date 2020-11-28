@@ -72,7 +72,7 @@ void printSmartTime(unsigned long long ms) {
 
 // Print to buf a logically formatted string representing time given in milliseconds.
 // Example: "980ms", "2s", "1m 02s", "3h 12m", etc.
-void smartTime(unsigned long long milliseconds, char *buf) {
+void smartTime(unsigned long milliseconds, char *buf) {
 	time_t secs = milliseconds / 1000;
 	time_t mins = secs / 60;
 	time_t hours = (secs / 60) / 60;
@@ -87,6 +87,6 @@ void smartTime(unsigned long long milliseconds, char *buf) {
 	} else if (secs > 0) {
 		sprintf(buf, "%.2fs", (float)milliseconds / 1000);
 	} else {
-		sprintf(buf, "%"PRIu64"ms", milliseconds);
+		sprintf(buf, "%lums", milliseconds);
 	}
 }
