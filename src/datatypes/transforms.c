@@ -312,33 +312,6 @@ struct matrix4x4 multiplyMatrices(const struct matrix4x4 *A, const struct matrix
 		A->mtx[3][0] * B->mtx[0][3] + A->mtx[3][1] * B->mtx[1][3] + A->mtx[3][2] * B->mtx[2][3] + A->mtx[3][3] * B->mtx[3][3]);
 }
 
-static char *transformTypeString(enum transformType type) {
-	switch (type) {
-		case transformTypeXRotate:
-			return "transformTypeXRotate";
-		case transformTypeYRotate:
-			return "transformTypeYRotate";
-		case transformTypeZRotate:
-			return "transformTypeZRotate";
-		case transformTypeTranslate:
-			return "transformTypeTranslate";
-		case transformTypeScale:
-			return "transformTypeScale";
-		case transformTypeMultiplication:
-			return "transformTypeMultiplication";
-		case transformTypeIdentity:
-			return "transformTypeIdentity";
-		case transformTypeInverse:
-			return "transformTypeInverse";
-		case transformTypeTranspose:
-			return "transformTypeTranspose";
-		case transformTypeComposite:
-			return "transformTypeComposite";
-		default:
-			return "unknownTransform";
-	}
-}
-
 bool isRotation(const struct transform *t) {
 	return (t->type == transformTypeXRotate) || (t->type == transformTypeYRotate) || (t->type == transformTypeZRotate);
 }
