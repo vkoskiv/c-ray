@@ -120,50 +120,6 @@ struct color colorForUV(const struct hitRecord *isect, enum textureType type) {
 	return output;
 }
 
-//FIXME: Make this configurable
-//This is a checkerboard pattern mapped to the surface coordinate space
-//Caveat: This only works for meshes that have texture coordinates (i.e. were UV-unwrapped).
-static struct color mappedCheckerBoard(struct hitRecord *isect, float coef) {
-	ASSERT(isect->material.texture);
-	const struct poly *p = isect->polygon;
-	
-	//barycentric coordinates for this polygon
-	const float u = isect->uv.x;
-	const float v = isect->uv.y;
-	const float w = 1.0f - u - v;
-	
-	//Weighted coordinates
-	const struct coord ucomponent = coordScale(u, g_textureCoords[p->textureIndex[1]]);
-	const struct coord vcomponent = coordScale(v, g_textureCoords[p->textureIndex[2]]);
-	const struct coord wcomponent = coordScale(w, g_textureCoords[p->textureIndex[0]]);
-	
-	// textureXY = u * v1tex + v * v2tex + w * v3tex
-	const struct coord surfaceXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
-	
-	const float sines = sinf(coef*surfaceXY.x) * sinf(coef*surfaceXY.y);
-	
-	if (sines < 0.0f) {
-		return (struct color){0.1f, 0.1f, 0.1f, 0.0f};
-	} else {
-		return (struct color){0.4f, 0.4f, 0.4f, 0.0f};
-	}
-}
-
-//FIXME: Make this configurable
-//This is a spatial checkerboard, mapped to the world coordinate space (always axis aligned)
-static struct color unmappedCheckerBoard(struct hitRecord *isect, float coef) {
-	const float sines = sinf(coef*isect->hitPoint.x) * sinf(coef*isect->hitPoint.y) * sinf(coef*isect->hitPoint.z);
-	if (sines < 0.0f) {
-		return (struct color){0.1f, 0.1f, 0.1f, 0.0f};
-	} else {
-		return (struct color){0.4f, 0.4f, 0.4f, 0.0f};
-	}
-}
-
-static struct color checkerBoard(struct hitRecord *isect, float coef) {
-	return isect->material.texture ? mappedCheckerBoard(isect, coef) : unmappedCheckerBoard(isect, coef);
-}
-
 static struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
 	const float reflect = 2.0f * vecDot(*incident, *normal);
 	return vecSub(*incident, vecScale(*normal, reflect));
