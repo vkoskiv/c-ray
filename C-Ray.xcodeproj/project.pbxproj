@@ -107,6 +107,8 @@
 		90AB1E142574798F00EFDF5A /* glass.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E112574798F00EFDF5A /* glass.c */; };
 		90AB1E1725747C9C00EFDF5A /* metal.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1525747C9C00EFDF5A /* metal.c */; };
 		90AB1E1825747C9C00EFDF5A /* metal.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1525747C9C00EFDF5A /* metal.c */; };
+		90AB1E1B2575709000EFDF5A /* texturenode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E192575709000EFDF5A /* texturenode.c */; };
+		90AB1E1C2575709000EFDF5A /* texturenode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E192575709000EFDF5A /* texturenode.c */; };
 		90C5D5582448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
 		90C5D5592448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
 		90C792CB245209E20067E787 /* halton.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C792CA245209E20067E787 /* halton.c */; };
@@ -262,6 +264,8 @@
 		90AB1E122574798F00EFDF5A /* glass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glass.h; sourceTree = "<group>"; };
 		90AB1E1525747C9C00EFDF5A /* metal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = metal.c; sourceTree = "<group>"; };
 		90AB1E1625747C9C00EFDF5A /* metal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = metal.h; sourceTree = "<group>"; };
+		90AB1E192575709000EFDF5A /* texturenode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = texturenode.c; sourceTree = "<group>"; };
+		90AB1E1A2575709000EFDF5A /* texturenode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = texturenode.h; sourceTree = "<group>"; };
 		90BAE9362328344100B1EBF0 /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		90C5D5562448CEAB00C58643 /* imagefile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imagefile.h; sourceTree = "<group>"; };
 		90C5D5572448CEAB00C58643 /* imagefile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = imagefile.c; sourceTree = "<group>"; };
@@ -549,6 +553,8 @@
 				90AB1E112574798F00EFDF5A /* glass.c */,
 				90AB1E1625747C9C00EFDF5A /* metal.h */,
 				90AB1E1525747C9C00EFDF5A /* metal.c */,
+				90AB1E1A2575709000EFDF5A /* texturenode.h */,
+				90AB1E192575709000EFDF5A /* texturenode.c */,
 			);
 			path = bsdf;
 			sourceTree = "<group>";
@@ -735,6 +741,7 @@
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
 				90A51A0523FCB7FF0014DF6B /* memory.c in Sources */,
+				90AB1E1C2575709000EFDF5A /* texturenode.c in Sources */,
 				90AB1E0C25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA17243D237200420889 /* bmp.c in Sources */,
 				905842F5236651FC009D92F1 /* mesh.c in Sources */,
@@ -802,6 +809,7 @@
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
 				90A51A0423FCB7FF0014DF6B /* memory.c in Sources */,
+				90AB1E1B2575709000EFDF5A /* texturenode.c in Sources */,
 				90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA16243D237200420889 /* bmp.c in Sources */,
 				90189DA6224EB302007FA268 /* mesh.c in Sources */,
