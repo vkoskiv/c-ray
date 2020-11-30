@@ -59,12 +59,6 @@ enum bsdfType {
 	transparent
 };
 
-struct bsdf {
-	enum bsdfType type;
-	float weights;
-	bool (*bsdf)(struct hitRecord*, struct color*, struct lightRay*, sampler*);
-};
-
 struct material {
 	char *name;
 	struct texture *texture;
@@ -82,16 +76,8 @@ struct material {
 	float sharpness;
 	float glossiness;
 	
-	//TODO:
-	// - New BSDF struct that contains FP, type and contributing percentage
-	// - Have an array of these structs, so 50% emit 50% reflect would have
-	//   two BSDF structs that have their contributions set to 0.5
-	// - Modify pathTrace loop to accommodate this new system.
-	// - Normalize probabilities
-	
-	enum bsdfType type;
-	//isect record, ray, attenuation color, scattered ray, rng
-	bool (*bsdf)(const struct hitRecord*, struct color*, struct lightRay*, sampler*);
+	enum bsdfType type; // FIXME: Temporary
+	struct bsdf *bsdf;
 };
 
 struct material *materialForName(struct material *materials, int count, char *name);

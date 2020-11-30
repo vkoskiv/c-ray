@@ -236,3 +236,16 @@ static inline struct base baseWithVec(struct vector i) {
 static inline bool vecEquals(struct vector a, struct vector b) {
 	return a.x == b.x && a.y == b.y && a.z == b.z;
 }
+
+static inline struct vector randomOnUnitSphere(sampler *sampler) {
+	const float sample_x = getDimension(sampler);
+	const float sample_y = getDimension(sampler);
+	const float a = sample_x * (2.0f * PI);
+	const float s = 2.0f * sqrtf(max(0.0f, sample_y * (1.0f - sample_y)));
+	return (struct vector){cosf(a) * s, sinf(a) * s, 1.0f - 2.0f * sample_y};
+}
+
+static inline struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
+	const float reflect = 2.0f * vecDot(*incident, *normal);
+	return vecSub(*incident, vecScale(*normal, reflect));
+}

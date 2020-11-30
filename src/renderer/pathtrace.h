@@ -12,25 +12,9 @@
 #include "../datatypes/poly.h"
 #include "../datatypes/lightRay.h"
 #include "../datatypes/material.h"
+#include "bsdf/bsdf.h"
 
 struct world;
-
-/**
- Shading/intersection information, used to perform shading and rendering logic.
- @note uv, mtlIndex and polyIndex are only set if the ray hits a polygon (mesh)
- @todo Consider moving start, end materials to lightRay instead
- */
-struct hitRecord {
-	struct lightRay incident;		//Light ray that encountered this intersection
-	struct material material;		//Material of the intersected object
-	struct vector hitPoint;			//Hit point vector in 3D space
-	struct vector surfaceNormal;	//Surface normal at that point of intersection
-	struct coord uv;				//UV barycentric coordinates for intersection point
-	float distance;					//Distance to intersection point
-	struct poly *polygon;			//ptr to polygon that was encountered
-	int instIndex;					//Instance index, negative if no intersection
-};
-
 
 /// Recursive path tracer.
 /// @param incidentRay View ray to be casted into the scene
