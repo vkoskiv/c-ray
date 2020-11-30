@@ -97,6 +97,16 @@
 		90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A51A0423FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
 		90A51A0523FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
+		90AB1E072574373E00EFDF5A /* bsdf.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E052574373E00EFDF5A /* bsdf.c */; };
+		90AB1E082574373E00EFDF5A /* bsdf.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E052574373E00EFDF5A /* bsdf.c */; };
+		90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E0925745DFE00EFDF5A /* diffuse.c */; };
+		90AB1E0C25745DFE00EFDF5A /* diffuse.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E0925745DFE00EFDF5A /* diffuse.c */; };
+		90AB1E0F25745E0C00EFDF5A /* mix.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E0D25745E0C00EFDF5A /* mix.c */; };
+		90AB1E1025745E0C00EFDF5A /* mix.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E0D25745E0C00EFDF5A /* mix.c */; };
+		90AB1E132574798F00EFDF5A /* glass.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E112574798F00EFDF5A /* glass.c */; };
+		90AB1E142574798F00EFDF5A /* glass.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E112574798F00EFDF5A /* glass.c */; };
+		90AB1E1725747C9C00EFDF5A /* metal.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1525747C9C00EFDF5A /* metal.c */; };
+		90AB1E1825747C9C00EFDF5A /* metal.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1525747C9C00EFDF5A /* metal.c */; };
 		90C5D5582448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
 		90C5D5592448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
 		90C792CB245209E20067E787 /* halton.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C792CA245209E20067E787 /* halton.c */; };
@@ -242,6 +252,16 @@
 		90A519FF23FB5DFC0014DF6B /* statistics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = statistics.c; sourceTree = "<group>"; };
 		90A51A0223FCB7FF0014DF6B /* memory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = memory.h; sourceTree = "<group>"; };
 		90A51A0323FCB7FF0014DF6B /* memory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = memory.c; sourceTree = "<group>"; };
+		90AB1E052574373E00EFDF5A /* bsdf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bsdf.c; sourceTree = "<group>"; };
+		90AB1E062574373E00EFDF5A /* bsdf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bsdf.h; sourceTree = "<group>"; };
+		90AB1E0925745DFE00EFDF5A /* diffuse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = diffuse.c; sourceTree = "<group>"; };
+		90AB1E0A25745DFE00EFDF5A /* diffuse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = diffuse.h; sourceTree = "<group>"; };
+		90AB1E0D25745E0C00EFDF5A /* mix.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mix.c; sourceTree = "<group>"; };
+		90AB1E0E25745E0C00EFDF5A /* mix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mix.h; sourceTree = "<group>"; };
+		90AB1E112574798F00EFDF5A /* glass.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = glass.c; sourceTree = "<group>"; };
+		90AB1E122574798F00EFDF5A /* glass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glass.h; sourceTree = "<group>"; };
+		90AB1E1525747C9C00EFDF5A /* metal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = metal.c; sourceTree = "<group>"; };
+		90AB1E1625747C9C00EFDF5A /* metal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = metal.h; sourceTree = "<group>"; };
 		90BAE9362328344100B1EBF0 /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		90C5D5562448CEAB00C58643 /* imagefile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imagefile.h; sourceTree = "<group>"; };
 		90C5D5572448CEAB00C58643 /* imagefile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = imagefile.c; sourceTree = "<group>"; };
@@ -329,6 +349,7 @@
 		900BA0F6220B4602005B8EE7 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
+				90AB1E042574372400EFDF5A /* bsdf */,
 				90A21CEE24589E4E002C742E /* samplers */,
 				900BA0F9220B4602005B8EE7 /* pathtrace.h */,
 				900BA0F7220B4602005B8EE7 /* pathtrace.c */,
@@ -515,6 +536,23 @@
 			path = wavefront;
 			sourceTree = "<group>";
 		};
+		90AB1E042574372400EFDF5A /* bsdf */ = {
+			isa = PBXGroup;
+			children = (
+				90AB1E062574373E00EFDF5A /* bsdf.h */,
+				90AB1E052574373E00EFDF5A /* bsdf.c */,
+				90AB1E0A25745DFE00EFDF5A /* diffuse.h */,
+				90AB1E0925745DFE00EFDF5A /* diffuse.c */,
+				90AB1E0E25745E0C00EFDF5A /* mix.h */,
+				90AB1E0D25745E0C00EFDF5A /* mix.c */,
+				90AB1E122574798F00EFDF5A /* glass.h */,
+				90AB1E112574798F00EFDF5A /* glass.c */,
+				90AB1E1625747C9C00EFDF5A /* metal.h */,
+				90AB1E1525747C9C00EFDF5A /* metal.c */,
+			);
+			path = bsdf;
+			sourceTree = "<group>";
+		};
 		90C5D5512448CC8400C58643 /* image */ = {
 			isa = PBXGroup;
 			children = (
@@ -672,6 +710,7 @@
 				905842E4236651FC009D92F1 /* pathtrace.c in Sources */,
 				905842E5236651FC009D92F1 /* list.c in Sources */,
 				90A21CF224589E6A002C742E /* sampler.c in Sources */,
+				90AB1E082574373E00EFDF5A /* bsdf.c in Sources */,
 				905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */,
 				90C5D5592448CEAB00C58643 /* imagefile.c in Sources */,
 				9076FB56243002B90003B327 /* thread.c in Sources */,
@@ -682,9 +721,12 @@
 				90A21CF624589E84002C742E /* hammersley.c in Sources */,
 				905842EB236651FC009D92F1 /* texture.c in Sources */,
 				905842EC236651FC009D92F1 /* wavefront.c in Sources */,
+				90AB1E142574798F00EFDF5A /* glass.c in Sources */,
 				9062FA0A243BBD0900420889 /* args.c in Sources */,
+				90AB1E1825747C9C00EFDF5A /* metal.c in Sources */,
 				904CDBB9248D74380092E564 /* bvh.c in Sources */,
 				90908A7023E0707E0081377B /* assert.c in Sources */,
+				90AB1E1025745E0C00EFDF5A /* mix.c in Sources */,
 				90D5F02724A208100068FC60 /* gitsha1.c in Sources */,
 				909D136E24439069006D0A86 /* string.c in Sources */,
 				90FAD27224A2ADE400F8CA79 /* testrunner.c in Sources */,
@@ -693,6 +735,7 @@
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
 				90A51A0523FCB7FF0014DF6B /* memory.c in Sources */,
+				90AB1E0C25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA17243D237200420889 /* bmp.c in Sources */,
 				905842F5236651FC009D92F1 /* mesh.c in Sources */,
 				909D13722443B4E7006D0A86 /* textbuffer.c in Sources */,
@@ -734,6 +777,7 @@
 				900BA12D220B4603005B8EE7 /* pathtrace.c in Sources */,
 				900BA13B220B4603005B8EE7 /* list.c in Sources */,
 				90A21CF124589E6A002C742E /* sampler.c in Sources */,
+				90AB1E072574373E00EFDF5A /* bsdf.c in Sources */,
 				90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */,
 				90C5D5582448CEAB00C58643 /* imagefile.c in Sources */,
 				9076FB55243002B90003B327 /* thread.c in Sources */,
@@ -744,9 +788,12 @@
 				90A21CF524589E84002C742E /* hammersley.c in Sources */,
 				90FB15CE225C6D85008D6AAA /* texture.c in Sources */,
 				90CA851D2252C90C00BA7702 /* wavefront.c in Sources */,
+				90AB1E132574798F00EFDF5A /* glass.c in Sources */,
 				9062FA09243BBD0900420889 /* args.c in Sources */,
+				90AB1E1725747C9C00EFDF5A /* metal.c in Sources */,
 				904CDBB8248D74380092E564 /* bvh.c in Sources */,
 				90908A6F23E0707E0081377B /* assert.c in Sources */,
+				90AB1E0F25745E0C00EFDF5A /* mix.c in Sources */,
 				90D5F02624A208100068FC60 /* gitsha1.c in Sources */,
 				909D136D24439069006D0A86 /* string.c in Sources */,
 				90FAD27124A2ADE400F8CA79 /* testrunner.c in Sources */,
@@ -755,6 +802,7 @@
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
 				90A51A0423FCB7FF0014DF6B /* memory.c in Sources */,
+				90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA16243D237200420889 /* bmp.c in Sources */,
 				90189DA6224EB302007FA268 /* mesh.c in Sources */,
 				909D13712443B4E7006D0A86 /* textbuffer.c in Sources */,

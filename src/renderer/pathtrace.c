@@ -44,19 +44,20 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 	struct color weight = whiteColor; // Current path weight
 	struct color finalColor = blackColor; // Final path contribution
 	struct lightRay currentRay = *incidentRay;
-
+	
 	for (int depth = 0; depth < maxDepth; ++depth) {
 		const struct hitRecord isect = getClosestIsect(&currentRay, scene, sampler);
 		if (isect.instIndex < 0) {
 			finalColor = addColors(finalColor, multiplyColors(weight, getBackground(&currentRay, scene)));
 			break;
 		}
-
+		
 		finalColor = addColors(finalColor, multiplyColors(weight, isect.material.emission));
 		
-		struct color attenuation;
-		if (!isect.material.bsdf(&isect, &attenuation, &currentRay, sampler))
-			break;
+		struct bsdfSample sample = isect.material.bsdf->sample(isect.material.bsdf, sampler, &isect, NULL);
+		currentRay.start = isect.hitPoint;
+		currentRay.direction = sample.out;
+		struct color attenuation = sample.color;
 		
 		float probability = 1.0f;
 		if (depth >= 4) {
@@ -64,7 +65,7 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 			if (getDimension(sampler) > probability)
 				break;
 		}
-
+		
 		weight = colorCoef(1.0f / probability, multiplyColors(attenuation, weight));
 	}
 	return finalColor;
