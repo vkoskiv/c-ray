@@ -12,6 +12,7 @@ struct vector;
 struct hitRecord;
 
 #include "../../datatypes/lightRay.h"
+#include "texturenode.h"
 
 //FIXME: Move
 struct hitRecord {
@@ -32,8 +33,9 @@ struct bsdfSample {
 };
 
 struct bsdf {
-	//FIXME: use in, instead of getting it from record
 	struct bsdfSample (*sample)(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in);
 };
 
-struct bsdf *newBsdf(enum bsdfType type);
+#include "diffuse.h"
+#include "glass.h"
+#include "metal.h"

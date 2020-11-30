@@ -10,7 +10,8 @@
 
 struct metalBsdf {
 	struct bsdf bsdf;
-	struct color (*eval)(const struct hitRecord*);
+	struct textureNode *color;
+	struct textureNode *roughness;
 };
 
-struct metalBsdf *newMetal(void);
+struct metalBsdf *newMetal(struct textureNode *color, struct textureNode *roughness);

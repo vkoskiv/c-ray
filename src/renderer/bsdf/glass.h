@@ -10,7 +10,8 @@
 
 struct glassBsdf {
 	struct bsdf bsdf;
-	struct color (*eval)(const struct hitRecord*);
+	struct textureNode *roughness;
+	struct textureNode *color;
 };
 
-struct glassBsdf *newGlass(void);
+struct glassBsdf *newGlass(struct textureNode *color, struct textureNode *roughness);

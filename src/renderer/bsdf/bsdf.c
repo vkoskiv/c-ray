@@ -12,24 +12,3 @@
 #include "../samplers/sampler.h"
 #include "../../datatypes/material.h"
 #include "bsdf.h"
-
-#include "diffuse.h"
-#include "glass.h"
-#include "metal.h"
-
-struct bsdf *newBsdf(enum bsdfType type) {
-	switch (type) {
-		case lambertian:
-			return (struct bsdf*)newDiffuse();
-			break;
-		case glass:
-			return (struct bsdf*)newGlass();
-			break;
-		case metal:
-			return (struct bsdf*)newMetal();
-			break;
-		default:
-			return (struct bsdf*)newDiffuse();
-			break;
-	}
-}

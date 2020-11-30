@@ -15,8 +15,8 @@
 
 #include "glass.h"
 
-static inline bool refract(struct vector in, struct vector normal, float niOverNt, struct vector *refracted) {
-	const struct vector uv = vecNormalize(in);
+static inline bool refract(const struct vector *in, const struct vector normal, float niOverNt, struct vector *refracted) {
+	const struct vector uv = vecNormalize(*in);
 	const float dt = vecDot(uv, normal);
 	const float discriminant = 1.0f - niOverNt * niOverNt * (1.0f - dt * dt);
 	if (discriminant > 0.0f) {
@@ -37,39 +37,33 @@ static inline float schlick(float cosine, float IOR) {
 	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);
 }
 
-struct color glass_color(const struct hitRecord *record) {
-	return record->material.texture ? colorForUV(record, Diffuse) : record->material.diffuse;
-}
-
 struct bsdfSample glass_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
-	(void)in;
 	struct glassBsdf *glassBsdf = (struct glassBsdf*)bsdf;
 	
 	struct vector outwardNormal;
-	struct vector reflected = reflectVec(&record->incident.direction, &record->surfaceNormal);
+	struct vector reflected = reflectVec(in, &record->surfaceNormal);
 	float niOverNt;
 	struct vector refracted;
 	float reflectionProbability;
 	float cosine;
 	
-	if (vecDot(record->incident.direction, record->surfaceNormal) > 0.0f) {
+	if (vecDot(*in, record->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(record->surfaceNormal);
 		niOverNt = record->material.IOR;
 		cosine = record->material.IOR * vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction);
 	} else {
 		outwardNormal = record->surfaceNormal;
 		niOverNt = 1.0f / record->material.IOR;
-		cosine = -(vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction));
+		cosine = -(vecDot(*in, record->surfaceNormal) / vecLength(*in));
 	}
 	
-	if (refract(record->incident.direction, outwardNormal, niOverNt, &refracted)) {
+	if (refract(in, outwardNormal, niOverNt, &refracted)) {
 		reflectionProbability = schlick(cosine, record->material.IOR);
 	} else {
 		reflectionProbability = 1.0f;
 	}
 	
-	//Roughness
-	float roughness = record->material.specularMap ? colorForUV(record, Specular).red : record->material.roughness;
+	float roughness = glassBsdf->roughness ? glassBsdf->roughness->eval(glassBsdf->roughness, record).red : record->material.roughness;
 	if (roughness > 0.0f) {
 		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
@@ -83,12 +77,13 @@ struct bsdfSample glass_sample(const struct bsdf *bsdf, sampler *sampler, const 
 		scatterDir = refracted;
 	}
 	
-	return (struct bsdfSample){.out = scatterDir, .color = glassBsdf->eval(record)};
+	return (struct bsdfSample){.out = scatterDir, .color = glassBsdf->color->eval(glassBsdf->color, record)};
 }
 
-struct glassBsdf *newGlass() {
+struct glassBsdf *newGlass(struct textureNode *color, struct textureNode *roughness) {
 	struct glassBsdf *new = calloc(1, sizeof(*new));
-	new->eval = glass_color;
+	new->color = color;
+	new->roughness = roughness;
 	new->bsdf.sample = glass_sample;
 	return new;
 }

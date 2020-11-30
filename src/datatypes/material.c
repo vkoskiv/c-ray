@@ -14,6 +14,7 @@
 #include "image/texture.h"
 #include "poly.h"
 #include "../utils/assert.h"
+#include "../utils/logging.h"
 
 #include "../renderer/bsdf/bsdf.h"
 
@@ -49,7 +50,23 @@ struct material *materialForName(struct material *materials, int count, char *na
 }
 
 void assignBSDF(struct material *mat) {
-	mat->bsdf = newBsdf(mat->type);
+	struct textureNode *roughness = mat->specularMap ? newImageTexture(mat->specularMap, Specular, 0) : newConstantTexture(colorWithValues(mat->roughness, 0, 0, 0));
+	struct textureNode *color = mat->texture ? newImageTexture(mat->texture, Diffuse, 0) : newConstantTexture(mat->diffuse);
+	switch (mat->type) {
+		case lambertian:
+			mat->bsdf = (struct bsdf*)newDiffuse(color);
+			break;
+		case glass:
+			mat->bsdf = (struct bsdf*)newGlass(color, roughness);
+			break;
+		case metal:
+			mat->bsdf = (struct bsdf*)newMetal(color, roughness);
+			break;
+		default:
+			logr(warning, "Unknown bsdf type specified for \"%s\"\n", mat->name);
+			mat->bsdf = (struct bsdf*)newDiffuse(newConstantTexture(warningMaterial().diffuse));
+			break;
+	}
 }
 
 //Transform the intersection coordinates to the texture coordinate space
@@ -102,45 +119,14 @@ struct color colorForUV(const struct hitRecord *isect, enum textureType type) {
 	return output;
 }
 
-//TODO: Make this a function ptr in the material?
-static struct color diffuseColor(const struct hitRecord *isect) {
-	return isect->material.texture ? colorForUV(isect, Diffuse) : isect->material.diffuse;
-}
-
-static float roughnessValue(const struct hitRecord *isect) {
-	return isect->material.specularMap ? colorForUV(isect, Specular).red : isect->material.roughness;
-}
-
-bool lambertianBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
+/*bool lambertianBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	const struct vector scatterDir = vecNormalize(vecAdd(isect->surfaceNormal, randomOnUnitSphere(sampler)));
 	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered});
 	*attenuation = diffuseColor(isect);
 	return true;
-}
+}*/
 
-static inline bool refract(struct vector in, struct vector normal, float niOverNt, struct vector *refracted) {
-	const struct vector uv = vecNormalize(in);
-	const float dt = vecDot(uv, normal);
-	const float discriminant = 1.0f - niOverNt * niOverNt * (1.0f - dt * dt);
-	if (discriminant > 0.0f) {
-		const struct vector A = vecScale(normal, dt);
-		const struct vector B = vecSub(uv, A);
-		const struct vector C = vecScale(B, niOverNt);
-		const struct vector D = vecScale(normal, sqrtf(discriminant));
-		*refracted = vecSub(C, D);
-		return true;
-	} else {
-		return false;
-	}
-}
-
-static inline float schlick(float cosine, float IOR) {
-	float r0 = (1.0f - IOR) / (1.0f + IOR);
-	r0 = r0 * r0;
-	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);
-}
-
-bool shinyBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
+/*bool shinyBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	*attenuation = whiteColor;
 	//Roughness
@@ -151,10 +137,10 @@ bool shinyBSDF(const struct hitRecord *isect, struct color *attenuation, struct 
 	}
 	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 	return true;
-}
+}*/
 
 // Glossy plastic
-bool plasticBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
+/*bool plasticBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
 	struct vector outwardNormal;
 	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
 	float niOverNt;
@@ -185,7 +171,7 @@ bool plasticBSDF(const struct hitRecord *isect, struct color *attenuation, struc
 	} else {
 		return lambertianBSDF(isect, attenuation, scattered, sampler);
 	}
-}
+}*/
 
 void destroyMaterial(struct material *mat) {
 	if (mat) {
