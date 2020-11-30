@@ -15,20 +15,22 @@
 
 #include "mix.h"
 
-struct color mix_color(const struct hitRecord *record) {
-	return record->material.texture ? colorForUV(record, Diffuse) : record->material.diffuse;
-}
-
 struct bsdfSample mix_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
-	(void)in;
 	struct mixBsdf *mixBsdf = (struct mixBsdf*)bsdf;
-	const struct vector scatterDir = vecNormalize(vecAdd(record->surfaceNormal, randomOnUnitSphere(sampler)));
-	return (struct bsdfSample){.out = scatterDir, .color = mixBsdf->eval(record)};
+	//TODO: Do we need grayscale()?
+	const float lerp = mixBsdf->lerp ? grayscale(mixBsdf->lerp->eval(mixBsdf->lerp, record)).red : 0.5f;
+	if (getDimension(sampler) < lerp) {
+		return mixBsdf->A->sample(mixBsdf->A, sampler, record, in);
+	} else {
+		return mixBsdf->B->sample(mixBsdf->B, sampler, record, in);
+	}
 }
 
-struct mixBsdf *newMix() {
+struct mixBsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
 	struct mixBsdf *new = calloc(1, sizeof(*new));
-	new->eval = mix_color;
+	new->lerp = lerp;
+	new->A = A;
+	new->B = B;
 	new->bsdf.sample = mix_sample;
 	return new;
 }

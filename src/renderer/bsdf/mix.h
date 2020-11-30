@@ -10,7 +10,9 @@
 
 struct mixBsdf {
 	struct bsdf bsdf;
-	struct color (*eval)(const struct hitRecord*);
+	struct bsdf *A;
+	struct bsdf *B;
+	struct textureNode *lerp;
 };
 
-struct mixBsdf *newMix(void);
+struct mixBsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp);
