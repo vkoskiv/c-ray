@@ -11,32 +11,21 @@
 #include "../samplers/sampler.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/material.h"
+#include "texturenode.h"
 #include "bsdf.h"
 
 #include "diffuse.h"
 
-
-/*bool lambertianBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
-	const struct vector scatterDir = vecNormalize(vecAdd(isect->surfaceNormal, randomOnUnitSphere(sampler)));
-	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered});
-	*attenuation = diffuseColor(isect);
-	return true;
-}*/
-
-struct color bsdf_color(const struct hitRecord *record) {
-	return record->material.texture ? colorForUV(record, Diffuse) : record->material.diffuse;
-}
-
-struct bsdfSample bsdf_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+struct bsdfSample diffuse_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
 	(void)in;
 	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf*)bsdf;
 	const struct vector scatterDir = vecNormalize(vecAdd(record->surfaceNormal, randomOnUnitSphere(sampler)));
-	return (struct bsdfSample){.out = scatterDir, .color = diffBsdf->eval(record)};
+	return (struct bsdfSample){.out = scatterDir, .color = diffBsdf->color->eval(diffBsdf->color, record)};
 }
 
-struct diffuseBsdf *newDiffuse() {
+struct diffuseBsdf *newDiffuse(struct textureNode *tex) {
 	struct diffuseBsdf *new = calloc(1, sizeof(*new));
-	new->eval = bsdf_color;
-	new->bsdf.sample = bsdf_sample;
+	new->color = tex;
+	new->bsdf.sample = diffuse_sample;
 	return new;
 }

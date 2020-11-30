@@ -85,20 +85,10 @@ struct material *materialForName(struct material *materials, int count, char *na
 struct material defaultMaterial(void);
 struct material warningMaterial(void);
 
-bool   emissiveBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler);
-bool lambertianBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler);
-bool   metallicBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler);
-bool    plasticBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler);
-bool dielectricBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler);
-
 void assignBSDF(struct material *mat);
 
-enum textureType {
-	Diffuse,
-	Normal,
-	Specular
-};
+#include "../renderer/bsdf/texturenode.h" //FIXME: Remove
 
-struct color colorForUV(const struct hitRecord *isect, enum textureType type);
+struct color colorForUV(const struct hitRecord *isect, enum textureType type); //FIXME: Remove
 
 void destroyMaterial(struct material *mat);

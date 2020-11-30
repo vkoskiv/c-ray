@@ -10,7 +10,7 @@
 
 struct diffuseBsdf {
 	struct bsdf bsdf;
-	struct color (*eval)(const struct hitRecord*);
+	struct textureNode *color;
 };
 
-struct diffuseBsdf *newDiffuse(void);
+struct diffuseBsdf *newDiffuse(struct textureNode *tex);
