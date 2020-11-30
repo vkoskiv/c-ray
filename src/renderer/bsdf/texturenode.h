@@ -26,3 +26,5 @@ struct textureNode {
 struct textureNode *newImageTexture(const struct texture *texture, enum textureType type, uint8_t options);
 
 struct textureNode *newConstantTexture(struct color color);
+
+struct textureNode *newCheckerBoardTexture(float size);
