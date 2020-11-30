@@ -16,6 +16,8 @@
 #include "../utils/assert.h"
 #include "../utils/logging.h"
 
+#include "../datatypes/color.h"
+
 #include "../renderer/bsdf/bsdf.h"
 
 static struct material emptyMaterial() {
@@ -49,6 +51,10 @@ struct material *materialForName(struct material *materials, int count, char *na
 	return NULL;
 }
 
+struct bsdf *warningBsdf() {
+	return (struct bsdf*)newMix((struct bsdf*)newDiffuse(newConstantTexture(warningMaterial().diffuse)), (struct bsdf*)newDiffuse(newConstantTexture(grayColor)), newCheckerBoardTexture(500.0f));
+}
+
 void assignBSDF(struct material *mat) {
 	struct textureNode *roughness = mat->specularMap ? newImageTexture(mat->specularMap, Specular, 0) : newConstantTexture(colorWithValues(mat->roughness, 0, 0, 0));
 	struct textureNode *color = mat->texture ? newImageTexture(mat->texture, Diffuse, 0) : newConstantTexture(mat->diffuse);
@@ -63,8 +69,8 @@ void assignBSDF(struct material *mat) {
 			mat->bsdf = (struct bsdf*)newMetal(color, roughness);
 			break;
 		default:
-			logr(warning, "Unknown bsdf type specified for \"%s\"\n", mat->name);
-			mat->bsdf = (struct bsdf*)newDiffuse(newConstantTexture(warningMaterial().diffuse));
+			logr(warning, "Unknown bsdf type specified for \"%s\", setting to an obnoxious preset.\n", mat->name);
+			mat->bsdf = warningBsdf();
 			break;
 	}
 }
