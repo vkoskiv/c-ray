@@ -15,6 +15,13 @@
 
 #include "mix.h"
 
+struct mixBsdf {
+	struct bsdf bsdf;
+	struct bsdf *A;
+	struct bsdf *B;
+	struct textureNode *lerp;
+};
+
 struct bsdfSample mix_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
 	struct mixBsdf *mixBsdf = (struct mixBsdf*)bsdf;
 	//TODO: Do we need grayscale()?
@@ -26,11 +33,11 @@ struct bsdfSample mix_sample(const struct bsdf *bsdf, sampler *sampler, const st
 	}
 }
 
-struct mixBsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
+struct bsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
 	struct mixBsdf *new = calloc(1, sizeof(*new));
 	new->lerp = lerp;
 	new->A = A;
 	new->B = B;
 	new->bsdf.sample = mix_sample;
-	return new;
+	return (struct bsdf *)new;
 }

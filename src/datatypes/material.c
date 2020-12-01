@@ -52,7 +52,7 @@ struct material *materialForName(struct material *materials, int count, char *na
 }
 
 struct bsdf *warningBsdf() {
-	return (struct bsdf*)newMix((struct bsdf*)newDiffuse(newConstantTexture(warningMaterial().diffuse)), (struct bsdf*)newDiffuse(newConstantTexture(grayColor)), newCheckerBoardTexture(500.0f));
+	return newMix(newDiffuse(newConstantTexture(warningMaterial().diffuse)), newDiffuse(newConstantTexture((struct color){0.2f, 0.2f, 0.2f, 1.0f})), newCheckerBoardTexture(500.0f));
 }
 
 void assignBSDF(struct material *mat) {
@@ -60,13 +60,13 @@ void assignBSDF(struct material *mat) {
 	struct textureNode *color = mat->texture ? newImageTexture(mat->texture, Diffuse, 0) : newConstantTexture(mat->diffuse);
 	switch (mat->type) {
 		case lambertian:
-			mat->bsdf = (struct bsdf*)newDiffuse(color);
+			mat->bsdf = newDiffuse(color);
 			break;
 		case glass:
-			mat->bsdf = (struct bsdf*)newGlass(color, roughness);
+			mat->bsdf = newGlass(color, roughness);
 			break;
 		case metal:
-			mat->bsdf = (struct bsdf*)newMetal(color, roughness);
+			mat->bsdf = newMetal(color, roughness);
 			break;
 		default:
 			logr(warning, "Unknown bsdf type specified for \"%s\", setting to an obnoxious preset.\n", mat->name);

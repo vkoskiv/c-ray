@@ -15,6 +15,12 @@
 
 #include "glass.h"
 
+struct glassBsdf {
+	struct bsdf bsdf;
+	struct textureNode *roughness;
+	struct textureNode *color;
+};
+
 static inline bool refract(const struct vector *in, const struct vector normal, float niOverNt, struct vector *refracted) {
 	const struct vector uv = vecNormalize(*in);
 	const float dt = vecDot(uv, normal);
@@ -80,11 +86,11 @@ struct bsdfSample glass_sample(const struct bsdf *bsdf, sampler *sampler, const 
 	return (struct bsdfSample){.out = scatterDir, .color = glassBsdf->color->eval(glassBsdf->color, record)};
 }
 
-struct glassBsdf *newGlass(struct textureNode *color, struct textureNode *roughness) {
+struct bsdf *newGlass(struct textureNode *color, struct textureNode *roughness) {
 	struct glassBsdf *new = calloc(1, sizeof(*new));
 	new->color = color;
 	new->roughness = roughness;
 	new->bsdf.sample = glass_sample;
-	return new;
+	return (struct bsdf *)new;
 }
 
