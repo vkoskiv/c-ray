@@ -8,11 +8,4 @@
 
 #pragma once
 
-struct mixBsdf {
-	struct bsdf bsdf;
-	struct bsdf *A;
-	struct bsdf *B;
-	struct textureNode *lerp;
-};
-
-struct mixBsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp);
+struct bsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp);

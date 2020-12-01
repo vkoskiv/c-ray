@@ -16,6 +16,11 @@
 
 #include "diffuse.h"
 
+struct diffuseBsdf {
+	struct bsdf bsdf;
+	struct textureNode *color;
+};
+
 struct bsdfSample diffuse_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
 	(void)in;
 	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf*)bsdf;
@@ -23,9 +28,9 @@ struct bsdfSample diffuse_sample(const struct bsdf *bsdf, sampler *sampler, cons
 	return (struct bsdfSample){.out = scatterDir, .color = diffBsdf->color->eval(diffBsdf->color, record)};
 }
 
-struct diffuseBsdf *newDiffuse(struct textureNode *tex) {
+struct bsdf *newDiffuse(struct textureNode *tex) {
 	struct diffuseBsdf *new = calloc(1, sizeof(*new));
 	new->color = tex;
 	new->bsdf.sample = diffuse_sample;
-	return new;
+	return (struct bsdf *)new;
 }

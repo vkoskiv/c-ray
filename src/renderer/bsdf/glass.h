@@ -8,10 +8,4 @@
 
 #pragma once
 
-struct glassBsdf {
-	struct bsdf bsdf;
-	struct textureNode *roughness;
-	struct textureNode *color;
-};
-
-struct glassBsdf *newGlass(struct textureNode *color, struct textureNode *roughness);
+struct bsdf *newGlass(struct textureNode *color, struct textureNode *roughness);

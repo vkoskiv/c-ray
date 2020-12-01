@@ -8,9 +8,4 @@
 
 #pragma once
 
-struct diffuseBsdf {
-	struct bsdf bsdf;
-	struct textureNode *color;
-};
-
-struct diffuseBsdf *newDiffuse(struct textureNode *tex);
+struct bsdf *newDiffuse(struct textureNode *tex);
