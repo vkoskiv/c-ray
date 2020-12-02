@@ -52,12 +52,14 @@ struct material *materialForName(struct material *materials, int count, char *na
 }
 
 struct bsdf *warningBsdf() {
-	return newMix(newDiffuse(newConstantTexture(warningMaterial().diffuse)), newDiffuse(newConstantTexture((struct color){0.2f, 0.2f, 0.2f, 1.0f})), newCheckerBoardTexture(500.0f));
+	return newMix(newDiffuse(newConstantTexture(warningMaterial().diffuse)),
+				  newDiffuse(newConstantTexture((struct color){0.2f, 0.2f, 0.2f, 1.0f})),
+				  newColorCheckerBoardTexture(newConstantTexture(blackColor), newConstantTexture(whiteColor), 500.0f));
 }
 
 void assignBSDF(struct material *mat) {
-	struct textureNode *roughness = mat->specularMap ? newImageTexture(mat->specularMap, Specular, 0) : newConstantTexture(colorWithValues(mat->roughness, 0, 0, 0));
-	struct textureNode *color = mat->texture ? newImageTexture(mat->texture, Diffuse, 0) : newConstantTexture(mat->diffuse);
+	struct textureNode *roughness = mat->specularMap ? newImageTexture(mat->specularMap, 0) : newConstantTexture(colorWithValues(mat->roughness, 0, 0, 0));
+	struct textureNode *color = mat->texture ? newImageTexture(mat->texture, 0) : newConstantTexture(mat->diffuse);
 	switch (mat->type) {
 		case lambertian:
 			mat->bsdf = newDiffuse(color);

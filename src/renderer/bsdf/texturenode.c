@@ -18,10 +18,29 @@
 
 #include "texturenode.h"
 
+struct imageTexture {
+	struct textureNode node;
+	const struct texture *tex;
+};
+
+struct constantTexture {
+	struct textureNode node;
+	struct color color;
+};
+
+struct checkerTexture {
+	struct textureNode node;
+	const struct textureNode *colorA;
+	const struct textureNode *colorB;
+	float scale;
+};
+
 //Transform the intersection coordinates to the texture coordinate space
 //And grab the color at that point. Texture mapping.
-struct color internal_color(const struct texture *tex, const struct hitRecord *isect, enum textureType type) {
+struct color internal_color(const struct texture *tex, const struct hitRecord *isect, bool transform) {
 	if (!tex) return warningMaterial().diffuse;
+	if (!isect->material.texture) return warningMaterial().diffuse;
+	if (!isect->polygon) return warningMaterial().diffuse;
 	
 	const struct poly *p = isect->polygon;
 	
@@ -49,38 +68,40 @@ struct color internal_color(const struct texture *tex, const struct hitRecord *i
 	struct color output = textureGetPixelFiltered(tex, x, y);
 	
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
-	if (type == Diffuse) output = fromSRGB(output);
+	if (transform) output = fromSRGB(output);
 	return output;
 }
 
 struct color evalTexture(const struct textureNode *node, const struct hitRecord *record) {
-	return internal_color(node->tex, record, node->type);
+	// FIXME: This will transform non-color images too! (normal, spec)
+	// TODO: Consider transforming image textures while loading textures.
+	struct imageTexture *image = (struct imageTexture *)node;
+	return internal_color(image->tex, record, true);
 }
 
-struct textureNode *newImageTexture(const struct texture *texture, enum textureType type, uint8_t options) {
+struct textureNode *newImageTexture(const struct texture *texture, uint8_t options) {
 	(void)options;
-	struct textureNode *new = calloc(1, sizeof(*new));
+	struct imageTexture *new = calloc(1, sizeof(*new));
 	new->tex = texture;
-	new->type = type;
-	new->eval = evalTexture;
-	return new;
+	new->node.eval = evalTexture;
+	return (struct textureNode *)new;
 }
 
 struct color evalConstant(const struct textureNode *node, const struct hitRecord *record) {
 	(void)record;
-	return node->constant;
+	struct constantTexture *constant = (struct constantTexture *)node;
+	return constant->color;
 }
 
 struct textureNode *newConstantTexture(struct color color) {
-	struct textureNode *new = calloc(1, sizeof(*new));
-	new->tex = NULL;
-	new->constant = color;
-	new->eval = evalConstant;
-	return new;
+	struct constantTexture *new = calloc(1, sizeof(*new));
+	new->color = color;
+	new->node.eval = evalConstant;
+	return (struct textureNode *)new;
 }
 
 // UV-mapped variant
-static struct color mappedCheckerBoard(const struct hitRecord *isect, float coef) {
+static struct color mappedCheckerBoard(const struct hitRecord *isect, const struct textureNode *A, const struct textureNode *B, float coef) {
 	ASSERT(isect->material.texture);
 	const struct poly *p = isect->polygon;
 	
@@ -100,34 +121,45 @@ static struct color mappedCheckerBoard(const struct hitRecord *isect, float coef
 	const float sines = sinf(coef*surfaceXY.x) * sinf(coef*surfaceXY.y);
 	
 	if (sines < 0.0f) {
-		return (struct color){0.0f, 0.0f, 0.0f, 0.0f};
+		return A->eval(A, isect);
 	} else {
-		return (struct color){1.0f, 1.0f, 1.0f, 0.0f};
+		return B->eval(B, isect);
 	}
 }
 
 // Fallback axis-aligned checkerboard
-static struct color unmappedCheckerBoard(const struct hitRecord *isect, float coef) {
+static struct color unmappedCheckerBoard(const struct hitRecord *isect, const struct textureNode *A, const struct textureNode *B, float coef) {
 	const float sines = sinf(coef*isect->hitPoint.x) * sinf(coef*isect->hitPoint.y) * sinf(coef*isect->hitPoint.z);
 	if (sines < 0.0f) {
-		return (struct color){0.0f, 0.0f, 0.0f, 0.0f};
+		return A->eval(A, isect);
 	} else {
-		return (struct color){1.0f, 1.0f, 1.0f, 0.0f};
+		return B->eval(B, isect);
 	}
 }
 
-static struct color checkerBoard(const struct hitRecord *isect, float coef) {
-	return isect->material.texture ? mappedCheckerBoard(isect, coef) : unmappedCheckerBoard(isect, coef);
+static struct color checkerBoard(const struct hitRecord *isect, const struct textureNode *A, const struct textureNode *B, float scale) {
+	return isect->material.texture ? mappedCheckerBoard(isect, A, B, scale) : unmappedCheckerBoard(isect, A, B, scale);
 }
 
 struct color evalCheckerboard(const struct textureNode *node, const struct hitRecord *record) {
-	return checkerBoard(record, node->constant.red);
+	struct checkerTexture *checker = (struct checkerTexture *)node;
+	return checkerBoard(record, checker->colorA, checker->colorB, checker->scale);
+}
+
+struct textureNode *newColorCheckerBoardTexture(const struct textureNode *colorA, const struct textureNode *colorB, float size) {
+	struct checkerTexture *new = calloc(1, sizeof(*new));
+	new->colorA = colorA;
+	new->colorB = colorB;
+	new->scale = size;
+	new->node.eval = evalCheckerboard;
+	return (struct textureNode *)new;
 }
 
 struct textureNode *newCheckerBoardTexture(float size) {
-	struct textureNode *new = calloc(1, sizeof(*new));
-	new->tex = NULL;
-	new->constant.red = size; //FIXME: Hack
-	new->eval = evalCheckerboard;
-	return new;
+	struct checkerTexture *new = calloc(1, sizeof(*new));
+	new->colorA = newConstantTexture(blackColor);
+	new->colorB = newConstantTexture(whiteColor);
+	new->scale = size;
+	new->node.eval = evalCheckerboard;
+	return (struct textureNode *)new;
 }
