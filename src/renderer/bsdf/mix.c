@@ -34,10 +34,37 @@ struct bsdfSample mix_sample(const struct bsdf *bsdf, sampler *sampler, const st
 }
 
 struct bsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
+	ASSERT(lerp);
 	struct mixBsdf *new = calloc(1, sizeof(*new));
 	new->lerp = lerp;
 	new->A = A;
 	new->B = B;
 	new->bsdf.sample = mix_sample;
+	return (struct bsdf *)new;
+}
+
+struct constantMixBsdf {
+	struct bsdf bsdf;
+	struct bsdf *A;
+	struct bsdf *B;
+	float mix;
+};
+
+struct bsdfSample constant_mix_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+	struct constantMixBsdf *mixBsdf = (struct constantMixBsdf*)bsdf;
+	//TODO: Do we need grayscale()?
+	if (getDimension(sampler) < mixBsdf->mix) {
+		return mixBsdf->A->sample(mixBsdf->A, sampler, record, in);
+	} else {
+		return mixBsdf->B->sample(mixBsdf->B, sampler, record, in);
+	}
+}
+
+struct bsdf *newMixConstant(struct bsdf *A, struct bsdf *B, float mix) {
+	struct constantMixBsdf *new = calloc(1, sizeof(*new));
+	new->bsdf.sample = constant_mix_sample;
+	new->A = A;
+	new->B = B;
+	new->mix = mix;
 	return (struct bsdf *)new;
 }
