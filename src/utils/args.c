@@ -22,7 +22,7 @@
 #include "testrunner.h"
 #include "string.h"
 
-static struct hashtable *g_options;
+static struct constantsDatabase *g_options;
 
 static void printUsage(const char *progname) {
 	printf("Usage: %s [-hjsdtv] [input_json...]\n", progname);
@@ -63,7 +63,7 @@ bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
 }
 
 void parseArgs(int argc, char **argv) {
-	g_options = newTable();
+	g_options = newConstantsDatabase();
 	static bool inputFileSet = false;
 	int testIdx = -1;
 	char *alternatePath = NULL;
@@ -77,10 +77,10 @@ void parseArgs(int argc, char **argv) {
 		alternatePath = stringConcat(argv[i], ".json");
 		
 		if (isValidFile(argv[i]) && !inputFileSet) {
-			setString(g_options, "inputFile", argv[i]);
+			setDatabaseString(g_options, "inputFile", argv[i]);
 			inputFileSet = true;
 		} else if (isValidFile(alternatePath) && !inputFileSet) {
-			setString(g_options, "inputFile", alternatePath);
+			setDatabaseString(g_options, "inputFile", alternatePath);
 			inputFileSet = true;
 		}else if (stringEquals(argv[i], "-h")) {
 			printUsage(argv[0]);
@@ -90,7 +90,7 @@ void parseArgs(int argc, char **argv) {
 				int n = atoi(threadstr);
 				n = n < 1 ? 1 : n;
 				n = n > getSysCores() * 2 ? getSysCores() * 2 : n;
-				setInt(g_options, "thread_override", n);
+				setDatabaseInt(g_options, "thread_override", n);
 			} else {
 				logr(warning, "Invalid -j parameter given!\n");
 			}
@@ -99,7 +99,7 @@ void parseArgs(int argc, char **argv) {
 			if (sampleStr) {
 				int n = atoi(sampleStr);
 				n = n < 1 ? 1 : n;
-				setInt(g_options, "samples_override", n);
+				setDatabaseInt(g_options, "samples_override", n);
 			} else {
 				logr(warning, "Invalid -s parameter given!\n");
 			}
@@ -108,9 +108,9 @@ void parseArgs(int argc, char **argv) {
 			int width = 0;
 			int height = 0;
 			if (parseDims(dimstr, &width, &height)) {
-				setTag(g_options, "dims_override");
-				setInt(g_options, "dims_width", width);
-				setInt(g_options, "dims_height", height);
+				setDatabaseTag(g_options, "dims_override");
+				setDatabaseInt(g_options, "dims_width", width);
+				setDatabaseInt(g_options, "dims_height", height);
 			} else {
 				logr(warning, "Invalid -d parameter given!\n");
 			}
@@ -119,14 +119,14 @@ void parseArgs(int argc, char **argv) {
 			int width = 0;
 			int height = 0;
 			if (parseDims(dimstr, &width, &height)) {
-				setTag(g_options, "tiledims_override");
-				setInt(g_options, "tile_width", width);
-				setInt(g_options, "tile_height", height);
+				setDatabaseTag(g_options, "tiledims_override");
+				setDatabaseInt(g_options, "tile_width", width);
+				setDatabaseInt(g_options, "tile_height", height);
 			} else {
 				logr(warning, "Invalid -t parameter given!\n");
 			}
 		} else if (stringEquals(argv[i], "--test")) {
-			setTag(g_options, "runTests");
+			setDatabaseTag(g_options, "runTests");
 			char *testIdxStr = argv[i + 1];
 			if (testIdxStr) {
 				int n = atoi(testIdxStr);
@@ -134,7 +134,7 @@ void parseArgs(int argc, char **argv) {
 				testIdx = n;
 			}
 		} else if (stringEquals(argv[i], "--test-perf")) {
-			setTag(g_options, "runPerfTests");
+			setDatabaseTag(g_options, "runPerfTests");
 			char *testIdxStr = argv[i + 1];
 			if (testIdxStr) {
 				int n = atoi(testIdxStr);
@@ -142,15 +142,15 @@ void parseArgs(int argc, char **argv) {
 				testIdx = n;
 			}
 		} else if (stringEquals(argv[i], "--tcount")) {
-			setTag(g_options, "runTests");
+			setDatabaseTag(g_options, "runTests");
 			testIdx = -2;
 		} else if (stringEquals(argv[i], "--ptcount")) {
-			setTag(g_options, "runTests");
+			setDatabaseTag(g_options, "runTests");
 			testIdx = -3;
 		} else if (stringEquals(argv[i], "--interactive")) {
-			setTag(g_options, "interactive");
+			setDatabaseTag(g_options, "interactive");
 		} else if (strncmp(argv[i], "-", 1) == 0) {
-			setTag(g_options, ++argv[i]);
+			setDatabaseTag(g_options, ++argv[i]);
 		}
 	}
 	logr(debug, "Verbose mode enabled\n");
@@ -187,19 +187,19 @@ void parseArgs(int argc, char **argv) {
 }
 
 bool isSet(char *key) {
-	return exists(g_options, key);
+	return existsInDatabase(g_options, key);
 }
 
 int intPref(char *key) {
-	ASSERT(exists(g_options, key));
-	return getInt(g_options, key);
+	ASSERT(existsInDatabase(g_options, key));
+	return getDatabaseInt(g_options, key);
 }
 
 char *pathArg() {
-	ASSERT(exists(g_options, "inputFile"));
-	return getString(g_options, "inputFile");
+	ASSERT(existsInDatabase(g_options, "inputFile"));
+	return getDatabaseString(g_options, "inputFile");
 }
 
 void destroyOptions() {
-	freeTable(g_options);
+	freeConstantsDatabase(g_options);
 }
