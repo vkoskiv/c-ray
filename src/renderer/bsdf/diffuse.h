@@ -9,3 +9,5 @@
 #pragma once
 
 struct bsdf *newDiffuse(struct textureNode *tex);
+
+void destroyDiffuse(struct bsdf *bsdf);

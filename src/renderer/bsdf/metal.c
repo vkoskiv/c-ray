@@ -41,5 +41,13 @@ struct bsdf *newMetal(struct textureNode *color, struct textureNode *roughness) 
 	new->color = color;
 	new->roughness = roughness;
 	new->bsdf.sample = metal_sample;
+	new->bsdf.destroy = destroyMetal;
 	return (struct bsdf *)new;
 }
+
+void destroyMetal(struct bsdf *bsdf) {
+	struct metalBsdf *metal = (struct metalBsdf *)bsdf;
+	destroyTextureNode(metal->color);
+	destroyTextureNode(metal->roughness);
+	free(metal);
+};

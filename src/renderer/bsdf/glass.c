@@ -69,6 +69,14 @@ struct bsdf *newGlass(struct textureNode *color, struct textureNode *roughness) 
 	new->color = color;
 	new->roughness = roughness;
 	new->bsdf.sample = glass_sample;
+	new->bsdf.destroy = destroyGlass;
 	return (struct bsdf *)new;
+}
+
+void destroyGlass(struct bsdf *bsdf) {
+	struct glassBsdf *glass = (struct glassBsdf *)bsdf;
+	destroyTextureNode(glass->color);
+	destroyTextureNode(glass->roughness);
+	free(glass);
 }
 

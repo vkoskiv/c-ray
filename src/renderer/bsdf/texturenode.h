@@ -18,12 +18,15 @@ enum textureType {
 
 struct textureNode {
 	struct color (*eval)(const struct textureNode *node, const struct hitRecord *record);
+	void (*destroy)(struct textureNode *);
 };
 
-struct textureNode *newImageTexture(const struct texture *texture, uint8_t options);
+struct textureNode *newImageTexture(struct texture *texture, uint8_t options);
 
 struct textureNode *newConstantTexture(struct color color);
 
-struct textureNode *newColorCheckerBoardTexture(const struct textureNode *colorA, const struct textureNode *colorB, float size);
+struct textureNode *newColorCheckerBoardTexture(struct textureNode *colorA, struct textureNode *colorB, float size);
 
 struct textureNode *newCheckerBoardTexture(float size);
+
+void destroyTextureNode(struct textureNode *node);
