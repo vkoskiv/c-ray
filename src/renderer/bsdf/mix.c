@@ -22,7 +22,7 @@ struct mixBsdf {
 	struct textureNode *lerp;
 };
 
-struct bsdfSample mix_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+struct bsdfSample sampleMix(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
 	struct mixBsdf *mixBsdf = (struct mixBsdf*)bsdf;
 	//TODO: Do we need grayscale()?
 	const float lerp = mixBsdf->lerp ? grayscale(mixBsdf->lerp->eval(mixBsdf->lerp, record)).red : 0.5f;
@@ -41,7 +41,7 @@ struct bsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
 	new->lerp = lerp;
 	new->A = A;
 	new->B = B;
-	new->bsdf.sample = mix_sample;
+	new->bsdf.sample = sampleMix;
 	new->bsdf.destroy = destroyMix;
 	return (struct bsdf *)new;
 }
@@ -53,7 +53,7 @@ struct constantMixBsdf {
 	float mix;
 };
 
-struct bsdfSample constant_mix_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+struct bsdfSample sampleConstantMix(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
 	struct constantMixBsdf *mixBsdf = (struct constantMixBsdf*)bsdf;
 	//TODO: Do we need grayscale()?
 	if (getDimension(sampler) < mixBsdf->mix) {
@@ -68,7 +68,7 @@ struct bsdf *newMixConstant(struct bsdf *A, struct bsdf *B, float mix) {
 	new->A = A;
 	new->B = B;
 	new->mix = mix;
-	new->bsdf.sample = constant_mix_sample;
+	new->bsdf.sample = sampleConstantMix;
 	new->bsdf.destroy = destroyMix;
 	return (struct bsdf *)new;
 }

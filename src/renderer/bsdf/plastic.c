@@ -24,9 +24,9 @@ struct plasticBsdf {
 
 // From diffuse.c
 // FIXME: Find a better way to share sampling strategies between nodes.
-struct bsdfSample diffuse_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in);
+struct bsdfSample sampleDiffuse(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in);
 
-struct bsdfSample shiny_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+struct bsdfSample sampleShiny(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
 	struct plasticBsdf *plastic = (struct plasticBsdf *)bsdf;
 	struct vector reflected = reflectVec(in, &record->surfaceNormal);
 	//Roughness
@@ -63,9 +63,9 @@ struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, cons
 	}
 	
 	if (getDimension(sampler) < reflectionProbability) {
-		return shiny_sample(bsdf, sampler, record, in);
+		return sampleShiny(bsdf, sampler, record, in);
 	} else {
-		return diffuse_sample(bsdf, sampler, record, in);
+		return sampleDiffuse(bsdf, sampler, record, in);
 	}
 }
 
