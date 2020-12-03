@@ -188,5 +188,5 @@ struct textureNode *newCheckerBoardTexture(float size) {
 
 //TODO: Split this file into multiple different texture node modules
 void destroyTextureNode(struct textureNode *node) {
-	node->destroy(node);
+	if (node) node->destroy(node);
 }
