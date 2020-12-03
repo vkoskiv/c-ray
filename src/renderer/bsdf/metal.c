@@ -21,7 +21,7 @@ struct metalBsdf {
 	struct textureNode *roughness;
 };
 
-struct bsdfSample metal_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+struct bsdfSample sampleMetal(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
 	(void)in;
 	struct metalBsdf *metalBsdf = (struct metalBsdf*)bsdf;
 	
@@ -40,7 +40,7 @@ struct bsdf *newMetal(struct textureNode *color, struct textureNode *roughness) 
 	struct metalBsdf *new = calloc(1, sizeof(*new));
 	new->color = color;
 	new->roughness = roughness;
-	new->bsdf.sample = metal_sample;
+	new->bsdf.sample = sampleMetal;
 	new->bsdf.destroy = destroyMetal;
 	return (struct bsdf *)new;
 }

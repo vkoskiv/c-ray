@@ -21,7 +21,7 @@ struct diffuseBsdf {
 	struct textureNode *color;
 };
 
-struct bsdfSample diffuse_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+struct bsdfSample sampleDiffuse(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
 	(void)in;
 	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf*)bsdf;
 	const struct vector scatterDir = vecNormalize(vecAdd(record->surfaceNormal, randomOnUnitSphere(sampler)));
@@ -31,7 +31,7 @@ struct bsdfSample diffuse_sample(const struct bsdf *bsdf, sampler *sampler, cons
 struct bsdf *newDiffuse(struct textureNode *tex) {
 	struct diffuseBsdf *new = calloc(1, sizeof(*new));
 	new->color = tex;
-	new->bsdf.sample = diffuse_sample;
+	new->bsdf.sample = sampleDiffuse;
 	new->bsdf.destroy = destroyDiffuse;
 	return (struct bsdf *)new;
 }

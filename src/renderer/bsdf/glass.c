@@ -21,7 +21,7 @@ struct glassBsdf {
 	struct textureNode *color;
 };
 
-struct bsdfSample glass_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
 	struct glassBsdf *glassBsdf = (struct glassBsdf*)bsdf;
 	
 	struct vector outwardNormal;
@@ -68,7 +68,7 @@ struct bsdf *newGlass(struct textureNode *color, struct textureNode *roughness) 
 	struct glassBsdf *new = calloc(1, sizeof(*new));
 	new->color = color;
 	new->roughness = roughness;
-	new->bsdf.sample = glass_sample;
+	new->bsdf.sample = sampleGlass;
 	new->bsdf.destroy = destroyGlass;
 	return (struct bsdf *)new;
 }
