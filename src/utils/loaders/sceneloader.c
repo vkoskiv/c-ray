@@ -884,7 +884,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		
 		for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
 			lastMesh(r)->materials[i].type = type;
-			if (type == emission) {
+			if (type == emission && intensity) {
 				lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);
 			}
 			if (type == glass) {
