@@ -249,3 +249,26 @@ static inline struct vector reflectVec(const struct vector *incident, const stru
 	const float reflect = 2.0f * vecDot(*incident, *normal);
 	return vecSub(*incident, vecScale(*normal, reflect));
 }
+
+//TODO: Consider moving these two to a better place.
+static inline bool refract(const struct vector *in, const struct vector normal, float niOverNt, struct vector *refracted) {
+	const struct vector uv = vecNormalize(*in);
+	const float dt = vecDot(uv, normal);
+	const float discriminant = 1.0f - niOverNt * niOverNt * (1.0f - dt * dt);
+	if (discriminant > 0.0f) {
+		const struct vector A = vecScale(normal, dt);
+		const struct vector B = vecSub(uv, A);
+		const struct vector C = vecScale(B, niOverNt);
+		const struct vector D = vecScale(normal, sqrtf(discriminant));
+		*refracted = vecSub(C, D);
+		return true;
+	} else {
+		return false;
+	}
+}
+
+static inline float schlick(float cosine, float IOR) {
+	float r0 = (1.0f - IOR) / (1.0f + IOR);
+	r0 = r0 * r0;
+	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);
+}

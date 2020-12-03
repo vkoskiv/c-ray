@@ -19,31 +19,28 @@
 struct plasticBsdf {
 	struct bsdf bsdf;
 	struct textureNode *color;
+	struct textureNode *roughness;
 };
 
-/*struct bsdfSample diffuse_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
-	(void)in;
-	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf*)bsdf;
-	const struct vector scatterDir = vecNormalize(vecAdd(record->surfaceNormal, randomOnUnitSphere(sampler)));
-	return (struct bsdfSample){.out = scatterDir, .color = diffBsdf->color->eval(diffBsdf->color, record)};
-}
+// From diffuse.c
+// FIXME: Find a better way to share sampling strategies between nodes.
+struct bsdfSample diffuse_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in);
 
 struct bsdfSample shiny_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+	struct plasticBsdf *plastic = (struct plasticBsdf *)bsdf;
 	struct vector reflected = reflectVec(in, &record->surfaceNormal);
 	//Roughness
-	float roughness = roughnessValue(isect);
+	float roughness = plastic->roughness ? plastic->roughness->eval(plastic->roughness, record).red : record->material.roughness;
 	if (roughness > 0.0f) {
 		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
-	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
-	return true;
+	return (struct bsdfSample){.out = reflected, .color = whiteColor};
 }
 
-// Glossy plastic
 struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+	(void)in;
 	struct vector outwardNormal;
-	struct vector reflected = reflectVec(in, &record->surfaceNormal);
 	float niOverNt;
 	struct vector refracted;
 	float reflectionProbability;
@@ -59,10 +56,9 @@ struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, cons
 		cosine = -(vecDot(*in, record->surfaceNormal) / vecLength(*in));
 	}
 	
-	if (refract(isect->incident.direction, outwardNormal, niOverNt, &refracted)) {
-		reflectionProbability = schlick(cosine, isect->material.IOR);
+	if (refract(&record->incident.direction, outwardNormal, niOverNt, &refracted)) {
+		reflectionProbability = schlick(cosine, record->material.IOR);
 	} else {
-		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
 		reflectionProbability = 1.0f;
 	}
 	
@@ -73,17 +69,10 @@ struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, cons
 	}
 }
 
-struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
-	(void)in;
-	struct plasticBsdf *plasBsdf = (struct plasticBsdf*)bsdf;
-	const struct vector scatterDir = vecNormalize(vecAdd(record->surfaceNormal, randomOnUnitSphere(sampler)));
-	return (struct bsdfSample){.out = scatterDir, .color = plasBsdf->color->eval(plasBsdf->color, record)};
-}
-
-struct plasticBsdf *newPlastic(struct textureNode *tex) {
+struct bsdf *newPlastic(struct textureNode *tex) {
 	struct plasticBsdf *new = calloc(1, sizeof(*new));
 	new->color = tex;
 	new->bsdf.sample = plastic_sample;
-	return new;
+	return (struct bsdf *)new;
 }
-*/
+

@@ -70,6 +70,9 @@ void assignBSDF(struct material *mat) {
 		case metal:
 			mat->bsdf = newMetal(color, roughness);
 			break;
+		case plastic:
+			mat->bsdf = newPlastic(color);
+			break;
 		default:
 			logr(warning, "Unknown bsdf type specified for \"%s\", setting to an obnoxious preset.\n", mat->name);
 			mat->bsdf = warningBsdf();
@@ -126,60 +129,6 @@ struct color colorForUV(const struct hitRecord *isect, enum textureType type) {
 	
 	return output;
 }
-
-/*bool lambertianBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
-	const struct vector scatterDir = vecNormalize(vecAdd(isect->surfaceNormal, randomOnUnitSphere(sampler)));
-	*scattered = ((struct lightRay){isect->hitPoint, scatterDir, rayTypeScattered});
-	*attenuation = diffuseColor(isect);
-	return true;
-}*/
-
-/*bool shinyBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
-	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
-	*attenuation = whiteColor;
-	//Roughness
-	float roughness = roughnessValue(isect);
-	if (roughness > 0.0f) {
-		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
-		reflected = vecAdd(reflected, fuzz);
-	}
-	*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
-	return true;
-}*/
-
-// Glossy plastic
-/*bool plasticBSDF(const struct hitRecord *isect, struct color *attenuation, struct lightRay *scattered, sampler *sampler) {
-	struct vector outwardNormal;
-	struct vector reflected = reflectVec(&isect->incident.direction, &isect->surfaceNormal);
-	float niOverNt;
-	*attenuation = diffuseColor(isect);
-	struct vector refracted;
-	float reflectionProbability;
-	float cosine;
-	
-	if (vecDot(isect->incident.direction, isect->surfaceNormal) > 0.0f) {
-		outwardNormal = vecNegate(isect->surfaceNormal);
-		niOverNt = isect->material.IOR;
-		cosine = isect->material.IOR * vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction);
-	} else {
-		outwardNormal = isect->surfaceNormal;
-		niOverNt = 1.0f / isect->material.IOR;
-		cosine = -(vecDot(isect->incident.direction, isect->surfaceNormal) / vecLength(isect->incident.direction));
-	}
-	
-	if (refract(isect->incident.direction, outwardNormal, niOverNt, &refracted)) {
-		reflectionProbability = schlick(cosine, isect->material.IOR);
-	} else {
-		*scattered = newRay(isect->hitPoint, reflected, rayTypeReflected);
-		reflectionProbability = 1.0f;
-	}
-	
-	if (getDimension(sampler) < reflectionProbability) {
-		return shinyBSDF(isect, attenuation, scattered, sampler);
-	} else {
-		return lambertianBSDF(isect, attenuation, scattered, sampler);
-	}
-}*/
 
 void destroyMaterial(struct material *mat) {
 	if (mat) {

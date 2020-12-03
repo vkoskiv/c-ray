@@ -41,3 +41,4 @@ struct bsdf {
 #include "glass.h"
 #include "metal.h"
 #include "mix.h"
+#include "plastic.h"
