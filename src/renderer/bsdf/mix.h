@@ -11,3 +11,5 @@
 struct bsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp);
 
 struct bsdf *newMixConstant(struct bsdf *A, struct bsdf *B, float mix);
+
+void destroyMix(struct bsdf *bsdf);

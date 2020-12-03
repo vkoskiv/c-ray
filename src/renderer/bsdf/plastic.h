@@ -10,3 +10,4 @@
 
 struct bsdf *newPlastic(struct textureNode *tex);
 
+void destroyPlastic(struct bsdf *bsdf);

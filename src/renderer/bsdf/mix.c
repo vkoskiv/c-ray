@@ -34,12 +34,15 @@ struct bsdfSample mix_sample(const struct bsdf *bsdf, sampler *sampler, const st
 }
 
 struct bsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
+	ASSERT(A);
+	ASSERT(B);
 	ASSERT(lerp);
 	struct mixBsdf *new = calloc(1, sizeof(*new));
 	new->lerp = lerp;
 	new->A = A;
 	new->B = B;
 	new->bsdf.sample = mix_sample;
+	new->bsdf.destroy = destroyMix;
 	return (struct bsdf *)new;
 }
 
@@ -62,9 +65,18 @@ struct bsdfSample constant_mix_sample(const struct bsdf *bsdf, sampler *sampler,
 
 struct bsdf *newMixConstant(struct bsdf *A, struct bsdf *B, float mix) {
 	struct constantMixBsdf *new = calloc(1, sizeof(*new));
-	new->bsdf.sample = constant_mix_sample;
 	new->A = A;
 	new->B = B;
 	new->mix = mix;
+	new->bsdf.sample = constant_mix_sample;
+	new->bsdf.destroy = destroyMix;
 	return (struct bsdf *)new;
+}
+
+void destroyMix(struct bsdf *bsdf) {
+	struct mixBsdf *mix = (struct mixBsdf *)bsdf;
+	destroyBsdf(mix->A);
+	destroyBsdf(mix->B);
+	destroyTextureNode(mix->lerp);
+	free(mix);
 }

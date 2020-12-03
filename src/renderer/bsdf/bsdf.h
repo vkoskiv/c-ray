@@ -35,6 +35,7 @@ struct bsdfSample {
 //TODO: Expand and refactor to match a standard bsdf signature with eval, sample and pdf
 struct bsdf {
 	struct bsdfSample (*sample)(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in);
+	void (*destroy)(struct bsdf *);
 };
 
 #include "diffuse.h"
@@ -42,3 +43,5 @@ struct bsdf {
 #include "metal.h"
 #include "mix.h"
 #include "plastic.h"
+
+void destroyBsdf(struct bsdf *bsdf);

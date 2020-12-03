@@ -9,3 +9,5 @@
 #pragma once
 
 struct bsdf *newMetal(struct textureNode *color, struct textureNode *roughness);
+
+void destroyMetal(struct bsdf *bsdf);

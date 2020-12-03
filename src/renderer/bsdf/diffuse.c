@@ -32,5 +32,12 @@ struct bsdf *newDiffuse(struct textureNode *tex) {
 	struct diffuseBsdf *new = calloc(1, sizeof(*new));
 	new->color = tex;
 	new->bsdf.sample = diffuse_sample;
+	new->bsdf.destroy = destroyDiffuse;
 	return (struct bsdf *)new;
+}
+
+void destroyDiffuse(struct bsdf *bsdf) {
+	struct diffuseBsdf *diff = (struct diffuseBsdf *)bsdf;
+	destroyTextureNode(diff->color);
+	free(diff);
 }
