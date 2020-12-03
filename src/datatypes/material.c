@@ -73,6 +73,9 @@ void assignBSDF(struct material *mat) {
 		case plastic:
 			mat->bsdf = newPlastic(color);
 			break;
+		case emission:
+			mat->bsdf = newDiffuse(color);
+			break;
 		default:
 			logr(warning, "Unknown bsdf type specified for \"%s\", setting to an obnoxious preset.\n", mat->name);
 			mat->bsdf = warningBsdf();
