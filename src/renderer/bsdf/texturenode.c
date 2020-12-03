@@ -21,6 +21,7 @@
 struct imageTexture {
 	struct textureNode node;
 	struct texture *tex;
+	uint8_t options;
 };
 
 struct constantTexture {
@@ -37,7 +38,7 @@ struct checkerTexture {
 
 //Transform the intersection coordinates to the texture coordinate space
 //And grab the color at that point. Texture mapping.
-struct color internal_color(const struct texture *tex, const struct hitRecord *isect, bool transform) {
+struct color internalColor(const struct texture *tex, const struct hitRecord *isect, bool transform) {
 	if (!tex) return warningMaterial().diffuse;
 	if (!isect->material.texture) return warningMaterial().diffuse;
 	if (!isect->polygon) return warningMaterial().diffuse;
@@ -73,10 +74,10 @@ struct color internal_color(const struct texture *tex, const struct hitRecord *i
 }
 
 struct color evalTexture(const struct textureNode *node, const struct hitRecord *record) {
-	// FIXME: This will transform non-color images too! (normal, spec)
 	// TODO: Consider transforming image textures while loading textures.
+	// TODO: Handle NO_BILINEAR option
 	struct imageTexture *image = (struct imageTexture *)node;
-	return internal_color(image->tex, record, true);
+	return internalColor(image->tex, record, image->options & SRGB_TRANSFORM);
 }
 
 void destroyImageTexture(struct textureNode *node) {
@@ -87,9 +88,9 @@ void destroyImageTexture(struct textureNode *node) {
 }
 
 struct textureNode *newImageTexture(struct texture *texture, uint8_t options) {
-	(void)options;
 	struct imageTexture *new = calloc(1, sizeof(*new));
 	new->tex = texture;
+	new->options = options;
 	new->node.eval = evalTexture;
 	new->node.destroy = destroyImageTexture;
 	return (struct textureNode *)new;

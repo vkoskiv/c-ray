@@ -21,6 +21,9 @@ struct textureNode {
 	void (*destroy)(struct textureNode *);
 };
 
+#define SRGB_TRANSFORM 0x01
+#define NO_BILINEAR    0x02
+
 struct textureNode *newImageTexture(struct texture *texture, uint8_t options);
 
 struct textureNode *newConstantTexture(struct color color);
