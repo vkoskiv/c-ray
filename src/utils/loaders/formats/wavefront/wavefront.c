@@ -104,9 +104,9 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	char *assetPath = getFilePath(filePath);
 	
 	//Start processing line-by-line, state machine style.
-	size_t meshCount = 0;
-	meshCount += count(file, "o");
-	meshCount += count(file, "g");
+	size_t meshCount = 1;
+	//meshCount += count(file, "o");
+	//meshCount += count(file, "g");
 	size_t currentMesh = 0;
 	size_t valid_meshes = 0;
 	
@@ -128,8 +128,16 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	int materialCount = 0;
 	int currentMaterialIndex = 0;
 	
-	struct mesh *meshes = calloc(meshCount, sizeof(*meshes));
+	//FIXME: Handle more than one mesh
+	struct mesh *meshes = calloc(1, sizeof(*meshes));
 	struct mesh *currentMeshPtr = NULL;
+	
+	currentMeshPtr = meshes;
+	valid_meshes = 1;
+	
+	int currentVertexCount = 0;
+	int currentNormalCount = 0;
+	int currentTextureCount = 0;
 	
 	char *head = firstLine(file);
 	lineBuffer *line = newLineBuffer();
@@ -142,20 +150,20 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 		} else if (first[0] == '\0') {
 			head = nextLine(file);
 			continue;
-		} else if (first[0] == 'o' || first[0] == 'g') {
+		} else if (0/*first[0] == 'o' || first[0] == 'g'*/) {
 			//FIXME: o and g probably have a distinction for a reason?
 			currentMeshPtr = &meshes[currentMesh++];
 			currentMeshPtr->name = stringCopy(peekNextToken(line));
 			valid_meshes++;
 		} else if (stringEquals(first, "v")) {
 			vertices[currentVertex++] = parseVertex(line);
-			currentMeshPtr->vertexCount++;
+			currentVertexCount++;
 		} else if (stringEquals(first, "vt")) {
 			texCoords[currentTextureCoord++] = parseCoord(line);
-			currentMeshPtr->textureCount++;
+			currentTextureCount++;
 		} else if (stringEquals(first, "vn")) {
 			normals[currentNormal++] = parseVertex(line);
-			currentMeshPtr->normalCount++;
+			currentNormalCount++;
 		} else if (stringEquals(first, "f")) {
 			struct poly p = parsePolygon(line);
 			fixIndices(&p, fileVertices, fileTexCoords, fileNormals);
@@ -201,6 +209,9 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	currentMeshPtr->firstVectorIndex = vertexCount;
 	currentMeshPtr->firstNormalIndex = normalCount;
 	currentMeshPtr->firstTextureIndex = textureCount;
+	currentMeshPtr->vertexCount = currentVertexCount;
+	currentMeshPtr->normalCount = currentNormalCount;
+	currentMeshPtr->textureCount = currentTextureCount;
 	
 	vertexCount += fileVertices;
 	normalCount += fileNormals;
