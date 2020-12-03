@@ -58,8 +58,8 @@ struct bsdf *warningBsdf() {
 }
 
 void assignBSDF(struct material *mat) {
-	struct textureNode *roughness = mat->specularMap ? newImageTexture(mat->specularMap, 0) : newConstantTexture(colorWithValues(mat->roughness, 0, 0, 0));
-	struct textureNode *color = mat->texture ? newImageTexture(mat->texture, 0) : newConstantTexture(mat->diffuse);
+	struct textureNode *roughness = mat->specularMap ? newImageTexture(mat->specularMap, NO_BILINEAR) : newConstantTexture(colorWithValues(mat->roughness, 0, 0, 0));
+	struct textureNode *color = mat->texture ? newImageTexture(mat->texture, SRGB_TRANSFORM) : newConstantTexture(mat->diffuse);
 	switch (mat->type) {
 		case lambertian:
 			mat->bsdf = newDiffuse(color);
