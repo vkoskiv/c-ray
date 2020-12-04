@@ -98,9 +98,10 @@ static inline void rehash(struct hashtable *hashtable) {
 	hashtable->bucketCount = newBucketCount;
 }
 
-static inline void insertElement(struct hashtable *hashtable, struct bucket **prev, const void *element, size_t elementSize, uint32_t hash) {
+static inline void insertElement(struct hashtable *hashtable, const void *element, size_t elementSize, uint32_t hash) {
 	if (needsRehash(hashtable))
 		rehash(hashtable);
+	struct bucket **prev = &hashtable->buckets[hashToIndex(hashtable, hash)];
 	struct bucket *next = malloc(sizeof(struct bucket) + elementSize);
 	memcpy(&next->data, element, elementSize);
 	next->hash = hash;
@@ -110,8 +111,7 @@ static inline void insertElement(struct hashtable *hashtable, struct bucket **pr
 }
 
 static inline bool insertOrReplaceInHashtable(struct hashtable *hashtable, bool isInsert, const void *element, size_t elementSize, uint32_t hash) {
-	struct bucket **prev = &hashtable->buckets[hashToIndex(hashtable, hash)];
-	struct bucket *bucket = *prev;
+	struct bucket *bucket = hashtable->buckets[hashToIndex(hashtable, hash)];
 	while (bucket) {
 		if (bucket->hash == hash && hashtable->compare(&element, &bucket->data)) {
 			if (isInsert)
@@ -119,10 +119,9 @@ static inline bool insertOrReplaceInHashtable(struct hashtable *hashtable, bool 
 			memcpy(&bucket->data, element, elementSize);
 			return true;
 		}
-		prev = &bucket->next;
 		bucket = bucket->next;
 	}
-	insertElement(hashtable, prev, element, elementSize, hash);
+	insertElement(hashtable, element, elementSize, hash);
 	return true;
 }
 
@@ -135,7 +134,7 @@ void replaceInHashtable(struct hashtable *hashtable, const void *element, size_t
 }
 
 void forceInsertInHashtable(struct hashtable *hashtable, const void *element, size_t elementSize, uint32_t hash) {
-	insertElement(hashtable, &hashtable->buckets[hashToIndex(hashtable, hash)], element, elementSize, hash);
+	insertElement(hashtable, element, elementSize, hash);
 }
 
 bool removeFromHashtable(struct hashtable *hashtable, const void *element, uint32_t hash) {
