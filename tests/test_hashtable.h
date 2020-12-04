@@ -34,18 +34,19 @@ bool hashtable_mixed(void) {
 
 bool hashtable_fill(void) {
 	bool pass = true;
-	
 	struct constantsDatabase *database = newConstantsDatabase();
-	
 	char buf[20];
-	
-	for (size_t i = 0; i < 400 && pass; ++i) {
-		test_assert(database->hashtable.elemCount == i);
+	size_t iterCount = 10000;
+	for (size_t i = 0; i < iterCount && pass; ++i) {
 		sprintf(buf, "key%lu", i);
-		setDatabaseTag(database, buf);
+		setDatabaseInt(database, buf, (int)i);
 	}
-	
+	test_assert(database->hashtable.elemCount == iterCount);
+	size_t i;
+	for (i = 0; i < iterCount && pass; ++i) {
+		sprintf(buf, "key%lu", i);
+		test_assert((size_t)getDatabaseInt(database, buf) == i);
+	}
 	freeConstantsDatabase(database);
-	
 	return pass;
 }
