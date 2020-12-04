@@ -10,7 +10,6 @@
 #include "hashtable.h"
 
 #include <inttypes.h>
-#include <assert.h>
 #include "logging.h"
 #include "../datatypes/vector.h"
 #include "assert.h"
@@ -59,7 +58,7 @@ struct hashtable* newHashtable(bool (*compare)(const void*, const void*)) {
 }
 
 static inline size_t hashToIndex(struct hashtable *hashtable, uint32_t hash) {
-	assert(isPowerOfTwo(hashtable->bucketCount));
+	ASSERT(isPowerOfTwo(hashtable->bucketCount));
 	return hash & (hashtable->bucketCount - 1);
 }
 
