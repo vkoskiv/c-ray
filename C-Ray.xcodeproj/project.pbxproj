@@ -109,6 +109,8 @@
 		90AB1E1825747C9C00EFDF5A /* metal.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1525747C9C00EFDF5A /* metal.c */; };
 		90AB1E1B2575709000EFDF5A /* texturenode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E192575709000EFDF5A /* texturenode.c */; };
 		90AB1E1C2575709000EFDF5A /* texturenode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E192575709000EFDF5A /* texturenode.c */; };
+		90AB1E1F2575B1AD00EFDF5A /* plastic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1D2575B1AD00EFDF5A /* plastic.c */; };
+		90AB1E202575B1AD00EFDF5A /* plastic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1D2575B1AD00EFDF5A /* plastic.c */; };
 		90C5D5582448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
 		90C5D5592448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
 		90C792CB245209E20067E787 /* halton.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C792CA245209E20067E787 /* halton.c */; };
@@ -266,6 +268,8 @@
 		90AB1E1625747C9C00EFDF5A /* metal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = metal.h; sourceTree = "<group>"; };
 		90AB1E192575709000EFDF5A /* texturenode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = texturenode.c; sourceTree = "<group>"; };
 		90AB1E1A2575709000EFDF5A /* texturenode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = texturenode.h; sourceTree = "<group>"; };
+		90AB1E1D2575B1AD00EFDF5A /* plastic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = plastic.c; sourceTree = "<group>"; };
+		90AB1E1E2575B1AD00EFDF5A /* plastic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = plastic.h; sourceTree = "<group>"; };
 		90BAE9362328344100B1EBF0 /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		90C5D5562448CEAB00C58643 /* imagefile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imagefile.h; sourceTree = "<group>"; };
 		90C5D5572448CEAB00C58643 /* imagefile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = imagefile.c; sourceTree = "<group>"; };
@@ -555,6 +559,8 @@
 				90AB1E1525747C9C00EFDF5A /* metal.c */,
 				90AB1E1A2575709000EFDF5A /* texturenode.h */,
 				90AB1E192575709000EFDF5A /* texturenode.c */,
+				90AB1E1E2575B1AD00EFDF5A /* plastic.h */,
+				90AB1E1D2575B1AD00EFDF5A /* plastic.c */,
 			);
 			path = bsdf;
 			sourceTree = "<group>";
@@ -758,6 +764,7 @@
 				90A0B3BF2553633300F298F1 /* envmap.c in Sources */,
 				905842FA236651FC009D92F1 /* scene.c in Sources */,
 				905842FC236651FC009D92F1 /* transforms.c in Sources */,
+				90AB1E202575B1AD00EFDF5A /* plastic.c in Sources */,
 				905842FD236651FC009D92F1 /* ui.c in Sources */,
 				9062FA13243D236600420889 /* png.c in Sources */,
 				905842FF236651FC009D92F1 /* sceneloader.c in Sources */,
@@ -826,6 +833,7 @@
 				90A0B3BE2553633300F298F1 /* envmap.c in Sources */,
 				900BA132220B4603005B8EE7 /* scene.c in Sources */,
 				900BA133220B4603005B8EE7 /* transforms.c in Sources */,
+				90AB1E1F2575B1AD00EFDF5A /* plastic.c in Sources */,
 				900BA141220B4603005B8EE7 /* ui.c in Sources */,
 				9062FA12243D236600420889 /* png.c in Sources */,
 				90CA85212252CB3800BA7702 /* sceneloader.c in Sources */,
