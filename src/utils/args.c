@@ -33,7 +33,7 @@ static void printUsage(const char *progname) {
 	printf("    [-d <w>x<h>]    -> Override image dimensions to <w>x<h>\n");
 	printf("    [-t <w>x<h>]    -> Override tile  dimensions to <w>x<h>\n");
 	printf("    [-v]            -> Enable verbose mode\n");
-	printf("    [--interactive] -> Start in interactive mode (Experimental)\n");
+	printf("    [--iterative]   -> Start in iterative mode (Experimental)\n");
 	printf("    [--test]        -> Run the test suite\n");
 	restoreTerminal();
 	exit(0);
@@ -147,7 +147,7 @@ void parseArgs(int argc, char **argv) {
 		} else if (stringEquals(argv[i], "--ptcount")) {
 			setDatabaseTag(g_options, "runTests");
 			testIdx = -3;
-		} else if (stringEquals(argv[i], "--interactive")) {
+		} else if (stringEquals(argv[i], "--iterative")) {
 			setDatabaseTag(g_options, "interactive");
 		} else if (strncmp(argv[i], "-", 1) == 0) {
 			setDatabaseTag(g_options, ++argv[i]);
