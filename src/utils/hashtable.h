@@ -28,7 +28,7 @@ struct bucket {
 };
 
 struct hashtable {
-	struct bucket ** buckets;
+	struct bucket **buckets;
 	size_t bucketCount;
 	size_t elemCount;
 	bool (*compare)(const void*, const void*);
