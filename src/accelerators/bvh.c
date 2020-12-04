@@ -367,9 +367,9 @@ static inline bool traverseBvhGeneric(
 
 	// Precompute ray octant and inverse direction
 	int octant[] = {
-		ray->direction.x < 0 ? 1 : 0,
-		ray->direction.y < 0 ? 1 : 0,
-		ray->direction.z < 0 ? 1 : 0
+		signbit(ray->direction.x) ? 1 : 0,
+		signbit(ray->direction.y) ? 1 : 0,
+		signbit(ray->direction.z) ? 1 : 0
 	};
 	struct vector invDir = { 1.0f / ray->direction.x, 1.0f / ray->direction.y, 1.0f / ray->direction.z };
 	struct vector scaledStart = vecScale(vecMul(ray->start, invDir), -1.0f);
