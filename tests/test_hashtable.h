@@ -42,8 +42,7 @@ bool hashtable_fill(void) {
 		setDatabaseInt(database, buf, (int)i);
 	}
 	test_assert(database->hashtable.elemCount == iterCount);
-	size_t i;
-	for (i = 0; i < iterCount && pass; ++i) {
+	for (size_t i = 0; i < iterCount && pass; ++i) {
 		sprintf(buf, "key%lu", i);
 		test_assert((size_t)getDatabaseInt(database, buf) == i);
 	}
