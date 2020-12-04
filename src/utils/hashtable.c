@@ -176,18 +176,28 @@ bool existsInDatabase(struct constantsDatabase *database, const char *key) {
 	return findInHashtable(&database->hashtable, key, hashString(hashInit(), key)) != NULL;
 }
 
+struct databaseEntry {
+	char *key;
+	void *toFree;
+};
+
 #define DATABASE_ACCESSORS(T, entryName, setterName, getterName, defaultValue) \
 	struct entryName { \
-		const char *key; \
-		void* toFree; \
+		struct databaseEntry entry; \
 		T value; \
 	}; \
 	void setterName(struct constantsDatabase *database, const char *key, T value) { \
-		replaceInHashtable( \
-			&database->hashtable, \
-			&(struct entryName) { .key = stringCopy(key), .value = value }, \
-			sizeof(struct entryName), \
-			hashString(hashInit(), key)); \
+		uint32_t hash = hashString(hashInit(), key); \
+		struct entryName *entry = findInHashtable(&database->hashtable, key, hash); \
+		if (entry) { \
+			entry->value = value; \
+		} else { \
+			forceInsertInHashtable( \
+				&database->hashtable, \
+				&(struct entryName) { .entry.key = stringCopy(key), .value = value }, \
+				sizeof(struct entryName), \
+				hash); \
+		} \
 	} \
 	T getterName(struct constantsDatabase *database, const char *key) { \
 		struct entryName *entry = findInHashtable(&database->hashtable, key, hashString(hashInit(), key)); \
@@ -205,24 +215,26 @@ void setDatabaseString(struct constantsDatabase *database, const char *key, cons
 	if (entry) {
 		// We need to free the existing string stored in the entry
 		free(entry->value);
-		entry->toFree = entry->value = valueCopy;
+		entry->entry.toFree = entry->value = valueCopy;
 	} else {
 		forceInsertInHashtable(
 			&database->hashtable,
-			&(struct stringEntry) { .key = stringCopy(key), .toFree = valueCopy, .value = valueCopy },
+			&(struct stringEntry) { .entry.key = stringCopy(key), .entry.toFree = valueCopy, .value = valueCopy },
 			sizeof(struct stringEntry),
 			hashString(hashInit(), key));
 	}
 }
 
 void setDatabaseTag(struct constantsDatabase *database, const char *key) {
-	replaceInHashtable(&database->hashtable, &key, sizeof(const char*), hashString(hashInit(), key));
+	uint32_t hash = hashString(hashInit(), key);
+	if (!findInHashtable(&database->hashtable, key, hash)) {
+		forceInsertInHashtable(
+			&database->hashtable,
+			&(struct databaseEntry) { .key = stringCopy(key) },
+			sizeof(struct databaseEntry),
+			hash);
+	}
 }
-
-struct databaseEntry {
-	char *key;
-	void* toFree;
-};
 
 void freeConstantsDatabase(struct constantsDatabase *database) {
 	for (size_t i = 0, n = database->hashtable.bucketCount; i < n; ++i) {
