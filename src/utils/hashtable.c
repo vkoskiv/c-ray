@@ -93,6 +93,7 @@ static inline void rehash(struct hashtable *hashtable) {
 			bucket = next;
 		}
 	}
+	free(hashtable->buckets);
 	hashtable->buckets = newBuckets;
 	hashtable->bucketCount = newBucketCount;
 }
