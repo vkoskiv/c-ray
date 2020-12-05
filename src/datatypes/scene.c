@@ -26,6 +26,7 @@
 #include "../utils/ui.h"
 #include "../datatypes/instance.h"
 #include "../datatypes/bbox.h"
+#include "../utils/mempool.h"
 
 struct bvhBuildTask {
 	struct bvh *bvh;
@@ -104,6 +105,8 @@ int loadScene(struct renderer *r, char *input) {
 	struct timeval timer = {0};
 	startTimer(&timer);
 	
+	r->scene->nodePool = newBlock(NULL, 1024);
+	
 	//Load configuration and assets
 	switch (parseJSON(r, input)) {
 		case -1:
@@ -163,6 +166,7 @@ void destroyScene(struct world *scene) {
 			destroyMesh(&scene->meshes[i]);
 		}
 		destroyBvh(scene->topLevel);
+		destroyBlocks(scene->nodePool);
 		free(scene->instances);
 		free(scene->meshes);
 		free(scene->spheres);

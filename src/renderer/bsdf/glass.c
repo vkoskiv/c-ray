@@ -64,19 +64,11 @@ struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const s
 	return (struct bsdfSample){.out = scatterDir, .color = glassBsdf->color->eval(glassBsdf->color, record)};
 }
 
-struct bsdf *newGlass(struct textureNode *color, struct textureNode *roughness) {
-	struct glassBsdf *new = calloc(1, sizeof(*new));
+struct bsdf *newGlass(struct block *pool, struct textureNode *color, struct textureNode *roughness) {
+	struct glassBsdf *new = allocBlock(&pool, sizeof(*new));
 	new->color = color;
 	new->roughness = roughness;
 	new->bsdf.sample = sampleGlass;
-	new->bsdf.destroy = destroyGlass;
 	return (struct bsdf *)new;
-}
-
-void destroyGlass(struct bsdf *bsdf) {
-	struct glassBsdf *glass = (struct glassBsdf *)bsdf;
-	destroyTextureNode(glass->color);
-	destroyTextureNode(glass->roughness);
-	free(glass);
 }
 

@@ -8,6 +8,4 @@
 
 #pragma once
 
-struct bsdf *newPlastic(struct textureNode *tex);
-
-void destroyPlastic(struct bsdf *bsdf);
+struct bsdf *newPlastic(struct block *pool, struct textureNode *tex);

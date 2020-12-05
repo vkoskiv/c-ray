@@ -8,6 +8,4 @@
 
 #pragma once
 
-struct bsdf *newGlass(struct textureNode *color, struct textureNode *roughness);
-
-void destroyGlass(struct bsdf *bsdf);
+struct bsdf *newGlass(struct block *pool, struct textureNode *color, struct textureNode *roughness);

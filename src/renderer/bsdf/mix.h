@@ -8,8 +8,6 @@
 
 #pragma once
 
-struct bsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp);
+struct bsdf *newMix(struct block *pool, struct bsdf *A, struct bsdf *B, struct textureNode *lerp);
 
-struct bsdf *newMixConstant(struct bsdf *A, struct bsdf *B, float mix);
-
-void destroyMix(struct bsdf *bsdf);
+struct bsdf *newMixConstant(struct block *pool, struct bsdf *A, struct bsdf *B, float mix);

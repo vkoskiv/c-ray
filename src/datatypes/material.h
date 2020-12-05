@@ -85,8 +85,11 @@ struct material *materialForName(struct material *materials, int count, char *na
 struct material defaultMaterial(void);
 struct material warningMaterial(void);
 
-void assignBSDF(struct material *mat);
+struct block;
 
+void assignBSDF(struct block *pool, struct material *mat);
+
+#include "../utils/mempool.h"
 #include "../renderer/bsdf/texturenode.h" //FIXME: Remove
 
 struct color colorForUV(const struct hitRecord *isect, enum textureType type); //FIXME: Remove

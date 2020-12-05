@@ -36,18 +36,10 @@ struct bsdfSample sampleMetal(const struct bsdf *bsdf, sampler *sampler, const s
 	return (struct bsdfSample){.out = reflected, .color = metalBsdf->color->eval(metalBsdf->color, record)};
 }
 
-struct bsdf *newMetal(struct textureNode *color, struct textureNode *roughness) {
-	struct metalBsdf *new = calloc(1, sizeof(*new));
+struct bsdf *newMetal(struct block *pool, struct textureNode *color, struct textureNode *roughness) {
+	struct metalBsdf *new = allocBlock(&pool, sizeof(*new));
 	new->color = color;
 	new->roughness = roughness;
 	new->bsdf.sample = sampleMetal;
-	new->bsdf.destroy = destroyMetal;
 	return (struct bsdf *)new;
 }
-
-void destroyMetal(struct bsdf *bsdf) {
-	struct metalBsdf *metal = (struct metalBsdf *)bsdf;
-	destroyTextureNode(metal->color);
-	destroyTextureNode(metal->roughness);
-	free(metal);
-};
