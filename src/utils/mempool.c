@@ -10,7 +10,7 @@
 #include "mempool.h"
 
 struct block *newBlock(struct block *prev, size_t initialSize) {
-	struct block *newBlock = calloc(initialSize, sizeof(*newBlock));
+	struct block *newBlock = calloc(1, sizeof(*newBlock) + initialSize);
 	newBlock->capacity = initialSize;
 	newBlock->size = 0;
 	newBlock->prev = prev;
