@@ -65,7 +65,14 @@ static test tests[] = {
 	{"hashtable::mixed", hashtable_mixed},
 	{"hashtable::fill", hashtable_fill},
 	{"mempool::bigalloc", mempool_bigalloc},
-	{"mempool::tinyalloc", mempool_tiny},
+	{"mempool::tinyalloc8", mempool_tiny_8},
+	{"mempool::tinyalloc16", mempool_tiny_16},
+	{"mempool::tinyalloc32", mempool_tiny_32},
+	{"mempool::tinyalloc64", mempool_tiny_64},
+	{"mempool::tinyalloc128", mempool_tiny_128},
+	{"mempool::tinyalloc256", mempool_tiny_256},
+	{"mempool::tinyalloc512", mempool_tiny_512},
+	{"mempool::tinyalloc1024", mempool_tiny_1024},
 };
 
 #define testCount (sizeof(tests) / sizeof(test))
