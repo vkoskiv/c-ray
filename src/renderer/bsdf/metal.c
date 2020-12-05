@@ -36,8 +36,8 @@ struct bsdfSample sampleMetal(const struct bsdf *bsdf, sampler *sampler, const s
 	return (struct bsdfSample){.out = reflected, .color = metalBsdf->color->eval(metalBsdf->color, record)};
 }
 
-struct bsdf *newMetal(struct block *pool, struct textureNode *color, struct textureNode *roughness) {
-	struct metalBsdf *new = allocBlock(&pool, sizeof(*new));
+struct bsdf *newMetal(struct block **pool, struct textureNode *color, struct textureNode *roughness) {
+	struct metalBsdf *new = allocBlock(pool, sizeof(*new));
 	new->color = color;
 	new->roughness = roughness;
 	new->bsdf.sample = sampleMetal;

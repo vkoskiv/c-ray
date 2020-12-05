@@ -9,6 +9,8 @@
 #include "../includes.h"
 #include "mempool.h"
 
+#include "logging.h"
+
 struct block *newBlock(struct block *prev, size_t initialSize) {
 	struct block *newBlock = calloc(1, sizeof(*newBlock) + initialSize);
 	newBlock->capacity = initialSize;
@@ -32,9 +34,12 @@ void *allocBlock(struct block **head, size_t size) {
 }
 
 void destroyBlocks(struct block *head) {
+	size_t numDestroyed = 0;
 	while (head) {
 		struct block *prev = head->prev;
 		free(head);
+		numDestroyed++;
 		head = prev;
 	}
+	logr(debug, "destroyed %lu blocks\n", numDestroyed);
 }

@@ -52,14 +52,14 @@ struct material *materialForName(struct material *materials, int count, char *na
 	return NULL;
 }
 
-struct bsdf *warningBsdf(struct block *pool) {
+struct bsdf *warningBsdf(struct block **pool) {
 	return newMix(pool,
 				  newDiffuse(pool, newConstantTexture(pool, warningMaterial().diffuse)),
 				  newDiffuse(pool, newConstantTexture(pool, (struct color){0.2f, 0.2f, 0.2f, 1.0f})),
 				  newColorCheckerBoardTexture(pool, newConstantTexture(pool, blackColor), newConstantTexture(pool, whiteColor), 500.0f));
 }
 
-void assignBSDF(struct block *pool, struct material *mat) {
+void assignBSDF(struct block **pool, struct material *mat) {
 	struct textureNode *roughness = mat->specularMap ? newImageTexture(pool, mat->specularMap, NO_BILINEAR) : newConstantTexture(pool, colorWithValues(mat->roughness, 0, 0, 0));
 	struct textureNode *color = mat->texture ? newImageTexture(pool, mat->texture, SRGB_TRANSFORM) : newConstantTexture(pool, mat->diffuse);
 	switch (mat->type) {

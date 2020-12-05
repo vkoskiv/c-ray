@@ -87,7 +87,7 @@ struct material warningMaterial(void);
 
 struct block;
 
-void assignBSDF(struct block *pool, struct material *mat);
+void assignBSDF(struct block **pool, struct material *mat);
 
 #include "../utils/mempool.h"
 #include "../renderer/bsdf/texturenode.h" //FIXME: Remove

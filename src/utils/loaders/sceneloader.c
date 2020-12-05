@@ -896,7 +896,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 				lastMesh(r)->materials[i].IOR = 1.45;
 			}
 			if (cJSON_IsNumber(roughness)) lastMesh(r)->materials[i].roughness = roughness->valuedouble;
-			assignBSDF(r->scene->nodePool, &lastMesh(r)->materials[i]);
+			assignBSDF(&(r->scene->nodePool), &lastMesh(r)->materials[i]);
 		}
 	}
 }
@@ -1019,7 +1019,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 		}
 	}
 	
-	assignBSDF(r->scene->nodePool, &lastSphere(r)->material);
+	assignBSDF(&(r->scene->nodePool), &lastSphere(r)->material);
 }
 
 static void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {

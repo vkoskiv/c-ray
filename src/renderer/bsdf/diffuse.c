@@ -28,8 +28,8 @@ struct bsdfSample sampleDiffuse(const struct bsdf *bsdf, sampler *sampler, const
 	return (struct bsdfSample){.out = scatterDir, .color = diffBsdf->color->eval(diffBsdf->color, record)};
 }
 
-struct bsdf *newDiffuse(struct block *pool, struct textureNode *tex) {
-	struct diffuseBsdf *new = allocBlock(&pool, sizeof(*new));
+struct bsdf *newDiffuse(struct block **pool, struct textureNode *tex) {
+	struct diffuseBsdf *new = allocBlock(pool, sizeof(*new));
 	new->color = tex;
 	new->bsdf.sample = sampleDiffuse;
 	return (struct bsdf *)new;
