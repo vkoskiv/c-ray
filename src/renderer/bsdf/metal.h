@@ -8,6 +8,4 @@
 
 #pragma once
 
-struct bsdf *newMetal(struct textureNode *color, struct textureNode *roughness);
-
-void destroyMetal(struct bsdf *bsdf);
+struct bsdf *newMetal(struct block *pool, struct textureNode *color, struct textureNode *roughness);

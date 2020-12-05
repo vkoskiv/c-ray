@@ -8,6 +8,4 @@
 
 #pragma once
 
-struct bsdf *newDiffuse(struct textureNode *tex);
-
-void destroyDiffuse(struct bsdf *bsdf);
+struct bsdf *newDiffuse(struct block *pool, struct textureNode *tex);

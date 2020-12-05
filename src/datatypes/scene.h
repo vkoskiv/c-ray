@@ -36,6 +36,8 @@ struct world {
 	//Currently only one camera supported
 	struct camera *camera;
 	int cameraCount;
+	
+	struct block *nodePool;
 };
 
 int loadScene(struct renderer *r, char *input);

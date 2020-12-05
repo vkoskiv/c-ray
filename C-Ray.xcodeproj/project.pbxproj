@@ -67,6 +67,8 @@
 		9062FA1B243D23A400420889 /* encoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA19243D23A400420889 /* encoder.c */; };
 		906479C024982155003772CE /* sky.c in Sources */ = {isa = PBXBuildFile; fileRef = 906479BE24982155003772CE /* sky.c */; };
 		906479C124982155003772CE /* sky.c in Sources */ = {isa = PBXBuildFile; fileRef = 906479BE24982155003772CE /* sky.c */; };
+		9071BC8C257AF8EC0070BA43 /* mempool.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC8A257AF8EC0070BA43 /* mempool.c */; };
+		9071BC8D257AF8EC0070BA43 /* mempool.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC8A257AF8EC0070BA43 /* mempool.c */; };
 		9076FB4D243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB4E243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB51243002B00003B327 /* mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB50243002B00003B327 /* mutex.c */; };
@@ -218,6 +220,9 @@
 		906479BE24982155003772CE /* sky.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sky.c; sourceTree = "<group>"; };
 		906479BF24982155003772CE /* sky.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sky.h; sourceTree = "<group>"; };
 		906479C224996499003772CE /* bbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bbox.h; sourceTree = "<group>"; };
+		9071BC8A257AF8EC0070BA43 /* mempool.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mempool.c; sourceTree = "<group>"; };
+		9071BC8B257AF8EC0070BA43 /* mempool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mempool.h; sourceTree = "<group>"; };
+		9071BC8E257AFBCC0070BA43 /* test_mempool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_mempool.h; sourceTree = "<group>"; };
 		9076FB4B243002A40003B327 /* terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = terminal.h; sourceTree = "<group>"; };
 		9076FB4C243002A40003B327 /* terminal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = terminal.c; sourceTree = "<group>"; };
 		9076FB4F243002B00003B327 /* mutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
@@ -457,6 +462,8 @@
 				90999AE22486DA8200381CB3 /* logo.h */,
 				90FAD26F24A2ADE400F8CA79 /* testrunner.h */,
 				90FAD27024A2ADE400F8CA79 /* testrunner.c */,
+				9071BC8B257AF8EC0070BA43 /* mempool.h */,
+				9071BC8A257AF8EC0070BA43 /* mempool.c */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -628,6 +635,7 @@
 				903235E52506BA1400CF011D /* test_fileio.h */,
 				903235E62506BF7000CF011D /* test_string.h */,
 				90ECE4042513FE9700929833 /* test_hashtable.h */,
+				9071BC8E257AFBCC0070BA43 /* test_mempool.h */,
 				907E9D1724A2AF17001C5A60 /* tests.h */,
 			);
 			path = tests;
@@ -744,6 +752,7 @@
 				90FAD27224A2ADE400F8CA79 /* testrunner.c in Sources */,
 				905842EE236651FC009D92F1 /* pcg_basic.c in Sources */,
 				9052E8D125018C050052406D /* fileio.c in Sources */,
+				9071BC8D257AF8EC0070BA43 /* mempool.c in Sources */,
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
 				90A51A0523FCB7FF0014DF6B /* memory.c in Sources */,
@@ -813,6 +822,7 @@
 				90FAD27124A2ADE400F8CA79 /* testrunner.c in Sources */,
 				90369CCC222E012F008D215B /* pcg_basic.c in Sources */,
 				9052E8D025018C050052406D /* fileio.c in Sources */,
+				9071BC8C257AF8EC0070BA43 /* mempool.c in Sources */,
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
 				90A51A0423FCB7FF0014DF6B /* memory.c in Sources */,

@@ -7,6 +7,7 @@
 //
 
 #include "../includes.h"
+#include "../utils/mempool.h"
 #include "material.h"
 
 #include "../renderer/pathtrace.h"
@@ -51,36 +52,38 @@ struct material *materialForName(struct material *materials, int count, char *na
 	return NULL;
 }
 
-struct bsdf *warningBsdf() {
-	return newMix(newDiffuse(newConstantTexture(warningMaterial().diffuse)),
-				  newDiffuse(newConstantTexture((struct color){0.2f, 0.2f, 0.2f, 1.0f})),
-				  newColorCheckerBoardTexture(newConstantTexture(blackColor), newConstantTexture(whiteColor), 500.0f));
+struct bsdf *warningBsdf(struct block *pool) {
+	return newMix(pool,
+				  newDiffuse(pool, newConstantTexture(pool, warningMaterial().diffuse)),
+				  newDiffuse(pool, newConstantTexture(pool, (struct color){0.2f, 0.2f, 0.2f, 1.0f})),
+				  newColorCheckerBoardTexture(pool, newConstantTexture(pool, blackColor), newConstantTexture(pool, whiteColor), 500.0f));
 }
 
-void assignBSDF(struct material *mat) {
-	struct textureNode *roughness = mat->specularMap ? newImageTexture(mat->specularMap, NO_BILINEAR) : newConstantTexture(colorWithValues(mat->roughness, 0, 0, 0));
-	struct textureNode *color = mat->texture ? newImageTexture(mat->texture, SRGB_TRANSFORM) : newConstantTexture(mat->diffuse);
+void assignBSDF(struct block *pool, struct material *mat) {
+	struct textureNode *roughness = mat->specularMap ? newImageTexture(pool, mat->specularMap, NO_BILINEAR) : newConstantTexture(pool, colorWithValues(mat->roughness, 0, 0, 0));
+	struct textureNode *color = mat->texture ? newImageTexture(pool, mat->texture, SRGB_TRANSFORM) : newConstantTexture(pool, mat->diffuse);
 	switch (mat->type) {
 		case lambertian:
-			mat->bsdf = newDiffuse(color);
+			mat->bsdf = newDiffuse(pool, color);
 			break;
 		case glass:
-			mat->bsdf = newGlass(color, roughness);
+			mat->bsdf = newGlass(pool, color, roughness);
 			break;
 		case metal:
-			mat->bsdf = newMetal(color, roughness);
+			mat->bsdf = newMetal(pool, color, roughness);
 			break;
 		case plastic:
-			mat->bsdf = newPlastic(color);
+			mat->bsdf = newPlastic(pool, color);
 			break;
 		case emission:
-			mat->bsdf = newDiffuse(color);
+			mat->bsdf = newDiffuse(pool, color);
 			break;
 		default:
 			logr(warning, "Unknown bsdf type specified for \"%s\", setting to an obnoxious preset.\n", mat->name);
-			mat->bsdf = warningBsdf();
+			mat->bsdf = warningBsdf(pool);
 			break;
 	}
+	ASSERT(mat->bsdf);
 }
 
 //Transform the intersection coordinates to the texture coordinate space
@@ -139,7 +142,6 @@ void destroyMaterial(struct material *mat) {
 		if (mat->texture) destroyTexture(mat->texture);
 		if (mat->normalMap) destroyTexture(mat->normalMap);
 		if (mat->specularMap) destroyTexture(mat->specularMap);
-		destroyBsdf(mat->bsdf);
 	}
 	//FIXME: Free mat here and fix destroyMesh() to work with that
 }

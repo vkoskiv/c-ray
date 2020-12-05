@@ -33,16 +33,15 @@ struct bsdfSample sampleMix(const struct bsdf *bsdf, sampler *sampler, const str
 	}
 }
 
-struct bsdf *newMix(struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
+struct bsdf *newMix(struct block *pool, struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
 	ASSERT(A);
 	ASSERT(B);
 	ASSERT(lerp);
-	struct mixBsdf *new = calloc(1, sizeof(*new));
+	struct mixBsdf *new = allocBlock(&pool, sizeof(*new));
 	new->lerp = lerp;
 	new->A = A;
 	new->B = B;
 	new->bsdf.sample = sampleMix;
-	new->bsdf.destroy = destroyMix;
 	return (struct bsdf *)new;
 }
 
@@ -63,20 +62,11 @@ struct bsdfSample sampleConstantMix(const struct bsdf *bsdf, sampler *sampler, c
 	}
 }
 
-struct bsdf *newMixConstant(struct bsdf *A, struct bsdf *B, float mix) {
-	struct constantMixBsdf *new = calloc(1, sizeof(*new));
+struct bsdf *newMixConstant(struct block *pool, struct bsdf *A, struct bsdf *B, float mix) {
+	struct constantMixBsdf *new = allocBlock(&pool, sizeof(*new));
 	new->A = A;
 	new->B = B;
 	new->mix = mix;
 	new->bsdf.sample = sampleConstantMix;
-	new->bsdf.destroy = destroyMix;
 	return (struct bsdf *)new;
-}
-
-void destroyMix(struct bsdf *bsdf) {
-	struct mixBsdf *mix = (struct mixBsdf *)bsdf;
-	destroyBsdf(mix->A);
-	destroyBsdf(mix->B);
-	destroyTextureNode(mix->lerp);
-	free(mix);
 }

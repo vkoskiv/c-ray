@@ -12,7 +12,3 @@
 #include "../samplers/sampler.h"
 #include "../../datatypes/material.h"
 #include "bsdf.h"
-
-void destroyBsdf(struct bsdf *bsdf) {
-	bsdf->destroy(bsdf);
-}

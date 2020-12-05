@@ -80,19 +80,11 @@ struct color evalTexture(const struct textureNode *node, const struct hitRecord 
 	return internalColor(image->tex, record, image->options & SRGB_TRANSFORM);
 }
 
-void destroyImageTexture(struct textureNode *node) {
-	struct imageTexture *texture = (struct imageTexture *)node;
-	//Note: texture->tex is owned by the material itself, and will be
-	//free'd in its destructor.
-	free(texture);
-}
-
-struct textureNode *newImageTexture(struct texture *texture, uint8_t options) {
-	struct imageTexture *new = calloc(1, sizeof(*new));
+struct textureNode *newImageTexture(struct block *pool, struct texture *texture, uint8_t options) {
+	struct imageTexture *new = allocBlock(&pool, sizeof(*new));
 	new->tex = texture;
 	new->options = options;
 	new->node.eval = evalTexture;
-	new->node.destroy = destroyImageTexture;
 	return (struct textureNode *)new;
 }
 
@@ -101,16 +93,10 @@ struct color evalConstant(const struct textureNode *node, const struct hitRecord
 	return ((struct constantTexture *)node)->color;
 }
 
-void destroyConstantTexture(struct textureNode *node) {
-	struct constantTexture *constant = (struct constantTexture *)node;
-	free(constant);
-}
-
-struct textureNode *newConstantTexture(struct color color) {
-	struct constantTexture *new = calloc(1, sizeof(*new));
+struct textureNode *newConstantTexture(struct block *pool, struct color color) {
+	struct constantTexture *new = allocBlock(&pool, sizeof(*new));
 	new->color = color;
 	new->node.eval = evalConstant;
-	new->node.destroy = destroyConstantTexture;
 	return (struct textureNode *)new;
 }
 
@@ -160,34 +146,20 @@ struct color evalCheckerboard(const struct textureNode *node, const struct hitRe
 	return checkerBoard(record, checker->colorA, checker->colorB, checker->scale);
 }
 
-void destroyCheckerboard(struct textureNode *node) {
-	struct checkerTexture *checker = (struct checkerTexture *)node;
-	destroyTextureNode(checker->colorA);
-	destroyTextureNode(checker->colorB);
-	free(checker);
-}
-
-struct textureNode *newColorCheckerBoardTexture(struct textureNode *colorA, struct textureNode *colorB, float size) {
-	struct checkerTexture *new = calloc(1, sizeof(*new));
+struct textureNode *newColorCheckerBoardTexture(struct block *pool, struct textureNode *colorA, struct textureNode *colorB, float size) {
+	struct checkerTexture *new = allocBlock(&pool, sizeof(*new));
 	new->colorA = colorA;
 	new->colorB = colorB;
 	new->scale = size;
 	new->node.eval = evalCheckerboard;
-	new->node.destroy = destroyCheckerboard;
 	return (struct textureNode *)new;
 }
 
-struct textureNode *newCheckerBoardTexture(float size) {
-	struct checkerTexture *new = calloc(1, sizeof(*new));
-	new->colorA = newConstantTexture(blackColor);
-	new->colorB = newConstantTexture(whiteColor);
+struct textureNode *newCheckerBoardTexture(struct block *pool, float size) {
+	struct checkerTexture *new = allocBlock(&pool, sizeof(*new));
+	new->colorA = newConstantTexture(pool, blackColor);
+	new->colorB = newConstantTexture(pool, whiteColor);
 	new->scale = size;
 	new->node.eval = evalCheckerboard;
-	new->node.destroy = destroyCheckerboard;
 	return (struct textureNode *)new;
-}
-
-//TODO: Split this file into multiple different texture node modules
-void destroyTextureNode(struct textureNode *node) {
-	if (node) node->destroy(node);
 }

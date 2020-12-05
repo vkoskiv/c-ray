@@ -69,17 +69,9 @@ struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, cons
 	}
 }
 
-struct bsdf *newPlastic(struct textureNode *tex) {
-	struct plasticBsdf *new = calloc(1, sizeof(*new));
+struct bsdf *newPlastic(struct block *pool, struct textureNode *tex) {
+	struct plasticBsdf *new = allocBlock(&pool, sizeof(*new));
 	new->color = tex;
 	new->bsdf.sample = plastic_sample;
-	new->bsdf.destroy = destroyPlastic;
 	return (struct bsdf *)new;
-}
-
-void destroyPlastic(struct bsdf *bsdf) {
-	struct plasticBsdf *plastic = (struct plasticBsdf *)bsdf;
-	destroyTextureNode(plastic->color);
-	destroyTextureNode(plastic->roughness);
-	free(plastic);
 }
