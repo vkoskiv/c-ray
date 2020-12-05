@@ -64,8 +64,8 @@ struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const s
 	return (struct bsdfSample){.out = scatterDir, .color = glassBsdf->color->eval(glassBsdf->color, record)};
 }
 
-struct bsdf *newGlass(struct block *pool, struct textureNode *color, struct textureNode *roughness) {
-	struct glassBsdf *new = allocBlock(&pool, sizeof(*new));
+struct bsdf *newGlass(struct block **pool, struct textureNode *color, struct textureNode *roughness) {
+	struct glassBsdf *new = allocBlock(pool, sizeof(*new));
 	new->color = color;
 	new->roughness = roughness;
 	new->bsdf.sample = sampleGlass;

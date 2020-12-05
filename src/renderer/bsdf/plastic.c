@@ -69,8 +69,8 @@ struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, cons
 	}
 }
 
-struct bsdf *newPlastic(struct block *pool, struct textureNode *tex) {
-	struct plasticBsdf *new = allocBlock(&pool, sizeof(*new));
+struct bsdf *newPlastic(struct block **pool, struct textureNode *tex) {
+	struct plasticBsdf *new = allocBlock(pool, sizeof(*new));
 	new->color = tex;
 	new->bsdf.sample = plastic_sample;
 	return (struct bsdf *)new;

@@ -80,8 +80,8 @@ struct color evalTexture(const struct textureNode *node, const struct hitRecord 
 	return internalColor(image->tex, record, image->options & SRGB_TRANSFORM);
 }
 
-struct textureNode *newImageTexture(struct block *pool, struct texture *texture, uint8_t options) {
-	struct imageTexture *new = allocBlock(&pool, sizeof(*new));
+struct textureNode *newImageTexture(struct block **pool, struct texture *texture, uint8_t options) {
+	struct imageTexture *new = allocBlock(pool, sizeof(*new));
 	new->tex = texture;
 	new->options = options;
 	new->node.eval = evalTexture;
@@ -93,8 +93,8 @@ struct color evalConstant(const struct textureNode *node, const struct hitRecord
 	return ((struct constantTexture *)node)->color;
 }
 
-struct textureNode *newConstantTexture(struct block *pool, struct color color) {
-	struct constantTexture *new = allocBlock(&pool, sizeof(*new));
+struct textureNode *newConstantTexture(struct block **pool, struct color color) {
+	struct constantTexture *new = allocBlock(pool, sizeof(*new));
 	new->color = color;
 	new->node.eval = evalConstant;
 	return (struct textureNode *)new;
@@ -146,8 +146,8 @@ struct color evalCheckerboard(const struct textureNode *node, const struct hitRe
 	return checkerBoard(record, checker->colorA, checker->colorB, checker->scale);
 }
 
-struct textureNode *newColorCheckerBoardTexture(struct block *pool, struct textureNode *colorA, struct textureNode *colorB, float size) {
-	struct checkerTexture *new = allocBlock(&pool, sizeof(*new));
+struct textureNode *newColorCheckerBoardTexture(struct block **pool, struct textureNode *colorA, struct textureNode *colorB, float size) {
+	struct checkerTexture *new = allocBlock(pool, sizeof(*new));
 	new->colorA = colorA;
 	new->colorB = colorB;
 	new->scale = size;
@@ -155,8 +155,8 @@ struct textureNode *newColorCheckerBoardTexture(struct block *pool, struct textu
 	return (struct textureNode *)new;
 }
 
-struct textureNode *newCheckerBoardTexture(struct block *pool, float size) {
-	struct checkerTexture *new = allocBlock(&pool, sizeof(*new));
+struct textureNode *newCheckerBoardTexture(struct block **pool, float size) {
+	struct checkerTexture *new = allocBlock(pool, sizeof(*new));
 	new->colorA = newConstantTexture(pool, blackColor);
 	new->colorB = newConstantTexture(pool, whiteColor);
 	new->scale = size;
