@@ -73,6 +73,8 @@ static test tests[] = {
 	{"mempool::tinyalloc256", mempool_tiny_256},
 	{"mempool::tinyalloc512", mempool_tiny_512},
 	{"mempool::tinyalloc1024", mempool_tiny_1024},
+	{"mempool::tinyalloc2048", mempool_tiny_2048},
+	{"mempool::tinyalloc4096", mempool_tiny_4096},
 };
 
 #define testCount (sizeof(tests) / sizeof(test))

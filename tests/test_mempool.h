@@ -181,3 +181,39 @@ bool mempool_tiny_1024(void) {
 	
 	return pass;
 }
+
+bool mempool_tiny_2048(void) {
+	bool pass = true;
+	
+	size_t blockSize = 2048;
+	struct block *pool = newBlock(NULL, blockSize);
+	size_t amount = 1048576;
+	
+	for (size_t i = 0; i < amount; ++i) {
+		allocBlock(&pool, sizeof(double));
+	}
+	
+	test_assert(countBlocks(pool) == amount / (blockSize / sizeof(double)));
+	
+	destroyBlocks(pool);
+	
+	return pass;
+}
+
+bool mempool_tiny_4096(void) {
+	bool pass = true;
+	
+	size_t blockSize = 4096;
+	struct block *pool = newBlock(NULL, blockSize);
+	size_t amount = 1048576;
+	
+	for (size_t i = 0; i < amount; ++i) {
+		allocBlock(&pool, sizeof(double));
+	}
+	
+	test_assert(countBlocks(pool) == amount / (blockSize / sizeof(double)));
+	
+	destroyBlocks(pool);
+	
+	return pass;
+}
