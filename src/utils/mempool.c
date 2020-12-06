@@ -25,6 +25,7 @@ void *allocBlock(struct block **head, size_t size) {
 	if ((*head)->size + size > (*head)->capacity) {
 		// Need to add a new block
 		size_t nextSize = (*head)->capacity > size ? (*head)->capacity : size;
+		logr(debug, "Appending a new block of size %luB. Previous head occupancy: %luB\n", nextSize, (*head)->size);
 		*head = newBlock(*head, nextSize);
 	}
 	
