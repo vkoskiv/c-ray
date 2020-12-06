@@ -34,7 +34,7 @@ struct color debugNormals(const struct lightRay *incidentRay, const struct world
 	if (isect.instIndex < 0)
 		return getBackground(&currentRay, scene);
 	struct vector normal =  isect.surfaceNormal;
-	return colorWithValues(fabs(normal.x), fabs(normal.y), fabs(normal.z), 1.0f);
+	return (struct color){fabs(normal.x), fabs(normal.y), fabs(normal.z), 1.0f};
 }
 
 struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {

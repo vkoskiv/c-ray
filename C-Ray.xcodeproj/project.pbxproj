@@ -342,6 +342,7 @@
 				900BA12A220B4602005B8EE7 /* includes.h */,
 				900BA128220B4602005B8EE7 /* .editorconfig */,
 				900BA0F1220B4602005B8EE7 /* accelerators */,
+				90AB1E042574372400EFDF5A /* nodes */,
 				900BA0F6220B4602005B8EE7 /* renderer */,
 				900BA0FB220B4602005B8EE7 /* datatypes */,
 				900BA112220B4602005B8EE7 /* libraries */,
@@ -362,7 +363,6 @@
 		900BA0F6220B4602005B8EE7 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
-				90AB1E042574372400EFDF5A /* bsdf */,
 				90A21CEE24589E4E002C742E /* samplers */,
 				900BA0F9220B4602005B8EE7 /* pathtrace.h */,
 				900BA0F7220B4602005B8EE7 /* pathtrace.c */,
@@ -489,6 +489,34 @@
 			path = formats;
 			sourceTree = "<group>";
 		};
+		9071BC8F257D5C2B0070BA43 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				90AB1E062574373E00EFDF5A /* bsdf.h */,
+				90AB1E052574373E00EFDF5A /* bsdf.c */,
+				90AB1E0A25745DFE00EFDF5A /* diffuse.h */,
+				90AB1E0925745DFE00EFDF5A /* diffuse.c */,
+				90AB1E0E25745E0C00EFDF5A /* mix.h */,
+				90AB1E0D25745E0C00EFDF5A /* mix.c */,
+				90AB1E122574798F00EFDF5A /* glass.h */,
+				90AB1E112574798F00EFDF5A /* glass.c */,
+				90AB1E1625747C9C00EFDF5A /* metal.h */,
+				90AB1E1525747C9C00EFDF5A /* metal.c */,
+				90AB1E1E2575B1AD00EFDF5A /* plastic.h */,
+				90AB1E1D2575B1AD00EFDF5A /* plastic.c */,
+			);
+			path = shaders;
+			sourceTree = "<group>";
+		};
+		9071BC90257D5C320070BA43 /* textures */ = {
+			isa = PBXGroup;
+			children = (
+				90AB1E1A2575709000EFDF5A /* texturenode.h */,
+				90AB1E192575709000EFDF5A /* texturenode.c */,
+			);
+			path = textures;
+			sourceTree = "<group>";
+		};
 		9076FB4A242D59F20003B327 /* platform */ = {
 			isa = PBXGroup;
 			children = (
@@ -551,25 +579,13 @@
 			path = wavefront;
 			sourceTree = "<group>";
 		};
-		90AB1E042574372400EFDF5A /* bsdf */ = {
+		90AB1E042574372400EFDF5A /* nodes */ = {
 			isa = PBXGroup;
 			children = (
-				90AB1E062574373E00EFDF5A /* bsdf.h */,
-				90AB1E052574373E00EFDF5A /* bsdf.c */,
-				90AB1E0A25745DFE00EFDF5A /* diffuse.h */,
-				90AB1E0925745DFE00EFDF5A /* diffuse.c */,
-				90AB1E0E25745E0C00EFDF5A /* mix.h */,
-				90AB1E0D25745E0C00EFDF5A /* mix.c */,
-				90AB1E122574798F00EFDF5A /* glass.h */,
-				90AB1E112574798F00EFDF5A /* glass.c */,
-				90AB1E1625747C9C00EFDF5A /* metal.h */,
-				90AB1E1525747C9C00EFDF5A /* metal.c */,
-				90AB1E1A2575709000EFDF5A /* texturenode.h */,
-				90AB1E192575709000EFDF5A /* texturenode.c */,
-				90AB1E1E2575B1AD00EFDF5A /* plastic.h */,
-				90AB1E1D2575B1AD00EFDF5A /* plastic.c */,
+				9071BC90257D5C320070BA43 /* textures */,
+				9071BC8F257D5C2B0070BA43 /* shaders */,
 			);
-			path = bsdf;
+			path = nodes;
 			sourceTree = "<group>";
 		};
 		90C5D5512448CC8400C58643 /* image */ = {

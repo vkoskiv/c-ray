@@ -8,10 +8,10 @@
 
 #include "../../includes.h"
 #include "../../datatypes/color.h"
-#include "../samplers/sampler.h"
+#include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/material.h"
-#include "texturenode.h"
+#include "../textures/texturenode.h"
 #include "bsdf.h"
 
 #include "diffuse.h"

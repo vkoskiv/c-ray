@@ -90,7 +90,7 @@ struct block;
 void assignBSDF(struct block **pool, struct material *mat);
 
 #include "../utils/mempool.h"
-#include "../renderer/bsdf/texturenode.h" //FIXME: Remove
+#include "../nodes/textures/texturenode.h" //FIXME: Remove
 
 struct color colorForUV(const struct hitRecord *isect, enum textureType type); //FIXME: Remove
 

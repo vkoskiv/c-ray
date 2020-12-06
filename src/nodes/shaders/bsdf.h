@@ -8,12 +8,9 @@
 
 #pragma once
 
-struct vector;
-struct hitRecord;
-
 #include "../../datatypes/lightRay.h"
 #include "../../utils/mempool.h"
-#include "texturenode.h"
+#include "../textures/texturenode.h"
 
 //FIXME: Move
 struct hitRecord {

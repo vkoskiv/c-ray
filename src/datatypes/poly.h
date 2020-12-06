@@ -18,8 +18,6 @@ struct poly {
 };
 
 struct lightRay;
-struct vector;
-struct coord;
 struct hitRecord;
 
 //Calculates intersection between a light ray and a polygon object. Returns true if intersection has happened.

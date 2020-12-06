@@ -19,7 +19,7 @@
 
 #include "../datatypes/color.h"
 
-#include "../renderer/bsdf/bsdf.h"
+#include "../nodes/shaders/bsdf.h"
 
 static struct material emptyMaterial() {
 	return (struct material){0};
@@ -60,7 +60,7 @@ struct bsdf *warningBsdf(struct block **pool) {
 }
 
 void assignBSDF(struct block **pool, struct material *mat) {
-	struct textureNode *roughness = mat->specularMap ? newImageTexture(pool, mat->specularMap, NO_BILINEAR) : newConstantTexture(pool, colorWithValues(mat->roughness, 0, 0, 0));
+	struct textureNode *roughness = mat->specularMap ? newImageTexture(pool, mat->specularMap, NO_BILINEAR) : newConstantTexture(pool, newGrayColor(mat->roughness));
 	struct textureNode *color = mat->texture ? newImageTexture(pool, mat->texture, SRGB_TRANSFORM) : newConstantTexture(pool, mat->diffuse);
 	switch (mat->type) {
 		case lambertian:
