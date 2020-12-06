@@ -169,7 +169,7 @@ void *renderThreadInteractive(void *arg) {
 				uint32_t pixIdx = (uint32_t)(y * image->width + x);
 				initSampler(sampler, Halton, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
-				struct color output = textureGetPixel(r->state.renderBuffer, x, y);
+				struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
 				struct lightRay incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
 				struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
 				
@@ -244,7 +244,7 @@ void *renderThread(void *arg) {
 					uint32_t pixIdx = (uint32_t)(y * image->width + x);
 					initSampler(sampler, Halton, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
-					struct color output = textureGetPixel(r->state.renderBuffer, x, y);
+					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
 					struct lightRay incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
 					struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
 					

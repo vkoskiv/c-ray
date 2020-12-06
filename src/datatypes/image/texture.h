@@ -40,12 +40,9 @@ struct texture *newTexture(enum precision p, size_t width, size_t height, size_t
 
 void setPixel(struct texture *t, struct color c, size_t x, size_t y);
 
-/// Get the color of a pixel from a given texture
-/// @param t Texture to retrieve color from
-/// @param x X coordinate of pixel
-/// @param y Y coordinate of pixel
-struct color textureGetPixel(const struct texture *t, size_t x, size_t y);
-struct color textureGetPixelFiltered(const struct texture *t, float x, float y);
+/// Get a color value for a given pixel in a texture
+/// @remarks When filtered == false, pass in the integer coordinates, otherwise pass in a 0.0f->1.0f coefficient
+struct color textureGetPixel(const struct texture *t, float x, float y, bool filtered);
 
 /// Convert texture from sRGB to linear color space
 /// @remarks The texture data will be modified directly.
