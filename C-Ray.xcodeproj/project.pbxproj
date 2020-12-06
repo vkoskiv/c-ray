@@ -69,6 +69,12 @@
 		906479C124982155003772CE /* sky.c in Sources */ = {isa = PBXBuildFile; fileRef = 906479BE24982155003772CE /* sky.c */; };
 		9071BC8C257AF8EC0070BA43 /* mempool.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC8A257AF8EC0070BA43 /* mempool.c */; };
 		9071BC8D257AF8EC0070BA43 /* mempool.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC8A257AF8EC0070BA43 /* mempool.c */; };
+		9071BC93257D7D260070BA43 /* constant.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC91257D7D260070BA43 /* constant.c */; };
+		9071BC94257D7D260070BA43 /* constant.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC91257D7D260070BA43 /* constant.c */; };
+		9071BC97257D7D380070BA43 /* checker.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC95257D7D380070BA43 /* checker.c */; };
+		9071BC98257D7D380070BA43 /* checker.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC95257D7D380070BA43 /* checker.c */; };
+		9071BC9B257D7D470070BA43 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC99257D7D470070BA43 /* image.c */; };
+		9071BC9C257D7D470070BA43 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC99257D7D470070BA43 /* image.c */; };
 		9076FB4D243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB4E243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB51243002B00003B327 /* mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB50243002B00003B327 /* mutex.c */; };
@@ -223,6 +229,13 @@
 		9071BC8A257AF8EC0070BA43 /* mempool.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mempool.c; sourceTree = "<group>"; };
 		9071BC8B257AF8EC0070BA43 /* mempool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mempool.h; sourceTree = "<group>"; };
 		9071BC8E257AFBCC0070BA43 /* test_mempool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_mempool.h; sourceTree = "<group>"; };
+		9071BC91257D7D260070BA43 /* constant.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = constant.c; sourceTree = "<group>"; };
+		9071BC92257D7D260070BA43 /* constant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = constant.h; sourceTree = "<group>"; };
+		9071BC95257D7D380070BA43 /* checker.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = checker.c; sourceTree = "<group>"; };
+		9071BC96257D7D380070BA43 /* checker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = checker.h; sourceTree = "<group>"; };
+		9071BC99257D7D470070BA43 /* image.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = image.c; sourceTree = "<group>"; };
+		9071BC9A257D7D470070BA43 /* image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = image.h; sourceTree = "<group>"; };
+		9071BC9D257D86250070BA43 /* hitrecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hitrecord.h; sourceTree = "<group>"; };
 		9076FB4B243002A40003B327 /* terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = terminal.h; sourceTree = "<group>"; };
 		9076FB4C243002A40003B327 /* terminal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = terminal.c; sourceTree = "<group>"; };
 		9076FB4F243002B00003B327 /* mutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
@@ -405,6 +418,7 @@
 				90CA85232252D99700BA7702 /* vertexbuffer.c */,
 				90FAD26724A26F0B00F8CA79 /* instance.h */,
 				90FAD26824A26F0B00F8CA79 /* instance.c */,
+				9071BC9D257D86250070BA43 /* hitrecord.h */,
 			);
 			path = datatypes;
 			sourceTree = "<group>";
@@ -513,6 +527,12 @@
 			children = (
 				90AB1E1A2575709000EFDF5A /* texturenode.h */,
 				90AB1E192575709000EFDF5A /* texturenode.c */,
+				9071BC92257D7D260070BA43 /* constant.h */,
+				9071BC91257D7D260070BA43 /* constant.c */,
+				9071BC96257D7D380070BA43 /* checker.h */,
+				9071BC95257D7D380070BA43 /* checker.c */,
+				9071BC9A257D7D470070BA43 /* image.h */,
+				9071BC99257D7D470070BA43 /* image.c */,
 			);
 			path = textures;
 			sourceTree = "<group>";
@@ -737,9 +757,11 @@
 				905842DC236651FC009D92F1 /* sphere.c in Sources */,
 				905842DE236651FC009D92F1 /* poly.c in Sources */,
 				9095392623C15A7B0017037C /* c-ray.c in Sources */,
+				9071BC94257D7D260070BA43 /* constant.c in Sources */,
 				90A21CFE2458A2D8002C742E /* random.c in Sources */,
 				90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */,
 				905842E0236651FC009D92F1 /* textureloader.c in Sources */,
+				9071BC9C257D7D470070BA43 /* image.c in Sources */,
 				905842E1236651FC009D92F1 /* logging.c in Sources */,
 				9076FB5A243002D60003B327 /* capabilities.c in Sources */,
 				905842E3236651FC009D92F1 /* timer.c in Sources */,
@@ -780,6 +802,7 @@
 				905842F6236651FC009D92F1 /* cJSON.c in Sources */,
 				9062FA0E243CC4B200420889 /* signal.c in Sources */,
 				9076FB52243002B00003B327 /* mutex.c in Sources */,
+				9071BC98257D7D380070BA43 /* checker.c in Sources */,
 				906479C124982155003772CE /* sky.c in Sources */,
 				9062FA1B243D23A400420889 /* encoder.c in Sources */,
 				905842F7236651FC009D92F1 /* color.c in Sources */,
@@ -807,9 +830,11 @@
 				900BA136220B4603005B8EE7 /* sphere.c in Sources */,
 				900BA12F220B4603005B8EE7 /* poly.c in Sources */,
 				9095392523C15A7B0017037C /* c-ray.c in Sources */,
+				9071BC93257D7D260070BA43 /* constant.c in Sources */,
 				90A21CFD2458A2D8002C742E /* random.c in Sources */,
 				90A51A0023FB5DFC0014DF6B /* statistics.c in Sources */,
 				90CA851E2252C90C00BA7702 /* textureloader.c in Sources */,
+				9071BC9B257D7D470070BA43 /* image.c in Sources */,
 				900BA143220B4603005B8EE7 /* logging.c in Sources */,
 				9076FB59243002D60003B327 /* capabilities.c in Sources */,
 				900BA140220B4603005B8EE7 /* timer.c in Sources */,
@@ -850,6 +875,7 @@
 				900BA13E220B4603005B8EE7 /* cJSON.c in Sources */,
 				9062FA0D243CC4B200420889 /* signal.c in Sources */,
 				9076FB51243002B00003B327 /* mutex.c in Sources */,
+				9071BC97257D7D380070BA43 /* checker.c in Sources */,
 				906479C024982155003772CE /* sky.c in Sources */,
 				9062FA1A243D23A400420889 /* encoder.c in Sources */,
 				900BA139220B4603005B8EE7 /* color.c in Sources */,
