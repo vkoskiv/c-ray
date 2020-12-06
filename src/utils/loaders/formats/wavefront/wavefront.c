@@ -63,7 +63,7 @@ static struct coord parseCoord(lineBuffer *line) {
 // Also need to deal with the case we get more than 3 of these.
 static struct poly parsePolygon(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
-	struct poly p = {0};
+	struct poly p = {{0}};
 	lineBuffer *batch = newLineBuffer();
 	p.vertexCount = MAX_CRAY_VERTEX_COUNT;
 	for (int i = 0; i < p.vertexCount; ++i) {
@@ -150,7 +150,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 		} else if (first[0] == '\0') {
 			head = nextLine(file);
 			continue;
-		} else if (0/*first[0] == 'o' || first[0] == 'g'*/) {
+		} else if (/* DISABLES CODE */ (0)/*first[0] == 'o' || first[0] == 'g'*/) {
 			//FIXME: o and g probably have a distinction for a reason?
 			currentMeshPtr = &meshes[currentMesh++];
 			currentMeshPtr->name = stringCopy(peekNextToken(line));

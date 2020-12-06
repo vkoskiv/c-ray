@@ -8,13 +8,13 @@
 
 #include "../../includes.h"
 #include "../../datatypes/color.h"
-#include "../samplers/sampler.h"
+#include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/material.h"
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/vertexbuffer.h"
 #include "../../datatypes/poly.h"
-#include "bsdf.h"
+#include "../shaders/bsdf.h"
 
 #include "texturenode.h"
 

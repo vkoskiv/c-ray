@@ -40,9 +40,8 @@ extern const struct color backgroundColor;
 extern const struct color frameColor;
 extern const struct color progColor;
 
-//Return a color with given values
-static inline struct color colorWithValues(float red, float green, float blue, float alpha) {
-	return (struct color){red, green, blue, alpha};
+static inline struct color newGrayColor(float brightness) {
+	return (struct color){brightness, brightness, brightness, 1.0f};
 }
 
 static inline struct color colorWithRGBAValues(unsigned char R, unsigned char G, unsigned char B, unsigned char A) {
@@ -61,7 +60,7 @@ static inline struct color addColors(struct color c1, struct color c2) {
 
 static inline struct color grayscale(struct color c) {
 	float b = (c.red + c.green + c.blue) / 3.0f;
-	return (struct color){b, b, b, 1.0f};
+	return (struct color){b, b, b, c.alpha};
 }
 
 //Multiply a color with a coefficient value
