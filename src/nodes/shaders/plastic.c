@@ -24,11 +24,11 @@ struct plasticBsdf {
 
 // From diffuse.c
 // FIXME: Find a better way to share sampling strategies between nodes.
-struct bsdfSample sampleDiffuse(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in);
+struct bsdfSample sampleDiffuse(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record);
 
-struct bsdfSample sampleShiny(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+struct bsdfSample sampleShiny(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct plasticBsdf *plastic = (struct plasticBsdf *)bsdf;
-	struct vector reflected = reflectVec(in, &record->surfaceNormal);
+	struct vector reflected = reflectVec(&record->incident.direction, &record->surfaceNormal);
 	//Roughness
 	float roughness = plastic->roughness ? plastic->roughness->eval(plastic->roughness, record).red : record->material.roughness;
 	if (roughness > 0.0f) {
@@ -38,22 +38,21 @@ struct bsdfSample sampleShiny(const struct bsdf *bsdf, sampler *sampler, const s
 	return (struct bsdfSample){.out = reflected, .color = whiteColor};
 }
 
-struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
-	(void)in;
+struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct vector outwardNormal;
 	float niOverNt;
 	struct vector refracted;
 	float reflectionProbability;
 	float cosine;
 	
-	if (vecDot(*in, record->surfaceNormal) > 0.0f) {
+	if (vecDot(record->incident.direction, record->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(record->surfaceNormal);
 		niOverNt = record->material.IOR;
-		cosine = record->material.IOR * vecDot(*in, record->surfaceNormal) / vecLength(*in);
+		cosine = record->material.IOR * vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction);
 	} else {
 		outwardNormal = record->surfaceNormal;
 		niOverNt = 1.0f / record->material.IOR;
-		cosine = -(vecDot(*in, record->surfaceNormal) / vecLength(*in));
+		cosine = -(vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction));
 	}
 	
 	if (refract(&record->incident.direction, outwardNormal, niOverNt, &refracted)) {
@@ -63,9 +62,9 @@ struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, cons
 	}
 	
 	if (getDimension(sampler) < reflectionProbability) {
-		return sampleShiny(bsdf, sampler, record, in);
+		return sampleShiny(bsdf, sampler, record);
 	} else {
-		return sampleDiffuse(bsdf, sampler, record, in);
+		return sampleDiffuse(bsdf, sampler, record);
 	}
 }
 

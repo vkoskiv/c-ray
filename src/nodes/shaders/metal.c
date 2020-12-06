@@ -21,11 +21,10 @@ struct metalBsdf {
 	struct textureNode *roughness;
 };
 
-struct bsdfSample sampleMetal(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
-	(void)in;
+struct bsdfSample sampleMetal(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct metalBsdf *metalBsdf = (struct metalBsdf*)bsdf;
 	
-	const struct vector normalizedDir = vecNormalize(*in);
+	const struct vector normalizedDir = vecNormalize(record->incident.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &record->surfaceNormal);
 	float roughness = metalBsdf->roughness->eval(metalBsdf->roughness, record).red;
 	if (roughness > 0.0f) {

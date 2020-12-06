@@ -22,14 +22,14 @@ struct mixBsdf {
 	struct textureNode *lerp;
 };
 
-struct bsdfSample sampleMix(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+struct bsdfSample sampleMix(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct mixBsdf *mixBsdf = (struct mixBsdf*)bsdf;
 	//TODO: Do we need grayscale()?
 	const float lerp = mixBsdf->lerp ? grayscale(mixBsdf->lerp->eval(mixBsdf->lerp, record)).red : 0.5f;
 	if (getDimension(sampler) < lerp) {
-		return mixBsdf->A->sample(mixBsdf->A, sampler, record, in);
+		return mixBsdf->A->sample(mixBsdf->A, sampler, record);
 	} else {
-		return mixBsdf->B->sample(mixBsdf->B, sampler, record, in);
+		return mixBsdf->B->sample(mixBsdf->B, sampler, record);
 	}
 }
 
@@ -52,13 +52,13 @@ struct constantMixBsdf {
 	float mix;
 };
 
-struct bsdfSample sampleConstantMix(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+struct bsdfSample sampleConstantMix(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct constantMixBsdf *mixBsdf = (struct constantMixBsdf*)bsdf;
 	//TODO: Do we need grayscale()?
 	if (getDimension(sampler) < mixBsdf->mix) {
-		return mixBsdf->A->sample(mixBsdf->A, sampler, record, in);
+		return mixBsdf->A->sample(mixBsdf->A, sampler, record);
 	} else {
-		return mixBsdf->B->sample(mixBsdf->B, sampler, record, in);
+		return mixBsdf->B->sample(mixBsdf->B, sampler, record);
 	}
 }
 
