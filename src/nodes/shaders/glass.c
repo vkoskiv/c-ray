@@ -21,27 +21,27 @@ struct glassBsdf {
 	struct textureNode *color;
 };
 
-struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record, const struct vector *in) {
+struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct glassBsdf *glassBsdf = (struct glassBsdf*)bsdf;
 	
 	struct vector outwardNormal;
-	struct vector reflected = reflectVec(in, &record->surfaceNormal);
+	struct vector reflected = reflectVec(&record->incident.direction, &record->surfaceNormal);
 	float niOverNt;
 	struct vector refracted;
 	float reflectionProbability;
 	float cosine;
 	
-	if (vecDot(*in, record->surfaceNormal) > 0.0f) {
+	if (vecDot(record->incident.direction, record->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(record->surfaceNormal);
 		niOverNt = record->material.IOR;
 		cosine = record->material.IOR * vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction);
 	} else {
 		outwardNormal = record->surfaceNormal;
 		niOverNt = 1.0f / record->material.IOR;
-		cosine = -(vecDot(*in, record->surfaceNormal) / vecLength(*in));
+		cosine = -(vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction));
 	}
 	
-	if (refract(in, outwardNormal, niOverNt, &refracted)) {
+	if (refract(&record->incident.direction, outwardNormal, niOverNt, &refracted)) {
 		reflectionProbability = schlick(cosine, record->material.IOR);
 	} else {
 		reflectionProbability = 1.0f;
