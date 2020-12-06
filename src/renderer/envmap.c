@@ -36,10 +36,7 @@ struct color getEnvMap(const struct lightRay *incidentRay, const struct envMap *
 	u = wrapMinMax(u, 0.0f, 1.0f);
 	v = wrapMinMax(v, 0.0f, 1.0f);
 	
-	float x = (v * map->hdr->width);
-	float y = (u * map->hdr->height);
-	
-	return textureGetPixelFiltered(map->hdr, x, y);
+	return textureGetPixel(map->hdr, v, u, true);
 }
 
 void destroyEnvMap(struct envMap *map) {

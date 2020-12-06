@@ -106,10 +106,6 @@ struct color colorForUV(const struct hitRecord *isect, enum textureType type) {
 	if (!tex) return warningMaterial().diffuse;
 	
 	const struct poly *p = isect->polygon;
-	
-	//Texture width and height for this material
-	const float width = tex->width;
-	const float heigh = tex->height;
 
 	//barycentric coordinates for this polygon
 	const float u = isect->uv.x;
@@ -124,11 +120,8 @@ struct color colorForUV(const struct hitRecord *isect, enum textureType type) {
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
 	const struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
 	
-	const float x = (textureXY.x*(width));
-	const float y = (textureXY.y*(heigh));
-	
 	//Get the color value at these XY coordinates
-	output = textureGetPixelFiltered(tex, x, y);
+	output = textureGetPixel(tex, textureXY.x, textureXY.y, true);
 	
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	if (type == Diffuse) output = fromSRGB(output);
