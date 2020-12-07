@@ -35,7 +35,10 @@ struct bsdfSample sampleShiny(const struct bsdf *bsdf, sampler *sampler, const s
 		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
-	return (struct bsdfSample){.out = reflected, .color = whiteColor};
+	return (struct bsdfSample){
+		.out = reflected,
+		.color = whiteColor
+	};
 }
 
 struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {

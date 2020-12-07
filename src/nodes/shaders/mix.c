@@ -54,7 +54,6 @@ struct constantMixBsdf {
 
 struct bsdfSample sampleConstantMix(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct constantMixBsdf *mixBsdf = (struct constantMixBsdf*)bsdf;
-	//TODO: Do we need grayscale()?
 	if (getDimension(sampler) < mixBsdf->mix) {
 		return mixBsdf->A->sample(mixBsdf->A, sampler, record);
 	} else {

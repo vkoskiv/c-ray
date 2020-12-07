@@ -61,7 +61,10 @@ struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const s
 		scatterDir = refracted;
 	}
 	
-	return (struct bsdfSample){.out = scatterDir, .color = glassBsdf->color->eval(glassBsdf->color, record)};
+	return (struct bsdfSample){
+		.out = scatterDir,
+		.color = glassBsdf->color ? glassBsdf->color->eval(glassBsdf->color, record) : record->material.diffuse
+	};
 }
 
 struct bsdf *newGlass(struct block **pool, struct textureNode *color, struct textureNode *roughness) {
