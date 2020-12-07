@@ -32,7 +32,10 @@ struct bsdfSample sampleMetal(const struct bsdf *bsdf, sampler *sampler, const s
 		reflected = vecAdd(reflected, fuzz);
 	}
 	
-	return (struct bsdfSample){.out = reflected, .color = metalBsdf->color->eval(metalBsdf->color, record)};
+	return (struct bsdfSample){
+		.out = reflected,
+		.color = metalBsdf->color ? metalBsdf->color->eval(metalBsdf->color, record) : record->material.diffuse
+	};
 }
 
 struct bsdf *newMetal(struct block **pool, struct textureNode *color, struct textureNode *roughness) {

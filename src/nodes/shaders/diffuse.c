@@ -24,7 +24,10 @@ struct diffuseBsdf {
 struct bsdfSample sampleDiffuse(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf*)bsdf;
 	const struct vector scatterDir = vecNormalize(vecAdd(record->surfaceNormal, randomOnUnitSphere(sampler)));
-	return (struct bsdfSample){.out = scatterDir, .color = diffBsdf->color->eval(diffBsdf->color, record)};
+	return (struct bsdfSample){
+		.out = scatterDir,
+		.color = diffBsdf->color ? diffBsdf->color->eval(diffBsdf->color, record) : record->material.diffuse
+	};
 }
 
 struct bsdf *newDiffuse(struct block **pool, struct textureNode *tex) {
