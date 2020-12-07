@@ -11,6 +11,7 @@
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/material.h"
+#include "../../utils/hashtable.h"
 #include "bsdf.h"
 
 #include "mix.h"
@@ -33,6 +34,21 @@ struct bsdfSample sampleMix(const struct bsdf *bsdf, sampler *sampler, const str
 	}
 }
 
+static bool compareMix(const void *A, const void *B) {
+	struct mixBsdf *this = (struct mixBsdf *)A;
+	struct mixBsdf *other = (struct mixBsdf *)B;
+	return this->A == other->A && this->B == other->B && this->lerp == other->lerp;
+}
+
+static uint32_t hashMix(const void *p) {
+	const struct mixBsdf *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->A, sizeof(this->A));
+	h = hashBytes(h, &this->B, sizeof(this->B));
+	h = hashBytes(h, &this->lerp, sizeof(this->lerp));
+	return h;
+}
+
 struct bsdf *newMix(struct block **pool, struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
 	ASSERT(A);
 	ASSERT(B);
@@ -42,6 +58,8 @@ struct bsdf *newMix(struct block **pool, struct bsdf *A, struct bsdf *B, struct 
 	new->A = A;
 	new->B = B;
 	new->bsdf.sample = sampleMix;
+	new->bsdf.base.compare = compareMix;
+	new->bsdf.base.hash = hashMix;
 	return (struct bsdf *)new;
 }
 
@@ -61,11 +79,28 @@ struct bsdfSample sampleConstantMix(const struct bsdf *bsdf, sampler *sampler, c
 	}
 }
 
+static bool compareConstant(const void *A, const void *B) {
+	const struct constantMixBsdf *this = A;
+	const struct constantMixBsdf *other = B;
+	return this->mix == other->mix && this->A->base.compare(this->A, other->A) && this->B->base.compare(this->B, other->B);
+}
+
+static uint32_t hashConstant(const void *p) {
+	const struct constantMixBsdf *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->A, sizeof(this->A));
+	h = hashBytes(h, &this->B, sizeof(this->B));
+	h = hashBytes(h, &this->mix, sizeof(this->mix));
+	return h;
+}
+
 struct bsdf *newMixConstant(struct block **pool, struct bsdf *A, struct bsdf *B, float mix) {
 	struct constantMixBsdf *new = allocBlock(pool, sizeof(*new));
 	new->A = A;
 	new->B = B;
 	new->mix = mix;
 	new->bsdf.sample = sampleConstantMix;
+	new->bsdf.base.compare = compareConstant;
+	new->bsdf.base.hash = hashConstant;
 	return (struct bsdf *)new;
 }

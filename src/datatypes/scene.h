@@ -11,6 +11,7 @@
 #include "color.h"
 
 struct renderer;
+struct hashtable;
 
 /// World
 struct world {
@@ -38,6 +39,7 @@ struct world {
 	int cameraCount;
 	
 	struct block *nodePool;
+	struct hashtable *nodeTable;
 };
 
 int loadScene(struct renderer *r, char *input);

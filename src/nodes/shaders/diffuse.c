@@ -12,6 +12,7 @@
 #include "../../datatypes/vector.h"
 #include "../../datatypes/material.h"
 #include "../textures/texturenode.h"
+#include "../../utils/hashtable.h"
 #include "bsdf.h"
 
 #include "diffuse.h"
@@ -30,9 +31,24 @@ struct bsdfSample sampleDiffuse(const struct bsdf *bsdf, sampler *sampler, const
 	};
 }
 
+static bool compare(const void *A, const void *B) {
+	const struct diffuseBsdf *this = A;
+	const struct diffuseBsdf *other = B;
+	return this->color == other->color;
+}
+
+static uint32_t hash(const void *p) {
+	const struct diffuseBsdf *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->color, sizeof(this->color));
+	return h;
+}
+
 struct bsdf *newDiffuse(struct block **pool, struct textureNode *tex) {
 	struct diffuseBsdf *new = allocBlock(pool, sizeof(*new));
 	new->color = tex;
 	new->bsdf.sample = sampleDiffuse;
+	new->bsdf.base.compare = compare;
+	new->bsdf.base.hash = hash;
 	return (struct bsdf *)new;
 }

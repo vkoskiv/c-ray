@@ -12,6 +12,7 @@
 #include "../../datatypes/vector.h"
 #include "../../datatypes/material.h"
 #include "../textures/texturenode.h"
+#include "../../utils/hashtable.h"
 #include "bsdf.h"
 
 #include "plastic.h"
@@ -41,7 +42,7 @@ struct bsdfSample sampleShiny(const struct bsdf *bsdf, sampler *sampler, const s
 	};
 }
 
-struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
+struct bsdfSample samplePlastic(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct vector outwardNormal;
 	float niOverNt;
 	struct vector refracted;
@@ -71,9 +72,25 @@ struct bsdfSample plastic_sample(const struct bsdf *bsdf, sampler *sampler, cons
 	}
 }
 
+static bool compare(const void *A, const void *B) {
+	const struct plasticBsdf *this = A;
+	const struct plasticBsdf *other = B;
+	return this->color == other->color && this->roughness == other->roughness;
+}
+
+static uint32_t hash(const void *p) {
+	const struct plasticBsdf *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->color, sizeof(this->color));
+	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
+	return h;
+}
+
 struct bsdf *newPlastic(struct block **pool, struct textureNode *tex) {
 	struct plasticBsdf *new = allocBlock(pool, sizeof(*new));
 	new->color = tex;
-	new->bsdf.sample = plastic_sample;
+	new->bsdf.sample = samplePlastic;
+	new->bsdf.base.compare = compare;
+	new->bsdf.base.hash = hash;
 	return (struct bsdf *)new;
 }

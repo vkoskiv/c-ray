@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "../nodebase.h"
+
 enum textureType {
 	Diffuse,
 	Normal,
@@ -15,6 +17,7 @@ enum textureType {
 };
 
 struct textureNode {
+	struct nodeBase base;
 	struct color (*eval)(const struct textureNode *node, const struct hitRecord *record);
 };
 

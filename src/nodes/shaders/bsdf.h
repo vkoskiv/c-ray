@@ -12,6 +12,7 @@
 #include "../../utils/mempool.h"
 #include "../textures/texturenode.h"
 #include "../../datatypes/hitrecord.h"
+#include "../nodebase.h"
 
 struct bsdfSample {
 	struct vector out;
@@ -21,6 +22,7 @@ struct bsdfSample {
 
 //TODO: Expand and refactor to match a standard bsdf signature with eval, sample and pdf
 struct bsdf {
+	struct nodeBase base;
 	struct bsdfSample (*sample)(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record);
 };
 

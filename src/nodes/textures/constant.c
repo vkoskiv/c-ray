@@ -14,6 +14,7 @@
 #include "../../datatypes/image/texture.h"
 #include "../../utils/mempool.h"
 #include "../../datatypes/hitrecord.h"
+#include "../../utils/hashtable.h"
 #include "texturenode.h"
 
 #include "constant.h"
@@ -28,9 +29,24 @@ struct color evalConstant(const struct textureNode *node, const struct hitRecord
 	return ((struct constantTexture *)node)->color;
 }
 
+static bool compare(const void *A, const void *B) {
+	const struct constantTexture *this = A;
+	const struct constantTexture *other = B;
+	return colorEquals(this->color, other->color);
+}
+
+static uint32_t hash(const void *p) {
+	const struct constantTexture *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->color, sizeof(this->color));
+	return h;
+}
+
 struct textureNode *newConstantTexture(struct block **pool, struct color color) {
 	struct constantTexture *new = allocBlock(pool, sizeof(*new));
 	new->color = color;
 	new->node.eval = evalConstant;
+	new->node.base.compare = compare;
+	new->node.base.hash = hash;
 	return (struct textureNode *)new;
 }
