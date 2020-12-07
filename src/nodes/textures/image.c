@@ -14,6 +14,7 @@
 #include "../../datatypes/image/texture.h"
 #include "../../utils/mempool.h"
 #include "../../datatypes/hitrecord.h"
+#include "../../utils/hashtable.h"
 #include "texturenode.h"
 
 #include "image.h"
@@ -61,10 +62,26 @@ struct color evalTexture(const struct textureNode *node, const struct hitRecord 
 	return internalColor(image->tex, record, image->options & SRGB_TRANSFORM);
 }
 
+static bool compare(const void *A, const void *B) {
+	const struct imageTexture *this = A;
+	const struct imageTexture *other = B;
+	return this->tex == other->tex;
+}
+
+static uint32_t hash(const void *p) {
+	const struct imageTexture *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->tex, sizeof(this->tex));
+	h = hashBytes(h, &this->options, sizeof(this->options));
+	return h;
+}
+
 struct textureNode *newImageTexture(struct block **pool, struct texture *texture, uint8_t options) {
 	struct imageTexture *new = allocBlock(pool, sizeof(*new));
 	new->tex = texture;
 	new->options = options;
 	new->node.eval = evalTexture;
+	new->node.base.compare = compare;
+	new->node.base.hash = hash;
 	return (struct textureNode *)new;
 }

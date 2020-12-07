@@ -27,6 +27,8 @@
 #include "../datatypes/instance.h"
 #include "../datatypes/bbox.h"
 #include "../utils/mempool.h"
+#include "../utils/hashtable.h"
+#include "../nodes/shaders/bsdf.h"
 
 struct bvhBuildTask {
 	struct bvh *bvh;
@@ -106,6 +108,7 @@ int loadScene(struct renderer *r, char *input) {
 	startTimer(&timer);
 	
 	r->scene->nodePool = newBlock(NULL, 1024);
+	r->scene->nodeTable = newHashtable(compareNodes);
 	
 	//Load configuration and assets
 	switch (parseJSON(r, input)) {

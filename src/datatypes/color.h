@@ -116,4 +116,8 @@ static inline struct color lerp(struct color start, struct color end, float t) {
 	return mixColors(start, end, t);
 }
 
+static inline bool colorEquals(struct color a, struct color b) {
+	return a.red == b.red && a.green == b.green && a.blue == b.blue && a.alpha == b.alpha;
+}
+
 struct color colorForKelvin(float kelvin);

@@ -11,14 +11,15 @@
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/material.h"
+#include "../../utils/hashtable.h"
 #include "bsdf.h"
 
 #include "glass.h"
 
 struct glassBsdf {
 	struct bsdf bsdf;
-	struct textureNode *roughness;
 	struct textureNode *color;
+	struct textureNode *roughness;
 };
 
 struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
@@ -67,11 +68,27 @@ struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const s
 	};
 }
 
+static bool compare(const void *A, const void *B) {
+	const struct glassBsdf *this = A;
+	const struct glassBsdf *other = B;
+	return this->color == other->color && this->roughness == other->roughness;
+}
+
+static uint32_t hash(const void *p) {
+	const struct glassBsdf *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->color, sizeof(this->color));
+	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
+	return h;
+}
+
 struct bsdf *newGlass(struct block **pool, struct textureNode *color, struct textureNode *roughness) {
 	struct glassBsdf *new = allocBlock(pool, sizeof(*new));
 	new->color = color;
 	new->roughness = roughness;
 	new->bsdf.sample = sampleGlass;
+	new->bsdf.base.compare = compare;
+	new->bsdf.base.hash = hash;
 	return (struct bsdf *)new;
 }
 

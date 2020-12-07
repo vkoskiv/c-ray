@@ -11,6 +11,7 @@
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/material.h"
+#include "../../utils/hashtable.h"
 #include "bsdf.h"
 
 #include "metal.h"
@@ -38,10 +39,26 @@ struct bsdfSample sampleMetal(const struct bsdf *bsdf, sampler *sampler, const s
 	};
 }
 
+static bool compare(const void *A, const void *B) {
+	const struct metalBsdf *this = A;
+	const struct metalBsdf *other = B;
+	return this->color == other->color && this->roughness == other->roughness;
+}
+
+static uint32_t hash(const void *p) {
+	const struct metalBsdf *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->color, sizeof(this->color));
+	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
+	return h;
+}
+
 struct bsdf *newMetal(struct block **pool, struct textureNode *color, struct textureNode *roughness) {
 	struct metalBsdf *new = allocBlock(pool, sizeof(*new));
 	new->color = color;
 	new->roughness = roughness;
 	new->bsdf.sample = sampleMetal;
+	new->bsdf.base.compare = compare;
+	new->bsdf.base.hash = hash;
 	return (struct bsdf *)new;
 }

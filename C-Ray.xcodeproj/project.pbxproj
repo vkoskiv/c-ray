@@ -75,6 +75,8 @@
 		9071BC98257D7D380070BA43 /* checker.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC95257D7D380070BA43 /* checker.c */; };
 		9071BC9B257D7D470070BA43 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC99257D7D470070BA43 /* image.c */; };
 		9071BC9C257D7D470070BA43 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC99257D7D470070BA43 /* image.c */; };
+		9071BCA0257ED22C0070BA43 /* nodebase.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC9F257ED22C0070BA43 /* nodebase.c */; };
+		9071BCA1257ED22C0070BA43 /* nodebase.c in Sources */ = {isa = PBXBuildFile; fileRef = 9071BC9F257ED22C0070BA43 /* nodebase.c */; };
 		9076FB4D243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB4E243002A40003B327 /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB4C243002A40003B327 /* terminal.c */; };
 		9076FB51243002B00003B327 /* mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB50243002B00003B327 /* mutex.c */; };
@@ -236,6 +238,8 @@
 		9071BC99257D7D470070BA43 /* image.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = image.c; sourceTree = "<group>"; };
 		9071BC9A257D7D470070BA43 /* image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = image.h; sourceTree = "<group>"; };
 		9071BC9D257D86250070BA43 /* hitrecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hitrecord.h; sourceTree = "<group>"; };
+		9071BC9E257ECFD30070BA43 /* nodebase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = nodebase.h; sourceTree = "<group>"; };
+		9071BC9F257ED22C0070BA43 /* nodebase.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = nodebase.c; sourceTree = "<group>"; };
 		9076FB4B243002A40003B327 /* terminal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = terminal.h; sourceTree = "<group>"; };
 		9076FB4C243002A40003B327 /* terminal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = terminal.c; sourceTree = "<group>"; };
 		9076FB4F243002B00003B327 /* mutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
@@ -602,6 +606,8 @@
 		90AB1E042574372400EFDF5A /* nodes */ = {
 			isa = PBXGroup;
 			children = (
+				9071BC9E257ECFD30070BA43 /* nodebase.h */,
+				9071BC9F257ED22C0070BA43 /* nodebase.c */,
 				9071BC90257D5C320070BA43 /* textures */,
 				9071BC8F257D5C2B0070BA43 /* shaders */,
 			);
@@ -766,6 +772,7 @@
 				9076FB5A243002D60003B327 /* capabilities.c in Sources */,
 				905842E3236651FC009D92F1 /* timer.c in Sources */,
 				905842E4236651FC009D92F1 /* pathtrace.c in Sources */,
+				9071BCA1257ED22C0070BA43 /* nodebase.c in Sources */,
 				905842E5236651FC009D92F1 /* list.c in Sources */,
 				90A21CF224589E6A002C742E /* sampler.c in Sources */,
 				90AB1E082574373E00EFDF5A /* bsdf.c in Sources */,
@@ -839,6 +846,7 @@
 				9076FB59243002D60003B327 /* capabilities.c in Sources */,
 				900BA140220B4603005B8EE7 /* timer.c in Sources */,
 				900BA12D220B4603005B8EE7 /* pathtrace.c in Sources */,
+				9071BCA0257ED22C0070BA43 /* nodebase.c in Sources */,
 				900BA13B220B4603005B8EE7 /* list.c in Sources */,
 				90A21CF124589E6A002C742E /* sampler.c in Sources */,
 				90AB1E072574373E00EFDF5A /* bsdf.c in Sources */,
