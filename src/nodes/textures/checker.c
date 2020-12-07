@@ -15,6 +15,7 @@
 #include "../../utils/mempool.h"
 #include "../../datatypes/hitrecord.h"
 #include "../../utils/hashtable.h"
+#include "../../datatypes/scene.h"
 #include "texturenode.h"
 
 #include "checker.h"
@@ -87,8 +88,8 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct textureNode *newColorCheckerBoardTexture(struct block **pool, struct textureNode *colorA, struct textureNode *colorB, float size) {
-	struct checkerTexture *new = allocBlock(pool, sizeof(*new));
+struct textureNode *newColorCheckerBoardTexture(struct world *world, struct textureNode *colorA, struct textureNode *colorB, float size) {
+	struct checkerTexture *new = allocBlock(&world->nodePool, sizeof(*new));
 	new->colorA = colorA;
 	new->colorB = colorB;
 	new->scale = size;
@@ -98,10 +99,10 @@ struct textureNode *newColorCheckerBoardTexture(struct block **pool, struct text
 	return (struct textureNode *)new;
 }
 
-struct textureNode *newCheckerBoardTexture(struct block **pool, float size) {
-	struct checkerTexture *new = allocBlock(pool, sizeof(*new));
-	new->colorA = newConstantTexture(pool, blackColor);
-	new->colorB = newConstantTexture(pool, whiteColor);
+struct textureNode *newCheckerBoardTexture(struct world *world, float size) {
+	struct checkerTexture *new = allocBlock(&world->nodePool, sizeof(*new));
+	new->colorA = newConstantTexture(world, blackColor);
+	new->colorB = newConstantTexture(world, whiteColor);
 	new->scale = size;
 	new->node.eval = evalCheckerboard;
 	new->node.base.compare = compare;

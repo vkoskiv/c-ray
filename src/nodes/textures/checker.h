@@ -8,8 +8,10 @@
 
 #pragma once
 
-struct textureNode *newColorCheckerBoardTexture(struct block **pool, struct textureNode *colorA, struct textureNode *colorB, float size);
+struct world;
 
-struct textureNode *newCheckerBoardTexture(struct block **pool, float size);struct textureNode *newColorCheckerBoardTexture(struct block **pool, struct textureNode *colorA, struct textureNode *colorB, float size);
+struct textureNode *newColorCheckerBoardTexture(struct world *world, struct textureNode *colorA, struct textureNode *colorB, float size);
 
-struct textureNode *newCheckerBoardTexture(struct block **pool, float size);
+struct textureNode *newCheckerBoardTexture(struct world *world, float size);
+
+struct textureNode *newCheckerBoardTexture(struct world *world, float size);

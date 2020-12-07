@@ -12,6 +12,7 @@
 #include "../../datatypes/vector.h"
 #include "../../datatypes/material.h"
 #include "../../utils/hashtable.h"
+#include "../../datatypes/scene.h"
 #include "bsdf.h"
 
 #include "glass.h"
@@ -82,8 +83,8 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdf *newGlass(struct block **pool, struct textureNode *color, struct textureNode *roughness) {
-	struct glassBsdf *new = allocBlock(pool, sizeof(*new));
+struct bsdf *newGlass(struct world *world, struct textureNode *color, struct textureNode *roughness) {
+	struct glassBsdf *new = allocBlock(&world->nodePool, sizeof(*new));
 	new->color = color;
 	new->roughness = roughness;
 	new->bsdf.sample = sampleGlass;

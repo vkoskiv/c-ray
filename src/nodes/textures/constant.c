@@ -15,6 +15,7 @@
 #include "../../utils/mempool.h"
 #include "../../datatypes/hitrecord.h"
 #include "../../utils/hashtable.h"
+#include "../../datatypes/scene.h"
 #include "texturenode.h"
 
 #include "constant.h"
@@ -42,8 +43,8 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct textureNode *newConstantTexture(struct block **pool, struct color color) {
-	struct constantTexture *new = allocBlock(pool, sizeof(*new));
+struct textureNode *newConstantTexture(struct world *world, struct color color) {
+	struct constantTexture *new = allocBlock(&world->nodePool, sizeof(*new));
 	new->color = color;
 	new->node.eval = evalConstant;
 	new->node.base.compare = compare;

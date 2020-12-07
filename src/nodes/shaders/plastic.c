@@ -13,6 +13,7 @@
 #include "../../datatypes/material.h"
 #include "../textures/texturenode.h"
 #include "../../utils/hashtable.h"
+#include "../../datatypes/scene.h"
 #include "bsdf.h"
 
 #include "plastic.h"
@@ -86,8 +87,8 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdf *newPlastic(struct block **pool, struct textureNode *tex) {
-	struct plasticBsdf *new = allocBlock(pool, sizeof(*new));
+struct bsdf *newPlastic(struct world *world, struct textureNode *tex) {
+	struct plasticBsdf *new = allocBlock(&world->nodePool, sizeof(*new));
 	new->color = tex;
 	new->bsdf.sample = samplePlastic;
 	new->bsdf.base.compare = compare;
