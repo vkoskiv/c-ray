@@ -60,7 +60,7 @@ struct bsdf *warningBsdf(struct block **pool) {
 }
 
 void assignBSDF(struct block **p, struct material *mat) {
-	/*struct textureNode *roughness = mat->specularMap ? newImageTexture(pool, mat->specularMap, NO_BILINEAR) : newConstantTexture(pool, newGrayColor(mat->roughness));
+	struct textureNode *roughness = mat->specularMap ? newImageTexture(pool, mat->specularMap, NO_BILINEAR) : newConstantTexture(pool, newGrayColor(mat->roughness));
 	struct textureNode *color = mat->texture ? newImageTexture(pool, mat->texture, SRGB_TRANSFORM) : newConstantTexture(pool, mat->diffuse);
 	switch (mat->type) {
 		case lambertian:
@@ -84,11 +84,6 @@ void assignBSDF(struct block **p, struct material *mat) {
 			break;
 	}
 	ASSERT(mat->bsdf);
-	*/
-	mat->bsdf = newMix(p,
-					   newMetal(p, newConstantTexture(p, redColor), newConstantTexture(p, blackColor)),
-					   newMetal(p, newConstantTexture(p, blueColor), newConstantTexture(p, blackColor)),
-					   newCheckerBoardTexture(p, 500.0f));
 }
 
 //Transform the intersection coordinates to the texture coordinate space
