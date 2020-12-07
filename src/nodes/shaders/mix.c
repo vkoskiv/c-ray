@@ -12,6 +12,7 @@
 #include "../../datatypes/vector.h"
 #include "../../datatypes/material.h"
 #include "../../utils/hashtable.h"
+#include "../../datatypes/scene.h"
 #include "bsdf.h"
 
 #include "mix.h"
@@ -49,11 +50,11 @@ static uint32_t hashMix(const void *p) {
 	return h;
 }
 
-struct bsdf *newMix(struct block **pool, struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
+struct bsdf *newMix(struct world *world, struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
 	ASSERT(A);
 	ASSERT(B);
 	ASSERT(lerp);
-	struct mixBsdf *new = allocBlock(pool, sizeof(*new));
+	struct mixBsdf *new = allocBlock(&world->nodePool, sizeof(*new));
 	new->lerp = lerp;
 	new->A = A;
 	new->B = B;
@@ -94,8 +95,8 @@ static uint32_t hashConstant(const void *p) {
 	return h;
 }
 
-struct bsdf *newMixConstant(struct block **pool, struct bsdf *A, struct bsdf *B, float mix) {
-	struct constantMixBsdf *new = allocBlock(pool, sizeof(*new));
+struct bsdf *newMixConstant(struct world *world, struct bsdf *A, struct bsdf *B, float mix) {
+	struct constantMixBsdf *new = allocBlock(&world->nodePool, sizeof(*new));
 	new->A = A;
 	new->B = B;
 	new->mix = mix;

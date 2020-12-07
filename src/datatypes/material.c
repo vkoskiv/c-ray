@@ -16,6 +16,7 @@
 #include "poly.h"
 #include "../utils/assert.h"
 #include "../utils/logging.h"
+#include "../datatypes/scene.h"
 
 #include "../datatypes/color.h"
 
@@ -52,35 +53,35 @@ struct material *materialForName(struct material *materials, int count, char *na
 	return NULL;
 }
 
-struct bsdf *warningBsdf(struct block **pool) {
-	return newMix(pool,
-				  newDiffuse(pool, newConstantTexture(pool, warningMaterial().diffuse)),
-				  newDiffuse(pool, newConstantTexture(pool, (struct color){0.2f, 0.2f, 0.2f, 1.0f})),
-				  newColorCheckerBoardTexture(pool, newConstantTexture(pool, blackColor), newConstantTexture(pool, whiteColor), 500.0f));
+struct bsdf *warningBsdf(struct world *world) {
+	return newMix(world,
+				  newDiffuse(world, newConstantTexture(world, warningMaterial().diffuse)),
+				  newDiffuse(world, newConstantTexture(world, (struct color){0.2f, 0.2f, 0.2f, 1.0f})),
+				  newColorCheckerBoardTexture(world, newConstantTexture(world, blackColor), newConstantTexture(world, whiteColor), 500.0f));
 }
 
-void assignBSDF(struct block **p, struct material *mat) {
-	struct textureNode *roughness = mat->specularMap ? newImageTexture(pool, mat->specularMap, NO_BILINEAR) : newConstantTexture(pool, newGrayColor(mat->roughness));
-	struct textureNode *color = mat->texture ? newImageTexture(pool, mat->texture, SRGB_TRANSFORM) : newConstantTexture(pool, mat->diffuse);
+void assignBSDF(struct world *world, struct material *mat) {
+	struct textureNode *roughness = mat->specularMap ? newImageTexture(world, mat->specularMap, NO_BILINEAR) : newConstantTexture(world, newGrayColor(mat->roughness));
+	struct textureNode *color = mat->texture ? newImageTexture(world, mat->texture, SRGB_TRANSFORM) : newConstantTexture(world, mat->diffuse);
 	switch (mat->type) {
 		case lambertian:
-			mat->bsdf = newDiffuse(pool, color);
+			mat->bsdf = newDiffuse(world, color);
 			break;
 		case glass:
-			mat->bsdf = newGlass(pool, color, roughness);
+			mat->bsdf = newGlass(world, color, roughness);
 			break;
 		case metal:
-			mat->bsdf = newMetal(pool, color, roughness);
+			mat->bsdf = newMetal(world, color, roughness);
 			break;
 		case plastic:
-			mat->bsdf = newPlastic(pool, color);
+			mat->bsdf = newPlastic(world, color);
 			break;
 		case emission:
-			mat->bsdf = newDiffuse(pool, color);
+			mat->bsdf = newDiffuse(world, color);
 			break;
 		default:
 			logr(warning, "Unknown bsdf type specified for \"%s\", setting to an obnoxious preset.\n", mat->name);
-			mat->bsdf = warningBsdf(pool);
+			mat->bsdf = warningBsdf(world);
 			break;
 	}
 	ASSERT(mat->bsdf);

@@ -15,6 +15,7 @@
 #include "../../utils/mempool.h"
 #include "../../datatypes/hitrecord.h"
 #include "../../utils/hashtable.h"
+#include "../../datatypes/scene.h"
 #include "texturenode.h"
 
 #include "image.h"
@@ -76,8 +77,8 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct textureNode *newImageTexture(struct block **pool, struct texture *texture, uint8_t options) {
-	struct imageTexture *new = allocBlock(pool, sizeof(*new));
+struct textureNode *newImageTexture(struct world *world, struct texture *texture, uint8_t options) {
+	struct imageTexture *new = allocBlock(&world->nodePool, sizeof(*new));
 	new->tex = texture;
 	new->options = options;
 	new->node.eval = evalTexture;

@@ -85,9 +85,9 @@ struct material *materialForName(struct material *materials, int count, char *na
 struct material defaultMaterial(void);
 struct material warningMaterial(void);
 
-struct block;
+struct world;
 
-void assignBSDF(struct block **pool, struct material *mat);
+void assignBSDF(struct world *world, struct material *mat);
 
 #include "../utils/mempool.h"
 #include "../nodes/textures/texturenode.h" //FIXME: Remove
