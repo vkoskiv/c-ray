@@ -29,6 +29,7 @@ struct bucket {
 
 struct hashtable {
 	struct bucket **buckets;
+	struct block **pool;
 	size_t bucketCount;
 	size_t elemCount;
 	bool (*compare)(const void*, const void*);
@@ -40,7 +41,7 @@ uint32_t hashCombine(uint32_t, uint8_t);
 uint32_t hashBytes(uint32_t, const void*, size_t);
 uint32_t hashString(uint32_t, const char*);
 
-struct hashtable* newHashtable(bool (*compare)(const void*, const void*));
+struct hashtable* newHashtable(bool (*compare)(const void*, const void*), struct block **pool);
 // Finds the given element in the hash table, using the hash value `hash`.
 // Returns a pointer to the element if it was found, or NULL otherwise.
 void* findInHashtable(struct hashtable *hashtable, const void* element, uint32_t hash);

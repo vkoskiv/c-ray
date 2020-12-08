@@ -15,6 +15,7 @@
 #include "assert.h"
 #include "fileio.h"
 #include "string.h"
+#include "../utils/mempool.h"
 
 #define FNV_OFFSET UINT32_C(0x811C9DC5) // Initial value for an empty hash
 #define FNV_PRIME  UINT32_C(0x01000193)
@@ -48,12 +49,13 @@ static inline bool isPowerOfTwo(size_t i) {
 	return (i & (i - 1)) == 0;
 }
 
-struct hashtable* newHashtable(bool (*compare)(const void*, const void*)) {
+struct hashtable* newHashtable(bool (*compare)(const void*, const void*), struct block **pool) {
 	struct hashtable *hashtable = malloc(sizeof(struct hashtable));
 	hashtable->bucketCount = DEFAULT_CAPACITY;
 	hashtable->buckets = calloc(DEFAULT_CAPACITY, sizeof(struct bucket*));
 	hashtable->elemCount = 0;
 	hashtable->compare = compare;
+	hashtable->pool = pool ? pool : NULL;
 	return hashtable;
 }
 
@@ -102,7 +104,8 @@ static inline void insertElement(struct hashtable *hashtable, const void *elemen
 	if (needsRehash(hashtable))
 		rehash(hashtable);
 	struct bucket **prev = &hashtable->buckets[hashToIndex(hashtable, hash)];
-	struct bucket *next = malloc(sizeof(struct bucket) + elementSize);
+	size_t size = sizeof(struct bucket) + elementSize;
+	struct bucket *next = hashtable->pool ? allocBlock(hashtable->pool, size) : malloc(size);
 	memcpy(&next->data, element, elementSize);
 	next->hash = hash;
 	next->next = *prev;
@@ -168,7 +171,7 @@ bool compareDatabaseEntry(const void* entry1, const void* entry2) {
 }
 
 struct constantsDatabase* newConstantsDatabase(void) {
-	return (struct constantsDatabase*)newHashtable(compareDatabaseEntry);
+	return (struct constantsDatabase*)newHashtable(compareDatabaseEntry, NULL);
 }
 
 bool existsInDatabase(struct constantsDatabase *database, const char *key) {
