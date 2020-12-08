@@ -89,23 +89,25 @@ static uint32_t hash(const void *p) {
 }
 
 struct textureNode *newColorCheckerBoardTexture(struct world *world, struct textureNode *colorA, struct textureNode *colorB, float size) {
-	struct checkerTexture *new = allocBlock(&world->nodePool, sizeof(*new));
-	new->colorA = colorA;
-	new->colorB = colorB;
-	new->scale = size;
-	new->node.eval = evalCheckerboard;
-	new->node.base.compare = compare;
-	new->node.base.hash = hash;
-	return (struct textureNode *)new;
+	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct checkerTexture, {
+		.colorA = colorA,
+		.colorB = colorB,
+		.scale = size,
+		.node = {
+			.eval = evalCheckerboard,
+			.base = { .compare = compare }
+		}
+	});
 }
 
 struct textureNode *newCheckerBoardTexture(struct world *world, float size) {
-	struct checkerTexture *new = allocBlock(&world->nodePool, sizeof(*new));
-	new->colorA = newConstantTexture(world, blackColor);
-	new->colorB = newConstantTexture(world, whiteColor);
-	new->scale = size;
-	new->node.eval = evalCheckerboard;
-	new->node.base.compare = compare;
-	new->node.base.hash = hash;
-	return (struct textureNode *)new;
+	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct checkerTexture, {
+		.colorA = newConstantTexture(world, blackColor),
+		.colorB = newConstantTexture(world, whiteColor),
+		.scale = size,
+		.node = {
+			.eval = evalCheckerboard,
+			.base = { .compare = compare }
+		}
+	});
 }

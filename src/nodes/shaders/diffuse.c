@@ -14,6 +14,7 @@
 #include "../textures/texturenode.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
+#include "../../utils/logging.h"
 #include "bsdf.h"
 
 #include "diffuse.h"
@@ -46,10 +47,11 @@ static uint32_t hash(const void *p) {
 }
 
 struct bsdf *newDiffuse(struct world *world, struct textureNode *tex) {
-	struct diffuseBsdf *new = allocBlock(&world->nodePool, sizeof(*new));
-	new->color = tex;
-	new->bsdf.sample = sampleDiffuse;
-	new->bsdf.base.compare = compare;
-	new->bsdf.base.hash = hash;
-	return (struct bsdf *)new;
+	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct diffuseBsdf, {
+		.color = tex,
+		.bsdf = {
+			.sample = sampleDiffuse,
+			.base = { .compare = compare }
+		}
+	});
 }

@@ -44,10 +44,11 @@ static uint32_t hash(const void *p) {
 }
 
 struct textureNode *newConstantTexture(struct world *world, struct color color) {
-	struct constantTexture *new = allocBlock(&world->nodePool, sizeof(*new));
-	new->color = color;
-	new->node.eval = evalConstant;
-	new->node.base.compare = compare;
-	new->node.base.hash = hash;
-	return (struct textureNode *)new;
+	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct constantTexture, {
+		.color = color,
+		.node = {
+			.eval = evalConstant,
+			.base = { .compare = compare }
+		}
+	});
 }

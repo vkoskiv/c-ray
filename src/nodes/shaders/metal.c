@@ -55,11 +55,12 @@ static uint32_t hash(const void *p) {
 }
 
 struct bsdf *newMetal(struct world *world, struct textureNode *color, struct textureNode *roughness) {
-	struct metalBsdf *new = allocBlock(&world->nodePool, sizeof(*new));
-	new->color = color;
-	new->roughness = roughness;
-	new->bsdf.sample = sampleMetal;
-	new->bsdf.base.compare = compare;
-	new->bsdf.base.hash = hash;
-	return (struct bsdf *)new;
+	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct metalBsdf, {
+		.color = color,
+		.roughness = roughness,
+		.bsdf = {
+			.sample = sampleMetal,
+			.base = { .compare = compare }
+		}
+	});
 }
