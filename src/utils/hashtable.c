@@ -165,6 +165,7 @@ void freeHashtable(struct hashtable *hashtable) {
 		}
 	}
 	free(hashtable->buckets);
+	free(hashtable);
 }
 
 bool compareDatabaseEntry(const void* entry1, const void* entry2) {
