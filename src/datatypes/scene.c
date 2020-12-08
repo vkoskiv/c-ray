@@ -108,7 +108,7 @@ int loadScene(struct renderer *r, char *input) {
 	startTimer(&timer);
 	
 	r->scene->nodePool = newBlock(NULL, 1024);
-	r->scene->nodeTable = newHashtable(compareNodes);
+	r->scene->nodeTable = newHashtable(compareNodes, &r->scene->nodePool);
 	
 	//Load configuration and assets
 	switch (parseJSON(r, input)) {
