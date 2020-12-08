@@ -146,7 +146,7 @@ bool removeFromHashtable(struct hashtable *hashtable, const void *element, uint3
 	while (bucket) {
 		if (bucket->hash == hash && hashtable->compare(element, &bucket->data)) {
 			*prev = bucket->next;
-			free(bucket);
+			if (!hashtable->pool) free(bucket);
 			return true;
 		}
 		prev = &bucket->next;
@@ -160,10 +160,11 @@ void freeHashtable(struct hashtable *hashtable) {
 		struct bucket *bucket = hashtable->buckets[i];
 		while (bucket) {
 			struct bucket *next = bucket->next;
-			free(bucket);
+			if (!hashtable->pool) free(bucket);
 			bucket = next;
 		}
 	}
+	free(hashtable->buckets);
 }
 
 bool compareDatabaseEntry(const void* entry1, const void* entry2) {
