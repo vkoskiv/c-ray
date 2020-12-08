@@ -67,7 +67,7 @@ static inline size_t hashToIndex(struct hashtable *hashtable, uint32_t hash) {
 void* findInHashtable(struct hashtable *hashtable, const void* element, uint32_t hash) {
 	struct bucket *bucket = hashtable->buckets[hashToIndex(hashtable, hash)];
 	while (bucket) {
-		if (bucket->hash == hash && hashtable->compare(&element, &bucket->data))
+		if (bucket->hash == hash && hashtable->compare(element, &bucket->data))
 			return &bucket->data;
 		bucket = bucket->next;
 	}
@@ -167,7 +167,7 @@ void freeHashtable(struct hashtable *hashtable) {
 }
 
 bool compareDatabaseEntry(const void* entry1, const void* entry2) {
-	return !strcmp(*(const char**)entry1, *(const char**)entry2);
+	return !strcmp((const char*)entry1, *(const char**)entry2);
 }
 
 struct constantsDatabase* newConstantsDatabase(void) {
