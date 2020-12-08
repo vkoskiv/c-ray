@@ -29,6 +29,7 @@
 #include "../utils/mempool.h"
 #include "../utils/hashtable.h"
 #include "../nodes/shaders/bsdf.h"
+#include "../utils/hashtable.h"
 
 struct bvhBuildTask {
 	struct bvh *bvh;
@@ -170,6 +171,7 @@ void destroyScene(struct world *scene) {
 		}
 		destroyBvh(scene->topLevel);
 		destroyBlocks(scene->nodePool);
+		freeHashtable(scene->nodeTable);
 		free(scene->instances);
 		free(scene->meshes);
 		free(scene->spheres);
