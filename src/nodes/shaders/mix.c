@@ -51,17 +51,15 @@ static uint32_t hashMix(const void *p) {
 }
 
 struct bsdf *newMix(struct world *world, struct bsdf *A, struct bsdf *B, struct textureNode *lerp) {
-	ASSERT(A);
-	ASSERT(B);
-	ASSERT(lerp);
-	struct mixBsdf *new = allocBlock(&world->nodePool, sizeof(*new));
-	new->lerp = lerp;
-	new->A = A;
-	new->B = B;
-	new->bsdf.sample = sampleMix;
-	new->bsdf.base.compare = compareMix;
-	new->bsdf.base.hash = hashMix;
-	return (struct bsdf *)new;
+	HASH_CONS(world->nodeTable, &world->nodePool, hashMix, struct mixBsdf, {
+		.A = A,
+		.B = B,
+		.lerp = lerp,
+		.bsdf = {
+			.sample = sampleMix,
+			.base = { .compare = compareMix }
+		}
+	});
 }
 
 struct constantMixBsdf {
@@ -96,12 +94,13 @@ static uint32_t hashConstant(const void *p) {
 }
 
 struct bsdf *newMixConstant(struct world *world, struct bsdf *A, struct bsdf *B, float mix) {
-	struct constantMixBsdf *new = allocBlock(&world->nodePool, sizeof(*new));
-	new->A = A;
-	new->B = B;
-	new->mix = mix;
-	new->bsdf.sample = sampleConstantMix;
-	new->bsdf.base.compare = compareConstant;
-	new->bsdf.base.hash = hashConstant;
-	return (struct bsdf *)new;
+	HASH_CONS(world->nodeTable, &world->nodePool, hashConstant, struct constantMixBsdf, {
+		.A = A,
+		.B = B,
+		.mix = mix,
+		.bsdf = {
+			.sample = sampleConstantMix,
+			.base = { .compare = compareConstant }
+		}
+	});
 }

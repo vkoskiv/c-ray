@@ -78,11 +78,12 @@ static uint32_t hash(const void *p) {
 }
 
 struct textureNode *newImageTexture(struct world *world, struct texture *texture, uint8_t options) {
-	struct imageTexture *new = allocBlock(&world->nodePool, sizeof(*new));
-	new->tex = texture;
-	new->options = options;
-	new->node.eval = evalTexture;
-	new->node.base.compare = compare;
-	new->node.base.hash = hash;
-	return (struct textureNode *)new;
+	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct imageTexture, {
+		.tex = texture,
+		.options = options,
+		.node = {
+			.eval = evalTexture,
+			.base = { .compare = compare }
+		}
+	});
 }
