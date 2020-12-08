@@ -24,11 +24,10 @@ bool compareNodes(const void *A, const void *B);
 		uint32_t h = hash(&candidate); \
 		T *existing = findInHashtable(hashtable, &candidate, h); \
 		if (existing) {\
-			logr(debug, "Reusing existing node!\n");\
+			logr(debug, "Reusing existing node. Args: %s\n", #__VA_ARGS__);\
 			return (void *)existing; \
 		} \
-		T *final = allocBlock(pool, sizeof(T)); \
-		memcpy(final, &candidate, sizeof(T)); \
+		logr(debug, "Inserting new node. Args: %s\n", #__VA_ARGS__); \
 		insertInHashtable(hashtable, &candidate, sizeof(T), h); \
-		return (void *)final; \
+		return findInHashtable(hashtable, &candidate, h); \
 	}
