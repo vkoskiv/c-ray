@@ -17,7 +17,7 @@
                BlueprintIdentifier = "905842D9236651FC009D92F1"
                BuildableName = "C-Ray Debug"
                BlueprintName = "C-Ray Debug"
-               ReferencedContainer = "container:C-ray.xcodeproj">
+               ReferencedContainer = "container:C-Ray.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -26,14 +26,18 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "YES"
       customWorkingDirectory = "/Users/vkoskiv/c-ray"
@@ -49,19 +53,25 @@
             BlueprintIdentifier = "905842D9236651FC009D92F1"
             BuildableName = "C-Ray Debug"
             BlueprintName = "C-Ray Debug"
-            ReferencedContainer = "container:C-ray.xcodeproj">
+            ReferencedContainer = "container:C-Ray.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "./input/hdrInstanceTest.json"
-            isEnabled = "YES">
+            argument = "input/hdr"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-v"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--test"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -76,7 +86,7 @@
             BlueprintIdentifier = "905842D9236651FC009D92F1"
             BuildableName = "C-Ray Debug"
             BlueprintName = "C-Ray Debug"
-            ReferencedContainer = "container:C-ray.xcodeproj">
+            ReferencedContainer = "container:C-Ray.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
