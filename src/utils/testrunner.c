@@ -14,7 +14,7 @@
 #include "testrunner.h"
 
 //Test assert
-#define test_assert(x) if (!(x)) { pass = false; failed_expression = #x;}
+#define test_assert(x) if (!(x)) { failed_expression = #x; return false; }
 
 typedef struct {
 	char *testName;

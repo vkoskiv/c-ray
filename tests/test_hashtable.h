@@ -9,9 +9,28 @@
 #include "../src/utils/hashtable.h"
 #include "../src/datatypes/vector.h"
 
-bool hashtable_mixed(void) {
-	bool pass = true;
+//TODO: Consider having some of these common comparators included with the hashtable API.
+bool compare(const void *A, const void *B) {;
+	const char *a = (const char *)A;
+	const char *b = (const char *)B;
+	return stringEquals(a, b);
+}
+
+bool hashtable_doubleInsert(void) {
+	struct hashtable *table = newHashtable(compare, NULL);
 	
+	float firstValue = 12;
+	char *firstKey = "twelve";
+	insertInHashtable(table, &firstValue, sizeof(float), hashString(hashInit(), firstKey));
+	
+	float *got = findInHashtable(table, "twelve", hashString(hashInit(), "twelve"));
+	test_assert(got);
+	
+	test_assert(*got == 12);
+	return true;
+}
+
+bool hashtable_mixed(void) {
 	struct constantsDatabase *database = newConstantsDatabase();
 	
 	setDatabaseVector(database, "key0", (struct vector){1.0f, 2.0f, 3.0f});
@@ -28,24 +47,22 @@ bool hashtable_mixed(void) {
 	test_assert(getDatabaseInt(database, "key4") == 1234);
 	
 	freeConstantsDatabase(database);
-	
-	return pass;
+	return true;
 }
 
 bool hashtable_fill(void) {
-	bool pass = true;
 	struct constantsDatabase *database = newConstantsDatabase();
 	char buf[20];
 	size_t iterCount = 10000;
-	for (size_t i = 0; i < iterCount && pass; ++i) {
+	for (size_t i = 0; i < iterCount; ++i) {
 		sprintf(buf, "key%lu", i);
 		setDatabaseInt(database, buf, (int)i);
 	}
 	test_assert(database->hashtable.elemCount == iterCount);
-	for (size_t i = 0; i < iterCount && pass; ++i) {
+	for (size_t i = 0; i < iterCount; ++i) {
 		sprintf(buf, "key%lu", i);
 		test_assert((size_t)getDatabaseInt(database, buf) == i);
 	}
 	freeConstantsDatabase(database);
-	return pass;
+	return true;
 }

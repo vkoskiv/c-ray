@@ -9,7 +9,6 @@
 #include "../src/utils/fileio.h"
 
 bool fileio_humanFileSize(void) {
-	bool pass = true;
 	
 	char *humanSize = NULL;
 	
@@ -33,25 +32,23 @@ bool fileio_humanFileSize(void) {
 	test_assert(stringEquals(humanSize, "1.00TB"));
 	free(humanSize);
 	
-	return pass;
+	return true;
 }
 
 bool fileio_getFileName(void) {
-	bool pass = true;
 	
 	char *fileName = getFileName("/Users/vkoskiv/c-ray/bin/c-ray");
 	test_assert(stringEquals(fileName, "c-ray"));
 	free(fileName);
 	
-	return pass;
+	return true;
 }
 
 bool fileio_getFilePath(void) {
-	bool pass = true;
 	
 	char *fileName = getFilePath("/Users/vkoskiv/c-ray/bin/c-ray");
 	test_assert(stringEquals(fileName, "/Users/vkoskiv/c-ray/bin/"));
 	free(fileName);
 	
-	return pass;
+	return true;
 }

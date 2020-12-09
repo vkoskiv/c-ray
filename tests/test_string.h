@@ -7,7 +7,6 @@
 //
 
 bool string_stringEquals(void) {
-	bool pass = true;
 	
 	test_assert(!stringEquals("TestStringOne", "TestStringTwo"));
 	test_assert(stringEquals("12345", "12345"));
@@ -18,22 +17,20 @@ bool string_stringEquals(void) {
 	test_assert(stringEquals("", ""));
 	test_assert(stringEquals(" ", " "));
 	
-	return pass;
+	return true;
 }
 
 bool string_stringContains(void) {
-	bool pass = true;
 	
 	test_assert(stringContains("This is a really long string containing a bunch of text.", "long"));
 	test_assert(stringContains("This is a really long string containing a bunch of text.", " "));
 	
 	test_assert(stringContains("Test string", ""));
 	
-	return pass;
+	return true;
 }
 
 bool string_copyString(void) {
-	bool pass = true;
 	
 	char *staticString = "Statically allocated string here";
 	char *dynamicString = stringCopy(staticString);
@@ -51,11 +48,10 @@ bool string_copyString(void) {
 	free(dynamicString);
 	free(secondString);
 	
-	return pass;
+	return true;
 }
 
 bool string_concatString(void) {
-	bool pass = true;
 	
 	char *hello = "Hello, ";
 	char *world = "world!";
@@ -68,11 +64,10 @@ bool string_concatString(void) {
 	
 	free(concatenated);
 	
-	return pass;
+	return true;
 }
 
 bool string_lowerCase(void) {
-	bool pass = true;
 	
 	char *spongetext = "ThiS is A STRING cONtaINing REALLy CoNfUSing CasinG.";
 	
@@ -83,11 +78,10 @@ bool string_lowerCase(void) {
 	
 	free(lowercase);
 	
-	return pass;
+	return true;
 }
 
 bool string_startsWith(void) {
-	bool pass = true;
 	
 	char *string = "abcdefghijklmn";
 	
@@ -109,5 +103,5 @@ bool string_startsWith(void) {
 	test_assert(!stringStartsWith("bcde", string));
 	test_assert(!stringStartsWith("acde", string));
 	
-	return pass;
+	return true;
 }

@@ -8,9 +8,6 @@
 
 static char *failed_expression;
 
-//Test assert
-#define test_assert(x) if (!(x)) { pass = false; failed_expression = #x;}
-
 // Testable modules
 #include "perf_texture.h"
 #include "perf_fileio.h"
