@@ -33,13 +33,13 @@ uint32_t hashCombine(uint32_t h, uint8_t u) {
 	return (h ^ u) * FNV_PRIME;
 }
 
-uint32_t hashBytes(uint32_t h, const void* bytes, size_t size) {
+uint32_t hashBytes(uint32_t h, const void *bytes, size_t size) {
 	for (size_t i = 0; i < size; ++i)
-		h = hashCombine(h, ((uint8_t*)bytes)[i]);
+		h = hashCombine(h, ((uint8_t *)bytes)[i]);
 	return h;
 }
 
-uint32_t hashString(uint32_t h, const char* str) {
+uint32_t hashString(uint32_t h, const char *str) {
 	for (size_t i = 0; str[i]; ++i)
 		h = hashCombine(h, str[i]);
 	return h;
@@ -49,10 +49,10 @@ static inline bool isPowerOfTwo(size_t i) {
 	return (i & (i - 1)) == 0;
 }
 
-struct hashtable* newHashtable(bool (*compare)(const void*, const void*), struct block **pool) {
+struct hashtable* newHashtable(bool (*compare)(const void *, const void *), struct block **pool) {
 	struct hashtable *hashtable = malloc(sizeof(struct hashtable));
 	hashtable->bucketCount = DEFAULT_CAPACITY;
-	hashtable->buckets = calloc(DEFAULT_CAPACITY, sizeof(struct bucket*));
+	hashtable->buckets = calloc(DEFAULT_CAPACITY, sizeof(struct bucket *));
 	hashtable->elemCount = 0;
 	hashtable->compare = compare;
 	hashtable->pool = pool ? pool : NULL;
@@ -64,7 +64,7 @@ static inline size_t hashToIndex(struct hashtable *hashtable, uint32_t hash) {
 	return hash & (hashtable->bucketCount - 1);
 }
 
-void* findInHashtable(struct hashtable *hashtable, const void* element, uint32_t hash) {
+void *findInHashtable(struct hashtable *hashtable, const void *element, uint32_t hash) {
 	struct bucket *bucket = hashtable->buckets[hashToIndex(hashtable, hash)];
 	while (bucket) {
 		if (bucket->hash == hash && hashtable->compare(element, &bucket->data))
@@ -80,7 +80,7 @@ static inline bool needsRehash(struct hashtable *hashtable) {
 
 static inline void rehash(struct hashtable *hashtable) {
 	size_t newBucketCount = 2 * hashtable->bucketCount;
-	struct bucket **newBuckets = calloc(newBucketCount, sizeof(struct bucket*));
+	struct bucket **newBuckets = calloc(newBucketCount, sizeof(struct bucket *));
 	struct hashtable newHashtable = {
 		.bucketCount = newBucketCount,
 		.buckets = newBuckets
@@ -155,7 +155,7 @@ bool removeFromHashtable(struct hashtable *hashtable, const void *element, uint3
 	return false;
 }
 
-void freeHashtable(struct hashtable *hashtable) {
+void destroyHashtable(struct hashtable *hashtable) {
 	for (size_t i = 0, n = hashtable->bucketCount; i < n; ++i) {
 		struct bucket *bucket = hashtable->buckets[i];
 		while (bucket) {
@@ -168,12 +168,12 @@ void freeHashtable(struct hashtable *hashtable) {
 	free(hashtable);
 }
 
-bool compareDatabaseEntry(const void* entry1, const void* entry2) {
-	return !strcmp((const char*)entry1, *(const char**)entry2);
+bool compareDatabaseEntry(const void *entry1, const void *entry2) {
+	return !strcmp((const char *)entry1, *(const char **)entry2);
 }
 
-struct constantsDatabase* newConstantsDatabase(void) {
-	return (struct constantsDatabase*)newHashtable(compareDatabaseEntry, NULL);
+struct constantsDatabase *newConstantsDatabase(void) {
+	return (struct constantsDatabase *)newHashtable(compareDatabaseEntry, NULL);
 }
 
 bool existsInDatabase(struct constantsDatabase *database, const char *key) {
@@ -210,7 +210,7 @@ struct databaseEntry {
 
 DATABASE_ACCESSORS(struct vector, vectorEntry, setDatabaseVector, getDatabaseVector, ((struct vector) { 0.0f, 0.0f, 0.0f }))
 DATABASE_ACCESSORS(float,         floatEntry,  setDatabaseFloat,  getDatabaseFloat,  0.0f)
-DATABASE_ACCESSORS(char*,         stringEntry, ignoreAccessor,    getDatabaseString, NULL)
+DATABASE_ACCESSORS(char *,        stringEntry, ignoreAccessor,    getDatabaseString, NULL)
 DATABASE_ACCESSORS(int,           intEntry,    setDatabaseInt,    getDatabaseInt,    0)
 
 void setDatabaseString(struct constantsDatabase *database, const char *key, const char *value) {
@@ -223,7 +223,7 @@ void setDatabaseString(struct constantsDatabase *database, const char *key, cons
 	} else {
 		forceInsertInHashtable(
 			&database->hashtable,
-			&(struct stringEntry) { .entry.key = stringCopy(key), .entry.toFree = valueCopy, .value = valueCopy },
+			&(struct stringEntry){ .entry.key = stringCopy(key), .entry.toFree = valueCopy, .value = valueCopy },
 			sizeof(struct stringEntry),
 			hashString(hashInit(), key));
 	}
@@ -244,50 +244,11 @@ void freeConstantsDatabase(struct constantsDatabase *database) {
 	for (size_t i = 0, n = database->hashtable.bucketCount; i < n; ++i) {
 		struct bucket *bucket = database->hashtable.buckets[i];
 		while (bucket) {
-			struct databaseEntry *entry = (struct databaseEntry*)&bucket->data;
+			struct databaseEntry *entry = (struct databaseEntry *)&bucket->data;
 			free(entry->key);
 			free(entry->toFree);
 			bucket = bucket->next;
 		}
 	}
-	freeHashtable(&database->hashtable);
-}
-
-static void printTableUsage(struct hashtable *hashtable) {
-	for (size_t i = 0, n = hashtable->bucketCount; i < n; ++i)
-		printf("[%s]", hashtable->buckets[i] ? "x" : " ");
-	printf("\n");
-}
-
-void testTable() {
-	struct constantsDatabase *database = newConstantsDatabase();
-
-	printTableUsage(&database->hashtable);
-
-	setDatabaseFloat(database, "Foo", 0.1f);
-	setDatabaseFloat(database, "Bar", 0.2f);
-	setDatabaseFloat(database, "Baz", 0.3f);
-
-	printTableUsage(&database->hashtable);
-
-	logr(debug, "Value at %s is %f\n", "Foo", getDatabaseFloat(database, "Foo"));
-	logr(debug, "Value at %s is %f\n", "Bar", getDatabaseFloat(database, "Bar"));
-	logr(debug, "Value at %s is %f\n", "Baz", getDatabaseFloat(database, "Baz"));
-
-	setDatabaseFloat(database, "Baz", 0.4f);
-	logr(debug, "Value at %s is %f\n", "Baz", getDatabaseFloat(database, "Baz"));
-	printTableUsage(&database->hashtable);
-	for (int i = 0; i < 10000000; ++i) {
-		setDatabaseFloat(database, "Yeet", 3.3333);
-	}
-	printTableUsage(&database->hashtable);
-	logr(debug, "Testing overfill\n");
-	char buf[5];
-	for (size_t i = 0, n = database->hashtable.bucketCount; i < n; ++i) {
-		sprintf(buf, "%zu", i);
-		setDatabaseFloat(database, buf, (float)i);
-		printTableUsage(&database->hashtable);
-	}
-
-	freeConstantsDatabase(database);
+	destroyHashtable(&database->hashtable);
 }
