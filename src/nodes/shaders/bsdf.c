@@ -13,3 +13,9 @@
 #include "../../datatypes/material.h"
 #include "bsdf.h"
 
+struct bsdf *warningBsdf(struct world *world) {
+	return newMix(world,
+				  newDiffuse(world, newConstantTexture(world, warningMaterial().diffuse)),
+				  newDiffuse(world, newConstantTexture(world, (struct color){0.2f, 0.2f, 0.2f, 1.0f})),
+				  newColorCheckerBoardTexture(world, newConstantTexture(world, blackColor), newConstantTexture(world, whiteColor), 500.0f));
+}

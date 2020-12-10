@@ -83,6 +83,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+//TODO: Add IOR input
 struct bsdf *newGlass(struct world *world, struct textureNode *color, struct textureNode *roughness) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct glassBsdf, {
 		.color = color,
