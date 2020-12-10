@@ -53,13 +53,6 @@ struct material *materialForName(struct material *materials, int count, char *na
 	return NULL;
 }
 
-struct bsdf *warningBsdf(struct world *world) {
-	return newMix(world,
-				  newDiffuse(world, newConstantTexture(world, warningMaterial().diffuse)),
-				  newDiffuse(world, newConstantTexture(world, (struct color){0.2f, 0.2f, 0.2f, 1.0f})),
-				  newColorCheckerBoardTexture(world, newConstantTexture(world, blackColor), newConstantTexture(world, whiteColor), 500.0f));
-}
-
 void assignBSDF(struct world *world, struct material *mat) {
 	struct textureNode *roughness = mat->specularMap ? newImageTexture(world, mat->specularMap, NO_BILINEAR) : newConstantTexture(world, newGrayColor(mat->roughness));
 	struct textureNode *color = mat->texture ? newImageTexture(world, mat->texture, SRGB_TRANSFORM) : newConstantTexture(world, mat->diffuse);

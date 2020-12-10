@@ -24,3 +24,5 @@ struct textureNode {
 #include "checker.h"
 #include "constant.h"
 #include "image.h"
+
+struct textureNode *unknownTextureNode(struct world *w);

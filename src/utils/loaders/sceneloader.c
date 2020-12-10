@@ -32,6 +32,7 @@
 #include "../../utils/args.h"
 #include "../../renderer/envmap.h"
 #include "../../utils/timer.h"
+#include "../../nodes/shaders/bsdf.h"
 #include "meshloader.h"
 
 struct transform parseTransformComposite(const cJSON *transforms);
@@ -709,6 +710,10 @@ static struct color parseColor(const cJSON *data) {
 	
 	struct color newColor;
 	
+	if (cJSON_IsArray(data)) {
+		//TODO
+	}
+	
 	kelvin = cJSON_GetObjectItem(data, "blackbody");
 	if (kelvin && cJSON_IsNumber(kelvin)) {
 		newColor = colorForKelvin(kelvin->valuedouble);
@@ -824,6 +829,63 @@ static struct transform parseInstanceTransform(const cJSON *instance) {
 	return parseTransformComposite(transforms);
 }
 
+static struct textureNode *parseTextureNode(struct world *w, const cJSON *node) {
+	return newConstantTexture(w, redColor);
+	uint8_t options = 0;
+	
+	if (cJSON_IsObject(node)) {
+		// Has more params in here
+		// Do we want to do an srgb transform?
+		const cJSON *srgbTransform = cJSON_GetObjectItem(node, "transform");
+		ASSERT(cJSON_IsBool(srgbTransform));
+		if (cJSON_IsTrue(srgbTransform)) {
+			options &= SRGB_TRANSFORM;
+		}
+		const cJSON *path = cJSON_GetObjectItem(node, "path");
+		ASSERT(cJSON_IsString(path));
+		return newImageTexture(w, loadTexture(path->valuestring), options);
+	} else if (cJSON_IsString(node)) {
+		// No options provided, go with defaults.
+		return newImageTexture(w, loadTexture(node->valuestring), 0);
+	} else {
+		return newConstantTexture(w, parseColor(node));
+	}
+	
+	return unknownTextureNode(w);
+}
+
+static struct bsdf *parseNode(struct world *w, const cJSON *node) {
+	const cJSON *type = cJSON_GetObjectItem(node, "type");
+	ASSERT(type);
+	ASSERT(cJSON_IsString(type));
+	if (stringEquals(type->valuestring, "diffuse")) {
+		const cJSON *color = cJSON_GetObjectItem(node, "color");
+		ASSERT(color);
+		return newDiffuse(w, parseTextureNode(w, color));
+	} else if (stringEquals(type->valuestring, "metal")) {
+		const cJSON *color = cJSON_GetObjectItem(node, "color");
+		const cJSON *roughness = cJSON_GetObjectItem(node, "roughness");
+		return newMetal(w, parseTextureNode(w, color), parseTextureNode(w, roughness));
+	} else if (stringEquals(type->valuestring, "glass")) {
+		const cJSON *color = cJSON_GetObjectItem(node, "color");
+		const cJSON *roughness = cJSON_GetObjectItem(node, "roughness");
+		return newGlass(w, parseTextureNode(w, color), parseTextureNode(w, roughness));
+	} else if (stringEquals(type->valuestring, "plastic")) {
+		const cJSON *color = cJSON_GetObjectItem(node, "color");
+		return newPlastic(w, parseTextureNode(w, color));
+	} else if (stringEquals(type->valuestring, "mix")) {
+		const cJSON *jsonA = cJSON_GetObjectItem(node, "A");
+		const cJSON *jsonB = cJSON_GetObjectItem(node, "B");
+		const cJSON *factor = cJSON_GetObjectItem(node, "factor");
+		struct bsdf *A = parseNode(w, jsonA);
+		struct bsdf *B = parseNode(w, jsonB);
+		return newMix(w, A, B, parseTextureNode(w, factor));
+	}
+	
+	logr(warning, "I can't figure out this node!\n");
+	return warningBsdf(w);
+}
+
 //FIXME: Only parse everything else if the mesh is found and is valid
 static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
@@ -882,21 +944,29 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 			}
 		}
 		
-		for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
-			lastMesh(r)->materials[i].type = type;
-			if (type == emission && intensity) {
-				lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);
+		const cJSON *material = cJSON_GetObjectItem(data, "material");
+		if (material) {
+			struct bsdf *node = parseNode(r->scene, material);
+			for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
+				lastMesh(r)->materials[i].bsdf = node;
 			}
-			if (type == glass) {
-				const cJSON *IOR = cJSON_GetObjectItem(data, "IOR");
-				if (cJSON_IsNumber(IOR)) {
-					lastMesh(r)->materials[i].IOR = IOR->valuedouble;
+		} else {
+			for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
+				lastMesh(r)->materials[i].type = type;
+				if (type == emission && intensity) {
+					lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);
 				}
-			} else if (type == plastic) {
-				lastMesh(r)->materials[i].IOR = 1.45;
+				if (type == glass) {
+					const cJSON *IOR = cJSON_GetObjectItem(data, "IOR");
+					if (cJSON_IsNumber(IOR)) {
+						lastMesh(r)->materials[i].IOR = IOR->valuedouble;
+					}
+				} else if (type == plastic) {
+					lastMesh(r)->materials[i].IOR = 1.45;
+				}
+				if (cJSON_IsNumber(roughness)) lastMesh(r)->materials[i].roughness = roughness->valuedouble;
+				assignBSDF(r->scene, &lastMesh(r)->materials[i]);
 			}
-			if (cJSON_IsNumber(roughness)) lastMesh(r)->materials[i].roughness = roughness->valuedouble;
-			assignBSDF(r->scene, &lastMesh(r)->materials[i]);
 		}
 	}
 }

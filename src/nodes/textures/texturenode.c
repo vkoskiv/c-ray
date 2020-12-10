@@ -17,3 +17,7 @@
 #include "../shaders/bsdf.h"
 
 #include "texturenode.h"
+
+struct textureNode *unknownTextureNode(struct world *w) {
+	return newConstantTexture(w, blackColor);
+}
