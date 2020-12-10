@@ -701,18 +701,22 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 }
 
 static struct color parseColor(const cJSON *data) {
+	struct color newColor;
+	if (cJSON_IsArray(data)) {
+		newColor.red =   cJSON_IsNumber(cJSON_GetArrayItem(data, 0)) ? cJSON_GetArrayItem(data, 0)->valuedouble : 0.0f;
+		newColor.green = cJSON_IsNumber(cJSON_GetArrayItem(data, 1)) ? cJSON_GetArrayItem(data, 1)->valuedouble : 0.0f;
+		newColor.blue =  cJSON_IsNumber(cJSON_GetArrayItem(data, 2)) ? cJSON_GetArrayItem(data, 2)->valuedouble : 0.0f;
+		newColor.alpha = cJSON_IsNumber(cJSON_GetArrayItem(data, 3)) ? cJSON_GetArrayItem(data, 3)->valuedouble : 1.0f;
+		return newColor;
+	}
+	
+	ASSERT(cJSON_IsObject(data));
 	
 	const cJSON *R = NULL;
 	const cJSON *G = NULL;
 	const cJSON *B = NULL;
 	const cJSON *A = NULL;
 	const cJSON *kelvin = NULL;
-	
-	struct color newColor;
-	
-	if (cJSON_IsArray(data)) {
-		//TODO
-	}
 	
 	kelvin = cJSON_GetObjectItem(data, "blackbody");
 	if (kelvin && cJSON_IsNumber(kelvin)) {
