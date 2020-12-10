@@ -834,10 +834,15 @@ static struct transform parseInstanceTransform(const cJSON *instance) {
 }
 
 static struct textureNode *parseTextureNode(struct world *w, const cJSON *node) {
-	return newConstantTexture(w, redColor);
 	uint8_t options = 0;
 	
 	if (cJSON_IsObject(node)) {
+		//FIXME: No good way to know if it's a color, so just check if it's got "r" in there.
+		const cJSON *red = cJSON_GetObjectItem(node, "r");
+		if (red) {
+			// This is actually a color object.
+			return newConstantTexture(w, parseColor(node));
+		}
 		// Has more params in here
 		// Do we want to do an srgb transform?
 		const cJSON *srgbTransform = cJSON_GetObjectItem(node, "transform");
