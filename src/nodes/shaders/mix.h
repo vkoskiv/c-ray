@@ -8,6 +8,4 @@
 
 #pragma once
 
-struct bsdf *newMix(struct world *world, struct bsdf *A, struct bsdf *B, struct textureNode *lerp);
-
-struct bsdf *newMixConstant(struct world *world, struct bsdf *A, struct bsdf *B, float mix);
+struct bsdf *newMix(struct world *world, struct bsdf *A, struct bsdf *B, struct textureNode *factor);
