@@ -27,7 +27,7 @@ struct mixBsdf {
 struct bsdfSample sampleMix(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct mixBsdf *mixBsdf = (struct mixBsdf*)bsdf;
 	//TODO: Do we need grayscale()?
-	const float lerp = mixBsdf->factor ? grayscale(mixBsdf->factor->eval(mixBsdf->factor, record)).red : 0.5f;
+	const float lerp = grayscale(mixBsdf->factor->eval(mixBsdf->factor, record)).red;
 	if (getDimension(sampler) < lerp) {
 		return mixBsdf->A->sample(mixBsdf->A, sampler, record);
 	} else {
@@ -58,7 +58,7 @@ struct bsdf *newMix(struct world *world, struct bsdf *A, struct bsdf *B, struct 
 	HASH_CONS(world->nodeTable, &world->nodePool, hashMix, struct mixBsdf, {
 		.A = A,
 		.B = B,
-		.factor = factor,
+		.factor = factor ? factor : newConstantTexture(world, grayColor),
 		.bsdf = {
 			.sample = sampleMix,
 			.base = { .compare = compareMix }

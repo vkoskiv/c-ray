@@ -57,7 +57,7 @@ static uint32_t hash(const void *p) {
 struct bsdf *newMetal(struct world *world, struct textureNode *color, struct textureNode *roughness) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct metalBsdf, {
 		.color = color,
-		.roughness = roughness,
+		.roughness = roughness ? roughness : newConstantTexture(world, blackColor),
 		.bsdf = {
 			.sample = sampleMetal,
 			.base = { .compare = compare }

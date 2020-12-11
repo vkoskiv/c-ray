@@ -48,7 +48,7 @@ static uint32_t hash(const void *p) {
 
 struct bsdf *newDiffuse(struct world *world, struct textureNode *tex) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct diffuseBsdf, {
-		.color = tex,
+		.color = tex ? tex : newConstantTexture(world, blackColor),
 		.bsdf = {
 			.sample = sampleDiffuse,
 			.base = { .compare = compare }
