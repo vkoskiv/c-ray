@@ -51,6 +51,10 @@ static uint32_t hashMix(const void *p) {
 }
 
 struct bsdf *newMix(struct world *world, struct bsdf *A, struct bsdf *B, struct textureNode *factor) {
+	if (A == B) {
+		logr(debug, "A == B, pruning mix node.\n");
+		return A;
+	}
 	HASH_CONS(world->nodeTable, &world->nodePool, hashMix, struct mixBsdf, {
 		.A = A,
 		.B = B,
