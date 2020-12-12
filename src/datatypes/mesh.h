@@ -27,8 +27,8 @@ struct mesh {
 	int firstNormalIndex;
 	
 	//Texture coordinates
-	int textureCount;
-	int firstTextureIndex;
+	int textureCoordCount;
+	int firstTextureCoordIndex;
 	
 	//Faces
 	struct poly *polygons;
