@@ -891,7 +891,9 @@ static struct bsdf *parseNode(struct world *w, const cJSON *node) {
 		return newMix(w, A, B, parseTextureNode(w, factor));
 	}
 	
-	logr(warning, "I can't figure out this node!\n");
+	logr(warning, "Failed to parse node. Here's a dump:\n");
+	logr(warning, "\n%s\n", cJSON_Print(node));
+	logr(warning, "Setting to an obnoxious pink material.\n");
 	return warningBsdf(w);
 }
 
