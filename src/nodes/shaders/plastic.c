@@ -32,7 +32,7 @@ struct bsdfSample sampleShiny(const struct bsdf *bsdf, sampler *sampler, const s
 	struct plasticBsdf *plastic = (struct plasticBsdf *)bsdf;
 	struct vector reflected = reflectVec(&record->incident.direction, &record->surfaceNormal);
 	//Roughness
-	float roughness = plastic->roughness ? plastic->roughness->eval(plastic->roughness, record).red : record->material.roughness;
+	float roughness = plastic->roughness->eval(plastic->roughness, record).red;
 	if (roughness > 0.0f) {
 		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
@@ -87,10 +87,10 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdf *newPlastic(struct world *world, struct textureNode *tex) {
+struct bsdf *newPlastic(struct world *world, struct textureNode *color) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct plasticBsdf, {
-		.color = tex,
-		.roughness = NULL,
+		.color = color ? color : newConstantTexture(world, blackColor),
+		.roughness = newConstantTexture(world, blackColor),
 		.bsdf = {
 			.sample = samplePlastic,
 			.base = { .compare = compare }

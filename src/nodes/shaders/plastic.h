@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct bsdf *newPlastic(struct world *world, struct textureNode *tex);
+struct bsdf *newPlastic(struct world *world, struct textureNode *color);

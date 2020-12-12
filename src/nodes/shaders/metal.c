@@ -36,7 +36,7 @@ struct bsdfSample sampleMetal(const struct bsdf *bsdf, sampler *sampler, const s
 	
 	return (struct bsdfSample){
 		.out = reflected,
-		.color = metalBsdf->color ? metalBsdf->color->eval(metalBsdf->color, record) : record->material.diffuse
+		.color = metalBsdf->color->eval(metalBsdf->color, record)
 	};
 }
 
@@ -56,7 +56,7 @@ static uint32_t hash(const void *p) {
 
 struct bsdf *newMetal(struct world *world, struct textureNode *color, struct textureNode *roughness) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct metalBsdf, {
-		.color = color,
+		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = roughness ? roughness : newConstantTexture(world, blackColor),
 		.bsdf = {
 			.sample = sampleMetal,

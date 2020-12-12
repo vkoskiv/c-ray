@@ -49,7 +49,7 @@ struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const s
 		reflectionProbability = 1.0f;
 	}
 	
-	float roughness = glassBsdf->roughness ? glassBsdf->roughness->eval(glassBsdf->roughness, record).red : record->material.roughness;
+	float roughness = glassBsdf->roughness->eval(glassBsdf->roughness, record).red;
 	if (roughness > 0.0f) {
 		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
@@ -65,7 +65,7 @@ struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const s
 	
 	return (struct bsdfSample){
 		.out = scatterDir,
-		.color = glassBsdf->color ? glassBsdf->color->eval(glassBsdf->color, record) : record->material.diffuse
+		.color = glassBsdf->color->eval(glassBsdf->color, record)
 	};
 }
 
@@ -86,8 +86,8 @@ static uint32_t hash(const void *p) {
 //TODO: Add IOR input
 struct bsdf *newGlass(struct world *world, struct textureNode *color, struct textureNode *roughness) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct glassBsdf, {
-		.color = color,
-		.roughness = roughness,
+		.color = color ? color : newConstantTexture(world, blackColor),
+		.roughness = roughness ? roughness : newConstantTexture(world, blackColor),
 		.bsdf = {
 			.sample = sampleGlass,
 			.base = { .compare = compare }
