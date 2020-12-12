@@ -61,7 +61,7 @@ void assignBSDF(struct world *w, struct material *mat) {
 			mat->bsdf = newDiffuse(w, color);
 			break;
 		case glass:
-			mat->bsdf = newGlass(w, color, roughness);
+			mat->bsdf = newGlass(w, color, roughness, mat->IOR);
 			break;
 		case metal:
 			mat->bsdf = newMetal(w, color, roughness);

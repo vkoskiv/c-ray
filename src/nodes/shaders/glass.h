@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct bsdf *newGlass(struct world *world, struct textureNode *color, struct textureNode *roughness);
+struct bsdf *newGlass(struct world *world, struct textureNode *color, struct textureNode *roughness, float IOR);
