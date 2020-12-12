@@ -150,11 +150,11 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 		} else if (first[0] == '\0') {
 			head = nextLine(file);
 			continue;
-		} else if (/* DISABLES CODE */ (0)/*first[0] == 'o' || first[0] == 'g'*/) {
+		} else if (first[0] == 'o' || first[0] == 'g') {
 			//FIXME: o and g probably have a distinction for a reason?
-			currentMeshPtr = &meshes[currentMesh++];
+			//currentMeshPtr = &meshes[currentMesh++];
 			currentMeshPtr->name = stringCopy(peekNextToken(line));
-			valid_meshes++;
+			//valid_meshes++;
 		} else if (stringEquals(first, "v")) {
 			vertices[currentVertex++] = parseVertex(line);
 			currentVertexCount++;
