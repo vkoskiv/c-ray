@@ -725,25 +725,25 @@ static struct color parseColor(const cJSON *data) {
 	}
 	
 	R = cJSON_GetObjectItem(data, "r");
-	if (R != NULL && cJSON_IsNumber(R)) {
+	if (cJSON_IsNumber(R)) {
 		newColor.red = R->valuedouble;
 	} else {
 		newColor.red = 0.0f;
 	}
 	G = cJSON_GetObjectItem(data, "g");
-	if (R != NULL && cJSON_IsNumber(G)) {
+	if (cJSON_IsNumber(G)) {
 		newColor.green = G->valuedouble;
 	} else {
 		newColor.green = 0.0f;
 	}
 	B = cJSON_GetObjectItem(data, "b");
-	if (R != NULL && cJSON_IsNumber(B)) {
+	if (cJSON_IsNumber(B)) {
 		newColor.blue = B->valuedouble;
 	} else {
 		newColor.blue = 0.0f;
 	}
 	A = cJSON_GetObjectItem(data, "a");
-	if (R != NULL && cJSON_IsNumber(A)) {
+	if (cJSON_IsNumber(A)) {
 		newColor.alpha = A->valuedouble;
 	} else {
 		newColor.alpha = 1.0f;
