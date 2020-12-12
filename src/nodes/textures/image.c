@@ -33,27 +33,12 @@ struct color internalColor(const struct texture *tex, const struct hitRecord *is
 	if (!isect->material.texture) return warningMaterial().diffuse;
 	if (!isect->polygon) return warningMaterial().diffuse;
 	
-	const struct poly *p = isect->polygon;
-	
-	//barycentric coordinates for this polygon
-	const float u = isect->uv.x;
-	const float v = isect->uv.y;
-	const float w = 1.0f - u - v;
-	
-	//Weighted texture coordinates
-	const struct coord ucomponent = coordScale(u, g_textureCoords[p->textureIndex[1]]);
-	const struct coord vcomponent = coordScale(v, g_textureCoords[p->textureIndex[2]]);
-	const struct coord wcomponent = coordScale(w, g_textureCoords[p->textureIndex[0]]);
-	
-	// textureXY = u * v1tex + v * v2tex + w * v3tex
-	const struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
-	
 	//Get the color value at these XY coordinates
-	struct color output = textureGetPixel(tex, textureXY.x, textureXY.y, true);
+	struct color output = textureGetPixel(tex, isect->uv.x, isect->uv.y, true);
 	
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	if (transform) output = fromSRGB(output);
-		return output;
+	return output;
 }
 
 struct color evalTexture(const struct textureNode *node, const struct hitRecord *record) {

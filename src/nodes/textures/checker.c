@@ -29,23 +29,7 @@ struct checkerTexture {
 
 // UV-mapped variant
 static struct color mappedCheckerBoard(const struct hitRecord *isect, const struct textureNode *A, const struct textureNode *B, float coef) {
-	ASSERT(isect->material.texture);
-	const struct poly *p = isect->polygon;
-	
-	//barycentric coordinates for this polygon
-	const float u = isect->uv.x;
-	const float v = isect->uv.y;
-	const float w = 1.0f - u - v;
-	
-	//Weighted coordinates
-	const struct coord ucomponent = coordScale(u, g_textureCoords[p->textureIndex[1]]);
-	const struct coord vcomponent = coordScale(v, g_textureCoords[p->textureIndex[2]]);
-	const struct coord wcomponent = coordScale(w, g_textureCoords[p->textureIndex[0]]);
-	
-	// textureXY = u * v1tex + v * v2tex + w * v3tex
-	const struct coord surfaceXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
-	
-	const float sines = sinf(coef*surfaceXY.x) * sinf(coef*surfaceXY.y);
+	const float sines = sinf(coef * isect->uv.x) * sinf(coef * isect->uv.y);
 	
 	if (sines < 0.0f) {
 		return A->eval(A, isect);
@@ -65,7 +49,7 @@ static struct color unmappedCheckerBoard(const struct hitRecord *isect, const st
 }
 
 static struct color checkerBoard(const struct hitRecord *isect, const struct textureNode *A, const struct textureNode *B, float scale) {
-	return isect->material.texture ? mappedCheckerBoard(isect, A, B, scale) : unmappedCheckerBoard(isect, A, B, scale);
+	return isect->uv.x >= 0 ? mappedCheckerBoard(isect, A, B, scale) : unmappedCheckerBoard(isect, A, B, scale);
 }
 
 struct color evalCheckerboard(const struct textureNode *node, const struct hitRecord *record) {

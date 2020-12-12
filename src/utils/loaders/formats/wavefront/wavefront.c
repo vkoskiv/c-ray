@@ -208,10 +208,10 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	currentMeshPtr->polyCount = (int)filePolys;
 	currentMeshPtr->firstVectorIndex = vertexCount;
 	currentMeshPtr->firstNormalIndex = normalCount;
-	currentMeshPtr->firstTextureIndex = textureCount;
+	currentMeshPtr->firstTextureCoordIndex = textureCount;
 	currentMeshPtr->vertexCount = currentVertexCount;
 	currentMeshPtr->normalCount = currentNormalCount;
-	currentMeshPtr->textureCount = currentTextureCount;
+	currentMeshPtr->textureCoordCount = currentTextureCount;
 	
 	vertexCount += fileVertices;
 	normalCount += fileNormals;
@@ -226,7 +226,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	free(normals);
 	
 	g_textureCoords = realloc(g_textureCoords, textureCount * sizeof(struct coord));
-	memcpy(g_textureCoords + currentMeshPtr->firstTextureIndex, texCoords, fileTexCoords * sizeof(*texCoords));
+	memcpy(g_textureCoords + currentMeshPtr->firstTextureCoordIndex, texCoords, fileTexCoords * sizeof(*texCoords));
 	free(texCoords);
 	
 	return meshes;

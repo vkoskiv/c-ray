@@ -18,15 +18,33 @@
 #include "scene.h"
 #include "../utils/logging.h"
 #include "../utils/args.h"
+#include "../datatypes/vertexbuffer.h"
+
+static inline struct coord getTexMapSphere(const struct hitRecord *isect) {
+	struct vector ud = isect->surfaceNormal;
+	//To polar from cartesian
+	float r = 1.0f; //Normalized above
+	float phi = (atan2f(ud.z, ud.x) / 4.0f);
+	float theta = acosf((-ud.y / r));
+	
+	float u = theta / PI;
+	float v = (phi / (PI / 2.0f));
+	
+	u = wrapMinMax(u, 0.0f, 1.0f);
+	v = wrapMinMax(v, 0.0f, 1.0f);
+	return (struct coord){ u, v };
+}
 
 static bool intersectSphere(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect) {
 	struct lightRay copy = *ray;
 	transformRay(&copy, &instance->composite.Ainv);
-	float offset = ((struct sphere*)instance->object)->rayOffset;
+	struct sphere *sphere = (struct sphere*)instance->object;
+	float offset = sphere->rayOffset;
 	copy.start = vecAdd(copy.start, vecScale(copy.direction, offset));
-	if (rayIntersectsWithSphere(&copy, (struct sphere*)instance->object, isect)) {
+	if (rayIntersectsWithSphere(&copy, sphere, isect)) {
+		isect->uv = getTexMapSphere(isect);
 		isect->polygon = NULL;
-		isect->material = ((struct sphere*)instance->object)->material;
+		isect->material = sphere->material;
 		transformPoint(&isect->hitPoint, &instance->composite.A);
 		transformVectorWithTranspose(&isect->surfaceNormal, &instance->composite.Ainv);
 		return true;
@@ -61,13 +79,34 @@ struct instance newSphereInstance(struct sphere *sphere) {
 	};
 }
 
+static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecord *isect) {
+	if (mesh->textureCoordCount == 0) return (struct coord){-1.0f, -1.0f};
+	struct poly *p = isect->polygon;
+	
+	//barycentric coordinates for this polygon
+	const float u = isect->uv.x;
+	const float v = isect->uv.y;
+	const float w = 1.0f - u - v;
+	
+	//Weighted texture coordinates
+	const struct coord ucomponent = coordScale(u, g_textureCoords[p->textureIndex[1]]);
+	const struct coord vcomponent = coordScale(v, g_textureCoords[p->textureIndex[2]]);
+	const struct coord wcomponent = coordScale(w, g_textureCoords[p->textureIndex[0]]);
+	
+	// textureXY = u * v1tex + v * v2tex + w * v3tex
+	return addCoords(addCoords(ucomponent, vcomponent), wcomponent);
+}
+
 static bool intersectMesh(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect) {
 	struct lightRay copy = *ray;
 	transformRay(&copy, &instance->composite.Ainv);
-	float offset = ((struct mesh*)instance->object)->rayOffset;
+	struct mesh *mesh = (struct mesh *)instance->object;
+	float offset = mesh->rayOffset;
 	copy.start = vecAdd(copy.start, vecScale(copy.direction, offset));
-	if (traverseBottomLevelBvh((struct mesh*)instance->object, &copy, isect)) {
-		isect->material = ((struct mesh*)instance->object)->materials[isect->polygon->materialIndex];
+	if (traverseBottomLevelBvh(mesh, &copy, isect)) {
+		// Repopulate uv with actual texture mapping
+		isect->uv = getTexMapMesh(mesh, isect);
+		isect->material = mesh->materials[isect->polygon->materialIndex];
 		transformPoint(&isect->hitPoint, &instance->composite.A);
 		transformVectorWithTranspose(&isect->surfaceNormal, &instance->composite.Ainv);
 		if (likely(!isect->material.normalMap)) {
