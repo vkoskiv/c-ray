@@ -834,32 +834,52 @@ static struct transform parseInstanceTransform(const cJSON *instance) {
 }
 
 static struct textureNode *parseTextureNode(struct world *w, const cJSON *node) {
-	uint8_t options = 0;
+	if (!node) return NULL;
 	
-	if (cJSON_IsObject(node)) {
-		//FIXME: No good way to know if it's a color, so just check if it's got "r" in there.
-		const cJSON *red = cJSON_GetObjectItem(node, "r");
-		if (red) {
-			// This is actually a color object.
-			return newConstantTexture(w, parseColor(node));
-		}
-		// Has more params in here
-		// Do we want to do an srgb transform?
-		const cJSON *srgbTransform = cJSON_GetObjectItem(node, "transform");
-		ASSERT(cJSON_IsBool(srgbTransform));
-		if (cJSON_IsTrue(srgbTransform)) {
-			options &= SRGB_TRANSFORM;
-		}
-		const cJSON *path = cJSON_GetObjectItem(node, "path");
-		ASSERT(cJSON_IsString(path));
-		return newImageTexture(w, loadTexture(path->valuestring), options);
-	} else if (cJSON_IsString(node)) {
-		// No options provided, go with defaults.
-		return newImageTexture(w, loadTexture(node->valuestring), 0);
-	} else {
+	if (cJSON_IsArray(node)) {
 		return newConstantTexture(w, parseColor(node));
 	}
 	
+	if (cJSON_IsString(node)) {
+		// No options provided, go with defaults.
+		return newImageTexture(w, loadTexture(node->valuestring), 0);
+	}
+	
+	// Should be an object, then.
+	ASSERT(cJSON_IsObject(node));
+	
+	// Handle options first
+	uint8_t options = 0;
+	// Do we want to do an srgb transform?
+	const cJSON *srgbTransform = cJSON_GetObjectItem(node, "transform");
+	ASSERT(cJSON_IsBool(srgbTransform));
+	if (cJSON_IsTrue(srgbTransform)) {
+		options &= SRGB_TRANSFORM;
+	}
+	
+	//FIXME: No good way to know if it's a color, so just check if it's got "r" in there.
+	const cJSON *red = cJSON_GetObjectItem(node, "r");
+	if (red) {
+		// This is actually still a color object.
+		return newConstantTexture(w, parseColor(node));
+	}
+	const cJSON *type = cJSON_GetObjectItem(node, "type");
+	if (cJSON_IsString(type)) {
+		// Oo, what's this?
+		if (stringEquals(type->valuestring, "checkerboard")) {
+			const cJSON *size = cJSON_GetObjectItem(node, "size");
+			ASSERT(cJSON_IsNumber(size));
+			return newCheckerBoardTexture(w, size->valuedouble);
+		}
+	}
+	
+	const cJSON *path = cJSON_GetObjectItem(node, "path");
+	ASSERT(cJSON_IsString(path));
+	return newImageTexture(w, loadTexture(path->valuestring), options);
+	
+	logr(warning, "Failed to parse textureNode. Here's a dump:\n");
+	logr(warning, "\n%s\n", cJSON_Print(node));
+	logr(warning, "Setting to an obnoxious pink material.\n");
 	return unknownTextureNode(w);
 }
 
@@ -957,13 +977,26 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 			}
 		}
 		
-		const cJSON *material = cJSON_GetObjectItem(data, "material");
-		if (material) {
-			struct bsdf *node = parseNode(r->scene, material);
-			for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
-				lastMesh(r)->materials[i].bsdf = node;
+		const cJSON *materials = cJSON_GetObjectItem(data, "material");
+		if (materials) {
+			struct cJSON *material = NULL;
+			if (cJSON_IsArray(materials)) {
+				// Array of graphs, so map them to mesh materials.
+				ASSERT(cJSON_GetArraySize(materials) <= lastMesh(r)->materialCount);
+				size_t i = 0;
+				cJSON_ArrayForEach(material, materials) {
+					lastMesh(r)->materials[i++].bsdf = parseNode(r->scene, material);
+				}
+			} else {
+				// Single graph, map it to every material in a mesh.
+				struct bsdf *node = parseNode(r->scene, materials);
+				for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
+					lastMesh(r)->materials[i].bsdf = node;
+				}
 			}
 		} else {
+			// Fallback, this is the old way of assigning materials.
+			//FIXME: Delet this.
 			for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
 				lastMesh(r)->materials[i].type = type;
 				if (type == emission && intensity) {
