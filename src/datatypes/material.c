@@ -53,28 +53,28 @@ struct material *materialForName(struct material *materials, int count, char *na
 	return NULL;
 }
 
-void assignBSDF(struct world *world, struct material *mat) {
-	struct textureNode *roughness = mat->specularMap ? newImageTexture(world, mat->specularMap, NO_BILINEAR) : newConstantTexture(world, newGrayColor(mat->roughness));
-	struct textureNode *color = mat->texture ? newImageTexture(world, mat->texture, SRGB_TRANSFORM) : newConstantTexture(world, mat->diffuse);
+void assignBSDF(struct world *w, struct material *mat) {
+	struct textureNode *roughness = mat->specularMap ? newImageTexture(w, mat->specularMap, NO_BILINEAR) : newConstantTexture(w, newGrayColor(mat->roughness));
+	struct textureNode *color = mat->texture ? newImageTexture(w, mat->texture, SRGB_TRANSFORM) : newConstantTexture(w, mat->diffuse);
 	switch (mat->type) {
 		case lambertian:
-			mat->bsdf = newDiffuse(world, color);
+			mat->bsdf = newDiffuse(w, color);
 			break;
 		case glass:
-			mat->bsdf = newGlass(world, color, roughness);
+			mat->bsdf = newGlass(w, color, roughness);
 			break;
 		case metal:
-			mat->bsdf = newMetal(world, color, roughness);
+			mat->bsdf = newMetal(w, color, roughness);
 			break;
 		case plastic:
-			mat->bsdf = newPlastic(world, color);
+			mat->bsdf = newPlastic(w, color);
 			break;
 		case emission:
-			mat->bsdf = newDiffuse(world, color);
+			mat->bsdf = newDiffuse(w, color);
 			break;
 		default:
 			logr(warning, "Unknown bsdf type specified for \"%s\", setting to an obnoxious preset.\n", mat->name);
-			mat->bsdf = warningBsdf(world);
+			mat->bsdf = warningBsdf(w);
 			break;
 	}
 	ASSERT(mat->bsdf);
