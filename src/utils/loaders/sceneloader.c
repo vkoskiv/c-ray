@@ -878,7 +878,9 @@ static struct bsdf *parseNode(struct world *w, const cJSON *node) {
 	} else if (stringEquals(type->valuestring, "glass")) {
 		const cJSON *color = cJSON_GetObjectItem(node, "color");
 		const cJSON *roughness = cJSON_GetObjectItem(node, "roughness");
-		return newGlass(w, parseTextureNode(w, color), parseTextureNode(w, roughness));
+		const cJSON *IOR = cJSON_GetObjectItem(node, "IOR");
+		if (!cJSON_IsNumber(IOR)) logr(warning, "IOR missing for glass bsdf, setting to 1.4\n");
+		return newGlass(w, parseTextureNode(w, color), parseTextureNode(w, roughness), IOR ? IOR->valuedouble : 1.4);
 	} else if (stringEquals(type->valuestring, "plastic")) {
 		const cJSON *color = cJSON_GetObjectItem(node, "color");
 		return newPlastic(w, parseTextureNode(w, color));

@@ -21,6 +21,7 @@ struct glassBsdf {
 	struct bsdf bsdf;
 	struct textureNode *color;
 	struct textureNode *roughness;
+	float IOR;
 };
 
 struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
@@ -33,18 +34,20 @@ struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const s
 	float reflectionProbability;
 	float cosine;
 	
+	float IOR = glassBsdf->IOR;
+	
 	if (vecDot(record->incident.direction, record->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(record->surfaceNormal);
-		niOverNt = record->material.IOR;
-		cosine = record->material.IOR * vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction);
+		niOverNt = IOR;
+		cosine = IOR * vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction);
 	} else {
 		outwardNormal = record->surfaceNormal;
-		niOverNt = 1.0f / record->material.IOR;
+		niOverNt = 1.0f / IOR;
 		cosine = -(vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction));
 	}
 	
 	if (refract(&record->incident.direction, outwardNormal, niOverNt, &refracted)) {
-		reflectionProbability = schlick(cosine, record->material.IOR);
+		reflectionProbability = schlick(cosine, IOR);
 	} else {
 		reflectionProbability = 1.0f;
 	}
@@ -84,10 +87,11 @@ static uint32_t hash(const void *p) {
 }
 
 //TODO: Add IOR input
-struct bsdf *newGlass(struct world *world, struct textureNode *color, struct textureNode *roughness) {
+struct bsdf *newGlass(struct world *world, struct textureNode *color, struct textureNode *roughness, float IOR) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct glassBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = roughness ? roughness : newConstantTexture(world, blackColor),
+		.IOR = IOR,
 		.bsdf = {
 			.sample = sampleGlass,
 			.base = { .compare = compare }
