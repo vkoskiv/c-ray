@@ -63,6 +63,7 @@ static struct color textureGetPixelInternal(const struct texture *t, size_t x, s
 	return output;
 }
 
+//FIXME: This API is confusing. The semantic meaning of x and y change completely based on the filtered flag.
 struct color textureGetPixel(const struct texture *t, float x, float y, bool filtered) {
 	if (!filtered) return textureGetPixelInternal(t, (size_t)x, (size_t)y);
 	x = x * t->width;

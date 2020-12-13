@@ -39,7 +39,6 @@ static size_t count(textBuffer *buffer, const char *thing) {
 		if (stringStartsWith(thing, head)) thingCount++;
 		head = nextLine(buffer);
 	}
-	logr(debug, "File contains %zu of %s\n", thingCount, thing);
 	head = firstLine(buffer);
 	return thingCount;
 }
