@@ -858,6 +858,13 @@ static struct textureNode *parseTextureNode(struct world *w, const cJSON *node) 
 		options |= SRGB_TRANSFORM;
 	}
 	
+	// Do we want bilinear interpolation enabled?
+	const cJSON *lerp = cJSON_GetObjectItem(node, "lerp");
+	ASSERT(cJSON_IsBool(lerp));
+	if (!cJSON_IsTrue(lerp)) {
+		options |= NO_BILINEAR;
+	}
+	
 	//FIXME: No good way to know if it's a color, so just check if it's got "r" in there.
 	const cJSON *red = cJSON_GetObjectItem(node, "r");
 	if (red) {
