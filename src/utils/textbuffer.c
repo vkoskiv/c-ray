@@ -41,7 +41,6 @@ textBuffer *newTextView(textBuffer *original, const size_t start, const size_t l
 	new->buflen = bytes;
 	new->amountOf.lines = lines;
 	new->current.line = 0;
-	logr(debug, "Created new textView handle of size %zu, that has %zu lines\n", new->buflen, new->amountOf.lines);
 	return new;
 }
 
@@ -62,7 +61,6 @@ textBuffer *newTextBuffer(const char *contents) {
 	
 	new->amountOf.lines = lines;
 	new->current.line = 0;
-	logr(debug, "Created new textBuffer handle of size %zu, that has %zu lines\n", new->buflen, new->amountOf.lines);
 	return new;
 }
 
