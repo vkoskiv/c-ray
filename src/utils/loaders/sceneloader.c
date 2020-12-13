@@ -855,7 +855,7 @@ static struct textureNode *parseTextureNode(struct world *w, const cJSON *node) 
 	const cJSON *srgbTransform = cJSON_GetObjectItem(node, "transform");
 	ASSERT(cJSON_IsBool(srgbTransform));
 	if (cJSON_IsTrue(srgbTransform)) {
-		options &= SRGB_TRANSFORM;
+		options |= SRGB_TRANSFORM;
 	}
 	
 	//FIXME: No good way to know if it's a color, so just check if it's got "r" in there.
