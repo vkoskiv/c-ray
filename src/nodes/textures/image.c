@@ -28,14 +28,21 @@ struct imageTexture {
 
 //Transform the intersection coordinates to the texture coordinate space
 //And grab the color at that point. Texture mapping.
-struct color internalColor(const struct texture *tex, const struct hitRecord *isect, bool transform) {
+struct color internalColor(const struct texture *tex, const struct hitRecord *isect, uint8_t options) {
 	if (!tex) return warningMaterial().diffuse;
 	
 	//Get the color value at these XY coordinates
-	struct color output = textureGetPixel(tex, isect->uv.x, isect->uv.y, true);
+	struct color output;
+	if (options & NO_BILINEAR) {
+		float x = isect->uv.x * tex->width;
+		float y = isect->uv.y * tex->height;
+		output = textureGetPixel(tex, x, y, false);
+	} else {
+		output = textureGetPixel(tex, isect->uv.x, isect->uv.y, true);
+	}
 	
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
-	if (transform) output = fromSRGB(output);
+	if (options & SRGB_TRANSFORM) output = fromSRGB(output);
 	return output;
 }
 
@@ -43,7 +50,7 @@ struct color evalTexture(const struct textureNode *node, const struct hitRecord 
 	// TODO: Consider transforming image textures while loading textures.
 	// TODO: Handle NO_BILINEAR option
 	struct imageTexture *image = (struct imageTexture *)node;
-	return internalColor(image->tex, record, image->options & SRGB_TRANSFORM);
+	return internalColor(image->tex, record, image->options);
 }
 
 static bool compare(const void *A, const void *B) {
