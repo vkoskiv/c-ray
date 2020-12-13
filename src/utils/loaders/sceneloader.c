@@ -875,8 +875,10 @@ static struct textureNode *parseTextureNode(struct world *w, const cJSON *node) 
 	}
 	
 	const cJSON *path = cJSON_GetObjectItem(node, "path");
-	ASSERT(cJSON_IsString(path));
-	return newImageTexture(w, loadTexture(path->valuestring), options);
+	if (cJSON_IsString(path)) {
+		//FIXME: loadTexture() leaks memory here
+		return newImageTexture(w, loadTexture(path->valuestring), options);
+	}
 	
 	logr(warning, "Failed to parse textureNode. Here's a dump:\n");
 	logr(warning, "\n%s\n", cJSON_Print(node));
