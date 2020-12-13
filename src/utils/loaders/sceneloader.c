@@ -57,6 +57,7 @@ static bool loadMeshNew(struct renderer *r, char *inputFilePath, int idx, int to
 	bool valid = false;
 	size_t meshCount = 0;
 	struct mesh *newMeshes = loadMesh(inputFilePath, &meshCount);
+	if (meshCount == 0) return false;
 	ASSERT(meshCount == 1); //FIXME: Remove this
 	if (newMeshes) {
 		for (size_t m = 0; m < meshCount; ++m) {
