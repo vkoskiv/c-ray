@@ -30,8 +30,6 @@ struct imageTexture {
 //And grab the color at that point. Texture mapping.
 struct color internalColor(const struct texture *tex, const struct hitRecord *isect, bool transform) {
 	if (!tex) return warningMaterial().diffuse;
-	if (!isect->material.texture) return warningMaterial().diffuse;
-	if (!isect->polygon) return warningMaterial().diffuse;
 	
 	//Get the color value at these XY coordinates
 	struct color output = textureGetPixel(tex, isect->uv.x, isect->uv.y, true);
