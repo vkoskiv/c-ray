@@ -851,11 +851,13 @@ static struct textureNode *parseTextureNode(struct world *w, const cJSON *node) 
 	
 	// Handle options first
 	uint8_t options = 0;
+	options |= SRGB_TRANSFORM; // Enabled by default.
 	// Do we want to do an srgb transform?
 	const cJSON *srgbTransform = cJSON_GetObjectItem(node, "transform");
-	ASSERT(cJSON_IsBool(srgbTransform));
-	if (cJSON_IsTrue(srgbTransform)) {
-		options |= SRGB_TRANSFORM;
+	if (srgbTransform) {
+		if (!cJSON_IsTrue(srgbTransform)) {
+			options &= ~SRGB_TRANSFORM;
+		}
 	}
 	
 	// Do we want bilinear interpolation enabled?
