@@ -888,24 +888,23 @@ static struct textureNode *parseTextureNode(struct world *w, const cJSON *node) 
 
 static struct bsdf *parseNode(struct world *w, const cJSON *node) {
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
-	ASSERT(type);
-	ASSERT(cJSON_IsString(type));
+	if (!cJSON_IsString(type)) {
+		logr(warning, "No type provided for node.");
+		return warningBsdf(w);
+	}
+	
+	const cJSON *color = cJSON_GetObjectItem(node, "color");
+	const cJSON *roughness = cJSON_GetObjectItem(node, "roughness");
+	
 	if (stringEquals(type->valuestring, "diffuse")) {
-		const cJSON *color = cJSON_GetObjectItem(node, "color");
-		ASSERT(color);
 		return newDiffuse(w, parseTextureNode(w, color));
 	} else if (stringEquals(type->valuestring, "metal")) {
-		const cJSON *color = cJSON_GetObjectItem(node, "color");
-		const cJSON *roughness = cJSON_GetObjectItem(node, "roughness");
 		return newMetal(w, parseTextureNode(w, color), parseTextureNode(w, roughness));
 	} else if (stringEquals(type->valuestring, "glass")) {
-		const cJSON *color = cJSON_GetObjectItem(node, "color");
-		const cJSON *roughness = cJSON_GetObjectItem(node, "roughness");
 		const cJSON *IOR = cJSON_GetObjectItem(node, "IOR");
 		if (!cJSON_IsNumber(IOR)) logr(warning, "IOR missing for glass bsdf, setting to 1.4\n");
 		return newGlass(w, parseTextureNode(w, color), parseTextureNode(w, roughness), IOR ? IOR->valuedouble : 1.4);
 	} else if (stringEquals(type->valuestring, "plastic")) {
-		const cJSON *color = cJSON_GetObjectItem(node, "color");
 		return newPlastic(w, parseTextureNode(w, color));
 	} else if (stringEquals(type->valuestring, "mix")) {
 		const cJSON *jsonA = cJSON_GetObjectItem(node, "A");
