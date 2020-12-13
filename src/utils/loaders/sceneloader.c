@@ -1136,7 +1136,14 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 		}
 	}
 	
-	assignBSDF(r->scene, &lastSphere(r)->material);
+	const cJSON *materials = cJSON_GetObjectItem(data, "material");
+	if (materials) {
+		// Single graph, map it to every material in a mesh.
+		struct bsdf *node = parseNode(r->scene, materials);
+		lastSphere(r)->material.bsdf = node;
+	} else {
+		assignBSDF(r->scene, &lastSphere(r)->material);
+	}
 }
 
 static void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {
