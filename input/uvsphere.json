@@ -86,7 +86,7 @@
 				"material": {
 					"type": "plastic",
 					"color": {
-						"path": "input/tonninseteli.png",
+						"path": "input/shapes/grid.png",
 						"transform": true
 					}
 				},
