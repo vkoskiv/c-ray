@@ -56,8 +56,8 @@ struct bsdf *newMix(struct world *world, struct bsdf *A, struct bsdf *B, struct 
 		return A;
 	}
 	HASH_CONS(world->nodeTable, &world->nodePool, hashMix, struct mixBsdf, {
-		.A = A,
-		.B = B,
+		.A = A ? A : newDiffuse(world, newConstantTexture(world, blackColor)),
+		.B = B ? B : newDiffuse(world, newConstantTexture(world, blackColor)),
 		.factor = factor ? factor : newConstantTexture(world, grayColor),
 		.bsdf = {
 			.sample = sampleMix,
