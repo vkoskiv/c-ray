@@ -64,15 +64,7 @@
 						"transforms": [
 							{
 								"type": "rotateY",
-								"degrees": 20
-							},
-							{
-								"type": "rotateX",
-								"degrees": 90
-							},
-							{
-								"type": "rotateZ",
-								"degrees": 90
+								"degrees": 110
 							},
 							{
 								"type": "translate",
