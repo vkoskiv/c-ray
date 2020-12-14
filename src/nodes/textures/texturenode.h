@@ -24,5 +24,6 @@ struct textureNode {
 #include "checker.h"
 #include "constant.h"
 #include "image.h"
+#include "grayscale.h"
 
 struct textureNode *unknownTextureNode(struct world *w);
