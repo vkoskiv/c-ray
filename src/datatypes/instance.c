@@ -23,13 +23,10 @@
 static inline struct coord getTexMapSphere(const struct hitRecord *isect) {
 	struct vector ud = isect->surfaceNormal;
 	//To polar from cartesian
-	float r = 1.0f; //Normalized above
-	float phi = (atan2f(ud.z, ud.x) / 4.0f);
-	float theta = acosf((-ud.y / r));
-	
-	float u = theta / PI;
-	float v = (phi / (PI / 2.0f));
-	
+	float phi = atan2f(ud.z, ud.x);
+	float theta = asinf(ud.y);
+	float v = (theta + PI / 2.0f) / PI;
+	float u = 1.0f - (phi + PI) / (PI * 2.0f);
 	u = wrapMinMax(u, 0.0f, 1.0f);
 	v = wrapMinMax(v, 0.0f, 1.0f);
 	return (struct coord){ u, v };
