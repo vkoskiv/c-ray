@@ -862,7 +862,6 @@ static struct textureNode *parseTextureNode(struct world *w, const cJSON *node) 
 	
 	// Do we want bilinear interpolation enabled?
 	const cJSON *lerp = cJSON_GetObjectItem(node, "lerp");
-	ASSERT(cJSON_IsBool(lerp));
 	if (!cJSON_IsTrue(lerp)) {
 		options |= NO_BILINEAR;
 	}
