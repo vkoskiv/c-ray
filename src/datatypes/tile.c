@@ -134,16 +134,15 @@ static unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_rand
 }
 
 static void reorderRandom(struct renderTile **tiles, unsigned tileCount) {
-	pcg32_random_t *rng = calloc(1, sizeof(*rng));
-	pcg32_srandom_r(rng, 3141592, 0);
+	pcg32_random_t rng;
+	pcg32_srandom_r(&rng, 3141592, 0);
 	for (unsigned i = 0; i < tileCount; ++i) {
-		unsigned random = rand_interval(0, tileCount - 1, rng);
+		unsigned random = rand_interval(0, tileCount - 1, &rng);
 		
 		struct renderTile temp = (*tiles)[i];
 		(*tiles)[i] = (*tiles)[random];
 		(*tiles)[random] = temp;
 	}
-	free(rng);
 }
 
 static void reorderFromMiddle(struct renderTile **tiles, unsigned tileCount) {
