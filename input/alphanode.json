@@ -1,0 +1,105 @@
+{
+	"version": 1.0,
+	"renderer": {
+		"threads": 0,
+		"samples": 250,
+		"bounces": 30,
+		"antialiasing": true,
+		"tileWidth": 64,
+		"tileHeight": 64,
+		"tileOrder": "fromMiddle",
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 800,
+		"height": 800
+	},
+	"display": {
+		"isFullscreen": false,
+		"isBorderless": false,
+		"windowScale": 1.0
+	},
+	"camera": {
+		"FOV": 10.0,
+		"focalDistance": 0.7,
+		"fstops": 0,
+		"transforms": [
+			{
+				"type": "translate",
+				"x": 0,
+				"y": 0.1,
+				"z": -0.7
+			},
+			{
+				"type": "rotateX",
+				"degrees": 5
+			},
+			{
+				"type": "rotateZ",
+				"degrees": 0
+			}
+		]
+	},
+	"scene": {
+		"ambientColor": {
+			"hdr": "HDRs/roof_garden_1k.hdr",
+			"offset": 0,
+			"down": {
+				"r": 1.0,
+				"g": 1.0,
+				"b": 1.0
+			},
+			"up": {
+				"r": 0.5,
+				"g": 0.7,
+				"b": 1.0
+			}
+		},
+		"primitives": [
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "rotateY",
+								"degrees": 110
+							},
+							{
+								"type": "translate",
+								"x": 0,
+								"y": 0.05,
+								"z": 0
+							}
+						]
+					}
+				],
+				"material": {
+					"type": "mix",
+					"A": {
+						"type": "diffuse",
+						"color": {
+							"path": "input/shapes/grid.png",
+							"transform": true
+						}
+					},
+					"B": {
+						"type": "transparent"
+					},
+					"factor": [0.25, 0.25, 0.25, 0.25]
+				},
+				"color": {
+					"r": 0.8,
+					"g": 0.8,
+					"b": 0.8,
+					"a": 1.0
+				},
+				"bsdf": "diffuse",
+				"roughness": 0.00,
+				"radius": 0.05
+			}
+		],
+		"meshes": []
+	}
+}

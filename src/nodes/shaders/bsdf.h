@@ -31,5 +31,6 @@ struct bsdf {
 #include "metal.h"
 #include "mix.h"
 #include "plastic.h"
+#include "transparent.h"
 
 struct bsdf *warningBsdf(struct world *world);

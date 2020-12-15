@@ -921,6 +921,8 @@ static struct bsdf *parseNode(struct world *w, const cJSON *node) {
 		struct bsdf *A = parseNode(w, jsonA);
 		struct bsdf *B = parseNode(w, jsonB);
 		return newMix(w, A, B, parseTextureNode(w, factor));
+	} else if (stringEquals(type->valuestring, "transparent")) {
+		return newTransparent(w, parseTextureNode(w, color));
 	}
 	
 	logr(warning, "Failed to parse node. Here's a dump:\n");
