@@ -23,14 +23,14 @@
 #include "../datatypes/transforms.h"
 #include "../datatypes/instance.h"
 
-static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler);
+static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene);
 static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
 
 struct color debugNormals(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
 	(void)maxDepth;
 	(void)sampler;
 	struct lightRay currentRay = *incidentRay;
-	struct hitRecord isect = getClosestIsect(&currentRay, scene, sampler);
+	struct hitRecord isect = getClosestIsect(&currentRay, scene);
 	if (isect.instIndex < 0)
 		return getBackground(&currentRay, scene);
 	struct vector normal =  isect.surfaceNormal;
@@ -46,7 +46,7 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 	struct lightRay currentRay = *incidentRay;
 	
 	for (int depth = 0; depth < maxDepth; ++depth) {
-		const struct hitRecord isect = getClosestIsect(&currentRay, scene, sampler);
+		const struct hitRecord isect = getClosestIsect(&currentRay, scene);
 		if (isect.instIndex < 0) {
 			finalColor = addColors(finalColor, multiplyColors(weight, getBackground(&currentRay, scene)));
 			break;
@@ -79,23 +79,15 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
  @param scene  Given scene to cast that ray into
  @return intersection struct with the appropriate values set
  */
-static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler) {
+static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene) {
 	struct hitRecord isect;
 	isect.instIndex = -1;
 	isect.distance = FLT_MAX;
 	isect.incident = *incidentRay;
 	isect.polygon = NULL;
 	
-	if (!traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect))
-		return isect;
+	traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect);
 	
-	float prob = isect.material.texture ? colorForUV(&isect, Diffuse).alpha : isect.material.diffuse.alpha;
-	if (prob < 1.0f) {
-		if (getDimension(sampler) > prob) {
-			struct lightRay next = {isect.hitPoint, incidentRay->direction, rayTypeIncident};
-			return getClosestIsect(&next, scene, sampler);
-		}
-	}
 	return isect;
 }
 

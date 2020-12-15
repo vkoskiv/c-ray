@@ -30,6 +30,8 @@
 		904CDBB9248D74380092E564 /* bvh.c in Sources */ = {isa = PBXBuildFile; fileRef = 904CDBB7248D74380092E564 /* bvh.c */; };
 		90500A8325881C8B006F854A /* grayscale.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A8125881C8B006F854A /* grayscale.c */; };
 		90500A8425881C8B006F854A /* grayscale.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A8125881C8B006F854A /* grayscale.c */; };
+		90500A8B25897693006F854A /* transparent.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A8925897693006F854A /* transparent.c */; };
+		90500A8C25897693006F854A /* transparent.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A8925897693006F854A /* transparent.c */; };
 		9052E8D025018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		9052E8D125018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		905842DB236651FC009D92F1 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA129220B4602005B8EE7 /* main.c */; };
@@ -216,6 +218,8 @@
 		904CDBB7248D74380092E564 /* bvh.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bvh.c; sourceTree = "<group>"; };
 		90500A8125881C8B006F854A /* grayscale.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = grayscale.c; sourceTree = "<group>"; };
 		90500A8225881C8B006F854A /* grayscale.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = grayscale.h; sourceTree = "<group>"; };
+		90500A8925897693006F854A /* transparent.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = transparent.c; sourceTree = "<group>"; };
+		90500A8A25897693006F854A /* transparent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = transparent.h; sourceTree = "<group>"; };
 		9052E8CE25018C050052406D /* fileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fileio.c; sourceTree = "<group>"; };
 		9052E8CF25018C050052406D /* fileio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileio.h; sourceTree = "<group>"; };
 		90584305236651FC009D92F1 /* C-Ray Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -526,6 +530,8 @@
 				90AB1E1525747C9C00EFDF5A /* metal.c */,
 				90AB1E1E2575B1AD00EFDF5A /* plastic.h */,
 				90AB1E1D2575B1AD00EFDF5A /* plastic.c */,
+				90500A8A25897693006F854A /* transparent.h */,
+				90500A8925897693006F854A /* transparent.c */,
 			);
 			path = shaders;
 			sourceTree = "<group>";
@@ -797,6 +803,7 @@
 				9062FA0A243BBD0900420889 /* args.c in Sources */,
 				90AB1E1825747C9C00EFDF5A /* metal.c in Sources */,
 				904CDBB9248D74380092E564 /* bvh.c in Sources */,
+				90500A8C25897693006F854A /* transparent.c in Sources */,
 				90908A7023E0707E0081377B /* assert.c in Sources */,
 				90AB1E1025745E0C00EFDF5A /* mix.c in Sources */,
 				90D5F02724A208100068FC60 /* gitsha1.c in Sources */,
@@ -872,6 +879,7 @@
 				9062FA09243BBD0900420889 /* args.c in Sources */,
 				90AB1E1725747C9C00EFDF5A /* metal.c in Sources */,
 				904CDBB8248D74380092E564 /* bvh.c in Sources */,
+				90500A8B25897693006F854A /* transparent.c in Sources */,
 				90908A6F23E0707E0081377B /* assert.c in Sources */,
 				90AB1E0F25745E0C00EFDF5A /* mix.c in Sources */,
 				90D5F02624A208100068FC60 /* gitsha1.c in Sources */,
