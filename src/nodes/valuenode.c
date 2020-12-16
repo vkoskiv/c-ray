@@ -33,7 +33,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-float eval(const struct valueNode *node) {
+static float eval(const struct valueNode *node) {
 	struct constantValue *this = (struct constantValue *)node;
 	return this->value;
 }
