@@ -24,7 +24,7 @@ struct mixBsdf {
 	struct colorNode *factor;
 };
 
-struct bsdfSample sampleMix(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
+static struct bsdfSample sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct mixBsdf *mixBsdf = (struct mixBsdf*)bsdf;
 	//TODO: Do we need grayscale()?
 	const float lerp = grayscale(mixBsdf->factor->eval(mixBsdf->factor, record)).red;
@@ -60,7 +60,7 @@ struct bsdf *newMix(struct world *world, struct bsdf *A, struct bsdf *B, struct 
 		.B = B ? B : newDiffuse(world, newConstantTexture(world, blackColor)),
 		.factor = factor ? factor : newConstantTexture(world, grayColor),
 		.bsdf = {
-			.sample = sampleMix,
+			.sample = sample,
 			.base = { .compare = compareMix }
 		}
 	});

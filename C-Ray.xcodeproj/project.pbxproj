@@ -38,6 +38,8 @@
 		90500A95258AB19A006F854A /* vectornode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A92258AB19A006F854A /* vectornode.c */; };
 		90500A98258AB484006F854A /* valuenode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A96258AB484006F854A /* valuenode.c */; };
 		90500A99258AB484006F854A /* valuenode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A96258AB484006F854A /* valuenode.c */; };
+		90500A9C258AC07D006F854A /* add.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A9A258AC07D006F854A /* add.c */; };
+		90500A9D258AC07D006F854A /* add.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A9A258AC07D006F854A /* add.c */; };
 		9052E8D025018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		9052E8D125018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		905842DB236651FC009D92F1 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA129220B4602005B8EE7 /* main.c */; };
@@ -232,6 +234,8 @@
 		90500A93258AB19A006F854A /* vectornode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vectornode.h; sourceTree = "<group>"; };
 		90500A96258AB484006F854A /* valuenode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = valuenode.c; sourceTree = "<group>"; };
 		90500A97258AB484006F854A /* valuenode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = valuenode.h; sourceTree = "<group>"; };
+		90500A9A258AC07D006F854A /* add.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = add.c; sourceTree = "<group>"; };
+		90500A9B258AC07D006F854A /* add.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = add.h; sourceTree = "<group>"; };
 		9052E8CE25018C050052406D /* fileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fileio.c; sourceTree = "<group>"; };
 		9052E8CF25018C050052406D /* fileio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileio.h; sourceTree = "<group>"; };
 		90584305236651FC009D92F1 /* C-Ray Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -541,6 +545,8 @@
 		9071BC8F257D5C2B0070BA43 /* shaders */ = {
 			isa = PBXGroup;
 			children = (
+				90500A9B258AC07D006F854A /* add.h */,
+				90500A9A258AC07D006F854A /* add.c */,
 				90AB1E0A25745DFE00EFDF5A /* diffuse.h */,
 				90AB1E0925745DFE00EFDF5A /* diffuse.c */,
 				90AB1E0E25745E0C00EFDF5A /* mix.h */,
@@ -840,6 +846,7 @@
 				9071BC8D257AF8EC0070BA43 /* mempool.c in Sources */,
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
+				90500A9D258AC07D006F854A /* add.c in Sources */,
 				90A51A0523FCB7FF0014DF6B /* memory.c in Sources */,
 				90AB1E1C2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0C25745DFE00EFDF5A /* diffuse.c in Sources */,
@@ -919,6 +926,7 @@
 				9071BC8C257AF8EC0070BA43 /* mempool.c in Sources */,
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
+				90500A9C258AC07D006F854A /* add.c in Sources */,
 				90A51A0423FCB7FF0014DF6B /* memory.c in Sources */,
 				90AB1E1B2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */,
