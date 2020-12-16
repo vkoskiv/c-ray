@@ -1,5 +1,5 @@
 //
-//  bsdf.h
+//  bsdfnode.h
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 29/11/2020.

@@ -1,5 +1,5 @@
 //
-//  bsdf.c
+//  bsdfnode.c
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 29/11/2020.
@@ -11,7 +11,7 @@
 #include "../datatypes/color.h"
 #include "../renderer/samplers/sampler.h"
 #include "../datatypes/material.h"
-#include "bsdf.h"
+#include "bsdfnode.h"
 
 struct bsdf *warningBsdf(struct world *world) {
 	return newMix(world,

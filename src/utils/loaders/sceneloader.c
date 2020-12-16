@@ -32,7 +32,7 @@
 #include "../../utils/args.h"
 #include "../../renderer/envmap.h"
 #include "../../utils/timer.h"
-#include "../../nodes/bsdf.h"
+#include "../../nodes/bsdfnode.h"
 #include "meshloader.h"
 
 struct transform parseTransformComposite(const cJSON *transforms);

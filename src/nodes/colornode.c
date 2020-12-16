@@ -14,7 +14,7 @@
 #include "../datatypes/image/texture.h"
 #include "../datatypes/vertexbuffer.h"
 #include "../datatypes/poly.h"
-#include "bsdf.h"
+#include "bsdfnode.h"
 
 #include "colornode.h"
 
