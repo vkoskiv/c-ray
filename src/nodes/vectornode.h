@@ -14,3 +14,5 @@ struct vectorNode {
 	struct nodeBase base;
 	struct vector (*eval)(const struct vectorNode *node);
 };
+
+struct vectorNode *newConstantVector(const struct world *world, struct vector vector);
