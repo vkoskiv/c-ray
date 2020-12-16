@@ -21,14 +21,14 @@
 #include "checker.h"
 
 struct checkerTexture {
-	struct textureNode node;
-	struct textureNode *colorA;
-	struct textureNode *colorB;
+	struct colorNode node;
+	struct colorNode *colorA;
+	struct colorNode *colorB;
 	float scale;
 };
 
 // UV-mapped variant
-static struct color mappedCheckerBoard(const struct hitRecord *isect, const struct textureNode *A, const struct textureNode *B, float coef) {
+static struct color mappedCheckerBoard(const struct hitRecord *isect, const struct colorNode *A, const struct colorNode *B, float coef) {
 	const float sines = sinf(coef * isect->uv.x) * sinf(coef * isect->uv.y);
 	
 	if (sines < 0.0f) {
@@ -39,7 +39,7 @@ static struct color mappedCheckerBoard(const struct hitRecord *isect, const stru
 }
 
 // Fallback axis-aligned checkerboard
-static struct color unmappedCheckerBoard(const struct hitRecord *isect, const struct textureNode *A, const struct textureNode *B, float coef) {
+static struct color unmappedCheckerBoard(const struct hitRecord *isect, const struct colorNode *A, const struct colorNode *B, float coef) {
 	const float sines = sinf(coef*isect->hitPoint.x) * sinf(coef*isect->hitPoint.y) * sinf(coef*isect->hitPoint.z);
 	if (sines < 0.0f) {
 		return A->eval(A, isect);
@@ -48,11 +48,11 @@ static struct color unmappedCheckerBoard(const struct hitRecord *isect, const st
 	}
 }
 
-static struct color checkerBoard(const struct hitRecord *isect, const struct textureNode *A, const struct textureNode *B, float scale) {
+static struct color checkerBoard(const struct hitRecord *isect, const struct colorNode *A, const struct colorNode *B, float scale) {
 	return isect->uv.x >= 0 ? mappedCheckerBoard(isect, A, B, scale) : unmappedCheckerBoard(isect, A, B, scale);
 }
 
-struct color evalCheckerboard(const struct textureNode *node, const struct hitRecord *record) {
+struct color evalCheckerboard(const struct colorNode *node, const struct hitRecord *record) {
 	struct checkerTexture *checker = (struct checkerTexture *)node;
 	return checkerBoard(record, checker->colorA, checker->colorB, checker->scale);
 }
@@ -72,7 +72,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct textureNode *newColorCheckerBoardTexture(struct world *world, struct textureNode *colorA, struct textureNode *colorB, float size) {
+struct colorNode *newColorCheckerBoardTexture(struct world *world, struct colorNode *colorA, struct colorNode *colorB, float size) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct checkerTexture, {
 		.colorA = colorA,
 		.colorB = colorB,
@@ -84,7 +84,7 @@ struct textureNode *newColorCheckerBoardTexture(struct world *world, struct text
 	});
 }
 
-struct textureNode *newCheckerBoardTexture(struct world *world, float size) {
+struct colorNode *newCheckerBoardTexture(struct world *world, float size) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct checkerTexture, {
 		.colorA = newConstantTexture(world, blackColor),
 		.colorB = newConstantTexture(world, whiteColor),

@@ -21,7 +21,7 @@
 
 struct transparent {
 	struct bsdf bsdf;
-	struct textureNode *color;
+	struct colorNode *color;
 };
 
 static struct bsdfSample sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
@@ -43,7 +43,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdf *newTransparent(struct world *world, struct textureNode *color) {
+struct bsdf *newTransparent(struct world *world, struct colorNode *color) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct transparent, {
 		.color = color ? color : newConstantTexture(world, whiteColor),
 		.bsdf = {

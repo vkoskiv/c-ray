@@ -19,11 +19,11 @@
 #include "constant.h"
 
 struct constantTexture {
-	struct textureNode node;
+	struct colorNode node;
 	struct color color;
 };
 
-struct color evalConstant(const struct textureNode *node, const struct hitRecord *record) {
+struct color evalConstant(const struct colorNode *node, const struct hitRecord *record) {
 	(void)record;
 	return ((struct constantTexture *)node)->color;
 }
@@ -41,7 +41,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct textureNode *newConstantTexture(struct world *world, struct color color) {
+struct colorNode *newConstantTexture(struct world *world, struct color color) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct constantTexture, {
 		.color = color,
 		.node = {

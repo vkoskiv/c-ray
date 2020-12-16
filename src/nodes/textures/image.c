@@ -21,7 +21,7 @@
 #include "image.h"
 
 struct imageTexture {
-	struct textureNode node;
+	struct colorNode node;
 	struct texture *tex;
 	uint8_t options;
 };
@@ -46,7 +46,7 @@ struct color internalColor(const struct texture *tex, const struct hitRecord *is
 	return output;
 }
 
-struct color evalTexture(const struct textureNode *node, const struct hitRecord *record) {
+struct color evalTexture(const struct colorNode *node, const struct hitRecord *record) {
 	// TODO: Consider transforming image textures while loading textures.
 	// TODO: Handle NO_BILINEAR option
 	struct imageTexture *image = (struct imageTexture *)node;
@@ -67,7 +67,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct textureNode *newImageTexture(struct world *world, struct texture *texture, uint8_t options) {
+struct colorNode *newImageTexture(struct world *world, struct texture *texture, uint8_t options) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct imageTexture, {
 		.tex = texture,
 		.options = options,

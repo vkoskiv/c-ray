@@ -19,8 +19,8 @@
 #include "grayscale.h"
 
 struct grayscale {
-	struct textureNode node;
-	const struct textureNode *original;
+	struct colorNode node;
+	const struct colorNode *original;
 };
 
 static bool compare(const void *A, const void *B) {
@@ -36,12 +36,12 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct color evalGrayscale(const struct textureNode *node, const struct hitRecord *record) {
+static struct color evalGrayscale(const struct colorNode *node, const struct hitRecord *record) {
 	const struct grayscale *this = (struct grayscale *)node;
 	return grayscale(this->original->eval(this->original, record));
 }
 
-struct textureNode *newGrayscaleConverter(struct world *world, const struct textureNode *node) {
+struct colorNode *newGrayscaleConverter(struct world *world, const struct colorNode *node) {
 	HASH_CONS(world->nodeTable, world->nodePool, hash, struct grayscale, {
 		.original = node,
 		.node = {
