@@ -18,6 +18,6 @@
 
 #include "texturenode.h"
 
-struct textureNode *unknownTextureNode(struct world *w) {
+struct colorNode *unknownTextureNode(struct world *w) {
 	return newConstantTexture(w, blackColor);
 }

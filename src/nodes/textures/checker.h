@@ -10,8 +10,8 @@
 
 struct world;
 
-struct textureNode *newColorCheckerBoardTexture(struct world *world, struct textureNode *colorA, struct textureNode *colorB, float size);
+struct colorNode *newColorCheckerBoardTexture(struct world *world, struct colorNode *colorA, struct colorNode *colorB, float size);
 
-struct textureNode *newCheckerBoardTexture(struct world *world, float size);
+struct colorNode *newCheckerBoardTexture(struct world *world, float size);
 
-struct textureNode *newCheckerBoardTexture(struct world *world, float size);
+struct colorNode *newCheckerBoardTexture(struct world *world, float size);

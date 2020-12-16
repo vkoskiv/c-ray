@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct bsdf *newDiffuse(struct world *world, struct textureNode *tex);
+struct bsdf *newDiffuse(struct world *world, struct colorNode *tex);

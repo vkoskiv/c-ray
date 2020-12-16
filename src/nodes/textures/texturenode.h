@@ -16,9 +16,9 @@ enum textureType {
 	Specular
 };
 
-struct textureNode {
+struct colorNode {
 	struct nodeBase base;
-	struct color (*eval)(const struct textureNode *node, const struct hitRecord *record);
+	struct color (*eval)(const struct colorNode *node, const struct hitRecord *record);
 };
 
 #include "checker.h"
@@ -26,4 +26,4 @@ struct textureNode {
 #include "image.h"
 #include "grayscale.h"
 
-struct textureNode *unknownTextureNode(struct world *w);
+struct colorNode *unknownTextureNode(struct world *w);

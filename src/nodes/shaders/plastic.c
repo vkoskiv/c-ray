@@ -20,8 +20,8 @@
 
 struct plasticBsdf {
 	struct bsdf bsdf;
-	struct textureNode *color;
-	struct textureNode *roughness;
+	struct colorNode *color;
+	struct colorNode *roughness;
 };
 
 // From diffuse.c
@@ -87,7 +87,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdf *newPlastic(struct world *world, struct textureNode *color) {
+struct bsdf *newPlastic(struct world *world, struct colorNode *color) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct plasticBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = newConstantTexture(world, blackColor),

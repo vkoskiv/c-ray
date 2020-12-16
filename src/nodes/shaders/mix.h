@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct bsdf *newMix(struct world *world, struct bsdf *A, struct bsdf *B, struct textureNode *factor);
+struct bsdf *newMix(struct world *world, struct bsdf *A, struct bsdf *B, struct colorNode *factor);

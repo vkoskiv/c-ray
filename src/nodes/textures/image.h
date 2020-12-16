@@ -11,4 +11,4 @@
 #define SRGB_TRANSFORM 0x01
 #define NO_BILINEAR    0x02
 
-struct textureNode *newImageTexture(struct world *world, struct texture *texture, uint8_t options);
+struct colorNode *newImageTexture(struct world *world, struct texture *texture, uint8_t options);

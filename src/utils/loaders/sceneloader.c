@@ -834,7 +834,7 @@ static struct transform parseInstanceTransform(const cJSON *instance) {
 	return parseTransformComposite(transforms);
 }
 
-static struct textureNode *parseTextureNode(struct world *w, const cJSON *node) {
+static struct colorNode *parseTextureNode(struct world *w, const cJSON *node) {
 	if (!node) return NULL;
 	
 	if (cJSON_IsArray(node)) {
