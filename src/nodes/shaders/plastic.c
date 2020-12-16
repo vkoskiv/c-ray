@@ -11,10 +11,10 @@
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/material.h"
-#include "../textures/texturenode.h"
+#include "../colornode.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
-#include "bsdf.h"
+#include "../bsdf.h"
 
 #include "plastic.h"
 

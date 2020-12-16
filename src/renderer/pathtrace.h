@@ -12,7 +12,7 @@
 #include "../datatypes/poly.h"
 #include "../datatypes/lightRay.h"
 #include "../datatypes/material.h"
-#include "../nodes/shaders/bsdf.h"
+#include "../nodes/bsdf.h"
 
 struct world;
 

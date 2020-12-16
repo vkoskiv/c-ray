@@ -90,7 +90,7 @@ struct world;
 void assignBSDF(struct world *world, struct material *mat);
 
 #include "../utils/mempool.h"
-#include "../nodes/textures/texturenode.h" //FIXME: Remove
+#include "../nodes/colornode.h" //FIXME: Remove
 
 struct color colorForUV(const struct hitRecord *isect, enum textureType type); //FIXME: Remove
 

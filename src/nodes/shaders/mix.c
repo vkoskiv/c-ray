@@ -13,7 +13,7 @@
 #include "../../datatypes/material.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
-#include "bsdf.h"
+#include "../bsdf.h"
 
 #include "mix.h"
 

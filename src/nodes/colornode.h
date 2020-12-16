@@ -1,5 +1,5 @@
 //
-//  texturenode.h
+//  colornode.h
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 30/11/2020.
@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../nodebase.h"
+#include "nodebase.h"
 
 enum textureType {
 	Diffuse,
@@ -21,9 +21,9 @@ struct colorNode {
 	struct color (*eval)(const struct colorNode *node, const struct hitRecord *record);
 };
 
-#include "checker.h"
-#include "constant.h"
-#include "image.h"
-#include "grayscale.h"
+#include "textures/checker.h"
+#include "textures/constant.h"
+#include "textures/image.h"
+#include "converter/grayscale.h"
 
 struct colorNode *unknownTextureNode(struct world *w);

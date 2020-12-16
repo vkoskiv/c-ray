@@ -8,11 +8,11 @@
 
 #pragma once
 
-#include "../../datatypes/lightRay.h"
-#include "../../utils/mempool.h"
-#include "../textures/texturenode.h"
-#include "../../datatypes/hitrecord.h"
-#include "../nodebase.h"
+#include "../datatypes/lightRay.h"
+#include "../utils/mempool.h"
+#include "colornode.h"
+#include "../datatypes/hitrecord.h"
+#include "nodebase.h"
 
 struct bsdfSample {
 	struct vector out;
@@ -26,11 +26,11 @@ struct bsdf {
 	struct bsdfSample (*sample)(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record);
 };
 
-#include "diffuse.h"
-#include "glass.h"
-#include "metal.h"
-#include "mix.h"
-#include "plastic.h"
-#include "transparent.h"
+#include "shaders/diffuse.h"
+#include "shaders/glass.h"
+#include "shaders/metal.h"
+#include "shaders/mix.h"
+#include "shaders/plastic.h"
+#include "shaders/transparent.h"
 
 struct bsdf *warningBsdf(struct world *world);

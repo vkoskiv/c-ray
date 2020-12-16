@@ -14,7 +14,7 @@
 #include "../../datatypes/hitrecord.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
-#include "texturenode.h"
+#include "../colornode.h"
 
 #include "constant.h"
 

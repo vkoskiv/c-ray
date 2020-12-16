@@ -28,7 +28,7 @@
 #include "../datatypes/bbox.h"
 #include "../utils/mempool.h"
 #include "../utils/hashtable.h"
-#include "../nodes/shaders/bsdf.h"
+#include "../nodes/bsdf.h"
 #include "../utils/hashtable.h"
 
 struct bvhBuildTask {
