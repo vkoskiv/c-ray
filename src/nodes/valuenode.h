@@ -8,7 +8,11 @@
 
 #pragma once
 
+#include "nodebase.h"
+
 struct valueNode {
 	struct nodeBase base;
 	float (*eval)(const struct valueNode *node);
 };
+
+struct valueNode *newConstantValue(const struct world *world, float value);

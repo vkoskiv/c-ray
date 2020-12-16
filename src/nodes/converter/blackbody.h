@@ -7,3 +7,5 @@
 //
 
 #pragma once
+
+struct colorNode *newBlackbody(const struct world *world, const struct valueNode *value);
