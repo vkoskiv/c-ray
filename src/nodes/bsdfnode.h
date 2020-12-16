@@ -10,6 +10,8 @@
 
 #include "../datatypes/lightRay.h"
 #include "../utils/mempool.h"
+#include "valuenode.h"
+#include "vectornode.h"
 #include "colornode.h"
 #include "../datatypes/hitrecord.h"
 #include "nodebase.h"
