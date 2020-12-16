@@ -34,5 +34,6 @@ struct bsdf {
 #include "shaders/mix.h"
 #include "shaders/plastic.h"
 #include "shaders/transparent.h"
+#include "shaders/add.h"
 
 struct bsdf *warningBsdf(struct world *world);
