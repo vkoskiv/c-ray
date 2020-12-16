@@ -6,11 +6,11 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../includes.h"
-#include "../../datatypes/vector.h"
-#include "../../datatypes/color.h"
-#include "../../renderer/samplers/sampler.h"
-#include "../../datatypes/material.h"
+#include "../includes.h"
+#include "../datatypes/vector.h"
+#include "../datatypes/color.h"
+#include "../renderer/samplers/sampler.h"
+#include "../datatypes/material.h"
 #include "bsdf.h"
 
 struct bsdf *warningBsdf(struct world *world) {

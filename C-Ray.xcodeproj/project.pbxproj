@@ -32,6 +32,12 @@
 		90500A8425881C8B006F854A /* grayscale.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A8125881C8B006F854A /* grayscale.c */; };
 		90500A8B25897693006F854A /* transparent.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A8925897693006F854A /* transparent.c */; };
 		90500A8C25897693006F854A /* transparent.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A8925897693006F854A /* transparent.c */; };
+		90500A90258AB0FE006F854A /* blackbody.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A8E258AB0FE006F854A /* blackbody.c */; };
+		90500A91258AB0FE006F854A /* blackbody.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A8E258AB0FE006F854A /* blackbody.c */; };
+		90500A94258AB19A006F854A /* vectornode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A92258AB19A006F854A /* vectornode.c */; };
+		90500A95258AB19A006F854A /* vectornode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A92258AB19A006F854A /* vectornode.c */; };
+		90500A98258AB484006F854A /* valuenode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A96258AB484006F854A /* valuenode.c */; };
+		90500A99258AB484006F854A /* valuenode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A96258AB484006F854A /* valuenode.c */; };
 		9052E8D025018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		9052E8D125018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		905842DB236651FC009D92F1 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA129220B4602005B8EE7 /* main.c */; };
@@ -121,8 +127,8 @@
 		90AB1E142574798F00EFDF5A /* glass.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E112574798F00EFDF5A /* glass.c */; };
 		90AB1E1725747C9C00EFDF5A /* metal.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1525747C9C00EFDF5A /* metal.c */; };
 		90AB1E1825747C9C00EFDF5A /* metal.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1525747C9C00EFDF5A /* metal.c */; };
-		90AB1E1B2575709000EFDF5A /* texturenode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E192575709000EFDF5A /* texturenode.c */; };
-		90AB1E1C2575709000EFDF5A /* texturenode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E192575709000EFDF5A /* texturenode.c */; };
+		90AB1E1B2575709000EFDF5A /* colornode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E192575709000EFDF5A /* colornode.c */; };
+		90AB1E1C2575709000EFDF5A /* colornode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E192575709000EFDF5A /* colornode.c */; };
 		90AB1E1F2575B1AD00EFDF5A /* plastic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1D2575B1AD00EFDF5A /* plastic.c */; };
 		90AB1E202575B1AD00EFDF5A /* plastic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1D2575B1AD00EFDF5A /* plastic.c */; };
 		90C5D5582448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
@@ -220,6 +226,12 @@
 		90500A8225881C8B006F854A /* grayscale.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = grayscale.h; sourceTree = "<group>"; };
 		90500A8925897693006F854A /* transparent.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = transparent.c; sourceTree = "<group>"; };
 		90500A8A25897693006F854A /* transparent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = transparent.h; sourceTree = "<group>"; };
+		90500A8E258AB0FE006F854A /* blackbody.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = blackbody.c; sourceTree = "<group>"; };
+		90500A8F258AB0FE006F854A /* blackbody.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = blackbody.h; sourceTree = "<group>"; };
+		90500A92258AB19A006F854A /* vectornode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vectornode.c; sourceTree = "<group>"; };
+		90500A93258AB19A006F854A /* vectornode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vectornode.h; sourceTree = "<group>"; };
+		90500A96258AB484006F854A /* valuenode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = valuenode.c; sourceTree = "<group>"; };
+		90500A97258AB484006F854A /* valuenode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = valuenode.h; sourceTree = "<group>"; };
 		9052E8CE25018C050052406D /* fileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fileio.c; sourceTree = "<group>"; };
 		9052E8CF25018C050052406D /* fileio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileio.h; sourceTree = "<group>"; };
 		90584305236651FC009D92F1 /* C-Ray Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -296,8 +308,8 @@
 		90AB1E122574798F00EFDF5A /* glass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glass.h; sourceTree = "<group>"; };
 		90AB1E1525747C9C00EFDF5A /* metal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = metal.c; sourceTree = "<group>"; };
 		90AB1E1625747C9C00EFDF5A /* metal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = metal.h; sourceTree = "<group>"; };
-		90AB1E192575709000EFDF5A /* texturenode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = texturenode.c; sourceTree = "<group>"; };
-		90AB1E1A2575709000EFDF5A /* texturenode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = texturenode.h; sourceTree = "<group>"; };
+		90AB1E192575709000EFDF5A /* colornode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = colornode.c; sourceTree = "<group>"; };
+		90AB1E1A2575709000EFDF5A /* colornode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = colornode.h; sourceTree = "<group>"; };
 		90AB1E1D2575B1AD00EFDF5A /* plastic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = plastic.c; sourceTree = "<group>"; };
 		90AB1E1E2575B1AD00EFDF5A /* plastic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = plastic.h; sourceTree = "<group>"; };
 		90BAE9362328344100B1EBF0 /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
@@ -494,6 +506,17 @@
 			path = utils;
 			sourceTree = "<group>";
 		};
+		90500A8D258AB0C8006F854A /* converter */ = {
+			isa = PBXGroup;
+			children = (
+				90500A8F258AB0FE006F854A /* blackbody.h */,
+				90500A8E258AB0FE006F854A /* blackbody.c */,
+				90500A8225881C8B006F854A /* grayscale.h */,
+				90500A8125881C8B006F854A /* grayscale.c */,
+			);
+			path = converter;
+			sourceTree = "<group>";
+		};
 		9062FA0F243D233E00420889 /* encoders */ = {
 			isa = PBXGroup;
 			children = (
@@ -518,8 +541,6 @@
 		9071BC8F257D5C2B0070BA43 /* shaders */ = {
 			isa = PBXGroup;
 			children = (
-				90AB1E062574373E00EFDF5A /* bsdf.h */,
-				90AB1E052574373E00EFDF5A /* bsdf.c */,
 				90AB1E0A25745DFE00EFDF5A /* diffuse.h */,
 				90AB1E0925745DFE00EFDF5A /* diffuse.c */,
 				90AB1E0E25745E0C00EFDF5A /* mix.h */,
@@ -539,16 +560,12 @@
 		9071BC90257D5C320070BA43 /* textures */ = {
 			isa = PBXGroup;
 			children = (
-				90AB1E1A2575709000EFDF5A /* texturenode.h */,
-				90AB1E192575709000EFDF5A /* texturenode.c */,
 				9071BC92257D7D260070BA43 /* constant.h */,
 				9071BC91257D7D260070BA43 /* constant.c */,
 				9071BC96257D7D380070BA43 /* checker.h */,
 				9071BC95257D7D380070BA43 /* checker.c */,
 				9071BC9A257D7D470070BA43 /* image.h */,
 				9071BC99257D7D470070BA43 /* image.c */,
-				90500A8225881C8B006F854A /* grayscale.h */,
-				90500A8125881C8B006F854A /* grayscale.c */,
 			);
 			path = textures;
 			sourceTree = "<group>";
@@ -620,6 +637,15 @@
 			children = (
 				9071BC9E257ECFD30070BA43 /* nodebase.h */,
 				9071BC9F257ED22C0070BA43 /* nodebase.c */,
+				90500A93258AB19A006F854A /* vectornode.h */,
+				90500A92258AB19A006F854A /* vectornode.c */,
+				90500A97258AB484006F854A /* valuenode.h */,
+				90500A96258AB484006F854A /* valuenode.c */,
+				90AB1E1A2575709000EFDF5A /* colornode.h */,
+				90AB1E192575709000EFDF5A /* colornode.c */,
+				90AB1E062574373E00EFDF5A /* bsdf.h */,
+				90AB1E052574373E00EFDF5A /* bsdf.c */,
+				90500A8D258AB0C8006F854A /* converter */,
 				9071BC90257D5C320070BA43 /* textures */,
 				9071BC8F257D5C2B0070BA43 /* shaders */,
 			);
@@ -815,12 +841,13 @@
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
 				90A51A0523FCB7FF0014DF6B /* memory.c in Sources */,
-				90AB1E1C2575709000EFDF5A /* texturenode.c in Sources */,
+				90AB1E1C2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0C25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA17243D237200420889 /* bmp.c in Sources */,
 				905842F5236651FC009D92F1 /* mesh.c in Sources */,
 				909D13722443B4E7006D0A86 /* textbuffer.c in Sources */,
 				905842F6236651FC009D92F1 /* cJSON.c in Sources */,
+				90500A91258AB0FE006F854A /* blackbody.c in Sources */,
 				9062FA0E243CC4B200420889 /* signal.c in Sources */,
 				9076FB52243002B00003B327 /* mutex.c in Sources */,
 				9071BC98257D7D380070BA43 /* checker.c in Sources */,
@@ -828,9 +855,11 @@
 				9062FA1B243D23A400420889 /* encoder.c in Sources */,
 				905842F7236651FC009D92F1 /* color.c in Sources */,
 				90EE4F3D237DD49F0071894E /* meshloader.c in Sources */,
+				90500A95258AB19A006F854A /* vectornode.c in Sources */,
 				905842F8236651FC009D92F1 /* renderer.c in Sources */,
 				905842F9236651FC009D92F1 /* camera.c in Sources */,
 				90A0B3BF2553633300F298F1 /* envmap.c in Sources */,
+				90500A99258AB484006F854A /* valuenode.c in Sources */,
 				905842FA236651FC009D92F1 /* scene.c in Sources */,
 				905842FC236651FC009D92F1 /* transforms.c in Sources */,
 				90AB1E202575B1AD00EFDF5A /* plastic.c in Sources */,
@@ -891,12 +920,13 @@
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
 				90A51A0423FCB7FF0014DF6B /* memory.c in Sources */,
-				90AB1E1B2575709000EFDF5A /* texturenode.c in Sources */,
+				90AB1E1B2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA16243D237200420889 /* bmp.c in Sources */,
 				90189DA6224EB302007FA268 /* mesh.c in Sources */,
 				909D13712443B4E7006D0A86 /* textbuffer.c in Sources */,
 				900BA13E220B4603005B8EE7 /* cJSON.c in Sources */,
+				90500A90258AB0FE006F854A /* blackbody.c in Sources */,
 				9062FA0D243CC4B200420889 /* signal.c in Sources */,
 				9076FB51243002B00003B327 /* mutex.c in Sources */,
 				9071BC97257D7D380070BA43 /* checker.c in Sources */,
@@ -904,9 +934,11 @@
 				9062FA1A243D23A400420889 /* encoder.c in Sources */,
 				900BA139220B4603005B8EE7 /* color.c in Sources */,
 				90EE4F3C237DD49F0071894E /* meshloader.c in Sources */,
+				90500A94258AB19A006F854A /* vectornode.c in Sources */,
 				900BA12E220B4603005B8EE7 /* renderer.c in Sources */,
 				900BA137220B4603005B8EE7 /* camera.c in Sources */,
 				90A0B3BE2553633300F298F1 /* envmap.c in Sources */,
+				90500A98258AB484006F854A /* valuenode.c in Sources */,
 				900BA132220B4603005B8EE7 /* scene.c in Sources */,
 				900BA133220B4603005B8EE7 /* transforms.c in Sources */,
 				90AB1E1F2575B1AD00EFDF5A /* plastic.c in Sources */,
