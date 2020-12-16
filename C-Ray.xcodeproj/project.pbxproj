@@ -117,8 +117,8 @@
 		90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A51A0423FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
 		90A51A0523FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
-		90AB1E072574373E00EFDF5A /* bsdf.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E052574373E00EFDF5A /* bsdf.c */; };
-		90AB1E082574373E00EFDF5A /* bsdf.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E052574373E00EFDF5A /* bsdf.c */; };
+		90AB1E072574373E00EFDF5A /* bsdfnode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E052574373E00EFDF5A /* bsdfnode.c */; };
+		90AB1E082574373E00EFDF5A /* bsdfnode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E052574373E00EFDF5A /* bsdfnode.c */; };
 		90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E0925745DFE00EFDF5A /* diffuse.c */; };
 		90AB1E0C25745DFE00EFDF5A /* diffuse.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E0925745DFE00EFDF5A /* diffuse.c */; };
 		90AB1E0F25745E0C00EFDF5A /* mix.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E0D25745E0C00EFDF5A /* mix.c */; };
@@ -298,8 +298,8 @@
 		90A519FF23FB5DFC0014DF6B /* statistics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = statistics.c; sourceTree = "<group>"; };
 		90A51A0223FCB7FF0014DF6B /* memory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = memory.h; sourceTree = "<group>"; };
 		90A51A0323FCB7FF0014DF6B /* memory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = memory.c; sourceTree = "<group>"; };
-		90AB1E052574373E00EFDF5A /* bsdf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bsdf.c; sourceTree = "<group>"; };
-		90AB1E062574373E00EFDF5A /* bsdf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bsdf.h; sourceTree = "<group>"; };
+		90AB1E052574373E00EFDF5A /* bsdfnode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bsdfnode.c; sourceTree = "<group>"; };
+		90AB1E062574373E00EFDF5A /* bsdfnode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bsdfnode.h; sourceTree = "<group>"; };
 		90AB1E0925745DFE00EFDF5A /* diffuse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = diffuse.c; sourceTree = "<group>"; };
 		90AB1E0A25745DFE00EFDF5A /* diffuse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = diffuse.h; sourceTree = "<group>"; };
 		90AB1E0D25745E0C00EFDF5A /* mix.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mix.c; sourceTree = "<group>"; };
@@ -643,8 +643,8 @@
 				90500A96258AB484006F854A /* valuenode.c */,
 				90AB1E1A2575709000EFDF5A /* colornode.h */,
 				90AB1E192575709000EFDF5A /* colornode.c */,
-				90AB1E062574373E00EFDF5A /* bsdf.h */,
-				90AB1E052574373E00EFDF5A /* bsdf.c */,
+				90AB1E062574373E00EFDF5A /* bsdfnode.h */,
+				90AB1E052574373E00EFDF5A /* bsdfnode.c */,
 				90500A8D258AB0C8006F854A /* converter */,
 				9071BC90257D5C320070BA43 /* textures */,
 				9071BC8F257D5C2B0070BA43 /* shaders */,
@@ -813,7 +813,7 @@
 				9071BCA1257ED22C0070BA43 /* nodebase.c in Sources */,
 				905842E5236651FC009D92F1 /* list.c in Sources */,
 				90A21CF224589E6A002C742E /* sampler.c in Sources */,
-				90AB1E082574373E00EFDF5A /* bsdf.c in Sources */,
+				90AB1E082574373E00EFDF5A /* bsdfnode.c in Sources */,
 				905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */,
 				90C5D5592448CEAB00C58643 /* imagefile.c in Sources */,
 				9076FB56243002B90003B327 /* thread.c in Sources */,
@@ -892,7 +892,7 @@
 				9071BCA0257ED22C0070BA43 /* nodebase.c in Sources */,
 				900BA13B220B4603005B8EE7 /* list.c in Sources */,
 				90A21CF124589E6A002C742E /* sampler.c in Sources */,
-				90AB1E072574373E00EFDF5A /* bsdf.c in Sources */,
+				90AB1E072574373E00EFDF5A /* bsdfnode.c in Sources */,
 				90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */,
 				90C5D5582448CEAB00C58643 /* imagefile.c in Sources */,
 				9076FB55243002B90003B327 /* thread.c in Sources */,

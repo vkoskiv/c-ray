@@ -10,6 +10,6 @@
 #include "../datatypes/color.h"
 #include "../datatypes/vector.h"
 #include "../datatypes/hitrecord.h"
-#include "bsdf.h"
+#include "bsdfnode.h"
 
 #include "vectornode.h"

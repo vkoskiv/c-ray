@@ -15,7 +15,7 @@
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
 #include "../../utils/logging.h"
-#include "../bsdf.h"
+#include "../bsdfnode.h"
 
 #include "diffuse.h"
 

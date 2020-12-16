@@ -14,7 +14,7 @@
 #include "../colornode.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
-#include "../bsdf.h"
+#include "../bsdfnode.h"
 
 #include "plastic.h"
 

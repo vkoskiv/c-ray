@@ -20,7 +20,7 @@
 
 #include "../datatypes/color.h"
 
-#include "../nodes/bsdf.h"
+#include "../nodes/bsdfnode.h"
 
 static struct material emptyMaterial() {
 	return (struct material){0};
