@@ -58,8 +58,9 @@ static inline struct color addColors(struct color c1, struct color c2) {
 	return (struct color){c1.red + c2.red, c1.green + c2.green, c1.blue + c2.blue, c1.alpha + c2.alpha};
 }
 
+// Formula from http://alienryderflex.com/hsp.html
 static inline struct color grayscale(struct color c) {
-	float b = (c.red + c.green + c.blue) / 3.0f;
+	float b = sqrtf(0.299f * powf(c.red, 2) + 0.587 * powf(c.green, 2) + 0.114 * powf(c.blue, 2));
 	return (struct color){b, b, b, c.alpha};
 }
 
