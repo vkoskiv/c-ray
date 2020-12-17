@@ -21,13 +21,13 @@ struct mixBsdf {
 	struct bsdfNode bsdf;
 	struct bsdfNode *A;
 	struct bsdfNode *B;
-	struct colorNode *factor;
+	struct valueNode *factor;
 };
 
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct mixBsdf *mixBsdf = (struct mixBsdf*)bsdf;
 	//TODO: Do we need grayscale()?
-	const float lerp = grayscale(mixBsdf->factor->eval(mixBsdf->factor, record)).red;
+	const float lerp = mixBsdf->factor->eval(mixBsdf->factor, record);
 	if (getDimension(sampler) < lerp) {
 		return mixBsdf->A->sample(mixBsdf->A, sampler, record);
 	} else {
@@ -50,7 +50,7 @@ static uint32_t hashMix(const void *p) {
 	return h;
 }
 
-struct bsdfNode *newMix(struct world *world, struct bsdfNode *A, struct bsdfNode *B, struct colorNode *factor) {
+struct bsdfNode *newMix(struct world *world, struct bsdfNode *A, struct bsdfNode *B, struct valueNode *factor) {
 	if (A == B) {
 		logr(debug, "A == B, pruning mix node.\n");
 		return A;
@@ -58,7 +58,7 @@ struct bsdfNode *newMix(struct world *world, struct bsdfNode *A, struct bsdfNode
 	HASH_CONS(world->nodeTable, &world->nodePool, hashMix, struct mixBsdf, {
 		.A = A ? A : newDiffuse(world, newConstantTexture(world, blackColor)),
 		.B = B ? B : newDiffuse(world, newConstantTexture(world, blackColor)),
-		.factor = factor ? factor : newConstantTexture(world, grayColor),
+		.factor = factor ? factor : newConstantValue(world, 0.5f),
 		.bsdf = {
 			.sample = sample,
 			.base = { .compare = compareMix }

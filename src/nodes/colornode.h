@@ -26,5 +26,7 @@ struct colorNode {
 #include "textures/image.h"
 #include "converter/grayscale.h"
 #include "converter/blackbody.h"
+#include "converter/combine.h"
+#include "converter/combinergb.h"
 
 struct colorNode *unknownTextureNode(struct world *w);
