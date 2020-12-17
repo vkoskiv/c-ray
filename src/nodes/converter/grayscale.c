@@ -14,12 +14,13 @@
 #include "../../datatypes/hitrecord.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
+#include "../valuenode.h"
 #include "../colornode.h"
 
 #include "grayscale.h"
 
 struct grayscale {
-	struct colorNode node;
+	struct valueNode node;
 	const struct colorNode *original;
 };
 
@@ -36,16 +37,16 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct color evalGrayscale(const struct colorNode *node, const struct hitRecord *record) {
+static float eval(const struct valueNode *node, const struct hitRecord *record) {
 	const struct grayscale *this = (struct grayscale *)node;
-	return grayscale(this->original->eval(this->original, record));
+	return grayscale(this->original->eval(this->original, record)).red;
 }
 
-struct colorNode *newGrayscaleConverter(struct world *world, const struct colorNode *node) {
+struct valueNode *newGrayscaleConverter(struct world *world, const struct colorNode *node) {
 	HASH_CONS(world->nodeTable, world->nodePool, hash, struct grayscale, {
 		.original = node,
 		.node = {
-			.eval = evalGrayscale,
+			.eval = eval,
 			.base = { .compare = compare }
 		}
 	});
