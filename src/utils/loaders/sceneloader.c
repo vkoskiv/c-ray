@@ -920,7 +920,7 @@ static struct bsdfNode *parseNode(struct world *w, const cJSON *node) {
 		const cJSON *factor = cJSON_GetObjectItem(node, "factor");
 		struct bsdfNode *A = parseNode(w, jsonA);
 		struct bsdfNode *B = parseNode(w, jsonB);
-		return newMix(w, A, B, parseTextureNode(w, factor));
+		return newMix(w, A, B, newGrayscaleConverter(w, parseTextureNode(w, factor)));
 	} else if (stringEquals(type->valuestring, "transparent")) {
 		return newTransparent(w, parseTextureNode(w, color));
 	}
