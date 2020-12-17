@@ -23,9 +23,9 @@ struct bsdfSample {
 };
 
 //TODO: Expand and refactor to match a standard bsdf signature with eval, sample and pdf
-struct bsdf {
+struct bsdfNode {
 	struct nodeBase base;
-	struct bsdfSample (*sample)(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record);
+	struct bsdfSample (*sample)(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record);
 };
 
 #include "shaders/diffuse.h"
@@ -36,4 +36,4 @@ struct bsdf {
 #include "shaders/transparent.h"
 #include "shaders/add.h"
 
-struct bsdf *warningBsdf(struct world *world);
+struct bsdfNode *warningBsdf(struct world *world);

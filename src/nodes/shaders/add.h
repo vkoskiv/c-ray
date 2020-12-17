@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct bsdf *newAdd(struct world *world, struct bsdf *A, struct bsdf *B);
+struct bsdfNode *newAdd(struct world *world, struct bsdfNode *A, struct bsdfNode *B);

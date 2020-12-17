@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct bsdf *newMetal(struct world *world, struct colorNode *color, struct colorNode *roughness);
+struct bsdfNode *newMetal(struct world *world, struct colorNode *color, struct colorNode *roughness);

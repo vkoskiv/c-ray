@@ -20,11 +20,11 @@
 #include "transparent.h"
 
 struct transparent {
-	struct bsdf bsdf;
+	struct bsdfNode bsdf;
 	struct colorNode *color;
 };
 
-static struct bsdfSample sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	(void)sampler;
 	struct transparent *this = (struct transparent *)bsdf;
 	return (struct bsdfSample){ .out = record->incident.direction, .color = this->color->eval(this->color, record) };
@@ -43,7 +43,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdf *newTransparent(struct world *world, struct colorNode *color) {
+struct bsdfNode *newTransparent(struct world *world, struct colorNode *color) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct transparent, {
 		.color = color ? color : newConstantTexture(world, whiteColor),
 		.bsdf = {

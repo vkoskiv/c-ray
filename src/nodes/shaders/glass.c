@@ -18,13 +18,13 @@
 #include "glass.h"
 
 struct glassBsdf {
-	struct bsdf bsdf;
+	struct bsdfNode bsdf;
 	struct colorNode *color;
 	struct colorNode *roughness;
 	float IOR;
 };
 
-struct bsdfSample sampleGlass(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
+struct bsdfSample sampleGlass(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct glassBsdf *glassBsdf = (struct glassBsdf*)bsdf;
 	
 	struct vector outwardNormal;
@@ -87,7 +87,7 @@ static uint32_t hash(const void *p) {
 }
 
 //TODO: Add IOR input
-struct bsdf *newGlass(struct world *world, struct colorNode *color, struct colorNode *roughness, float IOR) {
+struct bsdfNode *newGlass(struct world *world, struct colorNode *color, struct colorNode *roughness, float IOR) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct glassBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = roughness ? roughness : newConstantTexture(world, blackColor),
