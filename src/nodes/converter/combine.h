@@ -10,5 +10,5 @@
 
 // TODO: Move this to a 'converter' group once more converters are added.
 
-struct colorNode *newValueToColor(struct world *world, const struct valueNode *node);
+struct colorNode *newCombine(struct world *world, const struct valueNode *node);
 
