@@ -18,12 +18,12 @@
 #include "metal.h"
 
 struct metalBsdf {
-	struct bsdf bsdf;
+	struct bsdfNode bsdf;
 	struct colorNode *color;
 	struct colorNode *roughness;
 };
 
-struct bsdfSample sampleMetal(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
+struct bsdfSample sampleMetal(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct metalBsdf *metalBsdf = (struct metalBsdf*)bsdf;
 	
 	const struct vector normalizedDir = vecNormalize(record->incident.direction);
@@ -54,7 +54,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdf *newMetal(struct world *world, struct colorNode *color, struct colorNode *roughness) {
+struct bsdfNode *newMetal(struct world *world, struct colorNode *color, struct colorNode *roughness) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct metalBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = roughness ? roughness : newConstantTexture(world, blackColor),

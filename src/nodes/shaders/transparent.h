@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct bsdf *newTransparent(struct world *world, struct colorNode *color);
+struct bsdfNode *newTransparent(struct world *world, struct colorNode *color);

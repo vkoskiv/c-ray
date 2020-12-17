@@ -20,12 +20,12 @@
 #include "add.h"
 
 struct addBsdf {
-	struct bsdf bsdf;
-	struct bsdf *A;
-	struct bsdf *B;
+	struct bsdfNode bsdf;
+	struct bsdfNode *A;
+	struct bsdfNode *B;
 };
 
-static struct bsdfSample sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct addBsdf *mixBsdf = (struct addBsdf*)bsdf;
 	struct bsdfSample A = mixBsdf->A->sample(mixBsdf->A, sampler, record);
 	struct bsdfSample B = mixBsdf->B->sample(mixBsdf->B, sampler, record);
@@ -48,7 +48,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdf *newAdd(struct world *world, struct bsdf *A, struct bsdf *B) {
+struct bsdfNode *newAdd(struct world *world, struct bsdfNode *A, struct bsdfNode *B) {
 	if (A == B) {
 		logr(debug, "A == B, pruning add node.\n");
 		return A;

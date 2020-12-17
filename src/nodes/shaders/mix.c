@@ -18,13 +18,13 @@
 #include "mix.h"
 
 struct mixBsdf {
-	struct bsdf bsdf;
-	struct bsdf *A;
-	struct bsdf *B;
+	struct bsdfNode bsdf;
+	struct bsdfNode *A;
+	struct bsdfNode *B;
 	struct colorNode *factor;
 };
 
-static struct bsdfSample sample(const struct bsdf *bsdf, sampler *sampler, const struct hitRecord *record) {
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct mixBsdf *mixBsdf = (struct mixBsdf*)bsdf;
 	//TODO: Do we need grayscale()?
 	const float lerp = grayscale(mixBsdf->factor->eval(mixBsdf->factor, record)).red;
@@ -50,7 +50,7 @@ static uint32_t hashMix(const void *p) {
 	return h;
 }
 
-struct bsdf *newMix(struct world *world, struct bsdf *A, struct bsdf *B, struct colorNode *factor) {
+struct bsdfNode *newMix(struct world *world, struct bsdfNode *A, struct bsdfNode *B, struct colorNode *factor) {
 	if (A == B) {
 		logr(debug, "A == B, pruning mix node.\n");
 		return A;
