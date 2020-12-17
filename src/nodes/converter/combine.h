@@ -8,7 +8,4 @@
 
 #pragma once
 
-// TODO: Move this to a 'converter' group once more converters are added.
-
-struct colorNode *newCombine(struct world *world, const struct valueNode *node);
-
+struct colorNode *newCombineValue(struct world *world, const struct valueNode *node);

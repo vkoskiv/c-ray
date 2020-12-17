@@ -8,17 +8,14 @@
 
 #include "../../includes.h"
 #include "../../datatypes/color.h"
-#include "../../datatypes/poly.h"
 #include "../../utils/assert.h"
 #include "../../utils/mempool.h"
 #include "../../datatypes/hitrecord.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
 #include "../valuenode.h"
-#include "../colornode.h"
 
 #include "combinergb.h"
-
 
 struct combineRGB {
 	struct colorNode node;
