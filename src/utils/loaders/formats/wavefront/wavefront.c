@@ -106,7 +106,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	size_t meshCount = 1;
 	//meshCount += count(file, "o");
 	//meshCount += count(file, "g");
-	size_t currentMesh = 0;
+	//size_t currentMesh = 0;
 	size_t valid_meshes = 0;
 	
 	// Allocate local buffers (memcpy these to global buffers if parsing succeeds)

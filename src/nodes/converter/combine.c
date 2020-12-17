@@ -8,14 +8,12 @@
 
 #include "../../includes.h"
 #include "../../datatypes/color.h"
-#include "../../datatypes/poly.h"
 #include "../../utils/assert.h"
 #include "../../utils/mempool.h"
 #include "../../datatypes/hitrecord.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
 #include "../valuenode.h"
-#include "../colornode.h"
 
 #include "combine.h"
 
@@ -44,7 +42,7 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	return (struct color){val, val, val, 1.0f};
 }
 
-struct colorNode *newCombine(struct world *world, const struct valueNode *node) {
+struct colorNode *newCombineValue(struct world *world, const struct valueNode *node) {
 	HASH_CONS(world->nodeTable, world->nodePool, hash, struct combineValue, {
 		.original = node,
 		.node = {
