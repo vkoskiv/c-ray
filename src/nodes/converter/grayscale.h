@@ -10,4 +10,4 @@
 
 // TODO: Move this to a 'converter' group once more converters are added.
 
-struct colorNode *newGrayscaleConverter(struct world *world, const struct colorNode *node);
+struct valueNode *newGrayscaleConverter(struct world *world, const struct colorNode *node);

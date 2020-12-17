@@ -12,7 +12,7 @@
 
 struct vectorNode {
 	struct nodeBase base;
-	struct vector (*eval)(const struct vectorNode *node);
+	struct vector (*eval)(const struct vectorNode *node, const struct hitRecord *record);
 };
 
 struct vectorNode *newConstantVector(const struct world *world, struct vector vector);

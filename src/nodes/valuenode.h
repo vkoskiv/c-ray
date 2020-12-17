@@ -12,7 +12,7 @@
 
 struct valueNode {
 	struct nodeBase base;
-	float (*eval)(const struct valueNode *node);
+	float (*eval)(const struct valueNode *node, const struct hitRecord *record);
 };
 
 struct valueNode *newConstantValue(const struct world *world, float value);
