@@ -19,12 +19,10 @@
 #include "../datatypes/mesh.h"
 #include "samplers/sampler.h"
 #include "sky.h"
-#include "envmap.h"
 #include "../datatypes/transforms.h"
 #include "../datatypes/instance.h"
 
 static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene);
-static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene);
 
 struct color debugNormals(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
 	(void)maxDepth;
@@ -32,7 +30,7 @@ struct color debugNormals(const struct lightRay *incidentRay, const struct world
 	struct lightRay currentRay = *incidentRay;
 	struct hitRecord isect = getClosestIsect(&currentRay, scene);
 	if (isect.instIndex < 0)
-		return getBackground(&currentRay, scene);
+		return scene->background->sample(scene->background, sampler, &isect).color;//getBackground(&currentRay, scene);
 	struct vector normal =  isect.surfaceNormal;
 	return (struct color){fabs(normal.x), fabs(normal.y), fabs(normal.z), 1.0f};
 }
@@ -48,7 +46,7 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 	for (int depth = 0; depth < maxDepth; ++depth) {
 		const struct hitRecord isect = getClosestIsect(&currentRay, scene);
 		if (isect.instIndex < 0) {
-			finalColor = addColors(finalColor, multiplyColors(weight, getBackground(&currentRay, scene)));
+			finalColor = addColors(finalColor, multiplyColors(weight, scene->background->sample(scene->background, sampler, &isect).color));
 			break;
 		}
 		
@@ -89,15 +87,4 @@ static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const stru
 	traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect);
 	
 	return isect;
-}
-
-//Linearly interpolate based on the Y component
-static struct color getAmbientColor(const struct lightRay *incidentRay, struct gradient color) {
-	struct vector unitDirection = vecNormalize(incidentRay->direction);
-	float t = 0.5f * (unitDirection.y + 1.0f);
-	return addColors(colorCoef(1.0f - t, color.down), colorCoef(t, color.up));
-}
-
-static struct color getBackground(const struct lightRay *incidentRay, const struct world *scene) {
-	return scene->hdr ? getEnvMap(incidentRay, scene->hdr) : getAmbientColor(incidentRay, scene->ambientColor);
 }

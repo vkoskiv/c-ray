@@ -11,37 +11,29 @@
 #include "../fileio.h"
 #include "../logging.h"
 #include "../../datatypes/image/texture.h"
-#include "../../renderer/envmap.h"
 #include "../../datatypes/color.h"
+#include "../../utils/assert.h"
 
 #define STBI_NO_PSD
 #define STBI_NO_GIF
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../libraries/stb_image.h"
 
-struct envMap *loadEnvMap(char *filePath) {
-	size_t len = 0;
-	//Handle the trailing newline here
-	filePath[strcspn(filePath, "\n")] = 0;
-	unsigned char *file = (unsigned char*)loadFile(filePath, &len);
-	if (!file) return NULL;
-	if (stbi_is_hdr(filePath)) {
-		logr(info, "Loading HDR...");
-		struct texture *tex = newTexture(none, 0, 0, 0);
-		tex->data.float_p = stbi_loadf_from_memory(file, (int)len, (int *)&tex->width, (int *)&tex->height, (int *)&tex->channels, 0);
-		tex->precision = float_p;
-		free(file);
-		if (!tex->data.float_p) {
-			destroyTexture(tex);
-			logr(warning, "Error while decoding HDR from %s - Corrupted?\n", filePath);
-			return NULL;
-		}
-		float MB = (((getFileSize(filePath))/1000.0f)/1000.0f);
-		printf(" %.1fMB\n", MB);
-		return newEnvMap(tex);
+static struct texture *loadEnvMap(unsigned char *buf, size_t buflen, const char *path) {
+	ASSERT(buf);
+	logr(info, "Loading HDR...");
+	struct texture *tex = newTexture(none, 0, 0, 0);
+	tex->data.float_p = stbi_loadf_from_memory(buf, (int)buflen, (int *)&tex->width, (int *)&tex->height, (int *)&tex->channels, 0);
+	tex->precision = float_p;
+	if (!tex->data.float_p) {
+		destroyTexture(tex);
+		logr(warning, "Error while decoding HDR from %s - Corrupted?\n", path);
+		return NULL;
 	}
-	free(file);
-	return NULL;
+	char *fsbuf = humanFileSize(buflen);
+	printf(" %s\n", fsbuf);
+	free(fsbuf);
+	return tex;
 }
 
 struct texture *loadTexture(char *filePath) {
@@ -50,7 +42,12 @@ struct texture *loadTexture(char *filePath) {
 	filePath[strcspn(filePath, "\n")] = 0;
 	unsigned char *file = (unsigned char*)loadFile(filePath, &len);
 	if (!file) return NULL;
-	struct texture *new = loadTextureFromBuffer(file, (unsigned int)len);
+	struct texture *new = NULL;
+	if (stbi_is_hdr(filePath)) {
+		new = loadEnvMap(file, len, filePath);
+	} else {
+		new = loadTextureFromBuffer(file, (unsigned int)len);
+	}
 	free(file);
 	if (!new) {
 		logr(warning, "^That happened while decoding texture \"%s\" - Corrupted?\n", filePath);

@@ -21,11 +21,6 @@ struct color {
 	float red, green, blue, alpha;
 };
 
-struct gradient {
-	struct color down;
-	struct color up;
-};
-
 //Some standard colours
 extern const struct color redColor;
 extern const struct color greenColor;
