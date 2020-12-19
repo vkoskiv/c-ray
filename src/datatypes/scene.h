@@ -8,26 +8,23 @@
 
 #pragma once
 
-#include "color.h"
-
 struct renderer;
 struct hashtable;
 
-/// World
 struct world {
 	//Optional environment map / ambient color
 	struct bsdfNode *background;
 	
-	//3D models
 	struct mesh *meshes;
 	int meshCount;
 	
 	struct instance *instances;
 	int instanceCount;
 	
+	// Top-level bounding volume hierarchy,
+	// contains all 3D assets in the scene.
 	struct bvh *topLevel;
 	
-	//Spheres
 	struct sphere *spheres;
 	int sphereCount;
 	
@@ -35,7 +32,9 @@ struct world {
 	struct camera *camera;
 	int cameraCount;
 	
+	// Scene asset memory pool, currently used for nodes only.
 	struct block *nodePool;
+	// Used for hash consing. (preventing duplicate nodes)
 	struct hashtable *nodeTable;
 };
 
