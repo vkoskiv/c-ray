@@ -15,11 +15,8 @@ struct hashtable;
 
 /// World
 struct world {
-	//Ambient background color.
-	struct gradient ambientColor;
-	
-	//Optional environment map
-	struct envMap *hdr;
+	//Optional environment map / ambient color
+	struct bsdfNode *background;
 	
 	//3D models
 	struct mesh *meshes;

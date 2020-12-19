@@ -24,6 +24,7 @@ struct colorNode {
 #include "textures/checker.h"
 #include "textures/constant.h"
 #include "textures/image.h"
+#include "textures/gradient.h"
 #include "converter/grayscale.h"
 #include "converter/blackbody.h"
 #include "converter/combine.h"

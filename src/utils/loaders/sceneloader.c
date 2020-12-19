@@ -30,7 +30,6 @@
 #include "textureloader.h"
 #include "../../datatypes/instance.h"
 #include "../../utils/args.h"
-#include "../../renderer/envmap.h"
 #include "../../utils/timer.h"
 #include "../../nodes/bsdfnode.h"
 #include "meshloader.h"
@@ -753,36 +752,36 @@ static struct color parseColor(const cJSON *data) {
 	return newColor;
 }
 
-//FIXME:
+//FIXME: Convert this to use parseNode
 static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *down = NULL;
 	const cJSON *up = NULL;
 	const cJSON *hdr = NULL;
 	const cJSON *offset = NULL;
 	
-	struct gradient newGradient;
+	offset = cJSON_GetObjectItem(data, "offset");
+	float offsetValue = 0.0f;
+	if (cJSON_IsNumber(offset)) {
+		offsetValue = toRadians(offset->valuedouble) / 4.0f;
+	}
 	
 	down = cJSON_GetObjectItem(data, "down");
 	up = cJSON_GetObjectItem(data, "up");
-	
-	newGradient.down = parseColor(down);
-	newGradient.up = parseColor(up);
-	
-	r->scene->ambientColor = newGradient;
-	
 	hdr = cJSON_GetObjectItem(data, "hdr");
+	
 	if (cJSON_IsString(hdr)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, hdr->valuestring);
-		r->scene->hdr = loadEnvMap(fullPath);
+		r->scene->background = newBackground(r->scene, newImageTexture(r->scene, loadTexture(fullPath), 0), offsetValue);
 		free(fullPath);
+		return 0;
 	}
 	
-	offset = cJSON_GetObjectItem(data, "offset");
-	if (cJSON_IsNumber(offset)) {
-		if (r->scene->hdr) {
-			r->scene->hdr->offset = toRadians(offset->valuedouble) / 4.0f;
-		}
+	if (down && up) {
+		r->scene->background = newBackground(r->scene, newGradientTexture(r->scene, parseColor(down), parseColor(up)), offsetValue);
+		return 0;
 	}
+
+	r->scene->background = newBackground(r->scene, NULL, offsetValue);
 	
 	return 0;
 }
@@ -1188,19 +1187,7 @@ static int parseScene(struct renderer *r, const cJSON *data) {
 	const cJSON *meshes = NULL;
 	
 	ambientColor = cJSON_GetObjectItem(data, "ambientColor");
-	if (ambientColor) {
-		if (cJSON_IsObject(ambientColor)) {
-			if (parseAmbientColor(r, ambientColor) == -1) {
-				logr(warning, "Invalid ambientColor while parsing scene.\n");
-				return -1;
-			}
-		}
-	} else {
-		r->scene->ambientColor = (struct gradient){
-			.down = (struct color){0.4f, 0.4f, 0.5f, 0.0f},
-			.up   = (struct color){0.8f, 0.8f, 1.0f, 0.0f}
-		};
-	}
+	parseAmbientColor(r, ambientColor);
 	
 	primitives = cJSON_GetObjectItem(data, "primitives");
 	if (primitives) {
