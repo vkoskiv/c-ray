@@ -19,6 +19,7 @@
 struct backgroundBsdf {
 	struct bsdfNode bsdf;
 	struct colorNode *color;
+	struct valueNode *strength;
 	float offset;
 };
 
@@ -43,9 +44,11 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	
 	copy->uv = (struct coord){ v, u };
 	
+	float strength = background->strength->eval(background->strength, record);
+	
 	return (struct bsdfSample){
 		.out = vecZero(),
-		.color = background->color->eval(background->color, copy)
+		.color = colorCoef(strength, background->color->eval(background->color, copy))
 	};
 }
 
@@ -62,9 +65,10 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdfNode *newBackground(struct world *world, struct colorNode *tex, float offset) {
+struct bsdfNode *newBackground(struct world *world, struct colorNode *tex, struct valueNode *strength, float offset) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct backgroundBsdf, {
 		.color = tex ? tex : newConstantTexture(world, grayColor),
+		.strength = strength ? strength : newConstantValue(world, 1.0f),
 		.offset = offset,
 		.bsdf = {
 			.sample = sample,
