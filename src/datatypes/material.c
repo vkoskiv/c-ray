@@ -80,49 +80,6 @@ void assignBSDF(struct world *w, struct material *mat) {
 	ASSERT(mat->bsdf);
 }
 
-//Transform the intersection coordinates to the texture coordinate space
-//And grab the color at that point. Texture mapping.
-struct color colorForUV(const struct hitRecord *isect, enum textureType type) {
-	struct color output;
-	const struct texture *tex = NULL;
-	switch (type) {
-		case Normal:
-			tex = isect->material.normalMap ? isect->material.normalMap : NULL;
-			break;
-		case Specular:
-			tex = isect->material.specularMap ? isect->material.specularMap : NULL;
-			break;
-		default:
-			tex = isect->material.texture ? isect->material.texture : NULL;
-			break;
-	}
-	
-	if (!tex) return warningMaterial().diffuse;
-	
-	const struct poly *p = isect->polygon;
-
-	//barycentric coordinates for this polygon
-	const float u = isect->uv.x;
-	const float v = isect->uv.y;
-	const float w = 1.0f - u - v;
-	
-	//Weighted texture coordinates
-	const struct coord ucomponent = coordScale(u, g_textureCoords[p->textureIndex[1]]);
-	const struct coord vcomponent = coordScale(v, g_textureCoords[p->textureIndex[2]]);
-	const struct coord wcomponent = coordScale(w, g_textureCoords[p->textureIndex[0]]);
-	
-	// textureXY = u * v1tex + v * v2tex + w * v3tex
-	const struct coord textureXY = addCoords(addCoords(ucomponent, vcomponent), wcomponent);
-	
-	//Get the color value at these XY coordinates
-	output = textureGetPixel(tex, textureXY.x, textureXY.y, true);
-	
-	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
-	if (type == Diffuse) output = fromSRGB(output);
-	
-	return output;
-}
-
 void destroyMaterial(struct material *mat) {
 	if (mat) {
 		free(mat->name);
@@ -130,5 +87,4 @@ void destroyMaterial(struct material *mat) {
 		if (mat->normalMap) destroyTexture(mat->normalMap);
 		if (mat->specularMap) destroyTexture(mat->specularMap);
 	}
-	//FIXME: Free mat here and fix destroyMesh() to work with that
 }
