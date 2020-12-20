@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../datatypes/lightRay.h"
+#include "../datatypes/lightray.h"
 #include "../utils/mempool.h"
 #include "valuenode.h"
 #include "vectornode.h"

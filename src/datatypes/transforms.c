@@ -12,7 +12,7 @@
 #include "../utils/logging.h"
 #include "vector.h"
 #include "bbox.h"
-#include "lightRay.h"
+#include "lightray.h"
 
 //For ease of use
 float toRadians(float degrees) {

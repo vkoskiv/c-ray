@@ -11,7 +11,7 @@
 #include "vertexbuffer.h"
 
 #include "vector.h"
-#include "lightRay.h"
+#include "lightray.h"
 #include "../renderer/pathtrace.h"
 
 bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *poly, struct hitRecord *isect) {

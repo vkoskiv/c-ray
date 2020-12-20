@@ -9,7 +9,7 @@
 #pragma once
 
 #include "material.h"
-#include "lightRay.h"
+#include "lightray.h"
 
 struct hitRecord {
 	struct lightRay incident;		//Light ray that encountered this intersection

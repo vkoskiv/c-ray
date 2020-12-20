@@ -10,7 +10,7 @@
 
 #include "transforms.h"
 #include "vector.h"
-#include "lightRay.h"
+#include "lightray.h"
 
 struct camera {
 	float FOV;

@@ -197,7 +197,7 @@
 		900BA106220B4602005B8EE7 /* transforms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transforms.c; sourceTree = "<group>"; };
 		900BA107220B4602005B8EE7 /* tile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tile.c; sourceTree = "<group>"; };
 		900BA108220B4602005B8EE7 /* poly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poly.h; sourceTree = "<group>"; };
-		900BA109220B4602005B8EE7 /* lightRay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lightRay.h; sourceTree = "<group>"; };
+		900BA109220B4602005B8EE7 /* lightray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lightray.h; sourceTree = "<group>"; };
 		900BA10A220B4602005B8EE7 /* material.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = material.c; sourceTree = "<group>"; };
 		900BA10B220B4602005B8EE7 /* sphere.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sphere.c; sourceTree = "<group>"; };
 		900BA10C220B4602005B8EE7 /* camera.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = camera.c; sourceTree = "<group>"; };
@@ -445,7 +445,7 @@
 				900BA10A220B4602005B8EE7 /* material.c */,
 				90189DA5224EB302007FA268 /* mesh.h */,
 				90189DA4224EB302007FA268 /* mesh.c */,
-				900BA109220B4602005B8EE7 /* lightRay.h */,
+				900BA109220B4602005B8EE7 /* lightray.h */,
 				900BA103220B4602005B8EE7 /* color.h */,
 				900BA110220B4602005B8EE7 /* color.c */,
 				900BA111220B4602005B8EE7 /* scene.h */,
