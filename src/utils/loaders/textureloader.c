@@ -13,16 +13,28 @@
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/color.h"
 #include "../../utils/assert.h"
+#include "../../utils/mempool.h"
 
 #define STBI_NO_PSD
 #define STBI_NO_GIF
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../libraries/stb_image.h"
 
-static struct texture *loadEnvMap(unsigned char *buf, size_t buflen, const char *path) {
+// I don't want to mess with memory allocation within the different
+// image parsing libs, so I just copy out to a pool afterwards.
+void copyToPool(struct block **pool, struct texture *tex) {
+	size_t unitSize = tex->precision == float_p ? sizeof(float) : sizeof(unsigned char);
+	size_t bytes = tex->width * tex->height * tex->channels * unitSize;
+	void *newBuf = allocBlock(pool, bytes);
+	memcpy(newBuf, tex->data.byte_p, bytes);
+	free(tex->data.byte_p);
+	tex->data.byte_p = newBuf;
+}
+
+static struct texture *loadEnvMap(unsigned char *buf, size_t buflen, const char *path, struct block **pool) {
 	ASSERT(buf);
 	logr(info, "Loading HDR...");
-	struct texture *tex = newTexture(none, 0, 0, 0);
+	struct texture *tex = allocBlock(pool, sizeof(*tex));
 	tex->data.float_p = stbi_loadf_from_memory(buf, (int)buflen, (int *)&tex->width, (int *)&tex->height, (int *)&tex->channels, 0);
 	tex->precision = float_p;
 	if (!tex->data.float_p) {
@@ -36,7 +48,7 @@ static struct texture *loadEnvMap(unsigned char *buf, size_t buflen, const char 
 	return tex;
 }
 
-struct texture *loadTexture(char *filePath) {
+struct texture *loadTexture(char *filePath, struct block **pool) {
 	size_t len = 0;
 	//Handle the trailing newline here
 	filePath[strcspn(filePath, "\n")] = 0;
@@ -44,11 +56,12 @@ struct texture *loadTexture(char *filePath) {
 	if (!file) return NULL;
 	struct texture *new = NULL;
 	if (stbi_is_hdr(filePath)) {
-		new = loadEnvMap(file, len, filePath);
+		new = loadEnvMap(file, len, filePath, pool);
 	} else {
-		new = loadTextureFromBuffer(file, (unsigned int)len);
+		new = loadTextureFromBuffer(file, (unsigned int)len, pool);
 	}
 	free(file);
+	if (pool) copyToPool(pool, new);
 	if (!new) {
 		logr(warning, "^That happened while decoding texture \"%s\" - Corrupted?\n", filePath);
 		destroyTexture(new);
@@ -58,8 +71,8 @@ struct texture *loadTexture(char *filePath) {
 	return new;
 }
 
-struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigned int buflen) {
-	struct texture *new = newTexture(none, 0, 0, 0);
+struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigned int buflen, struct block **pool) {
+	struct texture *new = pool ? allocBlock(pool, sizeof(*new)) : newTexture(none, 0, 0, 0);
 	new->data.byte_p = stbi_load_from_memory(buffer, buflen, (int *)&new->width, (int *)&new->height, (int *)&new->channels, 0);
 	if (!new->data.byte_p) {
 		logr(warning, "Failed to decode texture from memory buffer of size %u", buflen);

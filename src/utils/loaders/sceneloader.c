@@ -771,7 +771,7 @@ static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	
 	if (cJSON_IsString(hdr)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, hdr->valuestring);
-		r->scene->background = newBackground(r->scene, newImageTexture(r->scene, loadTexture(fullPath), 0), NULL, offsetValue);
+		r->scene->background = newBackground(r->scene, newImageTexture(r->scene, loadTexture(fullPath, &r->scene->nodePool), 0), NULL, offsetValue);
 		free(fullPath);
 		return 0;
 	}
@@ -833,7 +833,7 @@ static struct transform parseInstanceTransform(const cJSON *instance) {
 	return parseTransformComposite(transforms);
 }
 
-const static struct colorNode *parseTextureNode(struct world *w, const cJSON *node) {
+static const struct colorNode *parseTextureNode(struct world *w, const cJSON *node) {
 	if (!node) return NULL;
 	
 	if (cJSON_IsArray(node)) {
@@ -842,7 +842,7 @@ const static struct colorNode *parseTextureNode(struct world *w, const cJSON *no
 	
 	if (cJSON_IsString(node)) {
 		// No options provided, go with defaults.
-		return newImageTexture(w, loadTexture(node->valuestring), 0);
+		return newImageTexture(w, loadTexture(node->valuestring, &w->nodePool), 0);
 	}
 	
 	// Should be an object, then.
@@ -883,8 +883,7 @@ const static struct colorNode *parseTextureNode(struct world *w, const cJSON *no
 	
 	const cJSON *path = cJSON_GetObjectItem(node, "path");
 	if (cJSON_IsString(path)) {
-		//FIXME: loadTexture() leaks memory here
-		return newImageTexture(w, loadTexture(path->valuestring), options);
+		return newImageTexture(w, loadTexture(path->valuestring, &w->nodePool), options);
 	}
 	
 	logr(warning, "Failed to parse textureNode. Here's a dump:\n");
