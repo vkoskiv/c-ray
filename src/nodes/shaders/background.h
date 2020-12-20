@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct bsdfNode *newBackground(struct world *world, struct colorNode *tex, float offset);
+struct bsdfNode *newBackground(struct world *world, struct colorNode *tex, struct valueNode *strength, float offset);

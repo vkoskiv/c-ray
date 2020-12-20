@@ -771,17 +771,17 @@ static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	
 	if (cJSON_IsString(hdr)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, hdr->valuestring);
-		r->scene->background = newBackground(r->scene, newImageTexture(r->scene, loadTexture(fullPath), 0), offsetValue);
+		r->scene->background = newBackground(r->scene, newImageTexture(r->scene, loadTexture(fullPath), 0), NULL, offsetValue);
 		free(fullPath);
 		return 0;
 	}
 	
 	if (down && up) {
-		r->scene->background = newBackground(r->scene, newGradientTexture(r->scene, parseColor(down), parseColor(up)), offsetValue);
+		r->scene->background = newBackground(r->scene, newGradientTexture(r->scene, parseColor(down), parseColor(up)), NULL, offsetValue);
 		return 0;
 	}
 
-	r->scene->background = newBackground(r->scene, NULL, offsetValue);
+	r->scene->background = newBackground(r->scene, NULL, NULL, offsetValue);
 	
 	return 0;
 }
