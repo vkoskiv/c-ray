@@ -22,13 +22,10 @@ struct plasticBsdf {
 	struct bsdfNode bsdf;
 	const struct colorNode *color;
 	const struct colorNode *roughness;
+	const struct bsdfNode *diffuse;
 };
 
-// From diffuse.c
-// FIXME: Find a better way to share sampling strategies between nodes.
-struct bsdfSample sampleDiffuse(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record);
-
-struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
+static struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct plasticBsdf *plastic = (struct plasticBsdf *)bsdf;
 	struct vector reflected = reflectVec(&record->incident.direction, &record->surfaceNormal);
 	//Roughness
@@ -43,12 +40,14 @@ struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampler, con
 	};
 }
 
-struct bsdfSample samplePlastic(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct vector outwardNormal;
 	float niOverNt;
 	struct vector refracted;
 	float reflectionProbability;
 	float cosine;
+	
+	struct plasticBsdf *this = (struct plasticBsdf *)bsdf;
 	
 	if (vecDot(record->incident.direction, record->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(record->surfaceNormal);
@@ -69,7 +68,7 @@ struct bsdfSample samplePlastic(const struct bsdfNode *bsdf, sampler *sampler, c
 	if (getDimension(sampler) < reflectionProbability) {
 		return sampleShiny(bsdf, sampler, record);
 	} else {
-		return sampleDiffuse(bsdf, sampler, record);
+		return this->diffuse->sample(this->diffuse, sampler, record);
 	}
 }
 
@@ -91,8 +90,9 @@ const struct bsdfNode *newPlastic(const struct world *world, const struct colorN
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct plasticBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = newConstantTexture(world, blackColor),
+		.diffuse = newDiffuse(world, color),
 		.bsdf = {
-			.sample = samplePlastic,
+			.sample = sample,
 			.base = { .compare = compare }
 		}
 	});
