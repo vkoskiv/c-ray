@@ -8,8 +8,11 @@
 
 #pragma once
 
+struct block;
+
 /// Load a generic texture. Currently supports: JPEG, PNG, BMP, TGA, PIC, PNM
 /// @param filePath Path to image file on disk
-struct texture *loadTexture(char *filePath);
+/// @param pool Optional, memory pool to store image data
+struct texture *loadTexture(char *filePath, struct block **pool);
 
-struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigned int buflen);
+struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigned int buflen, struct block **pool);

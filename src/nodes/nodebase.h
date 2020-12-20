@@ -18,6 +18,7 @@ struct nodeBase {
 
 bool compareNodes(const void *A, const void *B);
 
+//FIXME: Remove pool param, unneeded.
 #define HASH_CONS(hashtable, pool, hash, T, ...) \
 	{ \
 		const T candidate = __VA_ARGS__; \

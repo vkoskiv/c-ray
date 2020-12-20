@@ -93,15 +93,15 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 			current->IOR = atof(nextToken(line));
 		} else if (stringEquals(first, "map_Kd")) {
 			char *path = stringConcat(assetPath, nextToken(line));
-			current->texture = loadTexture(path);
+			current->texture = loadTexture(path, NULL);
 			free(path);
 		} else if (stringEquals(first, "norm")) {
 			char *path = stringConcat(assetPath, nextToken(line));
-			current->normalMap = loadTexture(path);
+			current->normalMap = loadTexture(path, NULL);
 			free(path);
 		} else if (stringEquals(first, "map_Ns")) {
 			char *path = stringConcat(assetPath, nextToken(line));
-			current->specularMap = loadTexture(path);
+			current->specularMap = loadTexture(path, NULL);
 			free(path);
 		} else {
 			char *fileName = getFileName(filePath);
