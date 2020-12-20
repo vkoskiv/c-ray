@@ -22,7 +22,7 @@
 
 struct imageTexture {
 	struct colorNode node;
-	struct texture *tex;
+	const struct texture *tex;
 	uint8_t options;
 };
 
@@ -67,7 +67,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct colorNode *newImageTexture(struct world *world, struct texture *texture, uint8_t options) {
+const struct colorNode *newImageTexture(const struct world *world, const struct texture *texture, uint8_t options) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct imageTexture, {
 		.tex = texture,
 		.options = options,

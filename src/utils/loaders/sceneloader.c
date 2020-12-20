@@ -833,7 +833,7 @@ static struct transform parseInstanceTransform(const cJSON *instance) {
 	return parseTransformComposite(transforms);
 }
 
-static struct colorNode *parseTextureNode(struct world *w, const cJSON *node) {
+const static struct colorNode *parseTextureNode(struct world *w, const cJSON *node) {
 	if (!node) return NULL;
 	
 	if (cJSON_IsArray(node)) {
@@ -893,7 +893,7 @@ static struct colorNode *parseTextureNode(struct world *w, const cJSON *node) {
 	return unknownTextureNode(w);
 }
 
-static struct bsdfNode *parseNode(struct world *w, const cJSON *node) {
+static const struct bsdfNode *parseNode(struct world *w, const cJSON *node) {
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
 	if (!cJSON_IsString(type)) {
 		logr(warning, "No type provided for node.");
@@ -917,8 +917,8 @@ static struct bsdfNode *parseNode(struct world *w, const cJSON *node) {
 		const cJSON *jsonA = cJSON_GetObjectItem(node, "A");
 		const cJSON *jsonB = cJSON_GetObjectItem(node, "B");
 		const cJSON *factor = cJSON_GetObjectItem(node, "factor");
-		struct bsdfNode *A = parseNode(w, jsonA);
-		struct bsdfNode *B = parseNode(w, jsonB);
+		const struct bsdfNode *A = parseNode(w, jsonA);
+		const struct bsdfNode *B = parseNode(w, jsonB);
 		return newMix(w, A, B, newGrayscaleConverter(w, parseTextureNode(w, factor)));
 	} else if (stringEquals(type->valuestring, "transparent")) {
 		return newTransparent(w, parseTextureNode(w, color));
@@ -1000,7 +1000,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 				}
 			} else {
 				// Single graph, map it to every material in a mesh.
-				struct bsdfNode *node = parseNode(r->scene, materials);
+				const struct bsdfNode *node = parseNode(r->scene, materials);
 				for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
 					lastMesh(r)->materials[i].bsdf = node;
 				}
@@ -1149,7 +1149,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *materials = cJSON_GetObjectItem(data, "material");
 	if (materials) {
 		// Single graph, map it to every material in a mesh.
-		struct bsdfNode *node = parseNode(r->scene, materials);
+		const struct bsdfNode *node = parseNode(r->scene, materials);
 		lastSphere(r)->material.bsdf = node;
 	} else {
 		assignBSDF(r->scene, &lastSphere(r)->material);

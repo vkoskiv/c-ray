@@ -19,8 +19,8 @@
 
 struct metalBsdf {
 	struct bsdfNode bsdf;
-	struct colorNode *color;
-	struct colorNode *roughness;
+	const struct colorNode *color;
+	const struct colorNode *roughness;
 };
 
 struct bsdfSample sampleMetal(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
@@ -54,7 +54,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdfNode *newMetal(struct world *world, struct colorNode *color, struct colorNode *roughness) {
+const struct bsdfNode *newMetal(const struct world *world, const struct colorNode *color, const struct colorNode *roughness) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct metalBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = roughness ? roughness : newConstantTexture(world, blackColor),

@@ -21,7 +21,7 @@
 
 struct diffuseBsdf {
 	struct bsdfNode bsdf;
-	struct colorNode *color;
+	const struct colorNode *color;
 };
 
 struct bsdfSample sampleDiffuse(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
@@ -46,7 +46,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdfNode *newDiffuse(struct world *world, struct colorNode *tex) {
+const struct bsdfNode *newDiffuse(const struct world *world, const struct colorNode *tex) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct diffuseBsdf, {
 		.color = tex ? tex : newConstantTexture(world, blackColor),
 		.bsdf = {

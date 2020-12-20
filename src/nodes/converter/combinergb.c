@@ -50,7 +50,7 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	};
 }
 
-struct colorNode *newCombineRGB(struct world *world, const struct valueNode *R, const struct valueNode *G, const struct valueNode *B) {
+const struct colorNode *newCombineRGB(const struct world *world, const struct valueNode *R, const struct valueNode *G, const struct valueNode *B) {
 	HASH_CONS(world->nodeTable, world->nodePool, hash, struct combineRGB, {
 		.R = R,
 		.G = G,

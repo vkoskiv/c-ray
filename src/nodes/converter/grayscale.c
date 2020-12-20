@@ -42,7 +42,7 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 	return grayscale(this->original->eval(this->original, record)).red;
 }
 
-struct valueNode *newGrayscaleConverter(struct world *world, const struct colorNode *node) {
+const struct valueNode *newGrayscaleConverter(const struct world *world, const struct colorNode *node) {
 	HASH_CONS(world->nodeTable, world->nodePool, hash, struct grayscale, {
 		.original = node,
 		.node = {

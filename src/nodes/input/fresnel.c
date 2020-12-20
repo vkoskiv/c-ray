@@ -18,8 +18,8 @@
 
 struct fresnelNode {
 	struct valueNode node;
-	struct valueNode *IOR;
-	struct vectorNode *normal;
+	const struct valueNode *IOR;
+	const struct vectorNode *normal;
 };
 
 static bool compare(const void *A, const void *B) {
@@ -50,8 +50,7 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 	return schlick(cosine, this->IOR->eval(this->IOR, record));
 }
 
-
-struct valueNode *newFresnel(const struct world *world, struct valueNode *IOR, struct vectorNode *normal) {
+const struct valueNode *newFresnel(const struct world *world, const struct valueNode *IOR, const struct vectorNode *normal) {
 	HASH_CONS(world->nodeTable, world->nodePool, hash, struct fresnelNode, {
 		.IOR = IOR,
 		.normal = normal,

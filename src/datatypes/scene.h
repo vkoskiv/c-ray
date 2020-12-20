@@ -13,7 +13,7 @@ struct hashtable;
 
 struct world {
 	//Optional environment map / ambient color
-	struct bsdfNode *background;
+	const struct bsdfNode *background;
 	
 	struct mesh *meshes;
 	int meshCount;

@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct bsdfNode *newGlass(struct world *world, struct colorNode *color, struct colorNode *roughness, float IOR);
+const struct bsdfNode *newGlass(const struct world *world, const struct colorNode *color, const struct colorNode *roughness, float IOR);

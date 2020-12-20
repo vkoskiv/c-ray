@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct colorNode *newCombineValue(struct world *world, const struct valueNode *node);
+const struct colorNode *newCombineValue(const struct world *world, const struct valueNode *node);

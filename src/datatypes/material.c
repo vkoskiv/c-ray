@@ -54,8 +54,8 @@ struct material *materialForName(struct material *materials, int count, char *na
 }
 
 void assignBSDF(struct world *w, struct material *mat) {
-	struct colorNode *roughness = mat->specularMap ? newImageTexture(w, mat->specularMap, NO_BILINEAR) : newConstantTexture(w, newGrayColor(mat->roughness));
-	struct colorNode *color = mat->texture ? newImageTexture(w, mat->texture, SRGB_TRANSFORM) : newConstantTexture(w, mat->diffuse);
+	const struct colorNode *roughness = mat->specularMap ? newImageTexture(w, mat->specularMap, NO_BILINEAR) : newConstantTexture(w, newGrayColor(mat->roughness));
+	const struct colorNode *color = mat->texture ? newImageTexture(w, mat->texture, SRGB_TRANSFORM) : newConstantTexture(w, mat->diffuse);
 	switch (mat->type) {
 		case lambertian:
 			mat->bsdf = newDiffuse(w, color);

@@ -20,9 +20,9 @@ bool compareNodes(const void *A, const void *B);
 
 #define HASH_CONS(hashtable, pool, hash, T, ...) \
 	{ \
-		T candidate = __VA_ARGS__; \
-		uint32_t h = hash(&candidate); \
-		T *existing = findInHashtable(hashtable, &candidate, h); \
+		const T candidate = __VA_ARGS__; \
+		const uint32_t h = hash(&candidate); \
+		const T *existing = findInHashtable(hashtable, &candidate, h); \
 		if (existing) {\
 			logr(debug, "Reusing existing node. Args: %s\n", #__VA_ARGS__);\
 			return (void *)existing; \

@@ -30,4 +30,4 @@ struct colorNode {
 #include "converter/combine.h"
 #include "converter/combinergb.h"
 
-struct colorNode *unknownTextureNode(struct world *w);
+const struct colorNode *unknownTextureNode(const struct world *world);

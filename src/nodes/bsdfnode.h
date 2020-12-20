@@ -37,4 +37,4 @@ struct bsdfNode {
 #include "shaders/add.h"
 #include "shaders/background.h"
 
-struct bsdfNode *warningBsdf(struct world *world);
+const struct bsdfNode *warningBsdf(const struct world *world);

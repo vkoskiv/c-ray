@@ -19,8 +19,8 @@
 
 struct glassBsdf {
 	struct bsdfNode bsdf;
-	struct colorNode *color;
-	struct colorNode *roughness;
+	const struct colorNode *color;
+	const struct colorNode *roughness;
 	float IOR;
 };
 
@@ -87,7 +87,7 @@ static uint32_t hash(const void *p) {
 }
 
 //TODO: Add IOR input
-struct bsdfNode *newGlass(struct world *world, struct colorNode *color, struct colorNode *roughness, float IOR) {
+const struct bsdfNode *newGlass(const struct world *world, const struct colorNode *color, const struct colorNode *roughness, float IOR) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct glassBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = roughness ? roughness : newConstantTexture(world, blackColor),

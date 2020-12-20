@@ -39,7 +39,7 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 	return this->value;
 }
 
-struct valueNode *newConstantValue(const struct world *world, float value) {
+const struct valueNode *newConstantValue(const struct world *world, float value) {
 	HASH_CONS(world->nodeTable, world->nodePool, hash, struct constantValue, {
 		.value = value,
 		.node = {

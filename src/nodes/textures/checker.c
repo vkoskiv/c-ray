@@ -22,8 +22,8 @@
 
 struct checkerTexture {
 	struct colorNode node;
-	struct colorNode *colorA;
-	struct colorNode *colorB;
+	const struct colorNode *colorA;
+	const struct colorNode *colorB;
 	float scale;
 };
 
@@ -72,7 +72,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct colorNode *newColorCheckerBoardTexture(struct world *world, struct colorNode *colorA, struct colorNode *colorB, float size) {
+const struct colorNode *newColorCheckerBoardTexture(const struct world *world, const struct colorNode *colorA, const struct colorNode *colorB, float size) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct checkerTexture, {
 		.colorA = colorA,
 		.colorB = colorB,
@@ -84,7 +84,7 @@ struct colorNode *newColorCheckerBoardTexture(struct world *world, struct colorN
 	});
 }
 
-struct colorNode *newCheckerBoardTexture(struct world *world, float size) {
+const struct colorNode *newCheckerBoardTexture(const struct world *world, float size) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct checkerTexture, {
 		.colorA = newConstantTexture(world, blackColor),
 		.colorB = newConstantTexture(world, whiteColor),

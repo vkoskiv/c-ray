@@ -17,4 +17,4 @@ struct valueNode {
 
 #include "input/fresnel.h"
 
-struct valueNode *newConstantValue(const struct world *world, float value);
+const struct valueNode *newConstantValue(const struct world *world, float value);
