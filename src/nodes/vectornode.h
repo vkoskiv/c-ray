@@ -10,9 +10,16 @@
 
 #include "nodebase.h"
 
+struct vectorValue {
+	struct vector v;
+	struct coord c;
+};
+
 struct vectorNode {
 	struct nodeBase base;
-	struct vector (*eval)(const struct vectorNode *node, const struct hitRecord *record);
+	struct vectorValue (*eval)(const struct vectorNode *node, const struct hitRecord *record);
 };
+
+#include "input/normal.h"
 
 struct vectorNode *newConstantVector(const struct world *world, struct vector vector);

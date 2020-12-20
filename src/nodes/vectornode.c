@@ -35,10 +35,10 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct vector eval(const struct vectorNode *node, const struct hitRecord *record) {
+static struct vectorValue eval(const struct vectorNode *node, const struct hitRecord *record) {
 	(void)record;
 	struct constantVector *this = (struct constantVector *)node;
-	return this->vector;
+	return (struct vectorValue){ .v = this->vector, .c = coordZero() };
 }
 
 struct vectorNode *newConstantVector(const struct world *world, struct vector vector) {
