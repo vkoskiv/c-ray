@@ -10,7 +10,7 @@
 #include "sphere.h"
 
 #include "../renderer/pathtrace.h"
-#include "lightRay.h"
+#include "lightray.h"
 
 struct sphere defaultSphere() {
 	return (struct sphere){10.0f, defaultMaterial()};

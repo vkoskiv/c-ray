@@ -11,7 +11,7 @@
 
 #include "../datatypes/vector.h"
 #include "../datatypes/color.h"
-#include "../datatypes/lightRay.h"
+#include "../datatypes/lightray.h"
 
 /*
  This implementation here is adapted from the CUDA implementation found at this URL:
