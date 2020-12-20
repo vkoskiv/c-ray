@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct vectorNode *newNormal(const struct world *world);
+const struct vectorNode *newNormal(const struct world *world);

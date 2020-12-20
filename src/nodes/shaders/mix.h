@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct bsdfNode *newMix(struct world *world, struct bsdfNode *A, struct bsdfNode *B, struct valueNode *factor);
+const struct bsdfNode *newMix(const struct world *world, const struct bsdfNode *A, const struct bsdfNode *B, const struct valueNode *factor);

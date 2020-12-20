@@ -77,7 +77,7 @@ struct material {
 	float glossiness;
 	
 	enum bsdfType type; // FIXME: Temporary
-	struct bsdfNode *bsdf;
+	const struct bsdfNode *bsdf;
 };
 
 struct material *materialForName(struct material *materials, int count, char *name);

@@ -19,9 +19,9 @@
 
 struct mixBsdf {
 	struct bsdfNode bsdf;
-	struct bsdfNode *A;
-	struct bsdfNode *B;
-	struct valueNode *factor;
+	const struct bsdfNode *A;
+	const struct bsdfNode *B;
+	const struct valueNode *factor;
 };
 
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
@@ -50,7 +50,7 @@ static uint32_t hashMix(const void *p) {
 	return h;
 }
 
-struct bsdfNode *newMix(struct world *world, struct bsdfNode *A, struct bsdfNode *B, struct valueNode *factor) {
+const struct bsdfNode *newMix(const struct world *world, const struct bsdfNode *A, const struct bsdfNode *B, const struct valueNode *factor) {
 	if (A == B) {
 		logr(debug, "A == B, pruning mix node.\n");
 		return A;

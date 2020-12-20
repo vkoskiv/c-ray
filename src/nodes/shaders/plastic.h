@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct bsdfNode *newPlastic(struct world *world, struct colorNode *color);
+const struct bsdfNode *newPlastic(const struct world *world, const struct colorNode *color);

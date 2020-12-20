@@ -22,4 +22,4 @@ struct vectorNode {
 
 #include "input/normal.h"
 
-struct vectorNode *newConstantVector(const struct world *world, struct vector vector);
+const struct vectorNode *newConstantVector(const struct world *world, struct vector vector);

@@ -21,8 +21,8 @@
 
 struct addBsdf {
 	struct bsdfNode bsdf;
-	struct bsdfNode *A;
-	struct bsdfNode *B;
+	const struct bsdfNode *A;
+	const struct bsdfNode *B;
 };
 
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
@@ -48,7 +48,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdfNode *newAdd(struct world *world, struct bsdfNode *A, struct bsdfNode *B) {
+const struct bsdfNode *newAdd(const struct world *world, const struct bsdfNode *A, const struct bsdfNode *B) {
 	if (A == B) {
 		logr(debug, "A == B, pruning add node.\n");
 		return A;

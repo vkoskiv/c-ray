@@ -18,8 +18,8 @@
 
 struct backgroundBsdf {
 	struct bsdfNode bsdf;
-	struct colorNode *color;
-	struct valueNode *strength;
+	const struct colorNode *color;
+	const struct valueNode *strength;
 	float offset;
 };
 
@@ -65,7 +65,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct bsdfNode *newBackground(struct world *world, struct colorNode *tex, struct valueNode *strength, float offset) {
+const struct bsdfNode *newBackground(const struct world *world, const struct colorNode *tex, const struct valueNode *strength, float offset) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct backgroundBsdf, {
 		.color = tex ? tex : newConstantTexture(world, grayColor),
 		.strength = strength ? strength : newConstantValue(world, 1.0f),

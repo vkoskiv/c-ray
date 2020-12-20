@@ -44,7 +44,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct colorNode *newGradientTexture(struct world *world, struct color down, struct color up) {
+const struct colorNode *newGradientTexture(const struct world *world, struct color down, struct color up) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct gradientTexture, {
 		.down = down,
 		.up = up,

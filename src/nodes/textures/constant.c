@@ -41,7 +41,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-struct colorNode *newConstantTexture(struct world *world, struct color color) {
+const struct colorNode *newConstantTexture(const struct world *world, const struct color color) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct constantTexture, {
 		.color = color,
 		.node = {

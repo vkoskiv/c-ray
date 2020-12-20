@@ -41,7 +41,7 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	return colorForKelvin(this->value->eval(this->value, record));
 }
 
-struct colorNode *newBlackbody(const struct world *world, const struct valueNode *value) {
+const struct colorNode *newBlackbody(const struct world *world, const struct valueNode *value) {
 	HASH_CONS(world->nodeTable, world->nodePool, hash, struct blackbodyNode, {
 		.value = value,
 		.node = {

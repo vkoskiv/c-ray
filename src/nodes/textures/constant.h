@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct colorNode *newConstantTexture(struct world *world, struct color color);
+const struct colorNode *newConstantTexture(const struct world *world, const struct color color);

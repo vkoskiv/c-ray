@@ -41,7 +41,7 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 	return (struct vectorValue){ .v = this->vector, .c = coordZero() };
 }
 
-struct vectorNode *newConstantVector(const struct world *world, struct vector vector) {
+const struct vectorNode *newConstantVector(const struct world *world, const struct vector vector) {
 	HASH_CONS(world->nodeTable, world->nodePool, hash, struct constantVector, {
 		.vector = vector,
 		.node = {

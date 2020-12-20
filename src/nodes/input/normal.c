@@ -40,7 +40,7 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 	return (struct vectorValue){ .v = record->surfaceNormal, .c = coordZero() };
 }
 
-struct vectorNode *newNormal(const struct world *world) {
+const struct vectorNode *newNormal(const struct world *world) {
 	HASH_CONS(world->nodeTable, world->nodePool, hash, struct normalNode, {
 		.node = {
 			.eval = eval,
