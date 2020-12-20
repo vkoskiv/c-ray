@@ -47,6 +47,10 @@ static inline struct vector vecZero() {
 	return (struct vector){0.0f, 0.0f, 0.0f};
 }
 
+static inline struct coord coordZero() {
+	return (struct coord){0.0f, 0.0f};
+}
+
 static inline float clamp(float value, float min, float max) {
 	return min(max(value, min), max);
 }

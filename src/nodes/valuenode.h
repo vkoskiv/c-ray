@@ -15,4 +15,6 @@ struct valueNode {
 	float (*eval)(const struct valueNode *node, const struct hitRecord *record);
 };
 
+#include "input/fresnel.h"
+
 struct valueNode *newConstantValue(const struct world *world, float value);
