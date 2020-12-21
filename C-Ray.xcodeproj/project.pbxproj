@@ -127,8 +127,6 @@
 		90A21CFE2458A2D8002C742E /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CFC2458A2D8002C742E /* random.c */; };
 		90A51A0023FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
-		90A51A0423FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
-		90A51A0523FCB7FF0014DF6B /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A51A0323FCB7FF0014DF6B /* memory.c */; };
 		90AB1E072574373E00EFDF5A /* bsdfnode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E052574373E00EFDF5A /* bsdfnode.c */; };
 		90AB1E082574373E00EFDF5A /* bsdfnode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E052574373E00EFDF5A /* bsdfnode.c */; };
 		90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E0925745DFE00EFDF5A /* diffuse.c */; };
@@ -321,7 +319,6 @@
 		90A519FE23FB5DFC0014DF6B /* statistics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = statistics.h; sourceTree = "<group>"; };
 		90A519FF23FB5DFC0014DF6B /* statistics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = statistics.c; sourceTree = "<group>"; };
 		90A51A0223FCB7FF0014DF6B /* memory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = memory.h; sourceTree = "<group>"; };
-		90A51A0323FCB7FF0014DF6B /* memory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = memory.c; sourceTree = "<group>"; };
 		90AB1E052574373E00EFDF5A /* bsdfnode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bsdfnode.c; sourceTree = "<group>"; };
 		90AB1E062574373E00EFDF5A /* bsdfnode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bsdfnode.h; sourceTree = "<group>"; };
 		90AB1E0925745DFE00EFDF5A /* diffuse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = diffuse.c; sourceTree = "<group>"; };
@@ -518,7 +515,6 @@
 				90A519FE23FB5DFC0014DF6B /* statistics.h */,
 				90A519FF23FB5DFC0014DF6B /* statistics.c */,
 				90A51A0223FCB7FF0014DF6B /* memory.h */,
-				90A51A0323FCB7FF0014DF6B /* memory.c */,
 				90999AE22486DA8200381CB3 /* logo.h */,
 				90FAD26F24A2ADE400F8CA79 /* testrunner.h */,
 				90FAD27024A2ADE400F8CA79 /* testrunner.c */,
@@ -888,7 +884,6 @@
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
 				90500A9D258AC07D006F854A /* add.c in Sources */,
-				90A51A0523FCB7FF0014DF6B /* memory.c in Sources */,
 				90AB1E1C2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0C25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA17243D237200420889 /* bmp.c in Sources */,
@@ -973,7 +968,6 @@
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
 				90500A9C258AC07D006F854A /* add.c in Sources */,
-				90A51A0423FCB7FF0014DF6B /* memory.c in Sources */,
 				90AB1E1B2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA16243D237200420889 /* bmp.c in Sources */,
