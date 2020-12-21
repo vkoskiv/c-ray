@@ -833,6 +833,15 @@ static struct transform parseInstanceTransform(const cJSON *instance) {
 	return parseTransformComposite(transforms);
 }
 
+static const struct valueNode *parseValueNode(struct world *w, const cJSON *node) {
+	if (!node) return NULL;
+	if (cJSON_IsNumber(node)) {
+		return newConstantValue(w, node->valuedouble);
+	}
+	
+	return NULL;
+}
+
 static const struct colorNode *parseTextureNode(struct world *w, const cJSON *node) {
 	if (!node) return NULL;
 	
@@ -877,7 +886,7 @@ static const struct colorNode *parseTextureNode(struct world *w, const cJSON *no
 		if (stringEquals(type->valuestring, "checkerboard")) {
 			const cJSON *size = cJSON_GetObjectItem(node, "size");
 			ASSERT(cJSON_IsNumber(size));
-			return newCheckerBoardTexture(w, size->valuedouble);
+			return newCheckerBoardTexture(w, NULL, NULL, parseValueNode(w, size));
 		}
 	}
 	

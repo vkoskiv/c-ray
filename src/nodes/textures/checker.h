@@ -10,8 +10,4 @@
 
 struct world;
 
-const struct colorNode *newColorCheckerBoardTexture(const struct world *world, const struct colorNode *colorA, const struct colorNode *colorB, float size);
-
-const struct colorNode *newCheckerBoardTexture(const struct world *world, float size);
-
-const struct colorNode *newCheckerBoardTexture(const struct world *world, float size);
+const struct colorNode *newCheckerBoardTexture(const struct world *world, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale);
