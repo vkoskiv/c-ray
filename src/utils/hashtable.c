@@ -45,10 +45,6 @@ uint32_t hashString(uint32_t h, const char *str) {
 	return h;
 }
 
-static inline bool isPowerOfTwo(size_t i) {
-	return (i & (i - 1)) == 0;
-}
-
 struct hashtable* newHashtable(bool (*compare)(const void *, const void *), struct block **pool) {
 	struct hashtable *hashtable = malloc(sizeof(struct hashtable));
 	hashtable->bucketCount = DEFAULT_CAPACITY;
@@ -58,6 +54,12 @@ struct hashtable* newHashtable(bool (*compare)(const void *, const void *), stru
 	hashtable->pool = pool ? pool : NULL;
 	return hashtable;
 }
+
+#ifdef CRAY_DEBUG_ENABLED
+static inline bool isPowerOfTwo(size_t i) {
+	return (i & (i - 1)) == 0;
+}
+#endif
 
 static inline size_t hashToIndex(struct hashtable *hashtable, uint32_t hash) {
 	ASSERT(isPowerOfTwo(hashtable->bucketCount));
