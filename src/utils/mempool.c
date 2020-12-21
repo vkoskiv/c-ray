@@ -8,8 +8,8 @@
 
 #include "../includes.h"
 #include "mempool.h"
-
 #include "logging.h"
+#include "fileio.h"
 
 struct block *newBlock(struct block *prev, size_t initialSize) {
 	struct block *newBlock = calloc(1, sizeof(*newBlock) + initialSize);
@@ -17,7 +17,7 @@ struct block *newBlock(struct block *prev, size_t initialSize) {
 	newBlock->size = 0;
 	newBlock->prev = prev;
 	return newBlock;
-} 
+}
 
 void *allocBlock(struct block **head, size_t size) {
 	if (size == 0) return NULL;
@@ -36,11 +36,15 @@ void *allocBlock(struct block **head, size_t size) {
 
 void destroyBlocks(struct block *head) {
 	size_t numDestroyed = 0;
+	size_t bytesfreed = 0;
 	while (head) {
 		struct block *prev = head->prev;
+		bytesfreed += head->size;
 		free(head);
 		numDestroyed++;
 		head = prev;
 	}
-	logr(debug, "destroyed %lu blocks\n", numDestroyed);
+	char *size = humanFileSize(bytesfreed);
+	logr(debug, "Destroyed %lu blocks, %s\n", numDestroyed, size);
+	free(size);
 }
