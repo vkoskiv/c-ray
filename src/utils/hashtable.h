@@ -11,6 +11,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "memory.h"
 
 struct vector;
 
@@ -19,12 +20,7 @@ struct bucket {
 	uint32_t hash;
 	// Since C99 does not have max_align_t, we have to create a type
 	// that has the largest alignment requirement.
-	union {
-		char *p;
-		double d;
-		long double ld;
-		long int i;
-	} data[];
+	cray_max_align_t data[];
 };
 
 struct hashtable {

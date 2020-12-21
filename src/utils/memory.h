@@ -8,10 +8,5 @@
 
 #pragma once
 
-#include <stdlib.h>
-
-void *cray_malloc(size_t size);
-
-void *cray_calloc(size_t count, size_t size);
-
-void cray_free(void *ptr);
+// C99 doesn't have max_align_t, so we have to supply our own. This should do.
+typedef union {char *p; double d; long double ld; long int i;} cray_max_align_t;

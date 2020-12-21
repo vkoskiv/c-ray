@@ -22,6 +22,9 @@ struct block *newBlock(struct block *prev, size_t initialSize) {
 void *allocBlock(struct block **head, size_t size) {
 	if (size == 0) return NULL;
 	
+	// Round up for alignment
+	size += sizeof(cray_max_align_t) - (size % sizeof(cray_max_align_t));
+	
 	if ((*head)->size + size > (*head)->capacity) {
 		// Need to add a new block
 		size_t nextSize = (*head)->capacity > size ? (*head)->capacity : size;

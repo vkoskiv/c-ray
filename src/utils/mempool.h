@@ -8,16 +8,13 @@
 
 #pragma once
 
+#include "memory.h"
+
 struct block {
 	size_t size;
 	size_t capacity;
 	struct block *prev;
-	union {
-		char *p;
-		double d;
-		long double ld;
-		long int i;
-	} data[];
+	cray_max_align_t data[];
 };
 
 struct block *newBlock(struct block *prev, size_t initialSize);
