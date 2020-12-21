@@ -48,6 +48,8 @@
 		90500AAD258D81CA006F854A /* background.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500AAA258D81CA006F854A /* background.c */; };
 		90500AB0258D95EF006F854A /* gradient.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500AAE258D95EF006F854A /* gradient.c */; };
 		90500AB1258D95EF006F854A /* gradient.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500AAE258D95EF006F854A /* gradient.c */; };
+		9050FFE925915222001C172D /* raylength.c in Sources */ = {isa = PBXBuildFile; fileRef = 9050FFE725915222001C172D /* raylength.c */; };
+		9050FFEA25915222001C172D /* raylength.c in Sources */ = {isa = PBXBuildFile; fileRef = 9050FFE725915222001C172D /* raylength.c */; };
 		9052E8D025018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		9052E8D125018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		905842DB236651FC009D92F1 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA129220B4602005B8EE7 /* main.c */; };
@@ -252,6 +254,8 @@
 		90500AAB258D81CA006F854A /* background.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = background.h; sourceTree = "<group>"; };
 		90500AAE258D95EF006F854A /* gradient.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = gradient.c; sourceTree = "<group>"; };
 		90500AAF258D95EF006F854A /* gradient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gradient.h; sourceTree = "<group>"; };
+		9050FFE725915222001C172D /* raylength.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = raylength.c; sourceTree = "<group>"; };
+		9050FFE825915222001C172D /* raylength.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = raylength.h; sourceTree = "<group>"; };
 		9052E8CE25018C050052406D /* fileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fileio.c; sourceTree = "<group>"; };
 		9052E8CF25018C050052406D /* fileio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileio.h; sourceTree = "<group>"; };
 		90584305236651FC009D92F1 /* C-Ray Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -622,6 +626,8 @@
 				908ED0AE258F04E300D5B93F /* fresnel.c */,
 				908ED0B3258FAEDA00D5B93F /* normal.h */,
 				908ED0B2258FAEDA00D5B93F /* normal.c */,
+				9050FFE825915222001C172D /* raylength.h */,
+				9050FFE725915222001C172D /* raylength.c */,
 			);
 			path = input;
 			sourceTree = "<group>";
@@ -890,6 +896,7 @@
 				905842F5236651FC009D92F1 /* mesh.c in Sources */,
 				909D13722443B4E7006D0A86 /* textbuffer.c in Sources */,
 				908ED0B1258F04E300D5B93F /* fresnel.c in Sources */,
+				9050FFEA25915222001C172D /* raylength.c in Sources */,
 				905842F6236651FC009D92F1 /* cJSON.c in Sources */,
 				90500A91258AB0FE006F854A /* blackbody.c in Sources */,
 				9062FA0E243CC4B200420889 /* signal.c in Sources */,
@@ -974,6 +981,7 @@
 				90189DA6224EB302007FA268 /* mesh.c in Sources */,
 				909D13712443B4E7006D0A86 /* textbuffer.c in Sources */,
 				908ED0B0258F04E300D5B93F /* fresnel.c in Sources */,
+				9050FFE925915222001C172D /* raylength.c in Sources */,
 				900BA13E220B4603005B8EE7 /* cJSON.c in Sources */,
 				90500A90258AB0FE006F854A /* blackbody.c in Sources */,
 				9062FA0D243CC4B200420889 /* signal.c in Sources */,
@@ -1009,7 +1017,7 @@
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_WARN_ASSIGN_ENUM = NO;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1053,7 +1061,7 @@
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_WARN_ASSIGN_ENUM = NO;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "";
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
