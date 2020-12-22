@@ -48,7 +48,6 @@ struct color internalColor(const struct texture *tex, const struct hitRecord *is
 
 struct color evalTexture(const struct colorNode *node, const struct hitRecord *record) {
 	// TODO: Consider transforming image textures while loading textures.
-	// TODO: Handle NO_BILINEAR option
 	struct imageTexture *image = (struct imageTexture *)node;
 	return internalColor(image->tex, record, image->options);
 }
@@ -68,6 +67,7 @@ static uint32_t hash(const void *p) {
 }
 
 const struct colorNode *newImageTexture(const struct world *world, const struct texture *texture, uint8_t options) {
+	if (!texture) return NULL;
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct imageTexture, {
 		.tex = texture,
 		.options = options,
