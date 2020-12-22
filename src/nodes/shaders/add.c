@@ -26,7 +26,7 @@ struct addBsdf {
 };
 
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
-	struct addBsdf *mixBsdf = (struct addBsdf*)bsdf;
+	struct addBsdf *mixBsdf = (struct addBsdf *)bsdf;
 	struct bsdfSample A = mixBsdf->A->sample(mixBsdf->A, sampler, record);
 	struct bsdfSample B = mixBsdf->B->sample(mixBsdf->B, sampler, record);
 	//TODO: Do we just add the outgoing vertices together or what...?

@@ -25,11 +25,11 @@ struct diffuseBsdf {
 };
 
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
-	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf*)bsdf;
+	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf *)bsdf;
 	const struct vector scatterDir = vecNormalize(vecAdd(record->surfaceNormal, randomOnUnitSphere(sampler)));
 	return (struct bsdfSample){
 		.out = scatterDir,
-		.color = diffBsdf->color ? diffBsdf->color->eval(diffBsdf->color, record) : record->material.diffuse
+		.color = diffBsdf->color->eval(diffBsdf->color, record)
 	};
 }
 
@@ -46,9 +46,9 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-const struct bsdfNode *newDiffuse(const struct world *world, const struct colorNode *tex) {
+const struct bsdfNode *newDiffuse(const struct world *world, const struct colorNode *color) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct diffuseBsdf, {
-		.color = tex ? tex : newConstantTexture(world, blackColor),
+		.color = color ? color : newConstantTexture(world, blackColor),
 		.bsdf = {
 			.sample = sample,
 			.base = { .compare = compare }

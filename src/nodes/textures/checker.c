@@ -77,7 +77,7 @@ const struct colorNode *newCheckerBoardTexture(const struct world *world, const 
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct checkerTexture, {
 		.A = A ? A : newConstantTexture(world, blackColor),
 		.B = B ? B : newConstantTexture(world, whiteColor),
-		.scale = scale,
+		.scale = scale ? scale : newConstantValue(world, 5.0f),
 		.node = {
 			.eval = evalCheckerboard,
 			.base = { .compare = compare }

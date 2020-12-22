@@ -20,7 +20,7 @@ struct backgroundBsdf {
 	struct bsdfNode bsdf;
 	const struct colorNode *color;
 	const struct valueNode *strength;
-	float offset;
+	const struct valueNode *offset;
 };
 
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
@@ -33,7 +33,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	struct vector ud = vecNormalize(copy->incident.direction);
 	//To polar from cartesian
 	float r = 1.0f; //Normalized above
-	float phi = (atan2f(ud.z, ud.x) / 4.0f) + background->offset;
+	float phi = (atan2f(ud.z, ud.x) / 4.0f) + background->offset->eval(background->offset, record);
 	float theta = acosf((-ud.y / r));
 	
 	float u = theta / PI;
@@ -65,11 +65,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-const struct bsdfNode *newBackground(const struct world *world, const struct colorNode *tex, const struct valueNode *strength, float offset) {
+const struct bsdfNode *newBackground(const struct world *world, const struct colorNode *tex, const struct valueNode *strength, const struct valueNode *offset) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct backgroundBsdf, {
 		.color = tex ? tex : newConstantTexture(world, grayColor),
 		.strength = strength ? strength : newConstantValue(world, 1.0f),
-		.offset = offset,
+		.offset = offset ? offset : newConstantValue(world, 0.0f),
 		.bsdf = {
 			.sample = sample,
 			.base = { .compare = compare }

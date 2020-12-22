@@ -760,9 +760,9 @@ static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *offset = NULL;
 	
 	offset = cJSON_GetObjectItem(data, "offset");
-	float offsetValue = 0.0f;
+	const struct valueNode *offsetValue = NULL;
 	if (cJSON_IsNumber(offset)) {
-		offsetValue = toRadians(offset->valuedouble) / 4.0f;
+		offsetValue = newConstantValue(r->scene, toRadians(offset->valuedouble) / 4.0f);
 	}
 	
 	down = cJSON_GetObjectItem(data, "down");
@@ -833,13 +833,14 @@ static struct transform parseInstanceTransform(const cJSON *instance) {
 	return parseTransformComposite(transforms);
 }
 
+static const struct colorNode *parseTextureNode(struct world *w, const cJSON *node);
+
 static const struct valueNode *parseValueNode(struct world *w, const cJSON *node) {
 	if (!node) return NULL;
 	if (cJSON_IsNumber(node)) {
 		return newConstantValue(w, node->valuedouble);
 	}
-	
-	return NULL;
+	return newGrayscaleConverter(w, parseTextureNode(w, node));
 }
 
 static const struct colorNode *parseTextureNode(struct world *w, const cJSON *node) {
@@ -902,6 +903,7 @@ static const struct colorNode *parseTextureNode(struct world *w, const cJSON *no
 }
 
 static const struct bsdfNode *parseNode(struct world *w, const cJSON *node) {
+	if (!node) return NULL;
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
 	if (!cJSON_IsString(type)) {
 		logr(warning, "No type provided for node.");
@@ -910,24 +912,24 @@ static const struct bsdfNode *parseNode(struct world *w, const cJSON *node) {
 	
 	const cJSON *color = cJSON_GetObjectItem(node, "color");
 	const cJSON *roughness = cJSON_GetObjectItem(node, "roughness");
+	const struct bsdfNode *A = parseNode(w, cJSON_GetObjectItem(node, "A"));
+	const struct bsdfNode *B = parseNode(w, cJSON_GetObjectItem(node, "B"));
 	
 	if (stringEquals(type->valuestring, "diffuse")) {
 		return newDiffuse(w, parseTextureNode(w, color));
 	} else if (stringEquals(type->valuestring, "metal")) {
-		return newMetal(w, parseTextureNode(w, color), parseTextureNode(w, roughness));
+		return newMetal(w, parseTextureNode(w, color), parseValueNode(w, roughness));
 	} else if (stringEquals(type->valuestring, "glass")) {
 		const cJSON *IOR = cJSON_GetObjectItem(node, "IOR");
 		if (!cJSON_IsNumber(IOR)) logr(warning, "IOR missing for glass bsdf, setting to 1.4\n");
-		return newGlass(w, parseTextureNode(w, color), parseTextureNode(w, roughness), IOR ? IOR->valuedouble : 1.4);
+		return newGlass(w, parseTextureNode(w, color), parseValueNode(w, roughness), parseValueNode(w, IOR));
 	} else if (stringEquals(type->valuestring, "plastic")) {
 		return newPlastic(w, parseTextureNode(w, color));
 	} else if (stringEquals(type->valuestring, "mix")) {
-		const cJSON *jsonA = cJSON_GetObjectItem(node, "A");
-		const cJSON *jsonB = cJSON_GetObjectItem(node, "B");
 		const cJSON *factor = cJSON_GetObjectItem(node, "factor");
-		const struct bsdfNode *A = parseNode(w, jsonA);
-		const struct bsdfNode *B = parseNode(w, jsonB);
 		return newMix(w, A, B, newGrayscaleConverter(w, parseTextureNode(w, factor)));
+	} else if (stringEquals(type->valuestring, "add")) {
+		return newAdd(w, A, B);
 	} else if (stringEquals(type->valuestring, "transparent")) {
 		return newTransparent(w, parseTextureNode(w, color));
 	}
