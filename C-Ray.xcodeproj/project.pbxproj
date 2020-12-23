@@ -50,6 +50,8 @@
 		90500AB1258D95EF006F854A /* gradient.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500AAE258D95EF006F854A /* gradient.c */; };
 		9050FFE925915222001C172D /* raylength.c in Sources */ = {isa = PBXBuildFile; fileRef = 9050FFE725915222001C172D /* raylength.c */; };
 		9050FFEA25915222001C172D /* raylength.c in Sources */ = {isa = PBXBuildFile; fileRef = 9050FFE725915222001C172D /* raylength.c */; };
+		9050FFF12592BE23001C172D /* alpha.c in Sources */ = {isa = PBXBuildFile; fileRef = 9050FFEF2592BE23001C172D /* alpha.c */; };
+		9050FFF22592BE23001C172D /* alpha.c in Sources */ = {isa = PBXBuildFile; fileRef = 9050FFEF2592BE23001C172D /* alpha.c */; };
 		9052E8D025018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		9052E8D125018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		905842DB236651FC009D92F1 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA129220B4602005B8EE7 /* main.c */; };
@@ -256,6 +258,8 @@
 		90500AAF258D95EF006F854A /* gradient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gradient.h; sourceTree = "<group>"; };
 		9050FFE725915222001C172D /* raylength.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = raylength.c; sourceTree = "<group>"; };
 		9050FFE825915222001C172D /* raylength.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = raylength.h; sourceTree = "<group>"; };
+		9050FFEF2592BE23001C172D /* alpha.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = alpha.c; sourceTree = "<group>"; };
+		9050FFF02592BE23001C172D /* alpha.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = alpha.h; sourceTree = "<group>"; };
 		9052E8CE25018C050052406D /* fileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fileio.c; sourceTree = "<group>"; };
 		9052E8CF25018C050052406D /* fileio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileio.h; sourceTree = "<group>"; };
 		90584305236651FC009D92F1 /* C-Ray Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -598,6 +602,8 @@
 				9071BC99257D7D470070BA43 /* image.c */,
 				90500AAF258D95EF006F854A /* gradient.h */,
 				90500AAE258D95EF006F854A /* gradient.c */,
+				9050FFF02592BE23001C172D /* alpha.h */,
+				9050FFEF2592BE23001C172D /* alpha.c */,
 			);
 			path = textures;
 			sourceTree = "<group>";
@@ -893,6 +899,7 @@
 				90AB1E1C2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0C25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA17243D237200420889 /* bmp.c in Sources */,
+				9050FFF22592BE23001C172D /* alpha.c in Sources */,
 				905842F5236651FC009D92F1 /* mesh.c in Sources */,
 				909D13722443B4E7006D0A86 /* textbuffer.c in Sources */,
 				908ED0B1258F04E300D5B93F /* fresnel.c in Sources */,
@@ -978,6 +985,7 @@
 				90AB1E1B2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA16243D237200420889 /* bmp.c in Sources */,
+				9050FFF12592BE23001C172D /* alpha.c in Sources */,
 				90189DA6224EB302007FA268 /* mesh.c in Sources */,
 				909D13712443B4E7006D0A86 /* textbuffer.c in Sources */,
 				908ED0B0258F04E300D5B93F /* fresnel.c in Sources */,
