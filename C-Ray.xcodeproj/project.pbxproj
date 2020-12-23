@@ -17,7 +17,6 @@
 		900BA136220B4603005B8EE7 /* sphere.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA10B220B4602005B8EE7 /* sphere.c */; };
 		900BA137220B4603005B8EE7 /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA10C220B4602005B8EE7 /* camera.c */; };
 		900BA139220B4603005B8EE7 /* color.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA110220B4602005B8EE7 /* color.c */; };
-		900BA13B220B4603005B8EE7 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA116220B4602005B8EE7 /* list.c */; };
 		900BA13D220B4603005B8EE7 /* lodepng.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11B220B4602005B8EE7 /* lodepng.c */; };
 		900BA13E220B4603005B8EE7 /* cJSON.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11C220B4602005B8EE7 /* cJSON.c */; };
 		900BA140220B4603005B8EE7 /* timer.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11F220B4602005B8EE7 /* timer.c */; };
@@ -61,7 +60,6 @@
 		905842E1236651FC009D92F1 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA127220B4602005B8EE7 /* logging.c */; };
 		905842E3236651FC009D92F1 /* timer.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11F220B4602005B8EE7 /* timer.c */; };
 		905842E4236651FC009D92F1 /* pathtrace.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F7220B4602005B8EE7 /* pathtrace.c */; };
-		905842E5236651FC009D92F1 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA116220B4602005B8EE7 /* list.c */; };
 		905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85232252D99700BA7702 /* vertexbuffer.c */; };
 		905842E7236651FC009D92F1 /* material.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA10A220B4602005B8EE7 /* material.c */; };
 		905842E8236651FC009D92F1 /* lodepng.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11B220B4602005B8EE7 /* lodepng.c */; };
@@ -212,9 +210,7 @@
 		900BA110220B4602005B8EE7 /* color.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = color.c; sourceTree = "<group>"; };
 		900BA111220B4602005B8EE7 /* scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene.h; sourceTree = "<group>"; };
 		900BA113220B4602005B8EE7 /* lodepng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lodepng.h; sourceTree = "<group>"; };
-		900BA116220B4602005B8EE7 /* list.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = list.c; sourceTree = "<group>"; };
 		900BA117220B4602005B8EE7 /* cJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cJSON.h; sourceTree = "<group>"; };
-		900BA11A220B4602005B8EE7 /* list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = list.h; sourceTree = "<group>"; };
 		900BA11B220B4602005B8EE7 /* lodepng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lodepng.c; sourceTree = "<group>"; };
 		900BA11C220B4602005B8EE7 /* cJSON.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cJSON.c; sourceTree = "<group>"; };
 		900BA11F220B4602005B8EE7 /* timer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = timer.c; sourceTree = "<group>"; };
@@ -482,8 +478,6 @@
 				90369CCB222E012F008D215B /* pcg_basic.h */,
 				900BA113220B4602005B8EE7 /* lodepng.h */,
 				900BA11B220B4602005B8EE7 /* lodepng.c */,
-				900BA11A220B4602005B8EE7 /* list.h */,
-				900BA116220B4602005B8EE7 /* list.c */,
 				900BA117220B4602005B8EE7 /* cJSON.h */,
 				900BA11C220B4602005B8EE7 /* cJSON.c */,
 				90BAE9362328344100B1EBF0 /* stb_image.h */,
@@ -864,7 +858,6 @@
 				905842E3236651FC009D92F1 /* timer.c in Sources */,
 				905842E4236651FC009D92F1 /* pathtrace.c in Sources */,
 				9071BCA1257ED22C0070BA43 /* nodebase.c in Sources */,
-				905842E5236651FC009D92F1 /* list.c in Sources */,
 				90A21CF224589E6A002C742E /* sampler.c in Sources */,
 				90AB1E082574373E00EFDF5A /* bsdfnode.c in Sources */,
 				905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */,
@@ -950,7 +943,6 @@
 				900BA140220B4603005B8EE7 /* timer.c in Sources */,
 				900BA12D220B4603005B8EE7 /* pathtrace.c in Sources */,
 				9071BCA0257ED22C0070BA43 /* nodebase.c in Sources */,
-				900BA13B220B4603005B8EE7 /* list.c in Sources */,
 				90A21CF124589E6A002C742E /* sampler.c in Sources */,
 				90AB1E072574373E00EFDF5A /* bsdfnode.c in Sources */,
 				90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */,
