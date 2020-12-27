@@ -53,7 +53,7 @@ const struct bsdfNode *newAdd(const struct world *world, const struct bsdfNode *
 		logr(debug, "A == B, pruning add node.\n");
 		return A;
 	}
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct addBsdf, {
+	HASH_CONS(world->nodeTable, hash, struct addBsdf, {
 		.A = A ? A : newDiffuse(world, newConstantTexture(world, blackColor)),
 		.B = B ? B : newDiffuse(world, newConstantTexture(world, blackColor)),
 		.bsdf = {

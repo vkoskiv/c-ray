@@ -68,7 +68,7 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 
 const struct colorNode *newImageTexture(const struct world *world, const struct texture *texture, uint8_t options) {
 	if (!texture) return NULL;
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct imageTexture, {
+	HASH_CONS(world->nodeTable, hash, struct imageTexture, {
 		.tex = texture,
 		.options = options,
 		.node = {

@@ -43,7 +43,7 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 }
 
 const struct colorNode *newCombineValue(const struct world *world, const struct valueNode *node) {
-	HASH_CONS(world->nodeTable, world->nodePool, hash, struct combineValue, {
+	HASH_CONS(world->nodeTable, hash, struct combineValue, {
 		.original = node ? node : newConstantValue(world, 0.0f),
 		.node = {
 			.eval = eval,
