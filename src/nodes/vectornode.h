@@ -13,6 +13,7 @@
 struct vectorValue {
 	struct vector v;
 	struct coord c;
+	float f;
 };
 
 struct vectorNode {

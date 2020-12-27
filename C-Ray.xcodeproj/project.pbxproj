@@ -51,6 +51,8 @@
 		9050FFEA25915222001C172D /* raylength.c in Sources */ = {isa = PBXBuildFile; fileRef = 9050FFE725915222001C172D /* raylength.c */; };
 		9050FFF12592BE23001C172D /* alpha.c in Sources */ = {isa = PBXBuildFile; fileRef = 9050FFEF2592BE23001C172D /* alpha.c */; };
 		9050FFF22592BE23001C172D /* alpha.c in Sources */ = {isa = PBXBuildFile; fileRef = 9050FFEF2592BE23001C172D /* alpha.c */; };
+		9050FFF525994121001C172D /* vecmath.c in Sources */ = {isa = PBXBuildFile; fileRef = 9050FFF325994121001C172D /* vecmath.c */; };
+		9050FFF625994121001C172D /* vecmath.c in Sources */ = {isa = PBXBuildFile; fileRef = 9050FFF325994121001C172D /* vecmath.c */; };
 		9052E8D025018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		9052E8D125018C050052406D /* fileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9052E8CE25018C050052406D /* fileio.c */; };
 		905842DB236651FC009D92F1 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA129220B4602005B8EE7 /* main.c */; };
@@ -256,6 +258,8 @@
 		9050FFE825915222001C172D /* raylength.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = raylength.h; sourceTree = "<group>"; };
 		9050FFEF2592BE23001C172D /* alpha.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = alpha.c; sourceTree = "<group>"; };
 		9050FFF02592BE23001C172D /* alpha.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = alpha.h; sourceTree = "<group>"; };
+		9050FFF325994121001C172D /* vecmath.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vecmath.c; sourceTree = "<group>"; };
+		9050FFF425994121001C172D /* vecmath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vecmath.h; sourceTree = "<group>"; };
 		9052E8CE25018C050052406D /* fileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fileio.c; sourceTree = "<group>"; };
 		9052E8CF25018C050052406D /* fileio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileio.h; sourceTree = "<group>"; };
 		90584305236651FC009D92F1 /* C-Ray Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -537,6 +541,8 @@
 				90500A9E258C09E8006F854A /* combine.c */,
 				90500AA3258C0AB1006F854A /* combinergb.h */,
 				90500AA2258C0AB1006F854A /* combinergb.c */,
+				9050FFF425994121001C172D /* vecmath.h */,
+				9050FFF325994121001C172D /* vecmath.c */,
 			);
 			path = converter;
 			sourceTree = "<group>";
@@ -873,6 +879,7 @@
 				905842EB236651FC009D92F1 /* texture.c in Sources */,
 				905842EC236651FC009D92F1 /* wavefront.c in Sources */,
 				90AB1E142574798F00EFDF5A /* glass.c in Sources */,
+				9050FFF625994121001C172D /* vecmath.c in Sources */,
 				9062FA0A243BBD0900420889 /* args.c in Sources */,
 				90AB1E1825747C9C00EFDF5A /* metal.c in Sources */,
 				90500AAD258D81CA006F854A /* background.c in Sources */,
@@ -958,6 +965,7 @@
 				90FB15CE225C6D85008D6AAA /* texture.c in Sources */,
 				90CA851D2252C90C00BA7702 /* wavefront.c in Sources */,
 				90AB1E132574798F00EFDF5A /* glass.c in Sources */,
+				9050FFF525994121001C172D /* vecmath.c in Sources */,
 				9062FA09243BBD0900420889 /* args.c in Sources */,
 				90AB1E1725747C9C00EFDF5A /* metal.c in Sources */,
 				90500AAC258D81CA006F854A /* background.c in Sources */,
