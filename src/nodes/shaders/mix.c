@@ -24,16 +24,6 @@ struct mixBsdf {
 	const struct valueNode *factor;
 };
 
-static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
-	struct mixBsdf *mixBsdf = (struct mixBsdf *)bsdf;
-	const float lerp = mixBsdf->factor->eval(mixBsdf->factor, record);
-	if (getDimension(sampler) > lerp) {
-		return mixBsdf->A->sample(mixBsdf->A, sampler, record);
-	} else {
-		return mixBsdf->B->sample(mixBsdf->B, sampler, record);
-	}
-}
-
 static bool compareMix(const void *A, const void *B) {
 	struct mixBsdf *this = (struct mixBsdf *)A;
 	struct mixBsdf *other = (struct mixBsdf *)B;
@@ -47,6 +37,16 @@ static uint32_t hashMix(const void *p) {
 	h = hashBytes(h, &this->B, sizeof(this->B));
 	h = hashBytes(h, &this->factor, sizeof(this->factor));
 	return h;
+}
+
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
+	struct mixBsdf *mixBsdf = (struct mixBsdf *)bsdf;
+	const float lerp = mixBsdf->factor->eval(mixBsdf->factor, record);
+	if (getDimension(sampler) > lerp) {
+		return mixBsdf->A->sample(mixBsdf->A, sampler, record);
+	} else {
+		return mixBsdf->B->sample(mixBsdf->B, sampler, record);
+	}
 }
 
 const struct bsdfNode *newMix(const struct world *world, const struct bsdfNode *A, const struct bsdfNode *B, const struct valueNode *factor) {

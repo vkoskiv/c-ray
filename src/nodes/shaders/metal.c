@@ -23,7 +23,21 @@ struct metalBsdf {
 	const struct valueNode *roughness;
 };
 
-struct bsdfSample sampleMetal(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
+static bool compare(const void *A, const void *B) {
+	const struct metalBsdf *this = A;
+	const struct metalBsdf *other = B;
+	return this->color == other->color && this->roughness == other->roughness;
+}
+
+static uint32_t hash(const void *p) {
+	const struct metalBsdf *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->color, sizeof(this->color));
+	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
+	return h;
+}
+
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct metalBsdf *metalBsdf = (struct metalBsdf*)bsdf;
 	
 	const struct vector normalizedDir = vecNormalize(record->incident.direction);
@@ -40,26 +54,12 @@ struct bsdfSample sampleMetal(const struct bsdfNode *bsdf, sampler *sampler, con
 	};
 }
 
-static bool compare(const void *A, const void *B) {
-	const struct metalBsdf *this = A;
-	const struct metalBsdf *other = B;
-	return this->color == other->color && this->roughness == other->roughness;
-}
-
-static uint32_t hash(const void *p) {
-	const struct metalBsdf *this = p;
-	uint32_t h = hashInit();
-	h = hashBytes(h, &this->color, sizeof(this->color));
-	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
-	return h;
-}
-
 const struct bsdfNode *newMetal(const struct world *world, const struct colorNode *color, const struct valueNode *roughness) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct metalBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = roughness ? roughness : newConstantValue(world, 0.0f),
 		.bsdf = {
-			.sample = sampleMetal,
+			.sample = sample,
 			.base = { .compare = compare }
 		}
 	});

@@ -23,6 +23,19 @@ struct backgroundBsdf {
 	const struct valueNode *offset;
 };
 
+static bool compare(const void *A, const void *B) {
+	const struct backgroundBsdf *this = A;
+	const struct backgroundBsdf *other = B;
+	return this->color == other->color;
+}
+
+static uint32_t hash(const void *p) {
+	const struct backgroundBsdf *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->color, sizeof(this->color));
+	return h;
+}
+
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	(void)sampler;
 	struct backgroundBsdf *background = (struct backgroundBsdf *)bsdf;
@@ -50,19 +63,6 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 		.out = vecZero(),
 		.color = colorCoef(strength, background->color->eval(background->color, copy))
 	};
-}
-
-static bool compare(const void *A, const void *B) {
-	const struct backgroundBsdf *this = A;
-	const struct backgroundBsdf *other = B;
-	return this->color == other->color;
-}
-
-static uint32_t hash(const void *p) {
-	const struct backgroundBsdf *this = p;
-	uint32_t h = hashInit();
-	h = hashBytes(h, &this->color, sizeof(this->color));
-	return h;
 }
 
 const struct bsdfNode *newBackground(const struct world *world, const struct colorNode *tex, const struct valueNode *strength, const struct valueNode *offset) {

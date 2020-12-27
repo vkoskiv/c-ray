@@ -22,12 +22,6 @@ struct alphaNode {
 	const struct colorNode *color;
 };
 
-
-static float eval(const struct valueNode *node, const struct hitRecord *record) {
-	struct alphaNode *this = (struct alphaNode *)node;
-	return this->color->eval(this->color, record).alpha;
-}
-
 static bool compare(const void *A, const void *B) {
 	const struct alphaNode *this = A;
 	const struct alphaNode *other = B;
@@ -39,6 +33,11 @@ static uint32_t hash(const void *p) {
 	uint32_t h = hashInit();
 	h = hashBytes(h, &this->color, sizeof(this->color));
 	return h;
+}
+
+static float eval(const struct valueNode *node, const struct hitRecord *record) {
+	struct alphaNode *this = (struct alphaNode *)node;
+	return this->color->eval(this->color, record).alpha;
 }
 
 const struct valueNode *newAlpha(const struct world *world, const struct colorNode *color) {

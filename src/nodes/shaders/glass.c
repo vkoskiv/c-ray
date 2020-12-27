@@ -24,7 +24,21 @@ struct glassBsdf {
 	const struct valueNode *IOR;
 };
 
-struct bsdfSample sampleGlass(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
+static bool compare(const void *A, const void *B) {
+	const struct glassBsdf *this = A;
+	const struct glassBsdf *other = B;
+	return this->color == other->color && this->roughness == other->roughness;
+}
+
+static uint32_t hash(const void *p) {
+	const struct glassBsdf *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->color, sizeof(this->color));
+	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
+	return h;
+}
+
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct glassBsdf *glassBsdf = (struct glassBsdf *)bsdf;
 	
 	struct vector outwardNormal;
@@ -72,27 +86,13 @@ struct bsdfSample sampleGlass(const struct bsdfNode *bsdf, sampler *sampler, con
 	};
 }
 
-static bool compare(const void *A, const void *B) {
-	const struct glassBsdf *this = A;
-	const struct glassBsdf *other = B;
-	return this->color == other->color && this->roughness == other->roughness;
-}
-
-static uint32_t hash(const void *p) {
-	const struct glassBsdf *this = p;
-	uint32_t h = hashInit();
-	h = hashBytes(h, &this->color, sizeof(this->color));
-	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
-	return h;
-}
-
 const struct bsdfNode *newGlass(const struct world *world, const struct colorNode *color, const struct valueNode *roughness, const struct valueNode *IOR) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct glassBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = roughness ? roughness : newConstantValue(world, 0.0f),
 		.IOR = IOR ? IOR : newConstantValue(world, 1.45f),
 		.bsdf = {
-			.sample = sampleGlass,
+			.sample = sample,
 			.base = { .compare = compare }
 		}
 	});
