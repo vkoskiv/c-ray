@@ -23,11 +23,6 @@ struct constantTexture {
 	struct color color;
 };
 
-struct color evalConstant(const struct colorNode *node, const struct hitRecord *record) {
-	(void)record;
-	return ((struct constantTexture *)node)->color;
-}
-
 static bool compare(const void *A, const void *B) {
 	const struct constantTexture *this = A;
 	const struct constantTexture *other = B;
@@ -41,11 +36,16 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
+	(void)record;
+	return ((struct constantTexture *)node)->color;
+}
+
 const struct colorNode *newConstantTexture(const struct world *world, const struct color color) {
 	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct constantTexture, {
 		.color = color,
 		.node = {
-			.eval = evalConstant,
+			.eval = eval,
 			.base = { .compare = compare }
 		}
 	});

@@ -24,15 +24,6 @@ struct diffuseBsdf {
 	const struct colorNode *color;
 };
 
-static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
-	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf *)bsdf;
-	const struct vector scatterDir = vecNormalize(vecAdd(record->surfaceNormal, randomOnUnitSphere(sampler)));
-	return (struct bsdfSample){
-		.out = scatterDir,
-		.color = diffBsdf->color->eval(diffBsdf->color, record)
-	};
-}
-
 static bool compare(const void *A, const void *B) {
 	const struct diffuseBsdf *this = A;
 	const struct diffuseBsdf *other = B;
@@ -44,6 +35,15 @@ static uint32_t hash(const void *p) {
 	uint32_t h = hashInit();
 	h = hashBytes(h, &this->color, sizeof(this->color));
 	return h;
+}
+
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
+	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf *)bsdf;
+	const struct vector scatterDir = vecNormalize(vecAdd(record->surfaceNormal, randomOnUnitSphere(sampler)));
+	return (struct bsdfSample){
+		.out = scatterDir,
+		.color = diffBsdf->color->eval(diffBsdf->color, record)
+	};
 }
 
 const struct bsdfNode *newDiffuse(const struct world *world, const struct colorNode *color) {
