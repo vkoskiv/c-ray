@@ -20,7 +20,7 @@ struct vecMathNode {
 	struct vectorNode node;
 	const struct vectorNode *A;
 	const struct vectorNode *B;
-	const enum op op;
+	const enum vecOp op;
 };
 
 static bool compare(const void *A, const void *B) {
@@ -41,41 +41,42 @@ static uint32_t hash(const void *p) {
 static struct vectorValue eval(const struct vectorNode *node, const struct hitRecord *record) {
 	struct vecMathNode *this = (struct vecMathNode *)node;
 	
-	struct vector a = this->A->eval(this->A, record).v;
-	struct vector b = this->B->eval(this->B, record).v;
+	const struct vector a = this->A->eval(this->A, record).v;
+	const struct vector b = this->B->eval(this->B, record).v;
 	
 	switch (this->op) {
-		case Add:
+		case VecAdd:
 			return (struct vectorValue){ .v = vecAdd(a, b) };
 			break;
-		case Subtract:
+		case VecSubtract:
 			return (struct vectorValue){ .v = vecSub(a, b) };
 			break;
-		case Multiply:
+		case VecMultiply:
 			return (struct vectorValue){ .v = vecMul(a, b) };
 			break;
-		case Average:
+		case VecAverage:
 			return (struct vectorValue){ .v = vecScale(vecAdd(a, b), 0.5f) };
 			break;
-		case Dot:
+		case VecDot:
 			return (struct vectorValue){ .f = vecDot(a, b) };
 			break;
-		case Cross:
+		case VecCross:
 			return (struct vectorValue){ .v = vecCross(a, b) };
 			break;
-		case Normalize:
+		case VecNormalize:
 			return (struct vectorValue){ .v = vecNormalize(a) };
 			break;
-		case Reflect:
+		case VecReflect:
 			return (struct vectorValue){ .v = vecReflect(a, b) };
 			break;
-		case Length:
+		case VecLength:
 			return (struct vectorValue){ .f = vecLength(a) };
 			break;
 	}
+	ASSERT_NOT_REACHED();
 }
 
-const struct vectorNode *newVecMath(const struct world *world, const struct vectorNode *A, const struct vectorNode *B, const enum op op) {
+const struct vectorNode *newVecMath(const struct world *world, const struct vectorNode *A, const struct vectorNode *B, const enum vecOp op) {
 	HASH_CONS(world->nodeTable, hash, struct vecMathNode, {
 		.A = A ? A : newConstantVector(world, vecZero()),
 		.B = B ? B : newConstantVector(world, vecZero()),
