@@ -42,7 +42,7 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 }
 
 const struct colorNode *newConstantTexture(const struct world *world, const struct color color) {
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct constantTexture, {
+	HASH_CONS(world->nodeTable, hash, struct constantTexture, {
 		.color = color,
 		.node = {
 			.eval = eval,

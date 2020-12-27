@@ -87,7 +87,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 }
 
 const struct bsdfNode *newPlastic(const struct world *world, const struct colorNode *color) {
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct plasticBsdf, {
+	HASH_CONS(world->nodeTable, hash, struct plasticBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = newConstantTexture(world, blackColor),
 		.diffuse = newDiffuse(world, color),

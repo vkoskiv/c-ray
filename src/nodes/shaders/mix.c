@@ -54,7 +54,7 @@ const struct bsdfNode *newMix(const struct world *world, const struct bsdfNode *
 		logr(debug, "A == B, pruning mix node.\n");
 		return A;
 	}
-	HASH_CONS(world->nodeTable, &world->nodePool, hashMix, struct mixBsdf, {
+	HASH_CONS(world->nodeTable, hashMix, struct mixBsdf, {
 		.A = A ? A : newDiffuse(world, newConstantTexture(world, blackColor)),
 		.B = B ? B : newDiffuse(world, newConstantTexture(world, blackColor)),
 		.factor = factor ? factor : newConstantValue(world, 0.5f),

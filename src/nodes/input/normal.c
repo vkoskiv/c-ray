@@ -41,7 +41,7 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 }
 
 const struct vectorNode *newNormal(const struct world *world) {
-	HASH_CONS(world->nodeTable, world->nodePool, hash, struct normalNode, {
+	HASH_CONS(world->nodeTable, hash, struct normalNode, {
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

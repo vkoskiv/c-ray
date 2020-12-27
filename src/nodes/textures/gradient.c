@@ -45,7 +45,7 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 }
 
 const struct colorNode *newGradientTexture(const struct world *world, struct color down, struct color up) {
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct gradientTexture, {
+	HASH_CONS(world->nodeTable, hash, struct gradientTexture, {
 		.down = down,
 		.up = up,
 		.node = {

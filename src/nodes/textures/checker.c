@@ -74,7 +74,7 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 }
 
 const struct colorNode *newCheckerBoardTexture(const struct world *world, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale) {
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct checkerTexture, {
+	HASH_CONS(world->nodeTable, hash, struct checkerTexture, {
 		.A = A ? A : newConstantTexture(world, blackColor),
 		.B = B ? B : newConstantTexture(world, whiteColor),
 		.scale = scale ? scale : newConstantValue(world, 5.0f),

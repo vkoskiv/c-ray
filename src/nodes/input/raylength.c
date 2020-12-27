@@ -40,7 +40,7 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 }
 
 const struct valueNode *newRayLength(const struct world *world) {
-	HASH_CONS(world->nodeTable, world->nodePool, hash, struct rayLengthNode, {
+	HASH_CONS(world->nodeTable, hash, struct rayLengthNode, {
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }
