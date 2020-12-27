@@ -27,7 +27,7 @@ struct mixBsdf {
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct mixBsdf *mixBsdf = (struct mixBsdf *)bsdf;
 	const float lerp = mixBsdf->factor->eval(mixBsdf->factor, record);
-	if (getDimension(sampler) < lerp) {
+	if (getDimension(sampler) > lerp) {
 		return mixBsdf->A->sample(mixBsdf->A, sampler, record);
 	} else {
 		return mixBsdf->B->sample(mixBsdf->B, sampler, record);
