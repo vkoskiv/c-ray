@@ -13,6 +13,7 @@
 struct vectorValue {
 	struct vector v;
 	struct coord c;
+	float f;
 };
 
 struct vectorNode {
@@ -21,5 +22,6 @@ struct vectorNode {
 };
 
 #include "input/normal.h"
+#include "converter/vecmath.h"
 
 const struct vectorNode *newConstantVector(const struct world *world, struct vector vector);

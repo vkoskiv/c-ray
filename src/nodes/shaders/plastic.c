@@ -25,6 +25,20 @@ struct plasticBsdf {
 	const struct bsdfNode *diffuse;
 };
 
+static bool compare(const void *A, const void *B) {
+	const struct plasticBsdf *this = A;
+	const struct plasticBsdf *other = B;
+	return this->color == other->color && this->roughness == other->roughness;
+}
+
+static uint32_t hash(const void *p) {
+	const struct plasticBsdf *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->color, sizeof(this->color));
+	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
+	return h;
+}
+
 static struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct plasticBsdf *plastic = (struct plasticBsdf *)bsdf;
 	struct vector reflected = reflectVec(&record->incident.direction, &record->surfaceNormal);
@@ -72,22 +86,8 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	}
 }
 
-static bool compare(const void *A, const void *B) {
-	const struct plasticBsdf *this = A;
-	const struct plasticBsdf *other = B;
-	return this->color == other->color && this->roughness == other->roughness;
-}
-
-static uint32_t hash(const void *p) {
-	const struct plasticBsdf *this = p;
-	uint32_t h = hashInit();
-	h = hashBytes(h, &this->color, sizeof(this->color));
-	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
-	return h;
-}
-
 const struct bsdfNode *newPlastic(const struct world *world, const struct colorNode *color) {
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct plasticBsdf, {
+	HASH_CONS(world->nodeTable, hash, struct plasticBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = newConstantTexture(world, blackColor),
 		.diffuse = newDiffuse(world, color),

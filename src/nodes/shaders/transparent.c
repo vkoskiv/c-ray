@@ -24,12 +24,6 @@ struct transparent {
 	const struct colorNode *color;
 };
 
-static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
-	(void)sampler;
-	struct transparent *this = (struct transparent *)bsdf;
-	return (struct bsdfSample){ .out = record->incident.direction, .color = this->color->eval(this->color, record) };
-}
-
 static bool compare(const void *A, const void *B) {
 	const struct transparent *this = A;
 	const struct transparent *other = B;
@@ -43,8 +37,14 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
+	(void)sampler;
+	struct transparent *this = (struct transparent *)bsdf;
+	return (struct bsdfSample){ .out = record->incident.direction, .color = this->color->eval(this->color, record) };
+}
+
 const struct bsdfNode *newTransparent(const struct world *world, const struct colorNode *color) {
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct transparent, {
+	HASH_CONS(world->nodeTable, hash, struct transparent, {
 		.color = color ? color : newConstantTexture(world, whiteColor),
 		.bsdf = {
 			.sample = sample,

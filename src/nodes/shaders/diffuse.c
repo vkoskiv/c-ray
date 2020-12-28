@@ -24,15 +24,6 @@ struct diffuseBsdf {
 	const struct colorNode *color;
 };
 
-static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
-	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf*)bsdf;
-	const struct vector scatterDir = vecNormalize(vecAdd(record->surfaceNormal, randomOnUnitSphere(sampler)));
-	return (struct bsdfSample){
-		.out = scatterDir,
-		.color = diffBsdf->color ? diffBsdf->color->eval(diffBsdf->color, record) : record->material.diffuse
-	};
-}
-
 static bool compare(const void *A, const void *B) {
 	const struct diffuseBsdf *this = A;
 	const struct diffuseBsdf *other = B;
@@ -46,9 +37,18 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-const struct bsdfNode *newDiffuse(const struct world *world, const struct colorNode *tex) {
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct diffuseBsdf, {
-		.color = tex ? tex : newConstantTexture(world, blackColor),
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
+	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf *)bsdf;
+	const struct vector scatterDir = vecNormalize(vecAdd(record->surfaceNormal, randomOnUnitSphere(sampler)));
+	return (struct bsdfSample){
+		.out = scatterDir,
+		.color = diffBsdf->color->eval(diffBsdf->color, record)
+	};
+}
+
+const struct bsdfNode *newDiffuse(const struct world *world, const struct colorNode *color) {
+	HASH_CONS(world->nodeTable, hash, struct diffuseBsdf, {
+		.color = color ? color : newConstantTexture(world, blackColor),
 		.bsdf = {
 			.sample = sample,
 			.base = { .compare = compare }

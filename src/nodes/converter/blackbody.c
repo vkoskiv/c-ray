@@ -42,8 +42,8 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 }
 
 const struct colorNode *newBlackbody(const struct world *world, const struct valueNode *value) {
-	HASH_CONS(world->nodeTable, world->nodePool, hash, struct blackbodyNode, {
-		.value = value,
+	HASH_CONS(world->nodeTable, hash, struct blackbodyNode, {
+		.value = value ? value : newConstantValue(world, 4000.0f),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

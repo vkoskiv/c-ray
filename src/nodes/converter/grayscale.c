@@ -43,8 +43,8 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 }
 
 const struct valueNode *newGrayscaleConverter(const struct world *world, const struct colorNode *node) {
-	HASH_CONS(world->nodeTable, world->nodePool, hash, struct grayscale, {
-		.original = node,
+	HASH_CONS(world->nodeTable, hash, struct grayscale, {
+		.original = node ? node : newConstantTexture(world, blackColor),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

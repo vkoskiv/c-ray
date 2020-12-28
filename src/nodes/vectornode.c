@@ -38,11 +38,11 @@ static uint32_t hash(const void *p) {
 static struct vectorValue eval(const struct vectorNode *node, const struct hitRecord *record) {
 	(void)record;
 	struct constantVector *this = (struct constantVector *)node;
-	return (struct vectorValue){ .v = this->vector, .c = coordZero() };
+	return (struct vectorValue){ .v = this->vector };
 }
 
 const struct vectorNode *newConstantVector(const struct world *world, const struct vector vector) {
-	HASH_CONS(world->nodeTable, world->nodePool, hash, struct constantVector, {
+	HASH_CONS(world->nodeTable, hash, struct constantVector, {
 		.vector = vector,
 		.node = {
 			.eval = eval,

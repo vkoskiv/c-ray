@@ -8,6 +8,7 @@
 
 #pragma once
 
+//FIXME: These are opposite states, which is kinda confusing.
 #define SRGB_TRANSFORM 0x01
 #define NO_BILINEAR    0x02
 

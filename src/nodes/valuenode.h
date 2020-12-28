@@ -17,5 +17,7 @@ struct valueNode {
 
 #include "input/fresnel.h"
 #include "input/raylength.h"
+#include "textures/alpha.h"
+#include "converter/math.h"
 
 const struct valueNode *newConstantValue(const struct world *world, float value);

@@ -53,24 +53,29 @@ struct material *materialForName(struct material *materials, int count, char *na
 	return NULL;
 }
 
+//FIXME: Temporary hack to patch alpha directly to old materials using the alpha node.
+const struct bsdfNode *appendAlpha(struct world *w, const struct bsdfNode *base, const struct colorNode *color) {
+	return newMix(w, base, newTransparent(w, newConstantTexture(w, whiteColor)), newAlpha(w, color));
+}
+
 void assignBSDF(struct world *w, struct material *mat) {
-	const struct colorNode *roughness = mat->specularMap ? newImageTexture(w, mat->specularMap, NO_BILINEAR) : newConstantTexture(w, newGrayColor(mat->roughness));
+	const struct valueNode *roughness = mat->specularMap ? newGrayscaleConverter(w, newImageTexture(w, mat->specularMap, NO_BILINEAR)) : newConstantValue(w, mat->roughness);
 	const struct colorNode *color = mat->texture ? newImageTexture(w, mat->texture, SRGB_TRANSFORM) : newConstantTexture(w, mat->diffuse);
 	switch (mat->type) {
 		case lambertian:
-			mat->bsdf = newDiffuse(w, color);
+			mat->bsdf = appendAlpha(w, newDiffuse(w, color), color);
 			break;
 		case glass:
-			mat->bsdf = newGlass(w, color, roughness, mat->IOR);
+			mat->bsdf = appendAlpha(w, newGlass(w, color, roughness, newConstantValue(w, mat->IOR)), color);
 			break;
 		case metal:
-			mat->bsdf = newMetal(w, color, roughness);
+			mat->bsdf = appendAlpha(w, newMetal(w, color, roughness), color);
 			break;
 		case plastic:
-			mat->bsdf = newPlastic(w, color);
+			mat->bsdf = appendAlpha(w, newPlastic(w, color), color);
 			break;
 		case emission:
-			mat->bsdf = newDiffuse(w, color);
+			mat->bsdf = appendAlpha(w, newDiffuse(w, color), color);
 			break;
 		default:
 			logr(warning, "Unknown bsdf type specified for \"%s\", setting to an obnoxious preset.\n", mat->name);

@@ -22,23 +22,13 @@
 #include "../datatypes/transforms.h"
 #include "../datatypes/instance.h"
 
-static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene);
-
-struct color debugNormals(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
-	(void)maxDepth;
-	(void)sampler;
-	struct lightRay currentRay = *incidentRay;
-	struct hitRecord isect = getClosestIsect(&currentRay, scene);
-	if (isect.instIndex < 0)
-		return scene->background->sample(scene->background, sampler, &isect).color;//getBackground(&currentRay, scene);
-	struct vector normal =  isect.surfaceNormal;
-	return (struct color){fabs(normal.x), fabs(normal.y), fabs(normal.z), 1.0f};
+static inline struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene) {
+	struct hitRecord isect = { .incident = *incidentRay, .instIndex = -1, .distance = FLT_MAX, .polygon = NULL };
+	traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect);
+	return isect;
 }
 
 struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
-#ifdef DBG_NORMALS
-	return debugNormals(incidentRay, scene, maxDepth, sampler);
-#endif
 	struct color weight = whiteColor; // Current path weight
 	struct color finalColor = blackColor; // Final path contribution
 	struct lightRay currentRay = *incidentRay;
@@ -53,8 +43,7 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 		finalColor = addColors(finalColor, multiplyColors(weight, isect.material.emission));
 		
 		struct bsdfSample sample = isect.material.bsdf->sample(isect.material.bsdf, sampler, &isect);
-		currentRay.start = isect.hitPoint;
-		currentRay.direction = sample.out;
+		currentRay = (struct lightRay){ .start = isect.hitPoint, .direction = sample.out };
 		struct color attenuation = sample.color;
 		
 		float probability = 1.0f;
@@ -67,24 +56,4 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 		weight = colorCoef(1.0f / probability, multiplyColors(attenuation, weight));
 	}
 	return finalColor;
-}
-
-/**
- Calculate the closest intersection point, and other relevant information based on a given lightRay and scene
- See the intersection struct for documentation of what this function calculates.
-
- @param incidentRay Given light ray (set up in renderThread())
- @param scene  Given scene to cast that ray into
- @return intersection struct with the appropriate values set
- */
-static struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene) {
-	struct hitRecord isect;
-	isect.instIndex = -1;
-	isect.distance = FLT_MAX;
-	isect.incident = *incidentRay;
-	isect.polygon = NULL;
-	
-	traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect);
-	
-	return isect;
 }

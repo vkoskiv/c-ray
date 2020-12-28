@@ -20,25 +20,8 @@
 struct metalBsdf {
 	struct bsdfNode bsdf;
 	const struct colorNode *color;
-	const struct colorNode *roughness;
+	const struct valueNode *roughness;
 };
-
-struct bsdfSample sampleMetal(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
-	struct metalBsdf *metalBsdf = (struct metalBsdf*)bsdf;
-	
-	const struct vector normalizedDir = vecNormalize(record->incident.direction);
-	struct vector reflected = reflectVec(&normalizedDir, &record->surfaceNormal);
-	float roughness = metalBsdf->roughness->eval(metalBsdf->roughness, record).red;
-	if (roughness > 0.0f) {
-		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
-		reflected = vecAdd(reflected, fuzz);
-	}
-	
-	return (struct bsdfSample){
-		.out = reflected,
-		.color = metalBsdf->color->eval(metalBsdf->color, record)
-	};
-}
 
 static bool compare(const void *A, const void *B) {
 	const struct metalBsdf *this = A;
@@ -54,12 +37,29 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-const struct bsdfNode *newMetal(const struct world *world, const struct colorNode *color, const struct colorNode *roughness) {
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct metalBsdf, {
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
+	struct metalBsdf *metalBsdf = (struct metalBsdf*)bsdf;
+	
+	const struct vector normalizedDir = vecNormalize(record->incident.direction);
+	struct vector reflected = reflectVec(&normalizedDir, &record->surfaceNormal);
+	float roughness = metalBsdf->roughness->eval(metalBsdf->roughness, record);
+	if (roughness > 0.0f) {
+		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
+		reflected = vecAdd(reflected, fuzz);
+	}
+	
+	return (struct bsdfSample){
+		.out = reflected,
+		.color = metalBsdf->color->eval(metalBsdf->color, record)
+	};
+}
+
+const struct bsdfNode *newMetal(const struct world *world, const struct colorNode *color, const struct valueNode *roughness) {
+	HASH_CONS(world->nodeTable, hash, struct metalBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
-		.roughness = roughness ? roughness : newConstantTexture(world, blackColor),
+		.roughness = roughness ? roughness : newConstantValue(world, 0.0f),
 		.bsdf = {
-			.sample = sampleMetal,
+			.sample = sample,
 			.base = { .compare = compare }
 		}
 	});

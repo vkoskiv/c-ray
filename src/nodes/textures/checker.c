@@ -53,11 +53,6 @@ static struct color checkerBoard(const struct hitRecord *isect, const struct col
 	return isect->uv.x >= 0 ? mappedCheckerBoard(isect, A, B, scale) : unmappedCheckerBoard(isect, A, B, scale);
 }
 
-struct color evalCheckerboard(const struct colorNode *node, const struct hitRecord *record) {
-	struct checkerTexture *checker = (struct checkerTexture *)node;
-	return checkerBoard(record, checker->A, checker->B, checker->scale);
-}
-
 static bool compare(const void *A, const void *B) {
 	const struct checkerTexture *this = A;
 	const struct checkerTexture *other = B;
@@ -73,13 +68,18 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
+	struct checkerTexture *checker = (struct checkerTexture *)node;
+	return checkerBoard(record, checker->A, checker->B, checker->scale);
+}
+
 const struct colorNode *newCheckerBoardTexture(const struct world *world, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale) {
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct checkerTexture, {
+	HASH_CONS(world->nodeTable, hash, struct checkerTexture, {
 		.A = A ? A : newConstantTexture(world, blackColor),
 		.B = B ? B : newConstantTexture(world, whiteColor),
-		.scale = scale,
+		.scale = scale ? scale : newConstantValue(world, 5.0f),
 		.node = {
-			.eval = evalCheckerboard,
+			.eval = eval,
 			.base = { .compare = compare }
 		}
 	});

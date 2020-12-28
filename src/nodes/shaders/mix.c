@@ -24,17 +24,6 @@ struct mixBsdf {
 	const struct valueNode *factor;
 };
 
-static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
-	struct mixBsdf *mixBsdf = (struct mixBsdf*)bsdf;
-	//TODO: Do we need grayscale()?
-	const float lerp = mixBsdf->factor->eval(mixBsdf->factor, record);
-	if (getDimension(sampler) < lerp) {
-		return mixBsdf->A->sample(mixBsdf->A, sampler, record);
-	} else {
-		return mixBsdf->B->sample(mixBsdf->B, sampler, record);
-	}
-}
-
 static bool compareMix(const void *A, const void *B) {
 	struct mixBsdf *this = (struct mixBsdf *)A;
 	struct mixBsdf *other = (struct mixBsdf *)B;
@@ -50,12 +39,22 @@ static uint32_t hashMix(const void *p) {
 	return h;
 }
 
+static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
+	struct mixBsdf *mixBsdf = (struct mixBsdf *)bsdf;
+	const float lerp = mixBsdf->factor->eval(mixBsdf->factor, record);
+	if (getDimension(sampler) > lerp) {
+		return mixBsdf->A->sample(mixBsdf->A, sampler, record);
+	} else {
+		return mixBsdf->B->sample(mixBsdf->B, sampler, record);
+	}
+}
+
 const struct bsdfNode *newMix(const struct world *world, const struct bsdfNode *A, const struct bsdfNode *B, const struct valueNode *factor) {
 	if (A == B) {
 		logr(debug, "A == B, pruning mix node.\n");
 		return A;
 	}
-	HASH_CONS(world->nodeTable, &world->nodePool, hashMix, struct mixBsdf, {
+	HASH_CONS(world->nodeTable, hashMix, struct mixBsdf, {
 		.A = A ? A : newDiffuse(world, newConstantTexture(world, blackColor)),
 		.B = B ? B : newDiffuse(world, newConstantTexture(world, blackColor)),
 		.factor = factor ? factor : newConstantValue(world, 0.5f),

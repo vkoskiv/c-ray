@@ -22,14 +22,6 @@ struct gradientTexture {
 	struct color up;
 };
 
-//Linearly interpolate based on the Y component
-static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
-	struct gradientTexture *this = (struct gradientTexture *)node;
-	struct vector unitDir = vecNormalize(record->incident.direction);
-	float t = 0.5f * (unitDir.y + 1.0f);
-	return addColors(colorCoef(1.0f - t, this->down), colorCoef(t, this->up));
-}
-
 static bool compare(const void *A, const void *B) {
 	const struct gradientTexture *this = A;
 	const struct gradientTexture *other = B;
@@ -44,8 +36,16 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+//Linearly interpolate based on the Y component
+static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
+	struct gradientTexture *this = (struct gradientTexture *)node;
+	struct vector unitDir = vecNormalize(record->incident.direction);
+	float t = 0.5f * (unitDir.y + 1.0f);
+	return addColors(colorCoef(1.0f - t, this->down), colorCoef(t, this->up));
+}
+
 const struct colorNode *newGradientTexture(const struct world *world, struct color down, struct color up) {
-	HASH_CONS(world->nodeTable, &world->nodePool, hash, struct gradientTexture, {
+	HASH_CONS(world->nodeTable, hash, struct gradientTexture, {
 		.down = down,
 		.up = up,
 		.node = {

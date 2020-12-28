@@ -16,8 +16,6 @@
 
 #define RAY_OFFSET_MULTIPLIER 0.0001f
 
-//#define DBG_NORMALS //Normal debugging mode
-
 //Some macros
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
