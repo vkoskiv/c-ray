@@ -11,6 +11,7 @@
 
 #include <stdarg.h>
 #include <inttypes.h>
+#include <time.h>
 #include "args.h"
 #include "platform/terminal.h"
 
