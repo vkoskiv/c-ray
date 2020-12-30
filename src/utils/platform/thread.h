@@ -8,7 +8,14 @@
 
 #pragma once
 
+#ifdef WINDOWS
+	#include <Windows.h>
+#else
+	#include <pthread.h>
+#endif
+
 //Multi-platform threading
+
 /**
  Thread information struct to communicate with main thread
  */
@@ -23,6 +30,7 @@ struct crThread {
 	void *(*threadFunc)(void *); // Code you want to run.
 };
 
+// Fetch the user data pointer from args parameter
 void *threadUserData(void *arg);
 
 /// Start a new C-ray platform abstracted thread
