@@ -1172,6 +1172,7 @@
 					"-Wall",
 					"-Wextra",
 					"-Wno-missing-field-initializers",
+					"-Wimplicit-function-declaration",
 				);
 			};
 			name = Debug;
@@ -1235,6 +1236,7 @@
 					"-Wall",
 					"-Wextra",
 					"-Wno-missing-field-initializers",
+					"-Wimplicit-function-declaration",
 				);
 			};
 			name = Release;

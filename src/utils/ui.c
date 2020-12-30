@@ -45,7 +45,7 @@ static struct display *gdisplay = NULL;
 //Take a look at the docs for sigaction() and implement that.
 void sigHandler(int sig) {
 	if (sig == 2) { //SIGINT
-		printf("\n");
+		logr(plain, "\n");
 		logr(info, "Received ^C, aborting render without saving\n");
 		aborted = true;
 	}
@@ -183,7 +183,7 @@ void destroyDisplay() {
 void printDuration(uint64_t ms) {
 	logr(info, "Finished render in ");
 	printSmartTime(ms);
-	printf("                     \n");
+	logr(plain, "                     \n");
 }
 
 void getKeyboardInput(struct renderer *r) {
