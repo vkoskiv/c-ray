@@ -68,7 +68,6 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 
 struct instance newSphereInstance(struct sphere *sphere) {
 	return (struct instance) {
-		.type = Sphere,
 		.object = sphere,
 		.composite = newTransform(),
 		.intersectFn = intersectSphere,
@@ -112,6 +111,10 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 	return false;
 }
 
+bool isMesh(const struct instance *instance) {
+	return instance->intersectFn == intersectMesh;
+}
+
 static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
 	struct mesh *mesh = (struct mesh*)instance->object;
 	*bbox = getRootBoundingBox(mesh->bvh);
@@ -124,7 +127,6 @@ static void getMeshBBoxAndCenter(const struct instance *instance, struct boundin
 
 struct instance newMeshInstance(struct mesh *mesh) {
 	return (struct instance) {
-		.type = Mesh,
 		.object = mesh,
 		.composite = newTransform(),
 		.intersectFn = intersectMesh,

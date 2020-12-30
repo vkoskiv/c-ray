@@ -87,7 +87,7 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 	printSmartTime(ms);
 	unsigned polys = 0;
 	for (int i = 0; i < scene->instanceCount; ++i) {
-		if (scene->instances[i].type == Mesh) polys += ((struct mesh*)scene->instances[i].object)->polyCount;
+		if (isMesh(&scene->instances[i])) polys += ((struct mesh*)scene->instances[i].object)->polyCount;
 	}
 	printf("\n");
 	logr(info, "Totals: %iV, %iN, %iT, %iP, %iS, %iM\n",
