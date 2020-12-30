@@ -38,7 +38,6 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <math.h>
 #include <stdint.h>
 #include <stddef.h>
 
