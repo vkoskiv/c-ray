@@ -16,6 +16,7 @@
 #include "poly.h"
 #include "../utils/assert.h"
 #include "../utils/logging.h"
+#include "../utils/string.h"
 #include "../datatypes/scene.h"
 
 #include "../datatypes/color.h"
@@ -46,7 +47,7 @@ struct material warningMaterial() {
 //Find material with a given name and return a pointer to it
 struct material *materialForName(struct material *materials, int count, char *name) {
 	for (int i = 0; i < count; ++i) {
-		if (strcmp(materials[i].name, name) == 0) {
+		if (stringEquals(materials[i].name, name)) {
 			return &materials[i];
 		}
 	}

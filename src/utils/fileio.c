@@ -16,6 +16,7 @@
 #endif
 #include "string.h"
 #include <errno.h>
+#include <string.h>
 
 char *loadFile(const char *fileName, size_t *bytes) {
 	FILE *file = fopen(fileName, "rb");
