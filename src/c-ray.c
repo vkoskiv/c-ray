@@ -9,6 +9,9 @@
 #include "includes.h"
 #include "c-ray.h"
 
+#include <stdarg.h>
+#include <stdio.h>
+
 #include "datatypes/image/imagefile.h"
 #include "renderer/renderer.h"
 #include "datatypes/scene.h"
@@ -22,7 +25,6 @@
 #include "utils/timer.h"
 #include "utils/args.h"
 #include "utils/encoders/encoder.h"
-#include <stdarg.h>
 #include "utils/string.h"
 
 #define VERSION "0.6.3"
