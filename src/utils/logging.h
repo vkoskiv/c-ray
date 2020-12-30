@@ -14,7 +14,8 @@ enum logType {
 	error,
 	info,
 	warning,
-	debug
+	debug,
+	plain
 };
 
 //Terminal color codes

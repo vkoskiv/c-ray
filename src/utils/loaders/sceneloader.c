@@ -52,7 +52,7 @@ static struct sphere *lastSphere(struct renderer *r) {
 }
 
 static bool loadMeshNew(struct renderer *r, char *inputFilePath, int idx, int totalMeshes) {
-	printf("\r");
+	logr(plain, "\r");
 	logr(info, "Loading mesh %i/%i%s", idx, totalMeshes, idx == totalMeshes ? "\n" : "\r");
 	bool valid = false;
 	size_t meshCount = 0;

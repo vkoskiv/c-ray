@@ -12,6 +12,7 @@
 #include <stdarg.h>
 #include <inttypes.h>
 #include <time.h>
+#include <stdio.h>
 #include "args.h"
 #include "platform/terminal.h"
 
@@ -50,8 +51,10 @@ void logr(enum logType type, const char *fmt, ...) {
 	if (!fmt) return;
 	if (type == debug && !isSet("v")) return;
 	
-	printPrefix(type);
-	printDate();
+	if (type != plain) {
+		printPrefix(type);
+		printDate();
+	}
 	char buf[512];
 	va_list vl;
 	va_start(vl, fmt);
