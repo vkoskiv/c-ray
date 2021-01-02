@@ -69,7 +69,7 @@ static void computeAccels(struct mesh *meshes, int meshCount) {
 	printSmartTime(getMs(timer));
 	free(tasks);
 	free(buildThreads);
-	printf("\n");
+	logr(plain, "\n");
 }
 
 struct bvh *computeTopLevelBvh(struct instance *instances, int instanceCount) {
@@ -78,7 +78,7 @@ struct bvh *computeTopLevelBvh(struct instance *instances, int instanceCount) {
 	startTimer(&timer);
 	struct bvh *new = buildTopLevelBvh(instances, instanceCount);
 	printSmartTime(getMs(timer));
-	printf("\n");
+	logr(plain, "\n");
 	return new;
 }
 
@@ -87,9 +87,9 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 	printSmartTime(ms);
 	unsigned polys = 0;
 	for (int i = 0; i < scene->instanceCount; ++i) {
-		if (scene->instances[i].type == Mesh) polys += ((struct mesh*)scene->instances[i].object)->polyCount;
+		if (isMesh(&scene->instances[i])) polys += ((struct mesh*)scene->instances[i].object)->polyCount;
 	}
-	printf("\n");
+	logr(plain, "\n");
 	logr(info, "Totals: %iV, %iN, %iT, %iP, %iS, %iM\n",
 		   vertexCount,
 		   normalCount,

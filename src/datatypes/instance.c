@@ -62,13 +62,12 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 		bbox->max = vecAdd(bbox->max, *center);
 	}
 	sphere->rayOffset = rayOffset(*bbox);
-	if (isSet("v")) printf("\n");
+	if (isSet("v")) logr(plain, "\n");
 	logr(debug, "sphere offset: %f", sphere->rayOffset);
 }
 
 struct instance newSphereInstance(struct sphere *sphere) {
 	return (struct instance) {
-		.type = Sphere,
 		.object = sphere,
 		.composite = newTransform(),
 		.intersectFn = intersectSphere,
@@ -112,19 +111,22 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 	return false;
 }
 
+bool isMesh(const struct instance *instance) {
+	return instance->intersectFn == intersectMesh;
+}
+
 static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
 	struct mesh *mesh = (struct mesh*)instance->object;
 	*bbox = getRootBoundingBox(mesh->bvh);
 	transformBBox(bbox, &instance->composite.A);
 	*center = bboxCenter(bbox);
 	mesh->rayOffset = rayOffset(*bbox);
-	if (isSet("v")) printf("\n");
+	if (isSet("v")) logr(plain, "\n");
 	logr(debug, "mesh \"%s\" offset: %f", mesh->name, mesh->rayOffset);
 }
 
 struct instance newMeshInstance(struct mesh *mesh) {
 	return (struct instance) {
-		.type = Mesh,
 		.object = mesh,
 		.composite = newTransform(),
 		.intersectFn = intersectMesh,

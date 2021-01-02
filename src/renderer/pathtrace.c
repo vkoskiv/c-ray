@@ -9,6 +9,7 @@
 #include "../includes.h"
 #include "pathtrace.h"
 
+#include <float.h>
 #include "../datatypes/scene.h"
 #include "../datatypes/camera.h"
 #include "../accelerators/bvh.h"

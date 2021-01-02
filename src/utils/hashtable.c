@@ -10,6 +10,7 @@
 #include "hashtable.h"
 
 #include <inttypes.h>
+#include <string.h>
 #include "logging.h"
 #include "../datatypes/vector.h"
 #include "assert.h"
@@ -171,7 +172,7 @@ void destroyHashtable(struct hashtable *hashtable) {
 }
 
 bool compareDatabaseEntry(const void *entry1, const void *entry2) {
-	return !strcmp((const char *)entry1, *(const char **)entry2);
+	return stringEquals((const char *)entry1, *(const char **)entry2);
 }
 
 struct constantsDatabase *newConstantsDatabase(void) {

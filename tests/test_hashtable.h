@@ -6,6 +6,8 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
+
 #include "../src/utils/hashtable.h"
 #include "../src/datatypes/vector.h"
 

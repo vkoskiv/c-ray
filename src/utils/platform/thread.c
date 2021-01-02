@@ -6,18 +6,11 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#ifdef WINDOWS
-#include <Windows.h>
-#else
-#include <pthread.h>
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "thread.h"
 #include "../logging.h"
-
 
 void *threadUserData(void *arg) {
 	struct crThread *thread = (struct crThread*)arg;
