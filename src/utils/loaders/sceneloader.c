@@ -251,7 +251,7 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 		} else {
 			logr(warning, "Found translate transform for object \"%s\" with less than 1 valid coordinate given.\n", targetName);
 		}
-	} else if (stringEquals(type->valuestring, "scale") == 0) {
+	} else if (stringEquals(type->valuestring, "scale")) {
 		if (validCoords > 0) {
 			return newTransformScale(Xval, Yval, Zval);
 		} else {
