@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
+#include <string.h>
 
 #define MAXRCVLEN 1048576 // 1MiB
 #define C_RAY_PORT 2222

@@ -6,9 +6,8 @@
 //  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <string.h>
 #include "../../../../includes.h"
-#include "wavefront.h"
-
 #include "../../../../datatypes/mesh.h"
 #include "../../../../datatypes/vector.h"
 #include "../../../../datatypes/poly.h"
@@ -21,6 +20,8 @@
 #include "../../../assert.h"
 #include "../../../textbuffer.h"
 #include "mtlloader.h"
+
+#include "wavefront.h"
 
 static int findMaterialIndex(struct material *materialSet, int materialCount, char *mtlName) {
 	for (int i = 0; i < materialCount; ++i) {

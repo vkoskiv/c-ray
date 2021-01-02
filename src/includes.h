@@ -37,18 +37,13 @@
 #endif
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <stdbool.h>
-#include <math.h>
-#include <string.h>
-#include <float.h>
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef WINDOWS
 	#include <Windows.h>
 	#include <time.h>
 #else
-	#include <pthread.h>
 	#include <sys/time.h> //for gettimeofday()
 #endif

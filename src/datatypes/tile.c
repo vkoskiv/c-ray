@@ -15,6 +15,7 @@
 #include "../utils/platform/mutex.h"
 #include "../libraries/pcg_basic.h"
 #include "../utils/args.h"
+#include <string.h>
 
 static void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder);
 

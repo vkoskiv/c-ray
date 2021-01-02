@@ -6,6 +6,7 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <string.h>
 #include "../src/utils/textbuffer.h"
 #include "../src/utils/string.h"
 

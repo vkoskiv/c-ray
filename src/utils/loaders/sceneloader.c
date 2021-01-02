@@ -31,6 +31,7 @@
 #include "../../datatypes/instance.h"
 #include "../../utils/args.h"
 #include "../../utils/timer.h"
+#include "../../utils/string.h"
 #include "../../nodes/bsdfnode.h"
 #include "meshloader.h"
 
@@ -51,7 +52,7 @@ static struct sphere *lastSphere(struct renderer *r) {
 }
 
 static bool loadMeshNew(struct renderer *r, char *inputFilePath, int idx, int totalMeshes) {
-	printf("\r");
+	logr(plain, "\r");
 	logr(info, "Loading mesh %i/%i%s", idx, totalMeshes, idx == totalMeshes ? "\n" : "\r");
 	bool valid = false;
 	size_t meshCount = 0;
@@ -195,7 +196,7 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 	
 	//For translate, we want the default to be 0. For scaling, def should be 1
 	float def = 0.0f;
-	if (strcmp(type->valuestring, "scale") == 0) {
+	if (stringEquals(type->valuestring, "scale")) {
 		def = 1.0f;
 	}
 	
@@ -220,7 +221,7 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 		Zval = def;
 	}
 	
-	if (strcmp(type->valuestring, "rotateX") == 0) {
+	if (stringEquals(type->valuestring, "rotateX")) {
 		if (validDegrees) {
 			return newTransformRotateX(toRadians(degrees->valuedouble));
 		} else if (validRadians) {
@@ -228,7 +229,7 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 		} else {
 			logr(warning, "Found rotateX transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
-	} else if (strcmp(type->valuestring, "rotateY") == 0) {
+	} else if (stringEquals(type->valuestring, "rotateY")) {
 		if (validDegrees) {
 			return newTransformRotateY(toRadians(degrees->valuedouble));
 		} else if (validRadians) {
@@ -236,7 +237,7 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 		} else {
 			logr(warning, "Found rotateY transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
-	} else if (strcmp(type->valuestring, "rotateZ") == 0) {
+	} else if (stringEquals(type->valuestring, "rotateZ")) {
 		if (validDegrees) {
 			return newTransformRotateZ(toRadians(degrees->valuedouble));
 		} else if (validRadians) {
@@ -244,19 +245,19 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 		} else {
 			logr(warning, "Found rotateZ transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
-	} else if (strcmp(type->valuestring, "translate") == 0) {
+	} else if (stringEquals(type->valuestring, "translate")) {
 		if (validCoords > 0) {
 			return newTransformTranslate(Xval, Yval, Zval);
 		} else {
 			logr(warning, "Found translate transform for object \"%s\" with less than 1 valid coordinate given.\n", targetName);
 		}
-	} else if (strcmp(type->valuestring, "scale") == 0) {
+	} else if (stringEquals(type->valuestring, "scale")) {
 		if (validCoords > 0) {
 			return newTransformScale(Xval, Yval, Zval);
 		} else {
 			logr(warning, "Found scale transform for object \"%s\" with less than 1 valid scale value given.\n", targetName);
 		}
-	} else if (strcmp(type->valuestring, "scaleUniform") == 0) {
+	} else if (stringEquals(type->valuestring, "scaleUniform")) {
 		if (validScale) {
 			return newTransformScaleUniform(scale->valuedouble);
 		} else {
@@ -407,13 +408,13 @@ static struct prefs parsePrefs(const cJSON *data) {
 	tileOrder = cJSON_GetObjectItem(data, "tileOrder");
 	if (tileOrder) {
 		if (cJSON_IsString(tileOrder)) {
-			if (strcmp(tileOrder->valuestring, "random") == 0) {
+			if (stringEquals(tileOrder->valuestring, "random")) {
 				p.tileOrder = renderOrderRandom;
-			} else if (strcmp(tileOrder->valuestring, "topToBottom") == 0) {
+			} else if (stringEquals(tileOrder->valuestring, "topToBottom")) {
 				p.tileOrder = renderOrderTopToBottom;
-			} else if (strcmp(tileOrder->valuestring, "fromMiddle") == 0) {
+			} else if (stringEquals(tileOrder->valuestring, "fromMiddle")) {
 				p.tileOrder = renderOrderFromMiddle;
-			} else if (strcmp(tileOrder->valuestring, "toMiddle") == 0) {
+			} else if (stringEquals(tileOrder->valuestring, "toMiddle")) {
 				p.tileOrder = renderOrderToMiddle;
 			} else {
 				p.tileOrder = renderOrderNormal;
@@ -497,7 +498,7 @@ static struct prefs parsePrefs(const cJSON *data) {
 	fileType = cJSON_GetObjectItem(data, "fileType");
 	if (fileType) {
 		if (cJSON_IsString(fileType)) {
-			if (strcmp(fileType->valuestring, "bmp") == 0) {
+			if (stringEquals(fileType->valuestring, "bmp")) {
 				p.imgType = bmp;
 			} else {
 				p.imgType = png;
@@ -951,13 +952,13 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 	
 	//TODO: Wrap this into a function
 	if (cJSON_IsString(bsdf)) {
-		if (strcmp(bsdf->valuestring, "metal") == 0) {
+		if (stringEquals(bsdf->valuestring, "metal")) {
 			type = metal;
-		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
+		} else if (stringEquals(bsdf->valuestring, "glass")) {
 			type = glass;
-		} else if (strcmp(bsdf->valuestring, "plastic") == 0) {
+		} else if (stringEquals(bsdf->valuestring, "plastic")) {
 			type = plastic;
-		} else if (strcmp(bsdf->valuestring, "emissive") == 0) {
+		} else if (stringEquals(bsdf->valuestring, "emissive")) {
 			type = emission;
 		} else {
 			type = lambertian;
@@ -1083,15 +1084,15 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	
 	//TODO: Break this out to a function
 	if (cJSON_IsString(bsdf)) {
-		if (strcmp(bsdf->valuestring, "lambertian") == 0) {
+		if (stringEquals(bsdf->valuestring, "lambertian")) {
 			newSphere.material.type = lambertian;
-		} else if (strcmp(bsdf->valuestring, "metal") == 0) {
+		} else if (stringEquals(bsdf->valuestring, "metal")) {
 			newSphere.material.type = metal;
-		} else if (strcmp(bsdf->valuestring, "glass") == 0) {
+		} else if (stringEquals(bsdf->valuestring, "glass")) {
 			newSphere.material.type = glass;
-		} else if (strcmp(bsdf->valuestring, "plastic") == 0) {
+		} else if (stringEquals(bsdf->valuestring, "plastic")) {
 			newSphere.material.type = plastic;
-		} else if (strcmp(bsdf->valuestring, "emissive") == 0) {
+		} else if (stringEquals(bsdf->valuestring, "emissive")) {
 			newSphere.material.type = emission;
 		}
 	} else {
@@ -1169,7 +1170,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 static void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {
 	const cJSON *type = NULL;
 	type = cJSON_GetObjectItem(data, "type");
-	if (strcmp(type->valuestring, "sphere") == 0) {
+	if (stringEquals(type->valuestring, "sphere")) {
 		parseSphere(r, data);
 	} else {
 		logr(warning, "Unknown primitive type \"%s\" at index %i\n", type->valuestring, idx);
