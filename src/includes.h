@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef WINDOWS
 	#include <Windows.h>
