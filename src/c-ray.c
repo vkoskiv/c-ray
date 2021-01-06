@@ -91,8 +91,8 @@ void crWriteImage() {
 	}
 }
 
-char *crLoadFile(char *filePath, size_t *bytes) {
-	return loadFile(filePath, bytes);
+char *crReadFile(size_t *bytes) {
+	return loadFile(pathArg(), bytes);
 }
 
 char *crReadStdin(size_t *bytes) {

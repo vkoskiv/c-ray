@@ -298,9 +298,6 @@ struct renderer *newRenderer() {
 	
 	r->state.timer = calloc(1, sizeof(*r->state.timer));
 	
-	//TODO: Do we need all these heap allocs?
-	r->scene = calloc(1, sizeof(*r->scene));
-	
 	if (!g_vertices) {
 		allocVertexBuffers();
 	}

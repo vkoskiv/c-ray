@@ -107,6 +107,8 @@ int loadScene(struct renderer *r, char *input) {
 	struct timeval timer = {0};
 	startTimer(&timer);
 	
+	r->scene = calloc(1, sizeof(*r->scene));
+	
 	r->scene->nodePool = newBlock(NULL, 1024);
 	r->scene->nodeTable = newHashtable(compareNodes, &r->scene->nodePool);
 	

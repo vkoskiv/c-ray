@@ -26,6 +26,10 @@ char *loadFile(const char *fileName, size_t *bytes) {
 		return NULL;
 	}
 	size_t fileBytes = getFileSize(fileName);
+	if (!fileBytes) {
+		fclose(file);
+		return NULL;
+	}
 	char *buf = malloc(fileBytes + 1 * sizeof(char));
 	size_t readBytes = fread(buf, sizeof(char), fileBytes, file);
 	ASSERT(readBytes == fileBytes);

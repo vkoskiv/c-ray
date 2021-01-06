@@ -28,7 +28,7 @@ struct renderInfo;
 struct texture;
 void crWriteImage(void); //Write out the current image
 
-char *crLoadFile(char *filePath, size_t *bytes);
+char *crReadFile(size_t *bytes);
 char *crReadStdin(size_t *bytes);
 
 void crInitRenderer(void);

@@ -17,14 +17,17 @@ int main(int argc, char *argv[]) {
 	crParseArgs(argc, argv);
 	crInitRenderer();
 	size_t bytes = 0;
-	char *input = crOptionIsSet("inputFile") ? crLoadFile(crPathArg(), &bytes) : crReadStdin(&bytes);
-	if (input) crLog("%zi bytes of input JSON loaded from %s, parsing.\n", bytes, crOptionIsSet("inputFile") ? "file" : "stdin");
-	if (!input || crLoadSceneFromBuf(input)) {
-		if (input) free(input);
+	char *input = crOptionIsSet("inputFile") ? crReadFile(&bytes) : crReadStdin(&bytes);
+	if (!input) {
+		crLog("No input provided, exiting.\n");
 		crDestroyRenderer();
+		crDestroyOptions();
 		return -1;
 	}
+	crLog("%zi bytes of input JSON loaded from %s, parsing.\n", bytes, crOptionIsSet("inputFile") ? "file" : "stdin");
+	crLoadSceneFromBuf(input);
 	free(input);
+	
 	crRenderSingleFrame();
 	crWriteImage();
 	crDestroyRenderer();
