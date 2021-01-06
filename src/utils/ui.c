@@ -39,8 +39,6 @@ struct display {
 
 static bool aborted = false;
 
-static struct display *gdisplay = NULL;
-
 //FIXME: This won't work on linux, it'll just abort the execution.
 //Take a look at the docs for sigaction() and implement that.
 void sigHandler(int sig) {
@@ -52,6 +50,9 @@ void sigHandler(int sig) {
 }
 
 #ifdef CRAY_SDL_ENABLED
+
+static struct display *gdisplay = NULL;
+
 static void setWindowIcon(SDL_Window *window) {
 #ifndef NO_LOGO
 	struct texture *icon = loadTextureFromBuffer(logo_png_data, logo_png_data_len, NULL);
@@ -225,6 +226,7 @@ void getKeyboardInput(struct renderer *r) {
 #endif
 }
 
+#ifdef CRAY_SDL_ENABLED
 static void clearProgBar(struct renderer *r, struct renderTile temp) {
 	for (unsigned i = 0; i < temp.width; ++i) {
 		setPixel(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height / 5)) - 1);
@@ -310,6 +312,7 @@ static void updateFrames(struct renderer *r) {
 	}
 	drawProgressBars(r);
 }
+#endif
 
 void drawWindow(struct renderer *r, struct texture *t) {
 	if (aborted) {
