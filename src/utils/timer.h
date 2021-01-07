@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 06/07/2018.
-//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2018-2020 Valtteri Koskivuori. All rights reserved.
 //
 
 

@@ -3,7 +3,7 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 16/06/2020.
-//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once

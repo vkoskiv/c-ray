@@ -2,7 +2,7 @@
 //  instance.c
 //  C-ray
 //
-//  Created by Valtteri on 23.6.2020.
+//  Created by Valtteri Koskivuori on 23.6.2020.
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
