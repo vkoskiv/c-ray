@@ -82,9 +82,13 @@ void parseArgs(int argc, char **argv) {
 		} else if (isValidFile(alternatePath) && !inputFileSet) {
 			setDatabaseString(g_options, "inputFile", alternatePath);
 			inputFileSet = true;
-		}else if (stringEquals(argv[i], "-h")) {
+		}
+		
+		if (stringEquals(argv[i], "-h")) {
 			printUsage(argv[0]);
-		} else if (stringEquals(argv[i], "-j")) {
+		}
+		
+		if (stringEquals(argv[i], "-j")) {
 			char *threadstr = argv[i + 1];
 			if (threadstr) {
 				int n = atoi(threadstr);
@@ -94,7 +98,9 @@ void parseArgs(int argc, char **argv) {
 			} else {
 				logr(warning, "Invalid -j parameter given!\n");
 			}
-		} else if (stringEquals(argv[i], "-s")) {
+		}
+		
+		if (stringEquals(argv[i], "-s")) {
 			char *sampleStr = argv[i + 1];
 			if (sampleStr) {
 				int n = atoi(sampleStr);
@@ -103,7 +109,9 @@ void parseArgs(int argc, char **argv) {
 			} else {
 				logr(warning, "Invalid -s parameter given!\n");
 			}
-		} else if (stringEquals(argv[i], "-d")) {
+		}
+		
+		if (stringEquals(argv[i], "-d")) {
 			char *dimstr = argv[i + 1];
 			int width = 0;
 			int height = 0;
@@ -114,7 +122,9 @@ void parseArgs(int argc, char **argv) {
 			} else {
 				logr(warning, "Invalid -d parameter given!\n");
 			}
-		} else if (stringEquals(argv[i], "-t")) {
+		}
+		
+		if (stringEquals(argv[i], "-t")) {
 			char *dimstr = argv[i + 1];
 			int width = 0;
 			int height = 0;
@@ -125,7 +135,9 @@ void parseArgs(int argc, char **argv) {
 			} else {
 				logr(warning, "Invalid -t parameter given!\n");
 			}
-		} else if (stringEquals(argv[i], "--test")) {
+		}
+		
+		if (stringEquals(argv[i], "--test")) {
 			setDatabaseTag(g_options, "runTests");
 			char *testIdxStr = argv[i + 1];
 			if (testIdxStr) {
@@ -133,7 +145,9 @@ void parseArgs(int argc, char **argv) {
 				n = n < 0 ? 0 : n;
 				testIdx = n;
 			}
-		} else if (stringEquals(argv[i], "--test-perf")) {
+		}
+		
+		if (stringEquals(argv[i], "--test-perf")) {
 			setDatabaseTag(g_options, "runPerfTests");
 			char *testIdxStr = argv[i + 1];
 			if (testIdxStr) {
@@ -141,15 +155,23 @@ void parseArgs(int argc, char **argv) {
 				n = n < 0 ? 0 : n;
 				testIdx = n;
 			}
-		} else if (stringEquals(argv[i], "--tcount")) {
+		}
+		
+		if (stringEquals(argv[i], "--tcount")) {
 			setDatabaseTag(g_options, "runTests");
 			testIdx = -2;
-		} else if (stringEquals(argv[i], "--ptcount")) {
+		}
+		
+		if (stringEquals(argv[i], "--ptcount")) {
 			setDatabaseTag(g_options, "runTests");
 			testIdx = -3;
-		} else if (stringEquals(argv[i], "--iterative")) {
+		}
+		
+		if (stringEquals(argv[i], "--iterative")) {
 			setDatabaseTag(g_options, "interactive");
-		} else if (strncmp(argv[i], "-", 1) == 0) {
+		}
+		
+		if (strncmp(argv[i], "-", 1) == 0) {
 			setDatabaseTag(g_options, ++argv[i]);
 		}
 	}
