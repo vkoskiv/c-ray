@@ -36,5 +36,6 @@ struct bsdfNode {
 #include "shaders/transparent.h"
 #include "shaders/add.h"
 #include "shaders/background.h"
+#include "shaders/emission.h"
 
 const struct bsdfNode *warningBsdf(const struct world *world);

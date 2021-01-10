@@ -913,6 +913,7 @@ static const struct bsdfNode *parseNode(struct world *w, const cJSON *node) {
 	
 	const cJSON *color = cJSON_GetObjectItem(node, "color");
 	const cJSON *roughness = cJSON_GetObjectItem(node, "roughness");
+	const cJSON *strength = cJSON_GetObjectItem(node, "strength");
 	const struct bsdfNode *A = parseNode(w, cJSON_GetObjectItem(node, "A"));
 	const struct bsdfNode *B = parseNode(w, cJSON_GetObjectItem(node, "B"));
 	
@@ -933,6 +934,8 @@ static const struct bsdfNode *parseNode(struct world *w, const cJSON *node) {
 		return newAdd(w, A, B);
 	} else if (stringEquals(type->valuestring, "transparent")) {
 		return newTransparent(w, parseTextureNode(w, color));
+	} else if (stringEquals(type->valuestring, "emissive")) {
+		return newEmission(w, parseTextureNode(w, color), parseValueNode(w, strength));
 	}
 	
 	logr(warning, "Failed to parse node. Here's a dump:\n");

@@ -1,0 +1,106 @@
+{
+	"version": 1.0,
+	"renderer": {
+		"threads": 0,
+		"samples": 100,
+		"bounces": 30,
+		"antialiasing": true,
+		"tileWidth": 64,
+		"tileHeight": 64,
+		"tileOrder": "random",
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 800,
+		"height": 800
+	},
+	"display": {
+		"isFullscreen": false,
+		"isBorderless": false,
+		"windowScale": 1.0
+	},
+	"camera": {
+		"FOV": 18,
+		"focalDistance": 0.7,
+		"fstops": 0,
+		"transforms": [
+			{
+				"type": "translate",
+				"x": 0,
+				"y": 0,
+				"z": -0.7
+			}
+		]
+	},
+	"scene": {
+		"ambientColor": {
+			"offset": 0,
+			"down": {
+				"r": 0.1,
+				"g": 0.1,
+				"b": 0.1
+			},
+			"up": {
+				"r": 0.1,
+				"g": 0.1,
+				"b": 0.1
+			}
+		},
+		"primitives": [
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "rotateY",
+								"degrees": 0
+							}
+						]
+					}
+				],
+				"materiald": {
+					"type": "mix",
+					"A": {
+						"type": "glass",
+						"color": [1.0, 1.0, 1.0]
+					},
+					"B": {
+						"type": "metal",
+						"color": [1.0, 0.0, 0.0]
+					},
+					"factor": 0.5
+				},
+				"color": {
+					"r": 0.8,
+					"g": 0.8,
+					"b": 0.8
+				},
+				"bsdf": "metal",
+				"roughness": 0.00,
+				"radius": 0.05
+			}
+		],
+		"meshes": [
+			{
+				"fileName": "shapes/gridplane.obj",
+				"bsdf": "lambertian",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 0.25
+							},
+							{
+								"type": "translate",
+								"Y": -0.05
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}
