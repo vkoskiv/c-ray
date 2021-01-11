@@ -928,13 +928,12 @@ static const struct bsdfNode *parseNode(struct world *w, const cJSON *node) {
 		return newMetal(w, parseTextureNode(w, color), parseValueNode(w, roughness));
 	} else if (stringEquals(type->valuestring, "glass")) {
 		const cJSON *IOR = cJSON_GetObjectItem(node, "IOR");
-		if (!cJSON_IsNumber(IOR)) logr(warning, "IOR missing for glass bsdf, setting to 1.4\n");
 		return newGlass(w, parseTextureNode(w, color), parseValueNode(w, roughness), parseValueNode(w, IOR));
 	} else if (stringEquals(type->valuestring, "plastic")) {
 		return newPlastic(w, parseTextureNode(w, color));
 	} else if (stringEquals(type->valuestring, "mix")) {
 		const cJSON *factor = cJSON_GetObjectItem(node, "factor");
-		return newMix(w, A, B, newGrayscaleConverter(w, parseTextureNode(w, factor)));
+		return newMix(w, A, B, parseValueNode(w, factor));
 	} else if (stringEquals(type->valuestring, "add")) {
 		return newAdd(w, A, B);
 	} else if (stringEquals(type->valuestring, "transparent")) {
