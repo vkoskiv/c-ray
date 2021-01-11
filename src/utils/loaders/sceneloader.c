@@ -890,6 +890,11 @@ static const struct colorNode *parseTextureNode(struct world *w, const cJSON *no
 			ASSERT(cJSON_IsNumber(size));
 			return newCheckerBoardTexture(w, NULL, NULL, parseValueNode(w, size));
 		}
+		if (stringEquals(type->valuestring, "blackbody")) {
+			const cJSON *degrees = cJSON_GetObjectItem(node, "degrees");
+			ASSERT(cJSON_IsNumber(degrees));
+			return newBlackbody(w, newConstantValue(w, degrees->valuedouble));
+		}
 	}
 	
 	const cJSON *path = cJSON_GetObjectItem(node, "path");

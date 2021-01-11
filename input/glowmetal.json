@@ -60,25 +60,38 @@
 						]
 					}
 				],
-				"materiald": {
+				"material": {
 					"type": "mix",
 					"A": {
+						"type": "mix",
+						"A": {
+							"type": "metal",
+							"roughness": 0.0
+						},
+						"B": {
+							"type": "emissive",
+							"color": {
+								"type": "blackbody",
+								"degrees": 2000
+							},
+							"strength": 40
+						},
+						"factor": 0.5
+					},
+					"B": {
 						"type": "glass",
 						"color": [1.0, 1.0, 1.0]
 					},
-					"B": {
-						"type": "metal",
-						"color": [1.0, 0.0, 0.0]
-					},
-					"factor": 0.5
+					"factor": {
+						"type": "checkerboard",
+						"size": 50
+					}
 				},
 				"color": {
 					"r": 0.8,
 					"g": 0.8,
 					"b": 0.8
 				},
-				"bsdf": "metal",
-				"roughness": 0.00,
 				"radius": 0.05
 			}
 		],
