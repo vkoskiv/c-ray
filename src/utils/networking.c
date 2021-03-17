@@ -10,9 +10,9 @@
 #include "networking.h"
 
 //Windows is annoying, so it's just not going to have networking. Because it is annoying and proprietary.
+#include "../utils/logging.h"
 #ifndef WINDOWS
 
-#include "../utils/logging.h"
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
