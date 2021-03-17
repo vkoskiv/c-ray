@@ -14,6 +14,8 @@ bool isSet(char *key);
 
 int intPref(char *key);
 
+char *stringPref(char *key);
+
 char *pathArg(void);
 
 void destroyOptions(void);

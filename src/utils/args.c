@@ -171,6 +171,13 @@ void parseArgs(int argc, char **argv) {
 			setDatabaseTag(g_options, "interactive");
 		}
 		
+		if (stringEquals(argv[i], "--nodes")) {
+			setDatabaseTag(g_options, "cluster");
+			ASSERT(i + 1 <= argc);
+			char *nodes = argv[i + 1];
+			if (nodes) setDatabaseString(g_options, "nodes", nodes);
+		}
+		
 		if (strncmp(argv[i], "-", 1) == 0) {
 			setDatabaseTag(g_options, ++argv[i]);
 		}
@@ -215,6 +222,10 @@ bool isSet(char *key) {
 int intPref(char *key) {
 	ASSERT(existsInDatabase(g_options, key));
 	return getDatabaseInt(g_options, key);
+}
+
+char *stringPref(char *key) {
+	return getDatabaseString(g_options, key);
 }
 
 char *pathArg() {

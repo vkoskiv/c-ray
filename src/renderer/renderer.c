@@ -213,6 +213,20 @@ void *renderThreadInteractive(void *arg) {
 	return 0;
 }
 
+void *networkRenderThread(void *arg) {
+	struct renderThreadState *threadState = (struct renderThreadState *)threadUserData(arg);
+	struct renderer *r = threadState->renderer;
+	struct texture *image = threadState->output;
+	struct renderTile tile = nextTile(r);
+	threadState->currentTileNum = tile.tileNum;
+	
+	// Now send this over to the client, get back the resulting tile data and plop it into image
+	//FIXME:
+	(void)image;
+	ASSERT_NOT_REACHED();
+	return 0;
+}
+
 /**
  A render thread
  
