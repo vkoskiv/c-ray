@@ -15,6 +15,8 @@ char *crGetVersion(void); //The current semantic version
 
 char *crGitHash(void); //The current git hash of the build
 
+bool isDebug(void);
+
 void crInitialize(void); //Run initial setup of the environment
 
 void crParseArgs(int argc, char **argv);

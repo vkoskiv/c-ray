@@ -42,6 +42,14 @@ char *crGitHash() {
 	return gitHash();
 }
 
+bool isDebug() {
+#ifdef CRAY_DEBUG_ENABLED
+	return true;
+#else
+	return false;
+#endif
+}
+
 void atExit() {
 	restoreTerminal();
 }
