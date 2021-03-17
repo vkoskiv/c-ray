@@ -10,11 +10,19 @@
 #include <stdbool.h>
 
 #include "c-ray.h"
+#include "utils/networking.h"
+#include "utils/string.h"
 
 int main(int argc, char *argv[]) {
 	crLog("C-ray v%s%s [%.8s], © 2015-2021 Valtteri Koskivuori\n", crGetVersion(), isDebug() ? "D" : "", crGitHash());
 	crInitialize();
 	crParseArgs(argc, argv);
+	if (stringEquals(argv[2], "node")) {
+		startWorkerServer();
+	} else {
+		startMasterServer();
+	}
+	/*
 	crInitRenderer();
 	size_t bytes = 0;
 	char *input = crOptionIsSet("inputFile") ? crReadFile(&bytes) : crReadStdin(&bytes);
@@ -33,5 +41,5 @@ int main(int argc, char *argv[]) {
 	crDestroyRenderer();
 	crDestroyOptions();
 	crLog("Render finished, exiting.\n");
-	return 0;
+	return 0;*/
 }

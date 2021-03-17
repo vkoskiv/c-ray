@@ -40,15 +40,15 @@ struct state {
 	int tileCount; //Total amount of render tiles
 	int finishedTileCount;
 	int finishedPasses; // For interactive mode
-	struct texture *renderBuffer;  //float-precision buffer for multisampling
+	struct texture *renderBuffer; //float-precision buffer for multisampling
 	struct texture *uiBuffer; //UI element buffer
 	int activeThreads; //Amount of threads currently rendering
 	bool isRendering;
-	bool renderAborted;//SDL listens for X key pressed, which sets this
+	bool renderAborted; //SDL listens for X key pressed, which sets this
 	bool saveImage;
-	unsigned long long avgTileTime;//Used for render duration estimation (milliseconds)
+	unsigned long long avgTileTime; //Used for render duration estimation (milliseconds)
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
-	int timeSampleCount;//Used for render duration estimation, amount of time samples captured
+	int timeSampleCount; //Used for render duration estimation, amount of time samples captured
 	struct crThread *threads; //Render threads
 	struct renderThreadState *threadStates;
 	struct timeval *timer;
