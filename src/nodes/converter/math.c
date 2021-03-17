@@ -39,32 +39,10 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-/*
- enum mathOp {
- Add,
- Subtract,
- Multiply,
- Divide,
- Power,
- Log,
- SquareRoot,
- Absolute,
- Min,
- Max,
- Sine,
- Cosine,
- Tangent,
- ToRadians,
- ToDegrees,
- };
- */
-
 static float eval(const struct valueNode *node, const struct hitRecord *record) {
 	struct mathNode *this = (struct mathNode *)node;
-	
 	const float a = this->A->eval(this->A, record);
 	const float b = this->B->eval(this->B, record);
-	
 	switch (this->op) {
 		case Add:
 			return a + b;
