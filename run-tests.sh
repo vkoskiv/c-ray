@@ -15,7 +15,7 @@ i=0; while [ $i -le $((count - 1)) ]; do
 		echo "$output" | awk 'FNR==2 { print $0 }'
 	else
 		echo "$output" | awk 'FNR==2 { printf "%s", $0 }'
-		echo "[\033[0;31mCRSH\033[0m]"
+		echo -e "[\033[0;31mCRSH\033[0m]"
 	fi
 	i=$(( i + 1 ))
 done
