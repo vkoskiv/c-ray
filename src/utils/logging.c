@@ -19,16 +19,16 @@
 static void printPrefix(enum logType type) {
 	switch (type) {
 		case info:
-			printf("[%sINFO%s]", KGRN, KNRM);
+			printf("%sINFO%s ", KGRN, KNRM);
 			break;
 		case warning:
-			printf("[%sWARN%s]", KYEL, KNRM);
+			printf("%sWARN%s ", KYEL, KNRM);
 			break;
 		case error:
-			printf("[%sERR %s]", KRED, KNRM);
+			printf("%sERR %s ", KRED, KNRM);
 			break;
 		case debug:
-			printf("[%sDEBG%s]", KBLU, KNRM);
+			printf("%sDEBG%s ", KBLU, KNRM);
 			break;
 		default:
 			break;
@@ -38,7 +38,7 @@ static void printPrefix(enum logType type) {
 static void printDate() {
 	const time_t curTime = time(NULL);
 	struct tm time = *localtime(&curTime);
-	printf("[%d-%02d-%02d %02d:%02d:%02d]: ",
+	printf("[%d-%02d-%02d %02d:%02d:%02d] ",
 		   time.tm_year + 1900,
 		   time.tm_mon + 1,
 		   time.tm_mday,
