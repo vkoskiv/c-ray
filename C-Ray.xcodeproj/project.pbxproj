@@ -81,6 +81,8 @@
 		905842FC236651FC009D92F1 /* transforms.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA106220B4602005B8EE7 /* transforms.c */; };
 		905842FD236651FC009D92F1 /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA125220B4602005B8EE7 /* ui.c */; };
 		905842FF236651FC009D92F1 /* sceneloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85202252CB3800BA7702 /* sceneloader.c */; };
+		9060BAAD2603CAA300B3D603 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 9060BAAB2603CAA300B3D603 /* base64.c */; };
+		9060BAAE2603CAA300B3D603 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 9060BAAB2603CAA300B3D603 /* base64.c */; };
 		9062FA09243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
 		9062FA0A243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
 		9062FA0D243CC4B200420889 /* signal.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA0C243CC4B200420889 /* signal.c */; };
@@ -269,6 +271,10 @@
 		9052E8CE25018C050052406D /* fileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fileio.c; sourceTree = "<group>"; };
 		9052E8CF25018C050052406D /* fileio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileio.h; sourceTree = "<group>"; };
 		90584305236651FC009D92F1 /* C-Ray Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9060BAAB2603CAA300B3D603 /* base64.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
+		9060BAAC2603CAA300B3D603 /* base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
+		9060BAAF2603E9FD00B3D603 /* test_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_base64.h; sourceTree = "<group>"; };
+		9060BAB02603EC3A00B3D603 /* perf_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = perf_base64.h; sourceTree = "<group>"; };
 		9062FA07243BBD0900420889 /* args.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = args.h; sourceTree = "<group>"; };
 		9062FA08243BBD0900420889 /* args.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = args.c; sourceTree = "<group>"; };
 		9062FA0B243CC4B200420889 /* signal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = signal.h; sourceTree = "<group>"; };
@@ -534,6 +540,8 @@
 				90FAD27024A2ADE400F8CA79 /* testrunner.c */,
 				9071BC8B257AF8EC0070BA43 /* mempool.h */,
 				9071BC8A257AF8EC0070BA43 /* mempool.c */,
+				9060BAAC2603CAA300B3D603 /* base64.h */,
+				9060BAAB2603CAA300B3D603 /* base64.c */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -655,6 +663,7 @@
 			children = (
 				90A0B3C1255A12E100F298F1 /* perf_texture.h */,
 				90A0B3C3255A191F00F298F1 /* perf_fileio.h */,
+				9060BAB02603EC3A00B3D603 /* perf_base64.h */,
 				90A0B3C2255A132F00F298F1 /* tests.h */,
 			);
 			path = perf;
@@ -780,6 +789,7 @@
 				903235E62506BF7000CF011D /* test_string.h */,
 				90ECE4042513FE9700929833 /* test_hashtable.h */,
 				9071BC8E257AFBCC0070BA43 /* test_mempool.h */,
+				9060BAAF2603E9FD00B3D603 /* test_base64.h */,
 				907E9D1724A2AF17001C5A60 /* tests.h */,
 			);
 			path = tests;
@@ -836,7 +846,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */;
+			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -912,6 +922,7 @@
 				90AB1E0C25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA17243D237200420889 /* bmp.c in Sources */,
 				9050FFF22592BE23001C172D /* alpha.c in Sources */,
+				9060BAAE2603CAA300B3D603 /* base64.c in Sources */,
 				905842F5236651FC009D92F1 /* mesh.c in Sources */,
 				909D13722443B4E7006D0A86 /* textbuffer.c in Sources */,
 				908ED0B1258F04E300D5B93F /* fresnel.c in Sources */,
@@ -1000,6 +1011,7 @@
 				90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */,
 				9062FA16243D237200420889 /* bmp.c in Sources */,
 				9050FFF12592BE23001C172D /* alpha.c in Sources */,
+				9060BAAD2603CAA300B3D603 /* base64.c in Sources */,
 				90189DA6224EB302007FA268 /* mesh.c in Sources */,
 				909D13712443B4E7006D0A86 /* textbuffer.c in Sources */,
 				908ED0B0258F04E300D5B93F /* fresnel.c in Sources */,
@@ -1346,7 +1358,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */ = {
+		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				90D99AF91D08ADB10015A854 /* Debug */,

@@ -18,6 +18,7 @@ static char *failed_expression;
 #include "test_string.h"
 #include "test_hashtable.h"
 #include "test_mempool.h"
+#include "test_base64.h"
 
 static test tests[] = {
 	{"transforms::transpose", transform_transpose},
@@ -75,6 +76,8 @@ static test tests[] = {
 	{"mempool::tinyalloc1024", mempool_tiny_1024},
 	{"mempool::tinyalloc2048", mempool_tiny_2048},
 	{"mempool::tinyalloc4096", mempool_tiny_4096},
+	
+	{"base64::basic", base64_basic},
 };
 
 #define testCount (sizeof(tests) / sizeof(test))
