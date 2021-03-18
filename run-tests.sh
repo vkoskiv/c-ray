@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Compiling..."
-rebuild/testing-on > /dev/null 2>&1 || exit
+rebuild/testing-on > /dev/null || exit
 echo "Done, running tests."
 count=$(./bin/c-ray --tcount | awk 'FNR==2 {print $0}')
 
