@@ -51,11 +51,14 @@ int runTests(void) {
 	return 0;
 }
 
+#define PERF_AVG_COUNT 100
+
 int runPerfTests(void) {
 	logr(info, "C-ray performance tests v0.1\n");
 	logr(info, "Running performance tests in a single process. Consider using run-perf-tests.sh instead.\n");
 	
 	logr(info, "Running %u test%s.\n", performanceTests, performanceTests > 1 ? "s" : "");
+	logr(info, "Averaging runtime from %i runs for each test.\n", PERF_AVG_COUNT);
 	struct timeval t;
 	startTimer(&t);
 	for (unsigned t = 0; t < performanceTests; ++t) {
@@ -93,15 +96,13 @@ int runTest(unsigned t) {
 	return pass ? 0 : -1;
 }
 
-#define PERF_AVG_COUNT 100
-
 int runPerfTest(unsigned t) {
 	t = t < performanceTests ? t : performanceTests - 1;
 	logr(info,
 		 "[%3u/%u] "
 		 "%-32s ",
 		 t + 1, performanceTests,
-		 tests[t].testName);
+		 perfTests[t].testName);
 	
 	
 	time_t usecs = 0;
