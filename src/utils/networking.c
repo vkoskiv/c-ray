@@ -49,20 +49,6 @@ struct renderClient {
 	int id;
 };
 
-char *b64encode(void *data, size_t length) {
-	ASSERT_NOT_REACHED();
-	(void)data;
-	(void)length;
-	return NULL;
-}
-
-void *b64decode(char *data, size_t *length) {
-	ASSERT_NOT_REACHED();
-	(void)data;
-	(void)length;
-	return NULL;
-}
-
 const cJSON *errorResponse(char *error) {
 	cJSON *errorMsg = cJSON_CreateObject();
 	cJSON_AddStringToObject(errorMsg, "error", error);
