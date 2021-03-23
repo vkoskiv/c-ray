@@ -32,7 +32,6 @@
 #include "../datatypes/image/imagefile.h"
 #include "../renderer/renderer.h"
 #include <errno.h>
-#include "../utils/fileio.h"
 
 #define MAXRCVLEN 128
 #define C_RAY_HEADERSIZE 8
@@ -55,45 +54,12 @@ struct renderClient {
 	int id;
 };
 
-/*
- For the initial state sync, we will just encode everything to a single, huge json that is then chunked over the network 1MB at a time.
- Binary data
- */
-
-char *bigString(size_t len) {
-	size_t bytes = len;
-	char *bigString = calloc(bytes + 1, sizeof(char));
-	memset(bigString, 'A', bytes);
-	bigString[bytes] = '\0';
-	return bigString;
-}
-
-ssize_t sendAll(int socket, char *data, size_t *length) {
-	if (!length) return -1;
-	size_t totalSent = 0;
-	size_t leftToSend = *length;
-	ssize_t n = 0;
-	while (totalSent < *length) {
-		n = send(socket, data + totalSent, leftToSend, SO_NOSIGPIPE);
-		logr(debug, "sendAll N: %lu\n", n);
-		if (n == -1) {
-			logr(warning, "sendAll error: %s\n", strerror(errno));
-			break;
-		}
-		totalSent += n;
-		leftToSend -= n;
-	}
-	*length = totalSent;
-	return n == -1 ? -1 : 0;
-}
-
-ssize_t chunkedSend(int socket, const char *data, size_t *length) {
-	if (!length) return -1;
+bool chunkedSend(int socket, const char *data) {
 	const size_t msgLen = strlen(data) + 1; // +1 for null byte
 	const size_t chunkSize = C_RAY_CHUNKSIZE;
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
-	logr(debug, "Sending %lu chunks\n", chunks);
+	//logr(debug, "Sending %lu chunks\n", chunks);
 	
 	// Send header with message length
 	size_t header = htonll(msgLen);
@@ -118,8 +84,8 @@ ssize_t chunkedSend(int socket, const char *data, size_t *length) {
 		memset(currentChunk, 0, chunkSize);
 	}
 	ASSERT(leftToSend == 0);
-	logr(debug, "Sent %lu chunks\n", sentChunks);
-	return n == -1 ? -1 : 0;
+	//logr(debug, "Sent %lu chunks\n", sentChunks);
+	return n == -1 ? true : false;
 }
 
 ssize_t chunkedReceive(int socket, char **data) {
@@ -130,7 +96,7 @@ ssize_t chunkedReceive(int socket, char **data) {
 	if (headerData == 0) logr(error, "Received header of 0 from server\n");
 	if (err == -1) logr(warning, "chunkedReceive header error: %s\n", strerror(errno));
 	size_t msgLen = ntohll(headerData);
-	logr(debug, "Received header: %lu\n", msgLen);
+	//logr(debug, "Received header: %lu\n", msgLen);
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
 	
@@ -152,7 +118,7 @@ ssize_t chunkedReceive(int socket, char **data) {
 		memset(currentChunk, 0, chunkSize);
 	}
 	ASSERT(leftToReceive == 0);
-	logr(debug, "Received %lu chunks\n", receivedChunks);
+	//logr(debug, "Received %lu chunks\n", receivedChunks);
 	size_t finalLength = strlen(recvBuf) + 1; // +1 for null byte
 	*data = recvBuf;
 	return err == -1 ? -1 : finalLength;
@@ -180,11 +146,18 @@ const cJSON *errorResponse(char *error) {
 	return errorMsg;
 }
 
+const cJSON *goodbye() {
+	cJSON *goodbye = cJSON_CreateObject();
+	cJSON_AddStringToObject(goodbye, "action", "goodbye");
+	return goodbye;
+}
+
 const cJSON *dispatchCommand(struct renderClient *client, const cJSON *json) {
 	const cJSON *action = cJSON_GetObjectItem(json, "action");
 	if (!cJSON_IsString(action)) {
 		return errorResponse("No action provided");
 	}
+	return goodbye();
 	ASSERT_NOT_REACHED();
 	return NULL;
 }
@@ -308,32 +281,36 @@ void *clientHandler(void *arg) {
 		return NULL;
 	}
 	
-	char *receiveBuffer = calloc(MAXRCVLEN, sizeof(*receiveBuffer));
+	char *receiveBuffer = NULL;
 	
 	const cJSON *handshake = makeHandshake();
-	//char *content = cJSON_PrintUnformatted(handshake);
-	char *content = bigString(1025);
-	//write(sockfd, content, strlen(content));
-	size_t length = strlen(content);
-	logr(info, "Sending message of length %zu\n", length);
-	chunkedSend(sockfd, content, &length);
-	shutdown(sockfd, SHUT_WR);
+	char *content = cJSON_PrintUnformatted(handshake);
+	if (chunkedSend(sockfd, content)) {
+		logr(error, "chunkedSend() failed, error: %s\n", strerror(errno));
+	}
 	free(content);
-	exit(0);
 	
 	for (;;) {
-		//read(sockfd, receiveBuffer, MAXRCVLEN);
-		ssize_t ret = recv(sockfd, receiveBuffer, MAXRCVLEN, 0);
+		//ssize_t ret = recv(sockfd, receiveBuffer, MAXRCVLEN, 0);
+		ssize_t ret = chunkedReceive(sockfd, &receiveBuffer);
 		if (!ret) {
-			logr(info, "Client %i closed connection.\n", client->id);
+			logr(info, "Client %i received nothing.\n", client->id);
 			break;
 		}
 		const cJSON *clientResponse = cJSON_Parse(receiveBuffer);
 		const cJSON *serverResponse = dispatchCommand(client, clientResponse);
 		char *responseText = cJSON_PrintUnformatted(serverResponse);
-		write(sockfd, responseText, strlen(responseText));
+		//write(sockfd, responseText, strlen(responseText));
+		if (chunkedSend(sockfd, responseText)) {
+			logr(error, "chunkedSend() failed, error: %s\n", strerror(errno));
+		}
 		free(responseText);
-		if (containsGoodbye(serverResponse)) break;
+		free(receiveBuffer);
+		receiveBuffer = NULL;
+		if (containsGoodbye(serverResponse)) {
+			logr(debug, "Client %i said goodbye, exiting handler thread.\n", client->id);
+			break;
+		}
 	}
 	
 	close(sockfd);
@@ -420,26 +397,20 @@ int startWorkerServer() {
 		
 		for (;;) {
 			//ssize_t read = recv(connectionSocket, buf, MAXRCVLEN, 0);
-			char *testBuf = NULL;
-			ssize_t len = chunkedReceive(connectionSocket, &testBuf);
-			if (len < 0) {
+			ssize_t read = chunkedReceive(connectionSocket, &buf);
+			if (read < 0) {
 				logr(warning, "Something went wrong. Error: %s\n", strerror(errno));
 				close(connectionSocket);
 				break;
 			}
 			
-			//logr(debug, "Got from master: %s\n", buf);
-			logr(info, "Master message: %s\n", humanFileSize(strlen(testBuf)));
-			//ASSERT(read == strlen(buf));
-			exit(0);
+			logr(debug, "Got from master: %s\n", buf);
 			const cJSON *message = cJSON_Parse(buf);
 			const cJSON *myResponse = dispatchCommand(NULL, message);
 			char *responseText = cJSON_PrintUnformatted(myResponse);
-			size_t length = strlen(responseText);
-			//ssize_t err = send(connectionSocket, responseText, length, 0);
-			ssize_t err = sendAll(connectionSocket, responseText, &length);
-			if (err == -1) {
-				logr(warning, "send() failed, error %s\n", strerror(errno));
+			logr(debug, "Responding     : %s\n", responseText);
+			if (chunkedSend(connectionSocket, responseText)) {
+				logr(warning, "chunkedSend() failed, error %s\n", strerror(errno));
 				close(connectionSocket);
 				break;
 			};
