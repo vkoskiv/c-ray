@@ -29,16 +29,22 @@
 #include "../utils/textbuffer.h"
 #include "../utils/string.h"
 #include "../utils/gitsha1.h"
+#include "../datatypes/image/imagefile.h"
+#include "../renderer/renderer.h"
 #include <errno.h>
+#include "../utils/fileio.h"
 
-#define MAXRCVLEN 1048576 // 1MiB
+#define MAXRCVLEN 128
+#define C_RAY_HEADERSIZE 8
+#define C_RAY_CHUNKSIZE 1024
 #define C_RAY_PORT 2222
 #define PROTO_VERSION "0.1"
 
 enum clientState {
-	Syncing,
+	Connected,
 	ConnectionFailed,
-	Ready,
+	Syncing,
+	Synced,
 	Rendering,
 	Finished
 };
@@ -48,6 +54,125 @@ struct renderClient {
 	enum clientState state;
 	int id;
 };
+
+/*
+ For the initial state sync, we will just encode everything to a single, huge json that is then chunked over the network 1MB at a time.
+ Binary data
+ */
+
+char *bigString(size_t len) {
+	size_t bytes = len;
+	char *bigString = calloc(bytes + 1, sizeof(char));
+	memset(bigString, 'A', bytes);
+	bigString[bytes] = '\0';
+	return bigString;
+}
+
+ssize_t sendAll(int socket, char *data, size_t *length) {
+	if (!length) return -1;
+	size_t totalSent = 0;
+	size_t leftToSend = *length;
+	ssize_t n = 0;
+	while (totalSent < *length) {
+		n = send(socket, data + totalSent, leftToSend, SO_NOSIGPIPE);
+		logr(debug, "sendAll N: %lu\n", n);
+		if (n == -1) {
+			logr(warning, "sendAll error: %s\n", strerror(errno));
+			break;
+		}
+		totalSent += n;
+		leftToSend -= n;
+	}
+	*length = totalSent;
+	return n == -1 ? -1 : 0;
+}
+
+ssize_t chunkedSend(int socket, const char *data, size_t *length) {
+	if (!length) return -1;
+	const size_t msgLen = strlen(data) + 1; // +1 for null byte
+	const size_t chunkSize = C_RAY_CHUNKSIZE;
+	size_t chunks = msgLen / chunkSize;
+	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
+	logr(debug, "Sending %lu chunks\n", chunks);
+	
+	// Send header with message length
+	size_t header = htonll(msgLen);
+	ssize_t err = send(socket, &header, sizeof(header), SO_NOSIGPIPE);
+	if (err < 0) logr(error, "Failed to send header to client.\n");
+	
+	ssize_t n = 0;
+	size_t sentChunks = 0;
+	char *currentChunk = calloc(chunkSize, sizeof(*currentChunk));
+	size_t leftToSend = msgLen;
+	for (size_t i = 0; i < chunks; ++i) {
+		size_t copylen = leftToSend > chunkSize ? chunkSize : leftToSend;
+		memcpy(currentChunk, data + (i * chunkSize), copylen);
+		n = send(socket, currentChunk, chunkSize, SO_NOSIGPIPE);
+		if (n == -1) {
+			logr(warning, "chunkedSend error: %s\n", strerror(errno));
+			free(currentChunk);
+			return -1;
+		}
+		sentChunks++;
+		leftToSend -= min(copylen, chunkSize);
+		memset(currentChunk, 0, chunkSize);
+	}
+	ASSERT(leftToSend == 0);
+	logr(debug, "Sent %lu chunks\n", sentChunks);
+	return n == -1 ? -1 : 0;
+}
+
+ssize_t chunkedReceive(int socket, char **data) {
+	// Grab header first
+	size_t headerData = 0;
+	size_t chunkSize = C_RAY_CHUNKSIZE;
+	ssize_t err = recv(socket, &headerData, sizeof(headerData), 0);
+	if (headerData == 0) logr(error, "Received header of 0 from server\n");
+	if (err == -1) logr(warning, "chunkedReceive header error: %s\n", strerror(errno));
+	size_t msgLen = ntohll(headerData);
+	logr(debug, "Received header: %lu\n", msgLen);
+	size_t chunks = msgLen / chunkSize;
+	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
+	
+	
+	char *recvBuf = calloc(msgLen, sizeof(*recvBuf));
+	char *currentChunk = calloc(chunkSize, sizeof(*currentChunk));
+	size_t receivedChunks = 0;
+	size_t leftToReceive = msgLen;
+	for (size_t i = 0; i < chunks; ++i) {
+		err = recv(socket, currentChunk, chunkSize, 0);
+		if (err == -1) {
+			logr(warning, "chunkedReceive error: %s\n", strerror(errno));
+			break;
+		}
+		size_t len = leftToReceive > chunkSize ? chunkSize : leftToReceive;
+		memcpy(recvBuf + (i * chunkSize), currentChunk, len);
+		receivedChunks++;
+		leftToReceive -= min(len, chunkSize);
+		memset(currentChunk, 0, chunkSize);
+	}
+	ASSERT(leftToReceive == 0);
+	logr(debug, "Received %lu chunks\n", receivedChunks);
+	size_t finalLength = strlen(recvBuf) + 1; // +1 for null byte
+	*data = recvBuf;
+	return err == -1 ? -1 : finalLength;
+}
+
+const cJSON *encodeRenderer(struct renderer *r) {
+	(void)r;
+	return NULL;
+}
+
+struct renderer *decodeRenderer(const cJSON *json) {
+	(void)json;
+	return NULL;
+}
+
+const cJSON *encodeState() {
+	cJSON *state = cJSON_CreateObject();
+	
+	return state;
+}
 
 const cJSON *errorResponse(char *error) {
 	cJSON *errorMsg = cJSON_CreateObject();
@@ -130,7 +255,8 @@ struct renderClient *buildClientList(size_t *amount) {
 	char *current = firstToken(line);
 	for (size_t i = 0; i < clientCount; ++i) {
 		clients[i].address = parseAddress(current);
-		clients[i].state = checkConnectivity(clients[i]) ? Ready : ConnectionFailed;
+		//clients[i].state = checkConnectivity(clients[i]) ? Connected : ConnectionFailed;
+		clients[i].state = Connected;
 		current = nextToken(line);
 	}
 	size_t validClients = 0;
@@ -185,12 +311,23 @@ void *clientHandler(void *arg) {
 	char *receiveBuffer = calloc(MAXRCVLEN, sizeof(*receiveBuffer));
 	
 	const cJSON *handshake = makeHandshake();
-	char *content = cJSON_PrintUnformatted(handshake);
-	write(sockfd, content, strlen(content));
+	//char *content = cJSON_PrintUnformatted(handshake);
+	char *content = bigString(1025);
+	//write(sockfd, content, strlen(content));
+	size_t length = strlen(content);
+	logr(info, "Sending message of length %zu\n", length);
+	chunkedSend(sockfd, content, &length);
+	shutdown(sockfd, SHUT_WR);
 	free(content);
+	exit(0);
 	
 	for (;;) {
-		read(sockfd, receiveBuffer, MAXRCVLEN);
+		//read(sockfd, receiveBuffer, MAXRCVLEN);
+		ssize_t ret = recv(sockfd, receiveBuffer, MAXRCVLEN, 0);
+		if (!ret) {
+			logr(info, "Client %i closed connection.\n", client->id);
+			break;
+		}
 		const cJSON *clientResponse = cJSON_Parse(receiveBuffer);
 		const cJSON *serverResponse = dispatchCommand(client, clientResponse);
 		char *responseText = cJSON_PrintUnformatted(serverResponse);
@@ -282,19 +419,25 @@ int startWorkerServer() {
 		logr(debug, "Got connection from %s\n", inet_ntoa(masterAddress.sin_addr));
 		
 		for (;;) {
-			ssize_t read = recv(connectionSocket, buf, MAXRCVLEN, 0);
-			if (read < 0) {
+			//ssize_t read = recv(connectionSocket, buf, MAXRCVLEN, 0);
+			char *testBuf = NULL;
+			ssize_t len = chunkedReceive(connectionSocket, &testBuf);
+			if (len < 0) {
 				logr(warning, "Something went wrong. Error: %s\n", strerror(errno));
 				close(connectionSocket);
 				break;
 			}
 			
-			logr(debug, "Got from master: %s\n", buf);
+			//logr(debug, "Got from master: %s\n", buf);
+			logr(info, "Master message: %s\n", humanFileSize(strlen(testBuf)));
+			//ASSERT(read == strlen(buf));
+			exit(0);
 			const cJSON *message = cJSON_Parse(buf);
 			const cJSON *myResponse = dispatchCommand(NULL, message);
 			char *responseText = cJSON_PrintUnformatted(myResponse);
 			size_t length = strlen(responseText);
-			ssize_t err = send(connectionSocket, responseText, length, 0);
+			//ssize_t err = send(connectionSocket, responseText, length, 0);
+			ssize_t err = sendAll(connectionSocket, responseText, &length);
 			if (err == -1) {
 				logr(warning, "send() failed, error %s\n", strerror(errno));
 				close(connectionSocket);
@@ -311,6 +454,56 @@ end:
 	free(buf);
 	close(receivingSocket);
 	return 0;
+}
+
+void *handleClientSync(void *arg) {
+	struct renderClient *client = (struct renderClient *)threadUserData(arg);
+	ASSERT(client->state == Connected);
+	client->state = Syncing;
+	
+	
+	
+	// Sync successful, mark it as such
+	client->state = Synced;
+	return NULL;
+}
+
+struct renderClient *syncWithClients(size_t *count) {
+	logr(info, "Attempting to connect clients...\n");
+	size_t clientCount = 0;
+	struct renderClient *clients = buildClientList(&clientCount);
+	if (clientCount < 1) {
+		logr(warning, "No clients found, rendering solo.\n");
+		return 0;
+	}
+	logr(debug, "Client list:\n");
+	for (size_t i = 0; i < clientCount; ++i) {
+		logr(debug, "\tclient %zu: %s:%i\n", i, inet_ntoa(clients[i].address.sin_addr), htons(clients[i].address.sin_port));
+	}
+	
+	struct crThread *syncThreads = calloc(clientCount, sizeof(*syncThreads));
+	for (size_t i = 0; i < clientCount; ++i) {
+		syncThreads[i] = (struct crThread){
+			.threadFunc = handleClientSync,
+			.userData = &clients[i]
+		};
+	}
+	
+	for (size_t i = 0; i < clientCount; ++i) {
+		if (threadStart(&syncThreads[i])) {
+			logr(warning, "Something went wrong while starting the sync thread for client %i. May want to look into that.\n", (int)i);
+		}
+	}
+	
+	// Block here and wait for these threads to finish doing their thing before continuing.
+	for (size_t i = 0; i < clientCount; ++i) {
+		threadWait(&syncThreads[i]);
+	}
+	logr(info, "Client sync finished.\n");
+	//FIXME: We should prune clients that dropped out during sync here
+	if (count) *count = clientCount;
+	free(syncThreads);
+	return clients;
 }
 
 #else

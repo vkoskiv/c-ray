@@ -14,7 +14,7 @@ struct texture;
 
 // Synchronise renderer state with clients, and return a list of clients
 // ready to do some rendering
-struct renderClient *syncWithClient(size_t *count);
+struct renderClient *syncWithClients(size_t *count);
 
 struct tileResponse {
 	struct texture *result;
