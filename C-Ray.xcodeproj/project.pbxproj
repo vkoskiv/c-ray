@@ -151,6 +151,8 @@
 		90AB1E1C2575709000EFDF5A /* colornode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E192575709000EFDF5A /* colornode.c */; };
 		90AB1E1F2575B1AD00EFDF5A /* plastic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1D2575B1AD00EFDF5A /* plastic.c */; };
 		90AB1E202575B1AD00EFDF5A /* plastic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1D2575B1AD00EFDF5A /* plastic.c */; };
+		90B3EC712607BE5300B11B9E /* protocol.c in Sources */ = {isa = PBXBuildFile; fileRef = 90B3EC6F2607BE5300B11B9E /* protocol.c */; };
+		90B3EC722607BE5300B11B9E /* protocol.c in Sources */ = {isa = PBXBuildFile; fileRef = 90B3EC6F2607BE5300B11B9E /* protocol.c */; };
 		90C5D5582448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
 		90C5D5592448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
 		90C792CB245209E20067E787 /* halton.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C792CA245209E20067E787 /* halton.c */; };
@@ -355,6 +357,8 @@
 		90AB1E1A2575709000EFDF5A /* colornode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = colornode.h; sourceTree = "<group>"; };
 		90AB1E1D2575B1AD00EFDF5A /* plastic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = plastic.c; sourceTree = "<group>"; };
 		90AB1E1E2575B1AD00EFDF5A /* plastic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = plastic.h; sourceTree = "<group>"; };
+		90B3EC6F2607BE5300B11B9E /* protocol.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = protocol.c; sourceTree = "<group>"; };
+		90B3EC702607BE5300B11B9E /* protocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = protocol.h; sourceTree = "<group>"; };
 		90BAE9362328344100B1EBF0 /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		90C5D5562448CEAB00C58643 /* imagefile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imagefile.h; sourceTree = "<group>"; };
 		90C5D5572448CEAB00C58643 /* imagefile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = imagefile.c; sourceTree = "<group>"; };
@@ -532,6 +536,8 @@
 				90908A6E23E0707E0081377B /* assert.c */,
 				9095392723C15AAB0017037C /* networking.h */,
 				9095392823C15AAB0017037C /* networking.c */,
+				90B3EC702607BE5300B11B9E /* protocol.h */,
+				90B3EC6F2607BE5300B11B9E /* protocol.c */,
 				90A519FE23FB5DFC0014DF6B /* statistics.h */,
 				90A519FF23FB5DFC0014DF6B /* statistics.c */,
 				90A51A0223FCB7FF0014DF6B /* memory.h */,
@@ -881,6 +887,7 @@
 				90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */,
 				905842E0236651FC009D92F1 /* textureloader.c in Sources */,
 				9071BC9C257D7D470070BA43 /* image.c in Sources */,
+				90B3EC722607BE5300B11B9E /* protocol.c in Sources */,
 				905842E1236651FC009D92F1 /* logging.c in Sources */,
 				9076FB5A243002D60003B327 /* capabilities.c in Sources */,
 				905842E3236651FC009D92F1 /* timer.c in Sources */,
@@ -970,6 +977,7 @@
 				90A51A0023FB5DFC0014DF6B /* statistics.c in Sources */,
 				90CA851E2252C90C00BA7702 /* textureloader.c in Sources */,
 				9071BC9B257D7D470070BA43 /* image.c in Sources */,
+				90B3EC712607BE5300B11B9E /* protocol.c in Sources */,
 				900BA143220B4603005B8EE7 /* logging.c in Sources */,
 				9076FB59243002D60003B327 /* capabilities.c in Sources */,
 				900BA140220B4603005B8EE7 /* timer.c in Sources */,

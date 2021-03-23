@@ -8,25 +8,8 @@
 
 #pragma once
 
-struct renderClient;
-struct renderTile;
-struct texture;
+#include <unistd.h>
 
-// Synchronise renderer state with clients, and return a list of clients
-// ready to do some rendering
-struct renderClient *syncWithClients(size_t *count);
+bool chunkedSend(int socket, const char *data);
 
-struct tileResponse {
-	struct texture *result;
-	//TODO: Additional perf metrics here?
-	enum {
-		Success,
-		Failed,
-		ConnectionLost,
-	} status;
-};
-
-struct tileResponse *requestTile(struct renderClient *, struct renderTile *);
-
-int startMasterServer(void);
-int startWorkerServer(void);
+ssize_t chunkedReceive(int socket, char **data);
