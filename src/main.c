@@ -10,7 +10,7 @@
 #include <stdbool.h>
 
 #include "c-ray.h"
-#include "utils/networking.h"
+#include "utils/protocol.h"
 #include "utils/string.h"
 
 int main(int argc, char *argv[]) {
