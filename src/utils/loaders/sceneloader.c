@@ -208,7 +208,7 @@ static struct prefs defaultPrefs() {
 	};
 }
 
-static struct prefs parsePrefs(const cJSON *data) {
+struct prefs parsePrefs(const cJSON *data) {
 	struct prefs p = defaultPrefs();
 	
 	if (!data) return p;

@@ -17,31 +17,28 @@ int main(int argc, char *argv[]) {
 	crLog("C-ray v%s%s [%.8s], © 2015-2021 Valtteri Koskivuori\n", crGetVersion(), isDebug() ? "D" : "", crGitHash());
 	crInitialize();
 	crParseArgs(argc, argv);
-#if 1
-	if (stringEquals(argv[2], "node")) {
-		startWorkerServer();
-	} else {
-		startMasterServer();
-	}
-#else
 	crInitRenderer();
-	size_t bytes = 0;
-	char *input = crOptionIsSet("inputFile") ? crReadFile(&bytes) : crReadStdin(&bytes);
-	if (!input) {
-		crLog("No input provided, exiting.\n");
-		crDestroyRenderer();
-		crDestroyOptions();
-		return -1;
+	if (!crOptionIsSet("is_worker")) {
+		size_t bytes = 0;
+		char *input = crOptionIsSet("inputFile") ? crReadFile(&bytes) : crReadStdin(&bytes);
+		if (!input) {
+			crLog("No input provided, exiting.\n");
+			crDestroyRenderer();
+			crDestroyOptions();
+			return -1;
+		}
+		crLog("%zi bytes of input JSON loaded from %s, parsing.\n", bytes, crOptionIsSet("inputFile") ? "file" : "stdin");
+		crLoadSceneFromBuf(input);
+		free(input);
+		
+		crStartRenderer();
+		crWriteImage();
+	} else {
+		crStartRenderWorker();
 	}
-	crLog("%zi bytes of input JSON loaded from %s, parsing.\n", bytes, crOptionIsSet("inputFile") ? "file" : "stdin");
-	crLoadSceneFromBuf(input);
-	free(input);
 	
-	crRenderSingleFrame();
-	crWriteImage();
 	crDestroyRenderer();
 	crDestroyOptions();
 	crLog("Render finished, exiting.\n");
 	return 0;
-#endif
 }
