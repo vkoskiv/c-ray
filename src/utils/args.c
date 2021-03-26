@@ -172,10 +172,14 @@ void parseArgs(int argc, char **argv) {
 		}
 		
 		if (stringEquals(argv[i], "--nodes")) {
-			setDatabaseTag(g_options, "cluster");
+			setDatabaseTag(g_options, "use_clustering");
 			ASSERT(i + 1 <= argc);
 			char *nodes = argv[i + 1];
-			if (nodes) setDatabaseString(g_options, "nodes", nodes);
+			if (nodes) setDatabaseString(g_options, "nodes_list", nodes);
+		}
+		
+		if (stringEquals(argv[i], "--worker")) {
+			setDatabaseTag(g_options, "is_worker");
 		}
 		
 		if (strncmp(argv[i], "-", 1) == 0) {

@@ -26,6 +26,7 @@
 #include "utils/args.h"
 #include "utils/encoders/encoder.h"
 #include "utils/string.h"
+#include "utils/protocol.h"
 
 #define VERSION "0.6.3"
 
@@ -264,12 +265,18 @@ bool crGetAntialiasing() {
 	return g_renderer->prefs.antialiasing;
 }
 
-void crRenderSingleFrame() {
+void crStartRenderer() {
+	if (isSet("use_clustering")) g_renderer->prefs.useClustering = true;
 	initDisplay(g_renderer->prefs.fullscreen, g_renderer->prefs.borderless, g_renderer->prefs.imageWidth, g_renderer->prefs.imageHeight, g_renderer->prefs.scale);
+	g_renderer->state.clients = syncWithClients(g_renderer, &g_renderer->state.clientCount);
 	startTimer(g_renderer->state.timer);
 	currentImage = renderFrame(g_renderer);
 	printDuration(getMs(*g_renderer->state.timer));
 	destroyDisplay();
+}
+
+void crStartRenderWorker() {
+	startWorkerServer();
 }
 
 //Interactive mode

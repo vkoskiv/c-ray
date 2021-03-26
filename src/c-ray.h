@@ -86,7 +86,10 @@ void crSetAntialiasing(bool on);
 bool crGetAntialiasing(void);
 
 //Single frame
-void crRenderSingleFrame(void);
+void crStartRenderer(void);
+
+//Network render worker
+void crStartRenderWorker(void);
 
 //Interactive mode
 void crStartInteractive(void);

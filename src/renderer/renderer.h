@@ -51,6 +51,8 @@ struct state {
 	int timeSampleCount; //Used for render duration estimation, amount of time samples captured
 	struct crThread *threads; //Render threads
 	struct renderThreadState *threadStates;
+	struct renderClient *clients;
+	size_t clientCount;
 	struct timeval *timer;
 	
 	struct crMutex *tileMutex;
@@ -81,6 +83,8 @@ struct prefs {
 	bool enabled;
 	bool fullscreen;
 	bool borderless;
+	bool useClustering;
+	bool isWorker;
 	float scale;
 	
 	bool antialiasing;

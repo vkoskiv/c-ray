@@ -11,10 +11,11 @@
 struct renderClient;
 struct renderTile;
 struct texture;
+struct renderer;
 
 // Synchronise renderer state with clients, and return a list of clients
 // ready to do some rendering
-struct renderClient *syncWithClients(size_t *count);
+struct renderClient *syncWithClients(const struct renderer *r, size_t *count);
 
 struct tileResponse {
 	struct texture *result;
@@ -28,5 +29,5 @@ struct tileResponse {
 
 struct tileResponse *requestTile(struct renderClient *, struct renderTile *);
 
-int startMasterServer(void);
+//int startMasterServer(void);
 int startWorkerServer(void);
