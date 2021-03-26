@@ -75,90 +75,6 @@ static void addSphere(struct world *scene, struct sphere newSphere) {
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
-/*static struct material *parseMaterial(const cJSON *data) {
-	cJSON *bsdf = NULL;
-	cJSON *IOR = NULL;
-	//cJSON *roughness = NULL;
-	cJSON *color = NULL;
-	cJSON *intensity = NULL;
-	bool validIOR = false;
-	//bool validRoughness = false;
-	bool validIntensity = false;
-	
-	float IORValue = 1.0f;
-	//float roughnessValue;
-	struct color colorValue = blackColor;
-	float intensityValue = 1.0f;
-	
-	struct material *mat = calloc(1, sizeof(*mat));
-	
-	color = cJSON_GetObjectItem(data, "color");
-	if (cJSON_IsObject(color)) {
-		colorValue = parseColor(color);
-	} else {
-		logr(warning, "No color given\n");
-		logr(warning, "Material data: %s\n", cJSON_Print(data));
-	}
-	
-	intensity = cJSON_GetObjectItem(data, "intensity");
-	if (cJSON_IsNumber(intensity)) {
-		validIntensity = true;
-		if (intensity->valuedouble >= 0) {
-			intensityValue = intensity->valuedouble;
-		} else {
-			intensityValue = 1.0f;
-		}
-	}
-	
-	IOR = cJSON_GetObjectItem(data, "IOR");
-	if (cJSON_IsNumber(IOR)) {
-		validIOR = true;
-		if (IOR->valuedouble >= 0) {
-			IORValue = IOR->valuedouble;
-		} else {
-			IORValue = 1.0f;
-		}
-	}
-	
-	bsdf = cJSON_GetObjectItem(data, "bsdf");
-	if (!cJSON_IsString(bsdf)) {
-		logr(warning, "No bsdf type given for material.");
-		logr(error, "Material data: %s\n", cJSON_Print(data));
-	}
-	
-	if (strcmp(bsdf->valuestring, "lambertian") == 0) {
-		mat->type = lambertian;
-		mat->diffuse = colorValue;
-	} else if (strcmp(bsdf->valuestring, "metal") == 0) {
-		mat->type = metal;
-		mat->diffuse = colorValue;
-	} else if (strcmp(bsdf->valuestring, "glass") == 0) {
-		mat->type = glass;
-		mat->diffuse = colorValue;
-		if (validIOR) {
-			mat->IOR = IORValue;
-		} else {
-			logr(warning, "Glass shader defined, but no IOR given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
-	} else if (strcmp(bsdf->valuestring, "emission") == 0) {
-		mat->type = emission;
-		mat->diffuse = colorValue;
-		if (validIntensity) {
-			mat->emission = colorCoef(intensityValue, mat->emission);
-		} else {
-			logr(warning, "Emission shader defined, but no intensity given\n");
-			logr(error, "Material data: %s\n", cJSON_Print(data));
-		}
-	} else if (stringEquals(bsdf->valuestring, "plastic")) {
-		mat->type = plastic;
-		//TODO: Maybe don't hard code it like this.
-		mat->IOR = 1.45;
-	}
-	assignBSDF(mat);
-	return mat;
-}*/
-
 static struct transform parseTransform(const cJSON *data, char *targetName) {
 	cJSON *type = cJSON_GetObjectItem(data, "type");
 	if (!cJSON_IsString(type)) {
@@ -272,10 +188,6 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 }
 
 static struct prefs defaultPrefs() {
-	char* imgFilePath;
-	char* imgFileName;
-	imgFilePath = stringCopy("./");
-	imgFileName = stringCopy("rendered");
 	return (struct prefs){
 		.tileOrder = renderOrderFromMiddle,
 		.threadCount = getSysCores(), //We run getSysCores() for this
@@ -284,8 +196,8 @@ static struct prefs defaultPrefs() {
 		.tileWidth = 32,
 		.tileHeight = 32,
 		.antialiasing = true,
-		.imgFilePath = imgFilePath,
-		.imgFileName = imgFileName,
+		.imgFilePath = stringCopy("./"),
+		.imgFileName = stringCopy("rendered"),
 		.imgCount = 0,
 		.imageWidth = 1280,
 		.imageHeight = 800,
