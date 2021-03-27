@@ -29,21 +29,21 @@
 static const unsigned char base64_table[65] =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-char *b64encode(const void *data, const size_t length) {
+char *b64encode(const void *data, const size_t dataLength) {
 	unsigned char *out, *pos;
 	const unsigned char *end, *in;
 	
 	size_t outputLength;
 	
-	outputLength = 4 * ((length + 2) / 3); /* 3-byte blocks to 4-byte */
+	outputLength = 4 * ((dataLength + 2) / 3); /* 3-byte blocks to 4-byte */
 	
-	if (outputLength < length)
+	if (outputLength < dataLength)
 		return NULL; // integer overflow
 	
-	char *outStr = calloc(outputLength, sizeof(*outStr));
+	char *outStr = calloc(outputLength + 1, sizeof(*outStr));
 	out = (unsigned char*)&outStr[0];
 	
-	end = data + length;
+	end = data + dataLength;
 	in = data;
 	pos = out;
 	while (end - in >= 3) {
@@ -86,7 +86,7 @@ static const int B64index[256] = {
 	
 };
 
-char *b64decode(const void *data, const size_t length) {
+void *b64decode(const char *data, const size_t length) {
 	unsigned char *p = (unsigned char *)data;
 	int pad = length > 0 && (length % 4 || p[length - 1] == '=');
 	const size_t L = ((length + 3) / 4 - pad) * 4;
