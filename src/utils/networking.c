@@ -68,13 +68,12 @@ ssize_t chunkedReceive(int socket, char **data) {
 	size_t headerData = 0;
 	size_t chunkSize = C_RAY_CHUNKSIZE;
 	ssize_t err = recv(socket, &headerData, sizeof(headerData), 0);
-	if (headerData == 0) logr(error, "Received header of 0 from server\n");
+	if (headerData == 0) logr(error, "Received header of 0 from remote\n");
 	if (err == -1) logr(warning, "chunkedReceive header error: %s\n", strerror(errno));
 	size_t msgLen = ntohll(headerData);
 	//logr(debug, "Received header: %lu\n", msgLen);
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
-	
 	
 	char *recvBuf = calloc(msgLen, sizeof(*recvBuf));
 	char *currentChunk = calloc(chunkSize, sizeof(*currentChunk));

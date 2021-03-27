@@ -386,99 +386,6 @@ bool connectToClient(struct renderClient *client) {
 	return true;
 }
 
-void *clientHandler(void *arg) {
-	struct renderClient *client = (struct renderClient *)threadUserData(arg);
-	
-	client->socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (client->socket == -1) {
-		logr(warning, "Failed to bind to socket on client %i\n", client->id);
-		return NULL;
-	}
-	if (connect(client->socket, (struct sockaddr *)&client->address, sizeof(client->address)) != 0) {
-		logr(warning, "Connection failed on client %i\n", client->id);
-		return NULL;
-	}
-	
-	char *receiveBuffer = NULL;
-	
-	cJSON *handshake = makeHandshake();
-	char *content = cJSON_PrintUnformatted(handshake);
-	if (chunkedSend(client->socket, content)) {
-		logr(error, "chunkedSend() failed, error: %s\n", strerror(errno));
-	}
-	free(content);
-	cJSON_Delete(handshake);
-	
-	for (;;) {
-		//ssize_t ret = recv(sockfd, receiveBuffer, MAXRCVLEN, 0);
-		ssize_t ret = chunkedReceive(client->socket, &receiveBuffer);
-		if (!ret) {
-			logr(info, "Client %i received nothing.\n", client->id);
-			break;
-		}
-		cJSON *clientResponse = cJSON_Parse(receiveBuffer);
-		cJSON *serverResponse = processWorkerResponse(client, clientResponse);
-		char *responseText = cJSON_PrintUnformatted(serverResponse);
-		//write(sockfd, responseText, strlen(responseText));
-		if (chunkedSend(client->socket, responseText)) {
-			logr(error, "chunkedSend() failed, error: %s\n", strerror(errno));
-		}
-		free(responseText);
-		free(receiveBuffer);
-		cJSON_Delete(serverResponse);
-		cJSON_Delete(clientResponse);
-		receiveBuffer = NULL;
-		if (containsGoodbye(serverResponse)) {
-			logr(debug, "Client %i said goodbye, exiting handler thread.\n", client->id);
-			break;
-		}
-	}
-	
-	close(client->socket);
-	client->socket = 0;
-	
-	return NULL;
-}
-
-// Start off with just a single node
-int startMasterServer() {
-	
-	logr(info, "Attempting to connect clients...\n");
-	size_t clientCount = 0;
-	struct renderClient *clients = buildClientList(&clientCount);
-	if (clientCount < 1) {
-		logr(warning, "No clients found, rendering solo.\n");
-		return 0;
-	}
-	logr(debug, "Client list:\n");
-	for (size_t i = 0; i < clientCount; ++i) {
-		logr(debug, "\tclient %zu: %s:%i\n", i, inet_ntoa(clients[i].address.sin_addr), htons(clients[i].address.sin_port));
-	}
-	
-	struct crThread *clientThreads = calloc(clientCount, sizeof(*clientThreads));
-	for (size_t i = 0; i < clientCount; ++i) {
-		clientThreads[i] = (struct crThread){
-			.threadFunc = clientHandler,
-			.userData = &clients[i]
-		};
-	}
-	
-	for (size_t i = 0; i < clientCount; ++i) {
-		if (threadStart(&clientThreads[i])) {
-			logr(warning, "Something went wrong while starting the connection thread for client %i. May want to look into that.\n", (int)i);
-		}
-	}
-	
-	// Block here and wait for these threads to finish doing their thing before continuing.
-	for (size_t i = 0; i < clientCount; ++i) {
-		threadWait(&clientThreads[i]);
-	}
-	logr(info, "All clients are finished.\n");
-	free(clientThreads);
-	free(clients);
-	return 0;
-}
-
 void workerCleanup() {
 	//ASSERT_NOT_REACHED();
 }
@@ -563,11 +470,8 @@ cJSON *encodeVertexBuffers() {
 	cJSON *payload = cJSON_CreateObject();
 	cJSON_AddStringToObject(payload, "action", "syncVertices");
 	char *vertices = b64encode(g_vertices, vertexCount * sizeof(struct vector));
-	logr(debug, "vertices: %s\n", vertices);
 	char *normals = b64encode(g_normals, normalCount * sizeof(struct vector));
-	logr(debug, "normals: %s\n", normals);
 	char *textureCoords = b64encode(g_textureCoords, textureCount * sizeof(struct coord));
-	logr(debug, "textureCoords: %s\n", textureCoords);
 	cJSON_AddStringToObject(payload, "vertices", vertices);
 	cJSON_AddNumberToObject(payload, "vertices_count", vertexCount);
 	cJSON_AddStringToObject(payload, "normals", normals);
@@ -577,9 +481,6 @@ cJSON *encodeVertexBuffers() {
 	free(vertices);
 	free(normals);
 	free(textureCoords);
-	char *test = cJSON_PrintUnformatted(payload);
-	logr(debug, "Encoded: %s\n", test);
-	free(test);
 	return payload;
 }
 
