@@ -56,11 +56,16 @@ void logr(enum logType type, const char *fmt, ...) {
 		printDate();
 	}
 	char buf[512];
+	int ret = 0;
 	va_list vl;
 	va_start(vl, fmt);
-	vsnprintf(buf, sizeof(buf), fmt, vl);
+	ret += vsnprintf(buf, sizeof(buf), fmt, vl);
 	va_end(vl);
 	printf("%s", buf);
+	if (ret > 512) {
+		// Overflowed, indicate that.
+		printf("...\n");
+	}
 	if (type == error) {
 		logr(info, "Aborting due to previous error.\n");
 		restoreTerminal();
