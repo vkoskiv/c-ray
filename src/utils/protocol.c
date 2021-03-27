@@ -200,7 +200,7 @@ cJSON *receiveVertices(const cJSON *json) {
 
 	g_vertices = (struct vector *)b64decode(vertices->valuestring, strlen(vertices->valuestring));
 	vertexCount = vcount->valueint;
-	g_normals = (struct vector *)b64decode(normals->valuestring, strlen(vertices->valuestring));
+	g_normals = (struct vector *)b64decode(normals->valuestring, strlen(normals->valuestring));
 	normalCount = ncount->valueint;
 	g_textureCoords = (struct coord *)b64decode(textureCoords->valuestring, strlen(textureCoords->valuestring));
 	
