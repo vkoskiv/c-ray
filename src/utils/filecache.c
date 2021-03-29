@@ -76,4 +76,5 @@ void destroyFileCache() {
 		if (cachedFiles[i].path) free(cachedFiles[i].path);
 	}
 	free(cachedFiles);
+	cachedFiles = NULL;
 }
