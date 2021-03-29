@@ -36,7 +36,7 @@ time_t base64_bigfile_decode(void) {
 	struct timeval test;
 	startTimer(&test);
 	
-	char *decoded = b64decode(encoded, encodedLength);
+	char *decoded = b64decode(encoded, encodedLength, NULL);
 	(void)decoded;
 	
 	time_t us = getUs(test);

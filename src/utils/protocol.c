@@ -82,64 +82,6 @@ cJSON *readJSON(struct renderClient *client) {
 	return received;
 }
 
-//FIXME: Non-portable
-cJSON *encodeScene(struct world *sceneIn) {
-	cJSON *scene = cJSON_CreateObject();
-	char *data = b64encode(sceneIn, sizeof(struct world));
-	cJSON_AddStringToObject(scene, "data", data);
-	free(data);
-	return scene;
-}
-
-//FIXME: Non-portable
-cJSON *encodeState(struct state stateIn) {
-	cJSON *state = cJSON_CreateObject();
-	char *data = b64encode(&stateIn, sizeof(struct state));
-	cJSON_AddStringToObject(state, "data", data);
-	free(data);
-	return state;
-}
-
-//FIXME: Non-portable
-cJSON *encodePrefs(struct prefs prefsIn) {
-	cJSON *prefs = cJSON_CreateObject();
-	char *data = b64encode(&prefsIn, sizeof(struct prefs));
-	cJSON_AddStringToObject(prefs, "data", data);
-	free(data);
-	return prefs;
-}
-
-cJSON *encodeRenderer(const struct renderer *r) {
-	cJSON *renderer = cJSON_CreateObject();
-	
-	cJSON_AddStringToObject(renderer, "action", "syncRenderer");
-	cJSON_AddItemToObject(renderer, "scene", encodeScene(r->scene));
-	cJSON_AddItemToObject(renderer, "state", encodeState(r->state));
-	cJSON_AddItemToObject(renderer, "prefs", encodePrefs(r->prefs));
-	
-	return renderer;
-}
-
-struct renderer *decodeRenderer(const cJSON *json) {
-	struct renderer *r = calloc(1, sizeof(*r));
-	
-	cJSON *scene = cJSON_GetObjectItem(json, "scene");
-	cJSON *state = cJSON_GetObjectItem(json, "state");
-	cJSON *prefs = cJSON_GetObjectItem(json, "prefs");
-	
-	cJSON *sceneData = cJSON_GetObjectItem(scene, "data");
-	cJSON *stateData = cJSON_GetObjectItem(state, "data");
-	cJSON *prefsData = cJSON_GetObjectItem(prefs, "data");
-	
-	r->scene = (struct world *)b64decode(sceneData->valuestring, strlen(sceneData->valuestring));
-	r->state = *(struct state *)b64decode(stateData->valuestring, strlen(stateData->valuestring));
-	r->prefs = *(struct prefs *)b64decode(prefsData->valuestring, strlen(prefsData->valuestring));
-	
-	r->prefs.isWorker = true;
-	
-	return r;
-}
-
 cJSON *errorResponse(char *error) {
 	cJSON *errorMsg = cJSON_CreateObject();
 	cJSON_AddStringToObject(errorMsg, "error", error);
@@ -154,13 +96,11 @@ cJSON *goodbye() {
 
 struct { char *name; int id; } workerCommands[] = {
 	{"handshake", 0},
-	{"syncVertices", 1},
-	{"syncRenderer", 2},
+	{"loadScene", 1},
 };
 
 int matchWorkerCommand(char *cmd) {
 	size_t commandCount = sizeof(workerCommands) / sizeof(struct {char *name; int id;});
-	ASSERT(commandCount == 3);
 	for (size_t i = 0; i < commandCount; ++i) {
 		if (stringEquals(workerCommands[i].name, cmd)) return workerCommands[i].id;
 	}
@@ -182,33 +122,14 @@ cJSON *validateHandshake(const cJSON *in) {
 	return newAction("startSync");
 }
 
-cJSON *receiveVertices(const cJSON *json) {
-	cJSON *vertices = cJSON_GetObjectItem(json, "vertices");
-	if (!vertices) return errorResponse("No vertices");
-	cJSON *vcount = cJSON_GetObjectItem(json, "vertices_count");
-	if (!vcount) return errorResponse("No vertices_count");
-	
-	cJSON *normals = cJSON_GetObjectItem(json, "normals");
-	if (!normals) return errorResponse("No normals");
-	cJSON *ncount = cJSON_GetObjectItem(json, "normals_count");
-	if (!ncount) return errorResponse("No normals_count");
-	
-	cJSON *textureCoords = cJSON_GetObjectItem(json, "tex");
-	if (!textureCoords) return errorResponse("No tex");
-	cJSON *tcount = cJSON_GetObjectItem(json, "tex_count");
-	if (!tcount) return errorResponse("No tex_count");
-
-	g_vertices = (struct vector *)b64decode(vertices->valuestring, strlen(vertices->valuestring));
-	vertexCount = vcount->valueint;
-	g_normals = (struct vector *)b64decode(normals->valuestring, strlen(normals->valuestring));
-	normalCount = ncount->valueint;
-	g_textureCoords = (struct coord *)b64decode(textureCoords->valuestring, strlen(textureCoords->valuestring));
-	
-	return newAction("ok");
-}
-
-cJSON *receiveRenderer(const cJSON *json) {
-	g_worker_renderer = decodeRenderer(json);
+cJSON *receiveScene(const cJSON *json) {
+	cJSON *scene = cJSON_GetObjectItem(json, "data");
+	char *sceneText = cJSON_PrintUnformatted(scene);
+	g_worker_renderer = newRenderer();
+	if (loadScene(g_worker_renderer, sceneText)) {
+		return errorResponse("Scene parsing error");
+	}
+	free(sceneText);
 	return newAction("ok");
 }
 
@@ -228,33 +149,13 @@ cJSON *processCommand(struct renderClient *client, const cJSON *json) {
 			return validateHandshake(json);
 			break;
 		case 1:
-			return receiveVertices(json);
+			return receiveScene(json);
 			break;
-		case 2:
-			return receiveRenderer(json);
-			break;
-			
 		default:
 			return errorResponse("Unknown command");
 			break;
 	}
 	
-	return goodbye();
-	ASSERT_NOT_REACHED();
-	return NULL;
-}
-
-// Worker response handler
-//TODO: Delete
-cJSON *processWorkerResponse(struct renderClient *client, const cJSON *json) {
-	(void)client;
-	if (!json) {
-		return errorResponse("Couldn't parse incoming JSON");
-	}
-	const cJSON *action = cJSON_GetObjectItem(json, "action");
-	if (!cJSON_IsString(action)) {
-		return errorResponse("No action provided");
-	}
 	return goodbye();
 	ASSERT_NOT_REACHED();
 	return NULL;
@@ -388,6 +289,7 @@ bool connectToClient(struct renderClient *client) {
 
 void workerCleanup() {
 	//ASSERT_NOT_REACHED();
+	destroyRenderer(g_worker_renderer);
 }
 
 int startWorkerServer() {
@@ -429,15 +331,14 @@ int startWorkerServer() {
 		logr(debug, "Got connection from %s\n", inet_ntoa(masterAddress.sin_addr));
 		
 		for (;;) {
-			//ssize_t read = recv(connectionSocket, buf, MAXRCVLEN, 0);
+			buf = NULL;
 			ssize_t read = chunkedReceive(connectionSocket, &buf);
+			if (read == 0) break;
 			if (read < 0) {
 				logr(warning, "Something went wrong. Error: %s\n", strerror(errno));
 				close(connectionSocket);
 				break;
 			}
-			
-			logr(debug, "Got from master: %s\n", buf);
 			cJSON *message = cJSON_Parse(buf);
 			cJSON *myResponse = processCommand(NULL, message);
 			char *responseText = cJSON_PrintUnformatted(myResponse);
@@ -448,7 +349,7 @@ int startWorkerServer() {
 				break;
 			};
 			free(responseText);
-			free(buf);
+			if (buf) free(buf);
 			if (containsGoodbye(myResponse)) {
 				close(connectionSocket);
 				free(buf);
@@ -458,30 +359,12 @@ int startWorkerServer() {
 			cJSON_Delete(message);
 			buf = NULL;
 		}
+		close(connectionSocket);
 		workerCleanup(); // Prepare for next render
 	}
 	free(buf);
 	close(receivingSocket);
 	return 0;
-}
-
-//FIXME: Non-portable.
-cJSON *encodeVertexBuffers() {
-	cJSON *payload = cJSON_CreateObject();
-	cJSON_AddStringToObject(payload, "action", "syncVertices");
-	char *vertices = b64encode(g_vertices, vertexCount * sizeof(struct vector));
-	char *normals = b64encode(g_normals, normalCount * sizeof(struct vector));
-	char *textureCoords = b64encode(g_textureCoords, textureCount * sizeof(struct coord));
-	cJSON_AddStringToObject(payload, "vertices", vertices);
-	cJSON_AddNumberToObject(payload, "vertices_count", vertexCount);
-	cJSON_AddStringToObject(payload, "normals", normals);
-	cJSON_AddNumberToObject(payload, "normals_count", normalCount);
-	cJSON_AddStringToObject(payload, "tex", textureCoords);
-	cJSON_AddNumberToObject(payload, "tex_count", textureCount);
-	free(vertices);
-	free(normals);
-	free(textureCoords);
-	return payload;
 }
 
 struct syncThreadParams {
@@ -512,8 +395,14 @@ void *handleClientSync(void *arg) {
 	}
 	cJSON_Delete(response);
 	response = NULL;
-	logr(debug, "Sending vertex buffers\n");
-	sendJSON(client, encodeVertexBuffers());
+	
+	// Send the scene
+	cJSON *scene = cJSON_CreateObject();
+	cJSON_AddStringToObject(scene, "action", "loadScene");
+	cJSON *data = cJSON_Parse(params->renderer->sceneCache);
+	cJSON_AddItemToObject(scene, "data", data);
+	logr(debug, "Sending scene data\n");
+	sendJSON(client, scene);
 	response = readJSON(client);
 	char *responseText = cJSON_PrintUnformatted(response);
 	logr(debug, "Response: %s\n", responseText);
@@ -521,28 +410,12 @@ void *handleClientSync(void *arg) {
 	responseText = NULL;
 	if (cJSON_HasObjectItem(response, "error")) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
-		logr(warning, "Client vertex sync error: %s\n", error->valuestring);
+		logr(warning, "Client scene sync error: %s\n", error->valuestring);
 		client->state = SyncFailed;
 		cJSON_Delete(error);
 		cJSON_Delete(response);
 		return NULL;
 	}
-	cJSON_Delete(response);
-	
-	logr(debug, "Sending renderer state\n");
-	sendJSON(client, encodeRenderer(params->renderer));
-	response = readJSON(client);
-	responseText = cJSON_PrintUnformatted(response);
-	logr(debug, "Response: %s\n", responseText);
-	if (cJSON_HasObjectItem(response, "error")) {
-		cJSON *error = cJSON_GetObjectItem(response, "error");
-		logr(warning, "Client state sync error: %s\n", error->valuestring);
-		client->state = SyncFailed;
-		cJSON_Delete(error);
-		cJSON_Delete(response);
-		return NULL;
-	}
-	free(responseText);
 	cJSON_Delete(response);
 	
 	// Sync successful, mark it as such
