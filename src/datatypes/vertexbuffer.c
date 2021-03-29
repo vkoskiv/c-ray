@@ -41,11 +41,14 @@ void allocVertexBuffers() {
 void destroyVertexBuffers() {
 	if (g_vertices) {
 		free(g_vertices);
+		g_vertices = NULL;
 	}
 	if (g_normals) {
 		free(g_normals);
+		g_normals = NULL;
 	}
 	if (g_textureCoords) {
 		free(g_textureCoords);
+		g_textureCoords = NULL;
 	}
 }

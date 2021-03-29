@@ -266,9 +266,13 @@ bool crGetAntialiasing() {
 }
 
 void crStartRenderer() {
-	if (isSet("use_clustering")) g_renderer->prefs.useClustering = true;
+	if (isSet("use_clustering")) {
+		g_renderer->prefs.useClustering = true;
+		g_renderer->state.clients = syncWithClients(g_renderer, &g_renderer->state.clientCount);
+		free(g_renderer->sceneCache);
+		g_renderer->sceneCache = NULL;
+	}
 	initDisplay(g_renderer->prefs.fullscreen, g_renderer->prefs.borderless, g_renderer->prefs.imageWidth, g_renderer->prefs.imageHeight, g_renderer->prefs.scale);
-	g_renderer->state.clients = syncWithClients(g_renderer, &g_renderer->state.clientCount);
 	startTimer(g_renderer->state.timer);
 	currentImage = renderFrame(g_renderer);
 	printDuration(getMs(*g_renderer->state.timer));

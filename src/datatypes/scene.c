@@ -29,6 +29,11 @@
 #include "../utils/hashtable.h"
 #include "../nodes/bsdfnode.h"
 #include "../utils/hashtable.h"
+#include "../utils/string.h"
+#include "../utils/args.h"
+#include "../utils/fileio.h"
+#include "../utils/base64.h"
+#include "../utils/textbuffer.h"
 
 struct bvhBuildTask {
 	struct bvh *bvh;
@@ -125,6 +130,13 @@ int loadScene(struct renderer *r, char *input) {
 			return -1;
 		default:
 			break;
+	}
+	
+	if (isSet("use_clustering")) {
+		// Stash a cached of scene data here
+		cJSON *cache = cJSON_Parse(input);
+		// Embed files into the json as base64
+		r->sceneCache = cJSON_PrintUnformatted(cache);
 	}
 	
 	// Do some pre-render preparations

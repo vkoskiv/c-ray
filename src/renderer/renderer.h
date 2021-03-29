@@ -98,6 +98,7 @@ struct renderer {
 	struct world *scene; //Scene to render
 	struct state state;  //Internal state
 	struct prefs prefs;  //User prefs
+	char *sceneCache;    //Packed scene data that can be passed to workers
 };
 
 //Initialize a new renderer

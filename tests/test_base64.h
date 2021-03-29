@@ -13,7 +13,7 @@
 bool base64_basic(void) {
 	char *original = "This is the original string right here.";
 	char *encoded = b64encode(original, strlen(original));
-	char *decoded = b64decode(encoded, strlen(encoded));
+	char *decoded = b64decode(encoded, strlen(encoded), NULL);
 	test_assert(stringEquals(original, decoded));
 	
 	free(encoded);
