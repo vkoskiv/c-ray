@@ -104,6 +104,7 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 		   scene->meshCount);
 }
 
+#include "../utils/filecache.h"
 //Split scene loading and prefs?
 //Load the scene, allocate buffers, etc
 //FIXME: Rename this func and take parseJSON out to a separate call.

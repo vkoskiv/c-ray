@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 /// Check if two strings are equal
 /// @param s1 Left string
 /// @param s2 Right string

@@ -16,7 +16,7 @@ char *humanFileSize(unsigned long bytes);
 /// Load a file from a given path
 /// @param fileName Path to file
 /// @param bytes Will be set to amount of bytes read, if provided.
-char *loadFile(const char *fileName, size_t *bytes);
+char *loadFile(const char *filePath, size_t *bytes);
 
 // This is a more robust file writing function, that will seek alternate directories
 // if the specified one wasn't writeable.
