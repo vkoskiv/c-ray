@@ -18,14 +18,17 @@
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
+#include "args.h"
+#include "filecache.h"
 
-char *loadFile(const char *fileName, size_t *bytes) {
-	FILE *file = fopen(fileName, "rb");
+char *loadFile(const char *filePath, size_t *bytes) {
+	if (isSet("is_worker")) return loadFromCache(filePath, bytes);
+	FILE *file = fopen(filePath, "rb");
 	if (!file) {
-		logr(warning, "Can't access '%.*s': %s\n", (int)strlen(fileName), fileName, strerror(errno));
+		logr(warning, "Can't access '%.*s': %s\n", (int)strlen(filePath), filePath, strerror(errno));
 		return NULL;
 	}
-	size_t fileBytes = getFileSize(fileName);
+	size_t fileBytes = getFileSize(filePath);
 	if (!fileBytes) {
 		fclose(file);
 		return NULL;
@@ -40,6 +43,7 @@ char *loadFile(const char *fileName, size_t *bytes) {
 	}
 	fclose(file);
 	if (bytes) *bytes = readBytes;
+	if (isSet("use_clustering")) cacheFile(filePath, buf, readBytes);
 	return buf;
 }
 
@@ -135,14 +139,15 @@ char *getFilePath(const char *input) {
 #ifdef WINDOWS
 	dir = calloc(256, sizeof(*dir));
 	_splitpath_s(input, NULL, 0, dir, sizeof(dir), NULL, 0, NULL, 0);
+	return dir;
 #else
 	char *inputCopy = stringCopy(input);
 	dir = stringCopy(dirname(inputCopy));
 	free(inputCopy);
-#endif
 	char *final = stringConcat(dir, "/");
 	free(dir);
 	return final;
+#endif
 }
 
 #define chunksize 1024

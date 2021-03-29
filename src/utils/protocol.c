@@ -22,21 +22,22 @@
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <string.h>
-#include "../utils/assert.h"
+#include "assert.h"
 #include "../libraries/cJSON.h"
-#include "../utils/platform/thread.h"
-#include "../utils/args.h"
-#include "../utils/textbuffer.h"
-#include "../utils/string.h"
-#include "../utils/gitsha1.h"
+#include "platform/thread.h"
+#include "args.h"
+#include "textbuffer.h"
+#include "string.h"
+#include "gitsha1.h"
 #include "../datatypes/image/imagefile.h"
 #include "../renderer/renderer.h"
 #include <errno.h>
 #include "networking.h"
 #include "../datatypes/vector.h"
 #include "../datatypes/vertexbuffer.h"
-#include "../utils/base64.h"
+#include "base64.h"
 #include "../datatypes/scene.h"
+#include "filecache.h"
 
 #define C_RAY_HEADERSIZE 8
 #define C_RAY_CHUNKSIZE 1024
@@ -97,6 +98,7 @@ cJSON *goodbye() {
 struct { char *name; int id; } workerCommands[] = {
 	{"handshake", 0},
 	{"loadScene", 1},
+	{"loadAssets", 2}
 };
 
 int matchWorkerCommand(char *cmd) {
@@ -126,10 +128,20 @@ cJSON *receiveScene(const cJSON *json) {
 	cJSON *scene = cJSON_GetObjectItem(json, "data");
 	char *sceneText = cJSON_PrintUnformatted(scene);
 	g_worker_renderer = newRenderer();
+	//FIXME: HACK
+	g_worker_renderer->prefs.assetPath = stringCopy("input/");
 	if (loadScene(g_worker_renderer, sceneText)) {
 		return errorResponse("Scene parsing error");
 	}
 	free(sceneText);
+	return newAction("ok");
+}
+
+cJSON *receiveAssets(const cJSON *json) {
+	cJSON *files = cJSON_GetObjectItem(json, "files");
+	char *data = cJSON_PrintUnformatted(files);
+	decodeFileCache(data);
+	free(data);
 	return newAction("ok");
 }
 
@@ -150,6 +162,9 @@ cJSON *processCommand(struct renderClient *client, const cJSON *json) {
 			break;
 		case 1:
 			return receiveScene(json);
+			break;
+		case 2:
+			return receiveAssets(json);
 			break;
 		default:
 			return errorResponse("Unknown command");
@@ -323,7 +338,7 @@ int startWorkerServer() {
 	// TODO: Should put this in a loop too with a cleanup,
 	// so we can just leave render nodes on all the time, waiting for render tasks.
 	while (1) {
-		logr(debug, "Listening for connections on port %i\n", C_RAY_PORT);
+		logr(info, "Listening for connections on port %i\n", C_RAY_PORT);
 		connectionSocket = accept(receivingSocket, (struct sockaddr *)&masterAddress, &len);
 		if (connectionSocket < 0) {
 			logr(error, "Failed to accept\n");
@@ -396,15 +411,36 @@ void *handleClientSync(void *arg) {
 	cJSON_Delete(response);
 	response = NULL;
 	
+	// Send assets
+	logr(debug, "Sending assets...\n");
+	cJSON *assets = cJSON_CreateObject();
+	cJSON_AddStringToObject(assets, "action", "loadAssets");
+	cJSON_AddItemToObject(assets, "files", cJSON_Parse(encodeFileCache()));
+	sendJSON(client, assets);
+	response = readJSON(client);
+	char *responseText = cJSON_PrintUnformatted(response);
+	logr(debug, "Response: %s\n", responseText);
+	free(responseText);
+	responseText = NULL;
+	if (cJSON_HasObjectItem(response, "error")) {
+		cJSON *error = cJSON_GetObjectItem(response, "error");
+		logr(warning, "Client asset sync error: %s\n", error->valuestring);
+		client->state = SyncFailed;
+		cJSON_Delete(error);
+		cJSON_Delete(response);
+		return NULL;
+	}
+	cJSON_Delete(response);
+	
 	// Send the scene
+	logr(debug, "Sending scene data\n");
 	cJSON *scene = cJSON_CreateObject();
 	cJSON_AddStringToObject(scene, "action", "loadScene");
 	cJSON *data = cJSON_Parse(params->renderer->sceneCache);
 	cJSON_AddItemToObject(scene, "data", data);
-	logr(debug, "Sending scene data\n");
 	sendJSON(client, scene);
 	response = readJSON(client);
-	char *responseText = cJSON_PrintUnformatted(response);
+	responseText = cJSON_PrintUnformatted(response);
 	logr(debug, "Response: %s\n", responseText);
 	free(responseText);
 	responseText = NULL;
