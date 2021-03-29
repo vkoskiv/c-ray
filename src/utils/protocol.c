@@ -274,6 +274,14 @@ struct renderClient *buildClientList(size_t *amount) {
 	return clients;
 }
 
+bool containsError(const cJSON *json) {
+	const cJSON *error = cJSON_GetObjectItem(json, "error");
+	if (cJSON_IsString(error)) {
+		return true;
+	}
+	return false;
+}
+
 bool containsGoodbye(const cJSON *json) {
 	const cJSON *action = cJSON_GetObjectItem(json, "action");
 	if (cJSON_IsString(action)) {
@@ -305,6 +313,7 @@ bool connectToClient(struct renderClient *client) {
 void workerCleanup() {
 	//ASSERT_NOT_REACHED();
 	destroyRenderer(g_worker_renderer);
+	destroyFileCache();
 }
 
 int startWorkerServer() {
@@ -365,9 +374,8 @@ int startWorkerServer() {
 			};
 			free(responseText);
 			if (buf) free(buf);
-			if (containsGoodbye(myResponse)) {
+			if (containsGoodbye(myResponse) || containsError(myResponse)) {
 				close(connectionSocket);
-				free(buf);
 				break;
 			}
 			cJSON_Delete(myResponse);
@@ -426,7 +434,6 @@ void *handleClientSync(void *arg) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
 		logr(warning, "Client asset sync error: %s\n", error->valuestring);
 		client->state = SyncFailed;
-		cJSON_Delete(error);
 		cJSON_Delete(response);
 		return NULL;
 	}
