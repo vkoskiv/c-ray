@@ -36,7 +36,10 @@ void *loadFromCache(const char *path, size_t *length) {
 	for (size_t i = 0; i < fileCount; ++i) {
 		if (stringEquals(path, cachedFiles[i].path)) {
 			if (length) *length = cachedFiles[i].size;
-			return cachedFiles[i].data;
+			void *ret = malloc(cachedFiles[i].size);
+			memcpy(ret, cachedFiles[i].data, cachedFiles[i].size);
+			logr(debug, "Retrieving file %s\n", path);
+			return ret;
 		}
 	}
 	return NULL;
@@ -77,4 +80,5 @@ void destroyFileCache() {
 	}
 	free(cachedFiles);
 	cachedFiles = NULL;
+	fileCount = 0;
 }
