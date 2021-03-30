@@ -35,7 +35,7 @@ bool chunkedSend(int socket, const char *data) {
 	const size_t chunkSize = C_RAY_CHUNKSIZE;
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
-	logr(debug, "Sending %lu chunks\n", chunks);
+	logr(debug, "Sending %lu bytes (%lu chunks)\n", msgLen, chunks);
 	
 	// Send header with message length
 	size_t header = htonll(msgLen);
@@ -75,9 +75,9 @@ ssize_t chunkedReceive(int socket, char **data) {
 	}
 	if (err == -1) logr(warning, "chunkedReceive header error: %s\n", strerror(errno));
 	size_t msgLen = ntohll(headerData);
-	logr(debug, "Received header: %lu\n", msgLen);
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
+	logr(debug, "Received header: %lu (should be %lu chunks)\n", msgLen, chunks);
 	
 	char *recvBuf = calloc(msgLen, sizeof(*recvBuf));
 	char *currentChunk = calloc(chunkSize, sizeof(*currentChunk));
