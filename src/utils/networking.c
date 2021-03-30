@@ -29,6 +29,7 @@
 #define C_RAY_CHUNKSIZE 1024
 #define C_RAY_PORT 2222
 
+#include <stdio.h>
 bool chunkedSend(int socket, const char *data) {
 	const size_t msgLen = strlen(data) + 1; // +1 for null byte
 	const size_t chunkSize = C_RAY_CHUNKSIZE;
@@ -74,7 +75,7 @@ ssize_t chunkedReceive(int socket, char **data) {
 	}
 	if (err == -1) logr(warning, "chunkedReceive header error: %s\n", strerror(errno));
 	size_t msgLen = ntohll(headerData);
-	//logr(debug, "Received header: %lu\n", msgLen);
+	logr(debug, "Received header: %lu\n", msgLen);
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
 	
@@ -90,13 +91,14 @@ ssize_t chunkedReceive(int socket, char **data) {
 		}
 		size_t len = leftToReceive > chunkSize ? chunkSize : leftToReceive;
 		memcpy(recvBuf + (i * chunkSize), currentChunk, len);
+		printf("chunk %lu: \"%.1024s\"\n", i, currentChunk);
 		receivedChunks++;
 		leftToReceive -= min(len, chunkSize);
 		memset(currentChunk, 0, chunkSize);
 	}
 	ASSERT(leftToReceive == 0);
-	//logr(debug, "Received %lu chunks\n", receivedChunks);
 	size_t finalLength = strlen(recvBuf) + 1; // +1 for null byte
+	logr(debug, "Received %lu chunks, %lu bytes\n", receivedChunks, finalLength);
 	*data = recvBuf;
 	return err == -1 ? -1 : finalLength;
 }
