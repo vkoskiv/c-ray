@@ -412,7 +412,6 @@ void *handleClientSync(void *arg) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
 		logr(warning, "Client handshake error: %s\n", error->valuestring);
 		client->state = SyncFailed;
-		cJSON_Delete(error);
 		cJSON_Delete(response);
 		return NULL;
 	}
