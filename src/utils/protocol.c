@@ -360,6 +360,7 @@ int startWorkerServer() {
 			if (read == 0) break;
 			if (read < 0) {
 				logr(warning, "Something went wrong. Error: %s\n", strerror(errno));
+				shutdown(connectionSocket, SHUT_RDWR);
 				close(connectionSocket);
 				break;
 			}
@@ -369,23 +370,27 @@ int startWorkerServer() {
 			logr(debug, "Responding     : %s\n", responseText);
 			if (chunkedSend(connectionSocket, responseText)) {
 				logr(warning, "chunkedSend() failed, error %s\n", strerror(errno));
+				shutdown(connectionSocket, SHUT_RDWR);
 				close(connectionSocket);
 				break;
 			};
 			free(responseText);
 			if (buf) free(buf);
 			if (containsGoodbye(myResponse) || containsError(myResponse)) {
-				close(connectionSocket);
+				cJSON_Delete(myResponse);
+				cJSON_Delete(message);
 				break;
 			}
 			cJSON_Delete(myResponse);
 			cJSON_Delete(message);
 			buf = NULL;
 		}
+		shutdown(connectionSocket, SHUT_RDWR);
 		close(connectionSocket);
 		workerCleanup(); // Prepare for next render
 	}
 	free(buf);
+	shutdown(receivingSocket, SHUT_RDWR);
 	close(receivingSocket);
 	return 0;
 }

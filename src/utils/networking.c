@@ -35,7 +35,7 @@ bool chunkedSend(int socket, const char *data) {
 	const size_t chunkSize = C_RAY_CHUNKSIZE;
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
-	//logr(debug, "Sending %lu chunks\n", chunks);
+	logr(debug, "Sending %lu chunks\n", chunks);
 	
 	// Send header with message length
 	size_t header = htonll(msgLen);
@@ -60,7 +60,7 @@ bool chunkedSend(int socket, const char *data) {
 		memset(currentChunk, 0, chunkSize);
 	}
 	ASSERT(leftToSend == 0);
-	//logr(debug, "Sent %lu chunks\n", sentChunks);
+	logr(debug, "Sent %lu chunks\n", sentChunks);
 	return n == -1 ? true : false;
 }
 
