@@ -12,6 +12,7 @@
 #include "base64.h"
 #include "string.h"
 #include <string.h>
+#include "logging.h"
 
 struct file {
 	char *path;
@@ -30,6 +31,7 @@ void cacheFile(const char *path, void *data, size_t length) {
 	file.size = length;
 	memcpy(file.data, data, length);
 	cachedFiles[fileCount - 1] = file;
+	logr(debug, "Cached file %s\n", path);
 }
 
 void *loadFromCache(const char *path, size_t *length) {
@@ -42,6 +44,7 @@ void *loadFromCache(const char *path, size_t *length) {
 			return ret;
 		}
 	}
+	logr(debug, "File %s not found in cache\n", path);
 	return NULL;
 }
 
@@ -81,4 +84,5 @@ void destroyFileCache() {
 	free(cachedFiles);
 	cachedFiles = NULL;
 	fileCount = 0;
+	logr(debug, "Destroyed cache\n");
 }
