@@ -47,14 +47,16 @@ bool chunkedSend(int socket, const char *data) {
 	char *currentChunk = calloc(chunkSize, sizeof(*currentChunk));
 	size_t leftToSend = msgLen;
 	for (size_t i = 0; i < chunks; ++i) {
-		size_t copylen = leftToSend > chunkSize ? chunkSize : leftToSend;
+		size_t copylen = min(leftToSend, chunkSize);
 		memcpy(currentChunk, data + (i * chunkSize), copylen);
+		//printf("chunk %lu: \"%.1024s\"\n", i, currentChunk);
 		n = send(socket, currentChunk, chunkSize, SO_NOSIGPIPE);
 		if (n == -1) {
 			logr(warning, "chunkedSend error: %s\n", strerror(errno));
 			free(currentChunk);
 			return -1;
 		}
+		ASSERT(n == chunkSize);
 		sentChunks++;
 		leftToSend -= min(copylen, chunkSize);
 		memset(currentChunk, 0, chunkSize);
@@ -66,14 +68,15 @@ bool chunkedSend(int socket, const char *data) {
 
 ssize_t chunkedReceive(int socket, char **data) {
 	// Grab header first
+	//TODO: Verify we get the full header length before proceeding
 	size_t headerData = 0;
 	size_t chunkSize = C_RAY_CHUNKSIZE;
-	ssize_t err = recv(socket, &headerData, sizeof(headerData), 0);
+	ssize_t ret = recv(socket, &headerData, sizeof(headerData), 0);
 	if (headerData == 0) {
 		logr(warning, "Remote closed connection.\n");
 		return 0;
 	}
-	if (err == -1) logr(warning, "chunkedReceive header error: %s\n", strerror(errno));
+	if (ret == -1) logr(warning, "chunkedReceive header error: %s\n", strerror(errno));
 	size_t msgLen = ntohll(headerData);
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
@@ -81,26 +84,36 @@ ssize_t chunkedReceive(int socket, char **data) {
 	
 	char *recvBuf = calloc(msgLen, sizeof(*recvBuf));
 	char *currentChunk = calloc(chunkSize, sizeof(*currentChunk));
+	char *scratchBuf = calloc(chunkSize, sizeof(*scratchBuf));
 	size_t receivedChunks = 0;
 	size_t leftToReceive = msgLen;
 	for (size_t i = 0; i < chunks; ++i) {
-		err = recv(socket, currentChunk, chunkSize, 0);
-		if (err == -1) {
-			logr(warning, "chunkedReceive error: %s\n", strerror(errno));
-			break;
+		size_t chunkLeftToReceive = chunkSize;
+		while (chunkLeftToReceive > 0) {
+			ret = recv(socket, scratchBuf, chunkLeftToReceive, 0);
+			if (ret == -1) {
+				logr(warning, "chunkedReceive error: %s\n", strerror(errno));
+				goto bail;
+			}
+			memcpy(currentChunk + (chunkSize - chunkLeftToReceive), scratchBuf, ret);
+			chunkLeftToReceive -= ret;
+			memset(scratchBuf, 0, chunkSize);
 		}
 		size_t len = leftToReceive > chunkSize ? chunkSize : leftToReceive;
 		memcpy(recvBuf + (i * chunkSize), currentChunk, len);
-		printf("chunk %lu: \"%.1024s\"\n", i, currentChunk);
+		//printf("chunk %lu: \"%.1024s\"\n", i, currentChunk);
 		receivedChunks++;
 		leftToReceive -= min(len, chunkSize);
 		memset(currentChunk, 0, chunkSize);
 	}
+bail:
 	ASSERT(leftToReceive == 0);
 	size_t finalLength = strlen(recvBuf) + 1; // +1 for null byte
 	logr(debug, "Received %lu chunks, %lu bytes\n", receivedChunks, finalLength);
 	*data = recvBuf;
-	return err == -1 ? -1 : finalLength;
+	free(currentChunk);
+	free(scratchBuf);
+	return ret == -1 ? -1 : finalLength;
 }
 
 #else
