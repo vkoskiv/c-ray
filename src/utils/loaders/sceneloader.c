@@ -433,25 +433,37 @@ struct prefs parsePrefs(const cJSON *data) {
 	}
 	
 	if (isSet("samples_override")) {
-		int samples = intPref("samples_override");
-		logr(info, "Overriding sample count to %i\n", samples);
-		p.sampleCount = samples;
+		if (isSet("is_worker")) {
+			logr(warning, "Can't override samples when in worker mode\n");
+		} else {
+			int samples = intPref("samples_override");
+			logr(info, "Overriding sample count to %i\n", samples);
+			p.sampleCount = samples;
+		}
 	}
 	
 	if (isSet("dims_override")) {
-		int width = intPref("dims_width");
-		int height = intPref("dims_height");
-		logr(info, "Overriding image dimensions to %ix%i\n", width, height);
-		p.imageWidth = width;
-		p.imageHeight = height;
+		if (isSet("is_worker")) {
+			logr(warning, "Can't override dimensions when in worker mode\n");
+		} else {
+			int width = intPref("dims_width");
+			int height = intPref("dims_height");
+			logr(info, "Overriding image dimensions to %ix%i\n", width, height);
+			p.imageWidth = width;
+			p.imageHeight = height;
+		}
 	}
 	
 	if (isSet("tiledims_override")) {
-		int width = intPref("tile_width");
-		int height = intPref("tile_height");
-		logr(info, "Overriding tile  dimensions to %ix%i\n", width, height);
-		p.tileWidth = width;
-		p.tileHeight = height;
+		if (isSet("is_worker")) {
+			logr(warning, "Can't override tile dimensions when in worker mode\n");
+		} else {
+			int width = intPref("tile_width");
+			int height = intPref("tile_height");
+			logr(info, "Overriding tile  dimensions to %ix%i\n", width, height);
+			p.tileWidth = width;
+			p.tileHeight = height;
+		}
 	}
 	
 	return p;
