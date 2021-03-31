@@ -24,6 +24,7 @@
 #include <string.h>
 #include "../utils/assert.h"
 #include <errno.h>
+#include "fileio.h"
 
 #define C_RAY_HEADERSIZE 8
 #define C_RAY_CHUNKSIZE 1024
@@ -109,7 +110,8 @@ ssize_t chunkedReceive(int socket, char **data) {
 bail:
 	ASSERT(leftToReceive == 0);
 	size_t finalLength = strlen(recvBuf) + 1; // +1 for null byte
-	logr(debug, "Received %lu chunks, %lu bytes\n", receivedChunks, finalLength);
+	if (finalLength < msgLen) logr(error, "Chunked transfer failed. Header size of %lu != %lu. This shouldn't happen.\n", msgLen, finalLength);
+	logr(debug, "Received %lu chunks, %s\n", receivedChunks, humanFileSize(finalLength));
 	*data = recvBuf;
 	free(currentChunk);
 	free(scratchBuf);
