@@ -38,9 +38,10 @@ void *loadFromCache(const char *path, size_t *length) {
 	for (size_t i = 0; i < fileCount; ++i) {
 		if (stringEquals(path, cachedFiles[i].path)) {
 			if (length) *length = cachedFiles[i].size;
-			void *ret = malloc(cachedFiles[i].size);
+			char *ret = malloc(cachedFiles[i].size + 1);
 			memcpy(ret, cachedFiles[i].data, cachedFiles[i].size);
 			logr(debug, "Retrieving file %s\n", path);
+			ret[cachedFiles[i].size] = 0;
 			return ret;
 		}
 	}
@@ -65,7 +66,7 @@ char *encodeFileCache(void) {
 
 void decodeFileCache(const char *data) {
 	cJSON *receivedCache = cJSON_Parse(data);
-	cJSON *record = NULL;
+	const cJSON *record = NULL;
 	cJSON_ArrayForEach(record, receivedCache) {
 		cJSON *path = cJSON_GetObjectItem(record, "path");
 		cJSON *data = cJSON_GetObjectItem(record, "data");
@@ -74,6 +75,7 @@ void decodeFileCache(const char *data) {
 		cacheFile(path->valuestring, decoded, datalen);
 		free(decoded);
 	}
+	cJSON_Delete(receivedCache);
 }
 
 void destroyFileCache() {
