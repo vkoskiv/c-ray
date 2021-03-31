@@ -91,7 +91,7 @@ void *b64decode(const char *data, const size_t inputLength, size_t *outLength) {
 	int pad = inputLength > 0 && (inputLength % 4 || p[inputLength - 1] == '=');
 	const size_t L = ((inputLength + 3) / 4 - pad) * 4;
 	size_t strSize = L / 4 * 3 + pad;
-	char *str = calloc(strSize, sizeof(*str));
+	char *str = calloc(strSize + 1, sizeof(*str));
 	
 	size_t j = 0;
 	for (size_t i = 0; i < L; i += 4) {
