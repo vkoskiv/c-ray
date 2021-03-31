@@ -61,7 +61,7 @@ bool chunkedSend(int socket, const char *data) {
 		size_t copylen = min(leftToSend, chunkSize);
 		memcpy(currentChunk, data + (i * chunkSize), copylen);
 		//printf("chunk %lu: \"%.1024s\"\n", i, currentChunk);
-		n = send(socket, currentChunk, chunkSize, SO_NOSIGPIPE);
+		n = send(socket, currentChunk, chunkSize, 0);
 		if (n == -1) {
 			logr(warning, "chunkedSend error: %s\n", strerror(errno));
 			free(currentChunk);
