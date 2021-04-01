@@ -47,7 +47,9 @@ bool chunkedSend(int socket, const char *data) {
 	const size_t chunkSize = C_RAY_CHUNKSIZE;
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
-	logr(debug, "Sending %s (%lu chunks)\n", humanFileSize(msgLen), chunks);
+	char *size = humanFileSize(msgLen);
+	logr(debug, "Sending %s (%lu chunks)\n", size, chunks);
+	free(size);
 	
 	// Send header with message length
 	size_t header = htonll(msgLen);
@@ -125,7 +127,9 @@ bail:
 	ASSERT(leftToReceive == 0);
 	size_t finalLength = strlen(recvBuf) + 1; // +1 for null byte
 	if (finalLength < msgLen) logr(error, "Chunked transfer failed. Header size of %lu != %lu. This shouldn't happen.\n", msgLen, finalLength);
-	logr(debug, "Received %lu chunks, %s\n", receivedChunks, humanFileSize(finalLength));
+	char *size = humanFileSize(finalLength);
+	logr(debug, "Received %lu chunks, %s\n", receivedChunks, size);
+	free(size);
 	*data = recvBuf;
 	free(currentChunk);
 	free(scratchBuf);
