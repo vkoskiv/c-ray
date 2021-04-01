@@ -180,6 +180,14 @@ void parseArgs(int argc, char **argv) {
 		
 		if (stringEquals(argv[i], "--worker")) {
 			setDatabaseTag(g_options, "is_worker");
+			char *portStr = argv[i + 1];
+			if (portStr && portStr[0] != '-') {
+				int port = atoi(portStr);
+				// Verify it's in the valid port range
+				port = port < 1024 ? 1024 : port;
+				port = port > 65535 ? 65535 : port;
+				setDatabaseInt(g_options, "worker_port", port);
+			}
 		}
 		
 		if (strncmp(argv[i], "-", 1) == 0) {

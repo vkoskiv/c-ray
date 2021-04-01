@@ -41,7 +41,7 @@
 
 #define C_RAY_HEADERSIZE 8
 #define C_RAY_CHUNKSIZE 1024
-#define C_RAY_PORT 2222
+#define C_RAY_DEFAULT_PORT 2222
 #define PROTO_VERSION "0.1"
 
 struct renderer *g_worker_renderer = NULL;
@@ -301,6 +301,8 @@ bool connectToClient(struct renderClient *client) {
 		return false;
 	}
 	
+	//FIXME: Timeout needed here
+	logr(debug, "Attempting connection to %s (this might get stuck here, no timeout yet)\n", inet_ntoa(client->address.sin_addr));
 	if (connect(client->socket, (struct sockaddr *)&client->address, sizeof(client->address)) != 0) {
 		logr(warning, "Failed to connect to %i\n", client->id);
 		client->state = ConnectionFailed;
@@ -324,10 +326,12 @@ int startWorkerServer() {
 		logr(error, "Socket creation failed.\n");
 	}
 	
+	int port = isSet("worker_port") ? intPref("worker_port") : C_RAY_DEFAULT_PORT;
+	
 	bzero(&ownAddress, sizeof(ownAddress));
 	ownAddress.sin_family = AF_INET;
 	ownAddress.sin_addr.s_addr = htonl(INADDR_ANY);
-	ownAddress.sin_port = htons(C_RAY_PORT);
+	ownAddress.sin_port = htons(port);
 	
 	int opt_val = 1;
 	setsockopt(receivingSocket, SOL_SOCKET, SO_REUSEADDR, &opt_val, sizeof(opt_val));
@@ -347,7 +351,7 @@ int startWorkerServer() {
 	// TODO: Should put this in a loop too with a cleanup,
 	// so we can just leave render nodes on all the time, waiting for render tasks.
 	while (1) {
-		logr(info, "Listening for connections on port %i\n", C_RAY_PORT);
+		logr(info, "Listening for connections on port %i\n", port);
 		connectionSocket = accept(receivingSocket, (struct sockaddr *)&masterAddress, &len);
 		if (connectionSocket < 0) {
 			logr(error, "Failed to accept\n");
