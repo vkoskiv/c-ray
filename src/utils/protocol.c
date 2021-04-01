@@ -60,6 +60,7 @@ enum clientState {
 struct renderClient {
 	struct sockaddr_in address;
 	enum clientState state;
+	int availableThreads;
 	int socket;
 	int id;
 };
@@ -134,7 +135,14 @@ cJSON *receiveScene(const cJSON *json) {
 		return errorResponse("Scene parsing error");
 	}
 	free(sceneText);
-	return newAction("ok");
+	cJSON *resp = newAction("ready");
+	
+	// Stash in our capabilities here
+	//TODO: Maybe some performance value in here, so the master knows how much work to assign?
+	// For now just report back how many threads we've got available.
+	cJSON_AddNumberToObject(resp, "threadCount", g_worker_renderer->prefs.threadCount);
+	
+	return resp;
 }
 
 cJSON *receiveAssets(const cJSON *json) {
@@ -467,6 +475,14 @@ void *handleClientSync(void *arg) {
 		cJSON_Delete(response);
 		return NULL;
 	}
+	cJSON *action = cJSON_GetObjectItem(response, "action");
+	if (cJSON_IsString(action)) {
+		cJSON *threadCount = cJSON_GetObjectItem(response, "threadCount");
+		if (cJSON_IsNumber(threadCount)) {
+			client->availableThreads = threadCount->valueint;
+		}
+	}
+	logr(debug, "Finished client %i sync. It reports %i threads available for rendering.\n", client->id, client->availableThreads);
 	cJSON_Delete(response);
 	
 	// Sync successful, mark it as such
