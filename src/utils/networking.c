@@ -25,6 +25,7 @@
 #include "../utils/assert.h"
 #include <errno.h>
 #include "fileio.h"
+#include "args.h"
 
 #ifndef __APPLE__
 #if __BIG_ENDIAN__
@@ -46,7 +47,7 @@ bool chunkedSend(int socket, const char *data) {
 	const size_t chunkSize = C_RAY_CHUNKSIZE;
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
-	logr(debug, "Sending %lu bytes (%lu chunks)\n", msgLen, chunks);
+	logr(debug, "Sending %s (%lu chunks)\n", humanFileSize(msgLen), chunks);
 	
 	// Send header with message length
 	size_t header = htonll(msgLen);
@@ -68,10 +69,12 @@ bool chunkedSend(int socket, const char *data) {
 			return -1;
 		}
 		ASSERT(n == chunkSize);
+		logr(debug, "Sent %.2f%%\r", (((float)i + 1.0f)/(float)chunks) * 100.0f);
 		sentChunks++;
 		leftToSend -= min(copylen, chunkSize);
 		memset(currentChunk, 0, chunkSize);
 	}
+	if (isSet("v")) printf("\n");
 	ASSERT(leftToSend == 0);
 	logr(debug, "Sent %lu chunks\n", sentChunks);
 	return n == -1 ? true : false;
@@ -112,11 +115,12 @@ ssize_t chunkedReceive(int socket, char **data) {
 		}
 		size_t len = leftToReceive > chunkSize ? chunkSize : leftToReceive;
 		memcpy(recvBuf + (i * chunkSize), currentChunk, len);
-		//printf("chunk %lu: \"%.1024s\"\n", i, currentChunk);
+		logr(debug, "Received %.2f%%\r", (((float)i + 1.0f)/(float)chunks) * 100.0f);
 		receivedChunks++;
 		leftToReceive -= min(len, chunkSize);
 		memset(currentChunk, 0, chunkSize);
 	}
+	if (isSet("v")) printf("\n");
 bail:
 	ASSERT(leftToReceive == 0);
 	size_t finalLength = strlen(recvBuf) + 1; // +1 for null byte
