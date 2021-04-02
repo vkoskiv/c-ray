@@ -134,7 +134,7 @@ cJSON *receiveScene(const cJSON *json) {
 	//TODO: Maybe some performance value in here, so the master knows how much work to assign?
 	// For now just report back how many threads we've got available.
 	cJSON_AddNumberToObject(resp, "threadCount", g_worker_renderer->prefs.threadCount);
-	
+	logr(info, "Starting network render job\n");
 	return resp;
 }
 
@@ -459,7 +459,6 @@ int startWorkerServer() {
 			cJSON *message = cJSON_Parse(buf);
 			cJSON *myResponse = processCommand(NULL, message);
 			char *responseText = cJSON_PrintUnformatted(myResponse);
-			logr(debug, "Responding     : %s\n", responseText);
 			if (chunkedSend(connectionSocket, responseText)) {
 				logr(warning, "chunkedSend() failed, error %s\n", strerror(errno));
 				shutdown(connectionSocket, SHUT_RDWR);
