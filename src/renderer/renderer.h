@@ -32,6 +32,7 @@ struct renderThreadState {
 	
 	struct renderer *renderer;
 	struct texture *output;
+	struct renderClient *client; // Optional
 };
 
 /// Renderer state data
@@ -106,6 +107,9 @@ struct renderer *newRenderer(void);
 
 //Start main render loop
 struct texture *renderFrame(struct renderer *r);
+
+//FIXME: Temporary
+struct texture *renderSingleTile(struct renderer *r, struct renderTile tile);
 
 //Free renderer allocations
 void destroyRenderer(struct renderer *r);
