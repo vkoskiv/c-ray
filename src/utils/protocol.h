@@ -31,3 +31,5 @@ struct tileResponse *requestTile(struct renderClient *, struct renderTile *);
 
 //int startMasterServer(void);
 int startWorkerServer(void);
+
+void *networkRenderThread(void *arg);

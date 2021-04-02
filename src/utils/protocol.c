@@ -38,6 +38,9 @@
 #include "base64.h"
 #include "../datatypes/scene.h"
 #include "filecache.h"
+#include "../datatypes/tile.h"
+#include "../datatypes/image/texture.h"
+#include "../datatypes/color.h"
 
 #define C_RAY_HEADERSIZE 8
 #define C_RAY_CHUNKSIZE 1024
@@ -96,20 +99,6 @@ cJSON *goodbye() {
 	return goodbye;
 }
 
-struct { char *name; int id; } workerCommands[] = {
-	{"handshake", 0},
-	{"loadScene", 1},
-	{"loadAssets", 2}
-};
-
-int matchWorkerCommand(char *cmd) {
-	size_t commandCount = sizeof(workerCommands) / sizeof(struct {char *name; int id;});
-	for (size_t i = 0; i < commandCount; ++i) {
-		if (stringEquals(workerCommands[i].name, cmd)) return workerCommands[i].id;
-	}
-	return -1;
-}
-
 cJSON *newAction(char *action) {
 	if (!action) return NULL;
 	cJSON *actionJson = cJSON_CreateObject();
@@ -137,6 +126,10 @@ cJSON *receiveScene(const cJSON *json) {
 	free(sceneText);
 	cJSON *resp = newAction("ready");
 	
+	g_worker_renderer->state.isRendering = true;
+	g_worker_renderer->state.renderAborted = false;
+	g_worker_renderer->state.saveImage = false;
+	
 	// Stash in our capabilities here
 	//TODO: Maybe some performance value in here, so the master knows how much work to assign?
 	// For now just report back how many threads we've got available.
@@ -151,6 +144,82 @@ cJSON *receiveAssets(const cJSON *json) {
 	decodeFileCache(data);
 	free(data);
 	return newAction("ok");
+}
+
+struct { char *name; int id; } workerCommands[] = {
+	{"handshake", 0},
+	{"loadScene", 1},
+	{"loadAssets", 2},
+	{"renderTile", 3},
+};
+
+int matchWorkerCommand(char *cmd) {
+	size_t commandCount = sizeof(workerCommands) / sizeof(struct {char *name; int id;});
+	for (size_t i = 0; i < commandCount; ++i) {
+		if (stringEquals(workerCommands[i].name, cmd)) return workerCommands[i].id;
+	}
+	return -1;
+}
+
+cJSON *encodeTile(struct renderTile tile) {
+	cJSON *json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "width", tile.width);
+	cJSON_AddNumberToObject(json, "height", tile.height);
+	cJSON_AddNumberToObject(json, "beginX", tile.begin.x);
+	cJSON_AddNumberToObject(json, "beginY", tile.begin.y);
+	cJSON_AddNumberToObject(json, "endX", tile.end.x);
+	cJSON_AddNumberToObject(json, "endY", tile.end.y);
+	cJSON_AddNumberToObject(json, "tileNum", tile.tileNum);
+	return json;
+}
+
+struct renderTile decodeTile(const cJSON *json) {
+	struct renderTile tile = {0};
+	tile.width = cJSON_GetObjectItem(json, "width")->valueint;
+	tile.height = cJSON_GetObjectItem(json, "height")->valueint;
+	tile.begin.x = cJSON_GetObjectItem(json, "beginX")->valueint;
+	tile.begin.y = cJSON_GetObjectItem(json, "beginY")->valueint;
+	tile.end.x = cJSON_GetObjectItem(json, "endX")->valueint;
+	tile.end.y = cJSON_GetObjectItem(json, "endY")->valueint;
+	tile.tileNum = cJSON_GetObjectItem(json, "tileNum")->valueint;
+	return tile;
+}
+
+cJSON *encodeTexture(const struct texture *t) {
+	cJSON *json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "width", t->width);
+	cJSON_AddNumberToObject(json, "height", t->height);
+	cJSON_AddNumberToObject(json, "channels", t->channels);
+	size_t primSize = t->precision == char_p ? sizeof(char) : sizeof(float);
+	size_t bytes = t->width * t->height * t->channels * primSize;
+	char *encoded = b64encode(t->data.byte_p, bytes);
+	cJSON_AddStringToObject(json, "data", encoded);
+	cJSON_AddBoolToObject(json, "isFloatPrecision", t->precision == float_p);
+	free(encoded);
+	return json;
+}
+
+struct texture *decodeTexture(const cJSON *json) {
+	struct texture *tex = calloc(1, sizeof(*tex));
+	tex->hasAlpha = false;
+	tex->colorspace = linear;
+	char *data = cJSON_GetStringValue(cJSON_GetObjectItem(json, "data"));
+	tex->data.byte_p = b64decode(data, strlen(data), NULL);
+	tex->width = cJSON_GetNumberValue(cJSON_GetObjectItem(json, "width"));
+	tex->height = cJSON_GetNumberValue(cJSON_GetObjectItem(json, "height"));
+	tex->channels = cJSON_GetNumberValue(cJSON_GetObjectItem(json, "channels"));
+	tex->precision = cJSON_IsTrue(cJSON_GetObjectItem(json, "isFloatPrecision")) ? float_p : char_p;
+	return tex;
+}
+
+cJSON *renderTile(const cJSON *json) {
+	cJSON *tileJson = cJSON_GetObjectItem(json, "tile");
+	struct renderTile tile = decodeTile(tileJson);
+	struct texture *rendered = renderSingleTile(g_worker_renderer, tile);
+	cJSON *result = cJSON_CreateObject();
+	cJSON_AddItemToObject(result, "result", encodeTexture(rendered));
+	destroyTexture(rendered);
+	return result;
 }
 
 // Worker command handler
@@ -173,6 +242,9 @@ cJSON *processCommand(struct renderClient *client, const cJSON *json) {
 			break;
 		case 2:
 			return receiveAssets(json);
+			break;
+		case 3:
+			return renderTile(json);
 			break;
 		default:
 			return errorResponse("Unknown command");
@@ -320,6 +392,14 @@ bool connectToClient(struct renderClient *client) {
 	return true;
 }
 
+void disconnectFromClient(struct renderClient *client) {
+	ASSERT(client->socket != -1);
+	shutdown(client->socket, SHUT_RDWR);
+	close(client->socket);
+	client->socket = -1;
+	client->state = Disconnected;
+}
+
 void workerCleanup() {
 	//ASSERT_NOT_REACHED();
 	destroyRenderer(g_worker_renderer);
@@ -412,6 +492,45 @@ struct syncThreadParams {
 	const struct renderer *renderer;
 };
 
+// Master side
+void *networkRenderThread(void *arg) {
+	struct renderThreadState *threadState = (struct renderThreadState *)threadUserData(arg);
+	struct renderer *r = threadState->renderer;
+	struct texture *image = threadState->output;
+	struct renderClient *client = threadState->client;
+	struct renderTile tile = nextTile(r);
+	threadState->currentTileNum = tile.tileNum;
+	
+	while (tile.tileNum != -1 && r->state.isRendering) {
+		cJSON *message = newAction("renderTile");
+		cJSON_AddItemToObject(message, "tile", encodeTile(tile));
+		sendJSON(client, message);
+		cJSON *response = readJSON(client);
+		if (cJSON_HasObjectItem(response, "error")) {
+			logr(error, "Render client returned error %s\n", cJSON_GetObjectItem(response, "error")->valuestring);
+		}
+		cJSON *result = cJSON_GetObjectItem(response, "result");
+		struct texture *tileImage = decodeTexture(result);
+		cJSON_Delete(result);
+		//TODO: Make this drawing a function
+		for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
+			for (int x = tile.begin.x; x < tile.end.x; ++x) {
+				struct color value = textureGetPixel(tileImage, x - tile.begin.x, y - tile.begin.x, false);
+				setPixel(image, value, x, y);
+			}
+		}
+		destroyTexture(tileImage);
+		r->state.renderTiles[tile.tileNum].isRendering = false;
+		r->state.renderTiles[tile.tileNum].renderComplete = true;
+		threadState->currentTileNum = -1;
+		threadState->completedSamples = 1;
+		tile = nextTile(r);
+		threadState->currentTileNum = tile.tileNum;
+	}
+	
+	return 0;
+}
+
 void *handleClientSync(void *arg) {
 	struct syncThreadParams *params = (struct syncThreadParams *)threadUserData(arg);
 	struct renderClient *client = params->client;
@@ -473,6 +592,7 @@ void *handleClientSync(void *arg) {
 		client->state = SyncFailed;
 		cJSON_Delete(error);
 		cJSON_Delete(response);
+		disconnectFromClient(client);
 		return NULL;
 	}
 	cJSON *action = cJSON_GetObjectItem(response, "action");

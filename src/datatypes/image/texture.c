@@ -155,5 +155,6 @@ void destroyTexture(struct texture *t) {
 	if (t) {
 		free(t->data.byte_p);
 		free(t);
+		t = NULL;
 	}
 }

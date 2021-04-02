@@ -26,6 +26,7 @@
 #include "samplers/sampler.h"
 #include "../utils/args.h"
 #include "../utils/platform/capabilities.h"
+#include "../utils/protocol.h"
 
 //Main thread loop speeds
 #define paused_msec 100
@@ -65,6 +66,10 @@ struct texture *renderFrame(struct renderer *r) {
 	int ctr = 1;
 	bool interactive = isSet("interactive");
 	
+	//HACK TEST
+	r->prefs.threadCount = 1;
+	logr(warning, "Using a single network render thread!\n");
+	
 	// Map of threads that have finished, so we don't check them again.
 	bool *checkedThreads = calloc(r->prefs.threadCount, sizeof(*checkedThreads));
 	
@@ -73,8 +78,8 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output};
-		r->state.threads[t] = (struct crThread){.threadFunc = interactive ? renderThreadInteractive : renderThread, .userData = &r->state.threadStates[t]};
+		r->state.threadStates[t] = (struct renderThreadState){.client = r->state.clients, .thread_num = t, .threadComplete = false, .renderer = r, .output = output};
+		r->state.threads[t] = (struct crThread){.threadFunc = networkRenderThread, .userData = &r->state.threadStates[t]};
 		if (threadStart(&r->state.threads[t])) {
 			logr(error, "Failed to create a crThread.\n");
 		} else {
@@ -213,18 +218,45 @@ void *renderThreadInteractive(void *arg) {
 	return 0;
 }
 
-void *networkRenderThread(void *arg) {
-	struct renderThreadState *threadState = (struct renderThreadState *)threadUserData(arg);
-	struct renderer *r = threadState->renderer;
-	struct texture *image = threadState->output;
-	struct renderTile tile = nextTile(r);
-	threadState->currentTileNum = tile.tileNum;
-	
-	// Now send this over to the client, get back the resulting tile data and plop it into image
-	//FIXME:
-	(void)image;
-	ASSERT_NOT_REACHED();
-	return 0;
+struct texture *renderSingleTile(struct renderer *r, struct renderTile tile) {
+	struct texture *tileData = newTexture(char_p, tile.width, tile.height, 3);
+	sampler *sampler = newSampler();
+	int completedSamples = 1;
+	long samples = 0;
+	while (completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
+		for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
+			for (int x = tile.begin.x; x < tile.end.x; ++x) {
+				if (r->state.renderAborted) return 0;
+				uint32_t pixIdx = (uint32_t)(y * r->prefs.imageWidth + x);
+				initSampler(sampler, Halton, completedSamples - 1, r->prefs.sampleCount, pixIdx);
+				
+				struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
+				struct lightRay incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
+				struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
+				
+				//And process the running average
+				output = colorCoef((float)(completedSamples - 1), output);
+				output = addColors(output, sample);
+				float t = 1.0f / completedSamples;
+				output = colorCoef(t, output);
+				
+				//Store internal render buffer (float precision)
+				setPixel(r->state.renderBuffer, output, x, y);
+				
+				//Gamma correction
+				output = toSRGB(output);
+				
+				//And store the image data
+				int localX = x - tile.begin.x;
+				int localY = y - tile.begin.y;
+				setPixel(tileData, output, localX, localY);
+			}
+		}
+		//For performance metrics
+		samples++;
+		completedSamples++;
+	}
+	return tileData;
 }
 
 /**
