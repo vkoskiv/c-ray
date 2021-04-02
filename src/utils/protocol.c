@@ -493,12 +493,16 @@ struct syncThreadParams {
 
 // Master side
 void *networkRenderThread(void *arg) {
-	struct renderThreadState *threadState = (struct renderThreadState *)threadUserData(arg);
-	struct renderer *r = threadState->renderer;
-	struct texture *image = threadState->output;
-	struct renderClient *client = threadState->client;
+	struct renderThreadState *state = (struct renderThreadState *)threadUserData(arg);
+	struct renderer *r = state->renderer;
+	struct texture *image = state->output;
+	struct renderClient *client = state->client;
+	if (!client) {
+		state->threadComplete = true;
+		return NULL;
+	}
 	struct renderTile tile = nextTile(r);
-	threadState->currentTileNum = tile.tileNum;
+	state->currentTileNum = tile.tileNum;
 	
 	while (tile.tileNum != -1 && r->state.isRendering) {
 		cJSON *message = newAction("renderTile");
@@ -521,12 +525,12 @@ void *networkRenderThread(void *arg) {
 		destroyTexture(tileImage);
 		r->state.renderTiles[tile.tileNum].isRendering = false;
 		r->state.renderTiles[tile.tileNum].renderComplete = true;
-		threadState->currentTileNum = -1;
-		threadState->completedSamples = 1;
+		state->currentTileNum = -1;
+		state->completedSamples = 1;
 		tile = nextTile(r);
-		threadState->currentTileNum = tile.tileNum;
+		state->currentTileNum = tile.tileNum;
 	}
-	
+	state->threadComplete = true;
 	return 0;
 }
 
