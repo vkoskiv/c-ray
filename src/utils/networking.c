@@ -41,7 +41,6 @@
 #define C_RAY_CHUNKSIZE 1024
 #define C_RAY_PORT 2222
 
-#include <stdio.h>
 bool chunkedSend(int socket, const char *data) {
 	const size_t msgLen = strlen(data) + 1; // +1 for null byte
 	const size_t chunkSize = C_RAY_CHUNKSIZE;

@@ -8,8 +8,12 @@
 
 #pragma once
 
+#ifndef WINDOWS
+
 #include <unistd.h>
 
 bool chunkedSend(int socket, const char *data);
 
 ssize_t chunkedReceive(int socket, char **data);
+
+#endif

@@ -29,9 +29,11 @@
 static const unsigned char base64_table[65] =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-char *b64encode(const void *data, const size_t dataLength) {
+char *b64encode(const void *input, const size_t dataLength) {
 	unsigned char *out, *pos;
 	const unsigned char *end, *in;
+	
+	const unsigned char *data = (const unsigned char *)input;
 	
 	size_t outputLength;
 	
