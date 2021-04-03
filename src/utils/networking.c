@@ -122,13 +122,4 @@ bail:
 	free(scratchBuf);
 	return ret == -1 ? -1 : finalLength;
 }
-
-#else
-bool chunkedSend(int socket, const char *data) {
-	logr(error, "c-ray doesn't support the proprietary networking stack on Windows. Sorry!\n");
-}
-
-ssize_t chunkedReceive(int socket, char **data) {
-	logr(error, "c-ray doesn't support the proprietary networking stack on Windows. Sorry!\n");
-}
 #endif
