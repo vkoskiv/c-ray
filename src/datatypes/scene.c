@@ -134,8 +134,45 @@ int loadScene(struct renderer *r, char *input) {
 	}
 	
 	if (isSet("use_clustering")) {
-		// Stash a cached of scene data here
+		// Stash a cache of scene data here
 		cJSON *cache = cJSON_Parse(input);
+		// Apply overrides to the cache here
+		if (isSet("samples_override")) {
+			cJSON *renderer = cJSON_GetObjectItem(cache, "renderer");
+			if (cJSON_IsObject(renderer) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "samples"))) {
+				int samples = intPref("samples_override");
+				logr(debug, "Overriding cache sample count to %i\n", samples);
+				cJSON_ReplaceItemInObject(renderer, "samples", cJSON_CreateNumber(samples));
+			}
+		}
+		
+		if (isSet("dims_override")) {
+			cJSON *renderer = cJSON_GetObjectItem(cache, "renderer");
+			int width = intPref("dims_width");
+			int height = intPref("dims_height");
+			if (cJSON_IsObject(renderer)
+				&& cJSON_IsNumber(cJSON_GetObjectItem(renderer, "width"))
+				&& cJSON_IsNumber(cJSON_GetObjectItem(renderer, "height"))) {
+				logr(info, "Overriding cache image dimensions to %ix%i\n", width, height);
+				cJSON_ReplaceItemInObject(renderer, "width", cJSON_CreateNumber(width));
+				cJSON_ReplaceItemInObject(renderer, "height", cJSON_CreateNumber(height));
+			}
+			
+		}
+		
+		if (isSet("tiledims_override")) {
+			cJSON *renderer = cJSON_GetObjectItem(cache, "renderer");
+			int width = intPref("tile_width");
+			int height = intPref("tile_height");
+			if (cJSON_IsObject(renderer)
+				&& cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileWidth"))
+				&& cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileHeight"))) {
+				logr(info, "Overriding cache tile dimensions to %ix%i\n", width, height);
+				cJSON_ReplaceItemInObject(renderer, "tileWidth", cJSON_CreateNumber(width));
+				cJSON_ReplaceItemInObject(renderer, "tileHeight", cJSON_CreateNumber(height));
+			}
+			
+		}
 		// Embed files into the json as base64
 		r->sceneCache = cJSON_PrintUnformatted(cache);
 	}
