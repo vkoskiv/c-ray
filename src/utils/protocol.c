@@ -72,7 +72,7 @@ struct renderClient {
 };
 
 // Consumes given json, no need to free it after.
-void sendJSON(int socket, cJSON *json) {
+static void sendJSON(int socket, cJSON *json) {
 	ASSERT(json);
 	char *jsonText = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
@@ -80,7 +80,7 @@ void sendJSON(int socket, cJSON *json) {
 	free(jsonText);
 }
 
-cJSON *readJSON(int socket) {
+static cJSON *readJSON(int socket) {
 	char *recvBuf = NULL;
 	chunkedReceive(socket, &recvBuf);
 	cJSON *received = cJSON_Parse(recvBuf);
@@ -88,26 +88,26 @@ cJSON *readJSON(int socket) {
 	return received;
 }
 
-cJSON *errorResponse(char *error) {
+static cJSON *errorResponse(char *error) {
 	cJSON *errorMsg = cJSON_CreateObject();
 	cJSON_AddStringToObject(errorMsg, "error", error);
 	return errorMsg;
 }
 
-cJSON *goodbye() {
+static cJSON *goodbye() {
 	cJSON *goodbye = cJSON_CreateObject();
 	cJSON_AddStringToObject(goodbye, "action", "goodbye");
 	return goodbye;
 }
 
-cJSON *newAction(char *action) {
+static cJSON *newAction(char *action) {
 	if (!action) return NULL;
 	cJSON *actionJson = cJSON_CreateObject();
 	cJSON_AddStringToObject(actionJson, "action", action);
 	return actionJson;
 }
 
-cJSON *validateHandshake(const cJSON *in) {
+static cJSON *validateHandshake(const cJSON *in) {
 	const cJSON *version = cJSON_GetObjectItem(in, "version");
 	const cJSON *githash = cJSON_GetObjectItem(in, "githash");
 	if (!stringEquals(version->valuestring, PROTO_VERSION)) return errorResponse("Protocol version mismatch");
@@ -115,7 +115,7 @@ cJSON *validateHandshake(const cJSON *in) {
 	return newAction("startSync");
 }
 
-cJSON *receiveScene(const cJSON *json) {
+static cJSON *receiveScene(const cJSON *json) {
 	cJSON *scene = cJSON_GetObjectItem(json, "data");
 	char *sceneText = cJSON_PrintUnformatted(scene);
 	g_worker_renderer = newRenderer();
@@ -136,7 +136,7 @@ cJSON *receiveScene(const cJSON *json) {
 	return resp;
 }
 
-cJSON *receiveAssets(const cJSON *json) {
+static cJSON *receiveAssets(const cJSON *json) {
 	cJSON *files = cJSON_GetObjectItem(json, "files");
 	char *data = cJSON_PrintUnformatted(files);
 	decodeFileCache(data);
@@ -149,7 +149,7 @@ struct command {
 	int id;
 };
 
-cJSON *encodeTile(struct renderTile tile) {
+static cJSON *encodeTile(struct renderTile tile) {
 	cJSON *json = cJSON_CreateObject();
 	cJSON_AddNumberToObject(json, "width", tile.width);
 	cJSON_AddNumberToObject(json, "height", tile.height);
@@ -161,7 +161,7 @@ cJSON *encodeTile(struct renderTile tile) {
 	return json;
 }
 
-struct renderTile decodeTile(const cJSON *json) {
+static struct renderTile decodeTile(const cJSON *json) {
 	struct renderTile tile = {0};
 	tile.width = cJSON_GetObjectItem(json, "width")->valueint;
 	tile.height = cJSON_GetObjectItem(json, "height")->valueint;
@@ -173,7 +173,7 @@ struct renderTile decodeTile(const cJSON *json) {
 	return tile;
 }
 
-cJSON *encodeTexture(const struct texture *t) {
+static cJSON *encodeTexture(const struct texture *t) {
 	cJSON *json = cJSON_CreateObject();
 	cJSON_AddNumberToObject(json, "width", t->width);
 	cJSON_AddNumberToObject(json, "height", t->height);
@@ -187,7 +187,7 @@ cJSON *encodeTexture(const struct texture *t) {
 	return json;
 }
 
-struct texture *decodeTexture(const cJSON *json) {
+static struct texture *decodeTexture(const cJSON *json) {
 	struct texture *tex = calloc(1, sizeof(*tex));
 	tex->hasAlpha = false;
 	tex->colorspace = linear;
@@ -200,17 +200,6 @@ struct texture *decodeTexture(const cJSON *json) {
 	return tex;
 }
 
-cJSON *renderTile(const cJSON *json) {
-	cJSON *tileJson = cJSON_GetObjectItem(json, "tile");
-	struct renderTile tile = decodeTile(tileJson);
-	struct texture *rendered = renderSingleTile(g_worker_renderer, tile);
-	cJSON *result = cJSON_CreateObject();
-	cJSON_AddItemToObject(result, "result", encodeTexture(rendered));
-	cJSON_AddItemToObject(result, "tile", tileJson);
-	destroyTexture(rendered);
-	return result;
-}
-
 struct workerThreadState {
 	int thread_num;
 	int connectionSocket;
@@ -219,7 +208,7 @@ struct workerThreadState {
 	bool threadComplete;
 };
 
-struct renderTile getWork(int connectionSocket) {
+static struct renderTile getWork(int connectionSocket) {
 	sendJSON(connectionSocket, newAction("getWork"));
 	cJSON *response = readJSON(connectionSocket);
 	cJSON *error = cJSON_GetObjectItem(response, "error");
@@ -241,7 +230,7 @@ struct renderTile getWork(int connectionSocket) {
 	return tile;
 }
 
-void submitWork(int sock, struct texture *work, struct renderTile forTile) {
+static void submitWork(int sock, struct texture *work, struct renderTile forTile) {
 	cJSON *result = encodeTexture(work);
 	cJSON *tile = encodeTile(forTile);
 	cJSON *package = newAction("submitWork");
@@ -250,7 +239,7 @@ void submitWork(int sock, struct texture *work, struct renderTile forTile) {
 	sendJSON(sock, package);
 }
 
-void *workerThread(void *arg) {
+static void *workerThread(void *arg) {
 	struct workerThreadState *threadState = (struct workerThreadState *)threadUserData(arg);
 	struct renderer *r = threadState->renderer;
 	int sock = threadState->connectionSocket;
@@ -283,7 +272,7 @@ void *workerThread(void *arg) {
 
 #define active_msec  16
 
-cJSON *startRender(int connectionSocket, const cJSON *json) {
+static cJSON *startRender(int connectionSocket, const cJSON *json) {
 	g_worker_renderer->state.isRendering = true;
 	g_worker_renderer->state.renderAborted = false;
 	g_worker_renderer->state.saveImage = false;
@@ -330,7 +319,7 @@ struct command workerCommands[] = {
 	{"startRender", 3},
 };
 
-int matchCommand(struct command *cmdlist, char *cmd) {
+static int matchCommand(struct command *cmdlist, char *cmd) {
 	size_t commandCount = sizeof(workerCommands) / sizeof(struct {char *name; int id;});
 	for (size_t i = 0; i < commandCount; ++i) {
 		if (stringEquals(cmdlist[i].name, cmd)) return cmdlist[i].id;
@@ -339,7 +328,7 @@ int matchCommand(struct command *cmdlist, char *cmd) {
 }
 
 // Worker command handler
-cJSON *processCommand(int connectionSocket, const cJSON *json) {
+static cJSON *processCommand(int connectionSocket, const cJSON *json) {
 	if (!json) {
 		return errorResponse("Couldn't parse incoming JSON");
 	}
@@ -370,7 +359,7 @@ cJSON *processCommand(int connectionSocket, const cJSON *json) {
 	ASSERT_NOT_REACHED();
 }
 
-cJSON *makeHandshake() {
+static cJSON *makeHandshake() {
 	cJSON *handshake = cJSON_CreateObject();
 	cJSON_AddStringToObject(handshake, "action", "handshake");
 	cJSON_AddStringToObject(handshake, "version", PROTO_VERSION);
@@ -378,7 +367,7 @@ cJSON *makeHandshake() {
 	return handshake;
 }
 
-struct sockaddr_in parseAddress(const char *str) {
+static struct sockaddr_in parseAddress(const char *str) {
 	lineBuffer *line = newLineBuffer();
 	fillLineBuffer(line, str, ':');
 	struct sockaddr_in address = {0};
@@ -389,7 +378,7 @@ struct sockaddr_in parseAddress(const char *str) {
 	return address;
 }
 
-bool checkConnectivity(struct renderClient client) {
+static bool checkConnectivity(struct renderClient client) {
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd == -1) {
 		logr(error, "Failed to bind to socket while testing connectivity\n");
@@ -422,7 +411,7 @@ bool checkConnectivity(struct renderClient client) {
 
 // Fetches list of nodes from arguments, verifies that they are reachable, and
 // returns them in a nice list. Also got the size there in the amount param, if you need it.
-struct renderClient *buildClientList(size_t *amount) {
+static struct renderClient *buildClientList(size_t *amount) {
 	ASSERT(isSet("use_clustering"));
 	ASSERT(isSet("nodes_list"));
 	char *nodesString = stringPref("nodes_list");
@@ -468,7 +457,7 @@ struct renderClient *buildClientList(size_t *amount) {
 	return clients;
 }
 
-bool containsError(const cJSON *json) {
+static bool containsError(const cJSON *json) {
 	const cJSON *error = cJSON_GetObjectItem(json, "error");
 	if (cJSON_IsString(error)) {
 		return true;
@@ -476,7 +465,7 @@ bool containsError(const cJSON *json) {
 	return false;
 }
 
-bool containsGoodbye(const cJSON *json) {
+static bool containsGoodbye(const cJSON *json) {
 	const cJSON *action = cJSON_GetObjectItem(json, "action");
 	if (cJSON_IsString(action)) {
 		if (stringEquals(action->valuestring, "goodbye")) {
@@ -486,7 +475,7 @@ bool containsGoodbye(const cJSON *json) {
 	return false;
 }
 
-bool connectToClient(struct renderClient *client) {
+static bool connectToClient(struct renderClient *client) {
 	ASSERT(client->socket == -1);
 	client->socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (client->socket == -1) {
@@ -506,7 +495,7 @@ bool connectToClient(struct renderClient *client) {
 	return true;
 }
 
-void disconnectFromClient(struct renderClient *client) {
+static void disconnectFromClient(struct renderClient *client) {
 	ASSERT(client->socket != -1);
 	shutdown(client->socket, SHUT_RDWR);
 	close(client->socket);
@@ -514,7 +503,7 @@ void disconnectFromClient(struct renderClient *client) {
 	client->state = Disconnected;
 }
 
-void workerCleanup() {
+static void workerCleanup() {
 	destroyRenderer(g_worker_renderer);
 	destroyFileCache();
 }
@@ -599,7 +588,7 @@ int startWorkerServer() {
 	return 0;
 }
 
-cJSON *processGetWork(struct renderThreadState *state, const cJSON *json) {
+static cJSON *processGetWork(struct renderThreadState *state, const cJSON *json) {
 	(void)state;
 	(void)json;
 	struct renderTile tile = nextTile(state->renderer);
@@ -609,11 +598,13 @@ cJSON *processGetWork(struct renderThreadState *state, const cJSON *json) {
 	return response;
 }
 
-cJSON *processSubmitWork(struct renderThreadState *state, const cJSON *json) {
+static cJSON *processSubmitWork(struct renderThreadState *state, const cJSON *json) {
 	cJSON *resultJson = cJSON_GetObjectItem(json, "result");
 	struct texture *tileImage = decodeTexture(resultJson);
 	cJSON *tileJson = cJSON_GetObjectItem(json, "tile");
 	struct renderTile tile = decodeTile(tileJson);
+	state->renderer->state.renderTiles[tile.tileNum].isRendering = false;
+	state->renderer->state.renderTiles[tile.tileNum].renderComplete = true;
 	for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 		for (int x = tile.begin.x; x < tile.end.x; ++x) {
 			struct color value = textureGetPixel(tileImage, x - tile.begin.x, y - tile.begin.x, false);
@@ -629,7 +620,7 @@ struct command serverCommands[] = {
 	{"submitWork", 1},
 };
 
-cJSON *processClientRequest(struct renderThreadState *state, const cJSON *json) {
+static cJSON *processClientRequest(struct renderThreadState *state, const cJSON *json) {
 	if (!json) {
 		return errorResponse("Couldn't parse incoming JSON");
 	}
@@ -665,35 +656,6 @@ void *networkRenderThread(void *arg) {
 		state->threadComplete = true;
 		return NULL;
 	}
-	/*struct renderTile tile = nextTile(r);
-	state->currentTileNum = tile.tileNum;
-	
-	while (tile.tileNum != -1 && r->state.isRendering) {
-		cJSON *message = newAction("renderTile");
-		cJSON_AddItemToObject(message, "tile", encodeTile(tile));
-		sendJSON(client, message);
-		cJSON *response = readJSON(client);
-		if (cJSON_HasObjectItem(response, "error")) {
-			logr(error, "Render client returned error %s\n", cJSON_GetObjectItem(response, "error")->valuestring);
-		}
-		cJSON *result = cJSON_GetObjectItem(response, "result");
-		struct texture *tileImage = decodeTexture(result);
-		cJSON_Delete(response);
-		//TODO: Make this drawing a function
-		for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
-			for (int x = tile.begin.x; x < tile.end.x; ++x) {
-				struct color value = textureGetPixel(tileImage, x - tile.begin.x, y - tile.begin.x, false);
-				setPixel(image, value, x, y);
-			}
-		}
-		destroyTexture(tileImage);
-		r->state.renderTiles[tile.tileNum].isRendering = false;
-		r->state.renderTiles[tile.tileNum].renderComplete = true;
-		state->currentTileNum = -1;
-		state->completedSamples = 1;
-		tile = nextTile(r);
-		state->currentTileNum = tile.tileNum;
-	}*/
 	
 	// Set this worker into render mode
 	sendJSON(client->socket, newAction("startRender"));
@@ -716,7 +678,7 @@ struct syncThreadParams {
 	const struct renderer *renderer;
 };
 
-void *handleClientSync(void *arg) {
+static void *handleClientSync(void *arg) {
 	struct syncThreadParams *params = (struct syncThreadParams *)threadUserData(arg);
 	struct renderClient *client = params->client;
 	connectToClient(client);
