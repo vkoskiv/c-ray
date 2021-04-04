@@ -41,6 +41,8 @@
 #include "../datatypes/tile.h"
 #include "../datatypes/image/texture.h"
 #include "../datatypes/color.h"
+#include "../utils/platform/mutex.h"
+#include "../utils/timer.h"
 
 #define C_RAY_HEADERSIZE 8
 #define C_RAY_CHUNKSIZE 1024
@@ -48,6 +50,7 @@
 #define PROTO_VERSION "0.1"
 
 struct renderer *g_worker_renderer = NULL;
+struct crMutex *g_worker_socket_mutex = NULL;
 
 enum clientState {
 	Disconnected,
@@ -69,19 +72,17 @@ struct renderClient {
 };
 
 // Consumes given json, no need to free it after.
-void sendJSON(struct renderClient *client, cJSON *json) {
-	ASSERT(client);
+void sendJSON(int socket, cJSON *json) {
 	ASSERT(json);
 	char *jsonText = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
-	chunkedSend(client->socket, jsonText);
+	chunkedSend(socket, jsonText);
 	free(jsonText);
 }
 
-cJSON *readJSON(struct renderClient *client) {
-	ASSERT(client);
+cJSON *readJSON(int socket) {
 	char *recvBuf = NULL;
-	chunkedReceive(client->socket, &recvBuf);
+	chunkedReceive(socket, &recvBuf);
 	cJSON *received = cJSON_Parse(recvBuf);
 	free(recvBuf);
 	return received;
@@ -118,17 +119,14 @@ cJSON *receiveScene(const cJSON *json) {
 	cJSON *scene = cJSON_GetObjectItem(json, "data");
 	char *sceneText = cJSON_PrintUnformatted(scene);
 	g_worker_renderer = newRenderer();
-	//FIXME: HACK
-	g_worker_renderer->prefs.assetPath = stringCopy("input/");
+	g_worker_socket_mutex = createMutex();
+	cJSON *assetPathJson = cJSON_GetObjectItem(json, "assetPath");
+	g_worker_renderer->prefs.assetPath = stringCopy(assetPathJson->valuestring);
 	if (loadScene(g_worker_renderer, sceneText)) {
 		return errorResponse("Scene parsing error");
 	}
 	free(sceneText);
 	cJSON *resp = newAction("ready");
-	
-	g_worker_renderer->state.isRendering = true;
-	g_worker_renderer->state.renderAborted = false;
-	g_worker_renderer->state.saveImage = false;
 	
 	// Stash in our capabilities here
 	//TODO: Maybe some performance value in here, so the master knows how much work to assign?
@@ -146,20 +144,10 @@ cJSON *receiveAssets(const cJSON *json) {
 	return newAction("ok");
 }
 
-struct { char *name; int id; } workerCommands[] = {
-	{"handshake", 0},
-	{"loadScene", 1},
-	{"loadAssets", 2},
-	{"renderTile", 3},
+struct command {
+	char *name;
+	int id;
 };
-
-int matchWorkerCommand(char *cmd) {
-	size_t commandCount = sizeof(workerCommands) / sizeof(struct {char *name; int id;});
-	for (size_t i = 0; i < commandCount; ++i) {
-		if (stringEquals(workerCommands[i].name, cmd)) return workerCommands[i].id;
-	}
-	return -1;
-}
 
 cJSON *encodeTile(struct renderTile tile) {
 	cJSON *json = cJSON_CreateObject();
@@ -218,13 +206,140 @@ cJSON *renderTile(const cJSON *json) {
 	struct texture *rendered = renderSingleTile(g_worker_renderer, tile);
 	cJSON *result = cJSON_CreateObject();
 	cJSON_AddItemToObject(result, "result", encodeTexture(rendered));
+	cJSON_AddItemToObject(result, "tile", tileJson);
 	destroyTexture(rendered);
 	return result;
 }
 
+struct workerThreadState {
+	int thread_num;
+	int connectionSocket;
+	struct crMutex *socketMutex;
+	struct renderer *renderer;
+	bool threadComplete;
+};
+
+struct renderTile getWork(int connectionSocket) {
+	sendJSON(connectionSocket, newAction("getWork"));
+	cJSON *response = readJSON(connectionSocket);
+	cJSON *error = cJSON_GetObjectItem(response, "error");
+	if (cJSON_IsString(error)) {
+		if (stringEquals(error->valuestring, "renderComplete")) {
+			struct renderTile tile = {0};
+			tile.tileNum = -1;
+			return tile;
+		}
+	}
+	if (!response) {
+		struct renderTile tile = {0};
+		tile.tileNum = -1;
+		return tile;
+	}
+	cJSON *tileJson = cJSON_GetObjectItem(response, "tile");
+	struct renderTile tile = decodeTile(tileJson);
+	cJSON_Delete(response);
+	return tile;
+}
+
+void submitWork(int sock, struct texture *work, struct renderTile forTile) {
+	cJSON *result = encodeTexture(work);
+	cJSON *tile = encodeTile(forTile);
+	cJSON *package = newAction("submitWork");
+	cJSON_AddItemToObject(package, "result", result);
+	cJSON_AddItemToObject(package, "tile", tile);
+	sendJSON(sock, package);
+}
+
+void *workerThread(void *arg) {
+	struct workerThreadState *threadState = (struct workerThreadState *)threadUserData(arg);
+	struct renderer *r = threadState->renderer;
+	int sock = threadState->connectionSocket;
+	struct crMutex *sockMutex = threadState->socketMutex;
+	
+	lockMutex(sockMutex);
+	struct renderTile tile = getWork(sock);
+	releaseMutex(sockMutex);
+	
+	while (tile.tileNum != -1 && r->state.isRendering) {
+		struct texture *thing = renderSingleTile(r, tile);
+		
+		lockMutex(sockMutex);
+		submitWork(sock, thing, tile);
+		cJSON *resp = readJSON(sock);
+		if (!stringEquals(cJSON_GetObjectItem(resp, "action")->valuestring, "ok")) {
+			threadState->threadComplete = true;
+			return 0;
+		}
+		releaseMutex(sockMutex);
+		
+		lockMutex(sockMutex);
+		tile = getWork(sock);
+		releaseMutex(sockMutex);
+	}
+	
+	threadState->threadComplete = true;
+	return 0;
+}
+
+#define active_msec  16
+
+cJSON *startRender(int connectionSocket, const cJSON *json) {
+	g_worker_renderer->state.isRendering = true;
+	g_worker_renderer->state.renderAborted = false;
+	g_worker_renderer->state.saveImage = false;
+	logr(info, "Starting network render server\n");
+	
+	int threadCount = g_worker_renderer->prefs.threadCount;
+	// Map of threads that have finished, so we don't check them again.
+	bool *checkedThreads = calloc(threadCount, sizeof(*checkedThreads));
+	struct crThread *workerThreads = calloc(threadCount, sizeof(*workerThreads));
+	struct workerThreadState *workerThreadStates = calloc(threadCount, sizeof(*workerThreadStates));
+	
+	//Create render threads (Nonblocking)
+	for (int t = 0; t < threadCount; ++t) {
+		workerThreadStates[t] = (struct workerThreadState){.thread_num = t, .connectionSocket = connectionSocket, .socketMutex = g_worker_socket_mutex, .renderer = g_worker_renderer};
+		workerThreads[t] = (struct crThread){.threadFunc = workerThread, .userData = &workerThreadStates[t]};
+		if (threadStart(&workerThreads[t])) {
+			logr(error, "Failed to create a crThread.\n");
+		} else {
+			g_worker_renderer->state.activeThreads++;
+		}
+	}
+	
+	while (g_worker_renderer->state.isRendering) {
+		//Wait for render threads to finish (Render finished)
+		for (int t = 0; t < threadCount; ++t) {
+			if (workerThreadStates[t].threadComplete && !checkedThreads[t]) {
+				--g_worker_renderer->state.activeThreads;
+				checkedThreads[t] = true; //Mark as checked
+			}
+			if (!g_worker_renderer->state.activeThreads || g_worker_renderer->state.renderAborted) {
+				g_worker_renderer->state.isRendering = false;
+			}
+		}
+		sleepMSec(active_msec);
+	}
+	
+	return goodbye();
+}
+
+struct command workerCommands[] = {
+	{"handshake", 0},
+	{"loadScene", 1},
+	{"loadAssets", 2},
+	{"startRender", 3},
+};
+
+int matchCommand(struct command *cmdlist, char *cmd) {
+	size_t commandCount = sizeof(workerCommands) / sizeof(struct {char *name; int id;});
+	for (size_t i = 0; i < commandCount; ++i) {
+		if (stringEquals(cmdlist[i].name, cmd)) return cmdlist[i].id;
+	}
+	return -1;
+}
+
 // Worker command handler
-cJSON *processCommand(struct renderClient *client, const cJSON *json) {
-	(void)client;
+cJSON *processCommand(int connectionSocket, const cJSON *json) {
 	if (!json) {
 		return errorResponse("Couldn't parse incoming JSON");
 	}
@@ -233,7 +348,7 @@ cJSON *processCommand(struct renderClient *client, const cJSON *json) {
 		return errorResponse("No action provided");
 	}
 	
-	switch (matchWorkerCommand(action->valuestring)) {
+	switch (matchCommand(workerCommands, action->valuestring)) {
 		case 0:
 			return validateHandshake(json);
 			break;
@@ -244,16 +359,15 @@ cJSON *processCommand(struct renderClient *client, const cJSON *json) {
 			return receiveAssets(json);
 			break;
 		case 3:
-			return renderTile(json);
+			// startRender contains worker event loop and blocks until render completion.
+			return startRender(connectionSocket, json);
 			break;
 		default:
 			return errorResponse("Unknown command");
 			break;
 	}
 	
-	return goodbye();
 	ASSERT_NOT_REACHED();
-	return NULL;
 }
 
 cJSON *makeHandshake() {
@@ -401,7 +515,6 @@ void disconnectFromClient(struct renderClient *client) {
 }
 
 void workerCleanup() {
-	//ASSERT_NOT_REACHED();
 	destroyRenderer(g_worker_renderer);
 	destroyFileCache();
 }
@@ -457,7 +570,7 @@ int startWorkerServer() {
 				break;
 			}
 			cJSON *message = cJSON_Parse(buf);
-			cJSON *myResponse = processCommand(NULL, message);
+			cJSON *myResponse = processCommand(connectionSocket, message);
 			char *responseText = cJSON_PrintUnformatted(myResponse);
 			if (chunkedSend(connectionSocket, responseText)) {
 				logr(warning, "chunkedSend() failed, error %s\n", strerror(errno));
@@ -486,22 +599,73 @@ int startWorkerServer() {
 	return 0;
 }
 
-struct syncThreadParams {
-	struct renderClient *client;
-	const struct renderer *renderer;
+cJSON *processGetWork(struct renderThreadState *state, const cJSON *json) {
+	(void)state;
+	(void)json;
+	struct renderTile tile = nextTile(state->renderer);
+	if (tile.tileNum == -1) return errorResponse("renderComplete");
+	cJSON *response = newAction("newWork");
+	cJSON_AddItemToObject(response, "tile", encodeTile(tile));
+	return response;
+}
+
+cJSON *processSubmitWork(struct renderThreadState *state, const cJSON *json) {
+	cJSON *resultJson = cJSON_GetObjectItem(json, "result");
+	struct texture *tileImage = decodeTexture(resultJson);
+	cJSON *tileJson = cJSON_GetObjectItem(json, "tile");
+	struct renderTile tile = decodeTile(tileJson);
+	for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
+		for (int x = tile.begin.x; x < tile.end.x; ++x) {
+			struct color value = textureGetPixel(tileImage, x - tile.begin.x, y - tile.begin.x, false);
+			setPixel(state->output, value, x, y);
+		}
+	}
+	destroyTexture(tileImage);
+	return newAction("ok");
+}
+
+struct command serverCommands[] = {
+	{"getWork", 0},
+	{"submitWork", 1},
 };
+
+cJSON *processClientRequest(struct renderThreadState *state, const cJSON *json) {
+	if (!json) {
+		return errorResponse("Couldn't parse incoming JSON");
+	}
+	const cJSON *action = cJSON_GetObjectItem(json, "action");
+	if (!cJSON_IsString(action)) {
+		return errorResponse("No action provided");
+	}
+	
+	switch (matchCommand(serverCommands, action->valuestring)) {
+		case 0:
+			return processGetWork(state, json);
+			break;
+		case 1:
+			return processSubmitWork(state, json);
+			break;
+		default:
+			return errorResponse("Unknown command");
+			break;
+	}
+	
+	return goodbye();
+	ASSERT_NOT_REACHED();
+	return NULL;
+}
 
 // Master side
 void *networkRenderThread(void *arg) {
 	struct renderThreadState *state = (struct renderThreadState *)threadUserData(arg);
 	struct renderer *r = state->renderer;
-	struct texture *image = state->output;
+	//struct texture *image = state->output;
 	struct renderClient *client = state->client;
 	if (!client) {
 		state->threadComplete = true;
 		return NULL;
 	}
-	struct renderTile tile = nextTile(r);
+	/*struct renderTile tile = nextTile(r);
 	state->currentTileNum = tile.tileNum;
 	
 	while (tile.tileNum != -1 && r->state.isRendering) {
@@ -514,7 +678,7 @@ void *networkRenderThread(void *arg) {
 		}
 		cJSON *result = cJSON_GetObjectItem(response, "result");
 		struct texture *tileImage = decodeTexture(result);
-		cJSON_Delete(result);
+		cJSON_Delete(response);
 		//TODO: Make this drawing a function
 		for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 			for (int x = tile.begin.x; x < tile.end.x; ++x) {
@@ -529,10 +693,28 @@ void *networkRenderThread(void *arg) {
 		state->completedSamples = 1;
 		tile = nextTile(r);
 		state->currentTileNum = tile.tileNum;
+	}*/
+	
+	// Set this worker into render mode
+	sendJSON(client->socket, newAction("startRender"));
+	
+	// And just wait for commands.
+	while (r->state.isRendering) {
+		cJSON *request = readJSON(client->socket);
+		sendJSON(client->socket, processClientRequest(state, request));
+		cJSON_Delete(request);
 	}
+	
+	// Let the worker now we're done here
+	// TODO (right now we disconnect, and the client implies from that)
 	state->threadComplete = true;
 	return 0;
 }
+
+struct syncThreadParams {
+	struct renderClient *client;
+	const struct renderer *renderer;
+};
 
 void *handleClientSync(void *arg) {
 	struct syncThreadParams *params = (struct syncThreadParams *)threadUserData(arg);
@@ -545,8 +727,8 @@ void *handleClientSync(void *arg) {
 	client->state = Syncing;
 	
 	// Handshake with the client
-	sendJSON(client, makeHandshake());
-	cJSON *response = readJSON(client);
+	sendJSON(client->socket, makeHandshake());
+	cJSON *response = readJSON(client->socket);
 	if (cJSON_HasObjectItem(response, "error")) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
 		logr(warning, "Client handshake error: %s\n", error->valuestring);
@@ -562,8 +744,8 @@ void *handleClientSync(void *arg) {
 	cJSON *assets = cJSON_CreateObject();
 	cJSON_AddStringToObject(assets, "action", "loadAssets");
 	cJSON_AddItemToObject(assets, "files", cJSON_Parse(encodeFileCache()));
-	sendJSON(client, assets);
-	response = readJSON(client);
+	sendJSON(client->socket, assets);
+	response = readJSON(client->socket);
 	char *responseText = cJSON_PrintUnformatted(response);
 	logr(debug, "Response: %s\n", responseText);
 	free(responseText);
@@ -583,8 +765,9 @@ void *handleClientSync(void *arg) {
 	cJSON_AddStringToObject(scene, "action", "loadScene");
 	cJSON *data = cJSON_Parse(params->renderer->sceneCache);
 	cJSON_AddItemToObject(scene, "data", data);
-	sendJSON(client, scene);
-	response = readJSON(client);
+	cJSON_AddStringToObject(scene, "assetPath", params->renderer->prefs.assetPath);
+	sendJSON(client->socket, scene);
+	response = readJSON(client->socket);
 	responseText = cJSON_PrintUnformatted(response);
 	logr(debug, "Response: %s\n", responseText);
 	free(responseText);
