@@ -425,8 +425,7 @@ static struct renderClient *buildClientList(size_t *amount) {
 	char *current = firstToken(line);
 	for (size_t i = 0; i < clientCount; ++i) {
 		clients[i].address = parseAddress(current);
-		//clients[i].state = checkConnectivity(clients[i]) ? Connected : ConnectionFailed;
-		clients[i].state = Connected;
+		clients[i].state = checkConnectivity(clients[i]) ? Connected : ConnectionFailed;
 		current = nextToken(line);
 	}
 	size_t validClients = 0;
