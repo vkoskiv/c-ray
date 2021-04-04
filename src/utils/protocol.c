@@ -663,6 +663,7 @@ void *networkRenderThread(void *arg) {
 	// And just wait for commands.
 	while (r->state.isRendering) {
 		cJSON *request = readJSON(client->socket);
+		if (!request) break;
 		sendJSON(client->socket, processClientRequest(state, request));
 		cJSON_Delete(request);
 	}
