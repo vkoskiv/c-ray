@@ -20,7 +20,6 @@
 #include <sys/select.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <arpa/inet.h>
 #include <string.h>
 #include "assert.h"
 #include "../libraries/cJSON.h"
@@ -51,25 +50,6 @@
 
 struct renderer *g_worker_renderer = NULL;
 struct crMutex *g_worker_socket_mutex = NULL;
-
-enum clientState {
-	Disconnected,
-	Connected,
-	ConnectionFailed,
-	Syncing,
-	SyncFailed,
-	Synced,
-	Rendering,
-	Finished
-};
-
-struct renderClient {
-	struct sockaddr_in address;
-	enum clientState state;
-	int availableThreads;
-	int socket;
-	int id;
-};
 
 // Consumes given json, no need to free it after.
 static void sendJSON(int socket, cJSON *json) {

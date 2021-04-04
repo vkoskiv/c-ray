@@ -91,7 +91,7 @@ struct texture *renderFrame(struct renderer *r) {
 	// Create network worker manager threads
 	for (int t = 0; t < (int)r->state.clientCount; ++t) {
 		int offset = r->prefs.threadCount + t;
-		r->state.threadStates[offset] = (struct renderThreadState){.client = r->state.clients, .thread_num = offset, .threadComplete = false, .renderer = r, .output = output};
+		r->state.threadStates[offset] = (struct renderThreadState){.client = &r->state.clients[t], .thread_num = offset, .threadComplete = false, .renderer = r, .output = output};
 		r->state.threads[offset] = (struct crThread){.threadFunc = networkRenderThread, .userData = &r->state.threadStates[offset]};
 		if (threadStart(&r->state.threads[offset])) {
 			logr(error, "Failed to create a network thread.\n");
