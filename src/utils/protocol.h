@@ -13,6 +13,27 @@ struct renderTile;
 struct texture;
 struct renderer;
 
+enum clientState {
+	Disconnected,
+	Connected,
+	ConnectionFailed,
+	Syncing,
+	SyncFailed,
+	Synced,
+	Rendering,
+	Finished
+};
+
+#include <arpa/inet.h>
+
+struct renderClient {
+	struct sockaddr_in address;
+	enum clientState state;
+	int availableThreads;
+	int socket;
+	int id;
+};
+
 // Synchronise renderer state with clients, and return a list of clients
 // ready to do some rendering
 struct renderClient *syncWithClients(const struct renderer *r, size_t *count);
