@@ -66,22 +66,35 @@ struct texture *renderFrame(struct renderer *r) {
 	int ctr = 1;
 	bool interactive = isSet("interactive");
 	
-	//HACK TEST
-	r->prefs.threadCount = 1;
-	logr(warning, "Using a single network render thread!\n");
+	logr(info, "Using %lu render workers.\n", r->state.clientCount);
+	
+	// Local render threads + one thread for every client
+	int totalThreadCount = r->prefs.threadCount + (int)r->state.clientCount;
 	
 	// Map of threads that have finished, so we don't check them again.
-	bool *checkedThreads = calloc(r->prefs.threadCount, sizeof(*checkedThreads));
+	bool *checkedThreads = calloc(totalThreadCount, sizeof(*checkedThreads));
 	
-	r->state.threads = calloc(r->prefs.threadCount, sizeof(*r->state.threads));
-	r->state.threadStates = calloc(r->prefs.threadCount, sizeof(*r->state.threadStates));
+	r->state.threads = calloc(totalThreadCount, sizeof(*r->state.threads));
+	r->state.threadStates = calloc(totalThreadCount, sizeof(*r->state.threadStates));
 	
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		r->state.threadStates[t] = (struct renderThreadState){.client = r->state.clients, .thread_num = t, .threadComplete = false, .renderer = r, .output = output};
-		r->state.threads[t] = (struct crThread){.threadFunc = networkRenderThread, .userData = &r->state.threadStates[t]};
+		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output};
+		r->state.threads[t] = (struct crThread){.threadFunc = renderThread, .userData = &r->state.threadStates[t]};
 		if (threadStart(&r->state.threads[t])) {
-			logr(error, "Failed to create a crThread.\n");
+			logr(error, "Failed to create a render thread.\n");
+		} else {
+			r->state.activeThreads++;
+		}
+	}
+	
+	// Create network worker manager threads
+	for (int t = 0; t < (int)r->state.clientCount; ++t) {
+		int offset = r->prefs.threadCount + t;
+		r->state.threadStates[offset] = (struct renderThreadState){.client = r->state.clients, .thread_num = offset, .threadComplete = false, .renderer = r, .output = output};
+		r->state.threads[offset] = (struct crThread){.threadFunc = networkRenderThread, .userData = &r->state.threadStates[offset]};
+		if (threadStart(&r->state.threads[offset])) {
+			logr(error, "Failed to create a network thread.\n");
 		} else {
 			r->state.activeThreads++;
 		}
@@ -128,7 +141,7 @@ struct texture *renderFrame(struct renderer *r) {
 		pauser++;
 		
 		//Wait for render threads to finish (Render finished)
-		for (int t = 0; t < r->prefs.threadCount; ++t) {
+		for (int t = 0; t < totalThreadCount; ++t) {
 			if (r->state.threadStates[t].threadComplete && !checkedThreads[t]) {
 				--r->state.activeThreads;
 				checkedThreads[t] = true; //Mark as checked
