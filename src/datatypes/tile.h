@@ -10,6 +10,14 @@
 
 #include "vector.h"
 
+enum renderOrder {
+	renderOrderTopToBottom = 0,
+	renderOrderFromMiddle,
+	renderOrderToMiddle,
+	renderOrderNormal,
+	renderOrderRandom
+};
+
 struct renderer;
 
 /**
