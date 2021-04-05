@@ -790,10 +790,17 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 }
 
 #else
-int startMasterServer() {
-	logr(error, "c-ray doesn't support the proprietary networking stack on Windows. Sorry!\n");
+struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
+	if (count) *count = 0;
+	logr(warning, "c-ray doesn't support the proprietary networking stack on Windows. Sorry!\n");
+	return NULL;
 }
+
 int startWorkerServer() {
 	logr(error, "c-ray doesn't support the proprietary networking stack on Windows. Sorry!\n");
+}
+
+void *networkRenderThread(void *arg) {
+	return 0;
 }
 #endif
