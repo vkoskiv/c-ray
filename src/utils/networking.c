@@ -67,7 +67,7 @@ bool chunkedSend(int socket, const char *data) {
 		if (n == -1) {
 			logr(warning, "chunkedSend error: %s\n", strerror(errno));
 			free(currentChunk);
-			return -1;
+			return false;
 		}
 		ASSERT(n == chunkSize);
 		sentChunks++;
@@ -75,7 +75,7 @@ bool chunkedSend(int socket, const char *data) {
 		memset(currentChunk, 0, chunkSize);
 	}
 	ASSERT(leftToSend == 0);
-	return n == -1 ? true : false;
+	return n == -1 ? false : true;
 }
 
 ssize_t chunkedReceive(int socket, char **data) {
@@ -85,10 +85,11 @@ ssize_t chunkedReceive(int socket, char **data) {
 	size_t chunkSize = C_RAY_CHUNKSIZE;
 	ssize_t ret = recv(socket, &headerData, sizeof(headerData), 0);
 	if (headerData == 0) {
-		logr(warning, "Remote closed connection.\n");
+		// Remote closed connection
+		logr(debug, "remote closed connection\n");
 		return 0;
 	}
-	if (ret == -1) logr(warning, "chunkedReceive header error: %s\n", strerror(errno));
+	if (ret == -1) logr(debug, "chunkedReceive header error: %s\n", strerror(errno));
 	size_t msgLen = ntohll(headerData);
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
@@ -103,7 +104,7 @@ ssize_t chunkedReceive(int socket, char **data) {
 		while (chunkLeftToReceive > 0) {
 			ret = recv(socket, scratchBuf, chunkLeftToReceive, 0);
 			if (ret == -1) {
-				logr(warning, "chunkedReceive error: %s\n", strerror(errno));
+				logr(debug, "chunkedReceive error: %s\n", strerror(errno));
 				goto bail;
 			}
 			memcpy(currentChunk + (chunkSize - chunkLeftToReceive), scratchBuf, ret);
