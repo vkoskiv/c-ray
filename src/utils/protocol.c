@@ -115,7 +115,6 @@ static cJSON *receiveScene(const cJSON *json) {
 	//TODO: Maybe some performance value in here, so the master knows how much work to assign?
 	// For now just report back how many threads we've got available.
 	cJSON_AddNumberToObject(resp, "threadCount", g_worker_renderer->prefs.threadCount);
-	logr(info, "Starting network render job\n");
 	return resp;
 }
 
@@ -267,7 +266,7 @@ static cJSON *startRender(int connectionSocket, const cJSON *json) {
 	g_worker_renderer->state.isRendering = true;
 	g_worker_renderer->state.renderAborted = false;
 	g_worker_renderer->state.saveImage = false;
-	logr(info, "Starting network render server\n");
+	logr(info, "Starting network render job\n");
 	
 	int threadCount = g_worker_renderer->prefs.threadCount;
 	// Map of threads that have finished, so we don't check them again.
