@@ -358,34 +358,41 @@ static struct sockaddr_in parseAddress(const char *str) {
 	return address;
 }
 
-static bool checkConnectivity(struct renderClient client) {
-	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd == -1) {
-		logr(error, "Failed to bind to socket while testing connectivity\n");
+static bool connectToClient(struct renderClient *client) {
+	client->socket = socket(AF_INET, SOCK_STREAM, 0);
+	if (client->socket == -1) {
+		logr(warning, "Failed to bind to socket on client %i\n", client->id);
+		client->state = ConnectionFailed;
+		return false;
 	}
+	logr(debug, "Attempting connection to %s...\n", inet_ntoa(client->address.sin_addr));
 	bool success = false;
-	fcntl(sockfd, F_SETFL, O_NONBLOCK);
+	fcntl(client->socket, F_SETFL, O_NONBLOCK);
 	fd_set fdset;
 	struct timeval tv;
-	connect(sockfd, (struct sockaddr *)&client.address, sizeof(client.address));
+	connect(client->socket, (struct sockaddr *)&client->address, sizeof(client->address));
 	FD_ZERO(&fdset);
-	FD_SET(sockfd, &fdset);
-	tv.tv_sec = 1; // 1 second timeout.
+	FD_SET(client->socket, &fdset);
+	tv.tv_sec = 2; // 2 second timeout.
 	tv.tv_usec = 0;
 	
-	if (select(sockfd + 1, NULL, &fdset, NULL, &tv) == 1) {
+	if (select(client->socket + 1, NULL, &fdset, NULL, &tv) == 1) {
 		int so_error ;
 		socklen_t len = sizeof(so_error);
-		getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &so_error, &len);
+		getsockopt(client->socket, SOL_SOCKET, SO_ERROR, &so_error, &len);
 		if (so_error == 0) {
-			logr(debug, "Connected to %s:%i\n", inet_ntoa(client.address.sin_addr), htons(client.address.sin_port));
+			logr(debug, "Connected to %s:%i\n", inet_ntoa(client->address.sin_addr), htons(client->address.sin_port));
 			success = true;
+			client->state = Connected;
+			// Unset non-blocking
+			int oldFlags = fcntl(client->socket, F_GETFL);
+			fcntl(client->socket, F_SETFL, oldFlags & ~O_NONBLOCK);
 		} else {
-			logr(debug, "%s on %s:%i, dropping.\n", strerror(so_error), inet_ntoa(client.address.sin_addr), htons(client.address.sin_port));
+			logr(debug, "%s on %s:%i, dropping.\n", strerror(so_error), inet_ntoa(client->address.sin_addr), htons(client->address.sin_port));
+			close(client->socket);
+			client->state = ConnectionFailed;
 		}
 	}
-	shutdown(sockfd, SHUT_RDWR);
-	close(sockfd);
 	return success;
 }
 
@@ -405,7 +412,7 @@ static struct renderClient *buildClientList(size_t *amount) {
 	char *current = firstToken(line);
 	for (size_t i = 0; i < clientCount; ++i) {
 		clients[i].address = parseAddress(current);
-		clients[i].state = checkConnectivity(clients[i]) ? Connected : ConnectionFailed;
+		clients[i].state = connectToClient(&clients[i]) ? Connected : ConnectionFailed;
 		current = nextToken(line);
 	}
 	size_t validClients = 0;
@@ -426,9 +433,7 @@ static struct renderClient *buildClientList(size_t *amount) {
 	}
 	
 	for (size_t i = 0; i < validClients; ++i) {
-		clients[i].socket = -1;
 		clients[i].id = (int)i;
-		clients[i].state = Disconnected;
 	}
 	
 	if (amount) *amount = validClients;
@@ -452,26 +457,6 @@ static bool containsGoodbye(const cJSON *json) {
 		}
 	}
 	return false;
-}
-
-static bool connectToClient(struct renderClient *client) {
-	ASSERT(client->socket == -1);
-	client->socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (client->socket == -1) {
-		logr(warning, "Failed to bind to socket on client %i\n", client->id);
-		client->state = ConnectionFailed;
-		return false;
-	}
-	
-	//FIXME: Timeout needed here
-	logr(debug, "Attempting connection to %s (this might get stuck here, no timeout yet)\n", inet_ntoa(client->address.sin_addr));
-	if (connect(client->socket, (struct sockaddr *)&client->address, sizeof(client->address)) != 0) {
-		logr(warning, "Failed to connect to %i\n", client->id);
-		client->state = ConnectionFailed;
-		return false;
-	}
-	client->state = Connected;
-	return true;
 }
 
 static void disconnectFromClient(struct renderClient *client) {
@@ -557,6 +542,7 @@ int startWorkerServer() {
 			cJSON_Delete(message);
 			buf = NULL;
 		}
+		logr(debug, "Cleaning up for next render\n");
 		shutdown(connectionSocket, SHUT_RDWR);
 		close(connectionSocket);
 		workerCleanup(); // Prepare for next render
@@ -661,7 +647,6 @@ struct syncThreadParams {
 static void *handleClientSync(void *arg) {
 	struct syncThreadParams *params = (struct syncThreadParams *)threadUserData(arg);
 	struct renderClient *client = params->client;
-	connectToClient(client);
 	if (client->state != Connected) {
 		logr(warning, "Won't sync with client %i, no connection.\n", client->id);
 		return NULL;
