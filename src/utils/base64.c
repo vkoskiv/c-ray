@@ -26,25 +26,17 @@
 // Ported to C here, lifted from:
 // https://stackoverflow.com/questions/342409/how-do-i-base64-encode-decode-in-c
 
-static const unsigned char base64_table[65] =
-"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const unsigned char base64_table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 char *b64encode(const void *input, const size_t dataLength) {
 	unsigned char *out, *pos;
 	const unsigned char *end, *in;
-	
 	const unsigned char *data = (const unsigned char *)input;
-	
-	size_t outputLength;
-	
-	outputLength = 4 * ((dataLength + 2) / 3); /* 3-byte blocks to 4-byte */
-	
+	size_t outputLength = 4 * ((dataLength + 2) / 3); // 3-byte blocks to 4-byte
 	if (outputLength < dataLength)
 		return NULL; // integer overflow
-	
 	char *outStr = calloc(outputLength + 1, sizeof(*outStr));
-	out = (unsigned char*)&outStr[0];
-	
+	out = (unsigned char *)&outStr[0];
 	end = data + dataLength;
 	in = data;
 	pos = out;
@@ -55,21 +47,17 @@ char *b64encode(const void *input, const size_t dataLength) {
 		*pos++ = base64_table[in[2] & 0x3f];
 		in += 3;
 	}
-	
 	if (end - in) {
 		*pos++ = base64_table[in[0] >> 2];
 		if (end - in == 1) {
 			*pos++ = base64_table[(in[0] & 0x03) << 4];
 			*pos++ = '=';
-		}
-		else {
-			*pos++ = base64_table[((in[0] & 0x03) << 4) |
-								  (in[1] >> 4)];
+		} else {
+			*pos++ = base64_table[((in[0] & 0x03) << 4) | (in[1] >> 4)];
 			*pos++ = base64_table[(in[1] & 0x0f) << 2];
 		}
 		*pos++ = '=';
 	}
-	
 	return outStr;
 }
 
@@ -85,7 +73,6 @@ static const int B64index[256] = {
 	7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,0,
 	0,0,0,63,0,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
 	41,42,43,44,45,46,47,48,49,50,51
-	
 };
 
 void *b64decode(const char *data, const size_t inputLength, size_t *outLength) {
@@ -94,7 +81,6 @@ void *b64decode(const char *data, const size_t inputLength, size_t *outLength) {
 	const size_t L = ((inputLength + 3) / 4 - pad) * 4;
 	size_t strSize = L / 4 * 3 + pad;
 	char *str = calloc(strSize + 1, sizeof(*str));
-	
 	size_t j = 0;
 	for (size_t i = 0; i < L; i += 4) {
 		int n = B64index[p[i]] << 18 | B64index[p[i + 1]] << 12 | B64index[p[i + 2]] << 6 | B64index[p[i + 3]];
@@ -108,7 +94,6 @@ void *b64decode(const char *data, const size_t inputLength, size_t *outLength) {
 		
 		if (inputLength > L + 2 && p[L + 2] != '=') {
 			n |= B64index[p[L + 2]] << 6;
-			//str.push_back(n >> 8 & 0xFF);
 			str[++j] = n >> 8 & 0xFF;
 		}
 	}

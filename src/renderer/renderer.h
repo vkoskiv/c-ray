@@ -8,13 +8,7 @@
 
 #pragma once
 
-enum renderOrder {
-	renderOrderTopToBottom = 0,
-	renderOrderFromMiddle,
-	renderOrderToMiddle,
-	renderOrderNormal,
-	renderOrderRandom
-};
+#include "../datatypes/tile.h" // For renderOrder
 
 struct renderThreadState {
 	int thread_num;

@@ -22,30 +22,29 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <signal.h>
+#include <errno.h>
 #include "assert.h"
-#include "../libraries/cJSON.h"
 #include "platform/thread.h"
+#include "platform/mutex.h"
+#include "../libraries/cJSON.h"
+#include "../datatypes/image/imagefile.h"
+#include "../datatypes/vector.h"
+#include "../datatypes/vertexbuffer.h"
+#include "../datatypes/tile.h"
+#include "../datatypes/image/texture.h"
+#include "../datatypes/color.h"
+#include "../datatypes/scene.h"
+#include "../renderer/renderer.h"
 #include "args.h"
 #include "textbuffer.h"
 #include "string.h"
 #include "gitsha1.h"
-#include "../datatypes/image/imagefile.h"
-#include "../renderer/renderer.h"
-#include <errno.h>
 #include "networking.h"
-#include "../datatypes/vector.h"
-#include "../datatypes/vertexbuffer.h"
 #include "base64.h"
-#include "../datatypes/scene.h"
 #include "filecache.h"
-#include "../datatypes/tile.h"
-#include "../datatypes/image/texture.h"
-#include "../datatypes/color.h"
-#include "../utils/platform/mutex.h"
-#include "../utils/timer.h"
+#include "timer.h"
 
-#define C_RAY_HEADERSIZE 8
-#define C_RAY_CHUNKSIZE 1024
 #define C_RAY_DEFAULT_PORT 2222
 #define PROTO_VERSION "0.1"
 
