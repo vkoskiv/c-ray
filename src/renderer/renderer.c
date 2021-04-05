@@ -154,7 +154,7 @@ struct texture *renderFrame(struct renderer *r) {
 	}
 	
 	//Make sure render threads are terminated before continuing (This blocks)
-	for (int t = 0; t < r->prefs.threadCount; ++t) {
+	for (int t = 0; t < totalThreadCount; ++t) {
 		threadWait(&r->state.threads[t]);
 	}
 	free(checkedThreads);
