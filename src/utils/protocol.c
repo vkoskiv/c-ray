@@ -474,6 +474,7 @@ static void workerCleanup() {
 }
 
 int startWorkerServer() {
+	signal(SIGPIPE, SIG_IGN);
 	int receivingSocket, connectionSocket;
 	struct sockaddr_in ownAddress;
 	receivingSocket = socket(AF_INET, SOCK_STREAM, 0);

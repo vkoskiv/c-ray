@@ -50,7 +50,10 @@ bool chunkedSend(int socket, const char *data) {
 	// Send header with message length
 	size_t header = htonll(msgLen);
 	ssize_t err = send(socket, &header, sizeof(header), 0);
-	if (err < 0) logr(error, "Failed to send header to client.\n");
+	if (err < 0) {
+		logr(debug, "Failed to send header to client.\n");
+		return false;
+	}
 	
 	ssize_t n = 0;
 	size_t sentChunks = 0;
