@@ -52,17 +52,20 @@ struct renderer *g_worker_renderer = NULL;
 struct crMutex *g_worker_socket_mutex = NULL;
 
 // Consumes given json, no need to free it after.
-static void sendJSON(int socket, cJSON *json) {
+static bool sendJSON(int socket, cJSON *json) {
 	ASSERT(json);
 	char *jsonText = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
-	chunkedSend(socket, jsonText);
+	bool ret = chunkedSend(socket, jsonText);
 	free(jsonText);
+	return ret;
 }
 
 static cJSON *readJSON(int socket) {
 	char *recvBuf = NULL;
-	chunkedReceive(socket, &recvBuf);
+	if (chunkedReceive(socket, &recvBuf) == 0) {
+		return NULL;
+	}
 	cJSON *received = cJSON_Parse(recvBuf);
 	free(recvBuf);
 	return received;
@@ -188,8 +191,13 @@ struct workerThreadState {
 	bool threadComplete;
 };
 
+// Tilenum of -1 communicates that it failed to get work, signaling the work thread to exit
 static struct renderTile getWork(int connectionSocket) {
-	sendJSON(connectionSocket, newAction("getWork"));
+	if (!sendJSON(connectionSocket, newAction("getWork"))) {
+		struct renderTile tile = {0};
+		tile.tileNum = -1;
+		return tile;
+	}
 	cJSON *response = readJSON(connectionSocket);
 	cJSON *error = cJSON_GetObjectItem(response, "error");
 	if (cJSON_IsString(error)) {
@@ -210,13 +218,13 @@ static struct renderTile getWork(int connectionSocket) {
 	return tile;
 }
 
-static void submitWork(int sock, struct texture *work, struct renderTile forTile) {
+static bool submitWork(int sock, struct texture *work, struct renderTile forTile) {
 	cJSON *result = encodeTexture(work);
 	cJSON *tile = encodeTile(forTile);
 	cJSON *package = newAction("submitWork");
 	cJSON_AddItemToObject(package, "result", result);
 	cJSON_AddItemToObject(package, "tile", tile);
-	sendJSON(sock, package);
+	return sendJSON(sock, package);
 }
 
 static void *workerThread(void *arg) {
@@ -233,11 +241,14 @@ static void *workerThread(void *arg) {
 		struct texture *thing = renderSingleTile(r, tile);
 		
 		lockMutex(sockMutex);
-		submitWork(sock, thing, tile);
+		if (!submitWork(sock, thing, tile)) {
+			releaseMutex(sockMutex);
+			break;
+		}
 		cJSON *resp = readJSON(sock);
 		if (!resp || !stringEquals(cJSON_GetObjectItem(resp, "action")->valuestring, "ok")) {
-			threadState->threadComplete = true;
-			return 0;
+			releaseMutex(sockMutex);
+			break;
 		}
 		releaseMutex(sockMutex);
 		
@@ -518,17 +529,13 @@ int startWorkerServer() {
 			if (read == 0) break;
 			if (read < 0) {
 				logr(warning, "Something went wrong. Error: %s\n", strerror(errno));
-				shutdown(connectionSocket, SHUT_RDWR);
-				close(connectionSocket);
 				break;
 			}
 			cJSON *message = cJSON_Parse(buf);
 			cJSON *myResponse = processCommand(connectionSocket, message);
 			char *responseText = cJSON_PrintUnformatted(myResponse);
-			if (chunkedSend(connectionSocket, responseText)) {
-				logr(warning, "chunkedSend() failed, error %s\n", strerror(errno));
-				shutdown(connectionSocket, SHUT_RDWR);
-				close(connectionSocket);
+			if (!chunkedSend(connectionSocket, responseText)) {
+				logr(debug, "chunkedSend() failed, error %s\n", strerror(errno));
 				break;
 			};
 			free(responseText);
@@ -619,17 +626,31 @@ void *networkRenderThread(void *arg) {
 	struct renderClient *client = state->client;
 	if (!client) {
 		state->threadComplete = true;
-		return NULL;
+		return 0;
+	}
+	if (client->state != Synced) {
+		logr(debug, "Client %i wasn't synced fully, dropping.\n", client->id);
+		state->threadComplete = true;
+		return 0;
 	}
 	
 	// Set this worker into render mode
-	sendJSON(client->socket, newAction("startRender"));
+	if (!sendJSON(client->socket, newAction("startRender"))) {
+		logr(warning, "Client disconnected? Stopping for %i\n", client->id);
+		state->threadComplete = true;
+		return 0;
+	}
 	
 	// And just wait for commands.
 	while (r->state.isRendering) {
 		cJSON *request = readJSON(client->socket);
 		if (!request) break;
-		sendJSON(client->socket, processClientRequest(state, request));
+		cJSON *response = processClientRequest(state, request);
+		if (containsError(response)) {
+			sendJSON(client->socket, response);
+			break;
+		}
+		sendJSON(client->socket, response);
 		cJSON_Delete(request);
 	}
 	
@@ -654,7 +675,10 @@ static void *handleClientSync(void *arg) {
 	client->state = Syncing;
 	
 	// Handshake with the client
-	sendJSON(client->socket, makeHandshake());
+	if (!sendJSON(client->socket, makeHandshake())) {
+		client->state = SyncFailed;
+		return NULL;
+	}
 	cJSON *response = readJSON(client->socket);
 	if (cJSON_HasObjectItem(response, "error")) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
@@ -673,10 +697,10 @@ static void *handleClientSync(void *arg) {
 	cJSON_AddItemToObject(assets, "files", cJSON_Parse(encodeFileCache()));
 	sendJSON(client->socket, assets);
 	response = readJSON(client->socket);
-	char *responseText = cJSON_PrintUnformatted(response);
-	logr(debug, "Response: %s\n", responseText);
-	free(responseText);
-	responseText = NULL;
+	if (!response) {
+		client->state = SyncFailed;
+		return NULL;
+	}
 	if (cJSON_HasObjectItem(response, "error")) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
 		logr(warning, "Client asset sync error: %s\n", error->valuestring);
@@ -695,10 +719,10 @@ static void *handleClientSync(void *arg) {
 	cJSON_AddStringToObject(scene, "assetPath", params->renderer->prefs.assetPath);
 	sendJSON(client->socket, scene);
 	response = readJSON(client->socket);
-	responseText = cJSON_PrintUnformatted(response);
-	logr(debug, "Response: %s\n", responseText);
-	free(responseText);
-	responseText = NULL;
+	if (!response) {
+		client->state = SyncFailed;
+		return NULL;
+	}
 	if (cJSON_HasObjectItem(response, "error")) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
 		logr(warning, "Client scene sync error: %s\n", error->valuestring);
