@@ -24,10 +24,14 @@ enum clientState {
 	Finished
 };
 
+#ifndef WINDOWs
 #include <arpa/inet.h>
+#endif
 
 struct renderClient {
+#ifndef WINDOWS
 	struct sockaddr_in address;
+#endif
 	enum clientState state;
 	int availableThreads;
 	int socket;
@@ -38,19 +42,6 @@ struct renderClient {
 // ready to do some rendering
 struct renderClient *syncWithClients(const struct renderer *r, size_t *count);
 
-struct tileResponse {
-	struct texture *result;
-	//TODO: Additional perf metrics here?
-	enum {
-		Success,
-		Failed,
-		ConnectionLost,
-	} status;
-};
-
-struct tileResponse *requestTile(struct renderClient *, struct renderTile *);
-
-//int startMasterServer(void);
 int startWorkerServer(void);
 
 void *networkRenderThread(void *arg);
