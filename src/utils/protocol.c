@@ -564,6 +564,7 @@ static cJSON *processGetWork(struct renderThreadState *state, const cJSON *json)
 	(void)state;
 	(void)json;
 	struct renderTile tile = nextTile(state->renderer);
+	state->renderer->state.renderTiles[tile.tileNum].networkRenderer = true;
 	if (tile.tileNum == -1) return errorResponse("renderComplete");
 	cJSON *response = newAction("newWork");
 	cJSON_AddItemToObject(response, "tile", encodeTile(tile));

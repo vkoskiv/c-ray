@@ -28,6 +28,17 @@ struct renderTile nextTile(struct renderer *r) {
 		tile = r->state.renderTiles[r->state.finishedTileCount];
 		r->state.renderTiles[r->state.finishedTileCount].isRendering = true;
 		tile.tileNum = r->state.finishedTileCount++;
+	} else {
+		// If a network worker disappeared during render, finish those tiles locally here at the end
+		for (int t = 0; t < r->state.tileCount; ++t) {
+			if (!r->state.renderTiles[t].renderComplete && r->state.renderTiles[t].networkRenderer) {
+				r->state.renderTiles[t].networkRenderer = false;
+				tile = r->state.renderTiles[t];
+				r->state.renderTiles[t].isRendering = true;
+				tile.tileNum = t;
+				break;
+			}
+		}
 	}
 	releaseMutex(r->state.tileMutex);
 	return tile;

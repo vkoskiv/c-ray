@@ -30,6 +30,7 @@ struct renderTile {
 	struct intCoord end;
 	bool isRendering;
 	bool renderComplete;
+	bool networkRenderer;
 	int tileNum;
 };
 
