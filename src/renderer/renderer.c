@@ -66,7 +66,12 @@ struct texture *renderFrame(struct renderer *r) {
 	int ctr = 1;
 	bool interactive = isSet("interactive");
 	
-	logr(info, "Using %lu render workers.\n", r->state.clientCount);
+	size_t remoteThreads = 0;
+	for (size_t i = 0; i < r->state.clientCount; ++i) {
+		remoteThreads += r->state.clients[i].availableThreads;
+	}
+	
+	logr(info, "Using %lu render workers totaling %lu threads.\n", r->state.clientCount, remoteThreads);
 	
 	// Local render threads + one thread for every client
 	int totalThreadCount = r->prefs.threadCount + (int)r->state.clientCount;
