@@ -24,7 +24,7 @@ enum clientState {
 	Finished
 };
 
-#ifndef WINDOWs
+#ifndef WINDOWS
 #include <arpa/inet.h>
 #endif
 
