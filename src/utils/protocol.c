@@ -11,6 +11,7 @@
 
 //Windows is annoying, so it's just not going to have networking. Because it is annoying and proprietary.
 #include "../utils/logging.h"
+
 #ifndef WINDOWS
 
 #include <netdb.h>
@@ -235,7 +236,7 @@ static void *workerThread(void *arg) {
 		lockMutex(sockMutex);
 		submitWork(sock, thing, tile);
 		cJSON *resp = readJSON(sock);
-		if (!stringEquals(cJSON_GetObjectItem(resp, "action")->valuestring, "ok")) {
+		if (!resp || !stringEquals(cJSON_GetObjectItem(resp, "action")->valuestring, "ok")) {
 			threadState->threadComplete = true;
 			return 0;
 		}
@@ -275,6 +276,7 @@ static cJSON *startRender(int connectionSocket, const cJSON *json) {
 		}
 	}
 	
+	//TODO: Send out stats here
 	while (g_worker_renderer->state.isRendering) {
 		//Wait for render threads to finish (Render finished)
 		for (int t = 0; t < threadCount; ++t) {
@@ -502,8 +504,6 @@ int startWorkerServer() {
 	socklen_t len = sizeof(masterAddress);
 	char *buf = NULL;
 	
-	// TODO: Should put this in a loop too with a cleanup,
-	// so we can just leave render nodes on all the time, waiting for render tasks.
 	while (1) {
 		logr(info, "Listening for connections on port %i\n", port);
 		connectionSocket = accept(receivingSocket, (struct sockaddr *)&masterAddress, &len);
