@@ -8,6 +8,8 @@
 
 #include "protocol.h"
 
+#ifndef WINDOWS
+
 #include <string.h>
 
 #include "../../utils/logging.h"
@@ -138,3 +140,5 @@ bool containsGoodbye(const cJSON *json) {
 	}
 	return false;
 }
+
+#endif
