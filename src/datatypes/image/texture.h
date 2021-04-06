@@ -9,6 +9,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "../color.h"
 
 enum colorspace {
 	linear,
@@ -33,8 +34,6 @@ struct texture {
 	size_t width;
 	size_t height;
 };
-
-struct color;
 
 struct texture *newTexture(enum precision p, size_t width, size_t height, size_t channels);
 

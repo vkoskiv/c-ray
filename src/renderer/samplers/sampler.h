@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 struct sampler;
 typedef struct sampler sampler;
 

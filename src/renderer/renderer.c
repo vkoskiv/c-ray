@@ -26,7 +26,7 @@
 #include "samplers/sampler.h"
 #include "../utils/args.h"
 #include "../utils/platform/capabilities.h"
-#include "../utils/protocol.h"
+#include "../utils/protocol/server.h"
 
 //Main thread loop speeds
 #define paused_msec 100

@@ -26,7 +26,8 @@
 #include "utils/args.h"
 #include "utils/encoders/encoder.h"
 #include "utils/string.h"
-#include "utils/protocol.h"
+#include "utils/protocol/server.h"
+#include "utils/protocol/worker.h"
 
 #define VERSION "0.6.3"
 
