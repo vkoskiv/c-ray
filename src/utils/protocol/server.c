@@ -6,6 +6,7 @@
 //  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stddef.h>
 #include "../logging.h"
 //Windows is annoying, so it's just not going to have networking. Because it is annoying and proprietary.
 #ifndef WINDOWS
