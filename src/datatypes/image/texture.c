@@ -9,7 +9,6 @@
 #include "../../includes.h"
 
 #include "texture.h"
-#include "../color.h"
 #include "../../utils/logging.h"
 #include "../../utils/assert.h"
 

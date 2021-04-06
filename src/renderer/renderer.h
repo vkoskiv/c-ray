@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../datatypes/tile.h" // For renderOrder
+#include "../datatypes/image/imagefile.h"
 
 struct renderThreadState {
 	int thread_num;

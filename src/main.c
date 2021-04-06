@@ -10,8 +10,6 @@
 #include <stdbool.h>
 
 #include "c-ray.h"
-#include "utils/protocol.h"
-#include "utils/string.h"
 
 int main(int argc, char *argv[]) {
 	crLog("C-ray v%s%s [%.8s], © 2015-2021 Valtteri Koskivuori\n", crGetVersion(), isDebug() ? "D" : "", crGitHash());
