@@ -23,7 +23,20 @@ struct file {
 size_t fileCount = 0;
 struct file *cachedFiles = NULL;
 
+bool cacheContains(const char *path) {
+	for (size_t i = 0; i < fileCount; ++i) {
+		if (stringEquals(path, cachedFiles[i].path)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void cacheFile(const char *path, void *data, size_t length) {
+	if (cacheContains(path)) {
+		logr(debug, "File %s already cached, skipping.\n", path);
+		return;
+	}
 	cachedFiles = realloc(cachedFiles, ++fileCount * sizeof(*cachedFiles));
 	struct file file;
 	file.path = stringCopy(path);
