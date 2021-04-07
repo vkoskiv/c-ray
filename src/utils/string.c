@@ -58,7 +58,7 @@ static void windowsFlipSlashes(char *path) {
 static void windowsStripCRLF(char *path) {
 	size_t length = strlen(path);
 	for (size_t i = 0; i < length; ++i) {
-		if (path[i] == '\n') path[i] = '\0';
+		if (path[i] == '\r') path[i] = '\0';
 	}
 }
 #endif
