@@ -137,8 +137,8 @@ char *getFileName(const char *input) {
 char *getFilePath(const char *input) {
 	char *dir = NULL;
 #ifdef WINDOWS
-	dir = calloc(256, sizeof(*dir));
-	_splitpath_s(input, NULL, 0, dir, 256, NULL, 0, NULL, 0);
+	dir = calloc(_MAX_DIR, sizeof(*dir));
+	_splitpath_s(input, NULL, 0, dir, _MAX_DIR, NULL, 0, NULL, 0);
 	return dir;
 #else
 	char *inputCopy = stringCopy(input);
