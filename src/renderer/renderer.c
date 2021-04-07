@@ -71,7 +71,7 @@ struct texture *renderFrame(struct renderer *r) {
 		remoteThreads += r->state.clients[i].availableThreads;
 	}
 	
-	logr(info, "Using %lu render workers totaling %lu threads.\n", r->state.clientCount, remoteThreads);
+	if (r->state.clients) logr(info, "Using %lu render workers totaling %lu threads.\n", r->state.clientCount, remoteThreads);
 	
 	// Local render threads + one thread for every client
 	int totalThreadCount = r->prefs.threadCount + (int)r->state.clientCount;
