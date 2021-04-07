@@ -901,6 +901,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 	bool meshValid = false;
 	if (fileName != NULL && cJSON_IsString(fileName)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, fileName->valuestring);
+		windowsFixPath(fullPath);
 		bool success = false;
 		struct timeval timer;
 		startTimer(&timer);

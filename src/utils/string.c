@@ -45,6 +45,33 @@ char *stringConcat(const char *str1, const char *str2) {
 	return new;
 }
 
+#ifdef WINDOWS
+// Windows uses \ for path separation, so we have to flip those, if present.
+static void windowsFlipSlashes(char *path) {
+	size_t len = strlen(path);
+	for (size_t i = 0; i < len; ++i) {
+		if (path[i] == '/') path[i] = '\\';
+	}
+}
+
+// On windows, passing a path to fopen() with CRLF causes it to fail with 'invalid argument'. Fun!
+static void windowsStripCRLF(char *path) {
+	size_t length = strlen(path);
+	for (size_t i = 0; i < length; ++i) {
+		if (path[i] == '\n') path[i] = '\0';
+	}
+}
+#endif
+
+void windowsFixPath(char *path) {
+#ifdef WINDOWS
+	windowsFlipSlashes(path);
+	windowsStripCRLF(path);
+#else
+	(void)path;
+#endif
+}
+
 char *stringToLower(const char *orig) {
 	char *str = stringCopy(orig);
 	size_t len = strlen(str);

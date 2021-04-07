@@ -32,4 +32,7 @@ char *stringCopy(const char *source);
 /// @param str2 Concatenated string
 char *stringConcat(const char *str1, const char *str2);
 
+// Mangle up paths to make Windows happy
+void windowsFixPath(char *path);
+
 char *stringToLower(const char *str);

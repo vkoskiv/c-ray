@@ -174,6 +174,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 			currentMaterialIndex = findMaterialIndex(materialSet, materialCount, peekNextToken(line));
 		} else if (stringEquals(first, "mtllib")) {
 			char *mtlFilePath = stringConcat(assetPath, peekNextToken(line));
+			windowsFixPath(mtlFilePath);
 			materialSet = parseMTLFile(mtlFilePath, &materialCount);
 			free(mtlFilePath);
 		} else {
