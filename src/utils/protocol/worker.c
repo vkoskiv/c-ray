@@ -60,6 +60,7 @@ static cJSON *validateHandshake(const cJSON *in) {
 static cJSON *receiveScene(const cJSON *json) {
 	cJSON *scene = cJSON_GetObjectItem(json, "data");
 	char *sceneText = cJSON_PrintUnformatted(scene);
+	logr(info, "Received scene description\n");
 	g_worker_renderer = newRenderer();
 	g_worker_socket_mutex = createMutex();
 	cJSON *assetPathJson = cJSON_GetObjectItem(json, "assetPath");
@@ -80,6 +81,7 @@ static cJSON *receiveScene(const cJSON *json) {
 static cJSON *receiveAssets(const cJSON *json) {
 	cJSON *files = cJSON_GetObjectItem(json, "files");
 	char *data = cJSON_PrintUnformatted(files);
+	logr(info, "Received scene assets\n");
 	decodeFileCache(data);
 	free(data);
 	return newAction("ok");
@@ -272,7 +274,7 @@ int startWorkerServer() {
 		if (connectionSocket < 0) {
 			logr(error, "Failed to accept\n");
 		}
-		logr(debug, "Got connection from %s\n", inet_ntoa(masterAddress.sin_addr));
+		logr(info, "Got connection from %s\n", inet_ntoa(masterAddress.sin_addr));
 		
 		for (;;) {
 			buf = NULL;
