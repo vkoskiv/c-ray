@@ -22,6 +22,7 @@
 C-ray is a research oriented, hackable, offline CPU rendering engine built for learning. The source code is intended to be readable wherever possible, so feel free to explore and perhaps even expand upon the current functionality. See the [contributing section](https://github.com/vkoskiv/c-ray/wiki/Contributing) in the wiki for more details.
 
 C-ray currently has:
+- [Cluster rendering support](https://github.com/vkoskiv/c-ray/wiki/Using-cluster-rendering) (on \*nix systems)
 - A simple unidirectional Monte Carlo integrator
 - Real-time render preview using SDL2
 - Easy scene compositing using a JSON interface
@@ -97,12 +98,19 @@ Example: `cat input/scene.json | ./bin/c-ray`
 *Note: Reading the json from `stdin` assumes that the asset path is `./`*
 
 Windows:
-1. Download SDL2 Development libaries from here and extract: https://www.libsdl.org/download-2.0.php (https://www.libsdl.org/release/SDL2-devel-2.0.8-VC.zip)
-2. Open a `x64 Native Tools Command Prompt` and set path to SDL2DIR (where you extracted the files to, should have a few folders like 'include' and 'lib'): `set SDL2DIR=E:\sdl2\SDL2-devel-2.0.8-VC\SDL2-2.0.8`
-3. Run cmake: `cmake -G "Visual Studio 15 2017 Win64" .`
-4. (Optional) Edit `src\includes.h` to uncomment `#define UI_ENABLED` and copy your `SDL2.dll` into `bin\Release\`
-5. Build the generated solution: `msbuild c-ray.sln /p:Configuration=Release`
-6. Run:	`bin\Release\c-ray.exe input\scene.json` or `type input\scene.json | bin\Release\c-ray.exe`
+1. Install [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
+2. Optional: Download SDL2 Development libaries from here and extract: https://www.libsdl.org/download-2.0.php (https://www.libsdl.org/release/SDL2-devel-2.0.8-VC.zip)
+3. Open a `Developer Command Prompt for VS 2019`, navigate to where you cloned c-ray and set path to SDL2DIR (where you extracted the files to, should have a few folders like 'include' and 'lib'): `set SDL2DIR=E:\sdl2\SDL2-devel-2.0.8-VC\SDL2-2.0.8`
+4. Run cmake: `cmake -G "Visual Studio 16 2019" .`
+5. (Optional) Copy your `SDL2.dll` into `bin\Release\` and `bin\Debug\`
+6. Build the generated solution: `msbuild c-ray.sln /p:Configuration=Release`
+7. Run:	`bin\Release\c-ray.exe input\scene.json` or `type input\scene.json | bin\Release\c-ray.exe`
+
+## Usage
+
+All the .json files in `input/` are test scenes provided with c-ray, assets for those scenes are (mostly) bundled with the repository as well.
+
+If you make a cool scene and have Python3 installed, you can bundle up the scene into a portable .zip file using the `scripts/bundle.py` script.
 
 ## Installing SDL
 
