@@ -56,7 +56,12 @@ struct material *materialForName(struct material *materials, int count, char *na
 
 //FIXME: Temporary hack to patch alpha directly to old materials using the alpha node.
 const struct bsdfNode *appendAlpha(struct world *w, const struct bsdfNode *base, const struct colorNode *color) {
+	//FIXME: MSVC in release build mode crashes if we apply alpha on here, need to find out why. Just disable it for now though
+#ifdef WINDOWS
+	return base;
+#else
 	return newMix(w, newTransparent(w, newConstantTexture(w, whiteColor)), base, newAlpha(w, color));
+#endif
 }
 
 void assignBSDF(struct world *w, struct material *mat) {
