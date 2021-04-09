@@ -21,6 +21,7 @@
 #include "textbuffer.h"
 #include "testrunner.h"
 #include "string.h"
+#include "protocol/server.h"
 
 static struct constantsDatabase *g_options;
 
@@ -36,6 +37,7 @@ static void printUsage(const char *progname) {
 	printf("    [--iterative]    -> Start in iterative mode (Experimental)\n");
 	printf("    [--worker]       -> Start up as a network render worker (Experimental)\n");
 	printf("    [--nodes <list>] -> Use worker nodes in comma-separated ip:port list for a faster render (Experimental)\n");
+	printf("    [--shutdown]     -> Use in conjunction with a node list to send a shutdown command to a list of clients\n");
 	printf("    [--test]         -> Run the test suite\n");
 	restoreTerminal();
 	exit(0);
@@ -173,6 +175,10 @@ void parseArgs(int argc, char **argv) {
 			setDatabaseTag(g_options, "interactive");
 		}
 		
+		if (stringEquals(argv[i], "--shutdown")) {
+			setDatabaseTag(g_options, "shutdown");
+		}
+		
 		if (stringEquals(argv[i], "--nodes")) {
 			setDatabaseTag(g_options, "use_clustering");
 			ASSERT(i + 1 <= argc);
@@ -197,6 +203,12 @@ void parseArgs(int argc, char **argv) {
 		}
 	}
 	logr(debug, "Verbose mode enabled\n");
+	
+	if (isSet("shutdown") && isSet("nodes_list")) {
+		shutdownClients();
+		restoreTerminal();
+		exit(0);
+	}
 	
 	if (alternatePath) {
 		free(alternatePath);

@@ -334,6 +334,22 @@ static void *handleClientSync(void *arg) {
 	return NULL;
 }
 
+void shutdownClients() {
+	size_t clientCount = 0;
+	struct renderClient *clients = buildClientList(&clientCount);
+	logr(info, "Sending shutdown command to %zu clients.\n", clientCount);
+	if (clientCount < 1) {
+		logr(warning, "No clients found, exiting\n");
+		return;
+	}
+	for (size_t i = 0; i < clientCount; ++i) {
+		sendJSON(clients[i].socket, newAction("shutdown"));
+		disconnectFromClient(&clients[i]);
+	}
+	logr(info, "Done, exiting.\n");
+	free(clients);
+}
+
 struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	logr(info, "Attempting to connect clients...\n");
 	size_t clientCount = 0;

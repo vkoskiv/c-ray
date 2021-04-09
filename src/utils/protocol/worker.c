@@ -237,6 +237,16 @@ static void workerCleanup() {
 	destroyFileCache();
 }
 
+bool isShutdown(cJSON *json) {
+	cJSON *action = cJSON_GetObjectItem(json, "action");
+	if (cJSON_IsString(action)) {
+		if (stringEquals(action->valuestring, "shutdown")) {
+			return true;
+		}
+	}
+	return false;
+}
+
 int startWorkerServer() {
 	signal(SIGPIPE, SIG_IGN);
 	int receivingSocket, connectionSocket;
@@ -268,7 +278,9 @@ int startWorkerServer() {
 	socklen_t len = sizeof(masterAddress);
 	char *buf = NULL;
 	
-	while (1) {
+	bool running = true;
+	
+	while (running) {
 		logr(info, "Listening for connections on port %i\n", port);
 		connectionSocket = accept(receivingSocket, (struct sockaddr *)&masterAddress, &len);
 		if (connectionSocket < 0) {
@@ -285,6 +297,11 @@ int startWorkerServer() {
 				break;
 			}
 			cJSON *message = cJSON_Parse(buf);
+			if (isShutdown(message)) {
+				running = false;
+				cJSON_Delete(message);
+				break;
+			}
 			cJSON *myResponse = processCommand(connectionSocket, message);
 			char *responseText = cJSON_PrintUnformatted(myResponse);
 			if (!chunkedSend(connectionSocket, responseText)) {
@@ -302,7 +319,11 @@ int startWorkerServer() {
 			cJSON_Delete(message);
 			buf = NULL;
 		}
-		logr(debug, "Cleaning up for next render\n");
+		if (running) {
+			logr(info, "Cleaning up for next render\n");
+		} else {
+			logr(info, "Received shutdown command, exiting\n");
+		}
 		shutdown(connectionSocket, SHUT_RDWR);
 		close(connectionSocket);
 		workerCleanup(); // Prepare for next render

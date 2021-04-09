@@ -35,6 +35,8 @@ struct renderClient {
 	int id;
 };
 
+void shutdownClients(void);
+
 // Synchronise renderer state with clients, and return a list of clients
 // ready to do some rendering
 struct renderClient *syncWithClients(const struct renderer *r, size_t *count);
