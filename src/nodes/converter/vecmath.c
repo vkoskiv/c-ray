@@ -74,6 +74,7 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 			break;
 	}
 	ASSERT_NOT_REACHED();
+	return (struct vectorValue){ .v = { 0 }, .c = { 0 }, .f = 0.0f };
 }
 
 const struct vectorNode *newVecMath(const struct world *world, const struct vectorNode *A, const struct vectorNode *B, const enum vecOp op) {

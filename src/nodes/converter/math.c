@@ -90,6 +90,8 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 			return fromRadians(a);
 			break;
 	}
+	ASSERT_NOT_REACHED();
+	return 0.0f;
 }
 
 const struct valueNode *newMath(const struct world *world, const struct valueNode *A, const struct valueNode *B, const enum mathOp op) {
