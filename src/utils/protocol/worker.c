@@ -335,6 +335,6 @@ int startWorkerServer() {
 }
 #else
 int startWorkerServer() {
-	logr(error, "c-ray doesn't support the proprietary networking stack on Windows. Sorry!\n");
+	logr(error, "c-ray doesn't support the proprietary networking stack on Windows yet. Sorry!\n");
 }
 #endif

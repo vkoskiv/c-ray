@@ -398,9 +398,13 @@ void *networkRenderThread(void *arg) {
 	return 0;
 }
 
+void shutdownClients() {
+	logr(warning, "c-ray doesn't support the proprietary networking stack on Windows yet. Sorry!\n");
+}
+
 struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	if (count) *count = 0;
-	logr(warning, "c-ray doesn't support the proprietary networking stack on Windows. Sorry!\n");
+	logr(warning, "c-ray doesn't support the proprietary networking stack on Windows yet. Sorry!\n");
 	return NULL;
 }
 
