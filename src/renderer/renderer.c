@@ -82,10 +82,15 @@ struct texture *renderFrame(struct renderer *r) {
 	r->state.threads = calloc(totalThreadCount, sizeof(*r->state.threads));
 	r->state.threadStates = calloc(totalThreadCount, sizeof(*r->state.threadStates));
 	
+	// Select the appropriate renderer type for local use
+	void *(*localRenderThread)(void *) = renderThread;
+	// Iterative mode is incompatible with network rendering at the moment
+	if (interactive && !r->state.clients) localRenderThread = renderThreadInteractive;
+	
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
 		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output};
-		r->state.threads[t] = (struct crThread){.threadFunc = renderThread, .userData = &r->state.threadStates[t]};
+		r->state.threads[t] = (struct crThread){.threadFunc = localRenderThread, .userData = &r->state.threadStates[t]};
 		if (threadStart(&r->state.threads[t])) {
 			logr(error, "Failed to create a render thread.\n");
 		} else {

@@ -321,7 +321,7 @@ void drawWindow(struct renderer *r, struct texture *t) {
 #ifdef CRAY_SDL_ENABLED
 	if (!gdisplay) return;
 	//Render frames
-	if (!isSet("interactive")) updateFrames(r);
+	if (!isSet("interactive") || r->state.clients) updateFrames(r);
 	//Update image data
 	SDL_UpdateTexture(gdisplay->texture, NULL, t->data.byte_p, (int)t->width * 3);
 	SDL_UpdateTexture(gdisplay->overlayTexture, NULL, r->state.uiBuffer->data.byte_p, (int)t->width * 4);
