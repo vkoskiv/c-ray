@@ -85,6 +85,12 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 	endif()
 endif()
 
+if (NO_IPO)
+	message(STATUS "Explicitly disabling IPO")
+	set_property(TARGET c-ray PROPERTY INTERPROCEDURAL_OPTIMIZATION FALSE)
+	unset(NO_IPO CACHE)
+endif()
+
 if (NO_LOGO)
 	target_compile_definitions(c-ray PRIVATE -DNO_LOGO)
 endif()
