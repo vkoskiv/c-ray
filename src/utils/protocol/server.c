@@ -150,7 +150,7 @@ static cJSON *processGetWork(struct renderThreadState *state, const cJSON *json)
 	(void)json;
 	struct renderTile tile = nextTile(state->renderer);
 	state->renderer->state.renderTiles[tile.tileNum].networkRenderer = true;
-	if (tile.tileNum == -1) return errorResponse("renderComplete");
+	if (tile.tileNum == -1) return newAction("renderComplete");
 	cJSON *response = newAction("newWork");
 	cJSON_AddItemToObject(response, "tile", encodeTile(tile));
 	return response;
@@ -176,6 +176,7 @@ static cJSON *processSubmitWork(struct renderThreadState *state, const cJSON *js
 struct command serverCommands[] = {
 	{"getWork", 0},
 	{"submitWork", 1},
+	{"goodbye", 2},
 };
 
 static cJSON *processClientRequest(struct renderThreadState *state, const cJSON *json) {
@@ -194,7 +195,13 @@ static cJSON *processClientRequest(struct renderThreadState *state, const cJSON 
 		case 1:
 			return processSubmitWork(state, json);
 			break;
+		case 2:
+			state->threadComplete = true;
+			logr(debug, "Client %i said goodbye, disconnecting.\n", state->client->id);
+			return goodbye();
+			break;
 		default:
+			logr(debug, "Unknown command: %s\n", cJSON_PrintUnformatted(json));
 			return errorResponse("Unknown command");
 			break;
 	}
@@ -208,7 +215,6 @@ static cJSON *processClientRequest(struct renderThreadState *state, const cJSON 
 void *networkRenderThread(void *arg) {
 	struct renderThreadState *state = (struct renderThreadState *)threadUserData(arg);
 	struct renderer *r = state->renderer;
-	//struct texture *image = state->output;
 	struct renderClient *client = state->client;
 	if (!client) {
 		state->threadComplete = true;
@@ -228,11 +234,14 @@ void *networkRenderThread(void *arg) {
 	}
 	
 	// And just wait for commands.
-	while (r->state.isRendering) {
+	while (r->state.isRendering && !state->threadComplete) {
 		cJSON *request = readJSON(client->socket);
 		if (!request) break;
 		cJSON *response = processClientRequest(state, request);
 		if (containsError(response)) {
+			char *err = cJSON_PrintUnformatted(response);
+			logr(debug, "error, exiting thread %i: %s\n", state->thread_num, err);
+			free(err);
 			sendJSON(client->socket, response);
 			break;
 		}
