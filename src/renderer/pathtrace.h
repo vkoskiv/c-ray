@@ -16,9 +16,9 @@
 
 struct world;
 
-/// Recursive path tracer.
+/// Iterative path tracer.
 /// @param incidentRay View ray to be casted into the scene
 /// @param scene Scene to cast the ray into
-/// @param maxDepth Maximum depth of recursion
+/// @param maxDepth Maximum depth of path
 /// @param rng A random number generator. One per execution thread.
 struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler);
