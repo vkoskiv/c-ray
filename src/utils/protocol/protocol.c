@@ -141,4 +141,14 @@ bool containsGoodbye(const cJSON *json) {
 	return false;
 }
 
+bool containsStats(const cJSON *json) {
+	const cJSON *action = cJSON_GetObjectItem(json, "action");
+	if (cJSON_IsString(action)) {
+		if (stringEquals(action->valuestring, "stats")) {
+			return true;
+		}
+	}
+	return false;
+}
+
 #endif

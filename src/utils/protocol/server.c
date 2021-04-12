@@ -236,16 +236,23 @@ void *networkRenderThread(void *arg) {
 	// And just wait for commands.
 	while (r->state.isRendering && !state->threadComplete) {
 		cJSON *request = readJSON(client->socket);
-		if (!request) break;
-		cJSON *response = processClientRequest(state, request);
-		if (containsError(response)) {
-			char *err = cJSON_PrintUnformatted(response);
-			logr(debug, "error, exiting thread %i: %s\n", state->thread_num, err);
-			free(err);
+		if (containsStats(request)) {
+			cJSON *completed = cJSON_GetObjectItem(request, "completed");
+			if (cJSON_IsNumber(completed)) state->completedSamples = completed->valueint;
+			cJSON *avg = cJSON_GetObjectItem(request, "avgPerPass");
+			if (cJSON_IsNumber(avg)) state->avgSampleTime = avg->valuedouble;
+		} else {
+			if (!request) break;
+			cJSON *response = processClientRequest(state, request);
+			if (containsError(response)) {
+				char *err = cJSON_PrintUnformatted(response);
+				logr(debug, "error, exiting thread %i: %s\n", state->thread_num, err);
+				free(err);
+				sendJSON(client->socket, response);
+				break;
+			}
 			sendJSON(client->socket, response);
-			break;
 		}
-		sendJSON(client->socket, response);
 		cJSON_Delete(request);
 	}
 	

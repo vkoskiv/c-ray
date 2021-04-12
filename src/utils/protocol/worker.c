@@ -50,6 +50,9 @@ struct workerThreadState {
 	struct crMutex *socketMutex;
 	struct renderer *renderer;
 	bool threadComplete;
+	uint64_t totalSamples;
+	int completedSamples;
+	long avgSampleTime;
 };
 
 static cJSON *validateHandshake(const cJSON *in) {
@@ -129,47 +132,6 @@ static bool submitWork(int sock, struct texture *work, struct renderTile forTile
 	return sendJSON(sock, package);
 }
 
-static inline struct texture *renderSingleTile(struct renderer *r, struct renderTile tile) {
-	struct texture *tileData = newTexture(char_p, tile.width, tile.height, 3);
-	sampler *sampler = newSampler();
-	int completedSamples = 1;
-	long samples = 0;
-	while (completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
-		for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
-			for (int x = tile.begin.x; x < tile.end.x; ++x) {
-				if (r->state.renderAborted) return 0;
-				uint32_t pixIdx = (uint32_t)(y * r->prefs.imageWidth + x);
-				initSampler(sampler, Halton, completedSamples - 1, r->prefs.sampleCount, pixIdx);
-				
-				struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
-				struct lightRay incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
-				struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
-				
-				//And process the running average
-				output = colorCoef((float)(completedSamples - 1), output);
-				output = addColors(output, sample);
-				float t = 1.0f / completedSamples;
-				output = colorCoef(t, output);
-				
-				//Store internal render buffer (float precision)
-				setPixel(r->state.renderBuffer, output, x, y);
-				
-				//Gamma correction
-				output = toSRGB(output);
-				
-				//And store the image data
-				int localX = x - tile.begin.x;
-				int localY = y - tile.begin.y;
-				setPixel(tileData, output, localX, localY);
-			}
-		}
-		//For performance metrics
-		samples++;
-		completedSamples++;
-	}
-	return tileData;
-}
-
 static void *workerThread(void *arg) {
 	struct workerThreadState *threadState = (struct workerThreadState *)threadUserData(arg);
 	struct renderer *r = threadState->renderer;
@@ -183,25 +145,29 @@ static void *workerThread(void *arg) {
 	struct texture *tileBuffer = newTexture(char_p, tile.width, tile.height, 3);
 	sampler *sampler = newSampler();
 	
+	struct timeval timer = { 0 };
+	threadState->completedSamples = 1;
+	
 	while (tile.tileNum != -1 && r->state.isRendering) {
-		
-		int completedSamples = 1;
+		long totalUsec = 0;
 		long samples = 0;
-		while (completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
+		
+		while (threadState->completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
+			startTimer(&timer);
 			for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 				for (int x = tile.begin.x; x < tile.end.x; ++x) {
 					if (r->state.renderAborted) return 0;
 					uint32_t pixIdx = (uint32_t)(y * r->prefs.imageWidth + x);
-					initSampler(sampler, Halton, completedSamples - 1, r->prefs.sampleCount, pixIdx);
+					initSampler(sampler, Halton, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
 					struct lightRay incidentRay = getCameraRay(r->scene->camera, x, y, sampler);
 					struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
 					
 					//And process the running average
-					output = colorCoef((float)(completedSamples - 1), output);
+					output = colorCoef((float)(threadState->completedSamples - 1), output);
 					output = addColors(output, sample);
-					float t = 1.0f / completedSamples;
+					float t = 1.0f / threadState->completedSamples;
 					output = colorCoef(t, output);
 					
 					//Store internal render buffer (float precision)
@@ -218,7 +184,10 @@ static void *workerThread(void *arg) {
 			}
 			//For performance metrics
 			samples++;
-			completedSamples++;
+			totalUsec += getUs(timer);
+			threadState->totalSamples++;
+			threadState->completedSamples++;
+			threadState->avgSampleTime = totalUsec / samples;
 		}
 		
 		lockMutex(sockMutex);
@@ -232,7 +201,7 @@ static void *workerThread(void *arg) {
 			break;
 		}
 		releaseMutex(sockMutex);
-		
+		threadState->completedSamples = 1;
 		lockMutex(sockMutex);
 		tile = getWork(sock);
 		releaseMutex(sockMutex);
@@ -269,8 +238,37 @@ static cJSON *startRender(int connectionSocket) {
 		}
 	}
 	
+	float avgSampleTime = 0.0f;
+	float avgTimePerTilePass = 0.0f;
+	int ctr = 1;
+	int pauser = 0;
 	//TODO: Send out stats here
 	while (g_worker_renderer->state.isRendering) {
+		
+		// Gather and send statistics to master node
+		for(int t = 0; t < g_worker_renderer->prefs.threadCount; ++t) {
+			avgSampleTime += workerThreadStates[t].avgSampleTime;
+		}
+		avgTimePerTilePass += avgSampleTime / g_worker_renderer->prefs.threadCount;
+		avgTimePerTilePass /= ctr++;
+		
+		// Send stats about 1x/s
+		if (pauser == 1024 / active_msec) {
+			uint64_t completedSamples = 0;
+			for (int t = 0; t < threadCount; ++t) {
+				completedSamples += workerThreadStates[t].totalSamples;
+			}
+			cJSON *stats = newAction("stats");
+			cJSON_AddNumberToObject(stats, "completed", completedSamples);
+			cJSON_AddNumberToObject(stats, "avgPerPass", avgTimePerTilePass);
+			lockMutex(g_worker_socket_mutex);
+			logr(debug, "Sending stats update for: %llu, %.2f\n", completedSamples, avgTimePerTilePass);
+			sendJSON(connectionSocket, stats);
+			releaseMutex(g_worker_socket_mutex);
+			pauser = 0;
+		}
+		pauser++;
+		
 		//Wait for render threads to finish (Render finished)
 		for (int t = 0; t < threadCount; ++t) {
 			if (workerThreadStates[t].threadComplete && !checkedThreads[t]) {

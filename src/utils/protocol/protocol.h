@@ -49,4 +49,6 @@ bool containsError(const cJSON *json);
 
 bool containsGoodbye(const cJSON *json);
 
+bool containsStats(const cJSON *json);
+
 void disconnectFromClient(struct renderClient *client);

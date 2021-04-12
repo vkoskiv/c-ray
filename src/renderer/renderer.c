@@ -74,13 +74,13 @@ struct texture *renderFrame(struct renderer *r) {
 	if (r->state.clients) logr(info, "Using %lu render workers totaling %lu threads.\n", r->state.clientCount, remoteThreads);
 	
 	// Local render threads + one thread for every client
-	int totalThreadCount = r->prefs.threadCount + (int)r->state.clientCount;
+	int localThreadCount = r->prefs.threadCount + (int)r->state.clientCount;
 	
 	// Map of threads that have finished, so we don't check them again.
-	bool *checkedThreads = calloc(totalThreadCount, sizeof(*checkedThreads));
+	bool *checkedThreads = calloc(localThreadCount, sizeof(*checkedThreads));
 	
-	r->state.threads = calloc(totalThreadCount, sizeof(*r->state.threads));
-	r->state.threadStates = calloc(totalThreadCount, sizeof(*r->state.threadStates));
+	r->state.threads = calloc(localThreadCount, sizeof(*r->state.threads));
+	r->state.threadStates = calloc(localThreadCount, sizeof(*r->state.threadStates));
 	
 	// Select the appropriate renderer type for local use
 	void *(*localRenderThread)(void *) = renderThread;
@@ -111,16 +111,18 @@ struct texture *renderFrame(struct renderer *r) {
 	}
 	
 	//Start main thread loop to handle SDL and statistics computation
+	//FIXME: Statistics computation is a gigantic mess. It will also break in the case
+	//where a worker node disconnects during a render, so maybe fix that next.
 	while (r->state.isRendering) {
 		getKeyboardInput(r);
 		
 		//Gather and maintain this average constantly.
 		if (!r->state.threadStates[0].paused) {
 			drawWindow(r, output);
-			for (int t = 0; t < r->prefs.threadCount; ++t) {
+			for (int t = 0; t < localThreadCount; ++t) {
 				avgSampleTime += r->state.threadStates[t].avgSampleTime;
 			}
-			avgTimePerTilePass += avgSampleTime / r->prefs.threadCount;
+			avgTimePerTilePass += avgSampleTime / localThreadCount;
 			avgTimePerTilePass /= ctr++;
 		}
 		
@@ -128,14 +130,14 @@ struct texture *renderFrame(struct renderer *r) {
 		if (pauser == 280 / active_msec) {
 			float usPerRay = avgTimePerTilePass / (r->prefs.tileHeight * r->prefs.tileWidth);
 			uint64_t completedSamples = 0;
-			for (int t = 0; t < r->prefs.threadCount; ++t) {
+			for (int t = 0; t < localThreadCount; ++t) {
 				completedSamples += r->state.threadStates[t].totalSamples;
 			}
 			uint64_t remainingTileSamples = (r->state.tileCount * r->prefs.sampleCount) - completedSamples;
 			uint64_t msecTillFinished = 0.001f * (avgTimePerTilePass * remainingTileSamples);
-			float sps = (1000000.0f/usPerRay) * r->prefs.threadCount;
+			float sps = (1000000.0f / usPerRay) * (r->prefs.threadCount + remoteThreads);
 			char rem[64];
-			smartTime((msecTillFinished) / r->prefs.threadCount, rem);
+			smartTime((msecTillFinished) / (r->prefs.threadCount + remoteThreads), rem);
 			logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
 				 KBLU,
 				 interactive ? ((float)r->state.finishedPasses / (float)r->prefs.sampleCount) * 100.0f :
@@ -151,7 +153,7 @@ struct texture *renderFrame(struct renderer *r) {
 		pauser++;
 		
 		//Wait for render threads to finish (Render finished)
-		for (int t = 0; t < totalThreadCount; ++t) {
+		for (int t = 0; t < localThreadCount; ++t) {
 			if (r->state.threadStates[t].threadComplete && !checkedThreads[t]) {
 				--r->state.activeThreads;
 				checkedThreads[t] = true; //Mark as checked
@@ -164,7 +166,7 @@ struct texture *renderFrame(struct renderer *r) {
 	}
 	
 	//Make sure render threads are terminated before continuing (This blocks)
-	for (int t = 0; t < totalThreadCount; ++t) {
+	for (int t = 0; t < localThreadCount; ++t) {
 		threadWait(&r->state.threads[t]);
 	}
 	free(checkedThreads);
