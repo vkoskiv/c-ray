@@ -32,7 +32,7 @@ bool cacheContains(const char *path) {
 	return false;
 }
 
-void cacheFile(const char *path, void *data, size_t length) {
+void cacheFile(const char *path, const void *data, size_t length) {
 	if (cacheContains(path)) {
 		logr(debug, "File %s already cached, skipping.\n", path);
 		return;

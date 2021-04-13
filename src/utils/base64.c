@@ -79,8 +79,8 @@ void *b64decode(const char *data, const size_t inputLength, size_t *outLength) {
 	unsigned char *p = (unsigned char *)data;
 	int pad = inputLength > 0 && (inputLength % 4 || p[inputLength - 1] == '=');
 	const size_t L = ((inputLength + 3) / 4 - pad) * 4;
-	size_t strSize = L / 4 * 3 + pad;
-	char *str = calloc(strSize + 1, sizeof(*str));
+	size_t strSize = L / 4 * 3 + pad + 1;
+	char *str = calloc(strSize, sizeof(*str));
 	size_t j = 0;
 	for (size_t i = 0; i < L; i += 4) {
 		int n = B64index[p[i]] << 18 | B64index[p[i + 1]] << 12 | B64index[p[i + 2]] << 6 | B64index[p[i + 3]];
@@ -94,7 +94,7 @@ void *b64decode(const char *data, const size_t inputLength, size_t *outLength) {
 		
 		if (inputLength > L + 2 && p[L + 2] != '=') {
 			n |= B64index[p[L + 2]] << 6;
-			str[++j] = n >> 8 & 0xFF;
+			str[j++] = n >> 8 & 0xFF;
 		}
 	}
 	if (outLength) *outLength = strSize;
