@@ -10,7 +10,7 @@
 
 #include <sys/types.h>
 
-void cacheFile(const char *path, void *data, size_t length);
+void cacheFile(const char *path, const void *data, size_t length);
 
 void *loadFromCache(const char *path, size_t *length);
 
