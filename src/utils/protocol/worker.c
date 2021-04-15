@@ -33,6 +33,7 @@
 #include "../gitsha1.h"
 #include "../timer.h"
 #include "../args.h"
+#include "../fileio.h"
 
 struct renderer *g_worker_renderer = NULL;
 struct crMutex *g_worker_socket_mutex = NULL;
@@ -375,12 +376,19 @@ int startWorkerServer() {
 		
 		for (;;) {
 			buf = NULL;
-			ssize_t read = chunkedReceive(connectionSocket, &buf);
+			size_t length = 0;
+			struct timeval timer;
+			startTimer(&timer);
+			ssize_t read = chunkedReceive(connectionSocket, &buf, &length);
 			if (read == 0) break;
 			if (read < 0) {
 				logr(warning, "Something went wrong. Error: %s\n", strerror(errno));
 				break;
 			}
+			long millisecs = getMs(timer);
+			char *size = humanFileSize(length);
+			logr(debug, "Received %s, took %lums.\n", size, millisecs);
+			free(size);
 			cJSON *message = cJSON_Parse(buf);
 			if (isShutdown(message)) {
 				running = false;

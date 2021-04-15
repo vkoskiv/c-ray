@@ -78,7 +78,7 @@ bool chunkedSend(int socket, const char *data) {
 	return n == -1 ? false : true;
 }
 
-ssize_t chunkedReceive(int socket, char **data) {
+ssize_t chunkedReceive(int socket, char **data, size_t *length) {
 	// Grab header first
 	//TODO: Verify we get the full header length before proceeding
 	size_t headerData = 0;
@@ -124,6 +124,7 @@ bail:
 	*data = recvBuf;
 	free(currentChunk);
 	free(scratchBuf);
+	if (length) *length = finalLength;
 	return ret == -1 ? -1 : finalLength;
 }
 #endif

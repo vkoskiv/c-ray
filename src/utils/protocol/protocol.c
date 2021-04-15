@@ -36,11 +36,21 @@ bool sendJSON(int socket, cJSON *json) {
 	return ret;
 }
 
+#include "../fileio.h"
+#include "../timer.h"
 cJSON *readJSON(int socket) {
 	char *recvBuf = NULL;
-	if (chunkedReceive(socket, &recvBuf) == 0) {
+	size_t length = 0;
+	struct timeval timer;
+	startTimer(&timer);
+	if (chunkedReceive(socket, &recvBuf, &length) == 0) {
 		return NULL;
 	}
+	long millisecs = getMs(timer);
+	char *size = humanFileSize(length);
+	logr(debug, "Received %s, took %lums.\n", size, millisecs);
+	free(size);
+	
 	cJSON *received = cJSON_Parse(recvBuf);
 	free(recvBuf);
 	return received;

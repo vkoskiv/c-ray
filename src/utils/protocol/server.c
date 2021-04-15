@@ -367,13 +367,14 @@ void shutdownClients() {
 }
 
 struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
-	logr(info, "Attempting to connect clients...\n");
 	size_t clientCount = 0;
 	struct renderClient *clients = buildClientList(&clientCount);
 	if (clientCount < 1) {
 		logr(warning, "No clients found, rendering solo.\n");
 		return 0;
 	}
+	
+	logr(info, "Syncing scene with %lu clients...\n", clientCount);
 	
 	struct syncThreadParams *params = calloc(clientCount, sizeof(*params));
 	logr(debug, "Client list:\n");

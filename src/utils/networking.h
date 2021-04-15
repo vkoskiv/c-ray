@@ -14,6 +14,6 @@
 
 bool chunkedSend(int socket, const char *data);
 
-ssize_t chunkedReceive(int socket, char **data);
+ssize_t chunkedReceive(int socket, char **data, size_t *length);
 
 #endif
