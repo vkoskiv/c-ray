@@ -28,6 +28,7 @@
 #include "utils/string.h"
 #include "utils/protocol/server.h"
 #include "utils/protocol/worker.h"
+#include "utils/filecache.h"
 
 #define VERSION "0.6.3"
 
@@ -272,6 +273,7 @@ void crStartRenderer() {
 		g_renderer->state.clients = syncWithClients(g_renderer, &g_renderer->state.clientCount);
 		free(g_renderer->sceneCache);
 		g_renderer->sceneCache = NULL;
+		destroyFileCache();
 	}
 	initDisplay(g_renderer->prefs.fullscreen, g_renderer->prefs.borderless, g_renderer->prefs.imageWidth, g_renderer->prefs.imageHeight, g_renderer->prefs.scale);
 	startTimer(g_renderer->state.timer);
