@@ -44,6 +44,25 @@ static size_t count(textBuffer *buffer, const char *thing) {
 	return thingCount;
 }
 
+static size_t countPolygons(textBuffer *buffer) {
+	size_t thingCount = 0;
+	char *head = firstLine(buffer);
+	lineBuffer *line = newLineBuffer();
+	while (head) {
+		if (head[0] == 'f') {
+			fillLineBuffer(line, head, ' ');
+			if (line->amountOf.tokens > 4) {
+				thingCount += 2;
+			} else {
+				thingCount++;
+			}
+		}
+		head = nextLine(buffer);
+	}
+	destroyLineBuffer(line);
+	return thingCount;
+}
+
 static struct vector parseVertex(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
 	return (struct vector){atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line))};
@@ -54,27 +73,38 @@ static struct coord parseCoord(lineBuffer *line) {
 	return (struct coord){atof(nextToken(line)), atof(nextToken(line))};
 }
 
-//FIXME: Make this aware of more variants.
 // Wavefront supports different indexing types like
-// f v1 v2 v3
+// f v1 v2 v3 [v4]
 // f v1/vt1 v2/vt2 v3/vt3
 // f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
 // f v1//vn1 v2//vn2 v3//vn3
-// Also need to deal with the case we get more than 3 of these.
-static struct poly parsePolygon(lineBuffer *line) {
-	ASSERT(line->amountOf.tokens == 4);
-	struct poly p = {{0}};
+// Or a quad:
+// f v1//vn1 v2//vn2 v3//vn3 v4//vn4
+size_t parsePolygons(lineBuffer *line, struct poly *buf) {
 	lineBuffer *batch = newLineBuffer();
-	p.vertexCount = MAX_CRAY_VERTEX_COUNT;
-	for (int i = 0; i < p.vertexCount; ++i) {
-		// Order goes v/vt/vn
-		fillLineBuffer(batch, nextToken(line), '/');
-		p.vertexIndex[i] = atoi(firstToken(batch));
-		p.textureIndex[i] = atoi(nextToken(batch));
-		p.normalIndex[i] = atoi(nextToken(batch));
+	size_t polycount = line->amountOf.tokens - 3;
+	// For now, c-ray will just translate quads to two polygons while parsing
+	// Explode in a ball of fire if we encounter an ngon
+	bool isNgon = polycount > 2;
+	ASSERT(!isNgon);
+	bool skipped = false;
+	for (size_t i = 0; i < polycount; ++i) {
+		firstToken(line);
+		struct poly *p = &buf[i];
+		p->vertexCount = MAX_CRAY_VERTEX_COUNT;
+		for (int j = 0; j < p->vertexCount; ++j) {
+			fillLineBuffer(batch, nextToken(line), '/');
+			p->vertexIndex[j] = atoi(firstToken(batch));
+			p->textureIndex[j] = atoi(nextToken(batch));
+			p->normalIndex[j] = atoi(nextToken(batch));
+			if (i == 1 && !skipped) {
+				nextToken(line);
+				skipped = true;
+			}
+		}
 	}
 	destroyLineBuffer(batch);
-	return p;
+	return polycount;
 }
 
 static int fixIndex(size_t max, int oldIndex) {
@@ -120,7 +150,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	size_t fileNormals = count(file, "vn");
 	size_t currentNormal = 0;
 	struct vector *normals = malloc(fileNormals * sizeof(*normals));
-	size_t filePolys = count(file, "f");
+	size_t filePolys = countPolygons(file);
 	size_t currentPoly = 0;
 	struct poly *polygons = malloc(filePolys * sizeof(*polygons));
 	
@@ -139,6 +169,8 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	int currentNormalCount = 0;
 	int currentTextureCount = 0;
 	
+	struct poly polybuf[2];
+
 	char *head = firstLine(file);
 	lineBuffer *line = newLineBuffer();
 	while (head) {
@@ -165,11 +197,14 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 			normals[currentNormal++] = parseVertex(line);
 			currentNormalCount++;
 		} else if (stringEquals(first, "f")) {
-			struct poly p = parsePolygon(line);
-			fixIndices(&p, fileVertices, fileTexCoords, fileNormals);
-			p.materialIndex = currentMaterialIndex;
-			p.hasNormals = p.normalIndex[0] != -1;
-			polygons[currentPoly++] = p;
+			size_t count = parsePolygons(line, polybuf);
+			for (size_t i = 0; i < count; ++i) {
+				struct poly p = polybuf[i];
+				fixIndices(&p, fileVertices, fileTexCoords, fileNormals);
+				p.materialIndex = currentMaterialIndex;
+				p.hasNormals = p.normalIndex[0] != -1;
+				polygons[currentPoly++] = p;
+			}
 		} else if (stringEquals(first, "usemtl")) {
 			currentMaterialIndex = findMaterialIndex(materialSet, materialCount, peekNextToken(line));
 		} else if (stringEquals(first, "mtllib")) {
