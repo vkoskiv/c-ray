@@ -78,6 +78,7 @@ struct instance newSphereInstance(struct sphere *sphere) {
 static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecord *isect) {
 	if (mesh->textureCoordCount == 0) return (struct coord){-1.0f, -1.0f};
 	struct poly *p = isect->polygon;
+	if (p->textureIndex[0] == -1) return (struct coord){-1.0f, -1.0f};
 	
 	//barycentric coordinates for this polygon
 	const float u = isect->uv.x;
