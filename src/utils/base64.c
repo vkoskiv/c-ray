@@ -90,7 +90,7 @@ void *b64decode(const char *data, const size_t inputLength, size_t *outLength) {
 	}
 	if (pad) {
 		int n = B64index[p[L]] << 18 | B64index[p[L + 1]] << 12;
-		str[strSize - 1] = n >> 16;
+		str[j++] = n >> 16;
 		
 		if (inputLength > L + 2 && p[L + 2] != '=') {
 			n |= B64index[p[L + 2]] << 6;
