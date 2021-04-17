@@ -694,7 +694,7 @@ static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	up = cJSON_GetObjectItem(data, "up");
 	hdr = cJSON_GetObjectItem(data, "hdr");
 	
-	if (cJSON_IsString(hdr)) {
+	if (cJSON_IsString(hdr) && isValidFile(hdr->valuestring)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, hdr->valuestring);
 		r->scene->background = newBackground(r->scene, newImageTexture(r->scene, loadTexture(fullPath, &r->scene->nodePool), 0), NULL, offsetValue);
 		free(fullPath);
