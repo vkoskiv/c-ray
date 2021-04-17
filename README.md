@@ -23,11 +23,12 @@ C-ray is a research oriented, hackable, offline CPU rendering engine built for l
 
 C-ray currently has:
 - [Cluster rendering support](https://github.com/vkoskiv/c-ray/wiki/Using-cluster-rendering) (on \*nix systems)
+- A node-based material system
 - A simple unidirectional Monte Carlo integrator
 - Real-time render preview using SDL2
 - Easy scene compositing using a JSON interface
 - Multithreading (using pthreads or WIN32 threads)
-- Wavefront OBJ mesh loading with transforms for compositing a scene
+- Wavefront OBJ support
 - Object instancing
 - PNG and BMP file output
 - Two levels of BVH acceleration structures (by @madmann92)
@@ -52,7 +53,6 @@ Things I'm looking to implement:
 - Built a more robust API with an interactive scene state.
 - Some procedural textures
 - Python API wrapper
-- Networking and clustered rendering
 - Volumetric rendering
 - Subsurface scattering
 - Spectral rendering
