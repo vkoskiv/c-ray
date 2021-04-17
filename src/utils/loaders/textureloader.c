@@ -75,7 +75,7 @@ struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigne
 	struct texture *new = pool ? allocBlock(pool, sizeof(*new)) : newTexture(none, 0, 0, 0);
 	new->data.byte_p = stbi_load_from_memory(buffer, buflen, (int *)&new->width, (int *)&new->height, (int *)&new->channels, 0);
 	if (!new->data.byte_p) {
-		logr(warning, "Failed to decode texture from memory buffer of size %u\n", buflen);
+		logr(warning, "Failed to decode texture from memory buffer of size %u. Reason: \"%s\"\n", buflen, stbi_failure_reason());
 		destroyTexture(new);
 		return NULL;
 	}
