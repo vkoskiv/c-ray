@@ -72,6 +72,9 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 		case VecLength:
 			return (struct vectorValue){ .f = vecLength(a) };
 			break;
+		case VecAbs:
+			return (struct vectorValue){ .v = { .x = fabsf(a.x), .y = fabsf(a.y), .z = fabsf(a.z) } };
+			break;
 	}
 	ASSERT_NOT_REACHED();
 	return (struct vectorValue){ .v = { 0 }, .c = { 0 }, .f = 0.0f };

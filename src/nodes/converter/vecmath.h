@@ -18,6 +18,7 @@ enum vecOp {
 	VecNormalize,
 	VecReflect,
 	VecLength,
+	VecAbs,
 };
 
 const struct vectorNode *newVecMath(const struct world *world, const struct vectorNode *A, const struct vectorNode *B, const enum vecOp op);
