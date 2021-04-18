@@ -68,6 +68,7 @@ struct material {
 	struct color diffuse;
 	struct color specular;
 	struct color emission;
+	int illum;
 	float reflectivity;
 	float roughness;
 	float refractivity;

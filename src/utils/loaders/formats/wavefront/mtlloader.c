@@ -79,6 +79,8 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 			current->specular = parseColor(line);
 		} else if (stringEquals(first, "Ke")) {
 			current->emission = parseColor(line);
+		} else if (stringEquals(first, "illum")) {
+			current->illum = atoi(nextToken(line));
 		} else if (stringEquals(first, "Ns")) {
 			// Shinyness, unused
 			head = nextLine(file);

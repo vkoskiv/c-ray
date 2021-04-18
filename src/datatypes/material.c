@@ -67,6 +67,25 @@ const struct bsdfNode *appendAlpha(struct world *w, const struct bsdfNode *base,
 void assignBSDF(struct world *w, struct material *mat) {
 	const struct valueNode *roughness = mat->specularMap ? newGrayscaleConverter(w, newImageTexture(w, mat->specularMap, NO_BILINEAR)) : newConstantValue(w, mat->roughness);
 	const struct colorNode *color = mat->texture ? newImageTexture(w, mat->texture, SRGB_TRANSFORM) : newConstantTexture(w, mat->diffuse);
+	logr(debug, "name: %s, illum: %i\n", mat->name, mat->illum);
+	mat->bsdf = NULL;
+	
+	const struct colorNode *spec = newConstantTexture(w, mat->specular);
+	// First, attempt to deduce type based on mtl properties
+	switch (mat->illum) {
+		case 5:
+			mat->bsdf = appendAlpha(w, newMetal(w, color, roughness), color);
+			break;
+		case 7:
+			mat->bsdf = appendAlpha(w, newGlass(w, spec, roughness, newConstantValue(w, mat->IOR)), spec);
+			break;
+		default:
+			break;
+	}
+	
+	if (mat->bsdf) return;
+	
+	// Otherwise, fall back to our preassigned selection
 	switch (mat->type) {
 		case lambertian:
 			mat->bsdf = appendAlpha(w, newDiffuse(w, color), color);
