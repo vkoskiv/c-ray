@@ -82,9 +82,7 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 		} else if (stringEquals(first, "illum")) {
 			current->illum = atoi(nextToken(line));
 		} else if (stringEquals(first, "Ns")) {
-			// Shinyness, unused
-			head = nextLine(file);
-			continue;
+			current->shinyness = atof(nextToken(line));
 		} else if (stringEquals(first, "d")) {
 			current->transparency = atof(nextToken(line));
 		} else if (stringEquals(first, "r")) {
