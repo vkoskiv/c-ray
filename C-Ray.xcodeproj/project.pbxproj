@@ -113,6 +113,8 @@
 		9076FB56243002B90003B327 /* thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB54243002B90003B327 /* thread.c */; };
 		9076FB59243002D60003B327 /* capabilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB58243002D60003B327 /* capabilities.c */; };
 		9076FB5A243002D60003B327 /* capabilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 9076FB58243002D60003B327 /* capabilities.c */; };
+		908981082628DAAE0054B5E7 /* vectocolor.c in Sources */ = {isa = PBXBuildFile; fileRef = 908981062628DAAE0054B5E7 /* vectocolor.c */; };
+		908981092628DAAE0054B5E7 /* vectocolor.c in Sources */ = {isa = PBXBuildFile; fileRef = 908981062628DAAE0054B5E7 /* vectocolor.c */; };
 		908ED0B0258F04E300D5B93F /* fresnel.c in Sources */ = {isa = PBXBuildFile; fileRef = 908ED0AE258F04E300D5B93F /* fresnel.c */; };
 		908ED0B1258F04E300D5B93F /* fresnel.c in Sources */ = {isa = PBXBuildFile; fileRef = 908ED0AE258F04E300D5B93F /* fresnel.c */; };
 		908ED0B4258FAEDA00D5B93F /* normal.c in Sources */ = {isa = PBXBuildFile; fileRef = 908ED0B2258FAEDA00D5B93F /* normal.c */; };
@@ -133,8 +135,6 @@
 		90A21CF624589E84002C742E /* hammersley.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CF424589E84002C742E /* hammersley.c */; };
 		90A21CFD2458A2D8002C742E /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CFC2458A2D8002C742E /* random.c */; };
 		90A21CFE2458A2D8002C742E /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A21CFC2458A2D8002C742E /* random.c */; };
-		90A51A0023FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
-		90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A519FF23FB5DFC0014DF6B /* statistics.c */; };
 		90A5347425A10D2400A37176 /* emission.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A5347325A10D2400A37176 /* emission.c */; };
 		90A5347525A10D2400A37176 /* emission.c in Sources */ = {isa = PBXBuildFile; fileRef = 90A5347325A10D2400A37176 /* emission.c */; };
 		90AB1E072574373E00EFDF5A /* bsdfnode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E052574373E00EFDF5A /* bsdfnode.c */; };
@@ -320,6 +320,8 @@
 		907E9D1524A2AEDB001C5A60 /* test_textbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_textbuffer.h; sourceTree = "<group>"; };
 		907E9D1624A2AEF6001C5A60 /* test_vector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_vector.h; sourceTree = "<group>"; };
 		907E9D1724A2AF17001C5A60 /* tests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tests.h; sourceTree = "<group>"; };
+		908981062628DAAE0054B5E7 /* vectocolor.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vectocolor.c; sourceTree = "<group>"; };
+		908981072628DAAE0054B5E7 /* vectocolor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vectocolor.h; sourceTree = "<group>"; };
 		908ED0AE258F04E300D5B93F /* fresnel.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fresnel.c; sourceTree = "<group>"; };
 		908ED0AF258F04E300D5B93F /* fresnel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fresnel.h; sourceTree = "<group>"; };
 		908ED0B2258FAEDA00D5B93F /* normal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = normal.c; sourceTree = "<group>"; };
@@ -344,8 +346,6 @@
 		90A21CF724589FDD002C742E /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		90A21CFB2458A2D8002C742E /* random.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = random.h; sourceTree = "<group>"; };
 		90A21CFC2458A2D8002C742E /* random.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = random.c; sourceTree = "<group>"; };
-		90A519FE23FB5DFC0014DF6B /* statistics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = statistics.h; sourceTree = "<group>"; };
-		90A519FF23FB5DFC0014DF6B /* statistics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = statistics.c; sourceTree = "<group>"; };
 		90A51A0223FCB7FF0014DF6B /* memory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = memory.h; sourceTree = "<group>"; };
 		90A5347225A10D2400A37176 /* emission.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = emission.h; sourceTree = "<group>"; };
 		90A5347325A10D2400A37176 /* emission.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = emission.c; sourceTree = "<group>"; };
@@ -549,8 +549,6 @@
 				90FB15C922596E79008D6AAA /* gitsha1.h */,
 				90204C7823A07F2C00B01EEF /* assert.h */,
 				90908A6E23E0707E0081377B /* assert.c */,
-				90A519FE23FB5DFC0014DF6B /* statistics.h */,
-				90A519FF23FB5DFC0014DF6B /* statistics.c */,
 				90A51A0223FCB7FF0014DF6B /* memory.h */,
 				90999AE22486DA8200381CB3 /* logo.h */,
 				90FAD26F24A2ADE400F8CA79 /* testrunner.h */,
@@ -580,6 +578,8 @@
 				9050FFF325994121001C172D /* vecmath.c */,
 				9050FFF825994B7E001C172D /* math.h */,
 				9050FFF725994B7E001C172D /* math.c */,
+				908981072628DAAE0054B5E7 /* vectocolor.h */,
+				908981062628DAAE0054B5E7 /* vectocolor.c */,
 			);
 			path = converter;
 			sourceTree = "<group>";
@@ -902,6 +902,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				908981092628DAAE0054B5E7 /* vectocolor.c in Sources */,
 				90FAD26A24A26F0B00F8CA79 /* instance.c in Sources */,
 				905842DB236651FC009D92F1 /* main.c in Sources */,
 				905842DC236651FC009D92F1 /* sphere.c in Sources */,
@@ -910,7 +911,6 @@
 				9071BC94257D7D260070BA43 /* constant.c in Sources */,
 				908ED0B5258FAEDA00D5B93F /* normal.c in Sources */,
 				90A21CFE2458A2D8002C742E /* random.c in Sources */,
-				90A51A0123FB5DFC0014DF6B /* statistics.c in Sources */,
 				905842E0236651FC009D92F1 /* textureloader.c in Sources */,
 				9071BC9C257D7D470070BA43 /* image.c in Sources */,
 				90B3EC722607BE5300B11B9E /* protocol.c in Sources */,
@@ -995,6 +995,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				908981082628DAAE0054B5E7 /* vectocolor.c in Sources */,
 				90FAD26924A26F0B00F8CA79 /* instance.c in Sources */,
 				900BA144220B4603005B8EE7 /* main.c in Sources */,
 				900BA136220B4603005B8EE7 /* sphere.c in Sources */,
@@ -1003,7 +1004,6 @@
 				9071BC93257D7D260070BA43 /* constant.c in Sources */,
 				908ED0B4258FAEDA00D5B93F /* normal.c in Sources */,
 				90A21CFD2458A2D8002C742E /* random.c in Sources */,
-				90A51A0023FB5DFC0014DF6B /* statistics.c in Sources */,
 				90CA851E2252C90C00BA7702 /* textureloader.c in Sources */,
 				9071BC9B257D7D470070BA43 /* image.c in Sources */,
 				90B3EC712607BE5300B11B9E /* protocol.c in Sources */,
