@@ -84,13 +84,14 @@ ssize_t chunkedReceive(int socket, char **data, size_t *length) {
 	size_t headerData = 0;
 	size_t chunkSize = C_RAY_CHUNKSIZE;
 	ssize_t ret = recv(socket, &headerData, sizeof(headerData), 0);
+	headerData = ntohll(headerData);
 	if (headerData == 0) {
 		// Remote closed connection
 		logr(debug, "remote closed connection\n");
 		return 0;
 	}
 	if (ret == -1) logr(debug, "chunkedReceive header error: %s\n", strerror(errno));
-	size_t msgLen = ntohll(headerData);
+	size_t msgLen = headerData;
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
 	
