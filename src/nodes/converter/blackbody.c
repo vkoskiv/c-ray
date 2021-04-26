@@ -19,31 +19,31 @@
 
 struct blackbodyNode {
 	struct colorNode node;
-	const struct valueNode *value;
+	const struct valueNode *temperature;
 };
 
 static bool compare(const void *A, const void *B) {
 	const struct blackbodyNode *this = A;
 	const struct blackbodyNode *other = B;
-	return this->value == other->value;
+	return this->temperature == other->temperature;
 }
 
 static uint32_t hash(const void *p) {
 	const struct blackbodyNode *this = p;
 	uint32_t h = hashInit();
-	h = hashBytes(h, &this->value, sizeof(this->value));
+	h = hashBytes(h, &this->temperature, sizeof(this->temperature));
 	return h;
 }
 
 static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
 	(void)record;
 	struct blackbodyNode *this = (struct blackbodyNode *)node;
-	return colorForKelvin(this->value->eval(this->value, record));
+	return colorForKelvin(this->temperature->eval(this->temperature, record));
 }
 
-const struct colorNode *newBlackbody(const struct world *world, const struct valueNode *value) {
+const struct colorNode *newBlackbody(const struct world *world, const struct valueNode *temperature) {
 	HASH_CONS(world->nodeTable, hash, struct blackbodyNode, {
-		.value = value ? value : newConstantValue(world, 4000.0f),
+		.temperature = temperature ? temperature : newConstantValue(world, 4000.0f),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }
