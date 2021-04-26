@@ -28,13 +28,12 @@ def mtls_from_obj(objfilename):
 	return mtlfiles
 
 def textures_from_mtl(mtlfilename):
+	local_path = just_path(mtlfilename)
 	textures = []
 	with open(mtlfilename, 'r') as f:
 		data = f.readlines()
 		for line in data:
-			if line.startswith('map_Kd'):
-				textures.append(line.split(' ')[1].strip('\n'))
-			elif line.startswith('norm'):
+			if line.startswith('map_Kd') or line.startswith('map_Ns') or line.startswith('norm'):
 				textures.append(line.split(' ')[1].strip('\n'))
 	return textures
 
@@ -94,8 +93,9 @@ if __name__ == '__main__':
 								copy_file(assetPath + path_offset + mtl, destPath + '/' + path_offset + dest_offset)
 								texs = textures_from_mtl(assetPath + path_offset + mtl)
 								for tex in texs:
-									mkdir_if_need(destPath + '/' + path_offset + dest_offset)
-									copy_file(assetPath + path_offset + tex, destPath + '/' + path_offset + dest_offset)
+									asset_offset = just_path(tex)
+									mkdir_if_need(destPath + '/' + path_offset + dest_offset + asset_offset)
+									copy_file(assetPath + path_offset + tex, destPath + '/' + path_offset + dest_offset + asset_offset)
 	shutil.make_archive(destPath, 'zip', destPath)
 	shutil.rmtree(destPath)
 	print('\n\nBundle ' + destPath + '.zip created!')
