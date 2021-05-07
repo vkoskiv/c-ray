@@ -222,6 +222,12 @@ void getKeyboardInput(struct renderer *r) {
 				}
 			}
 		}
+		if (event.type == SDL_QUIT) {
+			printf("\n");
+			logr(info, "Aborting render without saving\n");
+			r->state.renderAborted = true;
+			r->state.saveImage = false;
+		}
 	}
 #endif
 }
