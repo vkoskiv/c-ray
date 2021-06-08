@@ -37,5 +37,6 @@ struct bsdfNode {
 #include "shaders/add.h"
 #include "shaders/background.h"
 #include "shaders/emission.h"
+#include "shaders/isotropic.h"
 
 const struct bsdfNode *warningBsdf(const struct world *world);
