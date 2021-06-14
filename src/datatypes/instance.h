@@ -10,9 +10,10 @@
 
 #include <stdbool.h>
 #include "transforms.h"
+#include "../renderer/samplers/sampler.h"
 
 struct world;
-struct matrix4x4;
+
 struct lightRay;
 struct hitRecord;
 
@@ -21,13 +22,15 @@ struct mesh;
 
 struct instance {
 	struct transform composite;
-	bool (*intersectFn)(const struct instance *, const struct lightRay *, struct hitRecord *);
+	bool (*intersectFn)(const struct instance *, const struct lightRay *, struct hitRecord *, sampler *);
 	void (*getBBoxAndCenterFn)(const struct instance *, struct boundingBox *, struct vector *);
 	void *object;
 };
 
-struct instance newSphereInstance(struct sphere *sphere);
-struct instance newMeshInstance(struct mesh *mesh);
+struct instance newSphereSolid(struct sphere *sphere);
+struct instance newSphereVolume(struct sphere *sphere, float density);
+struct instance newMeshSolid(struct mesh *mesh);
+struct instance newMeshVolume(struct mesh *mesh, float density);
 
 bool isMesh(const struct instance *instance);
 

@@ -9,6 +9,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "../renderer/samplers/sampler.h"
 
 struct lightRay;
 struct hitRecord;
@@ -33,9 +34,9 @@ struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count);
 struct bvh *buildTopLevelBvh(struct instance *instances, unsigned instanceCount);
 
 /// Intersect a ray with a scene top-level BVH
-bool traverseTopLevelBvh(const struct instance *instances, const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect);
+bool traverseTopLevelBvh(const struct instance *instances, const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler);
 
-bool traverseBottomLevelBvh(const struct mesh *mesh, const struct lightRay *ray, struct hitRecord *isect);
+bool traverseBottomLevelBvh(const struct mesh *mesh, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler);
 
 /// Frees the memory allocated by the given BVH
 void destroyBvh(struct bvh *);

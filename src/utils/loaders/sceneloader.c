@@ -927,7 +927,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		const cJSON *instance = NULL;
 		if (instances != NULL && cJSON_IsArray(instances)) {
 			cJSON_ArrayForEach(instance, instances) {
-				struct instance new = newMeshInstance(lastMesh(r));
+				struct instance new = newMeshSolid(lastMesh(r));
 				new.composite = parseInstanceTransform(instance);
 				addInstanceToScene(r->scene, new);
 			}
@@ -1086,7 +1086,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *instance = NULL;
 	if (cJSON_IsArray(instances)) {
 		cJSON_ArrayForEach(instance, instances) {
-			addInstanceToScene(r->scene, newSphereInstance(lastSphere(r)));
+			addInstanceToScene(r->scene, newSphereSolid(lastSphere(r)));
 			lastInstance(r)->composite = parseInstanceTransform(instance);
 		}
 	}
@@ -1094,8 +1094,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *materials = cJSON_GetObjectItem(data, "material");
 	if (materials) {
 		// Single graph, map it to every material in a mesh.
-		const struct bsdfNode *node = parseNode(r->scene, materials);
-		lastSphere(r)->material.bsdf = node;
+		lastSphere(r)->material.bsdf = parseNode(r->scene, materials);
 	} else {
 		assignBSDF(r->scene, &lastSphere(r)->material);
 	}

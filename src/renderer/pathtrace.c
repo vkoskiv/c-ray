@@ -23,9 +23,9 @@
 #include "../datatypes/transforms.h"
 #include "../datatypes/instance.h"
 
-static inline struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene) {
+static inline struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler) {
 	struct hitRecord isect = { .incident = *incidentRay, .instIndex = -1, .distance = FLT_MAX, .polygon = NULL };
-	traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect);
+	traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect, sampler);
 	return isect;
 }
 
@@ -35,7 +35,7 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 	struct lightRay currentRay = *incidentRay;
 	
 	for (int depth = 0; depth < maxDepth; ++depth) {
-		const struct hitRecord isect = getClosestIsect(&currentRay, scene);
+		const struct hitRecord isect = getClosestIsect(&currentRay, scene, sampler);
 		if (isect.instIndex < 0) {
 			finalColor = addColors(finalColor, multiplyColors(weight, scene->background->sample(scene->background, sampler, &isect).color));
 			break;
