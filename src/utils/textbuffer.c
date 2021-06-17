@@ -166,16 +166,13 @@ void fillLineBuffer(lineBuffer *line, const char *contents, char delimiter) {
 	memcpy(line->buf, contents, copyLen);
 	line->buf[copyLen] = '\0';
 	line->buflen = copyLen;
-	
-	size_t tokens = 0;
+	line->amountOf.tokens = 0;
 	for (size_t i = 0; i < line->buflen + 1; ++i) {
 		if (line->buf[i] == delimiter || line->buf[i] == '\0') {
 			line->buf[i] = '\0';
-			tokens++;
+			line->amountOf.tokens++;
 		}
 	}
-	
-	line->amountOf.tokens = tokens;
 }
 
 char *goToToken(lineBuffer *line, size_t token) {
