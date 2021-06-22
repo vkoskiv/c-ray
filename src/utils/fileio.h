@@ -8,6 +8,21 @@
 
 #pragma once
 
+#include <stdbool.h>
+
+enum fileType {
+	bmp,
+	png,
+	hdr,
+	obj,
+	mtl,
+	jpg,
+	tiff,
+	unknown,
+};
+
+enum fileType guessFileType(const char *filePath);
+
 /// Returns a string containing `bytes` converted into a more human readable format.
 /// @param bytes How many bytes you have
 /// @return A human readable file size string.

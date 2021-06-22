@@ -8,11 +8,7 @@
 
 #pragma once
 
-enum fileType {
-	bmp,
-	png,
-	hdr,
-};
+#include "../../utils/fileio.h"
 
 struct renderInfo {
 	int samples;

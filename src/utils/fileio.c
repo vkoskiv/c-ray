@@ -20,6 +20,49 @@
 #include <stdio.h>
 #include "args.h"
 #include "filecache.h"
+#include "textbuffer.h"
+
+char *getFileExtension(const char *fileName) {
+	lineBuffer *line = newLineBuffer();
+	fillLineBuffer(line, fileName, '.');
+	if (line->amountOf.tokens != 2) {
+		destroyLineBuffer(line);
+		return NULL;
+	}
+	char *extension = stringCopy(lastToken(line));
+	destroyLineBuffer(line);
+	return extension;
+}
+
+enum fileType guessFileType(const char *filePath) {
+	char *fileName = getFileName(filePath);
+	char *extension = getFileExtension(fileName);
+	char *lower = stringToLower(extension);
+	free(extension);
+	extension = lower;
+	free(fileName);
+	enum fileType type = unknown;
+	
+	if (!extension) return type;
+	
+	if (stringEquals(extension, "bmp"))
+		type = bmp;
+	if (stringEquals(extension, "png"))
+		type = png;
+	if (stringEquals(extension, "hdr"))
+		type = hdr;
+	if (stringEquals(extension, "obj"))
+		type = obj;
+	if (stringEquals(extension, "mtl"))
+		type = mtl;
+	if (stringEquals(extension, "jpg"))
+		type = jpg;
+	if (stringEquals(extension, "tiff"))
+		type = tiff;
+	free(extension);
+	
+	return type;
+}
 
 char *loadFile(const char *filePath, size_t *bytes) {
 	if (isSet("is_worker")) return loadFromCache(filePath, bytes);
