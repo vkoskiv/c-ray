@@ -60,7 +60,7 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 			return powf(a, b);
 			break;
 		case Log:
-			return logf(a);
+			return log10f(a);
 			break;
 		case SquareRoot:
 			return sqrtf(a);

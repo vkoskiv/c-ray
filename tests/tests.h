@@ -19,6 +19,7 @@ static char *failed_expression;
 #include "test_hashtable.h"
 #include "test_mempool.h"
 #include "test_base64.h"
+#include "test_nodes.h"
 
 static test tests[] = {
 	{"transforms::transpose", transform_transpose},
@@ -65,7 +66,7 @@ static test tests[] = {
 	
 	{"hashtable::mixed", hashtable_mixed},
 	{"hashtable::fill", hashtable_fill},
-	{"mempool::bigalloc", mempool_bigalloc},
+	/*{"mempool::bigalloc", mempool_bigalloc},
 	{"mempool::tinyalloc8", mempool_tiny_8},
 	{"mempool::tinyalloc16", mempool_tiny_16},
 	{"mempool::tinyalloc32", mempool_tiny_32},
@@ -75,9 +76,24 @@ static test tests[] = {
 	{"mempool::tinyalloc512", mempool_tiny_512},
 	{"mempool::tinyalloc1024", mempool_tiny_1024},
 	{"mempool::tinyalloc2048", mempool_tiny_2048},
-	{"mempool::tinyalloc4096", mempool_tiny_4096},
+	{"mempool::tinyalloc4096", mempool_tiny_4096},*/
 	
 	{"base64::basic", base64_basic},
+	{"mathnode::add", mathnode_add},
+	{"mathnode::subtract", mathnode_subtract},
+	{"mathnode::multiply", mathnode_multiply},
+	{"mathnode::divide", mathnode_divide},
+	{"mathnode::power", mathnode_power},
+	{"mathnode::log", mathnode_log},
+	{"mathnode::squareroot", mathnode_squareroot},
+	{"mathnode::absolute", mathnode_absolute},
+	{"mathnode::min", mathnode_min},
+	{"mathnode::max", mathnode_max},
+	{"mathnode::sine", mathnode_sine},
+	{"mathnode::cosine", mathnode_cosine},
+	{"mathnode::tangent", mathnode_tangent},
+	{"mathnode::toradians", mathnode_toradians},
+	{"mathnode::todegrees", mathnode_todegrees},
 };
 
 #define testCount (sizeof(tests) / sizeof(test))

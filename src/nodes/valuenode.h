@@ -10,6 +10,8 @@
 
 #include "nodebase.h"
 
+struct hitRecord;
+
 struct valueNode {
 	struct nodeBase base;
 	float (*eval)(const struct valueNode *node, const struct hitRecord *record);
