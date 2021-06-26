@@ -43,9 +43,9 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	const struct combineRGB *this = (struct combineRGB *)node;
 	//TODO: What do we do with the alpha here?
 	return (struct color){
-		.red = this->R->eval(this->R, record),
+		.red   = this->R->eval(this->R, record),
 		.green = this->G->eval(this->G, record),
-		.blue = this->B->eval(this->B, record),
+		.blue  = this->B->eval(this->B, record),
 		1.0f
 	};
 }

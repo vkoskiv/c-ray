@@ -21,30 +21,30 @@
 
 struct grayscale {
 	struct valueNode node;
-	const struct colorNode *original;
+	const struct colorNode *input;
 };
 
 static bool compare(const void *A, const void *B) {
 	const struct grayscale *this = A;
 	const struct grayscale *other = B;
-	return this->original == other->original;
+	return this->input == other->input;
 }
 
 static uint32_t hash(const void *p) {
 	const struct grayscale *this = p;
 	uint32_t h = hashInit();
-	h = hashBytes(h, &this->original, sizeof(this->original));
+	h = hashBytes(h, &this->input, sizeof(this->input));
 	return h;
 }
 
 static float eval(const struct valueNode *node, const struct hitRecord *record) {
 	const struct grayscale *this = (struct grayscale *)node;
-	return grayscale(this->original->eval(this->original, record)).red;
+	return grayscale(this->input->eval(this->input, record)).red;
 }
 
 const struct valueNode *newGrayscaleConverter(const struct world *world, const struct colorNode *node) {
 	HASH_CONS(world->nodeTable, hash, struct grayscale, {
-		.original = node ? node : newConstantTexture(world, blackColor),
+		.input = node ? node : newConstantTexture(world, blackColor),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }
