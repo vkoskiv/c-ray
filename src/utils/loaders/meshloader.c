@@ -10,8 +10,16 @@
 
 #include "meshloader.h"
 #include "formats/wavefront/wavefront.h"
+#include "../fileio.h"
+#include "../logging.h"
 
-//TODO: Detect and support more formats than wavefront
 struct mesh *loadMesh(char *filePath, size_t *meshCount) {
-	return parseWavefront(filePath, meshCount);
+	switch (guessFileType(filePath)) {
+		case obj:
+			return parseWavefront(filePath, meshCount);
+			break;
+		default:
+			logr(warning, "%s: Unknown file type, skipping.\n", filePath);
+			return NULL;
+	}
 }
