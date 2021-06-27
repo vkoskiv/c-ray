@@ -79,6 +79,9 @@ static test tests[] = {
 	{"mempool::tinyalloc4096", mempool_tiny_4096},*/
 	
 	{"base64::basic", base64_basic},
+	{"base64::padding_2", base64_padding_2},
+	{"base64::padding_1", base64_padding_1},
+	{"base64::padding_0", base64_padding_0},
 	{"mathnode::add", mathnode_add},
 	{"mathnode::subtract", mathnode_subtract},
 	{"mathnode::multiply", mathnode_multiply},

@@ -21,3 +21,48 @@ bool base64_basic(void) {
 
 	return true;
 }
+
+bool base64_padding_2(void) {
+	char *original = "a";
+	char *encoded = b64encode(original, strlen(original));
+	test_assert(strlen(encoded) == 4);
+	size_t decoded_length = 0;
+	char *decoded = b64decode(encoded, strlen(encoded), &decoded_length);
+	test_assert(strlen(decoded) == strlen(original));
+	test_assert(stringEquals(original, decoded));
+	
+	free(encoded);
+	free(decoded);
+	
+	return true;
+}
+
+bool base64_padding_1(void) {
+	char *original = "aa";
+	char *encoded = b64encode(original, strlen(original));
+	test_assert(strlen(encoded) == 4);
+	size_t decoded_length = 0;
+	char *decoded = b64decode(encoded, strlen(encoded), &decoded_length);
+	test_assert(strlen(decoded) == strlen(original));
+	test_assert(stringEquals(original, decoded));
+	
+	free(encoded);
+	free(decoded);
+	
+	return true;
+}
+
+bool base64_padding_0(void) {
+	char *original = "aaa";
+	char *encoded = b64encode(original, strlen(original));
+	test_assert(strlen(encoded) == 4);
+	size_t decoded_length = 0;
+	char *decoded = b64decode(encoded, strlen(encoded), &decoded_length);
+	test_assert(strlen(decoded) == strlen(original));
+	test_assert(stringEquals(original, decoded));
+	
+	free(encoded);
+	free(decoded);
+	
+	return true;
+}
