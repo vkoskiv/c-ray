@@ -38,7 +38,7 @@ static uint32_t hash(const void *p) {
 }
 
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
-	struct metalBsdf *metalBsdf = (struct metalBsdf*)bsdf;
+	struct metalBsdf *metalBsdf = (struct metalBsdf *)bsdf;
 	
 	const struct vector normalizedDir = vecNormalize(record->incident.direction);
 	struct vector reflected = reflectVec(&normalizedDir, &record->surfaceNormal);
