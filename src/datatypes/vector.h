@@ -223,7 +223,6 @@ static inline float wrapMinMax(float x, float min, float max) {
 //Compute two orthonormal vectors for this unit vector
 //PBRT
 static inline struct base baseWithVec(struct vector i) {
-	ASSERT(vecLength(i) == 1.0f);
 	struct base newBase;
 	newBase.i = i;
 	if (fabsf(i.x) > fabsf(i.y)) {
@@ -233,7 +232,6 @@ static inline struct base baseWithVec(struct vector i) {
 		float len = sqrtf(i.y * i.y + i.z * i.z);
 		newBase.j = (struct vector){ 0.0f / len, i.z / len, -i.y / len};
 	}
-	ASSERT(vecDot(newBase.i, newBase.j) == 0.0f);
 	newBase.k = vecCross(newBase.i, newBase.j);
 	return newBase;
 }

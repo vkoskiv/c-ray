@@ -28,6 +28,15 @@
 		} \
 	} while (false)
 
+#define vec_roughly_equals(veca, vecb) \
+	do { \
+		struct vector vec_a = veca; \
+		struct vector vec_b = vecb; \
+		roughly_equals(vec_a.x, vec_b.x); \
+		roughly_equals(vec_a.y, vec_b.y); \
+		roughly_equals(vec_a.z, vec_b.z); \
+	} while (false)
+
 typedef struct {
 	char *testName;
 	bool (*func)(void);
