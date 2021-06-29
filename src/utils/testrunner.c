@@ -17,13 +17,13 @@
 #define test_assert(x) if (!(x)) { failed_expression = #x; return false; }
 
 // And an approximate one for math stuff
-#define EXPECT_APPROXIMATE(a, b) \
+#define roughly_equals(a, b) \
 	do { \
 		float expect_close_lhs = a; \
 		float expect_close_rhs = b; \
 		float expect_close_diff = (float)(expect_close_lhs) - (float)(expect_close_rhs); \
 		if (fabsf(expect_close_diff) > 0.0000005) { \
-			failed_expression = "EXPECT_APPROXIMATE"; \
+			failed_expression = "roughly_equals (" #a " !≈ " #b ")";\
 			return false; \
 		} \
 	} while (false)

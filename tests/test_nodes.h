@@ -189,7 +189,7 @@ bool mathnode_sine(void) {
 	const struct valueNode *A = newConstantValue(fake, M_PI);
 	const struct valueNode *result = newMath(fake, A, NULL, Sine);
 	
-	EXPECT_APPROXIMATE(result->eval(result, NULL), 0.0f);
+	roughly_equals(result->eval(result, NULL), 0.0f);
 	
 	destroyScene(fake);
 	return true;
@@ -200,7 +200,7 @@ bool mathnode_cosine(void) {
 	const struct valueNode *A = newConstantValue(fake, M_PI);
 	const struct valueNode *result = newMath(fake, A, NULL, Cosine);
 	
-	EXPECT_APPROXIMATE(result->eval(result, NULL), -1.0f);
+	roughly_equals(result->eval(result, NULL), -1.0f);
 	
 	destroyScene(fake);
 	return true;
@@ -211,7 +211,7 @@ bool mathnode_tangent(void) {
 	const struct valueNode *A = newConstantValue(fake, M_PI);
 	const struct valueNode *result = newMath(fake, A, NULL, Tangent);
 	
-	EXPECT_APPROXIMATE(result->eval(result, NULL), -0.0f);
+	roughly_equals(result->eval(result, NULL), -0.0f);
 	
 	destroyScene(fake);
 	return true;
@@ -222,7 +222,7 @@ bool mathnode_toradians(void) {
 	const struct valueNode *A = newConstantValue(fake, 180.0f);
 	const struct valueNode *result = newMath(fake, A, NULL, ToRadians);
 	
-	EXPECT_APPROXIMATE(result->eval(result, NULL), M_PI);
+	roughly_equals(result->eval(result, NULL), M_PI);
 	
 	destroyScene(fake);
 	return true;
@@ -233,7 +233,7 @@ bool mathnode_todegrees(void) {
 	const struct valueNode *A = newConstantValue(fake, M_PI);
 	const struct valueNode *result = newMath(fake, A, NULL, ToDegrees);
 	
-	EXPECT_APPROXIMATE(result->eval(result, NULL), 180.0f);
+	roughly_equals(result->eval(result, NULL), 180.0f);
 	
 	destroyScene(fake);
 	return true;
