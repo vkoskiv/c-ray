@@ -25,6 +25,7 @@ static test tests[] = {
 	{"vector::baseWithVec", vector_baseWithVec},
 	{"vector::vecEquals", vector_vecequals},
 	{"vector::randomOnUnitSphere", vector_random_on_sphere},
+	{"vector::reflect", vector_reflect},
 	
 	{"transforms::transpose", transform_transpose},
 	{"transforms::multiply", transform_multiply},

@@ -58,3 +58,16 @@ bool vector_random_on_sphere(void) {
 	destroySampler(sampler);
 	return true;
 }
+
+bool vector_reflect(void) {
+	struct vector toReflect = vecNormalize((struct vector){1.0f, 1.0f, 0.0f});
+	struct vector normal = (struct vector){0.0f, -1.0f, 0.0f};
+	//FIXME: Why does reflectVec() take pointers again?
+	//FIXME: Also, reflectVec() doesn't match the vec*() naming convention.
+	struct vector reflected = reflectVec(&toReflect, &normal);
+	float reflected_length = vecLength(reflected);
+	roughly_equals(reflected_length, 1.0f);
+	struct vector expected = vecNormalize((struct vector){1.0f, -1.0f, 0.0f});
+	vec_roughly_equals(reflected, expected);
+	return true;
+}
