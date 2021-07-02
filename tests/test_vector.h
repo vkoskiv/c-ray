@@ -69,5 +69,9 @@ bool vector_reflect(void) {
 	roughly_equals(reflected_length, 1.0f);
 	struct vector expected = vecNormalize((struct vector){1.0f, -1.0f, 0.0f});
 	vec_roughly_equals(reflected, expected);
+	// In this specific test case, the ray entered at 45°, therefore the reflected ray
+	// should be orthogonal to the incident one. This doesn't apply in most cases.
+	float dot = vecDot(toReflect, reflected);
+	roughly_equals(dot, 0.0f);
 	return true;
 }
