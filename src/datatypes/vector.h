@@ -248,11 +248,6 @@ static inline struct vector randomOnUnitSphere(sampler *sampler) {
 	return (struct vector){cosf(a) * s, sinf(a) * s, 1.0f - 2.0f * sample_y};
 }
 
-static inline struct vector reflectVec(const struct vector *incident, const struct vector *normal) {
-	const float reflect = 2.0f * vecDot(*incident, *normal);
-	return vecSub(*incident, vecScale(*normal, reflect));
-}
-
 //TODO: Consider moving these two to a better place.
 static inline bool refract(const struct vector *in, const struct vector normal, float niOverNt, struct vector *refracted) {
 	const struct vector uv = vecNormalize(*in);

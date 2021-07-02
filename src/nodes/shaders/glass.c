@@ -42,7 +42,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	struct glassBsdf *glassBsdf = (struct glassBsdf *)bsdf;
 	
 	struct vector outwardNormal;
-	struct vector reflected = reflectVec(&record->incident.direction, &record->surfaceNormal);
+	struct vector reflected = vecReflect(record->incident.direction, record->surfaceNormal);
 	float niOverNt;
 	struct vector refracted;
 	float reflectionProbability;

@@ -41,7 +41,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	struct metalBsdf *metalBsdf = (struct metalBsdf *)bsdf;
 	
 	const struct vector normalizedDir = vecNormalize(record->incident.direction);
-	struct vector reflected = reflectVec(&normalizedDir, &record->surfaceNormal);
+	struct vector reflected = vecReflect(normalizedDir, record->surfaceNormal);
 	float roughness = metalBsdf->roughness->eval(metalBsdf->roughness, record);
 	if (roughness > 0.0f) {
 		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);

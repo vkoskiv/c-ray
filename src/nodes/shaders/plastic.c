@@ -41,7 +41,7 @@ static uint32_t hash(const void *p) {
 
 static struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct plasticBsdf *plastic = (struct plasticBsdf *)bsdf;
-	struct vector reflected = reflectVec(&record->incident.direction, &record->surfaceNormal);
+	struct vector reflected = vecReflect(record->incident.direction, record->surfaceNormal);
 	//Roughness
 	float roughness = plastic->roughness->eval(plastic->roughness, record).red;
 	if (roughness > 0.0f) {
