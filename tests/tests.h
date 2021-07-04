@@ -117,6 +117,17 @@ static test tests[] = {
 	{"mathnode::tangent", mathnode_tangent},
 	{"mathnode::toradians", mathnode_toradians},
 	{"mathnode::todegrees", mathnode_todegrees},
+	
+	{"vecmath::vecAdd", vecmath_vecAdd},
+	{"vecmath::vecSubtract", vecmath_vecSubtract},
+	{"vecmath::vecMultiply", vecmath_vecMultiply},
+	{"vecmath::vecAverage", vecmath_vecAverage},
+	{"vecmath::vecDot", vecmath_vecDot},
+	{"vecmath::vecCross", vecmath_vecCross},
+	{"vecmath::vecNormalize", vecmath_vecNormalize},
+	{"vecmath::vecReflect", vecmath_vecReflect},
+	{"vecmath::vecLength", vecmath_vecLength},
+	{"vecmath::vecAbs", vecmath_vecAbs},
 };
 
 #define testCount (sizeof(tests) / sizeof(test))

@@ -12,6 +12,7 @@
 #include "../src/utils/hashtable.h"
 #include "../src/nodes/nodebase.h"
 #include "../src/nodes/valuenode.h"
+#include "../src/nodes/vectornode.h"
 #include "../src/nodes/converter/math.h"
 
 // The node system requires the world global memory pool and hash table for storage, so we fake one here
@@ -234,6 +235,160 @@ bool mathnode_todegrees(void) {
 	const struct valueNode *result = newMath(fake, A, NULL, ToDegrees);
 	
 	roughly_equals(result->eval(result, NULL), 180.0f);
+	
+	destroyScene(fake);
+	return true;
+}
+
+bool vecmath_vecAdd(void) {
+	struct world *fake = fakeWorld();
+	const struct vectorNode *A = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
+	const struct vectorNode *B = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
+	
+	const struct vectorNode *add = newVecMath(fake, A, B, VecAdd);
+	
+	struct vectorValue result = add->eval(add, NULL);
+	struct vector expected = (struct vector){2.0f, 4.0f, 6.0f};
+	vec_roughly_equals(result.v, expected);
+	
+	destroyScene(fake);
+	return true;
+}
+
+bool vecmath_vecSubtract(void) {
+	struct world *fake = fakeWorld();
+	const struct vectorNode *A = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
+	const struct vectorNode *B = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
+	
+	const struct vectorNode *add = newVecMath(fake, A, B, VecSubtract);
+	
+	struct vectorValue result = add->eval(add, NULL);
+	struct vector expected = vecZero();
+	vec_roughly_equals(result.v, expected);
+	
+	destroyScene(fake);
+	return true;
+}
+
+bool vecmath_vecMultiply(void) {
+	struct world *fake = fakeWorld();
+	const struct vectorNode *A = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
+	const struct vectorNode *B = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
+	
+	const struct vectorNode *add = newVecMath(fake, A, B, VecMultiply);
+	
+	struct vectorValue result = add->eval(add, NULL);
+	struct vector expected = (struct vector){1.0f, 4.0f, 9.0f};
+	vec_roughly_equals(result.v, expected);
+	
+	destroyScene(fake);
+	return true;
+}
+
+bool vecmath_vecAverage(void) {
+	struct world *fake = fakeWorld();
+	const struct vectorNode *A = newConstantVector(fake, (struct vector){0.0f, 0.0f, 0.0f});
+	const struct vectorNode *B = newConstantVector(fake, (struct vector){5.0f, 5.0f, 5.0f});
+	
+	const struct vectorNode *op = newVecMath(fake, A, B, VecAverage);
+	
+	struct vectorValue result = op->eval(op, NULL);
+	struct vector expected = (struct vector){2.5f, 2.5f, 2.5f};
+	vec_roughly_equals(result.v, expected);
+	
+	destroyScene(fake);
+	return true;
+}
+bool vecmath_vecDot(void) {
+	struct world *fake = fakeWorld();
+	const struct vectorNode *up = newConstantVector(fake, worldUp);
+	const struct vectorNode *right = newConstantVector(fake, (struct vector){1.0f, 0.0f, 0.0f});
+	
+	const struct vectorNode *dot = newVecMath(fake, up, right, VecDot);
+	
+	struct vectorValue result = dot->eval(dot, NULL);
+	roughly_equals(result.f, 0.0f);
+	
+	const struct vectorNode *down = newConstantVector(fake, vecNegate(worldUp));
+	dot = newVecMath(fake, up, down, VecDot);
+	result = dot->eval(dot, NULL);
+	roughly_equals(result.f, -1.0f);
+	
+	dot = newVecMath(fake, up, up, VecDot);
+	result = dot->eval(dot, NULL);
+	roughly_equals(result.f, 1.0f);
+	
+	destroyScene(fake);
+	return true;
+}
+
+bool vecmath_vecCross(void) {
+	struct world *fake = fakeWorld();
+	const struct vectorNode *A = newConstantVector(fake, (struct vector){1.0f, 0.0f, 0.0f});
+	const struct vectorNode *B = newConstantVector(fake, (struct vector){0.0f, 1.0f, 0.0f});
+	
+	const struct vectorNode *op = newVecMath(fake, A, B, VecCross);
+	
+	struct vectorValue result = op->eval(op, NULL);
+	struct vector expected = (struct vector){0.0f, 0.0f, 1.0f};
+	vec_roughly_equals(result.v, expected);
+	
+	destroyScene(fake);
+	return true;
+}
+
+bool vecmath_vecNormalize(void) {
+	struct world *fake = fakeWorld();
+	const struct vectorNode *A = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
+	
+	const struct vectorNode *op = newVecMath(fake, A, NULL, VecNormalize);
+	
+	float length = vecLength(op->eval(op, NULL).v);
+	roughly_equals(length, 1.0f);
+	
+	destroyScene(fake);
+	return true;
+}
+
+bool vecmath_vecReflect(void) {
+	struct world *fake = fakeWorld();
+	const struct vectorNode *toReflect = newConstantVector(fake, vecNormalize((struct vector){1.0f, 1.0f, 0.0f}));
+	const struct vectorNode *normal = newConstantVector(fake, (struct vector){0.0f, -1.0f, 0.0f});
+	
+	const struct vectorNode *op = newVecMath(fake, toReflect, normal, VecReflect);
+	
+	struct vectorValue reflected = op->eval(op, NULL);
+	roughly_equals(vecLength(reflected.v), 1.0f);
+	
+	struct vector expected = vecNormalize((struct vector){1.0f, -1.0f, 0.0f});
+	vec_roughly_equals(reflected.v, expected);
+	
+	destroyScene(fake);
+	return true;
+}
+
+bool vecmath_vecLength(void) {
+	struct world *fake = fakeWorld();
+	const struct vectorNode *A = newConstantVector(fake, (struct vector){0.0f, 2.0f, 0.0f});
+	
+	const struct vectorNode *op = newVecMath(fake, A, NULL, VecLength);
+	
+	struct vectorValue lengthValue = op->eval(op, NULL);
+	roughly_equals(lengthValue.f, 2.0f);
+	
+	destroyScene(fake);
+	return true;
+}
+
+bool vecmath_vecAbs(void) {
+	struct world *fake = fakeWorld();
+	const struct vectorNode *A = newConstantVector(fake, (struct vector){-10.0f, 2.0f, -3.0f});
+	
+	const struct vectorNode *op = newVecMath(fake, A, NULL, VecAbs);
+	
+	struct vectorValue result = op->eval(op, NULL);
+	struct vector expected = (struct vector){10.0f, 2.0f, 3.0f};
+	vec_roughly_equals(result.v, expected);
 	
 	destroyScene(fake);
 	return true;
