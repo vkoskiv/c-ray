@@ -22,13 +22,19 @@ static char *failed_expression;
 #include "test_nodes.h"
 
 static test tests[] = {
+	{"vector::vecWithPos", vector_vecWithPos},
+	{"vector::vecZero", vector_vecZero},
 	{"vector::add", vector_vecAdd},
 	{"vector::subtract", vector_vecSub},
 	{"vector::multiply", vector_vecMul},
 	{"vector::dot", vector_dot},
 	{"vector::scale", vector_vecScale},
+	{"vector::cross", vector_vecCross},
 	{"vector::min", vector_vecMin},
 	{"vector::max", vector_vecMax},
+	{"vector::vecLengthSquared", vector_vecLengthSquared},
+	{"vector::vecLength", vector_vecLength},
+	{"vector::vecNormalize", vector_vecNormalize},
 	{"vector::getmidpoint", vector_getMidPoint},
 	{"vector::negate", vector_vecNegate},
 	{"vector::baseWithVec", vector_baseWithVec},
@@ -40,7 +46,6 @@ static test tests[] = {
 	{"transforms::multiply", transform_multiply},
 	{"transforms::determinant", transform_determinant},
 	{"transforms::determinant4x4", transform_determinant4x4},
-	
 	{"transforms::rotateX", transform_rotate_X},
 	{"transforms::rotateY", transform_rotate_Y},
 	{"transforms::rotateZ", transform_rotate_Z},
@@ -96,6 +101,7 @@ static test tests[] = {
 	{"base64::padding_2", base64_padding_2},
 	{"base64::padding_1", base64_padding_1},
 	{"base64::padding_0", base64_padding_0},
+	
 	{"mathnode::add", mathnode_add},
 	{"mathnode::subtract", mathnode_subtract},
 	{"mathnode::multiply", mathnode_multiply},

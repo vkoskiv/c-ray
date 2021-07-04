@@ -13,6 +13,20 @@
 
 #define ATTEMPTS 1024
 
+bool vector_vecWithPos(void) {
+	struct vector a = vecWithPos(1.0f, 2.0f, 3.0f);
+	struct vector expected = (struct vector){1.0f, 2.0f, 3.0f};
+	vec_roughly_equals(a, expected);
+	return true;
+}
+
+bool vector_vecZero(void) {
+	struct vector a = vecZero();
+	struct vector expected = (struct vector){0.0f, 0.0f, 0.0f};
+	vec_roughly_equals(a, expected);
+	return true;
+}
+
 bool vector_vecAdd(void) {
 	struct vector a = (struct vector){1.0f, 2.0f, 3.0f};
 	struct vector b = (struct vector){4.0f, 5.0f, 6.0f};
@@ -64,6 +78,15 @@ bool vector_vecScale(void) {
 	return true;
 }
 
+bool vector_vecCross(void) {
+	struct vector a = (struct vector){1.0f, 0.0f, 0.0f};
+	struct vector b = (struct vector){0.0f, 1.0f, 0.0f};
+	struct vector cross = vecCross(a, b);
+	struct vector expected = (struct vector){0.0f, 0.0f, 1.0f};
+	vec_roughly_equals(cross, expected);
+	return true;
+}
+
 bool vector_vecMin(void) {
 	struct vector smaller = (struct vector){1.0f, 1.0f, 1.0f};
 	struct vector larger = (struct vector){10.0f, 10.0f, 10.0f};
@@ -79,6 +102,24 @@ bool vector_vecMax(void) {
 	struct vector max = vecMax(smaller, larger);
 	struct vector expectedMax = larger;
 	vec_roughly_equals(max, expectedMax);
+	return true;
+}
+
+bool vector_vecLengthSquared(void) {
+	struct vector a = (struct vector){3.0f, 0.0f, 0.0f};
+	roughly_equals(vecLengthSquared(a), 9.0f);
+	return true;
+}
+
+bool vector_vecLength(void) {
+	struct vector a = (struct vector){3.0f, 0.0f, 0.0f};
+	roughly_equals(vecLength(a), 3.0f);
+	return true;
+}
+
+bool vector_vecNormalize(void) {
+	struct vector a = vecNormalize((struct vector){123.0f, -345.0f, 789.0f});
+	roughly_equals(vecLength(a), 1.0f);
 	return true;
 }
 
