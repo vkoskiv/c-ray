@@ -13,6 +13,95 @@
 
 #define ATTEMPTS 1024
 
+bool vector_vecAdd(void) {
+	struct vector a = (struct vector){1.0f, 2.0f, 3.0f};
+	struct vector b = (struct vector){4.0f, 5.0f, 6.0f};
+	struct vector added = vecAdd(a, b);
+	struct vector expected = (struct vector){5.0f, 7.0f, 9.0f};
+	vec_roughly_equals(added, expected);
+	return true;
+}
+
+bool vector_vecSub(void) {
+	struct vector a = (struct vector){1.0f, 2.0f, 3.0f};
+	struct vector b = (struct vector){4.0f, 5.0f, 6.0f};
+	struct vector subtracted = vecSub(a, b);
+	struct vector expected = (struct vector){-3.0f, -3.0f, -3.0f};
+	vec_roughly_equals(subtracted, expected);
+	return true;
+}
+
+bool vector_vecMul(void) {
+	struct vector a = (struct vector){1.0f, 2.0f, 3.0f};
+	struct vector b = (struct vector){4.0f, 5.0f, 6.0f};
+	struct vector multiplied = vecMul(a, b);
+	struct vector expected = (struct vector){4.0f, 10.0f, 18.0f};
+	vec_roughly_equals(multiplied, expected);
+	return true;
+}
+
+bool vector_dot(void) {
+	struct vector up = worldUp;
+	struct vector right = (struct vector){1.0f, 0.0f, 0.0f};
+	// These should be perpendicular, i.e. dot product should be 0
+	float dot = vecDot(up, right);
+	roughly_equals(dot, 0.0f);
+	
+	struct vector down = vecNegate(worldUp);
+	dot = vecDot(up, down);
+	roughly_equals(dot, -1.0f);
+	
+	dot = vecDot(up, up);
+	roughly_equals(dot, 1.0f);
+	return true;
+}
+
+bool vector_vecScale(void) {
+	struct vector to_be_scaled = (struct vector){0.0f, 1.0f, 0.0f};
+	struct vector scaled = vecScale(to_be_scaled, 2.0f);
+	struct vector expected_scaled = (struct vector){0.0f, 2.0f, 0.0f};
+	vec_roughly_equals(scaled, expected_scaled);
+	return true;
+}
+
+bool vector_vecMin(void) {
+	struct vector smaller = (struct vector){1.0f, 1.0f, 1.0f};
+	struct vector larger = (struct vector){10.0f, 10.0f, 10.0f};
+	struct vector max = vecMax(smaller, larger);
+	struct vector expectedMax = larger;
+	vec_roughly_equals(max, expectedMax);
+	return true;
+}
+
+bool vector_vecMax(void) {
+	struct vector smaller = (struct vector){1.0f, 1.0f, 1.0f};
+	struct vector larger = (struct vector){10.0f, 10.0f, 10.0f};
+	struct vector max = vecMax(smaller, larger);
+	struct vector expectedMax = larger;
+	vec_roughly_equals(max, expectedMax);
+	return true;
+}
+
+bool vector_getMidPoint(void) {
+	struct transform rotate120 = newTransformRotateZ(toRadians(120.0f));
+	struct vector a = vecNormalize((struct vector){0.0f, 1.0f, 0.0f});
+	struct vector b = a;
+	transformVector(&b, &rotate120.A);
+	struct vector c = b;
+	transformVector(&c, &rotate120.A);
+	struct vector mid = getMidPoint(a, b, c);
+	vec_roughly_equals(mid, vecZero());
+	return true;
+}
+
+bool vector_vecNegate(void) {
+	struct vector a = (struct vector){1.0f, 1.0f, 1.0f};
+	struct vector ainv = vecNegate(a);
+	struct vector expected = (struct vector){-1.0f, -1.0f, -1.0f};
+	vec_roughly_equals(ainv, expected);
+	return true;
+}
+
 bool vector_baseWithVec(void) {
 	struct vector up = worldUp;
 	struct base base = baseWithVec(up);

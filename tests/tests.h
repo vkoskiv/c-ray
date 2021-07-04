@@ -22,6 +22,15 @@ static char *failed_expression;
 #include "test_nodes.h"
 
 static test tests[] = {
+	{"vector::add", vector_vecAdd},
+	{"vector::subtract", vector_vecSub},
+	{"vector::multiply", vector_vecMul},
+	{"vector::dot", vector_dot},
+	{"vector::scale", vector_vecScale},
+	{"vector::min", vector_vecMin},
+	{"vector::max", vector_vecMax},
+	{"vector::getmidpoint", vector_getMidPoint},
+	{"vector::negate", vector_vecNegate},
 	{"vector::baseWithVec", vector_baseWithVec},
 	{"vector::vecEquals", vector_vecequals},
 	{"vector::randomOnUnitSphere", vector_random_on_sphere},
