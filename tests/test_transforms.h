@@ -89,21 +89,38 @@ bool transform_determinant4x4() {
 // Rotations
 
 bool transform_rotate_X() {
-	
-	struct transform rotX = newTransformRotateX(toRadians(45.0f));
-	struct vector vec = (struct vector){0.5f, 0.0f, 0.0f};
-	//vec = vecNormalize(vec);
+	struct transform rotX = newTransformRotateX(toRadians(90.0f));
+	struct vector vec = (struct vector){0.0f, 1.0f, 0.0f};
+	float original_length = vecLength(vec);
 	transformPoint(&vec, &rotX.A);
-	test_assert(vecEquals(vec, (struct vector){0.0f, 1.0f, 0.0f}));
-	
+	float new_length = vecLength(vec);
+	roughly_equals(original_length, new_length);
+	struct vector expected = (struct vector){0.0f, 0.0f, 1.0f};
+	vec_roughly_equals(vec, expected);
 	return true;
 }
 
 bool transform_rotate_Y() {
+	struct transform rotY = newTransformRotateY(toRadians(90.0f));
+	struct vector vec = (struct vector){1.0f, 0.0f, 0.0f};
+	float original_length = vecLength(vec);
+	transformPoint(&vec, &rotY.A);
+	float new_length = vecLength(vec);
+	roughly_equals(original_length, new_length);
+	struct vector expected = (struct vector){0.0f, 0.0f, -1.0f};
+	vec_roughly_equals(vec, expected);
 	return true;
 }
 
 bool transform_rotate_Z() {
+	struct transform rotZ = newTransformRotateZ(toRadians(90.0f));
+	struct vector vec = (struct vector){0.0f, 1.0f, 0.0f};
+	float original_length = vecLength(vec);
+	transformPoint(&vec, &rotZ.A);
+	float new_length = vecLength(vec);
+	roughly_equals(original_length, new_length);
+	struct vector expected = (struct vector){-1.0f, 0.0f, 0.0f};
+	vec_roughly_equals(vec, expected);
 	return true;
 }
 
