@@ -49,6 +49,9 @@ typedef struct {
 
 #ifdef CRAY_TESTING
 
+int firstTestIdx(char *suite);
+int firstPerfTestIdx(char *suite);
+
 // Grab tests
 #include "../../tests/tests.h"
 #include "../../tests/perf/tests.h"
@@ -56,17 +59,18 @@ typedef struct {
 unsigned totalTests = testCount;
 unsigned performanceTests = perfTestCount;
 
-int runTests(void) {
+int runTests(char *suite) {
+	unsigned test_count = getTestCount(suite);
 	logr(info, "C-ray test framework v0.3\n");
 	logr(info, "Running tests in a single process. Consider using run-tests.sh instead.\n");
 	
-	logr(info, "Running %u test%s.\n", totalTests, totalTests > 1 ? "s" : "");
+	logr(info, "Running %u test%s.\n", test_count, test_count > 1 ? "s" : "");
 	struct timeval t;
 	startTimer(&t);
-	for (unsigned t = 0; t < totalTests; ++t) {
-		runTest(t);
+	for (unsigned t = 0; t < test_count; ++t) {
+		runTest(t, suite);
 	}
-	logr(info, "Ran %u test%s in ", totalTests, totalTests > /* DISABLES CODE */ (1) ? "s" : "");
+	logr(info, "Ran %u test%s in ", test_count, test_count > /* DISABLES CODE */ (1) ? "s" : "");
 	printSmartTime(getMs(t));
 	printf("\n");
 	return 0;
@@ -74,30 +78,33 @@ int runTests(void) {
 
 #define PERF_AVG_COUNT 100
 
-int runPerfTests(void) {
+int runPerfTests(char *suite) {
+	unsigned test_count = getPerfTestCount(suite);
 	logr(info, "C-ray performance tests v0.1\n");
 	logr(info, "Running performance tests in a single process. Consider using run-perf-tests.sh instead.\n");
 	
-	logr(info, "Running %u test%s.\n", performanceTests, performanceTests > 1 ? "s" : "");
+	logr(info, "Running %u test%s.\n", test_count, test_count > 1 ? "s" : "");
 	logr(info, "Averaging runtime from %i runs for each test.\n", PERF_AVG_COUNT);
 	struct timeval t;
 	startTimer(&t);
-	for (unsigned t = 0; t < performanceTests; ++t) {
-		runPerfTest(t);
+	for (unsigned t = 0; t < test_count; ++t) {
+		runPerfTest(t, suite);
 	}
-	logr(info, "Ran %u performance test%s in ", performanceTests, performanceTests > /* DISABLES CODE */ (1) ? "s" : "");
+	logr(info, "Ran %u performance test%s in ", test_count, test_count > /* DISABLES CODE */ (1) ? "s" : "");
 	printSmartTime(getMs(t));
 	printf("\n");
 	return 0;
 }
 
-int runTest(unsigned t) {
-	t = t < totalTests ? t : totalTests - 1;
+int runTest(unsigned t, char *suite) {
+	unsigned test_count = getTestCount(suite);
+	unsigned first_idx = firstTestIdx(suite);
+	t = t < test_count ? t : test_count - 1;
 	logr(info,
 		 "[%3u/%u] "
 		 "%-32s ",
-		 t + 1, totalTests,
-		 tests[t].testName);
+		 t + 1, test_count,
+		 tests[first_idx + t].testName);
 	
 	struct timeval test;
 	startTimer(&test);
@@ -117,13 +124,15 @@ int runTest(unsigned t) {
 	return pass ? 0 : -1;
 }
 
-int runPerfTest(unsigned t) {
-	t = t < performanceTests ? t : performanceTests - 1;
+int runPerfTest(unsigned t, char *suite) {
+	unsigned test_count = getPerfTestCount(suite);
+	unsigned first_idx = firstPerfTestIdx(suite);
+	t = t < test_count ? t : test_count - 1;
 	logr(info,
 		 "[%3u/%u] "
 		 "%-32s ",
-		 t + 1, performanceTests,
-		 perfTests[t].testName);
+		 t + 1, test_count,
+		 perfTests[first_idx + t].testName);
 	
 	
 	time_t usecs = 0;
@@ -138,11 +147,41 @@ int runPerfTest(unsigned t) {
 	return 0;
 }
 
-int getTestCount(void) {
+int firstTestIdx(char *suite) {
+	if (!suite) return 0;
+	for (size_t i = 0; i < testCount; ++i) {
+		if (stringStartsWith(suite, tests[i].testName)) return (int)i;
+	}
+	return 0;
+}
+
+int getTestCount(char *suite) {
+	if (suite) {
+		int test_count = 0;
+		for (size_t i = 0; i < testCount; ++i) {
+			if (stringStartsWith(suite, tests[i].testName)) test_count++;
+		}
+		return test_count;
+	}
 	return testCount;
 }
 
-int getPerfTestCount(void) {
+int firstPerfTestIdx(char *suite) {
+	if (!suite) return 0;
+	for (size_t i = 0; i < perfTestCount; ++i) {
+		if (stringStartsWith(suite, perfTests[i].testName)) return (int)i;
+	}
+	return 0;
+}
+
+int getPerfTestCount(char *suite) {
+	if (suite) {
+		int perf_test_count = 0;
+		for (size_t i = 0; i < perfTestCount; ++i) {
+			if (stringStartsWith(suite, perfTests[i].testName)) perf_test_count++;
+		}
+		return perf_test_count;
+	}
 	return perfTestCount;
 }
 

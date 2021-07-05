@@ -13,10 +13,10 @@
  */
 
 #ifdef CRAY_TESTING
-int runTests(void);
-int runPerfTests(void);
-int runTest(unsigned);
-int runPerfTest(unsigned);
-int getTestCount(void);
-int getPerfTestCount(void);
+int runTests(char *suite);
+int runPerfTests(char *suite);
+int runTest(unsigned test, char *suite);
+int runPerfTest(unsigned test, char *suite);
+int getTestCount(char *suite);
+int getPerfTestCount(char *suite);
 #endif

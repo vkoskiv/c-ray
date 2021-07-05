@@ -141,6 +141,12 @@ void parseArgs(int argc, char **argv) {
 			}
 		}
 		
+		if (stringEquals(argv[i], "--suite")) {
+			if (argv[i + 1]) {
+				setDatabaseString(g_options, "test_suite", argv[i + 1]);
+			}
+		}
+		
 		if (stringEquals(argv[i], "--test")) {
 			setDatabaseTag(g_options, "runTests");
 			char *testIdxStr = argv[i + 1];
@@ -217,20 +223,22 @@ void parseArgs(int argc, char **argv) {
 	
 	if (isSet("runTests") || isSet("runPerfTests")) {
 #ifdef CRAY_TESTING
+		char *suite = NULL;
+		if (isSet("test_suite")) suite = getDatabaseString(g_options, "test_suite");
 		switch (testIdx) {
 			case -3:
-				printf("%i", getPerfTestCount());
+				printf("%i", getPerfTestCount(suite));
 				exit(0);
 				break;
 			case -2:
-				printf("%i", getTestCount());
+				printf("%i", getTestCount(suite));
 				exit(0);
 				break;
 			case -1:
-				exit(isSet("runPerfTests") ? runPerfTests() : runTests());
+				exit(isSet("runPerfTests") ? runPerfTests(suite) : runTests(suite));
 				break;
 			default:
-				exit(isSet("runPerfTests") ? runPerfTest(testIdx) : runTest(testIdx));
+				exit(isSet("runPerfTests") ? runPerfTest(testIdx, suite) : runTest(testIdx, suite));
 				break;
 		}
 #else
