@@ -322,6 +322,7 @@ static cJSON *processCommand(int connectionSocket, const cJSON *json) {
 
 static void workerCleanup() {
 	destroyRenderer(g_worker_renderer);
+	g_worker_renderer = NULL;
 	destroyFileCache();
 }
 
