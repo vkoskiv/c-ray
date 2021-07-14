@@ -36,6 +36,7 @@ static void showCursor(bool show) {
 #endif
 }
 
+//FIXME: This doesn't perform cleanup
 static void handler(int sig) {
 	if (sig == 2) { //SIGINT
 		printf("\n");

@@ -75,6 +75,7 @@ bool chunkedSend(int socket, const char *data) {
 		memset(currentChunk, 0, chunkSize);
 	}
 	ASSERT(leftToSend == 0);
+	free(currentChunk);
 	return n == -1 ? false : true;
 }
 

@@ -34,6 +34,8 @@
 #include "../timer.h"
 #include "../args.h"
 #include "../fileio.h"
+#include "../../utils/platform/signal.h"
+#include <stdio.h>
 
 struct renderer *g_worker_renderer = NULL;
 struct crMutex *g_worker_socket_mutex = NULL;
@@ -333,8 +335,20 @@ bool isShutdown(cJSON *json) {
 	return false;
 }
 
+void exitHandler(int sig) {
+	(void)sig;
+	ASSERT(sig == SIGINT);
+	printf("\n");
+	logr(info, "Received ^C, shutting down worker.\n");
+	workerCleanup();
+	exit(0);
+}
+
 int startWorkerServer() {
 	signal(SIGPIPE, SIG_IGN);
+	if (registerHandler(sigint, exitHandler) < 0) {
+		logr(error, "registerHandler failed\n");
+	}
 	int receivingSocket, connectionSocket;
 	struct sockaddr_in ownAddress;
 	receivingSocket = socket(AF_INET, SOCK_STREAM, 0);
