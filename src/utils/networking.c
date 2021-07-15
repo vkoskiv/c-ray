@@ -42,13 +42,13 @@
 #define C_RAY_PORT 2222
 
 bool chunkedSend(int socket, const char *data) {
-	const size_t msgLen = strlen(data) + 1; // +1 for null byte
+	const uint64_t msgLen = strlen(data) + 1; // +1 for null byte
 	const size_t chunkSize = C_RAY_CHUNKSIZE;
 	size_t chunks = msgLen / chunkSize;
 	chunks = (msgLen % chunkSize) != 0 ? chunks + 1: chunks;
 	
 	// Send header with message length
-	size_t header = htonll(msgLen);
+	uint64_t header = htonll(msgLen);
 	ssize_t err = send(socket, &header, sizeof(header), 0);
 	if (err < 0) {
 		logr(debug, "Failed to send header to client.\n");
@@ -82,7 +82,7 @@ bool chunkedSend(int socket, const char *data) {
 ssize_t chunkedReceive(int socket, char **data, size_t *length) {
 	// Grab header first
 	//TODO: Verify we get the full header length before proceeding
-	size_t headerData = 0;
+	uint64_t headerData = 0;
 	size_t chunkSize = C_RAY_CHUNKSIZE;
 	ssize_t ret = recv(socket, &headerData, sizeof(headerData), 0);
 	headerData = ntohll(headerData);
