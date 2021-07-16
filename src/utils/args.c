@@ -96,7 +96,7 @@ void parseArgs(int argc, char **argv) {
 			char *threadstr = argv[i + 1];
 			if (threadstr) {
 				int n = atoi(threadstr);
-				n = n < 1 ? 1 : n;
+				n = n < 0 ? 0 : n;
 				n = n > getSysCores() * 2 ? getSysCores() * 2 : n;
 				setDatabaseInt(g_options, "thread_override", n);
 			} else {

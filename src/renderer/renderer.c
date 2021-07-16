@@ -42,6 +42,12 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	logr(info, "Starting C-ray renderer for frame %i\n", r->prefs.imgCount);
 	
+	// Verify we have at least a single thread rendering.
+	if (r->state.clientCount == 0) {
+		logr(warning, "No network render workers, setting thread count to 1\n");
+		if (r->prefs.threadCount < 1) r->prefs.threadCount = 1;
+	}
+	
 	bool threadsReduced = getSysCores() > r->prefs.threadCount;
 	
 	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->prefs.imageWidth, KNRM, KWHT, r->prefs.imageHeight, KNRM);
