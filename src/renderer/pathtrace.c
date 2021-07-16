@@ -37,11 +37,11 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 	for (int depth = 0; depth < maxDepth; ++depth) {
 		const struct hitRecord isect = getClosestIsect(&currentRay, scene, sampler);
 		if (isect.instIndex < 0) {
-			finalColor = addColors(finalColor, multiplyColors(weight, scene->background->sample(scene->background, sampler, &isect).color));
+			finalColor = addColors(finalColor, colorMul(weight, scene->background->sample(scene->background, sampler, &isect).color));
 			break;
 		}
 		
-		finalColor = addColors(finalColor, multiplyColors(weight, isect.material.emission));
+		finalColor = addColors(finalColor, colorMul(weight, isect.material.emission));
 		
 		const struct bsdfSample sample = isect.material.bsdf->sample(isect.material.bsdf, sampler, &isect);
 		currentRay = (struct lightRay){ .start = isect.hitPoint, .direction = sample.out };
@@ -54,7 +54,7 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 				break;
 		}
 		
-		weight = colorCoef(1.0f / probability, multiplyColors(attenuation, weight));
+		weight = colorCoef(1.0f / probability, colorMul(attenuation, weight));
 	}
 	return finalColor;
 }

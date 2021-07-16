@@ -55,7 +55,7 @@ static struct color invertColor(float invert, struct color c) {
 
 static struct color totalMie(struct color primaryWavelengths, struct color K, float T) {
 	float c = (0.2f * T) * 10E-18;
-	return colorCoef(0.434f * c * PI, multiplyColors(colorPow(invertColor((2.0f * PI), primaryWavelengths),(struct color){2.0f, 2.0f, 2.0f, 1.0f}), K));
+	return colorCoef(0.434f * c * PI, colorMul(colorPow(invertColor((2.0f * PI), primaryWavelengths),(struct color){2.0f, 2.0f, 2.0f, 1.0f}), K));
 }
 
 static float rayleighPhase(float cosViewSunAngle) {
@@ -91,9 +91,9 @@ struct color sky(struct lightRay incidentRay) {
 	struct color totalLightAtX = addColors(rayleighAtX, mieAtX);
 	struct color lightFromXtoEye = addColors(rayleighXtoEye, mieXtoEye);
 	struct color somethingElse = colorCoef(sunE, divideColors(lightFromXtoEye, totalLightAtX));
-	struct color sky = multiplyColors(somethingElse, (struct color){1.0f - Fex.red, 1.0f - Fex.green, 1.0f - Fex.blue, 1.0f - Fex.alpha});
+	struct color sky = colorMul(somethingElse, (struct color){1.0f - Fex.red, 1.0f - Fex.green, 1.0f - Fex.blue, 1.0f - Fex.alpha});
 	
-	sky = multiplyColors(sky, lerp((struct color){1.0f, 1.0f, 1.0f, 1.0f}, colorPow(multiplyColors(somethingElse, Fex), (struct color){0.5f, 0.5f, 0.5f, 0.5f}), clamp(powf(1.0f - vecDot(up, sunDirection), 5.0f), 0.0f, 1.0f)));
+	sky = colorMul(sky, lerp((struct color){1.0f, 1.0f, 1.0f, 1.0f}, colorPow(colorMul(somethingElse, Fex), (struct color){0.5f, 0.5f, 0.5f, 0.5f}), clamp(powf(1.0f - vecDot(up, sunDirection), 5.0f), 0.0f, 1.0f)));
 	
 	return colorCoef(skyFactor * 0.01f, sky);
 	
