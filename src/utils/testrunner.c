@@ -64,7 +64,7 @@ int runTests(char *suite) {
 	logr(info, "C-ray test framework v0.3\n");
 	logr(info, "Running tests in a single process. Consider using run-tests.sh instead.\n");
 	
-	logr(info, "Running %u test%s.\n", test_count, test_count > 1 ? "s" : "");
+	logr(info, "Running %u test%s.\n", test_count, PLURAL(test_count));
 	struct timeval t;
 	startTimer(&t);
 	for (unsigned t = 0; t < test_count; ++t) {
@@ -83,7 +83,7 @@ int runPerfTests(char *suite) {
 	logr(info, "C-ray performance tests v0.1\n");
 	logr(info, "Running performance tests in a single process. Consider using run-perf-tests.sh instead.\n");
 	
-	logr(info, "Running %u test%s.\n", test_count, test_count > 1 ? "s" : "");
+	logr(info, "Running %u test%s.\n", test_count, PLURAL(test_count));
 	logr(info, "Averaging runtime from %i runs for each test.\n", PERF_AVG_COUNT);
 	struct timeval t;
 	startTimer(&t);

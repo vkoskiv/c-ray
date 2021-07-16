@@ -353,7 +353,7 @@ static void *handleClientSync(void *arg) {
 void shutdownClients() {
 	size_t clientCount = 0;
 	struct renderClient *clients = buildClientList(&clientCount);
-	logr(info, "Sending shutdown command to %zu clients.\n", clientCount);
+	logr(info, "Sending shutdown command to %zu client%s.\n", clientCount, PLURAL(clientCount));
 	if (clientCount < 1) {
 		logr(warning, "No clients found, exiting\n");
 		return;
@@ -374,7 +374,7 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 		return 0;
 	}
 	
-	logr(info, "Syncing scene with %lu clients...\n", clientCount);
+	logr(info, "Syncing scene with %lu client%s...\n", clientCount, PLURAL(clientCount));
 	
 	struct syncThreadParams *params = calloc(clientCount, sizeof(*params));
 	logr(debug, "Client list:\n");

@@ -41,6 +41,8 @@ enum logType {
 	#define KWHT  ""
 #endif
 
+#define PLURAL(x) (x) > 1 ? "s" : ""
+
 /**
 C-ray internal formatted logger.
 

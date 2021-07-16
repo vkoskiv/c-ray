@@ -46,12 +46,12 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->prefs.imageWidth, KNRM, KWHT, r->prefs.imageHeight, KNRM);
 	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
-	logr(info, "Rendering with %s%d%s%s thread%s",
+	logr(info, "Rendering with %s%d%s%s thread%s.\n",
 		 KRED,
 		 r->prefs.fromSystem && !threadsReduced ? r->prefs.threadCount - 2 : r->prefs.threadCount,
 		 r->prefs.fromSystem && !threadsReduced ? "+2" : "",
 		 KNRM,
-		 r->prefs.threadCount > 1 ? "s.\n" : ".\n");
+		 PLURAL(r->prefs.threadCount));
 	
 	logr(info, "Pathtracing%s...\n", isSet("interactive") ? " iteratively" : "");
 	
@@ -71,7 +71,7 @@ struct texture *renderFrame(struct renderer *r) {
 		remoteThreads += r->state.clients[i].availableThreads;
 	}
 	
-	if (r->state.clients) logr(info, "Using %lu render workers totaling %lu threads.\n", r->state.clientCount, remoteThreads);
+	if (r->state.clients) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clientCount, PLURAL(r->state.clientCount), remoteThreads, PLURAL(remoteThreads));
 	
 	// Local render threads + one thread for every client
 	int localThreadCount = r->prefs.threadCount + (int)r->state.clientCount;
