@@ -338,7 +338,6 @@ struct renderer *newRenderer() {
 		allocVertexBuffers();
 	}
 	
-	//Mutex
 	r->state.tileMutex = createMutex();
 	return r;
 }

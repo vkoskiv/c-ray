@@ -119,6 +119,7 @@ void crInitRenderer() {
 void crDestroyRenderer() {
 	ASSERT(g_renderer);
 	destroyRenderer(g_renderer);
+	g_renderer = NULL;
 }
 
 int crLoadSceneFromFile(char *filePath) {
