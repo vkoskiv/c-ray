@@ -41,7 +41,7 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	struct gradientTexture *this = (struct gradientTexture *)node;
 	struct vector unitDir = vecNormalize(record->incident.direction);
 	float t = 0.5f * (unitDir.y + 1.0f);
-	return addColors(colorCoef(1.0f - t, this->down), colorCoef(t, this->up));
+	return colorAdd(colorCoef(1.0f - t, this->down), colorCoef(t, this->up));
 }
 
 const struct colorNode *newGradientTexture(const struct world *world, struct color down, struct color up) {

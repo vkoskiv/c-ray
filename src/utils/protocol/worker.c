@@ -169,7 +169,7 @@ static void *workerThread(void *arg) {
 					
 					//And process the running average
 					output = colorCoef((float)(threadState->completedSamples - 1), output);
-					output = addColors(output, sample);
+					output = colorAdd(output, sample);
 					float t = 1.0f / threadState->completedSamples;
 					output = colorCoef(t, output);
 					
@@ -177,7 +177,7 @@ static void *workerThread(void *arg) {
 					setPixel(r->state.renderBuffer, output, x, y);
 					
 					//Gamma correction
-					output = toSRGB(output);
+					output = colorToSRGB(output);
 					
 					//And store the image data
 					int localX = x - tile.begin.x;

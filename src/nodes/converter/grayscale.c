@@ -39,7 +39,7 @@ static uint32_t hash(const void *p) {
 
 static float eval(const struct valueNode *node, const struct hitRecord *record) {
 	const struct grayscale *this = (struct grayscale *)node;
-	return grayscale(this->input->eval(this->input, record)).red;
+	return colorToGrayscale(this->input->eval(this->input, record)).red;
 }
 
 const struct valueNode *newGrayscaleConverter(const struct world *world, const struct colorNode *node) {

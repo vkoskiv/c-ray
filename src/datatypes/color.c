@@ -10,7 +10,6 @@
 #include "color.h"
 
 //Some standard colours
-//TODO: Prefix these so it's obvious they are extern variables
 const struct color redColor =   {1.0f, 0.0f, 0.0f, 1.0f};
 const struct color greenColor = {0.0f, 1.0f, 0.0f, 1.0f};
 const struct color blueColor =  {0.0f, 0.0f, 1.0f, 1.0f};

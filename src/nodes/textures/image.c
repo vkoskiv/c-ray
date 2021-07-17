@@ -43,7 +43,7 @@ struct color internalColor(const struct texture *tex, const struct hitRecord *is
 	
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	//FIXME: Why is this done during rendering?
-	if (options & SRGB_TRANSFORM) output = fromSRGB(output);
+	if (options & SRGB_TRANSFORM) output = colorFromSRGB(output);
 	return output;
 }
 

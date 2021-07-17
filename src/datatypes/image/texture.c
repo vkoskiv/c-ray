@@ -75,7 +75,7 @@ struct color textureGetPixel(const struct texture *t, float x, float y, bool fil
 	struct color topright = textureGetPixelInternal(t, xint + 1, yint);
 	struct color botleft = textureGetPixelInternal(t, xint, yint + 1);
 	struct color botright = textureGetPixelInternal(t, xint + 1, yint + 1);
-	return lerp(lerp(topleft, topright, xcopy - xint), lerp(botleft, botright, xcopy - xint), ycopy - yint);
+	return colorLerp(colorLerp(topleft, topright, xcopy - xint), colorLerp(botleft, botright, xcopy - xint), ycopy - yint);
 }
 
 struct texture *newTexture(enum precision p, size_t width, size_t height, size_t channels) {
@@ -121,7 +121,7 @@ void textureFromSRGB(struct texture *t) {
 	if (t->colorspace == sRGB) return;
 	for (unsigned x = 0; x < t->width; ++x) {
 		for (unsigned y = 0; y < t->height; ++y) {
-			setPixel(t, fromSRGB(textureGetPixel(t, x, y, false)), x, y);
+			setPixel(t, colorFromSRGB(textureGetPixel(t, x, y, false)), x, y);
 		}
 	}
 	t->colorspace = linear;
@@ -131,7 +131,7 @@ void textureToSRGB(struct texture *t) {
 	if (t->colorspace == linear) return;
 	for (unsigned x = 0; x < t->width; ++x) {
 		for (unsigned y = 0; y < t->height; ++y) {
-			setPixel(t, toSRGB(textureGetPixel(t, x, y, false)), x, y);
+			setPixel(t, colorToSRGB(textureGetPixel(t, x, y, false)), x, y);
 		}
 	}
 	t->colorspace = sRGB;

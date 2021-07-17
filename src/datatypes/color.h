@@ -9,13 +9,6 @@
 
 #include <math.h>
 
-#define AIR_IOR 1.0
-
-#define NOT_REFRACTIVE 1
-#define NOT_REFLECTIVE -1
-
-//TODO: Split this into color, colorspace and gradient
-
 //Color
 struct color {
 	float red, green, blue, alpha;
@@ -35,26 +28,18 @@ extern const struct color backgroundColor;
 extern const struct color frameColor;
 extern const struct color progColor;
 
-static inline struct color newGrayColor(float brightness) {
-	return (struct color){brightness, brightness, brightness, 1.0f};
-}
-
-static inline struct color colorWithRGBAValues(unsigned char R, unsigned char G, unsigned char B, unsigned char A) {
-	return (struct color){R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f};
-}
-
 //Multiply two colors
 static inline struct color colorMul(struct color c1, struct color c2) {
 	return (struct color){c1.red * c2.red, c1.green * c2.green, c1.blue * c2.blue, c1.alpha * c2.alpha};
 }
 
 //Add two colors
-static inline struct color addColors(struct color c1, struct color c2) {
+static inline struct color colorAdd(struct color c1, struct color c2) {
 	return (struct color){c1.red + c2.red, c1.green + c2.green, c1.blue + c2.blue, c1.alpha + c2.alpha};
 }
 
 // Formula from http://alienryderflex.com/hsp.html
-static inline struct color grayscale(struct color c) {
+static inline struct color colorToGrayscale(struct color c) {
 	float b = sqrtf(0.299f * powf(c.red, 2) + 0.587 * powf(c.green, 2) + 0.114 * powf(c.blue, 2));
 	return (struct color){b, b, b, c.alpha};
 }
@@ -65,8 +50,8 @@ static inline struct color colorCoef(float coef, struct color c) {
 }
 
 //Linear interpolation mix
-static inline struct color mixColors(struct color c1, struct color c2, float coeff) {
-	return addColors(colorCoef(1.0f - coeff, c1), colorCoef(coeff, c2));
+static inline struct color colorMix(struct color c1, struct color c2, float coeff) {
+	return colorAdd(colorCoef(1.0f - coeff, c1), colorCoef(coeff, c2));
 }
 
 //TODO: Move to own file
@@ -89,7 +74,7 @@ static inline float SRGBToLinear(float channel) {
 }
 
 //Convert from linear (0.0-1.0) to sRGB
-static inline struct color toSRGB(struct color c) {
+static inline struct color colorToSRGB(struct color c) {
 	return (struct color) {
 		.red = linearToSRGB(c.red),
 		.green = linearToSRGB(c.green),
@@ -99,7 +84,7 @@ static inline struct color toSRGB(struct color c) {
 }
 
 //Convert from sRGB to linear (0.0-1.0)
-static inline struct color fromSRGB(struct color c) {
+static inline struct color colorFromSRGB(struct color c) {
 	return (struct color) {
 		.red = SRGBToLinear(c.red),
 		.green = SRGBToLinear(c.green),
@@ -108,8 +93,8 @@ static inline struct color fromSRGB(struct color c) {
 	};
 }
 
-static inline struct color lerp(struct color start, struct color end, float t) {
-	return mixColors(start, end, t);
+static inline struct color colorLerp(struct color start, struct color end, float t) {
+	return colorMix(start, end, t);
 }
 
 static inline bool colorEquals(struct color a, struct color b) {

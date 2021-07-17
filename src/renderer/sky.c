@@ -88,12 +88,12 @@ struct color sky(struct lightRay incidentRay) {
 	struct color rayleighXtoEye = colorCoef(rayleighPhase(cosViewSunAngle), rayleighAtX);
 	struct color mieXtoEye = colorCoef(hgPhase(cosViewSunAngle, mieDirectionalG), mieAtX);
 	
-	struct color totalLightAtX = addColors(rayleighAtX, mieAtX);
-	struct color lightFromXtoEye = addColors(rayleighXtoEye, mieXtoEye);
+	struct color totalLightAtX = colorAdd(rayleighAtX, mieAtX);
+	struct color lightFromXtoEye = colorAdd(rayleighXtoEye, mieXtoEye);
 	struct color somethingElse = colorCoef(sunE, divideColors(lightFromXtoEye, totalLightAtX));
 	struct color sky = colorMul(somethingElse, (struct color){1.0f - Fex.red, 1.0f - Fex.green, 1.0f - Fex.blue, 1.0f - Fex.alpha});
 	
-	sky = colorMul(sky, lerp((struct color){1.0f, 1.0f, 1.0f, 1.0f}, colorPow(colorMul(somethingElse, Fex), (struct color){0.5f, 0.5f, 0.5f, 0.5f}), clamp(powf(1.0f - vecDot(up, sunDirection), 5.0f), 0.0f, 1.0f)));
+	sky = colorMul(sky, colorLerp((struct color){1.0f, 1.0f, 1.0f, 1.0f}, colorPow(colorMul(somethingElse, Fex), (struct color){0.5f, 0.5f, 0.5f, 0.5f}), clamp(powf(1.0f - vecDot(up, sunDirection), 5.0f), 0.0f, 1.0f)));
 	
 	return colorCoef(skyFactor * 0.01f, sky);
 	
