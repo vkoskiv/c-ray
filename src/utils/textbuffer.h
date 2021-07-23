@@ -55,7 +55,7 @@ char *currentLine(textBuffer *file);
 
 char *lastLine(textBuffer *file);
 
-void freeTextBuffer(textBuffer *file);
+void destroyTextBuffer(textBuffer *file);
 
 
 void fillLineBuffer(lineBuffer *buffer, const char *contents, char delimiter);

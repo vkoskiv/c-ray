@@ -223,7 +223,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	destroyLineBuffer(line);
 	
 	if (finalMeshCount) *finalMeshCount = valid_meshes;
-	freeTextBuffer(file);
+	destroyTextBuffer(file);
 	free(rawText);
 	free(assetPath);
 

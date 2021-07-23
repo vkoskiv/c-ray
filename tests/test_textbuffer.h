@@ -20,7 +20,7 @@ bool textbuffer_new(void) {
 	textBuffer *empty = newTextBuffer("");
 	test_assert(empty->amountOf.lines == 0);
 	test_assert(empty->buflen == 0);
-	freeTextBuffer(empty);
+	destroyTextBuffer(empty);
 	
 	textBuffer *original = newTextBuffer(string);
 	test_assert(original->amountOf.lines == 3);
@@ -173,19 +173,19 @@ bool textbuffer_textview(void) {
 	textBuffer *view = newTextView(original, 0, 1);
 	test_assert(stringEquals(currentLine(view), "This is a"));
 	test_assert(view->amountOf.lines == 1);
-	freeTextBuffer(view);
+	destroyTextBuffer(view);
 	
 	view = newTextView(original, 1, 1);
 	test_assert(stringEquals(currentLine(view), "Multiline"));
 	test_assert(view->amountOf.lines == 1);
-	freeTextBuffer(view);
+	destroyTextBuffer(view);
 	
 	view = newTextView(original, 2, 1);
 	test_assert(stringEquals(currentLine(view), "string!"));
 	test_assert(view->amountOf.lines == 1);
-	freeTextBuffer(view);
+	destroyTextBuffer(view);
 	
-	freeTextBuffer(original);
+	destroyTextBuffer(original);
 	
 	return true;
 }
@@ -226,7 +226,7 @@ bool textbuffer_tokenizer(void) {
 	test_assert(!currentToken);
 	
 	destroyLineBuffer(line);
-	freeTextBuffer(file);
+	destroyTextBuffer(file);
 	
 	return true;
 }

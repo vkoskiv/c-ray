@@ -153,7 +153,7 @@ char *lastLine(textBuffer *file) {
 	return head;
 }
 
-void freeTextBuffer(textBuffer *file) {
+void destroyTextBuffer(textBuffer *file) {
 	if (file) {
 		if (file->buf) free(file->buf);
 		free(file);

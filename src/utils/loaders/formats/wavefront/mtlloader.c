@@ -116,7 +116,7 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 	}
 	
 	destroyLineBuffer(line);
-	freeTextBuffer(file);
+	destroyTextBuffer(file);
 	free(assetPath);
 	if (mtlCount) *mtlCount = (int)materialAmount;
 	return materials;
