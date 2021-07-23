@@ -24,17 +24,14 @@ float fromRadians(float radians) {
 }
 
 struct matrix4x4 identityMatrix() {
-	struct matrix4x4 mtx;
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) {
-			mtx.mtx[i][j] = 0.0f;
+	return (struct matrix4x4) {
+		.mtx = {
+			{1.0f, 0.0f, 0.0f, 0.0f},
+			{0.0f, 1.0f, 0.0f, 0.0f},
+			{0.0f, 0.0f, 1.0f, 0.0f},
+			{0.0f, 0.0f, 0.0f, 1.0f}
 		}
-	}
-	mtx.mtx[0][0] = 1.0f;
-	mtx.mtx[1][1] = 1.0f;
-	mtx.mtx[2][2] = 1.0f;
-	mtx.mtx[3][3] = 1.0f;
-	return mtx;
+	};
 }
 
 struct transform newTransform() {
@@ -50,12 +47,14 @@ struct matrix4x4 matrixFromParams(
 	float t10, float t11, float t12, float t13,
 	float t20, float t21, float t22, float t23,
 	float t30, float t31, float t32, float t33) {
-	struct matrix4x4 new = {{{0}}};
-	new.mtx[0][0] = t00; new.mtx[0][1] = t01; new.mtx[0][2] = t02; new.mtx[0][3] = t03;
-	new.mtx[1][0] = t10; new.mtx[1][1] = t11; new.mtx[1][2] = t12; new.mtx[1][3] = t13;
-	new.mtx[2][0] = t20; new.mtx[2][1] = t21; new.mtx[2][2] = t22; new.mtx[2][3] = t23;
-	new.mtx[3][0] = t30; new.mtx[3][1] = t31; new.mtx[3][2] = t32; new.mtx[3][3] = t33;
-	return new;
+	return (struct matrix4x4) {
+		.mtx = {
+			{t00, t01, t02, t03},
+			{t10, t11, t12, t13},
+			{t20, t21, t22, t23},
+			{t30, t31, t32, t33}
+		}
+	};
 }
 
 struct matrix4x4 absoluteMatrix(const struct matrix4x4 *mtx) {
