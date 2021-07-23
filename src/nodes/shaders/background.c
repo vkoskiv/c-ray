@@ -20,7 +20,6 @@ struct backgroundBsdf {
 	struct bsdfNode bsdf;
 	const struct colorNode *color;
 	const struct valueNode *strength;
-	const struct valueNode *offset;
 };
 
 static bool compare(const void *A, const void *B) {
@@ -39,37 +38,17 @@ static uint32_t hash(const void *p) {
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	(void)sampler;
 	struct backgroundBsdf *background = (struct backgroundBsdf *)bsdf;
-	// We need to inject the new UV using spherical mapping here.
-	//TODO: Find a better way to do this.
-	//Ideally it would be populated by the renderer before we eval bsdfs.
-	struct hitRecord *copy = (struct hitRecord *)record; // Oof owie, my const...
-	struct vector ud = vecNormalize(copy->incident.direction);
-	//To polar from cartesian
-	float r = 1.0f; //Normalized above
-	float phi = (atan2f(ud.z, ud.x) / 4.0f) + background->offset->eval(background->offset, record);
-	float theta = acosf((-ud.y / r));
-	
-	float u = theta / PI;
-	float v = (phi / (PI / 2.0f));
-	
-	u = wrapMinMax(u, 0.0f, 1.0f);
-	v = wrapMinMax(v, 0.0f, 1.0f);
-	
-	copy->uv = (struct coord){ v, u };
-	
 	float strength = background->strength->eval(background->strength, record);
-	
 	return (struct bsdfSample){
 		.out = vecZero(),
-		.color = colorCoef(strength, background->color->eval(background->color, copy))
+		.color = colorCoef(strength, background->color->eval(background->color, record))
 	};
 }
 
-const struct bsdfNode *newBackground(const struct world *world, const struct colorNode *tex, const struct valueNode *strength, const struct valueNode *offset) {
+const struct bsdfNode *newBackground(const struct world *world, const struct colorNode *tex, const struct valueNode *strength) {
 	HASH_CONS(world->nodeTable, hash, struct backgroundBsdf, {
 		.color = tex ? tex : newConstantTexture(world, grayColor),
 		.strength = strength ? strength : newConstantValue(world, 1.0f),
-		.offset = offset ? offset : newConstantValue(world, 0.0f),
 		.bsdf = {
 			.sample = sample,
 			.base = { .compare = compare }

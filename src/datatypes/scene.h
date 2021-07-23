@@ -14,6 +14,7 @@ struct hashtable;
 struct world {
 	//Optional environment map / ambient color
 	const struct bsdfNode *background;
+	float backgroundOffset;
 	
 	struct mesh *meshes;
 	int meshCount;

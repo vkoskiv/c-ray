@@ -685,9 +685,8 @@ static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *offset = NULL;
 	
 	offset = cJSON_GetObjectItem(data, "offset");
-	const struct valueNode *offsetValue = NULL;
 	if (cJSON_IsNumber(offset)) {
-		offsetValue = newConstantValue(r->scene, toRadians(offset->valuedouble) / 4.0f);
+		r->scene->backgroundOffset = toRadians(offset->valuedouble) / 4.0f;
 	}
 	
 	down = cJSON_GetObjectItem(data, "down");
@@ -697,18 +696,18 @@ static int parseAmbientColor(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsString(hdr)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, hdr->valuestring);
 		if (isValidFile(fullPath)) {
-			r->scene->background = newBackground(r->scene, newImageTexture(r->scene, loadTexture(fullPath, &r->scene->nodePool), 0), NULL, offsetValue);
+			r->scene->background = newBackground(r->scene, newImageTexture(r->scene, loadTexture(fullPath, &r->scene->nodePool), 0), NULL);
 			free(fullPath);
 			return 0;
 		}
 	}
 	
 	if (down && up) {
-		r->scene->background = newBackground(r->scene, newGradientTexture(r->scene, parseColor(down), parseColor(up)), NULL, offsetValue);
+		r->scene->background = newBackground(r->scene, newGradientTexture(r->scene, parseColor(down), parseColor(up)), NULL);
 		return 0;
 	}
 
-	r->scene->background = newBackground(r->scene, NULL, NULL, offsetValue);
+	r->scene->background = newBackground(r->scene, NULL, NULL);
 	
 	return 0;
 }
