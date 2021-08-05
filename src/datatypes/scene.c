@@ -173,7 +173,6 @@ int loadScene(struct renderer *r, char *input) {
 			}
 			
 		}
-		// Embed files into the json as base64
 		r->sceneCache = cJSON_PrintUnformatted(cache);
 	}
 	
