@@ -66,14 +66,15 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 		currentRay = (struct lightRay){ .start = isect.hitPoint, .direction = sample.out };
 		const struct color attenuation = sample.color;
 		
-		float probability = 1.0f;
+		// Russian Roulette - Abort a path early if it won't contribute much to the final image
+		float rr_continue_probability = 1.0f;
 		if (depth >= 4) {
-			probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
-			if (getDimension(sampler) > probability)
+			rr_continue_probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
+			if (getDimension(sampler) > rr_continue_probability)
 				break;
 		}
 		
-		weight = colorCoef(1.0f / probability, colorMul(attenuation, weight));
+		weight = colorCoef(1.0f / rr_continue_probability, colorMul(attenuation, weight));
 	}
 	return finalColor;
 }
