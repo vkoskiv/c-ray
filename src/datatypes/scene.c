@@ -176,12 +176,16 @@ int loadScene(struct renderer *r, char *input) {
 		r->sceneCache = cJSON_PrintUnformatted(cache);
 	}
 	
-	// Do some pre-render preparations
-	// Compute BVH acceleration structures for all objects in the scene
-	computeAccels(r->scene->meshes, r->scene->meshCount);
-	// And then compute a single top-level BVH that contains all the objects
-	r->scene->topLevel = computeTopLevelBvh(r->scene->instances, r->scene->instanceCount);
-	printSceneStats(r->scene, getMs(timer));
+	if (r->prefs.threadCount > 0) {
+		// Do some pre-render preparations
+		// Compute BVH acceleration structures for all objects in the scene
+		computeAccels(r->scene->meshes, r->scene->meshCount);
+		// And then compute a single top-level BVH that contains all the objects
+		r->scene->topLevel = computeTopLevelBvh(r->scene->instances, r->scene->instanceCount);
+		printSceneStats(r->scene, getMs(timer));
+	} else {
+		logr(debug, "No local render threads, skipping local BVH construction.\n");
+	}
 	
 	//Quantize image into renderTiles
 	r->state.tileCount = quantizeImage(&r->state.renderTiles,
