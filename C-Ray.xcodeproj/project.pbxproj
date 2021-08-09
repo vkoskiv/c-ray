@@ -81,6 +81,8 @@
 		905842FC236651FC009D92F1 /* transforms.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA106220B4602005B8EE7 /* transforms.c */; };
 		905842FD236651FC009D92F1 /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA125220B4602005B8EE7 /* ui.c */; };
 		905842FF236651FC009D92F1 /* sceneloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85202252CB3800BA7702 /* sceneloader.c */; };
+		905A616526C1CCE800B7D5A5 /* uv.c in Sources */ = {isa = PBXBuildFile; fileRef = 905A616326C1CCE800B7D5A5 /* uv.c */; };
+		905A616626C1CCE800B7D5A5 /* uv.c in Sources */ = {isa = PBXBuildFile; fileRef = 905A616326C1CCE800B7D5A5 /* uv.c */; };
 		9060BAAD2603CAA300B3D603 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 9060BAAB2603CAA300B3D603 /* base64.c */; };
 		9060BAAE2603CAA300B3D603 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 9060BAAB2603CAA300B3D603 /* base64.c */; };
 		9062FA09243BBD0900420889 /* args.c in Sources */ = {isa = PBXBuildFile; fileRef = 9062FA08243BBD0900420889 /* args.c */; };
@@ -281,6 +283,8 @@
 		9052E8CE25018C050052406D /* fileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fileio.c; sourceTree = "<group>"; };
 		9052E8CF25018C050052406D /* fileio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileio.h; sourceTree = "<group>"; };
 		90584305236651FC009D92F1 /* C-Ray Debug */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Debug"; sourceTree = BUILT_PRODUCTS_DIR; };
+		905A616326C1CCE800B7D5A5 /* uv.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = uv.c; sourceTree = "<group>"; };
+		905A616426C1CCE800B7D5A5 /* uv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = uv.h; sourceTree = "<group>"; };
 		9060BAAB2603CAA300B3D603 /* base64.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
 		9060BAAC2603CAA300B3D603 /* base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
 		9060BAAF2603E9FD00B3D603 /* test_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_base64.h; sourceTree = "<group>"; };
@@ -680,6 +684,8 @@
 				908ED0B2258FAEDA00D5B93F /* normal.c */,
 				9050FFE825915222001C172D /* raylength.h */,
 				9050FFE725915222001C172D /* raylength.c */,
+				905A616426C1CCE800B7D5A5 /* uv.h */,
+				905A616326C1CCE800B7D5A5 /* uv.c */,
 			);
 			path = input;
 			sourceTree = "<group>";
@@ -886,7 +892,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */;
+			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -958,6 +964,7 @@
 				9052E8D125018C050052406D /* fileio.c in Sources */,
 				9071BC8D257AF8EC0070BA43 /* mempool.c in Sources */,
 				905842F3236651FC009D92F1 /* mtlloader.c in Sources */,
+				905A616626C1CCE800B7D5A5 /* uv.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
 				90500A9D258AC07D006F854A /* add.c in Sources */,
 				90AB1E1C2575709000EFDF5A /* colornode.c in Sources */,
@@ -1052,6 +1059,7 @@
 				9052E8D025018C050052406D /* fileio.c in Sources */,
 				9071BC8C257AF8EC0070BA43 /* mempool.c in Sources */,
 				90CA851C2252C90C00BA7702 /* mtlloader.c in Sources */,
+				905A616526C1CCE800B7D5A5 /* uv.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
 				90500A9C258AC07D006F854A /* add.c in Sources */,
 				90AB1E1B2575709000EFDF5A /* colornode.c in Sources */,
@@ -1408,7 +1416,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */ = {
+		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				90D99AF91D08ADB10015A854 /* Debug */,

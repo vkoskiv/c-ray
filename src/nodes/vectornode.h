@@ -22,6 +22,7 @@ struct vectorNode {
 };
 
 #include "input/normal.h"
+#include "input/uv.h"
 #include "converter/vecmath.h"
 #include "converter/vectocolor.h"
 
