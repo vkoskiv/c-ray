@@ -20,9 +20,7 @@
 static void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder);
 
 struct renderTile nextTile(struct renderer *r) {
-	struct renderTile tile;
-	memset(&tile, 0, sizeof(tile));
-	tile.tileNum = -1;
+	struct renderTile tile = { .tileNum = -1 };
 	lockMutex(r->state.tileMutex);
 	if (r->state.finishedTileCount < r->state.tileCount) {
 		tile = r->state.renderTiles[r->state.finishedTileCount];
@@ -45,9 +43,7 @@ struct renderTile nextTile(struct renderer *r) {
 }
 
 struct renderTile nextTileInteractive(struct renderer *r) {
-	struct renderTile tile;
-	memset(&tile, 0, sizeof(tile));
-	tile.tileNum = -1;
+	struct renderTile tile = { .tileNum = -1 };
 	lockMutex(r->state.tileMutex);
 	if (r->state.finishedPasses < r->prefs.sampleCount) {
 		if (r->state.finishedTileCount < r->state.tileCount) {

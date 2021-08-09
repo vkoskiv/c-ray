@@ -99,24 +99,18 @@ static cJSON *receiveAssets(const cJSON *json) {
 // Tilenum of -1 communicates that it failed to get work, signaling the work thread to exit
 static struct renderTile getWork(int connectionSocket) {
 	if (!sendJSON(connectionSocket, newAction("getWork"))) {
-		struct renderTile tile = {0};
-		tile.tileNum = -1;
-		return tile;
+		return (struct renderTile){ .tileNum = -1 };
 	}
 	cJSON *response = readJSON(connectionSocket);
 	cJSON *action = cJSON_GetObjectItem(response, "action");
 	if (cJSON_IsString(action)) {
 		if (stringEquals(action->valuestring, "renderComplete")) {
 			logr(debug, "Master reported render is complete\n");
-			struct renderTile tile = {0};
-			tile.tileNum = -1;
-			return tile;
+			return (struct renderTile){ .tileNum = -1 };
 		}
 	}
 	if (!response) {
-		struct renderTile tile = {0};
-		tile.tileNum = -1;
-		return tile;
+		return (struct renderTile){ .tileNum = -1 };
 	}
 	cJSON *tileJson = cJSON_GetObjectItem(response, "tile");
 	struct renderTile tile = decodeTile(tileJson);
