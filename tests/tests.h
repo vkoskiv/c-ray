@@ -128,6 +128,8 @@ static test tests[] = {
 	{"vecmath::vecReflect", vecmath_vecReflect},
 	{"vecmath::vecLength", vecmath_vecLength},
 	{"vecmath::vecAbs", vecmath_vecAbs},
+	
+	{"map_range::map", map_range},
 };
 
 #define testCount (sizeof(tests) / sizeof(test))

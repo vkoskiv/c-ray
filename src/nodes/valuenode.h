@@ -21,5 +21,6 @@ struct valueNode {
 #include "input/raylength.h"
 #include "textures/alpha.h"
 #include "converter/math.h"
+#include "converter/map_range.h"
 
 const struct valueNode *newConstantValue(const struct world *world, float value);

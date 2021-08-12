@@ -119,6 +119,8 @@
 		9084D2D82660095000B6FB8A /* isotropic.c in Sources */ = {isa = PBXBuildFile; fileRef = 9084D2D62660095000B6FB8A /* isotropic.c */; };
 		908981082628DAAE0054B5E7 /* vectocolor.c in Sources */ = {isa = PBXBuildFile; fileRef = 908981062628DAAE0054B5E7 /* vectocolor.c */; };
 		908981092628DAAE0054B5E7 /* vectocolor.c in Sources */ = {isa = PBXBuildFile; fileRef = 908981062628DAAE0054B5E7 /* vectocolor.c */; };
+		908AA1EC26C467B200823DD3 /* map_range.c in Sources */ = {isa = PBXBuildFile; fileRef = 908AA1EA26C467B200823DD3 /* map_range.c */; };
+		908AA1ED26C467B200823DD3 /* map_range.c in Sources */ = {isa = PBXBuildFile; fileRef = 908AA1EA26C467B200823DD3 /* map_range.c */; };
 		908ED0B0258F04E300D5B93F /* fresnel.c in Sources */ = {isa = PBXBuildFile; fileRef = 908ED0AE258F04E300D5B93F /* fresnel.c */; };
 		908ED0B1258F04E300D5B93F /* fresnel.c in Sources */ = {isa = PBXBuildFile; fileRef = 908ED0AE258F04E300D5B93F /* fresnel.c */; };
 		908ED0B4258FAEDA00D5B93F /* normal.c in Sources */ = {isa = PBXBuildFile; fileRef = 908ED0B2258FAEDA00D5B93F /* normal.c */; };
@@ -331,6 +333,8 @@
 		9084D2D92687389C00B6FB8A /* test_nodes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_nodes.h; sourceTree = "<group>"; };
 		908981062628DAAE0054B5E7 /* vectocolor.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vectocolor.c; sourceTree = "<group>"; };
 		908981072628DAAE0054B5E7 /* vectocolor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vectocolor.h; sourceTree = "<group>"; };
+		908AA1EA26C467B200823DD3 /* map_range.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = map_range.c; sourceTree = "<group>"; };
+		908AA1EB26C467B200823DD3 /* map_range.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = map_range.h; sourceTree = "<group>"; };
 		908ED0AE258F04E300D5B93F /* fresnel.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fresnel.c; sourceTree = "<group>"; };
 		908ED0AF258F04E300D5B93F /* fresnel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fresnel.h; sourceTree = "<group>"; };
 		908ED0B2258FAEDA00D5B93F /* normal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = normal.c; sourceTree = "<group>"; };
@@ -589,6 +593,8 @@
 				9050FFF725994B7E001C172D /* math.c */,
 				908981072628DAAE0054B5E7 /* vectocolor.h */,
 				908981062628DAAE0054B5E7 /* vectocolor.c */,
+				908AA1EB26C467B200823DD3 /* map_range.h */,
+				908AA1EA26C467B200823DD3 /* map_range.c */,
 			);
 			path = converter;
 			sourceTree = "<group>";
@@ -969,6 +975,7 @@
 				90500A9D258AC07D006F854A /* add.c in Sources */,
 				90AB1E1C2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0C25745DFE00EFDF5A /* diffuse.c in Sources */,
+				908AA1ED26C467B200823DD3 /* map_range.c in Sources */,
 				9062FA17243D237200420889 /* bmp.c in Sources */,
 				9050FFF22592BE23001C172D /* alpha.c in Sources */,
 				9060BAAE2603CAA300B3D603 /* base64.c in Sources */,
@@ -1064,6 +1071,7 @@
 				90500A9C258AC07D006F854A /* add.c in Sources */,
 				90AB1E1B2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */,
+				908AA1EC26C467B200823DD3 /* map_range.c in Sources */,
 				9062FA16243D237200420889 /* bmp.c in Sources */,
 				9050FFF12592BE23001C172D /* alpha.c in Sources */,
 				9060BAAD2603CAA300B3D603 /* base64.c in Sources */,

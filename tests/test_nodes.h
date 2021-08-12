@@ -14,6 +14,7 @@
 #include "../src/nodes/valuenode.h"
 #include "../src/nodes/vectornode.h"
 #include "../src/nodes/converter/math.h"
+#include "../src/nodes/converter/map_range.h"
 
 // The node system requires the world global memory pool and hash table for storage, so we fake one here
 struct world *fakeWorld() {
@@ -391,5 +392,31 @@ bool vecmath_vecAbs(void) {
 	vec_roughly_equals(result.v, expected);
 	
 	destroyScene(fake);
+	return true;
+}
+
+bool map_range(void) {
+	struct world *fake = fakeWorld();
+	
+	const struct valueNode *zero = newConstantValue(fake, 0.0f);
+	const struct valueNode *half = newConstantValue(fake, 0.5f);
+	const struct valueNode *one = newConstantValue(fake, 1.0f);
+	
+	const struct valueNode *A = newMapRange(fake, half, zero, one, zero, one);
+	
+	test_assert(A->eval(A, NULL) == 0.5f);
+	
+	A = newMapRange(fake, half, zero, one, newConstantValue(fake, 0.0f), newConstantValue(fake, 30.0f));
+	
+	test_assert(A->eval(A, NULL) == 15.0f);
+	
+	A = newMapRange(fake, half, zero, one, newConstantValue(fake, -15.0f), newConstantValue(fake, 15.0f));
+	
+	test_assert(A->eval(A, NULL) == 0.0f);
+	
+	A = newMapRange(fake, newConstantValue(fake, 0.25f), zero, half, newConstantValue(fake, -15.0f), newConstantValue(fake, 15.0f));
+	
+	test_assert(A->eval(A, NULL) == 0.0f);
+	
 	return true;
 }
