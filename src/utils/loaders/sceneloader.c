@@ -880,6 +880,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
 	const cJSON *intensity = cJSON_GetObjectItem(data, "intensity");
 	const cJSON *roughness = cJSON_GetObjectItem(data, "roughness");
+	const cJSON *density = cJSON_GetObjectItem(data, "density");
 	enum bsdfType type = lambertian;
 	
 	//TODO: Wrap this into a function
@@ -926,7 +927,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		const cJSON *instance = NULL;
 		if (instances != NULL && cJSON_IsArray(instances)) {
 			cJSON_ArrayForEach(instance, instances) {
-				struct instance new = newMeshSolid(lastMesh(r));
+				struct instance new = density ? newMeshVolume(lastMesh(r), density->valuedouble) : newMeshSolid(lastMesh(r));
 				new.composite = parseInstanceTransform(instance);
 				addInstanceToScene(r->scene, new);
 			}
@@ -1081,11 +1082,13 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	//FIXME: Proper materials for spheres
 	addSphere(r->scene, newSphere);
 	
+	const cJSON *density = cJSON_GetObjectItem(data, "density");
+	
 	const cJSON *instances = cJSON_GetObjectItem(data, "instances");
 	const cJSON *instance = NULL;
 	if (cJSON_IsArray(instances)) {
 		cJSON_ArrayForEach(instance, instances) {
-			addInstanceToScene(r->scene, newSphereSolid(lastSphere(r)));
+			addInstanceToScene(r->scene, density ? newSphereVolume(lastSphere(r), density->valuedouble) : newSphereSolid(lastSphere(r)));
 			lastInstance(r)->composite = parseInstanceTransform(instance);
 		}
 	}
