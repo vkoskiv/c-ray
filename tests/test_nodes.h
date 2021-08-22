@@ -403,20 +403,35 @@ bool map_range(void) {
 	const struct valueNode *one = newConstantValue(fake, 1.0f);
 	
 	const struct valueNode *A = newMapRange(fake, half, zero, one, zero, one);
-	
 	test_assert(A->eval(A, NULL) == 0.5f);
 	
 	A = newMapRange(fake, half, zero, one, newConstantValue(fake, 0.0f), newConstantValue(fake, 30.0f));
-	
 	test_assert(A->eval(A, NULL) == 15.0f);
 	
 	A = newMapRange(fake, half, zero, one, newConstantValue(fake, -15.0f), newConstantValue(fake, 15.0f));
-	
 	test_assert(A->eval(A, NULL) == 0.0f);
 	
 	A = newMapRange(fake, newConstantValue(fake, 0.25f), zero, half, newConstantValue(fake, -15.0f), newConstantValue(fake, 15.0f));
-	
 	test_assert(A->eval(A, NULL) == 0.0f);
 	
+	A = newMapRange(fake, newConstantValue(fake, -1.0f), zero, one, zero, one);
+	test_assert(A->eval(A, NULL) == 0.0f);
+	
+	A = newMapRange(fake, newConstantValue(fake, 2.0f), zero, one, zero, one);
+	test_assert(A->eval(A, NULL) == 1.0f);
+	
+	A = newMapRange(fake, half, zero, one, zero, newConstantValue(fake, -5.0f));
+	test_assert(A->eval(A, NULL) == -2.5f);
+	
+	A = newMapRange(fake, one, zero, one, zero, newConstantValue(fake, -5.0f));
+	test_assert(A->eval(A, NULL) == -5.0f);
+	
+	A = newMapRange(fake, newConstantValue(fake, 2.5f), zero, newConstantValue(fake, 5.0f), zero, one);
+	test_assert(A->eval(A, NULL) == 0.5f);
+	
+	A = newMapRange(fake, newConstantValue(fake, -2.5f), zero, newConstantValue(fake, -5.0f), zero, one);
+	test_assert(A->eval(A, NULL) == 0.5f);
+	
+	destroyScene(fake);
 	return true;
 }

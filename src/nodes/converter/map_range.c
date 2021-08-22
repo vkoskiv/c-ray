@@ -10,6 +10,7 @@
 #include "../nodebase.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
+#include "../../datatypes/vector.h"
 #include "../valuenode.h"
 
 #include "map_range.h"
@@ -50,16 +51,16 @@ static inline float lerp(float min, float max, float t) {
 
 static float eval(const struct valueNode *node, const struct hitRecord *record) {
 	const struct mapRangeNode *this = (const struct mapRangeNode *)node;
-	float input_value = this->input_value->eval(this->input_value, record);
+	const float input_value = this->input_value->eval(this->input_value, record);
 	
-	float from_min = this->from_min->eval(this->from_min, record);
-	float from_max =  this->from_max->eval(this->from_max, record);
+	const float from_min = this->from_min->eval(this->from_min, record);
+	const float from_max =  this->from_max->eval(this->from_max, record);
 	
-	float delta = from_max - from_min;
-	float t = input_value / delta;
+	const float delta = from_max - from_min;
+	const float t = clamp(input_value / delta, 0.0f, 1.0f);
 	
-	float to_min = this->to_min->eval(this->to_min, record);
-	float to_max = this->to_max->eval(this->to_max, record);
+	const float to_min = this->to_min->eval(this->to_min, record);
+	const float to_max = this->to_max->eval(this->to_max, record);
 	
 	return lerp(to_min, to_max, t);
 }
