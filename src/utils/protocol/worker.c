@@ -202,6 +202,10 @@ static void *workerThread(void *arg) {
 		lockMutex(sockMutex);
 		tile = getWork(sock);
 		releaseMutex(sockMutex);
+		if (tileBuffer->width != tile.width || tileBuffer->height != tile.height) {
+			destroyTexture(tileBuffer);
+			tileBuffer = newTexture(char_p, tile.width, tile.height, 3);
+		}
 	}
 	destroySampler(sampler);
 	destroyTexture(tileBuffer);
