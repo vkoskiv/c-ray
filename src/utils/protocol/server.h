@@ -14,7 +14,7 @@
 
 struct renderer;
 
-enum clientState {
+enum clientStatus {
 	Disconnected,
 	Connected,
 	ConnectionFailed,
