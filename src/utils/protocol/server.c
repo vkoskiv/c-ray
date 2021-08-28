@@ -367,6 +367,7 @@ void shutdownClients() {
 }
 
 struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
+	signal(SIGPIPE, SIG_IGN);
 	size_t clientCount = 0;
 	struct renderClient *clients = buildClientList(&clientCount);
 	if (clientCount < 1) {
