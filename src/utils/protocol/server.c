@@ -40,7 +40,7 @@ void disconnectFromClient(struct renderClient *client) {
 	shutdown(client->socket, SHUT_RDWR);
 	close(client->socket);
 	client->socket = -1;
-	client->state = Disconnected;
+	client->status = Disconnected;
 }
 
 static cJSON *makeHandshake() {
@@ -66,7 +66,7 @@ static bool connectToClient(struct renderClient *client) {
 	client->socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (client->socket == -1) {
 		logr(warning, "Failed to bind to socket on client %i\n", client->id);
-		client->state = ConnectionFailed;
+		client->status = ConnectionFailed;
 		return false;
 	}
 	logr(debug, "Attempting connection to %s...\n", inet_ntoa(client->address.sin_addr));
@@ -87,14 +87,14 @@ static bool connectToClient(struct renderClient *client) {
 		if (so_error == 0) {
 			logr(debug, "Connected to %s:%i\n", inet_ntoa(client->address.sin_addr), htons(client->address.sin_port));
 			success = true;
-			client->state = Connected;
+			client->status = Connected;
 			// Unset non-blocking
 			int oldFlags = fcntl(client->socket, F_GETFL);
 			fcntl(client->socket, F_SETFL, oldFlags & ~O_NONBLOCK);
 		} else {
 			logr(debug, "%s on %s:%i, dropping.\n", strerror(so_error), inet_ntoa(client->address.sin_addr), htons(client->address.sin_port));
 			close(client->socket);
-			client->state = ConnectionFailed;
+			client->status = ConnectionFailed;
 		}
 	}
 	return success;
@@ -116,19 +116,19 @@ static struct renderClient *buildClientList(size_t *amount) {
 	char *current = firstToken(line);
 	for (size_t i = 0; i < clientCount; ++i) {
 		clients[i].address = parseAddress(current);
-		clients[i].state = connectToClient(&clients[i]) ? Connected : ConnectionFailed;
+		clients[i].status = connectToClient(&clients[i]) ? Connected : ConnectionFailed;
 		current = nextToken(line);
 	}
 	size_t validClients = 0;
 	for (size_t i = 0; i < clientCount; ++i) {
-		validClients += clients[i].state == ConnectionFailed ? 0 : 1;
+		validClients += clients[i].status == ConnectionFailed ? 0 : 1;
 	}
 	if (validClients < clientCount) {
 		// Prune unavailable clients
 		struct renderClient *confirmedClients = calloc(validClients, sizeof(*confirmedClients));
 		size_t j = 0;
 		for (size_t i = 0; i < clientCount; ++i) {
-			if (clients[i].state != ConnectionFailed) {
+			if (clients[i].status != ConnectionFailed) {
 				confirmedClients[j++] = clients[i];
 			}
 		}
@@ -220,7 +220,7 @@ void *networkRenderThread(void *arg) {
 		state->threadComplete = true;
 		return 0;
 	}
-	if (client->state != Synced) {
+	if (client->status != Synced) {
 		logr(debug, "Client %i wasn't synced fully, dropping.\n", client->id);
 		state->threadComplete = true;
 		return 0;
@@ -271,22 +271,22 @@ struct syncThreadParams {
 static void *handleClientSync(void *arg) {
 	struct syncThreadParams *params = (struct syncThreadParams *)threadUserData(arg);
 	struct renderClient *client = params->client;
-	if (client->state != Connected) {
+	if (client->status != Connected) {
 		logr(warning, "Won't sync with client %i, no connection.\n", client->id);
 		return NULL;
 	}
-	client->state = Syncing;
+	client->status = Syncing;
 	
 	// Handshake with the client
 	if (!sendJSON(client->socket, makeHandshake())) {
-		client->state = SyncFailed;
+		client->status = SyncFailed;
 		return NULL;
 	}
 	cJSON *response = readJSON(client->socket);
 	if (cJSON_HasObjectItem(response, "error")) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
 		logr(warning, "Client handshake error: %s\n", error->valuestring);
-		client->state = SyncFailed;
+		client->status = SyncFailed;
 		cJSON_Delete(response);
 		return NULL;
 	}
@@ -301,13 +301,13 @@ static void *handleClientSync(void *arg) {
 	sendJSON(client->socket, assets);
 	response = readJSON(client->socket);
 	if (!response) {
-		client->state = SyncFailed;
+		client->status = SyncFailed;
 		return NULL;
 	}
 	if (cJSON_HasObjectItem(response, "error")) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
 		logr(warning, "Client asset sync error: %s\n", error->valuestring);
-		client->state = SyncFailed;
+		client->status = SyncFailed;
 		cJSON_Delete(response);
 		return NULL;
 	}
@@ -323,13 +323,14 @@ static void *handleClientSync(void *arg) {
 	sendJSON(client->socket, scene);
 	response = readJSON(client->socket);
 	if (!response) {
-		client->state = SyncFailed;
+		logr(debug, "no response\n");
+		client->status = SyncFailed;
 		return NULL;
 	}
 	if (cJSON_HasObjectItem(response, "error")) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
 		logr(warning, "Client scene sync error: %s\n", error->valuestring);
-		client->state = SyncFailed;
+		client->status = SyncFailed;
 		cJSON_Delete(error);
 		cJSON_Delete(response);
 		disconnectFromClient(client);
@@ -346,7 +347,7 @@ static void *handleClientSync(void *arg) {
 	cJSON_Delete(response);
 	
 	// Sync successful, mark it as such
-	client->state = Synced;
+	client->status = Synced;
 	return NULL;
 }
 

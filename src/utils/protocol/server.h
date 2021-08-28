@@ -29,7 +29,7 @@ struct renderClient {
 #ifndef WINDOWS
 	struct sockaddr_in address;
 #endif
-	enum clientState state;
+	enum clientStatus status;
 	int availableThreads;
 	int socket;
 	int id;
