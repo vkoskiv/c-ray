@@ -133,6 +133,6 @@ bail:
 	free(currentChunk);
 	free(scratchBuf);
 	if (length) *length = finalLength;
-	return ret == -1 ? -1 : finalLength;
+	return ret < 0 ? (size_t)-1 : finalLength;
 }
 #endif

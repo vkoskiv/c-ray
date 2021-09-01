@@ -86,6 +86,7 @@ size_t parsePolygons(lineBuffer *line, struct poly *buf) {
 	// For now, c-ray will just translate quads to two polygons while parsing
 	// Explode in a ball of fire if we encounter an ngon
 	bool isNgon = polycount > 2;
+	(void)isNgon;
 	ASSERT(!isNgon);
 	bool skipped = false;
 	for (size_t i = 0; i < polycount; ++i) {
