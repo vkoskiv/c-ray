@@ -18,6 +18,9 @@
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "args.h"
 #include "filecache.h"
 #include "textbuffer.h"
@@ -119,13 +122,11 @@ void writeFile(const unsigned char *buf, size_t bufsize, const char *filePath) {
 	free(sizeString);
 }
 
+
 bool isValidFile(char *path) {
-	FILE *f = fopen(path, "r");
-	if (f) {
-		fclose(f);
-		return true;
-	}
-	return false;
+	struct stat path_stat;
+	stat(path, &path_stat);
+	return S_ISREG(path_stat.st_mode);
 }
 
 //Wait for 2 secs and abort if nothing is coming in from stdin
