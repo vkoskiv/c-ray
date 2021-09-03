@@ -19,14 +19,13 @@ void updateCam(struct camera *cam) {
 	cam->up = vecCross(cam->forward, cam->right);
 }
 
-struct camera *newCamera(unsigned width, unsigned height, float FOV, float focalDistance, float fstops, struct transform composite) {
+struct camera *camNew(unsigned width, unsigned height, float FOV, float focalDistance, float fstops) {
 	struct camera *cam = calloc(1, sizeof(*cam));
 	cam->width = width;
 	cam->height = height;
 	cam->FOV = FOV;
 	cam->focalDistance = focalDistance;
 	cam->fstops = fstops;
-	cam->composite = composite;
 	cam->aspectRatio = (float)cam->width / (float)cam->height;
 	cam->sensorSize.x = 2.0f * tanf(toRadians(cam->FOV) / 2.0f);
 	cam->sensorSize.y = cam->sensorSize.x / cam->aspectRatio;
@@ -39,6 +38,30 @@ struct camera *newCamera(unsigned width, unsigned height, float FOV, float focal
 	if (cam->fstops != 0.0f) cam->aperture = 0.5f * (cam->focalLength / cam->fstops);
 	updateCam(cam);
 	return cam;
+}
+
+void recomputeComposite(struct camera *cam) {
+	struct transform *transforms = malloc(4 * sizeof(*transforms));
+	transforms[0] = newTransformTranslate(cam->position.x, cam->position.y, cam->position.z);
+	transforms[1] = newTransformRotateX(cam->orientation.rotX);
+	transforms[2] = newTransformRotateY(cam->orientation.rotY);
+	transforms[3] = newTransformRotateZ(cam->orientation.rotZ);
+	
+	struct transform composite = { .A = identityMatrix() };
+	for (int i = 0; i < 4; ++i) {
+		composite.A = multiplyMatrices(&composite.A, &transforms[i].A);
+	}
+	
+	composite.Ainv = inverseMatrix(&composite.A);
+	composite.type = transformTypeComposite;
+	free(transforms);
+	cam->composite = composite;
+}
+
+void camUpdate(struct camera *cam, const struct not_a_quaternion *orientation, const struct vector *pos) {
+	if (orientation) cam->orientation = *orientation;
+	if (pos) cam->position = *pos;
+	if (orientation || pos) recomputeComposite(cam);
 }
 
 static inline float sign(float v) {
@@ -55,7 +78,7 @@ static inline float triangleDistribution(float v) {
 	return v;
 }
 
-struct lightRay getCameraRay(struct camera *cam, int x, int y, struct sampler *sampler) {
+struct lightRay camGetRay(struct camera *cam, int x, int y, struct sampler *sampler) {
 	struct lightRay newRay = {{0}};
 	
 	newRay.start = vecZero();
@@ -86,7 +109,7 @@ struct lightRay getCameraRay(struct camera *cam, int x, int y, struct sampler *s
 	return newRay;
 }
 
-void destroyCamera(struct camera *cam) {
+void camDestroy(struct camera *cam) {
 	if (cam) {
 		free(cam);
 	}

@@ -12,6 +12,12 @@
 #include "vector.h"
 #include "lightray.h"
 
+struct not_a_quaternion {
+	float rotX;
+	float rotY;
+	float rotZ;
+};
+
 struct camera {
 	float FOV;
 	float focalLength;
@@ -27,13 +33,14 @@ struct camera {
 	struct vector forward;
 	
 	struct transform composite;
+	struct not_a_quaternion orientation;
+	struct vector position;
 	
 	int width;
 	int height;
 };
 
-struct camera *newCamera(unsigned width, unsigned height, float FOV, float focalDistance, float fstops, struct transform composite);
-
-struct lightRay getCameraRay(struct camera *cam, int x, int y, struct sampler *sampler);
-
-void destroyCamera(struct camera *cam);
+struct camera *camNew(unsigned width, unsigned height, float FOV, float focalDistance, float fstops);
+void camUpdate(struct camera *cam, const struct not_a_quaternion *orientation, const struct vector *pos);
+struct lightRay camGetRay(struct camera *cam, int x, int y, struct sampler *sampler);
+void camDestroy(struct camera *cam);

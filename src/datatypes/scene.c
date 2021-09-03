@@ -218,7 +218,7 @@ int loadScene(struct renderer *r, char *input) {
 //Free scene data
 void destroyScene(struct world *scene) {
 	if (scene) {
-		destroyCamera(scene->camera);
+		camDestroy(scene->camera);
 		for (int i = 0; i < scene->meshCount; ++i) {
 			destroyMesh(&scene->meshes[i]);
 		}

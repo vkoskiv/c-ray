@@ -63,6 +63,7 @@ struct matrix4x4 inverseMatrix(const struct matrix4x4 *mtx);
 struct matrix4x4 transposeMatrix(const struct matrix4x4 *tf);
 struct matrix4x4 multiplyMatrices(const struct matrix4x4 *A, const struct matrix4x4 *B); //FIXME: Maybe don't expose this.
 struct matrix4x4 absoluteMatrix(const struct matrix4x4 *mtx);
+struct matrix4x4 identityMatrix(void);
 
 void transformPoint(struct vector *vec, const struct matrix4x4 *mtx);
 void transformVector(struct vector *vec, const struct matrix4x4 *mtx);

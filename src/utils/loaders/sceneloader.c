@@ -544,6 +544,62 @@ static struct camera defaultCamera() {
 	};
 }
 
+float getRadians(const cJSON *object) {
+	cJSON *degrees = cJSON_GetObjectItem(object, "degrees");
+	cJSON *radians = cJSON_GetObjectItem(object, "radians");
+	if (degrees) {
+		return toRadians(degrees->valuedouble);
+	}
+	if (radians) {
+		return radians->valuedouble;
+	}
+	return 0.0f;
+}
+
+//TODO: Delet these two
+static struct not_a_quaternion *parseRotations(const cJSON *transforms) {
+	if (!transforms) return NULL;
+	
+	struct not_a_quaternion rotations = { 0 };
+	const cJSON *transform = NULL;
+	cJSON_ArrayForEach(transform, transforms) {
+		cJSON *type = cJSON_GetObjectItem(transform, "type");
+		if (stringEquals(type->valuestring, "rotateX")) {
+			rotations.rotX = getRadians(transform);
+		}
+		if (stringEquals(type->valuestring, "rotateY")) {
+			rotations.rotY = getRadians(transform);
+		}
+		if (stringEquals(type->valuestring, "rotateZ")) {
+			rotations.rotZ = getRadians(transform);
+		}
+	}
+	
+	struct not_a_quaternion *quat = calloc(1, sizeof(*quat));
+	*quat = rotations;
+	
+	return quat;
+}
+
+static struct vector *parseLocation(const cJSON *transforms) {
+	if (!transforms) return NULL;
+	
+	struct vector *loc = NULL;
+	const cJSON *transform = NULL;
+	cJSON_ArrayForEach(transform, transforms) {
+		cJSON *type = cJSON_GetObjectItem(transform, "type");
+		if (stringEquals(type->valuestring, "translate")) {
+			loc = calloc(1, sizeof(*loc));
+			const cJSON *x = cJSON_GetObjectItem(transform, "x");
+			const cJSON *y = cJSON_GetObjectItem(transform, "y");
+			const cJSON *z = cJSON_GetObjectItem(transform, "z");
+			
+			*loc = (struct vector){x->valuedouble, y->valuedouble, z->valuedouble};
+		}
+	}
+	return loc;
+}
+
 static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, unsigned height) {
 	if (!data) return 0;
 	const cJSON *FOV = NULL;
@@ -608,10 +664,15 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 		camFstops = defaultCamera().aperture;
 	}
 	
+	// FIXME: Hack - we should really just not use transforms externally for the camera
+	// Just can't be bothered to fix up all the scene files by hand right now
+	struct not_a_quaternion *rotations = NULL;
+	struct vector *location = NULL;
 	transforms = cJSON_GetObjectItem(data, "transforms");
 	if (transforms) {
 		if (cJSON_IsArray(transforms)) {
-			camComposite = parseTransformComposite(transforms);
+			rotations = parseRotations(transforms);
+			location = parseLocation(transforms);
 		} else {
 			logr(warning, "Invalid transforms while parsing camera.\n");
 			return -1;
@@ -620,7 +681,8 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 		camComposite = newTransform();
 	}
 	
-	*cam = newCamera(width, height, camFOV, camFocalDistance, camFstops, camComposite);
+	*cam = camNew(width, height, camFOV, camFocalDistance, camFstops);
+	camUpdate(*cam, rotations, location);
 	
 	return 0;
 }
