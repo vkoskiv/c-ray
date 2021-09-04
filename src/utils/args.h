@@ -18,4 +18,6 @@ char *stringPref(char *key);
 
 char *pathArg(void);
 
+char *specifiedAssetPath(void);
+
 void destroyOptions(void);

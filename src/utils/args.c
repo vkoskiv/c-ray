@@ -38,6 +38,7 @@ static void printUsage(const char *progname) {
 	printf("    [--worker]       -> Start up as a network render worker (Experimental)\n");
 	printf("    [--nodes <list>] -> Use worker nodes in comma-separated ip:port list for a faster render (Experimental)\n");
 	printf("    [--shutdown]     -> Use in conjunction with a node list to send a shutdown command to a list of clients\n");
+	printf("    [--asset-path]   -> Specify an asset path to load assets from, useful in scripts\n");
 	printf("    [--test]         -> Run the test suite\n");
 	restoreTerminal();
 	exit(0);
@@ -144,6 +145,12 @@ void parseArgs(int argc, char **argv) {
 		if (stringEquals(argv[i], "--suite")) {
 			if (argv[i + 1]) {
 				setDatabaseString(g_options, "test_suite", argv[i + 1]);
+			}
+		}
+		
+		if (stringEquals(argv[i], "--asset-path")) {
+			if (argv[i + 1]) {
+				setDatabaseString(g_options, "asset_path", argv[i + 1]);
 			}
 		}
 		
@@ -265,6 +272,11 @@ char *stringPref(char *key) {
 char *pathArg() {
 	ASSERT(existsInDatabase(g_options, "inputFile"));
 	return getDatabaseString(g_options, "inputFile");
+}
+
+char *specifiedAssetPath(void) {
+	ASSERT(existsInDatabase(g_options, "asset_path"));
+	return getDatabaseString(g_options, "asset_path");
 }
 
 void destroyOptions() {

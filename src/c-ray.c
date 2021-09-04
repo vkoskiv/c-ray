@@ -29,6 +29,7 @@
 #include "utils/protocol/server.h"
 #include "utils/protocol/worker.h"
 #include "utils/filecache.h"
+#include "utils/hashtable.h"
 
 #define VERSION "0.6.3"
 
@@ -253,7 +254,7 @@ char *crGetFileName() {
 }
 
 void crSetAssetPath(void) {
-	g_renderer->prefs.assetPath = crOptionIsSet("inputFile") ? crGetFilePath(crPathArg()) : stringCopy("./");
+	g_renderer->prefs.assetPath = crOptionIsSet("inputFile") ? crGetFilePath(crPathArg()) : crOptionIsSet("asset_path") ? specifiedAssetPath() : stringCopy("./");
 }
 
 char *crGetAssetPath(void) {
