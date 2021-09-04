@@ -536,11 +536,16 @@ static int parseDisplay(struct prefs *prefs, const cJSON *data) {
 	return 0;
 }
 
+struct spline *test() {
+	return spline_new((struct vector){-0.1f, 0.0f, -0.7f}, (struct vector){-0.1f, 0.2f, -0.7f}, (struct vector){0.1f, 0.2f, -0.7f}, (struct vector){0.1f, 0.0f, -0.7f});
+}
+
 static struct camera defaultCamera() {
 	return (struct camera){
 		.FOV = 80.0f,
 		.focalDistance = 10.0f,
-		.aperture = 0.0f
+		.aperture = 0.0f,
+		.time = 0.0f,
 	};
 }
 
@@ -605,11 +610,13 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 	const cJSON *FOV = NULL;
 	const cJSON *focalDistance = NULL;
 	const cJSON *aperture = NULL;
+	const cJSON *time = NULL;
 	const cJSON *transforms = NULL;
 	
 	float camFOV = 0.0f;
 	float camFocalDistance = 0.0f;
 	float camFstops = 0.0f;
+	float camT = 0.0f;
 	struct transform camComposite;
 	
 	FOV = cJSON_GetObjectItem(data, "FOV");
@@ -664,6 +671,22 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 		camFstops = defaultCamera().aperture;
 	}
 	
+	time = cJSON_GetObjectItem(data, "time");
+	if (time) {
+		if (cJSON_IsNumber(time)) {
+			if (time->valuedouble >= 0.0) {
+				camT = time->valuedouble;
+			} else {
+				camT = 0.0f;
+			}
+		} else {
+			logr(warning, "Invalid time while parsing camera.\n");
+			return -1;
+		}
+	} else {
+		camFstops = defaultCamera().aperture;
+	}
+	
 	// FIXME: Hack - we should really just not use transforms externally for the camera
 	// Just can't be bothered to fix up all the scene files by hand right now
 	struct not_a_quaternion *rotations = NULL;
@@ -682,6 +705,10 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 	}
 	
 	*cam = camNew(width, height, camFOV, camFocalDistance, camFstops);
+#ifdef TEST_BEZIER
+	(*cam)->time = camT;
+	(*cam)->path = test();
+#endif
 	camUpdate(*cam, rotations, location);
 	
 	return 0;

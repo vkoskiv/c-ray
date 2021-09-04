@@ -42,7 +42,12 @@ struct camera *camNew(unsigned width, unsigned height, float FOV, float focalDis
 
 void recomputeComposite(struct camera *cam) {
 	struct transform *transforms = malloc(4 * sizeof(*transforms));
-	transforms[0] = newTransformTranslate(cam->position.x, cam->position.y, cam->position.z);
+	if (cam->path) {
+		struct vector positionAtT = spline_at(cam->path, cam->time);
+		transforms[0] = newTransformTranslate(positionAtT.x, positionAtT.y, positionAtT.z);
+	} else {
+		transforms[0] = newTransformTranslate(cam->position.x, cam->position.y, cam->position.z);
+	}
 	transforms[1] = newTransformRotateX(cam->orientation.rotX);
 	transforms[2] = newTransformRotateY(cam->orientation.rotY);
 	transforms[3] = newTransformRotateZ(cam->orientation.rotZ);

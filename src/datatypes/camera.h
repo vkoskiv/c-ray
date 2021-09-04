@@ -11,6 +11,7 @@
 #include "transforms.h"
 #include "vector.h"
 #include "lightray.h"
+#include "spline.h"
 
 struct not_a_quaternion {
 	float rotX;
@@ -35,6 +36,9 @@ struct camera {
 	struct transform composite;
 	struct not_a_quaternion orientation;
 	struct vector position;
+	
+	struct spline *path;
+	float time;
 	
 	int width;
 	int height;
