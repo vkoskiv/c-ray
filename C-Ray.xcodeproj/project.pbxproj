@@ -168,6 +168,8 @@
 		90CA851E2252C90C00BA7702 /* textureloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA851B2252C90C00BA7702 /* textureloader.c */; };
 		90CA85212252CB3800BA7702 /* sceneloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85202252CB3800BA7702 /* sceneloader.c */; };
 		90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85232252D99700BA7702 /* vertexbuffer.c */; };
+		90CB8BC526DFF763006EA951 /* spline.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CB8BC326DFF763006EA951 /* spline.c */; };
+		90CB8BC626DFF763006EA951 /* spline.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CB8BC326DFF763006EA951 /* spline.c */; };
 		90CFA7DF2381BF0900061288 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CFA7DE2381BF0900061288 /* hashtable.c */; };
 		90CFA7E02381BF0900061288 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CFA7DE2381BF0900061288 /* hashtable.c */; };
 		90D5F02624A208100068FC60 /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90D5F02524A208100068FC60 /* gitsha1.c */; };
@@ -393,6 +395,8 @@
 		90CA85202252CB3800BA7702 /* sceneloader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sceneloader.c; sourceTree = "<group>"; };
 		90CA85222252D99600BA7702 /* vertexbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vertexbuffer.h; sourceTree = "<group>"; };
 		90CA85232252D99700BA7702 /* vertexbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vertexbuffer.c; sourceTree = "<group>"; };
+		90CB8BC326DFF763006EA951 /* spline.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = spline.c; sourceTree = "<group>"; };
+		90CB8BC426DFF763006EA951 /* spline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = spline.h; sourceTree = "<group>"; };
 		90CFA7DD2381BF0900061288 /* hashtable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hashtable.h; sourceTree = "<group>"; };
 		90CFA7DE2381BF0900061288 /* hashtable.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hashtable.c; sourceTree = "<group>"; };
 		90D5F02524A208100068FC60 /* gitsha1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gitsha1.c; path = generated/gitsha1.c; sourceTree = SOURCE_ROOT; };
@@ -513,6 +517,8 @@
 				90FAD26724A26F0B00F8CA79 /* instance.h */,
 				90FAD26824A26F0B00F8CA79 /* instance.c */,
 				9071BC9D257D86250070BA43 /* hitrecord.h */,
+				90CB8BC426DFF763006EA951 /* spline.h */,
+				90CB8BC326DFF763006EA951 /* spline.c */,
 			);
 			path = datatypes;
 			sourceTree = "<group>";
@@ -930,6 +936,7 @@
 				9095392623C15A7B0017037C /* c-ray.c in Sources */,
 				9071BC94257D7D260070BA43 /* constant.c in Sources */,
 				908ED0B5258FAEDA00D5B93F /* normal.c in Sources */,
+				90CB8BC626DFF763006EA951 /* spline.c in Sources */,
 				90A21CFE2458A2D8002C742E /* random.c in Sources */,
 				905842E0236651FC009D92F1 /* textureloader.c in Sources */,
 				9071BC9C257D7D470070BA43 /* image.c in Sources */,
@@ -1026,6 +1033,7 @@
 				9095392523C15A7B0017037C /* c-ray.c in Sources */,
 				9071BC93257D7D260070BA43 /* constant.c in Sources */,
 				908ED0B4258FAEDA00D5B93F /* normal.c in Sources */,
+				90CB8BC526DFF763006EA951 /* spline.c in Sources */,
 				90A21CFD2458A2D8002C742E /* random.c in Sources */,
 				90CA851E2252C90C00BA7702 /* textureloader.c in Sources */,
 				9071BC9B257D7D470070BA43 /* image.c in Sources */,
