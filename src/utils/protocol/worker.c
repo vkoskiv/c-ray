@@ -36,6 +36,7 @@
 #include "../fileio.h"
 #include "../../utils/platform/signal.h"
 #include <stdio.h>
+#include <inttypes.h>
 
 struct renderer *g_worker_renderer = NULL;
 struct crMutex *g_worker_socket_mutex = NULL;
@@ -263,7 +264,7 @@ static cJSON *startRender(int connectionSocket) {
 			cJSON_AddNumberToObject(stats, "completed", completedSamples);
 			cJSON_AddNumberToObject(stats, "avgPerPass", avgTimePerTilePass);
 			lockMutex(g_worker_socket_mutex);
-			logr(debug, "Sending stats update for: %llu, %.2f\n", completedSamples, avgTimePerTilePass);
+			logr(debug, "Sending stats update for: %"PRIu64", %.2f\n", completedSamples, avgTimePerTilePass);
 			sendJSON(connectionSocket, stats);
 			releaseMutex(g_worker_socket_mutex);
 			pauser = 0;

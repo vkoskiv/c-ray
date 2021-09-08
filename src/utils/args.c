@@ -71,6 +71,7 @@ void parseArgs(int argc, char **argv) {
 	g_options = newConstantsDatabase();
 	static bool inputFileSet = false;
 	int testIdx = -1;
+	(void)testIdx;
 	char *alternatePath = NULL;
 	//Always omit the first argument.
 	for (int i = 1; i < argc; ++i) {
