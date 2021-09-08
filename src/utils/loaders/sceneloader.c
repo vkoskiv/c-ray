@@ -617,7 +617,6 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 	float camFocalDistance = 0.0f;
 	float camFstops = 0.0f;
 	float camT = 0.0f;
-	struct transform camComposite;
 	
 	FOV = cJSON_GetObjectItem(data, "FOV");
 	if (FOV) {
@@ -700,13 +699,11 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 			logr(warning, "Invalid transforms while parsing camera.\n");
 			return -1;
 		}
-	} else {
-		camComposite = newTransform();
 	}
 	
 	*cam = camNew(width, height, camFOV, camFocalDistance, camFstops);
-#ifdef TEST_BEZIER
 	(*cam)->time = camT;
+#ifdef TEST_BEZIER
 	(*cam)->path = test();
 #endif
 	camUpdate(*cam, rotations, location);
