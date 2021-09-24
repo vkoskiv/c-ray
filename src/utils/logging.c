@@ -16,6 +16,23 @@
 #include "args.h"
 #include "platform/terminal.h"
 
+char *color_escapes[] = {
+	"\x1B[0m",
+	"\x1B[31m",
+	"\x1B[32m",
+	"\x1B[33m",
+	"\x1B[34m",
+	"\x1B[35m",
+	"\x1B[36m",
+	"\x1B[37m",
+};
+
+char *colorEscape(int idx) {
+	if (getenv("NO_COLOR"))
+		return "";
+	return color_escapes[idx];
+}
+
 static void printPrefix(enum logType type) {
 	switch (type) {
 		case info:

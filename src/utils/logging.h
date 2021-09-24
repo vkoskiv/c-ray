@@ -18,27 +18,29 @@ enum logType {
 	plain
 };
 
+char *colorEscape(int idx);
+
 //Terminal color codes
 //Xcode's awesome debugger doesn't have support for ANSI escapes,
 //so I want to declutter the output when running there.
-#ifndef XCODE_NO_COLOR
-	#define KNRM  "\x1B[0m"
-	#define KRED  "\x1B[31m"
-	#define KGRN  "\x1B[32m"
-	#define KYEL  "\x1B[33m"
-	#define KBLU  "\x1B[34m"
-	#define KMAG  "\x1B[35m"
-	#define KCYN  "\x1B[36m"
-	#define KWHT  "\x1B[37m"
+#ifndef NO_COLOR
+	#define KNRM colorEscape(0)
+	#define KRED colorEscape(1)
+	#define KGRN colorEscape(2)
+	#define KYEL colorEscape(3)
+	#define KBLU colorEscape(4)
+	#define KMAG colorEscape(5)
+	#define KCYN colorEscape(6)
+	#define KWHT colorEscape(7)
 #else
-	#define KNRM  ""
-	#define KRED  ""
-	#define KGRN  ""
-	#define KYEL  ""
-	#define KBLU  ""
-	#define KMAG  ""
-	#define KCYN  ""
-	#define KWHT  ""
+	#define KNRM ""
+	#define KRED ""
+	#define KGRN ""
+	#define KYEL ""
+	#define KBLU ""
+	#define KMAG ""
+	#define KCYN ""
+	#define KWHT ""
 #endif
 
 #define PLURAL(x) (x) > 1 ? "s" : (x) == 0 ? "s" : ""
