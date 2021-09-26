@@ -707,6 +707,8 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 	(*cam)->path = test();
 #endif
 	camUpdate(*cam, rotations, location);
+	free(rotations);
+	free(location);
 	
 	return 0;
 }
