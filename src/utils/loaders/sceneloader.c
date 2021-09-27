@@ -75,6 +75,34 @@ static void addSphere(struct world *scene, struct sphere newSphere) {
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
 
+static struct vector parseVectorArray(const cJSON *data) {
+	int length = cJSON_GetArraySize(data);
+	ASSERT(length == 3);
+	for (int i = 0; i < length; ++i) {
+		ASSERT(cJSON_IsNumber(cJSON_GetArrayItem(data, i)));
+	}
+	return (struct vector){ cJSON_GetArrayItem(data, 0)->valuedouble, cJSON_GetArrayItem(data, 1)->valuedouble, cJSON_GetArrayItem(data, 2)->valuedouble };
+}
+
+static struct vector parseVector(const cJSON *data) {
+	if (cJSON_IsArray(data)) return parseVectorArray(data);
+	const cJSON *X = NULL;
+	const cJSON *Y = NULL;
+	const cJSON *Z = NULL;
+	X = cJSON_GetObjectItem(data, "X");
+	Y = cJSON_GetObjectItem(data, "Y");
+	Z = cJSON_GetObjectItem(data, "Z");
+	
+	if (X != NULL && Y != NULL && Z != NULL) {
+		if (cJSON_IsNumber(X) && cJSON_IsNumber(Y) && cJSON_IsNumber(Z)) {
+			return vecWithPos(X->valuedouble, Y->valuedouble, Z->valuedouble);
+		}
+	}
+	logr(warning, "Invalid vector parsed! Returning 0,0,0\n");
+	logr(warning, "Faulty JSON: %s\n", cJSON_Print(data));
+	return (struct vector){ 0.0f, 0.0f, 0.0f };
+}
+
 static struct transform parseTransform(const cJSON *data, char *targetName) {
 	cJSON *type = cJSON_GetObjectItem(data, "type");
 	if (!cJSON_IsString(type)) {
@@ -536,10 +564,6 @@ static int parseDisplay(struct prefs *prefs, const cJSON *data) {
 	return 0;
 }
 
-struct spline *test() {
-	return spline_new((struct vector){-0.1f, 0.0f, -0.7f}, (struct vector){-0.1f, 0.2f, -0.7f}, (struct vector){0.1f, 0.2f, -0.7f}, (struct vector){0.1f, 0.0f, -0.7f});
-}
-
 static struct camera defaultCamera() {
 	return (struct camera){
 		.FOV = 80.0f,
@@ -612,6 +636,7 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 	const cJSON *aperture = NULL;
 	const cJSON *time = NULL;
 	const cJSON *transforms = NULL;
+	const cJSON *controlPoints = NULL;
 	
 	float camFOV = 0.0f;
 	float camFocalDistance = 0.0f;
@@ -703,9 +728,20 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 	
 	*cam = camNew(width, height, camFOV, camFocalDistance, camFstops);
 	(*cam)->time = camT;
-#ifdef TEST_BEZIER
-	(*cam)->path = test();
-#endif
+	
+	controlPoints = cJSON_GetObjectItem(data, "path");
+	if (controlPoints) {
+		if (cJSON_IsArray(controlPoints) && cJSON_GetArraySize(controlPoints) == 4) {
+			struct vector points[4];
+			for (int i = 0; i < 4; ++i) {
+				points[i] = parseVector(cJSON_GetArrayItem(controlPoints, i));
+			}
+			(*cam)->path = spline_new(points[0], points[1], points[2], points[3]);
+		} else {
+			logr(warning, "Invalid path control points while parsing camera.\n");
+		}
+	}
+	
 	camUpdate(*cam, rotations, location);
 	free(rotations);
 	free(location);
@@ -1074,24 +1110,6 @@ static void parseMeshes(struct renderer *r, const cJSON *data) {
 		}
 	}
 }
-
-/*static struct vector parseCoordinate(const cJSON *data) {
-	const cJSON *X = NULL;
-	const cJSON *Y = NULL;
-	const cJSON *Z = NULL;
-	X = cJSON_GetObjectItem(data, "X");
-	Y = cJSON_GetObjectItem(data, "Y");
-	Z = cJSON_GetObjectItem(data, "Z");
-	
-	if (X != NULL && Y != NULL && Z != NULL) {
-		if (cJSON_IsNumber(X) && cJSON_IsNumber(Y) && cJSON_IsNumber(Z)) {
-			return vecWithPos(X->valuedouble, Y->valuedouble, Z->valuedouble);
-		}
-	}
-	logr(warning, "Invalid coordinate parsed! Returning 0,0,0\n");
-	logr(warning, "Faulty JSON: %s\n", cJSON_Print(data));
-	return (struct vector){0.0f,0.0f,0.0f};
-}*/
 
 static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *color = NULL;

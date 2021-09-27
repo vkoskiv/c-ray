@@ -3,17 +3,18 @@
 	"renderer": {
 		"threads": 0,
 		"samples": 250,
-		"bounces": 30,
+		"bounces": 64,
 		"antialiasing": true,
 		"tileWidth": 64,
 		"tileHeight": 64,
-		"tileOrder": "fromMiddle",
+		"tileOrder": "random",
 		"outputFilePath": "output/",
 		"outputFileName": "rendered",
 		"fileType": "png",
 		"count": 0,
 		"width": 1280,
-		"height": 800
+		"height": 800,
+		"t": 0.0
 	},
 	"display": {
 		"isFullscreen": false,
@@ -24,6 +25,13 @@
 		"FOV": 30.0,
 		"focalDistance": 0.7,
 		"fstops": 6.5,
+		"time": 0.8,
+		"path": [
+			[-0.1, 0.1, -0.7],
+			[-0.1, 0.2, -0.6],
+			[0.1, 0.2, -0.5],
+			[0.1, 0.1, -0.4]
+		],
 		"transforms": [
 			{
 				"type": "translate",
@@ -46,14 +54,14 @@
 			"hdr": "HDRs/roof_garden_1k.hdr",
 			"offset": 0,
 			"down": {
-				"r": 1.0,
-				"g": 1.0,
-				"b": 1.0
+				"r": 0.0,
+				"g": 0.0,
+				"b": 0.0
 			},
 			"up": {
-				"r": 0.5,
-				"g": 0.7,
-				"b": 1.0
+				"r": 0.1,
+				"g": 0.1,
+				"b": 0.1
 			}
 		},
 		"primitives": [
