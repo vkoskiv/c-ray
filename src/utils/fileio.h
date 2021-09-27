@@ -12,6 +12,7 @@
 #include <stddef.h>
 
 enum fileType {
+	unknown,
 	bmp,
 	png,
 	hdr,
@@ -20,7 +21,8 @@ enum fileType {
 	jpg,
 	tiff,
 	qoi,
-	unknown,
+	gltf,
+	glb,
 };
 
 enum fileType guessFileType(const char *filePath);
