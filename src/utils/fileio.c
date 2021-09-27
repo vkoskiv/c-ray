@@ -44,10 +44,10 @@ enum fileType guessFileType(const char *filePath) {
 	free(extension);
 	extension = lower;
 	free(fileName);
+	
+	if (!extension) return unknown;
+	
 	enum fileType type = unknown;
-	
-	if (!extension) return type;
-	
 	if (stringEquals(extension, "bmp"))
 		type = bmp;
 	if (stringEquals(extension, "png"))
@@ -64,6 +64,10 @@ enum fileType guessFileType(const char *filePath) {
 		type = tiff;
 	if (stringEquals(extension, "qoi"))
 		type = qoi;
+	if (stringEquals(extension, "gltf"))
+		type = gltf;
+	if (stringEquals(extension, "glb"))
+		type = glb;
 	free(extension);
 	
 	return type;

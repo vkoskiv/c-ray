@@ -157,6 +157,8 @@
 		90AB1E1C2575709000EFDF5A /* colornode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E192575709000EFDF5A /* colornode.c */; };
 		90AB1E1F2575B1AD00EFDF5A /* plastic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1D2575B1AD00EFDF5A /* plastic.c */; };
 		90AB1E202575B1AD00EFDF5A /* plastic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AB1E1D2575B1AD00EFDF5A /* plastic.c */; };
+		90AE779B2700E523004EDEA0 /* gltf.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AE77992700E523004EDEA0 /* gltf.c */; };
+		90AE779C2700E523004EDEA0 /* gltf.c in Sources */ = {isa = PBXBuildFile; fileRef = 90AE77992700E523004EDEA0 /* gltf.c */; };
 		90B3EC712607BE5300B11B9E /* protocol.c in Sources */ = {isa = PBXBuildFile; fileRef = 90B3EC6F2607BE5300B11B9E /* protocol.c */; };
 		90B3EC722607BE5300B11B9E /* protocol.c in Sources */ = {isa = PBXBuildFile; fileRef = 90B3EC6F2607BE5300B11B9E /* protocol.c */; };
 		90C5D5582448CEAB00C58643 /* imagefile.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C5D5572448CEAB00C58643 /* imagefile.c */; };
@@ -382,6 +384,8 @@
 		90AB1E1A2575709000EFDF5A /* colornode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = colornode.h; sourceTree = "<group>"; };
 		90AB1E1D2575B1AD00EFDF5A /* plastic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = plastic.c; sourceTree = "<group>"; };
 		90AB1E1E2575B1AD00EFDF5A /* plastic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = plastic.h; sourceTree = "<group>"; };
+		90AE77992700E523004EDEA0 /* gltf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = gltf.c; sourceTree = "<group>"; };
+		90AE779A2700E523004EDEA0 /* gltf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gltf.h; sourceTree = "<group>"; };
 		90B3EC6F2607BE5300B11B9E /* protocol.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = protocol.c; sourceTree = "<group>"; };
 		90B3EC702607BE5300B11B9E /* protocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = protocol.h; sourceTree = "<group>"; };
 		90BAE9362328344100B1EBF0 /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
@@ -746,6 +750,7 @@
 		90AB1E02256EF63000EFDF5A /* formats */ = {
 			isa = PBXGroup;
 			children = (
+				90AE779D27021AA9004EDEA0 /* gltf */,
 				90AB1E03256EFD8700EFDF5A /* wavefront */,
 			);
 			path = formats;
@@ -781,6 +786,15 @@
 				9071BC8F257D5C2B0070BA43 /* shaders */,
 			);
 			path = nodes;
+			sourceTree = "<group>";
+		};
+		90AE779D27021AA9004EDEA0 /* gltf */ = {
+			isa = PBXGroup;
+			children = (
+				90AE779A2700E523004EDEA0 /* gltf.h */,
+				90AE77992700E523004EDEA0 /* gltf.c */,
+			);
+			path = gltf;
 			sourceTree = "<group>";
 		};
 		90C5D5512448CC8400C58643 /* image */ = {
@@ -1033,6 +1047,7 @@
 				90CFA7E02381BF0900061288 /* hashtable.c in Sources */,
 				90500AA1258C09E8006F854A /* split.c in Sources */,
 				90E1A610261CF44500EAE727 /* server.c in Sources */,
+				90AE779C2700E523004EDEA0 /* gltf.c in Sources */,
 				90500AB1258D95EF006F854A /* gradient.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1132,6 +1147,7 @@
 				90CFA7DF2381BF0900061288 /* hashtable.c in Sources */,
 				90500AA0258C09E8006F854A /* split.c in Sources */,
 				90E1A60F261CF44500EAE727 /* server.c in Sources */,
+				90AE779B2700E523004EDEA0 /* gltf.c in Sources */,
 				90500AB0258D95EF006F854A /* gradient.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
