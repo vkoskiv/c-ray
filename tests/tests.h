@@ -102,6 +102,7 @@ static test tests[] = {
 	{"base64::padding_2", base64_padding_2},
 	{"base64::padding_1", base64_padding_1},
 	{"base64::padding_0", base64_padding_0},
+	{"base64::varying", base64_varying},
 	
 	{"mathnode::add", mathnode_add},
 	{"mathnode::subtract", mathnode_subtract},

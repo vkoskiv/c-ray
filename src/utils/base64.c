@@ -75,11 +75,13 @@ static const int B64index[256] = {
 };
 
 void *b64decode(const char *data, const size_t inputLength, size_t *outLength) {
+	if (!inputLength) return "";
 	unsigned char *p = (unsigned char *)data;
-	int pad = inputLength > 0 && (inputLength % 4 || p[inputLength - 1] == '=');
-	const size_t L = ((inputLength + 3) / 4 - pad) * 4;
-	size_t strSize = L / 4 * 3 + pad + 1;
-	char *str = calloc(strSize, sizeof(*str));
+	const size_t pad1 = inputLength % 4 || p[inputLength - 1] == '=';
+	const size_t pad2 = pad1 && (inputLength % 4 > 2 || p[inputLength - 2] != '=');
+	const size_t L = (inputLength - pad1) / 4 << 2;
+	const size_t strSize = L / 4 * 3 + pad1 + pad2;
+	char *str = calloc(strSize + 1, sizeof(*str));
 	size_t j = 0;
 	for (size_t i = 0; i < L; i += 4) {
 		int n = B64index[p[i]] << 18 | B64index[p[i + 1]] << 12 | B64index[p[i + 2]] << 6 | B64index[p[i + 3]];
@@ -87,15 +89,16 @@ void *b64decode(const char *data, const size_t inputLength, size_t *outLength) {
 		str[j++] = n >> 8 & 0xFF;
 		str[j++] = n & 0xFF;
 	}
-	if (pad) {
+	if (pad1) {
 		int n = B64index[p[L]] << 18 | B64index[p[L + 1]] << 12;
 		str[j++] = n >> 16;
 		
-		if (inputLength > L + 2 && p[L + 2] != '=') {
+		if (pad2) {
 			n |= B64index[p[L + 2]] << 6;
 			str[j++] = n >> 8 & 0xFF;
 		}
 	}
 	if (outLength) *outLength = strSize;
+	str[strSize] = 0;
 	return str;
 }
