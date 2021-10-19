@@ -72,7 +72,7 @@ Please see the [Wiki](https://github.com/VKoskiv/c-ray/wiki) for details on how 
 
 ## Dependencies
 
-- CMake for the build system
+- CMake for the build system (Optional, a basic makefile is provided for *nix systems)
 - SDL2 (Optional, CMake will link and enable it if it is found on your system.)
 - Python3 (Optional, it's used for some utility scripts)
 - Standard C99/GNU99 with some standard libraries
@@ -91,11 +91,11 @@ Either follow these instructions, or the instructions for Linux below. Both work
 
 Linux:
 1. (Optional) Install SDL2 (See installing SDL below)
-2. Run `cmake .`, or optionally `cmake . -DNO_SDL2=True` to disable SDL2.
+2. (Optional, this tends to work nicer) Run `cmake .`, or optionally `cmake . -DNO_SDL2=True` to disable SDL2.
 3. Run `make` to build the project
-4. Run binary: `./bin/c-ray ./input/scene.json` (Making sure the working dir is the root directory). You can also pipe files into `C-ray` and it will read from there. This is useful for scripts that invoke `C-ray`.
-Example: `cat input/scene.json | ./bin/c-ray`
-*Note: Reading the json from `stdin` assumes that the asset path is `./`*
+4. Run binary: `bin/c-ray input/scene.json` (Making sure the working dir is the root directory). You can also pipe files into `C-ray` and it will read from there. This is useful for scripts that invoke `C-ray`.
+Example: `cat input/scene.json | bin/c-ray`
+*Note: Reading the json from `stdin` assumes that the asset path is `./`, can be specified with `--asset-path`*
 
 Windows:
 1. Install [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
