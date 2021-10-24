@@ -163,17 +163,21 @@ void destroyDisplay() {
 #ifdef CRAY_SDL_ENABLED
 	if (gdisplay) {
 		SDL_Quit();
-		if (gdisplay->window) {
-			SDL_DestroyWindow(gdisplay->window);
-		}
-		if (gdisplay->renderer) {
-			SDL_DestroyRenderer(gdisplay->renderer);
-		}
 		if (gdisplay->texture) {
 			SDL_DestroyTexture(gdisplay->texture);
+			gdisplay->texture = NULL;
 		}
 		if (gdisplay->overlayTexture) {
 			SDL_DestroyTexture(gdisplay->overlayTexture);
+			gdisplay->texture = NULL;
+		}
+		if (gdisplay->renderer) {
+			SDL_DestroyRenderer(gdisplay->renderer);
+			gdisplay->renderer = NULL;
+		}
+		if (gdisplay->window) {
+			SDL_DestroyWindow(gdisplay->window);
+			gdisplay->window = NULL;
 		}
 		free(gdisplay);
 		gdisplay = NULL;
