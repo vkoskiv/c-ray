@@ -258,6 +258,7 @@ void parseArgs(int argc, char **argv) {
 }
 
 bool isSet(char *key) {
+	if (!g_options) return false;
 	return existsInDatabase(g_options, key);
 }
 
