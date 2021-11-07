@@ -3,7 +3,7 @@ CFLAGS=-Wall -Wextra -Wno-missing-field-initializers -std=c99 -D_GNU_SOURCE -O2 
 LDFLAGS=-lpthread -lm
 BIN=bin/c-ray
 OBJDIR=bin/obj
-SRCS=$(shell find . -name '*.c')
+SRCS=$(shell find . -name '*.c' -not -path './CMakeFiles/*' )
 OBJS=$(patsubst %.c, $(OBJDIR)/%.o, $(SRCS))
 
 all: $(BIN)
