@@ -265,6 +265,7 @@ void *networkRenderThread(void *arg) {
 struct syncThreadParams {
 	struct renderClient *client;
 	const struct renderer *renderer;
+	const char *assetCache;
 };
 
 //TODO: Rename to clientSyncThread
@@ -297,7 +298,7 @@ static void *handleClientSync(void *arg) {
 	logr(debug, "Sending assets...\n");
 	cJSON *assets = cJSON_CreateObject();
 	cJSON_AddStringToObject(assets, "action", "loadAssets");
-	cJSON_AddItemToObject(assets, "files", cJSON_Parse(encodeFileCache()));
+	cJSON_AddItemToObject(assets, "files", cJSON_Parse(params->assetCache));
 	sendJSON(client->socket, assets);
 	response = readJSON(client->socket);
 	if (!response) {
@@ -378,12 +379,14 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	
 	logr(info, "Syncing scene with %lu client%s...\n", clientCount, PLURAL(clientCount));
 	
+	char *assetCache = encodeFileCache();
 	struct syncThreadParams *params = calloc(clientCount, sizeof(*params));
 	logr(debug, "Client list:\n");
 	for (size_t i = 0; i < clientCount; ++i) {
 		logr(debug, "\tclient %zu: %s:%i\n", i, inet_ntoa(clients[i].address.sin_addr), htons(clients[i].address.sin_port));
 		params[i].client = &clients[i];
 		params[i].renderer = r;
+		params[i].assetCache = assetCache;
 	}
 	
 	struct crThread *syncThreads = calloc(clientCount, sizeof(*syncThreads));
@@ -404,6 +407,7 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	for (size_t i = 0; i < clientCount; ++i) {
 		threadWait(&syncThreads[i]);
 	}
+	free(assetCache);
 	logr(info, "Client sync finished.\n");
 	//FIXME: We should prune clients that dropped out during sync here
 	if (count) *count = clientCount;
