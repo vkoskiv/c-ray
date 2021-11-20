@@ -44,7 +44,6 @@ struct crMutex *g_worker_socket_mutex = NULL;
 struct command workerCommands[] = {
 	{"handshake", 0},
 	{"loadScene", 1},
-	{"loadAssets", 2},
 	{"startRender", 3},
 };
 
@@ -68,6 +67,15 @@ static cJSON *validateHandshake(const cJSON *in) {
 }
 
 static cJSON *receiveScene(const cJSON *json) {
+	// Load assets
+	cJSON *fileCache = cJSON_GetObjectItem(json, "files");
+	if (!fileCache) return errorResponse("No file cache found");
+	char *data = cJSON_PrintUnformatted(fileCache);
+	//FIXME: This is an awkward API, why not pass cJSON directly?
+	decodeFileCache(data);
+	free(data);
+	
+	// And then the scene
 	cJSON *scene = cJSON_GetObjectItem(json, "data");
 	char *sceneText = cJSON_PrintUnformatted(scene);
 	logr(info, "Received scene description\n");
@@ -86,15 +94,6 @@ static cJSON *receiveScene(const cJSON *json) {
 	// For now just report back how many threads we've got available.
 	cJSON_AddNumberToObject(resp, "threadCount", g_worker_renderer->prefs.threadCount);
 	return resp;
-}
-
-static cJSON *receiveAssets(const cJSON *json) {
-	cJSON *files = cJSON_GetObjectItem(json, "files");
-	char *data = cJSON_PrintUnformatted(files);
-	logr(info, "Received scene assets\n");
-	decodeFileCache(data);
-	free(data);
-	return newAction("ok");
 }
 
 // Tilenum of -1 communicates that it failed to get work, signaling the work thread to exit
@@ -297,15 +296,12 @@ static cJSON *processCommand(int connectionSocket, const cJSON *json) {
 		return errorResponse("No action provided");
 	}
 	
-	switch (matchCommand(workerCommands, sizeof(workerCommands) / sizeof(struct command),action->valuestring)) {
+	switch (matchCommand(workerCommands, sizeof(workerCommands) / sizeof(struct command), action->valuestring)) {
 		case 0:
 			return validateHandshake(json);
 			break;
 		case 1:
 			return receiveScene(json);
-			break;
-		case 2:
-			return receiveAssets(json);
 			break;
 		case 3:
 			// startRender contains worker event loop and blocks until render completion.

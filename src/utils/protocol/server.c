@@ -294,32 +294,13 @@ static void *handleClientSync(void *arg) {
 	cJSON_Delete(response);
 	response = NULL;
 	
-	// Send assets
-	logr(debug, "Sending assets...\n");
-	cJSON *assets = cJSON_CreateObject();
-	cJSON_AddStringToObject(assets, "action", "loadAssets");
-	cJSON_AddItemToObject(assets, "files", cJSON_Parse(params->assetCache));
-	sendJSON(client->socket, assets);
-	response = readJSON(client->socket);
-	if (!response) {
-		client->status = SyncFailed;
-		return NULL;
-	}
-	if (cJSON_HasObjectItem(response, "error")) {
-		cJSON *error = cJSON_GetObjectItem(response, "error");
-		logr(warning, "Client asset sync error: %s\n", error->valuestring);
-		client->status = SyncFailed;
-		cJSON_Delete(response);
-		return NULL;
-	}
-	cJSON_Delete(response);
-	
-	// Send the scene
+	// Send the scene & assets
 	logr(debug, "Sending scene data\n");
 	cJSON *scene = cJSON_CreateObject();
 	cJSON_AddStringToObject(scene, "action", "loadScene");
 	cJSON *data = cJSON_Parse(params->renderer->sceneCache);
 	cJSON_AddItemToObject(scene, "data", data);
+	cJSON_AddItemToObject(scene, "files", cJSON_Parse(params->assetCache));
 	cJSON_AddStringToObject(scene, "assetPath", params->renderer->prefs.assetPath);
 	sendJSON(client->socket, scene);
 	response = readJSON(client->socket);

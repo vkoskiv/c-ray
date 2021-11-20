@@ -77,6 +77,7 @@ char *encodeFileCache(void) {
 	return final;
 }
 
+//FIXME: Are we sure this can't have an error to be returned?
 void decodeFileCache(const char *data) {
 	cJSON *receivedCache = cJSON_Parse(data);
 	const cJSON *record = NULL;
