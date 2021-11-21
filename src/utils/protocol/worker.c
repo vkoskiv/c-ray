@@ -40,6 +40,7 @@
 
 struct renderer *g_worker_renderer = NULL;
 struct crMutex *g_worker_socket_mutex = NULL;
+static bool g_running = false;
 
 struct command workerCommands[] = {
 	{"handshake", 0},
@@ -153,7 +154,7 @@ static void *workerThread(void *arg) {
 			startTimer(&timer);
 			for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 				for (int x = tile.begin.x; x < tile.end.x; ++x) {
-					if (r->state.renderAborted) return 0;
+					if (r->state.renderAborted || !g_running) goto bail;
 					uint32_t pixIdx = (uint32_t)(y * r->prefs.imageWidth + x);
 					initSampler(sampler, Random, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
@@ -207,6 +208,7 @@ static void *workerThread(void *arg) {
 			tileBuffer = newTexture(char_p, tile.width, tile.height, 3);
 		}
 	}
+bail:
 	destroySampler(sampler);
 	destroyTexture(tileBuffer);
 	
@@ -331,13 +333,15 @@ bool isShutdown(cJSON *json) {
 	return false;
 }
 
+// Hack. Yoink the receiving socket fd to close it. Don't see another way.
+static int recvsock_temp = 0;
 void exitHandler(int sig) {
 	(void)sig;
 	ASSERT(sig == SIGINT);
 	printf("\n");
 	logr(info, "Received ^C, shutting down worker.\n");
-	workerCleanup();
-	exit(0);
+	g_running = false;
+	close(recvsock_temp);
 }
 
 int startWorkerServer() {
@@ -366,6 +370,7 @@ int startWorkerServer() {
 		logr(error, "Failed to bind to socket\n");
 	}
 	
+	recvsock_temp = receivingSocket;
 	if (listen(receivingSocket, 1) != 0) {
 		logr(error, "It wouldn't listen\n");
 	}
@@ -374,13 +379,14 @@ int startWorkerServer() {
 	socklen_t len = sizeof(masterAddress);
 	char *buf = NULL;
 	
-	bool running = true;
+	g_running = true;
 	
-	while (running) {
+	while (g_running) {
 		logr(info, "Listening for connections on port %i\n", port);
 		connectionSocket = accept(receivingSocket, (struct sockaddr *)&masterAddress, &len);
 		if (connectionSocket < 0) {
-			logr(error, "Failed to accept\n");
+			logr(debug, "Failed to accept\n");
+			goto bail;
 		}
 		logr(info, "Got connection from %s\n", inet_ntoa(masterAddress.sin_addr));
 		
@@ -401,7 +407,7 @@ int startWorkerServer() {
 			free(size);
 			cJSON *message = cJSON_Parse(buf);
 			if (isShutdown(message)) {
-				running = false;
+				g_running = false;
 				cJSON_Delete(message);
 				break;
 			}
@@ -422,7 +428,8 @@ int startWorkerServer() {
 			cJSON_Delete(message);
 			buf = NULL;
 		}
-		if (running) {
+	bail:
+		if (g_running) {
 			logr(info, "Cleaning up for next render\n");
 		} else {
 			logr(info, "Received shutdown command, exiting\n");
