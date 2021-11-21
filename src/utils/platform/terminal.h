@@ -8,6 +8,10 @@
 
 #pragma once
 
+#include <stdbool.h>
+
+bool isTeleType(void);
+
 ///Prepare terminal. On *nix this disables output buffering, on WIN32 it enables ANSI escape codes.
 void initTerminal(void);
 

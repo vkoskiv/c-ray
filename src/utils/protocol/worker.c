@@ -407,7 +407,7 @@ int startWorkerServer() {
 			}
 			cJSON *myResponse = processCommand(connectionSocket, message);
 			char *responseText = cJSON_PrintUnformatted(myResponse);
-			if (!chunkedSend(connectionSocket, responseText)) {
+			if (!chunkedSend(connectionSocket, responseText, NULL)) {
 				logr(debug, "chunkedSend() failed, error %s\n", strerror(errno));
 				break;
 			};

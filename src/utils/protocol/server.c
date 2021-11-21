@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "server.h"
 #include "protocol.h"
@@ -34,6 +35,8 @@
 #include "../args.h"
 #include "../assert.h"
 #include "../filecache.h"
+#include "../timer.h"
+#include "../platform/terminal.h"
 
 void disconnectFromClient(struct renderClient *client) {
 	ASSERT(client->socket != -1);
@@ -266,6 +269,8 @@ struct syncThreadParams {
 	struct renderClient *client;
 	const struct renderer *renderer;
 	const char *assetCache;
+	size_t progress;
+	bool done;
 };
 
 //TODO: Rename to clientSyncThread
@@ -302,7 +307,7 @@ static void *handleClientSync(void *arg) {
 	cJSON_AddItemToObject(scene, "data", data);
 	cJSON_AddItemToObject(scene, "files", cJSON_Parse(params->assetCache));
 	cJSON_AddStringToObject(scene, "assetPath", params->renderer->prefs.assetPath);
-	sendJSON(client->socket, scene);
+	sendJSONWithProgress(client->socket, scene, &params->progress);
 	response = readJSON(client->socket);
 	if (!response) {
 		logr(debug, "no response\n");
@@ -330,6 +335,7 @@ static void *handleClientSync(void *arg) {
 	
 	// Sync successful, mark it as such
 	client->status = Synced;
+	params->done = true;
 	return NULL;
 }
 
@@ -349,6 +355,31 @@ void shutdownClients() {
 	free(clients);
 }
 
+#define BAR_LENGTH 32
+void printBar(struct syncThreadParams *param) {
+	size_t chars = param->progress * BAR_LENGTH / 100;
+	logr(info, "Client %i: [", param->client->id);
+	for (size_t i = 0; i < chars; ++i) {
+		printf("-");
+	}
+	for (size_t i = 0; i < BAR_LENGTH - chars; ++i) {
+		printf(" ");
+	}
+	if (param->progress < 100) {
+		printf("] (%3zu%%)\n", param->progress);
+	} else {
+		printf("] (Client finishing up)\n");
+	}
+}
+
+void printProgressBars(struct syncThreadParams *params, size_t clientCount) {
+	if (!isTeleType()) return;
+	
+	for (size_t i = 0; i < clientCount; ++i) {
+		printBar(&params[i]);
+	}
+}
+
 struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	signal(SIGPIPE, SIG_IGN);
 	size_t clientCount = 0;
@@ -358,9 +389,13 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 		return 0;
 	}
 	
-	logr(info, "Syncing scene with %lu client%s...\n", clientCount, PLURAL(clientCount));
-	
 	char *assetCache = encodeFileCache();
+	
+	size_t transfer_bytes = strlen(assetCache) + strlen(r->sceneCache);
+	char *transfer_size = humanFileSize(transfer_bytes);
+	logr(info, "Sending %s to %lu client%s...\n", transfer_size, clientCount, PLURAL(clientCount));
+	free(transfer_size);
+	
 	struct syncThreadParams *params = calloc(clientCount, sizeof(*params));
 	logr(debug, "Client list:\n");
 	for (size_t i = 0; i < clientCount; ++i) {
@@ -384,11 +419,28 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 		}
 	}
 	
-	// Block here and wait for these threads to finish doing their thing before continuing.
+	size_t loops = 0;
+	while (true) {
+		bool all_stopped = true;
+		for (size_t i = 0; i < clientCount; ++i) {
+			if (!params[i].done) all_stopped = false;
+		}
+		if (all_stopped) break;
+		sleepMSec(10);
+		if (++loops == 10) {
+			loops = 0;
+			printProgressBars(params, clientCount);
+			printf("\033[%zuF", clientCount);
+		}
+	}
+	
+	// Block here and verify threads are done before continuing.
 	for (size_t i = 0; i < clientCount; ++i) {
 		threadWait(&syncThreads[i]);
 	}
+	
 	free(assetCache);
+	for (size_t i = 0; i < clientCount; ++i) printf("\n");
 	logr(info, "Client sync finished.\n");
 	//FIXME: We should prune clients that dropped out during sync here
 	if (count) *count = clientCount;

@@ -47,7 +47,7 @@
 #define C_RAY_CHUNKSIZE 1024
 #define C_RAY_PORT 2222
 
-bool chunkedSend(int socket, const char *data) {
+bool chunkedSend(int socket, const char *data, size_t *progress) {
 	const uint64_t msgLen = strlen(data) + 1; // +1 for null byte
 	const size_t chunkSize = C_RAY_CHUNKSIZE;
 	size_t chunks = msgLen / chunkSize;
@@ -62,10 +62,10 @@ bool chunkedSend(int socket, const char *data) {
 	}
 	
 	ssize_t n = 0;
-	size_t sentChunks = 0;
 	char *currentChunk = calloc(chunkSize, sizeof(*currentChunk));
 	size_t leftToSend = msgLen;
 	for (size_t i = 0; i < chunks; ++i) {
+		if (progress) *progress = (size_t)(((float)i / (float)chunks) * 100.0f) + 1;
 		size_t copylen = min(leftToSend, chunkSize);
 		memcpy(currentChunk, data + (i * chunkSize), copylen);
 		//printf("chunk %lu: \"%.1024s\"\n", i, currentChunk);
@@ -76,7 +76,6 @@ bool chunkedSend(int socket, const char *data) {
 			return false;
 		}
 		ASSERT(n == chunkSize);
-		sentChunks++;
 		leftToSend -= min(copylen, chunkSize);
 		memset(currentChunk, 0, chunkSize);
 	}

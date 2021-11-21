@@ -12,7 +12,7 @@
 
 #include <unistd.h>
 
-bool chunkedSend(int socket, const char *data);
+bool chunkedSend(int socket, const char *data, size_t *progress);
 
 ssize_t chunkedReceive(int socket, char **data, size_t *length);
 
