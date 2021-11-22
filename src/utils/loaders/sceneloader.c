@@ -683,7 +683,7 @@ static int parseCamera(struct camera **cam, const cJSON *data, unsigned width, u
 			return -1;
 		}
 	} else {
-		camFstops = defaultCamera().aperture;
+		camT = defaultCamera().time;
 	}
 	
 	// FIXME: Hack - we should really just not use transforms externally for the camera
