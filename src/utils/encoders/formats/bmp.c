@@ -11,61 +11,56 @@
 #include "bmp.h"
 
 #include <stdlib.h>
-#include <stdio.h>
-#include "../../logging.h"
+#include <string.h>
+#include "../../fileio.h"
 
-//FIXME: Make this use writeFile() instead of directly encoding to the file like this.
-//Or maybe just delete it, and rewrite.
-void encodeBMPFromArray(const char *filename, unsigned char *imgData, size_t width, size_t height) {
+void encodeBMPFromArray(const char *file_name, unsigned char *imgData, size_t width, size_t height) {
 	//Apparently BMP is BGR, whereas C-ray's internal buffer is RGB (Like it should be)
 	//So we need to convert the image data before writing to file.
-	unsigned char *bgrData = calloc(3 * width * height, sizeof(*bgrData));
+	unsigned char *bgr_data = malloc(3 * width * height);
 	for (unsigned y = 0; y < height; ++y) {
 		for (unsigned x = 0; x < width; ++x) {
-			bgrData[(x + (height - (y + 1)) * width) * 3 + 0] = imgData[(x + (height - (y + 1)) * width) * 3 + 2];
-			bgrData[(x + (height - (y + 1)) * width) * 3 + 1] = imgData[(x + (height - (y + 1)) * width) * 3 + 1];
-			bgrData[(x + (height - (y + 1)) * width) * 3 + 2] = imgData[(x + (height - (y + 1)) * width) * 3 + 0];
+			size_t offset = (x + (height - (y + 1)) * width) * 3;
+			bgr_data[offset + 0] = imgData[offset + 2];
+			bgr_data[offset + 1] = imgData[offset + 1];
+			bgr_data[offset + 2] = imgData[offset + 0];
 		}
 	}
-	unsigned error;
-	FILE *f;
-	size_t filesize = 54 + 3 * width * height;
-	unsigned char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
-	unsigned char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
-	unsigned char bmppadding[3] = {0,0,0};
-	//Create header with filesize data
-	bmpfileheader[2] = (unsigned char)(filesize    );
-	bmpfileheader[3] = (unsigned char)(filesize>> 8);
-	bmpfileheader[4] = (unsigned char)(filesize>>16);
-	bmpfileheader[5] = (unsigned char)(filesize>>24);
+
+	unsigned char bmp_file_header[14] = { 'B', 'M', 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 0 };
+	unsigned char bmp_info_header[40] = { 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 24, 0 };
+	unsigned char bmp_padding[3] = { 0, 0, 0 };
+	size_t file_size = sizeof(bmp_file_header) + sizeof(bmp_info_header) + sizeof(bmp_padding) * width * height;
+	//Create header with file_size data
+	bmp_file_header[2] = (unsigned char)(file_size      );
+	bmp_file_header[3] = (unsigned char)(file_size >> 8);
+	bmp_file_header[4] = (unsigned char)(file_size >> 16);
+	bmp_file_header[5] = (unsigned char)(file_size >> 24);
 	//create header width and height info
-	bmpinfoheader[ 4] = (unsigned char)(width    );
-	bmpinfoheader[ 5] = (unsigned char)(width>>8 );
-	bmpinfoheader[ 6] = (unsigned char)(width>>16);
-	bmpinfoheader[ 7] = (unsigned char)(width>>24);
-	bmpinfoheader[ 8] = (unsigned char)(height    );
-	bmpinfoheader[ 9] = (unsigned char)(height>>8 );
-	bmpinfoheader[10] = (unsigned char)(height>>16);
-	bmpinfoheader[11] = (unsigned char)(height>>24);
-	f = fopen(filename,"wb");
-	error = (unsigned)fwrite(bmpfileheader,1,14,f);
-	if (error != 14) {
-		logr(warning, "Error writing BMP file header data\n");
-	}
-	error = (unsigned)fwrite(bmpinfoheader,1,40,f);
-	if (error != 40) {
-		logr(warning, "Error writing BMP info header data\n");
-	}
+	bmp_info_header[ 4] = (unsigned char)(width     );
+	bmp_info_header[ 5] = (unsigned char)(width >> 8);
+	bmp_info_header[ 6] = (unsigned char)(width >> 16);
+	bmp_info_header[ 7] = (unsigned char)(width >> 24);
+	bmp_info_header[ 8] = (unsigned char)(height      );
+	bmp_info_header[ 9] = (unsigned char)(height >> 8);
+	bmp_info_header[10] = (unsigned char)(height >> 16);
+	bmp_info_header[11] = (unsigned char)(height >> 24);
+
+	size_t offset = 0;
+	unsigned char *file_contents = malloc(file_size);
+
+	memcpy(file_contents, bmp_file_header, sizeof(bmp_file_header));
+	offset += sizeof(bmp_file_header);
+	memcpy(file_contents + offset, bmp_info_header, sizeof(bmp_info_header));
+	offset += sizeof(bmp_info_header);
 	for (unsigned i = 1; i <= height; ++i) {
-		error = (unsigned)fwrite(bgrData+(width*(height - i)*3),3,width,f);
-		if (error != width) {
-			logr(warning, "Error writing image line to BMP\n");
-		}
-		error = (unsigned)fwrite(bmppadding,1,(4-(width*3)%4)%4,f);
-		if (error != (4-(width*3)%4)%4) {
-			logr(warning, "Error writing BMP padding data\n");
-		}
+		memcpy(file_contents + offset, bgr_data + (width * (height - i) * 3), 3 * width);
+		offset += 3 * width;
+		size_t padding_bytes_to_write = (4 - (width * 3) % 4) % 4;
+		memcpy(file_contents + offset, bmp_padding, padding_bytes_to_write);
+		offset += padding_bytes_to_write;
 	}
-	free(bgrData);
-	fclose(f);
+	free(bgr_data);
+	writeFile(file_contents, file_size, file_name);
+	free(file_contents);
 }
