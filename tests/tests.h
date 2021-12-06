@@ -82,6 +82,7 @@ static test tests[] = {
 	{"string::concatString", string_concatString},
 	{"string::lowerCase", string_lowerCase},
 	{"string::startsWith", string_startsWith},
+	{"string::endsWith", string_endsWith},
 	
 	{"hashtable::mixed", hashtable_mixed},
 	{"hashtable::fill", hashtable_fill},

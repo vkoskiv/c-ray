@@ -105,3 +105,28 @@ bool string_startsWith(void) {
 	
 	return true;
 }
+
+bool string_endsWith(void) {
+
+	char *string = "abcdefghijklmn";
+
+	test_assert(stringEndsWith("n", string));
+	test_assert(stringEndsWith("mn", string));
+	test_assert(stringEndsWith("lmn", string));
+	test_assert(stringEndsWith("klmn", string));
+	test_assert(stringEndsWith("jklmn", string));
+	test_assert(stringEndsWith("ijklmn", string));
+	test_assert(stringEndsWith("hijklmn", string));
+	test_assert(stringEndsWith("ghijklmn", string));
+	test_assert(stringEndsWith("fghijklmn", string));
+	test_assert(stringEndsWith("efghijklmn", string));
+	test_assert(stringEndsWith("defghijklmn", string));
+	test_assert(stringEndsWith("cdefghijklmn", string));
+	test_assert(stringEndsWith("bcdefghijklmn", string));
+	test_assert(stringEndsWith("abcdefghijklmn", string));
+
+	test_assert(!stringEndsWith("jklm", string));
+	test_assert(!stringEndsWith("jkle", string));
+
+	return true;
+}

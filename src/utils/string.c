@@ -29,6 +29,15 @@ bool stringStartsWith(const char *prefix, const char *string) {
 	return string_len < prefix_len ? false : memcmp(prefix, string, prefix_len) == 0;
 }
 
+bool stringEndsWith(const char *postfix, const char *string) {
+	ASSERT(postfix); ASSERT(string);
+	if (!postfix) return false;
+	if (!string) return false;
+	size_t postfix_len = strlen(postfix);
+	size_t string_len = strlen(string);
+	return string_len < postfix_len ? false : memcmp(postfix, string + string_len - postfix_len, postfix_len) == 0;
+}
+
 //Copies source over to the destination pointer.
 char *stringCopy(const char *source) {
 	ASSERT(source);

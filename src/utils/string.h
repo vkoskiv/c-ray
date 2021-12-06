@@ -22,6 +22,8 @@ bool stringContains(const char *haystack, const char *needle);
 
 bool stringStartsWith(const char *prefix, const char *string);
 
+bool stringEndsWith(const char *postfix, const char *string);
+
 /// Copy strings
 /// @param source String to be copied
 /// @return New heap-allocated string
