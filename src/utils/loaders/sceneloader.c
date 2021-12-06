@@ -1268,6 +1268,15 @@ int parseJSON(struct renderer *r, char *input) {
 	char *assetPath = r->prefs.assetPath;
 	r->prefs = parsePrefs(renderer);
 	r->prefs.assetPath = assetPath;
+
+	if (isSet("output_path")) {
+		char *path = stringPref("output_path");
+		logr(info, "Overriding output path to %s\n", path);
+		free(r->prefs.imgFileName);
+		free(r->prefs.imgFilePath);
+		r->prefs.imgFilePath = getFilePath(path);
+		r->prefs.imgFileName = getFileName(path);
+	}
 	
 	display = cJSON_GetObjectItem(json, "display");
 	if (parseDisplay(&r->prefs, display) == -1) {

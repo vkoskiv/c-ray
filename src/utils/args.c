@@ -33,6 +33,7 @@ static void printUsage(const char *progname) {
 	printf("    [-s <n>]         -> Override sample count to n\n");
 	printf("    [-d <w>x<h>]     -> Override image dimensions to <w>x<h>\n");
 	printf("    [-t <w>x<h>]     -> Override tile  dimensions to <w>x<h>\n");
+	printf("    [-o <path>]      -> Override output file path to <path>\n");
 	printf("    [-v]             -> Enable verbose mode\n");
 	printf("    [--iterative]    -> Start in iterative mode (Experimental)\n");
 	printf("    [--worker]       -> Start up as a network render worker (Experimental)\n");
@@ -141,6 +142,11 @@ void parseArgs(int argc, char **argv) {
 			} else {
 				logr(warning, "Invalid -t parameter given!\n");
 			}
+		}
+
+		if (stringEquals(argv[i], "-o")) {
+			char *pathstr = argv[i + 1];
+			setDatabaseString(g_options, "output_path", pathstr);
 		}
 		
 		if (stringEquals(argv[i], "--suite")) {
