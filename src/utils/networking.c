@@ -75,7 +75,7 @@ bool chunkedSend(int socket, const char *data, size_t *progress) {
 			free(currentChunk);
 			return false;
 		}
-		ASSERT(n == chunkSize);
+		ASSERT((size_t)n == chunkSize);
 		leftToSend -= min(copylen, chunkSize);
 		memset(currentChunk, 0, chunkSize);
 	}
