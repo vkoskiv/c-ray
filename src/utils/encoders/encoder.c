@@ -45,6 +45,7 @@ void writeImage(struct imageFile *image) {
 		case unknown:
 			logr(warning, "Unknown file type with -o flag, defaulting to png\n");
 			encodePNGFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height, image->info);
+			break;
 		default:
 			ASSERT_NOT_REACHED();
 			break;
