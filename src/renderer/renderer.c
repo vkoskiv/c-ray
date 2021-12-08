@@ -6,6 +6,7 @@
 //  Copyright © 2017-2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <utils/hashtable.h>
 #include "../includes.h"
 
 #include "../datatypes/image/imagefile.h"
@@ -27,6 +28,7 @@
 #include "../utils/args.h"
 #include "../utils/platform/capabilities.h"
 #include "../utils/protocol/server.h"
+#include "../utils/string.h"
 
 //Main thread loop speeds
 #define paused_msec 100
@@ -326,8 +328,32 @@ void *renderThread(void *arg) {
 	return 0;
 }
 
+static struct prefs defaultPrefs() {
+	return (struct prefs){
+			.tileOrder = renderOrderFromMiddle,
+			.threadCount = getSysCores() + 2,
+			.fromSystem = true,
+			.sampleCount = 25,
+			.bounces = 20,
+			.tileWidth = 32,
+			.tileHeight = 32,
+			.antialiasing = true,
+			.imgFilePath = stringCopy("./"),
+			.imgFileName = stringCopy("rendered"),
+			.imgCount = 0,
+			.imageWidth = 1280,
+			.imageHeight = 800,
+			.imgType = png,
+			.enabled = true,
+			.fullscreen = false,
+			.borderless = false,
+			.scale = 1.0f
+	};
+}
+
 struct renderer *newRenderer() {
 	struct renderer *r = calloc(1, sizeof(*r));
+	r->prefs = defaultPrefs();
 	r->state.avgTileTime = (time_t)1;
 	r->state.timeSampleCount = 1;
 	r->state.finishedPasses = 1;
@@ -339,6 +365,11 @@ struct renderer *newRenderer() {
 	}
 	
 	r->state.tileMutex = createMutex();
+
+	r->scene = calloc(1, sizeof(*r->scene));
+	r->scene->nodePool = newBlock(NULL, 1024);
+	r->scene->nodeTable = newHashtable(compareNodes, &r->scene->nodePool);
+	r->scene->camera = cam_new();
 	return r;
 }
 	

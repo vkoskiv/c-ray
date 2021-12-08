@@ -44,7 +44,8 @@ struct camera {
 	int height;
 };
 
-struct camera *camNew(unsigned width, unsigned height, float FOV, float focalDistance, float fstops);
-void camUpdate(struct camera *cam, const struct not_a_quaternion *orientation, const struct vector *pos);
+struct camera *cam_new(void);
+void cam_recompute_optics(struct camera *cam);
+void cam_update_pose(struct camera *cam, const struct not_a_quaternion *orientation, const struct vector *pos);
 struct lightRay camGetRay(struct camera *cam, int x, int y, struct sampler *sampler);
 void camDestroy(struct camera *cam);

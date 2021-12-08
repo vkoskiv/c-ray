@@ -13,19 +13,13 @@
 #include "vector.h"
 #include "../renderer/samplers/sampler.h"
 
-void updateCam(struct camera *cam) {
-	cam->forward = vecNormalize(cam->lookAt);
-	cam->right = vecCross(worldUp, cam->forward);
-	cam->up = vecCross(cam->forward, cam->right);
+struct camera *cam_new() {
+	struct camera *cam = calloc(1, sizeof(*cam));
+	return cam;
 }
 
-struct camera *camNew(unsigned width, unsigned height, float FOV, float focalDistance, float fstops) {
-	struct camera *cam = calloc(1, sizeof(*cam));
-	cam->width = width;
-	cam->height = height;
-	cam->FOV = FOV;
-	cam->focalDistance = focalDistance;
-	cam->fstops = fstops;
+void cam_recompute_optics(struct camera *cam) {
+	if (!cam) return;
 	cam->aspectRatio = (float)cam->width / (float)cam->height;
 	cam->sensorSize.x = 2.0f * tanf(toRadians(cam->FOV) / 2.0f);
 	cam->sensorSize.y = cam->sensorSize.x / cam->aspectRatio;
@@ -36,8 +30,9 @@ struct camera *camNew(unsigned width, unsigned height, float FOV, float focalDis
 	const float sensor_width_35mm = 0.036f;
 	cam->focalLength = 0.5f * sensor_width_35mm / toRadians(0.5f * cam->FOV);
 	if (cam->fstops != 0.0f) cam->aperture = 0.5f * (cam->focalLength / cam->fstops);
-	updateCam(cam);
-	return cam;
+	cam->forward = vecNormalize(cam->lookAt);
+	cam->right = vecCross(worldUp, cam->forward);
+	cam->up = vecCross(cam->forward, cam->right);
 }
 
 void recomputeComposite(struct camera *cam) {
@@ -63,7 +58,7 @@ void recomputeComposite(struct camera *cam) {
 	cam->composite = composite;
 }
 
-void camUpdate(struct camera *cam, const struct not_a_quaternion *orientation, const struct vector *pos) {
+void cam_update_pose(struct camera *cam, const struct not_a_quaternion *orientation, const struct vector *pos) {
 	if (orientation) cam->orientation = *orientation;
 	if (pos) cam->position = *pos;
 	if (orientation || pos) recomputeComposite(cam);

@@ -13,6 +13,3 @@
 struct renderer;
 
 int parseJSON(struct renderer *r, char *input);
-
-// Exposed for network sync code
-struct prefs parsePrefs(const cJSON *data);
