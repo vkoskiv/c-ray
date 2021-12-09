@@ -643,7 +643,6 @@ static struct color parseColor(const cJSON *data) {
 
 //FIXME: Convert this to use parseNode
 static void parseAmbientColor(struct renderer *r, const cJSON *data) {
-	if (!data) return;
 	const cJSON *offset = cJSON_GetObjectItem(data, "offset");
 	if (cJSON_IsNumber(offset)) {
 		r->scene->backgroundOffset = toRadians(offset->valuedouble) / 4.0f;
@@ -1087,7 +1086,6 @@ static void parsePrimitives(struct renderer *r, const cJSON *data) {
 }
 
 static void parseScene(struct renderer *r, const cJSON *data) {
-	if (!data) return;
 	parseAmbientColor(r, cJSON_GetObjectItem(data, "ambientColor"));
 	parsePrimitives(r, cJSON_GetObjectItem(data, "primitives"));
 	parseMeshes(r, cJSON_GetObjectItem(data, "meshes"));
