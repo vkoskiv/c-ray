@@ -69,44 +69,53 @@ void assignBSDF(struct world *w, struct material *mat) {
 	const struct colorNode *color = mat->texture ? newImageTexture(w, mat->texture, SRGB_TRANSFORM) : newConstantTexture(w, mat->diffuse);
 	logr(debug, "name: %s, illum: %i\n", mat->name, mat->illum);
 	mat->bsdf = NULL;
+	const struct bsdfNode *chosen_bsdf = NULL;
 	
 	const struct colorNode *spec = newConstantTexture(w, mat->specular);
 	// First, attempt to deduce type based on mtl properties
 	switch (mat->illum) {
 		case 5:
-			mat->bsdf = appendAlpha(w, newMetal(w, color, roughness), color);
+			chosen_bsdf = appendAlpha(w, newMetal(w, color, roughness), color);
 			break;
 		case 7:
-			mat->bsdf = appendAlpha(w, newGlass(w, spec, roughness, newConstantValue(w, mat->IOR)), spec);
+			chosen_bsdf = newGlass(w, spec, roughness, newConstantValue(w, mat->IOR));
 			break;
 		default:
 			break;
 	}
 	
-	if (mat->bsdf) return;
+	if (chosen_bsdf) goto skip;
 	
 	// Otherwise, fall back to our preassigned selection
 	switch (mat->type) {
 		case lambertian:
-			mat->bsdf = appendAlpha(w, newDiffuse(w, color), color);
+			chosen_bsdf = newDiffuse(w, color);
 			break;
 		case glass:
-			mat->bsdf = appendAlpha(w, newGlass(w, color, roughness, newConstantValue(w, mat->IOR)), color);
+			chosen_bsdf = newGlass(w, color, roughness, newConstantValue(w, mat->IOR));
 			break;
 		case metal:
-			mat->bsdf = appendAlpha(w, newMetal(w, color, roughness), color);
+			chosen_bsdf = newMetal(w, color, roughness);
 			break;
 		case plastic:
-			mat->bsdf = appendAlpha(w, newPlastic(w, color), color);
+			chosen_bsdf = newPlastic(w, color);
 			break;
 		case emission:
-			mat->bsdf = appendAlpha(w, newDiffuse(w, color), color);
+			chosen_bsdf = newDiffuse(w, color);
 			break;
 		default:
 			logr(warning, "Unknown bsdf type specified for \"%s\", setting to an obnoxious preset.\n", mat->name);
-			mat->bsdf = warningBsdf(w);
+			chosen_bsdf = warningBsdf(w);
 			break;
 	}
+
+	skip:
+	if (texture_uses_alpha(mat->texture)) {
+		mat->bsdf = appendAlpha(w, chosen_bsdf, color);
+	} else {
+		mat->bsdf = chosen_bsdf;
+	}
+
 	ASSERT(mat->bsdf);
 }
 

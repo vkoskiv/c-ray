@@ -137,6 +137,16 @@ void textureToSRGB(struct texture *t) {
 	t->colorspace = sRGB;
 }
 
+bool texture_uses_alpha(struct texture *t) {
+	if (!t) return false;
+	if (!t->hasAlpha) return false;
+	for (unsigned x = 0; x < t->width; ++x) {
+		for (unsigned y = 0; y < t->height; ++y) {
+			if (textureGetPixel(t, x, y, false).alpha < 1.0f) return true;
+		}
+	}
+}
+
 void destroyTexture(struct texture *t) {
 	if (t) {
 		free(t->data.byte_p);
