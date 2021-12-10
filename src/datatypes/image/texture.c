@@ -145,6 +145,7 @@ bool texture_uses_alpha(struct texture *t) {
 			if (textureGetPixel(t, x, y, false).alpha < 1.0f) return true;
 		}
 	}
+	return false;
 }
 
 void destroyTexture(struct texture *t) {
