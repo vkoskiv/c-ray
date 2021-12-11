@@ -108,7 +108,7 @@ int runTest(unsigned t, char *suite) {
 	
 	struct timeval test;
 	startTimer(&test);
-	bool pass = tests[t].func();
+	bool pass = tests[first_idx + t].func();
 	time_t usecs = getUs(test);
 	
 	printf(
