@@ -27,7 +27,7 @@ struct colorNode {
 #include "textures/gradient.h"
 #include "converter/grayscale.h"
 #include "converter/blackbody.h"
-#include "converter/combine.h"
+#include "converter/split.h"
 #include "converter/combinergb.h"
 
 const struct colorNode *unknownTextureNode(const struct world *world);

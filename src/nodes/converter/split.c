@@ -1,5 +1,5 @@
 //
-//  combine.c
+//  split.c
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 17/12/2020.
@@ -15,35 +15,35 @@
 #include "../../datatypes/scene.h"
 #include "../valuenode.h"
 
-#include "combine.h"
+#include "split.h"
 
-struct combineValue {
+struct splitValue {
 	struct colorNode node;
 	const struct valueNode *input;
 };
 
 static bool compare(const void *A, const void *B) {
-	const struct combineValue *this = A;
-	const struct combineValue *other = B;
+	const struct splitValue *this = A;
+	const struct splitValue *other = B;
 	return this->input == other->input;
 }
 
 static uint32_t hash(const void *p) {
-	const struct combineValue *this = p;
+	const struct splitValue *this = p;
 	uint32_t h = hashInit();
 	h = hashBytes(h, &this->input, sizeof(this->input));
 	return h;
 }
 
 static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
-	const struct combineValue *this = (struct combineValue *)node;
+	const struct splitValue *this = (struct splitValue *)node;
 	float val = this->input->eval(this->input, record);
 	//TODO: What do we do with the alpha here?
 	return (struct color){val, val, val, 1.0f};
 }
 
-const struct colorNode *newCombineValue(const struct world *world, const struct valueNode *node) {
-	HASH_CONS(world->nodeTable, hash, struct combineValue, {
+const struct colorNode *newSplitValue(const struct world *world, const struct valueNode *node) {
+	HASH_CONS(world->nodeTable, hash, struct splitValue, {
 		.input = node ? node : newConstantValue(world, 0.0f),
 		.node = {
 			.eval = eval,
