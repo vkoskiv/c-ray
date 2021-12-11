@@ -52,8 +52,8 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 
 const struct valueNode *newFresnel(const struct world *world, const struct valueNode *IOR, const struct vectorNode *normal) {
 	HASH_CONS(world->nodeTable, hash, struct fresnelNode, {
-		.IOR = IOR,
-		.normal = normal,
+		.IOR = IOR ? IOR : newConstantValue(world, 1.45f),
+		.normal = normal ? normal : newNormal(world),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }
