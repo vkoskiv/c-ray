@@ -32,7 +32,7 @@ float getHammersley(hammersleySampler *s) {
 		u = s->currPass / s->maxPasses;
 	}
 	const float v = wrapAdd(u, s->rndOffset);
-	ASSERT(v >= 0);
-	ASSERT(v <= 1);
+	ASSERT(v >= 0.0f);
+	ASSERT(v <= 1.0f);
 	return v;
 }
