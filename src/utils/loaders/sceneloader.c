@@ -641,7 +641,7 @@ static struct color parseColor(const cJSON *data) {
 	return newColor;
 }
 
-//FIXME: Convert this to use parseNode
+//FIXME: Convert this to use parseBsdfNode
 static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *offset = cJSON_GetObjectItem(data, "offset");
 	if (cJSON_IsNumber(offset)) {
@@ -718,29 +718,86 @@ static struct transform parseInstanceTransform(const cJSON *instance) {
 
 static const struct colorNode *parseTextureNode(struct world *w, const cJSON *node);
 
+static enum vecOp parseVectorOp(const cJSON *data) {
+	if (!cJSON_IsString(data)) {
+		logr(warning, "No vector op given, defaulting to add.\n");
+		return VecAdd;
+	};
+	if (stringEquals(data->valuestring, "add")) return VecAdd;
+	if (stringEquals(data->valuestring, "subtract")) return VecSubtract;
+	if (stringEquals(data->valuestring, "multiply")) return VecMultiply;
+	if (stringEquals(data->valuestring, "average")) return VecAverage;
+	if (stringEquals(data->valuestring, "dot")) return VecDot;
+	if (stringEquals(data->valuestring, "cross")) return VecCross;
+	if (stringEquals(data->valuestring, "normalize")) return VecNormalize;
+	if (stringEquals(data->valuestring, "reflect")) return VecReflect;
+	if (stringEquals(data->valuestring, "length")) return VecLength;
+	if (stringEquals(data->valuestring, "abs")) return VecAbs;
+	return VecAdd;
+}
+
+static const struct vectorNode *parseVectorNode(struct world *w, const struct cJSON *node) {
+	if (!node) return NULL;
+	const cJSON *type = cJSON_GetObjectItem(node, "type");
+	if (!cJSON_IsString(type)) {
+		logr(warning, "No type provided for vectorNode.\n");
+		return newConstantVector(w, vecZero());
+	}
+
+	if (stringEquals(type->valuestring, "vecmath")) {
+		const struct vectorNode *a = parseVectorNode(w, cJSON_GetObjectItem(node, "vector1"));
+		const struct vectorNode *b = parseVectorNode(w, cJSON_GetObjectItem(node, "vector2"));
+		const enum vecOp op = parseVectorOp(cJSON_GetObjectItem(node, "op"));
+		return newVecMath(w, a, b, op);
+	}
+	return NULL;
+}
+
 static const struct valueNode *parseValueNode(struct world *w, const cJSON *node) {
 	if (!node) return NULL;
 	if (cJSON_IsNumber(node)) {
 		return newConstantValue(w, node->valuedouble);
 	}
+
+	const cJSON *type = cJSON_GetObjectItem(node, "type");
+	if (!cJSON_IsString(type)) {
+		logr(warning, "No type provided for valueNode.\n");
+		return newConstantValue(w, 0.0f);
+	}
+
+	const struct valueNode *IOR = parseValueNode(w, cJSON_GetObjectItem(node, "IOR"));
+	const struct vectorNode *normal = parseVectorNode(w, cJSON_GetObjectItem(node, "normal"));
+
+	if (stringEquals(type->valuestring, "fresnel")) {
+		return newFresnel(w, IOR, normal);
+	}
+	if (stringEquals(type->valuestring, "map_range")) {
+		const struct valueNode *input_value = parseValueNode(w, cJSON_GetObjectItem(node, "input"));
+		const struct valueNode *from_min = parseValueNode(w, cJSON_GetObjectItem(node, "from_min"));
+		const struct valueNode *from_max = parseValueNode(w, cJSON_GetObjectItem(node, "from_max"));
+		const struct valueNode *to_min = parseValueNode(w, cJSON_GetObjectItem(node, "to_min"));
+		const struct valueNode *to_max = parseValueNode(w, cJSON_GetObjectItem(node, "to_max"));
+		return newMapRange(w, input_value, from_min, from_max, to_min, to_max);
+	}
+
 	return newGrayscaleConverter(w, parseTextureNode(w, node));
 }
 
 static const struct colorNode *parseTextureNode(struct world *w, const cJSON *node) {
 	if (!node) return NULL;
-	
+
 	if (cJSON_IsArray(node)) {
 		return newConstantTexture(w, parseColor(node));
 	}
-	
+
 	if (cJSON_IsString(node)) {
 		// No options provided, go with defaults.
 		return newImageTexture(w, loadTexture(node->valuestring, &w->nodePool), 0);
 	}
-	
+
 	// Should be an object, then.
 	ASSERT(cJSON_IsObject(node));
-	
+
 	// Handle options first
 	uint8_t options = 0;
 	options |= SRGB_TRANSFORM; // Enabled by default.
@@ -751,13 +808,13 @@ static const struct colorNode *parseTextureNode(struct world *w, const cJSON *no
 			options &= ~SRGB_TRANSFORM;
 		}
 	}
-	
+
 	// Do we want bilinear interpolation enabled?
 	const cJSON *lerp = cJSON_GetObjectItem(node, "lerp");
 	if (!cJSON_IsTrue(lerp)) {
 		options |= NO_BILINEAR;
 	}
-	
+
 	//FIXME: No good way to know if it's a color, so just check if it's got "r" in there.
 	const cJSON *red = cJSON_GetObjectItem(node, "r");
 	if (red) {
@@ -768,60 +825,73 @@ static const struct colorNode *parseTextureNode(struct world *w, const cJSON *no
 	if (cJSON_IsString(type)) {
 		// Oo, what's this?
 		if (stringEquals(type->valuestring, "checkerboard")) {
-			const cJSON *size = cJSON_GetObjectItem(node, "size");
-			ASSERT(cJSON_IsNumber(size));
-			return newCheckerBoardTexture(w, NULL, NULL, parseValueNode(w, size));
+			const struct colorNode *a = parseTextureNode(w, cJSON_GetObjectItem(node, "color1"));
+			const struct colorNode *b = parseTextureNode(w, cJSON_GetObjectItem(node, "color2"));
+			const struct valueNode *scale = parseValueNode(w, cJSON_GetObjectItem(node, "scale"));
+			return newCheckerBoardTexture(w, a, b, scale);
 		}
 		if (stringEquals(type->valuestring, "blackbody")) {
 			const cJSON *degrees = cJSON_GetObjectItem(node, "degrees");
 			ASSERT(cJSON_IsNumber(degrees));
 			return newBlackbody(w, newConstantValue(w, degrees->valuedouble));
 		}
+		if (stringEquals(type->valuestring, "split")) {
+			return newSplitValue(w, parseValueNode(w, cJSON_GetObjectItem(node, "constant")));
+		}
+		if (stringEquals(type->valuestring, "combine")) {
+			const struct valueNode *r = parseValueNode(w, cJSON_GetObjectItem(node, "r"));
+			const struct valueNode *g = parseValueNode(w, cJSON_GetObjectItem(node, "g"));
+			const struct valueNode *b = parseValueNode(w, cJSON_GetObjectItem(node, "b"));
+			return newCombineRGB(w, r, g, b);
+		}
+		if (stringEquals(type->valuestring, "to_color")) {
+			//return newVecToColor(w, ...)
+		}
 	}
-	
+
 	const cJSON *path = cJSON_GetObjectItem(node, "path");
 	if (cJSON_IsString(path)) {
 		return newImageTexture(w, loadTexture(path->valuestring, &w->nodePool), options);
 	}
-	
+
 	logr(warning, "Failed to parse textureNode. Here's a dump:\n");
 	logr(warning, "\n%s\n", cJSON_Print(node));
 	logr(warning, "Setting to an obnoxious pink material.\n");
 	return unknownTextureNode(w);
 }
 
-static const struct bsdfNode *parseNode(struct world *w, const cJSON *node) {
+static const struct bsdfNode *parseBsdfNode(struct world *w, const cJSON *node) {
 	if (!node) return NULL;
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
 	if (!cJSON_IsString(type)) {
-		logr(warning, "No type provided for node.");
+		logr(warning, "No type provided for bsdfNode.\n");
 		return warningBsdf(w);
 	}
-	
-	const cJSON *color = cJSON_GetObjectItem(node, "color");
-	const cJSON *roughness = cJSON_GetObjectItem(node, "roughness");
-	const cJSON *strength = cJSON_GetObjectItem(node, "strength");
-	const struct bsdfNode *A = parseNode(w, cJSON_GetObjectItem(node, "A"));
-	const struct bsdfNode *B = parseNode(w, cJSON_GetObjectItem(node, "B"));
+
+	const struct colorNode *color = parseTextureNode(w, cJSON_GetObjectItem(node, "color"));
+	const struct valueNode *roughness = parseValueNode(w, cJSON_GetObjectItem(node, "roughness"));
+	const struct valueNode *strength = parseValueNode(w, cJSON_GetObjectItem(node, "strength"));
+	const struct valueNode *IOR = parseValueNode(w, cJSON_GetObjectItem(node, "IOR"));
+	const struct valueNode *factor = parseValueNode(w, cJSON_GetObjectItem(node, "factor"));
+	const struct bsdfNode *A = parseBsdfNode(w, cJSON_GetObjectItem(node, "A"));
+	const struct bsdfNode *B = parseBsdfNode(w, cJSON_GetObjectItem(node, "B"));
 	
 	if (stringEquals(type->valuestring, "diffuse")) {
-		return newDiffuse(w, parseTextureNode(w, color));
+		return newDiffuse(w, color);
 	} else if (stringEquals(type->valuestring, "metal")) {
-		return newMetal(w, parseTextureNode(w, color), parseValueNode(w, roughness));
+		return newMetal(w, color, roughness);
 	} else if (stringEquals(type->valuestring, "glass")) {
-		const cJSON *IOR = cJSON_GetObjectItem(node, "IOR");
-		return newGlass(w, parseTextureNode(w, color), parseValueNode(w, roughness), parseValueNode(w, IOR));
+		return newGlass(w, color, roughness, IOR);
 	} else if (stringEquals(type->valuestring, "plastic")) {
-		return newPlastic(w, parseTextureNode(w, color));
+		return newPlastic(w, color);
 	} else if (stringEquals(type->valuestring, "mix")) {
-		const cJSON *factor = cJSON_GetObjectItem(node, "factor");
-		return newMix(w, A, B, parseValueNode(w, factor));
+		return newMix(w, A, B, factor);
 	} else if (stringEquals(type->valuestring, "add")) {
 		return newAdd(w, A, B);
 	} else if (stringEquals(type->valuestring, "transparent")) {
-		return newTransparent(w, parseTextureNode(w, color));
+		return newTransparent(w, color);
 	} else if (stringEquals(type->valuestring, "emissive")) {
-		return newEmission(w, parseTextureNode(w, color), parseValueNode(w, strength));
+		return newEmission(w, color, strength);
 	}
 	
 	logr(warning, "Failed to parse node. Here's a dump:\n");
@@ -898,11 +968,11 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 				ASSERT(cJSON_GetArraySize(materials) <= lastMesh(r)->materialCount);
 				size_t i = 0;
 				cJSON_ArrayForEach(material, materials) {
-					lastMesh(r)->materials[i++].bsdf = parseNode(r->scene, material);
+					lastMesh(r)->materials[i++].bsdf = parseBsdfNode(r->scene, material);
 				}
 			} else {
 				// Single graph, map it to every material in a mesh.
-				const struct bsdfNode *node = parseNode(r->scene, materials);
+				const struct bsdfNode *node = parseBsdfNode(r->scene, materials);
 				for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
 					lastMesh(r)->materials[i].bsdf = node;
 				}
@@ -1054,7 +1124,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *materials = cJSON_GetObjectItem(data, "material");
 	if (materials) {
 		// Single graph, map it to every material in a mesh.
-		lastSphere(r)->material.bsdf = parseNode(r->scene, materials);
+		lastSphere(r)->material.bsdf = parseBsdfNode(r->scene, materials);
 	} else {
 		assignBSDF(r->scene, &lastSphere(r)->material);
 	}

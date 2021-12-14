@@ -73,6 +73,7 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	return checkerBoard(record, checker->A, checker->B, checker->scale);
 }
 
+//TODO: Maybe a 'local' flag that would then remap UVs to be local to each checker square? That'd be neat. Blender doesn't have it.
 const struct colorNode *newCheckerBoardTexture(const struct world *world, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale) {
 	HASH_CONS(world->nodeTable, hash, struct checkerTexture, {
 		.A = A ? A : newConstantTexture(world, blackColor),
