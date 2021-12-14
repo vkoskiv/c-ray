@@ -198,6 +198,8 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 		} else if (stringEquals(first, "vn")) {
 			normals[currentNormal++] = parseVertex(line);
 			currentNormalCount++;
+		} else if (stringEquals(first, "s")) {
+			// Smoothing groups. We don't care about these, we always smooth.
 		} else if (stringEquals(first, "f")) {
 			size_t count = parsePolygons(line, polybuf);
 			for (size_t i = 0; i < count; ++i) {
