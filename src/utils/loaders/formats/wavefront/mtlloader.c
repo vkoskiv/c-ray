@@ -91,7 +91,7 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 			current->glossiness = atof(nextToken(line));
 		} else if (stringEquals(first, "Ni")) {
 			current->IOR = atof(nextToken(line));
-		} else if (stringEquals(first, "map_Kd")) {
+		} else if (stringEquals(first, "map_Kd") || stringEquals(first, "map_Ka")) {
 			char *path = stringConcat(assetPath, nextToken(line));
 			windowsFixPath(path);
 			current->texture = loadTexture(path, NULL);
