@@ -69,7 +69,8 @@ static struct vector parseVertex(lineBuffer *line) {
 }
 
 static struct coord parseCoord(lineBuffer *line) {
-	ASSERT(line->amountOf.tokens == 3);
+	// Some weird OBJ files just have a 0.0 as the third value for 2d coordinates.
+	ASSERT(line->amountOf.tokens == 3 || line->amountOf.tokens == 4);
 	return (struct coord){atof(nextToken(line)), atof(nextToken(line))};
 }
 
