@@ -230,3 +230,21 @@ bool textbuffer_tokenizer(void) {
 	
 	return true;
 }
+
+bool textbuffer_multispace(void) {
+	char *text = " thing1 thing2 thing3 thing4";
+	lineBuffer *line = newLineBuffer();
+	fillLineBuffer(line, text, ' ');
+	test_assert(line->amountOf.tokens == 4);
+
+	char *text2 = "thing1 thing2 thing3 thing4 ";
+	fillLineBuffer(line, text2, ' ');
+	test_assert(line->amountOf.tokens == 4);
+
+	char *text3 = " thing thing2 thing3 thing4 thing5 thing6 ";
+	fillLineBuffer(line, text3, ' ');
+	logr(info, "tokens: %zu\n", line->amountOf.tokens);
+	test_assert(line->amountOf.tokens == 6);
+	destroyLineBuffer(line);
+	return true;
+}

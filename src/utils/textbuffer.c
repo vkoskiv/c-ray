@@ -207,6 +207,16 @@ char *lastToken(lineBuffer *line) {
 	return lastLine(line);
 }
 
+void dumpLine(lineBuffer *line) {
+	logr(debug, "Dumping line:\n\n\n");
+	char *head = firstToken(line);
+	while (head) {
+		printf("%s ", head);
+		head = nextToken(line);
+	}
+	printf("\n\n");
+}
+
 void destroyLineBuffer(lineBuffer *line) {
 	if (line) {
 		if (line->buf) free(line->buf);
