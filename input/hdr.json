@@ -20,27 +20,50 @@
 		"isBorderless": false,
 		"windowScale": 1.0
 	},
-	"camera": {
-		"FOV": 30.0,
-		"focalDistance": 0.7,
-		"fstops": 6.5,
-		"transforms": [
-			{
-				"type": "translate",
-				"x": 0,
-				"y": 0.1,
-				"z": -0.7
-			},
-			{
-				"type": "rotateX",
-				"degrees": 5
-			},
-			{
-				"type": "rotateZ",
-				"degrees": 0
-			}
-		]
-	},
+	"camera": [
+		{
+			"FOV": 30.0,
+			"focalDistance": 0.7,
+			"fstops": 6.5,
+			"transforms": [
+				{
+					"type": "translate",
+					"x": 0,
+					"y": 0.1,
+					"z": -0.7
+				},
+				{
+					"type": "rotateX",
+					"degrees": 5
+				},
+				{
+					"type": "rotateZ",
+					"degrees": 0
+				}
+			]
+		},
+		{
+			"FOV": 90.0,
+			"focalDistance": 0.2,
+			"fstops": 6.5,
+			"transforms": [
+				{
+					"type": "translate",
+					"x": 0,
+					"y": 0.1,
+					"z": -0.2
+				},
+				{
+					"type": "rotateX",
+					"degrees": 5
+				},
+				{
+					"type": "rotateY",
+					"degrees": 5
+				}
+			]
+		}
+	],
 	"scene": {
 		"ambientColor": {
 			"hdr": "HDRs/roof_garden_1k.hdr",
