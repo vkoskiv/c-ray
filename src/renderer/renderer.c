@@ -97,7 +97,7 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output};
+		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output, .cam = &r->scene->cameras[r->prefs.selected_camera]};
 		r->state.threads[t] = (struct crThread){.threadFunc = localRenderThread, .userData = &r->state.threadStates[t]};
 		if (threadStart(&r->state.threads[t])) {
 			logr(error, "Failed to create a render thread.\n");
@@ -188,6 +188,8 @@ void *renderThreadInteractive(void *arg) {
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
 	sampler *sampler = newSampler();
+
+	struct camera *cam = threadState->cam;
 	
 	//First time setup for each thread
 	struct renderTile tile = nextTile(r);
@@ -208,7 +210,7 @@ void *renderThreadInteractive(void *arg) {
 				initSampler(sampler, Halton, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
 				struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
-				struct lightRay incidentRay = camGetRay(r->scene->camera, x, y, sampler);
+				struct lightRay incidentRay = camGetRay(cam, x, y, sampler);
 				struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
 				
 				//And process the running average
@@ -262,7 +264,9 @@ void *renderThread(void *arg) {
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
 	sampler *sampler = newSampler();
-	
+
+	struct camera *cam = threadState->cam;
+
 	//First time setup for each thread
 	struct renderTile tile = nextTile(r);
 	threadState->currentTileNum = tile.tileNum;
@@ -283,7 +287,7 @@ void *renderThread(void *arg) {
 					initSampler(sampler, Random, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
-					struct lightRay incidentRay = camGetRay(r->scene->camera, x, y, sampler);
+					struct lightRay incidentRay = camGetRay(cam, x, y, sampler);
 					struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
 					
 					//And process the running average
@@ -369,7 +373,6 @@ struct renderer *newRenderer() {
 	r->scene = calloc(1, sizeof(*r->scene));
 	r->scene->nodePool = newBlock(NULL, 1024);
 	r->scene->nodeTable = newHashtable(compareNodes, &r->scene->nodePool);
-	r->scene->camera = cam_new();
 	return r;
 }
 	

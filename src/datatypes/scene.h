@@ -28,10 +28,9 @@ struct world {
 	
 	struct sphere *spheres;
 	int sphereCount;
-	
-	//Currently only one camera supported
-	struct camera *camera;
-	int cameraCount;
+
+	struct camera *cameras;
+	size_t camera_count;
 	
 	// Scene asset memory pool, currently used for nodes only.
 	struct block *nodePool;

@@ -13,11 +13,6 @@
 #include "vector.h"
 #include "../renderer/samplers/sampler.h"
 
-struct camera *cam_new() {
-	struct camera *cam = calloc(1, sizeof(*cam));
-	return cam;
-}
-
 void cam_recompute_optics(struct camera *cam) {
 	if (!cam) return;
 	cam->aspectRatio = (float)cam->width / (float)cam->height;

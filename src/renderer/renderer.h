@@ -24,7 +24,8 @@ struct renderThreadState {
 	uint64_t totalSamples;
 	
 	long avgSampleTime; //Single tile pass
-	
+
+	struct camera *cam;
 	struct renderer *renderer;
 	struct texture *output;
 	struct renderClient *client; // Optional
@@ -68,6 +69,7 @@ struct prefs {
 	//Output prefs
 	unsigned imageWidth;
 	unsigned imageHeight;
+	int selected_camera;
 	char *imgFilePath;
 	char *imgFileName;
 	char *assetPath;

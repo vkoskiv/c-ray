@@ -52,6 +52,7 @@ struct workerThreadState {
 	int thread_num;
 	int connectionSocket;
 	struct crMutex *socketMutex;
+	struct camera *cam;
 	struct renderer *renderer;
 	bool threadComplete;
 	uint64_t totalSamples;
@@ -142,6 +143,8 @@ static void *workerThread(void *arg) {
 	releaseMutex(sockMutex);
 	struct texture *tileBuffer = newTexture(char_p, tile.width, tile.height, 3);
 	sampler *sampler = newSampler();
+
+	struct camera *cam = threadState->cam;
 	
 	struct timeval timer = { 0 };
 	threadState->completedSamples = 1;
@@ -159,7 +162,7 @@ static void *workerThread(void *arg) {
 					initSampler(sampler, Random, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
-					struct lightRay incidentRay = camGetRay(r->scene->camera, x, y, sampler);
+					struct lightRay incidentRay = camGetRay(cam, x, y, sampler);
 					struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
 					
 					//And process the running average
@@ -232,7 +235,12 @@ static cJSON *startRender(int connectionSocket) {
 	
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < threadCount; ++t) {
-		workerThreadStates[t] = (struct workerThreadState){.thread_num = t, .connectionSocket = connectionSocket, .socketMutex = g_worker_socket_mutex, .renderer = g_worker_renderer};
+		workerThreadStates[t] = (struct workerThreadState){
+				.thread_num = t,
+				.connectionSocket = connectionSocket,
+				.socketMutex = g_worker_socket_mutex,
+				.renderer = g_worker_renderer,
+				.cam = &g_worker_renderer->scene->cameras[g_worker_renderer->prefs.selected_camera]};
 		workerThreads[t] = (struct crThread){.threadFunc = workerThread, .userData = &workerThreadStates[t]};
 		if (threadStart(&workerThreads[t])) {
 			logr(error, "Failed to create a crThread.\n");

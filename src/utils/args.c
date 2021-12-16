@@ -34,6 +34,7 @@ static void printUsage(const char *progname) {
 	printf("    [-d <w>x<h>]     -> Override image dimensions to <w>x<h>\n");
 	printf("    [-t <w>x<h>]     -> Override tile  dimensions to <w>x<h>\n");
 	printf("    [-o <path>]      -> Override output file path to <path>\n");
+	printf("    [-c <cam_index>] -> Select camera. Defaults to 0\n");
 	printf("    [-v]             -> Enable verbose mode\n");
 	printf("    [--iterative]    -> Start in iterative mode (Experimental)\n");
 	printf("    [--worker]       -> Start up as a network render worker (Experimental)\n");
@@ -148,7 +149,18 @@ void parseArgs(int argc, char **argv) {
 			char *pathstr = argv[i + 1];
 			setDatabaseString(g_options, "output_path", pathstr);
 		}
-		
+
+		if (stringEquals(argv[i], "-c")) {
+			char *str = argv[i + 1];
+			if (str) {
+				int n = atoi(str);
+				n = n < 0 ? 0 : n;
+				setDatabaseInt(g_options, "cam_index", n);
+			} else {
+				logr(warning, "Invalid -c parameter given!\n");
+			}
+		}
+
 		if (stringEquals(argv[i], "--suite")) {
 			if (argv[i + 1]) {
 				setDatabaseString(g_options, "test_suite", argv[i + 1]);

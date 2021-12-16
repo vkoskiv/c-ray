@@ -152,7 +152,6 @@ int loadScene(struct renderer *r, char *input) {
 				cJSON_ReplaceItemInObject(renderer, "width", cJSON_CreateNumber(width));
 				cJSON_ReplaceItemInObject(renderer, "height", cJSON_CreateNumber(height));
 			}
-			
 		}
 		
 		if (isSet("tiledims_override")) {
@@ -166,8 +165,12 @@ int loadScene(struct renderer *r, char *input) {
 				cJSON_ReplaceItemInObject(renderer, "tileWidth", cJSON_CreateNumber(width));
 				cJSON_ReplaceItemInObject(renderer, "tileHeight", cJSON_CreateNumber(height));
 			}
-			
 		}
+
+		if (r->prefs.selected_camera != 0) {
+			cJSON_AddItemToObject(cache, "selected_camera", cJSON_CreateNumber(r->prefs.selected_camera));
+		}
+
 		r->sceneCache = cJSON_PrintUnformatted(cache);
 	}
 	
@@ -213,7 +216,7 @@ int loadScene(struct renderer *r, char *input) {
 //Free scene data
 void destroyScene(struct world *scene) {
 	if (scene) {
-		camDestroy(scene->camera);
+		free(scene->cameras);
 		for (int i = 0; i < scene->meshCount; ++i) {
 			destroyMesh(&scene->meshes[i]);
 		}

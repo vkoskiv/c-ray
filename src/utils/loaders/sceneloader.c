@@ -356,7 +356,7 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 			logr(warning, "Invalid fileType while parsing scene.\n");
 		}
 	}
-	
+
 	// Now check and apply potential CLI overrides.
 	if (isSet("thread_override")) {
 		int threads = intPref("thread_override");
@@ -399,6 +399,11 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 			prefs->tileWidth = width;
 			prefs->tileHeight = height;
 		}
+	}
+
+	if (isSet("cam_index")) {
+		prefs->selected_camera = intPref("cam_index");
+		logr(info, "Selecting camera %i\n", prefs->selected_camera);
 	}
 }
 
@@ -506,20 +511,20 @@ static struct vector *parseLocation(const cJSON *transforms) {
 	return loc;
 }
 
-static void parseCamera(struct camera *cam, const cJSON *data) {
-	if (!data) return;
-
+static struct camera parseCamera(const cJSON *data) {
+	struct camera cam = (struct camera){ 0 };
+	if (!cJSON_IsObject(data)) return cam;
 	const cJSON *FOV = cJSON_GetObjectItem(data, "FOV");
 	if (FOV) {
 		if (cJSON_IsNumber(FOV)) {
 			if (FOV->valuedouble >= 0.0) {
 				if (FOV->valuedouble > 180.0) {
-					cam->FOV = 180.0f;
+					cam.FOV = 180.0f;
 				} else {
-					cam->FOV = FOV->valuedouble;
+					cam.FOV = FOV->valuedouble;
 				}
 			} else {
-				cam->FOV = 80.0f;
+				cam.FOV = 80.0f;
 			}
 		} else {
 			logr(warning, "Invalid FOV value while parsing camera.\n");
@@ -530,9 +535,9 @@ static void parseCamera(struct camera *cam, const cJSON *data) {
 	if (focalDistance) {
 		if (cJSON_IsNumber(focalDistance)) {
 			if (focalDistance->valuedouble >= 0.0) {
-				cam->focalDistance = focalDistance->valuedouble;
+				cam.focalDistance = focalDistance->valuedouble;
 			} else {
-				cam->focalDistance = 0.0f;
+				cam.focalDistance = 0.0f;
 			}
 		} else {
 			logr(warning, "Invalid focalDistance while parsing camera.\n");
@@ -543,9 +548,9 @@ static void parseCamera(struct camera *cam, const cJSON *data) {
 	if (aperture) {
 		if (cJSON_IsNumber(aperture)) {
 			if (aperture->valuedouble >= 0.0) {
-				cam->fstops = aperture->valuedouble;
+				cam.fstops = aperture->valuedouble;
 			} else {
-				cam->fstops = 0.0f;
+				cam.fstops = 0.0f;
 			}
 		} else {
 			logr(warning, "Invalid aperture while parsing camera.\n");
@@ -556,15 +561,15 @@ static void parseCamera(struct camera *cam, const cJSON *data) {
 	if (time) {
 		if (cJSON_IsNumber(time)) {
 			if (time->valuedouble >= 0.0) {
-				cam->time = time->valuedouble;
+				cam.time = time->valuedouble;
 			} else {
-				cam->time = 0.0f;
+				cam.time = 0.0f;
 			}
 		} else {
 			logr(warning, "Invalid time while parsing camera.\n");
 		}
 	}
-	
+
 	// FIXME: Hack - we should really just not use transforms externally for the camera
 	// Just can't be bothered to fix up all the scene files by hand right now
 	struct not_a_quaternion *rotations = NULL;
@@ -580,13 +585,37 @@ static void parseCamera(struct camera *cam, const cJSON *data) {
 	}
 
 #ifdef TEST_BEZIER
-	cam->path = test();
+	cam.path = test();
 #endif
 
-	cam_update_pose(cam, rotations, location);
-	cam_recompute_optics(cam);
+	cam_update_pose(&cam, rotations, location);
 	free(rotations);
 	free(location);
+	return cam;
+}
+
+static void parseCameras(struct camera **cam, size_t *cam_count, const cJSON *data) {
+	if (!data) return;
+
+	if (cJSON_IsObject(data)) {
+		// Single camera
+		*cam = calloc(1, sizeof(struct camera));
+		(*cam)[0] = parseCamera(data);
+		if (cam_count) *cam_count = 1;
+		return;
+	}
+
+	ASSERT(cJSON_IsArray(data));
+	size_t camera_count = cJSON_GetArraySize(data);
+	*cam = calloc(camera_count, sizeof(struct camera));
+
+	cJSON *camera = NULL;
+	size_t current_camera = 0;
+	cJSON_ArrayForEach(camera, data) {
+		(*cam)[current_camera++] = parseCamera(camera);
+	}
+
+	if (cam_count) *cam_count = current_camera;
 }
 
 static struct color parseColor(const cJSON *data) {
@@ -1184,10 +1213,20 @@ int parseJSON(struct renderer *r, char *input) {
 	}
 
 	parseDisplay(&r->prefs, cJSON_GetObjectItem(json, "display"));
-	//FIXME: Figure out a better place for these assignments
-	r->scene->camera->width = r->prefs.imageWidth;
-	r->scene->camera->height = r->prefs.imageHeight;
-	parseCamera(r->scene->camera, cJSON_GetObjectItem(json, "camera"));
+	parseCameras(&r->scene->cameras, &r->scene->camera_count, cJSON_GetObjectItem(json, "camera"));
+
+	for (size_t i = 0; i < r->scene->camera_count; ++i) {
+		r->scene->cameras[i].width = r->prefs.imageWidth;
+		r->scene->cameras[i].height = r->prefs.imageHeight;
+		cam_recompute_optics(&r->scene->cameras[i]);
+	}
+
+	const cJSON *selected_camera = cJSON_GetObjectItem(json, "selected_camera");
+	if (cJSON_IsNumber(selected_camera)) {
+		size_t selection = selected_camera->valueint;
+		r->prefs.selected_camera = selection < r->scene->camera_count ? selection : r->scene->camera_count - 1;
+	}
+
 	parseScene(r, cJSON_GetObjectItem(json, "scene"));
 	cJSON_Delete(json);
 	
