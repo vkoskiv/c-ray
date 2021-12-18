@@ -31,29 +31,26 @@ void cam_recompute_optics(struct camera *cam) {
 }
 
 void recomputeComposite(struct camera *cam) {
-	struct transform *transforms = malloc(4 * sizeof(*transforms));
+	struct transform transforms[2];
 	if (cam->path) {
 		struct vector positionAtT = spline_at(cam->path, cam->time);
 		transforms[0] = newTransformTranslate(positionAtT.x, positionAtT.y, positionAtT.z);
 	} else {
 		transforms[0] = newTransformTranslate(cam->position.x, cam->position.y, cam->position.z);
 	}
-	transforms[1] = newTransformRotateX(cam->orientation.rotX);
-	transforms[2] = newTransformRotateY(cam->orientation.rotY);
-	transforms[3] = newTransformRotateZ(cam->orientation.rotZ);
-	
+	transforms[1] = newTransformRotate(cam->orientation.roll, cam->orientation.pitch, cam->orientation.yaw);
+
 	struct transform composite = { .A = identityMatrix() };
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < 2; ++i) {
 		composite.A = multiplyMatrices(&composite.A, &transforms[i].A);
 	}
 	
 	composite.Ainv = inverseMatrix(&composite.A);
 	composite.type = transformTypeComposite;
-	free(transforms);
 	cam->composite = composite;
 }
 
-void cam_update_pose(struct camera *cam, const struct not_a_quaternion *orientation, const struct vector *pos) {
+void cam_update_pose(struct camera *cam, const struct euler_angles *orientation, const struct vector *pos) {
 	if (orientation) cam->orientation = *orientation;
 	if (pos) cam->position = *pos;
 	if (orientation || pos) recomputeComposite(cam);

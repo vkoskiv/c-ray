@@ -57,6 +57,7 @@ struct transform newTransformTranslate(float x, float y, float z);
 struct transform newTransformRotateX(float radians);
 struct transform newTransformRotateY(float radians);
 struct transform newTransformRotateZ(float radians);
+struct transform newTransformRotate(float roll, float pitch, float yaw);
 struct transform newTransform(void);
 
 struct matrix4x4 inverseMatrix(const struct matrix4x4 *mtx);

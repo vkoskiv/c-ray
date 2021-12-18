@@ -12,12 +12,7 @@
 #include "vector.h"
 #include "lightray.h"
 #include "spline.h"
-
-struct not_a_quaternion {
-	float rotX;
-	float rotY;
-	float rotZ;
-};
+#include "quaternion.h"
 
 struct camera {
 	float FOV;
@@ -34,7 +29,7 @@ struct camera {
 	struct vector forward;
 	
 	struct transform composite;
-	struct not_a_quaternion orientation;
+	struct euler_angles orientation;
 	struct vector position;
 	
 	struct spline *path;
@@ -45,6 +40,5 @@ struct camera {
 };
 
 void cam_recompute_optics(struct camera *cam);
-void cam_update_pose(struct camera *cam, const struct not_a_quaternion *orientation, const struct vector *pos);
+void cam_update_pose(struct camera *cam, const struct euler_angles *orientation, const struct vector *pos);
 struct lightRay camGetRay(struct camera *cam, int x, int y, struct sampler *sampler);
-void camDestroy(struct camera *cam);

@@ -13,6 +13,7 @@
 #include "vector.h"
 #include "bbox.h"
 #include "lightray.h"
+#include "quaternion.h"
 
 //For ease of use
 float toRadians(float degrees) {
@@ -155,6 +156,38 @@ struct transform newTransformRotateZ(float rads) {
 	transform.A.mtx[1][1] = cosRads;
 	transform.A.mtx[2][2] = 1.0f;
 	transform.A.mtx[3][3] = 1.0f;
+	transform.Ainv = inverseMatrix(&transform.A);
+	return transform;
+}
+
+// Lifted right off this page here:
+// https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
+struct matrix4x4 quaternion_to_matrix(struct quaternion q) {
+	const float sqw = q.w * q.w;
+	const float sqx = q.x * q.x;
+	const float sqy = q.y * q.y;
+	const float sqz = q.z * q.z;
+
+	// Inverse square length
+	const float invs = 1.0f / (sqx + sqy + sqz + sqw);
+	struct matrix4x4 mtx = identityMatrix();
+	mtx.mtx[0][0] = ( sqx - sqy - sqz + sqw) * invs;
+	mtx.mtx[1][1] = (-sqx + sqy - sqz + sqw) * invs;
+	mtx.mtx[2][2] = (-sqx - sqy + sqz + sqw) * invs;
+	mtx.mtx[1][0] = 2.0f * ((q.x * q.y) + (q.z * q.w)) * invs;
+	mtx.mtx[0][1] = 2.0f * ((q.x * q.y) - (q.z * q.w)) * invs;
+	mtx.mtx[2][0] = 2.0f * ((q.x * q.z) - (q.y * q.w)) * invs;
+	mtx.mtx[0][2] = 2.0f * ((q.x * q.z) + (q.y * q.w)) * invs;
+	mtx.mtx[2][1] = 2.0f * ((q.y * q.z) + (q.x * q.w)) * invs;
+	mtx.mtx[1][2] = 2.0f * ((q.y * q.z) - (q.x * q.w)) * invs;
+
+	return mtx;
+}
+
+struct transform newTransformRotate(float roll, float pitch, float yaw) {
+	struct transform transform;
+	transform.type = transformTypeComposite;
+	transform.A = quaternion_to_matrix(euler_to_quaternion(roll, pitch, yaw));
 	transform.Ainv = inverseMatrix(&transform.A);
 	return transform;
 }

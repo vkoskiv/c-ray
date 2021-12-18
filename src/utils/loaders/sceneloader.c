@@ -468,28 +468,28 @@ float getRadians(const cJSON *object) {
 }
 
 //TODO: Delet these two
-static struct not_a_quaternion *parseRotations(const cJSON *transforms) {
+static struct euler_angles *parseRotations(const cJSON *transforms) {
 	if (!transforms) return NULL;
 	
-	struct not_a_quaternion rotations = { 0 };
+	struct euler_angles rotations = { 0 };
 	const cJSON *transform = NULL;
 	cJSON_ArrayForEach(transform, transforms) {
 		cJSON *type = cJSON_GetObjectItem(transform, "type");
 		if (stringEquals(type->valuestring, "rotateX")) {
-			rotations.rotX = getRadians(transform);
+			rotations.roll = getRadians(transform);
 		}
 		if (stringEquals(type->valuestring, "rotateY")) {
-			rotations.rotY = getRadians(transform);
+			rotations.pitch = getRadians(transform);
 		}
 		if (stringEquals(type->valuestring, "rotateZ")) {
-			rotations.rotZ = getRadians(transform);
+			rotations.yaw = getRadians(transform);
 		}
 	}
 	
-	struct not_a_quaternion *quat = calloc(1, sizeof(*quat));
-	*quat = rotations;
+	struct euler_angles *angles = calloc(1, sizeof(*angles));
+	*angles = rotations;
 	
-	return quat;
+	return angles;
 }
 
 static struct vector *parseLocation(const cJSON *transforms) {
@@ -572,7 +572,7 @@ static struct camera parseCamera(const cJSON *data) {
 
 	// FIXME: Hack - we should really just not use transforms externally for the camera
 	// Just can't be bothered to fix up all the scene files by hand right now
-	struct not_a_quaternion *rotations = NULL;
+	struct euler_angles *rotations = NULL;
 	struct vector *location = NULL;
 	const cJSON *transforms = cJSON_GetObjectItem(data, "transforms");
 	if (transforms) {
