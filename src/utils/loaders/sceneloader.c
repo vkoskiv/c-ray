@@ -1132,7 +1132,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	if (radius != NULL && cJSON_IsNumber(radius)) {
 		newSphere.radius = radius->valuedouble;
 	} else {
-		newSphere.radius = 10.0f;
+		newSphere.radius = 1.0f;
 		logr(warning, "No radius specified for sphere, setting to %.0f\n", newSphere.radius);
 	}
 	
