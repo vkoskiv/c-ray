@@ -96,7 +96,7 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 			windowsFixPath(path);
 			current->texture = loadTexture(path, NULL);
 			free(path);
-		} else if (stringEquals(first, "norm")) {
+		} else if (stringEquals(first, "norm") || stringEquals(first, "bump") || stringEquals(first, "map_bump")) {
 			char *path = stringConcat(assetPath, nextToken(line));
 			windowsFixPath(path);
 			current->normalMap = loadTexture(path, NULL);
