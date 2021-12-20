@@ -1022,7 +1022,14 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 				ASSERT(cJSON_GetArraySize(materials) <= lastMesh(r)->materialCount);
 				size_t i = 0;
 				cJSON_ArrayForEach(material, materials) {
-					lastMesh(r)->materials[i++].bsdf = parseBsdfNode(r->scene, material);
+					lastMesh(r)->materials[i].bsdf = parseBsdfNode(r->scene, material);
+					cJSON *type = cJSON_GetObjectItem(material, "type");
+					if (stringEquals(type->valuestring, "emissive")) {
+						cJSON *color = cJSON_GetObjectItem(material, "color");
+						cJSON *strength = cJSON_GetObjectItem(material, "strength");
+						lastMesh(r)->materials[i].emission = colorCoef(strength->valuedouble, parseColor(color));
+					}
+					i++;
 				}
 			} else {
 				// Single graph, map it to every material in a mesh.
