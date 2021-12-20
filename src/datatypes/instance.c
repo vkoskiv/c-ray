@@ -45,15 +45,15 @@ static inline struct coord getTexMapSphere(const struct hitRecord *isect) {
 static bool intersectSphere(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler) {
 	(void)sampler;
 	struct lightRay copy = *ray;
-	transformRay(&copy, &instance->composite.Ainv);
+	transformRay(&copy, instance->composite.Ainv.mtx);
 	struct sphere *sphere = (struct sphere *)instance->object;
 	copy.start = vecAdd(copy.start, vecScale(copy.direction, sphere->rayOffset));
 	if (rayIntersectsWithSphere(&copy, sphere, isect)) {
 		isect->uv = getTexMapSphere(isect);
 		isect->polygon = NULL;
 		isect->material = sphere->material;
-		transformPoint(&isect->hitPoint, &instance->composite.A);
-		transformVectorWithTranspose(&isect->surfaceNormal, &instance->composite.Ainv);
+		transformPoint(&isect->hitPoint, instance->composite.A.mtx);
+		transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv.mtx);
 		return true;
 	}
 	return false;
@@ -65,7 +65,7 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 	record2 = *isect;
 	struct lightRay copy1, copy2;
 	copy1 = *ray;
-	transformRay(&copy1, &instance->composite.Ainv);
+	transformRay(&copy1, instance->composite.Ainv.mtx);
 	struct sphereVolume *volume = (struct sphereVolume *)instance->object;
 	copy1.start = vecAdd(copy1.start, vecScale(copy1.direction, volume->sphere->rayOffset));
 	if (rayIntersectsWithSphere(&copy1, volume->sphere, &record1)) {
@@ -81,9 +81,9 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 				isect->uv = (struct coord){-1.0f, -1.0f};
 				isect->polygon = NULL;
 				isect->material = volume->sphere->material;
-				transformPoint(&isect->hitPoint, &instance->composite.A);
+				transformPoint(&isect->hitPoint, instance->composite.A.mtx);
 				isect->surfaceNormal = (struct vector){1.0f, 0.0f, 0.0f}; // Will be ignored by material anyway
-				transformVectorWithTranspose(&isect->surfaceNormal, &instance->composite.Ainv); // Probably not needed
+				transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv.mtx); // Probably not needed
 				return true;
 			}
 		}
@@ -94,11 +94,11 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 static void getSphereBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
 	struct sphere *sphere = (struct sphere *)instance->object;
 	*center = vecZero();
-	transformPoint(center, &instance->composite.A);
+	transformPoint(center, instance->composite.A.mtx);
 	bbox->min = vecWithPos(-sphere->radius, -sphere->radius, -sphere->radius);
 	bbox->max = vecWithPos( sphere->radius,  sphere->radius,  sphere->radius);
 	if (!isRotation(&instance->composite) && !isTranslate(&instance->composite))
-		transformBBox(bbox, &instance->composite.A);
+		transformBBox(bbox, instance->composite.A.mtx);
 	else {
 		bbox->min = vecAdd(bbox->min, *center);
 		bbox->max = vecAdd(bbox->max, *center);
@@ -111,11 +111,11 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 static void getSphereVolumeBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
 	struct sphereVolume *volume = (struct sphereVolume *)instance->object;
 	*center = vecZero();
-	transformPoint(center, &instance->composite.A);
+	transformPoint(center, instance->composite.A.mtx);
 	bbox->min = vecWithPos(-volume->sphere->radius, -volume->sphere->radius, -volume->sphere->radius);
 	bbox->max = vecWithPos( volume->sphere->radius,  volume->sphere->radius,  volume->sphere->radius);
 	if (!isRotation(&instance->composite) && !isTranslate(&instance->composite))
-		transformBBox(bbox, &instance->composite.A);
+		transformBBox(bbox, instance->composite.A.mtx);
 	else {
 		bbox->min = vecAdd(bbox->min, *center);
 		bbox->max = vecAdd(bbox->max, *center);
@@ -168,7 +168,7 @@ static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecor
 
 static bool intersectMesh(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler) {
 	struct lightRay copy = *ray;
-	transformRay(&copy, &instance->composite.Ainv);
+	transformRay(&copy, instance->composite.Ainv.mtx);
 	struct mesh *mesh = (struct mesh *)instance->object;
 	float offset = mesh->rayOffset;
 	copy.start = vecAdd(copy.start, vecScale(copy.direction, offset));
@@ -176,8 +176,8 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 		// Repopulate uv with actual texture mapping
 		isect->uv = getTexMapMesh(mesh, isect);
 		isect->material = mesh->materials[isect->polygon->materialIndex];
-		transformPoint(&isect->hitPoint, &instance->composite.A);
-		transformVectorWithTranspose(&isect->surfaceNormal, &instance->composite.Ainv);
+		transformPoint(&isect->hitPoint, instance->composite.A.mtx);
+		transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv.mtx);
 		isect->surfaceNormal = vecNormalize(isect->surfaceNormal);
 		return true;
 	}
@@ -189,7 +189,7 @@ static bool intersectMeshVolume(const struct instance *instance, const struct li
 	record1 = *isect;
 	record2 = *isect;
 	struct lightRay copy = *ray;
-	transformRay(&copy, &instance->composite.Ainv);
+	transformRay(&copy, instance->composite.Ainv.mtx);
 	struct meshVolume *mesh = (struct meshVolume *)instance->object;
 	float offset = mesh->mesh->rayOffset;
 	copy.start = vecAdd(copy.start, vecScale(copy.direction, offset));
@@ -205,9 +205,9 @@ static bool intersectMeshVolume(const struct instance *instance, const struct li
 				isect->hitPoint = alongRay(ray, isect->distance);
 				isect->uv = (struct coord){-1.0f, -1.0f};
 				isect->material = mesh->mesh->materials[0];
-				transformPoint(&isect->hitPoint, &instance->composite.A);
+				transformPoint(&isect->hitPoint, instance->composite.A.mtx);
 				isect->surfaceNormal = (struct vector){1.0f, 0.0f, 0.0f}; // Will be ignored by material anyway
-				transformVectorWithTranspose(&isect->surfaceNormal, &instance->composite.Ainv); // Probably not needed
+				transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv.mtx); // Probably not needed
 				return true;
 			}
 		}
@@ -222,7 +222,7 @@ bool isMesh(const struct instance *instance) {
 static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
 	struct mesh *mesh = (struct mesh *)instance->object;
 	*bbox = getRootBoundingBox(mesh->bvh);
-	transformBBox(bbox, &instance->composite.A);
+	transformBBox(bbox, instance->composite.A.mtx);
 	*center = bboxCenter(bbox);
 	mesh->rayOffset = rayOffset(*bbox);
 	if (isSet("v")) logr(plain, "\n");
@@ -232,7 +232,7 @@ static void getMeshBBoxAndCenter(const struct instance *instance, struct boundin
 static void getMeshVolumeBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
 	struct meshVolume *volume = (struct meshVolume *)instance->object;
 	*bbox = getRootBoundingBox(volume->mesh->bvh);
-	transformBBox(bbox, &instance->composite.A);
+	transformBBox(bbox, instance->composite.A.mtx);
 	*center = bboxCenter(bbox);
 	volume->mesh->rayOffset = rayOffset(*bbox);
 	if (isSet("v")) logr(plain, "\n");
