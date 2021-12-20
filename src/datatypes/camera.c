@@ -42,7 +42,7 @@ void recomputeComposite(struct camera *cam) {
 
 	struct transform composite = { .A = identityMatrix() };
 	for (int i = 0; i < 2; ++i) {
-		composite.A = multiplyMatrices(&composite.A, &transforms[i].A);
+		composite.A = multiplyMatrices(composite.A.mtx, transforms[i].A.mtx);
 	}
 	
 	composite.Ainv = inverseMatrix(&composite.A);

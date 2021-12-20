@@ -741,25 +741,25 @@ struct transform parseTransformComposite(const cJSON *transforms) {
 	// Translates
 	for (size_t i = 0; i < count; ++i) {
 		if (isTranslate(&tforms[i])) {
-			composite.A = multiplyMatrices(&composite.A, &tforms[i].A);
+			composite.A = multiplyMatrices(composite.A.mtx, tforms[i].A.mtx);
 		}
 	}
 	
 	// Rotates
 	for (size_t i = 0; i < count; ++i) {
 		if (isRotation(&tforms[i])) {
-			composite.A = multiplyMatrices(&composite.A, &tforms[i].A);
+			composite.A = multiplyMatrices(composite.A.mtx, tforms[i].A.mtx);
 		}
 	}
 	
 	// Scales
 	for (size_t i = 0; i < count; ++i) {
 		if (isScale(&tforms[i])) {
-			composite.A = multiplyMatrices(&composite.A, &tforms[i].A);
+			composite.A = multiplyMatrices(composite.A.mtx, tforms[i].A.mtx);
 		}
 	}
 	
-	composite.Ainv = inverseMatrix(&composite.A);
+	composite.Ainv = inverseMatrix(composite.A.mtx);
 	composite.type = transformTypeComposite;
 	free(tforms);
 	return composite;
