@@ -67,9 +67,10 @@ struct prefs {
 	unsigned tileHeight;
 	
 	//Output prefs
-	unsigned imageWidth;
-	unsigned imageHeight;
-	int selected_camera;
+	bool override_dimensions;
+	unsigned override_width;
+	unsigned override_height;
+	size_t selected_camera;
 	char *imgFilePath;
 	char *imgFileName;
 	char *assetPath;

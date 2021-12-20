@@ -187,22 +187,23 @@ int loadScene(struct renderer *r, char *input) {
 	
 	//Quantize image into renderTiles
 	r->state.tileCount = quantizeImage(&r->state.renderTiles,
-									   r->prefs.imageWidth,
-									   r->prefs.imageHeight,
+									   r->scene->cameras[r->prefs.selected_camera].width,
+									   r->scene->cameras[r->prefs.selected_camera].height,
 									   r->prefs.tileWidth,
 									   r->prefs.tileHeight,
 									   r->prefs.tileOrder);
 	
 	// Some of this stuff seems like it should be in newRenderer(), but notice
 	// how they depend on r->prefs, which is populated by parseJSON
-	
+
+	struct camera cam = r->scene->cameras[r->prefs.selected_camera];
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
-	r->state.renderBuffer = newTexture(float_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
+	r->state.renderBuffer = newTexture(float_p, cam.width, cam.height, 3);
 	
 	//Allocate memory for render UI buffer
 	//This buffer is used for storing UI stuff like currently rendering tile highlights
-	r->state.uiBuffer = newTexture(char_p, r->prefs.imageWidth, r->prefs.imageHeight, 4);
+	r->state.uiBuffer = newTexture(char_p, cam.width, cam.height, 4);
 	
 	//Print a useful warning to user if the defined tile size results in less renderThreads
 	if (r->state.tileCount < r->prefs.threadCount) {

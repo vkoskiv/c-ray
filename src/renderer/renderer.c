@@ -40,7 +40,8 @@ void *renderThreadInteractive(void *arg);
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 struct texture *renderFrame(struct renderer *r) {
-	struct texture *output = newTexture(char_p, r->prefs.imageWidth, r->prefs.imageHeight, 3);
+	struct camera camera = r->scene->cameras[r->prefs.selected_camera];
+	struct texture *output = newTexture(char_p, camera.width, camera.height, 3);
 	
 	logr(info, "Starting C-ray renderer for frame %i\n", r->prefs.imgCount);
 	
@@ -52,7 +53,7 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	bool threadsReduced = getSysCores() > r->prefs.threadCount;
 	
-	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, r->prefs.imageWidth, KNRM, KWHT, r->prefs.imageHeight, KNRM);
+	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, camera.width, KNRM, KWHT, camera.height, KNRM);
 	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
 	logr(info, "Rendering with %s%d%s%s thread%s.\n",
 		 KRED,
@@ -97,7 +98,7 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output, .cam = &r->scene->cameras[r->prefs.selected_camera]};
+		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output, .cam = &camera};
 		r->state.threads[t] = (struct crThread){.threadFunc = localRenderThread, .userData = &r->state.threadStates[t]};
 		if (threadStart(&r->state.threads[t])) {
 			logr(error, "Failed to create a render thread.\n");
@@ -345,8 +346,9 @@ static struct prefs defaultPrefs() {
 			.imgFilePath = stringCopy("./"),
 			.imgFileName = stringCopy("rendered"),
 			.imgCount = 0,
-			.imageWidth = 1280,
-			.imageHeight = 800,
+			.override_dimensions = false,
+			.override_width = 1280,
+			.override_height = 800,
 			.imgType = png,
 			.enabled = true,
 			.fullscreen = false,

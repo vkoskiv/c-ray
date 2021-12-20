@@ -318,14 +318,17 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 		}
 	}
 
+	bool width_set = false;
+	bool height_set = false;
 	const cJSON *width = cJSON_GetObjectItem(data, "width");
 	if (width) {
 		if (cJSON_IsNumber(width)) {
 			if (width->valueint >= 0) {
-				prefs->imageWidth = width->valueint;
+				prefs->override_width = width->valueint;
 			} else {
-				prefs->imageWidth = 640;
+				prefs->override_width = 640;
 			}
+			width_set = true;
 		} else {
 			logr(warning, "Invalid width while parsing scene.\n");
 		}
@@ -335,14 +338,17 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 	if (height) {
 		if (cJSON_IsNumber(height)) {
 			if (height->valueint >= 0) {
-				prefs->imageHeight = height->valueint;
+				prefs->override_height = height->valueint;
 			} else {
-				prefs->imageHeight = 400;
+				prefs->override_height = 400;
 			}
+			height_set = true;
 		} else {
 			logr(warning, "Invalid height while parsing scene.\n");
 		}
 	}
+
+	if (width_set && height_set) prefs->override_dimensions = true;
 
 	const cJSON *fileType = cJSON_GetObjectItem(data, "fileType");
 	if (fileType) {
@@ -384,8 +390,9 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 			int width = intPref("dims_width");
 			int height = intPref("dims_height");
 			logr(info, "Overriding image dimensions to %ix%i\n", width, height);
-			prefs->imageWidth = width;
-			prefs->imageHeight = height;
+			prefs->override_width = width;
+			prefs->override_height = height;
+			prefs->override_dimensions = true;
 		}
 	}
 	
@@ -403,7 +410,6 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 
 	if (isSet("cam_index")) {
 		prefs->selected_camera = intPref("cam_index");
-		logr(info, "Selecting camera %i\n", prefs->selected_camera);
 	}
 }
 
@@ -557,6 +563,24 @@ static struct camera parseCamera(const cJSON *data) {
 		}
 	}
 
+	const cJSON *width = cJSON_GetObjectItem(data, "width");
+	if (width) {
+		if (cJSON_IsNumber(width)) {
+			cam.width = width->valueint > 0 ? width->valueint : 640;
+		} else {
+			logr(warning, "Invalid sensor width while parsing camera.\n");
+		}
+	}
+
+	const cJSON *height = cJSON_GetObjectItem(data, "height");
+	if (height) {
+		if (cJSON_IsNumber(height)) {
+			cam.height = height->valueint > 0 ? height->valueint : 400;
+		} else {
+			logr(warning, "Invalid sensor height while parsing camera.\n");
+		}
+	}
+
 	const cJSON *time = cJSON_GetObjectItem(data, "time");
 	if (time) {
 		if (cJSON_IsNumber(time)) {
@@ -589,6 +613,7 @@ static struct camera parseCamera(const cJSON *data) {
 #endif
 
 	cam_update_pose(&cam, rotations, location);
+	cam_recompute_optics(&cam);
 	free(rotations);
 	free(location);
 	return cam;
@@ -1215,17 +1240,21 @@ int parseJSON(struct renderer *r, char *input) {
 	parseDisplay(&r->prefs, cJSON_GetObjectItem(json, "display"));
 	parseCameras(&r->scene->cameras, &r->scene->camera_count, cJSON_GetObjectItem(json, "camera"));
 
-	for (size_t i = 0; i < r->scene->camera_count; ++i) {
-		r->scene->cameras[i].width = r->prefs.imageWidth;
-		r->scene->cameras[i].height = r->prefs.imageHeight;
-		cam_recompute_optics(&r->scene->cameras[i]);
+	if (r->prefs.override_dimensions) {
+		for (size_t i = 0; i < r->scene->camera_count; ++i) {
+			r->scene->cameras[i].width = r->prefs.override_width;
+			r->scene->cameras[i].height = r->prefs.override_height;
+			cam_recompute_optics(&r->scene->cameras[i]);
+		}
 	}
 
 	const cJSON *selected_camera = cJSON_GetObjectItem(json, "selected_camera");
 	if (cJSON_IsNumber(selected_camera)) {
-		size_t selection = selected_camera->valueint;
-		r->prefs.selected_camera = selection < r->scene->camera_count ? selection : r->scene->camera_count - 1;
+		r->prefs.selected_camera = (size_t)selected_camera->valueint;
 	}
+
+	r->prefs.selected_camera = r->prefs.selected_camera < r->scene->camera_count ? r->prefs.selected_camera : r->scene->camera_count - 1;
+	if (r->prefs.selected_camera != 0) logr(info, "Selecting camera %li\n", r->prefs.selected_camera);
 
 	parseScene(r, cJSON_GetObjectItem(json, "scene"));
 	cJSON_Delete(json);

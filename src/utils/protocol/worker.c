@@ -158,7 +158,7 @@ static void *workerThread(void *arg) {
 			for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 				for (int x = tile.begin.x; x < tile.end.x; ++x) {
 					if (r->state.renderAborted || !g_running) goto bail;
-					uint32_t pixIdx = (uint32_t)(y * r->prefs.imageWidth + x);
+					uint32_t pixIdx = (uint32_t)(y * cam->width + x);
 					initSampler(sampler, Random, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);

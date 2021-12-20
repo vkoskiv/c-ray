@@ -30,6 +30,7 @@
 #include "utils/protocol/worker.h"
 #include "utils/filecache.h"
 #include "utils/hashtable.h"
+#include "datatypes/camera.h"
 
 #define VERSION "0.6.3"
 
@@ -197,43 +198,20 @@ int crGetBounces(void) {
 	return g_renderer->prefs.bounces;
 }
 
-void crSetTileWidth(unsigned width) {
-	ASSERT(width > 0);
-	ASSERT(width <= g_renderer->prefs.imageWidth);
-	g_renderer->prefs.imageWidth = width;
-}
-
 unsigned crGetTileWidth(void) {
 	return g_renderer->prefs.tileWidth;
-}
-
-void crSetTileHeight(unsigned height) {
-	ASSERT(height > 0);
-	ASSERT(height <= g_renderer->prefs.imageHeight);
-	g_renderer->prefs.imageHeight = height;
 }
 
 unsigned crGetTileHeight(void) {
 	return g_renderer->prefs.tileHeight;
 }
 
-void crSetImageWidth(unsigned width) {
-	ASSERT(width > g_renderer->prefs.tileWidth);
-	g_renderer->prefs.imageWidth = width;
-	crRestartInteractive();
-}
-
 unsigned crGetImageWidth(void) {
-	return g_renderer->prefs.imageWidth;
-}
-
-void crSetImageHeight(unsigned height) {
-	ASSERT(height > g_renderer->prefs.tileHeight);
-	g_renderer->prefs.imageHeight = height;
+	return g_renderer->scene->cameras[g_renderer->prefs.selected_camera].width;
 }
 
 unsigned crGetImageHeight() {
-	return g_renderer->prefs.imageHeight;
+	return g_renderer->scene->cameras[g_renderer->prefs.selected_camera].height;
 }
 
 void crSetOutputPath(char *filePath) {
@@ -277,7 +255,8 @@ void crStartRenderer() {
 		g_renderer->sceneCache = NULL;
 		destroyFileCache();
 	}
-	initDisplay(g_renderer->prefs.fullscreen, g_renderer->prefs.borderless, g_renderer->prefs.imageWidth, g_renderer->prefs.imageHeight, g_renderer->prefs.scale);
+	struct camera cam = g_renderer->scene->cameras[g_renderer->prefs.selected_camera];
+	initDisplay(g_renderer->prefs.fullscreen, g_renderer->prefs.borderless, cam.width, cam.height, g_renderer->prefs.scale);
 	startTimer(g_renderer->state.timer);
 	currentImage = renderFrame(g_renderer);
 	printDuration(getMs(*g_renderer->state.timer));
