@@ -45,6 +45,8 @@ bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *pol
 			} else {
 				isect->surfaceNormal = n;
 			}
+			// Support two-sided materials by flipping the normal if needed
+			if (vecDot(ray->direction, isect->surfaceNormal) >= 0.0f) isect->surfaceNormal = vecNegate(isect->surfaceNormal);
 			isect->hitPoint = alongRay(ray, t);
 			return true;
 		}
