@@ -1014,6 +1014,25 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 			}
 		}
 		
+		// Fallback, this is the old way of assigning materials.
+		//FIXME: Delet this.
+		for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
+			lastMesh(r)->materials[i].type = type;
+			if (type == emission && intensity) {
+				lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);
+			}
+			if (type == glass) {
+				const cJSON *IOR = cJSON_GetObjectItem(data, "IOR");
+				if (cJSON_IsNumber(IOR)) {
+					lastMesh(r)->materials[i].IOR = IOR->valuedouble;
+				}
+			} else if (type == plastic) {
+				lastMesh(r)->materials[i].IOR = 1.45;
+			}
+			if (cJSON_IsNumber(roughness)) lastMesh(r)->materials[i].roughness = roughness->valuedouble;
+			assignBSDF(r->scene, &lastMesh(r)->materials[i]);
+		}
+		
 		const cJSON *materials = cJSON_GetObjectItem(data, "material");
 		if (materials) {
 			struct cJSON *material = NULL;
@@ -1022,6 +1041,17 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 				ASSERT(cJSON_GetArraySize(materials) <= lastMesh(r)->materialCount);
 				size_t i = 0;
 				cJSON_ArrayForEach(material, materials) {
+					size_t old_i = i;
+					if (cJSON_HasObjectItem(material, "replace")) {
+						// Replace specific material
+						const cJSON *name = cJSON_GetObjectItem(material, "replace");
+						struct mesh *m = lastMesh(r);
+						for (int j = 0; j < m->materialCount; ++j) {
+							if (stringEquals(m->materials[j].name, name->valuestring)) {
+								i = j;
+							}
+						}
+					}
 					lastMesh(r)->materials[i].bsdf = parseBsdfNode(r->scene, material);
 					cJSON *type = cJSON_GetObjectItem(material, "type");
 					if (stringEquals(type->valuestring, "emissive")) {
@@ -1029,6 +1059,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 						cJSON *strength = cJSON_GetObjectItem(material, "strength");
 						lastMesh(r)->materials[i].emission = colorCoef(strength->valuedouble, parseColor(color));
 					}
+					i = old_i;
 					i++;
 				}
 			} else {
@@ -1037,25 +1068,6 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 				for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
 					lastMesh(r)->materials[i].bsdf = node;
 				}
-			}
-		} else {
-			// Fallback, this is the old way of assigning materials.
-			//FIXME: Delet this.
-			for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
-				lastMesh(r)->materials[i].type = type;
-				if (type == emission && intensity) {
-					lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);
-				}
-				if (type == glass) {
-					const cJSON *IOR = cJSON_GetObjectItem(data, "IOR");
-					if (cJSON_IsNumber(IOR)) {
-						lastMesh(r)->materials[i].IOR = IOR->valuedouble;
-					}
-				} else if (type == plastic) {
-					lastMesh(r)->materials[i].IOR = 1.45;
-				}
-				if (cJSON_IsNumber(roughness)) lastMesh(r)->materials[i].roughness = roughness->valuedouble;
-				assignBSDF(r->scene, &lastMesh(r)->materials[i]);
 			}
 		}
 	}
