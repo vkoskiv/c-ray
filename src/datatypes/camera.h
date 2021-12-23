@@ -16,16 +16,16 @@
 
 struct camera {
 	float FOV;
-	float focalLength;
-	float focalDistance;
+	float focal_length;
+	float focus_distance;
 	float fstops;
 	float aperture;
-	float aspectRatio;
-	struct coord sensorSize;
+	float aspect_ratio;
+	struct coord sensor_size;
 	
 	struct vector up;
 	struct vector right;
-	struct vector lookAt;
+	struct vector look_at;
 	struct vector forward;
 	
 	struct transform composite;
@@ -41,4 +41,4 @@ struct camera {
 
 void cam_recompute_optics(struct camera *cam);
 void cam_update_pose(struct camera *cam, const struct euler_angles *orientation, const struct vector *pos);
-struct lightRay camGetRay(struct camera *cam, int x, int y, struct sampler *sampler);
+struct lightRay cam_get_ray(struct camera *cam, int x, int y, struct sampler *sampler);

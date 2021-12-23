@@ -15,17 +15,17 @@
 
 void cam_recompute_optics(struct camera *cam) {
 	if (!cam) return;
-	cam->aspectRatio = (float)cam->width / (float)cam->height;
-	cam->sensorSize.x = 2.0f * tanf(toRadians(cam->FOV) / 2.0f);
-	cam->sensorSize.y = cam->sensorSize.x / cam->aspectRatio;
-	cam->lookAt = (struct vector){0.0f, 0.0f, 1.0f};
+	cam->aspect_ratio = (float)cam->width / (float)cam->height;
+	cam->sensor_size.x = 2.0f * tanf(toRadians(cam->FOV) / 2.0f);
+	cam->sensor_size.y = cam->sensor_size.x / cam->aspect_ratio;
+	cam->look_at = (struct vector){0.0f, 0.0f, 1.0f};
 	//FIXME: This still assumes a 35mm sensor, instead of using the computed
 	//sensor width value from above. Just preserving this so existing configs
 	//work, but do look into a better way to do this here!
 	const float sensor_width_35mm = 0.036f;
-	cam->focalLength = 0.5f * sensor_width_35mm / toRadians(0.5f * cam->FOV);
-	if (cam->fstops != 0.0f) cam->aperture = 0.5f * (cam->focalLength / cam->fstops);
-	cam->forward = vecNormalize(cam->lookAt);
+	cam->focal_length = 0.5f * sensor_width_35mm / toRadians(0.5f * cam->FOV);
+	if (cam->fstops != 0.0f) cam->aperture = 0.5f * (cam->focal_length / cam->fstops);
+	cam->forward = vecNormalize(cam->look_at);
 	cam->right = vecCross(worldUp, cam->forward);
 	cam->up = vecCross(cam->forward, cam->right);
 }
@@ -70,7 +70,7 @@ static inline float triangleDistribution(float v) {
 	return v;
 }
 
-struct lightRay camGetRay(struct camera *cam, int x, int y, struct sampler *sampler) {
+struct lightRay cam_get_ray(struct camera *cam, int x, int y, struct sampler *sampler) {
 	struct lightRay newRay = {{0}};
 	
 	newRay.start = vecZero();
@@ -78,8 +78,8 @@ struct lightRay camGetRay(struct camera *cam, int x, int y, struct sampler *samp
 	const float jitterX = triangleDistribution(getDimension(sampler));
 	const float jitterY = triangleDistribution(getDimension(sampler));
 	
-	struct vector pixX = vecScale(cam->right, (cam->sensorSize.x / cam->width));
-	struct vector pixY = vecScale(cam->up, (cam->sensorSize.y / cam->height));
+	struct vector pixX = vecScale(cam->right, (cam->sensor_size.x / cam->width));
+	struct vector pixY = vecScale(cam->up, (cam->sensor_size.y / cam->height));
 	struct vector pixV = vecAdd(
 							cam->forward,
 							vecAdd(
@@ -90,7 +90,7 @@ struct lightRay camGetRay(struct camera *cam, int x, int y, struct sampler *samp
 	newRay.direction = vecNormalize(pixV);
 	
 	if (cam->aperture > 0.0f) {
-		float ft = cam->focalDistance / vecDot(newRay.direction, cam->forward);
+		float ft = cam->focus_distance / vecDot(newRay.direction, cam->forward);
 		struct vector focusPoint = alongRay(&newRay, ft);
 		struct coord lensPoint = coordScale(cam->aperture, randomCoordOnUnitDisc(sampler));
 		newRay.start = vecAdd(newRay.start, vecAdd(vecScale(cam->right, lensPoint.x), vecScale(cam->up, lensPoint.y)));

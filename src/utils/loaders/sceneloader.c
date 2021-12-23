@@ -532,9 +532,9 @@ static struct camera parseCamera(const cJSON *data) {
 	if (focalDistance) {
 		if (cJSON_IsNumber(focalDistance)) {
 			if (focalDistance->valuedouble >= 0.0) {
-				cam.focalDistance = focalDistance->valuedouble;
+				cam.focus_distance = focalDistance->valuedouble;
 			} else {
-				cam.focalDistance = 0.0f;
+				cam.focus_distance = 0.0f;
 			}
 		} else {
 			logr(warning, "Invalid focalDistance while parsing camera.\n");
