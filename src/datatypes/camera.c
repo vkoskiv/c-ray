@@ -71,34 +71,34 @@ static inline float triangleDistribution(float v) {
 }
 
 struct lightRay cam_get_ray(struct camera *cam, int x, int y, struct sampler *sampler) {
-	struct lightRay newRay = {{0}};
+	struct lightRay new_ray = {{0}};
 	
-	newRay.start = vecZero();
+	new_ray.start = vecZero();
 	
-	const float jitterX = triangleDistribution(getDimension(sampler));
-	const float jitterY = triangleDistribution(getDimension(sampler));
+	const float jitter_x = triangleDistribution(getDimension(sampler));
+	const float jitter_y = triangleDistribution(getDimension(sampler));
 	
-	struct vector pixX = vecScale(cam->right, (cam->sensor_size.x / cam->width));
-	struct vector pixY = vecScale(cam->up, (cam->sensor_size.y / cam->height));
-	struct vector pixV = vecAdd(
+	struct vector pix_x = vecScale(cam->right, (cam->sensor_size.x / cam->width));
+	struct vector pix_y = vecScale(cam->up, (cam->sensor_size.y / cam->height));
+	struct vector pix_v = vecAdd(
 							cam->forward,
 							vecAdd(
-								vecScale(pixX, x - cam->width * 0.5f + jitterX + 0.5f),
-								vecScale(pixY, y - cam->height * 0.5f + jitterY + 0.5f)
+								vecScale(pix_x, x - cam->width  * 0.5f + jitter_x + 0.5f),
+								vecScale(pix_y, y - cam->height * 0.5f + jitter_y + 0.5f)
 							)
 						);
-	newRay.direction = vecNormalize(pixV);
+	new_ray.direction = vecNormalize(pix_v);
 	
 	if (cam->aperture > 0.0f) {
-		float ft = cam->focus_distance / vecDot(newRay.direction, cam->forward);
-		struct vector focusPoint = alongRay(&newRay, ft);
-		struct coord lensPoint = coordScale(cam->aperture, randomCoordOnUnitDisc(sampler));
-		newRay.start = vecAdd(newRay.start, vecAdd(vecScale(cam->right, lensPoint.x), vecScale(cam->up, lensPoint.y)));
-		newRay.direction = vecNormalize(vecSub(focusPoint, newRay.start));
+		float ft = cam->focus_distance / vecDot(new_ray.direction, cam->forward);
+		struct vector focus_point = alongRay(&new_ray, ft);
+		struct coord lens_point = coordScale(cam->aperture, randomCoordOnUnitDisc(sampler));
+		new_ray.start = vecAdd(new_ray.start, vecAdd(vecScale(cam->right, lens_point.x), vecScale(cam->up, lens_point.y)));
+		new_ray.direction = vecNormalize(vecSub(focus_point, new_ray.start));
 	}
 	//To world space
-	transformRay(&newRay, cam->composite.A.mtx);
-	return newRay;
+	transformRay(&new_ray, cam->composite.A.mtx);
+	return new_ray;
 }
 
 void camDestroy(struct camera *cam) {
