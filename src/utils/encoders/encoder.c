@@ -20,20 +20,15 @@
 
 #include "formats/png.h"
 #include "formats/bmp.h"
+#include "formats/qoi.h"
 
 void writeImage(struct imageFile *image) {
 	char *buf = NULL;
 	if (isSet("output_path")) {
 		asprintf(&buf, "%s%s", image->filePath, image->fileName);
-		if (stringEndsWith(".png", buf)) {
-			image->type = png;
-		} else if (stringEndsWith(".bmp", buf)) {
-			image->type = bmp;
-		} else {
-			image->type = unknown;
-		}
+		image->type = guessFileType(buf);
 	} else {
-		asprintf(&buf, "%s%s_%04d.%s", image->filePath, image->fileName, image->count, image->type == png ? "png" : "bmp");
+		asprintf(&buf, "%s%s_%04d.%s", image->filePath, image->fileName, image->count, image->type == png ? "png" : image->type == bmp ? "bmp" : "qoi");
 	}
 	switch (image->type) {
 		case png:
@@ -41,6 +36,9 @@ void writeImage(struct imageFile *image) {
 			break;
 		case bmp:
 			encodeBMPFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height);
+			break;
+		case qoi:
+			encode_qoi_from_array(buf, image->t->data.byte_p, image->t->width, image->t->height);
 			break;
 		case unknown:
 			logr(warning, "Unknown file type with -o flag, defaulting to png\n");

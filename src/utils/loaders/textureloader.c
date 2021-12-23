@@ -19,6 +19,9 @@
 #define STBI_NO_GIF
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../libraries/stb_image.h"
+#include "../../libraries/qoi.h" // encoder defines implementation macro already
+
+struct texture *load_qoi_from_buffer(const unsigned char *buffer, const unsigned int buflen, struct block **pool);
 
 // I don't want to mess with memory allocation within the different
 // image parsing libs, so I just copy out to a pool afterwards.
@@ -54,9 +57,14 @@ struct texture *loadTexture(char *filePath, struct block **pool) {
 	filePath[strcspn(filePath, "\n")] = 0;
 	unsigned char *file = (unsigned char*)loadFile(filePath, &len);
 	if (!file) return NULL;
+	
+	enum fileType type = guessFileType(filePath);
+	
 	struct texture *new = NULL;
 	if (stbi_is_hdr(filePath)) {
 		new = loadEnvMap(file, len, filePath, pool);
+	} else if (type == qoi) {
+		new = load_qoi_from_buffer(file, (unsigned int)len, pool);
 	} else {
 		new = loadTextureFromBuffer(file, (unsigned int)len, pool);
 	}
@@ -68,6 +76,20 @@ struct texture *loadTexture(char *filePath, struct block **pool) {
 		return NULL;
 	}
 	
+	return new;
+}
+
+//FIXME: These don't actually put the image data in the memory pool. That'll leak!
+struct texture *load_qoi_from_buffer(const unsigned char *buffer, const unsigned int buflen, struct block **pool) {
+	qoi_desc desc;
+	void *decoded_data = qoi_decode(buffer, buflen, &desc, 3);
+	struct texture *new = pool ? allocBlock(pool, sizeof(*new)) : newTexture(none, 0, 0, 0);
+	new->data.byte_p = decoded_data;
+	new->width = desc.width;
+	new->height = desc.height;
+	new->channels = desc.channels;
+	if (new->channels > 3) new->hasAlpha = true;
+	new->precision = char_p;
 	return new;
 }
 

@@ -18,6 +18,7 @@ enum fileType {
 	mtl,
 	jpg,
 	tiff,
+	qoi,
 	unknown,
 };
 

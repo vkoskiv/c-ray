@@ -346,8 +346,12 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 		if (cJSON_IsString(fileType)) {
 			if (stringEquals(fileType->valuestring, "bmp")) {
 				prefs->imgType = bmp;
-			} else {
+			} else if (stringEquals(fileType->valuestring, "png")) {
 				prefs->imgType = png;
+			} else if (stringEquals(fileType->valuestring, "qoi")) {
+				prefs->imgType = qoi;
+			} else {
+				prefs->imgType = unknown;
 			}
 		} else {
 			logr(warning, "Invalid fileType while parsing scene.\n");
