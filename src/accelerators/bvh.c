@@ -42,7 +42,7 @@ struct bvhNode {
 };
 
 struct bvh {
-	struct bvhNode* nodes;
+	struct bvhNode *nodes;
 	int *primIndices;
 	unsigned nodeCount;
 };
@@ -78,7 +78,7 @@ static inline float nodeArea(const struct bvhNode *node) {
 	return bboxHalfArea(&bbox);
 }
 
-static inline void makeLeaf(struct bvhNode* node, unsigned begin, unsigned primCount) {
+static inline void makeLeaf(struct bvhNode *node, unsigned begin, unsigned primCount) {
 	node->isLeaf = true;
 	node->firstChildOrPrim = begin;
 	node->primCount = primCount;
@@ -243,8 +243,8 @@ static void buildBvhRecursive(
 
 // Builds a BVH using the provided callback to obtain bounding boxes and centers for each primitive
 static inline struct bvh *buildBvhGeneric(
-	void* userData,
-	void (*getBBoxAndCenter)(void*, unsigned, struct boundingBox*, struct vector*),
+	void *userData,
+	void (*getBBoxAndCenter)(void *, unsigned, struct boundingBox *, struct vector *),
 	unsigned count)
 {
 	if (count < 1) {
@@ -327,9 +327,9 @@ static inline bool intersectNode(
 	const struct bvhNode *node,
 	const struct vector *invDir,
 	const struct vector *scaledStart,
-	const int* octant,
+	const int *octant,
 	float maxDist,
-	float* tEntry)
+	float *tEntry)
 {
 	float tMinX = fastMultiplyAdd(node->bounds[0 +     octant[0]], invDir->x, scaledStart->x);
 	float tMaxX = fastMultiplyAdd(node->bounds[0 + 1 - octant[0]], invDir->x, scaledStart->x);
@@ -352,9 +352,9 @@ static inline bool intersectNode(
 }
 
 static inline bool traverseBvhGeneric(
-	void* userData,
+	void *userData,
 	const struct bvh *bvh,
-	bool (*intersectLeaf)(void*, const struct bvh*, const struct bvhNode*, const struct lightRay*, struct hitRecord*, sampler*),
+	bool (*intersectLeaf)(void *, const struct bvh *, const struct bvhNode *, const struct lightRay *, struct hitRecord *, sampler *),
 	const struct lightRay *ray,
 	struct hitRecord *isect,
 	sampler *sampler)
@@ -492,7 +492,7 @@ bool traverseTopLevelBvh(
 	struct hitRecord *isect,
 	sampler *sampler)
 {
-	return traverseBvhGeneric((void*)instances, bvh, intersectTopLevelLeaf, ray, isect, sampler);
+	return traverseBvhGeneric((void *)instances, bvh, intersectTopLevelLeaf, ray, isect, sampler);
 }
 
 void destroyBvh(struct bvh *bvh) {
