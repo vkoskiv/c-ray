@@ -6,7 +6,7 @@
 //  Copyright © 2017-2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include <utils/hashtable.h>
+#include "../utils/hashtable.h"
 #include "../includes.h"
 
 #include "../datatypes/image/imagefile.h"
