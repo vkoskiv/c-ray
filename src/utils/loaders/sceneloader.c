@@ -231,15 +231,6 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 		}
 	}
 
-	const cJSON *antialiasing = cJSON_GetObjectItem(data, "antialiasing");
-	if (antialiasing) {
-		if (cJSON_IsBool(antialiasing)) {
-			prefs->antialiasing = cJSON_IsTrue(antialiasing);
-		} else {
-			logr(warning, "Invalid antialiasing bool while parsing renderer\n");
-		}
-	}
-
 	const cJSON *tileWidth = cJSON_GetObjectItem(data, "tileWidth");
 	if (tileWidth) {
 		if (cJSON_IsNumber(tileWidth)) {

@@ -85,8 +85,6 @@ struct prefs {
 	bool useClustering;
 	bool isWorker;
 	float scale;
-	
-	bool antialiasing;
 };
 
 /**

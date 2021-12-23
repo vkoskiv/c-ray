@@ -342,7 +342,6 @@ static struct prefs defaultPrefs() {
 			.bounces = 20,
 			.tileWidth = 32,
 			.tileHeight = 32,
-			.antialiasing = true,
 			.imgFilePath = stringCopy("./"),
 			.imgFileName = stringCopy("rendered"),
 			.imgCount = 0,

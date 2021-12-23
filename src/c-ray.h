@@ -82,9 +82,6 @@ char *crGetFileName(void);
 void crSetAssetPath(void);
 char *crGetAssetPath(void);
 
-void crSetAntialiasing(bool on);
-bool crGetAntialiasing(void);
-
 //Single frame
 void crStartRenderer(void);
 

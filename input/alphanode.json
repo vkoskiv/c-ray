@@ -4,7 +4,6 @@
 		"threads": 0,
 		"samples": 250,
 		"bounces": 30,
-		"antialiasing": true,
 		"tileWidth": 64,
 		"tileHeight": 64,
 		"tileOrder": "fromMiddle",

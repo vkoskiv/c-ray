@@ -239,14 +239,6 @@ char *crGetAssetPath(void) {
 	return g_renderer->prefs.assetPath;
 }
 
-void crSetAntialiasing(bool on) {
-	g_renderer->prefs.antialiasing = on;
-}
-
-bool crGetAntialiasing() {
-	return g_renderer->prefs.antialiasing;
-}
-
 void crStartRenderer() {
 	if (isSet("use_clustering")) {
 		g_renderer->prefs.useClustering = true;
