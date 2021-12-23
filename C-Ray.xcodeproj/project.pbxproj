@@ -39,8 +39,8 @@
 		90500A99258AB484006F854A /* valuenode.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A96258AB484006F854A /* valuenode.c */; };
 		90500A9C258AC07D006F854A /* add.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A9A258AC07D006F854A /* add.c */; };
 		90500A9D258AC07D006F854A /* add.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A9A258AC07D006F854A /* add.c */; };
-		90500AA0258C09E8006F854A /* combine.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A9E258C09E8006F854A /* combine.c */; };
-		90500AA1258C09E8006F854A /* combine.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A9E258C09E8006F854A /* combine.c */; };
+		90500AA0258C09E8006F854A /* split.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A9E258C09E8006F854A /* split.c */; };
+		90500AA1258C09E8006F854A /* split.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A9E258C09E8006F854A /* split.c */; };
 		90500AA4258C0AB1006F854A /* combinergb.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500AA2258C0AB1006F854A /* combinergb.c */; };
 		90500AA5258C0AB1006F854A /* combinergb.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500AA2258C0AB1006F854A /* combinergb.c */; };
 		90500AAC258D81CA006F854A /* background.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500AAA258D81CA006F854A /* background.c */; };
@@ -174,6 +174,8 @@
 		90CFA7E02381BF0900061288 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CFA7DE2381BF0900061288 /* hashtable.c */; };
 		90D5F02624A208100068FC60 /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90D5F02524A208100068FC60 /* gitsha1.c */; };
 		90D5F02724A208100068FC60 /* gitsha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 90D5F02524A208100068FC60 /* gitsha1.c */; };
+		90E1721D2774FDA7009B5FF0 /* quaternion.c in Sources */ = {isa = PBXBuildFile; fileRef = 90E1721C2774FDA7009B5FF0 /* quaternion.c */; };
+		90E1721E2774FDA7009B5FF0 /* quaternion.c in Sources */ = {isa = PBXBuildFile; fileRef = 90E1721C2774FDA7009B5FF0 /* quaternion.c */; };
 		90E1A60F261CF44500EAE727 /* server.c in Sources */ = {isa = PBXBuildFile; fileRef = 90E1A60D261CF44500EAE727 /* server.c */; };
 		90E1A610261CF44500EAE727 /* server.c in Sources */ = {isa = PBXBuildFile; fileRef = 90E1A60D261CF44500EAE727 /* server.c */; };
 		90E1A613261CF44E00EAE727 /* worker.c in Sources */ = {isa = PBXBuildFile; fileRef = 90E1A611261CF44E00EAE727 /* worker.c */; };
@@ -268,8 +270,8 @@
 		90500A97258AB484006F854A /* valuenode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = valuenode.h; sourceTree = "<group>"; };
 		90500A9A258AC07D006F854A /* add.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = add.c; sourceTree = "<group>"; };
 		90500A9B258AC07D006F854A /* add.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = add.h; sourceTree = "<group>"; };
-		90500A9E258C09E8006F854A /* combine.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = combine.c; sourceTree = "<group>"; };
-		90500A9F258C09E8006F854A /* combine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = combine.h; sourceTree = "<group>"; };
+		90500A9E258C09E8006F854A /* split.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = split.c; sourceTree = "<group>"; };
+		90500A9F258C09E8006F854A /* split.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = split.h; sourceTree = "<group>"; };
 		90500AA2258C0AB1006F854A /* combinergb.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = combinergb.c; sourceTree = "<group>"; };
 		90500AA3258C0AB1006F854A /* combinergb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = combinergb.h; sourceTree = "<group>"; };
 		90500AAA258D81CA006F854A /* background.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = background.c; sourceTree = "<group>"; };
@@ -401,6 +403,8 @@
 		90CFA7DE2381BF0900061288 /* hashtable.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hashtable.c; sourceTree = "<group>"; };
 		90D5F02524A208100068FC60 /* gitsha1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gitsha1.c; path = generated/gitsha1.c; sourceTree = SOURCE_ROOT; };
 		90D99AF41D08ADB10015A854 /* C-Ray Fast */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Ray Fast"; sourceTree = BUILT_PRODUCTS_DIR; };
+		90E1721B2774FDA6009B5FF0 /* quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quaternion.h; sourceTree = "<group>"; };
+		90E1721C2774FDA7009B5FF0 /* quaternion.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = quaternion.c; sourceTree = "<group>"; };
 		90E1A60D261CF44500EAE727 /* server.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = server.c; sourceTree = "<group>"; };
 		90E1A60E261CF44500EAE727 /* server.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = server.h; sourceTree = "<group>"; };
 		90E1A611261CF44E00EAE727 /* worker.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = worker.c; sourceTree = "<group>"; };
@@ -494,6 +498,8 @@
 				906479C224996499003772CE /* bbox.h */,
 				900BA108220B4602005B8EE7 /* poly.h */,
 				900BA0FC220B4602005B8EE7 /* poly.c */,
+				90E1721B2774FDA6009B5FF0 /* quaternion.h */,
+				90E1721C2774FDA7009B5FF0 /* quaternion.c */,
 				900BA0FD220B4602005B8EE7 /* tile.h */,
 				900BA107220B4602005B8EE7 /* tile.c */,
 				900BA10D220B4602005B8EE7 /* vector.h */,
@@ -589,8 +595,8 @@
 				90500A8E258AB0FE006F854A /* blackbody.c */,
 				90500A8225881C8B006F854A /* grayscale.h */,
 				90500A8125881C8B006F854A /* grayscale.c */,
-				90500A9F258C09E8006F854A /* combine.h */,
-				90500A9E258C09E8006F854A /* combine.c */,
+				90500A9F258C09E8006F854A /* split.h */,
+				90500A9E258C09E8006F854A /* split.c */,
 				90500AA3258C0AB1006F854A /* combinergb.h */,
 				90500AA2258C0AB1006F854A /* combinergb.c */,
 				9050FFF425994121001C172D /* vecmath.h */,
@@ -904,7 +910,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */;
+			buildConfigurationList = 90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -949,6 +955,7 @@
 				90A21CF224589E6A002C742E /* sampler.c in Sources */,
 				90AB1E082574373E00EFDF5A /* bsdfnode.c in Sources */,
 				905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */,
+				90E1721E2774FDA7009B5FF0 /* quaternion.c in Sources */,
 				90C5D5592448CEAB00C58643 /* imagefile.c in Sources */,
 				9076FB56243002B90003B327 /* thread.c in Sources */,
 				905842E7236651FC009D92F1 /* material.c in Sources */,
@@ -1015,7 +1022,7 @@
 				905842FF236651FC009D92F1 /* sceneloader.c in Sources */,
 				9076FB4E243002A40003B327 /* terminal.c in Sources */,
 				90CFA7E02381BF0900061288 /* hashtable.c in Sources */,
-				90500AA1258C09E8006F854A /* combine.c in Sources */,
+				90500AA1258C09E8006F854A /* split.c in Sources */,
 				90E1A610261CF44500EAE727 /* server.c in Sources */,
 				90500AB1258D95EF006F854A /* gradient.c in Sources */,
 			);
@@ -1046,6 +1053,7 @@
 				90A21CF124589E6A002C742E /* sampler.c in Sources */,
 				90AB1E072574373E00EFDF5A /* bsdfnode.c in Sources */,
 				90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */,
+				90E1721D2774FDA7009B5FF0 /* quaternion.c in Sources */,
 				90C5D5582448CEAB00C58643 /* imagefile.c in Sources */,
 				9076FB55243002B90003B327 /* thread.c in Sources */,
 				900BA135220B4603005B8EE7 /* material.c in Sources */,
@@ -1112,7 +1120,7 @@
 				90CA85212252CB3800BA7702 /* sceneloader.c in Sources */,
 				9076FB4D243002A40003B327 /* terminal.c in Sources */,
 				90CFA7DF2381BF0900061288 /* hashtable.c in Sources */,
-				90500AA0258C09E8006F854A /* combine.c in Sources */,
+				90500AA0258C09E8006F854A /* split.c in Sources */,
 				90E1A60F261CF44500EAE727 /* server.c in Sources */,
 				90500AB0258D95EF006F854A /* gradient.c in Sources */,
 			);
@@ -1432,7 +1440,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-Ray" */ = {
+		90D99AEF1D08ADB10015A854 /* Build configuration list for PBXProject "C-ray" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				90D99AF91D08ADB10015A854 /* Debug */,
