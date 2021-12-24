@@ -94,17 +94,17 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 		} else if (stringEquals(first, "map_Kd") || stringEquals(first, "map_Ka")) {
 			char *path = stringConcat(assetPath, nextToken(line));
 			windowsFixPath(path);
-			current->texture = loadTexture(path, NULL);
+			current->texture = load_texture(path, NULL);
 			free(path);
 		} else if (stringEquals(first, "norm") || stringEquals(first, "bump") || stringEquals(first, "map_bump")) {
 			char *path = stringConcat(assetPath, nextToken(line));
 			windowsFixPath(path);
-			current->normalMap = loadTexture(path, NULL);
+			current->normalMap = load_texture(path, NULL);
 			free(path);
 		} else if (stringEquals(first, "map_Ns")) {
 			char *path = stringConcat(assetPath, nextToken(line));
 			windowsFixPath(path);
-			current->specularMap = loadTexture(path, NULL);
+			current->specularMap = load_texture(path, NULL);
 			free(path);
 		} else {
 			char *fileName = getFileName(filePath);
