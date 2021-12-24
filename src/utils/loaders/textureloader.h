@@ -10,9 +10,10 @@
 
 struct block;
 
-/// Load a generic texture. Currently supports: JPEG, PNG, BMP, TGA, PIC, PNM
+/// Load a generic texture. Currently supports: JPEG, PNG, BMP, TGA, PIC, PNM, QOI
 /// @param filePath Path to image file on disk
 /// @param pool Optional, memory pool to store image data
-struct texture *loadTexture(char *filePath, struct block **pool);
+struct texture *load_texture(char *filePath, struct block **pool);
 
-struct texture *loadTextureFromBuffer(const unsigned char *buffer, const unsigned int buflen, struct block **pool);
+// Only exposed for the built-in logo if SDL is enabled.
+struct texture *load_texture_from_buffer(const unsigned char *buffer, const unsigned int buflen, struct block **pool);

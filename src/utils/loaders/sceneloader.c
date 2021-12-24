@@ -704,7 +704,7 @@ static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsString(hdr)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, hdr->valuestring);
 		if (isValidFile(fullPath)) {
-			r->scene->background = newBackground(r->scene, newImageTexture(r->scene, loadTexture(fullPath, &r->scene->nodePool), 0), NULL);
+			r->scene->background = newBackground(r->scene, newImageTexture(r->scene, load_texture(fullPath, &r->scene->nodePool), 0), NULL);
 			free(fullPath);
 			return;
 		}
@@ -841,7 +841,7 @@ static const struct colorNode *parseTextureNode(struct world *w, const cJSON *no
 
 	if (cJSON_IsString(node)) {
 		// No options provided, go with defaults.
-		return newImageTexture(w, loadTexture(node->valuestring, &w->nodePool), 0);
+		return newImageTexture(w, load_texture(node->valuestring, &w->nodePool), 0);
 	}
 
 	// Should be an object, then.
@@ -900,7 +900,7 @@ static const struct colorNode *parseTextureNode(struct world *w, const cJSON *no
 
 	const cJSON *path = cJSON_GetObjectItem(node, "path");
 	if (cJSON_IsString(path)) {
-		return newImageTexture(w, loadTexture(path->valuestring, &w->nodePool), options);
+		return newImageTexture(w, load_texture(path->valuestring, &w->nodePool), options);
 	}
 
 	logr(warning, "Failed to parse textureNode. Here's a dump:\n");
