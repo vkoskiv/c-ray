@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 23.6.2020.
-//  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -69,7 +69,7 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 	struct sphereVolume *volume = (struct sphereVolume *)instance->object;
 	copy1.start = vecAdd(copy1.start, vecScale(copy1.direction, volume->sphere->rayOffset));
 	if (rayIntersectsWithSphere(&copy1, volume->sphere, &record1)) {
-		copy2 = (struct lightRay){alongRay(&copy1, record1.distance + 0.0001f), copy1.direction, rayTypeIncident};
+		copy2 = (struct lightRay){ alongRay(&copy1, record1.distance + 0.0001f), copy1.direction };
 		if (rayIntersectsWithSphere(&copy2, volume->sphere, &record2)) {
 			if (record1.distance < 0.0f)
 				record1.distance = 0.0f;
@@ -194,7 +194,7 @@ static bool intersectMeshVolume(const struct instance *instance, const struct li
 	float offset = mesh->mesh->rayOffset;
 	copy.start = vecAdd(copy.start, vecScale(copy.direction, offset));
 	if (traverseBottomLevelBvh(mesh->mesh, &copy, &record1, sampler)) {
-		struct lightRay copy2 = (struct lightRay){ alongRay(&copy, record1.distance + 0.0001f), copy.direction, rayTypeIncident };
+		struct lightRay copy2 = (struct lightRay){ alongRay(&copy, record1.distance + 0.0001f), copy.direction };
 		if (traverseBottomLevelBvh(mesh->mesh, &copy2, &record2, sampler)) {
 			if (record1.distance < 0.0f)
 				record1.distance = 0.0f;
