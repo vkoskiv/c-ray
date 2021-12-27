@@ -13,13 +13,6 @@
 
 #define ATTEMPTS 1024
 
-bool vector_vecWithPos(void) {
-	struct vector a = vecWithPos(1.0f, 2.0f, 3.0f);
-	struct vector expected = (struct vector){1.0f, 2.0f, 3.0f};
-	vec_roughly_equals(a, expected);
-	return true;
-}
-
 bool vector_vecZero(void) {
 	struct vector a = vecZero();
 	struct vector expected = (struct vector){0.0f, 0.0f, 0.0f};

@@ -22,7 +22,6 @@ static char *failed_expression;
 #include "test_nodes.h"
 
 static test tests[] = {
-	{"vector::vecWithPos", vector_vecWithPos},
 	{"vector::vecZero", vector_vecZero},
 	{"vector::add", vector_vecAdd},
 	{"vector::subtract", vector_vecSub},

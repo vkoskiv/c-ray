@@ -31,18 +31,6 @@ struct intCoord {
 
 static const struct vector worldUp = {0.0f, 1.0f, 0.0f};
 
-/**
- Create a vector with given position values and return it.
-
- @param x X component
- @param y Y component
- @param z Z component
- @return Vector with given values
- */
-static inline struct vector vecWithPos(float x, float y, float z) {
-	return (struct vector){x, y, z};
-}
-
 //For defaults
 static inline struct vector vecZero() {
 	return (struct vector){0.0f, 0.0f, 0.0f};

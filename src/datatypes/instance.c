@@ -97,8 +97,8 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 	struct sphere *sphere = (struct sphere *)instance->object;
 	*center = vecZero();
 	transformPoint(center, instance->composite.A.mtx);
-	bbox->min = vecWithPos(-sphere->radius, -sphere->radius, -sphere->radius);
-	bbox->max = vecWithPos( sphere->radius,  sphere->radius,  sphere->radius);
+	bbox->min = (struct vector){ -sphere->radius, -sphere->radius, -sphere->radius };
+	bbox->max = (struct vector){  sphere->radius,  sphere->radius,  sphere->radius };
 	if (!isRotation(&instance->composite) && !isTranslate(&instance->composite))
 		transformBBox(bbox, instance->composite.A.mtx);
 	else {
@@ -114,8 +114,8 @@ static void getSphereVolumeBBoxAndCenter(const struct instance *instance, struct
 	struct sphereVolume *volume = (struct sphereVolume *)instance->object;
 	*center = vecZero();
 	transformPoint(center, instance->composite.A.mtx);
-	bbox->min = vecWithPos(-volume->sphere->radius, -volume->sphere->radius, -volume->sphere->radius);
-	bbox->max = vecWithPos( volume->sphere->radius,  volume->sphere->radius,  volume->sphere->radius);
+	bbox->min = (struct vector){ -volume->sphere->radius, -volume->sphere->radius, -volume->sphere->radius };
+	bbox->max = (struct vector){  volume->sphere->radius,  volume->sphere->radius,  volume->sphere->radius };
 	if (!isRotation(&instance->composite) && !isTranslate(&instance->composite))
 		transformBBox(bbox, instance->composite.A.mtx);
 	else {
