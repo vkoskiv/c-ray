@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Arsène Pérard-Gayot on 07/06/2020.
-//  Copyright © 2020 Arsène Pérard-Gayot (@madmann91). All rights reserved.
+//  Copyright © 2020-2021 Arsène Pérard-Gayot (@madmann91), Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"

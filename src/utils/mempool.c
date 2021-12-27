@@ -3,7 +3,7 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 05/12/2020.
-//  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"

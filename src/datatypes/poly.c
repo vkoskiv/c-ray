@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2021 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -16,7 +16,7 @@
 
 bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *poly, struct hitRecord *isect) {
 	// Möller-Trumbore ray-triangle intersection routine
-	// (see "Fast, Minimum Storage Ray-Triangle Intersection", by T. Moeller and B. Trumbore)
+	// (see "Fast, Minimum Storage Ray-Triangle Intersection", by T. Möller and B. Trumbore)
 	struct vector e1 = vecSub(g_vertices[poly->vertexIndex[0]], g_vertices[poly->vertexIndex[1]]);
 	struct vector e2 = vecSub(g_vertices[poly->vertexIndex[2]], g_vertices[poly->vertexIndex[0]]);
 	struct vector n = vecCross(e1, e2);
