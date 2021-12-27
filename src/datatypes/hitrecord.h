@@ -3,7 +3,7 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 06/12/2020.
-//  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
@@ -17,9 +17,9 @@ struct hitRecord {
 	struct vector surfaceNormal;	//Surface normal at that point of intersection
 	//FIXME: Do we even have cases without UV anymore?
 	struct coord uv;				//UV barycentric coordinates for intersection point
-	float distance;					//Distance to intersection point
 	const struct bsdfNode *bsdf;	//Surface properties of the intersected object
 	const struct color *emission;	//FIXME: Hack - Shouldn't have this here
 	struct poly *polygon;			//ptr to polygon that was encountered
+	float distance;					//Distance to intersection point
 	int instIndex;					//Instance index, negative if no intersection
 };
