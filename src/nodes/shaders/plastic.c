@@ -23,12 +23,13 @@ struct plasticBsdf {
 	const struct colorNode *color;
 	const struct colorNode *roughness;
 	const struct bsdfNode *diffuse;
+	const struct valueNode *IOR;
 };
 
 static bool compare(const void *A, const void *B) {
 	const struct plasticBsdf *this = A;
 	const struct plasticBsdf *other = B;
-	return this->color == other->color && this->roughness == other->roughness;
+	return this->color == other->color && this->roughness == other->roughness && this->IOR == other->IOR;
 }
 
 static uint32_t hash(const void *p) {
@@ -36,6 +37,7 @@ static uint32_t hash(const void *p) {
 	uint32_t h = hashInit();
 	h = hashBytes(h, &this->color, sizeof(this->color));
 	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
+	h = hashBytes(h, &this->IOR, sizeof(this->IOR));
 	return h;
 }
 
@@ -63,18 +65,20 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	
 	struct plasticBsdf *this = (struct plasticBsdf *)bsdf;
 	
+	const float IOR = this->IOR->eval(this->IOR, record);
+	
 	if (vecDot(record->incident.direction, record->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(record->surfaceNormal);
-		niOverNt = record->material.IOR;
-		cosine = record->material.IOR * vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction);
+		niOverNt = IOR;
+		cosine = IOR * vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction);
 	} else {
 		outwardNormal = record->surfaceNormal;
-		niOverNt = 1.0f / record->material.IOR;
+		niOverNt = 1.0f / IOR;
 		cosine = -(vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction));
 	}
 	
 	if (refract(&record->incident.direction, outwardNormal, niOverNt, &refracted)) {
-		reflectionProbability = schlick(cosine, record->material.IOR);
+		reflectionProbability = schlick(cosine, IOR);
 	} else {
 		reflectionProbability = 1.0f;
 	}
@@ -86,11 +90,12 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	}
 }
 
-const struct bsdfNode *newPlastic(const struct world *world, const struct colorNode *color) {
+const struct bsdfNode *newPlastic(const struct world *world, const struct colorNode *color, const struct valueNode *IOR) {
 	HASH_CONS(world->nodeTable, hash, struct plasticBsdf, {
 		.color = color ? color : newConstantTexture(world, blackColor),
 		.roughness = newConstantTexture(world, blackColor),
 		.diffuse = newDiffuse(world, color),
+		.IOR = IOR ? IOR : newConstantValue(world, 1.45f),
 		.bsdf = {
 			.sample = sample,
 			.base = { .compare = compare }

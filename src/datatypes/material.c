@@ -98,7 +98,7 @@ void assignBSDF(struct world *w, struct material *mat) {
 			chosen_bsdf = newMetal(w, color, roughness);
 			break;
 		case plastic:
-			chosen_bsdf = newPlastic(w, color);
+			chosen_bsdf = newPlastic(w, color, newConstantValue(w, mat->IOR));
 			break;
 		case emission:
 			chosen_bsdf = newDiffuse(w, color);

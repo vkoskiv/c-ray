@@ -932,7 +932,7 @@ static const struct bsdfNode *parseBsdfNode(struct world *w, const cJSON *node) 
 	} else if (stringEquals(type->valuestring, "glass")) {
 		return newGlass(w, color, roughness, IOR);
 	} else if (stringEquals(type->valuestring, "plastic")) {
-		return newPlastic(w, color);
+		return newPlastic(w, color, IOR);
 	} else if (stringEquals(type->valuestring, "mix")) {
 		return newMix(w, A, B, factor);
 	} else if (stringEquals(type->valuestring, "add")) {

@@ -360,6 +360,7 @@
 				"fileName": "venusscaled.obj",
 				"bsdf": "plastic",
 				"roughness": 0.0,
+				"IOR": 1.45,
 				"instances": [
 					{
 						"transforms": [
