@@ -40,7 +40,7 @@ static uint32_t hash(const void *p) {
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct metalBsdf *metalBsdf = (struct metalBsdf *)bsdf;
 	
-	const struct vector normalizedDir = vecNormalize(record->incident.direction);
+	const struct vector normalizedDir = vecNormalize(record->incident_dir);
 	struct vector reflected = vecReflect(normalizedDir, record->surfaceNormal);
 	float roughness = metalBsdf->roughness->eval(metalBsdf->roughness, record);
 	if (roughness > 0.0f) {

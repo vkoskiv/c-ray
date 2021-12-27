@@ -42,7 +42,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	struct glassBsdf *glassBsdf = (struct glassBsdf *)bsdf;
 	
 	struct vector outwardNormal;
-	struct vector reflected = vecReflect(record->incident.direction, record->surfaceNormal);
+	struct vector reflected = vecReflect(record->incident_dir, record->surfaceNormal);
 	float niOverNt;
 	struct vector refracted;
 	float reflectionProbability;
@@ -50,17 +50,17 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	
 	float IOR = glassBsdf->IOR->eval(glassBsdf->IOR, record);
 	
-	if (vecDot(record->incident.direction, record->surfaceNormal) > 0.0f) {
+	if (vecDot(record->incident_dir, record->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(record->surfaceNormal);
 		niOverNt = IOR;
-		cosine = IOR * vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction);
+		cosine = IOR * vecDot(record->incident_dir, record->surfaceNormal) / vecLength(record->incident_dir);
 	} else {
 		outwardNormal = record->surfaceNormal;
 		niOverNt = 1.0f / IOR;
-		cosine = -(vecDot(record->incident.direction, record->surfaceNormal) / vecLength(record->incident.direction));
+		cosine = -(vecDot(record->incident_dir, record->surfaceNormal) / vecLength(record->incident_dir));
 	}
 	
-	if (refract(&record->incident.direction, outwardNormal, niOverNt, &refracted)) {
+	if (refract(&record->incident_dir, outwardNormal, niOverNt, &refracted)) {
 		reflectionProbability = schlick(cosine, IOR);
 	} else {
 		reflectionProbability = 1.0f;

@@ -39,7 +39,7 @@ static uint32_t hash(const void *p) {
 //Linearly interpolate based on the Y component
 static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
 	struct gradientTexture *this = (struct gradientTexture *)node;
-	struct vector unitDir = vecNormalize(record->incident.direction);
+	struct vector unitDir = vecNormalize(record->incident_dir);
 	float t = 0.5f * (unitDir.y + 1.0f);
 	return colorAdd(colorCoef(1.0f - t, this->down), colorCoef(t, this->up));
 }

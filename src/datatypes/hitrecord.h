@@ -12,8 +12,8 @@
 #include "lightray.h"
 
 struct hitRecord {
-	struct lightRay incident;		//Light ray that encountered this intersection
-	struct vector hitPoint;			//Hit point vector in 3D space
+	struct vector incident_dir;		//Incident ray direction
+	struct vector hitPoint;			//Hit point vector in world space
 	struct vector surfaceNormal;	//Surface normal at that point of intersection
 	//FIXME: Do we even have cases without UV anymore?
 	struct coord uv;				//UV barycentric coordinates for intersection point

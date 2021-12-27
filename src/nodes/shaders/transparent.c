@@ -40,7 +40,7 @@ static uint32_t hash(const void *p) {
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	(void)sampler;
 	struct transparent *this = (struct transparent *)bsdf;
-	return (struct bsdfSample){ .out = record->incident.direction, .color = this->color->eval(this->color, record) };
+	return (struct bsdfSample){ .out = record->incident_dir, .color = this->color->eval(this->color, record) };
 }
 
 const struct bsdfNode *newTransparent(const struct world *world, const struct colorNode *color) {
