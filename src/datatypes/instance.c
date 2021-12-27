@@ -51,7 +51,8 @@ static bool intersectSphere(const struct instance *instance, const struct lightR
 	if (rayIntersectsWithSphere(&copy, sphere, isect)) {
 		isect->uv = getTexMapSphere(isect);
 		isect->polygon = NULL;
-		isect->material = sphere->material;
+		isect->bsdf = sphere->material.bsdf;
+		isect->emission = &sphere->material.emission;
 		transformPoint(&isect->hitPoint, instance->composite.A.mtx);
 		transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv.mtx);
 		return true;
@@ -80,7 +81,8 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 				isect->hitPoint = alongRay(ray, isect->distance);
 				isect->uv = (struct coord){-1.0f, -1.0f};
 				isect->polygon = NULL;
-				isect->material = volume->sphere->material;
+				isect->bsdf = volume->sphere->material.bsdf;
+				isect->emission = &volume->sphere->material.emission;
 				transformPoint(&isect->hitPoint, instance->composite.A.mtx);
 				isect->surfaceNormal = (struct vector){1.0f, 0.0f, 0.0f}; // Will be ignored by material anyway
 				transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv.mtx); // Probably not needed
@@ -175,7 +177,8 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 	if (traverseBottomLevelBvh(mesh, &copy, isect, sampler)) {
 		// Repopulate uv with actual texture mapping
 		isect->uv = getTexMapMesh(mesh, isect);
-		isect->material = mesh->materials[isect->polygon->materialIndex];
+		isect->bsdf = mesh->materials[isect->polygon->materialIndex].bsdf;
+		isect->emission = &mesh->materials[isect->polygon->materialIndex].emission;
 		transformPoint(&isect->hitPoint, instance->composite.A.mtx);
 		transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv.mtx);
 		isect->surfaceNormal = vecNormalize(isect->surfaceNormal);
@@ -204,7 +207,8 @@ static bool intersectMeshVolume(const struct instance *instance, const struct li
 				isect->distance = record1.distance + hitDistance;
 				isect->hitPoint = alongRay(ray, isect->distance);
 				isect->uv = (struct coord){-1.0f, -1.0f};
-				isect->material = mesh->mesh->materials[0];
+				isect->bsdf = mesh->mesh->materials[0].bsdf;
+				isect->emission = &mesh->mesh->materials[0].emission;
 				transformPoint(&isect->hitPoint, instance->composite.A.mtx);
 				isect->surfaceNormal = (struct vector){1.0f, 0.0f, 0.0f}; // Will be ignored by material anyway
 				transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv.mtx); // Probably not needed

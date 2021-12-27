@@ -60,9 +60,9 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 			break;
 		}
 		
-		finalColor = colorAdd(finalColor, colorMul(weight, isect.material.emission));
+		finalColor = colorAdd(finalColor, colorMul(weight, *isect.emission));
 		
-		const struct bsdfSample sample = isect.material.bsdf->sample(isect.material.bsdf, sampler, &isect);
+		const struct bsdfSample sample = isect.bsdf->sample(isect.bsdf, sampler, &isect);
 		currentRay = (struct lightRay){ .start = isect.hitPoint, .direction = sample.out };
 		const struct color attenuation = sample.color;
 		
