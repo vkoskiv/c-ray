@@ -26,7 +26,7 @@
 static struct constantsDatabase *g_options;
 
 static void printUsage(const char *progname) {
-	printf("Usage: %s [-hjsdtv] [input_json...]\n", progname);
+	printf("Usage: %s [-hjsdtocv] [input_json...]\n", progname);
 	printf("  Available options are:\n");
 	printf("    [-h]             -> Show this message\n");
 	printf("    [-j <n>]         -> Override thread count to n\n");
