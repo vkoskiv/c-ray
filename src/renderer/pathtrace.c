@@ -24,27 +24,27 @@
 #include "../datatypes/instance.h"
 #include "../nodes/shaders/background.h"
 
+static inline void recompute_uv(struct hitRecord *isect, float offset) {
+	struct vector ud = vecNormalize(isect->incident_dir);
+	//To polar from cartesian
+	float r = 1.0f; //Normalized above
+	float phi = (atan2f(ud.z, ud.x) / 4.0f) + offset;
+	float theta = acosf((-ud.y / r));
+	
+	float u = (phi / (PI / 2.0f));
+	float v = theta / PI;
+	
+	u = wrapMinMax(u, 0.0f, 1.0f);
+	v = wrapMinMax(v, 0.0f, 1.0f);
+	
+	isect->uv = (struct coord){ u, v };
+}
+
 static inline struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler) {
-	struct hitRecord isect = { .incident = *incidentRay, .instIndex = -1, .distance = FLT_MAX, .polygon = NULL };
-	traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect, sampler);
-	
-	if (isect.instIndex < 0) {
-		// Didn't hit anything. Recompute the UV for the background
-		struct vector ud = vecNormalize(isect.incident.direction);
-		//To polar from cartesian
-		float r = 1.0f; //Normalized above
-		float phi = (atan2f(ud.z, ud.x) / 4.0f) + scene->backgroundOffset;
-		float theta = acosf((-ud.y / r));
-		
-		float u = theta / PI;
-		float v = (phi / (PI / 2.0f));
-		
-		u = wrapMinMax(u, 0.0f, 1.0f);
-		v = wrapMinMax(v, 0.0f, 1.0f);
-		
-		isect.uv = (struct coord){ v, u };
-	}
-	
+	struct hitRecord isect = { .incident_dir = incidentRay->direction, .instIndex = -1, .distance = FLT_MAX, .polygon = NULL };
+	if (traverseTopLevelBvh(scene->instances, scene->topLevel, incidentRay, &isect, sampler)) return isect;
+	// Didn't hit anything. Recompute the UV for the background
+	recompute_uv(&isect, scene->backgroundOffset);
 	return isect;
 }
 
