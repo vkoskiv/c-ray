@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/bin/env python3
 
 # Copyright (c) 2020, Valtteri Koskivuori
 # Created on 31.1.2020
