@@ -3,7 +3,7 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 07/12/2020.
-//  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
@@ -24,10 +24,10 @@ bool compareNodes(const void *A, const void *B);
 		const uint32_t h = hash(&candidate); \
 		const T *existing = findInHashtable(hashtable, &candidate, h); \
 		if (existing) {\
-			logr(debug, "Reusing existing %s.\n", __FUNCTION__);\
+			logr(debug, "Reusing existing %s%s%s\n", KGRN, #T + 7, KNRM);\
 			return (void *)existing; \
 		} \
-		logr(debug, "Inserting %s.\n", __FUNCTION__); \
+		logr(debug, "Inserting new %s%s%s\n", KRED, #T + 7, KNRM); \
 		insertInHashtable(hashtable, &candidate, sizeof(T), h); \
 		return findInHashtable(hashtable, &candidate, h); \
 	}
