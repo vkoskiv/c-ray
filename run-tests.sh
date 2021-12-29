@@ -14,6 +14,8 @@ fi
 echo "C-ray test framework v0.2"
 echo "Running $count tests."
 
+failed_tests=0
+
 i=0; while [ $i -le $((count - 1)) ]; do
 	if [[ ! -z "$suite" ]]; then
 		output=$(./bin/c-ray --suite $suite --test $i)
@@ -25,7 +27,14 @@ i=0; while [ $i -le $((count - 1)) ]; do
 		echo "$output" | awk 'FNR==2 { print $0 }'
 	else
 		echo "$output" | awk 'FNR==2 { printf "%s\n", $0 }'
-		#echo -e "[\033[0;31mCRSH\033[0m]"
+		failed_tests=$(( $failed_tests + 1 ))
 	fi
 	i=$(( i + 1 ))
 done
+echo "Test suite finished. $(($i - $failed_tests))/$i tests passed."
+if [[ $failed_tests -ne 0 ]]
+then
+	exit 1
+else
+	exit 0
+fi
