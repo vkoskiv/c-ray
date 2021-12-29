@@ -60,7 +60,6 @@ struct material *parseMTLFile(char *filePath, int *mtlCount) {
 			head = nextLine(file);
 			continue;
 		} else if (head[0] == '\0') {
-			logr(debug, "empty line\n");
 			head = nextLine(file);
 			continue;
 		} else if (stringEquals(first, "newmtl")) {
