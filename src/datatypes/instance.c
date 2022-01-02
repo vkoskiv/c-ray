@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 23.6.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -16,9 +16,9 @@
 #include "mesh.h"
 #include "sphere.h"
 #include "scene.h"
-#include "../utils/logging.h"
 #include "../utils/args.h"
 #include "../datatypes/vertexbuffer.h"
+#include "../utils/mempool.h"
 
 struct sphereVolume {
 	struct sphere *sphere;
@@ -136,9 +136,8 @@ struct instance newSphereSolid(struct sphere *sphere) {
 	};
 }
 
-struct instance newSphereVolume(struct sphere *sphere, float density) {
-	//FIXME: Leak
-	struct sphereVolume *volume = calloc(1, sizeof(*volume));
+struct instance newSphereVolume(struct sphere *sphere, float density, struct block **pool) {
+	struct sphereVolume *volume = allocBlock(pool, sizeof(*volume));
 	volume->sphere = sphere;
 	volume->density = density;
 	return (struct instance) {
@@ -252,9 +251,8 @@ struct instance newMeshSolid(struct mesh *mesh) {
 	};
 }
 
-struct instance newMeshVolume(struct mesh *mesh, float density) {
-	// FIXME: Leak
-	struct meshVolume *volume = calloc(1, sizeof(*volume));
+struct instance newMeshVolume(struct mesh *mesh, float density, struct block **pool) {
+	struct meshVolume *volume = allocBlock(pool, sizeof(*volume));
 	volume->mesh = mesh;
 	volume->density = density;
 	return (struct instance) {

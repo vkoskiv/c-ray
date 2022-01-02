@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2019-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
@@ -1003,7 +1003,7 @@ static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCo
 		const cJSON *instance = NULL;
 		if (instances != NULL && cJSON_IsArray(instances)) {
 			cJSON_ArrayForEach(instance, instances) {
-				struct instance new = density ? newMeshVolume(lastMesh(r), density->valuedouble) : newMeshSolid(lastMesh(r));
+				struct instance new = density ? newMeshVolume(lastMesh(r), density->valuedouble, &r->scene->nodePool) : newMeshSolid(lastMesh(r));
 				new.composite = parseInstanceTransform(instance);
 				addInstanceToScene(r->scene, new);
 			}
@@ -1184,7 +1184,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *instance = NULL;
 	if (cJSON_IsArray(instances)) {
 		cJSON_ArrayForEach(instance, instances) {
-			addInstanceToScene(r->scene, density ? newSphereVolume(lastSphere(r), density->valuedouble) : newSphereSolid(lastSphere(r)));
+			addInstanceToScene(r->scene, density ? newSphereVolume(lastSphere(r), density->valuedouble, &r->scene->nodePool) : newSphereSolid(lastSphere(r)));
 			lastInstance(r)->composite = parseInstanceTransform(instance);
 		}
 	}

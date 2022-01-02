@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 23.6.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
@@ -28,9 +28,9 @@ struct instance {
 };
 
 struct instance newSphereSolid(struct sphere *sphere);
-struct instance newSphereVolume(struct sphere *sphere, float density);
+struct instance newSphereVolume(struct sphere *sphere, float density, struct block **pool);
 struct instance newMeshSolid(struct mesh *mesh);
-struct instance newMeshVolume(struct mesh *mesh, float density);
+struct instance newMeshVolume(struct mesh *mesh, float density, struct block **pool);
 
 bool isMesh(const struct instance *instance);
 
