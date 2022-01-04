@@ -86,9 +86,11 @@ size_t parsePolygons(lineBuffer *line, struct poly *buf) {
 	size_t polycount = line->amountOf.tokens - 3;
 	// For now, c-ray will just translate quads to two polygons while parsing
 	// Explode in a ball of fire if we encounter an ngon
-	bool isNgon = polycount > 2;
-	(void)isNgon;
-	ASSERT(!isNgon);
+	bool is_ngon = polycount > 2;
+	if (is_ngon) {
+		logr(debug, "!! Found an ngon in wavefront file, skipping !!\n");
+		polycount = 2;
+	}
 	bool skipped = false;
 	for (size_t i = 0; i < polycount; ++i) {
 		firstToken(line);
