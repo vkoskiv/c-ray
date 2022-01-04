@@ -809,24 +809,21 @@ static const struct valueNode *parseValueNode(struct world *w, const cJSON *node
 	}
 
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
-	if (!cJSON_IsString(type)) {
-		logr(warning, "No type provided for valueNode.\n");
-		return newConstantValue(w, 0.0f);
-	}
+	if (cJSON_IsString(type)) {
+		const struct valueNode *IOR = parseValueNode(w, cJSON_GetObjectItem(node, "IOR"));
+		const struct vectorNode *normal = parseVectorNode(w, cJSON_GetObjectItem(node, "normal"));
 
-	const struct valueNode *IOR = parseValueNode(w, cJSON_GetObjectItem(node, "IOR"));
-	const struct vectorNode *normal = parseVectorNode(w, cJSON_GetObjectItem(node, "normal"));
-
-	if (stringEquals(type->valuestring, "fresnel")) {
-		return newFresnel(w, IOR, normal);
-	}
-	if (stringEquals(type->valuestring, "map_range")) {
-		const struct valueNode *input_value = parseValueNode(w, cJSON_GetObjectItem(node, "input"));
-		const struct valueNode *from_min = parseValueNode(w, cJSON_GetObjectItem(node, "from_min"));
-		const struct valueNode *from_max = parseValueNode(w, cJSON_GetObjectItem(node, "from_max"));
-		const struct valueNode *to_min = parseValueNode(w, cJSON_GetObjectItem(node, "to_min"));
-		const struct valueNode *to_max = parseValueNode(w, cJSON_GetObjectItem(node, "to_max"));
-		return newMapRange(w, input_value, from_min, from_max, to_min, to_max);
+		if (stringEquals(type->valuestring, "fresnel")) {
+			return newFresnel(w, IOR, normal);
+		}
+		if (stringEquals(type->valuestring, "map_range")) {
+			const struct valueNode *input_value = parseValueNode(w, cJSON_GetObjectItem(node, "input"));
+			const struct valueNode *from_min = parseValueNode(w, cJSON_GetObjectItem(node, "from_min"));
+			const struct valueNode *from_max = parseValueNode(w, cJSON_GetObjectItem(node, "from_max"));
+			const struct valueNode *to_min = parseValueNode(w, cJSON_GetObjectItem(node, "to_min"));
+			const struct valueNode *to_max = parseValueNode(w, cJSON_GetObjectItem(node, "to_max"));
+			return newMapRange(w, input_value, from_min, from_max, to_min, to_max);
+		}
 	}
 
 	return newGrayscaleConverter(w, parseTextureNode(w, node));
