@@ -12,7 +12,7 @@
 #include "c-ray.h"
 
 int main(int argc, char *argv[]) {
-	crLog("C-ray v%s%s [%.8s], © 2015-2021 Valtteri Koskivuori\n", crGetVersion(), isDebug() ? "D" : "", crGitHash());
+	crLog("C-ray v%s%s [%.8s], © 2015-2022 Valtteri Koskivuori\n", crGetVersion(), isDebug() ? "D" : "", crGitHash());
 	crInitialize();
 	crParseArgs(argc, argv);
 	crInitRenderer();
