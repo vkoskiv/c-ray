@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 09/04/2019.
-//  Copyright © 2019-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
@@ -53,7 +53,7 @@ void textureFromSRGB(struct texture *t);
 /// @param t Texture to convert
 void textureToSRGB(struct texture *t);
 
-bool texture_uses_alpha(struct texture *t);
+bool texture_uses_alpha(const struct texture *t);
 
 /// Deallocate a given texture
 /// @param tex Texture to deallocate

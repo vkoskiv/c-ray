@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri on 23.12.2021.
-//  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../../includes.h"
@@ -13,7 +13,7 @@
 #define QOI_IMPLEMENTATION
 #include "../../../libraries/qoi.h"
 
-void encode_qoi_from_array(const char *filename, unsigned char *imgData, size_t width, size_t height) {
+void encode_qoi_from_array(const char *filename, const unsigned char *imgData, size_t width, size_t height) {
 	int encoded_bytes = 0;
 	const qoi_desc desc = (qoi_desc){
 		.width = (int)width,

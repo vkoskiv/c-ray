@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri on 12.4.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
@@ -41,17 +41,17 @@ void dumpBuffer(textBuffer *buffer);
 
 char *goToLine(textBuffer *file, size_t line);
 
-char *peekLine(textBuffer *file, size_t line);
+char *peekLine(const textBuffer *file, size_t line);
 
 char *nextLine(textBuffer *file);
 
 char *previousLine(textBuffer *file);
 
-char *peekNextLine(textBuffer *file);
+char *peekNextLine(const textBuffer *file);
 
 char *firstLine(textBuffer *file);
 
-char *currentLine(textBuffer *file);
+char *currentLine(const textBuffer *file);
 
 char *lastLine(textBuffer *file);
 
@@ -62,17 +62,17 @@ void fillLineBuffer(lineBuffer *buffer, const char *contents, char delimiter);
 
 char *goToToken(lineBuffer *line, size_t token);
 
-char *peekToken(lineBuffer *line, size_t token);
+char *peekToken(const lineBuffer *line, size_t token);
 
 char *nextToken(lineBuffer *line);
 
 char *previousToken(lineBuffer *line);
 
-char *peekNextToken(lineBuffer *line);
+char *peekNextToken(const lineBuffer *line);
 
 char *firstToken(lineBuffer *line);
 
-char *currentToken(lineBuffer *line);
+char *currentToken(const lineBuffer *line);
 
 char *lastToken(lineBuffer *line);
 

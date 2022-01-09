@@ -3,7 +3,7 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 01/09/2021.
-//  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "spline.h"
@@ -29,7 +29,7 @@ struct vector vec_lerp(const struct vector a, const struct vector b, const float
 	};
 }
 
-struct spline *spline_new(const struct vector a, const struct vector b, const struct vector c, const struct vector d) {
+struct spline *spline_new(struct vector a, struct vector b, struct vector c, struct vector d) {
 	struct spline *new = calloc(1, sizeof(*new));
 	*new = (struct spline){ a, b, c, d };
 	return new;

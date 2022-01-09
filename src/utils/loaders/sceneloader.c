@@ -1240,7 +1240,7 @@ static void parseScene(struct renderer *r, const cJSON *data) {
 	parseMeshes(r, cJSON_GetObjectItem(data, "meshes"));
 }
 
-int parseJSON(struct renderer *r, char *input) {
+int parseJSON(struct renderer *r, const char *input) {
 	cJSON *json = cJSON_Parse(input);
 	if (!json) {
 		logr(warning, "Failed to parse JSON\n");

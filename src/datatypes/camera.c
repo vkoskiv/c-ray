@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/03/2015.
-//  Copyright © 2015-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -70,7 +70,7 @@ static inline float triangleDistribution(float v) {
 	return v;
 }
 
-struct lightRay cam_get_ray(struct camera *cam, int x, int y, struct sampler *sampler) {
+struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampler *sampler) {
 	struct lightRay new_ray = {{0}};
 	
 	new_ray.start = vecZero();
@@ -78,9 +78,9 @@ struct lightRay cam_get_ray(struct camera *cam, int x, int y, struct sampler *sa
 	const float jitter_x = triangleDistribution(getDimension(sampler));
 	const float jitter_y = triangleDistribution(getDimension(sampler));
 	
-	struct vector pix_x = vecScale(cam->right, (cam->sensor_size.x / cam->width));
-	struct vector pix_y = vecScale(cam->up, (cam->sensor_size.y / cam->height));
-	struct vector pix_v = vecAdd(
+	const struct vector pix_x = vecScale(cam->right, (cam->sensor_size.x / cam->width));
+	const struct vector pix_y = vecScale(cam->up, (cam->sensor_size.y / cam->height));
+	const struct vector pix_v = vecAdd(
 							cam->forward,
 							vecAdd(
 								vecScale(pix_x, x - cam->width  * 0.5f + jitter_x + 0.5f),
@@ -90,9 +90,9 @@ struct lightRay cam_get_ray(struct camera *cam, int x, int y, struct sampler *sa
 	new_ray.direction = vecNormalize(pix_v);
 	
 	if (cam->aperture > 0.0f) {
-		float ft = cam->focus_distance / vecDot(new_ray.direction, cam->forward);
-		struct vector focus_point = alongRay(&new_ray, ft);
-		struct coord lens_point = coordScale(cam->aperture, randomCoordOnUnitDisc(sampler));
+		const float ft = cam->focus_distance / vecDot(new_ray.direction, cam->forward);
+		const struct vector focus_point = alongRay(&new_ray, ft);
+		const struct coord lens_point = coordScale(cam->aperture, randomCoordOnUnitDisc(sampler));
 		new_ray.start = vecAdd(new_ray.start, vecAdd(vecScale(cam->right, lens_point.x), vecScale(cam->up, lens_point.y)));
 		new_ray.direction = vecNormalize(vecSub(focus_point, new_ray.start));
 	}

@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri on 12.4.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -96,7 +96,7 @@ char *goToLine(textBuffer *file, size_t line) {
 	}
 }
 
-char *peekLine(textBuffer *file, size_t line) {
+char *peekLine(const textBuffer *file, size_t line) {
 	if (line < file->amountOf.lines) {
 		char *head = file->buf;
 		for (size_t i = 0; i < line; ++i) {
@@ -126,7 +126,7 @@ char *previousLine(textBuffer *file) {
 	return head;
 }
 
-char *peekNextLine(textBuffer *file) {
+char *peekNextLine(const textBuffer *file) {
 	char *head = file->buf + file->currentByteOffset;
 	if (file->current.line + 1 < file->amountOf.lines) {
 		size_t offset = strlen(head) + 1;
@@ -143,7 +143,7 @@ char *firstLine(textBuffer *file) {
 	return head;
 }
 
-char *currentLine(textBuffer *file) {
+char *currentLine(const textBuffer *file) {
 	return file->buf + file->currentByteOffset;
 }
 
@@ -179,7 +179,7 @@ char *goToToken(lineBuffer *line, size_t token) {
 	return goToLine(line, token);
 }
 
-char *peekToken(lineBuffer *line, size_t token) {
+char *peekToken(const lineBuffer *line, size_t token) {
 	return peekLine(line, token);
 }
 
@@ -191,7 +191,7 @@ char *previousToken(lineBuffer *line) {
 	return previousLine(line);
 }
 
-char *peekNextToken(lineBuffer *line) {
+char *peekNextToken(const lineBuffer *line) {
 	return peekNextLine(line);
 }
 
@@ -199,7 +199,7 @@ char *firstToken(lineBuffer *line) {
 	return firstLine(line);
 }
 
-char *currentToken(lineBuffer *line) {
+char *currentToken(const lineBuffer *line) {
 	return currentLine(line);
 }
 

@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2019-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 // C-ray MTL file parser
@@ -36,7 +36,7 @@ struct color parseColor(lineBuffer *line) {
 	return (struct color){atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line)), 1.0f};
 }
 
-struct material *parseMTLFile(char *filePath, int *mtlCount) {
+struct material *parseMTLFile(const char *filePath, int *mtlCount) {
 	size_t bytes = 0;
 	char *rawText = loadFile(filePath, &bytes);
 	if (!rawText) return NULL;

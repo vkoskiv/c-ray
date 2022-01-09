@@ -24,7 +24,7 @@ struct command {
 	int id;
 };
 
-int matchCommand(struct command *cmdlist, size_t commandCount, char *cmd);
+int matchCommand(const struct command *cmdlist, size_t commandCount, const char *cmd);
 
 // Consumes given json, no need to free it after.
 bool sendJSON(int socket, cJSON *json);
@@ -34,13 +34,13 @@ bool sendJSONWithProgress(int socket, cJSON *json, size_t *progress);
 
 cJSON *readJSON(int socket);
 
-cJSON *errorResponse(char *error);
+cJSON *errorResponse(const char *error);
 
 cJSON *goodbye(void);
 
-cJSON *newAction(char *action);
+cJSON *newAction(const char *action);
 
-cJSON *encodeTile(struct renderTile *tile);
+cJSON *encodeTile(const struct renderTile *tile);
 
 struct renderTile decodeTile(const cJSON *json);
 

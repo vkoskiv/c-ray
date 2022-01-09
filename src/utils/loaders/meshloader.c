@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 14.11.2019.
-//  Copyright © 2019-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stddef.h>
@@ -13,7 +13,7 @@
 #include "../fileio.h"
 #include "../logging.h"
 
-struct mesh *loadMesh(char *filePath, size_t *meshCount) {
+struct mesh *loadMesh(const char *filePath, size_t *meshCount) {
 	switch (guessFileType(filePath)) {
 		case obj:
 			return parseWavefront(filePath, meshCount);

@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/03/2015.
-//  Copyright © 2015-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
@@ -41,4 +41,4 @@ struct camera {
 
 void cam_recompute_optics(struct camera *cam);
 void cam_update_pose(struct camera *cam, const struct euler_angles *orientation, const struct vector *pos);
-struct lightRay cam_get_ray(struct camera *cam, int x, int y, struct sampler *sampler);
+struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampler *sampler);

@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri on 6.4.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdbool.h>
@@ -275,17 +275,17 @@ void parseArgs(int argc, char **argv) {
 	}
 }
 
-bool isSet(char *key) {
+bool isSet(const char *key) {
 	if (!g_options) return false;
 	return existsInDatabase(g_options, key);
 }
 
-int intPref(char *key) {
+int intPref(const char *key) {
 	ASSERT(existsInDatabase(g_options, key));
 	return getDatabaseInt(g_options, key);
 }
 
-char *stringPref(char *key) {
+char *stringPref(const char *key) {
 	return getDatabaseString(g_options, key);
 }
 

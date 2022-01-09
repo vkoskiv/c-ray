@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 09/04/2019.
-//  Copyright © 2019-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
@@ -137,7 +137,7 @@ void textureToSRGB(struct texture *t) {
 	t->colorspace = sRGB;
 }
 
-bool texture_uses_alpha(struct texture *t) {
+bool texture_uses_alpha(const struct texture *t) {
 	if (!t) return false;
 	if (!t->hasAlpha) return false;
 	for (unsigned x = 0; x < t->width; ++x) {

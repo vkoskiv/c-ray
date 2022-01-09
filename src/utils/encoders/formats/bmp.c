@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri on 8.4.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../../includes.h"
@@ -14,7 +14,7 @@
 #include <string.h>
 #include "../../fileio.h"
 
-void encodeBMPFromArray(const char *file_name, unsigned char *imgData, size_t width, size_t height) {
+void encodeBMPFromArray(const char *file_name, const unsigned char *imgData, size_t width, size_t height) {
 	//Apparently BMP is BGR, whereas C-ray's internal buffer is RGB (Like it should be)
 	//So we need to convert the image data before writing to file.
 	unsigned char *bgr_data = malloc(3 * width * height);

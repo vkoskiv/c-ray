@@ -65,7 +65,7 @@ cJSON *readJSON(int socket) {
 	return received;
 }
 
-cJSON *errorResponse(char *error) {
+cJSON *errorResponse(const char *error) {
 	cJSON *errorMsg = cJSON_CreateObject();
 	cJSON_AddStringToObject(errorMsg, "error", error);
 	return errorMsg;
@@ -77,14 +77,14 @@ cJSON *goodbye() {
 	return goodbye;
 }
 
-cJSON *newAction(char *action) {
+cJSON *newAction(const char *action) {
 	if (!action) return NULL;
 	cJSON *actionJson = cJSON_CreateObject();
 	cJSON_AddStringToObject(actionJson, "action", action);
 	return actionJson;
 }
 
-cJSON *encodeTile(struct renderTile *tile) {
+cJSON *encodeTile(const struct renderTile *tile) {
 	cJSON *json = cJSON_CreateObject();
 	cJSON_AddNumberToObject(json, "width", tile->width);
 	cJSON_AddNumberToObject(json, "height", tile->height);
@@ -135,7 +135,7 @@ struct texture *decodeTexture(const cJSON *json) {
 	return tex;
 }
 
-int matchCommand(struct command *cmdlist, size_t commandCount, char *cmd) {
+int matchCommand(const struct command *cmdlist, size_t commandCount, const char *cmd) {
 	for (size_t i = 0; i < commandCount; ++i) {
 		if (stringEquals(cmdlist[i].name, cmd)) return cmdlist[i].id;
 	}
