@@ -123,7 +123,7 @@ static struct renderTile getWork(int connectionSocket) {
 
 static bool submitWork(int sock, struct texture *work, struct renderTile forTile) {
 	cJSON *result = encodeTexture(work);
-	cJSON *tile = encodeTile(forTile);
+	cJSON *tile = encodeTile(&forTile);
 	cJSON *package = newAction("submitWork");
 	cJSON_AddItemToObject(package, "result", result);
 	cJSON_AddItemToObject(package, "tile", tile);

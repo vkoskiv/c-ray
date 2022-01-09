@@ -19,21 +19,21 @@
 
 static void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder);
 
-struct renderTile nextTile(struct renderer *r) {
-	struct renderTile tile = { .tileNum = -1 };
+struct renderTile *nextTile(struct renderer *r) {
+	struct renderTile *tile = NULL;
 	lockMutex(r->state.tileMutex);
 	if (r->state.finishedTileCount < r->state.tileCount) {
-		tile = r->state.renderTiles[r->state.finishedTileCount];
-		r->state.renderTiles[r->state.finishedTileCount].isRendering = true;
-		tile.tileNum = r->state.finishedTileCount++;
+		tile = &r->state.renderTiles[r->state.finishedTileCount];
+		tile->isRendering = true;
+		tile->tileNum = r->state.finishedTileCount++;
 	} else {
 		// If a network worker disappeared during render, finish those tiles locally here at the end
 		for (int t = 0; t < r->state.tileCount; ++t) {
 			if (!r->state.renderTiles[t].renderComplete && r->state.renderTiles[t].networkRenderer) {
 				r->state.renderTiles[t].networkRenderer = false;
-				tile = r->state.renderTiles[t];
-				r->state.renderTiles[t].isRendering = true;
-				tile.tileNum = t;
+				tile = &r->state.renderTiles[t];
+				tile->isRendering = true;
+				tile->tileNum = t;
 				break;
 			}
 		}
@@ -42,17 +42,19 @@ struct renderTile nextTile(struct renderer *r) {
 	return tile;
 }
 
-struct renderTile nextTileInteractive(struct renderer *r) {
-	struct renderTile tile = { .tileNum = -1 };
+struct renderTile *nextTileInteractive(struct renderer *r) {
+	struct renderTile *tile = NULL;
 	lockMutex(r->state.tileMutex);
-	if (r->state.finishedPasses < r->prefs.sampleCount) {
+	again:
+	if (r->state.finishedPasses < r->prefs.sampleCount + 1) {
 		if (r->state.finishedTileCount < r->state.tileCount) {
-			tile = r->state.renderTiles[r->state.finishedTileCount];
-			r->state.renderTiles[r->state.finishedTileCount].isRendering = true;
-			tile.tileNum = r->state.finishedTileCount++;
+			tile = &r->state.renderTiles[r->state.finishedTileCount];
+			tile->isRendering = true;
+			tile->tileNum = r->state.finishedTileCount++;
 		} else {
 			r->state.finishedPasses++;
 			r->state.finishedTileCount = 0;
+			goto again;
 		}
 	}
 	releaseMutex(r->state.tileMutex);

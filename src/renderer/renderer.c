@@ -193,19 +193,19 @@ void *renderThreadInteractive(void *arg) {
 	struct camera *cam = threadState->cam;
 	
 	//First time setup for each thread
-	struct renderTile tile = nextTile(r);
-	threadState->currentTileNum = tile.tileNum;
+	struct renderTile *tile = nextTileInteractive(r);
+	threadState->currentTileNum = tile->tileNum;
 	
 	struct timeval timer = {0};
 	
 	threadState->completedSamples = 1;
 	
-	while (r->state.finishedPasses < r->prefs.sampleCount && r->state.isRendering) {
+	while (tile && r->state.isRendering) {
 		long totalUsec = 0;
 		
 		startTimer(&timer);
-		for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
-			for (int x = tile.begin.x; x < tile.end.x; ++x) {
+		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
+			for (int x = tile->begin.x; x < tile->end.x; ++x) {
 				if (r->state.renderAborted) return 0;
 				uint32_t pixIdx = (uint32_t)(y * image->width + x);
 				//FIXME: This does not converge to the same result as with regular renderThread.
@@ -244,11 +244,11 @@ void *renderThreadInteractive(void *arg) {
 		threadState->avgSampleTime = totalUsec / r->state.finishedPasses;
 		
 		//Tile has finished rendering, get a new one and start rendering it.
-		if (tile.tileNum != -1) r->state.renderTiles[tile.tileNum].isRendering = false;
+		if (tile) tile->isRendering = false;
 		threadState->currentTileNum = -1;
 		threadState->completedSamples = r->state.finishedPasses;
 		tile = nextTileInteractive(r);
-		threadState->currentTileNum = tile.tileNum;
+		threadState->currentTileNum = tile ? tile->tileNum : -1;
 	}
 	destroySampler(sampler);
 	//No more tiles to render, exit thread. (render done)
@@ -272,20 +272,20 @@ void *renderThread(void *arg) {
 	struct camera *cam = threadState->cam;
 
 	//First time setup for each thread
-	struct renderTile tile = nextTile(r);
-	threadState->currentTileNum = tile.tileNum;
+	struct renderTile *tile = nextTile(r);
+	threadState->currentTileNum = tile->tileNum;
 	
 	struct timeval timer = {0};
 	threadState->completedSamples = 1;
 	
-	while (tile.tileNum != -1 && r->state.isRendering) {
+	while (tile && r->state.isRendering) {
 		long totalUsec = 0;
 		long samples = 0;
 		
-		while (threadState->completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
+		while (threadState->completedSamples < r->prefs.sampleCount + 1 && r->state.isRendering) {
 			startTimer(&timer);
-			for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
-				for (int x = tile.begin.x; x < tile.end.x; ++x) {
+			for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
+				for (int x = tile->begin.x; x < tile->end.x; ++x) {
 					if (r->state.renderAborted) return 0;
 					uint32_t pixIdx = (uint32_t)(y * image->width + x);
 					initSampler(sampler, SAMPLING_STRATEGY, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
@@ -322,12 +322,13 @@ void *renderThread(void *arg) {
 			threadState->avgSampleTime = totalUsec / samples;
 		}
 		//Tile has finished rendering, get a new one and start rendering it.
-		r->state.renderTiles[tile.tileNum].isRendering = false;
-		r->state.renderTiles[tile.tileNum].renderComplete = true;
+		tile->isRendering = false;
+		tile->renderComplete = true;
 		threadState->currentTileNum = -1;
 		threadState->completedSamples = 1;
 		tile = nextTile(r);
-		threadState->currentTileNum = tile.tileNum;
+		//TODO: Replace currentTileNum with currentTile
+		threadState->currentTileNum = tile ? tile->tileNum : -1;
 	}
 	destroySampler(sampler);
 	//No more tiles to render, exit thread. (render done)

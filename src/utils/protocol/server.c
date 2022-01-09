@@ -151,9 +151,9 @@ static struct renderClient *buildClientList(size_t *amount) {
 static cJSON *processGetWork(struct renderThreadState *state, const cJSON *json) {
 	(void)state;
 	(void)json;
-	struct renderTile tile = nextTile(state->renderer);
-	state->renderer->state.renderTiles[tile.tileNum].networkRenderer = true;
-	if (tile.tileNum == -1) return newAction("renderComplete");
+	struct renderTile *tile = nextTile(state->renderer);
+	if (!tile) return newAction("renderComplete");
+	tile->networkRenderer = true;
 	cJSON *response = newAction("newWork");
 	cJSON_AddItemToObject(response, "tile", encodeTile(tile));
 	return response;

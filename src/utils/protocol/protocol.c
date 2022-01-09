@@ -84,15 +84,15 @@ cJSON *newAction(char *action) {
 	return actionJson;
 }
 
-cJSON *encodeTile(struct renderTile tile) {
+cJSON *encodeTile(struct renderTile *tile) {
 	cJSON *json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "width", tile.width);
-	cJSON_AddNumberToObject(json, "height", tile.height);
-	cJSON_AddNumberToObject(json, "beginX", tile.begin.x);
-	cJSON_AddNumberToObject(json, "beginY", tile.begin.y);
-	cJSON_AddNumberToObject(json, "endX", tile.end.x);
-	cJSON_AddNumberToObject(json, "endY", tile.end.y);
-	cJSON_AddNumberToObject(json, "tileNum", tile.tileNum);
+	cJSON_AddNumberToObject(json, "width", tile->width);
+	cJSON_AddNumberToObject(json, "height", tile->height);
+	cJSON_AddNumberToObject(json, "beginX", tile->begin.x);
+	cJSON_AddNumberToObject(json, "beginY", tile->begin.y);
+	cJSON_AddNumberToObject(json, "endX", tile->end.x);
+	cJSON_AddNumberToObject(json, "endY", tile->end.y);
+	cJSON_AddNumberToObject(json, "tileNum", tile->tileNum);
 	return json;
 }
 

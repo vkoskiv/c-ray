@@ -40,7 +40,7 @@ cJSON *goodbye(void);
 
 cJSON *newAction(char *action);
 
-cJSON *encodeTile(struct renderTile tile);
+cJSON *encodeTile(struct renderTile *tile);
 
 struct renderTile decodeTile(const cJSON *json);
 
