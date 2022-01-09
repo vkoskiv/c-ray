@@ -93,7 +93,7 @@ void crWriteImage() {
 				.samples = crGetSampleCount(),
 				.crayVersion = crGetVersion(),
 				.gitHash = crGitHash(),
-				.renderTime = getMs(*g_renderer->state.timer),
+				.renderTime = getMs(g_renderer->state.timer),
 				.threadCount = crGetThreadCount()
 			};
 			writeImage(file);
@@ -249,9 +249,9 @@ void crStartRenderer() {
 	}
 	struct camera cam = g_renderer->scene->cameras[g_renderer->prefs.selected_camera];
 	initDisplay(g_renderer->prefs.fullscreen, g_renderer->prefs.borderless, cam.width, cam.height, g_renderer->prefs.scale);
-	startTimer(g_renderer->state.timer);
+	startTimer(&g_renderer->state.timer);
 	currentImage = renderFrame(g_renderer);
-	printDuration(getMs(*g_renderer->state.timer));
+	printDuration(getMs(g_renderer->state.timer));
 	destroyDisplay();
 }
 

@@ -363,8 +363,6 @@ struct renderer *newRenderer() {
 	r->state.timeSampleCount = 1;
 	r->state.finishedPasses = 1;
 	
-	r->state.timer = calloc(1, sizeof(*r->state.timer));
-	
 	if (!g_vertices) {
 		allocVertexBuffers();
 	}
@@ -383,7 +381,6 @@ void destroyRenderer(struct renderer *r) {
 		destroyTexture(r->state.renderBuffer);
 		destroyTexture(r->state.uiBuffer);
 		destroyVertexBuffers();
-		free(r->state.timer);
 		free(r->state.renderTiles);
 		free(r->state.threads);
 		free(r->state.threadStates);

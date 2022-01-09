@@ -50,7 +50,7 @@ struct state {
 	struct renderThreadState *threadStates;
 	struct renderClient *clients;
 	size_t clientCount;
-	struct timeval *timer;
+	struct timeval timer;
 	
 	struct crMutex *tileMutex;
 };
