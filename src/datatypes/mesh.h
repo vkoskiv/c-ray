@@ -39,12 +39,10 @@ struct mesh {
 	struct material *materials;
 	
 	struct bvh *bvh;
-	
+
 	float rayOffset;
 
 	char *name;
 };
-
-void transformMesh(struct mesh *mesh);
 
 void destroyMesh(struct mesh *mesh);

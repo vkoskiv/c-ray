@@ -10,11 +10,8 @@
 #include "mesh.h"
 
 #include "../accelerators/bvh.h"
-#include "vertexbuffer.h"
-#include "transforms.h"
 #include "poly.h"
 #include "material.h"
-#include "vector.h"
 
 void destroyMesh(struct mesh *mesh) {
 	if (mesh) {
