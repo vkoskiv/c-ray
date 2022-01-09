@@ -10,6 +10,7 @@
 
 #include "../datatypes/tile.h" // For renderOrder
 #include "../datatypes/image/imagefile.h"
+#include "../utils/timer.h"
 
 struct renderThreadState {
 	int thread_num;
