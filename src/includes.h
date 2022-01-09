@@ -16,6 +16,9 @@
 
 #define RAY_OFFSET_MULTIPLIER 0.0001f
 
+//FIXME: Should be configurable at runtime
+#define SAMPLING_STRATEGY Halton
+
 //Some macros
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))

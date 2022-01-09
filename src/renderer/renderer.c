@@ -208,7 +208,10 @@ void *renderThreadInteractive(void *arg) {
 			for (int x = tile.begin.x; x < tile.end.x; ++x) {
 				if (r->state.renderAborted) return 0;
 				uint32_t pixIdx = (uint32_t)(y * image->width + x);
-				initSampler(sampler, Halton, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
+				//FIXME: This does not converge to the same result as with regular renderThread.
+				//I assume that's because we'd have to init the sampler differently when we render all
+				//the tiles in one go per sample, instead of the other way around.
+				initSampler(sampler, SAMPLING_STRATEGY, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
 				struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
 				struct lightRay incidentRay = cam_get_ray(cam, x, y, sampler);
@@ -285,7 +288,7 @@ void *renderThread(void *arg) {
 				for (int x = tile.begin.x; x < tile.end.x; ++x) {
 					if (r->state.renderAborted) return 0;
 					uint32_t pixIdx = (uint32_t)(y * image->width + x);
-					initSampler(sampler, Random, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
+					initSampler(sampler, SAMPLING_STRATEGY, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
 					struct lightRay incidentRay = cam_get_ray(cam, x, y, sampler);

@@ -159,7 +159,7 @@ static void *workerThread(void *arg) {
 				for (int x = tile.begin.x; x < tile.end.x; ++x) {
 					if (r->state.renderAborted || !g_running) goto bail;
 					uint32_t pixIdx = (uint32_t)(y * cam->width + x);
-					initSampler(sampler, Random, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
+					initSampler(sampler, SAMPLING_STRATEGY, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
 					struct lightRay incidentRay = cam_get_ray(cam, x, y, sampler);
