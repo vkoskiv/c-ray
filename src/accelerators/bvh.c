@@ -243,8 +243,8 @@ static void buildBvhRecursive(
 
 // Builds a BVH using the provided callback to obtain bounding boxes and centers for each primitive
 static inline struct bvh *buildBvhGeneric(
-	void *userData,
-	void (*getBBoxAndCenter)(void *, unsigned, struct boundingBox *, struct vector *),
+	const void *userData,
+	void (*getBBoxAndCenter)(const void *, unsigned, struct boundingBox *, struct vector *),
 	unsigned count)
 {
 	if (count < 1) {
@@ -286,8 +286,8 @@ static inline struct bvh *buildBvhGeneric(
 	return bvh;
 }
 
-static void getPolyBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
-	struct poly *polys = userData;
+static void getPolyBBoxAndCenter(const void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
+	const struct poly *polys = userData;
 	struct vector v0 = g_vertices[polys[i].vertexIndex[0]];
 	struct vector v1 = g_vertices[polys[i].vertexIndex[1]];
 	struct vector v2 = g_vertices[polys[i].vertexIndex[2]];
@@ -302,16 +302,16 @@ struct boundingBox getRootBoundingBox(const struct bvh *bvh) {
 	return box;
 }
 
-struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count) {
+struct bvh *buildBottomLevelBvh(const struct poly *polys, unsigned count) {
 	return buildBvhGeneric(polys, getPolyBBoxAndCenter, count);
 }
 
-static void getInstanceBBoxAndCenter(void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
-	struct instance *instances = userData;
+static void getInstanceBBoxAndCenter(const void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
+	const struct instance *instances = userData;
 	instances[i].getBBoxAndCenterFn(&instances[i], bbox, center);
 }
 
-struct bvh *buildTopLevelBvh(struct instance *instances, unsigned instanceCount) {
+struct bvh *buildTopLevelBvh(const struct instance *instances, unsigned instanceCount) {
 	return buildBvhGeneric(instances, getInstanceBBoxAndCenter, instanceCount);
 }
 

@@ -26,12 +26,12 @@ struct boundingBox getRootBoundingBox(const struct bvh *bvh);
 /// Builds a BVH for a given set of polygons
 /// @param polygons Array of polygons to process
 /// @param count Amount of polygons given
-struct bvh *buildBottomLevelBvh(struct poly *polys, unsigned count);
+struct bvh *buildBottomLevelBvh(const struct poly *polys, unsigned count);
 
 /// Builds a top-level BVH for a given set of instances
 /// @param instances Instances to build a top-level BVH for
 /// @param instanceCount Amount of instances
-struct bvh *buildTopLevelBvh(struct instance *instances, unsigned instanceCount);
+struct bvh *buildTopLevelBvh(const struct instance *instances, unsigned instanceCount);
 
 /// Intersect a ray with a scene top-level BVH
 bool traverseTopLevelBvh(const struct instance *instances, const struct bvh *bvh, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler);
