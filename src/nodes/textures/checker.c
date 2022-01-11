@@ -3,14 +3,11 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 06/12/2020.
-//  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../includes.h"
 #include "../../datatypes/color.h"
 #include "../../datatypes/poly.h"
-#include "../../datatypes/vertexbuffer.h"
-#include "../../utils/assert.h"
 #include "../../datatypes/image/texture.h"
 #include "../../utils/mempool.h"
 #include "../../datatypes/hitrecord.h"

@@ -12,12 +12,8 @@
 #include "../renderer/pathtrace.h"
 
 #include "../datatypes/vertexbuffer.h"
-#include "../datatypes/poly.h"
-#include "../datatypes/vector.h"
 #include "../datatypes/bbox.h"
-#include "../datatypes/lightray.h"
 #include "../datatypes/mesh.h"
-#include "../datatypes/sphere.h"
 #include "../datatypes/instance.h"
 
 /*

@@ -3,10 +3,9 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 11/08/2021.
-//  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../includes.h"
 #include "../nodebase.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"

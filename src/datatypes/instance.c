@@ -18,7 +18,6 @@
 #include "scene.h"
 #include "../utils/args.h"
 #include "../datatypes/vertexbuffer.h"
-#include "../utils/mempool.h"
 
 struct sphereVolume {
 	struct sphere *sphere;

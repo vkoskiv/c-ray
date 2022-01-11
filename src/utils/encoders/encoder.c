@@ -8,15 +8,12 @@
 
 #include "encoder.h"
 
-#include "../../includes.h"
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/image/imagefile.h"
 #include "../logging.h"
-#include "../fileio.h"
 #include "../../libraries/asprintf.h"
 #include "../assert.h"
 #include "../args.h"
-#include "../string.h"
 
 #include "formats/png.h"
 #include "formats/bmp.h"

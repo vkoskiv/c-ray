@@ -11,7 +11,6 @@
 #include "camera.h"
 
 #include "vector.h"
-#include "../renderer/samplers/sampler.h"
 
 void cam_recompute_optics(struct camera *cam) {
 	if (!cam) return;

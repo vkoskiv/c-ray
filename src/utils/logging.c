@@ -3,14 +3,13 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 14/09/2015.
-//  Copyright © 2015-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 #include "logging.h"
 
 #include <stdarg.h>
-#include <inttypes.h>
 #include <time.h>
 #include <stdio.h>
 #include "args.h"

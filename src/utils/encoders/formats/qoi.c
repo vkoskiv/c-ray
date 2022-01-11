@@ -6,7 +6,7 @@
 //  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../../includes.h"
+#include <stddef.h>
 #include "qoi.h"
 #include "../../fileio.h"
 

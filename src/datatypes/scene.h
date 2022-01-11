@@ -3,10 +3,12 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
+
+#include <stddef.h>
 
 struct renderer;
 struct hashtable;

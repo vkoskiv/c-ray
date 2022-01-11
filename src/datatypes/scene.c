@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -22,17 +22,12 @@
 #include "mesh.h"
 #include "poly.h"
 #include "../utils/platform/thread.h"
-#include "../utils/ui.h"
 #include "../datatypes/instance.h"
 #include "../datatypes/bbox.h"
 #include "../utils/mempool.h"
 #include "../utils/hashtable.h"
 #include "../nodes/bsdfnode.h"
-#include "../utils/hashtable.h"
-#include "../utils/string.h"
 #include "../utils/args.h"
-#include "../utils/fileio.h"
-#include "../utils/base64.h"
 #include "../utils/textbuffer.h"
 
 struct bvhBuildTask {

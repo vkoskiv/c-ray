@@ -9,6 +9,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
 #include "../color.h"
 
 enum colorspace {

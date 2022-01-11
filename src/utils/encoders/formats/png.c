@@ -6,8 +6,8 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../../includes.h"
 #include "../../../datatypes/image/imagefile.h"
+#include <stddef.h>
 #include "png.h"
 
 #include <stdio.h>
@@ -15,7 +15,6 @@
 #include "../../logging.h"
 
 #include "../../../libraries/lodepng.h"
-#include "../../fileio.h"
 
 #ifndef WINDOWS
 #include <sys/utsname.h>

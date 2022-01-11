@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri on 5.1.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -25,7 +25,6 @@
 #include "../utils/assert.h"
 #include <errno.h>
 #include "fileio.h"
-#include "args.h"
 
 #ifndef __APPLE__
 	#if __BIG_ENDIAN__

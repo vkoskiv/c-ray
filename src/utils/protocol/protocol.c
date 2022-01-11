@@ -13,18 +13,16 @@
 #include <string.h>
 
 #include "../../utils/logging.h"
-#include "../../libraries/cJSON.h"
 #include "../../datatypes/image/imagefile.h"
 #include "../../datatypes/vector.h"
-#include "../../datatypes/vertexbuffer.h"
 #include "../../datatypes/tile.h"
 #include "../../datatypes/image/texture.h"
-#include "../../datatypes/color.h"
 #include "assert.h"
 #include "../string.h"
 #include "../gitsha1.h"
 #include "../networking.h"
 #include "../base64.h"
+#include "../timer.h"
 
 // Consumes given json, no need to free it after.
 bool sendJSON(int socket, cJSON *json) {
@@ -45,8 +43,6 @@ bool sendJSONWithProgress(int socket, cJSON *json, size_t *progress) {
 	return ret;
 }
 
-#include "../fileio.h"
-#include "../timer.h"
 cJSON *readJSON(int socket) {
 	char *recvBuf = NULL;
 	size_t length = 0;

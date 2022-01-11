@@ -13,11 +13,9 @@
 #include "../../../../datatypes/poly.h"
 #include "../../../../datatypes/material.h"
 #include "../../../../datatypes/vertexbuffer.h"
-#include "../../../../datatypes/vertexbuffer.h"
 #include "../../../logging.h"
 #include "../../../string.h"
 #include "../../../fileio.h"
-#include "../../../assert.h"
 #include "../../../textbuffer.h"
 #include "mtlloader.h"
 

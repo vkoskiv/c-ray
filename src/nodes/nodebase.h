@@ -3,12 +3,13 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 07/12/2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 #include "../utils/logging.h"
+#include <stdbool.h>
 
 // Magic for comparing two nodes
 

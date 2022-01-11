@@ -23,7 +23,6 @@
 #include "../../renderer/pathtrace.h"
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/scene.h"
-#include "../../datatypes/lightray.h"
 #include "../../datatypes/camera.h"
 #include "../platform/mutex.h"
 #include "../platform/thread.h"
@@ -33,7 +32,6 @@
 #include "../gitsha1.h"
 #include "../timer.h"
 #include "../args.h"
-#include "../fileio.h"
 #include "../../utils/platform/signal.h"
 #include <stdio.h>
 #include <inttypes.h>

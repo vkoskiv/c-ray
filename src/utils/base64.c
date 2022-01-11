@@ -3,12 +3,11 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 18/03/2021.
-//  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "base64.h"
 
-#include "assert.h"
 #include <stdlib.h>
 
 // Neither of these implementations are mine, but they are

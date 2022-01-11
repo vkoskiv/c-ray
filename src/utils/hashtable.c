@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 17.11.2019.
-//  Copyright © 2019-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -11,7 +11,6 @@
 
 #include <inttypes.h>
 #include <string.h>
-#include "logging.h"
 #include "../datatypes/vector.h"
 #include "assert.h"
 #include "fileio.h"

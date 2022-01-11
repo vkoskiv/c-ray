@@ -13,8 +13,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include "fileio.h"
 #include "logging.h"
 #include "string.h"
 #include <stdio.h>

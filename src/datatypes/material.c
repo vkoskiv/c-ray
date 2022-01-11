@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 20/05/2017.
-//  Copyright © 2017-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -11,17 +11,9 @@
 #include "material.h"
 
 #include "../renderer/pathtrace.h"
-#include "vertexbuffer.h"
 #include "image/texture.h"
-#include "poly.h"
-#include "../utils/assert.h"
-#include "../utils/logging.h"
 #include "../utils/string.h"
 #include "../datatypes/scene.h"
-
-#include "../datatypes/color.h"
-
-#include "../nodes/bsdfnode.h"
 
 static struct material emptyMaterial() {
 	return (struct material){0};

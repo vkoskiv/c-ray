@@ -3,10 +3,9 @@
 //  C-ray
 //
 //  Created by Valtteri on 27.5.2021.
-//  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../includes.h"
 #include "../../datatypes/color.h"
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
@@ -14,7 +13,6 @@
 #include "../colornode.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
-#include "../../utils/logging.h"
 #include "../bsdfnode.h"
 
 #include "isotropic.h"

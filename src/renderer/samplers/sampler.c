@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri on 28.4.2020.
-//  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdint.h>
@@ -13,7 +13,6 @@
 #include "random.h"
 #include "sampler.h"
 #include "common.h"
-#include "../../utils/logging.h"
 
 struct sampler {
 	enum samplerType type;

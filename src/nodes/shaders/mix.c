@@ -6,7 +6,6 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../includes.h"
 #include "../../datatypes/color.h"
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"

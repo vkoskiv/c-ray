@@ -35,7 +35,6 @@
 #include "../args.h"
 #include "../assert.h"
 #include "../filecache.h"
-#include "../timer.h"
 #include "../platform/terminal.h"
 
 void disconnectFromClient(struct renderClient *client) {

@@ -3,15 +3,13 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2019-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../includes.h"
 #include "textureloader.h"
 #include "../fileio.h"
 #include "../logging.h"
 #include "../../datatypes/image/texture.h"
-#include "../../datatypes/color.h"
 #include "../../utils/assert.h"
 #include "../../utils/mempool.h"
 

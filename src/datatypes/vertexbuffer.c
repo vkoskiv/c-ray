@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2019-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 //Main vertex arrays
@@ -16,9 +16,7 @@
 
 #include "../includes.h"
 
-#include "poly.h"
 #include "vector.h"
-#include "../utils/assert.h"
 
 struct vector *g_vertices;
 int vertexCount;

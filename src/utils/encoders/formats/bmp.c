@@ -6,12 +6,11 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../../includes.h"
-
-#include "bmp.h"
-
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "bmp.h"
+
 #include "../../fileio.h"
 
 void encodeBMPFromArray(const char *file_name, const unsigned char *imgData, size_t width, size_t height) {
