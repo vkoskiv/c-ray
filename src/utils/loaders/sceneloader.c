@@ -799,6 +799,12 @@ static const struct vectorNode *parseVectorNode(struct world *w, const struct cJ
 		const enum vecOp op = parseVectorOp(cJSON_GetObjectItem(node, "op"));
 		return newVecMath(w, a, b, op);
 	}
+	if (stringEquals(type->valuestring, "normal")) {
+		return newNormal(w);
+	}
+	if (stringEquals(type->valuestring, "uv")) {
+		return newUV(w);
+	}
 	return NULL;
 }
 
@@ -824,6 +830,9 @@ static const struct valueNode *parseValueNode(struct renderer *r, const cJSON *n
 			const struct valueNode *to_min = parseValueNode(r, cJSON_GetObjectItem(node, "to_min"));
 			const struct valueNode *to_max = parseValueNode(r, cJSON_GetObjectItem(node, "to_max"));
 			return newMapRange(w, input_value, from_min, from_max, to_min, to_max);
+		}
+		if (stringEquals(type->valuestring, "raylength")) {
+			return newRayLength(w);
 		}
 	}
 
@@ -907,7 +916,7 @@ static const struct colorNode *parseTextureNode(struct renderer *r, const cJSON 
 			return newCombineRGB(w, red, green, blue);
 		}
 		if (stringEquals(type->valuestring, "to_color")) {
-			//return newVecToColor(w, ...)
+			return newVecToColor(w, parseVectorNode(w, cJSON_GetObjectItem(node, "vector")));
 		}
 	}
 
