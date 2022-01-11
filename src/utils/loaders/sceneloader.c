@@ -887,8 +887,7 @@ static const struct colorNode *parseTextureNode(struct renderer *r, const cJSON 
 	}
 
 	//FIXME: No good way to know if it's a color, so just check if it's got "r" in there.
-	const cJSON *red = cJSON_GetObjectItem(node, "r");
-	if (red) {
+	if (cJSON_HasObjectItem(node, "r")) {
 		// This is actually still a color object.
 		return newConstantTexture(w, parseColor(node));
 	}
