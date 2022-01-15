@@ -10,6 +10,10 @@
 
 // Cray public-facing API
 
+struct renderInfo;
+struct texture;
+struct renderer;
+
 //Utilities
 char *crGetVersion(void); //The current semantic version
 
@@ -26,18 +30,16 @@ void crDestroyOptions(void);
 
 char *crGetFilePath(char *fullPath);
 
-struct renderInfo;
-struct texture;
-void crWriteImage(void); //Write out the current image
+void crWriteImage(struct renderer *r); //Write out the current image to file
 
 char *crReadFile(size_t *bytes);
 char *crReadStdin(size_t *bytes);
 
-void crInitRenderer(void);
-void crDestroyRenderer(void);
+struct renderer *cr_new_renderer(void);
+void cr_destroy_renderer(struct renderer *r);
 
-int crLoadSceneFromFile(char *filePath);
-int crLoadSceneFromBuf(char *buf);
+int crLoadSceneFromFile(struct renderer *r, char *filePath);
+int crLoadSceneFromBuf(struct renderer *r, char *buf);
 
 void crLoadMeshFromFile(char *filePath);
 void crLoadMeshFromBuf(char *buf);
@@ -52,38 +54,38 @@ __attribute__ ((format (printf, 1, 2)))
 void crSetRenderOrder(void);
 void crGetRenderOrder(void);
 
-void crSetThreadCount(int threadCount, bool fromSystem);
-int crGetThreadCount(void);
+void crSetThreadCount(struct renderer *r, int threadCount, bool fromSystem);
+int crGetThreadCount(struct renderer *r);
 
-void crSetSampleCount(int sampleCount);
-int crGetSampleCount(void);
+void crSetSampleCount(struct renderer *r, int sampleCount);
+int crGetSampleCount(struct renderer *r);
 
-void crSetBounces(int bounces);
-int crGetBounces(void);
+void crSetBounces(struct renderer *r, int bounces);
+int crGetBounces(struct renderer *r);
 
-void crSetTileWidth(unsigned width);
-unsigned crGetTileWidth(void);
+void crSetTileWidth(struct renderer *r, unsigned width);
+unsigned crGetTileWidth(struct renderer *r);
 
-void crSetTileHeight(unsigned height);
-unsigned crGetTileHeight(void);
+void crSetTileHeight(struct renderer *r, unsigned height);
+unsigned crGetTileHeight(struct renderer *r);
 
-void crSetImageWidth(unsigned width);
-unsigned crGetImageWidth(void);
+void crSetImageWidth(struct renderer *r, unsigned width);
+unsigned crGetImageWidth(struct renderer *r);
 
-void crSetImageHeight(unsigned height);
-unsigned crGetImageHeight(void);
+void crSetImageHeight(struct renderer *r, unsigned height);
+unsigned crGetImageHeight(struct renderer *r);
 
-void crSetOutputPath(char *filePath);
-char *crGetOutputPath(void);
+void crSetOutputPath(struct renderer *r, char *filePath);
+char *crGetOutputPath(struct renderer *r);
 
-void crSetFileName(char *fileName);
-char *crGetFileName(void);
+void crSetFileName(struct renderer *r, char *fileName);
+char *crGetFileName(struct renderer *r);
 
-void crSetAssetPath(void);
-char *crGetAssetPath(void);
+void crSetAssetPath(struct renderer *r);
+char *crGetAssetPath(struct renderer *r);
 
 //Single frame
-void crStartRenderer(void);
+void crStartRenderer(struct renderer *);
 
 //Network render worker
 void crStartRenderWorker(void);

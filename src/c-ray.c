@@ -34,9 +34,6 @@
 
 #define VERSION "0.6.3"
 
-//Internal renderer state
-struct renderer *g_renderer = NULL;
-
 struct texture *currentImage = NULL;
 
 char *crGetVersion() {
@@ -84,17 +81,17 @@ char *crGetFilePath(char *fullPath) {
 	return getFilePath(fullPath);
 }
 
-void crWriteImage() {
+void crWriteImage(struct renderer *r) {
 	if (currentImage) {
-		if (g_renderer->state.saveImage) {
-			struct imageFile *file = newImageFile(currentImage, g_renderer->prefs.imgFilePath, g_renderer->prefs.imgFileName, g_renderer->prefs.imgCount, g_renderer->prefs.imgType);
+		if (r->state.saveImage) {
+			struct imageFile *file = newImageFile(currentImage, r->prefs.imgFilePath, r->prefs.imgFileName, r->prefs.imgCount, r->prefs.imgType);
 			file->info = (struct renderInfo){
-				.bounces = crGetBounces(),
-				.samples = crGetSampleCount(),
+				.bounces = crGetBounces(r),
+				.samples = crGetSampleCount(r),
 				.crayVersion = crGetVersion(),
 				.gitHash = crGitHash(),
-				.renderTime = getMs(g_renderer->state.timer),
-				.threadCount = crGetThreadCount()
+				.renderTime = getMs(r->state.timer),
+				.threadCount = crGetThreadCount(r)
 			};
 			writeImage(file);
 			destroyImageFile(file);
@@ -112,23 +109,22 @@ char *crReadStdin(size_t *bytes) {
 	return readStdin(bytes);
 }
 
-void crInitRenderer() {
-	ASSERT(!g_renderer);
-	g_renderer = newRenderer();
-	crSetAssetPath();
+struct renderer *cr_new_renderer() {
+	struct renderer *r = newRenderer();
+	crSetAssetPath(r);
+	return r;
 }
 
-void crDestroyRenderer() {
-	ASSERT(g_renderer);
-	destroyRenderer(g_renderer);
-	g_renderer = NULL;
+void cr_destroy_renderer(struct renderer *r) {
+	ASSERT(r);
+	destroyRenderer(r);
 }
 
-int crLoadSceneFromFile(char *filePath) {
+int crLoadSceneFromFile(struct renderer *r, char *filePath) {
 	size_t bytes = 0;
 	char *input = loadFile(filePath, &bytes);
 	if (input) {
-		if (loadScene(g_renderer, filePath) != 0) {
+		if (loadScene(r, filePath) != 0) {
 			free(input);
 			return -1;
 		}
@@ -149,8 +145,8 @@ void crLoadMeshFromBuf(char *buf) {
 	ASSERT_NOT_REACHED();
 }
 
-int crLoadSceneFromBuf(char *buf) {
-	return loadScene(g_renderer, buf);
+int crLoadSceneFromBuf(struct renderer *r, char *buf) {
+	return loadScene(r, buf);
 }
 
 void crLog(const char *fmt, ...) {
@@ -170,88 +166,89 @@ void crGetRenderOrder(void) {
 	ASSERT_NOT_REACHED();
 }
 
-void crSetThreadCount(int threadCount, bool fromSystem) {
-	g_renderer->prefs.threadCount = threadCount;
-	g_renderer->prefs.fromSystem = fromSystem;
+void crSetThreadCount(struct renderer *r, int threadCount, bool fromSystem) {
+	r->prefs.threadCount = threadCount;
+	r->prefs.fromSystem = fromSystem;
 	crRestartInteractive();
 }
 
-int crGetThreadCount(void) {
-	return g_renderer->prefs.threadCount;
+int crGetThreadCount(struct renderer *r) {
+	return r->prefs.threadCount;
 }
 
-void crSetSampleCount(int sampleCount) {
+void crSetSampleCount(struct renderer *r, int sampleCount) {
 	ASSERT(sampleCount > 0);
-	g_renderer->prefs.sampleCount = sampleCount;
+	r->prefs.sampleCount = sampleCount;
 }
 
-int crGetSampleCount(void) {
-	return g_renderer->prefs.sampleCount;
+int crGetSampleCount(struct renderer *r) {
+	return r->prefs.sampleCount;
 }
 
-void crSetBounces(int bounces) {
+void crSetBounces(struct renderer *r, int bounces) {
 	ASSERT(bounces > 0);
-	g_renderer->prefs.bounces = bounces;
+	r->prefs.bounces = bounces;
 }
 
-int crGetBounces(void) {
-	return g_renderer->prefs.bounces;
+int crGetBounces(struct renderer *r) {
+	return r->prefs.bounces;
 }
 
-unsigned crGetTileWidth(void) {
-	return g_renderer->prefs.tileWidth;
+unsigned crGetTileWidth(struct renderer *r) {
+	return r->prefs.tileWidth;
 }
 
-unsigned crGetTileHeight(void) {
-	return g_renderer->prefs.tileHeight;
+unsigned crGetTileHeight(struct renderer *r) {
+	return r->prefs.tileHeight;
 }
 
-unsigned crGetImageWidth(void) {
-	return g_renderer->scene->cameras[g_renderer->prefs.selected_camera].width;
+unsigned crGetImageWidth(struct renderer *r) {
+	return r->scene->cameras[r->prefs.selected_camera].width;
 }
 
-unsigned crGetImageHeight() {
-	return g_renderer->scene->cameras[g_renderer->prefs.selected_camera].height;
+unsigned crGetImageHeight(struct renderer *r) {
+	return r->scene->cameras[r->prefs.selected_camera].height;
 }
 
-void crSetOutputPath(char *filePath) {
-	g_renderer->prefs.imgFilePath = filePath;
+void crSetOutputPath(struct renderer *r, char *filePath) {
+	r->prefs.imgFilePath = filePath;
 }
 
-char *crGetOutputPath() {
-	return g_renderer->prefs.imgFilePath;
+char *crGetOutputPath(struct renderer *r) {
+	return r->prefs.imgFilePath;
 }
 
-void crSetFileName(char *fileName) {
+void crSetFileName(struct renderer *r, char *fileName) {
+	(void)r;
 	(void)fileName;
 	ASSERT_NOT_REACHED();
 }
 
-char *crGetFileName() {
-	return g_renderer->prefs.imgFileName;
+char *crGetFileName(struct renderer *r) {
+	return r->prefs.imgFileName;
 }
 
-void crSetAssetPath(void) {
-	g_renderer->prefs.assetPath = crOptionIsSet("inputFile") ? crGetFilePath(crPathArg()) : crOptionIsSet("asset_path") ? specifiedAssetPath() : stringCopy("./");
+void crSetAssetPath(struct renderer *r) {
+	r->prefs.assetPath = crOptionIsSet("inputFile") ? crGetFilePath(crPathArg()) : crOptionIsSet("asset_path") ? specifiedAssetPath() : stringCopy("./");
 }
 
-char *crGetAssetPath(void) {
-	return g_renderer->prefs.assetPath;
+char *crGetAssetPath(struct renderer *r) {
+	return r->prefs.assetPath;
 }
 
-void crStartRenderer() {
+void crStartRenderer(struct renderer *r) {
 	if (isSet("use_clustering")) {
-		g_renderer->prefs.useClustering = true;
-		g_renderer->state.clients = syncWithClients(g_renderer, &g_renderer->state.clientCount);
-		free(g_renderer->sceneCache);
-		g_renderer->sceneCache = NULL;
+		r->prefs.useClustering = true;
+		r->state.clients = syncWithClients(r, &r->state.clientCount);
+		free(r->sceneCache);
+		r->sceneCache = NULL;
 		destroyFileCache();
 	}
-	struct camera cam = g_renderer->scene->cameras[g_renderer->prefs.selected_camera];
-	initDisplay(g_renderer->prefs.fullscreen, g_renderer->prefs.borderless, cam.width, cam.height, g_renderer->prefs.scale);
-	startTimer(&g_renderer->state.timer);
-	currentImage = renderFrame(g_renderer);
-	printDuration(getMs(g_renderer->state.timer));
+	struct camera cam = r->scene->cameras[r->prefs.selected_camera];
+	initDisplay(r->prefs.fullscreen, r->prefs.borderless, cam.width, cam.height, r->prefs.scale);
+	startTimer(&r->state.timer);
+	currentImage = renderFrame(r);
+	printDuration(getMs(r->state.timer));
 	destroyDisplay();
 }
 

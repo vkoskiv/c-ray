@@ -15,27 +15,27 @@ int main(int argc, char *argv[]) {
 	crLog("C-ray v%s%s [%.8s], © 2015-2022 Valtteri Koskivuori\n", crGetVersion(), isDebug() ? "D" : "", crGitHash());
 	crInitialize();
 	crParseArgs(argc, argv);
-	crInitRenderer();
+	struct renderer *renderer = cr_new_renderer();
 	if (!crOptionIsSet("is_worker")) {
 		size_t bytes = 0;
 		char *input = crOptionIsSet("inputFile") ? crReadFile(&bytes) : crReadStdin(&bytes);
 		if (!input) {
 			crLog("No input provided, exiting.\n");
-			crDestroyRenderer();
+			cr_destroy_renderer(renderer);
 			crDestroyOptions();
 			return -1;
 		}
 		crLog("%zi bytes of input JSON loaded from %s, parsing.\n", bytes, crOptionIsSet("inputFile") ? "file" : "stdin");
-		crLoadSceneFromBuf(input);
+		crLoadSceneFromBuf(renderer, input);
 		free(input);
 		
-		crStartRenderer();
-		crWriteImage();
+		crStartRenderer(renderer);
+		crWriteImage(renderer);
 	} else {
 		crStartRenderWorker();
 	}
 	
-	crDestroyRenderer();
+	cr_destroy_renderer(renderer);
 	crDestroyOptions();
 	crLog("Render finished, exiting.\n");
 	return 0;
