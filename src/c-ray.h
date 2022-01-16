@@ -19,16 +19,16 @@ char *cr_get_version(void); //The current semantic version
 
 char *cr_get_git_hash(void); //The current git hash of the build
 
-bool is_debug(void);
+int is_debug(void);
 
 void cr_initialize(void); //Run initial setup of the environment
 
 void cr_parse_args(int argc, char **argv);
-bool cr_is_option_set(char *key);
+int cr_is_option_set(char *key);
 char *cr_path_arg(void);
 void cr_destroy_options(void);
 
-char *cr_get_file_path(char *fullPath);
+char *cr_get_file_path(char *full_path);
 
 void cr_write_image(struct renderer *r); //Write out the current image to file
 
@@ -38,7 +38,7 @@ char *cr_read_from_stdin(size_t *bytes);
 struct renderer *cr_new_renderer(void);
 void cr_destroy_renderer(struct renderer *r);
 
-int cr_load_scene_from_file(struct renderer *r, char *filePath);
+int cr_load_scene_from_file(struct renderer *r, char *file_path);
 int cr_load_scene_from_buf(struct renderer *r, char *buf);
 
 void cr_load_mesh_from_file(char *filePath);
@@ -54,10 +54,10 @@ __attribute__ ((format (printf, 1, 2)))
 void cr_set_render_order(void);
 void cr_get_render_order(void);
 
-void cr_set_thread_count(struct renderer *r, int threadCount, bool fromSystem);
+void cr_set_thread_count(struct renderer *r, int thread_count, int is_from_system);
 int cr_get_thread_count(struct renderer *r);
 
-void cr_set_sample_count(struct renderer *r, int sampleCount);
+void cr_set_sample_count(struct renderer *r, int sample_count);
 int cr_get_sample_count(struct renderer *r);
 
 void cr_set_bounces(struct renderer *r, int bounces);

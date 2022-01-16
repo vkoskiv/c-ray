@@ -11,6 +11,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "datatypes/image/imagefile.h"
 #include "renderer/renderer.h"
@@ -44,7 +45,7 @@ char *cr_get_git_hash() {
 	return gitHash();
 }
 
-bool is_debug() {
+int is_debug() {
 #ifdef CRAY_DEBUG_ENABLED
 	return true;
 #else
@@ -65,7 +66,7 @@ void cr_parse_args(int argc, char **argv) {
 	parseArgs(argc, argv);
 }
 
-bool cr_is_option_set(char *key) {
+int cr_is_option_set(char *key) {
 	return isSet(key);
 }
 
@@ -77,8 +78,8 @@ void cr_destroy_options() {
 	destroyOptions();
 }
 
-char *cr_get_file_path(char *fullPath) {
-	return getFilePath(fullPath);
+char *cr_get_file_path(char *full_path) {
+	return getFilePath(full_path);
 }
 
 void cr_write_image(struct renderer *r) {
@@ -120,11 +121,11 @@ void cr_destroy_renderer(struct renderer *r) {
 	destroyRenderer(r);
 }
 
-int cr_load_scene_from_file(struct renderer *r, char *filePath) {
+int cr_load_scene_from_file(struct renderer *r, char *file_path) {
 	size_t bytes = 0;
-	char *input = loadFile(filePath, &bytes);
+	char *input = loadFile(file_path, &bytes);
 	if (input) {
-		if (loadScene(r, filePath) != 0) {
+		if (loadScene(r, file_path) != 0) {
 			free(input);
 			return -1;
 		}
@@ -135,8 +136,8 @@ int cr_load_scene_from_file(struct renderer *r, char *filePath) {
 	return 0;
 }
 
-void cr_load_mesh_from_file(char *filePath) {
-	(void)filePath;
+void cr_load_mesh_from_file(char *file_path) {
+	(void)file_path;
 	ASSERT_NOT_REACHED();
 }
 
@@ -166,9 +167,9 @@ void cr_get_render_order(void) {
 	ASSERT_NOT_REACHED();
 }
 
-void cr_set_thread_count(struct renderer *r, int threadCount, bool fromSystem) {
-	r->prefs.threadCount = threadCount;
-	r->prefs.fromSystem = fromSystem;
+void cr_set_thread_count(struct renderer *r, int thread_count, int is_from_system) {
+	r->prefs.threadCount = thread_count;
+	r->prefs.fromSystem = is_from_system;
 	cr_restart_interactive();
 }
 
@@ -176,9 +177,9 @@ int cr_get_thread_count(struct renderer *r) {
 	return r->prefs.threadCount;
 }
 
-void cr_set_sample_count(struct renderer *r, int sampleCount) {
-	ASSERT(sampleCount > 0);
-	r->prefs.sampleCount = sampleCount;
+void cr_set_sample_count(struct renderer *r, int sample_count) {
+	ASSERT(sample_count > 0);
+	r->prefs.sampleCount = sample_count;
 }
 
 int cr_get_sample_count(struct renderer *r) {
@@ -210,17 +211,17 @@ unsigned cr_get_image_height(struct renderer *r) {
 	return r->scene->cameras[r->prefs.selected_camera].height;
 }
 
-void cr_set_output_path(struct renderer *r, char *filePath) {
-	r->prefs.imgFilePath = filePath;
+void cr_set_output_path(struct renderer *r, char *file_path) {
+	r->prefs.imgFilePath = file_path;
 }
 
 char *cr_get_output_path(struct renderer *r) {
 	return r->prefs.imgFilePath;
 }
 
-void cr_set_file_name(struct renderer *r, char *fileName) {
+void cr_set_file_name(struct renderer *r, char *file_name) {
 	(void)r;
-	(void)fileName;
+	(void)file_name;
 	ASSERT_NOT_REACHED();
 }
 

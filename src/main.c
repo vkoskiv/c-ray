@@ -3,11 +3,10 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 12/02/2015.
-//  Copyright © 2015-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdlib.h>
-#include <stdbool.h>
 
 #include "c-ray.h"
 
