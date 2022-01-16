@@ -12,31 +12,31 @@
 #include "c-ray.h"
 
 int main(int argc, char *argv[]) {
-	crLog("C-ray v%s%s [%.8s], © 2015-2022 Valtteri Koskivuori\n", crGetVersion(), isDebug() ? "D" : "", crGitHash());
-	crInitialize();
-	crParseArgs(argc, argv);
+	cr_log("C-ray v%s%s [%.8s], © 2015-2022 Valtteri Koskivuori\n", cr_get_version(), is_debug() ? "D" : "", cr_get_git_hash());
+	cr_initialize();
+	cr_parse_args(argc, argv);
 	struct renderer *renderer = cr_new_renderer();
-	if (!crOptionIsSet("is_worker")) {
+	if (!cr_is_option_set("is_worker")) {
 		size_t bytes = 0;
-		char *input = crOptionIsSet("inputFile") ? crReadFile(&bytes) : crReadStdin(&bytes);
+		char *input = cr_is_option_set("inputFile") ? cr_read_from_file(&bytes) : cr_read_from_stdin(&bytes);
 		if (!input) {
-			crLog("No input provided, exiting.\n");
+			cr_log("No input provided, exiting.\n");
 			cr_destroy_renderer(renderer);
-			crDestroyOptions();
+			cr_destroy_options();
 			return -1;
 		}
-		crLog("%zi bytes of input JSON loaded from %s, parsing.\n", bytes, crOptionIsSet("inputFile") ? "file" : "stdin");
-		crLoadSceneFromBuf(renderer, input);
+		cr_log("%zi bytes of input JSON loaded from %s, parsing.\n", bytes, cr_is_option_set("inputFile") ? "file" : "stdin");
+		cr_load_scene_from_buf(renderer, input);
 		free(input);
-		
-		crStartRenderer(renderer);
-		crWriteImage(renderer);
+
+		cr_start_renderer(renderer);
+		cr_write_image(renderer);
 	} else {
-		crStartRenderWorker();
+		cr_start_render_worker();
 	}
 	
 	cr_destroy_renderer(renderer);
-	crDestroyOptions();
-	crLog("Render finished, exiting.\n");
+	cr_destroy_options();
+	cr_log("Render finished, exiting.\n");
 	return 0;
 }

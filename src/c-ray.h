@@ -15,89 +15,89 @@ struct texture;
 struct renderer;
 
 //Utilities
-char *crGetVersion(void); //The current semantic version
+char *cr_get_version(void); //The current semantic version
 
-char *crGitHash(void); //The current git hash of the build
+char *cr_get_git_hash(void); //The current git hash of the build
 
-bool isDebug(void);
+bool is_debug(void);
 
-void crInitialize(void); //Run initial setup of the environment
+void cr_initialize(void); //Run initial setup of the environment
 
-void crParseArgs(int argc, char **argv);
-bool crOptionIsSet(char *key);
-char *crPathArg(void);
-void crDestroyOptions(void);
+void cr_parse_args(int argc, char **argv);
+bool cr_is_option_set(char *key);
+char *cr_path_arg(void);
+void cr_destroy_options(void);
 
-char *crGetFilePath(char *fullPath);
+char *cr_get_file_path(char *fullPath);
 
-void crWriteImage(struct renderer *r); //Write out the current image to file
+void cr_write_image(struct renderer *r); //Write out the current image to file
 
-char *crReadFile(size_t *bytes);
-char *crReadStdin(size_t *bytes);
+char *cr_read_from_file(size_t *bytes);
+char *cr_read_from_stdin(size_t *bytes);
 
 struct renderer *cr_new_renderer(void);
 void cr_destroy_renderer(struct renderer *r);
 
-int crLoadSceneFromFile(struct renderer *r, char *filePath);
-int crLoadSceneFromBuf(struct renderer *r, char *buf);
+int cr_load_scene_from_file(struct renderer *r, char *filePath);
+int cr_load_scene_from_buf(struct renderer *r, char *buf);
 
-void crLoadMeshFromFile(char *filePath);
-void crLoadMeshFromBuf(char *buf);
+void cr_load_mesh_from_file(char *filePath);
+void cr_load_mesh_from_buf(char *buf);
 
-void crLog(const char *fmt, ...)
+void cr_log(const char *fmt, ...)
 #ifndef WINDOWS
 __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
 //Preferences
-void crSetRenderOrder(void);
-void crGetRenderOrder(void);
+void cr_set_render_order(void);
+void cr_get_render_order(void);
 
-void crSetThreadCount(struct renderer *r, int threadCount, bool fromSystem);
-int crGetThreadCount(struct renderer *r);
+void cr_set_thread_count(struct renderer *r, int threadCount, bool fromSystem);
+int cr_get_thread_count(struct renderer *r);
 
-void crSetSampleCount(struct renderer *r, int sampleCount);
-int crGetSampleCount(struct renderer *r);
+void cr_set_sample_count(struct renderer *r, int sampleCount);
+int cr_get_sample_count(struct renderer *r);
 
-void crSetBounces(struct renderer *r, int bounces);
-int crGetBounces(struct renderer *r);
+void cr_set_bounces(struct renderer *r, int bounces);
+int cr_get_bounces(struct renderer *r);
 
-void crSetTileWidth(struct renderer *r, unsigned width);
-unsigned crGetTileWidth(struct renderer *r);
+void cr_set_tile_width(struct renderer *r, unsigned width);
+unsigned cr_get_tile_width(struct renderer *r);
 
-void crSetTileHeight(struct renderer *r, unsigned height);
-unsigned crGetTileHeight(struct renderer *r);
+void cr_set_tile_height(struct renderer *r, unsigned height);
+unsigned cr_get_tile_height(struct renderer *r);
 
-void crSetImageWidth(struct renderer *r, unsigned width);
-unsigned crGetImageWidth(struct renderer *r);
+void cr_set_image_width(struct renderer *r, unsigned width);
+unsigned cr_get_image_width(struct renderer *r);
 
-void crSetImageHeight(struct renderer *r, unsigned height);
-unsigned crGetImageHeight(struct renderer *r);
+void cr_set_image_height(struct renderer *r, unsigned height);
+unsigned cr_get_image_height(struct renderer *r);
 
-void crSetOutputPath(struct renderer *r, char *filePath);
-char *crGetOutputPath(struct renderer *r);
+void cr_set_output_path(struct renderer *r, char *filePath);
+char *cr_get_output_path(struct renderer *r);
 
-void crSetFileName(struct renderer *r, char *fileName);
-char *crGetFileName(struct renderer *r);
+void cr_set_file_name(struct renderer *r, char *fileName);
+char *cr_get_file_name(struct renderer *r);
 
-void crSetAssetPath(struct renderer *r);
-char *crGetAssetPath(struct renderer *r);
+void cr_set_asset_path(struct renderer *r);
+char *cr_get_asset_path(struct renderer *r);
 
 //Single frame
-void crStartRenderer(struct renderer *);
+void cr_start_renderer(struct renderer *r);
 
 //Network render worker
-void crStartRenderWorker(void);
+void cr_start_render_worker(void);
 
 //Interactive mode
-void crStartInteractive(void);
-void crPauseInteractive(void); //Toggle paused state
-void crGetCurrentImage(void); //Just get the current buffer
-void crRestartInteractive(void);
+void cr_start_interactive(void);
+void cr_pause_interactive(void); //Toggle paused state
+void cr_get_current_image(void); //Just get the current buffer
+void cr_restart_interactive(void);
 
-void crTransformMesh(void); //Transform, recompute kd-tree, restart
+void cr_transform_mesh(void); //Transform, recompute kd-tree, restart
 
-void crMoveCamera(void/*struct dimension delta*/);
-void crSetHDR(void);
+void cr_move_camera(void/*struct dimension delta*/);
+void cr_set_hdr(void);
 

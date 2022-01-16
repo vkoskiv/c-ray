@@ -36,15 +36,15 @@
 
 struct texture *currentImage = NULL;
 
-char *crGetVersion() {
+char *cr_get_version() {
 	return VERSION;
 }
 
-char *crGitHash() {
+char *cr_get_git_hash() {
 	return gitHash();
 }
 
-bool isDebug() {
+bool is_debug() {
 #ifdef CRAY_DEBUG_ENABLED
 	return true;
 #else
@@ -52,46 +52,46 @@ bool isDebug() {
 #endif
 }
 
-void atExit() {
+void at_exit() {
 	restoreTerminal();
 }
 
-void crInitialize() {
+void cr_initialize() {
 	initTerminal();
-	atexit(atExit);
+	atexit(at_exit);
 }
 
-void crParseArgs(int argc, char **argv) {
+void cr_parse_args(int argc, char **argv) {
 	parseArgs(argc, argv);
 }
 
-bool crOptionIsSet(char *key) {
+bool cr_is_option_set(char *key) {
 	return isSet(key);
 }
 
-char *crPathArg() {
+char *cr_path_arg() {
 	return pathArg();
 }
 
-void crDestroyOptions() {
+void cr_destroy_options() {
 	destroyOptions();
 }
 
-char *crGetFilePath(char *fullPath) {
+char *cr_get_file_path(char *fullPath) {
 	return getFilePath(fullPath);
 }
 
-void crWriteImage(struct renderer *r) {
+void cr_write_image(struct renderer *r) {
 	if (currentImage) {
 		if (r->state.saveImage) {
 			struct imageFile *file = newImageFile(currentImage, r->prefs.imgFilePath, r->prefs.imgFileName, r->prefs.imgCount, r->prefs.imgType);
 			file->info = (struct renderInfo){
-				.bounces = crGetBounces(r),
-				.samples = crGetSampleCount(r),
-				.crayVersion = crGetVersion(),
-				.gitHash = crGitHash(),
+				.bounces = cr_get_bounces(r),
+				.samples = cr_get_sample_count(r),
+				.crayVersion = cr_get_version(),
+				.gitHash = cr_get_git_hash(),
 				.renderTime = getMs(r->state.timer),
-				.threadCount = crGetThreadCount(r)
+				.threadCount = cr_get_thread_count(r)
 			};
 			writeImage(file);
 			destroyImageFile(file);
@@ -101,17 +101,17 @@ void crWriteImage(struct renderer *r) {
 	}
 }
 
-char *crReadFile(size_t *bytes) {
+char *cr_read_from_file(size_t *bytes) {
 	return loadFile(pathArg(), bytes);
 }
 
-char *crReadStdin(size_t *bytes) {
+char *cr_read_from_stdin(size_t *bytes) {
 	return readStdin(bytes);
 }
 
 struct renderer *cr_new_renderer() {
 	struct renderer *r = newRenderer();
-	crSetAssetPath(r);
+	cr_set_asset_path(r);
 	return r;
 }
 
@@ -120,7 +120,7 @@ void cr_destroy_renderer(struct renderer *r) {
 	destroyRenderer(r);
 }
 
-int crLoadSceneFromFile(struct renderer *r, char *filePath) {
+int cr_load_scene_from_file(struct renderer *r, char *filePath) {
 	size_t bytes = 0;
 	char *input = loadFile(filePath, &bytes);
 	if (input) {
@@ -135,21 +135,21 @@ int crLoadSceneFromFile(struct renderer *r, char *filePath) {
 	return 0;
 }
 
-void crLoadMeshFromFile(char *filePath) {
+void cr_load_mesh_from_file(char *filePath) {
 	(void)filePath;
 	ASSERT_NOT_REACHED();
 }
 
-void crLoadMeshFromBuf(char *buf) {
+void cr_load_mesh_from_buf(char *buf) {
 	(void)buf;
 	ASSERT_NOT_REACHED();
 }
 
-int crLoadSceneFromBuf(struct renderer *r, char *buf) {
+int cr_load_scene_from_buf(struct renderer *r, char *buf) {
 	return loadScene(r, buf);
 }
 
-void crLog(const char *fmt, ...) {
+void cr_log(const char *fmt, ...) {
 	char buf[512];
 	va_list vl;
 	va_start(vl, fmt);
@@ -158,85 +158,85 @@ void crLog(const char *fmt, ...) {
 	logr(info, "%s", buf);
 }
 
-void crSetRenderOrder(void) {
+void cr_set_render_order(void) {
 	ASSERT_NOT_REACHED();
 }
 
-void crGetRenderOrder(void) {
+void cr_get_render_order(void) {
 	ASSERT_NOT_REACHED();
 }
 
-void crSetThreadCount(struct renderer *r, int threadCount, bool fromSystem) {
+void cr_set_thread_count(struct renderer *r, int threadCount, bool fromSystem) {
 	r->prefs.threadCount = threadCount;
 	r->prefs.fromSystem = fromSystem;
-	crRestartInteractive();
+	cr_restart_interactive();
 }
 
-int crGetThreadCount(struct renderer *r) {
+int cr_get_thread_count(struct renderer *r) {
 	return r->prefs.threadCount;
 }
 
-void crSetSampleCount(struct renderer *r, int sampleCount) {
+void cr_set_sample_count(struct renderer *r, int sampleCount) {
 	ASSERT(sampleCount > 0);
 	r->prefs.sampleCount = sampleCount;
 }
 
-int crGetSampleCount(struct renderer *r) {
+int cr_get_sample_count(struct renderer *r) {
 	return r->prefs.sampleCount;
 }
 
-void crSetBounces(struct renderer *r, int bounces) {
+void cr_set_bounces(struct renderer *r, int bounces) {
 	ASSERT(bounces > 0);
 	r->prefs.bounces = bounces;
 }
 
-int crGetBounces(struct renderer *r) {
+int cr_get_bounces(struct renderer *r) {
 	return r->prefs.bounces;
 }
 
-unsigned crGetTileWidth(struct renderer *r) {
+unsigned cr_get_tile_width(struct renderer *r) {
 	return r->prefs.tileWidth;
 }
 
-unsigned crGetTileHeight(struct renderer *r) {
+unsigned cr_get_tile_height(struct renderer *r) {
 	return r->prefs.tileHeight;
 }
 
-unsigned crGetImageWidth(struct renderer *r) {
+unsigned cr_get_image_width(struct renderer *r) {
 	return r->scene->cameras[r->prefs.selected_camera].width;
 }
 
-unsigned crGetImageHeight(struct renderer *r) {
+unsigned cr_get_image_height(struct renderer *r) {
 	return r->scene->cameras[r->prefs.selected_camera].height;
 }
 
-void crSetOutputPath(struct renderer *r, char *filePath) {
+void cr_set_output_path(struct renderer *r, char *filePath) {
 	r->prefs.imgFilePath = filePath;
 }
 
-char *crGetOutputPath(struct renderer *r) {
+char *cr_get_output_path(struct renderer *r) {
 	return r->prefs.imgFilePath;
 }
 
-void crSetFileName(struct renderer *r, char *fileName) {
+void cr_set_file_name(struct renderer *r, char *fileName) {
 	(void)r;
 	(void)fileName;
 	ASSERT_NOT_REACHED();
 }
 
-char *crGetFileName(struct renderer *r) {
+char *cr_get_file_name(struct renderer *r) {
 	return r->prefs.imgFileName;
 }
 
-void crSetAssetPath(struct renderer *r) {
-	r->prefs.assetPath = crOptionIsSet("inputFile") ? crGetFilePath(crPathArg()) : crOptionIsSet("asset_path") ? specifiedAssetPath() : stringCopy("./");
+void cr_set_asset_path(struct renderer *r) {
+	r->prefs.assetPath = cr_is_option_set("inputFile") ? cr_get_file_path(cr_path_arg()) : cr_is_option_set("asset_path") ? specifiedAssetPath() : stringCopy("./");
 }
 
-char *crGetAssetPath(struct renderer *r) {
+char *cr_get_asset_path(struct renderer *r) {
 	return r->prefs.assetPath;
 }
 
-void crStartRenderer(struct renderer *r) {
+void cr_start_renderer(struct renderer *r) {
 	if (isSet("use_clustering")) {
 		r->prefs.useClustering = true;
 		r->state.clients = syncWithClients(r, &r->state.clientCount);
@@ -252,30 +252,30 @@ void crStartRenderer(struct renderer *r) {
 	destroyDisplay();
 }
 
-void crStartRenderWorker() {
+void cr_start_render_worker() {
 	startWorkerServer();
 }
 
 //Interactive mode
-void crStartInteractive(void) {
+void cr_start_interactive(void) {
 	ASSERT_NOT_REACHED();
 }
 
 //Toggle paused state
-void crPauseInteractive(void) {
+void cr_pause_interactive(void) {
 	ASSERT_NOT_REACHED();
 }
 
 //Just get the current buffer
-void crGetCurrentImage(void) {
+void cr_get_current_image(void) {
 	ASSERT_NOT_REACHED();
 }
-void crRestartInteractive() {
+void cr_restart_interactive() {
 	//if (grenderer->prefs.interactive) { do the thing }
 	ASSERT_NOT_REACHED();
 }
 
-void crTransformMesh(void); //Transform, recompute kd-tree, restart
+void cr_transform_mesh(void); //Transform, recompute kd-tree, restart
 
-void crMoveCamera(void/*struct dimension delta*/);
-void crSetHDR(void);
+void cr_move_camera(void/*struct dimension delta*/);
+void cr_set_hdr(void);
