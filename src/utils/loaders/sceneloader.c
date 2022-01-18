@@ -848,21 +848,25 @@ static const struct colorNode *parseTextureNode(struct renderer *r, const cJSON 
 		return newConstantTexture(w, parseColor(node));
 	}
 
+	// Handle options first
+	uint8_t options = 0;
+	options |= SRGB_TRANSFORM; // Enabled by default.
+
 	if (cJSON_IsString(node)) {
 		// No options provided, go with defaults.
 		char *fullPath = stringConcat(r->prefs.assetPath, node->valuestring);
 		windowsFixPath(fullPath);
-		const struct colorNode *node = newImageTexture(w, load_texture(fullPath, &w->nodePool), 0);
+		const struct colorNode *node = newImageTexture(w, load_texture(fullPath, &w->nodePool), options);
 		free(fullPath);
 		return node;
 	}
 
 	// Should be an object, then.
-	ASSERT(cJSON_IsObject(node));
+	if (!cJSON_IsObject(node)) {
+		logr(warning, "Invalid texture node given: \"%s\"\n", cJSON_PrintUnformatted(node));
+		return unknownTextureNode(w);
+	}
 
-	// Handle options first
-	uint8_t options = 0;
-	options |= SRGB_TRANSFORM; // Enabled by default.
 	// Do we want to do an srgb transform?
 	const cJSON *srgbTransform = cJSON_GetObjectItem(node, "transform");
 	if (srgbTransform) {
