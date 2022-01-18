@@ -19,8 +19,7 @@
 
 struct plasticBsdf {
 	struct bsdfNode bsdf;
-	const struct colorNode *color;
-	const struct colorNode *roughness;
+	const struct valueNode *roughness;
 	const struct bsdfNode *diffuse;
 	const struct valueNode *IOR;
 };
@@ -28,13 +27,12 @@ struct plasticBsdf {
 static bool compare(const void *A, const void *B) {
 	const struct plasticBsdf *this = A;
 	const struct plasticBsdf *other = B;
-	return this->color == other->color && this->roughness == other->roughness && this->IOR == other->IOR;
+	return this->roughness == other->roughness && this->diffuse == other->diffuse && this->IOR == other->IOR;
 }
 
 static uint32_t hash(const void *p) {
 	const struct plasticBsdf *this = p;
 	uint32_t h = hashInit();
-	h = hashBytes(h, &this->color, sizeof(this->color));
 	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
 	h = hashBytes(h, &this->IOR, sizeof(this->IOR));
 	return h;
@@ -44,7 +42,7 @@ static struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampl
 	struct plasticBsdf *plastic = (struct plasticBsdf *)bsdf;
 	struct vector reflected = vecReflect(record->incident_dir, record->surfaceNormal);
 	//Roughness
-	float roughness = plastic->roughness->eval(plastic->roughness, record).red;
+	float roughness = plastic->roughness->eval(plastic->roughness, record);
 	if (roughness > 0.0f) {
 		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
@@ -89,11 +87,10 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	}
 }
 
-const struct bsdfNode *newPlastic(const struct world *world, const struct colorNode *color, const struct valueNode *IOR) {
+const struct bsdfNode *newPlastic(const struct world *world, const struct colorNode *color, const struct valueNode *roughness, const struct valueNode *IOR) {
 	HASH_CONS(world->nodeTable, hash, struct plasticBsdf, {
-		.color = color ? color : newConstantTexture(world, blackColor),
-		.roughness = newConstantTexture(world, blackColor),
 		.diffuse = newDiffuse(world, color),
+		.roughness = roughness ? roughness : newConstantValue(world, 0.0f),
 		.IOR = IOR ? IOR : newConstantValue(world, 1.45f),
 		.bsdf = {
 			.sample = sample,
