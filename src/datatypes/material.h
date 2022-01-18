@@ -89,7 +89,7 @@ struct material warningMaterial(void);
 
 struct world;
 
-void assignBSDF(struct world *world, struct material *mat);
+void try_to_guess_bsdf(struct world *w, struct material *mat);
 
 #include "../utils/mempool.h"
 #include "../nodes/valuenode.h" //FIXME: Remove

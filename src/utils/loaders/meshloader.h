@@ -8,4 +8,4 @@
 
 #pragma once
 
-struct mesh *loadMesh(const char *filePath, size_t *meshCount);
+struct mesh *load_meshes_from_file(const char *filePath, size_t *meshCount);

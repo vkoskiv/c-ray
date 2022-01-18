@@ -56,7 +56,7 @@ const struct bsdfNode *appendAlpha(struct world *w, const struct bsdfNode *base,
 #endif
 }
 
-void assignBSDF(struct world *w, struct material *mat) {
+void try_to_guess_bsdf(struct world *w, struct material *mat) {
 	const struct valueNode *roughness = mat->specularMap ? newGrayscaleConverter(w, newImageTexture(w, mat->specularMap, NO_BILINEAR)) : newConstantValue(w, mat->roughness);
 	const struct colorNode *color = mat->texture ? newImageTexture(w, mat->texture, SRGB_TRANSFORM) : newConstantTexture(w, mat->diffuse);
 	logr(debug, "name: %s, illum: %i\n", mat->name, mat->illum);

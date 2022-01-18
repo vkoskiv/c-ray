@@ -51,26 +51,6 @@ static struct sphere *lastSphere(struct renderer *r) {
 	return &r->scene->spheres[r->scene->sphereCount - 1];
 }
 
-static bool loadMeshNew(struct renderer *r, char *inputFilePath, int idx, int totalMeshes) {
-	logr(plain, "\r");
-	logr(info, "Loading mesh %i/%i%s", idx, totalMeshes, idx == totalMeshes ? "\n" : "\r");
-	bool valid = false;
-	size_t meshCount = 0;
-	struct mesh *newMeshes = loadMesh(inputFilePath, &meshCount);
-	if (meshCount == 0) return false;
-	ASSERT(meshCount == 1); //FIXME: Remove this
-	if (newMeshes) {
-		for (size_t m = 0; m < meshCount; ++m) {
-			r->scene->meshes[r->scene->meshCount + m] = newMeshes[m];
-			free(&newMeshes[m]);
-			valid = true;
-		}
-	}
-	
-	r->scene->meshCount += meshCount;
-	return valid;
-}
-
 static void addSphere(struct world *scene, struct sphere newSphere) {
 	scene->spheres[scene->sphereCount++] = newSphere;
 }
@@ -970,122 +950,130 @@ static const struct bsdfNode *parseBsdfNode(struct renderer *r, const cJSON *nod
 	return warningBsdf(w);
 }
 
+static bool load_mesh(struct renderer *r, char *inputFilePath, int idx, int totalMeshes) {
+	logr(plain, "\r");
+	logr(info, "Loading mesh %i/%i%s", idx, totalMeshes, idx == totalMeshes ? "\n" : "\r");
+	bool valid = false;
+	size_t meshCount = 0;
+	struct mesh *newMeshes = load_meshes_from_file(inputFilePath, &meshCount);
+	if (meshCount == 0) return false;
+	ASSERT(meshCount == 1); //FIXME: Remove this
+	if (newMeshes) {
+		for (size_t m = 0; m < meshCount; ++m) {
+			r->scene->meshes[r->scene->meshCount + m] = newMeshes[m];
+			free(&newMeshes[m]);
+			valid = true;
+		}
+	}
+
+	r->scene->meshCount += meshCount;
+	return valid;
+}
+
 //FIXME: Only parse everything else if the mesh is found and is valid
-static void parseMesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
+static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int meshCount) {
 	const cJSON *fileName = cJSON_GetObjectItem(data, "fileName");
-	
+
+	if (!cJSON_IsString(fileName)) return;
+	//FIXME: This concat + path fixing should be an utility function
+	char *fullPath = stringConcat(r->prefs.assetPath, fileName->valuestring);
+	windowsFixPath(fullPath);
+	bool success = false;
+	struct timeval timer;
+	startTimer(&timer);
+	success = load_mesh(r, fullPath, idx, meshCount);
+	long us = getUs(timer);
+	free(fullPath);
+	if (!success) return;
+	long ms = us / 1000;
+	logr(debug, "Parsing mesh %-35s took %zu %s\n", lastMesh(r)->name, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");
+
+	const cJSON *density = cJSON_GetObjectItem(data, "density");
+	const cJSON *instances = cJSON_GetObjectItem(data, "instances");
+	const cJSON *instance = NULL;
+	if (cJSON_IsArray(instances)) {
+		cJSON_ArrayForEach(instance, instances) {
+			struct instance new = density ? newMeshVolume(lastMesh(r), density->valuedouble, &r->scene->nodePool) : newMeshSolid(lastMesh(r));
+			new.composite = parseInstanceTransform(instance);
+			addInstanceToScene(r->scene, new);
+		}
+	}
+
+	// Fallback, this is the old way of assigning materials.
+	//FIXME: Delet this. (Will break some existing scenes)
+	const cJSON *bsdf_fallback = cJSON_GetObjectItem(data, "bsdf");
+	enum bsdfType fallback_type = lambertian;
+	if (cJSON_IsString(bsdf_fallback)) {
+		if (stringEquals(bsdf_fallback->valuestring, "metal")) {
+			fallback_type = metal;
+		} else if (stringEquals(bsdf_fallback->valuestring, "glass")) {
+			fallback_type = glass;
+		} else if (stringEquals(bsdf_fallback->valuestring, "plastic")) {
+			fallback_type = plastic;
+		} else if (stringEquals(bsdf_fallback->valuestring, "emissive")) {
+			fallback_type = emission;
+		} else {
+			fallback_type = lambertian;
+		}
+	} else {
+		logr(debug, "No old-style bsdf fallback_type given for %s\n", lastMesh(r)->name);
+	}
 
 	const cJSON *intensity = cJSON_GetObjectItem(data, "intensity");
 	const cJSON *roughness = cJSON_GetObjectItem(data, "roughness");
-	const cJSON *density = cJSON_GetObjectItem(data, "density");
-	enum bsdfType type = lambertian;
-	
-	bool meshValid = false;
-	if (fileName != NULL && cJSON_IsString(fileName)) {
-		//FIXME: This concat + path fixing should be an utility function
-		char *fullPath = stringConcat(r->prefs.assetPath, fileName->valuestring);
-		windowsFixPath(fullPath);
-		bool success = false;
-		struct timeval timer;
-		startTimer(&timer);
-		success = loadMeshNew(r, fullPath, idx, meshCount);
-		long us = getUs(timer);
-		if (success) {
-			long ms = us / 1000;
-			logr(debug, "Parsing mesh %-35s took %zu %s\n", lastMesh(r)->name, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");
-		}
-		if (success) {
-			meshValid = true;
-			free(fullPath);
-		} else {
-			free(fullPath);
-			return;
-		}
-	}
-	
-	if (meshValid) {
-		const cJSON *instances = cJSON_GetObjectItem(data, "instances");
-		const cJSON *instance = NULL;
-		if (instances != NULL && cJSON_IsArray(instances)) {
-			cJSON_ArrayForEach(instance, instances) {
-				struct instance new = density ? newMeshVolume(lastMesh(r), density->valuedouble, &r->scene->nodePool) : newMeshSolid(lastMesh(r));
-				new.composite = parseInstanceTransform(instance);
-				addInstanceToScene(r->scene, new);
-			}
-		}
-		
-		// Fallback, this is the old way of assigning materials.
-		//FIXME: Delet this.
-		const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
-		if (cJSON_IsString(bsdf)) {
-			if (stringEquals(bsdf->valuestring, "metal")) {
-				type = metal;
-			} else if (stringEquals(bsdf->valuestring, "glass")) {
-				type = glass;
-			} else if (stringEquals(bsdf->valuestring, "plastic")) {
-				type = plastic;
-			} else if (stringEquals(bsdf->valuestring, "emissive")) {
-				type = emission;
-			} else {
-				type = lambertian;
-			}
-		} else {
-			logr(debug, "No old-style bsdf type given for %s\n", lastMesh(r)->name);
-		}
 
-		for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
-			lastMesh(r)->materials[i].type = type;
-			if (type == emission && intensity) {
-				lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);
-			}
-			if (type == glass) {
-				const cJSON *IOR = cJSON_GetObjectItem(data, "IOR");
-				if (cJSON_IsNumber(IOR)) {
-					lastMesh(r)->materials[i].IOR = IOR->valuedouble;
-				}
-			} else if (type == plastic) {
-				lastMesh(r)->materials[i].IOR = 1.45;
-			}
-			if (cJSON_IsNumber(roughness)) lastMesh(r)->materials[i].roughness = roughness->valuedouble;
-			assignBSDF(r->scene, &lastMesh(r)->materials[i]);
+	for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
+		lastMesh(r)->materials[i].type = fallback_type;
+		if (fallback_type == emission && intensity) {
+			lastMesh(r)->materials[i].emission = colorCoef(intensity->valuedouble, lastMesh(r)->materials[i].diffuse);
 		}
-		
-		const cJSON *materials = cJSON_GetObjectItem(data, "material");
-		if (materials) {
-			struct cJSON *material = NULL;
-			if (cJSON_IsArray(materials)) {
-				// Array of graphs, so map them to mesh materials.
-				ASSERT(cJSON_GetArraySize(materials) <= lastMesh(r)->materialCount);
-				size_t i = 0;
-				cJSON_ArrayForEach(material, materials) {
-					size_t old_i = i;
-					if (cJSON_HasObjectItem(material, "replace")) {
-						// Replace specific material
-						const cJSON *name = cJSON_GetObjectItem(material, "replace");
-						struct mesh *m = lastMesh(r);
-						for (int j = 0; j < m->materialCount; ++j) {
-							if (stringEquals(m->materials[j].name, name->valuestring)) {
-								i = j;
-							}
+		if (fallback_type == glass) {
+			const cJSON *IOR = cJSON_GetObjectItem(data, "IOR");
+			if (cJSON_IsNumber(IOR)) {
+				lastMesh(r)->materials[i].IOR = IOR->valuedouble;
+			}
+		} else if (fallback_type == plastic) {
+			lastMesh(r)->materials[i].IOR = 1.45;
+		}
+		if (cJSON_IsNumber(roughness)) lastMesh(r)->materials[i].roughness = roughness->valuedouble;
+		try_to_guess_bsdf(r->scene, &lastMesh(r)->materials[i]);
+	}
+
+	const cJSON *materials = cJSON_GetObjectItem(data, "material");
+	if (materials) {
+		struct cJSON *material = NULL;
+		if (cJSON_IsArray(materials)) {
+			// Array of graphs, so map them to mesh materials.
+			ASSERT(cJSON_GetArraySize(materials) <= lastMesh(r)->materialCount);
+			size_t i = 0;
+			cJSON_ArrayForEach(material, materials) {
+				size_t old_i = i;
+				if (cJSON_HasObjectItem(material, "replace")) {
+					// Replace specific material
+					const cJSON *name = cJSON_GetObjectItem(material, "replace");
+					struct mesh *m = lastMesh(r);
+					for (int j = 0; j < m->materialCount; ++j) {
+						if (stringEquals(m->materials[j].name, name->valuestring)) {
+							i = j;
 						}
 					}
-					lastMesh(r)->materials[i].bsdf = parseBsdfNode(r, material);
-					//FIXME: Hack
-					cJSON *type_string = cJSON_GetObjectItem(material, "type");
-					if (type_string && stringEquals(type_string->valuestring, "emissive")) {
-						cJSON *color = cJSON_GetObjectItem(material, "color");
-						cJSON *strength = cJSON_GetObjectItem(material, "strength");
-						lastMesh(r)->materials[i].emission = colorCoef(strength->valuedouble, parseColor(color));
-					}
-					i = old_i;
-					i++;
 				}
-			} else {
-				// Single graph, map it to every material in a mesh.
-				const struct bsdfNode *node = parseBsdfNode(r, materials);
-				for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
-					lastMesh(r)->materials[i].bsdf = node;
+				lastMesh(r)->materials[i].bsdf = parseBsdfNode(r, material);
+				//FIXME: Hack
+				cJSON *type_string = cJSON_GetObjectItem(material, "fallback_type");
+				if (type_string && stringEquals(type_string->valuestring, "emissive")) {
+					cJSON *color = cJSON_GetObjectItem(material, "color");
+					cJSON *strength = cJSON_GetObjectItem(material, "strength");
+					lastMesh(r)->materials[i].emission = colorCoef(strength->valuedouble, parseColor(color));
 				}
+				i = old_i;
+				i++;
+			}
+		} else {
+			// Single graph, map it to every material in a mesh.
+			const struct bsdfNode *node = parseBsdfNode(r, materials);
+			for (int i = 0; i < lastMesh(r)->materialCount; ++i) {
+				lastMesh(r)->materials[i].bsdf = node;
 			}
 		}
 	}
@@ -1100,29 +1088,11 @@ static void parseMeshes(struct renderer *r, const cJSON *data) {
 	r->scene->meshes = calloc(meshCount, sizeof(*r->scene->meshes));
 	if (data != NULL && cJSON_IsArray(data)) {
 		cJSON_ArrayForEach(mesh, data) {
-			parseMesh(r, mesh, idx, meshCount);
+			parse_mesh(r, mesh, idx, meshCount);
 			idx++;
 		}
 	}
 }
-
-/*static struct vector parseCoordinate(const cJSON *data) {
-	const cJSON *X = NULL;
-	const cJSON *Y = NULL;
-	const cJSON *Z = NULL;
-	X = cJSON_GetObjectItem(data, "X");
-	Y = cJSON_GetObjectItem(data, "Y");
-	Z = cJSON_GetObjectItem(data, "Z");
-	
-	if (X != NULL && Y != NULL && Z != NULL) {
-		if (cJSON_IsNumber(X) && cJSON_IsNumber(Y) && cJSON_IsNumber(Z)) {
-			return vecWithPos(X->valuedouble, Y->valuedouble, Z->valuedouble);
-		}
-	}
-	logr(warning, "Invalid coordinate parsed! Returning 0,0,0\n");
-	logr(warning, "Faulty JSON: %s\n", cJSON_Print(data));
-	return (struct vector){0.0f,0.0f,0.0f};
-}*/
 
 static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *color = NULL;
@@ -1217,7 +1187,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 		// Single graph, map it to every material in a mesh.
 		lastSphere(r)->material.bsdf = parseBsdfNode(r, materials);
 	} else {
-		assignBSDF(r->scene, &lastSphere(r)->material);
+		try_to_guess_bsdf(r->scene, &lastSphere(r)->material);
 	}
 }
 
