@@ -21,19 +21,22 @@ struct plasticBsdf {
 	struct bsdfNode bsdf;
 	const struct valueNode *roughness;
 	const struct bsdfNode *diffuse;
+	const struct colorNode *clear_coat;
 	const struct valueNode *IOR;
 };
 
 static bool compare(const void *A, const void *B) {
 	const struct plasticBsdf *this = A;
 	const struct plasticBsdf *other = B;
-	return this->roughness == other->roughness && this->diffuse == other->diffuse && this->IOR == other->IOR;
+	return this->roughness == other->roughness && this->diffuse == other->diffuse && this->clear_coat == other->clear_coat && this->IOR == other->IOR;
 }
 
 static uint32_t hash(const void *p) {
 	const struct plasticBsdf *this = p;
 	uint32_t h = hashInit();
 	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
+	h = hashBytes(h, &this->diffuse, sizeof(this->diffuse));
+	h = hashBytes(h, &this->clear_coat, sizeof(this->clear_coat));
 	h = hashBytes(h, &this->IOR, sizeof(this->IOR));
 	return h;
 }
@@ -49,7 +52,7 @@ static struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampl
 	}
 	return (struct bsdfSample){
 		.out = reflected,
-		.color = whiteColor
+		.color = plastic->clear_coat->eval(plastic->clear_coat, record)
 	};
 }
 
@@ -90,6 +93,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 const struct bsdfNode *newPlastic(const struct world *world, const struct colorNode *color, const struct valueNode *roughness, const struct valueNode *IOR) {
 	HASH_CONS(world->nodeTable, hash, struct plasticBsdf, {
 		.diffuse = newDiffuse(world, color),
+		.clear_coat = color,
 		.roughness = roughness ? roughness : newConstantValue(world, 0.0f),
 		.IOR = IOR ? IOR : newConstantValue(world, 1.45f),
 		.bsdf = {

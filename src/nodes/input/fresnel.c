@@ -39,7 +39,7 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 	struct fresnelNode *this = (struct fresnelNode *)node;
 	
 	float IOR = this->IOR->eval(this->IOR, record);
-	float cosine = 0.0f;
+	float cosine;
 	if (vecDot(record->incident_dir, record->surfaceNormal) > 0.0f) {
 		cosine = IOR * vecDot(record->incident_dir, record->surfaceNormal) / vecLength(record->incident_dir);
 	} else {
