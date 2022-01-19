@@ -1052,11 +1052,14 @@ static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int meshC
 					// Replace specific material
 					const cJSON *name = cJSON_GetObjectItem(material, "replace");
 					struct mesh *m = lastMesh(r);
+					bool found = false;
 					for (int j = 0; j < m->materialCount; ++j) {
 						if (stringEquals(m->materials[j].name, name->valuestring)) {
 							i = j;
+							found = true;
 						}
 					}
+					if (!found) goto skip;
 				}
 				lastMesh(r)->materials[i].bsdf = parseBsdfNode(r, material);
 				//FIXME: Hack
@@ -1066,6 +1069,7 @@ static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int meshC
 					cJSON *strength = cJSON_GetObjectItem(material, "strength");
 					lastMesh(r)->materials[i].emission = colorCoef(strength->valuedouble, parseColor(color));
 				}
+				skip:
 				i = old_i;
 				i++;
 			}
@@ -1225,9 +1229,9 @@ static void parseScene(struct renderer *r, const cJSON *data) {
 int parseJSON(struct renderer *r, const char *input) {
 	cJSON *json = cJSON_Parse(input);
 	if (!json) {
-		logr(warning, "Failed to parse JSON\n");
 		const char *errptr = cJSON_GetErrorPtr();
-		if (errptr != NULL) {
+		if (errptr) {
+			logr(warning, "Failed to parse JSON\n");
 			logr(warning, "Error before: %s\n", errptr);
 			return -2;
 		}
