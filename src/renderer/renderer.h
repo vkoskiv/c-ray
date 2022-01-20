@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../datatypes/tile.h" // For renderOrder
+#include "../datatypes/tile.h"
 #include "../datatypes/image/imagefile.h"
 #include "../utils/timer.h"
 
@@ -19,7 +19,7 @@ struct renderThreadState {
 	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.
 	
 	//Share info about the current tile with main thread
-	int currentTileNum;
+	struct renderTile *currentTile;
 	int completedSamples;
 	
 	uint64_t totalSamples;

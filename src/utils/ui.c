@@ -254,19 +254,19 @@ static void clearProgBar(struct renderer *r, struct renderTile temp) {
  */
 static void drawProgressBars(struct renderer *r) {
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		if (r->state.threadStates[t].currentTileNum != -1) {
-			struct renderTile temp = r->state.renderTiles[r->state.threadStates[t].currentTileNum];
+		if (r->state.threadStates[t].currentTile) {
+			struct renderTile *temp = r->state.threadStates[t].currentTile;
 			int completedSamples = r->state.threadStates[t].completedSamples;
 			int totalSamples = r->prefs.sampleCount;
 			
 			float prc = ((float)completedSamples / (float)totalSamples);
-			int pixels2draw = (int)((float)temp.width * (float)prc);
+			int pixels2draw = (int)((float)temp->width * prc);
 			
 			//And then draw the bar
 			for (int i = 0; i < pixels2draw; ++i) {
-				setPixel(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height / 5)) - 1);
-				setPixel(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height / 5))    );
-				setPixel(r->state.uiBuffer, progColor, temp.begin.x + i, (temp.begin.y + (temp.height / 5)) + 1);
+				setPixel(r->state.uiBuffer, progColor, temp->begin.x + i, (temp->begin.y + (temp->height / 5)) - 1);
+				setPixel(r->state.uiBuffer, progColor, temp->begin.x + i, (temp->begin.y + (temp->height / 5))    );
+				setPixel(r->state.uiBuffer, progColor, temp->begin.x + i, (temp->begin.y + (temp->height / 5)) + 1);
 			}
 		}
 	}

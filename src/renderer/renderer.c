@@ -194,7 +194,7 @@ void *renderThreadInteractive(void *arg) {
 	
 	//First time setup for each thread
 	struct renderTile *tile = nextTileInteractive(r);
-	threadState->currentTileNum = tile->tileNum;
+	threadState->currentTile = tile;
 	
 	struct timeval timer = {0};
 	
@@ -245,15 +245,15 @@ void *renderThreadInteractive(void *arg) {
 		
 		//Tile has finished rendering, get a new one and start rendering it.
 		if (tile) tile->isRendering = false;
-		threadState->currentTileNum = -1;
+		threadState->currentTile = NULL;
 		threadState->completedSamples = r->state.finishedPasses;
 		tile = nextTileInteractive(r);
-		threadState->currentTileNum = tile ? tile->tileNum : -1;
+		threadState->currentTile = tile;
 	}
 	destroySampler(sampler);
 	//No more tiles to render, exit thread. (render done)
 	threadState->threadComplete = true;
-	threadState->currentTileNum = -1;
+	threadState->currentTile = NULL;
 	return 0;
 }
 
@@ -273,7 +273,7 @@ void *renderThread(void *arg) {
 
 	//First time setup for each thread
 	struct renderTile *tile = nextTile(r);
-	threadState->currentTileNum = tile->tileNum;
+	threadState->currentTile = tile;
 	
 	struct timeval timer = {0};
 	threadState->completedSamples = 1;
@@ -324,16 +324,15 @@ void *renderThread(void *arg) {
 		//Tile has finished rendering, get a new one and start rendering it.
 		tile->isRendering = false;
 		tile->renderComplete = true;
-		threadState->currentTileNum = -1;
+		threadState->currentTile = NULL;
 		threadState->completedSamples = 1;
 		tile = nextTile(r);
-		//TODO: Replace currentTileNum with currentTile
-		threadState->currentTileNum = tile ? tile->tileNum : -1;
+		threadState->currentTile = tile;
 	}
 	destroySampler(sampler);
 	//No more tiles to render, exit thread. (render done)
 	threadState->threadComplete = true;
-	threadState->currentTileNum = -1;
+	threadState->currentTile = NULL;
 	return 0;
 }
 
