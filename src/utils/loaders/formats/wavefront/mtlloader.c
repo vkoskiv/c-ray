@@ -31,7 +31,7 @@ static size_t countMaterials(textBuffer *buffer) {
 	return mtlCount;
 }
 
-struct color parseColor(lineBuffer *line) {
+struct color parse_color(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
 	return (struct color){atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line)), 1.0f};
 }
@@ -71,13 +71,13 @@ struct material *parseMTLFile(const char *filePath, int *mtlCount) {
 			}
 			current->name = stringCopy(peekNextToken(line));
 		} else if (stringEquals(first, "Ka")) {
-			current->ambient = parseColor(line);
+			current->ambient = parse_color(line);
 		} else if (stringEquals(first, "Kd")) {
-			current->diffuse = parseColor(line);
+			current->diffuse = parse_color(line);
 		} else if (stringEquals(first, "Ks")) {
-			current->specular = parseColor(line);
+			current->specular = parse_color(line);
 		} else if (stringEquals(first, "Ke")) {
-			current->emission = parseColor(line);
+			current->emission = parse_color(line);
 		} else if (stringEquals(first, "illum")) {
 			current->illum = atoi(nextToken(line));
 		} else if (stringEquals(first, "Ns")) {

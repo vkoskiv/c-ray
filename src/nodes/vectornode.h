@@ -3,11 +3,12 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 16/12/2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
+#include "../libraries/cJSON.h"
 #include "nodebase.h"
 
 struct vectorValue {
@@ -27,3 +28,4 @@ struct vectorNode {
 #include "converter/vectocolor.h"
 
 const struct vectorNode *newConstantVector(const struct world *world, struct vector vector);
+const struct vectorNode *parseVectorNode(struct world *w, const struct cJSON *node);

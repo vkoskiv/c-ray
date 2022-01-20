@@ -10,8 +10,8 @@
 #include "../datatypes/vector.h"
 #include "../datatypes/hitrecord.h"
 #include "../datatypes/scene.h"
-#include "../datatypes/vector.h"
 #include "../utils/hashtable.h"
+#include "../utils/string.h"
 #include "bsdfnode.h"
 
 #include "vectornode.h"
@@ -48,4 +48,45 @@ const struct vectorNode *newConstantVector(const struct world *world, const stru
 			.base = { .compare = compare }
 		}
 	});
+}
+
+static enum vecOp parseVectorOp(const cJSON *data) {
+	if (!cJSON_IsString(data)) {
+		logr(warning, "No vector op given, defaulting to add.\n");
+		return VecAdd;
+	};
+	if (stringEquals(data->valuestring, "add")) return VecAdd;
+	if (stringEquals(data->valuestring, "subtract")) return VecSubtract;
+	if (stringEquals(data->valuestring, "multiply")) return VecMultiply;
+	if (stringEquals(data->valuestring, "average")) return VecAverage;
+	if (stringEquals(data->valuestring, "dot")) return VecDot;
+	if (stringEquals(data->valuestring, "cross")) return VecCross;
+	if (stringEquals(data->valuestring, "normalize")) return VecNormalize;
+	if (stringEquals(data->valuestring, "reflect")) return VecReflect;
+	if (stringEquals(data->valuestring, "length")) return VecLength;
+	if (stringEquals(data->valuestring, "abs")) return VecAbs;
+	return VecAdd;
+}
+
+const struct vectorNode *parseVectorNode(struct world *w, const struct cJSON *node) {
+	if (!node) return NULL;
+	const cJSON *type = cJSON_GetObjectItem(node, "type");
+	if (!cJSON_IsString(type)) {
+		logr(warning, "No type provided for vectorNode.\n");
+		return newConstantVector(w, vecZero());
+	}
+
+	if (stringEquals(type->valuestring, "vecmath")) {
+		const struct vectorNode *a = parseVectorNode(w, cJSON_GetObjectItem(node, "vector1"));
+		const struct vectorNode *b = parseVectorNode(w, cJSON_GetObjectItem(node, "vector2"));
+		const enum vecOp op = parseVectorOp(cJSON_GetObjectItem(node, "op"));
+		return newVecMath(w, a, b, op);
+	}
+	if (stringEquals(type->valuestring, "normal")) {
+		return newNormal(w);
+	}
+	if (stringEquals(type->valuestring, "uv")) {
+		return newUV(w);
+	}
+	return NULL;
 }

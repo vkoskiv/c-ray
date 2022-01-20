@@ -3,11 +3,12 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 30/11/2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
+#include "../libraries/cJSON.h"
 #include "nodebase.h"
 
 enum textureType {
@@ -31,3 +32,4 @@ struct colorNode {
 #include "converter/combinergb.h"
 
 const struct colorNode *unknownTextureNode(const struct world *world);
+const struct colorNode *parseTextureNode(struct renderer *r, const cJSON *node);

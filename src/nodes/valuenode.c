@@ -11,7 +11,10 @@
 #include "../datatypes/hitrecord.h"
 #include "../datatypes/scene.h"
 #include "../utils/hashtable.h"
+#include "../utils/string.h"
+#include "../renderer/renderer.h"
 
+#include "vectornode.h"
 #include "valuenode.h"
 
 struct constantValue {
@@ -46,4 +49,35 @@ const struct valueNode *newConstantValue(const struct world *world, float value)
 			.base = { .compare = compare }
 		}
 	});
+}
+
+const struct valueNode *parseValueNode(struct renderer *r, const cJSON *node) {
+	if (!node) return NULL;
+	struct world *w = r->scene;
+	if (cJSON_IsNumber(node)) {
+		return newConstantValue(w, node->valuedouble);
+	}
+
+	const cJSON *type = cJSON_GetObjectItem(node, "type");
+	if (cJSON_IsString(type)) {
+		const struct valueNode *IOR = parseValueNode(r, cJSON_GetObjectItem(node, "IOR"));
+		const struct vectorNode *normal = parseVectorNode(w, cJSON_GetObjectItem(node, "normal"));
+
+		if (stringEquals(type->valuestring, "fresnel")) {
+			return newFresnel(w, IOR, normal);
+		}
+		if (stringEquals(type->valuestring, "map_range")) {
+			const struct valueNode *input_value = parseValueNode(r, cJSON_GetObjectItem(node, "input"));
+			const struct valueNode *from_min = parseValueNode(r, cJSON_GetObjectItem(node, "from_min"));
+			const struct valueNode *from_max = parseValueNode(r, cJSON_GetObjectItem(node, "from_max"));
+			const struct valueNode *to_min = parseValueNode(r, cJSON_GetObjectItem(node, "to_min"));
+			const struct valueNode *to_max = parseValueNode(r, cJSON_GetObjectItem(node, "to_max"));
+			return newMapRange(w, input_value, from_min, from_max, to_min, to_max);
+		}
+		if (stringEquals(type->valuestring, "raylength")) {
+			return newRayLength(w);
+		}
+	}
+
+	return newGrayscaleConverter(w, parseTextureNode(r, node));
 }

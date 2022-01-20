@@ -3,11 +3,12 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 16/12/2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
+#include "../libraries/cJSON.h"
 #include "nodebase.h"
 
 struct hitRecord;
@@ -24,3 +25,4 @@ struct valueNode {
 #include "converter/map_range.h"
 
 const struct valueNode *newConstantValue(const struct world *world, float value);
+const struct valueNode *parseValueNode(struct renderer *r, const cJSON *node);

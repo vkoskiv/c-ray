@@ -3,11 +3,12 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 29/11/2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
+#include "../libraries/cJSON.h"
 #include "../datatypes/lightray.h"
 #include "../utils/mempool.h"
 #include "valuenode.h"
@@ -40,3 +41,4 @@ struct bsdfNode {
 #include "shaders/isotropic.h"
 
 const struct bsdfNode *warningBsdf(const struct world *world);
+const struct bsdfNode *parseBsdfNode(struct renderer *r, const cJSON *node);
