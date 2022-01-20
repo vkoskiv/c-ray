@@ -82,8 +82,6 @@ struct material {
 	const struct bsdfNode *bsdf;
 };
 
-struct material *materialForName(struct material *materials, int count, char *name);
-
 struct material defaultMaterial(void);
 struct material warningMaterial(void);
 

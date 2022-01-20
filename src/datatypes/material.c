@@ -12,7 +12,6 @@
 
 #include "../renderer/pathtrace.h"
 #include "image/texture.h"
-#include "../utils/string.h"
 #include "../datatypes/scene.h"
 
 static struct material emptyMaterial() {
@@ -34,16 +33,6 @@ struct material warningMaterial() {
 	newMat.type = lambertian;
 	newMat.diffuse = (struct color){1.0f, 0.0f, 0.5f, 1.0f};
 	return newMat;
-}
-
-//Find material with a given name and return a pointer to it
-struct material *materialForName(struct material *materials, int count, char *name) {
-	for (int i = 0; i < count; ++i) {
-		if (stringEquals(materials[i].name, name)) {
-			return &materials[i];
-		}
-	}
-	return NULL;
 }
 
 //FIXME: Temporary hack to patch alpha directly to old materials using the alpha node.

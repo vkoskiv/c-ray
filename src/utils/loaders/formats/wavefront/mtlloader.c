@@ -27,13 +27,13 @@ static size_t countMaterials(textBuffer *buffer) {
 		head = nextLine(buffer);
 	}
 	logr(debug, "File contains %zu materials\n", mtlCount);
-	head = firstLine(buffer);
+	firstLine(buffer);
 	return mtlCount;
 }
 
-struct color parse_color(lineBuffer *line) {
+static struct color parse_color(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
-	return (struct color){atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line)), 1.0f};
+	return (struct color){ atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line)), 1.0f };
 }
 
 struct material *parseMTLFile(const char *filePath, int *mtlCount) {
