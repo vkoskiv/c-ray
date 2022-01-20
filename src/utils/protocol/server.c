@@ -58,7 +58,9 @@ static struct sockaddr_in parseAddress(const char *str) {
 	fillLineBuffer(line, str, ':');
 	struct sockaddr_in address = {0};
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr(firstToken(line));
+	char *addr_string = firstToken(line);
+	struct hostent *ent = gethostbyname(addr_string);
+	memcpy(&address.sin_addr.s_addr, ent->h_addr, ent->h_length);
 	address.sin_port = line->amountOf.tokens > 1 ? htons(atoi(lastToken(line))) : htons(2222);
 	destroyLineBuffer(line);
 	return address;
