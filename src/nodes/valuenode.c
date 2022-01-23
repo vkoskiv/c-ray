@@ -62,6 +62,7 @@ const struct valueNode *parseValueNode(struct renderer *r, const cJSON *node) {
 	if (cJSON_IsString(type)) {
 		const struct valueNode *IOR = parseValueNode(r, cJSON_GetObjectItem(node, "IOR"));
 		const struct vectorNode *normal = parseVectorNode(w, cJSON_GetObjectItem(node, "normal"));
+		const struct colorNode *color = parseTextureNode(r, cJSON_GetObjectItem(node, "color"));
 
 		if (stringEquals(type->valuestring, "fresnel")) {
 			return newFresnel(w, IOR, normal);
@@ -76,6 +77,9 @@ const struct valueNode *parseValueNode(struct renderer *r, const cJSON *node) {
 		}
 		if (stringEquals(type->valuestring, "raylength")) {
 			return newRayLength(w);
+		}
+		if (stringEquals(type->valuestring, "alpha")) {
+			return newAlpha(w, color);
 		}
 	}
 
