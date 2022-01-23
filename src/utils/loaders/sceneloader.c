@@ -781,6 +781,9 @@ static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int meshC
 
 	const cJSON *density = cJSON_GetObjectItem(data, "density");
 	const cJSON *instances = cJSON_GetObjectItem(data, "instances");
+	if (cJSON_GetArraySize(instances) < 1) {
+		logr(warning, "Mesh %s has no instances.\n", lastMesh(r)->name);
+	}
 	const cJSON *instance = NULL;
 	if (cJSON_IsArray(instances)) {
 		cJSON_ArrayForEach(instance, instances) {
