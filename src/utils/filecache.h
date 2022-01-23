@@ -9,6 +9,9 @@
 #pragma once
 
 #include <sys/types.h>
+#include <stdbool.h>
+
+bool cacheContains(const char *path);
 
 void cacheFile(const char *path, const void *data, size_t length);
 

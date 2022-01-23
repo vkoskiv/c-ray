@@ -126,6 +126,7 @@ void writeFile(const unsigned char *buf, size_t bufsize, const char *filePath) {
 
 
 bool isValidFile(char *path) {
+	if (isSet("is_worker")) return cacheContains(path);
 #ifndef WINDOWS
 	struct stat path_stat;
 	stat(path, &path_stat);
