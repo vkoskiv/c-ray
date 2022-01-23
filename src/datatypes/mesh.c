@@ -3,7 +3,7 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 27/04/2017.
-//  Copyright © 2017-2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -16,7 +16,10 @@
 void destroyMesh(struct mesh *mesh) {
 	if (mesh) {
 		free(mesh->name);
-		free(mesh->polygons);
+		if (mesh->vertices) free(mesh->vertices);
+		if (mesh->normals) free(mesh->normals);
+		if (mesh->texture_coords) free(mesh->texture_coords);
+		if (mesh->polygons) free(mesh->polygons);
 		destroyBvh(mesh->bvh);
 		if (mesh->materials) {
 			for (int i = 0; i < mesh->materialCount; ++i) {

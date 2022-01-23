@@ -12,7 +12,6 @@
 //FIXME: We should only need to include c-ray.h here!
 
 #include "../../datatypes/scene.h"
-#include "../../datatypes/vertexbuffer.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/camera.h"
 #include "../../datatypes/mesh.h"

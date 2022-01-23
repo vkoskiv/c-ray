@@ -11,7 +11,6 @@
 
 #include "../renderer/pathtrace.h"
 
-#include "../datatypes/vertexbuffer.h"
 #include "../datatypes/bbox.h"
 #include "../datatypes/mesh.h"
 #include "../datatypes/instance.h"
@@ -283,10 +282,10 @@ static inline struct bvh *buildBvhGeneric(
 }
 
 static void getPolyBBoxAndCenter(const void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
-	const struct poly *polys = userData;
-	struct vector v0 = g_vertices[polys[i].vertexIndex[0]];
-	struct vector v1 = g_vertices[polys[i].vertexIndex[1]];
-	struct vector v2 = g_vertices[polys[i].vertexIndex[2]];
+	const struct mesh *mesh = userData;
+	struct vector v0 = mesh->vertices[mesh->polygons[i].vertexIndex[0]];
+	struct vector v1 = mesh->vertices[mesh->polygons[i].vertexIndex[1]];
+	struct vector v2 = mesh->vertices[mesh->polygons[i].vertexIndex[2]];
 	*center = getMidPoint(v0, v1, v2);
 	bbox->min = vecMin(v0, vecMin(v1, v2));
 	bbox->max = vecMax(v0, vecMax(v1, v2));
@@ -298,8 +297,8 @@ struct boundingBox getRootBoundingBox(const struct bvh *bvh) {
 	return box;
 }
 
-struct bvh *buildBottomLevelBvh(const struct poly *polys, unsigned count) {
-	return buildBvhGeneric(polys, getPolyBBoxAndCenter, count);
+struct bvh *build_mesh_bvh(const struct mesh *mesh) {
+	return buildBvhGeneric(mesh, getPolyBBoxAndCenter, mesh->poly_count);
 }
 
 static void getInstanceBBoxAndCenter(const void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
@@ -449,7 +448,7 @@ static inline bool intersectBottomLevelLeaf(
 	bool found = false;
 	for (int i = 0; i < leaf->primCount; ++i) {
 		struct poly *p = &mesh->polygons[bvh->primIndices[leaf->firstChildOrPrim + i]];
-		if (rayIntersectsWithPolygon(ray, p, isect)) {
+		if (rayIntersectsWithPolygon(mesh, ray, p, isect)) {
 			isect->polygon = p;
 			found = true;
 		}

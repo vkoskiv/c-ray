@@ -14,7 +14,6 @@
 #include "../datatypes/camera.h"
 #include "../accelerators/bvh.h"
 #include "../datatypes/image/texture.h"
-#include "../datatypes/vertexbuffer.h"
 #include "../datatypes/sphere.h"
 #include "../datatypes/poly.h"
 #include "../datatypes/mesh.h"

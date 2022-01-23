@@ -3,25 +3,25 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 #include "poly.h"
-#include "vertexbuffer.h"
 
 #include "vector.h"
 #include "lightray.h"
 #include "../renderer/pathtrace.h"
+#include "mesh.h"
 
-bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *poly, struct hitRecord *isect) {
+bool rayIntersectsWithPolygon(const struct mesh *mesh, const struct lightRay *ray, const struct poly *poly, struct hitRecord *isect) {
 	// Möller-Trumbore ray-triangle intersection routine
 	// (see "Fast, Minimum Storage Ray-Triangle Intersection", by T. Möller and B. Trumbore)
-	struct vector e1 = vecSub(g_vertices[poly->vertexIndex[0]], g_vertices[poly->vertexIndex[1]]);
-	struct vector e2 = vecSub(g_vertices[poly->vertexIndex[2]], g_vertices[poly->vertexIndex[0]]);
+	struct vector e1 = vecSub(mesh->vertices[poly->vertexIndex[0]], mesh->vertices[poly->vertexIndex[1]]);
+	struct vector e2 = vecSub(mesh->vertices[poly->vertexIndex[2]], mesh->vertices[poly->vertexIndex[0]]);
 	struct vector n = vecCross(e1, e2);
 
-	struct vector c = vecSub(g_vertices[poly->vertexIndex[0]], ray->start);
+	struct vector c = vecSub(mesh->vertices[poly->vertexIndex[0]], ray->start);
 	struct vector r = vecCross(ray->direction, c);
 	float invDet = 1.0f / vecDot(n, ray->direction);
 
@@ -37,9 +37,9 @@ bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *pol
 			isect->uv = (struct coord) { u, v };
 			isect->distance = t;
 			if (likely(poly->hasNormals)) {
-				struct vector upcomp = vecScale(g_normals[poly->normalIndex[1]], u);
-				struct vector vpcomp = vecScale(g_normals[poly->normalIndex[2]], v);
-				struct vector wpcomp = vecScale(g_normals[poly->normalIndex[0]], w);
+				struct vector upcomp = vecScale(mesh->normals[poly->normalIndex[1]], u);
+				struct vector vpcomp = vecScale(mesh->normals[poly->normalIndex[2]], v);
+				struct vector wpcomp = vecScale(mesh->normals[poly->normalIndex[0]], w);
 				
 				isect->surfaceNormal = vecAdd(vecAdd(upcomp, vpcomp), wpcomp);
 			} else {

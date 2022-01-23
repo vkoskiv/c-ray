@@ -16,7 +16,6 @@
 #include "../renderer/renderer.h"
 #include "image/texture.h"
 #include "camera.h"
-#include "vertexbuffer.h"
 #include "../accelerators/bvh.h"
 #include "tile.h"
 #include "mesh.h"
@@ -32,13 +31,12 @@
 
 struct bvhBuildTask {
 	struct bvh *bvh;
-	struct poly *polygons;
-	int polyCount;
+	const struct mesh *mesh;
 };
 
 void *bvhBuildThread(void *arg) {
 	struct bvhBuildTask *task = (struct bvhBuildTask*)threadUserData(arg);
-	task->bvh = buildBottomLevelBvh(task->polygons, task->polyCount);
+	task->bvh = build_mesh_bvh(task->mesh);
 	return NULL;
 }
 
@@ -50,8 +48,7 @@ static void computeAccels(struct mesh *meshes, int meshCount) {
 	struct crThread *buildThreads = calloc(meshCount, sizeof(*buildThreads));
 	for (int t = 0; t < meshCount; ++t) {
 		tasks[t] = (struct bvhBuildTask){
-			.polygons = meshes[t].polygons,
-			.polyCount = meshes[t].polyCount
+			.mesh = &meshes[t],
 		};
 		buildThreads[t] = (struct crThread){
 			.threadFunc = bvhBuildThread,
@@ -86,14 +83,23 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 	logr(info, "Scene construction completed in ");
 	printSmartTime(ms);
 	unsigned polys = 0;
+	unsigned vertices = 0;
+	unsigned normals = 0;
+	unsigned texturecoords = 0;
 	for (int i = 0; i < scene->instanceCount; ++i) {
-		if (isMesh(&scene->instances[i])) polys += ((struct mesh*)scene->instances[i].object)->polyCount;
+		if (isMesh(&scene->instances[i])) {
+			const struct mesh *mesh = scene->instances[i].object;
+			polys += mesh->poly_count;
+			vertices += mesh->vertex_count;
+			normals += mesh->normal_count;
+			texturecoords += mesh->tex_coord_count;
+		}
 	}
 	logr(plain, "\n");
 	logr(info, "Totals: %iV, %iN, %iT, %iP, %iS, %iM\n",
-		   vertexCount,
-		   normalCount,
-		   textureCount,
+		   vertices,
+		   normals,
+		   texturecoords,
 		   polys,
 		   scene->sphereCount,
 		   scene->meshCount);

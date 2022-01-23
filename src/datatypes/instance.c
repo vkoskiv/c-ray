@@ -17,7 +17,6 @@
 #include "sphere.h"
 #include "scene.h"
 #include "../utils/args.h"
-#include "../datatypes/vertexbuffer.h"
 
 struct sphereVolume {
 	struct sphere *sphere;
@@ -148,7 +147,7 @@ struct instance newSphereVolume(struct sphere *sphere, float density, struct blo
 }
 
 static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecord *isect) {
-	if (mesh->textureCoordCount == 0) return (struct coord){-1.0f, -1.0f};
+	if (mesh->tex_coord_count == 0) return (struct coord){-1.0f, -1.0f};
 	struct poly *p = isect->polygon;
 	if (p->textureIndex[0] == -1) return (struct coord){-1.0f, -1.0f};
 	
@@ -158,9 +157,9 @@ static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecor
 	const float w = 1.0f - u - v;
 	
 	//Weighted texture coordinates
-	const struct coord ucomponent = coordScale(u, g_textureCoords[p->textureIndex[1]]);
-	const struct coord vcomponent = coordScale(v, g_textureCoords[p->textureIndex[2]]);
-	const struct coord wcomponent = coordScale(w, g_textureCoords[p->textureIndex[0]]);
+	const struct coord ucomponent = coordScale(u, mesh->texture_coords[p->textureIndex[1]]);
+	const struct coord vcomponent = coordScale(v, mesh->texture_coords[p->textureIndex[2]]);
+	const struct coord wcomponent = coordScale(w, mesh->texture_coords[p->textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
 	return addCoords(addCoords(ucomponent, vcomponent), wcomponent);

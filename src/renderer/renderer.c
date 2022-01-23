@@ -21,7 +21,6 @@
 #include "../datatypes/image/texture.h"
 #include "../datatypes/mesh.h"
 #include "../datatypes/sphere.h"
-#include "../datatypes/vertexbuffer.h"
 #include "../utils/platform/thread.h"
 #include "../utils/platform/mutex.h"
 #include "samplers/sampler.h"
@@ -366,10 +365,6 @@ struct renderer *newRenderer() {
 	r->state.timeSampleCount = 1;
 	r->state.finishedPasses = 1;
 	
-	if (!g_vertices) {
-		allocVertexBuffers();
-	}
-	
 	r->state.tileMutex = createMutex();
 
 	r->scene = calloc(1, sizeof(*r->scene));
@@ -383,7 +378,6 @@ void destroyRenderer(struct renderer *r) {
 		destroyScene(r->scene);
 		destroyTexture(r->state.renderBuffer);
 		destroyTexture(r->state.uiBuffer);
-		destroyVertexBuffers();
 		free(r->state.renderTiles);
 		free(r->state.threads);
 		free(r->state.threadStates);

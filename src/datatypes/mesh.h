@@ -3,36 +3,30 @@
 //  C-ray
 //
 //  Created by Valtteri Koskivuori on 27/04/2017.
-//  Copyright © 2017-2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-/*
- C-Ray stores all vectors and polygons in shared arrays, so these
- data structures just keep track of 'first-index offsets'
- These offsets are the element index of the first vector/polygon for this mesh
- The 'count' values are then used to keep track of where the vectors/polygons stop.
- 
- Materials are stored within the mesh struct in *materials
- */
+struct vector;
+struct coord;
 
 struct mesh {
 	//Vertices
-	int vertexCount;
-	int firstVectorIndex;
+	int vertex_count;
+	struct vector *vertices;
 	
 	//Normals
-	int normalCount;
-	int firstNormalIndex;
+	int normal_count;
+	struct vector *normals;
 	
 	//Texture coordinates
-	int textureCoordCount;
-	int firstTextureCoordIndex;
+	int tex_coord_count;
+	struct coord *texture_coords;
 	
 	//Faces
+	int poly_count;
 	struct poly *polygons;
-	int polyCount;
 	
 	//Materials
 	int materialCount;

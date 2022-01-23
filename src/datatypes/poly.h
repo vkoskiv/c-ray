@@ -21,6 +21,7 @@ struct poly {
 
 struct lightRay;
 struct hitRecord;
+struct mesh;
 
 //Calculates intersection between a light ray and a polygon object. Returns true if intersection has happened.
-bool rayIntersectsWithPolygon(const struct lightRay *ray, const struct poly *poly, struct hitRecord *isect);
+bool rayIntersectsWithPolygon(const struct mesh *mesh, const struct lightRay *ray, const struct poly *poly, struct hitRecord *isect);

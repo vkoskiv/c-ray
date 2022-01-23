@@ -23,10 +23,10 @@ struct bvh;
 /// Returns the bounding box of the root of the given BVH
 struct boundingBox getRootBoundingBox(const struct bvh *bvh);
 
-/// Builds a BVH for a given set of polygons
-/// @param polygons Array of polygons to process
+/// Builds a BVH for a given mesh
+/// @param mesh Mesh containing polygons to process
 /// @param count Amount of polygons given
-struct bvh *buildBottomLevelBvh(const struct poly *polys, unsigned count);
+struct bvh *build_mesh_bvh(const struct mesh *mesh);
 
 /// Builds a top-level BVH for a given set of instances
 /// @param instances Instances to build a top-level BVH for

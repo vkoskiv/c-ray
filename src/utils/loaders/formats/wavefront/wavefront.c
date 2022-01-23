@@ -12,7 +12,6 @@
 #include "../../../../datatypes/vector.h"
 #include "../../../../datatypes/poly.h"
 #include "../../../../datatypes/material.h"
-#include "../../../../datatypes/vertexbuffer.h"
 #include "../../../logging.h"
 #include "../../../string.h"
 #include "../../../fileio.h"
@@ -121,9 +120,9 @@ static int fixIndex(size_t max, int oldIndex) {
 
 static void fixIndices(struct poly *p, size_t totalVertices, size_t totalTexCoords, size_t totalNormals) {
 	for (int i = 0; i < MAX_CRAY_VERTEX_COUNT; ++i) {
-		p->vertexIndex[i] = vertexCount + (fixIndex(totalVertices, p->vertexIndex[i]));
-		p->textureIndex[i] = textureCount + (fixIndex(totalTexCoords, p->textureIndex[i]));
-		p->normalIndex[i] = normalCount + (fixIndex(totalNormals, p->normalIndex[i]));
+		p->vertexIndex[i] = fixIndex(totalVertices, p->vertexIndex[i]);
+		p->textureIndex[i] = fixIndex(totalTexCoords, p->textureIndex[i]);
+		p->normalIndex[i] = fixIndex(totalNormals, p->normalIndex[i]);
 	}
 }
 
@@ -245,29 +244,13 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 	}
 	
 	currentMeshPtr->polygons = polygons;
-	currentMeshPtr->polyCount = (int)filePolys;
-	currentMeshPtr->firstVectorIndex = vertexCount;
-	currentMeshPtr->firstNormalIndex = normalCount;
-	currentMeshPtr->firstTextureCoordIndex = textureCount;
-	currentMeshPtr->vertexCount = currentVertexCount;
-	currentMeshPtr->normalCount = currentNormalCount;
-	currentMeshPtr->textureCoordCount = currentTextureCount;
-	
-	vertexCount += fileVertices;
-	normalCount += fileNormals;
-	textureCount+= fileTexCoords;
-	
-	g_vertices = realloc(g_vertices, vertexCount * sizeof(struct vector));
-	memcpy(g_vertices + currentMeshPtr->firstVectorIndex, vertices, fileVertices * sizeof(*vertices));
-	free(vertices);
-	
-	g_normals = realloc(g_normals, normalCount * sizeof(struct vector));
-	memcpy(g_normals + currentMeshPtr->firstNormalIndex, normals, fileNormals * sizeof(*normals));
-	free(normals);
-	
-	g_textureCoords = realloc(g_textureCoords, textureCount * sizeof(struct coord));
-	memcpy(g_textureCoords + currentMeshPtr->firstTextureCoordIndex, texCoords, fileTexCoords * sizeof(*texCoords));
-	free(texCoords);
+	currentMeshPtr->poly_count = (int)filePolys;
+	currentMeshPtr->vertices = vertices;
+	currentMeshPtr->vertex_count = currentVertexCount;
+	currentMeshPtr->normals = normals;
+	currentMeshPtr->normal_count = currentNormalCount;
+	currentMeshPtr->texture_coords = texCoords;
+	currentMeshPtr->tex_coord_count = currentTextureCount;
 	
 	return meshes;
 }
