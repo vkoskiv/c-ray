@@ -348,9 +348,9 @@ static inline bool intersectNode(
 }
 
 static inline bool traverseBvhGeneric(
-	void *userData,
+	const void *userData,
 	const struct bvh *bvh,
-	bool (*intersectLeaf)(void *, const struct bvh *, const struct bvhNode *, const struct lightRay *, struct hitRecord *, sampler *),
+	bool (*intersectLeaf)(const void *, const struct bvh *, const struct bvhNode *, const struct lightRay *, struct hitRecord *, sampler *),
 	const struct lightRay *ray,
 	struct hitRecord *isect,
 	sampler *sampler)
@@ -437,7 +437,7 @@ static inline bool traverseBvhGeneric(
 }
 
 static inline bool intersectBottomLevelLeaf(
-	void *userData,
+	const void *userData,
 	const struct bvh *bvh,
 	const struct bvhNode *leaf,
 	const struct lightRay *ray,
@@ -445,10 +445,10 @@ static inline bool intersectBottomLevelLeaf(
 	sampler *sampler)
 {
 	(void)sampler;
-	struct poly *polygons = userData;
+	const struct mesh *mesh = userData;
 	bool found = false;
 	for (int i = 0; i < leaf->primCount; ++i) {
-		struct poly *p = &polygons[bvh->primIndices[leaf->firstChildOrPrim + i]];
+		struct poly *p = &mesh->polygons[bvh->primIndices[leaf->firstChildOrPrim + i]];
 		if (rayIntersectsWithPolygon(ray, p, isect)) {
 			isect->polygon = p;
 			found = true;
@@ -458,11 +458,11 @@ static inline bool intersectBottomLevelLeaf(
 }
 
 bool traverseBottomLevelBvh(const struct mesh *mesh, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler) {
-	return traverseBvhGeneric(mesh->polygons, mesh->bvh, intersectBottomLevelLeaf, ray, isect, sampler);
+	return traverseBvhGeneric(mesh, mesh->bvh, intersectBottomLevelLeaf, ray, isect, sampler);
 }
 
 static inline bool intersectTopLevelLeaf(
-	void *userData,
+	const void *userData,
 	const struct bvh *bvh,
 	const struct bvhNode *leaf,
 	const struct lightRay *ray,
