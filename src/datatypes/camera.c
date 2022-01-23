@@ -35,7 +35,7 @@ void recomputeComposite(struct camera *cam) {
 		struct vector positionAtT = spline_at(cam->path, cam->time);
 		transforms[0] = newTransformTranslate(positionAtT.x, positionAtT.y, positionAtT.z);
 	} else {
-		transforms[0] = newTransformTranslate(cam->position.x, cam->position.y, cam->position.z);
+		transforms[0] = newTransformTranslate(-cam->position.x, cam->position.y, cam->position.z);
 	}
 	transforms[1] = newTransformRotate(cam->orientation.roll, cam->orientation.pitch, cam->orientation.yaw);
 
@@ -77,7 +77,7 @@ struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampl
 	const float jitter_x = triangleDistribution(getDimension(sampler));
 	const float jitter_y = triangleDistribution(getDimension(sampler));
 	
-	const struct vector pix_x = vecScale(cam->right, (cam->sensor_size.x / cam->width));
+	const struct vector pix_x = vecScale(vecNegate(cam->right), (cam->sensor_size.x / cam->width));
 	const struct vector pix_y = vecScale(cam->up, (cam->sensor_size.y / cam->height));
 	const struct vector pix_v = vecAdd(
 							cam->forward,
@@ -98,10 +98,4 @@ struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampl
 	//To world space
 	transformRay(&new_ray, cam->composite.A.mtx);
 	return new_ray;
-}
-
-void camDestroy(struct camera *cam) {
-	if (cam) {
-		free(cam);
-	}
 }

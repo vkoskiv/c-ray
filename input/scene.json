@@ -10,9 +10,7 @@
 		"outputFilePath": "output/",
 		"outputFileName": "rendered",
 		"fileType": "png",
-		"count": 0,
-		"width": 1280,
-		"height": 800
+		"count": 0
 	},
 	"display": {
 		"isFullscreen": false,
@@ -23,10 +21,12 @@
 		"FOV": 80.0,
 		"focalDistance": 450.0,
 		"fstops": 0.0,
+		"width": 1280,
+		"height": 800,
 		"transforms": [
 			{
 				"type": "translate",
-				"x": 970,
+				"x": -970,
 				"y": 480,
 				"z": 600
 			},

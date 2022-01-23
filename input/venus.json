@@ -25,7 +25,7 @@
 		"transforms": [
 			{
 				"type": "translate",
-				"x": 1370,
+				"x": -1370,
 				"y": 420,
 				"z": 750
 			},

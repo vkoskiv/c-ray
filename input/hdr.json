@@ -121,7 +121,7 @@
 					"g": 0.8,
 					"b": 0.8
 				},
-				"bsdf": "plastic",
+				"bsdf": "metal",
 				"roughness": 0.00,
 				"radius": 0.05
 			},
