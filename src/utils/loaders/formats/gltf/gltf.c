@@ -183,9 +183,17 @@ struct texture *parse_images(const cJSON *data, size_t *amount, const struct buf
 	return images;
 }
 
+struct mesh *parse_glb_meshes(const char *data, size_t *meshCount) {
+	(void )data;
+	(void )meshCount;
+	ASSERT_NOT_REACHED();
+	return NULL;
+}
+
 struct mesh *parse_glTF_meshes(const char *filePath, size_t *meshCount) {
 	size_t file_bytes = 0;
 	char *contents = loadFile(filePath, &file_bytes);
+	if (stringStartsWith("glTF", contents)) return parse_glb_meshes(contents, meshCount);
 	const cJSON *data = cJSON_Parse(contents);
 	
 	const cJSON *asset = cJSON_GetObjectItem(data, "asset");
