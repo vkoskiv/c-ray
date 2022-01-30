@@ -146,12 +146,10 @@ int loadScene(struct renderer *r, char *input) {
 			cJSON *renderer = cJSON_GetObjectItem(cache, "renderer");
 			int width = intPref("dims_width");
 			int height = intPref("dims_height");
-			if (cJSON_IsObject(renderer)
-				&& cJSON_IsNumber(cJSON_GetObjectItem(renderer, "width"))
-				&& cJSON_IsNumber(cJSON_GetObjectItem(renderer, "height"))) {
+			if (cJSON_IsObject(renderer)) {
 				logr(info, "Overriding cache image dimensions to %ix%i\n", width, height);
-				cJSON_ReplaceItemInObject(renderer, "width", cJSON_CreateNumber(width));
-				cJSON_ReplaceItemInObject(renderer, "height", cJSON_CreateNumber(height));
+				cJSON_AddItemToObject(renderer, "width", cJSON_CreateNumber(width));
+				cJSON_AddItemToObject(renderer, "height", cJSON_CreateNumber(height));
 			}
 		}
 		
