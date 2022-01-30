@@ -19,9 +19,12 @@ struct hitRecord;
 
 struct sphere;
 struct mesh;
+struct material;
 
 struct instance {
 	struct transform composite;
+	struct material *materials; //FIXME: Make this an array of bsdf ptrs instead
+	size_t material_count;
 	bool (*intersectFn)(const struct instance *, const struct lightRay *, struct hitRecord *, sampler *);
 	void (*getBBoxAndCenterFn)(const struct instance *, struct boundingBox *, struct vector *);
 	void *object;
