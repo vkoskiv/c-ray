@@ -816,7 +816,7 @@ static void parse_mesh_instances(struct renderer *r, const cJSON *data, struct m
 			}
 
 			const cJSON *instance_materials = cJSON_GetObjectItem(instance, "materials");
-			const cJSON *materials = instance_materials ?: mesh_global_materials;
+			const cJSON *materials = instance_materials ? instance_materials : mesh_global_materials;
 
 			new.material_count = meshes[i].materialCount;
 			new.materials = calloc(new.material_count, sizeof(*new.materials));//malloc(new.material_count * sizeof(*new.materials));
