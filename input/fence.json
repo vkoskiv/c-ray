@@ -191,16 +191,10 @@
 		"meshes": [
 			{
 				"fileName": "newScene.obj",
-				"bsdf": "lambertian",
-				"instances": [
-					{
-						"transforms": []
-					}
-				]
+				"instances": [{}]
 			},
 			{
 				"fileName": "fence.obj",
-				"bsdf": "lambertian",
 				"instances": [
 					{
 						"transforms": [

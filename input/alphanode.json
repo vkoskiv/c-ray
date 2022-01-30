@@ -79,23 +79,16 @@
 					"A": {
 						"type": "diffuse",
 						"color": {
-							"path": "input/shapes/grid.png",
+							"path": "shapes/grid.png",
 							"transform": true
 						}
 					},
 					"B": {
-						"type": "transparent"
+						"type": "transparent",
+						"color": [1,1,1]
 					},
-					"factor": [0.25, 0.25, 0.25, 0.25]
+					"factor": 0.5
 				},
-				"color": {
-					"r": 0.8,
-					"g": 0.8,
-					"b": 0.8,
-					"a": 1.0
-				},
-				"bsdf": "diffuse",
-				"roughness": 0.00,
 				"radius": 0.05
 			}
 		],

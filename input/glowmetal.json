@@ -83,13 +83,8 @@
 					},
 					"factor": {
 						"type": "checkerboard",
-						"size": 50
+						"scale": 50
 					}
-				},
-				"color": {
-					"r": 0.8,
-					"g": 0.8,
-					"b": 0.8
 				},
 				"radius": 0.05
 			}
@@ -97,7 +92,6 @@
 		"meshes": [
 			{
 				"fileName": "shapes/gridplane.obj",
-				"bsdf": "lambertian",
 				"instances": [
 					{
 						"transforms": [
