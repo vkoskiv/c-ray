@@ -219,7 +219,6 @@
 		"meshes": [
 			{
 				"fileName": "tonni.obj",
-				"bsdf": "lambertian",
 				"instances": [
 					{
 						"transforms": [
@@ -251,16 +250,18 @@
 			},
 			{
 				"fileName": "newScene.obj",
-				"bsdf": "lambertian",
-				"instances": [
+				"materials": [
 					{
-						"transforms": []
+						"replace": "mirror_mtl",
+						"type": "metal",
+						"roughness": 0,
+						"color": [0.5,0.5,0.5]
 					}
-				]
+				],
+				"instances": [{}]
 			},
 			{
 				"fileName": "torus.obj",
-				"bsdf": "lambertian",
 				"instances": [
 					{
 						"transforms": [
@@ -280,7 +281,6 @@
 			},
 			{
 				"fileName": "teapot.obj",
-				"bsdf": "lambertian",
 				"instances": [
 					{
 						"transforms": [
@@ -335,15 +335,12 @@
 								"z": 1200
 							}
 						]
-					}
-				]
-			},
-			{
-				"fileName": "teapot_green.obj",
-				"overridemtls": [["teapot.mtl", "teapot_green.mtl"]],
-				"bsdf": "lambertian",
-				"instances": [
+					},
 					{
+						"materials": {
+							"type": "diffuse",
+							"color": [0, 1, 0]
+						},
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -362,6 +359,10 @@
 						]
 					},
 					{
+						"materials": {
+							"type": "diffuse",
+							"color": [0, 1, 0]
+						},
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -380,6 +381,10 @@
 						]
 					},
 					{
+						"materials": {
+							"type": "diffuse",
+							"color": [0, 1, 0]
+						},
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -396,15 +401,12 @@
 								"z": 1200
 							}
 						]
-					}
-				]
-			},
-			{
-				"fileName": "teapot_blue.obj",
-				"overridemtls": [["teapot.mtl", "teapot_blue.mtl"]],
-				"bsdf": "lambertian",
-				"instances": [
+					},
 					{
+						"materials": {
+							"type": "diffuse",
+							"color": [0, 0, 1]
+						},
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -423,6 +425,10 @@
 						]
 					},
 					{
+						"materials": {
+							"type": "diffuse",
+							"color": [0, 0, 1]
+						},
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -441,6 +447,10 @@
 						]
 					},
 					{
+						"materials": {
+							"type": "diffuse",
+							"color": [0, 0, 1]
+						},
 						"transforms": [
 							{
 								"type": "scaleUniform",
