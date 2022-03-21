@@ -116,7 +116,7 @@ void writeFile(const unsigned char *buf, size_t bufsize, const char *filePath) {
 			return;
 		}
 	}
-	logr(info, "Saving result in \"%s\"\n", backupPath ? backupPath : filePath);
+	logr(info, "Saving result in %s\'%s\'%s\n", KGRN, backupPath ? backupPath : filePath, KNRM);
 	fwrite(buf, 1, bufsize, file);
 	fclose(file);
 	
