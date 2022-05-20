@@ -145,21 +145,20 @@ bool isValidFile(char *path) {
 #endif
 }
 
-//Wait for 2 secs and abort if nothing is coming in from stdin
-void checkBuf() {
+void wait_for_stdin(int seconds) {
 #ifndef WINDOWS
 	fd_set set;
 	struct timeval timeout;
 	int rv;
 	FD_ZERO(&set);
 	FD_SET(0, &set);
-	timeout.tv_sec = 2;
+	timeout.tv_sec = seconds;
 	timeout.tv_usec = 1000;
 	rv = select(1, &set, NULL, NULL, &timeout);
 	if (rv == -1) {
 		logr(error, "Error on stdin timeout\n");
 	} else if (rv == 0) {
-		logr(error, "No input found after %li seconds. Hint: Try `./bin/c-ray input/scene.json`.\n", timeout.tv_sec);
+		logr(error, "No input found after %i seconds. Hint: Try `./bin/c-ray input/scene.json`.\n", seconds);
 	} else {
 		return;
 	}
@@ -213,7 +212,7 @@ char *getFilePath(const char *input) {
 #define chunksize 1024
 //Get scene data from stdin and return a pointer to it
 char *readStdin(size_t *bytes) {
-	checkBuf();
+	wait_for_stdin(2);
 	
 	char chunk[chunksize];
 	
