@@ -20,6 +20,7 @@ static char *failed_expression;
 #include "test_mempool.h"
 #include "test_base64.h"
 #include "test_nodes.h"
+#include "test_linked_list.h"
 
 static test tests[] = {
 	{"vector::vecZero", vector_vecZero},
@@ -132,6 +133,10 @@ static test tests[] = {
 	{"vecmath::vecAbs", vecmath_vecAbs},
 	
 	{"map_range::map", map_range},
+
+	{"linked_list::basic", llist_basic},
+	{"linked_list::remove_cb", llist_remove_cb},
+	{"linked_list::remove_after_empty", llist_remove_after_empty},
 };
 
 #define testCount (sizeof(tests) / sizeof(test))
