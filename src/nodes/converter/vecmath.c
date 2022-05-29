@@ -46,34 +46,40 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 	switch (this->op) {
 		case VecAdd:
 			return (struct vectorValue){ .v = vecAdd(a, b) };
-			break;
 		case VecSubtract:
 			return (struct vectorValue){ .v = vecSub(a, b) };
-			break;
 		case VecMultiply:
 			return (struct vectorValue){ .v = vecMul(a, b) };
-			break;
 		case VecAverage:
 			return (struct vectorValue){ .v = vecScale(vecAdd(a, b), 0.5f) };
-			break;
 		case VecDot:
 			return (struct vectorValue){ .f = vecDot(a, b) };
-			break;
 		case VecCross:
 			return (struct vectorValue){ .v = vecCross(a, b) };
-			break;
 		case VecNormalize:
 			return (struct vectorValue){ .v = vecNormalize(a) };
-			break;
 		case VecReflect:
 			return (struct vectorValue){ .v = vecReflect(a, b) };
-			break;
 		case VecLength:
 			return (struct vectorValue){ .f = vecLength(a) };
-			break;
 		case VecAbs:
 			return (struct vectorValue){ .v = { .x = fabsf(a.x), .y = fabsf(a.y), .z = fabsf(a.z) } };
-			break;
+		case VecMin:
+			return (struct vectorValue){ .v = { .x = fminf(a.x, b.x), .y = fminf(a.y, b.y), .z = fminf(a.z, b.z) } };
+		case VecMax:
+			return (struct vectorValue){ .v = { .x = fmaxf(a.x, b.x), .y = fmaxf(a.y, b.y), .z = fmaxf(a.z, b.z) } };
+		case VecFloor:
+			return (struct vectorValue){ .v = { .x = floorf(a.x), .y = floorf(a.y), .z = floorf(a.z) } };
+		case VecCeil:
+			return (struct vectorValue){ .v = { .x = ceilf(a.x), .y = ceilf(a.y), .z = ceilf(a.z) } };
+		case VecSin:
+			return (struct vectorValue){ .v = { .x = sinf(a.x), .y = sinf(a.y), .z = sinf(a.z) } };
+		case VecCos:
+			return (struct vectorValue){ .v = { .x = cosf(a.x), .y = cosf(a.y), .z = cosf(a.z) } };
+		case VecTan:
+			return (struct vectorValue){ .v = { .x = tanf(a.x), .y = tanf(a.y), .z = tanf(a.z) } };
+		case VecModulo:
+			return (struct vectorValue){ .v = { .x = fmodf(a.x, b.x), .y = fmodf(a.y, b.y), .z = fmodf(a.z, b.z) } };
 	}
 	ASSERT_NOT_REACHED();
 	return (struct vectorValue){ .v = { 0 }, .c = { 0 }, .f = 0.0f };
