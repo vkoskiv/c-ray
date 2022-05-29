@@ -80,6 +80,8 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 			return (struct vectorValue){ .v = { .x = tanf(a.x), .y = tanf(a.y), .z = tanf(a.z) } };
 		case VecModulo:
 			return (struct vectorValue){ .v = { .x = fmodf(a.x, b.x), .y = fmodf(a.y, b.y), .z = fmodf(a.z, b.z) } };
+		case VecDistance:
+			return (struct vectorValue){ .f = vecDistanceBetween(a, b) };
 	}
 	ASSERT_NOT_REACHED();
 	return (struct vectorValue){ .v = { 0 }, .c = { 0 }, .f = 0.0f };

@@ -200,6 +200,10 @@ static inline struct vector vecReflect(const struct vector I, const struct vecto
 	return vecSub(I, vecScale(N, vecDot(N, I) * 2.0f));
 }
 
+static inline float vecDistanceBetween(const struct vector a, const struct vector b) {
+	return sqrtf(powf((b.x - a.x), 2) + powf((b.y - a.y), 2) + powf((b.z - a.z), 2));
+}
+
 static inline float wrapMax(float x, float max) {
 	return fmodf(max + fmodf(x, max), max);
 }

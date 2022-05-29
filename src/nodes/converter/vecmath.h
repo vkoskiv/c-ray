@@ -27,6 +27,7 @@ enum vecOp {
 	VecCos,
 	VecTan,
 	VecModulo,
+	VecDistance,
 };
 
 const struct vectorNode *newVecMath(const struct world *world, const struct vectorNode *A, const struct vectorNode *B, const enum vecOp op);
