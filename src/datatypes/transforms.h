@@ -60,20 +60,20 @@ struct transform newTransformRotateZ(float radians);
 struct transform newTransformRotate(float roll, float pitch, float yaw);
 struct transform newTransform(void);
 
-struct matrix4x4 inverseMatrix(const float mtx[4][4]);
-struct matrix4x4 transposeMatrix(const float mtx[4][4]);
-struct matrix4x4 multiplyMatrices(const float A[4][4], const float B[4][4]); //FIXME: Maybe don't expose this.
-struct matrix4x4 absoluteMatrix(const float mtx[4][4]);
+struct matrix4x4 inverseMatrix(struct matrix4x4);
+struct matrix4x4 transposeMatrix(struct matrix4x4);
+struct matrix4x4 multiplyMatrices(struct matrix4x4 A, struct matrix4x4 B); //FIXME: Maybe don't expose this.
+struct matrix4x4 absoluteMatrix(struct matrix4x4);
 struct matrix4x4 identityMatrix(void);
 
-void transformPoint(struct vector *vec, const float mtx[4][4]);
-void transformVector(struct vector *vec, const float mtx[4][4]);
-void transformVectorWithTranspose(struct vector *vec, const float mtx[4][4]);
-void transformBBox(struct boundingBox *bbox, const float mtx[4][4]);
-void transformRay(struct lightRay *ray, const float mtx[4][4]);
+void transformPoint(struct vector *vec, struct matrix4x4);
+void transformVector(struct vector *vec, struct matrix4x4);
+void transformVectorWithTranspose(struct vector *vec, struct matrix4x4);
+void transformBBox(struct boundingBox *bbox, struct matrix4x4);
+void transformRay(struct lightRay *ray, struct matrix4x4);
 
 bool isRotation(const struct transform *t);
 bool isScale(const struct transform *t);
 bool isTranslate(const struct transform *t);
 
-bool areMatricesEqual(const float A[4][4], const float B[4][4]);
+bool areMatricesEqual(struct matrix4x4, struct matrix4x4);

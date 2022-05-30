@@ -50,65 +50,65 @@ struct matrix4x4 matrixFromParams(
 	float t30, float t31, float t32, float t33) {
 	return (struct matrix4x4) {
 		.mtx = {
-			{t00, t01, t02, t03},
-			{t10, t11, t12, t13},
-			{t20, t21, t22, t23},
-			{t30, t31, t32, t33}
+			{ t00, t01, t02, t03 },
+			{ t10, t11, t12, t13 },
+			{ t20, t21, t22, t23 },
+			{ t30, t31, t32, t33 }
 		}
 	};
 }
 
-struct matrix4x4 absoluteMatrix(const float mtx[4][4]) {
+struct matrix4x4 absoluteMatrix(const struct matrix4x4 m) {
 	return (struct matrix4x4) {
 		.mtx = {
 			// The last column is the translation, and should be kept intact
-			{ fabsf(mtx[0][0]), fabsf(mtx[0][1]), fabsf(mtx[0][2]), mtx[0][3] },
-			{ fabsf(mtx[1][0]), fabsf(mtx[1][1]), fabsf(mtx[1][2]), mtx[1][3] },
-			{ fabsf(mtx[2][0]), fabsf(mtx[2][1]), fabsf(mtx[2][2]), mtx[2][3] },
+			{ fabsf(m.mtx[0][0]), fabsf(m.mtx[0][1]), fabsf(m.mtx[0][2]), m.mtx[0][3] },
+			{ fabsf(m.mtx[1][0]), fabsf(m.mtx[1][1]), fabsf(m.mtx[1][2]), m.mtx[1][3] },
+			{ fabsf(m.mtx[2][0]), fabsf(m.mtx[2][1]), fabsf(m.mtx[2][2]), m.mtx[2][3] },
 			// These coefficients are not used anyway
-			{ mtx[3][0], mtx[3][1], mtx[3][2], mtx[3][3] }
+			{ m.mtx[3][0], m.mtx[3][1], m.mtx[3][2], m.mtx[3][3] }
 		}
 	};
 }
 
 //http://tinyurl.com/hte35pq
 //TODO: Boolean switch to inverse, or just feed m4x4 directly
-void transformPoint(struct vector *vec, const float mtx[4][4]) {
+void transformPoint(struct vector *vec, const struct matrix4x4 m) {
 	struct vector temp;
-	temp.x = (mtx[0][0] * vec->x) + (mtx[0][1] * vec->y) + (mtx[0][2] * vec->z) + mtx[0][3];
-	temp.y = (mtx[1][0] * vec->x) + (mtx[1][1] * vec->y) + (mtx[1][2] * vec->z) + mtx[1][3];
-	temp.z = (mtx[2][0] * vec->x) + (mtx[2][1] * vec->y) + (mtx[2][2] * vec->z) + mtx[2][3];
+	temp.x = (m.mtx[0][0] * vec->x) + (m.mtx[0][1] * vec->y) + (m.mtx[0][2] * vec->z) + m.mtx[0][3];
+	temp.y = (m.mtx[1][0] * vec->x) + (m.mtx[1][1] * vec->y) + (m.mtx[1][2] * vec->z) + m.mtx[1][3];
+	temp.z = (m.mtx[2][0] * vec->x) + (m.mtx[2][1] * vec->y) + (m.mtx[2][2] * vec->z) + m.mtx[2][3];
 	*vec = temp;
 }
 
-void transformBBox(struct boundingBox *bbox, const float mtx[4][4]) {
-	struct matrix4x4 abs = absoluteMatrix(mtx);
+void transformBBox(struct boundingBox *bbox, const struct matrix4x4 m) {
+	struct matrix4x4 abs = absoluteMatrix(m);
 	struct vector center = vecScale(vecAdd(bbox->min, bbox->max), 0.5f);
 	struct vector halfExtents = vecScale(vecSub(bbox->max, bbox->min), 0.5f);
-	transformVector(&halfExtents, abs.mtx);
-	transformPoint(&center, abs.mtx);
+	transformVector(&halfExtents, abs);
+	transformPoint(&center, abs);
 	bbox->min = vecSub(center, halfExtents);
 	bbox->max = vecAdd(center, halfExtents);
 }
 
-void transformVector(struct vector *vec, const float mtx[4][4]) {
+void transformVector(struct vector *vec, const struct matrix4x4 m) {
 	struct vector temp;
-	temp.x = (mtx[0][0] * vec->x) + (mtx[0][1] * vec->y) + (mtx[0][2] * vec->z);
-	temp.y = (mtx[1][0] * vec->x) + (mtx[1][1] * vec->y) + (mtx[1][2] * vec->z);
-	temp.z = (mtx[2][0] * vec->x) + (mtx[2][1] * vec->y) + (mtx[2][2] * vec->z);
+	temp.x = (m.mtx[0][0] * vec->x) + (m.mtx[0][1] * vec->y) + (m.mtx[0][2] * vec->z);
+	temp.y = (m.mtx[1][0] * vec->x) + (m.mtx[1][1] * vec->y) + (m.mtx[1][2] * vec->z);
+	temp.z = (m.mtx[2][0] * vec->x) + (m.mtx[2][1] * vec->y) + (m.mtx[2][2] * vec->z);
 	*vec = temp;
 }
 
-void transformVectorWithTranspose(struct vector *vec, const float mtx[4][4]) {
+void transformVectorWithTranspose(struct vector *vec, const struct matrix4x4 mat) {
 	// Doing this here gives an opportunity for the compiler
 	// to inline the calls to transformVector() and transposeMatrix()
-	struct matrix4x4 t = transposeMatrix(mtx);
-	transformVector(vec, t.mtx);
+	struct matrix4x4 t = transposeMatrix(mat);
+	transformVector(vec, t);
 }
 
-void transformRay(struct lightRay *ray, const float mtx[4][4]) {
-	transformPoint(&ray->start, mtx);
-	transformVector(&ray->direction, mtx);
+void transformRay(struct lightRay *ray, const struct matrix4x4 mat) {
+	transformPoint(&ray->start, mat);
+	transformVector(&ray->direction, mat);
 }
 
 struct transform newTransformRotateX(float rads) {
@@ -122,7 +122,7 @@ struct transform newTransformRotateX(float rads) {
 	transform.A.mtx[2][1] = sinRads;
 	transform.A.mtx[2][2] = cosRads;
 	transform.A.mtx[3][3] = 1.0f;
-	transform.Ainv = inverseMatrix(transform.A.mtx);
+	transform.Ainv = inverseMatrix(transform.A);
 	return transform;
 }
 
@@ -137,7 +137,7 @@ struct transform newTransformRotateY(float rads) {
 	transform.A.mtx[2][0] = -sinRads;
 	transform.A.mtx[2][2] = cosRads;
 	transform.A.mtx[3][3] = 1.0f;
-	transform.Ainv = inverseMatrix(transform.A.mtx);
+	transform.Ainv = inverseMatrix(transform.A);
 	return transform;
 }
 
@@ -152,7 +152,7 @@ struct transform newTransformRotateZ(float rads) {
 	transform.A.mtx[1][1] = cosRads;
 	transform.A.mtx[2][2] = 1.0f;
 	transform.A.mtx[3][3] = 1.0f;
-	transform.Ainv = inverseMatrix(transform.A.mtx);
+	transform.Ainv = inverseMatrix(transform.A);
 	return transform;
 }
 
@@ -184,7 +184,7 @@ struct transform newTransformRotate(float roll, float pitch, float yaw) {
 	struct transform transform;
 	transform.type = transformTypeComposite;
 	transform.A = quaternion_to_matrix(euler_to_quaternion(roll, pitch, yaw));
-	transform.Ainv = inverseMatrix(transform.A.mtx);
+	transform.Ainv = inverseMatrix(transform.A);
 	return transform;
 }
 
@@ -198,7 +198,7 @@ struct transform newTransformTranslate(float x, float y, float z) {
 	transform.A.mtx[0][3] = x;
 	transform.A.mtx[1][3] = y;
 	transform.A.mtx[2][3] = z;
-	transform.Ainv = inverseMatrix(transform.A.mtx);
+	transform.Ainv = inverseMatrix(transform.A);
 	return transform;
 }
 
@@ -212,7 +212,7 @@ struct transform newTransformScale(float x, float y, float z) {
 	transform.A.mtx[1][1] = y;
 	transform.A.mtx[2][2] = z;
 	transform.A.mtx[3][3] = 1.0f;
-	transform.Ainv = inverseMatrix(transform.A.mtx);
+	transform.Ainv = inverseMatrix(transform.A);
 	return transform;
 }
 
@@ -223,7 +223,7 @@ struct transform newTransformScaleUniform(float scale) {
 	transform.A.mtx[1][1] = scale;
 	transform.A.mtx[2][2] = scale;
 	transform.A.mtx[3][3] = 1.0f;
-	transform.Ainv = inverseMatrix(transform.A.mtx);
+	transform.Ainv = inverseMatrix(transform.A);
 	return transform;
 }
 
@@ -286,16 +286,15 @@ static void findAdjoint(const float A[4][4], float adjoint[4][4]) {
 	}
 }
 
-struct matrix4x4 inverseMatrix(const float mtx[4][4]) {
+struct matrix4x4 inverseMatrix(const struct matrix4x4 m) {
 	struct matrix4x4 inverse = {{{0}}};
-	
-	float det = findDeterminant4x4(mtx);
+	float det = findDeterminant4x4(m.mtx);
 	if (det <= 0.0f) {
 		logr(error, "No inverse for given transform!\n");
 	}
 	
 	float adjoint[4][4];
-	findAdjoint(mtx, adjoint);
+	findAdjoint(m.mtx, adjoint);
 	
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -305,39 +304,39 @@ struct matrix4x4 inverseMatrix(const float mtx[4][4]) {
 	
 	//Not sure why I need to transpose here, but doing so
 	//gives correct results
-	return transposeMatrix(inverse.mtx);
+	return transposeMatrix(inverse);
 }
 
-struct matrix4x4 transposeMatrix(const float mtx[4][4]) {
+struct matrix4x4 transposeMatrix(const struct matrix4x4 m) {
 	return matrixFromParams(
-		mtx[0][0], mtx[1][0], mtx[2][0], mtx[3][0],
-		mtx[0][1], mtx[1][1], mtx[2][1], mtx[3][1],
-		mtx[0][2], mtx[1][2], mtx[2][2], mtx[3][2],
-		mtx[0][3], mtx[1][3], mtx[2][3], mtx[3][3]
+		m.mtx[0][0], m.mtx[1][0], m.mtx[2][0], m.mtx[3][0],
+		m.mtx[0][1], m.mtx[1][1], m.mtx[2][1], m.mtx[3][1],
+		m.mtx[0][2], m.mtx[1][2], m.mtx[2][2], m.mtx[3][2],
+		m.mtx[0][3], m.mtx[1][3], m.mtx[2][3], m.mtx[3][3]
 	);
 }
 
-struct matrix4x4 multiplyMatrices(const float A[4][4], const float B[4][4]) {
+struct matrix4x4 multiplyMatrices(const struct matrix4x4 mA, const struct matrix4x4 mB) {
 	return matrixFromParams(
-		A[0][0] * B[0][0] + A[0][1] * B[1][0] + A[0][2] * B[2][0] + A[0][3] * B[3][0],
-		A[0][0] * B[0][1] + A[0][1] * B[1][1] + A[0][2] * B[2][1] + A[0][3] * B[3][1],
-		A[0][0] * B[0][2] + A[0][1] * B[1][2] + A[0][2] * B[2][2] + A[0][3] * B[3][2],
-		A[0][0] * B[0][3] + A[0][1] * B[1][3] + A[0][2] * B[2][3] + A[0][3] * B[3][3],
+		mA.mtx[0][0] * mB.mtx[0][0] + mA.mtx[0][1] * mB.mtx[1][0] + mA.mtx[0][2] * mB.mtx[2][0] + mA.mtx[0][3] * mB.mtx[3][0],
+		mA.mtx[0][0] * mB.mtx[0][1] + mA.mtx[0][1] * mB.mtx[1][1] + mA.mtx[0][2] * mB.mtx[2][1] + mA.mtx[0][3] * mB.mtx[3][1],
+		mA.mtx[0][0] * mB.mtx[0][2] + mA.mtx[0][1] * mB.mtx[1][2] + mA.mtx[0][2] * mB.mtx[2][2] + mA.mtx[0][3] * mB.mtx[3][2],
+		mA.mtx[0][0] * mB.mtx[0][3] + mA.mtx[0][1] * mB.mtx[1][3] + mA.mtx[0][2] * mB.mtx[2][3] + mA.mtx[0][3] * mB.mtx[3][3],
 
-		A[1][0] * B[0][0] + A[1][1] * B[1][0] + A[1][2] * B[2][0] + A[1][3] * B[3][0],
-		A[1][0] * B[0][1] + A[1][1] * B[1][1] + A[1][2] * B[2][1] + A[1][3] * B[3][1],
-		A[1][0] * B[0][2] + A[1][1] * B[1][2] + A[1][2] * B[2][2] + A[1][3] * B[3][2],
-		A[1][0] * B[0][3] + A[1][1] * B[1][3] + A[1][2] * B[2][3] + A[1][3] * B[3][3],
+		mA.mtx[1][0] * mB.mtx[0][0] + mA.mtx[1][1] * mB.mtx[1][0] + mA.mtx[1][2] * mB.mtx[2][0] + mA.mtx[1][3] * mB.mtx[3][0],
+		mA.mtx[1][0] * mB.mtx[0][1] + mA.mtx[1][1] * mB.mtx[1][1] + mA.mtx[1][2] * mB.mtx[2][1] + mA.mtx[1][3] * mB.mtx[3][1],
+		mA.mtx[1][0] * mB.mtx[0][2] + mA.mtx[1][1] * mB.mtx[1][2] + mA.mtx[1][2] * mB.mtx[2][2] + mA.mtx[1][3] * mB.mtx[3][2],
+		mA.mtx[1][0] * mB.mtx[0][3] + mA.mtx[1][1] * mB.mtx[1][3] + mA.mtx[1][2] * mB.mtx[2][3] + mA.mtx[1][3] * mB.mtx[3][3],
 
-		A[2][0] * B[0][0] + A[2][1] * B[1][0] + A[2][2] * B[2][0] + A[2][3] * B[3][0],
-		A[2][0] * B[0][1] + A[2][1] * B[1][1] + A[2][2] * B[2][1] + A[2][3] * B[3][1],
-		A[2][0] * B[0][2] + A[2][1] * B[1][2] + A[2][2] * B[2][2] + A[2][3] * B[3][2],
-		A[2][0] * B[0][3] + A[2][1] * B[1][3] + A[2][2] * B[2][3] + A[2][3] * B[3][3],
+		mA.mtx[2][0] * mB.mtx[0][0] + mA.mtx[2][1] * mB.mtx[1][0] + mA.mtx[2][2] * mB.mtx[2][0] + mA.mtx[2][3] * mB.mtx[3][0],
+		mA.mtx[2][0] * mB.mtx[0][1] + mA.mtx[2][1] * mB.mtx[1][1] + mA.mtx[2][2] * mB.mtx[2][1] + mA.mtx[2][3] * mB.mtx[3][1],
+		mA.mtx[2][0] * mB.mtx[0][2] + mA.mtx[2][1] * mB.mtx[1][2] + mA.mtx[2][2] * mB.mtx[2][2] + mA.mtx[2][3] * mB.mtx[3][2],
+		mA.mtx[2][0] * mB.mtx[0][3] + mA.mtx[2][1] * mB.mtx[1][3] + mA.mtx[2][2] * mB.mtx[2][3] + mA.mtx[2][3] * mB.mtx[3][3],
 
-		A[3][0] * B[0][0] + A[3][1] * B[1][0] + A[3][2] * B[2][0] + A[3][3] * B[3][0],
-		A[3][0] * B[0][1] + A[3][1] * B[1][1] + A[3][2] * B[2][1] + A[3][3] * B[3][1],
-		A[3][0] * B[0][2] + A[3][1] * B[1][2] + A[3][2] * B[2][2] + A[3][3] * B[3][2],
-		A[3][0] * B[0][3] + A[3][1] * B[1][3] + A[3][2] * B[2][3] + A[3][3] * B[3][3]);
+		mA.mtx[3][0] * mB.mtx[0][0] + mA.mtx[3][1] * mB.mtx[1][0] + mA.mtx[3][2] * mB.mtx[2][0] + mA.mtx[3][3] * mB.mtx[3][0],
+		mA.mtx[3][0] * mB.mtx[0][1] + mA.mtx[3][1] * mB.mtx[1][1] + mA.mtx[3][2] * mB.mtx[2][1] + mA.mtx[3][3] * mB.mtx[3][1],
+		mA.mtx[3][0] * mB.mtx[0][2] + mA.mtx[3][1] * mB.mtx[1][2] + mA.mtx[3][2] * mB.mtx[2][2] + mA.mtx[3][3] * mB.mtx[3][2],
+		mA.mtx[3][0] * mB.mtx[0][3] + mA.mtx[3][1] * mB.mtx[1][3] + mA.mtx[3][2] * mB.mtx[2][3] + mA.mtx[3][3] * mB.mtx[3][3]);
 }
 
 bool isRotation(const struct transform *t) {
@@ -352,10 +351,10 @@ bool isTranslate(const struct transform *t) {
 	return t->type == transformTypeTranslate;
 }
 
-bool areMatricesEqual(const float A[4][4], const float B[4][4]) {
+bool areMatricesEqual(const struct matrix4x4 mA, const struct matrix4x4 mB) {
 	for (unsigned j = 0; j < 4; ++j) {
 		for (unsigned i = 0; i < 4; ++i) {
-			if (A[i][j] != B[i][j]) return false;
+			if (mA.mtx[i][j] != mB.mtx[i][j]) return false;
 		}
 	}
 	return true;

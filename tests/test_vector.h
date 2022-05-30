@@ -120,9 +120,9 @@ bool vector_getMidPoint(void) {
 	struct transform rotate120 = newTransformRotateZ(toRadians(120.0f));
 	struct vector a = vecNormalize((struct vector){0.0f, 1.0f, 0.0f});
 	struct vector b = a;
-	transformVector(&b, rotate120.A.mtx);
+	transformVector(&b, rotate120.A);
 	struct vector c = b;
-	transformVector(&c, rotate120.A.mtx);
+	transformVector(&c, rotate120.A);
 	struct vector mid = getMidPoint(a, b, c);
 	vec_roughly_equals(mid, vecZero());
 	return true;

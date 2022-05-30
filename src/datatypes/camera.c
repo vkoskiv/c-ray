@@ -41,10 +41,10 @@ void recomputeComposite(struct camera *cam) {
 
 	struct transform composite = { .A = identityMatrix() };
 	for (int i = 0; i < 2; ++i) {
-		composite.A = multiplyMatrices(composite.A.mtx, transforms[i].A.mtx);
+		composite.A = multiplyMatrices(composite.A, transforms[i].A);
 	}
 	
-	composite.Ainv = inverseMatrix(composite.A.mtx);
+	composite.Ainv = inverseMatrix(composite.A);
 	composite.type = transformTypeComposite;
 	cam->composite = composite;
 }
@@ -96,6 +96,6 @@ struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampl
 		new_ray.direction = vecNormalize(vecSub(focus_point, new_ray.start));
 	}
 	//To world space
-	transformRay(&new_ray, cam->composite.A.mtx);
+	transformRay(&new_ray, cam->composite.A);
 	return new_ray;
 }

@@ -31,13 +31,13 @@ bool transform_multiply() {
 		12, 1, 4, 9,
 		9, 10, 12, 2,
 		3, 12, 4, 10);
-	struct matrix4x4 AB = multiplyMatrices(A.mtx, B.mtx);
+	struct matrix4x4 AB = multiplyMatrices(A, B);
 	struct matrix4x4 expectedResult = matrixFromParams(
 		210, 267, 236, 271,
 		93, 149, 104, 149,
 		171, 146, 172, 268,
 		105, 169, 128, 169);
-	test_assert(areMatricesEqual(AB.mtx, expectedResult.mtx));
+	test_assert(areMatricesEqual(AB, expectedResult));
 	return true;
 }
 
@@ -45,8 +45,8 @@ bool transform_transpose() {
 	
 	// Identity matrices don't care about transpose
 	struct matrix4x4 id = identityMatrix();
-	struct matrix4x4 tid = transposeMatrix(id.mtx);
-	test_assert(areMatricesEqual(id.mtx, tid.mtx));
+	struct matrix4x4 tid = transposeMatrix(id);
+	test_assert(areMatricesEqual(id, tid));
 	
 	struct matrix4x4 transposable = matrixFromParams(
 		0, 0, 0, 1,
@@ -59,9 +59,9 @@ bool transform_transpose() {
 		0, 0, 2, 0,
 		0, 1, 0, 0,
 		1, 0, 0, 0);
-	struct matrix4x4 transposed = transposeMatrix(transposable.mtx);
+	struct matrix4x4 transposed = transposeMatrix(transposable);
 	
-	test_assert(areMatricesEqual(transposed.mtx, expected.mtx));
+	test_assert(areMatricesEqual(transposed, expected));
 	
 	return true;
 }
@@ -92,7 +92,7 @@ bool transform_rotate_X() {
 	struct transform rotX = newTransformRotateX(toRadians(90.0f));
 	struct vector vec = (struct vector){0.0f, 1.0f, 0.0f};
 	float original_length = vecLength(vec);
-	transformPoint(&vec, rotX.A.mtx);
+	transformPoint(&vec, rotX.A);
 	float new_length = vecLength(vec);
 	roughly_equals(original_length, new_length);
 	struct vector expected = (struct vector){0.0f, 0.0f, 1.0f};
@@ -104,7 +104,7 @@ bool transform_rotate_Y() {
 	struct transform rotY = newTransformRotateY(toRadians(90.0f));
 	struct vector vec = (struct vector){1.0f, 0.0f, 0.0f};
 	float original_length = vecLength(vec);
-	transformPoint(&vec, rotY.A.mtx);
+	transformPoint(&vec, rotY.A);
 	float new_length = vecLength(vec);
 	roughly_equals(original_length, new_length);
 	struct vector expected = (struct vector){0.0f, 0.0f, -1.0f};
@@ -116,7 +116,7 @@ bool transform_rotate_Z() {
 	struct transform rotZ = newTransformRotateZ(toRadians(90.0f));
 	struct vector vec = (struct vector){0.0f, 1.0f, 0.0f};
 	float original_length = vecLength(vec);
-	transformPoint(&vec, rotZ.A.mtx);
+	transformPoint(&vec, rotZ.A);
 	float new_length = vecLength(vec);
 	roughly_equals(original_length, new_length);
 	struct vector expected = (struct vector){-1.0f, 0.0f, 0.0f};
@@ -130,7 +130,7 @@ bool transform_translate_X() {
 	struct vector vec = (struct vector){-10.0f, 0.0f, 0.0f};
 	
 	struct transform tr = newTransformTranslate(1.0f, 0.0f, 0.0f);
-	transformPoint(&vec, tr.A.mtx);
+	transformPoint(&vec, tr.A);
 	test_assert(vecEquals(vec, (struct vector){-9.0f, 0.0f, 0.0f}));
 	
 	return true;
@@ -140,7 +140,7 @@ bool transform_translate_Y() {
 	struct vector vec = (struct vector){0.0f, -10.0f, 0.0f};
 	
 	struct transform tr = newTransformTranslate(0.0f, 1.0f, 0.0f);
-	transformPoint(&vec, tr.A.mtx);
+	transformPoint(&vec, tr.A);
 	test_assert(vecEquals(vec, (struct vector){0.0f, -9.0f, 0.0f}));
 	
 	return true;
@@ -150,7 +150,7 @@ bool transform_translate_Z() {
 	struct vector vec = (struct vector){0.0f, 0.0f, -10.0f};
 	
 	struct transform tr = newTransformTranslate(0.0f, 0.0f, 1.0f);
-	transformPoint(&vec, tr.A.mtx);
+	transformPoint(&vec, tr.A);
 	test_assert(vecEquals(vec, (struct vector){0.0f, 0.0f, -9.0f}));
 	
 	return true;
@@ -160,7 +160,7 @@ bool transform_translate_all() {
 	struct vector vec = (struct vector){0.0f, 0.0f, 0.0f};
 	
 	struct transform tr = newTransformTranslate(-1.0f, -10.0f, -100.0f);
-	transformPoint(&vec, tr.A.mtx);
+	transformPoint(&vec, tr.A);
 	test_assert(vecEquals(vec, (struct vector){-1.0f, -10.0f, -100.0f}));
 	
 	return true;
@@ -172,7 +172,7 @@ bool transform_scale_X() {
 	struct vector vec = (struct vector){-10.0f, 0.0f, 0.0f};
 	
 	struct transform tr = newTransformScale(3.0f, 1.0f, 1.0f);
-	transformPoint(&vec, tr.A.mtx);
+	transformPoint(&vec, tr.A);
 	test_assert(vecEquals(vec, (struct vector){-30.0f, 0.0f, 0.0f}));
 	
 	return true;
@@ -182,7 +182,7 @@ bool transform_scale_Y() {
 	struct vector vec = (struct vector){0.0f, -10.0f, 0.0f};
 	
 	struct transform tr = newTransformScale(1.0f, 3.0f, 1.0f);
-	transformPoint(&vec, tr.A.mtx);
+	transformPoint(&vec, tr.A);
 	test_assert(vecEquals(vec, (struct vector){0.0f, -30.0f, 0.0f}));
 	
 	return true;
@@ -192,7 +192,7 @@ bool transform_scale_Z() {
 	struct vector vec = (struct vector){0.0f, 0.0f, -10.0f};
 	
 	struct transform tr = newTransformScale(1.0f, 1.0f, 3.0f);
-	transformPoint(&vec, tr.A.mtx);
+	transformPoint(&vec, tr.A);
 	test_assert(vecEquals(vec, (struct vector){0.0f, 0.0f, -30.0f}));
 	
 	return true;
@@ -202,7 +202,7 @@ bool transform_scale_all() {
 	struct vector vec = (struct vector){1.0f, 2.0f, 3.0f};
 	
 	struct transform tr = newTransformScaleUniform(3.0f);
-	transformPoint(&vec, tr.A.mtx);
+	transformPoint(&vec, tr.A);
 	test_assert(vecEquals(vec, (struct vector){3.0f, 6.0f, 9.0f}));
 	
 	return true;
@@ -215,12 +215,12 @@ bool transform_inverse() {
 											   0, 2, 0, 0,
 											   2, 0, 0, 0
 											);
-	struct matrix4x4 inv = inverseMatrix(normal.mtx);
+	struct matrix4x4 inv = inverseMatrix(normal);
 	struct matrix4x4 inv_correct = matrixFromParams(0, 0, 0, 0.5,
 													0, 0, 0.5, 0,
 													0, 1, 0, 0,
 													1, 0, 0, 0);
-	test_assert(areMatricesEqual(inv.mtx, inv_correct.mtx));
+	test_assert(areMatricesEqual(inv, inv_correct));
 	return true;
 }
 
@@ -236,9 +236,9 @@ bool matrix_equal() {
 										  1, 0, 1, 0,
 										  0, 1, 0, 2);
 	
-	test_assert(!areMatricesEqual(A.mtx, B.mtx));
-	test_assert(areMatricesEqual(A.mtx, A.mtx));
-	test_assert(areMatricesEqual(B.mtx, B.mtx));
+	test_assert(!areMatricesEqual(A, B));
+	test_assert(areMatricesEqual(A, A));
+	test_assert(areMatricesEqual(B, B));
 	
 	return true;
 }
