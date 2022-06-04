@@ -246,7 +246,6 @@ void *networkRenderThread(void *arg) {
 			cJSON *avg = cJSON_GetObjectItem(request, "avgPerPass");
 			if (cJSON_IsNumber(avg)) state->avgSampleTime = avg->valuedouble;
 		} else {
-			if (!request) break;
 			cJSON *response = processClientRequest(state, request);
 			if (containsError(response)) {
 				char *err = cJSON_PrintUnformatted(response);
