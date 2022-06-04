@@ -53,6 +53,8 @@ const struct bsdfNode *parseBsdfNode(struct renderer *r, const cJSON *node) {
 		return newTransparent(w, color);
 	} else if (stringEquals(type->valuestring, "emissive")) {
 		return newEmission(w, color, strength);
+	} else if (stringEquals(type->valuestring, "translucent")) {
+		return newTranslucent(w, color);
 	}
 
 	logr(warning, "Failed to parse node. Here's a dump:\n");

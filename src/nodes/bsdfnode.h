@@ -39,6 +39,7 @@ struct bsdfNode {
 #include "shaders/background.h"
 #include "shaders/emission.h"
 #include "shaders/isotropic.h"
+#include "shaders/translucent.h"
 
 const struct bsdfNode *warningBsdf(const struct world *world);
 const struct bsdfNode *parseBsdfNode(struct renderer *r, const cJSON *node);
