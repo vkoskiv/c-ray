@@ -108,7 +108,7 @@ void initDisplay(bool fullscreen, bool borderless, int width, int height, float 
 	if (borderless) flags |= SDL_WINDOW_BORDERLESS;
 	flags |= SDL_WINDOW_RESIZABLE;
 	
-	gdisplay->window = SDL_CreateWindow("C-ray © VKoskiv 2015-2021",
+	gdisplay->window = SDL_CreateWindow("c-ray © vkoskiv 2015-2022",
 								 SDL_WINDOWPOS_UNDEFINED,
 								 SDL_WINDOWPOS_UNDEFINED,
 								 width * scale,

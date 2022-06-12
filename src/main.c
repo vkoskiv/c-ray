@@ -11,7 +11,7 @@
 #include "c-ray.h"
 
 int main(int argc, char *argv[]) {
-	cr_log("C-ray v%s%s [%.8s], © 2015-2022 Valtteri Koskivuori\n", cr_get_version(), is_debug() ? "D" : "", cr_get_git_hash());
+	cr_log("c-ray v%s%s [%.8s], © 2015-2022 Valtteri Koskivuori\n", cr_get_version(), is_debug() ? "D" : "", cr_get_git_hash());
 	cr_initialize();
 	cr_parse_args(argc, argv);
 	struct renderer *renderer = cr_new_renderer();
