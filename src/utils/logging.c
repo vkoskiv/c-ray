@@ -71,14 +71,14 @@ void logr(enum logType type, const char *fmt, ...) {
 		printPrefix(type);
 		printDate();
 	}
-	char buf[512];
+	char buf[4096];
 	int ret = 0;
 	va_list vl;
 	va_start(vl, fmt);
 	ret += vsnprintf(buf, sizeof(buf), fmt, vl);
 	va_end(vl);
 	printf("%s", buf);
-	if (ret > 512) {
+	if (ret > 4096) {
 		// Overflowed, indicate that.
 		printf("...\n");
 	}
