@@ -300,9 +300,9 @@ static void *handleClientSync(void *arg) {
 	response = NULL;
 	
 	// Send the scene & assets
-	logr(debug, "Sending scene data\n");
 	cJSON *scene = cJSON_CreateObject();
 	cJSON_AddStringToObject(scene, "action", "loadScene");
+	logr(debug, "Syncing state: %s\n", params->renderer->sceneCache);
 	cJSON *data = cJSON_Parse(params->renderer->sceneCache);
 	cJSON_AddItemToObject(scene, "data", data);
 	cJSON_AddItemToObject(scene, "files", cJSON_Parse(params->assetCache));
