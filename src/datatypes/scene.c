@@ -129,40 +129,55 @@ int loadScene(struct renderer *r, char *input) {
 			break;
 	}
 	
+	// This is where we prepare a cache of scene data to be sent to worker nodes
+	// We also apply any potential command-line overrides to that cache here as well.
+	// FIXME: This overrides setting should be integrated with scene loading, probably.
 	if (isSet("use_clustering")) {
 		// Stash a cache of scene data here
 		cJSON *cache = cJSON_Parse(input);
 		// Apply overrides to the cache here
 		if (isSet("samples_override")) {
 			cJSON *renderer = cJSON_GetObjectItem(cache, "renderer");
-			if (cJSON_IsObject(renderer) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "samples"))) {
+			if (cJSON_IsObject(renderer)) {
 				int samples = intPref("samples_override");
 				logr(debug, "Overriding cache sample count to %i\n", samples);
-				cJSON_ReplaceItemInObject(renderer, "samples", cJSON_CreateNumber(samples));
+				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "samples"))) {
+					cJSON_ReplaceItemInObject(renderer, "samples", cJSON_CreateNumber(samples));
+				} else {
+					cJSON_AddItemToObject(renderer, "samples", cJSON_CreateNumber(samples));
+				}
 			}
 		}
 		
 		if (isSet("dims_override")) {
 			cJSON *renderer = cJSON_GetObjectItem(cache, "renderer");
-			int width = intPref("dims_width");
-			int height = intPref("dims_height");
 			if (cJSON_IsObject(renderer)) {
+				int width = intPref("dims_width");
+				int height = intPref("dims_height");
 				logr(info, "Overriding cache image dimensions to %ix%i\n", width, height);
-				cJSON_ReplaceItemInObject(renderer, "width", cJSON_CreateNumber(width));
-				cJSON_ReplaceItemInObject(renderer, "height", cJSON_CreateNumber(height));
+				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "width")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "height"))) {
+					cJSON_ReplaceItemInObject(renderer, "width", cJSON_CreateNumber(width));
+					cJSON_ReplaceItemInObject(renderer, "height", cJSON_CreateNumber(height));
+				} else {
+					cJSON_AddItemToObject(renderer, "width", cJSON_CreateNumber(width));
+					cJSON_AddItemToObject(renderer, "height", cJSON_CreateNumber(height));
+				}
 			}
 		}
 		
 		if (isSet("tiledims_override")) {
 			cJSON *renderer = cJSON_GetObjectItem(cache, "renderer");
-			int width = intPref("tile_width");
-			int height = intPref("tile_height");
-			if (cJSON_IsObject(renderer)
-				&& cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileWidth"))
-				&& cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileHeight"))) {
+			if (cJSON_IsObject(renderer)) {
+				int width = intPref("tile_width");
+				int height = intPref("tile_height");
 				logr(info, "Overriding cache tile dimensions to %ix%i\n", width, height);
-				cJSON_ReplaceItemInObject(renderer, "tileWidth", cJSON_CreateNumber(width));
-				cJSON_ReplaceItemInObject(renderer, "tileHeight", cJSON_CreateNumber(height));
+				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileWidth")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileHeight"))) {
+					cJSON_ReplaceItemInObject(renderer, "tileWidth", cJSON_CreateNumber(width));
+					cJSON_ReplaceItemInObject(renderer, "tileHeight", cJSON_CreateNumber(height));
+				} else {
+					cJSON_AddItemToObject(renderer, "tileWidth", cJSON_CreateNumber(width));
+					cJSON_AddItemToObject(renderer, "tileHeight", cJSON_CreateNumber(height));
+				}
 			}
 		}
 
@@ -170,6 +185,7 @@ int loadScene(struct renderer *r, char *input) {
 			cJSON_AddItemToObject(cache, "selected_camera", cJSON_CreateNumber(r->prefs.selected_camera));
 		}
 
+		// Store cache. This is what gets sent to worker nodes.
 		r->sceneCache = cJSON_PrintUnformatted(cache);
 	}
 	
