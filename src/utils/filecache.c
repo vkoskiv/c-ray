@@ -3,7 +3,7 @@
 //  C-Ray
 //
 //  Created by Valtteri Koskivuori on 29/03/2021.
-//  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "filecache.h"
@@ -20,12 +20,16 @@ struct file {
 	void *data;
 };
 
-size_t fileCount = 0;
-struct file *cachedFiles = NULL;
+struct file_cache {
+	size_t file_count;
+	struct file *files;
+};
+
+struct file_cache cache = { 0 };
 
 bool cacheContains(const char *path) {
-	for (size_t i = 0; i < fileCount; ++i) {
-		if (stringEquals(path, cachedFiles[i].path)) {
+	for (size_t i = 0; i < cache.file_count; ++i) {
+		if (stringEquals(path, cache.files[i].path)) {
 			return true;
 		}
 	}
@@ -37,23 +41,23 @@ void cacheFile(const char *path, const void *data, size_t length) {
 		logr(debug, "File %s already cached, skipping.\n", path);
 		return;
 	}
-	cachedFiles = realloc(cachedFiles, ++fileCount * sizeof(*cachedFiles));
+	cache.files = realloc(cache.files, ++cache.file_count * sizeof(*cache.files));
 	struct file file;
 	file.path = stringCopy(path);
 	file.data = malloc(length);
 	file.size = length;
 	memcpy(file.data, data, length);
-	cachedFiles[fileCount - 1] = file;
+	cache.files[cache.file_count - 1] = file;
 	logr(debug, "Cached file %s\n", path);
 }
 
 void *loadFromCache(const char *path, size_t *length) {
-	for (size_t i = 0; i < fileCount; ++i) {
-		if (stringEquals(path, cachedFiles[i].path)) {
-			if (length) *length = cachedFiles[i].size;
-			char *ret = malloc(cachedFiles[i].size + 1);
-			memcpy(ret, cachedFiles[i].data, cachedFiles[i].size);
-			ret[cachedFiles[i].size] = 0;
+	for (size_t i = 0; i < cache.file_count; ++i) {
+		if (stringEquals(path, cache.files[i].path)) {
+			if (length) *length = cache.files[i].size;
+			char *ret = malloc(cache.files[i].size + 1);
+			memcpy(ret, cache.files[i].data, cache.files[i].size);
+			ret[cache.files[i].size] = 0;
 			logr(debug, "Retrieving file %s\n", path);
 			return ret;
 		}
@@ -64,10 +68,10 @@ void *loadFromCache(const char *path, size_t *length) {
 
 char *encodeFileCache(void) {
 	cJSON *fileCache = cJSON_CreateArray();
-	for (size_t i = 0; i < fileCount; ++i) {
+	for (size_t i = 0; i < cache.file_count; ++i) {
 		cJSON *record = cJSON_CreateObject();
-		char *encoded = b64encode(cachedFiles[i].data, cachedFiles[i].size);
-		cJSON_AddStringToObject(record, "path", cachedFiles[i].path);
+		char *encoded = b64encode(cache.files[i].data, cache.files[i].size);
+		cJSON_AddStringToObject(record, "path", cache.files[i].path);
 		cJSON_AddStringToObject(record, "data", encoded);
 		free(encoded);
 		cJSON_AddItemToArray(fileCache, record);
@@ -93,12 +97,12 @@ void decodeFileCache(const char *data) {
 }
 
 void destroyFileCache() {
-	for (size_t i = 0; i < fileCount; ++i) {
-		if (cachedFiles[i].data) free(cachedFiles[i].data);
-		if (cachedFiles[i].path) free(cachedFiles[i].path);
+	for (size_t i = 0; i < cache.file_count; ++i) {
+		if (cache.files[i].data) free(cache.files[i].data);
+		if (cache.files[i].path) free(cache.files[i].path);
 	}
-	free(cachedFiles);
-	cachedFiles = NULL;
-	fileCount = 0;
+	free(cache.files);
+	cache.files = NULL;
+	cache.file_count = 0;
 	logr(debug, "Destroyed cache\n");
 }
