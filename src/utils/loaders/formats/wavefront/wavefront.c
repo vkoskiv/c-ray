@@ -126,9 +126,9 @@ static void fixIndices(struct poly *p, size_t totalVertices, size_t totalTexCoor
 	}
 }
 
-struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
+struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct file_cache *cache) {
 	size_t bytes = 0;
-	char *rawText = loadFile(filePath, &bytes);
+	char *rawText = loadFile(filePath, &bytes, cache);
 	if (!rawText) return NULL;
 	logr(debug, "Loading OBJ at %s\n", filePath);
 	textBuffer *file = newTextBuffer(rawText);
@@ -213,7 +213,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount) {
 		} else if (stringEquals(first, "mtllib")) {
 			char *mtlFilePath = stringConcat(assetPath, peekNextToken(line));
 			windowsFixPath(mtlFilePath);
-			materialSet = parseMTLFile(mtlFilePath, &materialCount);
+			materialSet = parseMTLFile(mtlFilePath, &materialCount, cache);
 			free(mtlFilePath);
 		} else {
 			char *fileName = getFileName(filePath);

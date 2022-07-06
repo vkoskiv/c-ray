@@ -673,11 +673,11 @@ static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *down = cJSON_GetObjectItem(data, "down");
 	const cJSON *up = cJSON_GetObjectItem(data, "up");
 	const cJSON *hdr = cJSON_GetObjectItem(data, "hdr");
-	
+
 	if (cJSON_IsString(hdr)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, hdr->valuestring);
-		if (isValidFile(fullPath)) {
-			r->scene->background = newBackground(r->scene, newImageTexture(r->scene, load_texture(fullPath, &r->scene->nodePool), 0), NULL);
+		if (isValidFile(fullPath, r->state.file_cache)) {
+			r->scene->background = newBackground(r->scene, newImageTexture(r->scene, load_texture(fullPath, &r->scene->nodePool, r->state.file_cache), 0), NULL);
 			free(fullPath);
 			return;
 		}
@@ -842,7 +842,7 @@ static size_t parse_mesh(struct renderer *r, const cJSON *data, int idx, int mes
 	size_t valid_mesh_count = 0;
 	struct timeval timer;
 	startTimer(&timer);
-	struct mesh *meshes = load_meshes_from_file(fullPath, &valid_mesh_count);
+	struct mesh *meshes = load_meshes_from_file(fullPath, &valid_mesh_count, r->state.file_cache);
 	long us = getUs(timer);
 	free(fullPath);
 	if (!meshes) return 0;

@@ -14,7 +14,7 @@ time_t texture_load(void) {
 	struct timeval test;
 	startTimer(&test);
 	
-	struct texture *new = load_texture("input/", NULL);
+	struct texture *new = load_texture("input/", NULL, NULL);
 	
 	ASSERT(new);
 	

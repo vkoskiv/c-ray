@@ -8,4 +8,6 @@
 
 #pragma once
 
-struct mesh *parseWavefront(const char *filePath, size_t *meshCount);
+struct file_cache;
+
+struct mesh *parseWavefront(const char *filePath, size_t *meshCount, struct file_cache *cache);

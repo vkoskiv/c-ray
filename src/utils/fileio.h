@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "filecache.h"
 
 enum fileType {
 	unknown,
@@ -35,7 +36,8 @@ char *humanFileSize(unsigned long bytes);
 /// Load a file from a given path
 /// @param fileName Path to file
 /// @param bytes Will be set to amount of bytes read, if provided.
-char *loadFile(const char *filePath, size_t *bytes);
+/// @param cache Optional cache, will be queried first before loading from disk.
+char *loadFile(const char *filePath, size_t *bytes, struct file_cache *cache);
 
 // This is a more robust file writing function, that will seek alternate directories
 // if the specified one wasn't writeable.
@@ -43,7 +45,7 @@ void writeFile(const unsigned char *buf, size_t bufsize, const char *filePath);
 
 /// Returns true if the file at the given path exists and is readable.
 /// @param path Path to check
-bool isValidFile(char *path);
+bool isValidFile(char *path, struct file_cache *cache);
 
 /**
  Extract the filename from a given file path

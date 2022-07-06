@@ -389,7 +389,7 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 		return 0;
 	}
 	
-	char *assetCache = encodeFileCache();
+	char *assetCache = cache_encode(r->state.file_cache);
 	
 	size_t transfer_bytes = strlen(assetCache) + strlen(r->sceneCache);
 	char *transfer_size = humanFileSize(transfer_bytes);

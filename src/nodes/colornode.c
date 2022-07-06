@@ -41,7 +41,7 @@ const struct colorNode *parseTextureNode(struct renderer *r, const cJSON *node) 
 		// No options provided, go with defaults.
 		char *fullPath = stringConcat(r->prefs.assetPath, node->valuestring);
 		windowsFixPath(fullPath);
-		const struct colorNode *node = newImageTexture(w, load_texture(fullPath, &w->nodePool), options);
+		const struct colorNode *node = newImageTexture(w, load_texture(fullPath, &w->nodePool, r->state.file_cache), options);
 		free(fullPath);
 		return node;
 	}
@@ -70,7 +70,7 @@ const struct colorNode *parseTextureNode(struct renderer *r, const cJSON *node) 
 	if (cJSON_IsString(path)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, path->valuestring);
 		windowsFixPath(fullPath);
-		const struct colorNode *node = newImageTexture(w, load_texture(fullPath, &w->nodePool), options);
+		const struct colorNode *node = newImageTexture(w, load_texture(fullPath, &w->nodePool, r->state.file_cache), options);
 		free(fullPath);
 		return node;
 	}

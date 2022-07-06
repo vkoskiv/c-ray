@@ -70,12 +70,12 @@ char *parse_buffer(const cJSON *data) {
 		return buffer;
 	} else {
 		// Otherwise just try to load the specified file
-		if (!isValidFile(uri_string)) {
+		if (!isValidFile(uri_string, NULL)) { //FIXME cache
 			logr(warning, "Invalid buffer while parsing glTF. File %s not found.\n", uri_string);
 			return NULL;
 		}
 		size_t loaded_bytes = 0;
-		buffer = loadFile(uri_string, &loaded_bytes);
+		buffer = loadFile(uri_string, &loaded_bytes, NULL); //FIXME cache
 		if (loaded_bytes != expected_bytes) {
 			logr(warning, "Invalid buffer while parsing glTF. Loaded file %s length %lu, expected %lu", uri_string, loaded_bytes, expected_bytes);
 		}
@@ -168,7 +168,7 @@ struct texture *parse_images(const cJSON *data, size_t *amount, const struct buf
 			const cJSON *uri = cJSON_GetObjectItem(element, "uri");
 			if (!cJSON_IsString(uri)) break;
 			char *uri_string = uri->valuestring;
-			images[i] = *load_texture(uri_string, NULL);
+			images[i] = *load_texture(uri_string, NULL, NULL); //FIXME cache
 		} else {
 			const cJSON *buffer_view = cJSON_GetObjectItem(element, "bufferView");
 			const cJSON *mime_type = cJSON_GetObjectItem(element, "mimeType");

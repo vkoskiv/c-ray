@@ -11,6 +11,7 @@
 #include "../datatypes/tile.h"
 #include "../datatypes/image/imagefile.h"
 #include "../utils/timer.h"
+#include "../utils/filecache.h"
 
 struct renderThreadState {
 	int thread_num;
@@ -52,6 +53,7 @@ struct state {
 	struct renderClient *clients;
 	size_t clientCount;
 	struct timeval timer;
+	struct file_cache *file_cache; // A file cache for network render nodes. NULL if only local render.
 	
 	struct crMutex *tileMutex;
 };

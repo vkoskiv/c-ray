@@ -72,7 +72,8 @@ static cJSON *receiveScene(const cJSON *json) {
 	if (!fileCache) return errorResponse("No file cache found");
 	char *data = cJSON_PrintUnformatted(fileCache);
 	//FIXME: This is an awkward API, why not pass cJSON directly?
-	decodeFileCache(data);
+	struct file_cache *cache = calloc(1, sizeof(*cache));
+	cache_decode(cache, data);
 	free(data);
 	
 	// And then the scene
@@ -80,6 +81,7 @@ static cJSON *receiveScene(const cJSON *json) {
 	char *sceneText = cJSON_PrintUnformatted(scene);
 	logr(info, "Received scene description\n");
 	g_worker_renderer = newRenderer();
+	g_worker_renderer->state.file_cache = cache;
 	g_worker_socket_mutex = createMutex();
 	cJSON *assetPathJson = cJSON_GetObjectItem(json, "assetPath");
 	g_worker_renderer->prefs.assetPath = stringCopy(assetPathJson->valuestring);
@@ -87,6 +89,7 @@ static cJSON *receiveScene(const cJSON *json) {
 		return errorResponse("Scene parsing error");
 	}
 	free(sceneText);
+	cache_destroy(cache);
 	cJSON *resp = newAction("ready");
 	
 	// Stash in our capabilities here
@@ -326,7 +329,6 @@ static cJSON *processCommand(int connectionSocket, const cJSON *json) {
 static void workerCleanup() {
 	destroyRenderer(g_worker_renderer);
 	g_worker_renderer = NULL;
-	destroyFileCache();
 }
 
 bool isShutdown(cJSON *json) {

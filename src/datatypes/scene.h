@@ -12,6 +12,7 @@
 
 struct renderer;
 struct hashtable;
+struct file_cache;
 
 struct world {
 	//Optional environment map / ambient color
@@ -40,6 +41,6 @@ struct world {
 	struct hashtable *nodeTable;
 };
 
-int loadScene(struct renderer *r, char *input);
+int loadScene(struct renderer *r, const char *input);
 
 void destroyScene(struct world *scene);

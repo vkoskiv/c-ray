@@ -76,11 +76,11 @@ struct texture *load_texture_from_buffer(const unsigned char *buffer, const unsi
 	return new;
 }
 
-struct texture *load_texture(char *filePath, struct block **pool) {
+struct texture *load_texture(char *filePath, struct block **pool, struct file_cache *cache) {
 	size_t len = 0;
 	//Handle the trailing newline here
 	filePath[strcspn(filePath, "\n")] = 0;
-	unsigned char *file = (unsigned char*)loadFile(filePath, &len);
+	unsigned char *file = (unsigned char*)loadFile(filePath, &len, cache);
 	if (!file) return NULL;
 	
 	enum fileType type = guessFileType(filePath);

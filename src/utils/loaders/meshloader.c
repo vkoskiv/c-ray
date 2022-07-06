@@ -13,10 +13,10 @@
 #include "../fileio.h"
 #include "../logging.h"
 
-struct mesh *load_meshes_from_file(const char *filePath, size_t *meshCount) {
+struct mesh *load_meshes_from_file(const char *filePath, size_t *meshCount, struct file_cache *cache) {
 	switch (guessFileType(filePath)) {
 		case obj:
-			return parseWavefront(filePath, meshCount);
+			return parseWavefront(filePath, meshCount, cache);
 		default:
 			logr(warning, "%s: Unknown file type, skipping.\n", filePath);
 			if (meshCount) *meshCount = 0;

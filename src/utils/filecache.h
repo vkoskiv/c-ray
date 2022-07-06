@@ -11,14 +11,25 @@
 #include <sys/types.h>
 #include <stdbool.h>
 
-bool cacheContains(const char *path);
+struct file {
+	char *path;
+	size_t size;
+	void *data;
+};
 
-void cacheFile(const char *path, const void *data, size_t length);
+struct file_cache {
+	size_t file_count;
+	struct file *files;
+};
 
-void *loadFromCache(const char *path, size_t *length);
+bool cache_contains(struct file_cache *cache, const char *path);
 
-char *encodeFileCache(void);
+void cache_store(struct file_cache *cache, const char *path, const void *data, size_t length);
 
-void decodeFileCache(const char *data);
+void *cache_load(struct file_cache *cache, const char *path, size_t *length);
 
-void destroyFileCache(void);
+char *cache_encode(struct file_cache *cache);
+
+void cache_decode(struct file_cache *cache, const char *data);
+
+void cache_destroy(struct file_cache *cache);

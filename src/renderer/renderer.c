@@ -366,6 +366,7 @@ struct renderer *newRenderer() {
 	r->state.finishedPasses = 1;
 	
 	r->state.tileMutex = createMutex();
+	if (isSet("use_clustering")) r->state.file_cache = calloc(1, sizeof(struct file_cache));
 
 	r->scene = calloc(1, sizeof(*r->scene));
 	r->scene->nodePool = newBlock(NULL, 1024);
@@ -382,6 +383,10 @@ void destroyRenderer(struct renderer *r) {
 		free(r->state.threads);
 		free(r->state.threadStates);
 		free(r->state.tileMutex);
+		if (r->state.file_cache) {
+			cache_destroy(r->state.file_cache);
+			free(r->state.file_cache);
+		}
 		free(r->prefs.imgFileName);
 		free(r->prefs.imgFilePath);
 		free(r->prefs.assetPath);

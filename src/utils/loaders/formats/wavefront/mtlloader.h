@@ -8,4 +8,6 @@
 
 #pragma once
 
-struct material *parseMTLFile(const char *filePath, int *mtlCount);
+struct file_cache;
+
+struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_cache *cache);

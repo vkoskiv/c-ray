@@ -84,10 +84,10 @@ void parseArgs(int argc, char **argv) {
 		}
 		alternatePath = stringConcat(argv[i], ".json");
 		
-		if (isValidFile(argv[i]) && !inputFileSet) {
+		if (isValidFile(argv[i], NULL) && !inputFileSet) {
 			setDatabaseString(g_options, "inputFile", argv[i]);
 			inputFileSet = true;
-		} else if (isValidFile(alternatePath) && !inputFileSet) {
+		} else if (isValidFile(alternatePath, NULL) && !inputFileSet) {
 			setDatabaseString(g_options, "inputFile", alternatePath);
 			inputFileSet = true;
 		}

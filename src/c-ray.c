@@ -103,7 +103,7 @@ void cr_write_image(struct renderer *r) {
 }
 
 char *cr_read_from_file(size_t *bytes) {
-	return loadFile(pathArg(), bytes);
+	return loadFile(pathArg(), bytes, NULL);
 }
 
 char *cr_read_from_stdin(size_t *bytes) {
@@ -123,7 +123,7 @@ void cr_destroy_renderer(struct renderer *r) {
 
 int cr_load_scene_from_file(struct renderer *r, char *file_path) {
 	size_t bytes = 0;
-	char *input = loadFile(file_path, &bytes);
+	char *input = loadFile(file_path, &bytes, NULL);
 	if (input) {
 		if (loadScene(r, file_path) != 0) {
 			free(input);
@@ -243,7 +243,7 @@ void cr_start_renderer(struct renderer *r) {
 		r->state.clients = syncWithClients(r, &r->state.clientCount);
 		free(r->sceneCache);
 		r->sceneCache = NULL;
-		destroyFileCache();
+		cache_destroy(r->state.file_cache);
 	}
 	struct camera cam = r->scene->cameras[r->prefs.selected_camera];
 	initDisplay(r->prefs.fullscreen, r->prefs.borderless, cam.width, cam.height, r->prefs.scale);

@@ -36,9 +36,9 @@ static struct color parse_color(lineBuffer *line) {
 	return (struct color){ atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line)), 1.0f };
 }
 
-struct material *parseMTLFile(const char *filePath, int *mtlCount) {
+struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_cache *cache) {
 	size_t bytes = 0;
-	char *rawText = loadFile(filePath, &bytes);
+	char *rawText = loadFile(filePath, &bytes, cache);
 	if (!rawText) return NULL;
 	logr(debug, "Loading MTL at %s\n", filePath);
 	textBuffer *file = newTextBuffer(rawText);
@@ -93,17 +93,17 @@ struct material *parseMTLFile(const char *filePath, int *mtlCount) {
 		} else if (stringEquals(first, "map_Kd") || stringEquals(first, "map_Ka")) {
 			char *path = stringConcat(assetPath, nextToken(line));
 			windowsFixPath(path);
-			current->texture = load_texture(path, NULL);
+			current->texture = load_texture(path, NULL, cache);
 			free(path);
 		} else if (stringEquals(first, "norm") || stringEquals(first, "bump") || stringEquals(first, "map_bump")) {
 			char *path = stringConcat(assetPath, nextToken(line));
 			windowsFixPath(path);
-			current->normalMap = load_texture(path, NULL);
+			current->normalMap = load_texture(path, NULL, cache);
 			free(path);
 		} else if (stringEquals(first, "map_Ns")) {
 			char *path = stringConcat(assetPath, nextToken(line));
 			windowsFixPath(path);
-			current->specularMap = load_texture(path, NULL);
+			current->specularMap = load_texture(path, NULL, cache);
 			free(path);
 		} else {
 			char *fileName = getFileName(filePath);
