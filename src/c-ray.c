@@ -245,6 +245,10 @@ void cr_start_renderer(struct renderer *r) {
 		r->sceneCache = NULL;
 		cache_destroy(r->state.file_cache);
 	}
+	if (!r->state.clients && r->prefs.threadCount == 0) {
+		logr(warning, "You specified 0 local threads, and no network clients were found. Nothing to do.\n");
+		return;
+	}
 	struct camera cam = r->scene->cameras[r->prefs.selected_camera];
 	initDisplay(r->prefs.fullscreen, r->prefs.borderless, cam.width, cam.height, r->prefs.scale);
 	startTimer(&r->state.timer);
