@@ -10,10 +10,10 @@
 
 //Platform-agnostic mutexes
 
-struct crMutex;
+struct cr_mutex;
 
-struct crMutex *createMutex(void);
+struct cr_mutex *mutex_create(void);
 
-void lockMutex(struct crMutex *m);
+void mutex_lock(struct cr_mutex *m);
 
-void releaseMutex(struct crMutex *m);
+void mutex_release(struct cr_mutex *m);

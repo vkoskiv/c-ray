@@ -365,7 +365,7 @@ struct renderer *newRenderer() {
 	r->state.timeSampleCount = 1;
 	r->state.finishedPasses = 1;
 	
-	r->state.tileMutex = createMutex();
+	r->state.tileMutex = mutex_create();
 	if (isSet("use_clustering")) r->state.file_cache = calloc(1, sizeof(struct file_cache));
 
 	r->scene = calloc(1, sizeof(*r->scene));

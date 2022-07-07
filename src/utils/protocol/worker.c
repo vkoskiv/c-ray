@@ -37,7 +37,7 @@
 #include <inttypes.h>
 
 struct renderer *g_worker_renderer = NULL;
-struct crMutex *g_worker_socket_mutex = NULL;
+struct cr_mutex *g_worker_socket_mutex = NULL;
 static bool g_running = false;
 
 struct command workerCommands[] = {
@@ -49,7 +49,7 @@ struct command workerCommands[] = {
 struct workerThreadState {
 	int thread_num;
 	int connectionSocket;
-	struct crMutex *socketMutex;
+	struct cr_mutex *socketMutex;
 	struct camera *cam;
 	struct renderer *renderer;
 	bool threadComplete;
@@ -82,7 +82,7 @@ static cJSON *receiveScene(const cJSON *json) {
 	logr(info, "Received scene description\n");
 	g_worker_renderer = newRenderer();
 	g_worker_renderer->state.file_cache = cache;
-	g_worker_socket_mutex = createMutex();
+	g_worker_socket_mutex = mutex_create();
 	cJSON *assetPathJson = cJSON_GetObjectItem(json, "assetPath");
 	g_worker_renderer->prefs.assetPath = stringCopy(assetPathJson->valuestring);
 	if (loadScene(g_worker_renderer, sceneText)) {
@@ -136,12 +136,12 @@ static void *workerThread(void *arg) {
 	struct workerThreadState *threadState = (struct workerThreadState *)threadUserData(arg);
 	struct renderer *r = threadState->renderer;
 	int sock = threadState->connectionSocket;
-	struct crMutex *sockMutex = threadState->socketMutex;
+	struct cr_mutex *sockMutex = threadState->socketMutex;
 	
 	//Fetch initial task
-	lockMutex(sockMutex);
+	mutex_lock(sockMutex);
 	struct renderTile tile = getWork(sock);
-	releaseMutex(sockMutex);
+	mutex_release(sockMutex);
 	struct texture *tileBuffer = newTexture(char_p, tile.width, tile.height, 3);
 	sampler *sampler = newSampler();
 
@@ -192,21 +192,21 @@ static void *workerThread(void *arg) {
 			threadState->avgSampleTime = totalUsec / samples;
 		}
 		
-		lockMutex(sockMutex);
+		mutex_lock(sockMutex);
 		if (!submitWork(sock, tileBuffer, tile)) {
-			releaseMutex(sockMutex);
+			mutex_release(sockMutex);
 			break;
 		}
 		cJSON *resp = readJSON(sock);
 		if (!resp || !stringEquals(cJSON_GetObjectItem(resp, "action")->valuestring, "ok")) {
-			releaseMutex(sockMutex);
+			mutex_release(sockMutex);
 			break;
 		}
-		releaseMutex(sockMutex);
+		mutex_release(sockMutex);
 		threadState->completedSamples = 1;
-		lockMutex(sockMutex);
+		mutex_lock(sockMutex);
 		tile = getWork(sock);
-		releaseMutex(sockMutex);
+		mutex_release(sockMutex);
 		if (tileBuffer->width != tile.width || tileBuffer->height != tile.height) {
 			destroyTexture(tileBuffer);
 			tileBuffer = newTexture(char_p, tile.width, tile.height, 3);
@@ -273,10 +273,10 @@ static cJSON *startRender(int connectionSocket) {
 			cJSON *stats = newAction("stats");
 			cJSON_AddNumberToObject(stats, "completed", completedSamples);
 			cJSON_AddNumberToObject(stats, "avgPerPass", avgTimePerTilePass);
-			lockMutex(g_worker_socket_mutex);
+			mutex_lock(g_worker_socket_mutex);
 			logr(debug, "Sending stats update for: %"PRIu64", %.2f\n", completedSamples, avgTimePerTilePass);
 			sendJSON(connectionSocket, stats);
-			releaseMutex(g_worker_socket_mutex);
+			mutex_release(g_worker_socket_mutex);
 			pauser = 0;
 		}
 		pauser++;

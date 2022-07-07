@@ -55,7 +55,7 @@ struct state {
 	struct timeval timer;
 	struct file_cache *file_cache; // A file cache for network render nodes. NULL if only local render.
 	
-	struct crMutex *tileMutex;
+	struct cr_mutex *tileMutex;
 };
 
 /// Preferences data (Set by user)

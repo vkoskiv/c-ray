@@ -15,7 +15,7 @@
 #include <pthread.h>
 #endif
 
-struct crMutex {
+struct cr_mutex {
 	#ifdef WINDOWS
 		HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
 	#else
@@ -23,8 +23,8 @@ struct crMutex {
 	#endif
 };
 
-struct crMutex *createMutex() {
-	struct crMutex *new = calloc(1, sizeof(*new));
+struct cr_mutex *mutex_create() {
+	struct cr_mutex *new = calloc(1, sizeof(*new));
 #ifdef WINDOWS
 	new->tileMutex = CreateMutex(NULL, FALSE, NULL);
 #else
@@ -33,7 +33,7 @@ struct crMutex *createMutex() {
 	return new;
 }
 
-void lockMutex(struct crMutex *m) {
+void mutex_lock(struct cr_mutex *m) {
 #ifdef WINDOWS
 	WaitForSingleObject(m->tileMutex, INFINITE);
 #else
@@ -41,7 +41,7 @@ void lockMutex(struct crMutex *m) {
 #endif
 }
 
-void releaseMutex(struct crMutex *m) {
+void mutex_release(struct cr_mutex *m) {
 #ifdef WINDOWS
 	ReleaseMutex(m->tileMutex);
 #else
