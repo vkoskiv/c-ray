@@ -386,7 +386,8 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	struct renderClient *clients = buildClientList(&clientCount);
 	if (clientCount < 1) {
 		logr(warning, "No clients found, rendering solo.\n");
-		return 0;
+		if (count) *count = 0;
+		return NULL;
 	}
 	
 	char *assetCache = cache_encode(r->state.file_cache);
