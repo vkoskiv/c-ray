@@ -427,7 +427,7 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 			if (!params[i].done) all_stopped = false;
 		}
 		if (all_stopped) break;
-		sleepMSec(10);
+		timer_sleep_ms(10);
 		if (++loops == 10) {
 			loops = 0;
 			printProgressBars(params, clientCount);

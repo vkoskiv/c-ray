@@ -32,17 +32,17 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp) {
 #endif
 
 //Timer funcs
-void startTimer(struct timeval *timer) {
+void timer_start(struct timeval *timer) {
 	gettimeofday(timer, NULL);
 }
 
-long getMs(struct timeval timer) {
+long timer_get_ms(struct timeval timer) {
 	struct timeval tmr2;
 	gettimeofday(&tmr2, NULL);
 	return 1000 * (tmr2.tv_sec - timer.tv_sec) + ((tmr2.tv_usec - timer.tv_usec) / 1000);
 }
 
-long getUs(struct timeval timer) {
+long timer_get_us(struct timeval timer) {
 	struct timeval tmr2;
 	gettimeofday(&tmr2, NULL);
 	return ((tmr2.tv_sec - timer.tv_sec) * 1000000) + (tmr2.tv_usec - timer.tv_usec);
@@ -58,7 +58,7 @@ long getUs(struct timeval timer) {
  
  @param ms Milliseconds to sleep for
  */
-void sleepMSec(int ms) {
+void timer_sleep_ms(int ms) {
 #ifdef WINDOWS
 	Sleep(ms);
 #elif __APPLE__

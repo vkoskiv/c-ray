@@ -16,10 +16,10 @@ typedef struct timeval {
 } TIMEVAL, *PTIMEVAL, *LPTIMEVAL;
 #endif
 
-void startTimer(struct timeval *timer);
+void timer_start(struct timeval *timer);
 
-long getMs(struct timeval timer);
+long timer_get_ms(struct timeval timer);
 
-long getUs(struct timeval timer);
+long timer_get_us(struct timeval timer);
 
-void sleepMSec(int ms);
+void timer_sleep_ms(int ms);

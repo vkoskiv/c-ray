@@ -91,7 +91,7 @@ void cr_write_image(struct renderer *r) {
 				.samples = cr_get_sample_count(r),
 				.crayVersion = cr_get_version(),
 				.gitHash = cr_get_git_hash(),
-				.renderTime = getMs(r->state.timer),
+				.renderTime = timer_get_ms(r->state.timer),
 				.threadCount = cr_get_thread_count(r)
 			};
 			writeImage(file);
@@ -251,9 +251,9 @@ void cr_start_renderer(struct renderer *r) {
 	}
 	struct camera cam = r->scene->cameras[r->prefs.selected_camera];
 	initDisplay(r->prefs.fullscreen, r->prefs.borderless, cam.width, cam.height, r->prefs.scale);
-	startTimer(&r->state.timer);
+	timer_start(&r->state.timer);
 	currentImage = renderFrame(r);
-	printDuration(getMs(r->state.timer));
+	printDuration(timer_get_ms(r->state.timer));
 	destroyDisplay();
 }
 

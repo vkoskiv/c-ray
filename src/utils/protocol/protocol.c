@@ -47,11 +47,11 @@ cJSON *readJSON(int socket) {
 	char *recvBuf = NULL;
 	size_t length = 0;
 	struct timeval timer;
-	startTimer(&timer);
+	timer_start(&timer);
 	if (chunkedReceive(socket, &recvBuf, &length) == 0) {
 		return NULL;
 	}
-	long millisecs = getMs(timer);
+	long millisecs = timer_get_ms(timer);
 	char *size = humanFileSize(length);
 	logr(debug, "Received %s, took %lums.\n", size, millisecs);
 	free(size);

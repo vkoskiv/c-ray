@@ -12,13 +12,13 @@
 
 time_t texture_load(void) {
 	struct timeval test;
-	startTimer(&test);
+	timer_start(&test);
 	
 	struct texture *new = load_texture("input/", NULL, NULL);
 	
 	ASSERT(new);
 	
-	time_t us = getUs(test);
+	time_t us = timer_get_us(test);
 	destroyTexture(new);
 	return us;
 }

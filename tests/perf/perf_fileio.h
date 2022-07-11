@@ -10,13 +10,13 @@
 
 time_t fileio_load(void) {
 	struct timeval test;
-	startTimer(&test);
+	timer_start(&test);
 	
 	size_t bytes = 0;
 	char *bigfile = loadFile("input/venusscaled.obj", &bytes, NULL);
 	ASSERT(bigfile);
 	
-	time_t us = getUs(test);
+	time_t us = timer_get_us(test);
 	free(bigfile);
 	return us;
 }

@@ -170,7 +170,7 @@ struct texture *renderFrame(struct renderer *r) {
 				r->state.isRendering = false;
 			}
 		}
-		sleepMSec(r->state.threadStates[0].paused ? paused_msec : active_msec);
+		timer_sleep_ms(r->state.threadStates[0].paused ? paused_msec : active_msec);
 	}
 	
 	//Make sure render threads are terminated before continuing (This blocks)
@@ -201,8 +201,8 @@ void *renderThreadInteractive(void *arg) {
 	
 	while (tile && r->state.isRendering) {
 		long totalUsec = 0;
-		
-		startTimer(&timer);
+
+		timer_start(&timer);
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
 				if (r->state.renderAborted) return 0;
@@ -233,12 +233,12 @@ void *renderThreadInteractive(void *arg) {
 			}
 		}
 		//For performance metrics
-		totalUsec += getUs(timer);
+		totalUsec += timer_get_us(timer);
 		threadState->totalSamples++;
 		threadState->completedSamples++;
 		//Pause rendering when bool is set
 		while (threadState->paused && !r->state.renderAborted) {
-			sleepMSec(100);
+			timer_sleep_ms(100);
 		}
 		threadState->avgSampleTime = totalUsec / r->state.finishedPasses;
 		
@@ -282,7 +282,7 @@ void *renderThread(void *arg) {
 		long samples = 0;
 		
 		while (threadState->completedSamples < r->prefs.sampleCount + 1 && r->state.isRendering) {
-			startTimer(&timer);
+			timer_start(&timer);
 			for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 				for (int x = tile->begin.x; x < tile->end.x; ++x) {
 					if (r->state.renderAborted) return 0;
@@ -311,12 +311,12 @@ void *renderThread(void *arg) {
 			}
 			//For performance metrics
 			samples++;
-			totalUsec += getUs(timer);
+			totalUsec += timer_get_us(timer);
 			threadState->totalSamples++;
 			threadState->completedSamples++;
 			//Pause rendering when bool is set
 			while (threadState->paused && !r->state.renderAborted) {
-				sleepMSec(100);
+				timer_sleep_ms(100);
 			}
 			threadState->avgSampleTime = totalUsec / samples;
 		}

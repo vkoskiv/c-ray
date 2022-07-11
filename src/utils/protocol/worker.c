@@ -155,7 +155,7 @@ static void *workerThread(void *arg) {
 		long samples = 0;
 		
 		while (threadState->completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
-			startTimer(&timer);
+			timer_start(&timer);
 			for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 				for (int x = tile.begin.x; x < tile.end.x; ++x) {
 					if (r->state.renderAborted || !g_running) goto bail;
@@ -186,7 +186,7 @@ static void *workerThread(void *arg) {
 			}
 			//For performance metrics
 			samples++;
-			totalUsec += getUs(timer);
+			totalUsec += timer_get_us(timer);
 			threadState->totalSamples++;
 			threadState->completedSamples++;
 			threadState->avgSampleTime = totalUsec / samples;
@@ -291,7 +291,7 @@ static cJSON *startRender(int connectionSocket) {
 				g_worker_renderer->state.isRendering = false;
 			}
 		}
-		sleepMSec(active_msec);
+		timer_sleep_ms(active_msec);
 	}
 	
 	return goodbye();
@@ -402,14 +402,14 @@ int startWorkerServer() {
 			buf = NULL;
 			size_t length = 0;
 			struct timeval timer;
-			startTimer(&timer);
+			timer_start(&timer);
 			ssize_t read = chunkedReceive(connectionSocket, &buf, &length);
 			if (read == 0) break;
 			if (read < 0) {
 				logr(warning, "Something went wrong. Error: %s\n", strerror(errno));
 				break;
 			}
-			long millisecs = getMs(timer);
+			long millisecs = timer_get_ms(timer);
 			char *size = humanFileSize(length);
 			logr(debug, "Received %s, took %lums.\n", size, millisecs);
 			free(size);

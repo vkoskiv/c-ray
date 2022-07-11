@@ -841,9 +841,9 @@ static size_t parse_mesh(struct renderer *r, const cJSON *data, int idx, int mes
 	logr(info, "Loading mesh file %i/%i%s", idx, mesh_file_count, idx == mesh_file_count ? "\n" : "\r");
 	size_t valid_mesh_count = 0;
 	struct timeval timer;
-	startTimer(&timer);
+	timer_start(&timer);
 	struct mesh *meshes = load_meshes_from_file(fullPath, &valid_mesh_count, r->state.file_cache);
-	long us = getUs(timer);
+	long us = timer_get_us(timer);
 	free(fullPath);
 	if (!meshes) return 0;
 

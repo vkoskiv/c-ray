@@ -43,7 +43,7 @@ void *bvhBuildThread(void *arg) {
 static void computeAccels(struct mesh *meshes, int meshCount) {
 	logr(info, "Computing BVHs: ");
 	struct timeval timer = {0};
-	startTimer(&timer);
+	timer_start(&timer);
 	struct bvhBuildTask *tasks = calloc(meshCount, sizeof(*tasks));
 	struct crThread *buildThreads = calloc(meshCount, sizeof(*buildThreads));
 	for (int t = 0; t < meshCount; ++t) {
@@ -63,7 +63,7 @@ static void computeAccels(struct mesh *meshes, int meshCount) {
 		threadWait(&buildThreads[t]);
 		meshes[t].bvh = tasks[t].bvh;
 	}
-	printSmartTime(getMs(timer));
+	printSmartTime(timer_get_ms(timer));
 	free(tasks);
 	free(buildThreads);
 	logr(plain, "\n");
@@ -72,9 +72,9 @@ static void computeAccels(struct mesh *meshes, int meshCount) {
 struct bvh *computeTopLevelBvh(struct instance *instances, int instanceCount) {
 	logr(info, "Computing top-level BVH: ");
 	struct timeval timer = {0};
-	startTimer(&timer);
+	timer_start(&timer);
 	struct bvh *new = buildTopLevelBvh(instances, instanceCount);
-	printSmartTime(getMs(timer));
+	printSmartTime(timer_get_ms(timer));
 	logr(plain, "\n");
 	return new;
 }
@@ -111,7 +111,7 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 int loadScene(struct renderer *r, const char *input) {
 	
 	struct timeval timer = {0};
-	startTimer(&timer);
+	timer_start(&timer);
 	
 	//Load configuration and assets
 	switch (parseJSON(r, input)) {
@@ -194,7 +194,7 @@ int loadScene(struct renderer *r, const char *input) {
 		computeAccels(r->scene->meshes, r->scene->meshCount);
 		// And then compute a single top-level BVH that contains all the objects
 		r->scene->topLevel = computeTopLevelBvh(r->scene->instances, r->scene->instanceCount);
-		printSceneStats(r->scene, getMs(timer));
+		printSceneStats(r->scene, timer_get_ms(timer));
 	} else {
 		logr(debug, "No local render threads, skipping local BVH construction.\n");
 	}
