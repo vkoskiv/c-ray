@@ -66,5 +66,5 @@ struct color colorForKelvin(float kelvin) {
 		}
 	}
 	
-	return (struct color){ret.red / 255.0f, ret.green / 255.0f, ret.blue / 255.0f, 0};
+	return (struct color){ret.red / 255.0f, ret.green / 255.0f, ret.blue / 255.0f, 1.0f};
 }
