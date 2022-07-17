@@ -17,16 +17,19 @@
 #define test_assert(x) if (!(x)) { failed_expression = #x; return false; }
 
 // And an approximate one for math stuff
-#define roughly_equals(a, b) \
+#define _roughly_equals(a, b, tolerance) \
 	do { \
 		float expect_close_lhs = a; \
 		float expect_close_rhs = b; \
 		float expect_close_diff = (float)(expect_close_lhs) - (float)(expect_close_rhs); \
-		if (fabsf(expect_close_diff) > 0.0000005) { \
+		if (fabsf(expect_close_diff) > tolerance) { \
 			failed_expression = "roughly_equals (" #a " !≈ " #b ")";\
 			return false; \
 		} \
 	} while (false)
+
+#define roughly_equals(a, b) _roughly_equals(a, b, 0.0000005)
+#define very_roughly_equals(a, b) _roughly_equals(a, b, 0.01)
 
 #define vec_roughly_equals(veca, vecb) \
 	do { \
