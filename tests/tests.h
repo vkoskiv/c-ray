@@ -21,6 +21,7 @@ static char *failed_expression;
 #include "test_base64.h"
 #include "test_nodes.h"
 #include "test_linked_list.h"
+#include "test_parser.h"
 
 static test tests[] = {
 	{"vector::vecZero", vector_vecZero},
@@ -137,6 +138,10 @@ static test tests[] = {
 	{"linked_list::basic", llist_basic},
 	{"linked_list::remove_cb", llist_remove_cb},
 	{"linked_list::remove_after_empty", llist_remove_after_empty},
+
+	{"parser::parser_color_rgb", parser_color_rgb},
+	{"parser::parser_color_array", parser_color_array},
+	{"parser::parser_color_blackbody", parser_color_blackbody}
 };
 
 #define testCount (sizeof(tests) / sizeof(test))
