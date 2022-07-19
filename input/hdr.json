@@ -343,10 +343,13 @@
 				"instances": [
 					{
 						"for": "Plane",
-						"material": [
+						"materials": [
 							{
 								"type": "diffuse",
-								"color": "shapes/grid.png"
+								"color": {
+									"lerp": false,
+									"path": "shapes/grid.png"
+								}
 							}
 						],
 						"transforms": [
