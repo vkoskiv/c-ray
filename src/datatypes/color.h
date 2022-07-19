@@ -103,3 +103,5 @@ static inline bool colorEquals(struct color a, struct color b) {
 }
 
 struct color colorForKelvin(float kelvin);
+
+struct color color_from_hsl(float hue, float saturation, float lightness);

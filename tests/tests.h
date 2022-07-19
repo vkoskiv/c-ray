@@ -141,7 +141,8 @@ static test tests[] = {
 
 	{"parser::parser_color_rgb", parser_color_rgb},
 	{"parser::parser_color_array", parser_color_array},
-	{"parser::parser_color_blackbody", parser_color_blackbody}
+	{"parser::parser_color_blackbody", parser_color_blackbody},
+	{"parser::parser_color_hsl", parser_color_hsl}
 };
 
 #define testCount (sizeof(tests) / sizeof(test))

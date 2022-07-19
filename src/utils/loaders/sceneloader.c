@@ -612,13 +612,12 @@ static void parseCameras(struct camera **cam, size_t *cam_count, const cJSON *da
 }
 
 struct color parseColor(const cJSON *data) {
-	struct color newColor;
 	if (cJSON_IsArray(data)) {
-		newColor.red =   cJSON_IsNumber(cJSON_GetArrayItem(data, 0)) ? cJSON_GetArrayItem(data, 0)->valuedouble : 0.0f;
-		newColor.green = cJSON_IsNumber(cJSON_GetArrayItem(data, 1)) ? cJSON_GetArrayItem(data, 1)->valuedouble : 0.0f;
-		newColor.blue =  cJSON_IsNumber(cJSON_GetArrayItem(data, 2)) ? cJSON_GetArrayItem(data, 2)->valuedouble : 0.0f;
-		newColor.alpha = cJSON_IsNumber(cJSON_GetArrayItem(data, 3)) ? cJSON_GetArrayItem(data, 3)->valuedouble : 1.0f;
-		return newColor;
+		const float r = cJSON_IsNumber(cJSON_GetArrayItem(data, 0)) ? cJSON_GetArrayItem(data, 0)->valuedouble : 0.0f;
+		const float g = cJSON_IsNumber(cJSON_GetArrayItem(data, 1)) ? cJSON_GetArrayItem(data, 1)->valuedouble : 0.0f;
+		const float b = cJSON_IsNumber(cJSON_GetArrayItem(data, 2)) ? cJSON_GetArrayItem(data, 2)->valuedouble : 0.0f;
+		const float a = cJSON_IsNumber(cJSON_GetArrayItem(data, 3)) ? cJSON_GetArrayItem(data, 3)->valuedouble : 1.0f;
+		return (struct color){ r, g, b, a };
 	}
 	
 	ASSERT(cJSON_IsObject(data));
@@ -627,40 +626,33 @@ struct color parseColor(const cJSON *data) {
 	const cJSON *G = NULL;
 	const cJSON *B = NULL;
 	const cJSON *A = NULL;
+	const cJSON *H = NULL;
+	const cJSON *S = NULL;
+	const cJSON *L = NULL;
 	const cJSON *kelvin = NULL;
 	
 	kelvin = cJSON_GetObjectItem(data, "blackbody");
-	if (kelvin && cJSON_IsNumber(kelvin)) {
-		newColor = colorForKelvin(kelvin->valuedouble);
-		return newColor;
+	if (cJSON_IsNumber(kelvin)) return colorForKelvin(kelvin->valuedouble);
+
+	H = cJSON_GetObjectItem(data, "h");
+	S = cJSON_GetObjectItem(data, "s");
+	L = cJSON_GetObjectItem(data, "l");
+
+	if (cJSON_IsNumber(H) && cJSON_IsNumber(S) && cJSON_IsNumber(L)) {
+		return color_from_hsl(H->valuedouble, S->valuedouble, L->valuedouble);
 	}
-	
+
 	R = cJSON_GetObjectItem(data, "r");
-	if (cJSON_IsNumber(R)) {
-		newColor.red = R->valuedouble;
-	} else {
-		newColor.red = 0.0f;
-	}
 	G = cJSON_GetObjectItem(data, "g");
-	if (cJSON_IsNumber(G)) {
-		newColor.green = G->valuedouble;
-	} else {
-		newColor.green = 0.0f;
-	}
 	B = cJSON_GetObjectItem(data, "b");
-	if (cJSON_IsNumber(B)) {
-		newColor.blue = B->valuedouble;
-	} else {
-		newColor.blue = 0.0f;
-	}
 	A = cJSON_GetObjectItem(data, "a");
-	if (cJSON_IsNumber(A)) {
-		newColor.alpha = A->valuedouble;
-	} else {
-		newColor.alpha = 1.0f;
-	}
-	
-	return newColor;
+
+	return (struct color){
+		cJSON_IsNumber(R) ? R->valuedouble : 0.0f,
+		cJSON_IsNumber(G) ? G->valuedouble : 0.0f,
+		cJSON_IsNumber(B) ? B->valuedouble : 0.0f,
+		cJSON_IsNumber(A) ? A->valuedouble : 1.0f,
+	};
 }
 
 //FIXME: Convert this to use parseBsdfNode
