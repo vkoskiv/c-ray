@@ -24,6 +24,8 @@
 		900BA143220B4603005B8EE7 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA127220B4602005B8EE7 /* logging.c */; };
 		900BA144220B4603005B8EE7 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA129220B4602005B8EE7 /* main.c */; };
 		90189DA6224EB302007FA268 /* mesh.c in Sources */ = {isa = PBXBuildFile; fileRef = 90189DA4224EB302007FA268 /* mesh.c */; };
+		901CD92A2888AAC400D22CA1 /* translucent.c in Sources */ = {isa = PBXBuildFile; fileRef = 901CD9282888AAC400D22CA1 /* translucent.c */; };
+		901CD92B2888AAC400D22CA1 /* translucent.c in Sources */ = {isa = PBXBuildFile; fileRef = 901CD9282888AAC400D22CA1 /* translucent.c */; };
 		90369CCC222E012F008D215B /* pcg_basic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90369CCA222E012F008D215B /* pcg_basic.c */; };
 		904CDBB8248D74380092E564 /* bvh.c in Sources */ = {isa = PBXBuildFile; fileRef = 904CDBB7248D74380092E564 /* bvh.c */; };
 		904CDBB9248D74380092E564 /* bvh.c in Sources */ = {isa = PBXBuildFile; fileRef = 904CDBB7248D74380092E564 /* bvh.c */; };
@@ -64,7 +66,6 @@
 		905842E1236651FC009D92F1 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA127220B4602005B8EE7 /* logging.c */; };
 		905842E3236651FC009D92F1 /* timer.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11F220B4602005B8EE7 /* timer.c */; };
 		905842E4236651FC009D92F1 /* pathtrace.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA0F7220B4602005B8EE7 /* pathtrace.c */; };
-		905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85232252D99700BA7702 /* vertexbuffer.c */; };
 		905842E7236651FC009D92F1 /* material.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA10A220B4602005B8EE7 /* material.c */; };
 		905842E8236651FC009D92F1 /* lodepng.c in Sources */ = {isa = PBXBuildFile; fileRef = 900BA11B220B4602005B8EE7 /* lodepng.c */; };
 		905842EB236651FC009D92F1 /* texture.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15CD225C6D85008D6AAA /* texture.c */; };
@@ -169,7 +170,6 @@
 		90CA851D2252C90C00BA7702 /* wavefront.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85192252C90C00BA7702 /* wavefront.c */; };
 		90CA851E2252C90C00BA7702 /* textureloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA851B2252C90C00BA7702 /* textureloader.c */; };
 		90CA85212252CB3800BA7702 /* sceneloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85202252CB3800BA7702 /* sceneloader.c */; };
-		90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CA85232252D99700BA7702 /* vertexbuffer.c */; };
 		90CB8BC526DFF763006EA951 /* spline.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CB8BC326DFF763006EA951 /* spline.c */; };
 		90CB8BC626DFF763006EA951 /* spline.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CB8BC326DFF763006EA951 /* spline.c */; };
 		90CFA7DF2381BF0900061288 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 90CFA7DE2381BF0900061288 /* hashtable.c */; };
@@ -255,6 +255,8 @@
 		900FB5DB20C3BA3C008174C4 /* scene.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = scene.json; path = input/scene.json; sourceTree = "<group>"; };
 		90189DA4224EB302007FA268 /* mesh.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mesh.c; sourceTree = "<group>"; };
 		90189DA5224EB302007FA268 /* mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesh.h; sourceTree = "<group>"; };
+		901CD9282888AAC400D22CA1 /* translucent.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = translucent.c; sourceTree = "<group>"; };
+		901CD9292888AAC400D22CA1 /* translucent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = translucent.h; sourceTree = "<group>"; };
 		90204C7823A07F2C00B01EEF /* assert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = assert.h; sourceTree = "<group>"; };
 		903235E52506BA1400CF011D /* test_fileio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_fileio.h; sourceTree = "<group>"; };
 		903235E62506BF7000CF011D /* test_string.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_string.h; sourceTree = "<group>"; };
@@ -401,8 +403,6 @@
 		90CA851B2252C90C00BA7702 /* textureloader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = textureloader.c; sourceTree = "<group>"; };
 		90CA851F2252CB3800BA7702 /* sceneloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sceneloader.h; sourceTree = "<group>"; };
 		90CA85202252CB3800BA7702 /* sceneloader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sceneloader.c; sourceTree = "<group>"; };
-		90CA85222252D99600BA7702 /* vertexbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vertexbuffer.h; sourceTree = "<group>"; };
-		90CA85232252D99700BA7702 /* vertexbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vertexbuffer.c; sourceTree = "<group>"; };
 		90CB8BC326DFF763006EA951 /* spline.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = spline.c; sourceTree = "<group>"; };
 		90CB8BC426DFF763006EA951 /* spline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = spline.h; sourceTree = "<group>"; };
 		90CFA7DD2381BF0900061288 /* hashtable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hashtable.h; sourceTree = "<group>"; };
@@ -527,8 +527,6 @@
 				900BA104220B4602005B8EE7 /* scene.c */,
 				900BA10E220B4602005B8EE7 /* transforms.h */,
 				900BA106220B4602005B8EE7 /* transforms.c */,
-				90CA85222252D99600BA7702 /* vertexbuffer.h */,
-				90CA85232252D99700BA7702 /* vertexbuffer.c */,
 				90FAD26724A26F0B00F8CA79 /* instance.h */,
 				90FAD26824A26F0B00F8CA79 /* instance.c */,
 				9071BC9D257D86250070BA43 /* hitrecord.h */,
@@ -659,6 +657,8 @@
 				90AB1E1525747C9C00EFDF5A /* metal.c */,
 				90AB1E1E2575B1AD00EFDF5A /* plastic.h */,
 				90AB1E1D2575B1AD00EFDF5A /* plastic.c */,
+				901CD9282888AAC400D22CA1 /* translucent.c */,
+				901CD9292888AAC400D22CA1 /* translucent.h */,
 				90500A8A25897693006F854A /* transparent.h */,
 				90500A8925897693006F854A /* transparent.c */,
 				90500AAB258D81CA006F854A /* background.h */,
@@ -977,7 +977,6 @@
 				9071BCA1257ED22C0070BA43 /* nodebase.c in Sources */,
 				90A21CF224589E6A002C742E /* sampler.c in Sources */,
 				90AB1E082574373E00EFDF5A /* bsdfnode.c in Sources */,
-				905842E6236651FC009D92F1 /* vertexbuffer.c in Sources */,
 				90E1721E2774FDA7009B5FF0 /* quaternion.c in Sources */,
 				90C5D5592448CEAB00C58643 /* imagefile.c in Sources */,
 				9076FB56243002B90003B327 /* thread.c in Sources */,
@@ -1010,6 +1009,7 @@
 				905A616626C1CCE800B7D5A5 /* uv.c in Sources */,
 				905842F4236651FC009D92F1 /* tile.c in Sources */,
 				90500A9D258AC07D006F854A /* add.c in Sources */,
+				901CD92B2888AAC400D22CA1 /* translucent.c in Sources */,
 				90AB1E1C2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0C25745DFE00EFDF5A /* diffuse.c in Sources */,
 				908AA1ED26C467B200823DD3 /* map_range.c in Sources */,
@@ -1077,7 +1077,6 @@
 				9071BCA0257ED22C0070BA43 /* nodebase.c in Sources */,
 				90A21CF124589E6A002C742E /* sampler.c in Sources */,
 				90AB1E072574373E00EFDF5A /* bsdfnode.c in Sources */,
-				90CA85242252D99700BA7702 /* vertexbuffer.c in Sources */,
 				90E1721D2774FDA7009B5FF0 /* quaternion.c in Sources */,
 				90C5D5582448CEAB00C58643 /* imagefile.c in Sources */,
 				9076FB55243002B90003B327 /* thread.c in Sources */,
@@ -1110,6 +1109,7 @@
 				905A616526C1CCE800B7D5A5 /* uv.c in Sources */,
 				900BA134220B4603005B8EE7 /* tile.c in Sources */,
 				90500A9C258AC07D006F854A /* add.c in Sources */,
+				901CD92A2888AAC400D22CA1 /* translucent.c in Sources */,
 				90AB1E1B2575709000EFDF5A /* colornode.c in Sources */,
 				90AB1E0B25745DFE00EFDF5A /* diffuse.c in Sources */,
 				908AA1EC26C467B200823DD3 /* map_range.c in Sources */,
