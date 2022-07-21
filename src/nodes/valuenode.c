@@ -51,6 +51,21 @@ const struct valueNode *newConstantValue(const struct world *world, float value)
 	});
 }
 
+static enum component parseComponent(const cJSON *data) {
+	if (!cJSON_IsString(data)) {
+		logr(warning, "No component specified for vecToValue node, defaulting to scalar (F).\n");
+		return F;
+	}
+	if (stringEquals(data->valuestring, "x")) return X;
+	if (stringEquals(data->valuestring, "y")) return Y;
+	if (stringEquals(data->valuestring, "z")) return Z;
+	if (stringEquals(data->valuestring, "u")) return U;
+	if (stringEquals(data->valuestring, "v")) return V;
+	if (stringEquals(data->valuestring, "f")) return F;
+	logr(warning, "Unknown component specified: %s\n", data->valuestring);
+	return F;
+}
+
 const struct valueNode *parseValueNode(struct renderer *r, const cJSON *node) {
 	if (!node) return NULL;
 	struct world *w = r->scene;
@@ -80,6 +95,11 @@ const struct valueNode *parseValueNode(struct renderer *r, const cJSON *node) {
 		}
 		if (stringEquals(type->valuestring, "alpha")) {
 			return newAlpha(w, color);
+		}
+		if (stringEquals(type->valuestring, "vec_to_value")) {
+			const struct vectorNode *vec = parseVectorNode(r->scene, cJSON_GetObjectItem(node, "vector"));
+			enum component comp = parseComponent(cJSON_GetObjectItem(node, "component"));
+			return newVecToValue(w, vec, comp);
 		}
 	}
 

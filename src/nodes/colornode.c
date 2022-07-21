@@ -97,11 +97,17 @@ const struct colorNode *parseTextureNode(struct renderer *r, const cJSON *node) 
 		if (stringEquals(type->valuestring, "split")) {
 			return newSplitValue(w, parseValueNode(r, cJSON_GetObjectItem(node, "constant")));
 		}
-		if (stringEquals(type->valuestring, "combine")) {
+		if (stringEquals(type->valuestring, "rgb")) {
 			const struct valueNode *red = parseValueNode(r, cJSON_GetObjectItem(node, "r"));
 			const struct valueNode *green = parseValueNode(r, cJSON_GetObjectItem(node, "g"));
 			const struct valueNode *blue = parseValueNode(r, cJSON_GetObjectItem(node, "b"));
 			return newCombineRGB(w, red, green, blue);
+		}
+		if (stringEquals(type->valuestring, "hsl")) {
+			const struct valueNode *h = parseValueNode(r, cJSON_GetObjectItem(node, "h"));
+			const struct valueNode *s = parseValueNode(r, cJSON_GetObjectItem(node, "s"));
+			const struct valueNode *l = parseValueNode(r, cJSON_GetObjectItem(node, "l"));
+			return newCombineHSL(w, h, s, l);
 		}
 		if (stringEquals(type->valuestring, "to_color")) {
 			return newVecToColor(w, parseVectorNode(w, cJSON_GetObjectItem(node, "vector")));

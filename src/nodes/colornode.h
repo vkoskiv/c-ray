@@ -30,6 +30,7 @@ struct colorNode {
 #include "converter/blackbody.h"
 #include "converter/split.h"
 #include "converter/combinergb.h"
+#include "converter/combinehsl.h"
 
 const struct colorNode *unknownTextureNode(const struct world *world);
 const struct colorNode *parseTextureNode(struct renderer *r, const cJSON *node);

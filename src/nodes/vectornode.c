@@ -54,7 +54,7 @@ static enum vecOp parseVectorOp(const cJSON *data) {
 	if (!cJSON_IsString(data)) {
 		logr(warning, "No vector op given, defaulting to add.\n");
 		return VecAdd;
-	};
+	}
 	if (stringEquals(data->valuestring, "add")) return VecAdd;
 	if (stringEquals(data->valuestring, "subtract")) return VecSubtract;
 	if (stringEquals(data->valuestring, "multiply")) return VecMultiply;

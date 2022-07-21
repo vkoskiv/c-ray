@@ -23,6 +23,7 @@ struct valueNode {
 #include "textures/alpha.h"
 #include "converter/math.h"
 #include "converter/map_range.h"
+#include "converter/vectovalue.h"
 
 const struct valueNode *newConstantValue(const struct world *world, float value);
 const struct valueNode *parseValueNode(struct renderer *r, const cJSON *node);
