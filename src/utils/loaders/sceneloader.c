@@ -897,8 +897,6 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 		} else if (stringEquals(bsdf->valuestring, "emissive")) {
 			newSphere.material.type = emission;
 		}
-	} else {
-		logr(warning, "Sphere BSDF not found, defaulting to lambertian.\n");
 	}
 	
 	color = cJSON_GetObjectItem(data, "color");
@@ -913,8 +911,6 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 				newSphere.material.diffuse = parseColor(color);
 				break;
 		}
-	} else {
-		logr(warning, "No color specified for sphere\n");
 	}
 	
 	//FIXME: Another hack.
