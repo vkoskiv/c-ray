@@ -26,5 +26,5 @@ enum mathOp {
 	ToDegrees,
 };
 
-const struct valueNode *newMath(const struct world *world, const struct valueNode *A, const struct valueNode *B, const enum mathOp op);
+const struct valueNode *newMath(const struct node_storage *s, const struct valueNode *A, const struct valueNode *B, const enum mathOp op);
 

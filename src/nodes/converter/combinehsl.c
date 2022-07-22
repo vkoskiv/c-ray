@@ -41,11 +41,11 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	return color_from_hsl(this->H->eval(this->H, record), this->S->eval(this->S, record), this->L->eval(this->L, record));
 }
 
-const struct colorNode *newCombineHSL(const struct world *world, const struct valueNode *H, const struct valueNode *S, const struct valueNode *L) {
-	HASH_CONS(world->nodeTable, hash, struct combineHSL, {
-		.H = H ? H : newConstantValue(world, 0.0f),
-		.S = S ? S : newConstantValue(world, 0.0f),
-		.L = L ? L : newConstantValue(world, 0.0f),
+const struct colorNode *newCombineHSL(const struct node_storage *s, const struct valueNode *H, const struct valueNode *S, const struct valueNode *L) {
+	HASH_CONS(s->node_table, hash, struct combineHSL, {
+		.H = H ? H : newConstantValue(s, 0.0f),
+		.S = S ? S : newConstantValue(s, 0.0f),
+		.L = L ? L : newConstantValue(s, 0.0f),
 		.node = {
 				.eval = eval,
 				.base = { .compare = compare }

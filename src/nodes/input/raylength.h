@@ -8,4 +8,4 @@
 
 #pragma once
 
-const struct valueNode *newRayLength(const struct world *world);
+const struct valueNode *newRayLength(const struct node_storage *s);

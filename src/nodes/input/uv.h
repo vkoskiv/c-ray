@@ -8,4 +8,4 @@
 
 #pragma once
 
-const struct vectorNode *newUV(const struct world *world);
+const struct vectorNode *newUV(const struct node_storage *s);

@@ -8,4 +8,4 @@
 
 #pragma once
 
-const struct valueNode *newGrayscaleConverter(const struct world *world, const struct colorNode *node);
+const struct valueNode *newGrayscaleConverter(const struct node_storage *s, const struct colorNode *node);

@@ -10,4 +10,4 @@
 
 // A uniform scatter direction, used for volumes
 
-const struct bsdfNode *newIsotropic(const struct world *world, const struct colorNode *tex);
+const struct bsdfNode *newIsotropic(const struct node_storage *s, const struct colorNode *tex);

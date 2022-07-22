@@ -39,8 +39,8 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 	return (struct vectorValue){ .v = record->surfaceNormal, .c = coordZero() };
 }
 
-const struct vectorNode *newNormal(const struct world *world) {
-	HASH_CONS(world->nodeTable, hash, struct normalNode, {
+const struct vectorNode *newNormal(const struct node_storage *s) {
+	HASH_CONS(s->node_table, hash, struct normalNode, {
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

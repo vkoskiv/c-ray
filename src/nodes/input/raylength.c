@@ -38,8 +38,8 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 	return record->distance;
 }
 
-const struct valueNode *newRayLength(const struct world *world) {
-	HASH_CONS(world->nodeTable, hash, struct rayLengthNode, {
+const struct valueNode *newRayLength(const struct node_storage *s) {
+	HASH_CONS(s->node_table, hash, struct rayLengthNode, {
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

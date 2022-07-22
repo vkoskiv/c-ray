@@ -64,18 +64,18 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 	return lerp(to_min, to_max, t);
 }
 
-const struct valueNode *newMapRange(const struct world *world,
+const struct valueNode *newMapRange(const struct node_storage *s,
 									const struct valueNode *input_value,
 									const struct valueNode *from_min,
 									const struct valueNode *from_max,
 									const struct valueNode *to_min,
 									const struct valueNode *to_max) {
-	HASH_CONS(world->nodeTable, hash, struct mapRangeNode, {
-		.input_value = input_value ? input_value : newConstantValue(world, 1.0f),
-		.from_min = from_min ? from_min : newConstantValue(world, 0.0f),
-		.from_max = from_max ? from_max : newConstantValue(world, 1.0f),
-		.to_min = to_min ? to_min : newConstantValue(world, 0.0f),
-		.to_max = to_max ? to_max : newConstantValue(world, 1.0f),
+	HASH_CONS(s->node_table, hash, struct mapRangeNode, {
+		.input_value = input_value ? input_value : newConstantValue(s, 1.0f),
+		.from_min = from_min ? from_min : newConstantValue(s, 0.0f),
+		.from_max = from_max ? from_max : newConstantValue(s, 1.0f),
+		.to_min = to_min ? to_min : newConstantValue(s, 0.0f),
+		.to_max = to_max ? to_max : newConstantValue(s, 1.0f),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

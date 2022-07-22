@@ -50,9 +50,9 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 	return 0.0f;
 }
 
-const struct valueNode *newVecToValue(const struct world *world, const struct vectorNode *vec, enum component component) {
-	HASH_CONS(world->nodeTable, hash, struct vecToValueNode, {
-		.vec = vec ? vec : newConstantVector(world, vecZero()),
+const struct valueNode *newVecToValue(const struct node_storage *s, const struct vectorNode *vec, enum component component) {
+	HASH_CONS(s->node_table, hash, struct vecToValueNode, {
+		.vec = vec ? vec : newConstantVector(s, vecZero()),
 		.component_to_get = component,
 		.node = {
 			.eval = eval,

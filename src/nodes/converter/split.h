@@ -8,4 +8,4 @@
 
 #pragma once
 
-const struct colorNode *newSplitValue(const struct world *world, const struct valueNode *node);
+const struct colorNode *newSplitValue(const struct node_storage *s, const struct valueNode *node);

@@ -49,10 +49,10 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 	return schlick(cosine, this->IOR->eval(this->IOR, record));
 }
 
-const struct valueNode *newFresnel(const struct world *world, const struct valueNode *IOR, const struct vectorNode *normal) {
-	HASH_CONS(world->nodeTable, hash, struct fresnelNode, {
-		.IOR = IOR ? IOR : newConstantValue(world, 1.45f),
-		.normal = normal ? normal : newNormal(world),
+const struct valueNode *newFresnel(const struct node_storage *s, const struct valueNode *IOR, const struct vectorNode *normal) {
+	HASH_CONS(s->node_table, hash, struct fresnelNode, {
+		.IOR = IOR ? IOR : newConstantValue(s, 1.45f),
+		.normal = normal ? normal : newNormal(s),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

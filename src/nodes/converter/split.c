@@ -40,9 +40,9 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	return (struct color){val, val, val, 1.0f};
 }
 
-const struct colorNode *newSplitValue(const struct world *world, const struct valueNode *node) {
-	HASH_CONS(world->nodeTable, hash, struct splitValue, {
-		.input = node ? node : newConstantValue(world, 0.0f),
+const struct colorNode *newSplitValue(const struct node_storage *s, const struct valueNode *node) {
+	HASH_CONS(s->node_table, hash, struct splitValue, {
+		.input = node ? node : newConstantValue(s, 0.0f),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

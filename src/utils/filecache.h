@@ -22,6 +22,7 @@ struct file_cache {
 	struct file *files;
 };
 
+//TODO: Consts where applicable
 bool cache_contains(struct file_cache *cache, const char *path);
 
 void cache_store(struct file_cache *cache, const char *path, const void *data, size_t length);

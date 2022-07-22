@@ -10,4 +10,4 @@
 
 struct colorNode;
 
-const struct valueNode *newAlpha(const struct world *world, const struct colorNode *color);
+const struct valueNode *newAlpha(const struct node_storage *s, const struct colorNode *color);

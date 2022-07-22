@@ -44,9 +44,9 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	};
 }
 
-const struct bsdfNode *newTranslucent(const struct world *world, const struct colorNode *color) {
-	HASH_CONS(world->nodeTable, hash, struct translucentBsdf, {
-		.color = color ? color : newConstantTexture(world, blackColor),
+const struct bsdfNode *newTranslucent(const struct node_storage *s, const struct colorNode *color) {
+	HASH_CONS(s->node_table, hash, struct translucentBsdf, {
+		.color = color ? color : newConstantTexture(s, blackColor),
 		.bsdf = {
 				.sample = sample,
 				.base = { .compare = compare }

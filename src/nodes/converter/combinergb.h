@@ -8,4 +8,4 @@
 
 #pragma once
 
-const struct colorNode *newCombineRGB(const struct world *world, const struct valueNode *R, const struct valueNode *G, const struct valueNode *B);
+const struct colorNode *newCombineRGB(const struct node_storage *s, const struct valueNode *R, const struct valueNode *G, const struct valueNode *B);

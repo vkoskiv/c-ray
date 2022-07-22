@@ -39,8 +39,8 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 	return (struct vectorValue){ .v = vecZero(), .c = record->uv };
 }
 
-const struct vectorNode *newUV(const struct world *world) {
-	HASH_CONS(world->nodeTable, hash, struct uvNode, {
+const struct vectorNode *newUV(const struct node_storage *s) {
+	HASH_CONS(s->node_table, hash, struct uvNode, {
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

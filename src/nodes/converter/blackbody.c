@@ -40,9 +40,9 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	return colorForKelvin(this->temperature->eval(this->temperature, record));
 }
 
-const struct colorNode *newBlackbody(const struct world *world, const struct valueNode *temperature) {
-	HASH_CONS(world->nodeTable, hash, struct blackbodyNode, {
-		.temperature = temperature ? temperature : newConstantValue(world, 4000.0f),
+const struct colorNode *newBlackbody(const struct node_storage *s, const struct valueNode *temperature) {
+	HASH_CONS(s->node_table, hash, struct blackbodyNode, {
+		.temperature = temperature ? temperature : newConstantValue(s, 4000.0f),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

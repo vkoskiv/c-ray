@@ -40,8 +40,8 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 	return (struct vectorValue){ .v = this->vector };
 }
 
-const struct vectorNode *newConstantVector(const struct world *world, const struct vector vector) {
-	HASH_CONS(world->nodeTable, hash, struct constantVector, {
+const struct vectorNode *newConstantVector(const struct node_storage *s, const struct vector vector) {
+	HASH_CONS(s->node_table, hash, struct constantVector, {
 		.vector = vector,
 		.node = {
 			.eval = eval,
@@ -68,25 +68,25 @@ static enum vecOp parseVectorOp(const cJSON *data) {
 	return VecAdd;
 }
 
-const struct vectorNode *parseVectorNode(struct world *w, const struct cJSON *node) {
+const struct vectorNode *parseVectorNode(const struct node_storage *s, const struct cJSON *node) {
 	if (!node) return NULL;
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
 	if (!cJSON_IsString(type)) {
 		logr(warning, "No type provided for vectorNode.\n");
-		return newConstantVector(w, vecZero());
+		return newConstantVector(s, vecZero());
 	}
 
 	if (stringEquals(type->valuestring, "vecmath")) {
-		const struct vectorNode *a = parseVectorNode(w, cJSON_GetObjectItem(node, "vector1"));
-		const struct vectorNode *b = parseVectorNode(w, cJSON_GetObjectItem(node, "vector2"));
+		const struct vectorNode *a = parseVectorNode(s, cJSON_GetObjectItem(node, "vector1"));
+		const struct vectorNode *b = parseVectorNode(s, cJSON_GetObjectItem(node, "vector2"));
 		const enum vecOp op = parseVectorOp(cJSON_GetObjectItem(node, "op"));
-		return newVecMath(w, a, b, op);
+		return newVecMath(s, a, b, op);
 	}
 	if (stringEquals(type->valuestring, "normal")) {
-		return newNormal(w);
+		return newNormal(s);
 	}
 	if (stringEquals(type->valuestring, "uv")) {
-		return newUV(w);
+		return newUV(s);
 	}
 	return NULL;
 }

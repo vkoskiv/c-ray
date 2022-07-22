@@ -8,4 +8,4 @@
 
 #pragma once
 
-const struct colorNode *newCombineHSL(const struct world *world, const struct valueNode *H, const struct valueNode *S, const struct valueNode *L);
+const struct colorNode *newCombineHSL(const struct node_storage *s, const struct valueNode *H, const struct valueNode *S, const struct valueNode *L);

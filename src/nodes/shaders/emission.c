@@ -46,10 +46,10 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	};
 }
 
-const struct bsdfNode *newEmission(const struct world *world, const struct colorNode *color, const struct valueNode *strength) {
-	HASH_CONS(world->nodeTable, hash, struct emissiveBsdf, {
-		.color = color ? color : newConstantTexture(world, blackColor),
-		.strength = strength ? strength : newConstantValue(world, 1.0f),
+const struct bsdfNode *newEmission(const struct node_storage *s, const struct colorNode *color, const struct valueNode *strength) {
+	HASH_CONS(s->node_table, hash, struct emissiveBsdf, {
+		.color = color ? color : newConstantTexture(s, blackColor),
+		.strength = strength ? strength : newConstantValue(s, 1.0f),
 		.bsdf = {
 			.sample = sample,
 			.base = { .compare = compare }

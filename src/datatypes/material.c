@@ -36,30 +36,30 @@ struct material warningMaterial() {
 }
 
 //FIXME: Temporary hack to patch alpha directly to old materials using the alpha node.
-const struct bsdfNode *appendAlpha(struct world *w, const struct bsdfNode *base, const struct colorNode *color) {
+const struct bsdfNode *appendAlpha(const struct node_storage *s, const struct bsdfNode *base, const struct colorNode *color) {
 	//FIXME: MSVC in release build mode crashes if we apply alpha on here, need to find out why. Just disable it for now though
 #ifdef WINDOWS
 	return base;
 #else
-	return newMix(w, newTransparent(w, newConstantTexture(w, whiteColor)), base, newAlpha(w, color));
+	return newMix(s, newTransparent(s, newConstantTexture(s, whiteColor)), base, newAlpha(s, color));
 #endif
 }
 
-void try_to_guess_bsdf(struct world *w, struct material *mat) {
-	const struct valueNode *roughness = mat->specularMap ? newGrayscaleConverter(w, newImageTexture(w, mat->specularMap, NO_BILINEAR)) : newConstantValue(w, mat->roughness);
-	const struct colorNode *color = mat->texture ? newImageTexture(w, mat->texture, SRGB_TRANSFORM) : newConstantTexture(w, mat->diffuse);
+void try_to_guess_bsdf(const struct node_storage *s, struct material *mat) {
+	const struct valueNode *roughness = mat->specularMap ? newGrayscaleConverter(s, newImageTexture(s, mat->specularMap, NO_BILINEAR)) : newConstantValue(s, mat->roughness);
+	const struct colorNode *color = mat->texture ? newImageTexture(s, mat->texture, SRGB_TRANSFORM) : newConstantTexture(s, mat->diffuse);
 	logr(debug, "name: %s, illum: %i\n", mat->name, mat->illum);
 	mat->bsdf = NULL;
 	const struct bsdfNode *chosen_bsdf = NULL;
 	
-	const struct colorNode *spec = newConstantTexture(w, mat->specular);
+	const struct colorNode *spec = newConstantTexture(s, mat->specular);
 	// First, attempt to deduce type based on mtl properties
 	switch (mat->illum) {
 		case 5:
-			chosen_bsdf = appendAlpha(w, newMetal(w, color, roughness), color);
+			chosen_bsdf = appendAlpha(s, newMetal(s, color, roughness), color);
 			break;
 		case 7:
-			chosen_bsdf = newGlass(w, spec, roughness, newConstantValue(w, mat->IOR));
+			chosen_bsdf = newGlass(s, spec, roughness, newConstantValue(s, mat->IOR));
 			break;
 		default:
 			break;
@@ -70,29 +70,29 @@ void try_to_guess_bsdf(struct world *w, struct material *mat) {
 	// Otherwise, fall back to our preassigned selection
 	switch (mat->type) {
 		case lambertian:
-			chosen_bsdf = newDiffuse(w, color);
+			chosen_bsdf = newDiffuse(s, color);
 			break;
 		case glass:
-			chosen_bsdf = newGlass(w, color, roughness, newConstantValue(w, mat->IOR));
+			chosen_bsdf = newGlass(s, color, roughness, newConstantValue(s, mat->IOR));
 			break;
 		case metal:
-			chosen_bsdf = newMetal(w, color, roughness);
+			chosen_bsdf = newMetal(s, color, roughness);
 			break;
 		case plastic:
-			chosen_bsdf = newPlastic(w, color, roughness, newConstantValue(w, mat->IOR));
+			chosen_bsdf = newPlastic(s, color, roughness, newConstantValue(s, mat->IOR));
 			break;
 		case emission:
-			chosen_bsdf = newDiffuse(w, color);
+			chosen_bsdf = newDiffuse(s, color);
 			break;
 		default:
 			logr(warning, "Unknown bsdf type specified for \"%s\", setting to an obnoxious preset.\n", mat->name);
-			chosen_bsdf = warningBsdf(w);
+			chosen_bsdf = warningBsdf(s);
 			break;
 	}
 
 	skip:
 	if (texture_uses_alpha(mat->texture)) {
-		mat->bsdf = appendAlpha(w, chosen_bsdf, color);
+		mat->bsdf = appendAlpha(s, chosen_bsdf, color);
 	} else {
 		mat->bsdf = chosen_bsdf;
 	}

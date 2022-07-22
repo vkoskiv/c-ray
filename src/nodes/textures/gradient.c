@@ -43,8 +43,8 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	return colorAdd(colorCoef(1.0f - t, this->down), colorCoef(t, this->up));
 }
 
-const struct colorNode *newGradientTexture(const struct world *world, struct color down, struct color up) {
-	HASH_CONS(world->nodeTable, hash, struct gradientTexture, {
+const struct colorNode *newGradientTexture(const struct node_storage *s, struct color down, struct color up) {
+	HASH_CONS(s->node_table, hash, struct gradientTexture, {
 		.down = down,
 		.up = up,
 		.node = {

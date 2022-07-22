@@ -46,14 +46,14 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	return (struct bsdfSample){.out = vecAdd(A.out, B.out), .color = colorAdd(A.color, B.color)};
 }
 
-const struct bsdfNode *newAdd(const struct world *world, const struct bsdfNode *A, const struct bsdfNode *B) {
+const struct bsdfNode *newAdd(const struct node_storage *s, const struct bsdfNode *A, const struct bsdfNode *B) {
 	if (A == B) {
 		logr(debug, "A == B, pruning add node.\n");
 		return A;
 	}
-	HASH_CONS(world->nodeTable, hash, struct addBsdf, {
-		.A = A ? A : newDiffuse(world, newConstantTexture(world, blackColor)),
-		.B = B ? B : newDiffuse(world, newConstantTexture(world, blackColor)),
+	HASH_CONS(s->node_table, hash, struct addBsdf, {
+		.A = A ? A : newDiffuse(s, newConstantTexture(s, blackColor)),
+		.B = B ? B : newDiffuse(s, newConstantTexture(s, blackColor)),
 		.bsdf = {
 			.sample = sample,
 			.base = { .compare = compare }

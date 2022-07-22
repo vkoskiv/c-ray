@@ -40,9 +40,9 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 	return colorToGrayscale(this->input->eval(this->input, record)).red;
 }
 
-const struct valueNode *newGrayscaleConverter(const struct world *world, const struct colorNode *node) {
-	HASH_CONS(world->nodeTable, hash, struct grayscale, {
-		.input = node ? node : newConstantTexture(world, blackColor),
+const struct valueNode *newGrayscaleConverter(const struct node_storage *s, const struct colorNode *node) {
+	HASH_CONS(s->node_table, hash, struct grayscale, {
+		.input = node ? node : newConstantTexture(s, blackColor),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

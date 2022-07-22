@@ -41,5 +41,5 @@ struct bsdfNode {
 #include "shaders/isotropic.h"
 #include "shaders/translucent.h"
 
-const struct bsdfNode *warningBsdf(const struct world *world);
-const struct bsdfNode *parseBsdfNode(struct renderer *r, const cJSON *node);
+const struct bsdfNode *warningBsdf(const struct node_storage *s);
+const struct bsdfNode *parseBsdfNode(const char *asset_path, struct file_cache *cache, struct node_storage *s, const cJSON *node);

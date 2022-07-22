@@ -48,15 +48,15 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	}
 }
 
-const struct bsdfNode *newMix(const struct world *world, const struct bsdfNode *A, const struct bsdfNode *B, const struct valueNode *factor) {
+const struct bsdfNode *newMix(const struct node_storage *s, const struct bsdfNode *A, const struct bsdfNode *B, const struct valueNode *factor) {
 	if (A == B) {
 		logr(debug, "A == B, pruning mix node.\n");
 		return A;
 	}
-	HASH_CONS(world->nodeTable, hashMix, struct mixBsdf, {
-		.A = A ? A : newDiffuse(world, newConstantTexture(world, blackColor)),
-		.B = B ? B : newDiffuse(world, newConstantTexture(world, blackColor)),
-		.factor = factor ? factor : newConstantValue(world, 0.5f),
+	HASH_CONS(s->node_table, hashMix, struct mixBsdf, {
+		.A = A ? A : newDiffuse(s, newConstantTexture(s, blackColor)),
+		.B = B ? B : newDiffuse(s, newConstantTexture(s, blackColor)),
+		.factor = factor ? factor : newConstantValue(s, 0.5f),
 		.bsdf = {
 			.sample = sample,
 			.base = { .compare = compareMix }

@@ -41,8 +41,8 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 	return this->value;
 }
 
-const struct valueNode *newConstantValue(const struct world *world, float value) {
-	HASH_CONS(world->nodeTable, hash, struct constantValue, {
+const struct valueNode *newConstantValue(const struct node_storage *s, float value) {
+	HASH_CONS(s->node_table, hash, struct constantValue, {
 		.value = value,
 		.node = {
 			.eval = eval,
@@ -66,42 +66,41 @@ static enum component parseComponent(const cJSON *data) {
 	return F;
 }
 
-const struct valueNode *parseValueNode(struct renderer *r, const cJSON *node) {
+const struct valueNode *parseValueNode(const char *asset_path, struct file_cache *cache, struct node_storage *s, const cJSON *node) {
 	if (!node) return NULL;
-	struct world *w = r->scene;
 	if (cJSON_IsNumber(node)) {
-		return newConstantValue(w, node->valuedouble);
+		return newConstantValue(s, node->valuedouble);
 	}
 
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
 	if (cJSON_IsString(type)) {
-		const struct valueNode *IOR = parseValueNode(r, cJSON_GetObjectItem(node, "IOR"));
-		const struct vectorNode *normal = parseVectorNode(w, cJSON_GetObjectItem(node, "normal"));
-		const struct colorNode *color = parseTextureNode(r, cJSON_GetObjectItem(node, "color"));
+		const struct valueNode *IOR = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "IOR"));
+		const struct vectorNode *normal = parseVectorNode(s, cJSON_GetObjectItem(node, "normal"));
+		const struct colorNode *color = parseTextureNode(asset_path, cache, s, cJSON_GetObjectItem(node, "color"));
 
 		if (stringEquals(type->valuestring, "fresnel")) {
-			return newFresnel(w, IOR, normal);
+			return newFresnel(s, IOR, normal);
 		}
 		if (stringEquals(type->valuestring, "map_range")) {
-			const struct valueNode *input_value = parseValueNode(r, cJSON_GetObjectItem(node, "input"));
-			const struct valueNode *from_min = parseValueNode(r, cJSON_GetObjectItem(node, "from_min"));
-			const struct valueNode *from_max = parseValueNode(r, cJSON_GetObjectItem(node, "from_max"));
-			const struct valueNode *to_min = parseValueNode(r, cJSON_GetObjectItem(node, "to_min"));
-			const struct valueNode *to_max = parseValueNode(r, cJSON_GetObjectItem(node, "to_max"));
-			return newMapRange(w, input_value, from_min, from_max, to_min, to_max);
+			const struct valueNode *input_value = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "input"));
+			const struct valueNode *from_min = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "from_min"));
+			const struct valueNode *from_max = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "from_max"));
+			const struct valueNode *to_min = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "to_min"));
+			const struct valueNode *to_max = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "to_max"));
+			return newMapRange(s, input_value, from_min, from_max, to_min, to_max);
 		}
 		if (stringEquals(type->valuestring, "raylength")) {
-			return newRayLength(w);
+			return newRayLength(s);
 		}
 		if (stringEquals(type->valuestring, "alpha")) {
-			return newAlpha(w, color);
+			return newAlpha(s, color);
 		}
 		if (stringEquals(type->valuestring, "vec_to_value")) {
-			const struct vectorNode *vec = parseVectorNode(r->scene, cJSON_GetObjectItem(node, "vector"));
+			const struct vectorNode *vec = parseVectorNode(s, cJSON_GetObjectItem(node, "vector"));
 			enum component comp = parseComponent(cJSON_GetObjectItem(node, "component"));
-			return newVecToValue(w, vec, comp);
+			return newVecToValue(s, vec, comp);
 		}
 	}
 
-	return newGrayscaleConverter(w, parseTextureNode(r, node));
+	return newGrayscaleConverter(s, parseTextureNode(asset_path, cache, s, node));
 }

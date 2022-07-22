@@ -8,5 +8,5 @@
 
 #pragma once
 
-const struct colorNode *newGradientTexture(const struct world *world, struct color down, struct color up);
+const struct colorNode *newGradientTexture(const struct node_storage *s, struct color down, struct color up);
 

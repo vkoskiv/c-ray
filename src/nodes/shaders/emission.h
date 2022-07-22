@@ -8,4 +8,4 @@
 
 #pragma once
 
-const struct bsdfNode *newEmission(const struct world *world, const struct colorNode *tex, const struct valueNode *strength);
+const struct bsdfNode *newEmission(const struct node_storage *s, const struct colorNode *tex, const struct valueNode *strength);

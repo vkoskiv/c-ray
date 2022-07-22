@@ -92,10 +92,10 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 	return 0.0f;
 }
 
-const struct valueNode *newMath(const struct world *world, const struct valueNode *A, const struct valueNode *B, const enum mathOp op) {
-	HASH_CONS(world->nodeTable, hash, struct mathNode, {
-		.A = A ? A : newConstantValue(world, 0.0f),
-		.B = B ? B : newConstantValue(world, 0.0f),
+const struct valueNode *newMath(const struct node_storage *s, const struct valueNode *A, const struct valueNode *B, const enum mathOp op) {
+	HASH_CONS(s->node_table, hash, struct mathNode, {
+		.A = A ? A : newConstantValue(s, 0.0f),
+		.B = B ? B : newConstantValue(s, 0.0f),
 		.op = op,
 		.node = {
 			.eval = eval,

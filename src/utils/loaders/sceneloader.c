@@ -669,18 +669,18 @@ static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsString(hdr)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, hdr->valuestring);
 		if (isValidFile(fullPath, r->state.file_cache)) {
-			r->scene->background = newBackground(r->scene, newImageTexture(r->scene, load_texture(fullPath, &r->scene->nodePool, r->state.file_cache), 0), NULL);
+			r->scene->background = newBackground(&r->scene->storage, newImageTexture(&r->scene->storage, load_texture(fullPath, &r->scene->storage.node_pool, r->state.file_cache), 0), NULL);
 			free(fullPath);
 			return;
 		}
 	}
 	
 	if (down && up) {
-		r->scene->background = newBackground(r->scene, newGradientTexture(r->scene, parseColor(down), parseColor(up)), NULL);
+		r->scene->background = newBackground(&r->scene->storage, newGradientTexture(&r->scene->storage, parseColor(down), parseColor(up)), NULL);
 		return;
 	}
 
-	r->scene->background = newBackground(r->scene, NULL, NULL);
+	r->scene->background = newBackground(&r->scene->storage, NULL, NULL);
 }
 
 struct transform parseTransformComposite(const cJSON *transforms) {
@@ -732,7 +732,7 @@ static struct transform parseInstanceTransform(const cJSON *instance) {
 
 void apply_materials_to_instance(struct renderer *r, struct instance *instance, const cJSON *materials) {
 	for (size_t i = 0; i < (size_t)instance->material_count; ++i) {
-		try_to_guess_bsdf(r->scene, &instance->materials[i]);
+		try_to_guess_bsdf(&r->scene->storage, &instance->materials[i]);
 	}
 	if (!materials) return;
 	struct cJSON *material = NULL;
@@ -755,7 +755,7 @@ void apply_materials_to_instance(struct renderer *r, struct instance *instance, 
 				}
 				if (!found) goto skip;
 			}
-			instance->materials[i].bsdf = parseBsdfNode(r, material);
+			instance->materials[i].bsdf = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, material);
 			//FIXME: Hack
 			cJSON *type_string = cJSON_GetObjectItem(material, "type");
 			if (type_string && stringEquals(type_string->valuestring, "emissive")) {
@@ -770,7 +770,7 @@ void apply_materials_to_instance(struct renderer *r, struct instance *instance, 
 		}
 	} else {
 		// Single graph, map it to every material in a mesh.
-		const struct bsdfNode *node = parseBsdfNode(r, materials);
+		const struct bsdfNode *node = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, materials);
 		for (size_t i = 0; i < instance->material_count; ++i) {
 			instance->materials[i].bsdf = node;
 		}
@@ -801,7 +801,7 @@ static void parse_mesh_instances(struct renderer *r, const cJSON *data, struct m
 			if (cJSON_IsString(mesh_name) && !stringEquals(mesh_name->valuestring, meshes[i].name)) break;
 			struct instance new;
 			if (cJSON_IsNumber(density)) {
-				new = newMeshVolume(&meshes[i], density->valuedouble, &r->scene->nodePool);
+				new = newMeshVolume(&meshes[i], density->valuedouble, &r->scene->storage.node_pool);
 			} else {
 				//FIXME: Make newMesh*() and newSphere*() const
 				new = newMeshSolid(&meshes[i]);
@@ -952,7 +952,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *instance = NULL;
 	if (cJSON_IsArray(instances)) {
 		cJSON_ArrayForEach(instance, instances) {
-			addInstanceToScene(r->scene, density ? newSphereVolume(lastSphere(r), density->valuedouble, &r->scene->nodePool) : newSphereSolid(lastSphere(r)));
+			addInstanceToScene(r->scene, density ? newSphereVolume(lastSphere(r), density->valuedouble, &r->scene->storage.node_pool) : newSphereSolid(lastSphere(r)));
 			lastInstance(r)->composite = parseInstanceTransform(instance);
 		}
 	}
@@ -960,9 +960,9 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *materials = cJSON_GetObjectItem(data, "material");
 	if (materials) {
 		// Single graph, map it to every material in a mesh.
-		lastSphere(r)->material.bsdf = parseBsdfNode(r, materials);
+		lastSphere(r)->material.bsdf = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, materials);
 	} else {
-		try_to_guess_bsdf(r->scene, &lastSphere(r)->material);
+		try_to_guess_bsdf(&r->scene->storage, &lastSphere(r)->material);
 	}
 }
 

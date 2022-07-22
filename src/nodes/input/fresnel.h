@@ -10,4 +10,4 @@
 
 struct vectorNode;
 
-const struct valueNode *newFresnel(const struct world *world, const struct valueNode *IOR, const struct vectorNode *normal);
+const struct valueNode *newFresnel(const struct node_storage *s, const struct valueNode *IOR, const struct vectorNode *normal);

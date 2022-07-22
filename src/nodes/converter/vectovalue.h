@@ -17,4 +17,4 @@ enum component {
 	F,
 };
 
-const struct valueNode *newVecToValue(const struct world *world, const struct vectorNode *vec, enum component component);
+const struct valueNode *newVecToValue(const struct node_storage *s, const struct vectorNode *vec, enum component component);

@@ -369,8 +369,8 @@ struct renderer *newRenderer() {
 	if (isSet("use_clustering")) r->state.file_cache = calloc(1, sizeof(struct file_cache));
 
 	r->scene = calloc(1, sizeof(*r->scene));
-	r->scene->nodePool = newBlock(NULL, 1024);
-	r->scene->nodeTable = newHashtable(compareNodes, &r->scene->nodePool);
+	r->scene->storage.node_pool = newBlock(NULL, 1024);
+	r->scene->storage.node_table = newHashtable(compareNodes, &r->scene->storage.node_pool);
 	return r;
 }
 	

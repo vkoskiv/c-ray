@@ -8,7 +8,7 @@
 
 #pragma once
 
-const struct valueNode *newMapRange(const struct world *world,
+const struct valueNode *newMapRange(const struct node_storage *s,
 									const struct valueNode *input_value,
 									const struct valueNode *from_min,
 									const struct valueNode *from_max,

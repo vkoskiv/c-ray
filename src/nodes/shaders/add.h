@@ -8,4 +8,4 @@
 
 #pragma once
 
-const struct bsdfNode *newAdd(const struct world *world, const struct bsdfNode *A, const struct bsdfNode *B);
+const struct bsdfNode *newAdd(const struct node_storage *s, const struct bsdfNode *A, const struct bsdfNode *B);

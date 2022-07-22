@@ -41,9 +41,9 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	return (struct color){ vec.x, vec.y, vec.z, 0.0f };
 }
 
-const struct colorNode *newVecToColor(const struct world *world, const struct vectorNode *vec) {
-	HASH_CONS(world->nodeTable, hash, struct vecToColorNode, {
-		.vec = vec ? vec : newConstantVector(world, vecZero()),
+const struct colorNode *newVecToColor(const struct node_storage *s, const struct vectorNode *vec) {
+	HASH_CONS(s->node_table, hash, struct vecToColorNode, {
+		.vec = vec ? vec : newConstantVector(s, vecZero()),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

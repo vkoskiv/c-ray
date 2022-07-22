@@ -87,10 +87,10 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 	return (struct vectorValue){ .v = { 0 }, .c = { 0 }, .f = 0.0f };
 }
 
-const struct vectorNode *newVecMath(const struct world *world, const struct vectorNode *A, const struct vectorNode *B, const enum vecOp op) {
-	HASH_CONS(world->nodeTable, hash, struct vecMathNode, {
-		.A = A ? A : newConstantVector(world, vecZero()),
-		.B = B ? B : newConstantVector(world, vecZero()),
+const struct vectorNode *newVecMath(const struct node_storage *s, const struct vectorNode *A, const struct vectorNode *B, const enum vecOp op) {
+	HASH_CONS(s->node_table, hash, struct vecMathNode, {
+		.A = A ? A : newConstantVector(s, vecZero()),
+		.B = B ? B : newConstantVector(s, vecZero()),
 		.op = op,
 		.node = {
 			.eval = eval,

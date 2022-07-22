@@ -8,4 +8,4 @@
 
 #pragma once
 
-const struct colorNode *newBlackbody(const struct world *world, const struct valueNode *temperature);
+const struct colorNode *newBlackbody(const struct node_storage *s, const struct valueNode *temperature);

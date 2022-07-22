@@ -13,6 +13,8 @@
 
 // Magic for comparing two nodes
 
+struct node_storage;
+
 struct nodeBase {
 	bool (*compare)(const void *, const void *);
 };

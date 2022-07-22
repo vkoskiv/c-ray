@@ -8,4 +8,4 @@
 
 #pragma once
 
-const struct colorNode *newVecToColor(const struct world *world, const struct vectorNode *vec);
+const struct colorNode *newVecToColor(const struct node_storage *s, const struct vectorNode *vec);

@@ -27,5 +27,5 @@ struct vectorNode {
 #include "converter/vecmath.h"
 #include "converter/vectocolor.h"
 
-const struct vectorNode *newConstantVector(const struct world *world, struct vector vector);
-const struct vectorNode *parseVectorNode(struct world *w, const struct cJSON *node);
+const struct vectorNode *newConstantVector(const struct node_storage *storage, struct vector vector);
+const struct vectorNode *parseVectorNode(const struct node_storage *s, const struct cJSON *node);

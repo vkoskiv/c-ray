@@ -64,9 +64,9 @@ static struct color eval(const struct colorNode *node, const struct hitRecord *r
 	return internalColor(image->tex, record, image->options);
 }
 
-const struct colorNode *newImageTexture(const struct world *world, const struct texture *texture, uint8_t options) {
+const struct colorNode *newImageTexture(const struct node_storage *s, const struct texture *texture, uint8_t options) {
 	if (!texture) return NULL;
-	HASH_CONS(world->nodeTable, hash, struct imageTexture, {
+	HASH_CONS(s->node_table, hash, struct imageTexture, {
 		.tex = texture,
 		.options = options,
 		.node = {
