@@ -14,7 +14,7 @@
 #include <string.h>
 #include "logging.h"
 
-bool cache_contains(struct file_cache *cache, const char *path) {
+bool cache_contains(const struct file_cache *cache, const char *path) {
 	for (size_t i = 0; i < cache->file_count; ++i) {
 		if (stringEquals(path, cache->files[i].path)) {
 			return true;
@@ -38,7 +38,7 @@ void cache_store(struct file_cache *cache, const char *path, const void *data, s
 	logr(debug, "Cached file %s\n", path);
 }
 
-void *cache_load(struct file_cache *cache, const char *path, size_t *length) {
+void *cache_load(const struct file_cache *cache, const char *path, size_t *length) {
 	for (size_t i = 0; i < cache->file_count; ++i) {
 		if (stringEquals(path, cache->files[i].path)) {
 			if (length) *length = cache->files[i].size;
@@ -53,7 +53,7 @@ void *cache_load(struct file_cache *cache, const char *path, size_t *length) {
 	return NULL;
 }
 
-char *cache_encode(struct file_cache *cache) {
+char *cache_encode(const struct file_cache *cache) {
 	cJSON *fileCache = cJSON_CreateArray();
 	for (size_t i = 0; i < cache->file_count; ++i) {
 		cJSON *record = cJSON_CreateObject();

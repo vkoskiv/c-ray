@@ -22,14 +22,13 @@ struct file_cache {
 	struct file *files;
 };
 
-//TODO: Consts where applicable
-bool cache_contains(struct file_cache *cache, const char *path);
+bool cache_contains(const struct file_cache *cache, const char *path);
 
 void cache_store(struct file_cache *cache, const char *path, const void *data, size_t length);
 
-void *cache_load(struct file_cache *cache, const char *path, size_t *length);
+void *cache_load(const struct file_cache *cache, const char *path, size_t *length);
 
-char *cache_encode(struct file_cache *cache);
+char *cache_encode(const struct file_cache *cache);
 
 void cache_decode(struct file_cache *cache, const char *data);
 
