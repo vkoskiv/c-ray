@@ -16,347 +16,352 @@
 #include "../src/nodes/converter/math.h"
 #include "../src/nodes/converter/map_range.h"
 
-// The node system requires the world global memory pool and hash table for storage, so we fake one here
-struct world *fakeWorld() {
-	struct world *fake = calloc(1, sizeof(*fake));
-	fake->nodePool = newBlock(NULL, 1024);
-	fake->nodeTable = newHashtable(compareNodes, &fake->nodePool);
-	return fake;
+struct node_storage *make_storage() {
+	struct node_storage *storage = calloc(1, sizeof(*storage));
+	storage->node_pool = newBlock(NULL, 1024);
+	storage->node_table = newHashtable(compareNodes, &storage->node_pool);
+	return storage;
+}
+
+void delete_storage(struct node_storage *storage) {
+	destroyHashtable(storage->node_table);
+	destroyBlocks(storage->node_pool);
+	free(storage);
 }
 
 bool mathnode_add(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, 128.0f);
-	const struct valueNode *B = newConstantValue(fake, 128.0f);
-	const struct valueNode *result = newMath(fake, A, B, Add);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 128.0f);
+	const struct valueNode *B = newConstantValue(s, 128.0f);
+	const struct valueNode *result = newMath(s, A, B, Add);
 	test_assert(result->eval(result, NULL) == 256.0f);
 	
-	A = newConstantValue(fake, -128.0f);
-	B = newConstantValue(fake, 128.0f);
-	result = newMath(fake, A, B, Add);
+	A = newConstantValue(s, -128.0f);
+	B = newConstantValue(s, 128.0f);
+	result = newMath(s, A, B, Add);
 	test_assert(result->eval(result, NULL) == 0.0f);
-	
-	destroyScene(fake);
+
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_subtract(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, 128.0f);
-	const struct valueNode *B = newConstantValue(fake, 128.0f);
-	const struct valueNode *result = newMath(fake, A, B, Subtract);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 128.0f);
+	const struct valueNode *B = newConstantValue(s, 128.0f);
+	const struct valueNode *result = newMath(s, A, B, Subtract);
 	test_assert(result->eval(result, NULL) == 0.0f);
 	
-	A = newConstantValue(fake, -128.0f);
-	B = newConstantValue(fake, 128.0f);
-	result = newMath(fake, A, B, Subtract);
+	A = newConstantValue(s, -128.0f);
+	B = newConstantValue(s, 128.0f);
+	result = newMath(s, A, B, Subtract);
 	test_assert(result->eval(result, NULL) == -256.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_multiply(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, 128.0f);
-	const struct valueNode *B = newConstantValue(fake, 128.0f);
-	const struct valueNode *result = newMath(fake, A, B, Multiply);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 128.0f);
+	const struct valueNode *B = newConstantValue(s, 128.0f);
+	const struct valueNode *result = newMath(s, A, B, Multiply);
 	test_assert(result->eval(result, NULL) == 16384.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_divide(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, 128.0f);
-	const struct valueNode *B = newConstantValue(fake, 128.0f);
-	const struct valueNode *result = newMath(fake, A, B, Divide);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 128.0f);
+	const struct valueNode *B = newConstantValue(s, 128.0f);
+	const struct valueNode *result = newMath(s, A, B, Divide);
 	test_assert(result->eval(result, NULL) == 1.0f);
 	
-	A = newConstantValue(fake, -128.0f);
-	B = newConstantValue(fake, 1.0f);
-	result = newMath(fake, A, B, Divide);
+	A = newConstantValue(s, -128.0f);
+	B = newConstantValue(s, 1.0f);
+	result = newMath(s, A, B, Divide);
 	test_assert(result->eval(result, NULL) == -128.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_power(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, 2.0f);
-	const struct valueNode *B = newConstantValue(fake, 16.0f);
-	const struct valueNode *result = newMath(fake, A, B, Power);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 2.0f);
+	const struct valueNode *B = newConstantValue(s, 16.0f);
+	const struct valueNode *result = newMath(s, A, B, Power);
 	test_assert(result->eval(result, NULL) == 65536.0f);
 	
-	A = newConstantValue(fake, -128.0f);
-	B = newConstantValue(fake, 1.0f);
-	result = newMath(fake, A, B, Power);
+	A = newConstantValue(s, -128.0f);
+	B = newConstantValue(s, 1.0f);
+	result = newMath(s, A, B, Power);
 	test_assert(result->eval(result, NULL) == -128.0f);
 
-	A = newConstantValue(fake, 128.0f);
-	B = newConstantValue(fake, 0.0f);
-	result = newMath(fake, A, B, Power);
+	A = newConstantValue(s, 128.0f);
+	B = newConstantValue(s, 0.0f);
+	result = newMath(s, A, B, Power);
 	test_assert(result->eval(result, NULL) == 1.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_log(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, 1.0f);
-	const struct valueNode *result = newMath(fake, A, NULL, Log);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 1.0f);
+	const struct valueNode *result = newMath(s, A, NULL, Log);
 	test_assert(result->eval(result, NULL) == 0.0f);
 	
-	A = newConstantValue(fake, 10.0f);
-	result = newMath(fake, A, NULL , Log);
+	A = newConstantValue(s, 10.0f);
+	result = newMath(s, A, NULL , Log);
 	test_assert(result->eval(result, NULL) == 1.0f);
 	
-	A = newConstantValue(fake, 100.0f);
-	result = newMath(fake, A, NULL, Log);
+	A = newConstantValue(s, 100.0f);
+	result = newMath(s, A, NULL, Log);
 	test_assert(result->eval(result, NULL) == 2.0f);
 	
-	A = newConstantValue(fake, 1000.0f);
-	result = newMath(fake, A, NULL, Log);
+	A = newConstantValue(s, 1000.0f);
+	result = newMath(s, A, NULL, Log);
 	test_assert(result->eval(result, NULL) == 3.0f);
 	
-	A = newConstantValue(fake, 10000.0f);
-	result = newMath(fake, A, NULL, Log);
+	A = newConstantValue(s, 10000.0f);
+	result = newMath(s, A, NULL, Log);
 	test_assert(result->eval(result, NULL) == 4.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_squareroot(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, 9.0f);
-	const struct valueNode *result = newMath(fake, A, NULL, SquareRoot);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 9.0f);
+	const struct valueNode *result = newMath(s, A, NULL, SquareRoot);
 	test_assert(result->eval(result, NULL) == 3.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_absolute(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, -128.0f);
-	const struct valueNode *result = newMath(fake, A, NULL, Absolute);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, -128.0f);
+	const struct valueNode *result = newMath(s, A, NULL, Absolute);
 	test_assert(result->eval(result, NULL) == 128.0f);
 	
-	A = newConstantValue(fake, 128.0f);
-	result = newMath(fake, A, NULL, Absolute);
+	A = newConstantValue(s, 128.0f);
+	result = newMath(s, A, NULL, Absolute);
 	test_assert(result->eval(result, NULL) == 128.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_min(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, -128.0f);
-	const struct valueNode *B = newConstantValue(fake, 128.0f);
-	const struct valueNode *result = newMath(fake, A, B, Min);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, -128.0f);
+	const struct valueNode *B = newConstantValue(s, 128.0f);
+	const struct valueNode *result = newMath(s, A, B, Min);
 	test_assert(result->eval(result, NULL) == -128.0f);
 	
-	A = newConstantValue(fake, 128.0f);
-	B = newConstantValue(fake, 42.0f);
-	result = newMath(fake, A, B, Min);
+	A = newConstantValue(s, 128.0f);
+	B = newConstantValue(s, 42.0f);
+	result = newMath(s, A, B, Min);
 	test_assert(result->eval(result, NULL) == 42.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_max(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, -128.0f);
-	const struct valueNode *B = newConstantValue(fake, 128.0f);
-	const struct valueNode *result = newMath(fake, A, B, Max);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, -128.0f);
+	const struct valueNode *B = newConstantValue(s, 128.0f);
+	const struct valueNode *result = newMath(s, A, B, Max);
 	test_assert(result->eval(result, NULL) == 128.0f);
 	
-	A = newConstantValue(fake, 128.0f);
-	B = newConstantValue(fake, 42.0f);
-	result = newMath(fake, A, B, Max);
+	A = newConstantValue(s, 128.0f);
+	B = newConstantValue(s, 42.0f);
+	result = newMath(s, A, B, Max);
 	test_assert(result->eval(result, NULL) == 128.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_sine(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, M_PI);
-	const struct valueNode *result = newMath(fake, A, NULL, Sine);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, M_PI);
+	const struct valueNode *result = newMath(s, A, NULL, Sine);
 	
 	roughly_equals(result->eval(result, NULL), 0.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_cosine(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, M_PI);
-	const struct valueNode *result = newMath(fake, A, NULL, Cosine);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, M_PI);
+	const struct valueNode *result = newMath(s, A, NULL, Cosine);
 	
 	roughly_equals(result->eval(result, NULL), -1.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_tangent(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, M_PI);
-	const struct valueNode *result = newMath(fake, A, NULL, Tangent);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, M_PI);
+	const struct valueNode *result = newMath(s, A, NULL, Tangent);
 	
 	roughly_equals(result->eval(result, NULL), -0.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_toradians(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, 180.0f);
-	const struct valueNode *result = newMath(fake, A, NULL, ToRadians);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 180.0f);
+	const struct valueNode *result = newMath(s, A, NULL, ToRadians);
 	
 	roughly_equals(result->eval(result, NULL), M_PI);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool mathnode_todegrees(void) {
-	struct world *fake = fakeWorld();
-	const struct valueNode *A = newConstantValue(fake, M_PI);
-	const struct valueNode *result = newMath(fake, A, NULL, ToDegrees);
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, M_PI);
+	const struct valueNode *result = newMath(s, A, NULL, ToDegrees);
 	
 	roughly_equals(result->eval(result, NULL), 180.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool vecmath_vecAdd(void) {
-	struct world *fake = fakeWorld();
-	const struct vectorNode *A = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
-	const struct vectorNode *B = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
+	struct node_storage *s = make_storage();
+	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
+	const struct vectorNode *B = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
-	const struct vectorNode *add = newVecMath(fake, A, B, VecAdd);
+	const struct vectorNode *add = newVecMath(s, A, B, VecAdd);
 	
 	struct vectorValue result = add->eval(add, NULL);
 	struct vector expected = (struct vector){2.0f, 4.0f, 6.0f};
 	vec_roughly_equals(result.v, expected);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool vecmath_vecSubtract(void) {
-	struct world *fake = fakeWorld();
-	const struct vectorNode *A = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
-	const struct vectorNode *B = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
+	struct node_storage *s = make_storage();
+	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
+	const struct vectorNode *B = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
-	const struct vectorNode *add = newVecMath(fake, A, B, VecSubtract);
+	const struct vectorNode *add = newVecMath(s, A, B, VecSubtract);
 	
 	struct vectorValue result = add->eval(add, NULL);
 	struct vector expected = vecZero();
 	vec_roughly_equals(result.v, expected);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool vecmath_vecMultiply(void) {
-	struct world *fake = fakeWorld();
-	const struct vectorNode *A = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
-	const struct vectorNode *B = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
+	struct node_storage *s = make_storage();
+	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
+	const struct vectorNode *B = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
-	const struct vectorNode *add = newVecMath(fake, A, B, VecMultiply);
+	const struct vectorNode *add = newVecMath(s, A, B, VecMultiply);
 	
 	struct vectorValue result = add->eval(add, NULL);
 	struct vector expected = (struct vector){1.0f, 4.0f, 9.0f};
 	vec_roughly_equals(result.v, expected);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool vecmath_vecAverage(void) {
-	struct world *fake = fakeWorld();
-	const struct vectorNode *A = newConstantVector(fake, (struct vector){0.0f, 0.0f, 0.0f});
-	const struct vectorNode *B = newConstantVector(fake, (struct vector){5.0f, 5.0f, 5.0f});
+	struct node_storage *s = make_storage();
+	const struct vectorNode *A = newConstantVector(s, (struct vector){0.0f, 0.0f, 0.0f});
+	const struct vectorNode *B = newConstantVector(s, (struct vector){5.0f, 5.0f, 5.0f});
 	
-	const struct vectorNode *op = newVecMath(fake, A, B, VecAverage);
+	const struct vectorNode *op = newVecMath(s, A, B, VecAverage);
 	
 	struct vectorValue result = op->eval(op, NULL);
 	struct vector expected = (struct vector){2.5f, 2.5f, 2.5f};
 	vec_roughly_equals(result.v, expected);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 bool vecmath_vecDot(void) {
-	struct world *fake = fakeWorld();
-	const struct vectorNode *up = newConstantVector(fake, worldUp);
-	const struct vectorNode *right = newConstantVector(fake, (struct vector){1.0f, 0.0f, 0.0f});
+	struct node_storage *s = make_storage();
+	const struct vectorNode *up = newConstantVector(s, worldUp);
+	const struct vectorNode *right = newConstantVector(s, (struct vector){1.0f, 0.0f, 0.0f});
 	
-	const struct vectorNode *dot = newVecMath(fake, up, right, VecDot);
+	const struct vectorNode *dot = newVecMath(s, up, right, VecDot);
 	
 	struct vectorValue result = dot->eval(dot, NULL);
 	roughly_equals(result.f, 0.0f);
 	
-	const struct vectorNode *down = newConstantVector(fake, vecNegate(worldUp));
-	dot = newVecMath(fake, up, down, VecDot);
+	const struct vectorNode *down = newConstantVector(s, vecNegate(worldUp));
+	dot = newVecMath(s, up, down, VecDot);
 	result = dot->eval(dot, NULL);
 	roughly_equals(result.f, -1.0f);
 	
-	dot = newVecMath(fake, up, up, VecDot);
+	dot = newVecMath(s, up, up, VecDot);
 	result = dot->eval(dot, NULL);
 	roughly_equals(result.f, 1.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool vecmath_vecCross(void) {
-	struct world *fake = fakeWorld();
-	const struct vectorNode *A = newConstantVector(fake, (struct vector){1.0f, 0.0f, 0.0f});
-	const struct vectorNode *B = newConstantVector(fake, (struct vector){0.0f, 1.0f, 0.0f});
+	struct node_storage *s = make_storage();
+	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 0.0f, 0.0f});
+	const struct vectorNode *B = newConstantVector(s, (struct vector){0.0f, 1.0f, 0.0f});
 	
-	const struct vectorNode *op = newVecMath(fake, A, B, VecCross);
+	const struct vectorNode *op = newVecMath(s, A, B, VecCross);
 	
 	struct vectorValue result = op->eval(op, NULL);
 	struct vector expected = (struct vector){0.0f, 0.0f, 1.0f};
 	vec_roughly_equals(result.v, expected);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool vecmath_vecNormalize(void) {
-	struct world *fake = fakeWorld();
-	const struct vectorNode *A = newConstantVector(fake, (struct vector){1.0f, 2.0f, 3.0f});
+	struct node_storage *s = make_storage();
+	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
-	const struct vectorNode *op = newVecMath(fake, A, NULL, VecNormalize);
+	const struct vectorNode *op = newVecMath(s, A, NULL, VecNormalize);
 	
 	float length = vecLength(op->eval(op, NULL).v);
 	roughly_equals(length, 1.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool vecmath_vecReflect(void) {
-	struct world *fake = fakeWorld();
-	const struct vectorNode *toReflect = newConstantVector(fake, vecNormalize((struct vector){1.0f, 1.0f, 0.0f}));
-	const struct vectorNode *normal = newConstantVector(fake, (struct vector){0.0f, -1.0f, 0.0f});
+	struct node_storage *s = make_storage();
+	const struct vectorNode *toReflect = newConstantVector(s, vecNormalize((struct vector){1.0f, 1.0f, 0.0f}));
+	const struct vectorNode *normal = newConstantVector(s, (struct vector){0.0f, -1.0f, 0.0f});
 	
-	const struct vectorNode *op = newVecMath(fake, toReflect, normal, VecReflect);
+	const struct vectorNode *op = newVecMath(s, toReflect, normal, VecReflect);
 	
 	struct vectorValue reflected = op->eval(op, NULL);
 	roughly_equals(vecLength(reflected.v), 1.0f);
@@ -364,74 +369,74 @@ bool vecmath_vecReflect(void) {
 	struct vector expected = vecNormalize((struct vector){1.0f, -1.0f, 0.0f});
 	vec_roughly_equals(reflected.v, expected);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool vecmath_vecLength(void) {
-	struct world *fake = fakeWorld();
-	const struct vectorNode *A = newConstantVector(fake, (struct vector){0.0f, 2.0f, 0.0f});
+	struct node_storage *s = make_storage();
+	const struct vectorNode *A = newConstantVector(s, (struct vector){0.0f, 2.0f, 0.0f});
 	
-	const struct vectorNode *op = newVecMath(fake, A, NULL, VecLength);
+	const struct vectorNode *op = newVecMath(s, A, NULL, VecLength);
 	
 	struct vectorValue lengthValue = op->eval(op, NULL);
 	roughly_equals(lengthValue.f, 2.0f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool vecmath_vecAbs(void) {
-	struct world *fake = fakeWorld();
-	const struct vectorNode *A = newConstantVector(fake, (struct vector){-10.0f, 2.0f, -3.0f});
+	struct node_storage *s = make_storage();
+	const struct vectorNode *A = newConstantVector(s, (struct vector){-10.0f, 2.0f, -3.0f});
 	
-	const struct vectorNode *op = newVecMath(fake, A, NULL, VecAbs);
+	const struct vectorNode *op = newVecMath(s, A, NULL, VecAbs);
 	
 	struct vectorValue result = op->eval(op, NULL);
 	struct vector expected = (struct vector){10.0f, 2.0f, 3.0f};
 	vec_roughly_equals(result.v, expected);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
 
 bool map_range(void) {
-	struct world *fake = fakeWorld();
+	struct node_storage *s = make_storage();
 	
-	const struct valueNode *zero = newConstantValue(fake, 0.0f);
-	const struct valueNode *half = newConstantValue(fake, 0.5f);
-	const struct valueNode *one = newConstantValue(fake, 1.0f);
+	const struct valueNode *zero = newConstantValue(s, 0.0f);
+	const struct valueNode *half = newConstantValue(s, 0.5f);
+	const struct valueNode *one = newConstantValue(s, 1.0f);
 	
-	const struct valueNode *A = newMapRange(fake, half, zero, one, zero, one);
+	const struct valueNode *A = newMapRange(s, half, zero, one, zero, one);
 	test_assert(A->eval(A, NULL) == 0.5f);
 	
-	A = newMapRange(fake, half, zero, one, newConstantValue(fake, 0.0f), newConstantValue(fake, 30.0f));
+	A = newMapRange(s, half, zero, one, newConstantValue(s, 0.0f), newConstantValue(s, 30.0f));
 	test_assert(A->eval(A, NULL) == 15.0f);
 	
-	A = newMapRange(fake, half, zero, one, newConstantValue(fake, -15.0f), newConstantValue(fake, 15.0f));
+	A = newMapRange(s, half, zero, one, newConstantValue(s, -15.0f), newConstantValue(s, 15.0f));
 	test_assert(A->eval(A, NULL) == 0.0f);
 	
-	A = newMapRange(fake, newConstantValue(fake, 0.25f), zero, half, newConstantValue(fake, -15.0f), newConstantValue(fake, 15.0f));
+	A = newMapRange(s, newConstantValue(s, 0.25f), zero, half, newConstantValue(s, -15.0f), newConstantValue(s, 15.0f));
 	test_assert(A->eval(A, NULL) == 0.0f);
 	
-	A = newMapRange(fake, newConstantValue(fake, -1.0f), zero, one, zero, one);
+	A = newMapRange(s, newConstantValue(s, -1.0f), zero, one, zero, one);
 	test_assert(A->eval(A, NULL) == 0.0f);
 	
-	A = newMapRange(fake, newConstantValue(fake, 2.0f), zero, one, zero, one);
+	A = newMapRange(s, newConstantValue(s, 2.0f), zero, one, zero, one);
 	test_assert(A->eval(A, NULL) == 1.0f);
 	
-	A = newMapRange(fake, half, zero, one, zero, newConstantValue(fake, -5.0f));
+	A = newMapRange(s, half, zero, one, zero, newConstantValue(s, -5.0f));
 	test_assert(A->eval(A, NULL) == -2.5f);
 	
-	A = newMapRange(fake, one, zero, one, zero, newConstantValue(fake, -5.0f));
+	A = newMapRange(s, one, zero, one, zero, newConstantValue(s, -5.0f));
 	test_assert(A->eval(A, NULL) == -5.0f);
 	
-	A = newMapRange(fake, newConstantValue(fake, 2.5f), zero, newConstantValue(fake, 5.0f), zero, one);
+	A = newMapRange(s, newConstantValue(s, 2.5f), zero, newConstantValue(s, 5.0f), zero, one);
 	test_assert(A->eval(A, NULL) == 0.5f);
 	
-	A = newMapRange(fake, newConstantValue(fake, -2.5f), zero, newConstantValue(fake, -5.0f), zero, one);
+	A = newMapRange(s, newConstantValue(s, -2.5f), zero, newConstantValue(s, -5.0f), zero, one);
 	test_assert(A->eval(A, NULL) == 0.5f);
 	
-	destroyScene(fake);
+	delete_storage(s);
 	return true;
 }
