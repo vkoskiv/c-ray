@@ -10,6 +10,7 @@
 
 #include "../src/datatypes/scene.h"
 #include "../src/utils/hashtable.h"
+#include "../src/utils/mempool.h"
 #include "../src/nodes/nodebase.h"
 #include "../src/nodes/valuenode.h"
 #include "../src/nodes/vectornode.h"

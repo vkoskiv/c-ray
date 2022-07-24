@@ -11,6 +11,13 @@
 #include "logging.h"
 #include "fileio.h"
 
+struct block {
+	size_t size;
+	size_t capacity;
+	struct block *prev;
+	cray_max_align_t data[];
+};
+
 struct block *newBlock(struct block *prev, size_t initialSize) {
 	struct block *newBlock = calloc(1, sizeof(*newBlock) + initialSize);
 	newBlock->capacity = initialSize;
