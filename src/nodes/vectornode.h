@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../libraries/cJSON.h"
+#include "../vendored/cJSON.h"
 #include "nodebase.h"
 
 struct vectorValue {

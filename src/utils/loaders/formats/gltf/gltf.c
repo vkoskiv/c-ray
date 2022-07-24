@@ -9,7 +9,7 @@
 #include "../../../../includes.h"
 
 #include "gltf.h"
-#include "../../../../libraries/cJSON.h"
+#include "../../../../vendored/cJSON.h"
 #include "../../../string.h"
 #include "../../../base64.h"
 #include "../../../../datatypes/vector.h"

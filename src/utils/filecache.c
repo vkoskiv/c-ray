@@ -8,7 +8,7 @@
 
 #include "filecache.h"
 #include <stdlib.h>
-#include "../libraries/cJSON.h"
+#include "../vendored/cJSON.h"
 #include "base64.h"
 #include "string.h"
 #include <string.h>

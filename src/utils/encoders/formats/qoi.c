@@ -11,7 +11,7 @@
 #include "../../fileio.h"
 
 #define QOI_IMPLEMENTATION
-#include "../../../libraries/qoi.h"
+#include "../../../vendored/qoi.h"
 
 void encode_qoi_from_array(const char *filename, const unsigned char *imgData, size_t width, size_t height) {
 	int encoded_bytes = 0;

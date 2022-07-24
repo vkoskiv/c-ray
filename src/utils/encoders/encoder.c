@@ -11,7 +11,7 @@
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/image/imagefile.h"
 #include "../logging.h"
-#include "../../libraries/asprintf.h"
+#include "../../vendored/asprintf.h"
 #include "../assert.h"
 #include "../args.h"
 

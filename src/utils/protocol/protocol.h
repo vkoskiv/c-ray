@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../../libraries/cJSON.h"
+#include "../../vendored/cJSON.h"
 #include <stdbool.h>
 
 #define C_RAY_DEFAULT_PORT 2222
