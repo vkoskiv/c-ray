@@ -20,7 +20,7 @@
 #include "samplers/sampler.h"
 #include "sky.h"
 #include "../datatypes/transforms.h"
-#include "../datatypes/instance.h"
+#include "../renderer/instance.h"
 #include "../nodes/shaders/background.h"
 
 static inline void recompute_uv(struct hitRecord *isect, float offset) {

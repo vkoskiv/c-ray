@@ -21,7 +21,7 @@
 #include "mesh.h"
 #include "poly.h"
 #include "../utils/platform/thread.h"
-#include "../datatypes/instance.h"
+#include "../renderer/instance.h"
 #include "../datatypes/bbox.h"
 #include "../utils/mempool.h"
 #include "../utils/hashtable.h"

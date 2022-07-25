@@ -9,8 +9,8 @@
 #pragma once
 
 #include <stdbool.h>
-#include "transforms.h"
-#include "../renderer/samplers/sampler.h"
+#include "../datatypes/transforms.h"
+#include "samplers/sampler.h"
 
 struct world;
 

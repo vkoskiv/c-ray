@@ -9,13 +9,12 @@
 #include "../includes.h"
 #include "../accelerators/bvh.h"
 #include "../renderer/pathtrace.h"
-#include "vector.h"
+#include "../datatypes/vector.h"
 #include "instance.h"
-#include "transforms.h"
-#include "bbox.h"
-#include "mesh.h"
-#include "sphere.h"
-#include "scene.h"
+#include "../datatypes/bbox.h"
+#include "../datatypes/mesh.h"
+#include "../datatypes/sphere.h"
+#include "../datatypes/scene.h"
 #include "../utils/args.h"
 
 struct sphereVolume {

@@ -27,7 +27,7 @@
 #include "../../datatypes/image/imagefile.h"
 #include "../../renderer/renderer.h"
 #include "textureloader.h"
-#include "../../datatypes/instance.h"
+#include "../../renderer/instance.h"
 #include "../../utils/args.h"
 #include "../../utils/timer.h"
 #include "../../utils/string.h"

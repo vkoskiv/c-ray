@@ -13,7 +13,7 @@
 
 #include "../datatypes/bbox.h"
 #include "../datatypes/mesh.h"
-#include "../datatypes/instance.h"
+#include "../renderer/instance.h"
 
 /*
  * This BVH builder is based on "On fast Construction of SAH-based Bounding Volume Hierarchies",
