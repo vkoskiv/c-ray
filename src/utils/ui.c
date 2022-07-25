@@ -37,7 +37,7 @@ struct display {
 	unsigned height;
 };
 
-static bool aborted = false;
+static bool g_aborted = false;
 
 //FIXME: This won't work on linux, it'll just abort the execution.
 //Take a look at the docs for sigaction() and implement that.
@@ -45,7 +45,7 @@ void sigHandler(int sig) {
 	if (sig == 2) { //SIGINT
 		logr(plain, "\n");
 		logr(info, "Received ^C, aborting render without saving\n");
-		aborted = true;
+		g_aborted = true;
 	}
 }
 
@@ -192,7 +192,7 @@ void printDuration(uint64_t ms) {
 }
 
 void getKeyboardInput(struct renderer *r) {
-	if (aborted) {
+	if (g_aborted) {
 		r->state.saveImage = false;
 		r->state.renderAborted = true;
 	}
@@ -261,14 +261,22 @@ static void drawProgressBars(struct renderer *r) {
 			
 			float prc = ((float)completedSamples / (float)totalSamples);
 			int pixels2draw = (int)((float)temp->width * prc);
+
+			struct color c = temp->isRendering ? progColor : clearColor;
 			
 			//And then draw the bar
 			for (int i = 0; i < pixels2draw; ++i) {
-				setPixel(r->state.uiBuffer, progColor, temp->begin.x + i, (temp->begin.y + (temp->height / 5)) - 1);
-				setPixel(r->state.uiBuffer, progColor, temp->begin.x + i, (temp->begin.y + (temp->height / 5))    );
-				setPixel(r->state.uiBuffer, progColor, temp->begin.x + i, (temp->begin.y + (temp->height / 5)) + 1);
+				setPixel(r->state.uiBuffer, c, temp->begin.x + i, (temp->begin.y + (temp->height / 5)) - 1);
+				setPixel(r->state.uiBuffer, c, temp->begin.x + i, (temp->begin.y + (temp->height / 5))    );
+				setPixel(r->state.uiBuffer, c, temp->begin.x + i, (temp->begin.y + (temp->height / 5)) + 1);
 			}
 		}
+	}
+	for (int i = 0; i < r->state.tileCount; ++i) {
+		if (r->state.renderTiles[i].renderComplete) {
+			clearProgBar(r, r->state.renderTiles[i]);
+		}
+
 	}
 }
 
@@ -278,60 +286,50 @@ static void drawProgressBars(struct renderer *r) {
  @param r Renderer
  @param tile Given renderTile
  */
-static void drawFrame(struct renderer *r, struct renderTile tile) {
+static void drawFrame(struct texture *buf, struct renderTile tile, struct color c) {
 	unsigned length = tile.width  <= 16 ? 4 : 8;
 			 length = tile.height <= 16 ? 4 : 8;
 	length = length > tile.width ? tile.width : length;
 	length = length > tile.height ? tile.height : length;
-	struct color c = clearColor;
-	if (tile.isRendering) {
-		c = frameColor;
-	} else if (tile.renderComplete) {
-		c = clearColor;
-	} else {
-		return;
-	}
+
 	for (unsigned i = 1; i < length; ++i) {
 		//top left
-		setPixel(r->state.uiBuffer, c, tile.begin.x + i, tile.begin.y + 1);
-		setPixel(r->state.uiBuffer, c, tile.begin.x + 1, tile.begin.y + i);
+		setPixel(buf, c, tile.begin.x + i, tile.begin.y + 1);
+		setPixel(buf, c, tile.begin.x + 1, tile.begin.y + i);
 		
 		//top right
-		setPixel(r->state.uiBuffer, c, tile.end.x - i, tile.begin.y + 1);
-		setPixel(r->state.uiBuffer, c, tile.end.x - 1, tile.begin.y + i);
+		setPixel(buf, c, tile.end.x - i, tile.begin.y + 1);
+		setPixel(buf, c, tile.end.x - 1, tile.begin.y + i);
 		
 		//Bottom left
-		setPixel(r->state.uiBuffer, c, tile.begin.x + i, tile.end.y - 1);
-		setPixel(r->state.uiBuffer, c, tile.begin.x + 1, tile.end.y - i);
+		setPixel(buf, c, tile.begin.x + i, tile.end.y - 1);
+		setPixel(buf, c, tile.begin.x + 1, tile.end.y - i);
 		
 		//bottom right
-		setPixel(r->state.uiBuffer, c, tile.end.x - i, tile.end.y - 1);
-		setPixel(r->state.uiBuffer, c, tile.end.x - 1, tile.end.y - i);
+		setPixel(buf, c, tile.end.x - i, tile.end.y - 1);
+		setPixel(buf, c, tile.end.x - 1, tile.end.y - i);
 	}
 }
 
 static void updateFrames(struct renderer *r) {
 	if (r->prefs.tileWidth < 8 || r->prefs.tileHeight < 8) return;
 	for (int i = 0; i < r->state.tileCount; ++i) {
-		//For every tile, if it's currently rendering, draw the frame
-		//If it is NOT rendering, clear any frame present
-		drawFrame(r, r->state.renderTiles[i]);
-		if (r->state.renderTiles[i].renderComplete) {
-			clearProgBar(r, r->state.renderTiles[i]);
-		}
+		struct renderTile tile = r->state.renderTiles[i];
+		struct color c = tile.isRendering ? frameColor : clearColor;
+		drawFrame(r->state.uiBuffer, tile, c);
 	}
-	drawProgressBars(r);
 }
 #endif
 
 void drawWindow(struct renderer *r, struct texture *t) {
-	if (aborted) {
-		r->state.renderAborted = true;
-	}
+	if (g_aborted) r->state.renderAborted = true;
 #ifdef CRAY_SDL_ENABLED
 	if (!g_display) return;
 	//Render frames
-	if (!isSet("interactive") || r->state.clients) updateFrames(r);
+	if (!isSet("interactive") || r->state.clients) {
+		updateFrames(r);
+		drawProgressBars(r);
+	}
 	//Update image data
 	SDL_UpdateTexture(g_display->texture, NULL, t->data.byte_p, (int)t->width * 3);
 	SDL_UpdateTexture(g_display->overlayTexture, NULL, r->state.uiBuffer->data.byte_p, (int)t->width * 4);
