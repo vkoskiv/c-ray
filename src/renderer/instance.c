@@ -167,7 +167,7 @@ static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecor
 static bool intersectMesh(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler) {
 	struct lightRay copy = *ray;
 	transformRay(&copy, instance->composite.Ainv);
-	struct mesh *mesh = (struct mesh *)instance->object;
+	struct mesh *mesh = instance->object;
 	float offset = mesh->rayOffset;
 	copy.start = vecAdd(copy.start, vecScale(copy.direction, offset));
 	if (traverseBottomLevelBvh(mesh, &copy, isect, sampler)) {
