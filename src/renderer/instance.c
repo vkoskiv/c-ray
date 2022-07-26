@@ -168,8 +168,7 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 	struct lightRay copy = *ray;
 	transformRay(&copy, instance->composite.Ainv);
 	struct mesh *mesh = instance->object;
-	float offset = mesh->rayOffset;
-	copy.start = vecAdd(copy.start, vecScale(copy.direction, offset));
+	copy.start = vecAdd(copy.start, vecScale(copy.direction, mesh->rayOffset));
 	if (traverseBottomLevelBvh(mesh, &copy, isect, sampler)) {
 		// Repopulate uv with actual texture mapping
 		isect->uv = getTexMapMesh(mesh, isect);
@@ -190,8 +189,7 @@ static bool intersectMeshVolume(const struct instance *instance, const struct li
 	struct lightRay copy = *ray;
 	transformRay(&copy, instance->composite.Ainv);
 	struct meshVolume *mesh = (struct meshVolume *)instance->object;
-	float offset = mesh->mesh->rayOffset;
-	copy.start = vecAdd(copy.start, vecScale(copy.direction, offset));
+	copy.start = vecAdd(copy.start, vecScale(copy.direction, mesh->mesh->rayOffset));
 	if (traverseBottomLevelBvh(mesh->mesh, &copy, &record1, sampler)) {
 		struct lightRay copy2 = (struct lightRay){ alongRay(&copy, record1.distance + 0.0001f), copy.direction };
 		if (traverseBottomLevelBvh(mesh->mesh, &copy2, &record2, sampler)) {
