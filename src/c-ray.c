@@ -250,11 +250,11 @@ void cr_start_renderer(struct renderer *r) {
 		return;
 	}
 	struct camera cam = r->scene->cameras[r->prefs.selected_camera];
-	initDisplay(r->prefs.fullscreen, r->prefs.borderless, cam.width, cam.height, r->prefs.scale);
+	if (r->prefs.enabled) initDisplay(r->prefs.fullscreen, r->prefs.borderless, cam.width, cam.height, r->prefs.scale);
 	timer_start(&r->state.timer);
 	currentImage = renderFrame(r);
 	printDuration(timer_get_ms(r->state.timer));
-	destroyDisplay();
+	if (r->prefs.enabled) destroyDisplay();
 }
 
 void cr_start_render_worker() {
