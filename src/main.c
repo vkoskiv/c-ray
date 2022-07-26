@@ -10,10 +10,18 @@
 
 #include "c-ray.h"
 
+#include "datatypes/mesh.h"
+#include "utils/loaders/formats/gltf/gltf.h"
+
 int main(int argc, char *argv[]) {
 	cr_log("c-ray v%s%s [%.8s], © 2015-2022 Valtteri Koskivuori\n", cr_get_version(), is_debug() ? "D" : "", cr_get_git_hash());
 	cr_initialize();
 	cr_parse_args(argc, argv);
+
+	/*size_t meshcount = 0;
+	struct mesh *meshes = parse_glTF_meshes("gltf/bin_diningroom.glb", &meshcount);
+	(void)meshes;
+	return 0;*/
 	struct renderer *renderer = cr_new_renderer();
 	if (!cr_is_option_set("is_worker")) {
 		size_t bytes = 0;

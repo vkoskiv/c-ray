@@ -183,10 +183,58 @@ struct texture *parse_images(const cJSON *data, size_t *amount, const struct buf
 	return images;
 }
 
+struct glb_header {
+	uint32_t magic;
+	uint32_t version;
+	uint32_t file_length;
+};
+
+#define GLB_CHUNK_TYPE_JSON 0x4E4F534A
+#define GLB_CHUNK_TYPE_BIN  0x004E4942
+
+struct glb_chunk {
+	uint32_t length;
+	uint32_t type;
+	unsigned char data[];
+};
+
+size_t count_chunks(const char *data) {
+	size_t chunks = 0;
+
+	struct glb_header *header = (struct glb_header *)data;
+
+	size_t offset = 0;
+	struct glb_chunk *chunk = NULL;
+	char *head = data + sizeof(*header) + offset;
+	while (offset < header->file_length) {
+		chunk = head;
+		logr(debug, "chunk type: %x\n", chunk->type);
+		offset += chunk->length + sizeof(chunk->length) + sizeof(chunk->type);
+		head = data + sizeof(*header) + offset;
+		chunks++;
+	}
+
+	return chunks;
+}
+
+struct glb_chunk *chunkify(const char *data, size_t *chunk_count) {
+	size_t amount = count_chunks(data);
+	struct glb_chunk **chunks = malloc(amount * sizeof(*chunks));
+	for (size_t i = 0; i < amount; ++i) {
+
+	}
+	if (chunk_count) *chunk_count = amount;
+}
+
 struct mesh *parse_glb_meshes(const char *data, size_t *meshCount) {
-	(void )data;
-	(void )meshCount;
-	ASSERT_NOT_REACHED();
+	struct glb_header *header = (struct glb_header *)data;
+	char *fs = humanFileSize(header->file_length);
+	logr(debug, "Loading %s binary glTF, version %u\n", fs, header->version);
+
+	size_t chunk_count = count_chunks(data);
+	logr(debug, "Found %lu chunks\n", chunk_count);
+
+	if (meshCount) *meshCount = 0;
 	return NULL;
 }
 
