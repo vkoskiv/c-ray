@@ -576,6 +576,12 @@ static struct camera parseCamera(const cJSON *data) {
 		}
 	}
 
+	cam.get_ray = &cam_get_ray_perspective;
+	const cJSON *projection = cJSON_GetObjectItem(data, "projection");
+	if (cJSON_IsString(projection) && stringEquals(projection->valuestring, "orthographic")) {
+		cam.get_ray = &cam_get_ray_ortho;
+	}
+
 #ifdef TEST_BEZIER
 	cam.path = test();
 #endif

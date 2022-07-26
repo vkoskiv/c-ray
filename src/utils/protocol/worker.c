@@ -163,7 +163,7 @@ static void *workerThread(void *arg) {
 					initSampler(sampler, SAMPLING_STRATEGY, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
-					struct lightRay incidentRay = cam_get_ray(cam, x, y, sampler);
+					struct lightRay incidentRay = cam->get_ray(cam, x, y, sampler);
 					struct color sample = pathTrace(&incidentRay, r->scene, r->prefs.bounces, sampler);
 					
 					//And process the running average

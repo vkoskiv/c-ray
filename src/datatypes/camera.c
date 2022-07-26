@@ -69,10 +69,39 @@ static inline float triangleDistribution(float v) {
 	return v;
 }
 
-struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampler *sampler) {
-	struct lightRay new_ray = {{0}};
+struct lightRay cam_get_ray_ortho(const struct camera *cam, int x, int y, struct sampler *sampler) {
+	struct lightRay new_ray = { { 0 } };
+	new_ray.direction = cam->look_at;
+	const float jitter_x = triangleDistribution(getDimension(sampler));
+	const float jitter_y = triangleDistribution(getDimension(sampler));
+
+	// With this, right half is fast, left side is slow.
+	float x_offset = -(cam->sensor_size.x / cam->width );
+	float y_offset =  (cam->sensor_size.y / cam->height);
+
+	x_offset *= x - cam->width  * 0.5f + jitter_x + 0.5f;
+	y_offset *= y - cam->height * 0.5f + jitter_y + 0.5f;
 	
-	new_ray.start = vecZero();
+/*	
+	// With this, the left half is fast, right slow
+	float x_offset = -0.5f * cam->sensor_size.x;
+	float y_offset = 0.5f * cam->sensor_size.y;
+	x_offset += x * (cam->sensor_size.x / cam->width);
+	y_offset += y * (cam->sensor_size.y / cam->height);
+*/
+
+	// With this, the center 1/3 of the image renders slow
+/*	float x_offset = lerp(-0.5f * cam->sensor_size.x, cam->sensor_size.x, inv_lerp(0, cam->width, x));
+	float y_offset = lerp(-0.5f * cam->sensor_size.y, cam->sensor_size.y, inv_lerp(0, cam->height, y));
+*/
+	new_ray.start.x = x_offset;
+	new_ray.start.y = y_offset;
+	transformRay(&new_ray, cam->composite.A);
+	return new_ray;
+}
+
+struct lightRay cam_get_ray_perspective(const struct camera *cam, int x, int y, struct sampler *sampler) {
+	struct lightRay new_ray = { { 0 } };
 	
 	const float jitter_x = triangleDistribution(getDimension(sampler));
 	const float jitter_y = triangleDistribution(getDimension(sampler));
@@ -92,7 +121,7 @@ struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampl
 		const float ft = cam->focus_distance / vecDot(new_ray.direction, cam->forward);
 		const struct vector focus_point = alongRay(&new_ray, ft);
 		const struct coord lens_point = coordScale(cam->aperture, randomCoordOnUnitDisc(sampler));
-		new_ray.start = vecAdd(new_ray.start, vecAdd(vecScale(cam->right, lens_point.x), vecScale(cam->up, lens_point.y)));
+		new_ray.start = vecAdd(vecScale(cam->right, lens_point.x), vecScale(cam->up, lens_point.y));
 		new_ray.direction = vecNormalize(vecSub(focus_point, new_ray.start));
 	}
 	//To world space

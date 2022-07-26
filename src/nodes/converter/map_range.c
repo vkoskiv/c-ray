@@ -44,10 +44,6 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static inline float lerp(float min, float max, float t) {
-	return ((1.0f - t) * min) + (t * max);
-}
-
 static float eval(const struct valueNode *node, const struct hitRecord *record) {
 	const struct mapRangeNode *this = (const struct mapRangeNode *)node;
 	const float input_value = this->input_value->eval(this->input_value, record);

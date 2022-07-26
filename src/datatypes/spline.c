@@ -17,18 +17,6 @@ struct spline {
 	struct vector d;
 };
 
-float lerp(const float a, const float b, const float t) {
-	return (1.0f - t) * a + t * b;
-}
-
-struct vector vec_lerp(const struct vector a, const struct vector b, const float t) {
-	return (struct vector){
-		lerp(a.x, b.x, t),
-		lerp(a.y, b.y, t),
-		lerp(a.z, b.z, t)
-	};
-}
-
 struct spline *spline_new(struct vector a, struct vector b, struct vector c, struct vector d) {
 	struct spline *new = calloc(1, sizeof(*new));
 	*new = (struct spline){ a, b, c, d };

@@ -37,8 +37,10 @@ struct camera {
 	
 	int width;
 	int height;
+	struct lightRay (*get_ray)(const struct camera *cam, int x, int y, struct sampler *sampler);
 };
 
 void cam_recompute_optics(struct camera *cam);
 void cam_update_pose(struct camera *cam, const struct euler_angles *orientation, const struct vector *pos);
-struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampler *sampler);
+struct lightRay cam_get_ray_perspective(const struct camera *cam, int x, int y, struct sampler *sampler);
+struct lightRay cam_get_ray_ortho(const struct camera *cam, int x, int y, struct sampler *sampler);

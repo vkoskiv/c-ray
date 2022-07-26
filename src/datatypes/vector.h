@@ -100,6 +100,22 @@ static inline struct coord addCoords(const struct coord c1, const struct coord c
 	return (struct coord){c1.x + c2.x, c1.y + c2.y};
 }
 
+static inline float lerp(const float min, const float max, const float t) {
+	return ((1.0f - t) * min) + (t * max);
+}
+
+static inline float inv_lerp(const float min, const float max, const float v) {
+	return (v - min) / (max - min);
+}
+
+static inline struct vector vec_lerp(const struct vector a, const struct vector b, const float t) {
+	return (struct vector){
+		lerp(a.x, b.x, t),
+		lerp(a.y, b.y, t),
+		lerp(a.z, b.z, t)
+	};
+}
+
 /**
  Calculate cross product and return the resulting vector
 
