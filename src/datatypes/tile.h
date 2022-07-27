@@ -22,6 +22,12 @@ enum renderOrder {
 
 struct renderer;
 
+enum tile_state {
+	ready_to_render,
+	rendering,
+	finished
+};
+
 /**
  Render tile, contains needed information for the renderer
  */
@@ -30,8 +36,7 @@ struct renderTile {
 	unsigned height;
 	struct intCoord begin;
 	struct intCoord end;
-	bool isRendering;
-	bool renderComplete;
+	enum tile_state state;
 	bool networkRenderer;
 	int tileNum;
 };

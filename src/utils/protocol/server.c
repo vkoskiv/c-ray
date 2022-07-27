@@ -165,8 +165,7 @@ static cJSON *processSubmitWork(struct renderThreadState *state, const cJSON *js
 	struct texture *tileImage = decodeTexture(resultJson);
 	cJSON *tileJson = cJSON_GetObjectItem(json, "tile");
 	struct renderTile tile = decodeTile(tileJson);
-	state->renderer->state.renderTiles[tile.tileNum].isRendering = false;
-	state->renderer->state.renderTiles[tile.tileNum].renderComplete = true;
+	state->renderer->state.renderTiles[tile.tileNum].state = finished;
 	for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 		for (int x = tile.begin.x; x < tile.end.x; ++x) {
 			struct color value = textureGetPixel(tileImage, x - tile.begin.x, y - tile.begin.y, false);

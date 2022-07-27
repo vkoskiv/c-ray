@@ -23,15 +23,15 @@ struct renderTile *nextTile(struct renderer *r) {
 	mutex_lock(r->state.tileMutex);
 	if (r->state.finishedTileCount < r->state.tileCount) {
 		tile = &r->state.renderTiles[r->state.finishedTileCount];
-		tile->isRendering = true;
+		tile->state = rendering;
 		tile->tileNum = r->state.finishedTileCount++;
 	} else {
 		// If a network worker disappeared during render, finish those tiles locally here at the end
 		for (int t = 0; t < r->state.tileCount; ++t) {
-			if (!r->state.renderTiles[t].renderComplete && r->state.renderTiles[t].networkRenderer) {
+			if (r->state.renderTiles[t].state == rendering && r->state.renderTiles[t].networkRenderer) {
 				r->state.renderTiles[t].networkRenderer = false;
 				tile = &r->state.renderTiles[t];
-				tile->isRendering = true;
+				tile->state = rendering;
 				tile->tileNum = t;
 				break;
 			}
@@ -48,7 +48,7 @@ struct renderTile *nextTileInteractive(struct renderer *r) {
 	if (r->state.finishedPasses < r->prefs.sampleCount + 1) {
 		if (r->state.finishedTileCount < r->state.tileCount) {
 			tile = &r->state.renderTiles[r->state.finishedTileCount];
-			tile->isRendering = true;
+			tile->state = rendering;
 			tile->tileNum = r->state.finishedTileCount++;
 		} else {
 			r->state.finishedPasses++;
@@ -100,9 +100,9 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 			
 			tile->width = tile->end.x - tile->begin.x;
 			tile->height = tile->end.y - tile->begin.y;
-			
+
+			tile->state = ready_to_render;
 			//Samples have to start at 1, so the running average works
-			tile->isRendering = false;
 			tile->tileNum = tileCount++;
 		}
 	}

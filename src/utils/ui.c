@@ -262,7 +262,7 @@ static void drawProgressBars(struct renderer *r) {
 			float prc = ((float)completedSamples / (float)totalSamples);
 			int pixels2draw = (int)((float)temp->width * prc);
 
-			struct color c = temp->isRendering ? progColor : clearColor;
+			struct color c = temp->state == rendering ? progColor : clearColor;
 			
 			//And then draw the bar
 			for (int i = 0; i < pixels2draw; ++i) {
@@ -273,7 +273,7 @@ static void drawProgressBars(struct renderer *r) {
 		}
 	}
 	for (int i = 0; i < r->state.tileCount; ++i) {
-		if (r->state.renderTiles[i].renderComplete) {
+		if (r->state.renderTiles[i].state == finished) {
 			clearProgBar(r, r->state.renderTiles[i]);
 		}
 
@@ -315,7 +315,7 @@ static void updateFrames(struct renderer *r) {
 	if (r->prefs.tileWidth < 8 || r->prefs.tileHeight < 8) return;
 	for (int i = 0; i < r->state.tileCount; ++i) {
 		struct renderTile tile = r->state.renderTiles[i];
-		struct color c = tile.isRendering ? frameColor : clearColor;
+		struct color c = tile.state == rendering ? frameColor : clearColor;
 		drawFrame(r->state.uiBuffer, tile, c);
 	}
 }
