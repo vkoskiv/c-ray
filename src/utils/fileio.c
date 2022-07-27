@@ -23,6 +23,7 @@
 #endif
 #include "filecache.h"
 #include "textbuffer.h"
+#include "args.h"
 
 static char *getFileExtension(const char *fileName) {
 	lineBuffer *line = newLineBuffer();
@@ -129,7 +130,7 @@ void writeFile(const unsigned char *buf, size_t bufsize, const char *filePath) {
 
 
 bool isValidFile(char *path, struct file_cache *cache) {
-	if (cache) return cache_contains(cache, path);
+	if (!isSet("use_clustering") && cache) return cache_contains(cache, path);
 #ifndef WINDOWS
 	struct stat path_stat;
 	stat(path, &path_stat);
