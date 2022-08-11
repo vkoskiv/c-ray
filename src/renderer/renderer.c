@@ -42,7 +42,7 @@ struct texture *renderFrame(struct renderer *r) {
 	struct camera camera = r->scene->cameras[r->prefs.selected_camera];
 	struct texture *output = newTexture(char_p, camera.width, camera.height, 3);
 	
-	logr(info, "Starting C-ray renderer for frame %i\n", r->prefs.imgCount);
+	logr(info, "Starting c-ray renderer for frame %i\n", r->prefs.imgCount);
 	
 	// Verify we have at least a single thread rendering.
 	if (r->state.clientCount == 0 && r->prefs.threadCount < 1) {

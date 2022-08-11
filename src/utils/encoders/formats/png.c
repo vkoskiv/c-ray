@@ -26,7 +26,7 @@ void encodePNGFromArray(const char *filename, const unsigned char *imgData, size
 	info.time_defined = 1;
 	
 	char version[60];
-	sprintf(version, "C-ray v%s [%.8s], © 2015-2020 Valtteri Koskivuori", imginfo.crayVersion, imginfo.gitHash);
+	sprintf(version, "c-ray v%s [%.8s], © 2015-2020 Valtteri Koskivuori", imginfo.crayVersion, imginfo.gitHash);
 	char samples[16];
 	sprintf(samples, "%i", imginfo.samples);
 	char bounces[16];
@@ -42,14 +42,14 @@ void encodePNGFromArray(const char *filename, const unsigned char *imgData, size
 	sprintf(sysinfo, "%s %s %s %s %s", name.machine, name.nodename, name.release, name.sysname, name.version);
 #endif
 	
-	lodepng_add_text(&info, "C-ray Version", version);
-	lodepng_add_text(&info, "C-ray Source", "https://github.com/vkoskiv/c-ray");
-	lodepng_add_text(&info, "C-ray Samples", samples);
-	lodepng_add_text(&info, "C-ray Bounces", bounces);
-	lodepng_add_text(&info, "C-ray RenderTime", renderTime);
-	lodepng_add_text(&info, "C-ray Threads", threads);
+	lodepng_add_text(&info, "c-ray Version", version);
+	lodepng_add_text(&info, "c-ray Source", "https://github.com/vkoskiv/c-ray");
+	lodepng_add_text(&info, "c-ray Samples", samples);
+	lodepng_add_text(&info, "c-ray Bounces", bounces);
+	lodepng_add_text(&info, "c-ray RenderTime", renderTime);
+	lodepng_add_text(&info, "c-ray Threads", threads);
 #ifndef WINDOWS
-	lodepng_add_text(&info, "C-ray SysInfo", sysinfo);
+	lodepng_add_text(&info, "c-ray SysInfo", sysinfo);
 #endif
 	
 	LodePNGState state;
