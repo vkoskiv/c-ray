@@ -230,7 +230,7 @@ char *cr_get_file_name(struct renderer *r) {
 }
 
 void cr_set_asset_path(struct renderer *r) {
-	r->prefs.assetPath = cr_is_option_set("inputFile") ? cr_get_file_path(cr_path_arg()) : cr_is_option_set("asset_path") ? specifiedAssetPath() : stringCopy("./");
+	r->prefs.assetPath = cr_is_option_set("inputFile") ? cr_get_file_path(cr_path_arg()) : cr_is_option_set("asset_path") ? stringCopy(specifiedAssetPath()) : stringCopy("./");
 }
 
 char *cr_get_asset_path(struct renderer *r) {
