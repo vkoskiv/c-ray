@@ -209,14 +209,14 @@ char *getFilePath(const char *input) {
 #endif
 }
 
-#define chunksize 1024
+#define chunksize 16384
 //Get scene data from stdin and return a pointer to it
 char *readStdin(size_t *bytes) {
 	wait_for_stdin(2);
 	
 	char chunk[chunksize];
 	
-	size_t bufSize = 1;
+	size_t bufSize = chunksize;
 	char *buf = malloc(chunksize * sizeof(*buf));
 	if (!buf) {
 		logr(error, "Failed to malloc stdin buffer\n");
