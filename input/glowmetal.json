@@ -96,10 +96,6 @@
 					{
 						"transforms": [
 							{
-								"type": "scaleUniform",
-								"scale": 0.25
-							},
-							{
 								"type": "translate",
 								"Y": -0.05
 							}
