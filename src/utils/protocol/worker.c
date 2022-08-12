@@ -275,7 +275,11 @@ static cJSON *startRender(int connectionSocket) {
 			cJSON_AddNumberToObject(stats, "avgPerPass", avgTimePerTilePass);
 			mutex_lock(g_worker_socket_mutex);
 			logr(debug, "Sending stats update for: %"PRIu64", %.2f\n", completedSamples, avgTimePerTilePass);
-			sendJSON(connectionSocket, stats);
+			if (!sendJSON(connectionSocket, stats)) {
+				logr(debug, "Connection lost, bailing out.\n");
+				// Setting this flag also kills the threads.
+				g_worker_renderer->state.isRendering = false;
+			}
 			mutex_release(g_worker_socket_mutex);
 			pauser = 0;
 		}
