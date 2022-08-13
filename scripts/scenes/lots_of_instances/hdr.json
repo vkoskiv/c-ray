@@ -1,0 +1,455 @@
+{
+	"version": 1.0,
+	"renderer": {
+		"threads": 0,
+		"samples": 250,
+		"bounces": 30,
+		"tileWidth": 32,
+		"tileHeight": 32,
+		"tileOrder": "random",
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 1280,
+		"height": 800
+	},
+	"display": {
+		"isFullscreen": false,
+		"isBorderless": false,
+		"windowScale": 1.0
+	},
+	"camera": [
+		{
+			"FOV": 30.0,
+			"focalDistance": 0.7,
+			"fstops": 6.5,
+			"transforms": [
+				{
+					"type": "translate",
+					"x": 0,
+					"y": 0.1,
+					"z": -0.7
+				},
+				{
+					"type": "rotateX",
+					"degrees": 5
+				},
+				{
+					"type": "rotateZ",
+					"degrees": 0
+				}
+			]
+		},
+		{
+			"FOV": 90.0,
+			"focalDistance": 0.2,
+			"fstops": 6.5,
+			"transforms": [
+				{
+					"type": "translate",
+					"x": 0,
+					"y": 0.1,
+					"z": -0.2
+				},
+				{
+					"type": "rotateX",
+					"degrees": 5
+				},
+				{
+					"type": "rotateY",
+					"degrees": 5
+				}
+			]
+		},
+		{
+			"FOV": 90.0,
+			"focalDistance": 0.2,
+			"fstops": 0,
+			"transforms": [
+				{
+					"type": "translate",
+					"x": 0,
+					"y": 0.9,
+					"z": -3.3
+				},
+				{
+					"type": "rotateX",
+						"degrees": 20
+				}
+			]
+		}
+	],
+	"scene": {
+		"ambientColor": {
+			"hdr": "HDRs/roof_garden_1k.hdr",
+			"offset": 0,
+			"down": {
+				"r": 1.0,
+				"g": 1.0,
+				"b": 1.0
+			},
+			"up": {
+				"r": 0.5,
+				"g": 0.7,
+				"b": 1.0
+			}
+		},
+		"primitives": [
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": -0.25,
+								"y": 0.1001,
+								"z": 0.3
+							}
+						]
+					}
+				],
+				"color": {
+					"r": 1.0,
+					"g": 0.0,
+					"b": 1.0
+				},
+				"bsdf": "metal",
+				"roughness": 0.05,
+				"radius": 0.1
+			},
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 0,
+								"y": 0.05,
+								"z": 0
+							}
+						]
+					}
+				],
+				"color": {
+					"r": 0.8,
+					"g": 0.8,
+					"b": 0.8
+				},
+				"bsdf": "metal",
+				"roughness": 0.00,
+				"radius": 0.05
+			},
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 0.05,
+								"y": 0.05,
+								"z": 0.1
+							}
+						]
+					}
+				],		
+				"color": {
+					"r": 0.0,
+					"g": 0.8,
+					"b": 0.0
+				},
+				"bsdf": "metal",
+				"roughness": 0.00,
+				"radius": 0.05
+			},
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 0.15,
+								"y": 0.05,
+								"z": 0
+							}
+						]
+					}
+				],	
+				"color": {
+					"r": 1.0,
+					"g": 1.0,
+					"b": 1.0
+				},
+				"bsdf": "glass",
+				"IOR": 1.9,
+				"roughness": 0,
+				"radius": 0.05
+			},
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": -0.15,
+								"y": 0.025,
+								"z": 0.05
+							}
+						]
+					}
+				],	
+				"color": {
+					"r": 1.0,
+					"g": 0.1,
+					"b": 0.1
+				},
+				"bsdf": "glass",
+				"IOR": 1.9,
+				"roughness": 0,
+				"radius": 0.025
+			},
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": -0.120,
+								"y": 0.025,
+								"z": 0.1
+							}
+						]
+					}
+				],	
+				"color": {
+					"r": 0.1,
+					"g": 1.0,
+					"b": 0.1
+				},
+				"bsdf": "glass",
+				"IOR": 1.9,
+				"roughness": 0,
+				"radius": 0.025
+			},
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": -0.090,
+								"y": 0.025,
+								"z": 0.15
+							}
+						]
+					}
+				],	
+				"color": {
+					"r": 0.1,
+					"g": 0.1,
+					"b": 1.0
+				},
+				"bsdf": "glass",
+				"IOR": 1.9,
+				"roughness": 0,
+				"radius": 0.025
+			},
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": -0.03,
+								"y": 0.01,
+								"z": -0.25
+							}
+						]
+					}
+				],	
+				"radius": 0.01,
+				"color": {
+					"r": 1.0,
+					"g": 0.0,
+					"b": 0.0
+				},
+				"bsdf": "metal",
+				"roughness": 1.0
+			},
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": -0.07,
+								"y": 0.02,
+								"z": 0.0
+							},
+							{
+								"type": "rotateX",
+								"degrees": 90
+							}
+						]
+					}
+				],
+				"radius": 0.02,
+				"material": {
+					"type": "glass",
+					"roughness": 0.0,
+					"color": {
+						"type": "hsl",
+						"h": {
+							"type": "map_range",
+							"input": {
+								"type": "vec_to_value",
+								"vector": { "type": "uv" },
+								"component": "u"
+							},
+							"from_min": 0.0,
+							"from_max": 1.0,
+							"to_min": 0.0,
+							"to_max": 360.0
+						},
+						"s": 100,
+						"l": 50
+					}
+				}
+			},
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1070,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],	
+				"radius": 2.5,
+				"color": {
+					"r": 0.0,
+					"g": 1.0,
+					"b": 0.0
+				},
+				"bsdf": "emissive",
+				"intensity": 10.0
+			},
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 1090,
+								"y": 310,
+								"z": 820
+							}
+						]
+					}
+				],	
+				"radius": 2.5,
+				"color": {
+					"r": 0.0,
+					"g": 0.0,
+					"b": 1.0
+				},
+				"bsdf": "emissive",
+				"intensity": 10.0
+			},
+			{
+				"type": "sphere",
+				"instances": [
+					{
+						"transforms": [
+							{
+								"type": "translate",
+								"x": 950,
+								"y": 420,
+								"z": 1500
+							}
+						]
+					}
+				],	
+				"color": {
+					"r": 1.0,
+					"g": 1.0,
+					"b": 1.0
+				},
+				"bsdf": "emissive",
+				"intensity": 10.0,
+				"radius": 10
+			}
+		],
+		"meshes": [
+			{
+				"fileName": "shapes/gridplane.obj",
+				"instances": [
+					{
+						"for": "Plane",
+						"materials": [
+							{
+								"type": "diffuse",
+								"color": {
+									"lerp": false,
+									"path": "shapes/grid.png"
+								}
+							}
+						],
+						"transforms": [
+							{
+								"type": "rotateX",
+								"degrees": 0
+							},
+							{
+								"type": "scaleUniform",
+								"scale": 2.5
+							}
+						]
+					}
+				]
+			},
+			{
+				"fileName": "venusscaled.obj",
+				"instances": [
+					{
+						"materials": {
+							"type": "glass",
+							"roughnessd": 0,
+							"IOR": 1.45,
+							"color": [1.0, 0.2705, 0.0]
+						},
+						"transforms": [
+							{
+								"type": "scaleUniform",
+								"scale": 0.05
+							},
+							{
+								"type": "translate",
+								"X": 0.08
+							},
+							{
+								"type": "rotateY",
+								"degrees": 0
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}
