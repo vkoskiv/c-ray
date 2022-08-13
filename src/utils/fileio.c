@@ -12,16 +12,14 @@
 #include "assert.h"
 #ifndef WINDOWS
 #include <libgen.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #endif
 #include "string.h"
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
-#ifndef WINDOWS
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
-#include <unistd.h>
 #include "filecache.h"
 #include "textbuffer.h"
 #include "args.h"
