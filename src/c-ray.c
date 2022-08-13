@@ -107,7 +107,7 @@ char *cr_read_from_file(size_t *bytes) {
 }
 
 char *cr_read_from_stdin(size_t *bytes) {
-	return readStdin(bytes);
+	return read_stdin(bytes);
 }
 
 struct renderer *cr_new_renderer() {

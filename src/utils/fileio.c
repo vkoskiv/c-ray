@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #endif
+#include <unistd.h>
 #include "filecache.h"
 #include "textbuffer.h"
 #include "args.h"
@@ -209,30 +210,27 @@ char *getFilePath(const char *input) {
 #endif
 }
 
-#define chunksize 16384
+#define chunksize 65536
 //Get scene data from stdin and return a pointer to it
-char *readStdin(size_t *bytes) {
+char *read_stdin(size_t *bytes) {
 	wait_for_stdin(2);
 	
 	char chunk[chunksize];
 	
-	size_t bufSize = chunksize;
-	char *buf = malloc(chunksize * sizeof(*buf));
-	if (!buf) {
-		logr(error, "Failed to malloc stdin buffer\n");
-		return NULL;
-	}
-	buf[0] = '\0';
-	while (fgets(chunk, chunksize, stdin)) {
+	size_t buf_size = 0;
+	char *buf = NULL;
+	int stdin_fd = fileno(stdin);
+	ssize_t read_bytes = 0;
+	while ((read_bytes = read(stdin_fd, &chunk, chunksize)) > 0) {
 		char *old = buf;
-		bufSize += strlen(chunk);
-		buf = realloc(buf, bufSize);
+		buf = realloc(buf, buf_size + read_bytes + 1);
 		if (!buf) {
 			logr(error, "Failed to realloc stdin buffer\n");
 			free(old);
 			return NULL;
 		}
-		strcat(buf, chunk);
+		memcpy(buf + buf_size, chunk, read_bytes);
+		buf_size += read_bytes;
 	}
 	
 	if (ferror(stdin)) {
@@ -241,7 +239,8 @@ char *readStdin(size_t *bytes) {
 		return NULL;
 	}
 	
-	if (bytes) *bytes = bufSize - 1;
+	if (bytes) *bytes = buf_size - 1;
+	buf[buf_size ] = 0;
 	return buf;
 }
 

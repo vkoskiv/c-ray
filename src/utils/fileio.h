@@ -61,7 +61,7 @@ char *getFilePath(const char *input);
 
 /// Await for input on stdin for up to 2 seconds. If nothing shows up, return NULL
 /// @param bytes Bytes read, if successful.
-char *readStdin(size_t *bytes);
+char *read_stdin(size_t *bytes);
 
 /// Check the size of a given file in bytes.
 /// @param fileName File to check
