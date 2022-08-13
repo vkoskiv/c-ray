@@ -82,24 +82,22 @@ struct bvh *computeTopLevelBvh(struct instance *instances, int instanceCount) {
 static void printSceneStats(struct world *scene, unsigned long long ms) {
 	logr(info, "Scene construction completed in ");
 	printSmartTime(ms);
-	unsigned polys = 0;
-	unsigned vertices = 0;
-	unsigned normals = 0;
-	unsigned texturecoords = 0;
+	uint64_t polys = 0;
+	uint64_t vertices = 0;
+	uint64_t normals = 0;
 	for (int i = 0; i < scene->instanceCount; ++i) {
 		if (isMesh(&scene->instances[i])) {
 			const struct mesh *mesh = scene->instances[i].object;
 			polys += mesh->poly_count;
 			vertices += mesh->vertex_count;
 			normals += mesh->normal_count;
-			texturecoords += mesh->tex_coord_count;
 		}
 	}
 	logr(plain, "\n");
-	logr(info, "Totals: %iV, %iN, %iT, %iP, %iS, %iM\n",
+	logr(info, "Totals: %liV, %liN, %iI, %liP, %iS, %iM\n",
 		   vertices,
 		   normals,
-		   texturecoords,
+		   scene->instanceCount,
 		   polys,
 		   scene->sphereCount,
 		   scene->meshCount);
