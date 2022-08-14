@@ -73,7 +73,7 @@ struct bvh *computeTopLevelBvh(struct instance *instances, int instanceCount) {
 	logr(info, "Computing top-level BVH: ");
 	struct timeval timer = {0};
 	timer_start(&timer);
-	struct bvh *new = buildTopLevelBvh(instances, instanceCount);
+	struct bvh *new = build_top_level_bvh(instances, instanceCount);
 	printSmartTime(timer_get_ms(timer));
 	logr(plain, "\n");
 	return new;
@@ -233,7 +233,7 @@ void destroyScene(struct world *scene) {
 		for (int i = 0; i < scene->meshCount; ++i) {
 			destroyMesh(&scene->meshes[i]);
 		}
-		destroyBvh(scene->topLevel);
+		destroy_bvh(scene->topLevel);
 		destroyHashtable(scene->storage.node_table);
 		destroyBlocks(scene->storage.node_pool);
 		free(scene->instances);
