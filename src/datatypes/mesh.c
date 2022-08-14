@@ -20,7 +20,7 @@ void destroyMesh(struct mesh *mesh) {
 		if (mesh->normals) free(mesh->normals);
 		if (mesh->texture_coords) free(mesh->texture_coords);
 		if (mesh->polygons) free(mesh->polygons);
-		destroyBvh(mesh->bvh);
+		destroy_bvh(mesh->bvh);
 		if (mesh->materials) {
 			for (int i = 0; i < mesh->materialCount; ++i) {
 				destroyMaterial(&mesh->materials[i]);

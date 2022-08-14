@@ -15,6 +15,12 @@
 #include "../datatypes/mesh.h"
 #include "../renderer/instance.h"
 
+#include <limits.h>
+#include <assert.h>
+#include <float.h>
+#include <stdlib.h>
+#include <math.h>
+
 /*
  * This BVH builder is based on "On fast Construction of SAH-based Bounding Volume Hierarchies",
  * by I. Wald. The general idea is to approximate the SAH by subdividing each axis in several
@@ -24,32 +30,84 @@
  * BVHs out of any primitive type, including other BVHs (necessary for instancing).
  */
 
-#define MAX_BVH_DEPTH  64   // This should be enough for most scenes
-#define MAX_LEAF_SIZE  16   // Maximum number of primitives per leaf (used to avoid cases where the SAH gets "stuck")
-#define TRAVERSAL_COST 1.5f // Ratio (cost of traversing a node / cost of intersecting a primitive)
-#define BIN_COUNT      32   // Number of bins to use to approximate the SAH
+#define PRIM_COUNT_BITS  4    // Number of bits for the primitive count in a leaf
+#define MAX_BVH_DEPTH    64   // This should be enough for most scenes
+#define TRAVERSAL_COST   1.5f // Ratio (cost of traversing a node / cost of intersecting a primitive)
+#define BIN_COUNT        32   // Number of bins to use to approximate the SAH
+#define ROBUST_TRAVERSAL 0    // Set to 1 in order to use a fully robust algo. (from T. Ize's "Robust BVH Ray Traversal")
+#define MAX_LEAF_SIZE    ((1 << PRIM_COUNT_BITS) - 1)
 
-struct bvhNode {
-	float bounds[6]; // Node bounds (min x, max x, min y, max y, ...)
-	unsigned firstChildOrPrim; // Index to the first child or primitive (if the node is a leaf)
-	unsigned primCount : 30;
-	bool isLeaf : 1;
+typedef size_t index_t;
+typedef bool (*intersect_leaf_fn_t)(
+	const void *,
+	const struct bvh *,
+	const struct lightRay *,
+	size_t, size_t,
+	struct hitRecord *);
+
+// This structure has the same size as `index_type`
+struct bvh_index {
+	index_t first_child_or_prim : sizeof(index_t) * CHAR_BIT - PRIM_COUNT_BITS;
+	index_t prim_count : PRIM_COUNT_BITS;
+};
+
+struct bvh_node {
+	float bounds[6];        // Node bounds (min x, max x, min y, max y, ...)
+	struct bvh_index index; // Indices pointing to primitives and children (if any)
 };
 
 struct bvh {
-	struct bvhNode *nodes;
-	int *primIndices;
-	unsigned nodeCount;
+	struct bvh_node *nodes;
+	size_t *prim_indices;
+	size_t node_count;
 };
 
 // Bin used to approximate the SAH.
-typedef struct Bin {
+struct bin {
 	struct boundingBox bbox;
-	unsigned count;
-	float cost;
-} Bin;
+	size_t count;
+};
 
-static inline void storeBBoxInNode(struct bvhNode *node, const struct boundingBox *bbox) {
+struct split {
+	unsigned axis;
+	size_t pos;
+	float cost;
+};
+
+struct top_level_data {
+	const struct instance *instances;
+	sampler *sampler;
+};
+
+// A small wrapper that generates an FMA when the target arch. supports it
+static inline float fast_mul_add(float a, float b, float c) {
+#ifdef FP_FAST_FMAF
+	return fmaf(a, b, c);
+#else
+#ifdef __clang__
+#pragma STDC FP_CONTRACT ON
+#endif
+	return a * b + c;
+#endif
+}
+
+// Because the comparisons are of the form x < y ? x : y, they
+// are guaranteed not to produce NaNs if the right hand side is not a NaN.
+// See T. Ize's "Robust BVH Ray Traversal" article.
+static inline float robust_min(float a, float b) { return a < b ? a : b; }
+static inline float robust_max(float a, float b) { return a > b ? a : b; }
+
+#if !ROBUST_TRAVERSAL
+static inline float safe_inverse(float x) { return fabsf(x) <= FLT_EPSILON ? 1.f / FLT_EPSILON : 1.f / x; }
+#endif
+
+static inline unsigned find_largest_axis(const struct vector *v) {
+	if (v->y >= v->z && v->y >= v->x) return 1;
+	if (v->z >= v->y && v->z >= v->x) return 2;
+	return 0;
+}
+
+static inline void store_bbox_to_node(struct bvh_node *node, const struct boundingBox *bbox) {
 	node->bounds[0] = bbox->min.x;
 	node->bounds[1] = bbox->max.x;
 	node->bounds[2] = bbox->min.y;
@@ -58,55 +116,88 @@ static inline void storeBBoxInNode(struct bvhNode *node, const struct boundingBo
 	node->bounds[5] = bbox->max.z;
 }
 
-static inline void loadBBoxFromNode(struct boundingBox *bbox, const struct bvhNode *node) {
-	bbox->min.x = node->bounds[0];
-	bbox->max.x = node->bounds[1];
-	bbox->min.y = node->bounds[2];
-	bbox->max.y = node->bounds[3];
-	bbox->min.z = node->bounds[4];
-	bbox->max.z = node->bounds[5];
+static inline struct boundingBox load_bbox_from_node(const struct bvh_node *node) {
+	return (struct boundingBox) {
+		.min = { node->bounds[0], node->bounds[2], node->bounds[4] },
+		.max = { node->bounds[1], node->bounds[3], node->bounds[5] },
+	};
 }
 
-static inline float nodeArea(const struct bvhNode *node) {
-	struct boundingBox bbox;
-	loadBBoxFromNode(&bbox, node);
+static inline float compute_half_node_area(const struct bvh_node *node) {
+	struct boundingBox bbox = load_bbox_from_node(node);
 	return bboxHalfArea(&bbox);
 }
 
-static inline void makeLeaf(struct bvhNode *node, unsigned begin, unsigned primCount) {
-	node->isLeaf = true;
-	node->firstChildOrPrim = begin;
-	node->primCount = primCount;
+static inline struct bvh_index make_leaf_index(size_t begin, size_t prim_count) {
+	assert(prim_count <= MAX_LEAF_SIZE);
+	return (struct bvh_index) {
+		.first_child_or_prim = begin,
+		.prim_count = prim_count
+	};
 }
 
-static inline unsigned computeBinIndex(int axis, const struct vector *center, float min, float max) {
-	float centerToBin = BIN_COUNT / (max - min);
-	float coord = axis == 0 ? center->x : (axis == 1 ? center->y : center->z);
-	float floatIndex = (coord - min) * centerToBin;
-	unsigned binIndex = floatIndex < 0 ? 0 : floatIndex;
-	return binIndex >= BIN_COUNT ? BIN_COUNT - 1 : binIndex;
+static inline struct bvh_index make_inner_index(size_t first_child) {
+	return (struct bvh_index) {
+		.first_child_or_prim = first_child,
+		.prim_count = 0
+	};
 }
 
-static inline unsigned partitionPrimitiveIndices(
-	const struct bvhNode *node,
-	const struct bvh *bvh,
+static inline struct split make_invalid_split() {
+	return (struct split) {
+		.axis = -1,
+		.pos = 0,
+		.cost = FLT_MAX
+	};
+}
+
+static inline bool is_valid_split(const struct split *split) {
+	return split->axis <= 2;
+}
+
+static inline struct bin make_empty_bin() {
+	return (struct bin) {
+		.bbox = emptyBBox,
+		.count = 0
+	};
+}
+
+static inline void extend_bin(struct bin *bin, const struct boundingBox *bbox) {
+	extendBBox(&bin->bbox, bbox);
+	bin->count++;
+}
+
+static inline void merge_bin(struct bin *bin, const struct bin *other) {
+	extendBBox(&bin->bbox, &other->bbox);
+	bin->count += other->count;
+}
+
+static inline float compute_partial_cost(const struct bin *bin) {
+	return bin->count * bboxHalfArea(&bin->bbox);
+}
+
+static inline bool is_on_left_partition(const struct vector *center, unsigned axis, float split_pos) {
+	return vec_coord(center, axis) < split_pos;
+}
+
+static size_t partition_prim_indices(
+	unsigned axis,
+	float split_pos,
+	size_t* prim_indices,
 	const struct vector *centers,
-	unsigned axis, unsigned bin,
-	unsigned begin, unsigned end)
+	size_t begin, size_t end)
 {
 	// Perform the split by partitioning primitive indices in-place
-	unsigned i = begin, j = end;
+	size_t i = begin, j = end;
 	while (i < j) {
 		while (i < j) {
-			unsigned binIndex = computeBinIndex(axis, &centers[bvh->primIndices[i]], node->bounds[axis * 2], node->bounds[axis * 2 + 1]);
-			if (binIndex >= bin)
+			if (is_on_left_partition(&centers[prim_indices[i]], axis, split_pos))
 				break;
 			i++;
 		}
 
 		while (i < j) {
-			unsigned binIndex = computeBinIndex(axis, &centers[bvh->primIndices[j - 1]], node->bounds[axis * 2], node->bounds[axis * 2 + 1]);
-			if (binIndex < bin)
+			if (!is_on_left_partition(&centers[prim_indices[j - 1]], axis, split_pos))
 				break;
 			j--;
 		}
@@ -114,9 +205,9 @@ static inline unsigned partitionPrimitiveIndices(
 		if (i >= j)
 			break;
 
-		int tmp = bvh->primIndices[j - 1];
-		bvh->primIndices[j - 1] = bvh->primIndices[i];
-		bvh->primIndices[i] = tmp;
+		size_t tmp = prim_indices[j - 1];
+		prim_indices[j - 1] = prim_indices[i];
+		prim_indices[i] = tmp;
 
 		j--;
 		i++;
@@ -124,164 +215,338 @@ static inline unsigned partitionPrimitiveIndices(
 	return i;
 }
 
-static void buildBvhRecursive(
-	unsigned nodeId,
-	struct bvh *bvh,
-	const struct boundingBox *bboxes,
-	const struct vector *centers,
-	unsigned begin, unsigned end,
-	unsigned depth)
-{
-	unsigned primCount = end - begin;
-	struct bvhNode *node = &bvh->nodes[nodeId];
-
-	if (depth >= MAX_BVH_DEPTH || primCount < 2) {
-		makeLeaf(node, begin, primCount);
-		return;
-	}
-
-	Bin bins[3][BIN_COUNT];
-	float minCost[3] = { FLT_MAX, FLT_MAX, FLT_MAX };
-	unsigned minBin[3] = { 1, 1, 1 };
-	for (int axis = 0; axis < 3; ++axis) {
-		// Initialize bins
-		for (int i = 0; i < BIN_COUNT; ++i) {
-			bins[axis][i].bbox = emptyBBox;
-			bins[axis][i].count = 0;
-		}
-
-		// Fill bins with primitives
-		for (unsigned i = begin; i < end; ++i) {
-			int primIndex = bvh->primIndices[i];
-			unsigned binIndex = computeBinIndex(axis, &centers[primIndex], node->bounds[axis * 2], node->bounds[axis * 2 + 1]);
-			Bin *bin = &bins[axis][binIndex];
-			extendBBox(&bin->bbox, &bboxes[primIndex]);
-			bin->count++;
-		}
-
-		// Sweep from the right to the left to compute the partial SAH cost.
-		// Recall that the SAH is the sum of two parts: SA(left) * N(left) + SA(right) * N(right).
-		// This loop computes SA(right) * N(right) alone.
-		struct boundingBox curBBox = emptyBBox;
-		unsigned curCount = 0;
-		for (unsigned i = BIN_COUNT; i > 1; --i) {
-			Bin *bin = &bins[axis][i - 1];
-			curCount += bin->count;
-			extendBBox(&curBBox, &bin->bbox);
-			bin->cost = curCount * bboxHalfArea(&curBBox);
-		}
-
-		// Sweep from the left to the right to compute the full cost and find the minimum.
-		curBBox = emptyBBox;
-		curCount = 0;
-		for (unsigned i = 0; i < BIN_COUNT - 1; i++) {
-			Bin *bin = &bins[axis][i];
-			curCount += bin->count;
-			extendBBox(&curBBox, &bin->bbox);
-			float cost = curCount * bboxHalfArea(&curBBox) + bins[axis][i + 1].cost;
-			if (cost < minCost[axis]) {
-				minBin[axis] = i + 1;
-				minCost[axis] = cost;
-			}
-		}
-	}
-
-	// Find the minimum cost for all three axes
-	unsigned minAxis = 0;
-	if (minCost[1] < minCost[0]) minAxis = 1;
-	if (minCost[2] < minCost[minAxis]) minAxis = 2;
-
-	// Determine if splitting is beneficial or not
-	float leafCost = nodeArea(node) * (primCount - TRAVERSAL_COST);
-	if (minCost[minAxis] > leafCost) {
-		if (primCount > MAX_LEAF_SIZE) {
-			// Fallback strategy to avoid large leaves: Approximate median split
-			for (unsigned i = 0, accumCount = 0, bestApprox = primCount; i < BIN_COUNT - 1; ++i) {
-				accumCount += bins[minAxis][i].count;
-				unsigned approx = abs((int)primCount/2 - (int)accumCount);
-				if (approx < bestApprox) {
-					bestApprox = approx;
-					minBin[minAxis] = i + 1;
-				}
-			}
-		} else {
-			makeLeaf(node, begin, primCount);
-			return;
-		}
-	}
-
-	// Perform the split by partitioning primitive indices in-place
-	unsigned beginRight = partitionPrimitiveIndices(node, bvh, centers, minAxis, minBin[minAxis], begin, end);
-	if (beginRight > begin) {
-		unsigned leftIndex = bvh->nodeCount;
-		unsigned rightIndex = leftIndex + 1;
-		bvh->nodeCount += 2;
-
-		// Compute the bounding box of the children
-		struct boundingBox leftBBox = emptyBBox;
-		struct boundingBox rightBBox = emptyBBox;
-		for (unsigned i = 0; i < minBin[minAxis]; ++i)
-			extendBBox(&leftBBox, &bins[minAxis][i].bbox);
-		for (unsigned i = minBin[minAxis]; i < BIN_COUNT; ++i)
-			extendBBox(&rightBBox, &bins[minAxis][i].bbox);
-		storeBBoxInNode(&bvh->nodes[leftIndex], &leftBBox);
-		storeBBoxInNode(&bvh->nodes[rightIndex], &rightBBox);
-		node->firstChildOrPrim = leftIndex;
-		node->isLeaf = false;
-
-		buildBvhRecursive(leftIndex, bvh, bboxes, centers, begin, beginRight, depth + 1);
-		buildBvhRecursive(rightIndex, bvh, bboxes, centers, beginRight, end, depth + 1);
-	} else {
-		makeLeaf(node, begin, primCount);
+static inline void setup_bins(struct bin bins[3][BIN_COUNT]) {
+	for (unsigned axis = 0; axis < 3; ++axis) {
+		for (size_t i = 0; i < BIN_COUNT; ++i)
+			bins[axis][i] = make_empty_bin();
 	}
 }
 
-// Builds a BVH using the provided callback to obtain bounding boxes and centers for each primitive
-static inline struct bvh *buildBvhGeneric(
-	const void *userData,
-	void (*getBBoxAndCenter)(const void *, unsigned, struct boundingBox *, struct vector *),
-	unsigned count)
+static inline void fill_bins(
+	struct bin bins[3][BIN_COUNT],
+	const size_t *prim_indices,
+	const struct vector *centers,
+	const float *bin_scale,
+	const float *bin_offset,
+	const struct boundingBox *bboxes,
+	size_t begin, size_t end)
 {
-	if (count < 1) {
-		struct bvh *bvh = malloc(sizeof(struct bvh));
-		bvh->nodeCount = 0;
-		bvh->nodes = NULL;
-		bvh->primIndices = NULL;
-		return bvh;
+	for (size_t i = begin; i < end; ++i) {
+		size_t prim_index = prim_indices[i];
+		for (unsigned axis = 0; axis < 3; ++axis) {
+			float bin_pos = robust_max(fast_mul_add(
+				vec_coord(&centers[prim_index], axis), bin_scale[axis], bin_offset[axis]), 0.f);
+			size_t bin_index = bin_pos;
+			bin_index = bin_index >= BIN_COUNT ? BIN_COUNT - 1 : bin_index;
+			extend_bin(&bins[axis][bin_index], &bboxes[prim_index]);
+		}
 	}
+}
+
+static inline struct split find_best_split(struct bin bins[3][BIN_COUNT]) {
+	struct split best_split = make_invalid_split();
+	float partial_cost[BIN_COUNT];
+	for (unsigned axis = 0; axis < 3; ++axis) {
+		// Sweep from the right to the left to compute the partial SAH cost.
+		// Recall that the SAH is the sum of two parts: SA(left) * N(left) + SA(right) * N(right).
+		// This loop computes SA(right) * N(right) alone.
+		struct bin accum = make_empty_bin();
+		for (size_t i = BIN_COUNT - 1; i > 0; --i) {
+			struct bin *bin = &bins[axis][i];
+			merge_bin(&accum, bin);
+			partial_cost[i] = compute_partial_cost(&accum);
+		}
+
+		// Sweep from the left to the right to compute the full cost and find the minimum.
+		accum = make_empty_bin();
+		for (size_t i = 0; i < BIN_COUNT - 1; i++) {
+			merge_bin(&accum, &bins[axis][i]);
+			const float cost = compute_partial_cost(&accum) + partial_cost[i + 1];
+			if (cost < best_split.cost) {
+				best_split.axis = axis;
+				best_split.pos = i + 1;
+				best_split.cost = cost;
+			}
+		}
+	}
+	return best_split;
+}
+
+static inline struct boundingBox compute_bbox(
+	const struct boundingBox *bboxes,
+	const size_t *prim_indices,
+	size_t begin, size_t end)
+{
+	struct boundingBox bbox = emptyBBox;
+	for (size_t i = begin; i < end; ++i)
+		extendBBox(&bbox, &bboxes[prim_indices[i]]);
+	return bbox;
+}
+
+static inline bool compare_prim_indices(const struct vector *centers, unsigned axis, size_t i, size_t j) {
+	return vec_coord(&centers[i], axis) < vec_coord(&centers[j], axis);
+}
+
+// This is a variant of shell sort, preferred over qsort because it needs access to the centers.
+static inline void sort_prim_indices(size_t *prim_indices, const struct vector *centers, unsigned axis, size_t count) {
+	static const size_t gaps[] = { 701, 301, 132, 57, 23, 10, 4, 1 };
+	for (size_t k = 0; k < sizeof(gaps) / sizeof(gaps[0]); ++k) {
+		size_t gap = gaps[k];
+		for (size_t i = gap; i < count; ++i) {
+			size_t elem = prim_indices[i];
+			size_t j = i;
+			for (; j >= gap && compare_prim_indices(centers, axis, elem, prim_indices[j - gap]); j -= gap)
+				prim_indices[j] = prim_indices[j - gap];
+			prim_indices[j] = elem;
+		}
+	}
+}
+
+static inline size_t fallback_split(
+	size_t *prim_indices,
+	const struct vector *node_extents,
+	const struct vector *centers,
+	size_t begin, size_t end)
+{
+	const unsigned axis = find_largest_axis(node_extents);
+	sort_prim_indices(prim_indices + begin, centers, axis, end - begin);
+	return (begin + end) / 2;
+}
+
+static void build_bvh_recursive(
+	size_t node_id,
+	struct bvh *bvh,
+	const struct boundingBox *bboxes,
+	const struct vector *centers,
+	size_t begin, size_t end,
+	size_t depth)
+{
+	const size_t prim_count = end - begin;
+	struct bvh_node *node = &bvh->nodes[node_id];
+
+	if (depth >= MAX_BVH_DEPTH || prim_count < 2)
+		goto make_leaf;
+
+	struct bin bins[3][BIN_COUNT];
+	const struct boundingBox node_bbox = load_bbox_from_node(node);
+	const struct vector node_extents = vecSub(node_bbox.max, node_bbox.min);
+
+	const float bin_scale[] = {
+		BIN_COUNT / node_extents.x,
+		BIN_COUNT / node_extents.y,
+		BIN_COUNT / node_extents.z
+	};
+	const float bin_offset[] = {
+		-node_bbox.min.x * bin_scale[0],
+		-node_bbox.min.y * bin_scale[1],
+		-node_bbox.min.z * bin_scale[2]
+	};
+	setup_bins(bins);
+	fill_bins(bins, bvh->prim_indices, centers, bin_scale, bin_offset, bboxes, begin, end);
+	const struct split split = find_best_split(bins);
+
+	const float leaf_cost = compute_half_node_area(node) * (prim_count - TRAVERSAL_COST);
+	size_t right_begin;
+	if (!is_valid_split(&split) || split.cost > leaf_cost) {
+		if (prim_count <= MAX_LEAF_SIZE)
+			goto make_leaf;
+		right_begin = fallback_split(bvh->prim_indices, &node_extents, centers, begin, end);
+	} else {
+		const float split_pos = vec_coord(&node_bbox.min, split.axis) +
+			(float)split.pos / bin_scale[split.axis]; // 1 / bin_scale is the bin size
+		right_begin = partition_prim_indices(split.axis, split_pos, bvh->prim_indices, centers, begin, end);
+		if (right_begin == begin || right_begin == end)
+			right_begin = fallback_split(bvh->prim_indices, &node_extents, centers, begin, end);
+	}
+
+	const size_t first_child = bvh->node_count;
+	bvh->node_count += 2;
+
+	// Compute the bounding box of the children
+	const struct boundingBox left_bbox  = compute_bbox(bboxes, bvh->prim_indices, begin, right_begin);
+	const struct boundingBox right_bbox = compute_bbox(bboxes, bvh->prim_indices, right_begin, end);
+	store_bbox_to_node(&bvh->nodes[first_child + 0], &left_bbox);
+	store_bbox_to_node(&bvh->nodes[first_child + 1], &right_bbox);
+	node->index = make_inner_index(first_child);
+
+	build_bvh_recursive(first_child + 0, bvh, bboxes, centers, begin, right_begin, depth + 1);
+	build_bvh_recursive(first_child + 1, bvh, bboxes, centers, right_begin, end, depth + 1);
+	return;
+
+make_leaf:
+	node->index = make_leaf_index(begin, prim_count);
+}
+
+// Builds a BVH using the provided callback to obtain bounding boxes and centers for each primitive
+static inline struct bvh *build_bvh_generic(
+	const void *user_data,
+	void (*get_bbox_and_center)(const void *, unsigned, struct boundingBox *, struct vector *),
+	size_t count)
+{
+	if (count < 1)
+		return calloc(1, sizeof(struct bvh));
+
 	struct vector *centers = malloc(sizeof(struct vector) * count);
 	struct boundingBox *bboxes = malloc(sizeof(struct boundingBox) * count);
-	int *primIndices = malloc(sizeof(int) * count);
+	size_t *prim_indices = malloc(sizeof(size_t) * count);
 
-	struct boundingBox rootBBox = emptyBBox;
-
-	// Precompute bboxes and centers
 	for (unsigned i = 0; i < count; ++i) {
-		getBBoxAndCenter(userData, i, &bboxes[i], &centers[i]);
-		primIndices[i] = i;
-		rootBBox.min = vecMin(rootBBox.min, bboxes[i].min);
-		rootBBox.max = vecMax(rootBBox.max, bboxes[i].max);
+		get_bbox_and_center(user_data, i, &bboxes[i], &centers[i]);
+		prim_indices[i] = i;
 	}
 
 	// Binary tree property: total number of nodes (inner + leaves) = 2 * number of leaves - 1
-	unsigned maxNodes = 2 * count - 1;
+	const size_t max_nodes = 2 * count - 1;
+	const struct boundingBox root_bbox = compute_bbox(bboxes, prim_indices, 0, count);
 
 	struct bvh *bvh = malloc(sizeof(struct bvh));
-	bvh->nodeCount = 1;
-	bvh->nodes = malloc(sizeof(struct bvhNode) * maxNodes);
-	bvh->primIndices = primIndices;
-	storeBBoxInNode(&bvh->nodes[0], &rootBBox);
+	bvh->node_count = 1; // For the root
+	bvh->nodes = malloc(sizeof(struct bvh_node) * max_nodes);
+	bvh->prim_indices = prim_indices;
+	store_bbox_to_node(&bvh->nodes[0], &root_bbox);
 
-	buildBvhRecursive(0, bvh, bboxes, centers, 0, count, 0);
+	build_bvh_recursive(0, bvh, bboxes, centers, 0, count, 0);
 
 	// Shrink array of nodes (since some leaves may contain more than 1 primitive)
-	bvh->nodes = realloc(bvh->nodes, sizeof(struct bvhNode) * bvh->nodeCount);
+	bvh->nodes = realloc(bvh->nodes, sizeof(struct bvh_node) * bvh->node_count);
 	free(centers);
 	free(bboxes);
 	return bvh;
 }
 
-static void getPolyBBoxAndCenter(const void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
+// TODO: Add [tmin, tmax] to the lightRay structure for more efficient culling.
+#if ROBUST_TRAVERSAL
+static inline bool intersect_node(
+	const struct bvh_node *node,
+	const struct vector *inv_dir,
+	const struct vector *start,
+	const int *octant,
+	float max_dist,
+	float *t_entry)
+{
+	float tmin_x = (node->bounds[0 +     octant[0]] - start->x) * inv_dir->x;
+	float tmax_x = (node->bounds[0 + 1 - octant[0]] - start->x) * inv_dir->x;
+	float tmin_y = (node->bounds[2 +     octant[1]] - start->y) * inv_dir->y;
+	float tmax_y = (node->bounds[2 + 1 - octant[1]] - start->y) * inv_dir->y;
+	float tmin_z = (node->bounds[4 +     octant[2]] - start->z) * inv_dir->z;
+	float tmax_z = (node->bounds[4 + 1 - octant[2]] - start->z) * inv_dir->z;
+	float tmin = robust_max(tmin_x, robust_max(tmin_y, robust_max(tmin_z, 0.f)));
+	float tmax = robust_min(tmax_x, robust_min(tmax_y, robust_min(tmax_z, max_dist)));
+	tmax *= 1.00000024f; // See T. Ize's "Robust BVH Ray Traversal" article.
+	*t_entry = tmin;
+	return tmin <= tmax;
+}
+#else
+static inline bool intersect_node(
+	const struct bvh_node *node,
+	const struct vector *inv_dir,
+	const struct vector *scaled_start,
+	const int *octant,
+	float max_dist,
+	float *t_entry)
+{
+	float tmin_x = fast_mul_add(node->bounds[0 +     octant[0]], inv_dir->x, scaled_start->x);
+	float tmax_x = fast_mul_add(node->bounds[0 + 1 - octant[0]], inv_dir->x, scaled_start->x);
+	float tmin_y = fast_mul_add(node->bounds[2 +     octant[1]], inv_dir->y, scaled_start->y);
+	float tmax_y = fast_mul_add(node->bounds[2 + 1 - octant[1]], inv_dir->y, scaled_start->y);
+	float tmin_z = fast_mul_add(node->bounds[4 +     octant[2]], inv_dir->z, scaled_start->z);
+	float tmax_z = fast_mul_add(node->bounds[4 + 1 - octant[2]], inv_dir->z, scaled_start->z);
+	float tmin = robust_max(tmin_x, robust_max(tmin_y, robust_max(tmin_z, 0.f)));
+	float tmax = robust_min(tmax_x, robust_min(tmax_y, robust_min(tmax_z, max_dist)));
+	*t_entry = tmin;
+	return tmin <= tmax;
+}
+#endif
+
+static inline bool traverse_bvh_generic(
+	const void *user_data,
+	const struct bvh *bvh,
+	intersect_leaf_fn_t intersect_leaf,
+	const struct lightRay *ray,
+	struct hitRecord *isect)
+{
+	if (bvh->node_count < 1) {
+		isect->instIndex = -1;
+		return false;
+	}
+
+	struct bvh_index stack[MAX_BVH_DEPTH + 1];
+	struct bvh_index top = bvh->nodes[0].index;
+	size_t stack_size = 0;
+
+	// Precompute ray octant and inverse direction
+	int octant[] = {
+		signbit(ray->direction.x) ? 1 : 0,
+		signbit(ray->direction.y) ? 1 : 0,
+		signbit(ray->direction.z) ? 1 : 0
+	};
+
+#if ROBUST_TRAVERSAL
+	struct vector inv_dir = {
+		1.f / ray->direction.x,
+		1.f / ray->direction.y,
+		1.f / ray->direction.z
+	};
+	struct vector start = ray->start;
+#else
+	struct vector inv_dir = {
+		safe_inverse(ray->direction.x),
+		safe_inverse(ray->direction.y),
+		safe_inverse(ray->direction.z)
+	};
+	struct vector start = vecNegate(vecMul(ray->start, inv_dir));
+#endif
+	float max_dist = isect->distance;
+	bool was_hit = false;
+
+	while (true) {
+		while (likely(top.prim_count == 0)) {
+			index_t first_child = top.first_child_or_prim;
+			const struct bvh_node *left_node  = &bvh->nodes[first_child + 0];
+			const struct bvh_node *right_node = &bvh->nodes[first_child + 1];
+
+			float t_left, t_right;
+			bool hit_left  = intersect_node(left_node, &inv_dir, &start, octant, max_dist, &t_left);
+			bool hit_right = intersect_node(right_node, &inv_dir, &start, octant, max_dist, &t_right);
+
+			if (hit_left) {
+				struct bvh_index first = left_node->index;
+				if (hit_right) {
+					// Choose the child that is the closest, and push the other on the stack.
+					struct bvh_index second = right_node->index;
+					if (t_left > t_right) {
+						struct bvh_index tmp = first;
+						first = second;
+						second = tmp;
+					}
+					stack[stack_size++] = second;
+				}
+				top = first;
+			} else if (likely(hit_right))
+				top = right_node->index;
+			else
+				goto pop;
+		}
+
+		if (intersect_leaf(
+			user_data, bvh, ray,
+			top.first_child_or_prim,
+			top.first_child_or_prim + top.prim_count,
+			isect))
+		{
+			max_dist = isect->distance;
+			was_hit = true;
+		}
+
+pop:
+		if (unlikely(stack_size == 0))
+			break;
+		top = stack[--stack_size];
+	}
+	return was_hit;
+}
+
+static void get_poly_bbox_and_center(const void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
 	const struct mesh *mesh = userData;
 	struct vector v0 = mesh->vertices[mesh->polygons[i].vertexIndex[0]];
 	struct vector v1 = mesh->vertices[mesh->polygons[i].vertexIndex[1]];
@@ -291,163 +556,22 @@ static void getPolyBBoxAndCenter(const void *userData, unsigned i, struct boundi
 	bbox->max = vecMax(v0, vecMax(v1, v2));
 }
 
-struct boundingBox getRootBoundingBox(const struct bvh *bvh) {
-	struct boundingBox box;
-	loadBBoxFromNode(&box, &bvh->nodes[0]);
-	return box;
-}
-
-struct bvh *build_mesh_bvh(const struct mesh *mesh) {
-	return buildBvhGeneric(mesh, getPolyBBoxAndCenter, mesh->poly_count);
-}
-
-static void getInstanceBBoxAndCenter(const void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
+static void get_instance_bbox_and_center(const void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
 	const struct instance *instances = userData;
 	instances[i].getBBoxAndCenterFn(&instances[i], bbox, center);
 }
 
-struct bvh *buildTopLevelBvh(const struct instance *instances, unsigned instanceCount) {
-	return buildBvhGeneric(instances, getInstanceBBoxAndCenter, instanceCount);
-}
-
-static inline float fastMultiplyAdd(float a, float b, float c) {
-#ifdef FP_FAST_FMAF
-	return fmaf(a, b, c);
-#else
-	return a * b + c;
-#endif
-}
-
-static inline bool intersectNode(
-	const struct bvhNode *node,
-	const struct vector *invDir,
-	const struct vector *scaledStart,
-	const int *octant,
-	float maxDist,
-	float *tEntry)
-{
-	float tMinX = fastMultiplyAdd(node->bounds[0 +     octant[0]], invDir->x, scaledStart->x);
-	float tMaxX = fastMultiplyAdd(node->bounds[0 + 1 - octant[0]], invDir->x, scaledStart->x);
-	float tMinY = fastMultiplyAdd(node->bounds[2 +     octant[1]], invDir->y, scaledStart->y);
-	float tMaxY = fastMultiplyAdd(node->bounds[2 + 1 - octant[1]], invDir->y, scaledStart->y);
-	float tMinZ = fastMultiplyAdd(node->bounds[4 +     octant[2]], invDir->z, scaledStart->z);
-	float tMaxZ = fastMultiplyAdd(node->bounds[4 + 1 - octant[2]], invDir->z, scaledStart->z);
-	// Note the order here is important.
-	// Because the comparisons are of the form x < y ? x : y, they
-	// are guaranteed not to produce NaNs if the right hand side is not a NaN.
-	float tMin = tMinX > tMinY ? tMinX : tMinY;
-	float tMax = tMaxX < tMaxY ? tMaxX : tMaxY;
-	tMin = tMin > tMinZ ? tMin : tMinZ;
-	tMax = tMax < tMaxZ ? tMax : tMaxZ;
-	// TODO: Add [tmin, tmax] to the lightRay structure for more efficient culling.
-	tMin = tMin > 0 ? tMin : 0;
-	tMax = tMax < maxDist ? tMax : maxDist;
-	*tEntry = tMin;
-	return tMin <= tMax;
-}
-
-static inline bool traverseBvhGeneric(
-	const void *userData,
+static inline bool intersect_bottom_level_leaf(
+	const void *user_data,
 	const struct bvh *bvh,
-	bool (*intersectLeaf)(const void *, const struct bvh *, const struct bvhNode *, const struct lightRay *, struct hitRecord *, sampler *),
 	const struct lightRay *ray,
-	struct hitRecord *isect,
-	sampler *sampler)
+	size_t begin, size_t end,
+	struct hitRecord *isect)
 {
-	if (bvh->nodeCount < 1) {
-		isect->instIndex = -1;
-		return false;
-	}
-	const struct bvhNode *stack[MAX_BVH_DEPTH + 1];
-	int stackSize = 0;
-
-	// Precompute ray octant and inverse direction
-	int octant[] = {
-		signbit(ray->direction.x) ? 1 : 0,
-		signbit(ray->direction.y) ? 1 : 0,
-		signbit(ray->direction.z) ? 1 : 0
-	};
-	struct vector invDir = { 1.0f / ray->direction.x, 1.0f / ray->direction.y, 1.0f / ray->direction.z };
-	struct vector scaledStart = vecScale(vecMul(ray->start, invDir), -1.0f);
-	float maxDist = isect->distance;
-	
-	if (bvh->nodeCount < 1) return false;
-
-	// Special case when the BVH is just a single leaf
-	if (bvh->nodeCount == 1) {
-		float tEntry;
-		if (intersectNode(bvh->nodes, &invDir, &scaledStart, octant, maxDist, &tEntry))
-			return intersectLeaf(userData, bvh, bvh->nodes, ray, isect, sampler);
-		return false;
-	}
-
-	const struct bvhNode *node = bvh->nodes;
-	bool hasHit = false;
-	while (true) {
-		unsigned firstChild = node->firstChildOrPrim;
-		const struct bvhNode *leftNode  = &bvh->nodes[firstChild];
-		const struct bvhNode *rightNode = &bvh->nodes[firstChild + 1];
-
-		float tEntryLeft, tEntryRight;
-		bool hitLeft = intersectNode(leftNode, &invDir, &scaledStart, octant, maxDist, &tEntryLeft);
-		bool hitRight = intersectNode(rightNode, &invDir, &scaledStart, octant, maxDist, &tEntryRight);
-
-		if (hitLeft) {
-			if (unlikely(leftNode->isLeaf)) {
-				if (intersectLeaf(userData, bvh, leftNode, ray, isect, sampler)) {
-					maxDist = isect->distance;
-					hasHit = true;
-				}
-				leftNode = NULL;
-			}
-		} else
-			leftNode = NULL;
-
-		if (hitRight) {
-			if (unlikely(rightNode->isLeaf)) {
-				if (intersectLeaf(userData, bvh, rightNode, ray, isect, sampler)) {
-					maxDist = isect->distance;
-					hasHit = true;
-				}
-				rightNode = NULL;
-			}
-		} else
-			rightNode = NULL;
-
-		if ((rightNode != NULL) & (leftNode != NULL)) {
-			// Choose the child that is the closest, and push the other on the stack.
-			if (tEntryLeft > tEntryRight) {
-				node = leftNode;
-				leftNode = rightNode;
-				rightNode = node;
-			}
-			node = leftNode;
-			stack[stackSize++] = rightNode;
-		} else if ((rightNode != NULL) ^ (leftNode != NULL)) {
-			// Only one child needs traversal
-			node = rightNode != NULL ? rightNode : leftNode;
-		} else {
-			if (stackSize == 0)
-				break;
-			node = stack[--stackSize];
-		}
-	}
-	return hasHit;
-}
-
-static inline bool intersectBottomLevelLeaf(
-	const void *userData,
-	const struct bvh *bvh,
-	const struct bvhNode *leaf,
-	const struct lightRay *ray,
-	struct hitRecord *isect,
-	sampler *sampler)
-{
-	(void)sampler;
-	const struct mesh *mesh = userData;
+	const struct mesh *mesh = user_data;
 	bool found = false;
-	for (int i = 0; i < leaf->primCount; ++i) {
-		struct poly *p = &mesh->polygons[bvh->primIndices[leaf->firstChildOrPrim + i]];
+	for (size_t i = begin; i < end; ++i) {
+		struct poly *p = &mesh->polygons[bvh->prim_indices[i]];
 		if (rayIntersectsWithPolygon(mesh, ray, p, isect)) {
 			isect->polygon = p;
 			found = true;
@@ -456,44 +580,65 @@ static inline bool intersectBottomLevelLeaf(
 	return found;
 }
 
-bool traverseBottomLevelBvh(const struct mesh *mesh, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler) {
-	return traverseBvhGeneric(mesh, mesh->bvh, intersectBottomLevelLeaf, ray, isect, sampler);
-}
-
-static inline bool intersectTopLevelLeaf(
-	const void *userData,
+static inline bool intersect_top_level_leaf(
+	const void *user_data,
 	const struct bvh *bvh,
-	const struct bvhNode *leaf,
 	const struct lightRay *ray,
-	struct hitRecord *isect,
-	sampler *sampler)
+	size_t begin, size_t end,
+	struct hitRecord *isect)
 {
-	const struct instance *instances = userData;
+	const struct top_level_data *top_level_data = user_data;
+	const struct instance *instances = top_level_data->instances;
+	struct sampler *sampler = top_level_data->sampler;
 	bool found = false;
-	for (int i = 0; i < leaf->primCount; ++i) {
-		int currIndex = bvh->primIndices[leaf->firstChildOrPrim + i];
-		if (instances[currIndex].intersectFn(&instances[currIndex], ray, isect, sampler)) {
-			isect->instIndex = currIndex;
+	for (size_t i = begin; i < end; ++i) {
+		size_t prim_index = bvh->prim_indices[i];
+		if (instances[prim_index].intersectFn(&instances[prim_index], ray, isect, sampler)) {
+			isect->instIndex = prim_index;
 			found = true;
 		}
 	}
 	return found;
 }
 
-bool traverseTopLevelBvh(
+struct boundingBox get_root_bbox(const struct bvh *bvh) {
+	return load_bbox_from_node(&bvh->nodes[0]);
+}
+
+struct bvh *build_mesh_bvh(const struct mesh *mesh) {
+	return build_bvh_generic(mesh, get_poly_bbox_and_center, mesh->poly_count);
+}
+
+struct bvh *build_top_level_bvh(const struct instance *instances, size_t instance_count) {
+	return build_bvh_generic(instances, get_instance_bbox_and_center, instance_count);
+}
+
+bool traverse_bottom_level_bvh(
+	const struct mesh *mesh,
+	const struct lightRay *ray,
+	struct hitRecord *isect,
+	sampler *sampler)
+{
+	(void)sampler;
+	return traverse_bvh_generic(mesh, mesh->bvh, intersect_bottom_level_leaf, ray, isect);
+}
+
+bool traverse_top_level_bvh(
 	const struct instance *instances,
 	const struct bvh *bvh,
 	const struct lightRay *ray,
 	struct hitRecord *isect,
 	sampler *sampler)
 {
-	return traverseBvhGeneric((void *)instances, bvh, intersectTopLevelLeaf, ray, isect, sampler);
+	return traverse_bvh_generic(
+		&(struct top_level_data) { instances, sampler },
+		bvh, intersect_top_level_leaf, ray, isect);
 }
 
-void destroyBvh(struct bvh *bvh) {
+void destroy_bvh(struct bvh *bvh) {
 	if (bvh) {
 		if (bvh->nodes) free(bvh->nodes);
-		if (bvh->primIndices) free(bvh->primIndices);
+		if (bvh->prim_indices) free(bvh->prim_indices);
 		free(bvh);
 	}
 }
