@@ -44,6 +44,10 @@ static inline float clamp(float value, float min, float max) {
 	return min(max(value, min), max);
 }
 
+static inline float vec_coord(const struct vector *v, unsigned axis) {
+	return (&v->x)[axis];
+}
+
 /**
  Add two vectors and return the resulting vector
 

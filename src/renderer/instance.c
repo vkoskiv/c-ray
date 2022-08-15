@@ -169,7 +169,7 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 	transformRay(&copy, instance->composite.Ainv);
 	struct mesh *mesh = instance->object;
 	copy.start = vecAdd(copy.start, vecScale(copy.direction, mesh->rayOffset));
-	if (traverseBottomLevelBvh(mesh, &copy, isect, sampler)) {
+	if (traverse_bottom_level_bvh(mesh, &copy, isect, sampler)) {
 		// Repopulate uv with actual texture mapping
 		isect->uv = getTexMapMesh(mesh, isect);
 		isect->bsdf = instance->materials[isect->polygon->materialIndex].bsdf;
@@ -190,9 +190,9 @@ static bool intersectMeshVolume(const struct instance *instance, const struct li
 	transformRay(&copy, instance->composite.Ainv);
 	struct meshVolume *mesh = (struct meshVolume *)instance->object;
 	copy.start = vecAdd(copy.start, vecScale(copy.direction, mesh->mesh->rayOffset));
-	if (traverseBottomLevelBvh(mesh->mesh, &copy, &record1, sampler)) {
+	if (traverse_bottom_level_bvh(mesh->mesh, &copy, &record1, sampler)) {
 		struct lightRay copy2 = (struct lightRay){ alongRay(&copy, record1.distance + 0.0001f), copy.direction };
-		if (traverseBottomLevelBvh(mesh->mesh, &copy2, &record2, sampler)) {
+		if (traverse_bottom_level_bvh(mesh->mesh, &copy2, &record2, sampler)) {
 			if (record1.distance < 0.0f)
 				record1.distance = 0.0f;
 			float distanceInsideVolume = record2.distance;
@@ -219,7 +219,7 @@ bool isMesh(const struct instance *instance) {
 
 static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
 	struct mesh *mesh = (struct mesh *)instance->object;
-	*bbox = getRootBoundingBox(mesh->bvh);
+	*bbox = get_root_bbox(mesh->bvh);
 	transformBBox(bbox, instance->composite.A);
 	*center = bboxCenter(bbox);
 	mesh->rayOffset = rayOffset(*bbox);
@@ -229,7 +229,7 @@ static void getMeshBBoxAndCenter(const struct instance *instance, struct boundin
 
 static void getMeshVolumeBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
 	struct meshVolume *volume = (struct meshVolume *)instance->object;
-	*bbox = getRootBoundingBox(volume->mesh->bvh);
+	*bbox = get_root_bbox(volume->mesh->bvh);
 	transformBBox(bbox, instance->composite.A);
 	*center = bboxCenter(bbox);
 	volume->mesh->rayOffset = rayOffset(*bbox);
