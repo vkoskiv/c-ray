@@ -131,6 +131,8 @@ int loadScene(struct renderer *r, const char *input) {
 	// FIXME: This overrides setting should be integrated with scene loading, probably.
 	if (isSet("use_clustering")) {
 		// Stash a cache of scene data here
+		//FIXME: Why are we parsing the potentially large input again here?
+		//Just grab it from parseJSON above if needed.
 		cJSON *cache = cJSON_Parse(input);
 		// Apply overrides to the cache here
 		if (isSet("samples_override")) {
@@ -184,6 +186,7 @@ int loadScene(struct renderer *r, const char *input) {
 
 		// Store cache. This is what gets sent to worker nodes.
 		r->sceneCache = cJSON_PrintUnformatted(cache);
+		cJSON_Delete(cache);
 	}
 	
 	if (r->prefs.threadCount > 0) {
