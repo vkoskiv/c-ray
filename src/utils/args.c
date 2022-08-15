@@ -77,6 +77,15 @@ void parseArgs(int argc, char **argv) {
 	char *alternatePath = NULL;
 	//Always omit the first argument.
 	for (int i = 1; i < argc; ++i) {
+		//FIXME: I had to move this up here to fix a bizarre bug where
+		// the isValidFile() calls below returned true for "--asset-path" but
+		// *only* in release builds. WTF.
+		if (stringEquals(argv[i], "--asset-path")) {
+			if (argv[i + 1]) {
+				setDatabaseString(g_options, "asset_path", argv[i + 1]);
+			}
+			continue;
+		}
 		
 		if (alternatePath) {
 			free(alternatePath);
@@ -164,12 +173,6 @@ void parseArgs(int argc, char **argv) {
 		if (stringEquals(argv[i], "--suite")) {
 			if (argv[i + 1]) {
 				setDatabaseString(g_options, "test_suite", argv[i + 1]);
-			}
-		}
-		
-		if (stringEquals(argv[i], "--asset-path")) {
-			if (argv[i + 1]) {
-				setDatabaseString(g_options, "asset_path", argv[i + 1]);
 			}
 		}
 		
