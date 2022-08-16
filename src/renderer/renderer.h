@@ -48,7 +48,7 @@ struct state {
 	unsigned long long avgTileTime; //Used for render duration estimation (milliseconds)
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount; //Used for render duration estimation, amount of time samples captured
-	struct crThread *threads; //Render threads
+	struct cr_thread *threads; //Render threads
 	struct renderThreadState *threadStates;
 	struct renderClient *clients;
 	size_t clientCount;

@@ -216,7 +216,7 @@ static cJSON *processClientRequest(struct renderThreadState *state, const cJSON 
 
 // Master side
 void *networkRenderThread(void *arg) {
-	struct renderThreadState *state = (struct renderThreadState *)threadUserData(arg);
+	struct renderThreadState *state = (struct renderThreadState *)thread_user_data(arg);
 	struct renderer *r = state->renderer;
 	struct renderClient *client = state->client;
 	if (!client) {
@@ -274,7 +274,7 @@ struct syncThreadParams {
 
 //TODO: Rename to clientSyncThread
 static void *handleClientSync(void *arg) {
-	struct syncThreadParams *params = (struct syncThreadParams *)threadUserData(arg);
+	struct syncThreadParams *params = (struct syncThreadParams *)thread_user_data(arg);
 	struct renderClient *client = params->client;
 	if (client->status != Connected) {
 		logr(warning, "Won't sync with client %i, no connection.\n", client->id);
@@ -405,16 +405,16 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 		params[i].assetCache = assetCache;
 	}
 	
-	struct crThread *syncThreads = calloc(clientCount, sizeof(*syncThreads));
+	struct cr_thread *sync_threads = calloc(clientCount, sizeof(*sync_threads));
 	for (size_t i = 0; i < clientCount; ++i) {
-		syncThreads[i] = (struct crThread){
-			.threadFunc = handleClientSync,
-			.userData = &params[i]
+		sync_threads[i] = (struct cr_thread){
+			.thread_fn = handleClientSync,
+			.user_data = &params[i]
 		};
 	}
 	
 	for (size_t i = 0; i < clientCount; ++i) {
-		if (threadStart(&syncThreads[i])) {
+		if (thread_start(&sync_threads[i])) {
 			logr(warning, "Something went wrong while starting the sync thread for client %i. May want to look into that.\n", (int)i);
 		}
 	}
@@ -436,7 +436,7 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	
 	// Block here and verify threads are done before continuing.
 	for (size_t i = 0; i < clientCount; ++i) {
-		threadWait(&syncThreads[i]);
+		thread_wait(&sync_threads[i]);
 	}
 	
 	free(assetCache);
@@ -444,7 +444,7 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	logr(info, "Client sync finished.\n");
 	//FIXME: We should prune clients that dropped out during sync here
 	if (count) *count = clientCount;
-	free(syncThreads);
+	free(sync_threads);
 	return clients;
 }
 

@@ -35,7 +35,7 @@ struct bvh_build_task {
 };
 
 void *bvh_build_thread(void *arg) {
-	struct bvh_build_task *task = (struct bvh_build_task*)threadUserData(arg);
+	struct bvh_build_task *task = (struct bvh_build_task *)thread_user_data(arg);
 	task->bvh = build_mesh_bvh(task->mesh);
 	return NULL;
 }
@@ -45,22 +45,22 @@ static void compute_accels(struct mesh *meshes, int mesh_count) {
 	struct timeval timer = { 0 };
 	timer_start(&timer);
 	struct bvh_build_task *tasks = calloc(mesh_count, sizeof(*tasks));
-	struct crThread *build_threads = calloc(mesh_count, sizeof(*build_threads));
+	struct cr_thread *build_threads = calloc(mesh_count, sizeof(*build_threads));
 	for (int t = 0; t < mesh_count; ++t) {
 		tasks[t] = (struct bvh_build_task){
 			.mesh = &meshes[t],
 		};
-		build_threads[t] = (struct crThread){
-			.threadFunc = bvh_build_thread,
-			.userData = &tasks[t]
+		build_threads[t] = (struct cr_thread){
+			.thread_fn = bvh_build_thread,
+			.user_data = &tasks[t]
 		};
-		if (threadStart(&build_threads[t])) {
+		if (thread_start(&build_threads[t])) {
 			logr(error, "Failed to create a bvhBuildTask\n");
 		}
 	}
 	
 	for (int t = 0; t < mesh_count; ++t) {
-		threadWait(&build_threads[t]);
+		thread_wait(&build_threads[t]);
 		meshes[t].bvh = tasks[t].bvh;
 	}
 	printSmartTime(timer_get_ms(timer));

@@ -133,7 +133,7 @@ static bool submitWork(int sock, struct texture *work, struct renderTile forTile
 }
 
 static void *workerThread(void *arg) {
-	struct workerThreadState *threadState = (struct workerThreadState *)threadUserData(arg);
+	struct workerThreadState *threadState = (struct workerThreadState *)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
 	int sock = threadState->connectionSocket;
 	struct cr_mutex *sockMutex = threadState->socketMutex;
@@ -231,7 +231,7 @@ static cJSON *startRender(int connectionSocket) {
 	int threadCount = g_worker_renderer->prefs.threadCount;
 	// Map of threads that have finished, so we don't check them again.
 	bool *checkedThreads = calloc(threadCount, sizeof(*checkedThreads));
-	struct crThread *workerThreads = calloc(threadCount, sizeof(*workerThreads));
+	struct cr_thread *worker_threads = calloc(threadCount, sizeof(*worker_threads));
 	struct workerThreadState *workerThreadStates = calloc(threadCount, sizeof(*workerThreadStates));
 	
 	//Create render threads (Nonblocking)
@@ -242,8 +242,8 @@ static cJSON *startRender(int connectionSocket) {
 				.socketMutex = g_worker_socket_mutex,
 				.renderer = g_worker_renderer,
 				.cam = &g_worker_renderer->scene->cameras[g_worker_renderer->prefs.selected_camera]};
-		workerThreads[t] = (struct crThread){.threadFunc = workerThread, .userData = &workerThreadStates[t]};
-		if (threadStart(&workerThreads[t])) {
+		worker_threads[t] = (struct cr_thread){.thread_fn = workerThread, .user_data = &workerThreadStates[t]};
+		if (thread_start(&worker_threads[t])) {
 			logr(error, "Failed to create a crThread.\n");
 		} else {
 			g_worker_renderer->state.activeThreads++;

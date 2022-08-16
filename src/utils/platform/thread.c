@@ -12,20 +12,20 @@
 #include "thread.h"
 #include "../logging.h"
 
-void *threadUserData(void *arg) {
-	struct crThread *thread = (struct crThread*)arg;
-	return thread->userData;
+void *thread_user_data(void *arg) {
+	struct cr_thread *thread = (struct cr_thread *)arg;
+	return thread->user_data;
 }
 // Multiplatform thread stub
 #ifdef WINDOWS
-DWORD WINAPI threadStub(LPVOID arg) {
+DWORD WINAPI thread_stub(LPVOID arg) {
 #else
-void *threadStub(void *arg) {
+void *thread_stub(void *arg) {
 #endif
-	return ((struct crThread*)arg)->threadFunc(arg);
+	return ((struct cr_thread *)arg)->thread_fn(arg);
 }
 
-void threadWait(struct crThread *t) {
+void thread_wait(struct cr_thread *t) {
 #ifdef WINDOWS
 	WaitForSingleObjectEx(t->thread_handle, INFINITE, FALSE);
 #else
@@ -35,16 +35,16 @@ void threadWait(struct crThread *t) {
 #endif
 }
 
-int threadStart(struct crThread *t) {
+int thread_start(struct cr_thread *t) {
 #ifdef WINDOWS
-	t->thread_handle = CreateThread(NULL, 0, threadStub, t, 0, &t->thread_id);
+	t->thread_handle = CreateThread(NULL, 0, thread_stub, t, 0, &t->thread_id);
 	if (t->thread_handle == NULL) return -1;
 	return 0;
 #else
 	pthread_attr_t attribs;
 	pthread_attr_init(&attribs);
 	pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
-	int ret = pthread_create(&t->thread_id, &attribs, threadStub, t);
+	int ret = pthread_create(&t->thread_id, &attribs, thread_stub, t);
 	pthread_attr_destroy(&attribs);
 	return ret;
 #endif

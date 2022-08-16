@@ -19,24 +19,24 @@
 /**
  Thread information struct to communicate with main thread
  */
-struct crThread {
+struct cr_thread {
 #ifdef WINDOWS
 	HANDLE thread_handle;
 	DWORD thread_id;
 #else
 	pthread_t thread_id;
 #endif
-	void *userData; // Thread I/O.
-	void *(*threadFunc)(void *); // Code you want to run.
+	void *user_data; // Thread I/O.
+	void *(*thread_fn)(void *); // Code you want to run.
 };
 
 // Fetch the user data pointer from args parameter
-void *threadUserData(void *arg);
+void *thread_user_data(void *arg);
 
 /// Start a new C-ray platform abstracted thread
 /// @param t Pointer to the thread to be started
-int threadStart(struct crThread *t);
+int thread_start(struct cr_thread *t);
 
 /// Block until the given thread has terminated.
 /// @param t Pointer to the thread to be checked.
-void threadWait(struct crThread *t);
+void thread_wait(struct cr_thread *t);

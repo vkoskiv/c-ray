@@ -98,8 +98,8 @@ struct texture *renderFrame(struct renderer *r) {
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
 		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output, .cam = &camera};
-		r->state.threads[t] = (struct crThread){.threadFunc = localRenderThread, .userData = &r->state.threadStates[t]};
-		if (threadStart(&r->state.threads[t])) {
+		r->state.threads[t] = (struct cr_thread){.thread_fn = localRenderThread, .user_data = &r->state.threadStates[t]};
+		if (thread_start(&r->state.threads[t])) {
 			logr(error, "Failed to create a render thread.\n");
 		} else {
 			r->state.activeThreads++;
@@ -110,8 +110,8 @@ struct texture *renderFrame(struct renderer *r) {
 	for (int t = 0; t < (int)r->state.clientCount; ++t) {
 		int offset = r->prefs.threadCount + t;
 		r->state.threadStates[offset] = (struct renderThreadState){.client = &r->state.clients[t], .thread_num = offset, .threadComplete = false, .renderer = r, .output = output};
-		r->state.threads[offset] = (struct crThread){.threadFunc = networkRenderThread, .userData = &r->state.threadStates[offset]};
-		if (threadStart(&r->state.threads[offset])) {
+		r->state.threads[offset] = (struct cr_thread){.thread_fn = networkRenderThread, .user_data = &r->state.threadStates[offset]};
+		if (thread_start(&r->state.threads[offset])) {
 			logr(error, "Failed to create a network thread.\n");
 		} else {
 			r->state.activeThreads++;
@@ -175,7 +175,7 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Make sure render threads are terminated before continuing (This blocks)
 	for (int t = 0; t < localThreadCount; ++t) {
-		threadWait(&r->state.threads[t]);
+		thread_wait(&r->state.threads[t]);
 	}
 	free(checkedThreads);
 	return output;
@@ -184,7 +184,7 @@ struct texture *renderFrame(struct renderer *r) {
 // An interactive render thread that progressively
 // renders samples up to a limit
 void *renderThreadInteractive(void *arg) {
-	struct renderThreadState *threadState = (struct renderThreadState*)threadUserData(arg);
+	struct renderThreadState *threadState = (struct renderThreadState*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
 	sampler *sampler = newSampler();
@@ -263,7 +263,7 @@ void *renderThreadInteractive(void *arg) {
  @return Exits when thread is done
  */
 void *renderThread(void *arg) {
-	struct renderThreadState *threadState = (struct renderThreadState*)threadUserData(arg);
+	struct renderThreadState *threadState = (struct renderThreadState*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
 	sampler *sampler = newSampler();
