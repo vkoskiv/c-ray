@@ -29,43 +29,43 @@
 #include "../utils/args.h"
 #include "../utils/textbuffer.h"
 
-struct bvhBuildTask {
+struct bvh_build_task {
 	struct bvh *bvh;
 	const struct mesh *mesh;
 };
 
-void *bvhBuildThread(void *arg) {
-	struct bvhBuildTask *task = (struct bvhBuildTask*)threadUserData(arg);
+void *bvh_build_thread(void *arg) {
+	struct bvh_build_task *task = (struct bvh_build_task*)threadUserData(arg);
 	task->bvh = build_mesh_bvh(task->mesh);
 	return NULL;
 }
 
-static void computeAccels(struct mesh *meshes, int meshCount) {
+static void compute_accels(struct mesh *meshes, int mesh_count) {
 	logr(info, "Computing BVHs: ");
-	struct timeval timer = {0};
+	struct timeval timer = { 0 };
 	timer_start(&timer);
-	struct bvhBuildTask *tasks = calloc(meshCount, sizeof(*tasks));
-	struct crThread *buildThreads = calloc(meshCount, sizeof(*buildThreads));
-	for (int t = 0; t < meshCount; ++t) {
-		tasks[t] = (struct bvhBuildTask){
+	struct bvh_build_task *tasks = calloc(mesh_count, sizeof(*tasks));
+	struct crThread *build_threads = calloc(mesh_count, sizeof(*build_threads));
+	for (int t = 0; t < mesh_count; ++t) {
+		tasks[t] = (struct bvh_build_task){
 			.mesh = &meshes[t],
 		};
-		buildThreads[t] = (struct crThread){
-			.threadFunc = bvhBuildThread,
+		build_threads[t] = (struct crThread){
+			.threadFunc = bvh_build_thread,
 			.userData = &tasks[t]
 		};
-		if (threadStart(&buildThreads[t])) {
+		if (threadStart(&build_threads[t])) {
 			logr(error, "Failed to create a bvhBuildTask\n");
 		}
 	}
 	
-	for (int t = 0; t < meshCount; ++t) {
-		threadWait(&buildThreads[t]);
+	for (int t = 0; t < mesh_count; ++t) {
+		threadWait(&build_threads[t]);
 		meshes[t].bvh = tasks[t].bvh;
 	}
 	printSmartTime(timer_get_ms(timer));
 	free(tasks);
-	free(buildThreads);
+	free(build_threads);
 	logr(plain, "\n");
 }
 
@@ -192,7 +192,7 @@ int loadScene(struct renderer *r, const char *input) {
 	if (r->prefs.threadCount > 0) {
 		// Do some pre-render preparations
 		// Compute BVH acceleration structures for all objects in the scene
-		computeAccels(r->scene->meshes, r->scene->meshCount);
+		compute_accels(r->scene->meshes, r->scene->meshCount);
 		// And then compute a single top-level BVH that contains all the objects
 		r->scene->topLevel = computeTopLevelBvh(r->scene->instances, r->scene->instanceCount);
 		printSceneStats(r->scene, timer_get_ms(timer));
