@@ -20,9 +20,14 @@
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/select.h>
 #include "filecache.h"
 #include "textbuffer.h"
 #include "args.h"
+
+#ifdef WINDOWS
+#define SSIZE_T ssize_t
+#endif
 
 static char *getFileExtension(const char *fileName) {
 	lineBuffer *line = newLineBuffer();
