@@ -25,10 +25,6 @@
 #include "textbuffer.h"
 #include "args.h"
 
-#ifdef WINDOWS
-#define SSIZE_T ssize_t
-#endif
-
 static char *getFileExtension(const char *fileName) {
 	lineBuffer *line = newLineBuffer();
 	fillLineBuffer(line, fileName, '.');
@@ -223,7 +219,7 @@ char *read_stdin(size_t *bytes) {
 	size_t buf_size = 0;
 	char *buf = NULL;
 	int stdin_fd = fileno(stdin);
-	ssize_t read_bytes = 0;
+	int read_bytes = 0;
 	while ((read_bytes = read(stdin_fd, &chunk, chunksize)) > 0) {
 		char *old = buf;
 		buf = realloc(buf, buf_size + read_bytes + 1);
