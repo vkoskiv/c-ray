@@ -32,8 +32,6 @@ typedef struct _textBuffer lineBuffer;
 
 textBuffer *newTextBuffer(const char *contents);
 
-lineBuffer *newLineBuffer(void);
-
 // A subset of a textBuffer
 textBuffer *newTextView(textBuffer *original, const size_t start, const size_t lines);
 

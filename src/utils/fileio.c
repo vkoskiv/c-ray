@@ -26,14 +26,14 @@
 #include "args.h"
 
 static char *getFileExtension(const char *fileName) {
-	lineBuffer *line = newLineBuffer();
-	fillLineBuffer(line, fileName, '.');
-	if (line->amountOf.tokens != 2) {
-		destroyLineBuffer(line);
+	lineBuffer line;
+	char buf[LINEBUFFER_MAXSIZE];
+	line.buf = buf;
+	fillLineBuffer(&line, fileName, '.');
+	if (line.amountOf.tokens != 2) {
 		return NULL;
 	}
-	char *extension = stringCopy(lastToken(line));
-	destroyLineBuffer(line);
+	char *extension = stringCopy(lastToken(&line));
 	return extension;
 }
 

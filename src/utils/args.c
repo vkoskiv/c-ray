@@ -48,12 +48,13 @@ static void printUsage(const char *progname) {
 
 bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
 	if (!dimStr) return false;
-	lineBuffer *buf = newLineBuffer();
-	fillLineBuffer(buf, dimStr, 'x');
-	char *widthStr = firstToken(buf);
-	char *heightStr = nextToken(buf);
+	lineBuffer buf;
+	char container[LINEBUFFER_MAXSIZE];
+	buf.buf = container;
+	fillLineBuffer(&buf, dimStr, 'x');
+	char *widthStr = firstToken(&buf);
+	char *heightStr = nextToken(&buf);
 	if (!widthStr && !heightStr) {
-		destroyLineBuffer(buf);
 		return false;
 	}
 	int width = atoi(widthStr);
@@ -65,7 +66,6 @@ bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
 	
 	if (widthOut) *widthOut = width;
 	if (heightOut) *heightOut = height;
-	destroyLineBuffer(buf);
 	return true;
 }
 

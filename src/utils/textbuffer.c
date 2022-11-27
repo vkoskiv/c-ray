@@ -62,12 +62,6 @@ textBuffer *newTextBuffer(const char *contents) {
 	return new;
 }
 
-lineBuffer *newLineBuffer(void) {
-	lineBuffer *new = calloc(1, sizeof(*new));
-	new->buf = calloc(LINEBUFFER_MAXSIZE, sizeof(char));
-	return new;
-}
-
 void dumpBuffer(textBuffer *buffer) {
 	logr(debug, "Dumping buffer:\n\n\n");
 	char *head = firstLine(buffer);
@@ -213,11 +207,4 @@ void dumpLine(lineBuffer *line) {
 		head = nextToken(line);
 	}
 	printf("\n\n");
-}
-
-void destroyLineBuffer(lineBuffer *line) {
-	if (line) {
-		if (line->buf) free(line->buf);
-		free(line);
-	}
 }

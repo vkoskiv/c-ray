@@ -52,10 +52,12 @@ struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_c
 	struct material *current = NULL;
 	
 	char *head = firstLine(file);
-	lineBuffer *line = newLineBuffer();
+	lineBuffer line;
+	char buf[LINEBUFFER_MAXSIZE];
+	line.buf = buf;
 	while (head) {
-		fillLineBuffer(line, head, ' ');
-		char *first = firstToken(line);
+		fillLineBuffer(&line, head, ' ');
+		char *first = firstToken(&line);
 		if (first[0] == '#') {
 			head = nextLine(file);
 			continue;
@@ -64,44 +66,44 @@ struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_c
 			continue;
 		} else if (stringEquals(first, "newmtl")) {
 			current = &materials[currentMaterialIdx++];
-			if (!peekNextToken(line)) {
-				logr(warning, "newmtl without a name on line %zu\n", line->current.line);
+			if (!peekNextToken(&line)) {
+				logr(warning, "newmtl without a name on line %zu\n", line.current.line);
 				free(materials);
 				return NULL;
 			}
-			current->name = stringCopy(peekNextToken(line));
+			current->name = stringCopy(peekNextToken(&line));
 		} else if (stringEquals(first, "Ka")) {
-			current->ambient = parse_color(line);
+			current->ambient = parse_color(&line);
 		} else if (stringEquals(first, "Kd")) {
-			current->diffuse = parse_color(line);
+			current->diffuse = parse_color(&line);
 		} else if (stringEquals(first, "Ks")) {
-			current->specular = parse_color(line);
+			current->specular = parse_color(&line);
 		} else if (stringEquals(first, "Ke")) {
-			current->emission = parse_color(line);
+			current->emission = parse_color(&line);
 		} else if (stringEquals(first, "illum")) {
-			current->illum = atoi(nextToken(line));
+			current->illum = atoi(nextToken(&line));
 		} else if (stringEquals(first, "Ns")) {
-			current->shinyness = atof(nextToken(line));
+			current->shinyness = atof(nextToken(&line));
 		} else if (stringEquals(first, "d")) {
-			current->transparency = atof(nextToken(line));
+			current->transparency = atof(nextToken(&line));
 		} else if (stringEquals(first, "r")) {
-			current->reflectivity = atof(nextToken(line));
+			current->reflectivity = atof(nextToken(&line));
 		} else if (stringEquals(first, "sharpness")) {
-			current->glossiness = atof(nextToken(line));
+			current->glossiness = atof(nextToken(&line));
 		} else if (stringEquals(first, "Ni")) {
-			current->IOR = atof(nextToken(line));
+			current->IOR = atof(nextToken(&line));
 		} else if (stringEquals(first, "map_Kd") || stringEquals(first, "map_Ka")) {
-			char *path = stringConcat(assetPath, nextToken(line));
+			char *path = stringConcat(assetPath, nextToken(&line));
 			windowsFixPath(path);
 			current->texture = load_texture(path, NULL, cache);
 			free(path);
 		} else if (stringEquals(first, "norm") || stringEquals(first, "bump") || stringEquals(first, "map_bump")) {
-			char *path = stringConcat(assetPath, nextToken(line));
+			char *path = stringConcat(assetPath, nextToken(&line));
 			windowsFixPath(path);
 			current->normalMap = load_texture(path, NULL, cache);
 			free(path);
 		} else if (stringEquals(first, "map_Ns")) {
-			char *path = stringConcat(assetPath, nextToken(line));
+			char *path = stringConcat(assetPath, nextToken(&line));
 			windowsFixPath(path);
 			current->specularMap = load_texture(path, NULL, cache);
 			free(path);
@@ -114,7 +116,6 @@ struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_c
 		head = nextLine(file);
 	}
 	
-	destroyLineBuffer(line);
 	destroyTextBuffer(file);
 	free(assetPath);
 	if (mtlCount) *mtlCount = (int)materialAmount;

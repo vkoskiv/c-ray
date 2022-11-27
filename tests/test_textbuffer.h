@@ -194,38 +194,39 @@ bool textbuffer_tokenizer(void) {
 	char *rawText = MULTILINE;
 	textBuffer *file = newTextBuffer(rawText);
 	
-	lineBuffer *line = newLineBuffer();
+	lineBuffer line;
+	char container[LINEBUFFER_MAXSIZE];
+	line.buf = container;
 	
-	fillLineBuffer(line, firstLine(file), ' ');
-	char *currentToken = firstToken(line);
+	fillLineBuffer(&line, firstLine(file), ' ');
+	char *currentToken = firstToken(&line);
 	test_assert(stringEquals(currentToken, "This"));
-	currentToken = nextToken(line);
+	currentToken = nextToken(&line);
 	test_assert(stringEquals(currentToken, "is"));
-	currentToken = nextToken(line);
+	currentToken = nextToken(&line);
 	test_assert(stringEquals(currentToken, "a"));
-	currentToken = firstToken(line);
+	currentToken = firstToken(&line);
 	test_assert(stringEquals(currentToken, "This"));
-	currentToken = lastToken(line);
+	currentToken = lastToken(&line);
 	test_assert(stringEquals(currentToken, "a"));
 	
-	currentToken = nextToken(line);
+	currentToken = nextToken(&line);
 	test_assert(!currentToken);
 	
-	fillLineBuffer(line, nextLine(file), ' ');
-	currentToken = firstToken(line);
+	fillLineBuffer(&line, nextLine(file), ' ');
+	currentToken = firstToken(&line);
 	test_assert(stringEquals(currentToken, "Multiline"));
 	
-	fillLineBuffer(line, nextLine(file), ' ');
-	currentToken = lastToken(line);
+	fillLineBuffer(&line, nextLine(file), ' ');
+	currentToken = lastToken(&line);
 	test_assert(stringEquals(currentToken, "string!"));
 	
-	currentToken = firstToken(line);
+	currentToken = firstToken(&line);
 	test_assert(stringEquals(currentToken, "string!"));
 	
-	currentToken = nextToken(line);
+	currentToken = nextToken(&line);
 	test_assert(!currentToken);
 	
-	destroyLineBuffer(line);
 	destroyTextBuffer(file);
 	
 	return true;
@@ -233,18 +234,19 @@ bool textbuffer_tokenizer(void) {
 
 bool textbuffer_multispace(void) {
 	char *text = " thing1 thing2 thing3 thing4";
-	lineBuffer *line = newLineBuffer();
-	fillLineBuffer(line, text, ' ');
-	test_assert(line->amountOf.tokens == 4);
+	lineBuffer line;
+	char container[LINEBUFFER_MAXSIZE];
+	line.buf = container;
+	fillLineBuffer(&line, text, ' ');
+	test_assert(line.amountOf.tokens == 4);
 
 	char *text2 = "thing1 thing2 thing3 thing4 ";
-	fillLineBuffer(line, text2, ' ');
-	test_assert(line->amountOf.tokens == 4);
+	fillLineBuffer(&line, text2, ' ');
+	test_assert(line.amountOf.tokens == 4);
 
 	char *text3 = " thing thing2 thing3 thing4 thing5 thing6 ";
-	fillLineBuffer(line, text3, ' ');
-	logr(info, "tokens: %zu\n", line->amountOf.tokens);
-	test_assert(line->amountOf.tokens == 6);
-	destroyLineBuffer(line);
+	fillLineBuffer(&line, text3, ' ');
+	logr(info, "tokens: %zu\n", line.amountOf.tokens);
+	test_assert(line.amountOf.tokens == 6);
 	return true;
 }

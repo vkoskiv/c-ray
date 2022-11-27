@@ -44,11 +44,13 @@ static size_t count(textBuffer *buffer, const char *thing) {
 static size_t countPolygons(textBuffer *buffer) {
 	size_t thingCount = 0;
 	char *head = firstLine(buffer);
-	lineBuffer *line = newLineBuffer();
+	lineBuffer line;
+	char buf[LINEBUFFER_MAXSIZE];
+	line.buf = buf;
 	while (head) {
 		if (head[0] == 'f') {
-			fillLineBuffer(line, head, ' ');
-			if (line->amountOf.tokens > 4) {
+			fillLineBuffer(&line, head, ' ');
+			if (line.amountOf.tokens > 4) {
 				thingCount += 2;
 			} else {
 				thingCount++;
@@ -56,7 +58,6 @@ static size_t countPolygons(textBuffer *buffer) {
 		}
 		head = nextLine(buffer);
 	}
-	destroyLineBuffer(line);
 	return thingCount;
 }
 
@@ -79,7 +80,9 @@ static struct coord parseCoord(lineBuffer *line) {
 // Or a quad:
 // f v1//vn1 v2//vn2 v3//vn3 v4//vn4
 size_t parsePolygons(lineBuffer *line, struct poly *buf) {
-	lineBuffer *batch = newLineBuffer();
+	lineBuffer batch;
+	char container[LINEBUFFER_MAXSIZE];
+	batch.buf = container;
 	size_t polycount = line->amountOf.tokens - 3;
 	// For now, c-ray will just translate quads to two polygons while parsing
 	// Explode in a ball of fire if we encounter an ngon
@@ -94,17 +97,16 @@ size_t parsePolygons(lineBuffer *line, struct poly *buf) {
 		struct poly *p = &buf[i];
 		p->vertexCount = MAX_CRAY_VERTEX_COUNT;
 		for (int j = 0; j < p->vertexCount; ++j) {
-			fillLineBuffer(batch, nextToken(line), '/');
-			p->vertexIndex[j] = atoi(firstToken(batch));
-			p->textureIndex[j] = atoi(nextToken(batch));
-			p->normalIndex[j] = atoi(nextToken(batch));
+			fillLineBuffer(&batch, nextToken(line), '/');
+			p->vertexIndex[j] = atoi(firstToken(&batch));
+			p->textureIndex[j] = atoi(nextToken(&batch));
+			p->normalIndex[j] = atoi(nextToken(&batch));
 			if (i == 1 && !skipped) {
 				nextToken(line);
 				skipped = true;
 			}
 		}
 	}
-	destroyLineBuffer(batch);
 	return polycount;
 }
 
@@ -173,10 +175,12 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 	struct poly polybuf[2];
 
 	char *head = firstLine(file);
-	lineBuffer *line = newLineBuffer();
+	lineBuffer line;
+	char buf[LINEBUFFER_MAXSIZE];
+	line.buf = buf;
 	while (head) {
-		fillLineBuffer(line, head, ' ');
-		char *first = firstToken(line);
+		fillLineBuffer(&line, head, ' ');
+		char *first = firstToken(&line);
 		if (first[0] == '#') {
 			head = nextLine(file);
 			continue;
@@ -186,21 +190,21 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 		} else if (first[0] == 'o' || first[0] == 'g') {
 			//FIXME: o and g probably have a distinction for a reason?
 			//currentMeshPtr = &meshes[currentMesh++];
-			currentMeshPtr->name = stringCopy(peekNextToken(line));
+			currentMeshPtr->name = stringCopy(peekNextToken(&line));
 			//valid_meshes++;
 		} else if (stringEquals(first, "v")) {
-			vertices[currentVertex++] = parseVertex(line);
+			vertices[currentVertex++] = parseVertex(&line);
 			currentVertexCount++;
 		} else if (stringEquals(first, "vt")) {
-			texCoords[currentTextureCoord++] = parseCoord(line);
+			texCoords[currentTextureCoord++] = parseCoord(&line);
 			currentTextureCount++;
 		} else if (stringEquals(first, "vn")) {
-			normals[currentNormal++] = parseVertex(line);
+			normals[currentNormal++] = parseVertex(&line);
 			currentNormalCount++;
 		} else if (stringEquals(first, "s")) {
 			// Smoothing groups. We don't care about these, we always smooth.
 		} else if (stringEquals(first, "f")) {
-			size_t count = parsePolygons(line, polybuf);
+			size_t count = parsePolygons(&line, polybuf);
 			for (size_t i = 0; i < count; ++i) {
 				struct poly p = polybuf[i];
 				fixIndices(&p, fileVertices, fileTexCoords, fileNormals);
@@ -209,9 +213,9 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 				polygons[currentPoly++] = p;
 			}
 		} else if (stringEquals(first, "usemtl")) {
-			currentMaterialIndex = findMaterialIndex(materialSet, materialCount, peekNextToken(line));
+			currentMaterialIndex = findMaterialIndex(materialSet, materialCount, peekNextToken(&line));
 		} else if (stringEquals(first, "mtllib")) {
-			char *mtlFilePath = stringConcat(assetPath, peekNextToken(line));
+			char *mtlFilePath = stringConcat(assetPath, peekNextToken(&line));
 			windowsFixPath(mtlFilePath);
 			materialSet = parseMTLFile(mtlFilePath, &materialCount, cache);
 			free(mtlFilePath);
@@ -223,7 +227,6 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 		}
 		head = nextLine(file);
 	}
-	destroyLineBuffer(line);
 	
 	if (finalMeshCount) *finalMeshCount = valid_meshes;
 	destroyTextBuffer(file);

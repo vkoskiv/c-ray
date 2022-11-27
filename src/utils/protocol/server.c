@@ -54,15 +54,16 @@ static cJSON *makeHandshake() {
 }
 
 static struct sockaddr_in parseAddress(const char *str) {
-	lineBuffer *line = newLineBuffer();
-	fillLineBuffer(line, str, ':');
+	lineBuffer line;
+	char buf[LINEBUFFER_MAXSIZE];
+	line.buf = buf;
+	fillLineBuffer(&line, str, ':');
 	struct sockaddr_in address = {0};
 	address.sin_family = AF_INET;
-	char *addr_string = firstToken(line);
+	char *addr_string = firstToken(&line);
 	struct hostent *ent = gethostbyname(addr_string);
 	memcpy(&address.sin_addr.s_addr, ent->h_addr, ent->h_length);
-	address.sin_port = line->amountOf.tokens > 1 ? htons(atoi(lastToken(line))) : htons(2222);
-	destroyLineBuffer(line);
+	address.sin_port = line.amountOf.tokens > 1 ? htons(atoi(lastToken(&line))) : htons(2222);
 	return address;
 }
 
@@ -112,16 +113,18 @@ static struct renderClient *buildClientList(size_t *amount) {
 	char *nodesString = stringPref("nodes_list");
 	// Really barebones parsing for IP addresses and ports in a comma-separated list
 	// Expected to break easily. Don't break it.
-	lineBuffer *line = newLineBuffer();
-	fillLineBuffer(line, nodesString, ',');
-	ASSERT(line->amountOf.tokens > 0);
-	size_t clientCount = line->amountOf.tokens;
+	lineBuffer line;
+	char buf[LINEBUFFER_MAXSIZE];
+	line.buf = buf;
+	fillLineBuffer(&line, nodesString, ',');
+	ASSERT(line.amountOf.tokens > 0);
+	size_t clientCount = line.amountOf.tokens;
 	struct renderClient *clients = calloc(clientCount, sizeof(*clients));
-	char *current = firstToken(line);
+	char *current = firstToken(&line);
 	for (size_t i = 0; i < clientCount; ++i) {
 		clients[i].address = parseAddress(current);
 		clients[i].status = connectToClient(&clients[i]) ? Connected : ConnectionFailed;
-		current = nextToken(line);
+		current = nextToken(&line);
 	}
 	size_t validClients = 0;
 	for (size_t i = 0; i < clientCount; ++i) {
@@ -145,7 +148,6 @@ static struct renderClient *buildClientList(size_t *amount) {
 	}
 	
 	if (amount) *amount = validClients;
-	destroyLineBuffer(line);
 	return clients;
 }
 
