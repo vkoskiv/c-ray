@@ -25,16 +25,7 @@
 #include "../timer.h"
 
 // Consumes given json, no need to free it after.
-bool sendJSON(int socket, cJSON *json) {
-	ASSERT(json);
-	char *jsonText = cJSON_PrintUnformatted(json);
-	cJSON_Delete(json);
-	bool ret = chunkedSend(socket, jsonText, NULL);
-	free(jsonText);
-	return ret;
-}
-
-bool sendJSONWithProgress(int socket, cJSON *json, size_t *progress) {
+bool sendJSON(int socket, cJSON *json, size_t *progress) {
 	ASSERT(json);
 	char *jsonText = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);

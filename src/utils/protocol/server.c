@@ -232,7 +232,7 @@ void *networkRenderThread(void *arg) {
 	}
 	
 	// Set this worker into render mode
-	if (!sendJSON(client->socket, newAction("startRender"))) {
+	if (!sendJSON(client->socket, newAction("startRender"), NULL)) {
 		logr(warning, "Client disconnected? Stopping for %i\n", client->id);
 		state->threadComplete = true;
 		return 0;
@@ -252,10 +252,10 @@ void *networkRenderThread(void *arg) {
 				char *err = cJSON_PrintUnformatted(response);
 				logr(debug, "error, exiting thread %i: %s\n", state->thread_num, err);
 				free(err);
-				sendJSON(client->socket, response);
+				sendJSON(client->socket, response, NULL);
 				break;
 			}
-			sendJSON(client->socket, response);
+			sendJSON(client->socket, response, NULL);
 		}
 		cJSON_Delete(request);
 	}
@@ -285,7 +285,7 @@ static void *handleClientSync(void *arg) {
 	client->status = Syncing;
 	
 	// Handshake with the client
-	if (!sendJSON(client->socket, makeHandshake())) {
+	if (!sendJSON(client->socket, makeHandshake(), NULL)) {
 		client->status = SyncFailed;
 		return NULL;
 	}
@@ -308,7 +308,7 @@ static void *handleClientSync(void *arg) {
 	cJSON_AddItemToObject(scene, "data", data);
 	cJSON_AddItemToObject(scene, "files", cJSON_Parse(params->assetCache));
 	cJSON_AddStringToObject(scene, "assetPath", params->renderer->prefs.assetPath);
-	sendJSONWithProgress(client->socket, scene, &params->progress);
+	sendJSON(client->socket, scene, &params->progress);
 	response = readJSON(client->socket);
 	if (!response) {
 		logr(debug, "no response\n");
@@ -349,7 +349,7 @@ void shutdownClients() {
 		return;
 	}
 	for (size_t i = 0; i < clientCount; ++i) {
-		sendJSON(clients[i].socket, newAction("shutdown"));
+		sendJSON(clients[i].socket, newAction("shutdown"), NULL);
 		disconnectFromClient(&clients[i]);
 	}
 	logr(info, "Done, exiting.\n");

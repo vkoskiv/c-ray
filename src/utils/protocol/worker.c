@@ -101,7 +101,7 @@ static cJSON *receiveScene(const cJSON *json) {
 
 // Tilenum of -1 communicates that it failed to get work, signaling the work thread to exit
 static struct renderTile getWork(int connectionSocket) {
-	if (!sendJSON(connectionSocket, newAction("getWork"))) {
+	if (!sendJSON(connectionSocket, newAction("getWork"), NULL)) {
 		return (struct renderTile){ .tileNum = -1 };
 	}
 	cJSON *response = readJSON(connectionSocket);
@@ -129,7 +129,7 @@ static bool submitWork(int sock, struct texture *work, struct renderTile forTile
 	cJSON_AddItemToObject(package, "result", result);
 	cJSON_AddItemToObject(package, "tile", tile);
 	logr(debug, "Submit work: %i\n", forTile.tileNum);
-	return sendJSON(sock, package);
+	return sendJSON(sock, package, NULL);
 }
 
 static void *workerThread(void *arg) {
@@ -275,7 +275,7 @@ static cJSON *startRender(int connectionSocket) {
 			cJSON_AddNumberToObject(stats, "avgPerPass", avgTimePerTilePass);
 			mutex_lock(g_worker_socket_mutex);
 			logr(debug, "Sending stats update for: %"PRIu64", %.2f\n", completedSamples, avgTimePerTilePass);
-			if (!sendJSON(connectionSocket, stats)) {
+			if (!sendJSON(connectionSocket, stats, NULL)) {
 				logr(debug, "Connection lost, bailing out.\n");
 				// Setting this flag also kills the threads.
 				g_worker_renderer->state.isRendering = false;

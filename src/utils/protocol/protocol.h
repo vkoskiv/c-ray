@@ -27,10 +27,7 @@ struct command {
 int matchCommand(const struct command *cmdlist, size_t commandCount, const char *cmd);
 
 // Consumes given json, no need to free it after.
-bool sendJSON(int socket, cJSON *json);
-
-// Same as above, but progress gets updated with a 0-100 value of where we're at.
-bool sendJSONWithProgress(int socket, cJSON *json, size_t *progress);
+bool sendJSON(int socket, cJSON *json, size_t *progress);
 
 cJSON *readJSON(int socket);
 
