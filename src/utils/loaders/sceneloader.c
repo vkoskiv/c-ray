@@ -875,31 +875,33 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	
 	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
 	
+	struct material material = { 0 };
+	
 	//TODO: Break this out to a function
 	if (cJSON_IsString(bsdf)) {
 		if (stringEquals(bsdf->valuestring, "lambertian")) {
-			newSphere.material.type = lambertian;
+			material.type = lambertian;
 		} else if (stringEquals(bsdf->valuestring, "metal")) {
-			newSphere.material.type = metal;
+			material.type = metal;
 		} else if (stringEquals(bsdf->valuestring, "glass")) {
-			newSphere.material.type = glass;
+			material.type = glass;
 		} else if (stringEquals(bsdf->valuestring, "plastic")) {
-			newSphere.material.type = plastic;
+			material.type = plastic;
 		} else if (stringEquals(bsdf->valuestring, "emissive")) {
-			newSphere.material.type = emission;
+			material.type = emission;
 		}
 	}
 	
 	color = cJSON_GetObjectItem(data, "color");
 	if (color != NULL) {
-		switch (newSphere.material.type) {
+		switch (material.type) {
 			case emission:
-				newSphere.material.emission = parseColor(color);
+				material.emission = parseColor(color);
 				break;
 				
 			default:
-				newSphere.material.ambient = parseColor(color);
-				newSphere.material.diffuse = parseColor(color);
+				material.ambient = parseColor(color);
+				material.diffuse = parseColor(color);
 				break;
 		}
 	}
@@ -907,23 +909,23 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	//FIXME: Another hack.
 	intensity = cJSON_GetObjectItem(data, "intensity");
 	if (intensity != NULL) {
-		if (cJSON_IsNumber(intensity) && (newSphere.material.type == emission)) {
-			newSphere.material.emission = colorCoef(intensity->valuedouble, newSphere.material.emission);
+		if (cJSON_IsNumber(intensity) && (material.type == emission)) {
+			material.emission = colorCoef(intensity->valuedouble, material.emission);
 		}
 	}
 	
 	roughness = cJSON_GetObjectItem(data, "roughness");
 	if (roughness != NULL && cJSON_IsNumber(roughness)) {
-		newSphere.material.roughness = roughness->valuedouble;
+		material.roughness = roughness->valuedouble;
 	} else {
-		newSphere.material.roughness = 0.0f;
+		material.roughness = 0.0f;
 	}
 	
 	IOR = cJSON_GetObjectItem(data, "IOR");
 	if (IOR != NULL && cJSON_IsNumber(IOR)) {
-		newSphere.material.IOR = IOR->valuedouble;
+		material.IOR = IOR->valuedouble;
 	} else {
-		newSphere.material.IOR = 1.0f;
+		material.IOR = 1.0f;
 	}
 	
 	radius = cJSON_GetObjectItem(data, "radius");
@@ -950,11 +952,13 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 
 	const cJSON *materials = cJSON_GetObjectItem(data, "material");
 	if (materials) {
-		// Single graph, map it to every material in a mesh.
-		lastSphere(r)->material.bsdf = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, materials);
+		lastSphere(r)->bsdf = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, materials);
 	} else {
-		try_to_guess_bsdf(&r->scene->storage, &lastSphere(r)->material);
+		try_to_guess_bsdf(&r->scene->storage, &material);
+		lastSphere(r)->bsdf = material.bsdf;
 	}
+	//FIXME: Ugly, I still don't know how to express emission better than this
+	lastSphere(r)->emission = material.emission;
 }
 
 static void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {

@@ -14,7 +14,8 @@
 //Sphere
 struct sphere {
 	float radius;
-	struct material material;
+	const struct bsdfNode *bsdf;
+	struct color emission;
 	float rayOffset;
 };
 

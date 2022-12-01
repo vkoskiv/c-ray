@@ -13,7 +13,7 @@
 #include "lightray.h"
 
 struct sphere defaultSphere() {
-	return (struct sphere){10.0f, defaultMaterial()};
+	return (struct sphere){ 10.0f, NULL, blackColor, 0.0f };
 }
 
 //Calculates intersection with a sphere and a light ray

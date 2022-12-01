@@ -48,8 +48,8 @@ static bool intersectSphere(const struct instance *instance, const struct lightR
 	if (rayIntersectsWithSphere(&copy, sphere, isect)) {
 		isect->uv = getTexMapSphere(isect);
 		isect->polygon = NULL;
-		isect->bsdf = sphere->material.bsdf;
-		isect->emission = &sphere->material.emission;
+		isect->bsdf = sphere->bsdf;
+		isect->emission = &sphere->emission;
 		transformPoint(&isect->hitPoint, instance->composite.A);
 		transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv);
 		return true;
@@ -78,8 +78,8 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 				isect->hitPoint = alongRay(ray, isect->distance);
 				isect->uv = (struct coord){-1.0f, -1.0f};
 				isect->polygon = NULL;
-				isect->bsdf = volume->sphere->material.bsdf;
-				isect->emission = &volume->sphere->material.emission;
+				isect->bsdf = volume->sphere->bsdf;
+				isect->emission = &volume->sphere->emission;
 				transformPoint(&isect->hitPoint, instance->composite.A);
 				isect->surfaceNormal = (struct vector){1.0f, 0.0f, 0.0f}; // Will be ignored by material anyway
 				transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv); // Probably not needed
