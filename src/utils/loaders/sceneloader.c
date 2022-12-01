@@ -622,30 +622,21 @@ struct color parseColor(const cJSON *data) {
 	
 	ASSERT(cJSON_IsObject(data));
 	
-	const cJSON *R = NULL;
-	const cJSON *G = NULL;
-	const cJSON *B = NULL;
-	const cJSON *A = NULL;
-	const cJSON *H = NULL;
-	const cJSON *S = NULL;
-	const cJSON *L = NULL;
-	const cJSON *kelvin = NULL;
-	
-	kelvin = cJSON_GetObjectItem(data, "blackbody");
+	const cJSON *kelvin = cJSON_GetObjectItem(data, "blackbody");
 	if (cJSON_IsNumber(kelvin)) return colorForKelvin(kelvin->valuedouble);
 
-	H = cJSON_GetObjectItem(data, "h");
-	S = cJSON_GetObjectItem(data, "s");
-	L = cJSON_GetObjectItem(data, "l");
+	const cJSON *H = cJSON_GetObjectItem(data, "h");
+	const cJSON *S = cJSON_GetObjectItem(data, "s");
+	const cJSON *L = cJSON_GetObjectItem(data, "l");
 
 	if (cJSON_IsNumber(H) && cJSON_IsNumber(S) && cJSON_IsNumber(L)) {
 		return color_from_hsl(H->valuedouble, S->valuedouble, L->valuedouble);
 	}
 
-	R = cJSON_GetObjectItem(data, "r");
-	G = cJSON_GetObjectItem(data, "g");
-	B = cJSON_GetObjectItem(data, "b");
-	A = cJSON_GetObjectItem(data, "a");
+	const cJSON *R = cJSON_GetObjectItem(data, "r");
+	const cJSON *G = cJSON_GetObjectItem(data, "g");
+	const cJSON *B = cJSON_GetObjectItem(data, "b");
+	const cJSON *A = cJSON_GetObjectItem(data, "a");
 
 	return (struct color){
 		cJSON_IsNumber(R) ? R->valuedouble : 0.0f,
