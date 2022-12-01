@@ -124,25 +124,25 @@ static void getSphereVolumeBBoxAndCenter(const struct instance *instance, struct
 	logr(debug, "sphere offset: %f", volume->sphere->rayOffset);
 }
 
-struct instance newSphereSolid(struct sphere *sphere) {
-	return (struct instance) {
-		.object = sphere,
-		.composite = newTransform(),
-		.intersectFn = intersectSphere,
-		.getBBoxAndCenterFn = getSphereBBoxAndCenter
-	};
-}
-
-struct instance newSphereVolume(struct sphere *sphere, float density, struct block **pool) {
-	struct sphereVolume *volume = allocBlock(pool, sizeof(*volume));
-	volume->sphere = sphere;
-	volume->density = density;
-	return (struct instance) {
-		.object = volume,
-		.composite = newTransform(),
-		.intersectFn = intersectSphereVolume,
-		.getBBoxAndCenterFn = getSphereVolumeBBoxAndCenter
-	};
+struct instance new_sphere_instance(struct sphere *sphere, float *density, struct block **pool) {
+	if (density && pool) {
+		struct sphereVolume *volume = allocBlock(pool, sizeof(*volume));
+		volume->sphere = sphere;
+		volume->density = *density;
+		return (struct instance) {
+			.object = volume,
+			.composite = newTransform(),
+			.intersectFn = intersectSphereVolume,
+			.getBBoxAndCenterFn = getSphereVolumeBBoxAndCenter
+		};
+	} else {
+		return (struct instance) {
+			.object = sphere,
+			.composite = newTransform(),
+			.intersectFn = intersectSphere,
+			.getBBoxAndCenterFn = getSphereBBoxAndCenter
+		};
+	}
 }
 
 static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecord *isect) {
@@ -237,25 +237,25 @@ static void getMeshVolumeBBoxAndCenter(const struct instance *instance, struct b
 	logr(debug, "mesh \"%s\" offset: %f", volume->mesh->name, volume->mesh->rayOffset);
 }
 
-struct instance newMeshSolid(struct mesh *mesh) {
-	return (struct instance) {
-		.object = mesh,
-		.composite = newTransform(),
-		.intersectFn = intersectMesh,
-		.getBBoxAndCenterFn = getMeshBBoxAndCenter
-	};
-}
-
-struct instance newMeshVolume(struct mesh *mesh, float density, struct block **pool) {
-	struct meshVolume *volume = allocBlock(pool, sizeof(*volume));
-	volume->mesh = mesh;
-	volume->density = density;
-	return (struct instance) {
-		.object = volume,
-		.composite = newTransform(),
-		.intersectFn = intersectMeshVolume,
-		.getBBoxAndCenterFn = getMeshVolumeBBoxAndCenter
-	};
+struct instance new_mesh_instance(struct mesh *mesh, float *density, struct block **pool) {
+	if (density && pool) {
+		struct meshVolume *volume = allocBlock(pool, sizeof(*volume));
+		volume->mesh = mesh;
+		volume->density = *density;
+		return (struct instance) {
+			.object = volume,
+			.composite = newTransform(),
+			.intersectFn = intersectMeshVolume,
+			.getBBoxAndCenterFn = getMeshVolumeBBoxAndCenter
+		};
+	} else {
+		return (struct instance) {
+			.object = mesh,
+			.composite = newTransform(),
+			.intersectFn = intersectMesh,
+			.getBBoxAndCenterFn = getMeshBBoxAndCenter
+		};
+	}
 }
 
 void addInstanceToScene(struct world *scene, struct instance instance) {

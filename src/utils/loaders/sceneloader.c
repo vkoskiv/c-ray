@@ -801,10 +801,10 @@ static void parse_mesh_instances(struct renderer *r, const cJSON *data, struct m
 			if (cJSON_IsString(mesh_name) && !stringEquals(mesh_name->valuestring, meshes[i].name)) break;
 			struct instance new;
 			if (cJSON_IsNumber(density)) {
-				new = newMeshVolume(&meshes[i], density->valuedouble, &r->scene->storage.node_pool);
+				new = new_mesh_instance(&meshes[i], (float *)&density->valuedouble, &r->scene->storage.node_pool);
 			} else {
 				//FIXME: Make newMesh*() and newSphere*() const
-				new = newMeshSolid(&meshes[i]);
+				new = new_mesh_instance(&meshes[i], NULL, NULL);
 			}
 
 			const cJSON *instance_materials = cJSON_GetObjectItem(instance, "materials");
@@ -952,7 +952,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	const cJSON *instance = NULL;
 	if (cJSON_IsArray(instances)) {
 		cJSON_ArrayForEach(instance, instances) {
-			addInstanceToScene(r->scene, density ? newSphereVolume(lastSphere(r), density->valuedouble, &r->scene->storage.node_pool) : newSphereSolid(lastSphere(r)));
+			addInstanceToScene(r->scene, density ? new_sphere_instance(lastSphere(r), (float *)&density->valuedouble, &r->scene->storage.node_pool) : new_sphere_instance(lastSphere(r), NULL, NULL));
 			lastInstance(r)->composite = parseInstanceTransform(instance);
 		}
 	}

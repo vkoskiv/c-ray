@@ -9,7 +9,9 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
 #include "../datatypes/transforms.h"
+#include "../utils/mempool.h"
 #include "samplers/sampler.h"
 
 struct world;
@@ -30,10 +32,8 @@ struct instance {
 	void *object;
 };
 
-struct instance newSphereSolid(struct sphere *sphere);
-struct instance newSphereVolume(struct sphere *sphere, float density, struct block **pool);
-struct instance newMeshSolid(struct mesh *mesh);
-struct instance newMeshVolume(struct mesh *mesh, float density, struct block **pool);
+struct instance new_sphere_instance(struct sphere *sphere, float *density, struct block **pool);
+struct instance new_mesh_instance(struct mesh *mesh, float *density, struct block **pool);
 
 bool isMesh(const struct instance *instance);
 
