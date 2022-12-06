@@ -675,12 +675,12 @@ static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 	r->scene->background = newBackground(&r->scene->storage, NULL, NULL);
 }
 
-struct transform parseTransformComposite(const cJSON *transforms) {
+struct transform parse_composite_transform(const cJSON *transforms) {
 	// Combine found list of discerete transforms into a single matrix.
 	if (!transforms) return newTransform();
 	const cJSON *transform = NULL;
 	size_t count = cJSON_GetArraySize(transforms);
-	struct transform *tforms = calloc(count, sizeof(*tforms));
+	struct transform tforms[count];
 	size_t idx = 0;
 	cJSON_ArrayForEach(transform, transforms) {
 		tforms[idx++] = parseTransform(transform, "compositeBuilder");
@@ -713,13 +713,7 @@ struct transform parseTransformComposite(const cJSON *transforms) {
 	
 	composite.Ainv = inverseMatrix(composite.A);
 	composite.type = transformTypeComposite;
-	free(tforms);
 	return composite;
-}
-
-static struct transform parseInstanceTransform(const cJSON *instance) {
-	const cJSON *transforms = cJSON_GetObjectItem(instance, "transforms");
-	return parseTransformComposite(transforms);
 }
 
 void apply_materials_to_instance(struct renderer *r, struct instance *instance, const cJSON *overrides, const struct material *materials, size_t material_count) {
@@ -807,7 +801,7 @@ static void parse_mesh_instances(struct renderer *r, const cJSON *data, struct m
 			new.emissions = calloc(material_count, sizeof(*new.emissions));
 
 			apply_materials_to_instance(r, &new, overrides, meshes[i].materials, meshes[i].materialCount);
-			new.composite = parseInstanceTransform(instance);
+			new.composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
 			addInstanceToScene(r->scene, new);
 		}
 	}
@@ -947,7 +941,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	if (cJSON_IsArray(instances)) {
 		cJSON_ArrayForEach(instance, instances) {
 			addInstanceToScene(r->scene, density ? new_sphere_instance(lastSphere(r), (float *)&density->valuedouble, &r->scene->storage.node_pool) : new_sphere_instance(lastSphere(r), NULL, NULL));
-			lastInstance(r)->composite = parseInstanceTransform(instance);
+			lastInstance(r)->composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
 		}
 	}
 
