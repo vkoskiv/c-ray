@@ -992,16 +992,7 @@ static void parseScene(struct renderer *r, const cJSON *data) {
 	parseMeshes(r, cJSON_GetObjectItem(data, "meshes"));
 }
 
-int parseJSON(struct renderer *r, const char *input) {
-	cJSON *json = cJSON_Parse(input);
-	if (!json) {
-		const char *errptr = cJSON_GetErrorPtr();
-		if (errptr) {
-			logr(warning, "Failed to parse JSON\n");
-			logr(warning, "Error before: %s\n", errptr);
-			return -2;
-		}
-	}
+int parseJSON(struct renderer *r, const cJSON *json) {
 
 	parsePrefs(&r->prefs, cJSON_GetObjectItem(json, "renderer"));
 
@@ -1034,7 +1025,6 @@ int parseJSON(struct renderer *r, const char *input) {
 	if (r->prefs.selected_camera != 0) logr(info, "Selecting camera %li\n", r->prefs.selected_camera);
 
 	parseScene(r, cJSON_GetObjectItem(json, "scene"));
-	cJSON_Delete(json);
 	
 	return 0;
 }

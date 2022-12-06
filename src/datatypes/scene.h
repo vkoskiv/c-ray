@@ -45,6 +45,6 @@ struct world {
 	struct node_storage storage;
 };
 
-int loadScene(struct renderer *r, const char *input);
+int loadScene(struct renderer *r, char *input);
 
 void destroyScene(struct world *scene);

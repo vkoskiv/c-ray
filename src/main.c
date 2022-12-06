@@ -27,12 +27,10 @@ int main(int argc, char *argv[]) {
 		cr_log("%zi bytes of input JSON loaded from %s, parsing.\n", bytes, cr_is_option_set("inputFile") ? "file" : "stdin");
 		if (cr_load_scene_from_buf(renderer, input) < 0) {
 			cr_log("Scene parse failed, exiting.\n");
-			free(input);
 			cr_destroy_renderer(renderer);
 			cr_destroy_options();
 			return 0;
 		}
-		free(input);
 
 		cr_start_renderer(renderer);
 		cr_write_image(renderer);

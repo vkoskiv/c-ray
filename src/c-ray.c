@@ -126,13 +126,11 @@ int cr_load_scene_from_file(struct renderer *r, char *file_path) {
 	char *input = loadFile(file_path, &bytes, NULL);
 	if (input) {
 		if (loadScene(r, file_path) != 0) {
-			free(input);
 			return -1;
 		}
 	} else {
 		return -1;
 	}
-	free(input);
 	return 0;
 }
 

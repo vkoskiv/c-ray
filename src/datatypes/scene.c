@@ -106,20 +106,37 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 //Split scene loading and prefs?
 //Load the scene, allocate buffers, etc
 //FIXME: Rename this func and take parseJSON out to a separate call.
-int loadScene(struct renderer *r, const char *input) {
+int loadScene(struct renderer *r, char *input) {
 	
 	struct timeval timer = {0};
 	timer_start(&timer);
 	
+	cJSON *json = cJSON_Parse(input);
+	if (!json) {
+		const char *errptr = cJSON_GetErrorPtr();
+		if (errptr) {
+			logr(warning, "Failed to parse JSON\n");
+			logr(warning, "Error before: %s\n", errptr);
+			return -2;
+		}
+	}
+	// Input is potentially very large, so we free it as soon as possible
+	free(input);
+
 	//Load configuration and assets
-	switch (parseJSON(r, input)) {
+	//FIXME: Rename parseJSON
+	//FIXME: Actually throw out all of this code in this function and rewrite
+	switch (parseJSON(r, json)) {
 		case -1:
+			cJSON_Delete(json);
 			logr(warning, "Scene builder failed due to previous error.\n");
 			return -1;
 		case 4:
+			cJSON_Delete(json);
 			logr(warning, "Scene debug mode enabled, won't render image.\n");
 			return -1;
 		case -2:
+			cJSON_Delete(json);
 			//JSON parser failed
 			return -1;
 		default:
@@ -131,12 +148,9 @@ int loadScene(struct renderer *r, const char *input) {
 	// FIXME: This overrides setting should be integrated with scene loading, probably.
 	if (isSet("use_clustering")) {
 		// Stash a cache of scene data here
-		//FIXME: Why are we parsing the potentially large input again here?
-		//Just grab it from parseJSON above if needed.
-		cJSON *cache = cJSON_Parse(input);
 		// Apply overrides to the cache here
 		if (isSet("samples_override")) {
-			cJSON *renderer = cJSON_GetObjectItem(cache, "renderer");
+			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
 			if (cJSON_IsObject(renderer)) {
 				int samples = intPref("samples_override");
 				logr(debug, "Overriding cache sample count to %i\n", samples);
@@ -149,7 +163,7 @@ int loadScene(struct renderer *r, const char *input) {
 		}
 		
 		if (isSet("dims_override")) {
-			cJSON *renderer = cJSON_GetObjectItem(cache, "renderer");
+			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
 			if (cJSON_IsObject(renderer)) {
 				int width = intPref("dims_width");
 				int height = intPref("dims_height");
@@ -165,7 +179,7 @@ int loadScene(struct renderer *r, const char *input) {
 		}
 		
 		if (isSet("tiledims_override")) {
-			cJSON *renderer = cJSON_GetObjectItem(cache, "renderer");
+			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
 			if (cJSON_IsObject(renderer)) {
 				int width = intPref("tile_width");
 				int height = intPref("tile_height");
@@ -181,14 +195,17 @@ int loadScene(struct renderer *r, const char *input) {
 		}
 
 		if (r->prefs.selected_camera != 0) {
-			cJSON_AddItemToObject(cache, "selected_camera", cJSON_CreateNumber(r->prefs.selected_camera));
+			cJSON_AddItemToObject(json, "selected_camera", cJSON_CreateNumber(r->prefs.selected_camera));
 		}
 
 		// Store cache. This is what gets sent to worker nodes.
-		r->sceneCache = cJSON_PrintUnformatted(cache);
-		cJSON_Delete(cache);
+		r->sceneCache = cJSON_PrintUnformatted(json);
 	}
 	
+	logr(debug, "Deleting JSON...\n");
+	cJSON_Delete(json);
+	logr(debug, "Deleting done\n");
+
 	if (r->prefs.threadCount > 0) {
 		// Do some pre-render preparations
 		// Compute BVH acceleration structures for all objects in the scene

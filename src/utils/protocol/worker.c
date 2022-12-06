@@ -88,7 +88,6 @@ static cJSON *receiveScene(const cJSON *json) {
 	if (loadScene(g_worker_renderer, sceneText)) {
 		return errorResponse("Scene parsing error");
 	}
-	free(sceneText);
 	cache_destroy(cache);
 	cJSON *resp = newAction("ready");
 	
