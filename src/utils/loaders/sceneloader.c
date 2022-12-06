@@ -22,6 +22,7 @@
 #include "../logging.h"
 #include "../fileio.h"
 #include "../string.h"
+#include <stdlib.h>
 #include <string.h>
 #include "../platform/capabilities.h"
 #include "../../datatypes/image/imagefile.h"
@@ -721,49 +722,48 @@ static struct transform parseInstanceTransform(const cJSON *instance) {
 	return parseTransformComposite(transforms);
 }
 
-void apply_materials_to_instance(struct renderer *r, struct instance *instance, const cJSON *materials) {
-	for (size_t i = 0; i < (size_t)instance->material_count; ++i) {
-		try_to_guess_bsdf(&r->scene->storage, &instance->materials[i]);
+void apply_materials_to_instance(struct renderer *r, struct instance *instance, const cJSON *overrides, const struct material *materials, size_t material_count) {
+	for (size_t i = 0; i < (size_t)instance->bsdf_count; ++i) {
+		instance->bsdfs[i] = try_to_guess_bsdf(&r->scene->storage, &materials[i]);
 	}
-	if (!materials) return;
-	struct cJSON *material = NULL;
-	if (cJSON_IsArray(materials)) {
+	if (!overrides) return;
+	struct cJSON *override = NULL;
+	if (cJSON_IsArray(overrides)) {
 		// Array of graphs, so map them to mesh materials.
-		ASSERT((size_t)cJSON_GetArraySize(materials) <= instance->material_count);
+		ASSERT((size_t)cJSON_GetArraySize(overrides) <= instance->bsdf_count);
 		size_t i = 0;
-		cJSON_ArrayForEach(material, materials) {
+		cJSON_ArrayForEach(override, overrides) {
 			size_t old_i = i;
-			if (cJSON_HasObjectItem(material, "replace")) {
-				// Replace specific material
-				const cJSON *name = cJSON_GetObjectItem(material, "replace");
-				struct instance *m = instance;
+			if (cJSON_HasObjectItem(override, "replace")) {
+				// Replace specific override
+				const cJSON *name = cJSON_GetObjectItem(override, "replace");
 				bool found = false;
-				for (size_t j = 0; j < m->material_count && !found; ++j) {
-					if (stringEquals(m->materials[j].name, name->valuestring)) {
+				for (size_t j = 0; j < material_count && !found; ++j) {
+					if (stringEquals(materials[j].name, name->valuestring)) {
 						i = j;
 						found = true;
 					}
 				}
 				if (!found) goto skip;
 			}
-			instance->materials[i].bsdf = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, material);
+			instance->bsdfs[i] = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, override);
 			//FIXME: Hack
-			cJSON *type_string = cJSON_GetObjectItem(material, "type");
+			cJSON *type_string = cJSON_GetObjectItem(override, "type");
 			if (type_string && stringEquals(type_string->valuestring, "emissive")) {
-				cJSON *color = cJSON_GetObjectItem(material, "color");
-				cJSON *strength = cJSON_GetObjectItem(material, "strength");
-				instance->materials[i].emission = colorCoef(strength->valuedouble, parseColor(color));
+				cJSON *color = cJSON_GetObjectItem(override, "color");
+				cJSON *strength = cJSON_GetObjectItem(override, "strength");
+				instance->emissions[i] = colorCoef(strength->valuedouble, parseColor(color));
 			}
-			ASSERT(instance->materials[i].bsdf);
+			ASSERT(instance->bsdfs[i]);
 			skip:
 			i = old_i;
 			i++;
 		}
 	} else {
 		// Single graph, map it to every material in a mesh.
-		const struct bsdfNode *node = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, materials);
-		for (size_t i = 0; i < instance->material_count; ++i) {
-			instance->materials[i].bsdf = node;
+		const struct bsdfNode *node = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, overrides);
+		for (size_t i = 0; i < instance->bsdf_count; ++i) {
+			instance->bsdfs[i] = node;
 		}
 	}
 }
@@ -799,13 +799,14 @@ static void parse_mesh_instances(struct renderer *r, const cJSON *data, struct m
 			}
 
 			const cJSON *instance_materials = cJSON_GetObjectItem(instance, "materials");
-			const cJSON *materials = instance_materials ? instance_materials : mesh_global_materials;
+			const cJSON *overrides = instance_materials ? instance_materials : mesh_global_materials;
 
-			new.material_count = meshes[i].materialCount;
-			new.materials = calloc(new.material_count, sizeof(*new.materials));//malloc(new.material_count * sizeof(*new.materials));
-			memcpy(new.materials, meshes[i].materials, new.material_count * sizeof(*new.materials));
+			size_t material_count = meshes[i].materialCount;
+			new.bsdf_count = material_count;
+			new.bsdfs = calloc(material_count, sizeof(void *));
+			new.emissions = calloc(material_count, sizeof(*new.emissions));
 
-			apply_materials_to_instance(r, &new, materials);
+			apply_materials_to_instance(r, &new, overrides, meshes[i].materials, meshes[i].materialCount);
 			new.composite = parseInstanceTransform(instance);
 			addInstanceToScene(r->scene, new);
 		}
@@ -954,8 +955,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 	if (materials) {
 		lastSphere(r)->bsdf = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, materials);
 	} else {
-		try_to_guess_bsdf(&r->scene->storage, &material);
-		lastSphere(r)->bsdf = material.bsdf;
+		lastSphere(r)->bsdf = try_to_guess_bsdf(&r->scene->storage, &material);
 	}
 	//FIXME: Ugly, I still don't know how to express emission better than this
 	lastSphere(r)->emission = material.emission;

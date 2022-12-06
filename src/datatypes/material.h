@@ -87,7 +87,7 @@ struct material warningMaterial(void);
 
 struct node_storage;
 
-void try_to_guess_bsdf(const struct node_storage *s, struct material *mat);
+const struct bsdfNode *try_to_guess_bsdf(const struct node_storage *s, const struct material *mat);
 
 #include "../utils/mempool.h"
 #include "../nodes/valuenode.h" //FIXME: Remove

@@ -172,8 +172,8 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 	if (traverse_bottom_level_bvh(mesh, &copy, isect, sampler)) {
 		// Repopulate uv with actual texture mapping
 		isect->uv = getTexMapMesh(mesh, isect);
-		isect->bsdf = instance->materials[isect->polygon->materialIndex].bsdf;
-		isect->emission = &instance->materials[isect->polygon->materialIndex].emission;
+		isect->bsdf = instance->bsdfs[isect->polygon->materialIndex];
+		isect->emission = &instance->emissions[isect->polygon->materialIndex];
 		transformPoint(&isect->hitPoint, instance->composite.A);
 		transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv);
 		isect->surfaceNormal = vecNormalize(isect->surfaceNormal);

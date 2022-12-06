@@ -239,6 +239,10 @@ void destroyScene(struct world *scene) {
 		destroy_bvh(scene->topLevel);
 		destroyHashtable(scene->storage.node_table);
 		destroyBlocks(scene->storage.node_pool);
+		for (int i = 0; i < scene->instanceCount; ++i) {
+			if (scene->instances[i].bsdfs) free(scene->instances[i].bsdfs);
+			if (scene->instances[i].emissions) free(scene->instances[i].emissions);
+		}
 		free(scene->instances);
 		free(scene->meshes);
 		free(scene->spheres);

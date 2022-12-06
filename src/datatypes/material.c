@@ -45,21 +45,19 @@ const struct bsdfNode *appendAlpha(const struct node_storage *s, const struct bs
 #endif
 }
 
-void try_to_guess_bsdf(const struct node_storage *s, struct material *mat) {
+const struct bsdfNode *try_to_guess_bsdf(const struct node_storage *s, const struct material *mat) {
 	const struct valueNode *roughness = mat->specularMap ? newGrayscaleConverter(s, newImageTexture(s, mat->specularMap, NO_BILINEAR)) : newConstantValue(s, mat->roughness);
 	const struct colorNode *color = mat->texture ? newImageTexture(s, mat->texture, SRGB_TRANSFORM) : newConstantTexture(s, mat->diffuse);
 	logr(debug, "name: %s, illum: %i\n", mat->name, mat->illum);
-	mat->bsdf = NULL;
 	const struct bsdfNode *chosen_bsdf = NULL;
 	
-	const struct colorNode *spec = newConstantTexture(s, mat->specular);
 	// First, attempt to deduce type based on mtl properties
 	switch (mat->illum) {
 		case 5:
 			chosen_bsdf = appendAlpha(s, newMetal(s, color, roughness), color);
 			break;
 		case 7:
-			chosen_bsdf = newGlass(s, spec, roughness, newConstantValue(s, mat->IOR));
+			chosen_bsdf = newGlass(s, newConstantTexture(s, mat->specular), roughness, newConstantValue(s, mat->IOR));
 			break;
 		default:
 			break;
@@ -92,12 +90,10 @@ void try_to_guess_bsdf(const struct node_storage *s, struct material *mat) {
 
 	skip:
 	if (texture_uses_alpha(mat->texture)) {
-		mat->bsdf = appendAlpha(s, chosen_bsdf, color);
-	} else {
-		mat->bsdf = chosen_bsdf;
+		chosen_bsdf = appendAlpha(s, chosen_bsdf, color);
 	}
 
-	ASSERT(mat->bsdf);
+	return chosen_bsdf;
 }
 
 void destroyMaterial(struct material *mat) {
