@@ -22,6 +22,7 @@
 #include "../logging.h"
 #include "../fileio.h"
 #include "../string.h"
+#include <alloca.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../platform/capabilities.h"
@@ -680,7 +681,7 @@ struct transform parse_composite_transform(const cJSON *transforms) {
 	if (!transforms) return newTransform();
 	const cJSON *transform = NULL;
 	size_t count = cJSON_GetArraySize(transforms);
-	struct transform tforms[count];
+	struct transform *tforms = alloca(count * sizeof(*tforms));
 	size_t idx = 0;
 	cJSON_ArrayForEach(transform, transforms) {
 		tforms[idx++] = parseTransform(transform, "compositeBuilder");
