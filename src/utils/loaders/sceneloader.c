@@ -22,7 +22,11 @@
 #include "../logging.h"
 #include "../fileio.h"
 #include "../string.h"
+#ifdef WINDOWS // Sigh...
+#include <malloc.h>
+#else
 #include <alloca.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include "../platform/capabilities.h"
