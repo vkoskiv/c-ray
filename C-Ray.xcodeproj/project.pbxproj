@@ -27,6 +27,12 @@
 		901CD92A2888AAC400D22CA1 /* translucent.c in Sources */ = {isa = PBXBuildFile; fileRef = 901CD9282888AAC400D22CA1 /* translucent.c */; };
 		901CD92B2888AAC400D22CA1 /* translucent.c in Sources */ = {isa = PBXBuildFile; fileRef = 901CD9282888AAC400D22CA1 /* translucent.c */; };
 		90369CCC222E012F008D215B /* pcg_basic.c in Sources */ = {isa = PBXBuildFile; fileRef = 90369CCA222E012F008D215B /* pcg_basic.c */; };
+		9043DD4D295253CA00603BCF /* instance.c in Sources */ = {isa = PBXBuildFile; fileRef = 9043DD4C295253CA00603BCF /* instance.c */; };
+		9043DD4E295253CA00603BCF /* instance.c in Sources */ = {isa = PBXBuildFile; fileRef = 9043DD4C295253CA00603BCF /* instance.c */; };
+		9043DD512952553800603BCF /* combinehsl.c in Sources */ = {isa = PBXBuildFile; fileRef = 9043DD502952553800603BCF /* combinehsl.c */; };
+		9043DD522952553800603BCF /* combinehsl.c in Sources */ = {isa = PBXBuildFile; fileRef = 9043DD502952553800603BCF /* combinehsl.c */; };
+		9043DD552952558200603BCF /* vectovalue.c in Sources */ = {isa = PBXBuildFile; fileRef = 9043DD542952558200603BCF /* vectovalue.c */; };
+		9043DD562952558200603BCF /* vectovalue.c in Sources */ = {isa = PBXBuildFile; fileRef = 9043DD542952558200603BCF /* vectovalue.c */; };
 		904CDBB8248D74380092E564 /* bvh.c in Sources */ = {isa = PBXBuildFile; fileRef = 904CDBB7248D74380092E564 /* bvh.c */; };
 		904CDBB9248D74380092E564 /* bvh.c in Sources */ = {isa = PBXBuildFile; fileRef = 904CDBB7248D74380092E564 /* bvh.c */; };
 		90500A8325881C8B006F854A /* grayscale.c in Sources */ = {isa = PBXBuildFile; fileRef = 90500A8125881C8B006F854A /* grayscale.c */; };
@@ -188,8 +194,6 @@
 		90EC1B1B26125DF30060C560 /* filecache.c in Sources */ = {isa = PBXBuildFile; fileRef = 90EC1B1826125DF30060C560 /* filecache.c */; };
 		90EE4F3C237DD49F0071894E /* meshloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90EE4F3B237DD49F0071894E /* meshloader.c */; };
 		90EE4F3D237DD49F0071894E /* meshloader.c in Sources */ = {isa = PBXBuildFile; fileRef = 90EE4F3B237DD49F0071894E /* meshloader.c */; };
-		90FAD26924A26F0B00F8CA79 /* instance.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FAD26824A26F0B00F8CA79 /* instance.c */; };
-		90FAD26A24A26F0B00F8CA79 /* instance.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FAD26824A26F0B00F8CA79 /* instance.c */; };
 		90FAD27124A2ADE400F8CA79 /* testrunner.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FAD27024A2ADE400F8CA79 /* testrunner.c */; };
 		90FAD27224A2ADE400F8CA79 /* testrunner.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FAD27024A2ADE400F8CA79 /* testrunner.c */; };
 		90FB15CE225C6D85008D6AAA /* texture.c in Sources */ = {isa = PBXBuildFile; fileRef = 90FB15CD225C6D85008D6AAA /* texture.c */; };
@@ -262,6 +266,12 @@
 		903235E62506BF7000CF011D /* test_string.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_string.h; sourceTree = "<group>"; };
 		90369CCA222E012F008D215B /* pcg_basic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pcg_basic.c; sourceTree = "<group>"; };
 		90369CCB222E012F008D215B /* pcg_basic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pcg_basic.h; sourceTree = "<group>"; };
+		9043DD4B295253CA00603BCF /* instance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = instance.h; sourceTree = "<group>"; };
+		9043DD4C295253CA00603BCF /* instance.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = instance.c; sourceTree = "<group>"; };
+		9043DD4F2952553800603BCF /* combinehsl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = combinehsl.h; sourceTree = "<group>"; };
+		9043DD502952553800603BCF /* combinehsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = combinehsl.c; sourceTree = "<group>"; };
+		9043DD532952558200603BCF /* vectovalue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vectovalue.h; sourceTree = "<group>"; };
+		9043DD542952558200603BCF /* vectovalue.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vectovalue.c; sourceTree = "<group>"; };
 		904CDBB6248D74380092E564 /* bvh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bvh.h; sourceTree = "<group>"; };
 		904CDBB7248D74380092E564 /* bvh.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bvh.c; sourceTree = "<group>"; };
 		90500A8125881C8B006F854A /* grayscale.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = grayscale.c; sourceTree = "<group>"; };
@@ -424,8 +434,6 @@
 		90ECE4042513FE9700929833 /* test_hashtable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = test_hashtable.h; sourceTree = "<group>"; };
 		90EE4F3A237DD49F0071894E /* meshloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = meshloader.h; sourceTree = "<group>"; };
 		90EE4F3B237DD49F0071894E /* meshloader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = meshloader.c; sourceTree = "<group>"; };
-		90FAD26724A26F0B00F8CA79 /* instance.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = instance.h; sourceTree = "<group>"; };
-		90FAD26824A26F0B00F8CA79 /* instance.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = instance.c; sourceTree = "<group>"; };
 		90FAD26F24A2ADE400F8CA79 /* testrunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testrunner.h; sourceTree = "<group>"; };
 		90FAD27024A2ADE400F8CA79 /* testrunner.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = testrunner.c; sourceTree = "<group>"; };
 		90FB15C922596E79008D6AAA /* gitsha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gitsha1.h; sourceTree = "<group>"; };
@@ -471,7 +479,7 @@
 				90AB1E042574372400EFDF5A /* nodes */,
 				900BA0F6220B4602005B8EE7 /* renderer */,
 				900BA0FB220B4602005B8EE7 /* datatypes */,
-				900BA112220B4602005B8EE7 /* libraries */,
+				900BA112220B4602005B8EE7 /* vendored */,
 				900BA11D220B4602005B8EE7 /* utils */,
 			);
 			path = src;
@@ -494,6 +502,8 @@
 				900BA0F7220B4602005B8EE7 /* pathtrace.c */,
 				900BA0F8220B4602005B8EE7 /* renderer.h */,
 				900BA0FA220B4602005B8EE7 /* renderer.c */,
+				9043DD4C295253CA00603BCF /* instance.c */,
+				9043DD4B295253CA00603BCF /* instance.h */,
 				906479BF24982155003772CE /* sky.h */,
 				906479BE24982155003772CE /* sky.c */,
 			);
@@ -527,8 +537,6 @@
 				900BA104220B4602005B8EE7 /* scene.c */,
 				900BA10E220B4602005B8EE7 /* transforms.h */,
 				900BA106220B4602005B8EE7 /* transforms.c */,
-				90FAD26724A26F0B00F8CA79 /* instance.h */,
-				90FAD26824A26F0B00F8CA79 /* instance.c */,
 				9071BC9D257D86250070BA43 /* hitrecord.h */,
 				90CB8BC426DFF763006EA951 /* spline.h */,
 				90CB8BC326DFF763006EA951 /* spline.c */,
@@ -536,7 +544,7 @@
 			path = datatypes;
 			sourceTree = "<group>";
 		};
-		900BA112220B4602005B8EE7 /* libraries */ = {
+		900BA112220B4602005B8EE7 /* vendored */ = {
 			isa = PBXGroup;
 			children = (
 				90E2DB28223D575600E7A305 /* asprintf.h */,
@@ -549,7 +557,7 @@
 				90BAE9362328344100B1EBF0 /* stb_image.h */,
 				90E1721F27751330009B5FF0 /* qoi.h */,
 			);
-			path = libraries;
+			path = vendored;
 			sourceTree = "<group>";
 		};
 		900BA11D220B4602005B8EE7 /* utils */ = {
@@ -601,18 +609,22 @@
 			children = (
 				90500A8F258AB0FE006F854A /* blackbody.h */,
 				90500A8E258AB0FE006F854A /* blackbody.c */,
+				9043DD4F2952553800603BCF /* combinehsl.h */,
+				9043DD502952553800603BCF /* combinehsl.c */,
+				90500AA3258C0AB1006F854A /* combinergb.h */,
+				90500AA2258C0AB1006F854A /* combinergb.c */,
 				90500A8225881C8B006F854A /* grayscale.h */,
 				90500A8125881C8B006F854A /* grayscale.c */,
 				90500A9F258C09E8006F854A /* split.h */,
 				90500A9E258C09E8006F854A /* split.c */,
-				90500AA3258C0AB1006F854A /* combinergb.h */,
-				90500AA2258C0AB1006F854A /* combinergb.c */,
 				9050FFF425994121001C172D /* vecmath.h */,
 				9050FFF325994121001C172D /* vecmath.c */,
 				9050FFF825994B7E001C172D /* math.h */,
 				9050FFF725994B7E001C172D /* math.c */,
 				908981072628DAAE0054B5E7 /* vectocolor.h */,
 				908981062628DAAE0054B5E7 /* vectocolor.c */,
+				9043DD542952558200603BCF /* vectovalue.c */,
+				9043DD532952558200603BCF /* vectovalue.h */,
 				908AA1EB26C467B200823DD3 /* map_range.h */,
 				908AA1EA26C467B200823DD3 /* map_range.c */,
 			);
@@ -957,7 +969,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				908981092628DAAE0054B5E7 /* vectocolor.c in Sources */,
-				90FAD26A24A26F0B00F8CA79 /* instance.c in Sources */,
 				905842DB236651FC009D92F1 /* main.c in Sources */,
 				905842DC236651FC009D92F1 /* sphere.c in Sources */,
 				905842DE236651FC009D92F1 /* poly.c in Sources */,
@@ -1020,8 +1031,10 @@
 				909D13722443B4E7006D0A86 /* textbuffer.c in Sources */,
 				908ED0B1258F04E300D5B93F /* fresnel.c in Sources */,
 				9084D2D82660095000B6FB8A /* isotropic.c in Sources */,
+				9043DD522952553800603BCF /* combinehsl.c in Sources */,
 				9050FFEA25915222001C172D /* raylength.c in Sources */,
 				905842F6236651FC009D92F1 /* cJSON.c in Sources */,
+				9043DD562952558200603BCF /* vectovalue.c in Sources */,
 				90500A91258AB0FE006F854A /* blackbody.c in Sources */,
 				9062FA0E243CC4B200420889 /* signal.c in Sources */,
 				9076FB52243002B00003B327 /* mutex.c in Sources */,
@@ -1047,6 +1060,7 @@
 				90CFA7E02381BF0900061288 /* hashtable.c in Sources */,
 				90500AA1258C09E8006F854A /* split.c in Sources */,
 				90E1A610261CF44500EAE727 /* server.c in Sources */,
+				9043DD4E295253CA00603BCF /* instance.c in Sources */,
 				90AE779C2700E523004EDEA0 /* gltf.c in Sources */,
 				90500AB1258D95EF006F854A /* gradient.c in Sources */,
 			);
@@ -1057,7 +1071,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				908981082628DAAE0054B5E7 /* vectocolor.c in Sources */,
-				90FAD26924A26F0B00F8CA79 /* instance.c in Sources */,
 				900BA144220B4603005B8EE7 /* main.c in Sources */,
 				900BA136220B4603005B8EE7 /* sphere.c in Sources */,
 				900BA12F220B4603005B8EE7 /* poly.c in Sources */,
@@ -1120,8 +1133,10 @@
 				909D13712443B4E7006D0A86 /* textbuffer.c in Sources */,
 				908ED0B0258F04E300D5B93F /* fresnel.c in Sources */,
 				9084D2D72660095000B6FB8A /* isotropic.c in Sources */,
+				9043DD512952553800603BCF /* combinehsl.c in Sources */,
 				9050FFE925915222001C172D /* raylength.c in Sources */,
 				900BA13E220B4603005B8EE7 /* cJSON.c in Sources */,
+				9043DD552952558200603BCF /* vectovalue.c in Sources */,
 				90500A90258AB0FE006F854A /* blackbody.c in Sources */,
 				9062FA0D243CC4B200420889 /* signal.c in Sources */,
 				9076FB51243002B00003B327 /* mutex.c in Sources */,
@@ -1147,6 +1162,7 @@
 				90CFA7DF2381BF0900061288 /* hashtable.c in Sources */,
 				90500AA0258C09E8006F854A /* split.c in Sources */,
 				90E1A60F261CF44500EAE727 /* server.c in Sources */,
+				9043DD4D295253CA00603BCF /* instance.c in Sources */,
 				90AE779B2700E523004EDEA0 /* gltf.c in Sources */,
 				90500AB0258D95EF006F854A /* gradient.c in Sources */,
 			);
