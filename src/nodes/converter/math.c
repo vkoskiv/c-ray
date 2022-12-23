@@ -37,6 +37,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+float rough_compare(float a, float b) {
+	if (fabsf(a - b) > 0.0000005) return false;
+	return true;
+}
+
 static float eval(const struct valueNode *node, const struct hitRecord *record) {
 	struct mathNode *this = (struct mathNode *)node;
 	const float a = this->A->eval(this->A, record);
@@ -63,6 +68,9 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 		case SquareRoot:
 			return sqrtf(a);
 			break;
+		case InvSquareRoot:
+			return invsqrtf(a);
+			break;
 		case Absolute:
 			return fabsf(a);
 			break;
@@ -71,6 +79,38 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 			break;
 		case Max:
 			return max(a, b);
+			break;
+		case LessThan:
+			return a < b ? 1.0f : 0.0f;
+			break;
+		case GreaterThan:
+			return a > b ? 1.0f : 0.0f;
+			break;
+		case Sign:
+			if (a > 0.0f) return 1.0f;
+			if (a < 0.0f) return -1.0f;
+			if (a == 0.0f) return 0.0f;
+			break;
+		case Compare:
+			return rough_compare(a, b) ? 1.0f : 0.0f;
+			break;
+		case Round:
+			return roundf(a);
+			break;
+		case Floor:
+			return floorf(a);
+			break;
+		case Ceil:
+			return ceilf(a);
+			break;
+		case Truncate:
+			return truncf(a);
+			break;
+		case Fraction:
+			return a - (int)a;
+			break;
+		case Modulo:
+			return fmodf(a, b);
 			break;
 		case Sine:
 			return sinf(a);
