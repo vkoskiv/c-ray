@@ -39,7 +39,7 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 
 const struct valueNode *newAlpha(const struct node_storage *s, const struct colorNode *color) {
 	HASH_CONS(s->node_table, hash, struct alphaNode, {
-		.color = color ? color : newConstantTexture(s, whiteColor),
+		.color = color ? color : newConstantTexture(s, g_white_color),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

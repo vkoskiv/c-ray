@@ -52,8 +52,8 @@ const struct bsdfNode *newAdd(const struct node_storage *s, const struct bsdfNod
 		return A;
 	}
 	HASH_CONS(s->node_table, hash, struct addBsdf, {
-		.A = A ? A : newDiffuse(s, newConstantTexture(s, blackColor)),
-		.B = B ? B : newDiffuse(s, newConstantTexture(s, blackColor)),
+		.A = A ? A : newDiffuse(s, newConstantTexture(s, g_black_color)),
+		.B = B ? B : newDiffuse(s, newConstantTexture(s, g_black_color)),
 		.bsdf = {
 			.sample = sample,
 			.base = { .compare = compare }

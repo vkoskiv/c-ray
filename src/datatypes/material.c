@@ -20,7 +20,7 @@ static struct material emptyMaterial() {
 
 struct material defaultMaterial() {
 	struct material newMat = emptyMaterial();
-	newMat.diffuse = grayColor;
+	newMat.diffuse = g_gray_color;
 	newMat.reflectivity = 1.0f;
 	newMat.type = lambertian;
 	newMat.IOR = 1.0f;
@@ -41,7 +41,7 @@ const struct bsdfNode *appendAlpha(const struct node_storage *s, const struct bs
 #ifdef WINDOWS
 	return base;
 #else
-	return newMix(s, newTransparent(s, newConstantTexture(s, whiteColor)), base, newAlpha(s, color));
+	return newMix(s, newTransparent(s, newConstantTexture(s, g_white_color)), base, newAlpha(s, color));
 #endif
 }
 

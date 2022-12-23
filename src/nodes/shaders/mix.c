@@ -54,8 +54,8 @@ const struct bsdfNode *newMix(const struct node_storage *s, const struct bsdfNod
 		return A;
 	}
 	HASH_CONS(s->node_table, hashMix, struct mixBsdf, {
-		.A = A ? A : newDiffuse(s, newConstantTexture(s, blackColor)),
-		.B = B ? B : newDiffuse(s, newConstantTexture(s, blackColor)),
+		.A = A ? A : newDiffuse(s, newConstantTexture(s, g_black_color)),
+		.B = B ? B : newDiffuse(s, newConstantTexture(s, g_black_color)),
 		.factor = factor ? factor : newConstantValue(s, 0.5f),
 		.bsdf = {
 			.sample = sample,

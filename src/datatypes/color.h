@@ -16,18 +16,18 @@ struct color {
 };
 
 //Some standard colours
-extern const struct color redColor;
-extern const struct color greenColor;
-extern const struct color blueColor;
-extern const struct color blackColor;
-extern const struct color grayColor;
-extern const struct color whiteColor;
-extern const struct color clearColor;
+extern const struct color g_red_color;
+extern const struct color g_green_color;
+extern const struct color g_blue_color;
+extern const struct color g_black_color;
+extern const struct color g_gray_color;
+extern const struct color g_white_color;
+extern const struct color g_clear_color;
 
 //Colors for the SDL elements
-extern const struct color backgroundColor;
-extern const struct color frameColor;
-extern const struct color progColor;
+extern const struct color g_background_color;
+extern const struct color g_frame_color;
+extern const struct color g_prog_color;
 
 //Multiply two colors
 static inline struct color colorMul(struct color c1, struct color c2) {

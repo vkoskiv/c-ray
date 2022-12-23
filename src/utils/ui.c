@@ -239,9 +239,9 @@ void getKeyboardInput(struct renderer *r) {
 #ifdef CRAY_SDL_ENABLED
 static void clearProgBar(struct renderer *r, struct renderTile temp) {
 	for (unsigned i = 0; i < temp.width; ++i) {
-		setPixel(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height / 5)) - 1);
-		setPixel(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height / 5))    );
-		setPixel(r->state.uiBuffer, clearColor, temp.begin.x + i, (temp.begin.y + (temp.height / 5)) + 1);
+		setPixel(r->state.uiBuffer, g_clear_color, temp.begin.x + i, (temp.begin.y + (temp.height / 5)) - 1);
+		setPixel(r->state.uiBuffer, g_clear_color, temp.begin.x + i, (temp.begin.y + (temp.height / 5))    );
+		setPixel(r->state.uiBuffer, g_clear_color, temp.begin.x + i, (temp.begin.y + (temp.height / 5)) + 1);
 	}
 }
 
@@ -262,7 +262,7 @@ static void drawProgressBars(struct renderer *r) {
 			float prc = ((float)completedSamples / (float)totalSamples);
 			int pixels2draw = (int)((float)temp->width * prc);
 
-			struct color c = temp->state == rendering ? progColor : clearColor;
+			struct color c = temp->state == rendering ? g_prog_color: g_clear_color;
 			
 			//And then draw the bar
 			for (int i = 0; i < pixels2draw; ++i) {
@@ -315,7 +315,7 @@ static void updateFrames(struct renderer *r) {
 	if (r->prefs.tileWidth < 8 || r->prefs.tileHeight < 8) return;
 	for (int i = 0; i < r->state.tileCount; ++i) {
 		struct renderTile tile = r->state.renderTiles[i];
-		struct color c = tile.state == rendering ? frameColor : clearColor;
+		struct color c = tile.state == rendering ? g_frame_color : g_clear_color;
 		drawFrame(r->state.uiBuffer, tile, c);
 	}
 }

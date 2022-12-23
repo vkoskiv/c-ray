@@ -21,7 +21,7 @@
 #include "colornode.h"
 
 const struct colorNode *unknownTextureNode(const struct node_storage *s) {
-	return newConstantTexture(s, blackColor);
+	return newConstantTexture(s, g_black_color);
 }
 
 const struct colorNode *parseTextureNode(const char *asset_path, struct file_cache *cache, struct node_storage *s, const cJSON *node) {

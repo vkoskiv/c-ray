@@ -55,7 +55,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 
 const struct bsdfNode *newMetal(const struct node_storage *s, const struct colorNode *color, const struct valueNode *roughness) {
 	HASH_CONS(s->node_table, hash, struct metalBsdf, {
-		.color = color ? color : newConstantTexture(s, blackColor),
+		.color = color ? color : newConstantTexture(s, g_black_color),
 		.roughness = roughness ? roughness : newConstantValue(s, 0.0f),
 		.bsdf = {
 			.sample = sample,

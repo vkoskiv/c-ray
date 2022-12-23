@@ -10,18 +10,18 @@
 #include "color.h"
 
 //Some standard colours
-const struct color redColor =   {1.0f, 0.0f, 0.0f, 1.0f};
-const struct color greenColor = {0.0f, 1.0f, 0.0f, 1.0f};
-const struct color blueColor =  {0.0f, 0.0f, 1.0f, 1.0f};
-const struct color blackColor = {0.0f, 0.0f, 0.0f, 1.0f};
-const struct color grayColor =  {0.5f, 0.5f, 0.5f, 1.0f};
-const struct color whiteColor = {1.0f, 1.0f, 1.0f, 1.0f};
-const struct color clearColor = {0.0f, 0.0f, 0.0f, 0.0f};
+const struct color g_red_color =   { 1.0f, 0.0f, 0.0f, 1.0f };
+const struct color g_green_color = { 0.0f, 1.0f, 0.0f, 1.0f };
+const struct color g_blue_color =  { 0.0f, 0.0f, 1.0f, 1.0f };
+const struct color g_black_color = { 0.0f, 0.0f, 0.0f, 1.0f };
+const struct color g_gray_color =  { 0.5f, 0.5f, 0.5f, 1.0f };
+const struct color g_white_color = { 1.0f, 1.0f, 1.0f, 1.0f };
+const struct color g_clear_color = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 //Colors for the SDL elements
-const struct color backgroundColor = {0.1921568627f, 0.2f, 0.2117647059f, 1.0f};
-const struct color frameColor = {1.0f, 0.5f, 0.0f, 1.0f};
-const struct color progColor  = {0.2549019608f, 0.4509803922f, 0.9607843137f, 1.0f};
+const struct color g_background_color = { 0.1921568627f, 0.2f, 0.2117647059f, 1.0f };
+const struct color g_frame_color = { 1.0f, 0.5f, 0.0f, 1.0f };
+const struct color g_prog_color  = { 0.2549019608f, 0.4509803922f, 0.9607843137f, 1.0f };
 
 // This algorithm is from Tanner Helland:
 // http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
