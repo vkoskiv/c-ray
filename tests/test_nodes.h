@@ -618,7 +618,7 @@ bool vecmath_vecAdd(void) {
 	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	const struct vectorNode *B = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
-	const struct vectorNode *add = newVecMath(s, A, B, VecAdd);
+	const struct vectorNode *add = newVecMath(s, A, B, NULL, NULL, VecAdd);
 	
 	struct vectorValue result = add->eval(add, NULL);
 	struct vector expected = (struct vector){2.0f, 4.0f, 6.0f};
@@ -633,7 +633,7 @@ bool vecmath_vecSubtract(void) {
 	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	const struct vectorNode *B = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
-	const struct vectorNode *add = newVecMath(s, A, B, VecSubtract);
+	const struct vectorNode *add = newVecMath(s, A, B, NULL, NULL, VecSubtract);
 	
 	struct vectorValue result = add->eval(add, NULL);
 	struct vector expected = vecZero();
@@ -648,7 +648,7 @@ bool vecmath_vecMultiply(void) {
 	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	const struct vectorNode *B = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
-	const struct vectorNode *add = newVecMath(s, A, B, VecMultiply);
+	const struct vectorNode *add = newVecMath(s, A, B, NULL, NULL, VecMultiply);
 	
 	struct vectorValue result = add->eval(add, NULL);
 	struct vector expected = (struct vector){1.0f, 4.0f, 9.0f};
@@ -658,36 +658,22 @@ bool vecmath_vecMultiply(void) {
 	return true;
 }
 
-bool vecmath_vecAverage(void) {
-	struct node_storage *s = make_storage();
-	const struct vectorNode *A = newConstantVector(s, (struct vector){0.0f, 0.0f, 0.0f});
-	const struct vectorNode *B = newConstantVector(s, (struct vector){5.0f, 5.0f, 5.0f});
-	
-	const struct vectorNode *op = newVecMath(s, A, B, VecAverage);
-	
-	struct vectorValue result = op->eval(op, NULL);
-	struct vector expected = (struct vector){2.5f, 2.5f, 2.5f};
-	vec_roughly_equals(result.v, expected);
-	
-	delete_storage(s);
-	return true;
-}
 bool vecmath_vecDot(void) {
 	struct node_storage *s = make_storage();
 	const struct vectorNode *up = newConstantVector(s, worldUp);
 	const struct vectorNode *right = newConstantVector(s, (struct vector){1.0f, 0.0f, 0.0f});
 	
-	const struct vectorNode *dot = newVecMath(s, up, right, VecDot);
+	const struct vectorNode *dot = newVecMath(s, up, right, NULL, NULL, VecDot);
 	
 	struct vectorValue result = dot->eval(dot, NULL);
 	roughly_equals(result.f, 0.0f);
 	
 	const struct vectorNode *down = newConstantVector(s, vecNegate(worldUp));
-	dot = newVecMath(s, up, down, VecDot);
+	dot = newVecMath(s, up, down, NULL, NULL, VecDot);
 	result = dot->eval(dot, NULL);
 	roughly_equals(result.f, -1.0f);
 	
-	dot = newVecMath(s, up, up, VecDot);
+	dot = newVecMath(s, up, up, NULL, NULL, VecDot);
 	result = dot->eval(dot, NULL);
 	roughly_equals(result.f, 1.0f);
 	
@@ -700,7 +686,7 @@ bool vecmath_vecCross(void) {
 	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 0.0f, 0.0f});
 	const struct vectorNode *B = newConstantVector(s, (struct vector){0.0f, 1.0f, 0.0f});
 	
-	const struct vectorNode *op = newVecMath(s, A, B, VecCross);
+	const struct vectorNode *op = newVecMath(s, A, B, NULL, NULL, VecCross);
 	
 	struct vectorValue result = op->eval(op, NULL);
 	struct vector expected = (struct vector){0.0f, 0.0f, 1.0f};
@@ -714,7 +700,7 @@ bool vecmath_vecNormalize(void) {
 	struct node_storage *s = make_storage();
 	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
-	const struct vectorNode *op = newVecMath(s, A, NULL, VecNormalize);
+	const struct vectorNode *op = newVecMath(s, A, NULL, NULL, NULL, VecNormalize);
 	
 	float length = vecLength(op->eval(op, NULL).v);
 	roughly_equals(length, 1.0f);
@@ -728,7 +714,7 @@ bool vecmath_vecReflect(void) {
 	const struct vectorNode *toReflect = newConstantVector(s, vecNormalize((struct vector){1.0f, 1.0f, 0.0f}));
 	const struct vectorNode *normal = newConstantVector(s, (struct vector){0.0f, -1.0f, 0.0f});
 	
-	const struct vectorNode *op = newVecMath(s, toReflect, normal, VecReflect);
+	const struct vectorNode *op = newVecMath(s, toReflect, normal, NULL, NULL, VecReflect);
 	
 	struct vectorValue reflected = op->eval(op, NULL);
 	roughly_equals(vecLength(reflected.v), 1.0f);
@@ -744,7 +730,7 @@ bool vecmath_vecLength(void) {
 	struct node_storage *s = make_storage();
 	const struct vectorNode *A = newConstantVector(s, (struct vector){0.0f, 2.0f, 0.0f});
 	
-	const struct vectorNode *op = newVecMath(s, A, NULL, VecLength);
+	const struct vectorNode *op = newVecMath(s, A, NULL, NULL, NULL, VecLength);
 	
 	struct vectorValue lengthValue = op->eval(op, NULL);
 	roughly_equals(lengthValue.f, 2.0f);
@@ -757,7 +743,7 @@ bool vecmath_vecAbs(void) {
 	struct node_storage *s = make_storage();
 	const struct vectorNode *A = newConstantVector(s, (struct vector){-10.0f, 2.0f, -3.0f});
 	
-	const struct vectorNode *op = newVecMath(s, A, NULL, VecAbs);
+	const struct vectorNode *op = newVecMath(s, A, NULL, NULL, NULL, VecAbs);
 	
 	struct vectorValue result = op->eval(op, NULL);
 	struct vector expected = (struct vector){10.0f, 2.0f, 3.0f};

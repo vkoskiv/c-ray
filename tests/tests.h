@@ -124,7 +124,6 @@ static test tests[] = {
 	{"vecmath::vecAdd", vecmath_vecAdd},
 	{"vecmath::vecSubtract", vecmath_vecSubtract},
 	{"vecmath::vecMultiply", vecmath_vecMultiply},
-	{"vecmath::vecAverage", vecmath_vecAverage},
 	{"vecmath::vecDot", vecmath_vecDot},
 	{"vecmath::vecCross", vecmath_vecCross},
 	{"vecmath::vecNormalize", vecmath_vecNormalize},

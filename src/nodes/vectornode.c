@@ -14,6 +14,7 @@
 #include "../utils/string.h"
 #include "bsdfnode.h"
 
+#include "nodes/valuenode.h"
 #include "vectornode.h"
 
 struct constantVector {
@@ -58,17 +59,29 @@ static enum vecOp parseVectorOp(const cJSON *data) {
 	if (stringEquals(data->valuestring, "add")) return VecAdd;
 	if (stringEquals(data->valuestring, "subtract")) return VecSubtract;
 	if (stringEquals(data->valuestring, "multiply")) return VecMultiply;
-	if (stringEquals(data->valuestring, "average")) return VecAverage;
-	if (stringEquals(data->valuestring, "dot")) return VecDot;
+	if (stringEquals(data->valuestring, "divide")) return VecDivide;
 	if (stringEquals(data->valuestring, "cross")) return VecCross;
-	if (stringEquals(data->valuestring, "normalize")) return VecNormalize;
 	if (stringEquals(data->valuestring, "reflect")) return VecReflect;
+	if (stringEquals(data->valuestring, "refract")) return VecRefract;
+	if (stringEquals(data->valuestring, "dot")) return VecDot;
+	if (stringEquals(data->valuestring, "distance")) return VecDistance;
 	if (stringEquals(data->valuestring, "length")) return VecLength;
+	if (stringEquals(data->valuestring, "scale")) return VecScale;
+	if (stringEquals(data->valuestring, "normalize")) return VecNormalize;
+	if (stringEquals(data->valuestring, "wrap")) return VecWrap;
+	if (stringEquals(data->valuestring, "floor")) return VecFloor;
+	if (stringEquals(data->valuestring, "ceil")) return VecCeil;
+	if (stringEquals(data->valuestring, "mod")) return VecModulo;
 	if (stringEquals(data->valuestring, "abs")) return VecAbs;
+	if (stringEquals(data->valuestring, "min")) return VecMin;
+	if (stringEquals(data->valuestring, "max")) return VecMax;
+	if (stringEquals(data->valuestring, "sin")) return VecSin;
+	if (stringEquals(data->valuestring, "cos")) return VecCos;
+	if (stringEquals(data->valuestring, "tan")) return VecTan;
 	return VecAdd;
 }
 
-const struct vectorNode *parseVectorNode(const struct node_storage *s, const struct cJSON *node) {
+const struct vectorNode *parseVectorNode(struct node_storage *s, const struct cJSON *node) {
 	if (!node) return NULL;
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
 	if (!cJSON_IsString(type)) {
@@ -77,10 +90,13 @@ const struct vectorNode *parseVectorNode(const struct node_storage *s, const str
 	}
 
 	if (stringEquals(type->valuestring, "vecmath")) {
-		const struct vectorNode *a = parseVectorNode(s, cJSON_GetObjectItem(node, "vector1"));
-		const struct vectorNode *b = parseVectorNode(s, cJSON_GetObjectItem(node, "vector2"));
+		const struct vectorNode *a = parseVectorNode(s, cJSON_GetObjectItem(node, "a"));
+		const struct vectorNode *b = parseVectorNode(s, cJSON_GetObjectItem(node, "b"));
+		const struct vectorNode *c = parseVectorNode(s, cJSON_GetObjectItem(node, "c"));
+		//FIXME: alpha won't work here, for now.
+		const struct valueNode  *f = parseValueNode(NULL, NULL, s, cJSON_GetObjectItem(node, "f"));
 		const enum vecOp op = parseVectorOp(cJSON_GetObjectItem(node, "op"));
-		return newVecMath(s, a, b, op);
+		return newVecMath(s, a, b, c, f, op);
 	}
 	if (stringEquals(type->valuestring, "normal")) {
 		return newNormal(s);

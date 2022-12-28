@@ -28,4 +28,4 @@ struct vectorNode {
 #include "converter/vectocolor.h"
 
 const struct vectorNode *newConstantVector(const struct node_storage *storage, struct vector vector);
-const struct vectorNode *parseVectorNode(const struct node_storage *s, const struct cJSON *node);
+const struct vectorNode *parseVectorNode(struct node_storage *s, const struct cJSON *node);

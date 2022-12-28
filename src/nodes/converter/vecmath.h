@@ -8,26 +8,38 @@
 
 #pragma once
 
+// These are ripped off here:
+// https://docs.blender.org/manual/en/latest/render/shader_nodes/converter/vector_math.html
+//TODO: Commented ones need to be implemented to reach parity with Cycles. Feel free to do so! :^)
+
 enum vecOp {
 	VecAdd,
 	VecSubtract,
 	VecMultiply,
-	VecAverage,
-	VecDot,
+	VecDivide,
+	//VecMultiplyAdd,
 	VecCross,
-	VecNormalize,
+	//VecProject,
 	VecReflect,
+	VecRefract,
+	//VecFaceforward,
+	VecDot,
+	VecDistance,
 	VecLength,
+	VecScale,
+	VecNormalize,
+	VecWrap,
+	//VecSnap,
+	VecFloor,
+	VecCeil,
+	VecModulo,
+	//VecFraction,
 	VecAbs,
 	VecMin,
 	VecMax,
-	VecFloor,
-	VecCeil,
 	VecSin,
 	VecCos,
 	VecTan,
-	VecModulo,
-	VecDistance,
 };
 
-const struct vectorNode *newVecMath(const struct node_storage *s, const struct vectorNode *A, const struct vectorNode *B, const enum vecOp op);
+const struct vectorNode *newVecMath(const struct node_storage *s, const struct vectorNode *A, const struct vectorNode *B, const struct vectorNode *C, const struct valueNode *f, const enum vecOp op);

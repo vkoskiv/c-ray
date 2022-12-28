@@ -13,19 +13,22 @@
 #include "../../datatypes/hitrecord.h"
 #include "../vectornode.h"
 
+#include "datatypes/vector.h"
 #include "vecmath.h"
 
 struct vecMathNode {
 	struct vectorNode node;
 	const struct vectorNode *A;
 	const struct vectorNode *B;
+	const struct vectorNode *C;
+	const struct valueNode *f;
 	const enum vecOp op;
 };
 
 static bool compare(const void *A, const void *B) {
 	const struct vecMathNode *this = A;
 	const struct vecMathNode *other = B;
-	return this->A == other->A && this->B == other->B && this->op == other->op;
+	return this->A == other->A && this->B == other->B && this->C == other->C && this->f == other->f && this->op == other->op;
 }
 
 static uint32_t hash(const void *p) {
@@ -33,6 +36,8 @@ static uint32_t hash(const void *p) {
 	uint32_t h = hashInit();
 	h = hashBytes(h, &this->A, sizeof(this->A));
 	h = hashBytes(h, &this->B, sizeof(this->B));
+	h = hashBytes(h, &this->C, sizeof(this->C));
+	h = hashBytes(h, &this->f, sizeof(this->f));
 	h = hashBytes(h, &this->op, sizeof(this->op));
 	return h;
 }
@@ -42,6 +47,8 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 	
 	const struct vector a = this->A->eval(this->A, record).v;
 	const struct vector b = this->B->eval(this->B, record).v;
+	const struct vector c = this->C->eval(this->C, record).v;
+	const float f = this->f->eval(this->f, record);
 	
 	switch (this->op) {
 		case VecAdd:
@@ -50,47 +57,60 @@ static struct vectorValue eval(const struct vectorNode *node, const struct hitRe
 			return (struct vectorValue){ .v = vecSub(a, b) };
 		case VecMultiply:
 			return (struct vectorValue){ .v = vecMul(a, b) };
-		case VecAverage:
-			return (struct vectorValue){ .v = vecScale(vecAdd(a, b), 0.5f) };
-		case VecDot:
-			return (struct vectorValue){ .f = vecDot(a, b) };
+		case VecDivide:
+			return (struct vectorValue){ .v = { a.x / b.x, a.y / b.y, a.z / b.z } };
 		case VecCross:
 			return (struct vectorValue){ .v = vecCross(a, b) };
-		case VecNormalize:
-			return (struct vectorValue){ .v = vecNormalize(a) };
 		case VecReflect:
 			return (struct vectorValue){ .v = vecReflect(a, b) };
+		case VecRefract:
+		{
+			struct vector refracted = { 0 };
+			bool success = refract(&a, b, f, &refracted);
+			(void)success; //FIXME Not sure what to do if this fails
+			return (struct vectorValue){ .v = refracted };
+		}
+		case VecDot:
+			return (struct vectorValue){ .f = vecDot(a, b) };
+		case VecDistance:
+			return (struct vectorValue){ .f = vecDistanceBetween(a, b) };
 		case VecLength:
 			return (struct vectorValue){ .f = vecLength(a) };
+		case VecScale:
+			return (struct vectorValue){ .v = vecScale(a, f) };
+		case VecNormalize:
+			return (struct vectorValue){ .v = vecNormalize(a) };
+		case VecWrap:
+			return (struct vectorValue){ .v = { wrapMinMax(a.x, b.x, c.x), wrapMinMax(a.y, b.y, c.y), wrapMinMax(a.z, b.z, c.z) }};
+		case VecFloor:
+			return (struct vectorValue){ .v = { .x = floorf(a.x), .y = floorf(a.y), .z = floorf(a.z) } };
+		case VecCeil:
+			return (struct vectorValue){ .v = { .x = ceilf(a.x), .y = ceilf(a.y), .z = ceilf(a.z) } };
+		case VecModulo:
+			return (struct vectorValue){ .v = { .x = fmodf(a.x, b.x), .y = fmodf(a.y, b.y), .z = fmodf(a.z, b.z) } };
 		case VecAbs:
 			return (struct vectorValue){ .v = { .x = fabsf(a.x), .y = fabsf(a.y), .z = fabsf(a.z) } };
 		case VecMin:
 			return (struct vectorValue){ .v = { .x = fminf(a.x, b.x), .y = fminf(a.y, b.y), .z = fminf(a.z, b.z) } };
 		case VecMax:
 			return (struct vectorValue){ .v = { .x = fmaxf(a.x, b.x), .y = fmaxf(a.y, b.y), .z = fmaxf(a.z, b.z) } };
-		case VecFloor:
-			return (struct vectorValue){ .v = { .x = floorf(a.x), .y = floorf(a.y), .z = floorf(a.z) } };
-		case VecCeil:
-			return (struct vectorValue){ .v = { .x = ceilf(a.x), .y = ceilf(a.y), .z = ceilf(a.z) } };
 		case VecSin:
 			return (struct vectorValue){ .v = { .x = sinf(a.x), .y = sinf(a.y), .z = sinf(a.z) } };
 		case VecCos:
 			return (struct vectorValue){ .v = { .x = cosf(a.x), .y = cosf(a.y), .z = cosf(a.z) } };
 		case VecTan:
 			return (struct vectorValue){ .v = { .x = tanf(a.x), .y = tanf(a.y), .z = tanf(a.z) } };
-		case VecModulo:
-			return (struct vectorValue){ .v = { .x = fmodf(a.x, b.x), .y = fmodf(a.y, b.y), .z = fmodf(a.z, b.z) } };
-		case VecDistance:
-			return (struct vectorValue){ .f = vecDistanceBetween(a, b) };
 	}
 	ASSERT_NOT_REACHED();
 	return (struct vectorValue){ .v = { 0 }, .c = { 0 }, .f = 0.0f };
 }
 
-const struct vectorNode *newVecMath(const struct node_storage *s, const struct vectorNode *A, const struct vectorNode *B, const enum vecOp op) {
+const struct vectorNode *newVecMath(const struct node_storage *s, const struct vectorNode *A, const struct vectorNode *B, const struct vectorNode *C, const struct valueNode *f, const enum vecOp op) {
 	HASH_CONS(s->node_table, hash, struct vecMathNode, {
 		.A = A ? A : newConstantVector(s, vecZero()),
 		.B = B ? B : newConstantVector(s, vecZero()),
+		.C = C ? C : newConstantVector(s, vecZero()),
+		.f = f ? f : newConstantValue(s, 0.0f),
 		.op = op,
 		.node = {
 			.eval = eval,
