@@ -23,13 +23,13 @@ struct mixBsdf {
 	const struct valueNode *factor;
 };
 
-static bool compareMix(const void *A, const void *B) {
+static bool compare(const void *A, const void *B) {
 	struct mixBsdf *this = (struct mixBsdf *)A;
 	struct mixBsdf *other = (struct mixBsdf *)B;
 	return this->A == other->A && this->B == other->B && this->factor == other->factor;
 }
 
-static uint32_t hashMix(const void *p) {
+static uint32_t hash(const void *p) {
 	const struct mixBsdf *this = p;
 	uint32_t h = hashInit();
 	h = hashBytes(h, &this->A, sizeof(this->A));
@@ -53,13 +53,13 @@ const struct bsdfNode *newMix(const struct node_storage *s, const struct bsdfNod
 		logr(debug, "A == B, pruning mix node.\n");
 		return A;
 	}
-	HASH_CONS(s->node_table, hashMix, struct mixBsdf, {
+	HASH_CONS(s->node_table, hash, struct mixBsdf, {
 		.A = A ? A : newDiffuse(s, newConstantTexture(s, g_black_color)),
 		.B = B ? B : newDiffuse(s, newConstantTexture(s, g_black_color)),
 		.factor = factor ? factor : newConstantValue(s, 0.5f),
 		.bsdf = {
 			.sample = sample,
-			.base = { .compare = compareMix }
+			.base = { .compare = compare }
 		}
 	});
 }
