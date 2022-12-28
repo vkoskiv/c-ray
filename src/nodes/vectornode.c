@@ -102,6 +102,6 @@ const struct vectorNode *parseVectorNode(struct node_storage *s, const struct cJ
 		const enum vecOp op = parseVectorOp(cJSON_GetObjectItem(node, "op"));
 		return newVecMath(s, a, b, c, f, op);
 	}
-	if (stringEquals(type->valuestring, "vecmix")) return new_vec_mix(s, a, b, f);
+	if (stringEquals(type->valuestring, "mix")) return new_vec_mix(s, a, b, f);
 	return NULL;
 }
