@@ -49,7 +49,7 @@ static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, 
 	const struct vector a = this->A->eval(this->A, sampler, record).v;
 	const struct vector b = this->B->eval(this->B, sampler, record).v;
 	const struct vector c = this->C->eval(this->C, sampler, record).v;
-	const float f = this->f->eval(this->f, record);
+	const float f = this->f->eval(this->f, sampler, record);
 	
 	switch (this->op) {
 		case VecAdd:

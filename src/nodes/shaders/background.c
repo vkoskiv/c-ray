@@ -37,10 +37,10 @@ static uint32_t hash(const void *p) {
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	(void)sampler;
 	struct backgroundBsdf *background = (struct backgroundBsdf *)bsdf;
-	float strength = background->strength->eval(background->strength, record);
+	float strength = background->strength->eval(background->strength, sampler, record);
 	return (struct bsdfSample){
 		.out = vecZero(),
-		.color = colorCoef(strength, background->color->eval(background->color, record))
+		.color = colorCoef(strength, background->color->eval(background->color, sampler, record))
 	};
 }
 

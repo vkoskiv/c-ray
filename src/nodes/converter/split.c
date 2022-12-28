@@ -33,9 +33,9 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
+static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	const struct splitValue *this = (struct splitValue *)node;
-	float val = this->input->eval(this->input, record);
+	float val = this->input->eval(this->input, sampler, record);
 	//TODO: What do we do with the alpha here?
 	return (struct color){val, val, val, 1.0f};
 }

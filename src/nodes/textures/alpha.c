@@ -32,9 +32,9 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static float eval(const struct valueNode *node, const struct hitRecord *record) {
+static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
 	struct alphaNode *this = (struct alphaNode *)node;
-	return this->color->eval(this->color, record).alpha;
+	return this->color->eval(this->color, sampler, record).alpha;
 }
 
 const struct valueNode *newAlpha(const struct node_storage *s, const struct colorNode *color) {

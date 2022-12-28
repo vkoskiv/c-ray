@@ -41,7 +41,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	
 	const struct vector normalizedDir = vecNormalize(record->incident_dir);
 	struct vector reflected = vecReflect(normalizedDir, record->surfaceNormal);
-	float roughness = metalBsdf->roughness->eval(metalBsdf->roughness, record);
+	float roughness = metalBsdf->roughness->eval(metalBsdf->roughness, sampler, record);
 	if (roughness > 0.0f) {
 		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
@@ -49,7 +49,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	
 	return (struct bsdfSample){
 		.out = reflected,
-		.color = metalBsdf->color->eval(metalBsdf->color, record)
+		.color = metalBsdf->color->eval(metalBsdf->color, sampler, record)
 	};
 }
 

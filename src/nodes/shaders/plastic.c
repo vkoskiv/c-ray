@@ -45,14 +45,14 @@ static struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampl
 	struct plasticBsdf *plastic = (struct plasticBsdf *)bsdf;
 	struct vector reflected = vecReflect(record->incident_dir, record->surfaceNormal);
 	//Roughness
-	float roughness = plastic->roughness->eval(plastic->roughness, record);
+	float roughness = plastic->roughness->eval(plastic->roughness, sampler, record);
 	if (roughness > 0.0f) {
 		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
 	}
 	return (struct bsdfSample){
 		.out = reflected,
-		.color = plastic->clear_coat->eval(plastic->clear_coat, record)
+		.color = plastic->clear_coat->eval(plastic->clear_coat, sampler, record)
 	};
 }
 
@@ -65,7 +65,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	
 	struct plasticBsdf *this = (struct plasticBsdf *)bsdf;
 	
-	const float IOR = this->IOR->eval(this->IOR, record);
+	const float IOR = this->IOR->eval(this->IOR, sampler, record);
 	
 	if (vecDot(record->incident_dir, record->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(record->surfaceNormal);

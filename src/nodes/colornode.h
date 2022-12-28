@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../vendored/cJSON.h"
+#include "../renderer/samplers/sampler.h"
 #include "nodebase.h"
 
 enum textureType {
@@ -19,7 +20,7 @@ enum textureType {
 
 struct colorNode {
 	struct nodeBase base;
-	struct color (*eval)(const struct colorNode *node, const struct hitRecord *record);
+	struct color (*eval)(const struct colorNode *node, sampler *sampler, const struct hitRecord *record);
 };
 
 #include "textures/checker.h"

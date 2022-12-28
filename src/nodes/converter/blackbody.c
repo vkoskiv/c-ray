@@ -34,10 +34,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
+static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
+	(void)sampler;
 	struct blackbodyNode *this = (struct blackbodyNode *)node;
-	return colorForKelvin(this->temperature->eval(this->temperature, record));
+	return colorForKelvin(this->temperature->eval(this->temperature, sampler, record));
 }
 
 const struct colorNode *newBlackbody(const struct node_storage *s, const struct valueNode *temperature) {

@@ -47,7 +47,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	float reflectionProbability;
 	float cosine;
 	
-	float IOR = glassBsdf->IOR->eval(glassBsdf->IOR, record);
+	float IOR = glassBsdf->IOR->eval(glassBsdf->IOR, sampler, record);
 	
 	if (vecDot(record->incident_dir, record->surfaceNormal) > 0.0f) {
 		outwardNormal = vecNegate(record->surfaceNormal);
@@ -65,7 +65,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 		reflectionProbability = 1.0f;
 	}
 	
-	float roughness = glassBsdf->roughness->eval(glassBsdf->roughness, record);
+	float roughness = glassBsdf->roughness->eval(glassBsdf->roughness, sampler, record);
 	if (roughness > 0.0f) {
 		struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
 		reflected = vecAdd(reflected, fuzz);
@@ -81,7 +81,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	
 	return (struct bsdfSample){
 		.out = scatterDir,
-		.color = glassBsdf->color->eval(glassBsdf->color, record)
+		.color = glassBsdf->color->eval(glassBsdf->color, sampler, record)
 	};
 }
 

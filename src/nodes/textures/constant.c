@@ -34,8 +34,9 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
+static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
+	(void)sampler;
 	return ((struct constantTexture *)node)->color;
 }
 

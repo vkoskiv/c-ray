@@ -35,11 +35,10 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
+static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	struct vecToColorNode *this = (struct vecToColorNode *)node;
-	//FIXME: BAD!!1!
-	struct vector vec = this->vec->eval(this->vec, NULL, record).v;
+	struct vector vec = this->vec->eval(this->vec, sampler, record).v;
 	return (struct color){ vec.x, vec.y, vec.z, 0.0f };
 }
 

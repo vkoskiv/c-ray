@@ -37,13 +37,13 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
+static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	const struct combineRGB *this = (struct combineRGB *)node;
 	//TODO: What do we do with the alpha here?
 	return (struct color){
-		.red   = this->R->eval(this->R, record),
-		.green = this->G->eval(this->G, record),
-		.blue  = this->B->eval(this->B, record),
+		.red   = this->R->eval(this->R, sampler, record),
+		.green = this->G->eval(this->G, sampler, record),
+		.blue  = this->B->eval(this->B, sampler, record),
 		1.0f
 	};
 }

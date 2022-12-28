@@ -58,8 +58,9 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
+static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	// TODO: Consider transforming image textures while loading textures.
+	(void)sampler;
 	struct imageTexture *image = (struct imageTexture *)node;
 	return internalColor(image->tex, record, image->options);
 }

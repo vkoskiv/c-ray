@@ -35,10 +35,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static float eval(const struct valueNode *node, const struct hitRecord *record) {
+static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
+	(void)sampler;
 	struct fresnelNode *this = (struct fresnelNode *)node;
 	
-	float IOR = this->IOR->eval(this->IOR, record);
+	float IOR = this->IOR->eval(this->IOR, sampler, record);
 	float cosine;
 	if (vecDot(record->incident_dir, record->surfaceNormal) > 0.0f) {
 		cosine = IOR * vecDot(record->incident_dir, record->surfaceNormal) / vecLength(record->incident_dir);
@@ -46,7 +47,7 @@ static float eval(const struct valueNode *node, const struct hitRecord *record) 
 		cosine = -(vecDot(record->incident_dir, record->surfaceNormal) / vecLength(record->incident_dir));
 	}
 	
-	return schlick(cosine, this->IOR->eval(this->IOR, record));
+	return schlick(cosine, this->IOR->eval(this->IOR, sampler, record));
 }
 
 const struct valueNode *newFresnel(const struct node_storage *s, const struct valueNode *IOR, const struct vectorNode *normal) {

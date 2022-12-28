@@ -33,584 +33,662 @@ void delete_storage(struct node_storage *storage) {
 
 bool mathnode_add(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 128.0f);
 	const struct valueNode *B = newConstantValue(s, 128.0f);
 	const struct valueNode *result = newMath(s, A, B, Add);
-	test_assert(result->eval(result, NULL) == 256.0f);
+	test_assert(result->eval(result, sampler, NULL) == 256.0f);
 	
 	A = newConstantValue(s, -128.0f);
 	B = newConstantValue(s, 128.0f);
 	result = newMath(s, A, B, Add);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_subtract(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 128.0f);
 	const struct valueNode *B = newConstantValue(s, 128.0f);
 	const struct valueNode *result = newMath(s, A, B, Subtract);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, -128.0f);
 	B = newConstantValue(s, 128.0f);
 	result = newMath(s, A, B, Subtract);
-	test_assert(result->eval(result, NULL) == -256.0f);
+	test_assert(result->eval(result, sampler, NULL) == -256.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_multiply(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 128.0f);
 	const struct valueNode *B = newConstantValue(s, 128.0f);
 	const struct valueNode *result = newMath(s, A, B, Multiply);
-	test_assert(result->eval(result, NULL) == 16384.0f);
+	test_assert(result->eval(result, sampler, NULL) == 16384.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_divide(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 128.0f);
 	const struct valueNode *B = newConstantValue(s, 128.0f);
 	const struct valueNode *result = newMath(s, A, B, Divide);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, -128.0f);
 	B = newConstantValue(s, 1.0f);
 	result = newMath(s, A, B, Divide);
-	test_assert(result->eval(result, NULL) == -128.0f);
+	test_assert(result->eval(result, sampler, NULL) == -128.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_power(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 2.0f);
 	const struct valueNode *B = newConstantValue(s, 16.0f);
 	const struct valueNode *result = newMath(s, A, B, Power);
-	test_assert(result->eval(result, NULL) == 65536.0f);
+	test_assert(result->eval(result, sampler, NULL) == 65536.0f);
 	
 	A = newConstantValue(s, -128.0f);
 	B = newConstantValue(s, 1.0f);
 	result = newMath(s, A, B, Power);
-	test_assert(result->eval(result, NULL) == -128.0f);
+	test_assert(result->eval(result, sampler, NULL) == -128.0f);
 
 	A = newConstantValue(s, 128.0f);
 	B = newConstantValue(s, 0.0f);
 	result = newMath(s, A, B, Power);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_log(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 1.0f);
 	const struct valueNode *result = newMath(s, A, NULL, Log);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, 10.0f);
 	result = newMath(s, A, NULL , Log);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 100.0f);
 	result = newMath(s, A, NULL, Log);
-	test_assert(result->eval(result, NULL) == 2.0f);
+	test_assert(result->eval(result, sampler, NULL) == 2.0f);
 	
 	A = newConstantValue(s, 1000.0f);
 	result = newMath(s, A, NULL, Log);
-	test_assert(result->eval(result, NULL) == 3.0f);
+	test_assert(result->eval(result, sampler, NULL) == 3.0f);
 	
 	A = newConstantValue(s, 10000.0f);
 	result = newMath(s, A, NULL, Log);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_squareroot(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 9.0f);
 	const struct valueNode *result = newMath(s, A, NULL, SquareRoot);
-	test_assert(result->eval(result, NULL) == 3.0f);
+	test_assert(result->eval(result, sampler, NULL) == 3.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_invsquareroot(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 9.0f);
 	const struct valueNode *result = newMath(s, A, NULL, InvSquareRoot);
-	test_assert(result->eval(result, NULL) == 1.0f / 3.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f / 3.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_absolute(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, -128.0f);
 	const struct valueNode *result = newMath(s, A, NULL, Absolute);
-	test_assert(result->eval(result, NULL) == 128.0f);
+	test_assert(result->eval(result, sampler, NULL) == 128.0f);
 	
 	A = newConstantValue(s, 128.0f);
 	result = newMath(s, A, NULL, Absolute);
-	test_assert(result->eval(result, NULL) == 128.0f);
+	test_assert(result->eval(result, sampler, NULL) == 128.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_min(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, -128.0f);
 	const struct valueNode *B = newConstantValue(s, 128.0f);
 	const struct valueNode *result = newMath(s, A, B, Min);
-	test_assert(result->eval(result, NULL) == -128.0f);
+	test_assert(result->eval(result, sampler, NULL) == -128.0f);
 	
 	A = newConstantValue(s, 128.0f);
 	B = newConstantValue(s, 42.0f);
 	result = newMath(s, A, B, Min);
-	test_assert(result->eval(result, NULL) == 42.0f);
+	test_assert(result->eval(result, sampler, NULL) == 42.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_max(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, -128.0f);
 	const struct valueNode *B = newConstantValue(s, 128.0f);
 	const struct valueNode *result = newMath(s, A, B, Max);
-	test_assert(result->eval(result, NULL) == 128.0f);
+	test_assert(result->eval(result, sampler, NULL) == 128.0f);
 	
 	A = newConstantValue(s, 128.0f);
 	B = newConstantValue(s, 42.0f);
 	result = newMath(s, A, B, Max);
-	test_assert(result->eval(result, NULL) == 128.0f);
+	test_assert(result->eval(result, sampler, NULL) == 128.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_lessthan(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 5.0f);
 	const struct valueNode *B = newConstantValue(s, 10.0f);
 	const struct valueNode *result = newMath(s, A, B, LessThan);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 10.0f);
 	B = newConstantValue(s, 10.0f);
 	result = newMath(s, A, B, LessThan);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, 15.0f);
 	B = newConstantValue(s, 10.0f);
 	result = newMath(s, A, B, LessThan);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_greaterthan(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 5.0f);
 	const struct valueNode *B = newConstantValue(s, 10.0f);
 	const struct valueNode *result = newMath(s, A, B, GreaterThan);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, 10.0f);
 	B = newConstantValue(s, 10.0f);
 	result = newMath(s, A, B, GreaterThan);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, 15.0f);
 	B = newConstantValue(s, 10.0f);
 	result = newMath(s, A, B, GreaterThan);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_sign(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 5.0f);
 	const struct valueNode *result = newMath(s, A, NULL, Sign);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 10.0f);
 	result = newMath(s, A, NULL, Sign);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, -5.0f);
 	result = newMath(s, A, NULL, Sign);
-	test_assert(result->eval(result, NULL) == -1.0f);
+	test_assert(result->eval(result, sampler, NULL) == -1.0f);
 	
 	A = newConstantValue(s, 0.0f);
 	result = newMath(s, A, NULL, Sign);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_compare(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 5.0f);
 	const struct valueNode *B = newConstantValue(s, 5.0f);
 	const struct valueNode *result = newMath(s, A, B, Compare);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 1.0f);
 	B = newConstantValue(s, 1.0f);
 	result = newMath(s, A, B, Compare);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 1.0f);
 	B = newConstantValue(s, 1.0000005f);
 	result = newMath(s, A, B, Compare);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 1.0f);
 	B = newConstantValue(s, 1.0000005f);
 	result = newMath(s, A, B, Compare);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 1.0f);
 	B = newConstantValue(s, 1.0000006f);
 	result = newMath(s, A, B, Compare);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_round(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 0.0f);
 	const struct valueNode *result = newMath(s, A, NULL, Round);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, 0.1f);
 	result = newMath(s, A, NULL, Round);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, 0.2f);
 	result = newMath(s, A, NULL, Round);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, 0.3f);
 	result = newMath(s, A, NULL, Round);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, 0.4f);
 	result = newMath(s, A, NULL, Round);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, 0.5f);
 	result = newMath(s, A, NULL, Round);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 0.6f);
 	result = newMath(s, A, NULL, Round);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 0.7f);
 	result = newMath(s, A, NULL, Round);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 0.8f);
 	result = newMath(s, A, NULL, Round);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 0.9f);
 	result = newMath(s, A, NULL, Round);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	A = newConstantValue(s, 1.0f);
 	result = newMath(s, A, NULL, Round);
-	test_assert(result->eval(result, NULL) == 1.0f);
+	test_assert(result->eval(result, sampler, NULL) == 1.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_floor(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 4.0f);
 	const struct valueNode *result = newMath(s, A, NULL, Floor);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.1f);
 	result = newMath(s, A, NULL, Floor);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.2f);
 	result = newMath(s, A, NULL, Floor);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.3f);
 	result = newMath(s, A, NULL, Floor);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.4f);
 	result = newMath(s, A, NULL, Floor);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.5f);
 	result = newMath(s, A, NULL, Floor);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.6f);
 	result = newMath(s, A, NULL, Floor);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.7f);
 	result = newMath(s, A, NULL, Floor);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.8f);
 	result = newMath(s, A, NULL, Floor);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.9f);
 	result = newMath(s, A, NULL, Floor);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 5.0f);
 	result = newMath(s, A, NULL, Floor);
-	test_assert(result->eval(result, NULL) == 5.0f);
+	test_assert(result->eval(result, sampler, NULL) == 5.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_ceil(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 4.0f);
 	const struct valueNode *result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.1f);
 	result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 5.0f);
+	test_assert(result->eval(result, sampler, NULL) == 5.0f);
 	
 	A = newConstantValue(s, 4.2f);
 	result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 5.0f);
+	test_assert(result->eval(result, sampler, NULL) == 5.0f);
 	
 	A = newConstantValue(s, 4.3f);
 	result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 5.0f);
+	test_assert(result->eval(result, sampler, NULL) == 5.0f);
 	
 	A = newConstantValue(s, 4.4f);
 	result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 5.0f);
+	test_assert(result->eval(result, sampler, NULL) == 5.0f);
 	
 	A = newConstantValue(s, 4.5f);
 	result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 5.0f);
+	test_assert(result->eval(result, sampler, NULL) == 5.0f);
 	
 	A = newConstantValue(s, 4.6f);
 	result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 5.0f);
+	test_assert(result->eval(result, sampler, NULL) == 5.0f);
 	
 	A = newConstantValue(s, 4.7f);
 	result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 5.0f);
+	test_assert(result->eval(result, sampler, NULL) == 5.0f);
 	
 	A = newConstantValue(s, 4.8f);
 	result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 5.0f);
+	test_assert(result->eval(result, sampler, NULL) == 5.0f);
 	
 	A = newConstantValue(s, 4.9f);
 	result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 5.0f);
+	test_assert(result->eval(result, sampler, NULL) == 5.0f);
 	
 	A = newConstantValue(s, 5.0f);
 	result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 5.0f);
+	test_assert(result->eval(result, sampler, NULL) == 5.0f);
 	
 	A = newConstantValue(s, 5.1f);
 	result = newMath(s, A, NULL, Ceil);
-	test_assert(result->eval(result, NULL) == 6.0f);
+	test_assert(result->eval(result, sampler, NULL) == 6.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_truncate(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 4.0f);
 	const struct valueNode *result = newMath(s, A, NULL, Truncate);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.1f);
 	result = newMath(s, A, NULL, Truncate);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.9f);
 	result = newMath(s, A, NULL, Truncate);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 4.3f);
 	result = newMath(s, A, NULL, Truncate);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 6.01f);
 	result = newMath(s, A, NULL, Truncate);
-	test_assert(result->eval(result, NULL) == 6.0f);
+	test_assert(result->eval(result, sampler, NULL) == 6.0f);
 	
 	A = newConstantValue(s, 4.5f);
 	result = newMath(s, A, NULL, Truncate);
-	test_assert(result->eval(result, NULL) == 4.0f);
+	test_assert(result->eval(result, sampler, NULL) == 4.0f);
 	
 	A = newConstantValue(s, 8.6f);
 	result = newMath(s, A, NULL, Truncate);
-	test_assert(result->eval(result, NULL) == 8.0f);
+	test_assert(result->eval(result, sampler, NULL) == 8.0f);
 	
 	A = newConstantValue(s, 9.7f);
 	result = newMath(s, A, NULL, Truncate);
-	test_assert(result->eval(result, NULL) == 9.0f);
+	test_assert(result->eval(result, sampler, NULL) == 9.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_fraction(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 4.0f);
 	const struct valueNode *result = newMath(s, A, NULL, Fraction);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, 4.1f);
 	result = newMath(s, A, NULL, Fraction);
-	roughly_equals(result->eval(result, NULL), 0.1f);
+	roughly_equals(result->eval(result, sampler, NULL), 0.1f);
 	
 	A = newConstantValue(s, 4.9f);
 	result = newMath(s, A, NULL, Fraction);
-	roughly_equals(result->eval(result, NULL), 0.9f);
+	roughly_equals(result->eval(result, sampler, NULL), 0.9f);
 	
 	A = newConstantValue(s, 4.3f);
 	result = newMath(s, A, NULL, Fraction);
-	roughly_equals(result->eval(result, NULL), 0.3f);
+	roughly_equals(result->eval(result, sampler, NULL), 0.3f);
 	
 	A = newConstantValue(s, 6.01f);
 	result = newMath(s, A, NULL, Fraction);
-	roughly_equals(result->eval(result, NULL), 0.01f);
+	roughly_equals(result->eval(result, sampler, NULL), 0.01f);
 	
 	A = newConstantValue(s, 4.5f);
 	result = newMath(s, A, NULL, Fraction);
-	roughly_equals(result->eval(result, NULL), 0.5f);
+	roughly_equals(result->eval(result, sampler, NULL), 0.5f);
 	
 	A = newConstantValue(s, 8.6f);
 	result = newMath(s, A, NULL, Fraction);
-	roughly_equals(result->eval(result, NULL), 0.6f);
+	roughly_equals(result->eval(result, sampler, NULL), 0.6f);
 	
 	A = newConstantValue(s, 9.7f);
 	result = newMath(s, A, NULL, Fraction);
-	roughly_equals(result->eval(result, NULL), 0.7f);
+	roughly_equals(result->eval(result, sampler, NULL), 0.7f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_modulo(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 4.0f);
 	const struct valueNode *B = newConstantValue(s, 1.0f);
 	const struct valueNode *result = newMath(s, A, B, Modulo);
-	test_assert(result->eval(result, NULL) == 0.0f);
+	test_assert(result->eval(result, sampler, NULL) == 0.0f);
 	
 	A = newConstantValue(s, 4.0f);
 	B = newConstantValue(s, 2.0f);
 	result = newMath(s, A, B, Modulo);
-	roughly_equals(result->eval(result, NULL), 0.0f);
+	roughly_equals(result->eval(result, sampler, NULL), 0.0f);
 	
 	A = newConstantValue(s, 4.0f);
 	B = newConstantValue(s, 3.0f);
 	result = newMath(s, A, B, Modulo);
-	roughly_equals(result->eval(result, NULL), 1.0f);
+	roughly_equals(result->eval(result, sampler, NULL), 1.0f);
 	
 	A = newConstantValue(s, 4.0f);
 	B = newConstantValue(s, 4.0f);
 	result = newMath(s, A, B, Modulo);
-	roughly_equals(result->eval(result, NULL), 0.0f);
+	roughly_equals(result->eval(result, sampler, NULL), 0.0f);
 	
 	A = newConstantValue(s, 4.0f);
 	B = newConstantValue(s, 5.0f);
 	result = newMath(s, A, B, Modulo);
-	roughly_equals(result->eval(result, NULL), 4.0f);
+	roughly_equals(result->eval(result, sampler, NULL), 4.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_sine(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, M_PI);
 	const struct valueNode *result = newMath(s, A, NULL, Sine);
 	
-	roughly_equals(result->eval(result, NULL), 0.0f);
+	roughly_equals(result->eval(result, sampler, NULL), 0.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_cosine(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, M_PI);
 	const struct valueNode *result = newMath(s, A, NULL, Cosine);
 	
-	roughly_equals(result->eval(result, NULL), -1.0f);
+	roughly_equals(result->eval(result, sampler, NULL), -1.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_tangent(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, M_PI);
 	const struct valueNode *result = newMath(s, A, NULL, Tangent);
 	
-	roughly_equals(result->eval(result, NULL), -0.0f);
+	roughly_equals(result->eval(result, sampler, NULL), -0.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_toradians(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, 180.0f);
 	const struct valueNode *result = newMath(s, A, NULL, ToRadians);
 	
-	roughly_equals(result->eval(result, NULL), M_PI);
+	roughly_equals(result->eval(result, sampler, NULL), M_PI);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool mathnode_todegrees(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct valueNode *A = newConstantValue(s, M_PI);
 	const struct valueNode *result = newMath(s, A, NULL, ToDegrees);
 	
-	roughly_equals(result->eval(result, NULL), 180.0f);
+	roughly_equals(result->eval(result, sampler, NULL), 180.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
@@ -783,41 +861,44 @@ bool vecmath_vecAbs(void) {
 
 bool map_range(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	
 	const struct valueNode *zero = newConstantValue(s, 0.0f);
 	const struct valueNode *half = newConstantValue(s, 0.5f);
 	const struct valueNode *one = newConstantValue(s, 1.0f);
 	
 	const struct valueNode *A = newMapRange(s, half, zero, one, zero, one);
-	test_assert(A->eval(A, NULL) == 0.5f);
+	test_assert(A->eval(A, sampler, NULL) == 0.5f);
 	
 	A = newMapRange(s, half, zero, one, newConstantValue(s, 0.0f), newConstantValue(s, 30.0f));
-	test_assert(A->eval(A, NULL) == 15.0f);
+	test_assert(A->eval(A, sampler, NULL) == 15.0f);
 	
 	A = newMapRange(s, half, zero, one, newConstantValue(s, -15.0f), newConstantValue(s, 15.0f));
-	test_assert(A->eval(A, NULL) == 0.0f);
+	test_assert(A->eval(A, sampler, NULL) == 0.0f);
 	
 	A = newMapRange(s, newConstantValue(s, 0.25f), zero, half, newConstantValue(s, -15.0f), newConstantValue(s, 15.0f));
-	test_assert(A->eval(A, NULL) == 0.0f);
+	test_assert(A->eval(A, sampler, NULL) == 0.0f);
 	
 	A = newMapRange(s, newConstantValue(s, -1.0f), zero, one, zero, one);
-	test_assert(A->eval(A, NULL) == 0.0f);
+	test_assert(A->eval(A, sampler, NULL) == 0.0f);
 	
 	A = newMapRange(s, newConstantValue(s, 2.0f), zero, one, zero, one);
-	test_assert(A->eval(A, NULL) == 1.0f);
+	test_assert(A->eval(A, sampler, NULL) == 1.0f);
 	
 	A = newMapRange(s, half, zero, one, zero, newConstantValue(s, -5.0f));
-	test_assert(A->eval(A, NULL) == -2.5f);
+	test_assert(A->eval(A, sampler, NULL) == -2.5f);
 	
 	A = newMapRange(s, one, zero, one, zero, newConstantValue(s, -5.0f));
-	test_assert(A->eval(A, NULL) == -5.0f);
+	test_assert(A->eval(A, sampler, NULL) == -5.0f);
 	
 	A = newMapRange(s, newConstantValue(s, 2.5f), zero, newConstantValue(s, 5.0f), zero, one);
-	test_assert(A->eval(A, NULL) == 0.5f);
+	test_assert(A->eval(A, sampler, NULL) == 0.5f);
 	
 	A = newMapRange(s, newConstantValue(s, -2.5f), zero, newConstantValue(s, -5.0f), zero, one);
-	test_assert(A->eval(A, NULL) == 0.5f);
+	test_assert(A->eval(A, sampler, NULL) == 0.5f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }

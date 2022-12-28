@@ -42,10 +42,10 @@ float rough_compare(float a, float b) {
 	return true;
 }
 
-static float eval(const struct valueNode *node, const struct hitRecord *record) {
+static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
 	struct mathNode *this = (struct mathNode *)node;
-	const float a = this->A->eval(this->A, record);
-	const float b = this->B->eval(this->B, record);
+	const float a = this->A->eval(this->A, sampler, record);
+	const float b = this->B->eval(this->B, sampler, record);
 	switch (this->op) {
 		case Add:
 			return a + b;

@@ -35,9 +35,9 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static float eval(const struct valueNode *node, const struct hitRecord *record) {
+static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
 	const struct grayscale *this = (struct grayscale *)node;
-	return colorToGrayscale(this->input->eval(this->input, record)).red;
+	return colorToGrayscale(this->input->eval(this->input, sampler, record)).red;
 }
 
 const struct valueNode *newGrayscaleConverter(const struct node_storage *s, const struct colorNode *node) {

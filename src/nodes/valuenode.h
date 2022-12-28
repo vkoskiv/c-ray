@@ -9,13 +9,14 @@
 #pragma once
 
 #include "../vendored/cJSON.h"
+#include "../renderer/samplers/sampler.h"
 #include "nodebase.h"
 
 struct hitRecord;
 
 struct valueNode {
 	struct nodeBase base;
-	float (*eval)(const struct valueNode *node, const struct hitRecord *record);
+	float (*eval)(const struct valueNode *node, sampler *sampler, const struct hitRecord *record);
 };
 
 #include "input/fresnel.h"

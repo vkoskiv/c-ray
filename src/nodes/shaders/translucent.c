@@ -40,7 +40,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	const struct vector scatterDir = vecNormalize(vecAdd(vecNegate(record->surfaceNormal), randomOnUnitSphere(sampler)));
 	return (struct bsdfSample){
 			.out = scatterDir,
-			.color = diffBsdf->color->eval(diffBsdf->color, record)
+			.color = diffBsdf->color->eval(diffBsdf->color, sampler, record)
 	};
 }
 

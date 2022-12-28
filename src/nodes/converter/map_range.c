@@ -48,18 +48,18 @@ static inline float lerp(float min, float max, float t) {
 	return ((1.0f - t) * min) + (t * max);
 }
 
-static float eval(const struct valueNode *node, const struct hitRecord *record) {
+static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
 	const struct mapRangeNode *this = (const struct mapRangeNode *)node;
-	const float input_value = this->input_value->eval(this->input_value, record);
+	const float input_value = this->input_value->eval(this->input_value, sampler, record);
 	
-	const float from_min = this->from_min->eval(this->from_min, record);
-	const float from_max =  this->from_max->eval(this->from_max, record);
+	const float from_min = this->from_min->eval(this->from_min, sampler, record);
+	const float from_max =  this->from_max->eval(this->from_max, sampler, record);
 	
 	const float delta = from_max - from_min;
 	const float t = clamp(input_value / delta, 0.0f, 1.0f);
 	
-	const float to_min = this->to_min->eval(this->to_min, record);
-	const float to_max = this->to_max->eval(this->to_max, record);
+	const float to_min = this->to_min->eval(this->to_min, sampler, record);
+	const float to_max = this->to_max->eval(this->to_max, sampler, record);
 	
 	return lerp(to_min, to_max, t);
 }

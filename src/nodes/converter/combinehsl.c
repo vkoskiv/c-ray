@@ -36,9 +36,9 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
+static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	const struct combineHSL *this = (struct combineHSL *)node;
-	return color_from_hsl(this->H->eval(this->H, record), this->S->eval(this->S, record), this->L->eval(this->L, record));
+	return color_from_hsl(this->H->eval(this->H, sampler, record), this->S->eval(this->S, sampler, record), this->L->eval(this->L, sampler, record));
 }
 
 const struct colorNode *newCombineHSL(const struct node_storage *s, const struct valueNode *H, const struct valueNode *S, const struct valueNode *L) {

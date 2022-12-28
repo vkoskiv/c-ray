@@ -25,29 +25,29 @@ struct checkerTexture {
 };
 
 // UV-mapped variant
-static struct color mappedCheckerBoard(const struct hitRecord *isect, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale) {
-	const float coef = scale->eval(scale, isect);
+static struct color mappedCheckerBoard(const struct hitRecord *isect, sampler *sampler, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale) {
+	const float coef = scale->eval(scale, sampler, isect);
 	const float sines = sinf(coef * isect->uv.x) * sinf(coef * isect->uv.y);
 	if (sines < 0.0f) {
-		return A->eval(A, isect);
+		return A->eval(A, sampler, isect);
 	} else {
-		return B->eval(B, isect);
+		return B->eval(B, sampler, isect);
 	}
 }
 
 // Fallback axis-aligned checkerboard
-static struct color unmappedCheckerBoard(const struct hitRecord *isect, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale) {
-	const float coef = scale->eval(scale, isect);
+static struct color unmappedCheckerBoard(const struct hitRecord *isect, sampler *sampler, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale) {
+	const float coef = scale->eval(scale, sampler, isect);
 	const float sines = sinf(coef*isect->hitPoint.x) * sinf(coef*isect->hitPoint.y) * sinf(coef*isect->hitPoint.z);
 	if (sines < 0.0f) {
-		return A->eval(A, isect);
+		return A->eval(A, sampler, isect);
 	} else {
-		return B->eval(B, isect);
+		return B->eval(B, sampler, isect);
 	}
 }
 
-static struct color checkerBoard(const struct hitRecord *isect, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale) {
-	return isect->uv.x >= 0 ? mappedCheckerBoard(isect, A, B, scale) : unmappedCheckerBoard(isect, A, B, scale);
+static struct color checkerBoard(const struct hitRecord *isect, sampler *sampler, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale) {
+	return isect->uv.x >= 0 ? mappedCheckerBoard(isect, sampler, A, B, scale) : unmappedCheckerBoard(isect, sampler, A, B, scale);
 }
 
 static bool compare(const void *A, const void *B) {
@@ -65,9 +65,9 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
+static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	struct checkerTexture *checker = (struct checkerTexture *)node;
-	return checkerBoard(record, checker->A, checker->B, checker->scale);
+	return checkerBoard(record, sampler, checker->A, checker->B, checker->scale);
 }
 
 //TODO: Maybe a 'local' flag that would then remap UVs to be local to each checker square? That'd be neat. Blender doesn't have it.

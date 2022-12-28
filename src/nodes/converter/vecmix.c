@@ -38,7 +38,7 @@ static uint32_t hash(const void *p) {
 static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	struct vec_mix *this = (struct vec_mix *)node;
 	
-	const float lerp = this->f->eval(this->f, record);
+	const float lerp = this->f->eval(this->f, sampler, record);
 
 	if (getDimension(sampler) > lerp) {
 		return (struct vectorValue){ .v = this->A->eval(this->A, sampler, record).v };
