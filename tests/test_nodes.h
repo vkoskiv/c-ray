@@ -146,6 +146,16 @@ bool mathnode_squareroot(void) {
 	return true;
 }
 
+bool mathnode_invsquareroot(void) {
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 9.0f);
+	const struct valueNode *result = newMath(s, A, NULL, InvSquareRoot);
+	test_assert(result->eval(result, NULL) == 1.0f / 3.0f);
+	
+	delete_storage(s);
+	return true;
+}
+
 bool mathnode_absolute(void) {
 	struct node_storage *s = make_storage();
 	const struct valueNode *A = newConstantValue(s, -128.0f);
@@ -187,6 +197,362 @@ bool mathnode_max(void) {
 	B = newConstantValue(s, 42.0f);
 	result = newMath(s, A, B, Max);
 	test_assert(result->eval(result, NULL) == 128.0f);
+	
+	delete_storage(s);
+	return true;
+}
+
+bool mathnode_lessthan(void) {
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 5.0f);
+	const struct valueNode *B = newConstantValue(s, 10.0f);
+	const struct valueNode *result = newMath(s, A, B, LessThan);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, 10.0f);
+	B = newConstantValue(s, 10.0f);
+	result = newMath(s, A, B, LessThan);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	A = newConstantValue(s, 15.0f);
+	B = newConstantValue(s, 10.0f);
+	result = newMath(s, A, B, LessThan);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	delete_storage(s);
+	return true;
+}
+
+bool mathnode_greaterthan(void) {
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 5.0f);
+	const struct valueNode *B = newConstantValue(s, 10.0f);
+	const struct valueNode *result = newMath(s, A, B, GreaterThan);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	A = newConstantValue(s, 10.0f);
+	B = newConstantValue(s, 10.0f);
+	result = newMath(s, A, B, GreaterThan);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	A = newConstantValue(s, 15.0f);
+	B = newConstantValue(s, 10.0f);
+	result = newMath(s, A, B, GreaterThan);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	delete_storage(s);
+	return true;
+}
+
+bool mathnode_sign(void) {
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 5.0f);
+	const struct valueNode *result = newMath(s, A, NULL, Sign);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, 10.0f);
+	result = newMath(s, A, NULL, Sign);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, -5.0f);
+	result = newMath(s, A, NULL, Sign);
+	test_assert(result->eval(result, NULL) == -1.0f);
+	
+	A = newConstantValue(s, 0.0f);
+	result = newMath(s, A, NULL, Sign);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	delete_storage(s);
+	return true;
+}
+
+bool mathnode_compare(void) {
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 5.0f);
+	const struct valueNode *B = newConstantValue(s, 5.0f);
+	const struct valueNode *result = newMath(s, A, B, Compare);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, 1.0f);
+	B = newConstantValue(s, 1.0f);
+	result = newMath(s, A, B, Compare);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, 1.0f);
+	B = newConstantValue(s, 1.0000005f);
+	result = newMath(s, A, B, Compare);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, 1.0f);
+	B = newConstantValue(s, 1.0000005f);
+	result = newMath(s, A, B, Compare);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, 1.0f);
+	B = newConstantValue(s, 1.0000006f);
+	result = newMath(s, A, B, Compare);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	delete_storage(s);
+	return true;
+}
+
+bool mathnode_round(void) {
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 0.0f);
+	const struct valueNode *result = newMath(s, A, NULL, Round);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	A = newConstantValue(s, 0.1f);
+	result = newMath(s, A, NULL, Round);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	A = newConstantValue(s, 0.2f);
+	result = newMath(s, A, NULL, Round);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	A = newConstantValue(s, 0.3f);
+	result = newMath(s, A, NULL, Round);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	A = newConstantValue(s, 0.4f);
+	result = newMath(s, A, NULL, Round);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	A = newConstantValue(s, 0.5f);
+	result = newMath(s, A, NULL, Round);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, 0.6f);
+	result = newMath(s, A, NULL, Round);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, 0.7f);
+	result = newMath(s, A, NULL, Round);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, 0.8f);
+	result = newMath(s, A, NULL, Round);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, 0.9f);
+	result = newMath(s, A, NULL, Round);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	A = newConstantValue(s, 1.0f);
+	result = newMath(s, A, NULL, Round);
+	test_assert(result->eval(result, NULL) == 1.0f);
+	
+	delete_storage(s);
+	return true;
+}
+
+bool mathnode_floor(void) {
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 4.0f);
+	const struct valueNode *result = newMath(s, A, NULL, Floor);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.1f);
+	result = newMath(s, A, NULL, Floor);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.2f);
+	result = newMath(s, A, NULL, Floor);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.3f);
+	result = newMath(s, A, NULL, Floor);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.4f);
+	result = newMath(s, A, NULL, Floor);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.5f);
+	result = newMath(s, A, NULL, Floor);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.6f);
+	result = newMath(s, A, NULL, Floor);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.7f);
+	result = newMath(s, A, NULL, Floor);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.8f);
+	result = newMath(s, A, NULL, Floor);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.9f);
+	result = newMath(s, A, NULL, Floor);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 5.0f);
+	result = newMath(s, A, NULL, Floor);
+	test_assert(result->eval(result, NULL) == 5.0f);
+	
+	delete_storage(s);
+	return true;
+}
+
+bool mathnode_ceil(void) {
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 4.0f);
+	const struct valueNode *result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.1f);
+	result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 5.0f);
+	
+	A = newConstantValue(s, 4.2f);
+	result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 5.0f);
+	
+	A = newConstantValue(s, 4.3f);
+	result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 5.0f);
+	
+	A = newConstantValue(s, 4.4f);
+	result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 5.0f);
+	
+	A = newConstantValue(s, 4.5f);
+	result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 5.0f);
+	
+	A = newConstantValue(s, 4.6f);
+	result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 5.0f);
+	
+	A = newConstantValue(s, 4.7f);
+	result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 5.0f);
+	
+	A = newConstantValue(s, 4.8f);
+	result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 5.0f);
+	
+	A = newConstantValue(s, 4.9f);
+	result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 5.0f);
+	
+	A = newConstantValue(s, 5.0f);
+	result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 5.0f);
+	
+	A = newConstantValue(s, 5.1f);
+	result = newMath(s, A, NULL, Ceil);
+	test_assert(result->eval(result, NULL) == 6.0f);
+	
+	delete_storage(s);
+	return true;
+}
+
+bool mathnode_truncate(void) {
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 4.0f);
+	const struct valueNode *result = newMath(s, A, NULL, Truncate);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.1f);
+	result = newMath(s, A, NULL, Truncate);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.9f);
+	result = newMath(s, A, NULL, Truncate);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 4.3f);
+	result = newMath(s, A, NULL, Truncate);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 6.01f);
+	result = newMath(s, A, NULL, Truncate);
+	test_assert(result->eval(result, NULL) == 6.0f);
+	
+	A = newConstantValue(s, 4.5f);
+	result = newMath(s, A, NULL, Truncate);
+	test_assert(result->eval(result, NULL) == 4.0f);
+	
+	A = newConstantValue(s, 8.6f);
+	result = newMath(s, A, NULL, Truncate);
+	test_assert(result->eval(result, NULL) == 8.0f);
+	
+	A = newConstantValue(s, 9.7f);
+	result = newMath(s, A, NULL, Truncate);
+	test_assert(result->eval(result, NULL) == 9.0f);
+	
+	delete_storage(s);
+	return true;
+}
+
+bool mathnode_fraction(void) {
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 4.0f);
+	const struct valueNode *result = newMath(s, A, NULL, Fraction);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	A = newConstantValue(s, 4.1f);
+	result = newMath(s, A, NULL, Fraction);
+	roughly_equals(result->eval(result, NULL), 0.1f);
+	
+	A = newConstantValue(s, 4.9f);
+	result = newMath(s, A, NULL, Fraction);
+	roughly_equals(result->eval(result, NULL), 0.9f);
+	
+	A = newConstantValue(s, 4.3f);
+	result = newMath(s, A, NULL, Fraction);
+	roughly_equals(result->eval(result, NULL), 0.3f);
+	
+	A = newConstantValue(s, 6.01f);
+	result = newMath(s, A, NULL, Fraction);
+	roughly_equals(result->eval(result, NULL), 0.01f);
+	
+	A = newConstantValue(s, 4.5f);
+	result = newMath(s, A, NULL, Fraction);
+	roughly_equals(result->eval(result, NULL), 0.5f);
+	
+	A = newConstantValue(s, 8.6f);
+	result = newMath(s, A, NULL, Fraction);
+	roughly_equals(result->eval(result, NULL), 0.6f);
+	
+	A = newConstantValue(s, 9.7f);
+	result = newMath(s, A, NULL, Fraction);
+	roughly_equals(result->eval(result, NULL), 0.7f);
+	
+	delete_storage(s);
+	return true;
+}
+
+bool mathnode_modulo(void) {
+	struct node_storage *s = make_storage();
+	const struct valueNode *A = newConstantValue(s, 4.0f);
+	const struct valueNode *B = newConstantValue(s, 1.0f);
+	const struct valueNode *result = newMath(s, A, B, Modulo);
+	test_assert(result->eval(result, NULL) == 0.0f);
+	
+	A = newConstantValue(s, 4.0f);
+	B = newConstantValue(s, 2.0f);
+	result = newMath(s, A, B, Modulo);
+	roughly_equals(result->eval(result, NULL), 0.0f);
+	
+	A = newConstantValue(s, 4.0f);
+	B = newConstantValue(s, 3.0f);
+	result = newMath(s, A, B, Modulo);
+	roughly_equals(result->eval(result, NULL), 1.0f);
+	
+	A = newConstantValue(s, 4.0f);
+	B = newConstantValue(s, 4.0f);
+	result = newMath(s, A, B, Modulo);
+	roughly_equals(result->eval(result, NULL), 0.0f);
+	
+	A = newConstantValue(s, 4.0f);
+	B = newConstantValue(s, 5.0f);
+	result = newMath(s, A, B, Modulo);
+	roughly_equals(result->eval(result, NULL), 4.0f);
 	
 	delete_storage(s);
 	return true;
