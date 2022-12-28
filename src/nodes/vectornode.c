@@ -79,6 +79,7 @@ static enum vecOp parseVectorOp(const cJSON *data) {
 	if (stringEquals(data->valuestring, "sin")) return VecSin;
 	if (stringEquals(data->valuestring, "cos")) return VecCos;
 	if (stringEquals(data->valuestring, "tan")) return VecTan;
+	logr(warning, "Unknown vector op %s given, defaulting to add\n", data->valuestring);
 	return VecAdd;
 }
 
