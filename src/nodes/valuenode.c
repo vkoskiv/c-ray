@@ -76,7 +76,6 @@ const struct valueNode *parseValueNode(const char *asset_path, struct file_cache
 	if (cJSON_IsString(type)) {
 		const struct valueNode *IOR = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "IOR"));
 		const struct vectorNode *normal = parseVectorNode(s, cJSON_GetObjectItem(node, "normal"));
-		const struct colorNode *color = parseTextureNode(asset_path, cache, s, cJSON_GetObjectItem(node, "color"));
 
 		if (stringEquals(type->valuestring, "fresnel")) {
 			return newFresnel(s, IOR, normal);
@@ -93,6 +92,10 @@ const struct valueNode *parseValueNode(const char *asset_path, struct file_cache
 			return newRayLength(s);
 		}
 		if (stringEquals(type->valuestring, "alpha")) {
+			if (!asset_path || !cache) {
+				ASSERT_NOT_REACHED(); //FIXME
+			}
+			const struct colorNode *color = parseTextureNode(asset_path, cache, s, cJSON_GetObjectItem(node, "color"));
 			return newAlpha(s, color);
 		}
 		if (stringEquals(type->valuestring, "vec_to_value")) {
