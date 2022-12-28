@@ -83,11 +83,20 @@ static enum vecOp parseVectorOp(const cJSON *data) {
 	return VecAdd;
 }
 
+struct vector parseVector(const struct cJSON *data) {
+	const float x = cJSON_IsNumber(cJSON_GetArrayItem(data, 0)) ? cJSON_GetArrayItem(data, 0)->valuedouble : 0.0f;
+	const float y = cJSON_IsNumber(cJSON_GetArrayItem(data, 1)) ? cJSON_GetArrayItem(data, 1)->valuedouble : 0.0f;
+	const float z = cJSON_IsNumber(cJSON_GetArrayItem(data, 2)) ? cJSON_GetArrayItem(data, 2)->valuedouble : 0.0f;
+	return (struct vector){ x, y, z };
+}
 const struct vectorNode *parseVectorNode(struct node_storage *s, const struct cJSON *node) {
 	if (!node) return NULL;
+	if (cJSON_IsArray(node)) {
+		return newConstantVector(s, parseVector(node));
+	}
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
 	if (!cJSON_IsString(type)) {
-		logr(warning, "No type provided for vectorNode.\n");
+		logr(warning, "No type provided for vectorNode: %s\n", cJSON_PrintUnformatted(node));
 		return newConstantVector(s, vecZero());
 	}
 
