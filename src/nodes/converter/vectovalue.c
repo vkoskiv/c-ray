@@ -37,7 +37,8 @@ static uint32_t hash(const void *p) {
 
 static float eval(const struct valueNode *node, const struct hitRecord *record) {
 	struct vecToValueNode *this = (struct vecToValueNode *)node;
-	const struct vectorValue val = this->vec->eval(this->vec, record);
+	//FIXME: BAD!!1!
+	const struct vectorValue val = this->vec->eval(this->vec, NULL, record);
 	switch (this->component_to_get) {
 		case X: return val.v.x;
 		case Y: return val.v.y;

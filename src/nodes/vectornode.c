@@ -35,8 +35,9 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct vectorValue eval(const struct vectorNode *node, const struct hitRecord *record) {
+static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
+	(void)sampler;
 	struct constantVector *this = (struct constantVector *)node;
 	return (struct vectorValue){ .v = this->vector };
 }
@@ -89,20 +90,18 @@ const struct vectorNode *parseVectorNode(struct node_storage *s, const struct cJ
 		return newConstantVector(s, vecZero());
 	}
 
+	if (stringEquals(type->valuestring, "normal")) return newNormal(s);
+	if (stringEquals(type->valuestring, "uv")) return newUV(s);
+
+	const struct vectorNode *a = parseVectorNode(s, cJSON_GetObjectItem(node, "a"));
+	const struct vectorNode *b = parseVectorNode(s, cJSON_GetObjectItem(node, "b"));
+	const struct vectorNode *c = parseVectorNode(s, cJSON_GetObjectItem(node, "c"));
+	//FIXME: alpha won't work here, for now.
+	const struct valueNode  *f = parseValueNode(NULL, NULL, s, cJSON_GetObjectItem(node, "f"));
 	if (stringEquals(type->valuestring, "vecmath")) {
-		const struct vectorNode *a = parseVectorNode(s, cJSON_GetObjectItem(node, "a"));
-		const struct vectorNode *b = parseVectorNode(s, cJSON_GetObjectItem(node, "b"));
-		const struct vectorNode *c = parseVectorNode(s, cJSON_GetObjectItem(node, "c"));
-		//FIXME: alpha won't work here, for now.
-		const struct valueNode  *f = parseValueNode(NULL, NULL, s, cJSON_GetObjectItem(node, "f"));
 		const enum vecOp op = parseVectorOp(cJSON_GetObjectItem(node, "op"));
 		return newVecMath(s, a, b, c, f, op);
 	}
-	if (stringEquals(type->valuestring, "normal")) {
-		return newNormal(s);
-	}
-	if (stringEquals(type->valuestring, "uv")) {
-		return newUV(s);
-	}
+	if (stringEquals(type->valuestring, "vecmix")) return new_vec_mix(s, a, b, f);
 	return NULL;
 }

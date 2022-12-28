@@ -16,6 +16,7 @@
 #include "../src/nodes/vectornode.h"
 #include "../src/nodes/converter/math.h"
 #include "../src/nodes/converter/map_range.h"
+#include "../src/renderer/samplers/sampler.h"
 
 struct node_storage *make_storage() {
 	struct node_storage *storage = calloc(1, sizeof(*storage));
@@ -615,141 +616,168 @@ bool mathnode_todegrees(void) {
 
 bool vecmath_vecAdd(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	const struct vectorNode *B = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
 	const struct vectorNode *add = newVecMath(s, A, B, NULL, NULL, VecAdd);
 	
-	struct vectorValue result = add->eval(add, NULL);
+	struct vectorValue result = add->eval(add, sampler, NULL);
 	struct vector expected = (struct vector){2.0f, 4.0f, 6.0f};
 	vec_roughly_equals(result.v, expected);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool vecmath_vecSubtract(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	const struct vectorNode *B = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
 	const struct vectorNode *add = newVecMath(s, A, B, NULL, NULL, VecSubtract);
 	
-	struct vectorValue result = add->eval(add, NULL);
+	struct vectorValue result = add->eval(add, sampler, NULL);
 	struct vector expected = vecZero();
 	vec_roughly_equals(result.v, expected);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool vecmath_vecMultiply(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	const struct vectorNode *B = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
 	const struct vectorNode *add = newVecMath(s, A, B, NULL, NULL, VecMultiply);
 	
-	struct vectorValue result = add->eval(add, NULL);
+	struct vectorValue result = add->eval(add, sampler, NULL);
 	struct vector expected = (struct vector){1.0f, 4.0f, 9.0f};
 	vec_roughly_equals(result.v, expected);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool vecmath_vecDot(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct vectorNode *up = newConstantVector(s, worldUp);
 	const struct vectorNode *right = newConstantVector(s, (struct vector){1.0f, 0.0f, 0.0f});
 	
 	const struct vectorNode *dot = newVecMath(s, up, right, NULL, NULL, VecDot);
 	
-	struct vectorValue result = dot->eval(dot, NULL);
+	struct vectorValue result = dot->eval(dot, sampler, NULL);
 	roughly_equals(result.f, 0.0f);
 	
 	const struct vectorNode *down = newConstantVector(s, vecNegate(worldUp));
 	dot = newVecMath(s, up, down, NULL, NULL, VecDot);
-	result = dot->eval(dot, NULL);
+	result = dot->eval(dot, sampler, NULL);
 	roughly_equals(result.f, -1.0f);
 	
 	dot = newVecMath(s, up, up, NULL, NULL, VecDot);
-	result = dot->eval(dot, NULL);
+	result = dot->eval(dot, sampler, NULL);
 	roughly_equals(result.f, 1.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool vecmath_vecCross(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 0.0f, 0.0f});
 	const struct vectorNode *B = newConstantVector(s, (struct vector){0.0f, 1.0f, 0.0f});
 	
 	const struct vectorNode *op = newVecMath(s, A, B, NULL, NULL, VecCross);
 	
-	struct vectorValue result = op->eval(op, NULL);
+	struct vectorValue result = op->eval(op, sampler, NULL);
 	struct vector expected = (struct vector){0.0f, 0.0f, 1.0f};
 	vec_roughly_equals(result.v, expected);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool vecmath_vecNormalize(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct vectorNode *A = newConstantVector(s, (struct vector){1.0f, 2.0f, 3.0f});
 	
 	const struct vectorNode *op = newVecMath(s, A, NULL, NULL, NULL, VecNormalize);
 	
-	float length = vecLength(op->eval(op, NULL).v);
+	float length = vecLength(op->eval(op, sampler, NULL).v);
 	roughly_equals(length, 1.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool vecmath_vecReflect(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct vectorNode *toReflect = newConstantVector(s, vecNormalize((struct vector){1.0f, 1.0f, 0.0f}));
 	const struct vectorNode *normal = newConstantVector(s, (struct vector){0.0f, -1.0f, 0.0f});
 	
 	const struct vectorNode *op = newVecMath(s, toReflect, normal, NULL, NULL, VecReflect);
 	
-	struct vectorValue reflected = op->eval(op, NULL);
+	struct vectorValue reflected = op->eval(op, sampler, NULL);
 	roughly_equals(vecLength(reflected.v), 1.0f);
 	
 	struct vector expected = vecNormalize((struct vector){1.0f, -1.0f, 0.0f});
 	vec_roughly_equals(reflected.v, expected);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool vecmath_vecLength(void) {
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	struct node_storage *s = make_storage();
 	const struct vectorNode *A = newConstantVector(s, (struct vector){0.0f, 2.0f, 0.0f});
 	
 	const struct vectorNode *op = newVecMath(s, A, NULL, NULL, NULL, VecLength);
 	
-	struct vectorValue lengthValue = op->eval(op, NULL);
+	struct vectorValue lengthValue = op->eval(op, sampler, NULL);
 	roughly_equals(lengthValue.f, 2.0f);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 
 bool vecmath_vecAbs(void) {
 	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
 	const struct vectorNode *A = newConstantVector(s, (struct vector){-10.0f, 2.0f, -3.0f});
 	
 	const struct vectorNode *op = newVecMath(s, A, NULL, NULL, NULL, VecAbs);
 	
-	struct vectorValue result = op->eval(op, NULL);
+	struct vectorValue result = op->eval(op, sampler, NULL);
 	struct vector expected = (struct vector){10.0f, 2.0f, 3.0f};
 	vec_roughly_equals(result.v, expected);
 	
 	delete_storage(s);
+	destroySampler(sampler);
 	return true;
 }
 

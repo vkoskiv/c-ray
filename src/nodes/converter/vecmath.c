@@ -9,6 +9,7 @@
 #include "../nodebase.h"
 
 #include "../../utils/hashtable.h"
+#include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/scene.h"
 #include "../../datatypes/hitrecord.h"
 #include "../vectornode.h"
@@ -42,12 +43,12 @@ static uint32_t hash(const void *p) {
 	return h;
 }
  
-static struct vectorValue eval(const struct vectorNode *node, const struct hitRecord *record) {
+static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	struct vecMathNode *this = (struct vecMathNode *)node;
 	
-	const struct vector a = this->A->eval(this->A, record).v;
-	const struct vector b = this->B->eval(this->B, record).v;
-	const struct vector c = this->C->eval(this->C, record).v;
+	const struct vector a = this->A->eval(this->A, sampler, record).v;
+	const struct vector b = this->B->eval(this->B, sampler, record).v;
+	const struct vector c = this->C->eval(this->C, sampler, record).v;
 	const float f = this->f->eval(this->f, record);
 	
 	switch (this->op) {

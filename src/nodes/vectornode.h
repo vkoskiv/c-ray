@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../vendored/cJSON.h"
+#include "../renderer/samplers/sampler.h"
 #include "nodebase.h"
 
 struct vectorValue {
@@ -19,13 +20,14 @@ struct vectorValue {
 
 struct vectorNode {
 	struct nodeBase base;
-	struct vectorValue (*eval)(const struct vectorNode *node, const struct hitRecord *record);
+	struct vectorValue (*eval)(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record);
 };
 
 #include "input/normal.h"
 #include "input/uv.h"
 #include "converter/vecmath.h"
 #include "converter/vectocolor.h"
+#include "converter/vecmix.h"
 
 const struct vectorNode *newConstantVector(const struct node_storage *storage, struct vector vector);
 const struct vectorNode *parseVectorNode(struct node_storage *s, const struct cJSON *node);

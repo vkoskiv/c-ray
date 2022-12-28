@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/color.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/hitrecord.h"
@@ -33,9 +34,10 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static struct vectorValue eval(const struct vectorNode *node, const struct hitRecord *record) {
+static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	(void)node;
+	(void)sampler;
 	return (struct vectorValue){ .v = record->surfaceNormal, .c = coordZero() };
 }
 

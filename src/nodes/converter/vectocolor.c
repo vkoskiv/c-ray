@@ -8,6 +8,7 @@
 
 #include "../nodebase.h"
 
+#include "../../renderer/samplers/sampler.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
 #include "../../datatypes/hitrecord.h"
@@ -37,7 +38,8 @@ static uint32_t hash(const void *p) {
 static struct color eval(const struct colorNode *node, const struct hitRecord *record) {
 	(void)record;
 	struct vecToColorNode *this = (struct vecToColorNode *)node;
-	struct vector vec = this->vec->eval(this->vec, record).v;
+	//FIXME: BAD!!1!
+	struct vector vec = this->vec->eval(this->vec, NULL, record).v;
 	return (struct color){ vec.x, vec.y, vec.z, 0.0f };
 }
 
