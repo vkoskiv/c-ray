@@ -36,10 +36,9 @@ static uint32_t hash(const void *p) {
 }
 
 static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
-	(void)record;
-	(void)node;
-	(void)sampler;
-	return (struct vectorValue){ .v = { record->uv.x, record->uv.y, 0.0f }, .c = record->uv };
+	const struct uv_to_vec *this = (struct uv_to_vec *)node;
+	const struct vectorValue A = this->A->eval(this->A, sampler, record);
+	return (struct vectorValue){ .v = { A.c.x, A.c.y, 0.0f }, .c = A.c };
 }
 
 const struct vectorNode *new_uv_to_vec(const struct node_storage *s, const struct vectorNode *A) {
