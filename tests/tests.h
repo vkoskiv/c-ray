@@ -130,6 +130,7 @@ static test tests[] = {
 	{"vecmath::vecReflect", vecmath_vecReflect},
 	{"vecmath::vecLength", vecmath_vecLength},
 	{"vecmath::vecAbs", vecmath_vecAbs},
+	{"vecmath::vecScale", vecmath_vecScale},
 
 	{"vecnode::uv_to_vec", vecnode_uv_to_vec},
 	

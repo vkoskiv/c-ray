@@ -860,6 +860,23 @@ bool vecmath_vecAbs(void) {
 	return true;
 }
 
+bool vecmath_vecScale(void) {
+	struct node_storage *s = make_storage();
+	struct sampler *sampler = newSampler();
+	initSampler(sampler, Halton, 0, 16, 128);
+	const struct vectorNode *A = newConstantVector(s, (struct vector){ 1.0f, 0.0f, 0.0f });
+	
+	const struct vectorNode *op = newVecMath(s, A, NULL, NULL, newConstantValue(s, 2.0f), VecScale);
+	
+	struct vectorValue result = op->eval(op, sampler, NULL);
+	struct vector expected = (struct vector){ 2.0f, 0.0f, 0.0f };
+	vec_roughly_equals(result.v, expected);
+	
+	delete_storage(s);
+	destroySampler(sampler);
+	return true;
+}
+
 bool vecnode_uv_to_vec(void) {
 	struct node_storage *s = make_storage();
 	struct sampler *sampler = newSampler();
