@@ -1,0 +1,247 @@
+{
+	"version": 1.0,
+	"renderer": {
+		"threads": 0,
+		"samples": 250,
+		"bounces": 30,
+		"tileWidth": 64,
+		"tileHeight": 64,
+		"tileOrder": "fromMiddle",
+		"outputFilePath": "output/",
+		"outputFileName": "rendered",
+		"fileType": "png",
+		"count": 0,
+		"width": 1280,
+		"height": 800
+	},
+	"display": {
+		"isFullscreen": false,
+		"isBorderless": false,
+		"windowScale": 1.0
+	},
+	"camera": [
+		{
+			"FOV": 80.0,
+			"focalDistance": 0.7,
+			"fstops": 0.0,
+			"transforms": [
+				{
+					"type": "translate",
+					"x": 0,
+					"y": 1,
+					"z": -2.0
+				},
+				{
+					"type": "rotateX",
+					"degrees": 30
+				},
+				{
+					"type": "rotateZ",
+					"degrees": 0
+				}
+			]
+		},
+		{
+			"FOV": 90.0,
+			"focalDistance": 0.2,
+			"fstops": 6.5,
+			"transforms": [
+				{
+					"type": "translate",
+					"x": 0,
+					"y": 0.1,
+					"z": -0.2
+				},
+				{
+					"type": "rotateX",
+					"degrees": 5
+				},
+				{
+					"type": "rotateY",
+					"degrees": 5
+				}
+			]
+		}
+	],
+	"scene": {
+		"ambientColor": {
+			"hdr": "HDRs/roof_garden_1k.hdr",
+			"offset": 0,
+			"down": {
+				"r": 1.0,
+				"g": 1.0,
+				"b": 1.0
+			},
+			"up": {
+				"r": 0.5,
+				"g": 0.7,
+				"b": 1.0
+			}
+		},
+		"primitives": [],
+		"meshes": [
+			{
+				"fileName": "shapes/gridplane.obj",
+				"instances": [
+					{
+						"for": "Plane",
+						"materials": [
+							{
+								"type": "diffuse",
+								"color": {
+									"type": "to_color",
+									"vector": {
+										"type": "mix",
+										"a": {
+											"type": "vecmath",
+											"op": "wrap",
+											"a": {
+												"type": "vecmath",
+												"op": "add",
+												"a": {
+													"type": "vecmath",
+													"op": "scale",
+													"a": {
+														"type": "uv_to_vec",
+														"a": {
+															"type": "uv"
+														}
+													},
+													"f": 6.0
+												},
+												"b": [0.5, 0.866, 0.0]
+											},
+											"b": [-0.5, -0.866, 0.0],
+											"c": [0.5, 0.866, 0.0]
+										},
+										"b": {
+											"type": "vecmath",
+											"op": "wrap",
+											"a": {
+												"type": "vecmath",
+												"op": "scale",
+												"a": {
+													"type": "uv_to_vec",
+													"a": {
+														"type": "uv"
+													}
+												},
+												"f": 6.0
+											},
+											"b": [-0.5, -0.866, 0.0],
+											"c": [0.5, 0.866, 0.0]
+										},
+										"f": {
+											"type": "math",
+											"op": "gt",
+											"a": {
+												"type": "vec_to_value",
+												"component": "f",
+												"vector": {
+													"type": "vecmath",
+													"op": "dot",
+													"a": {
+														"type": "vecmath",
+														"op": "wrap",
+														"a": {
+															"type": "vecmath",
+															"op": "add",
+															"a": {
+																"type": "vecmath",
+																"op": "scale",
+																"a": {
+																	"type": "uv_to_vec",
+																	"a": {
+																		"type": "uv"
+																	}
+																},
+																"f": 6.0
+															},
+															"b": [0.5, 0.866, 0.0]
+														},
+														"b": [-0.5, -0.866, 0.0],
+														"c": [0.5, 0.866, 0.0]
+													},
+													"b": {
+														"type": "vecmath",
+														"op": "wrap",
+														"a": {
+															"type": "vecmath",
+															"op": "add",
+															"a": {
+																"type": "vecmath",
+																"op": "scale",
+																"a": {
+																	"type": "uv_to_vec",
+																	"a": {
+																		"type": "uv"
+																	}
+																},
+																"f": 6.0
+															},
+															"b": [0.5, 0.866, 0.0]
+														},
+														"b": [-0.5, -0.866, 0.0],
+														"c": [0.5, 0.866, 0.0]
+													}
+												}
+											},
+											"b": {
+												"type": "vec_to_value",
+												"component": "f",
+												"vector": {
+													"type": "vecmath",
+													"op": "dot",
+													"a": {
+														"type": "vecmath",
+														"op": "wrap",
+														"a": {
+															"type": "vecmath",
+															"op": "scale",
+															"a": {
+																"type": "uv_to_vec",
+																"a": {
+																	"type": "uv"
+																}
+															},
+															"f": 6.0
+														},
+														"b": [-0.5, -0.866, 0.0],
+														"c": [0.5, 0.866, 0.0]
+													},
+													"b": {
+														"type": "vecmath",
+														"op": "wrap",
+														"a": {
+															"type": "vecmath",
+															"op": "scale",
+															"a": {
+																"type": "uv_to_vec",
+																"a": {
+																	"type": "uv"
+																}
+															},
+															"f": 6.0
+														},
+														"b": [-0.5, -0.866, 0.0],
+														"c": [0.5, 0.866, 0.0]
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						],
+						"transforms": [
+							{
+								"type": "rotateX",
+								"degrees": -45
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}
