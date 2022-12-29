@@ -52,6 +52,41 @@ const struct vectorNode *newConstantVector(const struct node_storage *s, const s
 	});
 }
 
+struct constantUV {
+	struct vectorNode node;
+	struct coord uv;
+};
+
+static bool compare_uv(const void *A, const void *B) {
+	const struct constantUV *this = A;
+	const struct constantUV *other = B;
+	return this->uv.x == other->uv.x && this->uv.y == other->uv.y;
+}
+
+static uint32_t hash_uv(const void *p) {
+	const struct constantUV *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->uv, sizeof(this->uv));
+	return h;
+}
+
+static struct vectorValue eval_uv(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
+	(void)record;
+	(void)sampler;
+	struct constantUV *this = (struct constantUV *)node;
+	return (struct vectorValue){ .c = this->uv };
+}
+
+const struct vectorNode *newConstantUV(const struct node_storage *s, const struct coord c) {
+	HASH_CONS(s->node_table, hash_uv, struct constantUV, {
+		.uv = c,
+		.node = {
+			.eval = eval_uv,
+			.base = { .compare = compare_uv }
+		}
+	});
+}
+
 static enum vecOp parseVectorOp(const cJSON *data) {
 	if (!cJSON_IsString(data)) {
 		logr(warning, "No vector op given, defaulting to add.\n");
