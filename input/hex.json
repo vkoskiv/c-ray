@@ -102,10 +102,7 @@
 													"type": "vecmath",
 													"op": "scale",
 													"a": {
-														"type": "uv_to_vec",
-														"a": {
-															"type": "uv"
-														}
+														"type": "uv"
 													},
 													"f": 6.0
 												},
@@ -121,10 +118,7 @@
 												"type": "vecmath",
 												"op": "scale",
 												"a": {
-													"type": "uv_to_vec",
-													"a": {
-														"type": "uv"
-													}
+													"type": "uv"
 												},
 												"f": 6.0
 											},
@@ -150,10 +144,7 @@
 																"type": "vecmath",
 																"op": "scale",
 																"a": {
-																	"type": "uv_to_vec",
-																	"a": {
-																		"type": "uv"
-																	}
+																	"type": "uv"
 																},
 																"f": 6.0
 															},
@@ -172,10 +163,7 @@
 																"type": "vecmath",
 																"op": "scale",
 																"a": {
-																	"type": "uv_to_vec",
-																	"a": {
-																		"type": "uv"
-																	}
+																	"type": "uv"
 																},
 																"f": 6.0
 															},
@@ -199,10 +187,7 @@
 															"type": "vecmath",
 															"op": "scale",
 															"a": {
-																"type": "uv_to_vec",
-																"a": {
-																	"type": "uv"
-																}
+																"type": "uv"
 															},
 															"f": 6.0
 														},
@@ -216,10 +201,7 @@
 															"type": "vecmath",
 															"op": "scale",
 															"a": {
-																"type": "uv_to_vec",
-																"a": {
-																	"type": "uv"
-																}
+																"type": "uv"
 															},
 															"f": 6.0
 														},

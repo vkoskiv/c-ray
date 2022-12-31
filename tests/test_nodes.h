@@ -17,7 +17,6 @@
 #include "../src/nodes/converter/math.h"
 #include "../src/nodes/converter/map_range.h"
 #include "../src/renderer/samplers/sampler.h"
-#include "nodes/input/uv_to_vec.h"
 
 struct node_storage *make_storage() {
 	struct node_storage *storage = calloc(1, sizeof(*storage));
@@ -872,22 +871,6 @@ bool vecmath_vecScale(void) {
 	struct vector expected = (struct vector){ 2.0f, 0.0f, 0.0f };
 	vec_roughly_equals(result.v, expected);
 	
-	delete_storage(s);
-	destroySampler(sampler);
-	return true;
-}
-
-bool vecnode_uv_to_vec(void) {
-	struct node_storage *s = make_storage();
-	struct sampler *sampler = newSampler();
-
-	const struct vectorNode *uv = newConstantUV(s, (struct coord){ 128.0f, -42.0f });
-	const struct vectorNode *vec = new_uv_to_vec(s, uv);
-
-	struct vectorValue result = vec->eval(vec, sampler, NULL);
-	struct vector expected = (struct vector){ 128.0f, -42.0f, 0.0f };
-	vec_roughly_equals(result.v, expected);
-
 	delete_storage(s);
 	destroySampler(sampler);
 	return true;

@@ -131,8 +131,6 @@ static test tests[] = {
 	{"vecmath::vecLength", vecmath_vecLength},
 	{"vecmath::vecAbs", vecmath_vecAbs},
 	{"vecmath::vecScale", vecmath_vecScale},
-
-	{"vecnode::uv_to_vec", vecnode_uv_to_vec},
 	
 	{"map_range::map", map_range},
 

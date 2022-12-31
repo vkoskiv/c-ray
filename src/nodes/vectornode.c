@@ -143,7 +143,6 @@ const struct vectorNode *parseVectorNode(struct node_storage *s, const struct cJ
 	const struct vectorNode *c = parseVectorNode(s, cJSON_GetObjectItem(node, "c"));
 	//FIXME: alpha won't work here, for now.
 	const struct valueNode  *f = parseValueNode(NULL, NULL, s, cJSON_GetObjectItem(node, "f"));
-	if (stringEquals(type->valuestring, "uv_to_vec")) return new_uv_to_vec(s, a);
 	if (stringEquals(type->valuestring, "vecmath")) {
 		const enum vecOp op = parseVectorOp(cJSON_GetObjectItem(node, "op"));
 		return newVecMath(s, a, b, c, f, op);
