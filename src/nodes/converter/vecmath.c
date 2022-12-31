@@ -43,7 +43,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-float wrap(float value, float max, float min) {
+static inline float wrap(float value, float max, float min) {
 	const float range = max - min;
 	return (range != 0.0f) ? value - (range * floorf((value - min) / range)) : min;
 }
@@ -87,7 +87,7 @@ static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, 
 		case VecNormalize:
 			return (struct vectorValue){ .v = vecNormalize(a) };
 		case VecWrap:
-			return (struct vectorValue){ .v = { wrap(a.x, b.x, c.x), wrap(a.y, b.y, c.y), wrap(a.z, b.z, c.z) }};
+			return (struct vectorValue){ .v = { wrap(a.x, b.x, c.x), wrap(a.y, b.y, c.y), wrap(a.z, b.z, c.z) } };
 		case VecFloor:
 			return (struct vectorValue){ .v = { .x = floorf(a.x), .y = floorf(a.y), .z = floorf(a.z) } };
 		case VecCeil:
