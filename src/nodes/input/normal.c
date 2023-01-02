@@ -38,7 +38,7 @@ static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, 
 	(void)record;
 	(void)node;
 	(void)sampler;
-	return (struct vectorValue){ .v = record->surfaceNormal, .c = coordZero() };
+	return (struct vectorValue){ .v = record->surfaceNormal };
 }
 
 const struct vectorNode *newNormal(const struct node_storage *s) {

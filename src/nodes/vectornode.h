@@ -10,12 +10,15 @@
 
 #include "../vendored/cJSON.h"
 #include "../renderer/samplers/sampler.h"
+#include "../datatypes/vector.h"
 #include "nodebase.h"
 
 struct vectorValue {
-	struct vector v;
-	struct coord c;
-	float f;
+	union {
+		struct vector v;
+		struct coord c;
+		float f;
+	};
 };
 
 struct vectorNode {

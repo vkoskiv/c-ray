@@ -38,7 +38,7 @@ static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, 
 	(void)record;
 	(void)node;
 	(void)sampler;
-	return (struct vectorValue){ .v = { record->uv.x, record->uv.y, 0.0f }, .c = record->uv };
+	return (struct vectorValue){ .c = record->uv };
 }
 
 const struct vectorNode *newUV(const struct node_storage *s) {

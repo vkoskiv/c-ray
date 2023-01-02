@@ -108,7 +108,7 @@ static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, 
 			return (struct vectorValue){ .v = { .x = tanf(a.x), .y = tanf(a.y), .z = tanf(a.z) } };
 	}
 	ASSERT_NOT_REACHED();
-	return (struct vectorValue){ .v = { 0 }, .c = { 0 }, .f = 0.0f };
+	return (struct vectorValue){ 0 };
 }
 
 const struct vectorNode *newVecMath(const struct node_storage *s, const struct vectorNode *A, const struct vectorNode *B, const struct vectorNode *C, const struct valueNode *f, const enum vecOp op) {
