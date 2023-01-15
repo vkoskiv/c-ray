@@ -805,6 +805,11 @@ static void parse_mesh_instances(struct renderer *r, const cJSON *data, struct m
 			new.bsdfs = calloc(material_count, sizeof(void *));
 			new.emissions = calloc(material_count, sizeof(*new.emissions));
 
+			// Some of these may get overridden from the json in the next step below
+			for (size_t m = 0; m < material_count; ++m) {
+				new.emissions[m] = meshes[i].materials[m].emission;
+			}
+
 			apply_materials_to_instance(r, &new, overrides, meshes[i].materials, meshes[i].materialCount);
 			new.composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
 			addInstanceToScene(r->scene, new);
