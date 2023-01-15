@@ -126,6 +126,18 @@ static void fixIndices(struct poly *p, size_t totalVertices, size_t totalTexCoor
 	}
 }
 
+float get_poly_area(struct poly *p, struct vector *vertices) {
+	const struct vector v0 = vertices[p->vertexIndex[0]];
+	const struct vector v1 = vertices[p->vertexIndex[1]];
+	const struct vector v2 = vertices[p->vertexIndex[2]];
+
+	const struct vector a = vec_sub(v1, v0);
+	const struct vector b = vec_sub(v2, v0);
+
+	const struct vector cross = vec_cross(a, b);
+	return vec_length(cross) / 2.0f;
+}
+
 struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct file_cache *cache) {
 	size_t bytes = 0;
 	char *rawText = loadFile(filePath, &bytes, cache);
@@ -171,6 +183,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 	int currentTextureCount = 0;
 	
 	struct poly polybuf[2];
+	float surface_area = 0.0f;
 
 	char *head = firstLine(file);
 	char buf[LINEBUFFER_MAXSIZE];
@@ -205,6 +218,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 			for (size_t i = 0; i < count; ++i) {
 				struct poly p = polybuf[i];
 				fixIndices(&p, fileVertices, fileTexCoords, fileNormals);
+				surface_area += get_poly_area(&p, vertices);
 				p.materialIndex = currentMaterialIndex;
 				p.hasNormals = p.normalIndex[0] != -1;
 				polygons[currentPoly++] = p;
@@ -242,7 +256,10 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 			meshes[i].materialCount = 1;
 		}
 	}
+
+	logr(debug, "Mesh %s surface area is %.4fm²\n", currentMeshPtr->name, surface_area);
 	
+	currentMeshPtr->surface_area = surface_area;
 	currentMeshPtr->polygons = polygons;
 	currentMeshPtr->poly_count = (int)filePolys;
 	currentMeshPtr->vertices = vertices;

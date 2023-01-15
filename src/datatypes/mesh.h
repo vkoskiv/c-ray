@@ -18,6 +18,7 @@ struct mesh {
 	struct poly *polygons;
 	struct material *materials;
 	struct bvh *bvh;
+	float surface_area;
 	char *name;
 	int vertex_count;
 	int normal_count;
