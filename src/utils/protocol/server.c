@@ -54,9 +54,8 @@ static cJSON *makeHandshake() {
 }
 
 static struct sockaddr_in parseAddress(const char *str) {
-	lineBuffer line;
 	char buf[LINEBUFFER_MAXSIZE];
-	line.buf = buf;
+	lineBuffer line = { .buf = buf };
 	fillLineBuffer(&line, str, ':');
 	struct sockaddr_in address = {0};
 	address.sin_family = AF_INET;
@@ -113,9 +112,8 @@ static struct renderClient *buildClientList(size_t *amount) {
 	char *nodesString = stringPref("nodes_list");
 	// Really barebones parsing for IP addresses and ports in a comma-separated list
 	// Expected to break easily. Don't break it.
-	lineBuffer line;
 	char buf[LINEBUFFER_MAXSIZE];
-	line.buf = buf;
+	lineBuffer line = { .buf = buf };
 	fillLineBuffer(&line, nodesString, ',');
 	ASSERT(line.amountOf.tokens > 0);
 	size_t clientCount = line.amountOf.tokens;

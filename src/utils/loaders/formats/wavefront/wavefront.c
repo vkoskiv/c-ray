@@ -44,9 +44,8 @@ static size_t count(textBuffer *buffer, const char *thing) {
 static size_t countPolygons(textBuffer *buffer) {
 	size_t thingCount = 0;
 	char *head = firstLine(buffer);
-	lineBuffer line;
 	char buf[LINEBUFFER_MAXSIZE];
-	line.buf = buf;
+	lineBuffer line = { .buf = buf };
 	while (head) {
 		if (head[0] == 'f') {
 			fillLineBuffer(&line, head, ' ');
@@ -80,9 +79,8 @@ static struct coord parseCoord(lineBuffer *line) {
 // Or a quad:
 // f v1//vn1 v2//vn2 v3//vn3 v4//vn4
 size_t parsePolygons(lineBuffer *line, struct poly *buf) {
-	lineBuffer batch;
 	char container[LINEBUFFER_MAXSIZE];
-	batch.buf = container;
+	lineBuffer batch = { .buf = container };
 	size_t polycount = line->amountOf.tokens - 3;
 	// For now, c-ray will just translate quads to two polygons while parsing
 	// Explode in a ball of fire if we encounter an ngon
@@ -175,9 +173,8 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 	struct poly polybuf[2];
 
 	char *head = firstLine(file);
-	lineBuffer line;
 	char buf[LINEBUFFER_MAXSIZE];
-	line.buf = buf;
+	lineBuffer line = { .buf = buf };
 	while (head) {
 		fillLineBuffer(&line, head, ' ');
 		char *first = firstToken(&line);

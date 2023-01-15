@@ -26,9 +26,8 @@
 #include "args.h"
 
 static char *getFileExtension(const char *fileName) {
-	lineBuffer line;
 	char buf[LINEBUFFER_MAXSIZE];
-	line.buf = buf;
+	lineBuffer line = { .buf = buf };
 	fillLineBuffer(&line, fileName, '.');
 	if (line.amountOf.tokens != 2) {
 		return NULL;

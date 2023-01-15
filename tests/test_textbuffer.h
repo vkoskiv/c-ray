@@ -194,9 +194,8 @@ bool textbuffer_tokenizer(void) {
 	char *rawText = MULTILINE;
 	textBuffer *file = newTextBuffer(rawText);
 	
-	lineBuffer line;
 	char container[LINEBUFFER_MAXSIZE];
-	line.buf = container;
+	lineBuffer line = { .buf = container };
 	
 	fillLineBuffer(&line, firstLine(file), ' ');
 	char *currentToken = firstToken(&line);
@@ -234,9 +233,8 @@ bool textbuffer_tokenizer(void) {
 
 bool textbuffer_multispace(void) {
 	char *text = " thing1 thing2 thing3 thing4";
-	lineBuffer line;
 	char container[LINEBUFFER_MAXSIZE];
-	line.buf = container;
+	lineBuffer line = { .buf = container };
 	fillLineBuffer(&line, text, ' ');
 	test_assert(line.amountOf.tokens == 4);
 

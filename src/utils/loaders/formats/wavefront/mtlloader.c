@@ -52,9 +52,8 @@ struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_c
 	struct material *current = NULL;
 	
 	char *head = firstLine(file);
-	lineBuffer line;
 	char buf[LINEBUFFER_MAXSIZE];
-	line.buf = buf;
+	lineBuffer line = { .buf = buf };
 	while (head) {
 		fillLineBuffer(&line, head, ' ');
 		char *first = firstToken(&line);
