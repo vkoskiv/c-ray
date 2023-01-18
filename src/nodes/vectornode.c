@@ -14,7 +14,7 @@
 #include "../utils/string.h"
 #include "bsdfnode.h"
 
-#include "nodes/valuenode.h"
+#include "valuenode.h"
 #include "vectornode.h"
 
 struct constantVector {

@@ -14,7 +14,7 @@
 #include "../../datatypes/hitrecord.h"
 #include "../vectornode.h"
 
-#include "datatypes/vector.h"
+#include "../../datatypes/vector.h"
 #include "vecmath.h"
 
 struct vecMathNode {
