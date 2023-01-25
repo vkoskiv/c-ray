@@ -39,12 +39,12 @@ static uint32_t hash(const void *p) {
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct metalBsdf *metalBsdf = (struct metalBsdf *)bsdf;
 	
-	const struct vector normalizedDir = vecNormalize(record->incident_dir);
-	struct vector reflected = vecReflect(normalizedDir, record->surfaceNormal);
+	const struct vector normalizedDir = vec_normalize(record->incident_dir);
+	struct vector reflected = vec_reflect(normalizedDir, record->surfaceNormal);
 	float roughness = metalBsdf->roughness->eval(metalBsdf->roughness, sampler, record);
 	if (roughness > 0.0f) {
-		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
-		reflected = vecAdd(reflected, fuzz);
+		const struct vector fuzz = vec_scale(vec_on_unit_sphere(sampler), roughness);
+		reflected = vec_add(reflected, fuzz);
 	}
 	
 	return (struct bsdfSample){

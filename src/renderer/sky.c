@@ -72,9 +72,9 @@ static struct color divideColors(struct color c1, struct color c2) {
 
 static const struct vector sunDirection = {0.0f, 0.2f, 1.0f};
 struct color sky(struct lightRay incidentRay) {
-	float cosViewSunAngle = vecDot(incidentRay.direction, sunDirection);
-	float cosSunUpAngle = vecDot(sunDirection, up);
-	float cosUpViewAngle = vecDot(up, incidentRay.direction);
+	float cosViewSunAngle = vec_dot(incidentRay.direction, sunDirection);
+	float cosSunUpAngle = vec_dot(sunDirection, up);
+	float cosUpViewAngle = vec_dot(up, incidentRay.direction);
 	
 	float sunE = getSunIntensity(cosSunUpAngle);
 	struct color rayleighAtX = (struct color){5.176821E-6f, 1.2785348E-5f, 2.8530756E-5f, 1.0f};
@@ -93,7 +93,7 @@ struct color sky(struct lightRay incidentRay) {
 	struct color somethingElse = colorCoef(sunE, divideColors(lightFromXtoEye, totalLightAtX));
 	struct color sky = colorMul(somethingElse, (struct color){1.0f - Fex.red, 1.0f - Fex.green, 1.0f - Fex.blue, 1.0f - Fex.alpha});
 	
-	sky = colorMul(sky, colorLerp((struct color){1.0f, 1.0f, 1.0f, 1.0f}, colorPow(colorMul(somethingElse, Fex), (struct color){0.5f, 0.5f, 0.5f, 0.5f}), clamp(powf(1.0f - vecDot(up, sunDirection), 5.0f), 0.0f, 1.0f)));
+	sky = colorMul(sky, colorLerp((struct color){1.0f, 1.0f, 1.0f, 1.0f}, colorPow(colorMul(somethingElse, Fex), (struct color){0.5f, 0.5f, 0.5f, 0.5f}), clamp(powf(1.0f - vec_dot(up, sunDirection), 5.0f), 0.0f, 1.0f)));
 	
 	return colorCoef(skyFactor * 0.01f, sky);
 	

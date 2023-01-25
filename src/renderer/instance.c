@@ -34,8 +34,8 @@ static inline struct coord getTexMapSphere(const struct hitRecord *isect) {
 	float theta = asinf(ud.y);
 	float v = (theta + PI / 2.0f) / PI;
 	float u = 1.0f - (phi + PI) / (PI * 2.0f);
-	u = wrapMinMax(u, 0.0f, 1.0f);
-	v = wrapMinMax(v, 0.0f, 1.0f);
+	u = wrap_min_max(u, 0.0f, 1.0f);
+	v = wrap_min_max(v, 0.0f, 1.0f);
 	return (struct coord){ u, v };
 }
 
@@ -44,7 +44,7 @@ static bool intersectSphere(const struct instance *instance, const struct lightR
 	struct lightRay copy = *ray;
 	transformRay(&copy, instance->composite.Ainv);
 	struct sphere *sphere = (struct sphere *)instance->object;
-	copy.start = vecAdd(copy.start, vecScale(copy.direction, sphere->rayOffset));
+	copy.start = vec_add(copy.start, vec_scale(copy.direction, sphere->rayOffset));
 	if (rayIntersectsWithSphere(&copy, sphere, isect)) {
 		isect->uv = getTexMapSphere(isect);
 		isect->polygon = NULL;
@@ -65,7 +65,7 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 	copy1 = *ray;
 	transformRay(&copy1, instance->composite.Ainv);
 	struct sphereVolume *volume = (struct sphereVolume *)instance->object;
-	copy1.start = vecAdd(copy1.start, vecScale(copy1.direction, volume->sphere->rayOffset));
+	copy1.start = vec_add(copy1.start, vec_scale(copy1.direction, volume->sphere->rayOffset));
 	if (rayIntersectsWithSphere(&copy1, volume->sphere, &record1)) {
 		copy2 = (struct lightRay){ alongRay(&copy1, record1.distance + 0.0001f), copy1.direction };
 		if (rayIntersectsWithSphere(&copy2, volume->sphere, &record2)) {
@@ -92,15 +92,15 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 
 static void getSphereBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
 	struct sphere *sphere = (struct sphere *)instance->object;
-	*center = vecZero();
+	*center = vec_zero();
 	transformPoint(center, instance->composite.A);
 	bbox->min = (struct vector){ -sphere->radius, -sphere->radius, -sphere->radius };
 	bbox->max = (struct vector){  sphere->radius,  sphere->radius,  sphere->radius };
 	if (!isRotation(&instance->composite) && !isTranslate(&instance->composite))
 		transformBBox(bbox, instance->composite.A);
 	else {
-		bbox->min = vecAdd(bbox->min, *center);
-		bbox->max = vecAdd(bbox->max, *center);
+		bbox->min = vec_add(bbox->min, *center);
+		bbox->max = vec_add(bbox->max, *center);
 	}
 	sphere->rayOffset = rayOffset(*bbox);
 	if (isSet("v")) logr(plain, "\n");
@@ -109,15 +109,15 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 
 static void getSphereVolumeBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
 	struct sphereVolume *volume = (struct sphereVolume *)instance->object;
-	*center = vecZero();
+	*center = vec_zero();
 	transformPoint(center, instance->composite.A);
 	bbox->min = (struct vector){ -volume->sphere->radius, -volume->sphere->radius, -volume->sphere->radius };
 	bbox->max = (struct vector){  volume->sphere->radius,  volume->sphere->radius,  volume->sphere->radius };
 	if (!isRotation(&instance->composite) && !isTranslate(&instance->composite))
 		transformBBox(bbox, instance->composite.A);
 	else {
-		bbox->min = vecAdd(bbox->min, *center);
-		bbox->max = vecAdd(bbox->max, *center);
+		bbox->min = vec_add(bbox->min, *center);
+		bbox->max = vec_add(bbox->max, *center);
 	}
 	volume->sphere->rayOffset = rayOffset(*bbox);
 	if (isSet("v")) logr(plain, "\n");
@@ -156,19 +156,19 @@ static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecor
 	const float w = 1.0f - u - v;
 	
 	//Weighted texture coordinates
-	const struct coord ucomponent = coordScale(u, mesh->texture_coords[p->textureIndex[1]]);
-	const struct coord vcomponent = coordScale(v, mesh->texture_coords[p->textureIndex[2]]);
-	const struct coord wcomponent = coordScale(w, mesh->texture_coords[p->textureIndex[0]]);
+	const struct coord ucomponent = coord_scale(u, mesh->texture_coords[p->textureIndex[1]]);
+	const struct coord vcomponent = coord_scale(v, mesh->texture_coords[p->textureIndex[2]]);
+	const struct coord wcomponent = coord_scale(w, mesh->texture_coords[p->textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
-	return addCoords(addCoords(ucomponent, vcomponent), wcomponent);
+	return coord_add(coord_add(ucomponent, vcomponent), wcomponent);
 }
 
 static bool intersectMesh(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler) {
 	struct lightRay copy = *ray;
 	transformRay(&copy, instance->composite.Ainv);
 	struct mesh *mesh = instance->object;
-	copy.start = vecAdd(copy.start, vecScale(copy.direction, mesh->rayOffset));
+	copy.start = vec_add(copy.start, vec_scale(copy.direction, mesh->rayOffset));
 	if (traverse_bottom_level_bvh(mesh, &copy, isect, sampler)) {
 		// Repopulate uv with actual texture mapping
 		isect->uv = getTexMapMesh(mesh, isect);
@@ -176,7 +176,7 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 		isect->emission = &instance->emissions[isect->polygon->materialIndex];
 		transformPoint(&isect->hitPoint, instance->composite.A);
 		transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv);
-		isect->surfaceNormal = vecNormalize(isect->surfaceNormal);
+		isect->surfaceNormal = vec_normalize(isect->surfaceNormal);
 		return true;
 	}
 	return false;
@@ -189,7 +189,7 @@ static bool intersectMeshVolume(const struct instance *instance, const struct li
 	struct lightRay copy = *ray;
 	transformRay(&copy, instance->composite.Ainv);
 	struct meshVolume *mesh = (struct meshVolume *)instance->object;
-	copy.start = vecAdd(copy.start, vecScale(copy.direction, mesh->mesh->rayOffset));
+	copy.start = vec_add(copy.start, vec_scale(copy.direction, mesh->mesh->rayOffset));
 	if (traverse_bottom_level_bvh(mesh->mesh, &copy, &record1, sampler)) {
 		struct lightRay copy2 = (struct lightRay){ alongRay(&copy, record1.distance + 0.0001f), copy.direction };
 		if (traverse_bottom_level_bvh(mesh->mesh, &copy2, &record2, sampler)) {

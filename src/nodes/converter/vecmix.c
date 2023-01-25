@@ -53,8 +53,8 @@ const struct vectorNode *new_vec_mix(const struct node_storage *s, const struct 
 		return A;
 	}
 	HASH_CONS(s->node_table, hash, struct vec_mix, {
-		.A = A ? A : newConstantVector(s, vecZero()),
-		.B = B ? B : newConstantVector(s, vecZero()),
+		.A = A ? A : newConstantVector(s, vec_zero()),
+		.B = B ? B : newConstantVector(s, vec_zero()),
 		.f = f ? f : newConstantValue(s, 0.0f),
 		.node = {
 			.eval = eval,

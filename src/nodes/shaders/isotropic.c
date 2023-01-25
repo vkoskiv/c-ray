@@ -37,7 +37,7 @@ static uint32_t hash(const void *p) {
 
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct isotropicBsdf *isoBsdf = (struct isotropicBsdf *)bsdf;
-	const struct vector scatterDir = vecNormalize(randomOnUnitSphere(sampler)); // Is this normalized already?
+	const struct vector scatterDir = vec_normalize(vec_on_unit_sphere(sampler)); // Is this normalized already?
 	return (struct bsdfSample){
 		.out = scatterDir,
 		.color = isoBsdf->color->eval(isoBsdf->color, sampler, record)

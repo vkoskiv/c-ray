@@ -21,5 +21,5 @@ static inline struct lightRay newRay(struct vector start, struct vector directio
 }
 
 static inline struct vector alongRay(const struct lightRay *ray, float t) {
-	return vecAdd(ray->start, vecScale(ray->direction, t));
+	return vec_add(ray->start, vec_scale(ray->direction, t));
 }

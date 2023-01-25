@@ -43,12 +43,12 @@ static uint32_t hash(const void *p) {
 
 static struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct plasticBsdf *plastic = (struct plasticBsdf *)bsdf;
-	struct vector reflected = vecReflect(record->incident_dir, record->surfaceNormal);
+	struct vector reflected = vec_reflect(record->incident_dir, record->surfaceNormal);
 	//Roughness
 	float roughness = plastic->roughness->eval(plastic->roughness, sampler, record);
 	if (roughness > 0.0f) {
-		const struct vector fuzz = vecScale(randomOnUnitSphere(sampler), roughness);
-		reflected = vecAdd(reflected, fuzz);
+		const struct vector fuzz = vec_scale(vec_on_unit_sphere(sampler), roughness);
+		reflected = vec_add(reflected, fuzz);
 	}
 	return (struct bsdfSample){
 		.out = reflected,
@@ -67,17 +67,17 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	
 	const float IOR = this->IOR->eval(this->IOR, sampler, record);
 	
-	if (vecDot(record->incident_dir, record->surfaceNormal) > 0.0f) {
-		outwardNormal = vecNegate(record->surfaceNormal);
+	if (vec_dot(record->incident_dir, record->surfaceNormal) > 0.0f) {
+		outwardNormal = vec_negate(record->surfaceNormal);
 		niOverNt = IOR;
-		cosine = IOR * vecDot(record->incident_dir, record->surfaceNormal) / vecLength(record->incident_dir);
+		cosine = IOR * vec_dot(record->incident_dir, record->surfaceNormal) / vec_length(record->incident_dir);
 	} else {
 		outwardNormal = record->surfaceNormal;
 		niOverNt = 1.0f / IOR;
-		cosine = -(vecDot(record->incident_dir, record->surfaceNormal) / vecLength(record->incident_dir));
+		cosine = -(vec_dot(record->incident_dir, record->surfaceNormal) / vec_length(record->incident_dir));
 	}
 	
-	if (refract(record->incident_dir, outwardNormal, niOverNt, &refracted)) {
+	if (vec_refract(record->incident_dir, outwardNormal, niOverNt, &refracted)) {
 		reflectionProbability = schlick(cosine, IOR);
 	} else {
 		reflectionProbability = 1.0f;

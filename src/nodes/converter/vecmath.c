@@ -58,33 +58,33 @@ static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, 
 	
 	switch (this->op) {
 		case VecAdd:
-			return (struct vectorValue){ .v = vecAdd(a, b) };
+			return (struct vectorValue){ .v = vec_add(a, b) };
 		case VecSubtract:
-			return (struct vectorValue){ .v = vecSub(a, b) };
+			return (struct vectorValue){ .v = vec_sub(a, b) };
 		case VecMultiply:
-			return (struct vectorValue){ .v = vecMul(a, b) };
+			return (struct vectorValue){ .v = vec_mul(a, b) };
 		case VecDivide:
 			return (struct vectorValue){ .v = { a.x / b.x, a.y / b.y, a.z / b.z } };
 		case VecCross:
-			return (struct vectorValue){ .v = vecCross(a, b) };
+			return (struct vectorValue){ .v = vec_cross(a, b) };
 		case VecReflect:
-			return (struct vectorValue){ .v = vecReflect(a, b) };
+			return (struct vectorValue){ .v = vec_reflect(a, b) };
 		case VecRefract:
 		{
 			struct vectorValue v = { 0 };
-			v.f = refract(a, b, f, &v.v) ? 1.0f : 0.0f;
+			v.f = vec_refract(a, b, f, &v.v) ? 1.0f : 0.0f;
 			return v;
 		}
 		case VecDot:
-			return (struct vectorValue){ .f = vecDot(a, b) };
+			return (struct vectorValue){ .f = vec_dot(a, b) };
 		case VecDistance:
-			return (struct vectorValue){ .f = vecDistanceBetween(a, b) };
+			return (struct vectorValue){ .f = vec_distance_to(a, b) };
 		case VecLength:
-			return (struct vectorValue){ .f = vecLength(a) };
+			return (struct vectorValue){ .f = vec_length(a) };
 		case VecScale:
-			return (struct vectorValue){ .v = vecScale(a, f) };
+			return (struct vectorValue){ .v = vec_scale(a, f) };
 		case VecNormalize:
-			return (struct vectorValue){ .v = vecNormalize(a) };
+			return (struct vectorValue){ .v = vec_normalize(a) };
 		case VecWrap:
 			return (struct vectorValue){ .v = { wrap(a.x, b.x, c.x), wrap(a.y, b.y, c.y), wrap(a.z, b.z, c.z) } };
 		case VecFloor:
@@ -112,9 +112,9 @@ static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, 
 
 const struct vectorNode *newVecMath(const struct node_storage *s, const struct vectorNode *A, const struct vectorNode *B, const struct vectorNode *C, const struct valueNode *f, const enum vecOp op) {
 	HASH_CONS(s->node_table, hash, struct vecMathNode, {
-		.A = A ? A : newConstantVector(s, vecZero()),
-		.B = B ? B : newConstantVector(s, vecZero()),
-		.C = C ? C : newConstantVector(s, vecZero()),
+		.A = A ? A : newConstantVector(s, vec_zero()),
+		.B = B ? B : newConstantVector(s, vec_zero()),
+		.C = C ? C : newConstantVector(s, vec_zero()),
 		.f = f ? f : newConstantValue(s, 0.0f),
 		.op = op,
 		.node = {

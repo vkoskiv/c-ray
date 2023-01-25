@@ -29,9 +29,9 @@ struct quaternion euler_to_quaternion(float roll, float pitch, float yaw) {
 void transform_vector_with_quaternion(struct vector *v, struct quaternion q) {
 	struct vector u = (struct vector){ q.x, q.y, q.z };
 	float s = q.w;
-	struct vector a = vecScale(u, 2.0f * vecDot(u, *v));
-	struct vector b = vecScale(*v, s * s - vecDot(u, u));
-	struct vector c = vecScale(vecCross(u, *v), 2.0f * s);
-	struct vector temp = vecAdd(a, vecAdd(b, c));
+	struct vector a = vec_scale(u, 2.0f * vec_dot(u, *v));
+	struct vector b = vec_scale(*v, s * s - vec_dot(u, u));
+	struct vector c = vec_scale(vec_cross(u, *v), 2.0f * s);
+	struct vector temp = vec_add(a, vec_add(b, c));
 	*v = temp;
 }

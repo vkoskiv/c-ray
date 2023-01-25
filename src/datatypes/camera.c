@@ -24,9 +24,9 @@ void cam_recompute_optics(struct camera *cam) {
 	const float sensor_width_35mm = 0.036f;
 	cam->focal_length = 0.5f * sensor_width_35mm / toRadians(0.5f * cam->FOV);
 	if (cam->fstops != 0.0f) cam->aperture = 0.5f * (cam->focal_length / cam->fstops);
-	cam->forward = vecNormalize(cam->look_at);
-	cam->right = vecCross(worldUp, cam->forward);
-	cam->up = vecCross(cam->forward, cam->right);
+	cam->forward = vec_normalize(cam->look_at);
+	cam->right = vec_cross(g_world_up, cam->forward);
+	cam->up = vec_cross(cam->forward, cam->right);
 }
 
 void recomputeComposite(struct camera *cam) {
@@ -72,28 +72,28 @@ static inline float triangleDistribution(float v) {
 struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampler *sampler) {
 	struct lightRay new_ray = {{0}};
 	
-	new_ray.start = vecZero();
+	new_ray.start = vec_zero();
 	
 	const float jitter_x = triangleDistribution(getDimension(sampler));
 	const float jitter_y = triangleDistribution(getDimension(sampler));
 	
-	const struct vector pix_x = vecScale(vecNegate(cam->right), (cam->sensor_size.x / cam->width));
-	const struct vector pix_y = vecScale(cam->up, (cam->sensor_size.y / cam->height));
-	const struct vector pix_v = vecAdd(
+	const struct vector pix_x = vec_scale(vec_negate(cam->right), (cam->sensor_size.x / cam->width));
+	const struct vector pix_y = vec_scale(cam->up, (cam->sensor_size.y / cam->height));
+	const struct vector pix_v = vec_add(
 							cam->forward,
-							vecAdd(
-								vecScale(pix_x, x - cam->width  * 0.5f + jitter_x + 0.5f),
-								vecScale(pix_y, y - cam->height * 0.5f + jitter_y + 0.5f)
+							vec_add(
+								vec_scale(pix_x, x - cam->width  * 0.5f + jitter_x + 0.5f),
+								vec_scale(pix_y, y - cam->height * 0.5f + jitter_y + 0.5f)
 							)
 						);
-	new_ray.direction = vecNormalize(pix_v);
+	new_ray.direction = vec_normalize(pix_v);
 	
 	if (cam->aperture > 0.0f) {
-		const float ft = cam->focus_distance / vecDot(new_ray.direction, cam->forward);
+		const float ft = cam->focus_distance / vec_dot(new_ray.direction, cam->forward);
 		const struct vector focus_point = alongRay(&new_ray, ft);
-		const struct coord lens_point = coordScale(cam->aperture, randomCoordOnUnitDisc(sampler));
-		new_ray.start = vecAdd(new_ray.start, vecAdd(vecScale(cam->right, lens_point.x), vecScale(cam->up, lens_point.y)));
-		new_ray.direction = vecNormalize(vecSub(focus_point, new_ray.start));
+		const struct coord lens_point = coord_scale(cam->aperture, coord_on_unit_disc(sampler));
+		new_ray.start = vec_add(new_ray.start, vec_add(vec_scale(cam->right, lens_point.x), vec_scale(cam->up, lens_point.y)));
+		new_ray.direction = vec_normalize(vec_sub(focus_point, new_ray.start));
 	}
 	//To world space
 	transformRay(&new_ray, cam->composite.A);

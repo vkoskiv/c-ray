@@ -14,6 +14,7 @@
 #include "../datatypes/bbox.h"
 #include "../datatypes/mesh.h"
 #include "../renderer/instance.h"
+#include "datatypes/vector.h"
 
 #include <limits.h>
 #include <assert.h>
@@ -177,7 +178,7 @@ static inline float compute_partial_cost(const struct bin *bin) {
 }
 
 static inline bool is_on_left_partition(const struct vector *center, unsigned axis, float split_pos) {
-	return vec_coord(center, axis) < split_pos;
+	return vec_component(center, axis) < split_pos;
 }
 
 static size_t partition_prim_indices(
@@ -235,7 +236,7 @@ static inline void fill_bins(
 		size_t prim_index = prim_indices[i];
 		for (unsigned axis = 0; axis < 3; ++axis) {
 			float bin_pos = robust_max(fast_mul_add(
-				vec_coord(&centers[prim_index], axis), bin_scale[axis], bin_offset[axis]), 0.f);
+				vec_component(&centers[prim_index], axis), bin_scale[axis], bin_offset[axis]), 0.f);
 			size_t bin_index = bin_pos;
 			bin_index = bin_index >= BIN_COUNT ? BIN_COUNT - 1 : bin_index;
 			extend_bin(&bins[axis][bin_index], &bboxes[prim_index]);
@@ -284,7 +285,7 @@ static inline struct boundingBox compute_bbox(
 }
 
 static inline bool compare_prim_indices(const struct vector *centers, unsigned axis, size_t i, size_t j) {
-	return vec_coord(&centers[i], axis) < vec_coord(&centers[j], axis);
+	return vec_component(&centers[i], axis) < vec_component(&centers[j], axis);
 }
 
 // This is a variant of shell sort, preferred over qsort because it needs access to the centers.
@@ -329,7 +330,7 @@ static void build_bvh_recursive(
 
 	struct bin bins[3][BIN_COUNT];
 	const struct boundingBox node_bbox = load_bbox_from_node(node);
-	const struct vector node_extents = vecSub(node_bbox.max, node_bbox.min);
+	const struct vector node_extents = vec_sub(node_bbox.max, node_bbox.min);
 
 	const float bin_scale[] = {
 		BIN_COUNT / node_extents.x,
@@ -352,7 +353,7 @@ static void build_bvh_recursive(
 			goto make_leaf;
 		right_begin = fallback_split(bvh->prim_indices, &node_extents, centers, begin, end);
 	} else {
-		const float split_pos = vec_coord(&node_bbox.min, split.axis) +
+		const float split_pos = vec_component(&node_bbox.min, split.axis) +
 			(float)split.pos / bin_scale[split.axis]; // 1 / bin_scale is the bin size
 		right_begin = partition_prim_indices(split.axis, split_pos, bvh->prim_indices, centers, begin, end);
 		if (right_begin == begin || right_begin == end)
@@ -494,7 +495,7 @@ static inline bool traverse_bvh_generic(
 		safe_inverse(ray->direction.y),
 		safe_inverse(ray->direction.z)
 	};
-	struct vector start = vecNegate(vecMul(ray->start, inv_dir));
+	struct vector start = vec_negate(vec_mul(ray->start, inv_dir));
 #endif
 	float max_dist = isect->distance;
 	bool was_hit = false;
@@ -551,9 +552,9 @@ static void get_poly_bbox_and_center(const void *userData, unsigned i, struct bo
 	struct vector v0 = mesh->vertices[mesh->polygons[i].vertexIndex[0]];
 	struct vector v1 = mesh->vertices[mesh->polygons[i].vertexIndex[1]];
 	struct vector v2 = mesh->vertices[mesh->polygons[i].vertexIndex[2]];
-	*center = getMidPoint(v0, v1, v2);
-	bbox->min = vecMin(v0, vecMin(v1, v2));
-	bbox->max = vecMax(v0, vecMax(v1, v2));
+	*center = vec_get_midpoint(v0, v1, v2);
+	bbox->min = vec_min(v0, vec_min(v1, v2));
+	bbox->max = vec_max(v0, vec_max(v1, v2));
 }
 
 static void get_instance_bbox_and_center(const void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {

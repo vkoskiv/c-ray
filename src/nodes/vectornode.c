@@ -25,7 +25,7 @@ struct constantVector {
 static bool compare(const void *A, const void *B) {
 	const struct constantVector *this = A;
 	const struct constantVector *other = B;
-	return vecEquals(this->vector, other->vector);
+	return vec_equals(this->vector, other->vector);
 }
 
 static uint32_t hash(const void *p) {
@@ -132,7 +132,7 @@ const struct vectorNode *parseVectorNode(struct node_storage *s, const struct cJ
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
 	if (!cJSON_IsString(type)) {
 		logr(warning, "No type provided for vectorNode: %s\n", cJSON_PrintUnformatted(node));
-		return newConstantVector(s, vecZero());
+		return newConstantVector(s, vec_zero());
 	}
 
 	if (stringEquals(type->valuestring, "normal")) return newNormal(s);

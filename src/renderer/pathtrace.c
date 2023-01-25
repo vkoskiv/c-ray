@@ -24,7 +24,7 @@
 #include "../nodes/shaders/background.h"
 
 static inline void recompute_uv(struct hitRecord *isect, float offset) {
-	struct vector ud = vecNormalize(isect->incident_dir);
+	struct vector ud = vec_normalize(isect->incident_dir);
 	//To polar from cartesian
 	float r = 1.0f; //Normalized above
 	float phi = (atan2f(ud.z, ud.x) / 4.0f) + offset;
@@ -33,8 +33,8 @@ static inline void recompute_uv(struct hitRecord *isect, float offset) {
 	float u = (phi / (PI / 2.0f));
 	float v = theta / PI;
 	
-	u = wrapMinMax(u, 0.0f, 1.0f);
-	v = wrapMinMax(v, 0.0f, 1.0f);
+	u = wrap_min_max(u, 0.0f, 1.0f);
+	v = wrap_min_max(v, 0.0f, 1.0f);
 	
 	isect->uv = (struct coord){ u, v };
 }

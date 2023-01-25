@@ -43,7 +43,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	struct bsdfSample B = mixBsdf->B->sample(mixBsdf->B, sampler, record);
 	//TODO: Do we just add the outgoing vertices together or what...?
 	//TODO: Find out if we want to even keep this node around.
-	return (struct bsdfSample){.out = vecAdd(A.out, B.out), .color = colorAdd(A.color, B.color)};
+	return (struct bsdfSample){.out = vec_add(A.out, B.out), .color = colorAdd(A.color, B.color)};
 }
 
 const struct bsdfNode *newAdd(const struct node_storage *s, const struct bsdfNode *A, const struct bsdfNode *B) {

@@ -44,7 +44,7 @@ static struct color eval(const struct colorNode *node, sampler *sampler, const s
 
 const struct colorNode *newVecToColor(const struct node_storage *s, const struct vectorNode *vec) {
 	HASH_CONS(s->node_table, hash, struct vecToColorNode, {
-		.vec = vec ? vec : newConstantVector(s, vecZero()),
+		.vec = vec ? vec : newConstantVector(s, vec_zero()),
 		.node = {
 			.eval = eval,
 			.base = { .compare = compare }

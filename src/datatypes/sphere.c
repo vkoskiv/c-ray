@@ -19,12 +19,12 @@ struct sphere defaultSphere() {
 //Calculates intersection with a sphere and a light ray
 bool intersect(const struct lightRay *ray, const struct sphere *sphere, float *t) {
 	//Vector dot product of the direction
-	float A = vecDot(ray->direction, ray->direction);
+	float A = vec_dot(ray->direction, ray->direction);
 	
 	//Distance between start of a lightRay and the sphere position
-	float B = 2.0f * vecDot(ray->direction, ray->start);
+	float B = 2.0f * vec_dot(ray->direction, ray->start);
 	
-	float C = vecDot(ray->start, ray->start) - (sphere->radius * sphere->radius);
+	float C = vec_dot(ray->start, ray->start) - (sphere->radius * sphere->radius);
 	
 	float trigDiscriminant = B * B - 4.0f * A * C;
 
@@ -53,7 +53,7 @@ bool rayIntersectsWithSphere(const struct lightRay *ray, const struct sphere *sp
 	if (intersect(ray, sphere, &isect->distance)) {
 		//Compute normal and store it to isect
 		isect->hitPoint = alongRay(ray, isect->distance);
-		isect->surfaceNormal = vecNormalize(isect->hitPoint);
+		isect->surfaceNormal = vec_normalize(isect->hitPoint);
 		isect->polygon = NULL;
 		return true;
 	}

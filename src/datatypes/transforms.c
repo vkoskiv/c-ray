@@ -83,12 +83,12 @@ void transformPoint(struct vector *vec, const struct matrix4x4 m) {
 
 void transformBBox(struct boundingBox *bbox, const struct matrix4x4 m) {
 	struct matrix4x4 abs = absoluteMatrix(m);
-	struct vector center = vecScale(vecAdd(bbox->min, bbox->max), 0.5f);
-	struct vector halfExtents = vecScale(vecSub(bbox->max, bbox->min), 0.5f);
+	struct vector center = vec_scale(vec_add(bbox->min, bbox->max), 0.5f);
+	struct vector halfExtents = vec_scale(vec_sub(bbox->max, bbox->min), 0.5f);
 	transformVector(&halfExtents, abs);
 	transformPoint(&center, abs);
-	bbox->min = vecSub(center, halfExtents);
-	bbox->max = vecAdd(center, halfExtents);
+	bbox->min = vec_sub(center, halfExtents);
+	bbox->max = vec_add(center, halfExtents);
 }
 
 void transformVector(struct vector *vec, const struct matrix4x4 m) {

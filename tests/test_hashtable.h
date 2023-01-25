@@ -42,7 +42,7 @@ bool hashtable_mixed(void) {
 	setDatabaseInt(database, "key4", 1234);
 	
 	test_assert(database);
-	test_assert(vecEquals(getDatabaseVector(database, "key0"), (struct vector){1.0f, 2.0f, 3.0f}));
+	test_assert(vec_equals(getDatabaseVector(database, "key0"), (struct vector){1.0f, 2.0f, 3.0f}));
 	test_assert(getDatabaseFloat(database, "key1") == 123.4f);
 	test_assert(existsInDatabase(database, "key2"));
 	test_assert(stringEquals(getDatabaseString(database, "key3"), "This is my cool string"));

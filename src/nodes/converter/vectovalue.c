@@ -52,7 +52,7 @@ static float eval(const struct valueNode *node, sampler *sampler, const struct h
 
 const struct valueNode *newVecToValue(const struct node_storage *s, const struct vectorNode *vec, enum component component) {
 	HASH_CONS(s->node_table, hash, struct vecToValueNode, {
-		.vec = vec ? vec : newConstantVector(s, vecZero()),
+		.vec = vec ? vec : newConstantVector(s, vec_zero()),
 		.component_to_get = component,
 		.node = {
 			.eval = eval,
