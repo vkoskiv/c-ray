@@ -71,10 +71,9 @@ static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, 
 			return (struct vectorValue){ .v = vecReflect(a, b) };
 		case VecRefract:
 		{
-			struct vector refracted = { 0 };
-			bool success = refract(&a, b, f, &refracted);
-			(void)success; //FIXME Not sure what to do if this fails
-			return (struct vectorValue){ .v = refracted };
+			struct vectorValue v = { 0 };
+			v.f = refract(a, b, f, &v.v) ? 1.0f : 0.0f;
+			return v;
 		}
 		case VecDot:
 			return (struct vectorValue){ .f = vecDot(a, b) };

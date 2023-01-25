@@ -245,8 +245,8 @@ static inline struct vector randomOnUnitSphere(sampler *sampler) {
 }
 
 //TODO: Consider moving these two to a better place.
-static inline bool refract(const struct vector *in, const struct vector normal, float niOverNt, struct vector *refracted) {
-	const struct vector uv = vecNormalize(*in);
+static inline bool refract(const struct vector in, const struct vector normal, float niOverNt, struct vector *refracted) {
+	const struct vector uv = vecNormalize(in);
 	const float dt = vecDot(uv, normal);
 	const float discriminant = 1.0f - niOverNt * niOverNt * (1.0f - dt * dt);
 	if (discriminant > 0.0f) {

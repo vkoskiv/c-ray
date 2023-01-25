@@ -59,7 +59,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 		cosine = -(vecDot(record->incident_dir, record->surfaceNormal) / vecLength(record->incident_dir));
 	}
 	
-	if (refract(&record->incident_dir, outwardNormal, niOverNt, &refracted)) {
+	if (refract(record->incident_dir, outwardNormal, niOverNt, &refracted)) {
 		reflectionProbability = schlick(cosine, IOR);
 	} else {
 		reflectionProbability = 1.0f;
