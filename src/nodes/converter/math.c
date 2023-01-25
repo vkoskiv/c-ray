@@ -49,43 +49,30 @@ static float eval(const struct valueNode *node, sampler *sampler, const struct h
 	switch (this->op) {
 		case Add:
 			return a + b;
-			break;
 		case Subtract:
 			return a - b;
-			break;
 		case Multiply:
 			return a * b;
-			break;
 		case Divide:
 			return a / b;
-			break;
 		case Power:
 			return powf(a, b);
-			break;
 		case Log:
 			return log10f(a);
-			break;
 		case SquareRoot:
 			return sqrtf(a);
-			break;
 		case InvSquareRoot:
 			return invsqrtf(a);
-			break;
 		case Absolute:
 			return fabsf(a);
-			break;
 		case Min:
 			return min(a, b);
-			break;
 		case Max:
 			return max(a, b);
-			break;
 		case LessThan:
 			return a < b ? 1.0f : 0.0f;
-			break;
 		case GreaterThan:
 			return a > b ? 1.0f : 0.0f;
-			break;
 		case Sign:
 			if (a > 0.0f) return 1.0f;
 			if (a < 0.0f) return -1.0f;
@@ -93,40 +80,28 @@ static float eval(const struct valueNode *node, sampler *sampler, const struct h
 			break;
 		case Compare:
 			return rough_compare(a, b) ? 1.0f : 0.0f;
-			break;
 		case Round:
 			return roundf(a);
-			break;
 		case Floor:
 			return floorf(a);
-			break;
 		case Ceil:
 			return ceilf(a);
-			break;
 		case Truncate:
 			return truncf(a);
-			break;
 		case Fraction:
 			return a - (int)a;
-			break;
 		case Modulo:
 			return fmodf(a, b);
-			break;
 		case Sine:
 			return sinf(a);
-			break;
 		case Cosine:
 			return cosf(a);
-			break;
 		case Tangent:
 			return tanf(a);
-			break;
 		case ToRadians:
 			return toRadians(a);
-			break;
 		case ToDegrees:
 			return fromRadians(a);
-			break;
 	}
 	ASSERT_NOT_REACHED();
 	return 0.0f;
