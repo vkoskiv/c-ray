@@ -84,9 +84,9 @@ bool vector_vecCross(void) {
 bool vector_vecMin(void) {
 	struct vector smaller = (struct vector){1.0f, 1.0f, 1.0f};
 	struct vector larger = (struct vector){10.0f, 10.0f, 10.0f};
-	struct vector max = vec_min(smaller, larger);
-	struct vector expectedMax = larger;
-	vec_roughly_equals(max, expectedMax);
+	struct vector min = vec_min(smaller, larger);
+	struct vector expected = smaller;
+	vec_roughly_equals(min, expected);
 	return true;
 }
 
@@ -94,8 +94,8 @@ bool vector_vecMax(void) {
 	struct vector smaller = (struct vector){1.0f, 1.0f, 1.0f};
 	struct vector larger = (struct vector){10.0f, 10.0f, 10.0f};
 	struct vector max = vec_max(smaller, larger);
-	struct vector expectedMax = larger;
-	vec_roughly_equals(max, expectedMax);
+	struct vector expected = larger;
+	vec_roughly_equals(max, expected);
 	return true;
 }
 
