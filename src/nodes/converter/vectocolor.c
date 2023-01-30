@@ -39,6 +39,7 @@ static struct color eval(const struct colorNode *node, sampler *sampler, const s
 	(void)record;
 	struct vecToColorNode *this = (struct vecToColorNode *)node;
 	struct vector vec = this->vec->eval(this->vec, sampler, record).v;
+	vec = vec_max(vec, vec_zero());
 	return (struct color){ vec.x, vec.y, vec.z, 0.0f };
 }
 
