@@ -71,8 +71,8 @@ struct bin {
 
 struct split {
 	unsigned axis;
-	size_t pos;
 	float cost;
+	size_t pos;
 };
 
 struct top_level_data {
