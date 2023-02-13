@@ -18,26 +18,12 @@
  ---------------
  */
 
-enum transformType {
-	transformTypeXRotate,
-	transformTypeYRotate,
-	transformTypeZRotate,
-	transformTypeTranslate,
-	transformTypeScale,
-	transformTypeMultiplication,
-	transformTypeIdentity,
-	transformTypeInverse,
-	transformTypeTranspose,
-	transformTypeComposite
-};
-
 struct matrix4x4 {
 	float mtx[4][4];
 };
 
 //Reference: http://tinyurl.com/ho6h6mr
 struct transform {
-	enum transformType type;
 	struct matrix4x4 A;
 	struct matrix4x4 Ainv;
 };
@@ -71,9 +57,5 @@ void transformVector(struct vector *vec, struct matrix4x4);
 void transformVectorWithTranspose(struct vector *vec, struct matrix4x4);
 void transformBBox(struct boundingBox *bbox, struct matrix4x4);
 void transformRay(struct lightRay *ray, struct matrix4x4);
-
-bool isRotation(const struct transform *t);
-bool isScale(const struct transform *t);
-bool isTranslate(const struct transform *t);
 
 bool areMatricesEqual(struct matrix4x4, struct matrix4x4);

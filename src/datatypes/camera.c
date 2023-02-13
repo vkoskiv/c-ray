@@ -45,7 +45,6 @@ void recomputeComposite(struct camera *cam) {
 	}
 	
 	composite.Ainv = inverseMatrix(composite.A);
-	composite.type = transformTypeComposite;
 	cam->composite = composite;
 }
 

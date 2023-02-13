@@ -96,12 +96,8 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 	transformPoint(center, instance->composite.A);
 	bbox->min = (struct vector){ -sphere->radius, -sphere->radius, -sphere->radius };
 	bbox->max = (struct vector){  sphere->radius,  sphere->radius,  sphere->radius };
-	if (!isRotation(&instance->composite) && !isTranslate(&instance->composite))
-		transformBBox(bbox, instance->composite.A);
-	else {
-		bbox->min = vec_add(bbox->min, *center);
-		bbox->max = vec_add(bbox->max, *center);
-	}
+	bbox->min = vec_add(bbox->min, *center);
+	bbox->max = vec_add(bbox->max, *center);
 	sphere->rayOffset = rayOffset(*bbox);
 	if (isSet("v")) logr(plain, "\n");
 	logr(debug, "sphere offset: %f", sphere->rayOffset);
@@ -113,12 +109,8 @@ static void getSphereVolumeBBoxAndCenter(const struct instance *instance, struct
 	transformPoint(center, instance->composite.A);
 	bbox->min = (struct vector){ -volume->sphere->radius, -volume->sphere->radius, -volume->sphere->radius };
 	bbox->max = (struct vector){  volume->sphere->radius,  volume->sphere->radius,  volume->sphere->radius };
-	if (!isRotation(&instance->composite) && !isTranslate(&instance->composite))
-		transformBBox(bbox, instance->composite.A);
-	else {
-		bbox->min = vec_add(bbox->min, *center);
-		bbox->max = vec_add(bbox->max, *center);
-	}
+	bbox->min = vec_add(bbox->min, *center);
+	bbox->max = vec_add(bbox->max, *center);
 	volume->sphere->rayOffset = rayOffset(*bbox);
 	if (isSet("v")) logr(plain, "\n");
 	logr(debug, "sphere offset: %f", volume->sphere->rayOffset);

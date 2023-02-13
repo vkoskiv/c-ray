@@ -681,43 +681,34 @@ static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 }
 
 struct transform parse_composite_transform(const cJSON *transforms) {
-	// Combine found list of discerete transforms into a single matrix.
-	if (!transforms) return newTransform();
-	const cJSON *transform = NULL;
-	size_t count = cJSON_GetArraySize(transforms);
-	struct transform *tforms = alloca(count * sizeof(*tforms));
-	size_t idx = 0;
-	cJSON_ArrayForEach(transform, transforms) {
-		tforms[idx++] = parseTransform(transform, "compositeBuilder");
-	}
+	//TODO: Pass mesh/instance name as targetName for logging
+	if (!cJSON_IsArray(transforms)) return parseTransform(transforms, "compositeBuilder");
 	
 	struct transform composite = newTransform();
-	
-	// Order is: scales/rotates, then translates
-	
-	// Translates
-	for (size_t i = 0; i < count; ++i) {
-		if (isTranslate(&tforms[i])) {
-			composite.A = multiplyMatrices(composite.A, tforms[i].A);
+
+	const cJSON *transform = NULL;
+	cJSON_ArrayForEach(transform, transforms) {
+		const cJSON *type = cJSON_GetObjectItem(transform, "type");
+		if (!cJSON_IsString(type)) break;
+		if (stringStartsWith("translate", type->valuestring)) {
+			composite.A = multiplyMatrices(composite.A, parseTransform(transform, "translates").A);
 		}
 	}
-	
-	// Rotates
-	for (size_t i = 0; i < count; ++i) {
-		if (isRotation(&tforms[i])) {
-			composite.A = multiplyMatrices(composite.A, tforms[i].A);
+	cJSON_ArrayForEach(transform, transforms) {
+		const cJSON *type = cJSON_GetObjectItem(transform, "type");
+		if (!cJSON_IsString(type)) break;
+		if (stringStartsWith("rotate", type->valuestring)) {
+			composite.A = multiplyMatrices(composite.A, parseTransform(transform, "translates").A);
 		}
 	}
-	
-	// Scales
-	for (size_t i = 0; i < count; ++i) {
-		if (isScale(&tforms[i])) {
-			composite.A = multiplyMatrices(composite.A, tforms[i].A);
+	cJSON_ArrayForEach(transform, transforms) {
+		const cJSON *type = cJSON_GetObjectItem(transform, "type");
+		if (!cJSON_IsString(type)) break;
+		if (stringStartsWith("scale", type->valuestring)) {
+			composite.A = multiplyMatrices(composite.A, parseTransform(transform, "translates").A);
 		}
 	}
-	
 	composite.Ainv = inverseMatrix(composite.A);
-	composite.type = transformTypeComposite;
 	return composite;
 }
 

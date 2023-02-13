@@ -37,7 +37,6 @@ struct matrix4x4 identityMatrix() {
 
 struct transform newTransform() {
 	struct transform tf;
-	tf.type = transformTypeIdentity;
 	tf.A = identityMatrix();
 	tf.Ainv = tf.A; // Inverse of I == I
 	return tf;
@@ -113,7 +112,6 @@ void transformRay(struct lightRay *ray, const struct matrix4x4 mat) {
 
 struct transform newTransformRotateX(float rads) {
 	struct transform transform = newTransform();
-	transform.type = transformTypeXRotate;
 	float cosRads = cosf(rads);
 	float sinRads = sinf(rads);
 	transform.A.mtx[0][0] = 1.0f;
@@ -128,7 +126,6 @@ struct transform newTransformRotateX(float rads) {
 
 struct transform newTransformRotateY(float rads) {
 	struct transform transform = newTransform();
-	transform.type = transformTypeYRotate;
 	float cosRads = cosf(rads);
 	float sinRads = sinf(rads);
 	transform.A.mtx[0][0] = cosRads;
@@ -143,7 +140,6 @@ struct transform newTransformRotateY(float rads) {
 
 struct transform newTransformRotateZ(float rads) {
 	struct transform transform = newTransform();
-	transform.type = transformTypeZRotate;
 	float cosRads = cosf(rads);
 	float sinRads = sinf(rads);
 	transform.A.mtx[0][0] = cosRads;
@@ -182,7 +178,6 @@ struct matrix4x4 quaternion_to_matrix(struct quaternion q) {
 
 struct transform newTransformRotate(float roll, float pitch, float yaw) {
 	struct transform transform;
-	transform.type = transformTypeComposite;
 	transform.A = quaternion_to_matrix(euler_to_quaternion(roll, pitch, yaw));
 	transform.Ainv = inverseMatrix(transform.A);
 	return transform;
@@ -190,7 +185,6 @@ struct transform newTransformRotate(float roll, float pitch, float yaw) {
 
 struct transform newTransformTranslate(float x, float y, float z) {
 	struct transform transform = newTransform();
-	transform.type = transformTypeTranslate;
 	transform.A.mtx[0][0] = 1.0f;
 	transform.A.mtx[1][1] = 1.0f;
 	transform.A.mtx[2][2] = 1.0f;
@@ -207,7 +201,6 @@ struct transform newTransformScale(float x, float y, float z) {
 	ASSERT(y != 0.0f);
 	ASSERT(z != 0.0f);
 	struct transform transform = newTransform();
-	transform.type = transformTypeScale;
 	transform.A.mtx[0][0] = x;
 	transform.A.mtx[1][1] = y;
 	transform.A.mtx[2][2] = z;
@@ -218,7 +211,6 @@ struct transform newTransformScale(float x, float y, float z) {
 
 struct transform newTransformScaleUniform(float scale) {
 	struct transform transform = newTransform();
-	transform.type = transformTypeScale;
 	transform.A.mtx[0][0] = scale;
 	transform.A.mtx[1][1] = scale;
 	transform.A.mtx[2][2] = scale;
@@ -337,18 +329,6 @@ struct matrix4x4 multiplyMatrices(const struct matrix4x4 mA, const struct matrix
 		mA.mtx[3][0] * mB.mtx[0][1] + mA.mtx[3][1] * mB.mtx[1][1] + mA.mtx[3][2] * mB.mtx[2][1] + mA.mtx[3][3] * mB.mtx[3][1],
 		mA.mtx[3][0] * mB.mtx[0][2] + mA.mtx[3][1] * mB.mtx[1][2] + mA.mtx[3][2] * mB.mtx[2][2] + mA.mtx[3][3] * mB.mtx[3][2],
 		mA.mtx[3][0] * mB.mtx[0][3] + mA.mtx[3][1] * mB.mtx[1][3] + mA.mtx[3][2] * mB.mtx[2][3] + mA.mtx[3][3] * mB.mtx[3][3]);
-}
-
-bool isRotation(const struct transform *t) {
-	return (t->type == transformTypeXRotate) || (t->type == transformTypeYRotate) || (t->type == transformTypeZRotate);
-}
-
-bool isScale(const struct transform *t) {
-	return t->type == transformTypeScale;
-}
-
-bool isTranslate(const struct transform *t) {
-	return t->type == transformTypeTranslate;
 }
 
 bool areMatricesEqual(const struct matrix4x4 mA, const struct matrix4x4 mB) {
