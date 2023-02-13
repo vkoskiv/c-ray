@@ -111,7 +111,6 @@ cJSON *encodeTexture(const struct texture *t) {
 
 struct texture *decodeTexture(const cJSON *json) {
 	struct texture *tex = calloc(1, sizeof(*tex));
-	tex->hasAlpha = false;
 	tex->colorspace = linear;
 	char *data = cJSON_GetStringValue(cJSON_GetObjectItem(json, "data"));
 	tex->data.byte_p = b64decode(data, strlen(data), NULL);

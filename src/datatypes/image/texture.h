@@ -24,7 +24,6 @@ enum precision {
 };
 
 struct texture {
-	bool hasAlpha;
 	enum colorspace colorspace;
 	enum precision precision;
 	union {

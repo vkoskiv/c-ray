@@ -56,7 +56,6 @@ struct texture *load_qoi_from_buffer(const unsigned char *buffer, const unsigned
 	new->width = desc.width;
 	new->height = desc.height;
 	new->channels = desc.channels;
-	if (new->channels > 3) new->hasAlpha = true;
 	new->precision = char_p;
 	return new;
 }
@@ -68,9 +67,6 @@ struct texture *load_texture_from_buffer(const unsigned char *buffer, const unsi
 		logr(warning, "Failed to decode texture from memory buffer of size %u. Reason: \"%s\"\n", buflen, stbi_failure_reason());
 		destroyTexture(new);
 		return NULL;
-	}
-	if (new->channels > 3) {
-		new->hasAlpha = true;
 	}
 	new->precision = char_p;
 	return new;

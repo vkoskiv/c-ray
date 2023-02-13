@@ -19,13 +19,13 @@ void setPixel(struct texture *t, struct color c, size_t x, size_t y) {
 		t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = (unsigned char)min(c.red * 255.0f, 255.0f);
 		t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = (unsigned char)min(c.green * 255.0f, 255.0f);
 		t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 2] = (unsigned char)min(c.blue * 255.0f, 255.0f);
-		if (t->hasAlpha) t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = (unsigned char)min(c.alpha * 255.0f, 255.0f);
+		if (t->channels > 3) t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = (unsigned char)min(c.alpha * 255.0f, 255.0f);
 	}
 	else if (t->precision == float_p) {
 		t->data.float_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = c.red;
 		t->data.float_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 1] = c.green;
 		t->data.float_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 2] = c.blue;
-		if (t->hasAlpha) t->data.float_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = c.alpha;
+		if (t->channels > 3) t->data.float_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 3] = c.alpha;
 	}
 }
 
@@ -51,12 +51,12 @@ static struct color textureGetPixelInternal(const struct texture *t, size_t x, s
 			output.red   = t->data.float_p[(x + ((t->height - 1) - y) * t->width) * t->channels + 0];
 			output.green = t->data.float_p[(x + ((t->height - 1) - y) * t->width) * t->channels + 1];
 			output.blue  = t->data.float_p[(x + ((t->height - 1) - y) * t->width) * t->channels + 2];
-			output.alpha = t->hasAlpha ? t->data.float_p[(x + ((t->height - 1) - y) * t->width) * t->channels + 3] : 1.0f;
+			output.alpha = t->channels > 3 ? t->data.float_p[(x + ((t->height - 1) - y) * t->width) * t->channels + 3] : 1.0f;
 		} else {
 			output.red =   t->data.byte_p[(x + ((t->height - 1) - y) * t->width) * t->channels + 0] / 255.0f;
 			output.green = t->data.byte_p[(x + ((t->height - 1) - y) * t->width) * t->channels + 1] / 255.0f;
 			output.blue =  t->data.byte_p[(x + ((t->height - 1) - y) * t->width) * t->channels + 2] / 255.0f;
-			output.alpha = t->hasAlpha ? t->data.byte_p[(x + ((t->height - 1) - y) * t->width) * t->channels + 3] / 255.0f : 1.0f;
+			output.alpha = t->channels > 3 ? t->data.byte_p[(x + ((t->height - 1) - y) * t->width) * t->channels + 3] / 255.0f : 1.0f;
 		}
 	}
 	return output;
@@ -84,13 +84,9 @@ struct texture *newTexture(enum precision p, size_t width, size_t height, size_t
 	t->height = height;
 	t->precision = p;
 	t->channels = channels;
-	t->hasAlpha = false;
 	t->data.byte_p = NULL;
 	t->data.float_p = NULL;
 	t->colorspace = linear;
-	if (channels > 3) {
-		t->hasAlpha = true;
-	}
 	
 	switch (t->precision) {
 		case char_p: {
@@ -139,7 +135,7 @@ void textureToSRGB(struct texture *t) {
 
 bool texture_uses_alpha(const struct texture *t) {
 	if (!t) return false;
-	if (!t->hasAlpha) return false;
+	if (t->channels < 4) return false;
 	for (unsigned x = 0; x < t->width; ++x) {
 		for (unsigned y = 0; y < t->height; ++y) {
 			if (textureGetPixel(t, x, y, false).alpha < 1.0f) return true;
