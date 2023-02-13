@@ -12,31 +12,19 @@ struct vector;
 struct coord;
 
 struct mesh {
-	//Vertices
-	int vertex_count;
 	struct vector *vertices;
-	
-	//Normals
-	int normal_count;
 	struct vector *normals;
-	
-	//Texture coordinates
-	int tex_coord_count;
 	struct coord *texture_coords;
-	
-	//Faces
-	int poly_count;
 	struct poly *polygons;
-	
-	//Materials
-	int materialCount;
 	struct material *materials;
-	
 	struct bvh *bvh;
-
-	float rayOffset;
-
 	char *name;
+	int vertex_count;
+	int normal_count;
+	int tex_coord_count;
+	int poly_count;
+	int materialCount;
+	float rayOffset;
 };
 
 void destroyMesh(struct mesh *mesh);
