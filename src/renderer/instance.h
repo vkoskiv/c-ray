@@ -24,9 +24,9 @@ struct mesh;
 
 struct instance {
 	struct transform composite;
+	int bsdf_count;
 	const struct bsdfNode **bsdfs;
 	struct color *emissions;
-	size_t bsdf_count;
 	bool (*intersectFn)(const struct instance *, const struct lightRay *, struct hitRecord *, sampler *);
 	void (*getBBoxAndCenterFn)(const struct instance *, struct boundingBox *, struct vector *);
 	void *object;

@@ -752,7 +752,7 @@ void apply_materials_to_instance(struct renderer *r, struct instance *instance, 
 	} else {
 		// Single graph, map it to every material in a mesh.
 		const struct bsdfNode *node = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, overrides);
-		for (size_t i = 0; i < instance->bsdf_count; ++i) {
+		for (int i = 0; i < instance->bsdf_count; ++i) {
 			instance->bsdfs[i] = node;
 		}
 	}
