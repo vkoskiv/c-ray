@@ -59,6 +59,7 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 	if (!cJSON_IsString(type)) {
 		logr(warning, "Failed to parse transform! No type found\n");
 		logr(warning, "Transform data: %s\n", cJSON_Print(data));
+		return newTransformTranslate(0.0f, 0.0f, 0.0f);
 	}
 	
 	cJSON *degrees = NULL;
@@ -681,6 +682,7 @@ static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 }
 
 struct transform parse_composite_transform(const cJSON *transforms) {
+	if (!transforms) return newTransform();
 	//TODO: Pass mesh/instance name as targetName for logging
 	if (!cJSON_IsArray(transforms)) return parseTransform(transforms, "compositeBuilder");
 	
