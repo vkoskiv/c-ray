@@ -6,6 +6,8 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
+#include <string.h>
 #include "../../datatypes/color.h"
 #include "../../datatypes/poly.h"
 #include "../../datatypes/image/texture.h"
@@ -58,6 +60,23 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	struct imageTexture *self = (struct imageTexture *)node;
+	//TODO: Consider having imageTexture have a func to dump this.
+	if (!self->tex) {
+		snprintf(dumpbuf, DUMPBUF_SIZE, "imageTexture { tex: null }");
+		return;
+	}
+	snprintf(dumpbuf, DUMPBUF_SIZE, "imageTexture { tex: { %lux%lu, %lu channels, %s, %s }, options: %s %s }",
+		self->tex->width,
+		self->tex->height,
+		self->tex->channels,
+		self->tex->colorspace == linear ? "linear" : "sRGB",
+		self->tex->precision == char_p ? "8 bits/channel" : "32 bits/channel",
+		self->options & SRGB_TRANSFORM ? "SRGB_TRANSFORM" : "",
+		self->options & NO_BILINEAR ? "NO_BILINEAR" : "");
+}
+
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	// TODO: Consider transforming image textures while loading textures.
 	(void)sampler;
@@ -72,7 +91,7 @@ const struct colorNode *newImageTexture(const struct node_storage *s, const stru
 		.options = options,
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

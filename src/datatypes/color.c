@@ -7,6 +7,7 @@
 //
 
 #include "../includes.h"
+#include <stdio.h>
 #include "color.h"
 
 //Some standard colours
@@ -93,4 +94,8 @@ struct color color_from_hsl(float hue, float saturation, float lightness) {
 		const float p = 2.0f * lightness - q;
 		return (struct color){ hue_to_rgb(p, q, hue + 1.0f / 3.0f), hue_to_rgb(p, q, hue), hue_to_rgb(p, q, hue - 1.0f / 3.0f), 1.0f };
 	}
+}
+
+void color_dump(struct color c, char *buf, size_t bufsize) {
+	snprintf(buf, bufsize, "{ %.2f, %.2f, %.2f, %.2f }", c.red, c.green, c.blue, c.alpha);
 }

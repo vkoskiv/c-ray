@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../utils/mempool.h"
 #include "../../datatypes/hitrecord.h"
@@ -35,6 +36,15 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	struct gradientTexture *self = (struct gradientTexture *)node;
+	char down[64] = "";
+	color_dump(self->down, &down[0], 64);
+	char up[64] = "";
+	color_dump(self->up, &up[0], 64);
+	snprintf(dumpbuf, DUMPBUF_SIZE, "gradientTexture { down: %s, up: %s }", down, up);
+}
+
 //Linearly interpolate based on the Y component
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)sampler;
@@ -50,7 +60,7 @@ const struct colorNode *newGradientTexture(const struct node_storage *s, struct 
 		.up = up,
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

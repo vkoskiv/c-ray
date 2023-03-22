@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
@@ -35,6 +36,13 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	struct diffuseBsdf *self = (struct diffuseBsdf *)node;
+	char color[DUMPBUF_SIZE / 2] = "";
+	if (self->color->base.dump) self->color->base.dump(self->color, &color[0]);
+	snprintf(dumpbuf, DUMPBUF_SIZE, "diffuseBsdf { color: %s }", color);
+}
+
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf *)bsdf;
 	const struct vector scatterDir = vec_normalize(vec_add(record->surfaceNormal, vec_on_unit_sphere(sampler)));
@@ -49,7 +57,7 @@ const struct bsdfNode *newDiffuse(const struct node_storage *s, const struct col
 		.color = color ? color : newConstantTexture(s, g_black_color),
 		.bsdf = {
 			.sample = sample,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

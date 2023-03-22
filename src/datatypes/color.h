@@ -9,6 +9,7 @@
 
 #include <math.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 //Color
 struct color {
@@ -105,3 +106,5 @@ static inline bool colorEquals(struct color a, struct color b) {
 struct color colorForKelvin(float kelvin);
 
 struct color color_from_hsl(float hue, float saturation, float lightness);
+
+void color_dump(struct color c, char *buf, size_t bufsize);

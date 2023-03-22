@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../datatypes/poly.h"
 #include "../../datatypes/image/texture.h"
@@ -65,6 +66,15 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	struct checkerTexture *self = (struct checkerTexture *)node;
+	char A[64] = "";
+	if (self->A->base.dump) self->A->base.dump(self->A, &A[0]);
+	char B[64] = "";
+	if (self->B->base.dump) self->B->base.dump(self->B, &B[0]);
+	snprintf(dumpbuf, DUMPBUF_SIZE, "checkerTexture { A: %s, B: %s }", A, B);
+}
+
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	struct checkerTexture *checker = (struct checkerTexture *)node;
 	return checkerBoard(record, sampler, checker->A, checker->B, checker->scale);
@@ -78,7 +88,7 @@ const struct colorNode *newCheckerBoardTexture(const struct node_storage *s, con
 		.scale = scale ? scale : newConstantValue(s, 5.0f),
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }
