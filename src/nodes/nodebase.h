@@ -11,13 +11,15 @@
 #include "../utils/logging.h"
 #include <stdbool.h>
 
+#define DUMPBUF_SIZE 256
+
 // Magic for comparing two nodes
 
 struct node_storage;
 
 struct nodeBase {
 	bool (*compare)(const void *, const void *);
-	char *(*dump)(const void *);
+	void (*dump)(const void *, char[DUMPBUF_SIZE]);
 };
 
 bool compareNodes(const void *A, const void *B);
@@ -26,15 +28,15 @@ bool compareNodes(const void *A, const void *B);
 	{ \
 		const T candidate = __VA_ARGS__; \
         struct nodeBase *c = (struct nodeBase *)&candidate; \
-		char *dump = c->dump ? c->dump(c) : NULL; \
+		char dumpbuf[256] = ""; \
+		if (c->dump) c->dump(c, &dumpbuf[0]); \
 		const uint32_t h = hash(&candidate); \
 		const T *existing = findInHashtable(hashtable, &candidate, h); \
 		if (existing) {\
-			logr(debug, "Reusing existing %s%s %s%s%s\n", KGRN, &#T[7], KBLU, dump ? dump : "", KNRM);\
+			logr(debug, "Reusing existing %s%s %s%s%s\n", KGRN, &#T[7], KBLU, dumpbuf, KNRM);\
 			return (void *)existing; \
 		} \
-		logr(debug, "Inserting new %s%s %s%s%s\n", KRED, &#T[7], KBLU, dump ? dump : "", KNRM); \
-		if (dump) free(dump); \
+		logr(debug, "Inserting new %s%s %s%s%s\n", KRED, &#T[7], KBLU, dumpbuf, KNRM); \
 		insertInHashtable(hashtable, &candidate, sizeof(T), h); \
 		return findInHashtable(hashtable, &candidate, h); \
 	}
