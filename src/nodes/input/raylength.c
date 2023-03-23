@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/vector.h"
 #include "../../datatypes/hitrecord.h"
 #include "../../datatypes/scene.h"
@@ -32,6 +33,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	(void)node;
+	snprintf(dumpbuf, DUMPBUF_SIZE, "rayLengthNode { }");
+}
+
 static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	(void)node;
@@ -43,7 +49,7 @@ const struct valueNode *newRayLength(const struct node_storage *s) {
 	HASH_CONS(s->node_table, hash, struct rayLengthNode, {
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

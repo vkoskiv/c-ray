@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../nodebase.h"
 #include "../../datatypes/scene.h"
 #include "../../utils/hashtable.h"
@@ -35,6 +36,15 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	struct fresnelNode *self = (struct fresnelNode *)node;
+	char ior[DUMPBUF_SIZE / 4] = "";
+	char normal[DUMPBUF_SIZE / 4] = "";
+	if (self->IOR->base.dump) self->IOR->base.dump(self->IOR, &ior[0]);
+	if (self->normal->base.dump) self->normal->base.dump(self->normal, &normal[0]);
+	snprintf(dumpbuf, DUMPBUF_SIZE, "fresnelNode { IOR: %s, normal: %s }", ior, normal);
+}
+
 static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)sampler;
 	struct fresnelNode *this = (struct fresnelNode *)node;
@@ -56,7 +66,7 @@ const struct valueNode *newFresnel(const struct node_storage *s, const struct va
 		.normal = normal ? normal : newNormal(s),
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../utils/mempool.h"
 #include "../../datatypes/hitrecord.h"
@@ -37,6 +38,17 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	struct combineRGB *self = (struct combineRGB *)node;
+	char R[DUMPBUF_SIZE / 4] = "";
+	char G[DUMPBUF_SIZE / 4] = "";
+	char B[DUMPBUF_SIZE / 4] = "";
+	if (self->R->base.dump) self->R->base.dump(self->R, &R[0]);
+	if (self->G->base.dump) self->G->base.dump(self->G, &G[0]);
+	if (self->B->base.dump) self->B->base.dump(self->B, &B[0]);
+	snprintf(dumpbuf, DUMPBUF_SIZE, "combineRGB { R: %s, G: %s, B: %s }", R, G, B);
+}
+
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	const struct combineRGB *this = (struct combineRGB *)node;
 	//TODO: What do we do with the alpha here?
@@ -55,7 +67,7 @@ const struct colorNode *newCombineRGB(const struct node_storage *s, const struct
 		.B = B ? B : newConstantValue(s, 0.0f),
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

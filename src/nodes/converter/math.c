@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../nodebase.h"
 
 #include "../../utils/hashtable.h"
@@ -35,6 +36,100 @@ static uint32_t hash(const void *p) {
 	h = hashBytes(h, &this->B, sizeof(this->B));
 	h = hashBytes(h, &this->op, sizeof(this->op));
 	return h;
+}
+
+static void dump_math_op(const enum mathOp op, char *buf, size_t bufsize) {
+	switch(op) {
+		case Add:
+			snprintf(buf, bufsize, "add");
+			break;
+		case Subtract:
+			snprintf(buf, bufsize, "subtract");
+			break;
+		case Multiply:
+			snprintf(buf, bufsize, "multiply");
+			break;
+		case Divide:
+			snprintf(buf, bufsize, "divide");
+			break;
+		case Power:
+			snprintf(buf, bufsize, "power");
+			break;
+		case Log:
+			snprintf(buf, bufsize, "log");
+			break;
+		case SquareRoot:
+			snprintf(buf, bufsize, "sqrt");
+			break;
+		case InvSquareRoot:
+			snprintf(buf, bufsize, "invsqrtf");
+			break;
+		case Absolute:
+			snprintf(buf, bufsize, "abs");
+			break;
+		case Min:
+			snprintf(buf, bufsize, "min");
+			break;
+		case Max:
+			snprintf(buf, bufsize, "max");
+			break;
+		case LessThan:
+			snprintf(buf, bufsize, "lt");
+			break;
+		case GreaterThan:
+			snprintf(buf, bufsize, "gt");
+			break;
+		case Sign:
+			snprintf(buf, bufsize, "sign");
+			break;
+		case Compare:
+			snprintf(buf, bufsize, "compare");
+			break;
+		case Round:
+			snprintf(buf, bufsize, "round");
+			break;
+		case Floor:
+			snprintf(buf, bufsize, "floor");
+			break;
+		case Ceil:
+			snprintf(buf, bufsize, "ceil");
+			break;
+		case Truncate:
+			snprintf(buf, bufsize, "truncate");
+			break;
+		case Fraction:
+			snprintf(buf, bufsize, "fraction");
+			break;
+		case Modulo:
+			snprintf(buf, bufsize, "mod");
+			break;
+		case Sine:
+			snprintf(buf, bufsize, "sin");
+			break;
+		case Cosine:
+			snprintf(buf, bufsize, "cos");
+			break;
+		case Tangent:
+			snprintf(buf, bufsize, "tan");
+			break;
+		case ToRadians:
+			snprintf(buf, bufsize, "toradians");
+			break;
+		case ToDegrees:
+			snprintf(buf, bufsize, "todegrees");
+			break;
+	}
+}
+
+static void dump(const void *node, char *dumpbuf) {
+	struct mathNode *self = (struct mathNode *)node;
+	char A[DUMPBUF_SIZE / 4] = "";
+	char B[DUMPBUF_SIZE / 4] = "";
+	char op[DUMPBUF_SIZE / 4] = "";
+	if (self->A->base.dump) self->A->base.dump(self->A, A);
+	if (self->B->base.dump) self->B->base.dump(self->B, B);
+	dump_math_op(self->op, op, sizeof(op));
+	snprintf(dumpbuf, DUMPBUF_SIZE, "mathNode { A: %s, B: %s, op: %s }", A, B, op);
 }
 
 float rough_compare(float a, float b) {
@@ -114,7 +209,7 @@ const struct valueNode *newMath(const struct node_storage *s, const struct value
 		.op = op,
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

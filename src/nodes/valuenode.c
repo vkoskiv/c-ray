@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../datatypes/color.h"
 #include "../datatypes/vector.h"
 #include "../datatypes/hitrecord.h"
@@ -35,6 +36,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	struct constantValue *self = (struct constantValue *)node;
+	snprintf(dumpbuf, DUMPBUF_SIZE, "constantValue { value: %.2f }", self->value);
+}
+
 static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	(void)sampler;
@@ -47,7 +53,7 @@ const struct valueNode *newConstantValue(const struct node_storage *s, float val
 		.value = value,
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

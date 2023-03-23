@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../datatypes/hitrecord.h"
 #include "../../utils/hashtable.h"
@@ -32,6 +33,13 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	struct alphaNode *self = (struct alphaNode *)node;
+	char color[DUMPBUF_SIZE / 2] = "";
+	if (self->color->base.dump) self->color->base.dump(self->color, &color[0]);
+	snprintf(dumpbuf, DUMPBUF_SIZE, "alphaNode { color: %s }", color);
+}
+
 static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
 	struct alphaNode *this = (struct alphaNode *)node;
 	return this->color->eval(this->color, sampler, record).alpha;
@@ -42,7 +50,7 @@ const struct valueNode *newAlpha(const struct node_storage *s, const struct colo
 		.color = color ? color : newConstantTexture(s, g_white_color),
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

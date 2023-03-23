@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../nodebase.h"
 
 #include "../../utils/hashtable.h"
@@ -34,6 +35,13 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	struct blackbodyNode *self = (struct blackbodyNode *)node;
+	char temperature[DUMPBUF_SIZE / 2] = "";
+	if (self->temperature->base.dump) self->temperature->base.dump(self->temperature, &temperature[0]);
+	snprintf(dumpbuf, DUMPBUF_SIZE, "blackbodyNode { input: %s }", temperature);
+}
+
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	(void)sampler;
@@ -46,7 +54,7 @@ const struct colorNode *newBlackbody(const struct node_storage *s, const struct 
 		.temperature = temperature ? temperature : newConstantValue(s, 4000.0f),
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

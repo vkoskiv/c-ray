@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../utils/mempool.h"
 #include "../../datatypes/hitrecord.h"
@@ -33,6 +34,13 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	struct splitValue *self = (struct splitValue *)node;
+	char input[DUMPBUF_SIZE / 2] = "";
+	if (self->input->base.dump) self->input->base.dump(self->input, &input[0]);
+	snprintf(dumpbuf, DUMPBUF_SIZE, "splitValue { input: %s }", input);
+}
+
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	const struct splitValue *this = (struct splitValue *)node;
 	float val = this->input->eval(this->input, sampler, record);
@@ -45,7 +53,7 @@ const struct colorNode *newSplitValue(const struct node_storage *s, const struct
 		.input = node ? node : newConstantValue(s, 0.0f),
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

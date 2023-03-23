@@ -6,6 +6,7 @@
 //  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../nodebase.h"
 #include "../../utils/hashtable.h"
 #include "../../datatypes/scene.h"
@@ -44,6 +45,24 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+/*	struct mapRangeNode *self = (struct mapRangeNode *)node;
+	char input[DUMPBUF_SIZE / 6];
+	char from_min[DUMPBUF_SIZE / 6];
+	char from_max[DUMPBUF_SIZE / 6];
+	char to_min[DUMPBUF_SIZE / 6];
+	char to_max[DUMPBUF_SIZE / 6];
+	if (self->input_value->base.dump) self->input_value->base.dump(self->input_value, input);
+	if (self->from_min->base.dump) self->from_min->base.dump(self->from_min, from_min);
+	if (self->from_max->base.dump) self->from_max->base.dump(self->from_max, from_max);
+	if (self->to_min->base.dump) self->to_min->base.dump(self->to_min, to_min);
+	if (self->to_max->base.dump) self->to_max->base.dump(self->to_max, to_max);
+
+	snprintf(dumpbuf, DUMPBUF_SIZE, "mapRangeNode { input: %s, from_min: %s, from_max: %s, to_min: %s, to_max: %s }",
+		input, from_min, from_max, to_min, to_max);
+	*/
+}
+
 static inline float lerp(float min, float max, float t) {
 	return ((1.0f - t) * min) + (t * max);
 }
@@ -78,7 +97,7 @@ const struct valueNode *newMapRange(const struct node_storage *s,
 		.to_max = to_max ? to_max : newConstantValue(s, 1.0f),
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

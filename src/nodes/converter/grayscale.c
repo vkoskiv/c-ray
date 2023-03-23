@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../datatypes/poly.h"
 #include "../../utils/mempool.h"
@@ -40,12 +41,19 @@ static float eval(const struct valueNode *node, sampler *sampler, const struct h
 	return colorToGrayscale(this->input->eval(this->input, sampler, record)).red;
 }
 
+static void dump(const void *node, char *dumpbuf) {
+	struct grayscale *self = (struct grayscale *)node;
+	char color[DUMPBUF_SIZE / 2] = "";
+	if (self->input->base.dump) self->input->base.dump(self->input, &color[0]);
+	snprintf(dumpbuf, DUMPBUF_SIZE, "grayscale { input: %s }", color);
+}
+
 const struct valueNode *newGrayscaleConverter(const struct node_storage *s, const struct colorNode *node) {
 	HASH_CONS(s->node_table, hash, struct grayscale, {
 		.input = node ? node : newConstantTexture(s, g_black_color),
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }
