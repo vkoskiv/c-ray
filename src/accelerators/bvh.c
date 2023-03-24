@@ -14,7 +14,7 @@
 #include "../datatypes/bbox.h"
 #include "../datatypes/mesh.h"
 #include "../renderer/instance.h"
-#include "datatypes/vector.h"
+#include "../datatypes/vector.h"
 
 #include <limits.h>
 #include <assert.h>
