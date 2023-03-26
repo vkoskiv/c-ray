@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../nodebase.h"
 
 #include "../../utils/hashtable.h"
@@ -41,6 +42,92 @@ static uint32_t hash(const void *p) {
 	h = hashBytes(h, &this->f, sizeof(this->f));
 	h = hashBytes(h, &this->op, sizeof(this->op));
 	return h;
+}
+
+static void dump_vec_op(const enum vecOp op, char *buf, size_t bufsize) {
+	switch(op) {
+		case VecAdd:
+			snprintf(buf, bufsize, "add");
+			break;
+		case VecSubtract:
+			snprintf(buf, bufsize, "subtract");
+			break;
+		case VecMultiply:
+			snprintf(buf, bufsize, "multiply");
+			break;
+		case VecDivide:
+			snprintf(buf, bufsize, "divide");
+			break;
+		case VecCross:
+			snprintf(buf, bufsize, "cross");
+			break;
+		case VecReflect:
+			snprintf(buf, bufsize, "reflect");
+			break;
+		case VecRefract:
+			snprintf(buf, bufsize, "refract");
+			break;
+		case VecDot:
+			snprintf(buf, bufsize, "dot");
+			break;
+		case VecDistance:
+			snprintf(buf, bufsize, "distance");
+			break;
+		case VecLength:
+			snprintf(buf, bufsize, "length");
+			break;
+		case VecScale:
+			snprintf(buf, bufsize, "scale");
+			break;
+		case VecNormalize:
+			snprintf(buf, bufsize, "normalize");
+			break;
+		case VecWrap:
+			snprintf(buf, bufsize, "wrap");
+			break;
+		case VecFloor:
+			snprintf(buf, bufsize, "floor");
+			break;
+		case VecCeil:
+			snprintf(buf, bufsize, "ceil");
+			break;
+		case VecModulo:
+			snprintf(buf, bufsize, "mod");
+			break;
+		case VecAbs:
+			snprintf(buf, bufsize, "abs");
+			break;
+		case VecMin:
+			snprintf(buf, bufsize, "min");
+			break;
+		case VecMax:
+			snprintf(buf, bufsize, "max");
+			break;
+		case VecSin:
+			snprintf(buf, bufsize, "sin");
+			break;
+		case VecCos:
+			snprintf(buf, bufsize, "cos");
+			break;
+		case VecTan:
+			snprintf(buf, bufsize, "tan");
+			break;
+	}
+}
+
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	struct vecMathNode *self = (struct vecMathNode *)node;
+	char A[DUMPBUF_SIZE / 2] = "";
+	char B[DUMPBUF_SIZE / 2] = "";
+	char C[DUMPBUF_SIZE / 2] = "";
+	char f[DUMPBUF_SIZE / 2] = "";
+	char op[DUMPBUF_SIZE / 2] = "";
+	if (self->A->base.dump) self->A->base.dump(self->A, A, sizeof(A));
+	if (self->B->base.dump) self->B->base.dump(self->B, B, sizeof(B));
+	if (self->C->base.dump) self->C->base.dump(self->C, C, sizeof(C));
+	if (self->f->base.dump) self->f->base.dump(self->f, f, sizeof(f));
+	dump_vec_op(self->op, op, sizeof(op));
+	snprintf(dumpbuf, bufsize, "vecMathNode { A: %s, B: %s, C: %s, f: %s, op: %s }", A, B, C, f, op);
 }
 
 static inline float wrap(float value, float max, float min) {
@@ -119,7 +206,7 @@ const struct vectorNode *newVecMath(const struct node_storage *s, const struct v
 		.op = op,
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

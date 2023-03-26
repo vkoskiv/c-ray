@@ -6,6 +6,7 @@
 //  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../nodebase.h"
 
 #include "../../renderer/samplers/sampler.h"
@@ -35,6 +36,13 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	struct vecToColorNode *self = (struct vecToColorNode *)node;
+	char vec[DUMPBUF_SIZE / 2] = "";
+	if (self->vec->base.dump) self->vec->base.dump(self->vec, vec, sizeof(vec));
+	snprintf(dumpbuf, bufsize, "vecTovecNode { vec: %s }", vec);
+}
+
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	struct vecToColorNode *this = (struct vecToColorNode *)node;
@@ -48,7 +56,7 @@ const struct colorNode *newVecToColor(const struct node_storage *s, const struct
 		.vec = vec ? vec : newConstantVector(s, vec_zero()),
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

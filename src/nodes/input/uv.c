@@ -6,6 +6,7 @@
 //  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/color.h"
 #include "../../datatypes/vector.h"
@@ -34,6 +35,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	(void)node;
+	snprintf(dumpbuf, bufsize, "uvNode { }");
+}
+
 static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	(void)node;
@@ -45,7 +51,7 @@ const struct vectorNode *newUV(const struct node_storage *s) {
 	HASH_CONS(s->node_table, hash, struct uvNode, {
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }
