@@ -722,7 +722,7 @@ void apply_materials_to_instance(struct renderer *r, struct instance *instance, 
 	struct cJSON *override = NULL;
 	if (cJSON_IsArray(overrides)) {
 		// Array of graphs, so map them to mesh materials.
-		ASSERT((size_t)cJSON_GetArraySize(overrides) <= instance->bsdf_count);
+		ASSERT(cJSON_GetArraySize(overrides) <= instance->bsdf_count);
 		size_t i = 0;
 		cJSON_ArrayForEach(override, overrides) {
 			size_t old_i = i;
