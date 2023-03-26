@@ -11,7 +11,7 @@
 #include "../utils/logging.h"
 #include <stdbool.h>
 
-#define DUMPBUF_SIZE 4096
+#define DUMPBUF_SIZE 16384
 
 // Magic for comparing two nodes
 

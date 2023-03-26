@@ -46,24 +46,20 @@ static uint32_t hash(const void *p) {
 }
 
 static void dump(const void *node, char *dumpbuf, int bufsize) {
-	(void)node;
-	(void)dumpbuf;
-	(void)bufsize;
-/*	struct mapRangeNode *self = (struct mapRangeNode *)node;
+	struct mapRangeNode *self = (struct mapRangeNode *)node;
 	char input[DUMPBUF_SIZE / 6];
 	char from_min[DUMPBUF_SIZE / 6];
 	char from_max[DUMPBUF_SIZE / 6];
 	char to_min[DUMPBUF_SIZE / 6];
 	char to_max[DUMPBUF_SIZE / 6];
-	if (self->input_value->base.dump) self->input_value->base.dump(self->input_value, input);
-	if (self->from_min->base.dump) self->from_min->base.dump(self->from_min, from_min);
-	if (self->from_max->base.dump) self->from_max->base.dump(self->from_max, from_max);
-	if (self->to_min->base.dump) self->to_min->base.dump(self->to_min, to_min);
-	if (self->to_max->base.dump) self->to_max->base.dump(self->to_max, to_max);
+	if (self->input_value->base.dump) self->input_value->base.dump(self->input_value, input, sizeof(input));
+	if (self->from_min->base.dump) self->from_min->base.dump(self->from_min, from_min, sizeof(from_min));
+	if (self->from_max->base.dump) self->from_max->base.dump(self->from_max, from_max, sizeof(from_max));
+	if (self->to_min->base.dump) self->to_min->base.dump(self->to_min, to_min, sizeof(to_min));
+	if (self->to_max->base.dump) self->to_max->base.dump(self->to_max, to_max, sizeof(to_max));
 
-	snprintf(dumpbuf, DUMPBUF_SIZE, "mapRangeNode { input: %s, from_min: %s, from_max: %s, to_min: %s, to_max: %s }",
+	snprintf(dumpbuf, bufsize, "mapRangeNode { input: %s, from_min: %s, from_max: %s, to_min: %s, to_max: %s }",
 		input, from_min, from_max, to_min, to_max);
-	*/
 }
 
 static inline float lerp(float min, float max, float t) {

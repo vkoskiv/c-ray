@@ -6,6 +6,7 @@
 //  Copyright © 2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../nodebase.h"
 
 #include "../../utils/hashtable.h"
@@ -35,6 +36,25 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+char component_to_char(enum component c) {
+	switch (c) {
+		case X: return 'X';
+		case Y: return 'Y';
+		case Z: return 'Z';
+		case U: return 'U';
+		case V: return 'V';
+		case F: return 'F';
+	}
+	return '?';
+}
+
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	struct vecToValueNode *self = (struct vecToValueNode *)node;
+	char vec[DUMPBUF_SIZE / 2] = "";
+	if (self->vec->base.dump) self->vec->base.dump(self->vec, vec, sizeof(vec));
+	snprintf(dumpbuf, bufsize, "vecToValueNode { vec: %s, component: %c }", vec, component_to_char(self->component_to_get));
+}
+
 static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
 	struct vecToValueNode *this = (struct vecToValueNode *)node;
 	const struct vectorValue val = this->vec->eval(this->vec, sampler, record);
@@ -56,7 +76,7 @@ const struct valueNode *newVecToValue(const struct node_storage *s, const struct
 		.component_to_get = component,
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

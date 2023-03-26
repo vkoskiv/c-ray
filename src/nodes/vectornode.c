@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../datatypes/color.h"
 #include "../datatypes/vector.h"
 #include "../datatypes/hitrecord.h"
@@ -35,6 +36,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	struct constantVector *self = (struct constantVector *)node;
+	snprintf(dumpbuf, bufsize, "constantVector { %.2f, %.2f, %.2f }", self->vector.x, self->vector.y, self->vector.z);
+}
+
 static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	(void)sampler;
@@ -47,7 +53,7 @@ const struct vectorNode *newConstantVector(const struct node_storage *s, const s
 		.vector = vector,
 		.node = {
 			.eval = eval,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }
@@ -70,6 +76,11 @@ static uint32_t hash_uv(const void *p) {
 	return h;
 }
 
+static void dump_uv(const void *node, char *dumpbuf, int bufsize) {
+	struct constantUV *self = (struct constantUV *)node;
+	snprintf(dumpbuf, bufsize, "constantUV { %.2f, %.2f }", self->uv.x, self->uv.y);
+}
+
 static struct vectorValue eval_uv(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	(void)sampler;
@@ -82,7 +93,7 @@ const struct vectorNode *newConstantUV(const struct node_storage *s, const struc
 		.uv = c,
 		.node = {
 			.eval = eval_uv,
-			.base = { .compare = compare_uv }
+			.base = { .compare = compare_uv, .dump = dump_uv }
 		}
 	});
 }
