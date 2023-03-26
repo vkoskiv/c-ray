@@ -36,11 +36,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int bufsize) {
 	struct diffuseBsdf *self = (struct diffuseBsdf *)node;
 	char color[DUMPBUF_SIZE / 2] = "";
-	if (self->color->base.dump) self->color->base.dump(self->color, &color[0]);
-	snprintf(dumpbuf, DUMPBUF_SIZE, "diffuseBsdf { color: %s }", color);
+	if (self->color->base.dump) self->color->base.dump(self->color, &color[0], sizeof(color));
+	snprintf(dumpbuf, bufsize, "diffuseBsdf { color: %s }", color);
 }
 
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {

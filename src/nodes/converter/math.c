@@ -121,15 +121,15 @@ static void dump_math_op(const enum mathOp op, char *buf, size_t bufsize) {
 	}
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int bufsize) {
 	struct mathNode *self = (struct mathNode *)node;
 	char A[DUMPBUF_SIZE / 4] = "";
 	char B[DUMPBUF_SIZE / 4] = "";
 	char op[DUMPBUF_SIZE / 4] = "";
-	if (self->A->base.dump) self->A->base.dump(self->A, A);
-	if (self->B->base.dump) self->B->base.dump(self->B, B);
+	if (self->A->base.dump) self->A->base.dump(self->A, A, sizeof(A));
+	if (self->B->base.dump) self->B->base.dump(self->B, B, sizeof(B));
 	dump_math_op(self->op, op, sizeof(op));
-	snprintf(dumpbuf, DUMPBUF_SIZE, "mathNode { A: %s, B: %s, op: %s }", A, B, op);
+	snprintf(dumpbuf, bufsize, "mathNode { A: %s, B: %s, op: %s }", A, B, op);
 }
 
 float rough_compare(float a, float b) {

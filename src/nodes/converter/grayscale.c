@@ -41,11 +41,11 @@ static float eval(const struct valueNode *node, sampler *sampler, const struct h
 	return colorToGrayscale(this->input->eval(this->input, sampler, record)).red;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int len) {
 	struct grayscale *self = (struct grayscale *)node;
 	char color[DUMPBUF_SIZE / 2] = "";
-	if (self->input->base.dump) self->input->base.dump(self->input, &color[0]);
-	snprintf(dumpbuf, DUMPBUF_SIZE, "grayscale { input: %s }", color);
+	if (self->input->base.dump) self->input->base.dump(self->input, color, sizeof(color));
+	snprintf(dumpbuf, len, "grayscale { input: %s }", color);
 }
 
 const struct valueNode *newGrayscaleConverter(const struct node_storage *s, const struct colorNode *node) {

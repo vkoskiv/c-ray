@@ -36,13 +36,13 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int bufsize) {
 	struct fresnelNode *self = (struct fresnelNode *)node;
 	char ior[DUMPBUF_SIZE / 4] = "";
 	char normal[DUMPBUF_SIZE / 4] = "";
-	if (self->IOR->base.dump) self->IOR->base.dump(self->IOR, &ior[0]);
-	if (self->normal->base.dump) self->normal->base.dump(self->normal, &normal[0]);
-	snprintf(dumpbuf, DUMPBUF_SIZE, "fresnelNode { IOR: %s, normal: %s }", ior, normal);
+	if (self->IOR->base.dump) self->IOR->base.dump(self->IOR, &ior[0], sizeof(ior));
+	if (self->normal->base.dump) self->normal->base.dump(self->normal, &normal[0], sizeof(normal));
+	snprintf(dumpbuf, bufsize, "fresnelNode { IOR: %s, normal: %s }", ior, normal);
 }
 
 static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {

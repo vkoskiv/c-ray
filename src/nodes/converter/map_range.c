@@ -45,7 +45,10 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	(void)node;
+	(void)dumpbuf;
+	(void)bufsize;
 /*	struct mapRangeNode *self = (struct mapRangeNode *)node;
 	char input[DUMPBUF_SIZE / 6];
 	char from_min[DUMPBUF_SIZE / 6];

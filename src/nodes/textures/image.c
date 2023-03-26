@@ -60,14 +60,14 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int len) {
 	struct imageTexture *self = (struct imageTexture *)node;
 	//TODO: Consider having imageTexture have a func to dump this.
 	if (!self->tex) {
-		snprintf(dumpbuf, DUMPBUF_SIZE, "imageTexture { tex: null }");
+		snprintf(dumpbuf, len, "imageTexture { tex: null }");
 		return;
 	}
-	snprintf(dumpbuf, DUMPBUF_SIZE, "imageTexture { tex: { %lux%lu, %lu channels, %s, %s }, options: %s %s }",
+	snprintf(dumpbuf, len, "imageTexture { tex: { %lux%lu, %lu channels, %s, %s }, options: %s %s }",
 		self->tex->width,
 		self->tex->height,
 		self->tex->channels,

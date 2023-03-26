@@ -35,11 +35,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int len) {
 	struct constantTexture *self = (struct constantTexture *)node;
 	char color[64] = "";
 	color_dump(self->color, color, 64);
-	snprintf(dumpbuf, DUMPBUF_SIZE, "constantTexture { color: %s }", color);
+	snprintf(dumpbuf, len, "constantTexture { color: %s }", color);
 }
 
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {

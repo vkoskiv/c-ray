@@ -38,15 +38,15 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int bufsize) {
 	struct combineRGB *self = (struct combineRGB *)node;
 	char R[DUMPBUF_SIZE / 4] = "";
 	char G[DUMPBUF_SIZE / 4] = "";
 	char B[DUMPBUF_SIZE / 4] = "";
-	if (self->R->base.dump) self->R->base.dump(self->R, &R[0]);
-	if (self->G->base.dump) self->G->base.dump(self->G, &G[0]);
-	if (self->B->base.dump) self->B->base.dump(self->B, &B[0]);
-	snprintf(dumpbuf, DUMPBUF_SIZE, "combineRGB { R: %s, G: %s, B: %s }", R, G, B);
+	if (self->R->base.dump) self->R->base.dump(self->R, &R[0], sizeof(R));
+	if (self->G->base.dump) self->G->base.dump(self->G, &G[0], sizeof(G));
+	if (self->B->base.dump) self->B->base.dump(self->B, &B[0], sizeof(B));
+	snprintf(dumpbuf, bufsize, "combineRGB { R: %s, G: %s, B: %s }", R, G, B);
 }
 
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {

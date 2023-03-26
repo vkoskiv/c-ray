@@ -36,13 +36,13 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int len) {
 	struct gradientTexture *self = (struct gradientTexture *)node;
 	char down[64] = "";
 	color_dump(self->down, &down[0], 64);
 	char up[64] = "";
 	color_dump(self->up, &up[0], 64);
-	snprintf(dumpbuf, DUMPBUF_SIZE, "gradientTexture { down: %s, up: %s }", down, up);
+	snprintf(dumpbuf, len, "gradientTexture { down: %s, up: %s }", down, up);
 }
 
 //Linearly interpolate based on the Y component

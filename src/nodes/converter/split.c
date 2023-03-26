@@ -34,11 +34,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int len) {
 	struct splitValue *self = (struct splitValue *)node;
 	char input[DUMPBUF_SIZE / 2] = "";
-	if (self->input->base.dump) self->input->base.dump(self->input, &input[0]);
-	snprintf(dumpbuf, DUMPBUF_SIZE, "splitValue { input: %s }", input);
+	if (self->input->base.dump) self->input->base.dump(self->input, input, sizeof(input));
+	snprintf(dumpbuf, len, "splitValue { input: %s }", input);
 }
 
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {

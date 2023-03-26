@@ -19,7 +19,7 @@ struct node_storage;
 
 struct nodeBase {
 	bool (*compare)(const void *, const void *);
-	void (*dump)(const void *, char[DUMPBUF_SIZE]);
+	void (*dump)(const void *, char *, int);
 };
 
 bool compareNodes(const void *A, const void *B);
@@ -28,8 +28,8 @@ bool compareNodes(const void *A, const void *B);
 	{ \
 		const T candidate = __VA_ARGS__; \
         struct nodeBase *c = (struct nodeBase *)&candidate; \
-		char dumpbuf[256] = ""; \
-		if (c->dump) c->dump(c, &dumpbuf[0]); \
+		char dumpbuf[DUMPBUF_SIZE] = ""; \
+		if (c->dump) c->dump(c, dumpbuf, sizeof(dumpbuf)); \
 		const uint32_t h = hash(&candidate); \
 		const T *existing = findInHashtable(hashtable, &candidate, h); \
 		if (existing) {\

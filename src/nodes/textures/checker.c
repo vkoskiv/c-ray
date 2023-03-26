@@ -66,13 +66,13 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int len) {
 	struct checkerTexture *self = (struct checkerTexture *)node;
 	char A[64] = "";
-	if (self->A->base.dump) self->A->base.dump(self->A, &A[0]);
+	if (self->A->base.dump) self->A->base.dump(self->A, &A[0], 64);
 	char B[64] = "";
-	if (self->B->base.dump) self->B->base.dump(self->B, &B[0]);
-	snprintf(dumpbuf, DUMPBUF_SIZE, "checkerTexture { A: %s, B: %s }", A, B);
+	if (self->B->base.dump) self->B->base.dump(self->B, &B[0], 64);
+	snprintf(dumpbuf, len, "checkerTexture { A: %s, B: %s }", A, B);
 }
 
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {

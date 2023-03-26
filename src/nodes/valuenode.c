@@ -36,9 +36,9 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int bufsize) {
 	struct constantValue *self = (struct constantValue *)node;
-	snprintf(dumpbuf, DUMPBUF_SIZE, "constantValue { value: %.2f }", self->value);
+	snprintf(dumpbuf, bufsize, "constantValue { value: %.2f }", self->value);
 }
 
 static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {

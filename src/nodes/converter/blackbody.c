@@ -35,11 +35,11 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump(const void *node, char *dumpbuf) {
+static void dump(const void *node, char *dumpbuf, int len) {
 	struct blackbodyNode *self = (struct blackbodyNode *)node;
 	char temperature[DUMPBUF_SIZE / 2] = "";
-	if (self->temperature->base.dump) self->temperature->base.dump(self->temperature, &temperature[0]);
-	snprintf(dumpbuf, DUMPBUF_SIZE, "blackbodyNode { input: %s }", temperature);
+	if (self->temperature->base.dump) self->temperature->base.dump(self->temperature, temperature, sizeof(temperature));
+	snprintf(dumpbuf, len, "blackbodyNode { input: %s }", temperature);
 }
 
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
