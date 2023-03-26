@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
@@ -37,6 +38,15 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	struct addBsdf *self = (struct addBsdf *)node;
+	char A[DUMPBUF_SIZE / 2] = "";
+	char B[DUMPBUF_SIZE / 2] = "";
+	if (self->A->base.dump) self->A->base.dump(self->A, A, sizeof(A));
+	if (self->B->base.dump) self->B->base.dump(self->B, B, sizeof(B));
+	snprintf(dumpbuf, bufsize, "addBsdf { A: %s, B: %s }", A, B);
+}
+
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct addBsdf *mixBsdf = (struct addBsdf *)bsdf;
 	struct bsdfSample A = mixBsdf->A->sample(mixBsdf->A, sampler, record);
@@ -56,7 +66,7 @@ const struct bsdfNode *newAdd(const struct node_storage *s, const struct bsdfNod
 		.B = B ? B : newDiffuse(s, newConstantTexture(s, g_black_color)),
 		.bsdf = {
 			.sample = sample,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

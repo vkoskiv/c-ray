@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
@@ -35,6 +36,13 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	struct transparent *self = (struct transparent *)node;
+	char color[DUMPBUF_SIZE / 2] = "";
+	if (self->color->base.dump) self->color->base.dump(self->color, color, sizeof(color));
+	snprintf(dumpbuf, bufsize, "transparent { color: %s }", color);
+}
+
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	(void)sampler;
 	struct transparent *this = (struct transparent *)bsdf;
@@ -46,7 +54,7 @@ const struct bsdfNode *newTransparent(const struct node_storage *s, const struct
 		.color = color ? color : newConstantTexture(s, g_white_color),
 		.bsdf = {
 			.sample = sample,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

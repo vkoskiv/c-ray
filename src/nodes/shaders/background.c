@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../datatypes/vector.h"
 #include "../../datatypes/hitrecord.h"
@@ -34,6 +35,15 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	struct backgroundBsdf *self = (struct backgroundBsdf *)node;
+	char color[DUMPBUF_SIZE / 2] = "";
+	char strength[DUMPBUF_SIZE / 2] = "";
+	if (self->color->base.dump) self->color->base.dump(self->color, color, sizeof(color));
+	if (self->strength->base.dump) self->strength->base.dump(self->strength, strength, sizeof(strength));
+	snprintf(dumpbuf, bufsize, "backgroundBsdf { color: %s, strength: %s }", color, strength);
+}
+
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	(void)sampler;
 	struct backgroundBsdf *background = (struct backgroundBsdf *)bsdf;
@@ -50,7 +60,7 @@ const struct bsdfNode *newBackground(const struct node_storage *s, const struct 
 		.strength = strength ? strength : newConstantValue(s, 1.0f),
 		.bsdf = {
 			.sample = sample,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }
