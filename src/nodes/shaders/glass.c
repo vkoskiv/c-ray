@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
@@ -35,6 +36,17 @@ static uint32_t hash(const void *p) {
 	h = hashBytes(h, &this->color, sizeof(this->color));
 	h = hashBytes(h, &this->roughness, sizeof(this->roughness));
 	return h;
+}
+
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	struct glassBsdf *self = (struct glassBsdf *)node;
+	char color[DUMPBUF_SIZE / 2] = "";
+	char roughness[DUMPBUF_SIZE / 2] = "";
+	char IOR[DUMPBUF_SIZE / 2] = "";
+	if (self->color->base.dump) self->color->base.dump(self->color, color, sizeof(color));
+	if (self->roughness->base.dump) self->roughness->base.dump(self->roughness, roughness, sizeof(roughness));
+	if (self->IOR->base.dump) self->IOR->base.dump(self->IOR, IOR, sizeof(IOR));
+	snprintf(dumpbuf, bufsize, "glassBsdf { color: %s, roughness: %s, IOR: %s }", color, roughness, IOR);
 }
 
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
@@ -92,7 +104,7 @@ const struct bsdfNode *newGlass(const struct node_storage *s, const struct color
 		.IOR = IOR ? IOR : newConstantValue(s, 1.45f),
 		.bsdf = {
 			.sample = sample,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

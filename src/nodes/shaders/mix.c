@@ -6,6 +6,7 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
@@ -38,6 +39,17 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	struct mixBsdf *self = (struct mixBsdf *)node;
+	char A[DUMPBUF_SIZE / 2] = "";
+	char B[DUMPBUF_SIZE / 2] = "";
+	char factor[DUMPBUF_SIZE / 2] = "";
+	if (self->A->base.dump) self->A->base.dump(self->A, A, sizeof(A));
+	if (self->B->base.dump) self->B->base.dump(self->B, B, sizeof(B));
+	if (self->factor->base.dump) self->factor->base.dump(self->factor, factor, sizeof(factor));
+	snprintf(dumpbuf, bufsize, "mixBsdf { A: %s, B: %s, factor: %s }", A, B, factor);
+}
+
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct mixBsdf *mixBsdf = (struct mixBsdf *)bsdf;
 	const float lerp = mixBsdf->factor->eval(mixBsdf->factor, sampler, record);
@@ -59,7 +71,7 @@ const struct bsdfNode *newMix(const struct node_storage *s, const struct bsdfNod
 		.factor = factor ? factor : newConstantValue(s, 0.5f),
 		.bsdf = {
 			.sample = sample,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }

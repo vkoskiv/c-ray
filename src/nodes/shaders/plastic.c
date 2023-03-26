@@ -6,6 +6,7 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdio.h>
 #include "../../datatypes/color.h"
 #include "../../renderer/samplers/sampler.h"
 #include "../../datatypes/vector.h"
@@ -39,6 +40,19 @@ static uint32_t hash(const void *p) {
 	h = hashBytes(h, &this->clear_coat, sizeof(this->clear_coat));
 	h = hashBytes(h, &this->IOR, sizeof(this->IOR));
 	return h;
+}
+
+static void dump(const void *node, char *dumpbuf, int bufsize) {
+	struct plasticBsdf *self = (struct plasticBsdf *)node;
+	char roughness[DUMPBUF_SIZE / 2] = "";
+	char diffuse[DUMPBUF_SIZE / 2] = "";
+	char clear_coat[DUMPBUF_SIZE / 2] = "";
+	char IOR[DUMPBUF_SIZE / 2] = "";
+	if (self->roughness->base.dump) self->roughness->base.dump(self->roughness, roughness, sizeof(roughness));
+	if (self->diffuse->base.dump) self->diffuse->base.dump(self->diffuse, diffuse, sizeof(diffuse));
+	if (self->clear_coat->base.dump) self->clear_coat->base.dump(self->clear_coat, clear_coat, sizeof(clear_coat));
+	if (self->IOR->base.dump) self->IOR->base.dump(self->IOR, IOR, sizeof(IOR));
+	snprintf(dumpbuf, bufsize, "plasticBsdf { roughness: %s, diffuse: %s, clear_coat: %s, IOR: %s }", roughness, diffuse, clear_coat, IOR);
 }
 
 static struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
@@ -98,7 +112,7 @@ const struct bsdfNode *newPlastic(const struct node_storage *s, const struct col
 		.IOR = IOR ? IOR : newConstantValue(s, 1.45f),
 		.bsdf = {
 			.sample = sample,
-			.base = { .compare = compare }
+			.base = { .compare = compare, .dump = dump }
 		}
 	});
 }
