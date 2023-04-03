@@ -17,6 +17,7 @@ struct hitRecord;
 struct valueNode {
 	struct nodeBase base;
 	float (*eval)(const struct valueNode *node, sampler *sampler, const struct hitRecord *record);
+	bool constant;
 };
 
 #include "input/fresnel.h"

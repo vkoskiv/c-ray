@@ -53,6 +53,7 @@ const struct valueNode *newConstantValue(const struct node_storage *s, float val
 		.value = value,
 		.node = {
 			.eval = eval,
+			.constant = true,
 			.base = { .compare = compare, .dump = dump }
 		}
 	});
