@@ -24,25 +24,19 @@ struct node_storage {
 struct world {
 	//Optional environment map / ambient color
 	const struct bsdfNode *background;
-	float backgroundOffset;
-	
 	struct mesh *meshes;
-	int meshCount;
-	
 	struct instance *instances;
-	int instanceCount;
-	
 	// Top-level bounding volume hierarchy,
 	// contains all 3D assets in the scene.
 	struct bvh *topLevel;
-	
 	struct sphere *spheres;
-	int sphereCount;
-
 	struct camera *cameras;
-	size_t camera_count;
-	
 	struct node_storage storage;
+	float backgroundOffset;
+	int meshCount;
+	int instanceCount;
+	int sphereCount;
+	size_t camera_count;
 };
 
 int loadScene(struct renderer *r, char *input);
