@@ -48,18 +48,18 @@ static inline struct hitRecord getClosestIsect(struct lightRay *incidentRay, con
 }
 
 struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
-	struct color weight = g_white_color; // Current path weight
-	struct color finalColor = g_black_color; // Final path contribution
+	struct color path_color = g_white_color; // Current path weight
+	struct color incoming_light = g_black_color; // Final path contribution
 	struct lightRay currentRay = *incidentRay;
 	
 	for (int depth = 0; depth < maxDepth; ++depth) {
 		const struct hitRecord isect = getClosestIsect(&currentRay, scene, sampler);
 		if (isect.instIndex < 0) {
-			finalColor = colorAdd(finalColor, colorMul(weight, scene->background->sample(scene->background, sampler, &isect).color));
+			incoming_light = colorAdd(incoming_light, colorMul(path_color, scene->background->sample(scene->background, sampler, &isect).color));
 			break;
 		}
 		
-		finalColor = colorAdd(finalColor, colorMul(weight, *isect.emission));
+		incoming_light = colorAdd(incoming_light, colorMul(path_color, *isect.emission));
 		
 		const struct bsdfSample sample = isect.bsdf->sample(isect.bsdf, sampler, &isect);
 		currentRay = (struct lightRay){ .start = isect.hitPoint, .direction = sample.out };
@@ -73,7 +73,7 @@ struct color pathTrace(const struct lightRay *incidentRay, const struct world *s
 				break;
 		}
 		
-		weight = colorCoef(1.0f / rr_continue_probability, colorMul(attenuation, weight));
+		path_color = colorCoef(1.0f / rr_continue_probability, colorMul(attenuation, path_color));
 	}
-	return finalColor;
+	return incoming_light;
 }
