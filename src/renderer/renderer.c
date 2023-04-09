@@ -54,7 +54,7 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, camera.width, KNRM, KWHT, camera.height, KNRM);
 	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
-	logr(info, "Rendering with %s%d%s%s thread%s.\n",
+	logr(info, "Rendering with %s%d%s%s local thread%s.\n",
 		 KRED,
 		 r->prefs.fromSystem && !threadsReduced ? r->prefs.threadCount - 2 : r->prefs.threadCount,
 		 r->prefs.fromSystem && !threadsReduced ? "+2" : "",
