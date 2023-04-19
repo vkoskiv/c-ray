@@ -96,9 +96,9 @@ size_t parsePolygons(lineBuffer *line, struct poly *buf) {
 		p->vertexCount = MAX_CRAY_VERTEX_COUNT;
 		for (int j = 0; j < p->vertexCount; ++j) {
 			fillLineBuffer(&batch, nextToken(line), '/');
-			p->vertexIndex[j] = atoi(firstToken(&batch));
-			p->textureIndex[j] = atoi(nextToken(&batch));
-			p->normalIndex[j] = atoi(nextToken(&batch));
+			if (batch.amountOf.tokens >= 1) p->vertexIndex[j] = atoi(firstToken(&batch));
+			if (batch.amountOf.tokens >= 2) p->textureIndex[j] = atoi(nextToken(&batch));
+			if (batch.amountOf.tokens >= 3) p->normalIndex[j] = atoi(nextToken(&batch));
 			if (i == 1 && !skipped) {
 				nextToken(line);
 				skipped = true;
