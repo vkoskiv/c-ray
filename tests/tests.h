@@ -63,6 +63,7 @@ static test tests[] = {
 	{"textbuffer::textview", textbuffer_textview},
 	{"textbuffer::tokenizer", textbuffer_tokenizer},
 	{"textbuffer::multispace", textbuffer_multispace},
+	{"textbuffer::trailing_space", textbuffer_trailing_space},
 	{"textbuffer::new", textbuffer_new},
 	{"textbuffer::gotoline", textbuffer_gotoline},
 	{"textbuffer::peekline", textbuffer_peekline},

@@ -160,7 +160,9 @@ void fillLineBuffer(lineBuffer *line, const char *contents, char delimiter) {
 	line->buflen = copyLen;
 	line->amountOf.tokens = 0;
 	for (size_t i = 0; i < line->buflen + 1; ++i) {
-		if (line->buf[i] == delimiter || line->buf[i] == '\0') {
+		char cur = line->buf[i];
+		char next = i > line->buflen ? 0 : line->buf[i + 1];
+		if ((cur == delimiter && next) || cur == '\0') {
 			line->buf[i] = '\0';
 			line->amountOf.tokens++;
 		}

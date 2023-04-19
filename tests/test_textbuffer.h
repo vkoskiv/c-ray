@@ -244,7 +244,16 @@ bool textbuffer_multispace(void) {
 
 	char *text3 = " thing thing2 thing3 thing4 thing5 thing6 ";
 	fillLineBuffer(&line, text3, ' ');
-	logr(info, "tokens: %zu\n", line.amountOf.tokens);
 	test_assert(line.amountOf.tokens == 6);
+	return true;
+}
+
+bool textbuffer_trailing_space(void) {
+	char *text = "thing1 thing2 thing3 thing4 ";
+	char container[LINEBUFFER_MAXSIZE];
+	lineBuffer line = { .buf = container };
+	fillLineBuffer(&line, text, ' ');
+	test_assert(line.amountOf.tokens == 4);
+
 	return true;
 }
