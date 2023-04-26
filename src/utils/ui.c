@@ -140,7 +140,12 @@ void initDisplay(bool fullscreen, bool borderless, int width, int height, float 
 		return;
 	}
 	//Init overlay texture (for UI info)
-	g_display->overlayTexture = SDL_CreateTexture(g_display->renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, g_display->width, g_display->height);
+
+	uint32_t format = SDL_PIXELFORMAT_ABGR8888;
+#if SDL_BYTEORDER == BIG_ENDIAN
+	format = SDL_PIXELFORMAT_RGBA8888;
+#endif
+	g_display->overlayTexture = SDL_CreateTexture(g_display->renderer, format, SDL_TEXTUREACCESS_STREAMING, g_display->width, g_display->height);
 	if (g_display->overlayTexture == NULL) {
 		logr(warning, "Overlay texture couldn't be created, error: \"%s\"\n", SDL_GetError());
 		destroyDisplay();
