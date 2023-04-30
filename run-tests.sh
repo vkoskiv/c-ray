@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Compiling..."
-rebuild/testing-on > /dev/null || exit
+rebuild/testing-on > /dev/null || exit 1
 echo "Done, running tests."
 if [[ $# -eq 1 ]]; then
 	suite=$1
