@@ -103,7 +103,6 @@ ssize_t chunkedReceive(int socket, char **data, size_t *length) {
 	char *recvBuf = calloc(msgLen, sizeof(*recvBuf));
 	char *currentChunk = calloc(chunkSize, sizeof(*currentChunk));
 	char *scratchBuf = calloc(chunkSize, sizeof(*scratchBuf));
-	size_t receivedChunks = 0;
 	size_t leftToReceive = msgLen;
 	for (size_t i = 0; i < chunks; ++i) {
 		size_t chunkLeftToReceive = chunkSize;
@@ -119,7 +118,6 @@ ssize_t chunkedReceive(int socket, char **data, size_t *length) {
 		}
 		size_t len = leftToReceive > chunkSize ? chunkSize : leftToReceive;
 		memcpy(recvBuf + (i * chunkSize), currentChunk, len);
-		receivedChunks++;
 		leftToReceive -= min(len, chunkSize);
 		memset(currentChunk, 0, chunkSize);
 	}
