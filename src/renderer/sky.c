@@ -54,7 +54,7 @@ static struct color invertColor(float invert, struct color c) {
 }
 
 static struct color totalMie(struct color primaryWavelengths, struct color K, float T) {
-	float c = (0.2f * T) * 10E-18;
+	float c = (0.2f * T) * (float)10E-18;
 	return colorCoef(0.434f * c * PI, colorMul(colorPow(invertColor((2.0f * PI), primaryWavelengths),(struct color){2.0f, 2.0f, 2.0f, 1.0f}), K));
 }
 

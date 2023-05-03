@@ -97,5 +97,5 @@ struct color color_from_hsl(float hue, float saturation, float lightness) {
 }
 
 void color_dump(struct color c, char *buf, size_t bufsize) {
-	snprintf(buf, bufsize, "{ %.2f, %.2f, %.2f, %.2f }", c.red, c.green, c.blue, c.alpha);
+	snprintf(buf, bufsize, "{ %.2f, %.2f, %.2f, %.2f }", (double)c.red, (double)c.green, (double)c.blue, (double)c.alpha);
 }

@@ -133,7 +133,7 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 }
 
 float rough_compare(float a, float b) {
-	if (fabsf(a - b) > 0.0000005) return false;
+	if (fabsf(a - b) > 0.0000005f) return false;
 	return true;
 }
 

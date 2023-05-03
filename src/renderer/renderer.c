@@ -148,12 +148,12 @@ struct texture *renderFrame(struct renderer *r) {
 			smartTime((msecTillFinished) / (r->prefs.threadCount + remoteThreads), rem);
 			logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
 				 KBLU,
-				 interactive ? ((float)r->state.finishedPasses / (float)r->prefs.sampleCount) * 100.0f :
-							   ((float)r->state.finishedTileCount / (float)r->state.tileCount) * 100.0f,
+				 interactive ? ((double)r->state.finishedPasses / (double)r->prefs.sampleCount) * 100.0 :
+							   ((double)r->state.finishedTileCount / (double)r->state.tileCount) * 100.0,
 				 KNRM,
-				 usPerRay,
+				 (double)usPerRay,
 				 rem,
-				 0.000001f * sps,
+				 0.000001 * (double)sps,
 				 r->state.threadStates[0].paused ? "[PAUSED]" : "");
 			
 			pauser = 0;

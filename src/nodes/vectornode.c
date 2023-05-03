@@ -38,7 +38,7 @@ static uint32_t hash(const void *p) {
 
 static void dump(const void *node, char *dumpbuf, int bufsize) {
 	struct constantVector *self = (struct constantVector *)node;
-	snprintf(dumpbuf, bufsize, "constantVector { %.2f, %.2f, %.2f }", self->vector.x, self->vector.y, self->vector.z);
+	snprintf(dumpbuf, bufsize, "constantVector { %.2f, %.2f, %.2f }", (double)self->vector.x, (double)self->vector.y, (double)self->vector.z);
 }
 
 static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
@@ -78,7 +78,7 @@ static uint32_t hash_uv(const void *p) {
 
 static void dump_uv(const void *node, char *dumpbuf, int bufsize) {
 	struct constantUV *self = (struct constantUV *)node;
-	snprintf(dumpbuf, bufsize, "constantUV { %.2f, %.2f }", self->uv.x, self->uv.y);
+	snprintf(dumpbuf, bufsize, "constantUV { %.2f, %.2f }", (double)self->uv.x, (double)self->uv.y);
 }
 
 static struct vectorValue eval_uv(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
@@ -130,9 +130,9 @@ static enum vecOp parseVectorOp(const cJSON *data) {
 }
 
 struct vector parseVector(const struct cJSON *data) {
-	const float x = cJSON_IsNumber(cJSON_GetArrayItem(data, 0)) ? cJSON_GetArrayItem(data, 0)->valuedouble : 0.0f;
-	const float y = cJSON_IsNumber(cJSON_GetArrayItem(data, 1)) ? cJSON_GetArrayItem(data, 1)->valuedouble : 0.0f;
-	const float z = cJSON_IsNumber(cJSON_GetArrayItem(data, 2)) ? cJSON_GetArrayItem(data, 2)->valuedouble : 0.0f;
+	const float x = cJSON_IsNumber(cJSON_GetArrayItem(data, 0)) ? (float)cJSON_GetArrayItem(data, 0)->valuedouble : 0.0f;
+	const float y = cJSON_IsNumber(cJSON_GetArrayItem(data, 1)) ? (float)cJSON_GetArrayItem(data, 1)->valuedouble : 0.0f;
+	const float z = cJSON_IsNumber(cJSON_GetArrayItem(data, 2)) ? (float)cJSON_GetArrayItem(data, 2)->valuedouble : 0.0f;
 	return (struct vector){ x, y, z };
 }
 const struct vectorNode *parseVectorNode(struct node_storage *s, const struct cJSON *node) {

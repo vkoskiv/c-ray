@@ -110,7 +110,7 @@ void smartTime(unsigned long milliseconds, char *buf) {
 	} else if (secs > 60) {
 		sprintf(buf, "%lim %02lds", mins, secs - (mins * 60));
 	} else if (secs > 0) {
-		sprintf(buf, "%.2fs", (float)milliseconds / 1000);
+		sprintf(buf, "%.2fs", (double)milliseconds / 1000.0);
 	} else {
 		sprintf(buf, "%lums", milliseconds);
 	}

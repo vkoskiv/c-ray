@@ -11,12 +11,12 @@
 #include "vector.h"
 
 struct quaternion euler_to_quaternion(float roll, float pitch, float yaw) {
-	const float cy = cos(yaw * 0.5f);
-	const float sy = sin(yaw * 0.5f);
-	const float cp = cos(pitch * 0.5f);
-	const float sp = sin(pitch * 0.5f);
-	const float cr = cos(roll * 0.5f);
-	const float sr = sin(roll * 0.5f);
+	const float cy = cosf(yaw * 0.5f);
+	const float sy = sinf(yaw * 0.5f);
+	const float cp = cosf(pitch * 0.5f);
+	const float sp = sinf(pitch * 0.5f);
+	const float cr = cosf(roll * 0.5f);
+	const float sr = sinf(roll * 0.5f);
 
 	return (struct quaternion){
 		cr * cp * cy + sr * sp * sy,

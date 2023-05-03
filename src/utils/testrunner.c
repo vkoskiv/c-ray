@@ -28,8 +28,8 @@
 		} \
 	} while (false)
 
-#define roughly_equals(a, b) _roughly_equals(a, b, 0.0000005)
-#define very_roughly_equals(a, b) _roughly_equals(a, b, 0.01)
+#define roughly_equals(a, b) _roughly_equals(a, b, 0.0000005f)
+#define very_roughly_equals(a, b) _roughly_equals(a, b, 0.01f)
 
 #define vec_roughly_equals(veca, vecb) \
 	do { \

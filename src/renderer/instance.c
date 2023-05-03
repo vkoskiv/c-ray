@@ -100,7 +100,7 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 	bbox->max = vec_add(bbox->max, *center);
 	sphere->rayOffset = rayOffset(*bbox);
 	if (isSet("v")) logr(plain, "\n");
-	logr(debug, "sphere offset: %f", sphere->rayOffset);
+	logr(debug, "sphere offset: %f", (double)sphere->rayOffset);
 }
 
 static void getSphereVolumeBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
@@ -113,7 +113,7 @@ static void getSphereVolumeBBoxAndCenter(const struct instance *instance, struct
 	bbox->max = vec_add(bbox->max, *center);
 	volume->sphere->rayOffset = rayOffset(*bbox);
 	if (isSet("v")) logr(plain, "\n");
-	logr(debug, "sphere offset: %f", volume->sphere->rayOffset);
+	logr(debug, "sphere offset: %f", (double)volume->sphere->rayOffset);
 }
 
 struct instance new_sphere_instance(struct sphere *sphere, float *density, struct block **pool) {
@@ -216,7 +216,7 @@ static void getMeshBBoxAndCenter(const struct instance *instance, struct boundin
 	*center = bboxCenter(bbox);
 	mesh->rayOffset = rayOffset(*bbox);
 	if (isSet("v")) logr(plain, "\n");
-	logr(debug, "mesh \"%s\" offset: %f", mesh->name, mesh->rayOffset);
+	logr(debug, "mesh \"%s\" offset: %f", mesh->name, (double)mesh->rayOffset);
 }
 
 static void getMeshVolumeBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
@@ -226,7 +226,7 @@ static void getMeshVolumeBBoxAndCenter(const struct instance *instance, struct b
 	*center = bboxCenter(bbox);
 	volume->mesh->rayOffset = rayOffset(*bbox);
 	if (isSet("v")) logr(plain, "\n");
-	logr(debug, "mesh \"%s\" offset: %f", volume->mesh->name, volume->mesh->rayOffset);
+	logr(debug, "mesh \"%s\" offset: %f", volume->mesh->name, (double)volume->mesh->rayOffset);
 }
 
 struct instance new_mesh_instance(struct mesh *mesh, float *density, struct block **pool) {

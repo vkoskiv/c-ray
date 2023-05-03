@@ -620,10 +620,10 @@ static void parseCameras(struct camera **cam, size_t *cam_count, const cJSON *da
 
 struct color parseColor(const cJSON *data) {
 	if (cJSON_IsArray(data)) {
-		const float r = cJSON_IsNumber(cJSON_GetArrayItem(data, 0)) ? cJSON_GetArrayItem(data, 0)->valuedouble : 0.0f;
-		const float g = cJSON_IsNumber(cJSON_GetArrayItem(data, 1)) ? cJSON_GetArrayItem(data, 1)->valuedouble : 0.0f;
-		const float b = cJSON_IsNumber(cJSON_GetArrayItem(data, 2)) ? cJSON_GetArrayItem(data, 2)->valuedouble : 0.0f;
-		const float a = cJSON_IsNumber(cJSON_GetArrayItem(data, 3)) ? cJSON_GetArrayItem(data, 3)->valuedouble : 1.0f;
+		const float r = cJSON_IsNumber(cJSON_GetArrayItem(data, 0)) ? (float)cJSON_GetArrayItem(data, 0)->valuedouble : 0.0f;
+		const float g = cJSON_IsNumber(cJSON_GetArrayItem(data, 1)) ? (float)cJSON_GetArrayItem(data, 1)->valuedouble : 0.0f;
+		const float b = cJSON_IsNumber(cJSON_GetArrayItem(data, 2)) ? (float)cJSON_GetArrayItem(data, 2)->valuedouble : 0.0f;
+		const float a = cJSON_IsNumber(cJSON_GetArrayItem(data, 3)) ? (float)cJSON_GetArrayItem(data, 3)->valuedouble : 1.0f;
 		return (struct color){ r, g, b, a };
 	}
 	
@@ -646,10 +646,10 @@ struct color parseColor(const cJSON *data) {
 	const cJSON *A = cJSON_GetObjectItem(data, "a");
 
 	return (struct color){
-		cJSON_IsNumber(R) ? R->valuedouble : 0.0f,
-		cJSON_IsNumber(G) ? G->valuedouble : 0.0f,
-		cJSON_IsNumber(B) ? B->valuedouble : 0.0f,
-		cJSON_IsNumber(A) ? A->valuedouble : 1.0f,
+		cJSON_IsNumber(R) ? (float)R->valuedouble : 0.0f,
+		cJSON_IsNumber(G) ? (float)G->valuedouble : 0.0f,
+		cJSON_IsNumber(B) ? (float)B->valuedouble : 0.0f,
+		cJSON_IsNumber(A) ? (float)A->valuedouble : 1.0f,
 	};
 }
 
@@ -931,7 +931,7 @@ static void parseSphere(struct renderer *r, const cJSON *data) {
 		newSphere.radius = radius->valuedouble;
 	} else {
 		newSphere.radius = 1.0f;
-		logr(warning, "No radius specified for sphere, setting to %.0f\n", newSphere.radius);
+		logr(warning, "No radius specified for sphere, setting to %.0f\n", (double)newSphere.radius);
 	}
 	
 	//FIXME: Proper materials for spheres

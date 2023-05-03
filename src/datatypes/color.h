@@ -42,7 +42,7 @@ static inline struct color colorAdd(struct color c1, struct color c2) {
 
 // Formula from http://alienryderflex.com/hsp.html
 static inline struct color colorToGrayscale(struct color c) {
-	float b = sqrtf(0.299f * powf(c.red, 2) + 0.587 * powf(c.green, 2) + 0.114 * powf(c.blue, 2));
+	float b = sqrtf(0.299f * powf(c.red, 2) + 0.587f * powf(c.green, 2) + 0.114f * powf(c.blue, 2));
 	return (struct color){b, b, b, c.alpha};
 }
 

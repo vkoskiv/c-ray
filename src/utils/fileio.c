@@ -243,15 +243,15 @@ char *read_stdin(size_t *bytes) {
 }
 
 char *humanFileSize(unsigned long bytes) {
-	float kilobytes, megabytes, gigabytes, terabytes, petabytes, exabytes, zettabytes, yottabytes; // <- Futureproofing?!
-	kilobytes  = bytes      / 1000.0f;
-	megabytes  = kilobytes  / 1000.0f;
-	gigabytes  = megabytes  / 1000.0f;
-	terabytes  = gigabytes  / 1000.0f;
-	petabytes  = terabytes  / 1000.0f;
-	exabytes   = petabytes  / 1000.0f;
-	zettabytes = exabytes   / 1000.0f;
-	yottabytes = zettabytes / 1000.0f;
+	double kilobytes, megabytes, gigabytes, terabytes, petabytes, exabytes, zettabytes, yottabytes; // <- Futureproofing?!
+	kilobytes  = bytes      / 1000.0;
+	megabytes  = kilobytes  / 1000.0;
+	gigabytes  = megabytes  / 1000.0;
+	terabytes  = gigabytes  / 1000.0;
+	petabytes  = terabytes  / 1000.0;
+	exabytes   = petabytes  / 1000.0;
+	zettabytes = exabytes   / 1000.0;
+	yottabytes = zettabytes / 1000.0;
 	
 	// Okay, okay. In reality, this never gets even close to a zettabyte,
 	// it'll overflow at around 18 exabytes.
