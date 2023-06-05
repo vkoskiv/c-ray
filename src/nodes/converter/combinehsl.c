@@ -14,7 +14,7 @@
 #include "../../datatypes/scene.h"
 
 #include "combinehsl.h"
-#include "nodes/textures/constant.h"
+#include "../../nodes/textures/constant.h"
 
 struct combineHSL {
 	struct colorNode node;
