@@ -47,7 +47,7 @@ static inline struct hitRecord getClosestIsect(struct lightRay *incidentRay, con
 	return isect;
 }
 
-struct color pathTrace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
+struct color path_trace(const struct lightRay *incidentRay, const struct world *scene, int maxDepth, sampler *sampler) {
 	struct color path_weight = g_white_color;
 	struct color path_radiance = g_black_color; // Final path contribution "color"
 	struct lightRay currentRay = *incidentRay;
