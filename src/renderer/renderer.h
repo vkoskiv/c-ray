@@ -100,7 +100,7 @@ struct renderer {
 	struct state state;  //Internal state
 	struct prefs prefs;  //User prefs
 	char *sceneCache;    //Packed scene data that can be passed to workers
-	struct window *sdl;  //FIXME: Temporarily here, I guess.
+	struct sdl_window *sdl; //FIXME: Temporarily here
 };
 
 //Initialize a new renderer

@@ -12,13 +12,10 @@ struct renderer;
 struct texture;
 struct sdl_prefs;
 
-#ifdef CRAY_SDL_ENABLED
-	#include "SDL.h"
-#endif
-
-struct window *win_try_init(struct sdl_prefs *prefs, int width, int height);
-void win_destroy(struct window *);
+// Returns NULL if we couldn't load the SDL2 lib and/or needed SDL symbols.
+struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height);
+void win_update(struct sdl_window *w, struct renderer *r, struct texture *t);
+void win_destroy(struct sdl_window *);
 
 void printDuration(uint64_t ms);
 void getKeyboardInput(struct renderer *r);
-void win_update(struct window *w, struct renderer *r, struct texture *t);
