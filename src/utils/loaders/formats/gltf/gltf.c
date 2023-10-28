@@ -156,7 +156,7 @@ char *bytes_from_buffer_view(const struct buffer_view *view, char **buffers) {
 	return data;
 }
 
-struct texture *parse_images(const cJSON *data, size_t *amount, const struct buffer_view *views, char **buffers) {
+struct texture *parse_textures(const cJSON *data, size_t *amount, const struct buffer_view *views, char **buffers) {
 	if (!cJSON_IsArray(data)) return NULL;
 	
 	size_t image_amount = 0;
@@ -168,6 +168,7 @@ struct texture *parse_images(const cJSON *data, size_t *amount, const struct buf
 			const cJSON *uri = cJSON_GetObjectItem(element, "uri");
 			if (!cJSON_IsString(uri)) break;
 			char *uri_string = uri->valuestring;
+			//TODO: Add name to texture
 			images[i] = *load_texture(uri_string, NULL, NULL); //FIXME cache
 		} else {
 			const cJSON *buffer_view = cJSON_GetObjectItem(element, "bufferView");
@@ -217,7 +218,7 @@ struct mesh *parse_glTF_meshes(const char *filePath, size_t *meshCount) {
 	(void)accessors; //TODO
 	
 	size_t texture_count = 0;
-	struct texture *textures = parse_images(cJSON_GetObjectItem(data, "images"), &texture_count, buffer_views, buffers);
+	struct texture *textures = parse_textures(cJSON_GetObjectItem(data, "images"), &texture_count, buffer_views, buffers);
 	(void)textures; //TODO
 	
 	if (meshCount) *meshCount = 0;
