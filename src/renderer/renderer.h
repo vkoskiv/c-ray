@@ -58,7 +58,7 @@ struct state {
 	struct cr_mutex *tileMutex;
 };
 
-struct sdl_preview {
+struct sdl_prefs {
 	bool enabled;
 	bool fullscreen;
 	bool borderless;
@@ -88,7 +88,7 @@ struct prefs {
 	enum fileType imgType;
 	bool useClustering;
 	bool isWorker;
-	struct sdl_preview window;
+	struct sdl_prefs window;
 };
 
 /**

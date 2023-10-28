@@ -388,7 +388,7 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 	}
 }
 
-static void parseDisplay(struct sdl_preview *win, const cJSON *data) {
+static void parseDisplay(struct sdl_prefs *win, const cJSON *data) {
 	if (!data) return;
 
 	const cJSON *enabled = cJSON_GetObjectItem(data, "enabled");

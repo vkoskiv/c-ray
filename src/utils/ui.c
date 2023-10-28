@@ -84,14 +84,14 @@ static void setWindowIcon(SDL_Window *window) {
 }
 #endif
 
-struct window *win_try_init(struct sdl_preview *win, int width, int height) {
+struct window *win_try_init(struct sdl_prefs *prefs, int width, int height) {
 #ifdef CRAY_SDL_ENABLED
-	if (!win->enabled) return NULL;
+	if (!prefs->enabled) return NULL;
 	struct window *display = calloc(1, sizeof(*display));
 
-	display->isFullScreen = win->fullscreen;
-	display->isBorderless = win->borderless;
-	display->windowScale = win->scale;
+	display->isFullScreen = prefs->fullscreen;
+	display->isBorderless = prefs->borderless;
+	display->windowScale = prefs->scale;
 	display->width = width;
 	display->height = height;
 	
@@ -103,15 +103,15 @@ struct window *win_try_init(struct sdl_preview *win, int width, int height) {
 	}
 	//Init window
 	SDL_WindowFlags flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
-	if (win->fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	if (win->borderless) flags |= SDL_WINDOW_BORDERLESS;
+	if (prefs->fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	if (prefs->borderless) flags |= SDL_WINDOW_BORDERLESS;
 	flags |= SDL_WINDOW_RESIZABLE;
 
 	display->window = SDL_CreateWindow("c-ray © vkoskiv 2015-2023",
 										 SDL_WINDOWPOS_UNDEFINED,
 										 SDL_WINDOWPOS_UNDEFINED,
-								 width * win->scale,
-								 height * win->scale,
+								 width * prefs->scale,
+								 height * prefs->scale,
 								 flags);
 	if (display->window == NULL) {
 		logr(warning, "Window couldn't be created, error: \"%s\"\n", SDL_GetError());
@@ -159,7 +159,7 @@ struct window *win_try_init(struct sdl_preview *win, int width, int height) {
 	
 	return display;
 #else
-	(void)win; (void)width; (void)height;
+	(void)prefs; (void)width; (void)height;
 	logr(warning, "Render preview is disabled. (No SDL2)\n");
 	return NULL;
 #endif
