@@ -147,7 +147,7 @@ struct texture *renderFrame(struct renderer *r) {
 		
 		//Gather and maintain this average constantly.
 		if (!r->state.threadStates[0].paused) {
-			win_update(r->sdl, r, output);
+			if (r->sdl) win_update(r->sdl, r, output);
 			for (int t = 0; t < localThreadCount; ++t) {
 				avgSampleTime += r->state.threadStates[t].avgSampleTime;
 			}
