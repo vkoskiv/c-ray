@@ -1,2 +1,2 @@
 #!/bin/sh
-cmake . -DCMAKE_BUILD_TYPE=Debug && make -j"$(nproc)"
+CRAY_EXPORT_CMDS=1 cmake . -DCMAKE_BUILD_TYPE=Debug && make -j"$(nproc)"
