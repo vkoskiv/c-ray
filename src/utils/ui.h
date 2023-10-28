@@ -10,12 +10,13 @@
 
 struct renderer;
 struct texture;
+struct sdl_preview;
 
 #ifdef CRAY_SDL_ENABLED
 	#include "SDL.h"
 #endif
 
-void initDisplay(bool fullscreen, bool borderless, int width, int height, float scale);
+void try_init_win(struct sdl_preview *win, int width, int height);
 void destroyDisplay(void);
 
 void printDuration(uint64_t ms);

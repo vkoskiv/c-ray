@@ -388,13 +388,13 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 	}
 }
 
-static void parseDisplay(struct prefs *prefs, const cJSON *data) {
+static void parseDisplay(struct sdl_preview *win, const cJSON *data) {
 	if (!data) return;
 
 	const cJSON *enabled = cJSON_GetObjectItem(data, "enabled");
 	if (enabled) {
 		if (cJSON_IsBool(enabled)) {
-			prefs->enabled = cJSON_IsTrue(enabled);
+			win->enabled = cJSON_IsTrue(enabled);
 		} else {
 			logr(warning, "Invalid enabled while parsing display prefs.\n");
 		}
@@ -403,7 +403,7 @@ static void parseDisplay(struct prefs *prefs, const cJSON *data) {
 	const cJSON *isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
 	if (isFullscreen) {
 		if (cJSON_IsBool(isFullscreen)) {
-			prefs->fullscreen = cJSON_IsTrue(isFullscreen);
+			win->fullscreen = cJSON_IsTrue(isFullscreen);
 		} else {
 			logr(warning, "Invalid isFullscreen while parsing display prefs.\n");
 		}
@@ -412,7 +412,7 @@ static void parseDisplay(struct prefs *prefs, const cJSON *data) {
 	const cJSON *isBorderless = cJSON_GetObjectItem(data, "isBorderless");
 	if (isBorderless) {
 		if (cJSON_IsBool(isBorderless)) {
-			prefs->borderless = cJSON_IsTrue(isBorderless);
+			win->borderless = cJSON_IsTrue(isBorderless);
 		} else {
 			logr(warning, "Invalid isBorderless while parsing display prefs.\n");
 		}
@@ -422,9 +422,9 @@ static void parseDisplay(struct prefs *prefs, const cJSON *data) {
 	if (windowScale) {
 		if (cJSON_IsNumber(windowScale)) {
 			if (windowScale->valuedouble >= 0) {
-				prefs->scale = windowScale->valuedouble;
+				win->scale = windowScale->valuedouble;
 			} else {
-				prefs->scale = 1.0f;
+				win->scale = 1.0f;
 			}
 		} else {
 			logr(warning, "Invalid isBorderless while parsing display prefs.\n");
@@ -1002,7 +1002,7 @@ int parseJSON(struct renderer *r, const cJSON *json) {
 		r->prefs.imgFileName = getFileName(path);
 	}
 
-	parseDisplay(&r->prefs, cJSON_GetObjectItem(json, "display"));
+	parseDisplay(&r->prefs.window, cJSON_GetObjectItem(json, "display"));
 	parseCameras(&r->scene->cameras, &r->scene->camera_count, cJSON_GetObjectItem(json, "camera"));
 
 	if (r->prefs.override_dimensions) {

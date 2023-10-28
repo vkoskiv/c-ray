@@ -350,10 +350,12 @@ static struct prefs defaultPrefs() {
 			.override_width = 1280,
 			.override_height = 800,
 			.imgType = png,
-			.enabled = true,
-			.fullscreen = false,
-			.borderless = false,
-			.scale = 1.0f
+			.window = {
+				.enabled = true,
+				.fullscreen = false,
+				.borderless = false,
+				.scale = 1.0f
+			}
 	};
 }
 

@@ -58,6 +58,13 @@ struct state {
 	struct cr_mutex *tileMutex;
 };
 
+struct sdl_preview {
+	bool enabled;
+	bool fullscreen;
+	bool borderless;
+	float scale;
+};
+
 /// Preferences data (Set by user)
 struct prefs {
 	enum renderOrder tileOrder;
@@ -79,15 +86,9 @@ struct prefs {
 	char *assetPath;
 	int imgCount;
 	enum fileType imgType;
-	
-	//Preview window prefs
-	//These are passed to initDisplay(), shouldn't have these here.
-	bool enabled;
-	bool fullscreen;
-	bool borderless;
 	bool useClustering;
 	bool isWorker;
-	float scale;
+	struct sdl_preview window;
 };
 
 /**
