@@ -21,6 +21,7 @@
 #include "mesh.h"
 #include "poly.h"
 #include "../utils/platform/thread.h"
+#include "../utils/platform/signal.h"
 #include "../renderer/instance.h"
 #include "../datatypes/bbox.h"
 #include "../utils/mempool.h"
@@ -35,6 +36,7 @@ struct bvh_build_task {
 };
 
 void *bvh_build_thread(void *arg) {
+	block_signals();
 	struct bvh_build_task *task = (struct bvh_build_task *)thread_user_data(arg);
 	task->bvh = build_mesh_bvh(task->mesh);
 	return NULL;

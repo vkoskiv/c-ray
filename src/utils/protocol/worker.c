@@ -132,6 +132,7 @@ static bool submitWork(int sock, struct texture *work, struct renderTile forTile
 }
 
 static void *workerThread(void *arg) {
+	block_signals();
 	struct workerThreadState *threadState = (struct workerThreadState *)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
 	int sock = threadState->connectionSocket;

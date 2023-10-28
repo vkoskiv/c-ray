@@ -36,6 +36,7 @@
 #include "../assert.h"
 #include "../filecache.h"
 #include "../platform/terminal.h"
+#include "../platform/signal.h"
 
 void disconnectFromClient(struct renderClient *client) {
 	ASSERT(client->socket != -1);
@@ -216,6 +217,7 @@ static cJSON *processClientRequest(struct renderThreadState *state, const cJSON 
 
 // Master side
 void *networkRenderThread(void *arg) {
+	block_signals();
 	struct renderThreadState *state = (struct renderThreadState *)thread_user_data(arg);
 	struct renderer *r = state->renderer;
 	struct renderClient *client = state->client;
@@ -274,6 +276,7 @@ struct syncThreadParams {
 
 //TODO: Rename to clientSyncThread
 static void *handleClientSync(void *arg) {
+	block_signals();
 	struct syncThreadParams *params = (struct syncThreadParams *)thread_user_data(arg);
 	struct renderClient *client = params->client;
 	if (client->status != Connected) {

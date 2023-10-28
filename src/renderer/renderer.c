@@ -26,6 +26,7 @@
 #include "samplers/sampler.h"
 #include "../utils/args.h"
 #include "../utils/platform/capabilities.h"
+#include "../utils/platform/signal.h"
 #include "../utils/protocol/server.h"
 #include "../utils/string.h"
 
@@ -184,6 +185,7 @@ struct texture *renderFrame(struct renderer *r) {
 // An interactive render thread that progressively
 // renders samples up to a limit
 void *renderThreadInteractive(void *arg) {
+	block_signals();
 	struct renderThreadState *threadState = (struct renderThreadState*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
@@ -263,6 +265,7 @@ void *renderThreadInteractive(void *arg) {
  @return Exits when thread is done
  */
 void *renderThread(void *arg) {
+	block_signals();
 	struct renderThreadState *threadState = (struct renderThreadState*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
