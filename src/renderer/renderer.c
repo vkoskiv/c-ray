@@ -34,12 +34,27 @@
 #define paused_msec 100
 #define active_msec  16
 
+static bool g_aborted = false;
+
+void sigHandler(int sig) {
+	if (sig == 2) { //SIGINT
+		logr(plain, "\n");
+		logr(info, "Received ^C, aborting render without saving\n");
+		g_aborted = true;
+	}
+}
+
+
 void *renderThread(void *arg);
 void *renderThreadInteractive(void *arg);
 
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 struct texture *renderFrame(struct renderer *r) {
+	//Check for CTRL-C
+	if (registerHandler(sigint, sigHandler)) {
+		logr(warning, "Unable to catch SIGINT\n");
+	}
 	struct camera camera = r->scene->cameras[r->prefs.selected_camera];
 	struct texture *output = newTexture(char_p, camera.width, camera.height, 3);
 	
@@ -124,6 +139,11 @@ struct texture *renderFrame(struct renderer *r) {
 	//where a worker node disconnects during a render, so maybe fix that next.
 	while (r->state.isRendering) {
 		getKeyboardInput(r);
+
+		if (g_aborted) {
+			r->state.saveImage = false;
+			r->state.renderAborted = true;
+		}
 		
 		//Gather and maintain this average constantly.
 		if (!r->state.threadStates[0].paused) {

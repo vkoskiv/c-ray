@@ -37,19 +37,6 @@ struct window {
 	unsigned height;
 };
 
-// FIXME: Move the sig handling elsewhere, no reason for it to be tied to this SDL stuff
-static bool g_aborted = false;
-
-//FIXME: This won't work on linux, it'll just abort the execution.
-//Take a look at the docs for sigaction() and implement that.
-void sigHandler(int sig) {
-	if (sig == 2) { //SIGINT
-		logr(plain, "\n");
-		logr(info, "Received ^C, aborting render without saving\n");
-		g_aborted = true;
-	}
-}
-
 #ifdef CRAY_SDL_ENABLED
 
 static void setWindowIcon(SDL_Window *window) {
@@ -197,18 +184,6 @@ void printDuration(uint64_t ms) {
 }
 
 void getKeyboardInput(struct renderer *r) {
-	if (g_aborted) {
-		r->state.saveImage = false;
-		r->state.renderAborted = true;
-	}
-	static bool sigRegistered = false;
-	//Check for CTRL-C
-	if (!sigRegistered) {
-		if (registerHandler(sigint, sigHandler)) {
-			logr(warning, "Unable to catch SIGINT\n");
-		}
-		sigRegistered = true;
-	}
 #ifdef CRAY_SDL_ENABLED
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
@@ -327,7 +302,6 @@ static void updateFrames(struct renderer *r) {
 #endif
 
 void win_update(struct window *w, struct renderer *r, struct texture *t) {
-	if (g_aborted) r->state.renderAborted = true;
 #ifdef CRAY_SDL_ENABLED
 	if (!w) return;
 	//Render frames
