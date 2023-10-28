@@ -16,9 +16,9 @@ struct sdl_preview;
 	#include "SDL.h"
 #endif
 
-void try_init_win(struct sdl_preview *win, int width, int height);
-void destroyDisplay(void);
+struct window *win_try_init(struct sdl_preview *win, int width, int height);
+void win_destroy(struct window *);
 
 void printDuration(uint64_t ms);
 void getKeyboardInput(struct renderer *r);
-void drawWindow(struct renderer *r, struct texture *t);
+void win_update(struct window *w, struct renderer *r, struct texture *t);

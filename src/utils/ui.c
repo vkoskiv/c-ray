@@ -22,7 +22,7 @@
 #include "loaders/textureloader.h"
 #include "args.h"
 
-struct display {
+struct window {
 #ifdef CRAY_SDL_ENABLED
 	SDL_Window *window;
 	SDL_Renderer *renderer;
@@ -37,6 +37,7 @@ struct display {
 	unsigned height;
 };
 
+// FIXME: Move the sig handling elsewhere, no reason for it to be tied to this SDL stuff
 static bool g_aborted = false;
 
 //FIXME: This won't work on linux, it'll just abort the execution.
@@ -50,8 +51,6 @@ void sigHandler(int sig) {
 }
 
 #ifdef CRAY_SDL_ENABLED
-
-static struct display *g_display = NULL;
 
 static void setWindowIcon(SDL_Window *window) {
 #ifndef NO_LOGO
@@ -85,22 +84,22 @@ static void setWindowIcon(SDL_Window *window) {
 }
 #endif
 
-void try_init_win(struct sdl_preview *win, int width, int height) {
+struct window *win_try_init(struct sdl_preview *win, int width, int height) {
 #ifdef CRAY_SDL_ENABLED
-	ASSERT(!g_display);
-	g_display = calloc(1, sizeof(struct display));
+	if (!win->enabled) return NULL;
+	struct window *display = calloc(1, sizeof(*display));
 
-	g_display->isFullScreen = win->fullscreen;
-	g_display->isBorderless = win->borderless;
-	g_display->windowScale = win->scale;
-	g_display->width = width;
-	g_display->height = height;
+	display->isFullScreen = win->fullscreen;
+	display->isBorderless = win->borderless;
+	display->windowScale = win->scale;
+	display->width = width;
+	display->height = height;
 	
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		logr(warning, "SDL couldn't initialize, error: \"%s\"\n", SDL_GetError());
-		destroyDisplay();
-		return;
+		win_destroy(display);
+		return NULL;
 	}
 	//Init window
 	SDL_WindowFlags flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
@@ -108,36 +107,36 @@ void try_init_win(struct sdl_preview *win, int width, int height) {
 	if (win->borderless) flags |= SDL_WINDOW_BORDERLESS;
 	flags |= SDL_WINDOW_RESIZABLE;
 
-	g_display->window = SDL_CreateWindow("c-ray © vkoskiv 2015-2023",
+	display->window = SDL_CreateWindow("c-ray © vkoskiv 2015-2023",
 										 SDL_WINDOWPOS_UNDEFINED,
 										 SDL_WINDOWPOS_UNDEFINED,
 								 width * win->scale,
 								 height * win->scale,
 								 flags);
-	if (g_display->window == NULL) {
+	if (display->window == NULL) {
 		logr(warning, "Window couldn't be created, error: \"%s\"\n", SDL_GetError());
-		destroyDisplay();
-		return;
+		win_destroy(display);
+		return NULL;
 	}
 	//Init renderer
-	g_display->renderer = SDL_CreateRenderer(g_display->window, -1, SDL_RENDERER_ACCELERATED);
-	if (g_display->renderer == NULL) {
+	display->renderer = SDL_CreateRenderer(display->window, -1, SDL_RENDERER_ACCELERATED);
+	if (display->renderer == NULL) {
 		logr(warning, "Renderer couldn't be created, error: \"%s\"\n", SDL_GetError());
-		destroyDisplay();
-		return;
+		win_destroy(display);
+		return NULL;
 	}
 	
-	SDL_RenderSetLogicalSize(g_display->renderer, g_display->width, g_display->height);
+	SDL_RenderSetLogicalSize(display->renderer, display->width, display->height);
 	//And set blend modes
-	SDL_SetRenderDrawBlendMode(g_display->renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawBlendMode(display->renderer, SDL_BLENDMODE_BLEND);
 	
-	SDL_RenderSetScale(g_display->renderer, g_display->windowScale, g_display->windowScale);
+	SDL_RenderSetScale(display->renderer, display->windowScale, display->windowScale);
 	//Init pixel texture
-	g_display->texture = SDL_CreateTexture(g_display->renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, g_display->width, g_display->height);
-	if (g_display->texture == NULL) {
+	display->texture = SDL_CreateTexture(display->renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, display->width, display->height);
+	if (display->texture == NULL) {
 		logr(warning, "Texture couldn't be created, error: \"%s\"\n", SDL_GetError());
-		destroyDisplay();
-		return;
+		win_destroy(display);
+		return NULL;
 	}
 	//Init overlay texture (for UI info)
 
@@ -145,48 +144,49 @@ void try_init_win(struct sdl_preview *win, int width, int height) {
 #if SDL_BYTEORDER == BIG_ENDIAN
 	format = SDL_PIXELFORMAT_RGBA8888;
 #endif
-	g_display->overlayTexture = SDL_CreateTexture(g_display->renderer, format, SDL_TEXTUREACCESS_STREAMING, g_display->width, g_display->height);
-	if (g_display->overlayTexture == NULL) {
+	display->overlayTexture = SDL_CreateTexture(display->renderer, format, SDL_TEXTUREACCESS_STREAMING, display->width, display->height);
+	if (display->overlayTexture == NULL) {
 		logr(warning, "Overlay texture couldn't be created, error: \"%s\"\n", SDL_GetError());
-		destroyDisplay();
-		return;
+		win_destroy(display);
+		return NULL;
 	}
 	
 	//And set blend modes for textures too
-	SDL_SetTextureBlendMode(g_display->texture, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureBlendMode(g_display->overlayTexture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(display->texture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(display->overlayTexture, SDL_BLENDMODE_BLEND);
 	
-	setWindowIcon(g_display->window);
+	setWindowIcon(display->window);
 	
+	return display;
 #else
 	(void)win; (void)width; (void)height;
 	logr(warning, "Render preview is disabled. (No SDL2)\n");
+	return NULL;
 #endif
 }
 
-void destroyDisplay() {
+void win_destroy(struct window *window) {
 #ifdef CRAY_SDL_ENABLED
-	if (g_display) {
-		SDL_Quit();
-		if (g_display->texture) {
-			SDL_DestroyTexture(g_display->texture);
-			g_display->texture = NULL;
-		}
-		if (g_display->overlayTexture) {
-			SDL_DestroyTexture(g_display->overlayTexture);
-			g_display->texture = NULL;
-		}
-		if (g_display->renderer) {
-			SDL_DestroyRenderer(g_display->renderer);
-			g_display->renderer = NULL;
-		}
-		if (g_display->window) {
-			SDL_DestroyWindow(g_display->window);
-			g_display->window = NULL;
-		}
-		free(g_display);
-		g_display = NULL;
+	if (!window) return;
+	SDL_Quit();
+	if (window->texture) {
+		SDL_DestroyTexture(window->texture);
+		window->texture = NULL;
 	}
+	if (window->overlayTexture) {
+		SDL_DestroyTexture(window->overlayTexture);
+		window->texture = NULL;
+	}
+	if (window->renderer) {
+		SDL_DestroyRenderer(window->renderer);
+		window->renderer = NULL;
+	}
+	if (window->window) {
+		SDL_DestroyWindow(window->window);
+		window->window = NULL;
+	}
+	free(window);
+	window = NULL;
 #endif
 }
 
@@ -326,21 +326,21 @@ static void updateFrames(struct renderer *r) {
 }
 #endif
 
-void drawWindow(struct renderer *r, struct texture *t) {
+void win_update(struct window *w, struct renderer *r, struct texture *t) {
 	if (g_aborted) r->state.renderAborted = true;
 #ifdef CRAY_SDL_ENABLED
-	if (!g_display) return;
+	if (!w) return;
 	//Render frames
 	if (!isSet("interactive") || r->state.clients) {
 		updateFrames(r);
 		drawProgressBars(r);
 	}
 	//Update image data
-	SDL_UpdateTexture(g_display->texture, NULL, t->data.byte_p, (int)t->width * 3);
-	SDL_UpdateTexture(g_display->overlayTexture, NULL, r->state.uiBuffer->data.byte_p, (int)t->width * 4);
-	SDL_RenderCopy(g_display->renderer, g_display->texture, NULL, NULL);
-	SDL_RenderCopy(g_display->renderer, g_display->overlayTexture, NULL, NULL);
-	SDL_RenderPresent(g_display->renderer);
+	SDL_UpdateTexture(w->texture, NULL, t->data.byte_p, (int)t->width * 3);
+	SDL_UpdateTexture(w->overlayTexture, NULL, r->state.uiBuffer->data.byte_p, (int)t->width * 4);
+	SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
+	SDL_RenderCopy(w->renderer, w->overlayTexture, NULL, NULL);
+	SDL_RenderPresent(w->renderer);
 #else
 	(void)t;
 #endif
