@@ -78,7 +78,7 @@ Please see the [Wiki](https://github.com/VKoskiv/c-ray/wiki) for details on how 
 ## Dependencies
 
 - CMake for the build system (Optional, a basic makefile is provided for *nix systems)
-- SDL2 (Optional, CMake will link and enable it if it is found on your system.)
+- SDL2 (Optional, enabled if SDL2 was found at runtime)
 - Python3 (Optional, it's used for some utility scripts)
 - Standard C99/GNU99 with some standard libraries
 
@@ -86,7 +86,7 @@ All other dependencies are included as source
 
 ## Installation
 
-macOS:
+macOS (I no longer develop on this platform, you'll likely have better luck with the Linux instructions):
 Either follow these instructions, or the instructions for Linux below. Both work fine.
 1. Install SDL2 (See installing SDL below)
 2. Open the .xcodeproj file in Xcode
@@ -96,11 +96,11 @@ Either follow these instructions, or the instructions for Linux below. Both work
 
 Linux:
 1. (Optional) Install SDL2 (See installing SDL below)
-2. (Optional, this tends to work nicer) Run `cmake .`, or optionally `cmake . -DNO_SDL2=True` to disable SDL2.
-3. Run `make` to build the project
-4. Run binary: `bin/c-ray input/scene.json` (Making sure the working dir is the root directory). You can also pipe files into `C-ray` and it will read from there. This is useful for scripts that invoke `C-ray`.
+2. Run `make` to build the project
+3. If the plain Makefile doesn't work on your system, run `cmake .` and then try `make` again.
+4. Run binary. For example: `bin/c-ray input/hdr.json`. You can also pipe files into `c-ray` and it will read from there. This is useful for scripts that invoke `c-ray`.
 Example: `cat input/scene.json | bin/c-ray`
-*Note: Reading the json from `stdin` assumes that the asset path is `./`, can be specified with `--asset-path`*
+*Note: When reading the json from `stdin`, c-ray assumes that the asset path is `./`. This can be specified with `--asset-path`*
 
 Windows:
 1. Install [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
@@ -130,9 +130,9 @@ On Linux using APT, run `sudo apt install libsdl2-dev`
 You can run the integrated test suite by invoking the test script like this:
 `./run-tests.sh`
 This will compile C-ray with the correct flags, and then run each test individually in separate processes. If you want to run them in a shared process, do
-`./bin/c-ray --test`
-
-In either case, you will get a log of all the tests, and their status.
+`bin/c-ray --test`
+You can also run a single suite
+`./run-tests.sh mathnode`
 
 ## Credits
 
