@@ -74,9 +74,15 @@ static void *try_find_sdl2_lib(void) {
 		"libSDL2-2.0.0.dylib"
 	};
 	void *lib = NULL;
-	for (size_t i = 0; i < sizeof(candidates); ++i) {
+	for (size_t i = 0; i < (sizeof(candidates) / sizeof(*candidates)); ++i) {
 		if ((lib = dlopen(candidates[i], RTLD_LAZY))) return lib;
 	}
+
+	logr(info, "Couldn't find SDL library, tried the following names: ");
+	for (size_t i = 0; i < (sizeof(candidates) / sizeof(*candidates)); ++i) {
+		logr(plain, "\"%s\" ", candidates[i]);
+	}
+	logr(plain, "\n");
 
 	return NULL;
 }
