@@ -71,7 +71,7 @@ add_executable(c-ray ${SOURCES})
 target_include_directories(c-ray PRIVATE ${c-ray_SOURCE_DIR}/src)
 target_include_directories(c-ray PRIVATE ${c-ray_SOURCE_DIR}/tests)
 if (NOT MSVC)
-	target_link_libraries(c-ray PRIVATE -lpthread -lm)
+	target_link_libraries(c-ray PRIVATE -lpthread -lm -ldl)
 endif ()
 
 include(CheckIPOSupported)
