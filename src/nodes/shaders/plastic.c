@@ -66,7 +66,7 @@ static struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampl
 	}
 	return (struct bsdfSample){
 		.out = reflected,
-		.color = plastic->clear_coat->eval(plastic->clear_coat, sampler, record)
+		.weight = plastic->clear_coat->eval(plastic->clear_coat, sampler, record)
 	};
 }
 

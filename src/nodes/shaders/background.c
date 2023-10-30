@@ -50,7 +50,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	float strength = background->strength->eval(background->strength, sampler, record);
 	return (struct bsdfSample){
 		.out = vec_zero(),
-		.color = colorCoef(strength, background->color->eval(background->color, sampler, record))
+		.weight = colorCoef(strength, background->color->eval(background->color, sampler, record))
 	};
 }
 

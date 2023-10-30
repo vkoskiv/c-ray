@@ -55,7 +55,7 @@ struct color path_trace(const struct lightRay *incidentRay, const struct world *
 	for (int depth = 0; depth < maxDepth; ++depth) {
 		const struct hitRecord isect = getClosestIsect(&currentRay, scene, sampler);
 		if (isect.instIndex < 0) {
-			path_radiance = colorAdd(path_radiance, colorMul(path_weight, scene->background->sample(scene->background, sampler, &isect).color));
+			path_radiance = colorAdd(path_radiance, colorMul(path_weight, scene->background->sample(scene->background, sampler, &isect).weight));
 			break;
 		}
 		
@@ -63,7 +63,7 @@ struct color path_trace(const struct lightRay *incidentRay, const struct world *
 		
 		const struct bsdfSample sample = isect.bsdf->sample(isect.bsdf, sampler, &isect);
 		currentRay = (struct lightRay){ .start = isect.hitPoint, .direction = sample.out };
-		const struct color attenuation = sample.color;
+		const struct color attenuation = sample.weight;
 		
 		// Russian Roulette - Abort a path early if it won't contribute much to the final image
 		float rr_continue_probability = 1.0f;

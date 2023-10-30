@@ -46,7 +46,7 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	(void)sampler;
 	struct transparent *this = (struct transparent *)bsdf;
-	return (struct bsdfSample){ .out = record->incident_dir, .color = this->color->eval(this->color, sampler, record) };
+	return (struct bsdfSample){ .out = record->incident_dir, .weight = this->color->eval(this->color, sampler, record) };
 }
 
 const struct bsdfNode *newTransparent(const struct node_storage *s, const struct colorNode *color) {

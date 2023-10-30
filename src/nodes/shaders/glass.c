@@ -93,7 +93,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	
 	return (struct bsdfSample){
 		.out = scatterDir,
-		.color = glassBsdf->color->eval(glassBsdf->color, sampler, record)
+		.weight = glassBsdf->color->eval(glassBsdf->color, sampler, record)
 	};
 }
 

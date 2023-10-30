@@ -59,7 +59,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	
 	return (struct bsdfSample){
 		.out = reflected,
-		.color = metalBsdf->color->eval(metalBsdf->color, sampler, record)
+		.weight = metalBsdf->color->eval(metalBsdf->color, sampler, record)
 	};
 }
 

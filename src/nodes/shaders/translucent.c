@@ -48,7 +48,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	const struct vector scatterDir = vec_normalize(vec_add(vec_negate(record->surfaceNormal), vec_on_unit_sphere(sampler)));
 	return (struct bsdfSample){
 			.out = scatterDir,
-			.color = diffBsdf->color->eval(diffBsdf->color, sampler, record)
+			.weight = diffBsdf->color->eval(diffBsdf->color, sampler, record)
 	};
 }
 
