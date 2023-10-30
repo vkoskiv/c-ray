@@ -12,10 +12,6 @@
 #include "../renderer/pathtrace.h"
 #include "lightray.h"
 
-struct sphere defaultSphere() {
-	return (struct sphere){ 10.0f, NULL, g_black_color, 0.0f };
-}
-
 //Calculates intersection with a sphere and a light ray
 bool intersect(const struct lightRay *ray, const struct sphere *sphere, float *t) {
 	//Vector dot product of the direction

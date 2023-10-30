@@ -14,22 +14,9 @@
 #include "image/texture.h"
 #include "../datatypes/scene.h"
 
-static struct material emptyMaterial() {
-	return (struct material){0};
-}
-
-struct material defaultMaterial() {
-	struct material newMat = emptyMaterial();
-	newMat.diffuse = g_gray_color;
-	newMat.reflectivity = 1.0f;
-	newMat.type = lambertian;
-	newMat.IOR = 1.0f;
-	return newMat;
-}
-
 //To showcase missing .MTL file, for example
 struct material warningMaterial() {
-	struct material newMat = emptyMaterial();
+	struct material newMat = { 0 };
 	newMat.type = lambertian;
 	newMat.diffuse = (struct color){1.0f, 0.0f, 0.5f, 1.0f};
 	return newMat;

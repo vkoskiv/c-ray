@@ -60,12 +60,14 @@ struct color path_trace(const struct lightRay *incidentRay, const struct world *
 			break;
 		}
 		
+		const struct bsdfSample sample = isect.bsdf->sample(isect.bsdf, sampler, &isect);
 		//TODO: emission contribution needs to be adjusted down by probability of randomly hitting it
-		path_radiance = colorAdd(path_radiance, colorMul(path_weight, *isect.emission));
-
+		//FIXME: emits_light only gets set if the root node of a shader graph is emissive, so maybe fix that
+		// if (true || scene->instances[isect.instIndex].emits_light) {
+			path_radiance = colorAdd(path_radiance, colorMul(path_weight, sample.emitted));
+		// }
 		if (bounce == max_bounces) break;
 
-		const struct bsdfSample sample = isect.bsdf->sample(isect.bsdf, sampler, &isect);
 		currentRay = (struct lightRay){ .start = isect.hitPoint, .direction = sample.out };
 		const struct color attenuation = sample.weight;
 		

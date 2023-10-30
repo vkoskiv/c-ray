@@ -21,6 +21,7 @@ struct bsdfSample {
 	struct vector out;
 	float pdf;
 	struct color weight;
+	struct color emitted; // FIXME: Not really the right place for this
 };
 
 //TODO: Expand and refactor to match a standard bsdf signature with eval, sample and pdf

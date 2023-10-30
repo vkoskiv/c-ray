@@ -11,15 +11,9 @@
 #include "vector.h"
 #include "material.h"
 
-//Sphere
 struct sphere {
 	float radius;
-	const struct bsdfNode *bsdf;
-	struct color emission;
 	float rayOffset;
 };
 
-struct sphere defaultSphere(void);
-
-//Calculates intersection between a light ray and a sphere
 bool rayIntersectsWithSphere(const struct lightRay *ray, const struct sphere *sphere, struct hitRecord *isect);

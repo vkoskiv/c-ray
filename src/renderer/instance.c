@@ -48,8 +48,7 @@ static bool intersectSphere(const struct instance *instance, const struct lightR
 	if (rayIntersectsWithSphere(&copy, sphere, isect)) {
 		isect->uv = getTexMapSphere(isect);
 		isect->polygon = NULL;
-		isect->bsdf = sphere->bsdf;
-		isect->emission = &sphere->emission;
+		isect->bsdf = instance->bsdfs[0];
 		transformPoint(&isect->hitPoint, instance->composite.A);
 		transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv);
 		return true;
@@ -78,8 +77,7 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 				isect->hitPoint = alongRay(ray, isect->distance);
 				isect->uv = (struct coord){-1.0f, -1.0f};
 				isect->polygon = NULL;
-				isect->bsdf = volume->sphere->bsdf;
-				isect->emission = &volume->sphere->emission;
+				isect->bsdf = instance->bsdfs[0];
 				transformPoint(&isect->hitPoint, instance->composite.A);
 				isect->surfaceNormal = (struct vector){1.0f, 0.0f, 0.0f}; // Will be ignored by material anyway
 				transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv); // Probably not needed
@@ -165,7 +163,6 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 		// Repopulate uv with actual texture mapping
 		isect->uv = getTexMapMesh(mesh, isect);
 		isect->bsdf = instance->bsdfs[isect->polygon->materialIndex];
-		isect->emission = &instance->emissions[isect->polygon->materialIndex];
 		transformPoint(&isect->hitPoint, instance->composite.A);
 		transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv);
 		isect->surfaceNormal = vec_normalize(isect->surfaceNormal);
@@ -193,8 +190,7 @@ static bool intersectMeshVolume(const struct instance *instance, const struct li
 				isect->distance = record1.distance + hitDistance;
 				isect->hitPoint = alongRay(ray, isect->distance);
 				isect->uv = (struct coord){-1.0f, -1.0f};
-				isect->bsdf = mesh->mesh->materials[0].bsdf;
-				isect->emission = &mesh->mesh->materials[0].emission;
+				isect->bsdf = instance->bsdfs[0];
 				transformPoint(&isect->hitPoint, instance->composite.A);
 				isect->surfaceNormal = (struct vector){1.0f, 0.0f, 0.0f}; // Will be ignored by material anyway
 				transformVectorWithTranspose(&isect->surfaceNormal, instance->composite.Ainv); // Probably not needed

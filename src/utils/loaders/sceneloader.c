@@ -22,6 +22,7 @@
 #include "../logging.h"
 #include "../fileio.h"
 #include "../string.h"
+#include "vendored/cJSON.h"
 #ifdef WINDOWS // Sigh...
 #include <malloc.h>
 #else
@@ -38,21 +39,14 @@
 #include "../../utils/timer.h"
 #include "../../utils/string.h"
 #include "../../nodes/bsdfnode.h"
+#include "../../nodes/valuenode.h"
+#include "../../nodes/colornode.h"
+#include "../../nodes/shaders/emission.h"
+#include "../../nodes/textures/constant.h"
+#include "../../nodes/valuenode.h"
 #include "meshloader.h"
 
 struct transform parseTransformComposite(const cJSON *transforms);
-
-static struct instance *lastInstance(struct renderer *r) {
-	return &r->scene->instances[r->scene->instanceCount - 1];
-}
-
-static struct sphere *lastSphere(struct renderer *r) {
-	return &r->scene->spheres[r->scene->sphereCount - 1];
-}
-
-static void addSphere(struct world *scene, struct sphere newSphere) {
-	scene->spheres[scene->sphereCount++] = newSphere;
-}
 
 static struct transform parseTransform(const cJSON *data, char *targetName) {
 	cJSON *type = cJSON_GetObjectItem(data, "type");
@@ -739,13 +733,8 @@ void apply_materials_to_instance(struct renderer *r, struct instance *instance, 
 				if (!found) goto skip;
 			}
 			instance->bsdfs[i] = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, override);
-			//FIXME: Hack
 			cJSON *type_string = cJSON_GetObjectItem(override, "type");
-			if (type_string && stringEquals(type_string->valuestring, "emissive")) {
-				cJSON *color = cJSON_GetObjectItem(override, "color");
-				cJSON *strength = cJSON_GetObjectItem(override, "strength");
-				instance->emissions[i] = colorCoef(strength->valuedouble, parseColor(color));
-			}
+			if (type_string && stringEquals(type_string->valuestring, "emissive")) instance->emits_light = true;
 			ASSERT(instance->bsdfs[i]);
 			skip:
 			i = old_i;
@@ -754,6 +743,8 @@ void apply_materials_to_instance(struct renderer *r, struct instance *instance, 
 	} else {
 		// Single graph, map it to every material in a mesh.
 		const struct bsdfNode *node = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, overrides);
+		cJSON *type_string = cJSON_GetObjectItem(override, "type");
+		if (type_string && stringEquals(type_string->valuestring, "emissive")) instance->emits_light = true;
 		for (int i = 0; i < instance->bsdf_count; ++i) {
 			instance->bsdfs[i] = node;
 		}
@@ -796,11 +787,16 @@ static void parse_mesh_instances(struct renderer *r, const cJSON *data, struct m
 			size_t material_count = meshes[i].materialCount;
 			new.bsdf_count = material_count;
 			new.bsdfs = calloc(material_count, sizeof(void *));
-			new.emissions = calloc(material_count, sizeof(*new.emissions));
 
-			// Some of these may get overridden from the json in the next step below
 			for (size_t m = 0; m < material_count; ++m) {
-				new.emissions[m] = meshes[i].materials[m].emission;
+				if (meshes[i].materials[m].emission.red   > 0.0f ||
+					meshes[i].materials[m].emission.green > 0.0f ||
+					meshes[i].materials[m].emission.blue  > 0.0f ||
+					meshes[i].materials[m].emission.alpha > 0.0f) {
+					new.emits_light = true;
+					// const struct node_storage *s = &r->scene->storage;
+					// new.bsdfs[m] = newEmission(&r->scene->storage, newConstantTexture(s, meshes[i].materials[m].emission), newConstantValue(&r->scene->storage, 1.0f));
+				}
 			}
 
 			apply_materials_to_instance(r, &new, overrides, meshes[i].materials, meshes[i].materialCount);
@@ -863,99 +859,55 @@ static void parseMeshes(struct renderer *r, const cJSON *data) {
 }
 
 static void parseSphere(struct renderer *r, const cJSON *data) {
-	const cJSON *color = NULL;
-	const cJSON *roughness = NULL;
-	const cJSON *IOR = NULL;
+	struct sphere *new = &r->scene->spheres[r->scene->sphereCount++];
+
 	const cJSON *radius = NULL;
-	const cJSON *intensity = NULL;
-	
-	struct sphere newSphere = defaultSphere();
-	
-	const cJSON *bsdf = cJSON_GetObjectItem(data, "bsdf");
-	
-	struct material material = { 0 };
-	
-	//TODO: Break this out to a function
-	if (cJSON_IsString(bsdf)) {
-		if (stringEquals(bsdf->valuestring, "lambertian")) {
-			material.type = lambertian;
-		} else if (stringEquals(bsdf->valuestring, "metal")) {
-			material.type = metal;
-		} else if (stringEquals(bsdf->valuestring, "glass")) {
-			material.type = glass;
-		} else if (stringEquals(bsdf->valuestring, "plastic")) {
-			material.type = plastic;
-		} else if (stringEquals(bsdf->valuestring, "emissive")) {
-			material.type = emission;
-		}
-	}
-	
-	color = cJSON_GetObjectItem(data, "color");
-	if (color != NULL) {
-		switch (material.type) {
-			case emission:
-				material.emission = parseColor(color);
-				break;
-				
-			default:
-				material.ambient = parseColor(color);
-				material.diffuse = parseColor(color);
-				break;
-		}
-	}
-	
-	//FIXME: Another hack.
-	intensity = cJSON_GetObjectItem(data, "intensity");
-	if (intensity != NULL) {
-		if (cJSON_IsNumber(intensity) && (material.type == emission)) {
-			material.emission = colorCoef(intensity->valuedouble, material.emission);
-		}
-	}
-	
-	roughness = cJSON_GetObjectItem(data, "roughness");
-	if (roughness != NULL && cJSON_IsNumber(roughness)) {
-		material.roughness = roughness->valuedouble;
-	} else {
-		material.roughness = 0.0f;
-	}
-	
-	IOR = cJSON_GetObjectItem(data, "IOR");
-	if (IOR != NULL && cJSON_IsNumber(IOR)) {
-		material.IOR = IOR->valuedouble;
-	} else {
-		material.IOR = 1.0f;
-	}
-	
 	radius = cJSON_GetObjectItem(data, "radius");
 	if (radius != NULL && cJSON_IsNumber(radius)) {
-		newSphere.radius = radius->valuedouble;
+		new->radius = radius->valuedouble;
 	} else {
-		newSphere.radius = 1.0f;
-		logr(warning, "No radius specified for sphere, setting to %.0f\n", (double)newSphere.radius);
+		new->radius = 1.0f;
+		logr(warning, "No radius specified for sphere, setting to %.0f\n", (double)new->radius);
 	}
 	
-	//FIXME: Proper materials for spheres
-	addSphere(r->scene, newSphere);
-	
-	const cJSON *density = cJSON_GetObjectItem(data, "density");
+	// Apply this to all instances that don't have their own "materials" object
+	const cJSON *sphere_global_materials = cJSON_GetObjectItem(data, "material");
 	
 	const cJSON *instances = cJSON_GetObjectItem(data, "instances");
 	const cJSON *instance = NULL;
 	if (cJSON_IsArray(instances)) {
 		cJSON_ArrayForEach(instance, instances) {
-			addInstanceToScene(r->scene, density ? new_sphere_instance(lastSphere(r), (float *)&density->valuedouble, &r->scene->storage.node_pool) : new_sphere_instance(lastSphere(r), NULL, NULL));
-			lastInstance(r)->composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
+			const cJSON *density = cJSON_GetObjectItem(data, "density");
+
+			struct instance new_instance = { 0 };
+			if (cJSON_IsNumber(density)) {
+				new_instance = new_sphere_instance(new, (float *)&density->valuedouble, &r->scene->storage.node_pool);
+			} else {
+				new_instance = new_sphere_instance(new, NULL, NULL);
+			}
+
+			const cJSON *instance_materials = cJSON_GetObjectItem(instance, "materials");
+			const cJSON *materials = instance_materials ? instance_materials : sphere_global_materials;
+
+			new_instance.bsdf_count = 1;
+			new_instance.bsdfs = calloc(1, sizeof(void *));
+			if (materials) {
+				const cJSON *material = NULL;
+				if (cJSON_IsArray(materials)) {
+					material = cJSON_GetArrayItem(materials, 0);
+				} else {
+					material = materials;
+				}
+				new_instance.bsdfs[0] = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, material);
+				const cJSON *type_string = cJSON_GetObjectItem(material, "type");
+				if (type_string && stringEquals(type_string->valuestring, "emissive")) new_instance.emits_light = true;
+			}
+
+			if (!new_instance.bsdfs[0]) new_instance.bsdfs[0] = warningBsdf(&r->scene->storage);
+			new_instance.composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
+			addInstanceToScene(r->scene, new_instance);
 		}
 	}
-
-	const cJSON *materials = cJSON_GetObjectItem(data, "material");
-	if (materials) {
-		lastSphere(r)->bsdf = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, materials);
-	} else {
-		lastSphere(r)->bsdf = try_to_guess_bsdf(&r->scene->storage, &material);
-	}
-	//FIXME: Ugly, I still don't know how to express emission better than this
-	lastSphere(r)->emission = material.emission;
 }
 
 static void parsePrimitive(struct renderer *r, const cJSON *data, int idx) {
@@ -977,8 +929,7 @@ static void parsePrimitives(struct renderer *r, const cJSON *data) {
 	if (data != NULL && cJSON_IsArray(data)) {
 		int i = 0;
 		cJSON_ArrayForEach(primitive, data) {
-			parsePrimitive(r, primitive, i);
-			i++;
+			parsePrimitive(r, primitive, i++);
 		}
 	}
 }

@@ -93,13 +93,15 @@
 						]
 					}
 				],
-				"color": {
-					"r": 1.0,
-					"g": 0.0,
-					"b": 1.0
+				"material": {
+					"type": "metal",
+					"color": {
+						"r": 1.0,
+						"g": 0.0,
+						"b": 1.0
+					},
+					"roughness": 0.05
 				},
-				"bsdf": "metal",
-				"roughness": 0.05,
 				"radius": 0.1
 			},
 			{
@@ -116,13 +118,15 @@
 						]
 					}
 				],
-				"color": {
-					"r": 0.8,
-					"g": 0.8,
-					"b": 0.8
+				"material": {
+					"type": "metal",
+					"color": {
+						"r": 0.8,
+						"g": 0.8,
+						"b": 0.8
+					},
+					"roughness": 0.00
 				},
-				"bsdf": "metal",
-				"roughness": 0.00,
 				"radius": 0.05
 			},
 			{
@@ -138,14 +142,16 @@
 							}
 						]
 					}
-				],		
-				"color": {
-					"r": 0.0,
-					"g": 0.8,
-					"b": 0.0
+				],
+				"material": {
+					"type": "metal",
+					"color": {
+						"r": 0.0,
+						"g": 0.8,
+						"b": 0.0
+					},
+					"roughness": 0.00
 				},
-				"bsdf": "metal",
-				"roughness": 0.00,
 				"radius": 0.05
 			},
 			{
@@ -161,15 +167,17 @@
 							}
 						]
 					}
-				],	
-				"color": {
-					"r": 1.0,
-					"g": 1.0,
-					"b": 1.0
+				],
+				"material": {
+					"type": "glass",
+					"color": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"IOR": 1.9,
+					"roughness": 0
 				},
-				"bsdf": "glass",
-				"IOR": 1.9,
-				"roughness": 0,
 				"radius": 0.05
 			},
 			{
@@ -185,15 +193,17 @@
 							}
 						]
 					}
-				],	
-				"color": {
-					"r": 1.0,
-					"g": 0.1,
-					"b": 0.1
+				],
+				"material": {
+					"type": "glass",
+					"color": {
+						"r": 1.0,
+						"g": 0.1,
+						"b": 0.1
+					},
+					"IOR": 1.9,
+					"roughness": 0
 				},
-				"bsdf": "glass",
-				"IOR": 1.9,
-				"roughness": 0,
 				"radius": 0.025
 			},
 			{
@@ -209,15 +219,17 @@
 							}
 						]
 					}
-				],	
-				"color": {
-					"r": 0.1,
-					"g": 1.0,
-					"b": 0.1
+				],
+				"material": {
+					"type": "glass",
+					"color": {
+						"r": 0.1,
+						"g": 1.0,
+						"b": 0.1
+					},
+					"IOR": 1.9,
+					"roughness": 0
 				},
-				"bsdf": "glass",
-				"IOR": 1.9,
-				"roughness": 0,
 				"radius": 0.025
 			},
 			{
@@ -234,14 +246,16 @@
 						]
 					}
 				],	
-				"color": {
-					"r": 0.1,
-					"g": 0.1,
-					"b": 1.0
+				"material": {
+					"type": "glass",
+					"color": {
+						"r": 0.1,
+						"g": 0.1,
+						"b": 1.0
+					},
+					"IOR": 1.9,
+					"roughness": 0
 				},
-				"bsdf": "glass",
-				"IOR": 1.9,
-				"roughness": 0,
 				"radius": 0.025
 			},
 			{
@@ -258,14 +272,16 @@
 						]
 					}
 				],	
-				"radius": 0.01,
-				"color": {
-					"r": 1.0,
-					"g": 0.0,
-					"b": 0.0
+				"material": {
+					"type": "metal",
+					"color": {
+						"r": 1.0,
+						"g": 0.0,
+						"b": 0.0
+					},
+					"roughness": 1.0
 				},
-				"bsdf": "metal",
-				"roughness": 1.0
+				"radius": 0.01
 			},
 			{
 				"type": "sphere",
@@ -322,14 +338,16 @@
 						]
 					}
 				],	
-				"radius": 2.5,
-				"color": {
-					"r": 0.0,
-					"g": 1.0,
-					"b": 0.0
+				"material": {
+					"type": "emissive",
+					"color": {
+						"r": 0.0,
+						"g": 1.0,
+						"b": 0.0
+					},
+					"intensity": 10.0
 				},
-				"bsdf": "emissive",
-				"intensity": 10.0
+				"radius": 2.5
 			},
 			{
 				"type": "sphere",
@@ -345,14 +363,16 @@
 						]
 					}
 				],	
-				"radius": 2.5,
-				"color": {
-					"r": 0.0,
-					"g": 0.0,
-					"b": 1.0
+				"material": {
+					"type": "emissive",
+					"color": {
+						"r": 0.0,
+						"g": 0.0,
+						"b": 1.0
+					},
+					"intensity": 10.0
 				},
-				"bsdf": "emissive",
-				"intensity": 10.0
+				"radius": 2.5
 			},
 			{
 				"type": "sphere",
@@ -367,14 +387,16 @@
 							}
 						]
 					}
-				],	
-				"color": {
-					"r": 1.0,
-					"g": 1.0,
-					"b": 1.0
+				],
+				"material": {
+					"type": "emissive",
+					"color": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"intensity": 10.0
 				},
-				"bsdf": "emissive",
-				"intensity": 10.0,
 				"radius": 10
 			}
 		],

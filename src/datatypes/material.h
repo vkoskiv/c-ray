@@ -64,7 +64,6 @@ struct material {
 	struct texture *texture;
 	struct texture *normalMap;
 	struct texture *specularMap;
-	struct color ambient;
 	struct color diffuse;
 	struct color specular;
 	struct color emission;
@@ -79,10 +78,8 @@ struct material {
 	float glossiness;
 	
 	enum bsdfType type; // FIXME: Temporary
-	const struct bsdfNode *bsdf;
 };
 
-struct material defaultMaterial(void);
 struct material warningMaterial(void);
 
 struct node_storage;
