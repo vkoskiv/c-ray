@@ -35,7 +35,9 @@ int registerHandler(enum sigtype type, void (*handler)(int)) {
 }
 
 void block_signals(void) {
+#ifndef WINDOWS
 	sigset_t mask;
 	sigfillset(&mask);
 	sigprocmask(SIG_SETMASK, &mask, 0);
+#endif
 }
