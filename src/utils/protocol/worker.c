@@ -150,15 +150,19 @@ static void *workerThread(void *arg) {
 	struct timeval timer = { 0 };
 	threadState->completedSamples = 1;
 	
-	while (tile.tileNum != -1 && r->state.isRendering) {
+	while (tile.tileNum != -1 && r->state.rendering) {
+		if (tileBuffer->width != tile.width || tileBuffer->height != tile.height) {
+			destroyTexture(tileBuffer);
+			tileBuffer = newTexture(char_p, tile.width, tile.height, 3);
+		}
 		long totalUsec = 0;
 		long samples = 0;
 		
-		while (threadState->completedSamples < r->prefs.sampleCount+1 && r->state.isRendering) {
+		while (threadState->completedSamples < r->prefs.sampleCount+1 && r->state.rendering) {
 			timer_start(&timer);
 			for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 				for (int x = tile.begin.x; x < tile.end.x; ++x) {
-					if (r->state.renderAborted || !g_running) goto bail;
+					if (r->state.render_aborted || !g_running) goto bail;
 					uint32_t pixIdx = (uint32_t)(y * cam->width + x);
 					initSampler(sampler, SAMPLING_STRATEGY, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
@@ -207,10 +211,6 @@ static void *workerThread(void *arg) {
 		mutex_lock(sockMutex);
 		tile = getWork(sock);
 		mutex_release(sockMutex);
-		if (tileBuffer->width != tile.width || tileBuffer->height != tile.height) {
-			destroyTexture(tileBuffer);
-			tileBuffer = newTexture(char_p, tile.width, tile.height, 3);
-		}
 	}
 bail:
 	destroySampler(sampler);
@@ -223,19 +223,17 @@ bail:
 #define active_msec  16
 
 static cJSON *startRender(int connectionSocket) {
-	g_worker_renderer->state.isRendering = true;
-	g_worker_renderer->state.renderAborted = false;
+	g_worker_renderer->state.rendering = true;
+	g_worker_renderer->state.render_aborted = false;
 	g_worker_renderer->state.saveImage = false;
 	logr(info, "Starting network render job\n");
 	
-	int threadCount = g_worker_renderer->prefs.threadCount;
-	// Map of threads that have finished, so we don't check them again.
-	bool *checkedThreads = calloc(threadCount, sizeof(*checkedThreads));
+	size_t threadCount = g_worker_renderer->prefs.threadCount;
 	struct cr_thread *worker_threads = calloc(threadCount, sizeof(*worker_threads));
 	struct workerThreadState *workerThreadStates = calloc(threadCount, sizeof(*workerThreadStates));
 	
 	//Create render threads (Nonblocking)
-	for (int t = 0; t < threadCount; ++t) {
+	for (size_t t = 0; t < threadCount; ++t) {
 		workerThreadStates[t] = (struct workerThreadState){
 				.thread_num = t,
 				.connectionSocket = connectionSocket,
@@ -255,7 +253,7 @@ static cJSON *startRender(int connectionSocket) {
 	int ctr = 1;
 	int pauser = 0;
 	//TODO: Send out stats here
-	while (g_worker_renderer->state.isRendering) {
+	while (g_worker_renderer->state.rendering) {
 		
 		// Gather and send statistics to master node
 		for(int t = 0; t < g_worker_renderer->prefs.threadCount; ++t) {
@@ -267,7 +265,7 @@ static cJSON *startRender(int connectionSocket) {
 		// Send stats about 1x/s
 		if (pauser == 1024 / active_msec) {
 			uint64_t completedSamples = 0;
-			for (int t = 0; t < threadCount; ++t) {
+			for (size_t t = 0; t < threadCount; ++t) {
 				completedSamples += workerThreadStates[t].totalSamples;
 			}
 			cJSON *stats = newAction("stats");
@@ -278,27 +276,28 @@ static cJSON *startRender(int connectionSocket) {
 			if (!sendJSON(connectionSocket, stats, NULL)) {
 				logr(debug, "Connection lost, bailing out.\n");
 				// Setting this flag also kills the threads.
-				g_worker_renderer->state.isRendering = false;
+				g_worker_renderer->state.rendering = false;
 			}
 			mutex_release(g_worker_socket_mutex);
 			pauser = 0;
 		}
 		pauser++;
-		
-		//Wait for render threads to finish (Render finished)
-		for (int t = 0; t < threadCount; ++t) {
-			if (workerThreadStates[t].threadComplete && !checkedThreads[t]) {
-				--g_worker_renderer->state.activeThreads;
-				checkedThreads[t] = true; //Mark as checked
-			}
-			if (!g_worker_renderer->state.activeThreads || g_worker_renderer->state.renderAborted) {
-				g_worker_renderer->state.isRendering = false;
-			}
+
+		size_t inactive = 0;
+		for (size_t t = 0; t < threadCount; ++t) {
+			if (workerThreadStates[t].threadComplete) inactive++;
 		}
+		if (g_worker_renderer->state.render_aborted || inactive == threadCount)
+			g_worker_renderer->state.rendering = false;
+
 		timer_sleep_ms(active_msec);
 	}
-	
-	return goodbye();
+
+	//Make sure workder threads are terminated before continuing (This blocks)
+	for (size_t t = 0; t < threadCount; ++t) {
+		thread_wait(&worker_threads[t]);
+	}
+	return NULL;
 }
 
 // Worker command handler
@@ -424,13 +423,20 @@ int startWorkerServer() {
 				break;
 			}
 			cJSON *myResponse = processCommand(connectionSocket, message);
+			if (!myResponse) {
+				if (buf) free(buf);
+				cJSON_Delete(message);
+				break;
+			}
 			char *responseText = cJSON_PrintUnformatted(myResponse);
 			if (!chunkedSend(connectionSocket, responseText, NULL)) {
 				logr(debug, "chunkedSend() failed, error %s\n", strerror(errno));
+				cJSON_Delete(message);
 				break;
 			};
 			free(responseText);
 			if (buf) free(buf);
+			buf = NULL;
 			if (containsGoodbye(myResponse) || containsError(myResponse)) {
 				cJSON_Delete(myResponse);
 				cJSON_Delete(message);
@@ -438,7 +444,6 @@ int startWorkerServer() {
 			}
 			cJSON_Delete(myResponse);
 			cJSON_Delete(message);
-			buf = NULL;
 		}
 	bail:
 		if (g_running) {

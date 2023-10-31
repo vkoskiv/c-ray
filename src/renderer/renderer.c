@@ -79,8 +79,8 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	logr(info, "Pathtracing%s...\n", isSet("interactive") ? " iteratively" : "");
 	
-	r->state.isRendering = true;
-	r->state.renderAborted = false;
+	r->state.rendering = true;
+	r->state.render_aborted = false;
 	r->state.saveImage = true; // Set to false if user presses X
 	
 	//Main loop (input)
@@ -98,13 +98,10 @@ struct texture *renderFrame(struct renderer *r) {
 	if (r->state.clients) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clientCount, PLURAL(r->state.clientCount), remoteThreads, PLURAL(remoteThreads));
 	
 	// Local render threads + one thread for every client
-	int localThreadCount = r->prefs.threadCount + (int)r->state.clientCount;
+	size_t local_thread_count = r->prefs.threadCount + (int)r->state.clientCount;
 	
-	// Map of threads that have finished, so we don't check them again.
-	bool *checkedThreads = calloc(localThreadCount, sizeof(*checkedThreads));
-	
-	r->state.threads = calloc(localThreadCount, sizeof(*r->state.threads));
-	r->state.threadStates = calloc(localThreadCount, sizeof(*r->state.threadStates));
+	r->state.threads = calloc(local_thread_count, sizeof(*r->state.threads));
+	r->state.thread_states = calloc(local_thread_count, sizeof(*r->state.thread_states));
 	
 	// Select the appropriate renderer type for local use
 	void *(*localRenderThread)(void *) = renderThread;
@@ -113,8 +110,8 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		r->state.threadStates[t] = (struct renderThreadState){.thread_num = t, .threadComplete = false, .renderer = r, .output = output, .cam = &camera};
-		r->state.threads[t] = (struct cr_thread){.thread_fn = localRenderThread, .user_data = &r->state.threadStates[t]};
+		r->state.thread_states[t] = (struct renderThreadState){.thread_num = t, .thread_complete = false, .renderer = r, .output = output, .cam = &camera};
+		r->state.threads[t] = (struct cr_thread){.thread_fn = localRenderThread, .user_data = &r->state.thread_states[t]};
 		if (thread_start(&r->state.threads[t])) {
 			logr(error, "Failed to create a render thread.\n");
 		} else {
@@ -125,8 +122,8 @@ struct texture *renderFrame(struct renderer *r) {
 	// Create network worker manager threads
 	for (int t = 0; t < (int)r->state.clientCount; ++t) {
 		int offset = r->prefs.threadCount + t;
-		r->state.threadStates[offset] = (struct renderThreadState){.client = &r->state.clients[t], .thread_num = offset, .threadComplete = false, .renderer = r, .output = output};
-		r->state.threads[offset] = (struct cr_thread){.thread_fn = networkRenderThread, .user_data = &r->state.threadStates[offset]};
+		r->state.thread_states[offset] = (struct renderThreadState){.client = &r->state.clients[t], .thread_num = offset, .thread_complete = false, .renderer = r, .output = output};
+		r->state.threads[offset] = (struct cr_thread){.thread_fn = networkRenderThread, .user_data = &r->state.thread_states[offset]};
 		if (thread_start(&r->state.threads[offset])) {
 			logr(error, "Failed to create a network thread.\n");
 		} else {
@@ -137,21 +134,21 @@ struct texture *renderFrame(struct renderer *r) {
 	//Start main thread loop to handle SDL and statistics computation
 	//FIXME: Statistics computation is a gigantic mess. It will also break in the case
 	//where a worker node disconnects during a render, so maybe fix that next.
-	while (r->state.isRendering) {
+	while (r->state.rendering) {
 		getKeyboardInput(r);
 
 		if (g_aborted) {
 			r->state.saveImage = false;
-			r->state.renderAborted = true;
+			r->state.render_aborted = true;
 		}
 		
 		//Gather and maintain this average constantly.
-		if (!r->state.threadStates[0].paused) {
+		if (!r->state.thread_states[0].paused) {
 			if (r->sdl) win_update(r->sdl, r, output);
-			for (int t = 0; t < localThreadCount; ++t) {
-				avgSampleTime += r->state.threadStates[t].avgSampleTime;
+			for (size_t t = 0; t < local_thread_count; ++t) {
+				avgSampleTime += r->state.thread_states[t].avgSampleTime;
 			}
-			avgTimePerTilePass += avgSampleTime / localThreadCount;
+			avgTimePerTilePass += avgSampleTime / local_thread_count;
 			avgTimePerTilePass /= ctr++;
 		}
 		
@@ -159,8 +156,8 @@ struct texture *renderFrame(struct renderer *r) {
 		if (pauser == 280 / active_msec) {
 			float usPerRay = avgTimePerTilePass / (r->prefs.tileHeight * r->prefs.tileWidth);
 			uint64_t completedSamples = 0;
-			for (int t = 0; t < localThreadCount; ++t) {
-				completedSamples += r->state.threadStates[t].totalSamples;
+			for (size_t t = 0; t < local_thread_count; ++t) {
+				completedSamples += r->state.thread_states[t].totalSamples;
 			}
 			uint64_t remainingTileSamples = (r->state.tileCount * r->prefs.sampleCount) - completedSamples;
 			uint64_t msecTillFinished = 0.001f * (avgTimePerTilePass * remainingTileSamples);
@@ -175,30 +172,26 @@ struct texture *renderFrame(struct renderer *r) {
 				 (double)usPerRay,
 				 rem,
 				 0.000001 * (double)sps,
-				 r->state.threadStates[0].paused ? "[PAUSED]" : "");
+				 r->state.thread_states[0].paused ? "[PAUSED]" : "");
 			
 			pauser = 0;
 		}
 		pauser++;
 		
-		//Wait for render threads to finish (Render finished)
-		for (int t = 0; t < localThreadCount; ++t) {
-			if (r->state.threadStates[t].threadComplete && !checkedThreads[t]) {
-				--r->state.activeThreads;
-				checkedThreads[t] = true; //Mark as checked
-			}
-			if (!r->state.activeThreads || r->state.renderAborted) {
-				r->state.isRendering = false;
-			}
+
+		size_t inactive = 0;
+		for (size_t t = 0; t < local_thread_count; ++t) {
+			if (r->state.thread_states[t].thread_complete) inactive++;
 		}
-		timer_sleep_ms(r->state.threadStates[0].paused ? paused_msec : active_msec);
+		if (r->state.render_aborted || inactive == local_thread_count)
+			r->state.rendering = false;
+		timer_sleep_ms(r->state.thread_states[0].paused ? paused_msec : active_msec);
 	}
 	
 	//Make sure render threads are terminated before continuing (This blocks)
-	for (int t = 0; t < localThreadCount; ++t) {
+	for (size_t t = 0; t < local_thread_count; ++t) {
 		thread_wait(&r->state.threads[t]);
 	}
-	free(checkedThreads);
 	return output;
 }
 
@@ -221,13 +214,13 @@ void *renderThreadInteractive(void *arg) {
 	
 	threadState->completedSamples = 1;
 	
-	while (tile && r->state.isRendering) {
+	while (tile && r->state.rendering) {
 		long totalUsec = 0;
 
 		timer_start(&timer);
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
-				if (r->state.renderAborted) return 0;
+				if (r->state.render_aborted) return 0;
 				uint32_t pixIdx = (uint32_t)(y * image->width + x);
 				//FIXME: This does not converge to the same result as with regular renderThread.
 				//I assume that's because we'd have to init the sampler differently when we render all
@@ -259,7 +252,7 @@ void *renderThreadInteractive(void *arg) {
 		threadState->totalSamples++;
 		threadState->completedSamples++;
 		//Pause rendering when bool is set
-		while (threadState->paused && !r->state.renderAborted) {
+		while (threadState->paused && !r->state.render_aborted) {
 			timer_sleep_ms(100);
 		}
 		threadState->avgSampleTime = totalUsec / r->state.finishedPasses;
@@ -273,7 +266,7 @@ void *renderThreadInteractive(void *arg) {
 	}
 	destroySampler(sampler);
 	//No more tiles to render, exit thread. (render done)
-	threadState->threadComplete = true;
+	threadState->thread_complete = true;
 	threadState->currentTile = NULL;
 	return 0;
 }
@@ -300,15 +293,15 @@ void *renderThread(void *arg) {
 	struct timeval timer = {0};
 	threadState->completedSamples = 1;
 	
-	while (tile && r->state.isRendering) {
+	while (tile && r->state.rendering) {
 		long totalUsec = 0;
 		long samples = 0;
 		
-		while (threadState->completedSamples < r->prefs.sampleCount + 1 && r->state.isRendering) {
+		while (threadState->completedSamples < r->prefs.sampleCount + 1 && r->state.rendering) {
 			timer_start(&timer);
 			for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 				for (int x = tile->begin.x; x < tile->end.x; ++x) {
-					if (r->state.renderAborted) return 0;
+					if (r->state.render_aborted) return 0;
 					uint32_t pixIdx = (uint32_t)(y * image->width + x);
 					initSampler(sampler, SAMPLING_STRATEGY, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
@@ -338,7 +331,7 @@ void *renderThread(void *arg) {
 			threadState->totalSamples++;
 			threadState->completedSamples++;
 			//Pause rendering when bool is set
-			while (threadState->paused && !r->state.renderAborted) {
+			while (threadState->paused && !r->state.render_aborted) {
 				timer_sleep_ms(100);
 			}
 			threadState->avgSampleTime = totalUsec / samples;
@@ -352,7 +345,7 @@ void *renderThread(void *arg) {
 	}
 	destroySampler(sampler);
 	//No more tiles to render, exit thread. (render done)
-	threadState->threadComplete = true;
+	threadState->thread_complete = true;
 	threadState->currentTile = NULL;
 	return 0;
 }
@@ -405,7 +398,7 @@ void destroyRenderer(struct renderer *r) {
 		destroyTexture(r->state.uiBuffer);
 		free(r->state.renderTiles);
 		free(r->state.threads);
-		free(r->state.threadStates);
+		free(r->state.thread_states);
 		free(r->state.tileMutex);
 		if (r->state.file_cache) {
 			cache_destroy(r->state.file_cache);

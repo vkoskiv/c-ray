@@ -15,7 +15,7 @@
 
 struct renderThreadState {
 	int thread_num;
-	bool threadComplete;
+	bool thread_complete;
 	
 	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.
 	
@@ -42,14 +42,14 @@ struct state {
 	struct texture *renderBuffer; //float-precision buffer for multisampling
 	struct texture *uiBuffer; //UI element buffer
 	int activeThreads; //Amount of threads currently rendering
-	bool isRendering;
-	bool renderAborted; //SDL listens for X key pressed, which sets this
+	bool rendering;
+	bool render_aborted; //SDL listens for X key pressed, which sets this
 	bool saveImage;
 	unsigned long long avgTileTime; //Used for render duration estimation (milliseconds)
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount; //Used for render duration estimation, amount of time samples captured
 	struct cr_thread *threads; //Render threads
-	struct renderThreadState *threadStates;
+	struct renderThreadState *thread_states;
 	struct renderClient *clients;
 	size_t clientCount;
 	struct timeval timer;

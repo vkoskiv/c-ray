@@ -200,7 +200,7 @@ static cJSON *processClientRequest(struct renderThreadState *state, const cJSON 
 			return processSubmitWork(state, json);
 			break;
 		case 2:
-			state->threadComplete = true;
+			state->thread_complete = true;
 			logr(debug, "Client %i said goodbye, disconnecting.\n", state->client->id);
 			return goodbye();
 			break;
@@ -222,24 +222,24 @@ void *networkRenderThread(void *arg) {
 	struct renderer *r = state->renderer;
 	struct renderClient *client = state->client;
 	if (!client) {
-		state->threadComplete = true;
+		state->thread_complete = true;
 		return 0;
 	}
 	if (client->status != Synced) {
 		logr(debug, "Client %i wasn't synced fully, dropping.\n", client->id);
-		state->threadComplete = true;
+		state->thread_complete = true;
 		return 0;
 	}
 	
 	// Set this worker into render mode
 	if (!sendJSON(client->socket, newAction("startRender"), NULL)) {
 		logr(warning, "Client disconnected? Stopping for %i\n", client->id);
-		state->threadComplete = true;
+		state->thread_complete = true;
 		return 0;
 	}
 	
 	// And just wait for commands.
-	while (r->state.isRendering && !state->threadComplete) {
+	while (r->state.rendering && !state->thread_complete) {
 		cJSON *request = readJSON(client->socket);
 		if (containsStats(request)) {
 			cJSON *completed = cJSON_GetObjectItem(request, "completed");
@@ -262,7 +262,7 @@ void *networkRenderThread(void *arg) {
 	
 	// Let the worker now we're done here
 	// TODO (right now we disconnect, and the client implies from that)
-	state->threadComplete = true;
+	state->thread_complete = true;
 	return 0;
 }
 

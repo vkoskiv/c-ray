@@ -296,25 +296,25 @@ void getKeyboardInput(struct renderer *r) {
 			if (event.key.keysym.sym == SDLK_s) {
 				printf("\n");
 				logr(info, "Aborting render, saving\n");
-				r->state.renderAborted = true;
+				r->state.render_aborted = true;
 				r->state.saveImage = true;
 			}
 			if (event.key.keysym.sym == SDLK_x) {
 				printf("\n");
 				logr(info, "Aborting render without saving\n");
-				r->state.renderAborted = true;
+				r->state.render_aborted = true;
 				r->state.saveImage = false;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
 				for (int i = 0; i < r->prefs.threadCount; ++i) {
-					r->state.threadStates[i].paused = !r->state.threadStates[i].paused;
+					r->state.thread_states[i].paused = !r->state.thread_states[i].paused;
 				}
 			}
 		}
 		if (event.type == SDL_QUIT) {
 			printf("\n");
 			logr(info, "Aborting render without saving\n");
-			r->state.renderAborted = true;
+			r->state.render_aborted = true;
 			r->state.saveImage = false;
 		}
 	}
@@ -337,9 +337,9 @@ static void clearProgBar(struct renderer *r, struct renderTile temp) {
  */
 static void drawProgressBars(struct renderer *r) {
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		if (r->state.threadStates[t].currentTile) {
-			struct renderTile *temp = r->state.threadStates[t].currentTile;
-			int completedSamples = r->state.threadStates[t].completedSamples;
+		if (r->state.thread_states[t].currentTile) {
+			struct renderTile *temp = r->state.thread_states[t].currentTile;
+			int completedSamples = r->state.thread_states[t].completedSamples;
 			int totalSamples = r->prefs.sampleCount;
 			
 			float prc = ((float)completedSamples / (float)totalSamples);
