@@ -21,8 +21,7 @@
 #include "logo.h"
 #include "loaders/textureloader.h"
 #include "args.h"
-
-#include <dlfcn.h>
+#include "platform/dyn.h"
 
 #include "../vendored/SDL2/SDL_render.h"
 #include "../vendored/SDL2/SDL_events.h"
@@ -71,11 +70,12 @@ struct sdl_syms {
 static void *try_find_sdl2_lib(void) {
 	char *candidates[] = {
 		"libSDL2-2.0.so",
-		"libSDL2-2.0.0.dylib"
+		"libSDL2-2.0.0.dylib",
+		"SDL2.dll"
 	};
 	void *lib = NULL;
 	for (size_t i = 0; i < (sizeof(candidates) / sizeof(*candidates)); ++i) {
-		if ((lib = dlopen(candidates[i], RTLD_LAZY))) return lib;
+		if ((lib = dyn_load(candidates[i]))) return lib;
 	}
 
 	logr(info, "Couldn't find SDL library, tried the following names: ");
@@ -93,27 +93,27 @@ static struct sdl_syms *try_get_sdl2_syms(void) {
 	struct sdl_syms *syms = calloc(1, sizeof(*syms));
 	*syms = (struct sdl_syms){
 		.lib = sdl2,
-		.SDL_VideoInit              = dlsym(sdl2, "SDL_VideoInit"),
-		.SDL_VideoQuit              = dlsym(sdl2, "SDL_VideoQuit"),
-		.SDL_Quit                   = dlsym(sdl2, "SDL_Quit"),
-		.SDL_GetError               = dlsym(sdl2, "SDL_GetError"),
-		.SDL_SetWindowIcon          = dlsym(sdl2, "SDL_SetWindowIcon"),
-		.SDL_FreeSurface            = dlsym(sdl2, "SDL_FreeSurface"),
-		.SDL_CreateRGBSurfaceFrom   = dlsym(sdl2, "SDL_CreateRGBSurfaceFrom"),
-		.SDL_CreateWindow           = dlsym(sdl2, "SDL_CreateWindow"),
-		.SDL_CreateRenderer         = dlsym(sdl2, "SDL_CreateRenderer"),
-		.SDL_CreateTexture          = dlsym(sdl2, "SDL_CreateTexture"),
-		.SDL_DestroyTexture         = dlsym(sdl2, "SDL_DestroyTexture"),
-		.SDL_DestroyRenderer        = dlsym(sdl2, "SDL_DestroyRenderer"),
-		.SDL_DestroyWindow          = dlsym(sdl2, "SDL_DestroyWindow"),
-		.SDL_RenderPresent          = dlsym(sdl2, "SDL_RenderPresent"),
-		.SDL_RenderSetLogicalSize   = dlsym(sdl2, "SDL_RenderSetLogicalSize"),
-		.SDL_SetRenderDrawBlendMode = dlsym(sdl2, "SDL_SetRenderDrawBlendMode"),
-		.SDL_SetTextureBlendMode    = dlsym(sdl2, "SDL_SetTextureBlendMode"),
-		.SDL_RenderSetScale         = dlsym(sdl2, "SDL_RenderSetScale"),
-		.SDL_PollEvent              = dlsym(sdl2, "SDL_PollEvent"),
-		.SDL_UpdateTexture          = dlsym(sdl2, "SDL_UpdateTexture"),
-		.SDL_RenderCopy             = dlsym(sdl2, "SDL_RenderCopy")
+		.SDL_VideoInit              = dyn_sym(sdl2, "SDL_VideoInit"),
+		.SDL_VideoQuit              = dyn_sym(sdl2, "SDL_VideoQuit"),
+		.SDL_Quit                   = dyn_sym(sdl2, "SDL_Quit"),
+		.SDL_GetError               = dyn_sym(sdl2, "SDL_GetError"),
+		.SDL_SetWindowIcon          = dyn_sym(sdl2, "SDL_SetWindowIcon"),
+		.SDL_FreeSurface            = dyn_sym(sdl2, "SDL_FreeSurface"),
+		.SDL_CreateRGBSurfaceFrom   = dyn_sym(sdl2, "SDL_CreateRGBSurfaceFrom"),
+		.SDL_CreateWindow           = dyn_sym(sdl2, "SDL_CreateWindow"),
+		.SDL_CreateRenderer         = dyn_sym(sdl2, "SDL_CreateRenderer"),
+		.SDL_CreateTexture          = dyn_sym(sdl2, "SDL_CreateTexture"),
+		.SDL_DestroyTexture         = dyn_sym(sdl2, "SDL_DestroyTexture"),
+		.SDL_DestroyRenderer        = dyn_sym(sdl2, "SDL_DestroyRenderer"),
+		.SDL_DestroyWindow          = dyn_sym(sdl2, "SDL_DestroyWindow"),
+		.SDL_RenderPresent          = dyn_sym(sdl2, "SDL_RenderPresent"),
+		.SDL_RenderSetLogicalSize   = dyn_sym(sdl2, "SDL_RenderSetLogicalSize"),
+		.SDL_SetRenderDrawBlendMode = dyn_sym(sdl2, "SDL_SetRenderDrawBlendMode"),
+		.SDL_SetTextureBlendMode    = dyn_sym(sdl2, "SDL_SetTextureBlendMode"),
+		.SDL_RenderSetScale         = dyn_sym(sdl2, "SDL_RenderSetScale"),
+		.SDL_PollEvent              = dyn_sym(sdl2, "SDL_PollEvent"),
+		.SDL_UpdateTexture          = dyn_sym(sdl2, "SDL_UpdateTexture"),
+		.SDL_RenderCopy             = dyn_sym(sdl2, "SDL_RenderCopy")
 	};
 	for (size_t i = 0; i < (sizeof(struct sdl_syms) / sizeof(void *)); ++i) {
 		if (!((void **)syms)[i]) {
@@ -275,7 +275,7 @@ void win_destroy(struct sdl_window *w) {
 			w->sym->SDL_DestroyWindow(w->window);
 			w->window = NULL;
 		}
-		dlclose(w->sym->lib);
+		dyn_close(w->sym->lib);
 		free(w->sym);
 	}
 	free(w);
