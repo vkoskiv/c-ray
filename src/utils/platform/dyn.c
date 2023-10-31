@@ -1,4 +1,5 @@
 #ifdef WINDOWS
+#include <windows.h>
 #include <libloaderapi.h>
 #else
 #include <dlfcn.h>
