@@ -211,7 +211,8 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 	}
 	//Init renderer
 	w->renderer = w->sym->SDL_CreateRenderer(w->window, -1, SDL_RENDERER_ACCELERATED);
-	if (w->renderer == NULL) {
+	if (!w->renderer) w->renderer = w->sym->SDL_CreateRenderer(w->window, -1, SDL_RENDERER_SOFTWARE);
+	if (!w->renderer) {
 		logr(warning, "Renderer couldn't be created, error: \"%s\"\n", w->sym->SDL_GetError());
 		win_destroy(w);
 		return NULL;
