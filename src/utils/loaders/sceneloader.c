@@ -22,7 +22,7 @@
 #include "../logging.h"
 #include "../fileio.h"
 #include "../string.h"
-#include "vendored/cJSON.h"
+#include "../../vendored/cJSON.h"
 #ifdef WINDOWS // Sigh...
 #include <malloc.h>
 #else
