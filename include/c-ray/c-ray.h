@@ -44,12 +44,6 @@ int cr_load_scene_from_buf(struct renderer *r, char *buf);
 void cr_load_mesh_from_file(char *filePath);
 void cr_load_mesh_from_buf(char *buf);
 
-void cr_log(const char *fmt, ...)
-#ifndef WINDOWS
-__attribute__ ((format (printf, 1, 2)))
-#endif
-;
-
 //Preferences
 void cr_set_render_order(void);
 void cr_get_render_order(void);

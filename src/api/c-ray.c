@@ -148,15 +148,6 @@ int cr_load_scene_from_buf(struct renderer *r, char *buf) {
 	return loadScene(r, buf);
 }
 
-void cr_log(const char *fmt, ...) {
-	char buf[512];
-	va_list vl;
-	va_start(vl, fmt);
-	vsnprintf(buf, sizeof(buf), fmt, vl);
-	va_end(vl);
-	logr(info, "%s", buf);
-}
-
 void cr_set_render_order(void) {
 	ASSERT_NOT_REACHED();
 }
