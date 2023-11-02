@@ -209,7 +209,7 @@ int loadScene(struct renderer *r, char *input) {
 	cJSON_Delete(json);
 	logr(debug, "Deleting done\n");
 
-	if (r->prefs.threadCount > 0) {
+	if (r->prefs.threads > 0) {
 		// Do some pre-render preparations
 		// Compute BVH acceleration structures for all objects in the scene
 		compute_accels(r->scene->meshes, r->scene->meshCount);
@@ -241,10 +241,10 @@ int loadScene(struct renderer *r, char *input) {
 	r->state.uiBuffer = newTexture(char_p, cam.width, cam.height, 4);
 	
 	//Print a useful warning to user if the defined tile size results in less renderThreads
-	if (r->state.tileCount < r->prefs.threadCount) {
+	if (r->state.tileCount < r->prefs.threads) {
 		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
-		logr(warning, "Reducing thread count from %i to %i\n", r->prefs.threadCount, r->state.tileCount);
-		r->prefs.threadCount = r->state.tileCount;
+		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, r->state.tileCount);
+		r->prefs.threads = r->state.tileCount;
 	}
 	return 0;
 }

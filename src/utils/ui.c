@@ -290,7 +290,7 @@ void getKeyboardInput(struct renderer *r) {
 				r->state.saveImage = false;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
-				for (size_t i = 0; i < r->prefs.threadCount; ++i) {
+				for (size_t i = 0; i < r->prefs.threads; ++i) {
 					r->state.workers[i].paused = !r->state.workers[i].paused;
 				}
 			}
@@ -320,7 +320,7 @@ static void clearProgBar(struct renderer *r, struct renderTile temp) {
  around that.
  */
 static void drawProgressBars(struct renderer *r) {
-	for (size_t t = 0; t < r->prefs.threadCount; ++t) {
+	for (size_t t = 0; t < r->prefs.threads; ++t) {
 		if (r->state.workers[t].currentTile) {
 			struct renderTile *temp = r->state.workers[t].currentTile;
 			int completedSamples = r->state.workers[t].completedSamples;
@@ -339,7 +339,7 @@ static void drawProgressBars(struct renderer *r) {
 			}
 		}
 	}
-	for (int i = 0; i < r->state.tileCount; ++i) {
+	for (size_t i = 0; i < r->state.tileCount; ++i) {
 		if (r->state.renderTiles[i].state == finished) {
 			clearProgBar(r, r->state.renderTiles[i]);
 		}
@@ -380,7 +380,7 @@ static void drawFrame(struct texture *buf, struct renderTile tile, struct color 
 
 static void updateFrames(struct renderer *r) {
 	if (r->prefs.tileWidth < 8 || r->prefs.tileHeight < 8) return;
-	for (int i = 0; i < r->state.tileCount; ++i) {
+	for (size_t i = 0; i < r->state.tileCount; ++i) {
 		struct renderTile tile = r->state.renderTiles[i];
 		struct color c = tile.state == rendering ? g_frame_color : g_clear_color;
 		drawFrame(r->state.uiBuffer, tile, c);

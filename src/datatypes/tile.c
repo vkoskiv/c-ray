@@ -27,7 +27,7 @@ struct renderTile *nextTile(struct renderer *r) {
 		tile->tileNum = r->state.finishedTileCount++;
 	} else {
 		// If a network worker disappeared during render, finish those tiles locally here at the end
-		for (int t = 0; t < r->state.tileCount; ++t) {
+		for (size_t t = 0; t < r->state.tileCount; ++t) {
 			if (r->state.renderTiles[t].state == rendering && r->state.renderTiles[t].networkRenderer) {
 				r->state.renderTiles[t].networkRenderer = false;
 				tile = &r->state.renderTiles[t];

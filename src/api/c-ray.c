@@ -138,13 +138,13 @@ void cr_get_render_order(void) {
 }
 
 void cr_set_thread_count(struct renderer *r, int thread_count, int is_from_system) {
-	r->prefs.threadCount = thread_count;
+	r->prefs.threads = thread_count;
 	r->prefs.fromSystem = is_from_system;
 	cr_restart_interactive();
 }
 
 int cr_get_thread_count(struct renderer *r) {
-	return r->prefs.threadCount;
+	return r->prefs.threads;
 }
 
 void cr_set_sample_count(struct renderer *r, int sample_count) {
@@ -215,7 +215,7 @@ void cr_start_renderer(struct renderer *r) {
 		r->sceneCache = NULL;
 		cache_destroy(r->state.file_cache);
 	}
-	if (!r->state.clients && r->prefs.threadCount == 0) {
+	if (!r->state.clients && r->prefs.threads == 0) {
 		logr(warning, "You specified 0 local threads, and no network clients were found. Nothing to do.\n");
 		return;
 	}

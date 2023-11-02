@@ -54,7 +54,7 @@ struct workerThreadState {
 	struct renderer *renderer;
 	bool threadComplete;
 	uint64_t totalSamples;
-	int completedSamples;
+	size_t completedSamples;
 	long avgSampleTime;
 };
 
@@ -94,7 +94,7 @@ static cJSON *receiveScene(const cJSON *json) {
 	// Stash in our capabilities here
 	//TODO: Maybe some performance value in here, so the master knows how much work to assign?
 	// For now just report back how many threads we've got available.
-	cJSON_AddNumberToObject(resp, "threadCount", g_worker_renderer->prefs.threadCount);
+	cJSON_AddNumberToObject(resp, "threadCount", g_worker_renderer->prefs.threads);
 	return resp;
 }
 
@@ -228,7 +228,7 @@ static cJSON *startRender(int connectionSocket) {
 	g_worker_renderer->state.saveImage = false;
 	logr(info, "Starting network render job\n");
 	
-	size_t threadCount = g_worker_renderer->prefs.threadCount;
+	size_t threadCount = g_worker_renderer->prefs.threads;
 	struct cr_thread *worker_threads = calloc(threadCount, sizeof(*worker_threads));
 	struct workerThreadState *workerThreadStates = calloc(threadCount, sizeof(*workerThreadStates));
 	
@@ -256,10 +256,10 @@ static cJSON *startRender(int connectionSocket) {
 	while (g_worker_renderer->state.rendering) {
 		
 		// Gather and send statistics to master node
-		for(int t = 0; t < g_worker_renderer->prefs.threadCount; ++t) {
+		for (size_t t = 0; t < g_worker_renderer->prefs.threads; ++t) {
 			avgSampleTime += workerThreadStates[t].avgSampleTime;
 		}
-		avgTimePerTilePass += avgSampleTime / g_worker_renderer->prefs.threadCount;
+		avgTimePerTilePass += avgSampleTime / g_worker_renderer->prefs.threads;
 		avgTimePerTilePass /= ctr++;
 		
 		// Send stats about 1x/s

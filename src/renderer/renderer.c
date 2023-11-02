@@ -58,24 +58,24 @@ struct texture *renderFrame(struct renderer *r) {
 	struct camera camera = r->scene->cameras[r->prefs.selected_camera];
 	struct texture *output = newTexture(char_p, camera.width, camera.height, 3);
 	
-	logr(info, "Starting c-ray renderer for frame %i\n", r->prefs.imgCount);
+	logr(info, "Starting c-ray renderer for frame %zu\n", r->prefs.imgCount);
 	
 	// Verify we have at least a single thread rendering.
-	if (r->state.clientCount == 0 && r->prefs.threadCount < 1) {
+	if (r->state.clientCount == 0 && r->prefs.threads < 1) {
 		logr(warning, "No network render workers, setting thread count to 1\n");
-		r->prefs.threadCount = 1;
+		r->prefs.threads = 1;
 	}
 	
-	bool threadsReduced = getSysCores() > r->prefs.threadCount;
+	bool threadsReduced = (size_t)getSysCores() > r->prefs.threads;
 	
 	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, camera.width, KNRM, KWHT, camera.height, KNRM);
-	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
+	logr(info, "Rendering %s%zu%s samples with %s%zu%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
 	logr(info, "Rendering with %s%zu%s%s local thread%s.\n",
 		 KRED,
-		 r->prefs.fromSystem && !threadsReduced ? r->prefs.threadCount - 2 : r->prefs.threadCount,
+		 r->prefs.fromSystem && !threadsReduced ? r->prefs.threads - 2 : r->prefs.threads,
 		 r->prefs.fromSystem && !threadsReduced ? "+2" : "",
 		 KNRM,
-		 PLURAL(r->prefs.threadCount));
+		 PLURAL(r->prefs.threads));
 	
 	logr(info, "Pathtracing%s...\n", isSet("interactive") ? " iteratively" : "");
 	
@@ -103,19 +103,19 @@ struct texture *renderFrame(struct renderer *r) {
 	if (interactive && !r->state.clients) localRenderThread = renderThreadInteractive;
 	
 	// Local render threads + one thread for every client
-	size_t total_thread_count = r->prefs.threadCount + (int)r->state.clientCount;
+	size_t total_thread_count = r->prefs.threads + (int)r->state.clientCount;
 	r->state.workers = calloc(total_thread_count, sizeof(*r->state.workers));
 	
 	//Create & boot workers (Nonblocking)
 	for (size_t t = 0; t < total_thread_count; ++t) {
 		r->state.workers[t] = (struct worker){
-			.client = t > r->prefs.threadCount - 1? &r->state.clients[t - r->prefs.threadCount] : NULL,
+			.client = t > r->prefs.threads - 1? &r->state.clients[t - r->prefs.threads] : NULL,
 			.thread_complete = false,
 			.renderer = r,
 			.output = output,
 			.cam = &camera,
 			.thread = (struct cr_thread){
-				.thread_fn = t > r->prefs.threadCount - 1 ? networkRenderThread : localRenderThread,
+				.thread_fn = t > r->prefs.threads - 1 ? networkRenderThread : localRenderThread,
 				.user_data = &r->state.workers[t]
 			}
 		};
@@ -156,9 +156,9 @@ struct texture *renderFrame(struct renderer *r) {
 			}
 			uint64_t remainingTileSamples = (r->state.tileCount * r->prefs.sampleCount) - completedSamples;
 			uint64_t msecTillFinished = 0.001f * (avgTimePerTilePass * remainingTileSamples);
-			float sps = (1000000.0f / usPerRay) * (r->prefs.threadCount + remoteThreads);
+			float sps = (1000000.0f / usPerRay) * (r->prefs.threads + remoteThreads);
 			char rem[64];
-			smartTime((msecTillFinished) / (r->prefs.threadCount + remoteThreads), rem);
+			smartTime((msecTillFinished) / (r->prefs.threads + remoteThreads), rem);
 			logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
 				 KBLU,
 				 interactive ? ((double)r->state.finishedPasses / (double)r->prefs.sampleCount) * 100.0 :
@@ -348,7 +348,7 @@ void *renderThread(void *arg) {
 static struct prefs defaultPrefs() {
 	return (struct prefs){
 			.tileOrder = renderOrderFromMiddle,
-			.threadCount = getSysCores() + 2,
+			.threads = getSysCores() + 2,
 			.fromSystem = true,
 			.sampleCount = 25,
 			.bounces = 20,

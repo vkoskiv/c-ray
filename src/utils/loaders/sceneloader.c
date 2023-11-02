@@ -168,10 +168,10 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 	if (threads) {
 		if (cJSON_IsNumber(threads)) {
 			if (threads->valueint > 0) {
-				prefs->threadCount = threads->valueint;
+				prefs->threads = threads->valueint;
 				prefs->fromSystem = false;
 			} else {
-				prefs->threadCount = getSysCores() + 2;
+				prefs->threads = getSysCores() + 2;
 				prefs->fromSystem = true;
 			}
 		} else {
@@ -334,10 +334,10 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 
 	// Now check and apply potential CLI overrides.
 	if (isSet("thread_override")) {
-		int threads = intPref("thread_override");
-		if (prefs->threadCount != threads) {
-			logr(info, "Overriding thread count to %i\n", threads);
-			prefs->threadCount = threads;
+		size_t threads = intPref("thread_override");
+		if (prefs->threads != threads) {
+			logr(info, "Overriding thread count to %zu\n", threads);
+			prefs->threads = threads;
 			prefs->fromSystem = false;
 		}
 	}
