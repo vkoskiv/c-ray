@@ -257,7 +257,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 		}
 	}
 
-	logr(debug, "Mesh %s surface area is %.4fm²\n", currentMeshPtr->name, surface_area);
+	logr(debug, "Mesh %s surface area is %.4fm²\n", currentMeshPtr->name, (double)surface_area);
 	
 	currentMeshPtr->surface_area = surface_area;
 	currentMeshPtr->polygons = polygons;
