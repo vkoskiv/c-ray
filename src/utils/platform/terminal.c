@@ -29,7 +29,7 @@ bool isTeleType(void) {
 #endif
 }
 
-static void showCursor(bool show) {
+static void show_cursor(bool show) {
 	(void)show;
 #ifndef NO_COLOR
 	if (isTeleType()) show ? fputs("\e[?25h", stdout) : fputs("\e[?25l", stdout);
@@ -41,12 +41,12 @@ static void handler(int sig) {
 	if (sig == 2) { //SIGINT
 		printf("\n");
 		logr(info, "Aborting initialization.\n");
-		restoreTerminal();
+		term_restore();
 		exit(0);
 	}
 }
 
-void initTerminal() {
+void term_init() {
 	if (registerHandler(sigint, handler)) {
 		logr(warning, "Unable to catch SIGINT\n");
 	}
@@ -54,7 +54,7 @@ void initTerminal() {
 #ifndef WINDOWS
 	//Disable output buffering
 	setbuf(stdout, NULL);
-	showCursor(false);
+	show_cursor(false);
 #endif
 	
 	//Configure Windows terminals to handle color escape codes
@@ -70,8 +70,8 @@ void initTerminal() {
 #endif
 }
 
-void restoreTerminal() {
+void term_restore() {
 #ifndef WINDOWS
-	showCursor(true);
+	show_cursor(true);
 #endif
 }

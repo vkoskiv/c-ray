@@ -84,7 +84,7 @@ void logr(enum logType type, const char *fmt, ...) {
 	}
 	if (type == error) {
 		logr(info, "Aborting due to previous error.\n");
-		restoreTerminal();
+		term_restore();
 		exit(-1);
 	}
 }

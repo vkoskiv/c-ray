@@ -51,15 +51,6 @@ char *cr_get_git_hash() {
 	return gitHash();
 }
 
-void at_exit() {
-	restoreTerminal();
-}
-
-void cr_initialize() {
-	initTerminal();
-	atexit(at_exit);
-}
-
 void cr_parse_args(int argc, char **argv) {
 	parseArgs(argc, argv);
 }

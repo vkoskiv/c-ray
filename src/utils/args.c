@@ -42,7 +42,7 @@ static void printUsage(const char *progname) {
 	printf("    [--shutdown]     -> Use in conjunction with a node list to send a shutdown command to a list of clients\n");
 	printf("    [--asset-path]   -> Specify an asset path to load assets from, useful in scripts\n");
 	printf("    [--test]         -> Run the test suite\n");
-	restoreTerminal();
+	term_restore();
 	exit(0);
 }
 
@@ -241,7 +241,7 @@ void parseArgs(int argc, char **argv) {
 	
 	if (isSet("shutdown") && isSet("nodes_list")) {
 		shutdownClients();
-		restoreTerminal();
+		term_restore();
 		exit(0);
 	}
 	

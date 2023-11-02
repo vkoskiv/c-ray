@@ -11,10 +11,12 @@
 
 #include "utils/logging.h"
 #include "utils/fileio.h"
+#include "utils/platform/terminal.h"
 
 int main(int argc, char *argv[]) {
+	term_init();
+	atexit(term_restore);
 	logr(info, "c-ray v%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
-	cr_initialize();
 	cr_parse_args(argc, argv);
 	struct renderer *renderer = cr_new_renderer();
 	if (!cr_is_option_set("is_worker")) {

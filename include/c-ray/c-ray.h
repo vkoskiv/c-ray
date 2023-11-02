@@ -16,10 +16,7 @@ struct renderer;
 
 //Utilities
 char *cr_get_version(void); //The current semantic version
-
 char *cr_get_git_hash(void); //The current git hash of the build
-
-void cr_initialize(void); //Run initial setup of the environment
 
 void cr_parse_args(int argc, char **argv);
 int cr_is_option_set(char *key);
