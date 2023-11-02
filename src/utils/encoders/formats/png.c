@@ -66,7 +66,7 @@ void encodePNGFromArray(const char *filename, const unsigned char *imgData, size
 	unsigned error = lodepng_encode(&buf, &bytes, imgData, (unsigned)width, (unsigned)height, &state);
 	if (error) logr(warning, "Error %u: %s\n", error, lodepng_error_text(error));
 	
-	writeFile(buf, bytes, filename);
+	write_file(buf, bytes, filename);
 	
 	lodepng_info_cleanup(&info);
 	lodepng_state_cleanup(&state);

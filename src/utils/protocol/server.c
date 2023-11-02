@@ -395,7 +395,7 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	char *assetCache = cache_encode(r->state.file_cache);
 	
 	size_t transfer_bytes = strlen(assetCache) + strlen(r->sceneCache);
-	char *transfer_size = humanFileSize(transfer_bytes);
+	char *transfer_size = human_file_size(transfer_bytes);
 	logr(info, "Sending %s to %lu client%s...\n", transfer_size, clientCount, PLURAL(clientCount));
 	free(transfer_size);
 	

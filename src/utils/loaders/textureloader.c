@@ -41,7 +41,7 @@ static struct texture *load_env_map(unsigned char *buf, size_t buflen, const cha
 		logr(warning, "Error while decoding HDR from %s - Corrupted?\n", path);
 		return NULL;
 	}
-	char *fsbuf = humanFileSize(buflen);
+	char *fsbuf = human_file_size(buflen);
 	printf(" %s\n", fsbuf);
 	free(fsbuf);
 	return tex;
@@ -76,10 +76,10 @@ struct texture *load_texture(char *filePath, struct block **pool, struct file_ca
 	size_t len = 0;
 	//Handle the trailing newline here
 	filePath[strcspn(filePath, "\n")] = 0;
-	unsigned char *file = (unsigned char*)loadFile(filePath, &len, cache);
+	unsigned char *file = (unsigned char*)load_file(filePath, &len, cache);
 	if (!file) return NULL;
 	
-	enum fileType type = guessFileType(filePath);
+	enum fileType type = guess_file_type(filePath);
 	
 	struct texture *new = NULL;
 	if (stbi_is_hdr(filePath)) {

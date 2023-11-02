@@ -140,11 +140,11 @@ float get_poly_area(struct poly *p, struct vector *vertices) {
 
 struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct file_cache *cache) {
 	size_t bytes = 0;
-	char *rawText = loadFile(filePath, &bytes, cache);
+	char *rawText = load_file(filePath, &bytes, cache);
 	if (!rawText) return NULL;
 	logr(debug, "Loading OBJ at %s\n", filePath);
 	textBuffer *file = newTextBuffer(rawText);
-	char *assetPath = getFilePath(filePath);
+	char *assetPath = get_file_path(filePath);
 	
 	//Start processing line-by-line, state machine style.
 	size_t meshCount = 1;
@@ -231,7 +231,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 			materialSet = parseMTLFile(mtlFilePath, &materialCount, cache);
 			free(mtlFilePath);
 		} else {
-			char *fileName = getFileName(filePath);
+			char *fileName = get_file_name(filePath);
 			logr(debug, "Unknown statement \"%s\" in OBJ \"%s\" on line %zu\n",
 				 first, fileName, file->current.line);
 			free(fileName);

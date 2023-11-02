@@ -23,7 +23,7 @@ void writeImage(struct imageFile *image) {
 	char *buf = NULL;
 	if (isSet("output_path")) {
 		asprintf(&buf, "%s%s", image->filePath, image->fileName);
-		image->type = guessFileType(buf);
+		image->type = guess_file_type(buf);
 	} else {
 		asprintf(&buf, "%s%s_%04d.%s", image->filePath, image->fileName, image->count, image->type == png ? "png" : image->type == bmp ? "bmp" : "qoi");
 	}

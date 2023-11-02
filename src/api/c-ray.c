@@ -79,7 +79,7 @@ void cr_destroy_options() {
 }
 
 char *cr_get_file_path(char *full_path) {
-	return getFilePath(full_path);
+	return get_file_path(full_path);
 }
 
 void cr_write_image(struct renderer *r) {
@@ -103,7 +103,7 @@ void cr_write_image(struct renderer *r) {
 }
 
 char *cr_read_from_file(size_t *bytes) {
-	return loadFile(pathArg(), bytes, NULL);
+	return load_file(pathArg(), bytes, NULL);
 }
 
 char *cr_read_from_stdin(size_t *bytes) {
@@ -123,7 +123,7 @@ void cr_destroy_renderer(struct renderer *r) {
 
 int cr_load_scene_from_file(struct renderer *r, char *file_path) {
 	size_t bytes = 0;
-	char *input = loadFile(file_path, &bytes, NULL);
+	char *input = load_file(file_path, &bytes, NULL);
 	if (input) {
 		if (loadScene(r, file_path) != 0) {
 			return -1;

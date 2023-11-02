@@ -660,7 +660,7 @@ static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 
 	if (cJSON_IsString(hdr)) {
 		char *fullPath = stringConcat(r->prefs.assetPath, hdr->valuestring);
-		if (isValidFile(fullPath, r->state.file_cache)) {
+		if (is_valid_file(fullPath, r->state.file_cache)) {
 			r->scene->background = newBackground(&r->scene->storage, newImageTexture(&r->scene->storage, load_texture(fullPath, &r->scene->storage.node_pool, r->state.file_cache), 0), NULL);
 			free(fullPath);
 			return;
@@ -949,8 +949,8 @@ int parseJSON(struct renderer *r, const cJSON *json) {
 		logr(info, "Overriding output path to %s\n", path);
 		free(r->prefs.imgFileName);
 		free(r->prefs.imgFilePath);
-		r->prefs.imgFilePath = getFilePath(path);
-		r->prefs.imgFileName = getFileName(path);
+		r->prefs.imgFilePath = get_file_path(path);
+		r->prefs.imgFileName = get_file_name(path);
 	}
 
 	parseDisplay(&r->prefs.window, cJSON_GetObjectItem(json, "display"));

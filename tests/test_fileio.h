@@ -12,23 +12,23 @@ bool fileio_humanFileSize(void) {
 	
 	char *humanSize = NULL;
 	
-	humanSize = humanFileSize(600);
+	humanSize = human_file_size(600);
 	test_assert(stringEquals(humanSize, "600B"));
 	free(humanSize);
 	
-	humanSize = humanFileSize(1000);
+	humanSize = human_file_size(1000);
 	test_assert(stringEquals(humanSize, "1.00kB"));
 	free(humanSize);
 	
-	humanSize = humanFileSize(1000 * 1000);
+	humanSize = human_file_size(1000 * 1000);
 	test_assert(stringEquals(humanSize, "1.00MB"));
 	free(humanSize);
 	
-	humanSize = humanFileSize(1000 * 1000 * 1000);
+	humanSize = human_file_size(1000 * 1000 * 1000);
 	test_assert(stringEquals(humanSize, "1.00GB"));
 	free(humanSize);
 	
-	humanSize = humanFileSize((unsigned long)1000 * 1000 * 1000 * 1000);
+	humanSize = human_file_size((unsigned long)1000 * 1000 * 1000 * 1000);
 	test_assert(stringEquals(humanSize, "1.00TB"));
 	free(humanSize);
 	
@@ -37,7 +37,7 @@ bool fileio_humanFileSize(void) {
 
 bool fileio_getFileName(void) {
 	
-	char *fileName = getFileName("/Users/vkoskiv/c-ray/bin/c-ray");
+	char *fileName = get_file_name("/Users/vkoskiv/c-ray/bin/c-ray");
 	test_assert(stringEquals(fileName, "c-ray"));
 	free(fileName);
 	
@@ -46,7 +46,7 @@ bool fileio_getFileName(void) {
 
 bool fileio_getFilePath(void) {
 	
-	char *fileName = getFilePath("/Users/vkoskiv/c-ray/bin/c-ray");
+	char *fileName = get_file_path("/Users/vkoskiv/c-ray/bin/c-ray");
 	test_assert(stringEquals(fileName, "/Users/vkoskiv/c-ray/bin/"));
 	free(fileName);
 	

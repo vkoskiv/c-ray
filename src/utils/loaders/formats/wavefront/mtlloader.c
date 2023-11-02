@@ -38,13 +38,13 @@ static struct color parse_color(lineBuffer *line) {
 
 struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_cache *cache) {
 	size_t bytes = 0;
-	char *rawText = loadFile(filePath, &bytes, cache);
+	char *rawText = load_file(filePath, &bytes, cache);
 	if (!rawText) return NULL;
 	logr(debug, "Loading MTL at %s\n", filePath);
 	textBuffer *file = newTextBuffer(rawText);
 	free(rawText);
 	
-	char *assetPath = getFilePath(filePath);
+	char *assetPath = get_file_path(filePath);
 	
 	size_t materialAmount = countMaterials(file);
 	struct material *materials = calloc(materialAmount, sizeof(*materials));
@@ -105,7 +105,7 @@ struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_c
 			current->specularMap = load_texture(path, NULL, cache);
 			free(path);
 		} else {
-			char *fileName = getFileName(filePath);
+			char *fileName = get_file_name(filePath);
 			logr(debug, "Unknown statement \"%s\" in MTL \"%s\" on line %zu\n",
 				first, fileName, file->current.line);
 			free(fileName);

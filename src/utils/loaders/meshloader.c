@@ -14,7 +14,7 @@
 #include "../logging.h"
 
 struct mesh *load_meshes_from_file(const char *filePath, size_t *meshCount, struct file_cache *cache) {
-	switch (guessFileType(filePath)) {
+	switch (guess_file_type(filePath)) {
 		case obj:
 			return parseWavefront(filePath, meshCount, cache);
 		default:

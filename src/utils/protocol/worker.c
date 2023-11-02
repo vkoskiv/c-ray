@@ -413,7 +413,7 @@ int startWorkerServer() {
 				break;
 			}
 			long millisecs = timer_get_ms(timer);
-			char *size = humanFileSize(length);
+			char *size = human_file_size(length);
 			logr(debug, "Received %s, took %lums.\n", size, millisecs);
 			free(size);
 			cJSON *message = cJSON_Parse(buf);

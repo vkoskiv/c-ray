@@ -10,7 +10,7 @@
 
 time_t base64_bigfile_encode(void) {
 	size_t bytes = 0;
-	char *bigfile = loadFile("input/venusscaled.obj", &bytes, NULL);
+	char *bigfile = load_file("input/venusscaled.obj", &bytes, NULL);
 	ASSERT(bigfile);
 	
 	struct timeval test;
@@ -27,7 +27,7 @@ time_t base64_bigfile_encode(void) {
 
 time_t base64_bigfile_decode(void) {
 	size_t bytes = 0;
-	char *bigfile = loadFile("input/venusscaled.obj", &bytes, NULL);
+	char *bigfile = load_file("input/venusscaled.obj", &bytes, NULL);
 	ASSERT(bigfile);
 	
 	char *encoded = b64encode(bigfile, bytes);

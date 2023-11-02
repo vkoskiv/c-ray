@@ -43,7 +43,7 @@ cJSON *readJSON(int socket) {
 		return NULL;
 	}
 	long millisecs = timer_get_ms(timer);
-	char *size = humanFileSize(length);
+	char *size = human_file_size(length);
 	logr(debug, "Received %s, took %lums.\n", size, millisecs);
 	free(size);
 	

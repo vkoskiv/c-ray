@@ -70,12 +70,12 @@ char *parse_buffer(const cJSON *data) {
 		return buffer;
 	} else {
 		// Otherwise just try to load the specified file
-		if (!isValidFile(uri_string, NULL)) { //FIXME cache
+		if (!is_valid_file(uri_string, NULL)) { //FIXME cache
 			logr(warning, "Invalid buffer while parsing glTF. File %s not found.\n", uri_string);
 			return NULL;
 		}
 		size_t loaded_bytes = 0;
-		buffer = loadFile(uri_string, &loaded_bytes, NULL); //FIXME cache
+		buffer = load_file(uri_string, &loaded_bytes, NULL); //FIXME cache
 		if (loaded_bytes != expected_bytes) {
 			logr(warning, "Invalid buffer while parsing glTF. Loaded file %s length %lu, expected %lu", uri_string, loaded_bytes, expected_bytes);
 		}
@@ -193,7 +193,7 @@ struct mesh *parse_glb_meshes(const char *data, size_t *meshCount) {
 
 struct mesh *parse_glTF_meshes(const char *filePath, size_t *meshCount) {
 	size_t file_bytes = 0;
-	char *contents = loadFile(filePath, &file_bytes, NULL); //FIXME cache
+	char *contents = load_file(filePath, &file_bytes, NULL); //FIXME cache
 	if (stringStartsWith("glTF", contents)) return parse_glb_meshes(contents, meshCount);
 	const cJSON *data = cJSON_Parse(contents);
 	

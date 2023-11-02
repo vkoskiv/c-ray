@@ -13,7 +13,7 @@ time_t fileio_load(void) {
 	timer_start(&test);
 	
 	size_t bytes = 0;
-	char *bigfile = loadFile("input/venusscaled.obj", &bytes, NULL);
+	char *bigfile = load_file("input/venusscaled.obj", &bytes, NULL);
 	ASSERT(bigfile);
 	
 	time_t us = timer_get_us(test);

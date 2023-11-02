@@ -60,6 +60,6 @@ void encodeBMPFromArray(const char *file_name, const unsigned char *imgData, siz
 		offset += padding_bytes_to_write;
 	}
 	free(bgr_data);
-	writeFile(file_contents, file_size, file_name);
+	write_file(file_contents, file_size, file_name);
 	free(file_contents);
 }

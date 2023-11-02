@@ -36,8 +36,8 @@ static char *getFileExtension(const char *fileName) {
 	return extension;
 }
 
-enum fileType guessFileType(const char *filePath) {
-	char *fileName = getFileName(filePath);
+enum fileType guess_file_type(const char *filePath) {
+	char *fileName = get_file_name(filePath);
 	char *extension = getFileExtension(fileName);
 	char *lower = stringToLower(extension);
 	free(extension);
@@ -72,14 +72,14 @@ enum fileType guessFileType(const char *filePath) {
 	return type;
 }
 
-char *loadFile(const char *filePath, size_t *bytes, struct file_cache *cache) {
+char *load_file(const char *filePath, size_t *bytes, struct file_cache *cache) {
 	if (cache && cache_contains(cache, filePath)) return cache_load(cache, filePath, bytes);
 	FILE *file = fopen(filePath, "rb");
 	if (!file) {
 		logr(warning, "Can't access '%.*s': %s\n", (int)strlen(filePath), filePath, strerror(errno));
 		return NULL;
 	}
-	size_t fileBytes = getFileSize(filePath);
+	size_t fileBytes = get_file_size(filePath);
 	if (!fileBytes) {
 		fclose(file);
 		return NULL;
@@ -98,16 +98,16 @@ char *loadFile(const char *filePath, size_t *bytes, struct file_cache *cache) {
 	return buf;
 }
 
-void writeFile(const unsigned char *buf, size_t bufsize, const char *filePath) {
+void write_file(const unsigned char *buf, size_t bufsize, const char *filePath) {
 	FILE *file = fopen(filePath, "wb" );
 	char *backupPath = NULL;
 	if(!file) {
-		char *name = getFileName(filePath);
+		char *name = get_file_name(filePath);
 		backupPath = stringConcat("./", name);
 		free(name);
 		file = fopen(backupPath, "wb");
 		if (file) {
-			char *path = getFilePath(filePath);
+			char *path = get_file_path(filePath);
 			logr(warning, "The specified output directory \"%s\" was not writeable, dumping the file in CWD instead.\n", path);
 			free(path);
 		} else {
@@ -121,14 +121,14 @@ void writeFile(const unsigned char *buf, size_t bufsize, const char *filePath) {
 	
 	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
 	//This will work for all image formats
-	unsigned long bytes = getFileSize(backupPath ? backupPath : filePath);
-	char *sizeString = humanFileSize(bytes);
+	unsigned long bytes = get_file_size(backupPath ? backupPath : filePath);
+	char *sizeString = human_file_size(bytes);
 	logr(info, "Wrote %s to file.\n", sizeString);
 	free(sizeString);
 }
 
 
-bool isValidFile(char *path, struct file_cache *cache) {
+bool is_valid_file(char *path, struct file_cache *cache) {
 	if (!isSet("use_clustering") && cache) return cache_contains(cache, path);
 #ifndef WINDOWS
 	struct stat path_stat;
@@ -171,7 +171,7 @@ void wait_for_stdin(int seconds) {
  @return Filename string, including file type extension
  */
 //FIXME: Just return a pointer to the first byte of the filename? Why do we do all this
-char *getFileName(const char *input) {
+char *get_file_name(const char *input) {
 	//FIXME: We're doing two copies here, maybe just rework the algorithm instead.
 	char *copy = stringCopy(input);
 	char *fn;
@@ -192,7 +192,7 @@ char *getFileName(const char *input) {
 //For Windows
 #define CRAY_PATH_MAX 4096
 
-char *getFilePath(const char *input) {
+char *get_file_path(const char *input) {
 	char *dir = NULL;
 #ifdef WINDOWS
 	dir = calloc(_MAX_DIR, sizeof(*dir));
@@ -242,7 +242,7 @@ char *read_stdin(size_t *bytes) {
 	return buf;
 }
 
-char *humanFileSize(unsigned long bytes) {
+char *human_file_size(unsigned long bytes) {
 	double kilobytes, megabytes, gigabytes, terabytes, petabytes, exabytes, zettabytes, yottabytes; // <- Futureproofing?!
 	kilobytes  = bytes      / 1000.0;
 	megabytes  = kilobytes  / 1000.0;
@@ -282,7 +282,7 @@ char *humanFileSize(unsigned long bytes) {
 	return buf;
 }
 
-size_t getFileSize(const char *fileName) {
+size_t get_file_size(const char *fileName) {
 	FILE *file = fopen(fileName, "r");
 	if (!file) return 0;
 	fseek(file, 0L, SEEK_END);

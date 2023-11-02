@@ -35,8 +35,8 @@ void *allocBlock(struct block **head, size_t size) {
 	if ((*head)->size + size > (*head)->capacity) {
 		// Need to add a new block
 		size_t nextSize = (*head)->capacity > size ? (*head)->capacity : size;
-		char *new_size = humanFileSize(nextSize);
-		char *prev_size = humanFileSize((*head)->size);
+		char *new_size = human_file_size(nextSize);
+		char *prev_size = human_file_size((*head)->size);
 		logr(debug, "Appending a new block of size %s. Previous head occupancy: %s\n", new_size, prev_size);
 		free(new_size);
 		free(prev_size);
@@ -58,7 +58,7 @@ void destroyBlocks(struct block *head) {
 		numDestroyed++;
 		head = prev;
 	}
-	char *size = humanFileSize(bytesfreed);
+	char *size = human_file_size(bytesfreed);
 	logr(debug, "Destroyed %lu blocks, %s\n", numDestroyed, size);
 	free(size);
 }
