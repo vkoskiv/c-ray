@@ -6,32 +6,32 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "includes.h"
-#include "c-ray.h"
+#include "../includes.h"
+#include <c-ray/c-ray.h>
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "datatypes/image/imagefile.h"
-#include "renderer/renderer.h"
-#include "datatypes/scene.h"
-#include "utils/gitsha1.h"
-#include "utils/logging.h"
-#include "utils/fileio.h"
-#include "utils/platform/terminal.h"
-#include "utils/assert.h"
-#include "datatypes/image/texture.h"
-#include "utils/ui.h"
-#include "utils/timer.h"
-#include "utils/args.h"
-#include "utils/encoders/encoder.h"
-#include "utils/string.h"
-#include "utils/protocol/server.h"
-#include "utils/protocol/worker.h"
-#include "utils/filecache.h"
-#include "utils/hashtable.h"
-#include "datatypes/camera.h"
+#include "../datatypes/image/imagefile.h"
+#include "../renderer/renderer.h"
+#include "../datatypes/scene.h"
+#include "../utils/gitsha1.h"
+#include "../utils/logging.h"
+#include "../utils/fileio.h"
+#include "../utils/platform/terminal.h"
+#include "../utils/assert.h"
+#include "../datatypes/image/texture.h"
+#include "../utils/ui.h"
+#include "../utils/timer.h"
+#include "../utils/args.h"
+#include "../utils/encoders/encoder.h"
+#include "../utils/string.h"
+#include "../utils/protocol/server.h"
+#include "../utils/protocol/worker.h"
+#include "../utils/filecache.h"
+#include "../utils/hashtable.h"
+#include "../datatypes/camera.h"
 
 #define VERSION "0.6.3"
 

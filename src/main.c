@@ -8,7 +8,7 @@
 
 #include <stdlib.h>
 
-#include "c-ray.h"
+#include <c-ray/c-ray.h>
 
 int main(int argc, char *argv[]) {
 	cr_log("c-ray v%s%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), is_debug() ? "D" : "", cr_get_git_hash());

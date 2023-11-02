@@ -1,5 +1,5 @@
 CC=cc
-CFLAGS=-Wall -Wextra -Wno-missing-field-initializers -std=c99 -D_GNU_SOURCE -O2 -ftree-vectorize -DCRAY_TESTING
+CFLAGS=-I./include/ -Wall -Wextra -Wno-missing-field-initializers -std=c99 -D_GNU_SOURCE -O2 -ftree-vectorize -DCRAY_TESTING
 LDFLAGS=-lpthread -lm -ldl
 BIN=bin/c-ray
 OBJDIR=bin/obj
