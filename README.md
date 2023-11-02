@@ -86,14 +86,6 @@ All other dependencies are included as source
 
 ## Installation
 
-macOS (I no longer develop on this platform, you'll likely have better luck with the Linux instructions):
-Either follow these instructions, or the instructions for Linux below. Both work fine.
-1. Install SDL2 (See installing SDL below)
-2. Open the .xcodeproj file in Xcode
-3. Edit scheme by clicking `C-Ray` in top left, make sure 'Use custom working directory' is ticked and set it to the root directory of this project.
-4. Go into the `Arguments` tab, and add by clicking `+`. Type in `./input/scene.json`, then click close
-5. Build&Run with `CMD+R`
-
 Linux:
 1. (Optional) Install SDL2 (See installing SDL below)
 2. Run `make` to build the project
@@ -101,6 +93,9 @@ Linux:
 4. Run binary. For example: `bin/c-ray input/hdr.json`. You can also pipe files into `c-ray` and it will read from there. This is useful for scripts that invoke `c-ray`.
 Example: `cat input/scene.json | bin/c-ray`
 *Note: When reading the json from `stdin`, c-ray assumes that the asset path is `./`. This can be specified with `--asset-path`*
+
+macOS:
+1. Follow Linux instructions, or you can try `mkdir build && cd build && cmake -G Xcode ..`
 
 Windows:
 1. Install [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
