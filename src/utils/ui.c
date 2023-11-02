@@ -290,7 +290,7 @@ void getKeyboardInput(struct renderer *r) {
 				r->state.saveImage = false;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
-				for (int i = 0; i < r->prefs.threadCount; ++i) {
+				for (size_t i = 0; i < r->prefs.threadCount; ++i) {
 					r->state.workers[i].paused = !r->state.workers[i].paused;
 				}
 			}
@@ -320,7 +320,7 @@ static void clearProgBar(struct renderer *r, struct renderTile temp) {
  around that.
  */
 static void drawProgressBars(struct renderer *r) {
-	for (int t = 0; t < r->prefs.threadCount; ++t) {
+	for (size_t t = 0; t < r->prefs.threadCount; ++t) {
 		if (r->state.workers[t].currentTile) {
 			struct renderTile *temp = r->state.workers[t].currentTile;
 			int completedSamples = r->state.workers[t].completedSamples;

@@ -70,7 +70,7 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, camera.width, KNRM, KWHT, camera.height, KNRM);
 	logr(info, "Rendering %s%i%s samples with %s%i%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
-	logr(info, "Rendering with %s%d%s%s local thread%s.\n",
+	logr(info, "Rendering with %s%zu%s%s local thread%s.\n",
 		 KRED,
 		 r->prefs.fromSystem && !threadsReduced ? r->prefs.threadCount - 2 : r->prefs.threadCount,
 		 r->prefs.fromSystem && !threadsReduced ? "+2" : "",
@@ -97,50 +97,30 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	if (r->state.clients) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clientCount, PLURAL(r->state.clientCount), remoteThreads, PLURAL(remoteThreads));
 	
-	// Local render threads + one thread for every client
-	size_t local_thread_count = r->prefs.threadCount + (int)r->state.clientCount;
-	
-	r->state.workers = calloc(local_thread_count, sizeof(*r->state.workers));
-	
 	// Select the appropriate renderer type for local use
 	void *(*localRenderThread)(void *) = renderThread;
 	// Iterative mode is incompatible with network rendering at the moment
 	if (interactive && !r->state.clients) localRenderThread = renderThreadInteractive;
 	
-	//Create render threads (Nonblocking)
-	for (int t = 0; t < r->prefs.threadCount; ++t) {
+	// Local render threads + one thread for every client
+	size_t total_thread_count = r->prefs.threadCount + (int)r->state.clientCount;
+	r->state.workers = calloc(total_thread_count, sizeof(*r->state.workers));
+	
+	//Create & boot workers (Nonblocking)
+	for (size_t t = 0; t < total_thread_count; ++t) {
 		r->state.workers[t] = (struct worker){
+			.client = t > r->prefs.threadCount - 1? &r->state.clients[t - r->prefs.threadCount] : NULL,
 			.thread_complete = false,
 			.renderer = r,
 			.output = output,
 			.cam = &camera,
 			.thread = (struct cr_thread){
-				.thread_fn = localRenderThread,
+				.thread_fn = t > r->prefs.threadCount - 1 ? networkRenderThread : localRenderThread,
 				.user_data = &r->state.workers[t]
 			}
 		};
 		if (thread_start(&r->state.workers[t].thread)) {
-			logr(error, "Failed to create a render thread.\n");
-		} else {
-			r->state.activeThreads++;
-		}
-	}
-	
-	// Create network worker manager threads
-	for (int t = 0; t < (int)r->state.clientCount; ++t) {
-		int offset = r->prefs.threadCount + t;
-		r->state.workers[offset] = (struct worker){
-			.client = &r->state.clients[t],
-			.thread_complete = false,
-			.renderer = r,
-			.output = output,
-			.thread = (struct cr_thread){
-				.thread_fn = networkRenderThread,
-				.user_data = &r->state.workers[offset]
-			}
-		};
-		if (thread_start(&r->state.workers[offset].thread)) {
-			logr(error, "Failed to create a network thread.\n");
+			logr(error, "Failed to start worker %zu\n", t);
 		} else {
 			r->state.activeThreads++;
 		}
@@ -160,10 +140,10 @@ struct texture *renderFrame(struct renderer *r) {
 		//Gather and maintain this average constantly.
 		if (!r->state.workers[0].paused) {
 			if (r->sdl) win_update(r->sdl, r, output);
-			for (size_t t = 0; t < local_thread_count; ++t) {
+			for (size_t t = 0; t < total_thread_count; ++t) {
 				avgSampleTime += r->state.workers[t].avgSampleTime;
 			}
-			avgTimePerTilePass += avgSampleTime / local_thread_count;
+			avgTimePerTilePass += avgSampleTime / total_thread_count;
 			avgTimePerTilePass /= ctr++;
 		}
 		
@@ -171,7 +151,7 @@ struct texture *renderFrame(struct renderer *r) {
 		if (pauser == 280 / active_msec) {
 			float usPerRay = avgTimePerTilePass / (r->prefs.tileHeight * r->prefs.tileWidth);
 			uint64_t completedSamples = 0;
-			for (size_t t = 0; t < local_thread_count; ++t) {
+			for (size_t t = 0; t < total_thread_count; ++t) {
 				completedSamples += r->state.workers[t].totalSamples;
 			}
 			uint64_t remainingTileSamples = (r->state.tileCount * r->prefs.sampleCount) - completedSamples;
@@ -195,16 +175,16 @@ struct texture *renderFrame(struct renderer *r) {
 		
 
 		size_t inactive = 0;
-		for (size_t t = 0; t < local_thread_count; ++t) {
+		for (size_t t = 0; t < total_thread_count; ++t) {
 			if (r->state.workers[t].thread_complete) inactive++;
 		}
-		if (r->state.render_aborted || inactive == local_thread_count)
+		if (r->state.render_aborted || inactive == total_thread_count)
 			r->state.rendering = false;
 		timer_sleep_ms(r->state.workers[0].paused ? paused_msec : active_msec);
 	}
 	
 	//Make sure render threads are terminated before continuing (This blocks)
-	for (size_t t = 0; t < local_thread_count; ++t) {
+	for (size_t t = 0; t < total_thread_count; ++t) {
 		thread_wait(&r->state.workers[t].thread);
 	}
 	return output;

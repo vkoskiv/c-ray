@@ -69,7 +69,7 @@ struct sdl_prefs {
 struct prefs {
 	enum renderOrder tileOrder;
 	
-	int threadCount; //Amount of threads to render with
+	size_t threadCount; //Amount of threads to render with
 	bool fromSystem; //Did we ask the system for thread count
 	int sampleCount;
 	int bounces;
