@@ -100,7 +100,6 @@ struct texture *renderFrame(struct renderer *r) {
 	// Local render threads + one thread for every client
 	size_t local_thread_count = r->prefs.threadCount + (int)r->state.clientCount;
 	
-	r->state.threads = calloc(local_thread_count, sizeof(*r->state.threads));
 	r->state.thread_states = calloc(local_thread_count, sizeof(*r->state.thread_states));
 	
 	// Select the appropriate renderer type for local use
@@ -110,9 +109,17 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		r->state.thread_states[t] = (struct renderThreadState){.thread_num = t, .thread_complete = false, .renderer = r, .output = output, .cam = &camera};
-		r->state.threads[t] = (struct cr_thread){.thread_fn = localRenderThread, .user_data = &r->state.thread_states[t]};
-		if (thread_start(&r->state.threads[t])) {
+		r->state.thread_states[t] = (struct renderThreadState){
+			.thread_complete = false,
+			.renderer = r,
+			.output = output,
+			.cam = &camera,
+			.thread = (struct cr_thread){
+				.thread_fn = localRenderThread,
+				.user_data = &r->state.thread_states[t]
+			}
+		};
+		if (thread_start(&r->state.thread_states[t].thread)) {
 			logr(error, "Failed to create a render thread.\n");
 		} else {
 			r->state.activeThreads++;
@@ -122,9 +129,17 @@ struct texture *renderFrame(struct renderer *r) {
 	// Create network worker manager threads
 	for (int t = 0; t < (int)r->state.clientCount; ++t) {
 		int offset = r->prefs.threadCount + t;
-		r->state.thread_states[offset] = (struct renderThreadState){.client = &r->state.clients[t], .thread_num = offset, .thread_complete = false, .renderer = r, .output = output};
-		r->state.threads[offset] = (struct cr_thread){.thread_fn = networkRenderThread, .user_data = &r->state.thread_states[offset]};
-		if (thread_start(&r->state.threads[offset])) {
+		r->state.thread_states[offset] = (struct renderThreadState){
+			.client = &r->state.clients[t],
+			.thread_complete = false,
+			.renderer = r,
+			.output = output,
+			.thread = (struct cr_thread){
+				.thread_fn = networkRenderThread,
+				.user_data = &r->state.thread_states[offset]
+			}
+		};
+		if (thread_start(&r->state.thread_states[offset].thread)) {
 			logr(error, "Failed to create a network thread.\n");
 		} else {
 			r->state.activeThreads++;
@@ -190,7 +205,7 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Make sure render threads are terminated before continuing (This blocks)
 	for (size_t t = 0; t < local_thread_count; ++t) {
-		thread_wait(&r->state.threads[t]);
+		thread_wait(&r->state.thread_states[t].thread);
 	}
 	return output;
 }
@@ -397,7 +412,6 @@ void destroyRenderer(struct renderer *r) {
 		destroyTexture(r->state.renderBuffer);
 		destroyTexture(r->state.uiBuffer);
 		free(r->state.renderTiles);
-		free(r->state.threads);
 		free(r->state.thread_states);
 		free(r->state.tileMutex);
 		if (r->state.file_cache) {

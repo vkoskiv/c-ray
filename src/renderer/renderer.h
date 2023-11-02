@@ -12,9 +12,10 @@
 #include "../datatypes/image/imagefile.h"
 #include "../utils/timer.h"
 #include "../utils/filecache.h"
+#include "../utils/platform/thread.h"
 
 struct renderThreadState {
-	int thread_num;
+	struct cr_thread thread;
 	bool thread_complete;
 	
 	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.
@@ -48,7 +49,6 @@ struct state {
 	unsigned long long avgTileTime; //Used for render duration estimation (milliseconds)
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount; //Used for render duration estimation, amount of time samples captured
-	struct cr_thread *threads; //Render threads
 	struct renderThreadState *thread_states;
 	struct renderClient *clients;
 	size_t clientCount;

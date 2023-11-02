@@ -250,7 +250,7 @@ void *networkRenderThread(void *arg) {
 			cJSON *response = processClientRequest(state, request);
 			if (containsError(response)) {
 				char *err = cJSON_PrintUnformatted(response);
-				logr(debug, "error, exiting thread %i: %s\n", state->thread_num, err);
+				logr(debug, "error, exiting netrender thread: %s\n", err);
 				free(err);
 				sendJSON(client->socket, response, NULL);
 				break;
