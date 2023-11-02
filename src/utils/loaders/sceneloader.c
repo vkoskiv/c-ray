@@ -956,6 +956,11 @@ int parseJSON(struct renderer *r, const cJSON *json) {
 	parseDisplay(&r->prefs.window, cJSON_GetObjectItem(json, "display"));
 	parseCameras(&r->scene->cameras, &r->scene->camera_count, cJSON_GetObjectItem(json, "camera"));
 
+	if (!r->scene->cameras) {
+		logr(warning, "No cameras specified, nothing to render.\n");
+		return -1;
+	}
+
 	if (r->prefs.override_dimensions) {
 		for (size_t i = 0; i < r->scene->camera_count; ++i) {
 			r->scene->cameras[i].width = r->prefs.override_width;

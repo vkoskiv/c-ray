@@ -123,6 +123,7 @@ int loadScene(struct renderer *r, char *input) {
 		}
 	}
 	// Input is potentially very large, so we free it as soon as possible
+	// FIXME: mmap() input
 	free(input);
 
 	//Load configuration and assets
