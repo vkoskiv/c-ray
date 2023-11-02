@@ -32,9 +32,6 @@ char *cr_get_file_path(char *full_path);
 
 void cr_write_image(struct renderer *r); //Write out the current image to file
 
-char *cr_read_from_file(size_t *bytes);
-char *cr_read_from_stdin(size_t *bytes);
-
 struct renderer *cr_new_renderer(void);
 void cr_destroy_renderer(struct renderer *r);
 

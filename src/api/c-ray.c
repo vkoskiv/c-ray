@@ -102,14 +102,6 @@ void cr_write_image(struct renderer *r) {
 	}
 }
 
-char *cr_read_from_file(size_t *bytes) {
-	return load_file(pathArg(), bytes, NULL);
-}
-
-char *cr_read_from_stdin(size_t *bytes) {
-	return read_stdin(bytes);
-}
-
 struct renderer *cr_new_renderer() {
 	struct renderer *r = newRenderer();
 	cr_set_asset_path(r);

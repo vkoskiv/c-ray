@@ -8,7 +8,9 @@
 
 #include <stdlib.h>
 #include <c-ray/c-ray.h>
+
 #include "utils/logging.h"
+#include "utils/fileio.h"
 
 int main(int argc, char *argv[]) {
 	logr(info, "c-ray v%s%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), is_debug() ? "D" : "", cr_get_git_hash());
@@ -17,7 +19,7 @@ int main(int argc, char *argv[]) {
 	struct renderer *renderer = cr_new_renderer();
 	if (!cr_is_option_set("is_worker")) {
 		size_t bytes = 0;
-		char *input = cr_is_option_set("inputFile") ? cr_read_from_file(&bytes) : cr_read_from_stdin(&bytes);
+		char *input = cr_is_option_set("inputFile") ? load_file(cr_path_arg(), &bytes, NULL) : read_stdin(&bytes);
 		if (!input) {
 			logr(info, "No input provided, exiting.\n");
 			cr_destroy_renderer(renderer);
