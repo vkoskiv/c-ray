@@ -34,23 +34,9 @@ struct sdl_syms {
 	const char *(*SDL_GetError)(void);
 	void (*SDL_SetWindowIcon)(SDL_Window *window, SDL_Surface *icon);
 	void (*SDL_FreeSurface)(SDL_Surface *surface);
-	SDL_Surface *(*SDL_CreateRGBSurfaceFrom)(
-		void *pixels,
-		int width,
-		int height,
-		int depth,
-		int pitch,
-		uint32_t rmask,
-		uint32_t gmask,
-		uint32_t bmask,
-		uint32_t amask);
-	SDL_Window *(*SDL_CreateWindow)(
-		const char *title,
-		int x,
-		int y,
-		int w,
-		int h,
-		uint32_t flags);
+	SDL_Surface *(*SDL_CreateRGBSurfaceFrom)(void *pixels, int width, int height, int depth, int pitch,
+											uint32_t rmask, uint32_t gmask, uint32_t bmask, uint32_t amask);
+	SDL_Window *(*SDL_CreateWindow)(const char *title, int x, int y, int w, int h, uint32_t flags);
 	SDL_Renderer *(*SDL_CreateRenderer)(SDL_Window *window, int index, uint32_t flags);
 	SDL_Texture *(*SDL_CreateTexture)(SDL_Renderer *renderer, uint32_t format, int access, int w, int h);
 	void (*SDL_DestroyTexture)(SDL_Texture *texture);
@@ -250,9 +236,6 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 	setWindowIcon(w);
 	
 	return w;
-	// (void)prefs; (void)width; (void)height;
-	// logr(warning, "Render preview is disabled. (No SDL2)\n");
-	// return NULL;
 }
 
 void win_destroy(struct sdl_window *w) {
