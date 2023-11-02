@@ -33,7 +33,13 @@
 #include "../utils/hashtable.h"
 #include "../datatypes/camera.h"
 
-#define VERSION "0.6.3"
+#ifdef CRAY_DEBUG_ENABLED
+#define DEBUG "D"
+#else
+#define DEBUG ""
+#endif
+
+#define VERSION "0.6.3"DEBUG
 
 struct texture *currentImage = NULL;
 
@@ -43,14 +49,6 @@ char *cr_get_version() {
 
 char *cr_get_git_hash() {
 	return gitHash();
-}
-
-int is_debug() {
-#ifdef CRAY_DEBUG_ENABLED
-	return true;
-#else
-	return false;
-#endif
 }
 
 void at_exit() {

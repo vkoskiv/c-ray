@@ -13,7 +13,7 @@
 #include "utils/fileio.h"
 
 int main(int argc, char *argv[]) {
-	logr(info, "c-ray v%s%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), is_debug() ? "D" : "", cr_get_git_hash());
+	logr(info, "c-ray v%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
 	cr_initialize();
 	cr_parse_args(argc, argv);
 	struct renderer *renderer = cr_new_renderer();
