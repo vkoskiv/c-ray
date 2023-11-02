@@ -14,7 +14,7 @@
 #include "../utils/filecache.h"
 #include "../utils/platform/thread.h"
 
-struct renderThreadState {
+struct worker {
 	struct cr_thread thread;
 	bool thread_complete;
 	
@@ -49,7 +49,7 @@ struct state {
 	unsigned long long avgTileTime; //Used for render duration estimation (milliseconds)
 	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
 	int timeSampleCount; //Used for render duration estimation, amount of time samples captured
-	struct renderThreadState *thread_states;
+	struct worker *workers;
 	struct renderClient *clients;
 	size_t clientCount;
 	struct timeval timer;

@@ -150,7 +150,7 @@ static struct renderClient *buildClientList(size_t *amount) {
 	return clients;
 }
 
-static cJSON *processGetWork(struct renderThreadState *state, const cJSON *json) {
+static cJSON *processGetWork(struct worker *state, const cJSON *json) {
 	(void)state;
 	(void)json;
 	struct renderTile *tile = nextTile(state->renderer);
@@ -161,7 +161,7 @@ static cJSON *processGetWork(struct renderThreadState *state, const cJSON *json)
 	return response;
 }
 
-static cJSON *processSubmitWork(struct renderThreadState *state, const cJSON *json) {
+static cJSON *processSubmitWork(struct worker *state, const cJSON *json) {
 	cJSON *resultJson = cJSON_GetObjectItem(json, "result");
 	struct texture *tileImage = decodeTexture(resultJson);
 	cJSON *tileJson = cJSON_GetObjectItem(json, "tile");
@@ -183,7 +183,7 @@ struct command serverCommands[] = {
 	{"goodbye", 2},
 };
 
-static cJSON *processClientRequest(struct renderThreadState *state, const cJSON *json) {
+static cJSON *processClientRequest(struct worker *state, const cJSON *json) {
 	if (!json) {
 		return errorResponse("Couldn't parse incoming JSON");
 	}
@@ -218,7 +218,7 @@ static cJSON *processClientRequest(struct renderThreadState *state, const cJSON 
 // Master side
 void *networkRenderThread(void *arg) {
 	block_signals();
-	struct renderThreadState *state = (struct renderThreadState *)thread_user_data(arg);
+	struct worker *state = (struct worker *)thread_user_data(arg);
 	struct renderer *r = state->renderer;
 	struct renderClient *client = state->client;
 	if (!client) {

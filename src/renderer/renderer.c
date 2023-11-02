@@ -100,7 +100,7 @@ struct texture *renderFrame(struct renderer *r) {
 	// Local render threads + one thread for every client
 	size_t local_thread_count = r->prefs.threadCount + (int)r->state.clientCount;
 	
-	r->state.thread_states = calloc(local_thread_count, sizeof(*r->state.thread_states));
+	r->state.workers = calloc(local_thread_count, sizeof(*r->state.workers));
 	
 	// Select the appropriate renderer type for local use
 	void *(*localRenderThread)(void *) = renderThread;
@@ -109,17 +109,17 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Create render threads (Nonblocking)
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		r->state.thread_states[t] = (struct renderThreadState){
+		r->state.workers[t] = (struct worker){
 			.thread_complete = false,
 			.renderer = r,
 			.output = output,
 			.cam = &camera,
 			.thread = (struct cr_thread){
 				.thread_fn = localRenderThread,
-				.user_data = &r->state.thread_states[t]
+				.user_data = &r->state.workers[t]
 			}
 		};
-		if (thread_start(&r->state.thread_states[t].thread)) {
+		if (thread_start(&r->state.workers[t].thread)) {
 			logr(error, "Failed to create a render thread.\n");
 		} else {
 			r->state.activeThreads++;
@@ -129,17 +129,17 @@ struct texture *renderFrame(struct renderer *r) {
 	// Create network worker manager threads
 	for (int t = 0; t < (int)r->state.clientCount; ++t) {
 		int offset = r->prefs.threadCount + t;
-		r->state.thread_states[offset] = (struct renderThreadState){
+		r->state.workers[offset] = (struct worker){
 			.client = &r->state.clients[t],
 			.thread_complete = false,
 			.renderer = r,
 			.output = output,
 			.thread = (struct cr_thread){
 				.thread_fn = networkRenderThread,
-				.user_data = &r->state.thread_states[offset]
+				.user_data = &r->state.workers[offset]
 			}
 		};
-		if (thread_start(&r->state.thread_states[offset].thread)) {
+		if (thread_start(&r->state.workers[offset].thread)) {
 			logr(error, "Failed to create a network thread.\n");
 		} else {
 			r->state.activeThreads++;
@@ -158,10 +158,10 @@ struct texture *renderFrame(struct renderer *r) {
 		}
 		
 		//Gather and maintain this average constantly.
-		if (!r->state.thread_states[0].paused) {
+		if (!r->state.workers[0].paused) {
 			if (r->sdl) win_update(r->sdl, r, output);
 			for (size_t t = 0; t < local_thread_count; ++t) {
-				avgSampleTime += r->state.thread_states[t].avgSampleTime;
+				avgSampleTime += r->state.workers[t].avgSampleTime;
 			}
 			avgTimePerTilePass += avgSampleTime / local_thread_count;
 			avgTimePerTilePass /= ctr++;
@@ -172,7 +172,7 @@ struct texture *renderFrame(struct renderer *r) {
 			float usPerRay = avgTimePerTilePass / (r->prefs.tileHeight * r->prefs.tileWidth);
 			uint64_t completedSamples = 0;
 			for (size_t t = 0; t < local_thread_count; ++t) {
-				completedSamples += r->state.thread_states[t].totalSamples;
+				completedSamples += r->state.workers[t].totalSamples;
 			}
 			uint64_t remainingTileSamples = (r->state.tileCount * r->prefs.sampleCount) - completedSamples;
 			uint64_t msecTillFinished = 0.001f * (avgTimePerTilePass * remainingTileSamples);
@@ -187,7 +187,7 @@ struct texture *renderFrame(struct renderer *r) {
 				 (double)usPerRay,
 				 rem,
 				 0.000001 * (double)sps,
-				 r->state.thread_states[0].paused ? "[PAUSED]" : "");
+				 r->state.workers[0].paused ? "[PAUSED]" : "");
 			
 			pauser = 0;
 		}
@@ -196,16 +196,16 @@ struct texture *renderFrame(struct renderer *r) {
 
 		size_t inactive = 0;
 		for (size_t t = 0; t < local_thread_count; ++t) {
-			if (r->state.thread_states[t].thread_complete) inactive++;
+			if (r->state.workers[t].thread_complete) inactive++;
 		}
 		if (r->state.render_aborted || inactive == local_thread_count)
 			r->state.rendering = false;
-		timer_sleep_ms(r->state.thread_states[0].paused ? paused_msec : active_msec);
+		timer_sleep_ms(r->state.workers[0].paused ? paused_msec : active_msec);
 	}
 	
 	//Make sure render threads are terminated before continuing (This blocks)
 	for (size_t t = 0; t < local_thread_count; ++t) {
-		thread_wait(&r->state.thread_states[t].thread);
+		thread_wait(&r->state.workers[t].thread);
 	}
 	return output;
 }
@@ -214,7 +214,7 @@ struct texture *renderFrame(struct renderer *r) {
 // renders samples up to a limit
 void *renderThreadInteractive(void *arg) {
 	block_signals();
-	struct renderThreadState *threadState = (struct renderThreadState*)thread_user_data(arg);
+	struct worker *threadState = (struct worker*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
 	sampler *sampler = newSampler();
@@ -294,7 +294,7 @@ void *renderThreadInteractive(void *arg) {
  */
 void *renderThread(void *arg) {
 	block_signals();
-	struct renderThreadState *threadState = (struct renderThreadState*)thread_user_data(arg);
+	struct worker *threadState = (struct worker*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
 	sampler *sampler = newSampler();
@@ -412,7 +412,7 @@ void destroyRenderer(struct renderer *r) {
 		destroyTexture(r->state.renderBuffer);
 		destroyTexture(r->state.uiBuffer);
 		free(r->state.renderTiles);
-		free(r->state.thread_states);
+		free(r->state.workers);
 		free(r->state.tileMutex);
 		if (r->state.file_cache) {
 			cache_destroy(r->state.file_cache);

@@ -291,7 +291,7 @@ void getKeyboardInput(struct renderer *r) {
 			}
 			if (event.key.keysym.sym == SDLK_p) {
 				for (int i = 0; i < r->prefs.threadCount; ++i) {
-					r->state.thread_states[i].paused = !r->state.thread_states[i].paused;
+					r->state.workers[i].paused = !r->state.workers[i].paused;
 				}
 			}
 		}
@@ -321,9 +321,9 @@ static void clearProgBar(struct renderer *r, struct renderTile temp) {
  */
 static void drawProgressBars(struct renderer *r) {
 	for (int t = 0; t < r->prefs.threadCount; ++t) {
-		if (r->state.thread_states[t].currentTile) {
-			struct renderTile *temp = r->state.thread_states[t].currentTile;
-			int completedSamples = r->state.thread_states[t].completedSamples;
+		if (r->state.workers[t].currentTile) {
+			struct renderTile *temp = r->state.workers[t].currentTile;
+			int completedSamples = r->state.workers[t].completedSamples;
 			int totalSamples = r->prefs.sampleCount;
 			
 			float prc = ((float)completedSamples / (float)totalSamples);
