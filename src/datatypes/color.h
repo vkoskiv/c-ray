@@ -103,6 +103,11 @@ static inline bool colorEquals(struct color a, struct color b) {
 	return a.red == b.red && a.green == b.green && a.blue == b.blue && a.alpha == b.alpha;
 }
 
+static inline void nan_clamp(struct color *a, struct color *b) {
+	if (a->red != a->red || a->green != a->green || a->blue != a->blue || a->alpha != a->alpha)
+		*a = *b;
+}
+
 struct color colorForKelvin(float kelvin);
 
 struct color color_from_hsl(float hue, float saturation, float lightness);

@@ -171,6 +171,8 @@ static void *workerThread(void *arg) {
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
 					struct lightRay incidentRay = cam_get_ray(cam, x, y, sampler);
 					struct color sample = path_trace(&incidentRay, r->scene, r->prefs.bounces, sampler);
+
+					nan_clamp(&sample, &output);
 					
 					//And process the running average
 					output = colorCoef((float)(thread->completedSamples - 1), output);

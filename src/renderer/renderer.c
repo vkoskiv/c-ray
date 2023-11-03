@@ -225,6 +225,8 @@ void *renderThreadInteractive(void *arg) {
 				struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
 				struct lightRay incidentRay = cam_get_ray(cam, x, y, sampler);
 				struct color sample = path_trace(&incidentRay, r->scene, r->prefs.bounces, sampler);
+
+				nan_clamp(&sample, &output);
 				
 				//And process the running average
 				output = colorCoef((float)(r->state.finishedPasses - 1), output);
@@ -304,6 +306,9 @@ void *renderThread(void *arg) {
 					struct lightRay incidentRay = cam_get_ray(cam, x, y, sampler);
 					struct color sample = path_trace(&incidentRay, r->scene, r->prefs.bounces, sampler);
 					
+					// Clamp out fireflies - This is probably not a good way to do that.
+					nan_clamp(&sample, &output);
+
 					//And process the running average
 					output = colorCoef((float)(threadState->completedSamples - 1), output);
 					output = colorAdd(output, sample);
