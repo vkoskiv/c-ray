@@ -24,7 +24,7 @@ struct renderTile *nextTile(struct renderer *r) {
 	if (r->state.finishedTileCount < r->state.tileCount) {
 		tile = &r->state.renderTiles[r->state.finishedTileCount];
 		tile->state = rendering;
-		tile->tileNum = r->state.finishedTileCount++;
+		tile->index = r->state.finishedTileCount++;
 	} else {
 		// If a network worker disappeared during render, finish those tiles locally here at the end
 		for (size_t t = 0; t < r->state.tileCount; ++t) {
@@ -32,7 +32,7 @@ struct renderTile *nextTile(struct renderer *r) {
 				r->state.renderTiles[t].networkRenderer = false;
 				tile = &r->state.renderTiles[t];
 				tile->state = rendering;
-				tile->tileNum = t;
+				tile->index = t;
 				break;
 			}
 		}
@@ -49,7 +49,7 @@ struct renderTile *nextTileInteractive(struct renderer *r) {
 		if (r->state.finishedTileCount < r->state.tileCount) {
 			tile = &r->state.renderTiles[r->state.finishedTileCount];
 			tile->state = rendering;
-			tile->tileNum = r->state.finishedTileCount++;
+			tile->index = r->state.finishedTileCount++;
 		} else {
 			r->state.finishedPasses++;
 			r->state.finishedTileCount = 0;
@@ -103,7 +103,7 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 
 			tile->state = ready_to_render;
 			//Samples have to start at 1, so the running average works
-			tile->tileNum = tileCount++;
+			tile->index = tileCount++;
 		}
 	}
 	logr(info, "Quantized image into %i tiles. (%ix%i)\n", (tilesX*tilesY), tilesX, tilesY);

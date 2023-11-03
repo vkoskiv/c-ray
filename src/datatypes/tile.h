@@ -38,7 +38,7 @@ struct renderTile {
 	struct intCoord end;
 	enum tile_state state;
 	bool networkRenderer; //FIXME: client struct ptr
-	int tileNum;
+	int index;
 	size_t completed_samples;
 };
 

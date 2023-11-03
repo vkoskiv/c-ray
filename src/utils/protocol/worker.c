@@ -117,10 +117,10 @@ static struct renderTile *getWork(int connectionSocket) {
 	// we can just keep track of indices, and compute the tile dims
 	cJSON *tileJson = cJSON_GetObjectItem(response, "tile");
 	struct renderTile tile = decodeTile(tileJson);
-	g_worker_renderer->state.renderTiles[tile.tileNum] = tile;
-	logr(debug, "Got work   : %i ((%i,%i),(%i,%i))\n", tile.tileNum, tile.begin.x, tile.begin.y, tile.end.x, tile.end.y);
+	g_worker_renderer->state.renderTiles[tile.index] = tile;
+	logr(debug, "Got work   : %i ((%i,%i),(%i,%i))\n", tile.index, tile.begin.x, tile.begin.y, tile.end.x, tile.end.y);
 	cJSON_Delete(response);
-	return &g_worker_renderer->state.renderTiles[tile.tileNum];
+	return &g_worker_renderer->state.renderTiles[tile.index];
 }
 
 static bool submitWork(int sock, struct texture *work, struct renderTile *forTile) {
@@ -129,7 +129,7 @@ static bool submitWork(int sock, struct texture *work, struct renderTile *forTil
 	cJSON *package = newAction("submitWork");
 	cJSON_AddItemToObject(package, "result", result);
 	cJSON_AddItemToObject(package, "tile", tile);
-	logr(debug, "Submit work: %i\n", forTile->tileNum);
+	logr(debug, "Submit work: %i\n", forTile->index);
 	return sendJSON(sock, package, NULL);
 }
 
@@ -262,7 +262,7 @@ static cJSON *startRender(int connectionSocket) {
 				struct renderTile *tile = workerThreadStates[t].current;
 				if (tile) {
 					cJSON_AddItemToArray(array, encodeTile(tile));
-					logr(plain, "%i: %5zu%s", tile->tileNum, tile->completed_samples, t < threadCount - 1 ? ", " : " ");
+					logr(plain, "%i: %5zu%s", tile->index, tile->completed_samples, t < threadCount - 1 ? ", " : " ");
 				}
 			}
 			logr(plain, ")\n");
