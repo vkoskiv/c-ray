@@ -257,13 +257,17 @@ static cJSON *startRender(int connectionSocket) {
 		if (pauser == 256 / active_msec) {
 			cJSON *stats = newAction("stats");
 			cJSON *array = cJSON_AddArrayToObject(stats, "tiles");
+			logr(debug, "( ");
 			for (size_t t = 0; t < threadCount; ++t) {
 				struct renderTile *tile = workerThreadStates[t].current;
-				if (tile) cJSON_AddItemToArray(array, encodeTile(tile));
+				if (tile) {
+					cJSON_AddItemToArray(array, encodeTile(tile));
+					logr(plain, "%i: %5zu%s", tile->tileNum, tile->completed_samples, t < threadCount - 1 ? ", " : " ");
+				}
 			}
+			logr(plain, ")\n");
 
 			mutex_lock(g_worker_socket_mutex);
-			logr(debug, "Sending stats update: %s\n", cJSON_Print(stats));
 			if (!sendJSON(connectionSocket, stats, NULL)) {
 				logr(debug, "Connection lost, bailing out.\n");
 				// Setting this flag also kills the threads.
