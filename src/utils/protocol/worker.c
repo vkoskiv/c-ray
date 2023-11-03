@@ -169,8 +169,7 @@ static void *workerThread(void *arg) {
 					initSampler(sampler, SAMPLING_STRATEGY, thread->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
-					struct lightRay incidentRay = cam_get_ray(cam, x, y, sampler);
-					struct color sample = path_trace(&incidentRay, r->scene, r->prefs.bounces, sampler);
+					struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
 
 					nan_clamp(&sample, &output);
 					

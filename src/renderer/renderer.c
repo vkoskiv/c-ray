@@ -223,8 +223,7 @@ void *renderThreadInteractive(void *arg) {
 				initSampler(sampler, SAMPLING_STRATEGY, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
 				struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
-				struct lightRay incidentRay = cam_get_ray(cam, x, y, sampler);
-				struct color sample = path_trace(&incidentRay, r->scene, r->prefs.bounces, sampler);
+				struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
 
 				nan_clamp(&sample, &output);
 				
@@ -303,8 +302,7 @@ void *renderThread(void *arg) {
 					initSampler(sampler, SAMPLING_STRATEGY, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
-					struct lightRay incidentRay = cam_get_ray(cam, x, y, sampler);
-					struct color sample = path_trace(&incidentRay, r->scene, r->prefs.bounces, sampler);
+					struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
 					
 					// Clamp out fireflies - This is probably not a good way to do that.
 					nan_clamp(&sample, &output);
