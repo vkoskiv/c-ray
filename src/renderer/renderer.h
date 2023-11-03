@@ -40,7 +40,6 @@ struct state {
 	size_t finishedTileCount;
 	size_t finishedPasses; // For interactive mode
 	struct texture *renderBuffer; //float-precision buffer for multisampling
-	struct texture *uiBuffer; //UI element buffer
 	size_t activeThreads; //Amount of threads currently rendering
 	bool rendering;
 	bool render_aborted; //SDL listens for X key pressed, which sets this

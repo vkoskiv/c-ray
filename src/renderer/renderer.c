@@ -391,7 +391,6 @@ void destroyRenderer(struct renderer *r) {
 	if (r) {
 		destroyScene(r->scene);
 		destroyTexture(r->state.renderBuffer);
-		destroyTexture(r->state.uiBuffer);
 		free(r->state.renderTiles);
 		free(r->state.workers);
 		free(r->state.tileMutex);

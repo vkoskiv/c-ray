@@ -39,6 +39,7 @@ struct renderTile {
 	enum tile_state state;
 	bool networkRenderer; //FIXME: client struct ptr
 	int index;
+	size_t total_samples;
 	size_t completed_samples;
 };
 

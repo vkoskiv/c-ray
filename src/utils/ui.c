@@ -116,7 +116,8 @@ struct sdl_window {
 	SDL_Window *window;
 	SDL_Renderer *renderer;
 	SDL_Texture *texture;
-	SDL_Texture *overlayTexture;
+	SDL_Texture *overlay_sdl;
+	struct texture *overlay;
 	bool isBorderless;
 	bool isFullScreen;
 	float windowScale;
@@ -222,16 +223,17 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 #if SDL_BYTEORDER == BIG_ENDIAN
 	format = SDL_PIXELFORMAT_RGBA8888;
 #endif
-	w->overlayTexture = w->sym->SDL_CreateTexture(w->renderer, format, SDL_TEXTUREACCESS_STREAMING, w->width, w->height);
-	if (w->overlayTexture == NULL) {
+	w->overlay_sdl = w->sym->SDL_CreateTexture(w->renderer, format, SDL_TEXTUREACCESS_STREAMING, w->width, w->height);
+	if (w->overlay_sdl == NULL) {
 		logr(warning, "Overlay texture couldn't be created, error: \"%s\"\n", w->sym->SDL_GetError());
 		win_destroy(w);
 		return NULL;
 	}
+	w->overlay = newTexture(char_p, width, height, 4);
 	
 	//And set blend modes for textures too
 	w->sym->SDL_SetTextureBlendMode(w->texture, SDL_BLENDMODE_BLEND);
-	w->sym->SDL_SetTextureBlendMode(w->overlayTexture, SDL_BLENDMODE_BLEND);
+	w->sym->SDL_SetTextureBlendMode(w->overlay_sdl, SDL_BLENDMODE_BLEND);
 	
 	setWindowIcon(w);
 	
@@ -247,10 +249,11 @@ void win_destroy(struct sdl_window *w) {
 			w->sym->SDL_DestroyTexture(w->texture);
 			w->texture = NULL;
 		}
-		if (w->overlayTexture) {
-			w->sym->SDL_DestroyTexture(w->overlayTexture);
+		if (w->overlay_sdl) {
+			w->sym->SDL_DestroyTexture(w->overlay_sdl);
 			w->texture = NULL;
 		}
+		destroyTexture(w->overlay);
 		if (w->renderer) {
 			w->sym->SDL_DestroyRenderer(w->renderer);
 			w->renderer = NULL;
@@ -304,47 +307,23 @@ void getKeyboardInput(struct renderer *r) {
 	}
 }
 
-static void clearProgBar(struct renderer *r, struct renderTile *t) {
-	for (unsigned i = 0; i < t->width; ++i) {
-		setPixel(r->state.uiBuffer, g_clear_color, t->begin.x + i, (t->begin.y + (t->height / 5)) - 1);
-		setPixel(r->state.uiBuffer, g_clear_color, t->begin.x + i, (t->begin.y + (t->height / 5))    );
-		setPixel(r->state.uiBuffer, g_clear_color, t->begin.x + i, (t->begin.y + (t->height / 5)) + 1);
+static void draw_bar(struct texture *overlay, struct renderTile *t) {
+	float prc = ((float)t->completed_samples / t->total_samples);
+	size_t pixels = (int)((float)t->width * prc);
+	struct color c = t->state == rendering ? g_prog_color : g_clear_color;
+	for (size_t i = 0; i < pixels; ++i) {
+		setPixel(overlay, c, t->begin.x + i, (t->begin.y + (t->height / 5)) - 1);
+		setPixel(overlay, c, t->begin.x + i, (t->begin.y + (t->height / 5))    );
+		setPixel(overlay, c, t->begin.x + i, (t->begin.y + (t->height / 5)) + 1);
 	}
 }
 
-/*
- So this is a bit of a kludge, we get the dynamically updated completedSamples
- info that renderThreads report back, and then associate that with the static
- renderTiles array data that is only updated once a tile is completed.
- I didn't want to put any mutex locks in the main render loop, so this gets
- around that.
- */
-static void drawProgressBars(struct renderer *r) {
-	for (size_t tile = 0; tile < r->state.tileCount; ++tile) {
-		struct renderTile *t = &r->state.renderTiles[tile];
-		float prc = ((float)t->completed_samples / r->prefs.sampleCount);
-		size_t pixels = (int)((float)t->width * prc);
-		struct color c = t->state == rendering ? g_prog_color : g_clear_color;
-		//And then draw the bar
-		if (t->state == finished) {
-			clearProgBar(r, t);
-		} else {
-			for (size_t i = 0; i < pixels; ++i) {
-				setPixel(r->state.uiBuffer, c, t->begin.x + i, (t->begin.y + (t->height / 5)) - 1);
-				setPixel(r->state.uiBuffer, c, t->begin.x + i, (t->begin.y + (t->height / 5))    );
-				setPixel(r->state.uiBuffer, c, t->begin.x + i, (t->begin.y + (t->height / 5)) + 1);
-			}
-		}
-	}
+static void draw_prog_bars(struct texture *overlay, struct renderTile *tiles, size_t tile_count) {
+	for (size_t tile = 0; tile < tile_count; ++tile)
+		draw_bar(overlay, &tiles[tile]);
 }
 
-/**
- Draw highlight frame to show which tiles are rendering
-
- @param r Renderer
- @param tile Given renderTile
- */
-static void drawFrame(struct texture *buf, struct renderTile tile, struct color c) {
+static void draw_frame(struct texture *buf, struct renderTile tile, struct color c) {
 	unsigned length = tile.width  <= 16 ? 4 : 8;
 			 length = tile.height <= 16 ? 4 : 8;
 	length = length > tile.width ? tile.width : length;
@@ -369,12 +348,12 @@ static void drawFrame(struct texture *buf, struct renderTile tile, struct color 
 	}
 }
 
-static void updateFrames(struct renderer *r) {
-	if (r->prefs.tileWidth < 8 || r->prefs.tileHeight < 8) return;
-	for (size_t i = 0; i < r->state.tileCount; ++i) {
-		struct renderTile tile = r->state.renderTiles[i];
+static void draw_frames(struct texture *overlay, struct renderTile *tiles, size_t tile_count) {
+	for (size_t i = 0; i < tile_count; ++i) {
+		struct renderTile tile = tiles[i];
+	if (tile.width < 8 || tile.height < 8) return;
 		struct color c = tile.state == rendering ? g_frame_color : g_clear_color;
-		drawFrame(r->state.uiBuffer, tile, c);
+		draw_frame(overlay, tile, c);
 	}
 }
 
@@ -382,13 +361,13 @@ void win_update(struct sdl_window *w, struct renderer *r, struct texture *t) {
 	if (!w) return;
 	//Render frames
 	if (!isSet("interactive") || r->state.clients) {
-		updateFrames(r);
-		drawProgressBars(r);
+		draw_frames(w->overlay, r->state.renderTiles, r->state.tileCount);
+		draw_prog_bars(w->overlay, r->state.renderTiles, r->state.tileCount);
 	}
 	//Update image data
 	w->sym->SDL_UpdateTexture(w->texture, NULL, t->data.byte_p, (int)t->width * 3);
-	w->sym->SDL_UpdateTexture(w->overlayTexture, NULL, r->state.uiBuffer->data.byte_p, (int)t->width * 4);
+	w->sym->SDL_UpdateTexture(w->overlay_sdl, NULL, w->overlay->data.byte_p, (int)t->width * 4);
 	w->sym->SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
-	w->sym->SDL_RenderCopy(w->renderer, w->overlayTexture, NULL, NULL);
+	w->sym->SDL_RenderCopy(w->renderer, w->overlay_sdl, NULL, NULL);
 	w->sym->SDL_RenderPresent(w->renderer);
 }

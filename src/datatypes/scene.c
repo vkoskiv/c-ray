@@ -227,6 +227,9 @@ int loadScene(struct renderer *r, char *input) {
 									   r->prefs.tileWidth,
 									   r->prefs.tileHeight,
 									   r->prefs.tileOrder);
+
+	for (size_t i = 0; i < r->state.tileCount; ++i)
+		r->state.renderTiles[i].total_samples = r->prefs.sampleCount;
 	
 	// Some of this stuff seems like it should be in newRenderer(), but notice
 	// how they depend on r->prefs, which is populated by parseJSON
@@ -235,10 +238,6 @@ int loadScene(struct renderer *r, char *input) {
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
 	r->state.renderBuffer = newTexture(float_p, cam.width, cam.height, 3);
-	
-	//Allocate memory for render UI buffer
-	//This buffer is used for storing UI stuff like currently rendering tile highlights
-	r->state.uiBuffer = newTexture(char_p, cam.width, cam.height, 4);
 	
 	//Print a useful warning to user if the defined tile size results in less renderThreads
 	if (r->state.tileCount < r->prefs.threads) {
