@@ -35,7 +35,7 @@ int registerHandler(enum sigtype type, void (*handler)(int)) {
 }
 
 void block_signals(void) {
-#ifndef WINDOWS
+#if !defined(WINDOWS) && !defined(__APPLE__)
 	sigset_t mask;
 	sigfillset(&mask);
 	sigprocmask(SIG_SETMASK, &mask, 0);
