@@ -166,7 +166,8 @@ static cJSON *processSubmitWork(struct worker *state, const cJSON *json) {
 	struct texture *tileImage = decodeTexture(resultJson);
 	cJSON *tileJson = cJSON_GetObjectItem(json, "tile");
 	struct renderTile tile = decodeTile(tileJson);
-	state->renderer->state.renderTiles[tile.tileNum].state = finished;
+	state->renderer->state.renderTiles[tile.tileNum] = tile;
+	state->renderer->state.renderTiles[tile.tileNum].state = finished; // FIXME: Remove
 	for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 		for (int x = tile.begin.x; x < tile.end.x; ++x) {
 			struct color value = textureGetPixel(tileImage, x - tile.begin.x, y - tile.begin.y, false);
@@ -242,10 +243,15 @@ void *networkRenderThread(void *arg) {
 	while (r->state.rendering && !state->thread_complete) {
 		cJSON *request = readJSON(client->socket);
 		if (containsStats(request)) {
-			cJSON *completed = cJSON_GetObjectItem(request, "completed");
-			if (cJSON_IsNumber(completed)) state->completedSamples = completed->valueint;
-			cJSON *avg = cJSON_GetObjectItem(request, "avgPerPass");
-			if (cJSON_IsNumber(avg)) state->avgSampleTime = avg->valuedouble;
+			cJSON *array = cJSON_GetObjectItem(request, "tiles");
+			if (cJSON_IsArray(array)) {
+				cJSON *tile = NULL;
+				cJSON_ArrayForEach(tile, array) {
+					struct renderTile t = decodeTile(tile);
+					r->state.renderTiles[t.tileNum] = t;
+					//r->state.renderTiles[t.tileNum].completed_samples = t.completed_samples;
+				}
+			}
 		} else {
 			cJSON *response = processClientRequest(state, request);
 			if (containsError(response)) {

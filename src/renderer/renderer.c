@@ -325,6 +325,7 @@ void *renderThread(void *arg) {
 			totalUsec += timer_get_us(timer);
 			threadState->totalSamples++;
 			threadState->completedSamples++;
+			tile->completed_samples++;
 			//Pause rendering when bool is set
 			while (threadState->paused && !r->state.render_aborted) {
 				timer_sleep_ms(100);

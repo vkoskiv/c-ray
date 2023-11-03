@@ -22,8 +22,7 @@ struct worker {
 	
 	//Share info about the current tile with main thread
 	struct renderTile *currentTile;
-	size_t completedSamples;
-	
+	size_t completedSamples; //FIXME: Remove
 	uint64_t totalSamples;
 	
 	long avgSampleTime; //Single tile pass

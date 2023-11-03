@@ -23,7 +23,7 @@ enum renderOrder {
 struct renderer;
 
 enum tile_state {
-	ready_to_render,
+	ready_to_render = 0,
 	rendering,
 	finished
 };
@@ -37,8 +37,9 @@ struct renderTile {
 	struct intCoord begin;
 	struct intCoord end;
 	enum tile_state state;
-	bool networkRenderer;
+	bool networkRenderer; //FIXME: client struct ptr
 	int tileNum;
+	size_t completed_samples;
 };
 
 /// Quantize the render plane into an array of tiles, with properties as specified in the parameters below

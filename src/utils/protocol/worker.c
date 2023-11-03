@@ -53,9 +53,9 @@ struct workerThreadState {
 	struct camera *cam;
 	struct renderer *renderer;
 	bool threadComplete;
-	uint64_t totalSamples;
 	size_t completedSamples;
 	long avgSampleTime;
+	struct renderTile *current;
 };
 
 static cJSON *validateHandshake(const cJSON *in) {
@@ -99,81 +99,83 @@ static cJSON *receiveScene(const cJSON *json) {
 }
 
 // Tilenum of -1 communicates that it failed to get work, signaling the work thread to exit
-static struct renderTile getWork(int connectionSocket) {
+static struct renderTile *getWork(int connectionSocket) {
 	if (!sendJSON(connectionSocket, newAction("getWork"), NULL)) {
-		return (struct renderTile){ .tileNum = -1 };
+		return NULL;
 	}
 	cJSON *response = readJSON(connectionSocket);
+	if (!response) return NULL;
 	cJSON *action = cJSON_GetObjectItem(response, "action");
 	if (cJSON_IsString(action)) {
 		if (stringEquals(action->valuestring, "renderComplete")) {
 			logr(debug, "Master reported render is complete\n");
-			return (struct renderTile){ .tileNum = -1 };
+			return NULL;
 		}
 	}
-	if (!response) {
-		return (struct renderTile){ .tileNum = -1 };
-	}
+	// FIXME: Pass the tile index only, and rename it to index too.
+	// In fact, this whole tile object thing might be a bit pointless, since
+	// we can just keep track of indices, and compute the tile dims
 	cJSON *tileJson = cJSON_GetObjectItem(response, "tile");
 	struct renderTile tile = decodeTile(tileJson);
+	g_worker_renderer->state.renderTiles[tile.tileNum] = tile;
 	logr(debug, "Got work   : %i ((%i,%i),(%i,%i))\n", tile.tileNum, tile.begin.x, tile.begin.y, tile.end.x, tile.end.y);
 	cJSON_Delete(response);
-	return tile;
+	return &g_worker_renderer->state.renderTiles[tile.tileNum];
 }
 
-static bool submitWork(int sock, struct texture *work, struct renderTile forTile) {
+static bool submitWork(int sock, struct texture *work, struct renderTile *forTile) {
 	cJSON *result = encodeTexture(work);
-	cJSON *tile = encodeTile(&forTile);
+	cJSON *tile = encodeTile(forTile);
 	cJSON *package = newAction("submitWork");
 	cJSON_AddItemToObject(package, "result", result);
 	cJSON_AddItemToObject(package, "tile", tile);
-	logr(debug, "Submit work: %i\n", forTile.tileNum);
+	logr(debug, "Submit work: %i\n", forTile->tileNum);
 	return sendJSON(sock, package, NULL);
 }
 
 static void *workerThread(void *arg) {
 	block_signals();
-	struct workerThreadState *threadState = (struct workerThreadState *)thread_user_data(arg);
-	struct renderer *r = threadState->renderer;
-	int sock = threadState->connectionSocket;
-	struct cr_mutex *sockMutex = threadState->socketMutex;
+	struct workerThreadState *thread = (struct workerThreadState *)thread_user_data(arg);
+	struct renderer *r = thread->renderer;
+	int sock = thread->connectionSocket;
+	struct cr_mutex *sockMutex = thread->socketMutex;
 	
 	//Fetch initial task
 	mutex_lock(sockMutex);
-	struct renderTile tile = getWork(sock);
+	thread->current = getWork(sock);
 	mutex_release(sockMutex);
-	struct texture *tileBuffer = newTexture(char_p, tile.width, tile.height, 3);
+	struct texture *tileBuffer = newTexture(char_p, thread->current->width, thread->current->height, 3);
 	sampler *sampler = newSampler();
 
-	struct camera *cam = threadState->cam;
+	struct camera *cam = thread->cam;
 	
 	struct timeval timer = { 0 };
-	threadState->completedSamples = 1;
+	thread->completedSamples = 1;
 	
-	while (tile.tileNum != -1 && r->state.rendering) {
-		if (tileBuffer->width != tile.width || tileBuffer->height != tile.height) {
+	while (thread->current && r->state.rendering) {
+		if (tileBuffer->width != thread->current->width || tileBuffer->height != thread->current->height) {
 			destroyTexture(tileBuffer);
-			tileBuffer = newTexture(char_p, tile.width, tile.height, 3);
+			tileBuffer = newTexture(char_p, thread->current->width, thread->current->height, 3);
 		}
 		long totalUsec = 0;
 		long samples = 0;
 		
-		while (threadState->completedSamples < r->prefs.sampleCount+1 && r->state.rendering) {
+		while (thread->completedSamples < r->prefs.sampleCount+1 && r->state.rendering) {
 			timer_start(&timer);
-			for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
-				for (int x = tile.begin.x; x < tile.end.x; ++x) {
+			for (int y = thread->current->end.y - 1; y > thread->current->begin.y - 1; --y) {
+				for (int x = thread->current->begin.x; x < thread->current->end.x; ++x) {
 					if (r->state.render_aborted || !g_running) goto bail;
 					uint32_t pixIdx = (uint32_t)(y * cam->width + x);
-					initSampler(sampler, SAMPLING_STRATEGY, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
+					initSampler(sampler, SAMPLING_STRATEGY, thread->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
 					struct lightRay incidentRay = cam_get_ray(cam, x, y, sampler);
 					struct color sample = path_trace(&incidentRay, r->scene, r->prefs.bounces, sampler);
 					
 					//And process the running average
-					output = colorCoef((float)(threadState->completedSamples - 1), output);
+					output = colorCoef((float)(thread->completedSamples - 1), output);
 					output = colorAdd(output, sample);
-					float t = 1.0f / threadState->completedSamples;
+					float t = 1.0f / thread->completedSamples;
 					output = colorCoef(t, output);
 					
 					//Store internal render buffer (float precision)
@@ -183,21 +185,22 @@ static void *workerThread(void *arg) {
 					output = colorToSRGB(output);
 					
 					//And store the image data
-					int localX = x - tile.begin.x;
-					int localY = y - tile.begin.y;
+					int localX = x - thread->current->begin.x;
+					int localY = y - thread->current->begin.y;
 					setPixel(tileBuffer, output, localX, localY);
 				}
 			}
 			//For performance metrics
 			samples++;
 			totalUsec += timer_get_us(timer);
-			threadState->totalSamples++;
-			threadState->completedSamples++;
-			threadState->avgSampleTime = totalUsec / samples;
+			thread->completedSamples++;
+			thread->current->completed_samples++;
+			thread->avgSampleTime = totalUsec / samples;
 		}
 		
+		thread->current->state = finished;
 		mutex_lock(sockMutex);
-		if (!submitWork(sock, tileBuffer, tile)) {
+		if (!submitWork(sock, tileBuffer, thread->current)) {
 			mutex_release(sockMutex);
 			break;
 		}
@@ -207,16 +210,16 @@ static void *workerThread(void *arg) {
 			break;
 		}
 		mutex_release(sockMutex);
-		threadState->completedSamples = 1;
+		thread->completedSamples = 1;
 		mutex_lock(sockMutex);
-		tile = getWork(sock);
+		thread->current = getWork(sock);
 		mutex_release(sockMutex);
 	}
 bail:
 	destroySampler(sampler);
 	destroyTexture(tileBuffer);
 	
-	threadState->threadComplete = true;
+	thread->threadComplete = true;
 	return 0;
 }
 
@@ -248,31 +251,19 @@ static cJSON *startRender(int connectionSocket) {
 		}
 	}
 	
-	float avgSampleTime = 0.0f;
-	float avgTimePerTilePass = 0.0f;
-	int ctr = 1;
 	int pauser = 0;
-	//TODO: Send out stats here
 	while (g_worker_renderer->state.rendering) {
-		
-		// Gather and send statistics to master node
-		for (size_t t = 0; t < g_worker_renderer->prefs.threads; ++t) {
-			avgSampleTime += workerThreadStates[t].avgSampleTime;
-		}
-		avgTimePerTilePass += avgSampleTime / g_worker_renderer->prefs.threads;
-		avgTimePerTilePass /= ctr++;
-		
-		// Send stats about 1x/s
-		if (pauser == 1024 / active_msec) {
-			uint64_t completedSamples = 0;
-			for (size_t t = 0; t < threadCount; ++t) {
-				completedSamples += workerThreadStates[t].totalSamples;
-			}
+		// Send stats about 4x/s
+		if (pauser == 256 / active_msec) {
 			cJSON *stats = newAction("stats");
-			cJSON_AddNumberToObject(stats, "completed", completedSamples);
-			cJSON_AddNumberToObject(stats, "avgPerPass", (double)avgTimePerTilePass);
+			cJSON *array = cJSON_AddArrayToObject(stats, "tiles");
+			for (size_t t = 0; t < threadCount; ++t) {
+				struct renderTile *tile = workerThreadStates[t].current;
+				if (tile) cJSON_AddItemToArray(array, encodeTile(tile));
+			}
+
 			mutex_lock(g_worker_socket_mutex);
-			logr(debug, "Sending stats update for: %"PRIu64", %.2f\n", completedSamples, (double)avgTimePerTilePass);
+			logr(debug, "Sending stats update: %s\n", cJSON_Print(stats));
 			if (!sendJSON(connectionSocket, stats, NULL)) {
 				logr(debug, "Connection lost, bailing out.\n");
 				// Setting this flag also kills the threads.

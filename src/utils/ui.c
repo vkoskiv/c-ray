@@ -304,11 +304,11 @@ void getKeyboardInput(struct renderer *r) {
 	}
 }
 
-static void clearProgBar(struct renderer *r, struct renderTile temp) {
-	for (unsigned i = 0; i < temp.width; ++i) {
-		setPixel(r->state.uiBuffer, g_clear_color, temp.begin.x + i, (temp.begin.y + (temp.height / 5)) - 1);
-		setPixel(r->state.uiBuffer, g_clear_color, temp.begin.x + i, (temp.begin.y + (temp.height / 5))    );
-		setPixel(r->state.uiBuffer, g_clear_color, temp.begin.x + i, (temp.begin.y + (temp.height / 5)) + 1);
+static void clearProgBar(struct renderer *r, struct renderTile *t) {
+	for (unsigned i = 0; i < t->width; ++i) {
+		setPixel(r->state.uiBuffer, g_clear_color, t->begin.x + i, (t->begin.y + (t->height / 5)) - 1);
+		setPixel(r->state.uiBuffer, g_clear_color, t->begin.x + i, (t->begin.y + (t->height / 5))    );
+		setPixel(r->state.uiBuffer, g_clear_color, t->begin.x + i, (t->begin.y + (t->height / 5)) + 1);
 	}
 }
 
@@ -320,30 +320,21 @@ static void clearProgBar(struct renderer *r, struct renderTile temp) {
  around that.
  */
 static void drawProgressBars(struct renderer *r) {
-	for (size_t t = 0; t < r->prefs.threads; ++t) {
-		if (r->state.workers[t].currentTile) {
-			struct renderTile *temp = r->state.workers[t].currentTile;
-			int completedSamples = r->state.workers[t].completedSamples;
-			int totalSamples = r->prefs.sampleCount;
-			
-			float prc = ((float)completedSamples / (float)totalSamples);
-			int pixels2draw = (int)((float)temp->width * prc);
-
-			struct color c = temp->state == rendering ? g_prog_color: g_clear_color;
-			
-			//And then draw the bar
-			for (int i = 0; i < pixels2draw; ++i) {
-				setPixel(r->state.uiBuffer, c, temp->begin.x + i, (temp->begin.y + (temp->height / 5)) - 1);
-				setPixel(r->state.uiBuffer, c, temp->begin.x + i, (temp->begin.y + (temp->height / 5))    );
-				setPixel(r->state.uiBuffer, c, temp->begin.x + i, (temp->begin.y + (temp->height / 5)) + 1);
+	for (size_t tile = 0; tile < r->state.tileCount; ++tile) {
+		struct renderTile *t = &r->state.renderTiles[tile];
+		float prc = ((float)t->completed_samples / r->prefs.sampleCount);
+		size_t pixels = (int)((float)t->width * prc);
+		struct color c = t->state == rendering ? g_prog_color : g_clear_color;
+		//And then draw the bar
+		if (t->state == finished) {
+			clearProgBar(r, t);
+		} else {
+			for (size_t i = 0; i < pixels; ++i) {
+				setPixel(r->state.uiBuffer, c, t->begin.x + i, (t->begin.y + (t->height / 5)) - 1);
+				setPixel(r->state.uiBuffer, c, t->begin.x + i, (t->begin.y + (t->height / 5))    );
+				setPixel(r->state.uiBuffer, c, t->begin.x + i, (t->begin.y + (t->height / 5)) + 1);
 			}
 		}
-	}
-	for (size_t i = 0; i < r->state.tileCount; ++i) {
-		if (r->state.renderTiles[i].state == finished) {
-			clearProgBar(r, r->state.renderTiles[i]);
-		}
-
 	}
 }
 
