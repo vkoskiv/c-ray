@@ -82,6 +82,7 @@ cJSON *encodeTile(const struct renderTile *tile) {
 	cJSON_AddNumberToObject(json, "state", tile->state);
 	cJSON_AddNumberToObject(json, "index", tile->index);
 	cJSON_AddNumberToObject(json, "completed_samples", tile->completed_samples);
+	cJSON_AddNumberToObject(json, "total_samples", tile->total_samples);
 	return json;
 }
 
@@ -96,6 +97,7 @@ struct renderTile decodeTile(const cJSON *json) {
 	tile.state = cJSON_GetObjectItem(json, "state")->valueint;
 	tile.index = cJSON_GetObjectItem(json, "index")->valueint;
 	tile.completed_samples = cJSON_GetObjectItem(json, "completed_samples")->valueint;
+	tile.total_samples = cJSON_GetObjectItem(json, "total_samples")->valueint;
 	return tile;
 }
 
