@@ -71,6 +71,8 @@ struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_c
 				return NULL;
 			}
 			current->name = stringCopy(peekNextToken(&line));
+		} else if (stringEquals(first, "Ka")) {
+			// Ignore
 		} else if (stringEquals(first, "Kd")) {
 			current->diffuse = parse_color(&line);
 		} else if (stringEquals(first, "Ks")) {
