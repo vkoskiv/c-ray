@@ -378,8 +378,6 @@ static struct prefs defaultPrefs() {
 struct renderer *newRenderer() {
 	struct renderer *r = calloc(1, sizeof(*r));
 	r->prefs = defaultPrefs();
-	r->state.avgTileTime = (time_t)1;
-	r->state.timeSampleCount = 1;
 	r->state.finishedPasses = 1;
 	
 	r->state.tileMutex = mutex_create();

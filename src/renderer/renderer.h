@@ -43,9 +43,6 @@ struct state {
 	bool rendering;
 	bool render_aborted; //SDL listens for X key pressed, which sets this
 	bool saveImage;
-	unsigned long long avgTileTime; //Used for render duration estimation (milliseconds)
-	float avgSampleRate; //In raw single pixel samples per second. (Used for benchmarking)
-	size_t timeSampleCount; //Used for render duration estimation, amount of time samples captured
 	struct worker *workers;
 	struct renderClient *clients;
 	size_t clientCount;
