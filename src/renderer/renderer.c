@@ -107,20 +107,20 @@ struct texture *renderFrame(struct renderer *r) {
 	r->state.workers = calloc(total_thread_count, sizeof(*r->state.workers));
 	
 	//Create & boot workers (Nonblocking)
-	for (size_t t = 0; t < total_thread_count; ++t) {
+	for (int t = 0; t < (int)total_thread_count; ++t) {
 		r->state.workers[t] = (struct worker){
-			.client = t > r->prefs.threads - 1? &r->state.clients[t - r->prefs.threads] : NULL,
+			.client = t > (int)r->prefs.threads - 1 ? &r->state.clients[t - r->prefs.threads] : NULL,
 			.thread_complete = false,
 			.renderer = r,
 			.output = output,
 			.cam = &camera,
 			.thread = (struct cr_thread){
-				.thread_fn = t > r->prefs.threads - 1 ? networkRenderThread : localRenderThread,
+				.thread_fn = t > (int)r->prefs.threads - 1 ? networkRenderThread : localRenderThread,
 				.user_data = &r->state.workers[t]
 			}
 		};
 		if (thread_start(&r->state.workers[t].thread)) {
-			logr(error, "Failed to start worker %zu\n", t);
+			logr(error, "Failed to start worker %d\n", t);
 		} else {
 			r->state.activeThreads++;
 		}
