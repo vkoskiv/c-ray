@@ -788,17 +788,6 @@ static void parse_mesh_instances(struct renderer *r, const cJSON *data, struct m
 			new.bsdf_count = material_count;
 			new.bsdfs = calloc(material_count, sizeof(void *));
 
-			for (size_t m = 0; m < material_count; ++m) {
-				if (meshes[i].materials[m].emission.red   > 0.0f ||
-					meshes[i].materials[m].emission.green > 0.0f ||
-					meshes[i].materials[m].emission.blue  > 0.0f ||
-					meshes[i].materials[m].emission.alpha > 0.0f) {
-					new.emits_light = true;
-					// const struct node_storage *s = &r->scene->storage;
-					// new.bsdfs[m] = newEmission(&r->scene->storage, newConstantTexture(s, meshes[i].materials[m].emission), newConstantValue(&r->scene->storage, 1.0f));
-				}
-			}
-
 			apply_materials_to_instance(r, &new, overrides, meshes[i].materials, meshes[i].materialCount);
 			new.composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
 			addInstanceToScene(r->scene, new);

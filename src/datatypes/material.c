@@ -49,6 +49,12 @@ const struct bsdfNode *try_to_guess_bsdf(const struct node_storage *s, const str
 		default:
 			break;
 	}
+
+	if (mat->emission.red > 0.0f ||
+		mat->emission.blue > 0.0f ||
+		mat->emission.green > 0.0f) {
+		chosen_bsdf = newEmission(s, newConstantTexture(s, mat->emission), NULL);
+	}
 	
 	if (chosen_bsdf) goto skip;
 	
