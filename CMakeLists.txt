@@ -3,10 +3,7 @@ project (c-ray C)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/)
 
-if (DEFINED ENV{CRAY_EXPORT_CMDS})
-	message(STATUS "Exporting compile commands")
-	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-endif()
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 message(STATUS "The C compiler is: ${CMAKE_C_COMPILER}")
 
