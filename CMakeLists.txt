@@ -62,6 +62,8 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${c-ray_SOURCE_DIR}/cmake")
 file(GLOB_RECURSE SOURCES src/*.c)
 
+include(set_up_ccache)
+
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 configure_file("${c-ray_SOURCE_DIR}/src/utils/gitsha1.c.in" "${c-ray_BINARY_DIR}/generated/gitsha1.c" @ONLY)
