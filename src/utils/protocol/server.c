@@ -457,25 +457,7 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	for (size_t i = 0; i < clientCount; ++i) printf("\n");
 	logr(info, "Client sync finished.\n");
 
-	size_t validClients = 0;
-	for (size_t i = 0; i < clientCount; ++i) {
-		validClients += clients[i].status == ConnectionFailed ? 0 : 1;
-	}
-	if (validClients < clientCount) {
-		// Prune unavailable clients
-		struct renderClient *confirmedClients = calloc(validClients, sizeof(*confirmedClients));
-		size_t j = 0;
-		for (size_t i = 0; i < clientCount; ++i) {
-			if (clients[i].status == Synced) {
-				confirmedClients[j++] = clients[i];
-			}
-		}
-		free(clients);
-		clients = confirmedClients;
-		logr(debug, "Pruned %zu clients that failed to sync\n", clientCount - validClients);
-	}
-
-	if (count) *count = validClients;
+	if (count) *count = clientCount;
 	free(sync_threads);
 	return clients;
 }
