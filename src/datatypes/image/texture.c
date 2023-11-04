@@ -11,6 +11,7 @@
 #include "texture.h"
 #include "../../utils/logging.h"
 #include "../../utils/assert.h"
+#include <string.h>
 
 //General-purpose setPixel function
 void setPixel(struct texture *t, struct color c, size_t x, size_t y) {
@@ -142,6 +143,13 @@ bool texture_uses_alpha(const struct texture *t) {
 		}
 	}
 	return false;
+}
+
+void tex_clear(struct texture *t) {
+	if (!t) return;
+	size_t prim_size = t->precision == char_p ? sizeof(char) : sizeof(float);
+	size_t bytes = t->width * t->height * t->channels * prim_size;
+	memset(t->data.byte_p, 0, bytes);
 }
 
 void destroyTexture(struct texture *t) {

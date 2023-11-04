@@ -144,7 +144,7 @@ static void *workerThread(void *arg) {
 	mutex_lock(sockMutex);
 	thread->current = getWork(sock);
 	mutex_release(sockMutex);
-	struct texture *tileBuffer = newTexture(char_p, thread->current->width, thread->current->height, 3);
+	struct texture *tileBuffer = newTexture(float_p, thread->current->width, thread->current->height, 3);
 	sampler *sampler = newSampler();
 
 	struct camera *cam = thread->cam;
@@ -155,7 +155,7 @@ static void *workerThread(void *arg) {
 	while (thread->current && r->state.rendering) {
 		if (tileBuffer->width != thread->current->width || tileBuffer->height != thread->current->height) {
 			destroyTexture(tileBuffer);
-			tileBuffer = newTexture(char_p, thread->current->width, thread->current->height, 3);
+			tileBuffer = newTexture(float_p, thread->current->width, thread->current->height, 3);
 		}
 		long totalUsec = 0;
 		long samples = 0;
@@ -168,7 +168,9 @@ static void *workerThread(void *arg) {
 					uint32_t pixIdx = (uint32_t)(y * cam->width + x);
 					initSampler(sampler, SAMPLING_STRATEGY, thread->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
-					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
+					int local_x = x - thread->current->begin.x;
+					int local_y = y - thread->current->begin.y;
+					struct color output = textureGetPixel(tileBuffer, local_x, local_y, false);
 					struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
 
 					nan_clamp(&sample, &output);
@@ -179,16 +181,7 @@ static void *workerThread(void *arg) {
 					float t = 1.0f / thread->completedSamples;
 					output = colorCoef(t, output);
 					
-					//Store internal render buffer (float precision)
-					setPixel(r->state.renderBuffer, output, x, y);
-					
-					//Gamma correction
-					output = colorToSRGB(output);
-					
-					//And store the image data
-					int localX = x - thread->current->begin.x;
-					int localY = y - thread->current->begin.y;
-					setPixel(tileBuffer, output, localX, localY);
+					setPixel(tileBuffer, output, local_x, local_y);
 				}
 			}
 			//For performance metrics
@@ -215,6 +208,7 @@ static void *workerThread(void *arg) {
 		mutex_lock(sockMutex);
 		thread->current = getWork(sock);
 		mutex_release(sockMutex);
+		tex_clear(tileBuffer);
 	}
 bail:
 	destroySampler(sampler);

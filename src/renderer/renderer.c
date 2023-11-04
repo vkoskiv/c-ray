@@ -105,6 +105,10 @@ struct texture *renderFrame(struct renderer *r) {
 	// Local render threads + one thread for every client
 	size_t total_thread_count = r->prefs.threads + (int)r->state.clientCount;
 	r->state.workers = calloc(total_thread_count, sizeof(*r->state.workers));
+
+	//Allocate memory for render buffer
+	//Render buffer is used to store accurate color values for the renderers' internal use
+	r->state.renderBuffer = newTexture(float_p, camera.width, camera.height, 3);
 	
 	//Create & boot workers (Nonblocking)
 	for (int t = 0; t < (int)total_thread_count; ++t) {
@@ -393,7 +397,7 @@ struct renderer *newRenderer() {
 void destroyRenderer(struct renderer *r) {
 	if (r) {
 		destroyScene(r->scene);
-		destroyTexture(r->state.renderBuffer);
+		if (r->state.renderBuffer) destroyTexture(r->state.renderBuffer);
 		free(r->state.renderTiles);
 		free(r->state.workers);
 		free(r->state.tileMutex);

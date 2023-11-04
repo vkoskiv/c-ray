@@ -231,14 +231,6 @@ int loadScene(struct renderer *r, char *input) {
 	for (size_t i = 0; i < r->state.tileCount; ++i)
 		r->state.renderTiles[i].total_samples = r->prefs.sampleCount;
 	
-	// Some of this stuff seems like it should be in newRenderer(), but notice
-	// how they depend on r->prefs, which is populated by parseJSON
-
-	struct camera cam = r->scene->cameras[r->prefs.selected_camera];
-	//Allocate memory for render buffer
-	//Render buffer is used to store accurate color values for the renderers' internal use
-	r->state.renderBuffer = newTexture(float_p, cam.width, cam.height, 3);
-	
 	//Print a useful warning to user if the defined tile size results in less renderThreads
 	if (r->state.tileCount < r->prefs.threads) {
 		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");

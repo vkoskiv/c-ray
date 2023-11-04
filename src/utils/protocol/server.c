@@ -171,6 +171,7 @@ static cJSON *processSubmitWork(struct worker *state, const cJSON *json) {
 	for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 		for (int x = tile.begin.x; x < tile.end.x; ++x) {
 			struct color value = textureGetPixel(tileImage, x - tile.begin.x, y - tile.begin.y, false);
+			value = colorToSRGB(value);
 			setPixel(state->output, value, x, y);
 		}
 	}

@@ -55,6 +55,8 @@ void textureToSRGB(struct texture *t);
 
 bool texture_uses_alpha(const struct texture *t);
 
+void tex_clear(struct texture *t);
+
 /// Deallocate a given texture
 /// @param tex Texture to deallocate
 void destroyTexture(struct texture *tex);
