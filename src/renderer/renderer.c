@@ -123,11 +123,8 @@ struct texture *renderFrame(struct renderer *r) {
 				.user_data = &r->state.workers[t]
 			}
 		};
-		if (thread_start(&r->state.workers[t].thread)) {
+		if (thread_start(&r->state.workers[t].thread))
 			logr(error, "Failed to start worker %d\n", t);
-		} else {
-			r->state.activeThreads++;
-		}
 	}
 	
 	//Start main thread loop to handle SDL and statistics computation

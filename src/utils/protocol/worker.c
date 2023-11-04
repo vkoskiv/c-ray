@@ -239,11 +239,8 @@ static cJSON *startRender(int connectionSocket) {
 				.renderer = g_worker_renderer,
 				.cam = &g_worker_renderer->scene->cameras[g_worker_renderer->prefs.selected_camera]};
 		worker_threads[t] = (struct cr_thread){.thread_fn = workerThread, .user_data = &workerThreadStates[t]};
-		if (thread_start(&worker_threads[t])) {
+		if (thread_start(&worker_threads[t]))
 			logr(error, "Failed to create a crThread.\n");
-		} else {
-			g_worker_renderer->state.activeThreads++;
-		}
 	}
 	
 	int pauser = 0;
