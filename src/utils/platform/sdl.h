@@ -17,5 +17,3 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height);
 void win_update(struct sdl_window *w, struct renderer *r, struct texture *t);
 void win_check_keyboard(struct sdl_window *w, struct renderer *r);
 void win_destroy(struct sdl_window *);
-
-void printDuration(uint64_t ms);

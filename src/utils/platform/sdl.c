@@ -1,30 +1,30 @@
 //
-//  ui.c
-//  C-ray
+//  sdl.c
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 19/02/2017.
-//  Copyright © 2017-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2023 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../includes.h"
-#include "ui.h"
+#include "../../includes.h"
+#include "sdl.h"
 
-#include "../datatypes/image/imagefile.h"
-#include "../renderer/renderer.h"
-#include "logging.h"
-#include "../datatypes/tile.h"
-#include "../datatypes/image/texture.h"
-#include "../datatypes/color.h"
-#include "platform/thread.h"
-#include "platform/signal.h"
-#include "assert.h"
-#include "logo.h"
-#include "loaders/textureloader.h"
-#include "args.h"
-#include "platform/dyn.h"
+#include "../../datatypes/image/imagefile.h"
+#include "../../renderer/renderer.h"
+#include "../../datatypes/tile.h"
+#include "../../datatypes/image/texture.h"
+#include "../../datatypes/color.h"
+#include "../logging.h"
+#include "../assert.h"
+#include "../logo.h"
+#include "../loaders/textureloader.h"
+#include "../args.h"
+#include "thread.h"
+#include "signal.h"
+#include "dyn.h"
 
-#include "../vendored/SDL2/SDL_render.h"
-#include "../vendored/SDL2/SDL_events.h"
+#include "../../vendored/SDL2/SDL_render.h"
+#include "../../vendored/SDL2/SDL_events.h"
 
 struct sdl_syms {
 	void *lib;
@@ -267,12 +267,6 @@ void win_destroy(struct sdl_window *w) {
 	}
 	free(w);
 	w = NULL;
-}
-
-void printDuration(uint64_t ms) {
-	logr(info, "Finished render in ");
-	printSmartTime(ms);
-	logr(plain, "                     \n");
 }
 
 void win_check_keyboard(struct sdl_window *sdl, struct renderer *r) {

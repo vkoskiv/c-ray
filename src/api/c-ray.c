@@ -22,7 +22,6 @@
 #include "../utils/platform/terminal.h"
 #include "../utils/assert.h"
 #include "../datatypes/image/texture.h"
-#include "../utils/ui.h"
 #include "../utils/timer.h"
 #include "../utils/args.h"
 #include "../utils/encoders/encoder.h"
@@ -221,7 +220,10 @@ void cr_start_renderer(struct renderer *r) {
 	}
 	timer_start(&r->state.timer);
 	currentImage = renderFrame(r);
-	printDuration(timer_get_ms(r->state.timer));
+	long ms = timer_get_ms(r->state.timer);
+	logr(info, "Finished render in ");
+	printSmartTime(ms);
+	logr(plain, "                     \n");
 }
 
 void cr_start_render_worker() {
