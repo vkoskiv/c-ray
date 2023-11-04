@@ -281,13 +281,13 @@ struct syncThreadParams {
 	bool done;
 };
 
-//TODO: Rename to clientSyncThread
-static void *handleClientSync(void *arg) {
+static void *client_sync_thread(void *arg) {
 	block_signals();
 	struct syncThreadParams *params = (struct syncThreadParams *)thread_user_data(arg);
 	struct renderClient *client = params->client;
 	if (client->status != Connected) {
 		logr(warning, "Won't sync with client %i, no connection.\n", client->id);
+		params->done = true;
 		return NULL;
 	}
 	client->status = Syncing;
@@ -295,6 +295,7 @@ static void *handleClientSync(void *arg) {
 	// Handshake with the client
 	if (!sendJSON(client->socket, makeHandshake(), NULL)) {
 		client->status = SyncFailed;
+		params->done = true;
 		return NULL;
 	}
 	cJSON *response = readJSON(client->socket);
@@ -302,6 +303,7 @@ static void *handleClientSync(void *arg) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
 		logr(warning, "Client handshake error: %s\n", error->valuestring);
 		client->status = SyncFailed;
+		params->done = true;
 		cJSON_Delete(response);
 		return NULL;
 	}
@@ -321,12 +323,14 @@ static void *handleClientSync(void *arg) {
 	if (!response) {
 		logr(debug, "no response\n");
 		client->status = SyncFailed;
+		params->done = true;
 		return NULL;
 	}
 	if (cJSON_HasObjectItem(response, "error")) {
 		cJSON *error = cJSON_GetObjectItem(response, "error");
 		logr(warning, "Client scene sync error: %s\n", error->valuestring);
 		client->status = SyncFailed;
+		params->done = true;
 		cJSON_Delete(error);
 		cJSON_Delete(response);
 		disconnectFromClient(client);
@@ -418,7 +422,7 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	struct cr_thread *sync_threads = calloc(clientCount, sizeof(*sync_threads));
 	for (size_t i = 0; i < clientCount; ++i) {
 		sync_threads[i] = (struct cr_thread){
-			.thread_fn = handleClientSync,
+			.thread_fn = client_sync_thread,
 			.user_data = &params[i]
 		};
 	}
@@ -452,8 +456,26 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	free(assetCache);
 	for (size_t i = 0; i < clientCount; ++i) printf("\n");
 	logr(info, "Client sync finished.\n");
-	//FIXME: We should prune clients that dropped out during sync here
-	if (count) *count = clientCount;
+
+	size_t validClients = 0;
+	for (size_t i = 0; i < clientCount; ++i) {
+		validClients += clients[i].status == ConnectionFailed ? 0 : 1;
+	}
+	if (validClients < clientCount) {
+		// Prune unavailable clients
+		struct renderClient *confirmedClients = calloc(validClients, sizeof(*confirmedClients));
+		size_t j = 0;
+		for (size_t i = 0; i < clientCount; ++i) {
+			if (clients[i].status == Synced) {
+				confirmedClients[j++] = clients[i];
+			}
+		}
+		free(clients);
+		clients = confirmedClients;
+		logr(debug, "Pruned %zu clients that failed to sync\n", clientCount - validClients);
+	}
+
+	if (count) *count = validClients;
 	free(sync_threads);
 	return clients;
 }
