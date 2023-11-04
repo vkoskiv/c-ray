@@ -275,10 +275,10 @@ void printDuration(uint64_t ms) {
 	logr(plain, "                     \n");
 }
 
-void getKeyboardInput(struct renderer *r) {
-	if (!r->sdl) return;
+void win_check_keyboard(struct sdl_window *sdl, struct renderer *r) {
+	if (!sdl) return;
 	SDL_Event event;
-	while (r->sdl->sym->SDL_PollEvent(&event)) {
+	while (sdl->sym->SDL_PollEvent(&event)) {
 		if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
 			if (event.key.keysym.sym == SDLK_s) {
 				printf("\n");

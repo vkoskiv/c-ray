@@ -219,13 +219,9 @@ void cr_start_renderer(struct renderer *r) {
 		logr(warning, "You specified 0 local threads, and no network clients were found. Nothing to do.\n");
 		return;
 	}
-	//FIXME: Move actual window creation to separate call and init window elsewhere
-	struct camera cam = r->scene->cameras[r->prefs.selected_camera];
-	r->sdl = win_try_init(&r->prefs.window, cam.width, cam.height);
 	timer_start(&r->state.timer);
 	currentImage = renderFrame(r);
 	printDuration(timer_get_ms(r->state.timer));
-	win_destroy(r->sdl);
 }
 
 void cr_start_render_worker() {

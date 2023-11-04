@@ -126,12 +126,14 @@ struct texture *renderFrame(struct renderer *r) {
 		if (thread_start(&r->state.workers[t].thread))
 			logr(error, "Failed to start worker %d\n", t);
 	}
+
+	struct sdl_window *sdl = win_try_init(&r->prefs.window, camera.width, camera.height);
 	
 	//Start main thread loop to handle SDL and statistics computation
 	//FIXME: Statistics computation is a gigantic mess. It will also break in the case
 	//where a worker node disconnects during a render, so maybe fix that next.
 	while (r->state.rendering) {
-		getKeyboardInput(r);
+		win_check_keyboard(sdl, r);
 
 		if (g_aborted) {
 			r->state.saveImage = false;
@@ -140,7 +142,7 @@ struct texture *renderFrame(struct renderer *r) {
 		
 		//Gather and maintain this average constantly.
 		if (!r->state.workers[0].paused) {
-			if (r->sdl) win_update(r->sdl, r, output);
+			if (sdl) win_update(sdl, r, output);
 			for (size_t t = 0; t < total_thread_count; ++t) {
 				avgSampleTime += r->state.workers[t].avgSampleTime;
 			}
@@ -188,6 +190,7 @@ struct texture *renderFrame(struct renderer *r) {
 	for (size_t t = 0; t < total_thread_count; ++t) {
 		thread_wait(&r->state.workers[t].thread);
 	}
+	win_destroy(sdl);
 	return output;
 }
 
