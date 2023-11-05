@@ -185,10 +185,6 @@ struct transform newTransformRotate(float roll, float pitch, float yaw) {
 
 struct transform newTransformTranslate(float x, float y, float z) {
 	struct transform transform = newTransform();
-	transform.A.mtx[0][0] = 1.0f;
-	transform.A.mtx[1][1] = 1.0f;
-	transform.A.mtx[2][2] = 1.0f;
-	transform.A.mtx[3][3] = 1.0f;
 	transform.A.mtx[0][3] = x;
 	transform.A.mtx[1][3] = y;
 	transform.A.mtx[2][3] = z;
