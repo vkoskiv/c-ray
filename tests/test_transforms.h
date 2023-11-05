@@ -12,31 +12,35 @@
 // Grab private functions
 float findDeterminant(float A[4][4], int n);
 float findDeterminant4x4(float A[4][4]);
-struct matrix4x4 matrixFromParams(
-	float t00, float t01, float t02, float t03,
-	float t10, float t11, float t12, float t13,
-	float t20, float t21, float t22, float t23,
-	float t30, float t31, float t32, float t33);
 
 struct matrix4x4 mat_id(void);
 
 bool transform_multiply() {
-	struct matrix4x4 A = matrixFromParams(
-		5, 7, 9, 10,
-		2, 3, 3, 8,
-		8, 10, 2, 3,
-		3, 3, 4, 8);
-	struct matrix4x4 B = matrixFromParams(
-		3, 10, 12, 18,
-		12, 1, 4, 9,
-		9, 10, 12, 2,
-		3, 12, 4, 10);
+	struct matrix4x4 A = (struct matrix4x4){
+		.mtx = {
+			{ 5,  7, 9, 10 },
+			{ 2,  3, 3,  8 },
+			{ 8, 10, 2,  3 },
+			{ 3,  3, 4,  8 },
+		}
+	};
+	struct matrix4x4 B = (struct matrix4x4){
+		.mtx = {
+			{  3, 10, 12, 18 },
+			{ 12,  1,  4,  9 },
+			{  9, 10, 12,  2 },
+			{  3, 12,  4, 10 },
+		}
+	};
 	struct matrix4x4 AB = mat_mul(A, B);
-	struct matrix4x4 expectedResult = matrixFromParams(
-		210, 267, 236, 271,
-		93, 149, 104, 149,
-		171, 146, 172, 268,
-		105, 169, 128, 169);
+	struct matrix4x4 expectedResult = (struct matrix4x4){
+		.mtx = {
+			{ 210, 267, 236, 271 },
+			{  93, 149, 104, 149 },
+			{ 171, 146, 172, 268 },
+			{ 105, 169, 128, 169 },
+		}
+	};
 	test_assert(mat_eq(AB, expectedResult));
 	return true;
 }
@@ -48,17 +52,23 @@ bool transform_transpose() {
 	struct matrix4x4 tid = mat_transpose(id);
 	test_assert(mat_eq(id, tid));
 	
-	struct matrix4x4 transposable = matrixFromParams(
-		0, 0, 0, 1,
-		0, 0, 1, 0,
-		0, 2, 0, 0,
-		2, 0, 0, 0);
+	struct matrix4x4 transposable = (struct matrix4x4){
+		.mtx = {
+			{ 0, 0, 0, 1 },
+			{ 0, 0, 1, 0 },
+			{ 0, 2, 0, 0 },
+			{ 2, 0, 0, 0 },
+		}
+	};
 	
-	struct matrix4x4 expected = matrixFromParams(
-		0, 0, 0, 2,
-		0, 0, 2, 0,
-		0, 1, 0, 0,
-		1, 0, 0, 0);
+	struct matrix4x4 expected = (struct matrix4x4){
+		.mtx = {
+			{ 0, 0, 0, 2 },
+			{ 0, 0, 2, 0 },
+			{ 0, 1, 0, 0 },
+			{ 1, 0, 0, 0 },
+		}
+	};
 	struct matrix4x4 transposed = mat_transpose(transposable);
 	
 	test_assert(mat_eq(transposed, expected));
@@ -67,21 +77,27 @@ bool transform_transpose() {
 }
 
 bool transform_determinant() {
-	struct matrix4x4 mtx = matrixFromParams(
-		1, 2, 0, 0,
-		1, 1, 3, 0,
-		0, 2, -2, 0,
-		0, 0, 3, 1);
+	struct matrix4x4 mtx = (struct matrix4x4){
+		.mtx = {
+			{ 1, 2, 0, 0 },
+			{ 1, 1, 3, 0 },
+			{ 0, 2, -2, 0 },
+			{ 0, 0, 3, 1 },
+		}
+	};
 	test_assert(findDeterminant(mtx.mtx, 4) == -4.0f);
 	return true;
 }
 
 bool transform_determinant4x4() {
-	struct matrix4x4 mtx = matrixFromParams(
-		1, 2, 0, 0,
-		1, 1, 3, 0,
-		0, 2, -2, 0,
-		0, 0, 3, 1);
+	struct matrix4x4 mtx = (struct matrix4x4){
+		.mtx = {
+			{ 1, 2, 0, 0 },
+			{ 1, 1, 3, 0 },
+			{ 0, 2, -2, 0 },
+			{ 0, 0, 3, 1 },
+		}
+	};
 	test_assert(findDeterminant4x4(mtx.mtx) == -4.0f);
 	return true;
 }
@@ -210,31 +226,46 @@ bool transform_scale_all() {
 
 // Inverse
 bool transform_inverse() {
-	struct matrix4x4 normal = matrixFromParams(0, 0, 0, 1,
-											   0, 0, 1, 0,
-											   0, 2, 0, 0,
-											   2, 0, 0, 0
-											);
+	struct matrix4x4 normal = (struct matrix4x4){
+		.mtx = {
+			{ 0, 0, 0, 1 },
+			{ 0, 0, 1, 0 },
+			{ 0, 2, 0, 0 },
+			{ 2, 0, 0, 0 },
+		}
+	};
 	struct matrix4x4 inv = mat_invert(normal);
-	struct matrix4x4 inv_correct = matrixFromParams(0, 0, 0, 0.5,
-													0, 0, 0.5, 0,
-													0, 1, 0, 0,
-													1, 0, 0, 0);
+	struct matrix4x4 inv_correct = (struct matrix4x4){
+		.mtx = {
+			{ 0, 0,   0, 0.5 },
+			{ 0, 0, 0.5,   0 },
+			{ 0, 1,   0,   0 },
+			{ 1, 0,   0,   0 },
+		}
+	};
 	test_assert(mat_eq(inv, inv_correct));
 	return true;
 }
 
 bool matrix_equal() {
 	
-	struct matrix4x4 A = matrixFromParams(1, 0, 1, 0,
-										  0, 1, 0, 1,
-										  1, 0, 1, 0,
-										  0, 1, 0, 1);
+	struct matrix4x4 A = (struct matrix4x4){
+		.mtx = {
+			{ 1, 0, 1, 0 },
+			{ 0, 1, 0, 1 },
+			{ 1, 0, 1, 0 },
+			{ 0, 1, 0, 1 },
+		}
+	};
 	
-	struct matrix4x4 B = matrixFromParams(1, 0, 1, 0,
-										  0, 1, 0, 1,
-										  1, 0, 1, 0,
-										  0, 1, 0, 2);
+	struct matrix4x4 B = (struct matrix4x4){
+		.mtx = {
+			{ 1, 0, 1, 0 },
+			{ 0, 1, 0, 1 },
+			{ 1, 0, 1, 0 },
+			{ 0, 1, 0, 2 },
+		}
+	};
 	
 	test_assert(!mat_eq(A, B));
 	test_assert(mat_eq(A, A));

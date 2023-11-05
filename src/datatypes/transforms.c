@@ -42,21 +42,6 @@ struct transform tform_new() {
 	return tf;
 }
 
-struct matrix4x4 matrixFromParams(
-	float t00, float t01, float t02, float t03,
-	float t10, float t11, float t12, float t13,
-	float t20, float t21, float t22, float t23,
-	float t30, float t31, float t32, float t33) {
-	return (struct matrix4x4) {
-		.mtx = {
-			{ t00, t01, t02, t03 },
-			{ t10, t11, t12, t13 },
-			{ t20, t21, t22, t23 },
-			{ t30, t31, t32, t33 }
-		}
-	};
-}
-
 struct matrix4x4 mat_abs(const struct matrix4x4 m) {
 	return (struct matrix4x4) {
 		.mtx = {
