@@ -194,9 +194,9 @@ static float eval(const struct valueNode *node, sampler *sampler, const struct h
 		case Tangent:
 			return tanf(a);
 		case ToRadians:
-			return toRadians(a);
+			return deg_to_rad(a);
 		case ToDegrees:
-			return fromRadians(a);
+			return rad_to_deg(a);
 	}
 	ASSERT_NOT_REACHED();
 	return 0.0f;

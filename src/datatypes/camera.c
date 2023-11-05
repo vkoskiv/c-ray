@@ -15,14 +15,14 @@
 void cam_recompute_optics(struct camera *cam) {
 	if (!cam) return;
 	cam->aspect_ratio = (float)cam->width / (float)cam->height;
-	cam->sensor_size.x = 2.0f * tanf(toRadians(cam->FOV) / 2.0f);
+	cam->sensor_size.x = 2.0f * tanf(deg_to_rad(cam->FOV) / 2.0f);
 	cam->sensor_size.y = cam->sensor_size.x / cam->aspect_ratio;
 	cam->look_at = (struct vector){0.0f, 0.0f, 1.0f};
 	//FIXME: This still assumes a 35mm sensor, instead of using the computed
 	//sensor width value from above. Just preserving this so existing configs
 	//work, but do look into a better way to do this here!
 	const float sensor_width_35mm = 0.036f;
-	cam->focal_length = 0.5f * sensor_width_35mm / toRadians(0.5f * cam->FOV);
+	cam->focal_length = 0.5f * sensor_width_35mm / deg_to_rad(0.5f * cam->FOV);
 	if (cam->fstops != 0.0f) cam->aperture = 0.5f * (cam->focal_length / cam->fstops);
 	cam->forward = vec_normalize(cam->look_at);
 	cam->right = vec_cross(g_world_up, cam->forward);
@@ -33,18 +33,18 @@ void recomputeComposite(struct camera *cam) {
 	struct transform transforms[2];
 	if (cam->path) {
 		struct vector positionAtT = spline_at(cam->path, cam->time);
-		transforms[0] = newTransformTranslate(positionAtT.x, positionAtT.y, positionAtT.z);
+		transforms[0] = tform_new_translate(positionAtT.x, positionAtT.y, positionAtT.z);
 	} else {
-		transforms[0] = newTransformTranslate(-cam->position.x, cam->position.y, cam->position.z);
+		transforms[0] = tform_new_translate(-cam->position.x, cam->position.y, cam->position.z);
 	}
-	transforms[1] = newTransformRotate(cam->orientation.roll, cam->orientation.pitch, cam->orientation.yaw);
+	transforms[1] = tform_new_rot(cam->orientation.roll, cam->orientation.pitch, cam->orientation.yaw);
 
-	struct transform composite = { .A = identityMatrix() };
+	struct transform composite = { .A = mat_id() };
 	for (int i = 0; i < 2; ++i) {
-		composite.A = multiplyMatrices(composite.A, transforms[i].A);
+		composite.A = mat_mul(composite.A, transforms[i].A);
 	}
 	
-	composite.Ainv = inverseMatrix(composite.A);
+	composite.Ainv = mat_invert(composite.A);
 	cam->composite = composite;
 }
 
@@ -95,6 +95,6 @@ struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampl
 		new_ray.direction = vec_normalize(vec_sub(focus_point, new_ray.start));
 	}
 	//To world space
-	transformRay(&new_ray, cam->composite.A);
+	tform_ray(&new_ray, cam->composite.A);
 	return new_ray;
 }

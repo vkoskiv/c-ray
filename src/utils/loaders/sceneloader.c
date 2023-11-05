@@ -53,7 +53,7 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 	if (!cJSON_IsString(type)) {
 		logr(warning, "Failed to parse transform! No type found\n");
 		logr(warning, "Transform data: %s\n", cJSON_Print(data));
-		return newTransformTranslate(0.0f, 0.0f, 0.0f);
+		return tform_new_translate(0.0f, 0.0f, 0.0f);
 	}
 	
 	cJSON *degrees = NULL;
@@ -113,43 +113,43 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 	
 	if (stringEquals(type->valuestring, "rotateX")) {
 		if (validDegrees) {
-			return newTransformRotateX(toRadians(degrees->valuedouble));
+			return tform_new_rot_x(deg_to_rad(degrees->valuedouble));
 		} else if (validRadians) {
-			return newTransformRotateX(radians->valuedouble);
+			return tform_new_rot_x(radians->valuedouble);
 		} else {
 			logr(warning, "Found rotateX transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
 	} else if (stringEquals(type->valuestring, "rotateY")) {
 		if (validDegrees) {
-			return newTransformRotateY(toRadians(degrees->valuedouble));
+			return tform_new_rot_y(deg_to_rad(degrees->valuedouble));
 		} else if (validRadians) {
-			return newTransformRotateY(radians->valuedouble);
+			return tform_new_rot_y(radians->valuedouble);
 		} else {
 			logr(warning, "Found rotateY transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
 	} else if (stringEquals(type->valuestring, "rotateZ")) {
 		if (validDegrees) {
-			return newTransformRotateZ(toRadians(degrees->valuedouble));
+			return tform_new_rot_z(deg_to_rad(degrees->valuedouble));
 		} else if (validRadians) {
-			return newTransformRotateZ(radians->valuedouble);
+			return tform_new_rot_z(radians->valuedouble);
 		} else {
 			logr(warning, "Found rotateZ transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
 		}
 	} else if (stringEquals(type->valuestring, "translate")) {
 		if (validCoords > 0) {
-			return newTransformTranslate(Xval, Yval, Zval);
+			return tform_new_translate(Xval, Yval, Zval);
 		} else {
 			logr(warning, "Found translate transform for object \"%s\" with less than 1 valid coordinate given.\n", targetName);
 		}
 	} else if (stringEquals(type->valuestring, "scale")) {
 		if (validCoords > 0) {
-			return newTransformScale(Xval, Yval, Zval);
+			return tform_new_scale3(Xval, Yval, Zval);
 		} else {
 			logr(warning, "Found scale transform for object \"%s\" with less than 1 valid scale value given.\n", targetName);
 		}
 	} else if (stringEquals(type->valuestring, "scaleUniform")) {
 		if (validScale) {
-			return newTransformScaleUniform(scale->valuedouble);
+			return tform_new_scale(scale->valuedouble);
 		} else {
 			logr(warning, "Found scaleUniform transform for object \"%s\" with no valid scale value given.\n", targetName);
 		}
@@ -158,7 +158,7 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 	}
 	
 	//Hack. This is essentially just a NOP transform that does nothing.
-	return newTransformTranslate(0.0f, 0.0f, 0.0f);
+	return tform_new_translate(0.0f, 0.0f, 0.0f);
 }
 
 void parsePrefs(struct prefs *prefs, const cJSON *data) {
@@ -434,7 +434,7 @@ float getRadians(const cJSON *object) {
 	cJSON *degrees = cJSON_GetObjectItem(object, "degrees");
 	cJSON *radians = cJSON_GetObjectItem(object, "radians");
 	if (degrees) {
-		return toRadians(degrees->valuedouble);
+		return deg_to_rad(degrees->valuedouble);
 	}
 	if (radians) {
 		return radians->valuedouble;
@@ -651,7 +651,7 @@ struct color parseColor(const cJSON *data) {
 static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *offset = cJSON_GetObjectItem(data, "offset");
 	if (cJSON_IsNumber(offset)) {
-		r->scene->backgroundOffset = toRadians(offset->valuedouble) / 4.0f;
+		r->scene->backgroundOffset = deg_to_rad(offset->valuedouble) / 4.0f;
 	}
 
 	const cJSON *down = cJSON_GetObjectItem(data, "down");
@@ -676,35 +676,35 @@ static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 }
 
 struct transform parse_composite_transform(const cJSON *transforms) {
-	if (!transforms) return newTransform();
+	if (!transforms) return tform_new();
 	//TODO: Pass mesh/instance name as targetName for logging
 	if (!cJSON_IsArray(transforms)) return parseTransform(transforms, "compositeBuilder");
 	
-	struct transform composite = newTransform();
+	struct transform composite = tform_new();
 
 	const cJSON *transform = NULL;
 	cJSON_ArrayForEach(transform, transforms) {
 		const cJSON *type = cJSON_GetObjectItem(transform, "type");
 		if (!cJSON_IsString(type)) break;
 		if (stringStartsWith("translate", type->valuestring)) {
-			composite.A = multiplyMatrices(composite.A, parseTransform(transform, "translates").A);
+			composite.A = mat_mul(composite.A, parseTransform(transform, "translates").A);
 		}
 	}
 	cJSON_ArrayForEach(transform, transforms) {
 		const cJSON *type = cJSON_GetObjectItem(transform, "type");
 		if (!cJSON_IsString(type)) break;
 		if (stringStartsWith("rotate", type->valuestring)) {
-			composite.A = multiplyMatrices(composite.A, parseTransform(transform, "translates").A);
+			composite.A = mat_mul(composite.A, parseTransform(transform, "translates").A);
 		}
 	}
 	cJSON_ArrayForEach(transform, transforms) {
 		const cJSON *type = cJSON_GetObjectItem(transform, "type");
 		if (!cJSON_IsString(type)) break;
 		if (stringStartsWith("scale", type->valuestring)) {
-			composite.A = multiplyMatrices(composite.A, parseTransform(transform, "translates").A);
+			composite.A = mat_mul(composite.A, parseTransform(transform, "translates").A);
 		}
 	}
-	composite.Ainv = inverseMatrix(composite.A);
+	composite.Ainv = mat_invert(composite.A);
 	return composite;
 }
 

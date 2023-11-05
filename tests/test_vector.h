@@ -118,12 +118,12 @@ bool vector_vecNormalize(void) {
 }
 
 bool vector_getMidPoint(void) {
-	struct transform rotate120 = newTransformRotateZ(toRadians(120.0f));
+	struct transform rotate120 = tform_new_rot_z(deg_to_rad(120.0f));
 	struct vector a = vec_normalize((struct vector){0.0f, 1.0f, 0.0f});
 	struct vector b = a;
-	transformVector(&b, rotate120.A);
+	tform_vector(&b, rotate120.A);
 	struct vector c = b;
-	transformVector(&c, rotate120.A);
+	tform_vector(&c, rotate120.A);
 	struct vector mid = vec_get_midpoint(a, b, c);
 	vec_roughly_equals(mid, vec_zero());
 	return true;

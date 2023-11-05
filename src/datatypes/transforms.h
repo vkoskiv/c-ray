@@ -33,29 +33,28 @@ struct vector;
 struct boundingBox;
 struct lightRay;
 
-float toRadians(float degrees);
-float fromRadians(float radians);
+float deg_to_rad(float degrees);
+float rad_to_deg(float radians);
 
 //Transform types
-struct transform newTransformScale(float x, float y, float z);
-struct transform newTransformScaleUniform(float scale);
-struct transform newTransformTranslate(float x, float y, float z);
-struct transform newTransformRotateX(float radians);
-struct transform newTransformRotateY(float radians);
-struct transform newTransformRotateZ(float radians);
-struct transform newTransformRotate(float roll, float pitch, float yaw);
-struct transform newTransform(void);
+struct transform tform_new_scale3(float x, float y, float z);
+struct transform tform_new_scale(float scale);
+struct transform tform_new_translate(float x, float y, float z);
+struct transform tform_new_rot_x(float radians);
+struct transform tform_new_rot_y(float radians);
+struct transform tform_new_rot_z(float radians);
+struct transform tform_new_rot(float roll, float pitch, float yaw);
+struct transform tform_new(void);
 
-struct matrix4x4 inverseMatrix(struct matrix4x4);
-struct matrix4x4 transposeMatrix(struct matrix4x4);
-struct matrix4x4 multiplyMatrices(struct matrix4x4 A, struct matrix4x4 B); //FIXME: Maybe don't expose this.
-struct matrix4x4 absoluteMatrix(struct matrix4x4);
-struct matrix4x4 identityMatrix(void);
+struct matrix4x4 mat_invert(struct matrix4x4);
+struct matrix4x4 mat_transpose(struct matrix4x4);
+struct matrix4x4 mat_mul(struct matrix4x4 A, struct matrix4x4 B); //FIXME: Maybe don't expose this.
+struct matrix4x4 mat_abs(struct matrix4x4);
+struct matrix4x4 mat_id(void);
+bool mat_eq(struct matrix4x4, struct matrix4x4);
 
-void transformPoint(struct vector *vec, struct matrix4x4);
-void transformVector(struct vector *vec, struct matrix4x4);
-void transformVectorWithTranspose(struct vector *vec, struct matrix4x4);
-void transformBBox(struct boundingBox *bbox, struct matrix4x4);
-void transformRay(struct lightRay *ray, struct matrix4x4);
-
-bool areMatricesEqual(struct matrix4x4, struct matrix4x4);
+void tform_point(struct vector *vec, struct matrix4x4);
+void tform_vector(struct vector *vec, struct matrix4x4);
+void tform_vector_transpose(struct vector *vec, struct matrix4x4);
+void tform_bbox(struct boundingBox *bbox, struct matrix4x4);
+void tform_ray(struct lightRay *ray, struct matrix4x4);
