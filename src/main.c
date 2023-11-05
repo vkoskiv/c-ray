@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 	atexit(term_restore);
 	logr(info, "c-ray v%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
 	cr_parse_args(argc, argv);
-	struct renderer *renderer = cr_new_renderer();
+	struct cr_renderer *renderer = cr_new_renderer();
 	if (!cr_is_option_set("is_worker")) {
 		size_t bytes = 0;
 		char *input = cr_is_option_set("inputFile") ? load_file(cr_path_arg(), &bytes, NULL) : read_stdin(&bytes);

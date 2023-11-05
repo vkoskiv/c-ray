@@ -70,7 +70,104 @@ char *cr_get_file_path(char *full_path) {
 	return get_file_path(full_path);
 }
 
-void cr_write_image(struct renderer *r) {
+// -- Renderer --
+
+struct cr_renderer;
+
+struct cr_renderer *cr_new_renderer() {
+	struct renderer *r = newRenderer();
+	cr_set_asset_path(r);
+	return r;
+}
+
+enum cr_renderer_param {
+	cr_renderer_threads = 0,
+	cr_renderer_samples,
+	cr_renderer_bounces,
+	cr_renderer_tile_width,
+	cr_renderer_tile_height,
+};
+
+bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p, uint64_t num) {
+	if (!ext) return false;
+	struct renderer *r = (struct renderer *)ext;
+	switch (p) {
+	case cr_renderer_threads: {
+		r->prefs.threads = num;
+		return true;
+	}
+	case cr_renderer_samples: {
+		r->prefs.sampleCount = num;
+		return true;
+	}
+	case cr_renderer_bounces: {
+		if (num > 512) return false;
+		r->prefs.bounces = num;
+		return true;
+	}
+	case cr_renderer_tile_width: {
+		
+	}
+	}
+	return false;
+}
+
+uint64_t cr_renderer_get_num_pref(struct cr_renderer *r, enum cr_renderer_param p) {
+	//TODO
+	(void)r;
+	(void)p;
+	return 0;
+}
+
+void cr_destroy_renderer(struct cr_renderer *ext) {
+	struct renderer *r = (struct renderer *)ext;
+	ASSERT(r);
+	destroyRenderer(r);
+}
+
+// -- Scene --
+
+struct cr_scene;
+
+struct cr_scene *cr_scene_create(struct cr_renderer *r) {
+	(void)r;
+	return NULL;
+}
+
+struct cr_object;
+
+struct cr_object *cr_object_new(struct cr_scene *s) {
+	(void)s;
+	return NULL;
+}
+
+struct cr_instance;
+
+struct cr_instance *cr_instance_new(struct cr_object *o) {
+	return NULL;
+}
+
+// -- Camera --
+
+struct cr_camera;
+
+struct cr_camera *cr_camera_new(struct cr_scene *s) {
+	//TODO
+	(void)s;
+	return NULL;
+}
+
+bool cr_camera_remove(struct cr_scene *s, struct cr_camera *c) {
+	//TODO
+	(void)s;
+	(void)c;
+	return false;
+}
+
+// --
+
+void cr_write_image(struct cr_renderer *ext) {
+	struct renderer *r = (struct renderer *)ext;
 	if (currentImage) {
 		if (r->state.saveImage) {
 			struct imageFile *file = newImageFile(currentImage, r->prefs.imgFilePath, r->prefs.imgFileName, r->prefs.imgCount, r->prefs.imgType);
@@ -90,18 +187,8 @@ void cr_write_image(struct renderer *r) {
 	}
 }
 
-struct renderer *cr_new_renderer() {
-	struct renderer *r = newRenderer();
-	cr_set_asset_path(r);
-	return r;
-}
-
-void cr_destroy_renderer(struct renderer *r) {
-	ASSERT(r);
-	destroyRenderer(r);
-}
-
-int cr_load_scene_from_file(struct renderer *r, char *file_path) {
+int cr_load_scene_from_file(struct cr_renderer *ext, char *file_path) {
+	struct renderer *r = (struct renderer *)ext;
 	size_t bytes = 0;
 	char *input = load_file(file_path, &bytes, NULL);
 	if (input) {
@@ -124,89 +211,33 @@ void cr_load_mesh_from_buf(char *buf) {
 	ASSERT_NOT_REACHED();
 }
 
-int cr_load_scene_from_buf(struct renderer *r, char *buf) {
+int cr_load_scene_from_buf(struct cr_renderer *ext, char *buf) {
+	struct renderer *r = (struct renderer *)ext;
 	return loadScene(r, buf);
 }
 
-void cr_set_render_order(void) {
-	ASSERT_NOT_REACHED();
-}
-
-void cr_get_render_order(void) {
-	ASSERT_NOT_REACHED();
-}
-
-void cr_set_thread_count(struct renderer *r, int thread_count, int is_from_system) {
-	r->prefs.threads = thread_count;
-	r->prefs.fromSystem = is_from_system;
-	cr_restart_interactive();
-}
-
-int cr_get_thread_count(struct renderer *r) {
+int cr_get_thread_count(struct cr_renderer *ext) {
+	struct renderer *r = (struct renderer *)ext;
 	return r->prefs.threads;
 }
 
-void cr_set_sample_count(struct renderer *r, int sample_count) {
-	ASSERT(sample_count > 0);
-	r->prefs.sampleCount = sample_count;
-}
-
-int cr_get_sample_count(struct renderer *r) {
+int cr_get_sample_count(struct cr_renderer *ext) {
+	struct renderer *r = (struct renderer *)ext;
 	return r->prefs.sampleCount;
 }
 
-void cr_set_bounces(struct renderer *r, int bounces) {
-	ASSERT(bounces > 0);
-	r->prefs.bounces = bounces;
-}
-
-int cr_get_bounces(struct renderer *r) {
+int cr_get_bounces(struct cr_renderer *ext) {
+	struct renderer *r = (struct renderer *)ext;
 	return r->prefs.bounces;
 }
 
-unsigned cr_get_tile_width(struct renderer *r) {
-	return r->prefs.tileWidth;
-}
-
-unsigned cr_get_tile_height(struct renderer *r) {
-	return r->prefs.tileHeight;
-}
-
-unsigned cr_get_image_width(struct renderer *r) {
-	return r->scene->cameras[r->prefs.selected_camera].width;
-}
-
-unsigned cr_get_image_height(struct renderer *r) {
-	return r->scene->cameras[r->prefs.selected_camera].height;
-}
-
-void cr_set_output_path(struct renderer *r, char *file_path) {
-	r->prefs.imgFilePath = file_path;
-}
-
-char *cr_get_output_path(struct renderer *r) {
-	return r->prefs.imgFilePath;
-}
-
-void cr_set_file_name(struct renderer *r, char *file_name) {
-	(void)r;
-	(void)file_name;
-	ASSERT_NOT_REACHED();
-}
-
-char *cr_get_file_name(struct renderer *r) {
-	return r->prefs.imgFileName;
-}
-
-void cr_set_asset_path(struct renderer *r) {
+void cr_set_asset_path(struct cr_renderer *ext) {
+	struct renderer *r = (struct renderer *)ext;
 	r->prefs.assetPath = cr_is_option_set("inputFile") ? cr_get_file_path(cr_path_arg()) : cr_is_option_set("asset_path") ? stringCopy(specifiedAssetPath()) : stringCopy("./");
 }
 
-char *cr_get_asset_path(struct renderer *r) {
-	return r->prefs.assetPath;
-}
-
-void cr_start_renderer(struct renderer *r) {
+void cr_start_renderer(struct cr_renderer *ext) {
+	struct renderer *r = (struct renderer *)ext;
 	if (isSet("use_clustering")) {
 		r->prefs.useClustering = true;
 		r->state.clients = syncWithClients(r, &r->state.clientCount);
@@ -230,26 +261,3 @@ void cr_start_render_worker() {
 	startWorkerServer();
 }
 
-//Interactive mode
-void cr_start_interactive(void) {
-	ASSERT_NOT_REACHED();
-}
-
-//Toggle paused state
-void cr_pause_interactive(void) {
-	ASSERT_NOT_REACHED();
-}
-
-//Just get the current buffer
-void cr_get_current_image(void) {
-	ASSERT_NOT_REACHED();
-}
-void cr_restart_interactive() {
-	//if (grenderer->prefs.interactive) { do the thing }
-	ASSERT_NOT_REACHED();
-}
-
-void cr_transform_mesh(void); //Transform, recompute kd-tree, restart
-
-void cr_move_camera(void/*struct dimension delta*/);
-void cr_set_hdr(void);
