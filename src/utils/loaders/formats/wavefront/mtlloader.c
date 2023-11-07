@@ -19,36 +19,22 @@
 #include "../../../assert.h"
 #include "../../textureloader.h"
 
-static size_t countMaterials(textBuffer *buffer) {
-	size_t mtlCount = 0;
-	char *head = firstLine(buffer);
-	while (head) {
-		if (stringStartsWith("newmtl", head)) mtlCount++;
-		head = nextLine(buffer);
-	}
-	logr(debug, "File contains %zu materials\n", mtlCount);
-	firstLine(buffer);
-	return mtlCount;
-}
-
 static struct color parse_color(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
 	return (struct color){ atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line)), 1.0f };
 }
 
-struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_cache *cache) {
+struct material_arr parse_mtllib(const char *filePath, struct file_cache *cache) {
 	size_t bytes = 0;
 	char *rawText = load_file(filePath, &bytes, cache);
-	if (!rawText) return NULL;
+	if (!rawText) return (struct material_arr){ 0 };
 	logr(debug, "Loading MTL at %s\n", filePath);
 	textBuffer *file = newTextBuffer(rawText);
 	free(rawText);
 	
 	char *assetPath = get_file_path(filePath);
 	
-	size_t materialAmount = countMaterials(file);
-	struct material *materials = calloc(materialAmount, sizeof(*materials));
-	size_t currentMaterialIdx = 0;
+	struct material_arr materials = { 0 };
 	struct material *current = NULL;
 	
 	char *head = firstLine(file);
@@ -64,11 +50,12 @@ struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_c
 			head = nextLine(file);
 			continue;
 		} else if (stringEquals(first, "newmtl")) {
-			current = &materials[currentMaterialIdx++];
+			size_t idx = material_arr_add(&materials, (struct material){ 0 });
+			current = &materials.items[idx];
 			if (!peekNextToken(&line)) {
 				logr(warning, "newmtl without a name on line %zu\n", line.current.line);
-				free(materials);
-				return NULL;
+				material_arr_free(&materials);
+				return (struct material_arr){ 0 };
 			}
 			current->name = stringCopy(peekNextToken(&line));
 		} else if (stringEquals(first, "Ka")) {
@@ -117,6 +104,6 @@ struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_c
 	
 	destroyTextBuffer(file);
 	free(assetPath);
-	if (mtlCount) *mtlCount = (int)materialAmount;
+	logr(debug, "Found %zu materials\n", materials.count);
 	return materials;
 }

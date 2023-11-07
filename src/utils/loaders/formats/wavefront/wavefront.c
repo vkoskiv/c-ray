@@ -20,15 +20,6 @@
 
 #include "wavefront.h"
 
-static int findMaterialIndex(struct material *materialSet, int materialCount, char *mtlName) {
-	for (int i = 0; i < materialCount; ++i) {
-		if (stringEquals(materialSet[i].name, mtlName)) {
-			return i;
-		}
-	}
-	return 0;
-}
-
 static struct vector parseVertex(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
 	return (struct vector){ atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line)) };
@@ -122,9 +113,8 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 	//size_t currentMesh = 0;
 	size_t valid_meshes = 0;
 	
-	struct material *materialSet = NULL;
-	int materialCount = 0;
-	int currentMaterialIndex = 0;
+	struct material_arr mtllib = { 0 };
+	int current_material_idx = 0;
 	
 	//FIXME: Handle more than one mesh
 	struct mesh *meshes = calloc(1, sizeof(*meshes));
@@ -168,16 +158,21 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 				//TODO: Check if we actually need the file totals here
 				fixIndices(&p, currentMeshPtr->vertices.count, currentMeshPtr->texture_coords.count, currentMeshPtr->normals.count);
 				surface_area += get_poly_area(&p, currentMeshPtr->vertices.items);
-				p.materialIndex = currentMaterialIndex;
+				p.materialIndex = current_material_idx;
 				p.hasNormals = p.normalIndex[0] != -1;
 				poly_arr_add(&currentMeshPtr->polygons, p);
 			}
 		} else if (stringEquals(first, "usemtl")) {
-			currentMaterialIndex = findMaterialIndex(materialSet, materialCount, peekNextToken(&line));
+			char *name = peekNextToken(&line);
+			for (size_t i = 0; i < mtllib.count; ++i) {
+				if (stringEquals(mtllib.items[i].name, name)) {
+					current_material_idx = i;
+				}
+			}
 		} else if (stringEquals(first, "mtllib")) {
 			char *mtlFilePath = stringConcat(assetPath, peekNextToken(&line));
 			windowsFixPath(mtlFilePath);
-			materialSet = parseMTLFile(mtlFilePath, &materialCount, cache);
+			mtllib = parse_mtllib(mtlFilePath, cache);
 			free(mtlFilePath);
 		} else {
 			char *fileName = get_file_name(filePath);
@@ -193,11 +188,9 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 	free(rawText);
 	free(assetPath);
 
-	if (materialSet) {
+	if (mtllib.count) {
 		for (size_t i = 0; i < meshCount; ++i) {
-			for (size_t m = 0; m < materialCount; ++m) {
-				material_arr_add(&meshes[i].materials, materialSet[m]);
-			}
+			meshes[i].materials = mtllib;
 		}
 	} else {
 		for (size_t i = 0; i < meshCount; ++i) {

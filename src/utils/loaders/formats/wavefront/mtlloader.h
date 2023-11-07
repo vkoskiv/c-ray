@@ -9,5 +9,6 @@
 #pragma once
 
 struct file_cache;
+struct material_arr;
 
-struct material *parseMTLFile(const char *filePath, int *mtlCount, struct file_cache *cache);
+struct material_arr parse_mtllib(const char *filePath, struct file_cache *cache);
