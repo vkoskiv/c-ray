@@ -13,19 +13,21 @@
 #include "poly.h"
 #include "material.h"
 
+dyn_array_def(mesh);
+
 void destroyMesh(struct mesh *mesh) {
 	if (mesh) {
 		free(mesh->name);
-		if (mesh->vertices) free(mesh->vertices);
-		if (mesh->normals) free(mesh->normals);
-		if (mesh->texture_coords) free(mesh->texture_coords);
-		if (mesh->polygons) free(mesh->polygons);
+		vector_arr_free(&mesh->vertices);
+		vector_arr_free(&mesh->normals);
+		coord_arr_free(&mesh->texture_coords);
+		poly_arr_free(&mesh->polygons);
 		destroy_bvh(mesh->bvh);
-		if (mesh->materials) {
-			for (int i = 0; i < mesh->materialCount; ++i) {
-				destroyMaterial(&mesh->materials[i]);
+		if (mesh->materials.count) {
+			for (size_t i = 0; i < mesh->materials.count; ++i) {
+				destroyMaterial(&mesh->materials.items[i]);
 			}
-			free(mesh->materials);
+			material_arr_free(&mesh->materials);
 		}
 	}
 }

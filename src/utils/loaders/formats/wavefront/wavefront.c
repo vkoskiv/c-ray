@@ -246,28 +246,28 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 
 	if (materialSet) {
 		for (size_t i = 0; i < meshCount; ++i) {
-			meshes[i].materials = materialSet;
-			meshes[i].materialCount = materialCount;
+			for (size_t m = 0; m < materialCount; ++m) {
+				material_arr_add(&meshes[i].materials, materialSet[m]);
+			}
 		}
 	} else {
 		for (size_t i = 0; i < meshCount; ++i) {
-			meshes[i].materials = calloc(1, sizeof(struct material));
-			meshes[i].materials[0] = warningMaterial();
-			meshes[i].materialCount = 1;
+			material_arr_add(&meshes[i].materials, warningMaterial());
 		}
 	}
 
 	logr(debug, "Mesh %s surface area is %.4fm²\n", currentMeshPtr->name, (double)surface_area);
 	
+	//FIXME: dyn Append in parse loop instead of at the end here
 	currentMeshPtr->surface_area = surface_area;
-	currentMeshPtr->polygons = polygons;
-	currentMeshPtr->poly_count = (int)filePolys;
-	currentMeshPtr->vertices = vertices;
-	currentMeshPtr->vertex_count = currentVertexCount;
-	currentMeshPtr->normals = normals;
-	currentMeshPtr->normal_count = currentNormalCount;
-	currentMeshPtr->texture_coords = texCoords;
-	currentMeshPtr->tex_coord_count = currentTextureCount;
+	for (size_t i = 0; i < filePolys; ++i)
+		poly_arr_add(&currentMeshPtr->polygons, polygons[i]);
+	for (size_t i = 0; i < currentVertexCount; ++i)
+		vector_arr_add(&currentMeshPtr->vertices, vertices[i]);
+	for (size_t i = 0; i < currentNormalCount; ++i)
+		vector_arr_add(&currentMeshPtr->normals, normals[i]);
+	for (size_t i = 0; i < currentTextureCount; ++i)
+		coord_arr_add(&currentMeshPtr->texture_coords, texCoords[i]);
 	
 	return meshes;
 }

@@ -10,6 +10,7 @@
 
 #include "color.h"
 #include "../renderer/samplers/sampler.h"
+#include "../utils/dyn_array.h"
 
 /*
  From: https://blenderartists.org/forum/showthread.php?71202-Material-IOR-Value-reference
@@ -79,6 +80,9 @@ struct material {
 	
 	enum bsdfType type; // FIXME: Temporary
 };
+
+typedef struct material material;
+dyn_array_dec(material);
 
 struct material warningMaterial(void);
 

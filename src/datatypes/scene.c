@@ -90,9 +90,9 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 	for (int i = 0; i < scene->instanceCount; ++i) {
 		if (isMesh(&scene->instances[i])) {
 			const struct mesh *mesh = scene->instances[i].object;
-			polys += mesh->poly_count;
-			vertices += mesh->vertex_count;
-			normals += mesh->normal_count;
+			polys += mesh->polygons.count;
+			vertices += mesh->vertices.count;
+			normals += mesh->normals.count;
 		}
 	}
 	logr(plain, "\n");

@@ -549,9 +549,9 @@ pop:
 
 static void get_poly_bbox_and_center(const void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
 	const struct mesh *mesh = userData;
-	struct vector v0 = mesh->vertices[mesh->polygons[i].vertexIndex[0]];
-	struct vector v1 = mesh->vertices[mesh->polygons[i].vertexIndex[1]];
-	struct vector v2 = mesh->vertices[mesh->polygons[i].vertexIndex[2]];
+	struct vector v0 = mesh->vertices.items[mesh->polygons.items[i].vertexIndex[0]];
+	struct vector v1 = mesh->vertices.items[mesh->polygons.items[i].vertexIndex[1]];
+	struct vector v2 = mesh->vertices.items[mesh->polygons.items[i].vertexIndex[2]];
 	*center = vec_get_midpoint(v0, v1, v2);
 	bbox->min = vec_min(v0, vec_min(v1, v2));
 	bbox->max = vec_max(v0, vec_max(v1, v2));
@@ -572,7 +572,7 @@ static inline bool intersect_bottom_level_leaf(
 	const struct mesh *mesh = user_data;
 	bool found = false;
 	for (size_t i = begin; i < end; ++i) {
-		struct poly *p = &mesh->polygons[bvh->prim_indices[i]];
+		struct poly *p = &mesh->polygons.items[bvh->prim_indices[i]];
 		if (rayIntersectsWithPolygon(mesh, ray, p, isect)) {
 			isect->polygon = p;
 			found = true;
@@ -607,7 +607,7 @@ struct boundingBox get_root_bbox(const struct bvh *bvh) {
 }
 
 struct bvh *build_mesh_bvh(const struct mesh *mesh) {
-	return build_bvh_generic(mesh, get_poly_bbox_and_center, mesh->poly_count);
+	return build_bvh_generic(mesh, get_poly_bbox_and_center, mesh->polygons.count);
 }
 
 struct bvh *build_top_level_bvh(const struct instance *instances, size_t instance_count) {

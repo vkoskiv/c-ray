@@ -14,6 +14,8 @@
 #include "image/texture.h"
 #include "../datatypes/scene.h"
 
+dyn_array_def(material);
+
 //To showcase missing .MTL file, for example
 struct material warningMaterial() {
 	struct material newMat = { 0 };

@@ -784,11 +784,12 @@ static void parse_mesh_instances(struct renderer *r, const cJSON *data, struct m
 			const cJSON *instance_materials = cJSON_GetObjectItem(instance, "materials");
 			const cJSON *overrides = instance_materials ? instance_materials : mesh_global_materials;
 
-			size_t material_count = meshes[i].materialCount;
+			size_t material_count = meshes[i].materials.count;
 			new.bsdf_count = material_count;
 			new.bsdfs = calloc(material_count, sizeof(void *));
 
-			apply_materials_to_instance(r, &new, overrides, meshes[i].materials, meshes[i].materialCount);
+			//FIXME: dyn
+			apply_materials_to_instance(r, &new, overrides, meshes[i].materials.items, meshes[i].materials.count);
 			new.composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
 			addInstanceToScene(r->scene, new);
 		}

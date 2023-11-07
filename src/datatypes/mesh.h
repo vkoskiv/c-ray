@@ -8,24 +8,24 @@
 
 #pragma once
 
-struct vector;
-struct coord;
+#include "../utils/dyn_array.h"
+#include "vector.h"
+#include "poly.h"
+#include "material.h"
 
 struct mesh {
-	struct vector *vertices;
-	struct vector *normals;
-	struct coord *texture_coords;
-	struct poly *polygons;
-	struct material *materials;
+	struct vector_arr vertices;
+	struct vector_arr normals;
+	struct coord_arr texture_coords;
+	struct poly_arr polygons;
+	struct material_arr materials;
 	struct bvh *bvh;
 	float surface_area;
 	char *name;
-	int vertex_count;
-	int normal_count;
-	int tex_coord_count;
-	int poly_count;
-	int materialCount;
 	float rayOffset;
 };
+
+typedef struct mesh mesh;
+dyn_array_dec(mesh);
 
 void destroyMesh(struct mesh *mesh);

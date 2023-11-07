@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../includes.h"
+#include "../utils/dyn_array.h"
 
 struct poly {
 	int vertexIndex[MAX_CRAY_VERTEX_COUNT];
@@ -18,6 +19,9 @@ struct poly {
 	unsigned int vertexCount: 3;
 	bool hasNormals;
 };
+
+typedef struct poly poly;
+dyn_array_dec(poly);
 
 struct lightRay;
 struct hitRecord;

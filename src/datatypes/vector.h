@@ -10,12 +10,16 @@
 
 #include <math.h>
 #include "../renderer/samplers/sampler.h"
+#include "../utils/dyn_array.h"
 #include "../utils/assert.h"
 #include "../includes.h"
 
 struct vector {
 	float x, y, z;
 };
+
+typedef struct vector vector;
+dyn_array_dec(vector);
 
 struct base {
 	struct vector i, j, k;
@@ -24,6 +28,9 @@ struct base {
 struct coord {
 	float x, y;
 };
+
+typedef struct coord coord;
+dyn_array_dec(coord);
 
 struct intCoord {
 	int x, y;
