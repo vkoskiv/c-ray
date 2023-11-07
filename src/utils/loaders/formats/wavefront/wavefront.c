@@ -29,46 +29,15 @@ static int findMaterialIndex(struct material *materialSet, int materialCount, ch
 	return 0;
 }
 
-// Count lines starting with thing
-static size_t count(textBuffer *buffer, const char *thing) {
-	size_t thingCount = 0;
-	char *head = firstLine(buffer);
-	while (head) {
-		if (stringStartsWith(thing, head)) thingCount++;
-		head = nextLine(buffer);
-	}
-	head = firstLine(buffer);
-	return thingCount;
-}
-
-static size_t countPolygons(textBuffer *buffer) {
-	size_t thingCount = 0;
-	char *head = firstLine(buffer);
-	char buf[LINEBUFFER_MAXSIZE];
-	lineBuffer line = { .buf = buf };
-	while (head) {
-		if (head[0] == 'f') {
-			fillLineBuffer(&line, head, ' ');
-			if (line.amountOf.tokens > 4) {
-				thingCount += 2;
-			} else {
-				thingCount++;
-			}
-		}
-		head = nextLine(buffer);
-	}
-	return thingCount;
-}
-
 static struct vector parseVertex(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);
-	return (struct vector){atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line))};
+	return (struct vector){ atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line)) };
 }
 
 static struct coord parseCoord(lineBuffer *line) {
 	// Some weird OBJ files just have a 0.0 as the third value for 2d coordinates.
 	ASSERT(line->amountOf.tokens == 3 || line->amountOf.tokens == 4);
-	return (struct coord){atof(nextToken(line)), atof(nextToken(line))};
+	return (struct coord){ atof(nextToken(line)), atof(nextToken(line)) };
 }
 
 // Wavefront supports different indexing types like
@@ -153,20 +122,6 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 	//size_t currentMesh = 0;
 	size_t valid_meshes = 0;
 	
-	// Allocate local buffers (memcpy these to global buffers if parsing succeeds)
-	size_t fileVertices = count(file, "v");
-	size_t currentVertex = 0;
-	struct vector *vertices = malloc(fileVertices * sizeof(*vertices));
-	size_t fileTexCoords = count(file, "vt");
-	size_t currentTextureCoord = 0;
-	struct coord *texCoords = malloc(fileTexCoords * sizeof(*texCoords));
-	size_t fileNormals = count(file, "vn");
-	size_t currentNormal = 0;
-	struct vector *normals = malloc(fileNormals * sizeof(*normals));
-	size_t filePolys = countPolygons(file);
-	size_t currentPoly = 0;
-	struct poly *polygons = malloc(filePolys * sizeof(*polygons));
-	
 	struct material *materialSet = NULL;
 	int materialCount = 0;
 	int currentMaterialIndex = 0;
@@ -177,10 +132,6 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 	
 	currentMeshPtr = meshes;
 	valid_meshes = 1;
-	
-	int currentVertexCount = 0;
-	int currentNormalCount = 0;
-	int currentTextureCount = 0;
 	
 	struct poly polybuf[2];
 	float surface_area = 0.0f;
@@ -203,25 +154,23 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 			currentMeshPtr->name = stringCopy(peekNextToken(&line));
 			//valid_meshes++;
 		} else if (stringEquals(first, "v")) {
-			vertices[currentVertex++] = parseVertex(&line);
-			currentVertexCount++;
+			vector_arr_add(&currentMeshPtr->vertices, parseVertex(&line));
 		} else if (stringEquals(first, "vt")) {
-			texCoords[currentTextureCoord++] = parseCoord(&line);
-			currentTextureCount++;
+			coord_arr_add(&currentMeshPtr->texture_coords, parseCoord(&line));
 		} else if (stringEquals(first, "vn")) {
-			normals[currentNormal++] = parseVertex(&line);
-			currentNormalCount++;
+			vector_arr_add(&currentMeshPtr->normals, parseVertex(&line));
 		} else if (stringEquals(first, "s")) {
 			// Smoothing groups. We don't care about these, we always smooth.
 		} else if (stringEquals(first, "f")) {
 			size_t count = parsePolygons(&line, polybuf);
 			for (size_t i = 0; i < count; ++i) {
 				struct poly p = polybuf[i];
-				fixIndices(&p, fileVertices, fileTexCoords, fileNormals);
-				surface_area += get_poly_area(&p, vertices);
+				//TODO: Check if we actually need the file totals here
+				fixIndices(&p, currentMeshPtr->vertices.count, currentMeshPtr->texture_coords.count, currentMeshPtr->normals.count);
+				surface_area += get_poly_area(&p, currentMeshPtr->vertices.items);
 				p.materialIndex = currentMaterialIndex;
 				p.hasNormals = p.normalIndex[0] != -1;
-				polygons[currentPoly++] = p;
+				poly_arr_add(&currentMeshPtr->polygons, p);
 			}
 		} else if (stringEquals(first, "usemtl")) {
 			currentMaterialIndex = findMaterialIndex(materialSet, materialCount, peekNextToken(&line));
@@ -258,16 +207,6 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 
 	logr(debug, "Mesh %s surface area is %.4fm²\n", currentMeshPtr->name, (double)surface_area);
 	
-	//FIXME: dyn Append in parse loop instead of at the end here
 	currentMeshPtr->surface_area = surface_area;
-	for (size_t i = 0; i < filePolys; ++i)
-		poly_arr_add(&currentMeshPtr->polygons, polygons[i]);
-	for (size_t i = 0; i < currentVertexCount; ++i)
-		vector_arr_add(&currentMeshPtr->vertices, vertices[i]);
-	for (size_t i = 0; i < currentNormalCount; ++i)
-		vector_arr_add(&currentMeshPtr->normals, normals[i]);
-	for (size_t i = 0; i < currentTextureCount; ++i)
-		coord_arr_add(&currentMeshPtr->texture_coords, texCoords[i]);
-	
 	return meshes;
 }
