@@ -38,7 +38,7 @@ static struct coord parseCoord(lineBuffer *line) {
 // f v1//vn1 v2//vn2 v3//vn3
 // Or a quad:
 // f v1//vn1 v2//vn2 v3//vn3 v4//vn4
-size_t parsePolygons(lineBuffer *line, struct poly *buf) {
+static inline size_t parse_polys(lineBuffer *line, struct poly *buf) {
 	char container[LINEBUFFER_MAXSIZE];
 	lineBuffer batch = { .buf = container };
 	size_t polycount = line->amountOf.tokens - 3;
@@ -152,7 +152,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 		} else if (stringEquals(first, "s")) {
 			// Smoothing groups. We don't care about these, we always smooth.
 		} else if (stringEquals(first, "f")) {
-			size_t count = parsePolygons(&line, polybuf);
+			size_t count = parse_polys(&line, polybuf);
 			for (size_t i = 0; i < count; ++i) {
 				struct poly p = polybuf[i];
 				//TODO: Check if we actually need the file totals here
@@ -164,6 +164,7 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 			}
 		} else if (stringEquals(first, "usemtl")) {
 			char *name = peekNextToken(&line);
+			current_material_idx = 0;
 			for (size_t i = 0; i < mtllib.count; ++i) {
 				if (stringEquals(mtllib.items[i].name, name)) {
 					current_material_idx = i;
