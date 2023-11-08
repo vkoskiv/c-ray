@@ -145,8 +145,10 @@ static test tests[] = {
 	{"parser::parser_color_blackbody", parser_color_blackbody},
 	{"parser::parser_color_hsl", parser_color_hsl},
 	{"dyn_array::basic", dyn_array_basic},
-	{"dyn_array::linear_grow", dyn_array_linear},
-	{"dyn_array::custom", dyn_array_custom}
+	{"dyn_array::linear_grow", dyn_array_linear_grow},
+	{"dyn_array::custom", dyn_array_custom},
+	{"dyn_array::trim", dyn_array_trim},
+	{"dyn_array::trim_expand", dyn_array_trim_expand},
 };
 
 #define testCount (sizeof(tests) / sizeof(test))

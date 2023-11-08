@@ -44,6 +44,14 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		a->items[a->count] = value; \
 		return a->count++; \
 	} \
+	void T##_arr_trim(struct T##_arr *a) { \
+		if (!a || a->count >= a->remaining) return; \
+		T *new = malloc(a->count * sizeof(*a)); \
+		memcpy(new, a->items, a->count * sizeof(*a)); \
+		free(a->items); \
+		a->items = new; \
+		a->remaining = a->count; \
+	} \
 	void T##_arr_free(struct T##_arr *a) { \
 		if (!a) return; \
 		if (a->items) free(a->items); \
@@ -60,6 +68,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		size_t (*grow_fn)(size_t capacity, size_t item_size); \
 	}; \
 	size_t T##_arr_add(struct T##_arr *a, T value); \
+	void T##_arr_trim(struct T##_arr *a); \
 	void T##_arr_free(struct T##_arr *a);
 
 dyn_array_dec(int);

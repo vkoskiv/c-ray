@@ -29,10 +29,15 @@ bool dyn_array_basic(void) {
 	}
 
 	int_arr_free(&arr);
+
+	test_assert(arr.count == 0);
+	test_assert(arr.remaining == 0);
+	test_assert(!arr.items);
+
 	return true;
 }
 
-bool dyn_array_linear(void) {
+bool dyn_array_linear_grow(void) {
 	struct int_arr arr = { 0 };
 	arr.grow_fn = grow_x_1_5;
 	test_assert(arr.remaining == 0);
@@ -42,13 +47,17 @@ bool dyn_array_linear(void) {
 		int_arr_add(&arr, i);
 	}
 
-
 	test_assert(arr.count == dyn_test_count);
 	for (int i = 0; i < dyn_test_count; ++i) {
 		test_assert(arr.items[i] == i);
 	}
 
 	int_arr_free(&arr);
+
+	test_assert(arr.count == 0);
+	test_assert(arr.remaining == 0);
+	test_assert(!arr.items);
+
 	return true;
 }
 
@@ -80,6 +89,113 @@ bool dyn_array_custom(void) {
 	}
 
 	foo_arr_free(&arr);
+
+	test_assert(arr.count == 0);
+	test_assert(arr.remaining == 0);
+	test_assert(!arr.items);
+
+	return true;
+}
+
+bool dyn_array_trim(void) {
+	struct int_arr arr = { 0 };
+	test_assert(arr.remaining == 0);
+	test_assert(arr.count == 0);
+
+	for (int i = 0; i < dyn_test_count; ++i) {
+		int_arr_add(&arr, i);
+	}
+
+	test_assert(arr.count == dyn_test_count);
+
+	for (int i = 0; i < dyn_test_count; ++i) {
+		test_assert(arr.items[i] == i);
+	}
+
+	test_assert(arr.count == 1000);
+	test_assert(arr.remaining == 1024);
+
+	int_arr_trim(&arr);
+
+	test_assert(arr.count == 1000);
+	test_assert(arr.remaining == 1000);
+
+	for (int i = 0; i < dyn_test_count; ++i) {
+		test_assert(arr.items[i] == i);
+	}
+
+	arr.count = 500;
+	int_arr_trim(&arr);
+	test_assert(arr.count == 500);
+	test_assert(arr.remaining == 500);
+
+	for (int i = 0; i < 500; ++i) {
+		test_assert(arr.items[i] == i);
+	}
+
+	int_arr_free(&arr);
+
+	test_assert(arr.count == 0);
+	test_assert(arr.remaining == 0);
+	test_assert(!arr.items);
+
+	return true;
+}
+
+bool dyn_array_trim_expand(void) {
+	struct int_arr arr = { 0 };
+	test_assert(arr.remaining == 0);
+	test_assert(arr.count == 0);
+
+	for (int i = 0; i < dyn_test_count; ++i) {
+		int_arr_add(&arr, i);
+	}
+
+	test_assert(arr.count == dyn_test_count);
+
+	for (int i = 0; i < dyn_test_count; ++i) {
+		test_assert(arr.items[i] == i);
+	}
+
+	test_assert(arr.count == 1000);
+	test_assert(arr.remaining == 1024);
+
+	int_arr_trim(&arr);
+
+	test_assert(arr.count == 1000);
+	test_assert(arr.remaining == 1000);
+
+	for (int i = 0; i < dyn_test_count; ++i) {
+		test_assert(arr.items[i] == i);
+	}
+
+	arr.count = 500;
+	int_arr_trim(&arr);
+	test_assert(arr.count == 500);
+	test_assert(arr.remaining == 500);
+
+	for (int i = 0; i < 500; ++i) {
+		test_assert(arr.items[i] == i);
+	}
+	
+	for(int i = 0; i < 500; ++i) {
+		int_arr_add(&arr, i);
+	}
+
+	test_assert(arr.count == 1000);
+
+	for (int i = 0; i < 500; ++i) {
+		test_assert(arr.items[i] == i);
+	}
+	for (int i = 0; i < 500; ++i) {
+		test_assert(arr.items[i + 500] == i);
+	}
+
+	int_arr_free(&arr);
+
+	test_assert(arr.count == 0);
+	test_assert(arr.remaining == 0);
+	test_assert(!arr.items);
 
 	return true;
 }
