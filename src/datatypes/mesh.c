@@ -12,22 +12,35 @@
 #include "../accelerators/bvh.h"
 #include "poly.h"
 #include "material.h"
+#include "vector.h"
 
 dyn_array_def(mesh);
 
 void destroyMesh(struct mesh *mesh) {
 	if (mesh) {
 		free(mesh->name);
-		vector_arr_free(&mesh->vertices);
-		vector_arr_free(&mesh->normals);
-		coord_arr_free(&mesh->texture_coords);
+		vertex_buf_unref(mesh->vbuf);
 		poly_arr_free(&mesh->polygons);
 		destroy_bvh(mesh->bvh);
-		if (mesh->materials.count) {
-			for (size_t i = 0; i < mesh->materials.count; ++i) {
-				destroyMaterial(&mesh->materials.items[i]);
-			}
-			material_arr_free(&mesh->materials);
-		}
+		material_buf_unref(mesh->mbuf);
 	}
+}
+
+struct vertex_buffer *vertex_buf_ref(struct vertex_buffer *buf) {
+	if (buf) {
+		buf->refs++;
+		return buf;
+	}
+	struct vertex_buffer *new = calloc(1, sizeof(*new));
+	new->refs = 1;
+	return new;
+}
+
+void vertex_buf_unref(struct vertex_buffer *buf) {
+	if (!buf) return;
+	if (--buf->refs) return;
+	vector_arr_free(&buf->vertices);
+	vector_arr_free(&buf->normals);
+	coord_arr_free(&buf->texture_coords);
+	free(buf);
 }

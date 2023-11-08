@@ -10,6 +10,7 @@
 
 #define DYN_ARRAY_IMPL
 #include "../src/utils/dyn_array.h"
+#include "../src/datatypes/vector.h"
 #include "../src/utils/logging.h"
 
 #define dyn_test_count 1000

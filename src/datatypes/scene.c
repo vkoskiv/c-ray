@@ -29,6 +29,7 @@
 #include "../nodes/bsdfnode.h"
 #include "../utils/args.h"
 #include "../utils/textbuffer.h"
+#include "../utils/dyn_array.h"
 
 struct bvh_build_task {
 	struct bvh *bvh;
@@ -42,15 +43,15 @@ void *bvh_build_thread(void *arg) {
 	return NULL;
 }
 
-static void compute_accels(struct mesh *meshes, int mesh_count) {
+static void compute_accels(struct mesh_arr meshes) {
 	logr(info, "Computing BVHs: ");
 	struct timeval timer = { 0 };
 	timer_start(&timer);
-	struct bvh_build_task *tasks = calloc(mesh_count, sizeof(*tasks));
-	struct cr_thread *build_threads = calloc(mesh_count, sizeof(*build_threads));
-	for (int t = 0; t < mesh_count; ++t) {
+	struct bvh_build_task *tasks = calloc(meshes.count, sizeof(*tasks));
+	struct cr_thread *build_threads = calloc(meshes.count, sizeof(*build_threads));
+	for (size_t t = 0; t < meshes.count; ++t) {
 		tasks[t] = (struct bvh_build_task){
-			.mesh = &meshes[t],
+			.mesh = &meshes.items[t],
 		};
 		build_threads[t] = (struct cr_thread){
 			.thread_fn = bvh_build_thread,
@@ -61,9 +62,9 @@ static void compute_accels(struct mesh *meshes, int mesh_count) {
 		}
 	}
 	
-	for (int t = 0; t < mesh_count; ++t) {
+	for (size_t t = 0; t < meshes.count; ++t) {
 		thread_wait(&build_threads[t]);
-		meshes[t].bvh = tasks[t].bvh;
+		meshes.items[t].bvh = tasks[t].bvh;
 	}
 	printSmartTime(timer_get_ms(timer));
 	free(tasks);
@@ -87,22 +88,23 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 	uint64_t polys = 0;
 	uint64_t vertices = 0;
 	uint64_t normals = 0;
+	//FIXME: Account for vertex buf duplication
 	for (int i = 0; i < scene->instanceCount; ++i) {
 		if (isMesh(&scene->instances[i])) {
 			const struct mesh *mesh = scene->instances[i].object;
 			polys += mesh->polygons.count;
-			vertices += mesh->vertices.count;
-			normals += mesh->normals.count;
+			vertices += 0;//mesh->vertices.count;
+			normals += 0;//mesh->normals.count;
 		}
 	}
 	logr(plain, "\n");
-	logr(info, "Totals: %liV, %liN, %iI, %liP, %iS, %iM\n",
+	logr(info, "Totals: %liV, %liN, %iI, %liP, %iS, %zuM\n",
 		   vertices,
 		   normals,
 		   scene->instanceCount,
 		   polys,
 		   scene->sphereCount,
-		   scene->meshCount);
+		   scene->meshes.count);
 }
 
 //Split scene loading and prefs?
@@ -212,7 +214,7 @@ int loadScene(struct renderer *r, char *input) {
 	if (r->prefs.threads > 0) {
 		// Do some pre-render preparations
 		// Compute BVH acceleration structures for all objects in the scene
-		compute_accels(r->scene->meshes, r->scene->meshCount);
+		compute_accels(r->scene->meshes);
 		// And then compute a single top-level BVH that contains all the objects
 		r->scene->topLevel = computeTopLevelBvh(r->scene->instances, r->scene->instanceCount);
 		printSceneStats(r->scene, timer_get_ms(timer));
@@ -244,9 +246,10 @@ int loadScene(struct renderer *r, char *input) {
 void destroyScene(struct world *scene) {
 	if (scene) {
 		free(scene->cameras);
-		for (int i = 0; i < scene->meshCount; ++i) {
-			destroyMesh(&scene->meshes[i]);
+		for (size_t i = 0; i < scene->meshes.count; ++i) {
+			destroyMesh(&scene->meshes.items[i]);
 		}
+		mesh_arr_free(&scene->meshes);
 		destroy_bvh(scene->topLevel);
 		destroyHashtable(scene->storage.node_table);
 		destroyBlocks(scene->storage.node_pool);
@@ -254,7 +257,6 @@ void destroyScene(struct world *scene) {
 			if (scene->instances[i].bsdfs) free(scene->instances[i].bsdfs);
 		}
 		free(scene->instances);
-		free(scene->meshes);
 		free(scene->spheres);
 		free(scene);
 	}

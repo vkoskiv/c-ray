@@ -60,6 +60,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		a->count = 0; \
 	}
 
+//TODO: T_arr_join(T_arr *,T_arr *)? Could be useful, see parse_mesh()
 #define dyn_array_dec(T) \
 	struct T##_arr { \
 		T *items; \

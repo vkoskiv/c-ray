@@ -12,14 +12,14 @@
 #include "formats/wavefront/wavefront.h"
 #include "../fileio.h"
 #include "../logging.h"
+#include "../../datatypes/mesh.h"
 
-struct mesh *load_meshes_from_file(const char *filePath, size_t *meshCount, struct file_cache *cache) {
+struct mesh_arr load_meshes_from_file(const char *filePath, struct file_cache *cache) {
 	switch (guess_file_type(filePath)) {
 		case obj:
-			return parseWavefront(filePath, meshCount, cache);
+			return parse_wavefront(filePath, cache);
 		default:
 			logr(warning, "%s: Unknown file type, skipping.\n", filePath);
-			if (meshCount) *meshCount = 0;
-			return NULL;
+			return (struct mesh_arr){ 0 };
 	}
 }

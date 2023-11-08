@@ -84,6 +84,17 @@ struct material {
 typedef struct material material;
 dyn_array_dec(material);
 
+/*
+	Several meshes may refer to the same set of materials, so this is refcounted.
+*/
+struct material_buffer {
+	struct material_arr materials;
+	size_t refs;
+};
+
+struct material_buffer *material_buf_ref(struct material_buffer *buf);
+void material_buf_unref(struct material_buffer *buf);
+
 struct material warningMaterial(void);
 
 struct node_storage;

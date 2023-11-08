@@ -9,6 +9,7 @@
 #pragma once
 
 #include <stddef.h>
+#include "mesh.h"
 
 struct renderer;
 struct hashtable;
@@ -24,7 +25,7 @@ struct node_storage {
 struct world {
 	//Optional environment map / ambient color
 	const struct bsdfNode *background;
-	struct mesh *meshes;
+	struct mesh_arr meshes;
 	struct instance *instances;
 	// Top-level bounding volume hierarchy,
 	// contains all 3D assets in the scene.
@@ -33,7 +34,6 @@ struct world {
 	struct camera *cameras;
 	struct node_storage storage;
 	float backgroundOffset;
-	int meshCount;
 	int instanceCount;
 	int sphereCount;
 	size_t camera_count;

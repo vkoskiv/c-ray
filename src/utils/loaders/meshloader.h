@@ -10,4 +10,4 @@
 
 struct file_cache;
 
-struct mesh *load_meshes_from_file(const char *filePath, size_t *meshCount, struct file_cache *cache);
+struct mesh_arr load_meshes_from_file(const char *file_path, struct file_cache *cache);

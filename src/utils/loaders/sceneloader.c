@@ -1,9 +1,9 @@
 //
 //  sceneloader.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
@@ -773,7 +773,7 @@ static void parse_mesh_instances(struct renderer *r, const cJSON *data, struct m
 			const cJSON *density = cJSON_GetObjectItem(instance, "density");
 			const cJSON *mesh_name = cJSON_GetObjectItem(instance, "for");
 			if (cJSON_IsString(mesh_name) && !stringEquals(mesh_name->valuestring, meshes[i].name)) break;
-			struct instance new;
+			struct instance new = { 0 };
 			if (cJSON_IsNumber(density)) {
 				new = new_mesh_instance(&meshes[i], (float *)&density->valuedouble, &r->scene->storage.node_pool);
 			} else {
@@ -784,12 +784,12 @@ static void parse_mesh_instances(struct renderer *r, const cJSON *data, struct m
 			const cJSON *instance_materials = cJSON_GetObjectItem(instance, "materials");
 			const cJSON *overrides = instance_materials ? instance_materials : mesh_global_materials;
 
-			size_t material_count = meshes[i].materials.count;
+			size_t material_count = meshes[i].mbuf->materials.count;
 			new.bsdf_count = material_count;
 			new.bsdfs = calloc(material_count, sizeof(void *));
 
 			//FIXME: dyn
-			apply_materials_to_instance(r, &new, overrides, meshes[i].materials.items, meshes[i].materials.count);
+			apply_materials_to_instance(r, &new, overrides, meshes[i].mbuf->materials.items, meshes[i].mbuf->materials.count);
 			new.composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
 			addInstanceToScene(r->scene, new);
 		}
@@ -805,34 +805,34 @@ static size_t parse_mesh(struct renderer *r, const cJSON *data, int idx, int mes
 	windowsFixPath(fullPath);
 
 	logr(plain, "\r");
-	logr(info, "Loading mesh file %i/%i%s", idx, mesh_file_count, idx == mesh_file_count ? "\n" : "\r");
-	size_t valid_mesh_count = 0;
+	logr(info, "Loading mesh file %i/%i%s", idx + 1, mesh_file_count, (idx + 1) == mesh_file_count ? "\n" : "\r");
 	struct timeval timer;
 	timer_start(&timer);
-	struct mesh *meshes = load_meshes_from_file(fullPath, &valid_mesh_count, r->state.file_cache);
+	struct mesh_arr meshes = load_meshes_from_file(fullPath, r->state.file_cache);
 	long us = timer_get_us(timer);
 	free(fullPath);
-	if (!meshes) return 0;
+	if (!meshes.count) return 0;
 
 	long ms = us / 1000;
 	logr(debug, "Parsing file %-35s took %zu %s\n", file_name->valuestring, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");
 
-	//TODO: Implement a more ergonomic array implementation
-	//Also let's not use an array in this particular case, instead use a hashtable.
-	r->scene->meshes = realloc(r->scene->meshes, (r->scene->meshCount + valid_mesh_count) * sizeof(*r->scene->meshes));
-	memcpy(r->scene->meshes + r->scene->meshCount, meshes, valid_mesh_count * sizeof(*meshes));
-	free(meshes);
-	r->scene->meshCount += valid_mesh_count;
-
-	return valid_mesh_count;
+	for (size_t i = 0; i < meshes.count; ++i) {
+		mesh_arr_add(&r->scene->meshes, meshes.items[i]);
+	}
+	size_t added = meshes.count;
+	mesh_arr_free(&meshes);
+	return added;
 }
 
-static void parseMeshes(struct renderer *r, const cJSON *data) {
+static void parse_meshes(struct renderer *r, const cJSON *data) {
 	if (!cJSON_IsArray(data)) return;
-	int idx = 1;
+	int idx = 0;
 	int mesh_file_count = cJSON_GetArraySize(data);
+
+	// This is done awkwardly in two phases, because our dynamic array calls
+	// realloc, and instances take pointers to that data, so we don't want to
+	// shuffle it around after this.
 	size_t *amounts = calloc(mesh_file_count, sizeof(*amounts));
-	if (!cJSON_IsArray(data)) return;
 	const cJSON *mesh = NULL;
 	int i = 0;
 	cJSON_ArrayForEach(mesh, data) {
@@ -842,7 +842,7 @@ static void parseMeshes(struct renderer *r, const cJSON *data) {
 	i = 0;
 	size_t current_offset = 0;
 	cJSON_ArrayForEach(mesh, data) {
-		parse_mesh_instances(r, mesh, r->scene->meshes + current_offset, amounts[i]);
+		parse_mesh_instances(r, mesh, r->scene->meshes.items + current_offset, amounts[i]);
 		current_offset += amounts[i++];
 	}
 	free(amounts);
@@ -927,7 +927,7 @@ static void parsePrimitives(struct renderer *r, const cJSON *data) {
 static void parseScene(struct renderer *r, const cJSON *data) {
 	parseAmbientColor(r, cJSON_GetObjectItem(data, "ambientColor"));
 	parsePrimitives(r, cJSON_GetObjectItem(data, "primitives"));
-	parseMeshes(r, cJSON_GetObjectItem(data, "meshes"));
+	parse_meshes(r, cJSON_GetObjectItem(data, "meshes"));
 }
 
 int parseJSON(struct renderer *r, const cJSON *json) {

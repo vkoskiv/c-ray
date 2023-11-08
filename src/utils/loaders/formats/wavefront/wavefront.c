@@ -1,9 +1,9 @@
 //
 //  wavefront.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <string.h>
@@ -98,36 +98,51 @@ float get_poly_area(struct poly *p, struct vector *vertices) {
 	return vec_length(cross) / 2.0f;
 }
 
-struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct file_cache *cache) {
+struct mesh_arr parse_wavefront(const char *file_path, struct file_cache *cache) {
 	size_t bytes = 0;
-	char *rawText = load_file(filePath, &bytes, cache);
-	if (!rawText) return NULL;
-	logr(debug, "Loading OBJ at %s\n", filePath);
-	textBuffer *file = newTextBuffer(rawText);
-	char *assetPath = get_file_path(filePath);
+	char *input = load_file(file_path, &bytes, cache);
+	if (!input) return (struct mesh_arr){ 0 };
+	logr(debug, "Loading OBJ %s\n", file_path);
+	textBuffer *file = newTextBuffer(input);
+	char *assetPath = get_file_path(file_path);
 	
-	//Start processing line-by-line, state machine style.
-	size_t meshCount = 1;
-	//meshCount += count(file, "o");
-	//meshCount += count(file, "g");
-	//size_t currentMesh = 0;
-	size_t valid_meshes = 0;
-	
-	struct material_arr mtllib = { 0 };
+	char buf[LINEBUFFER_MAXSIZE];
+	// Count totals and preallocate space
+	size_t total_vertices  = 0;
+	size_t total_texcoords = 0;
+	size_t total_normals   = 0;
+	size_t total_polys     = 0;
+	char *head = firstLine(file);
+	lineBuffer line0 = { .buf = buf };
+	while (head) {
+		if (head[0] == 'v') {
+			total_vertices++;
+		} else if (head[0] == 'f') {
+			fillLineBuffer(&line0, head, ' ');
+			if (line0.amountOf.tokens > 4)
+				total_polys += 2;
+			else
+				total_polys++;
+		} else if (head[0] == 'v' && head[1] == 'n') {
+			total_normals++;
+		} else if (head[0] == 'v' && head[1] == 't') {
+			total_texcoords++;
+		}
+		head = nextLine(file);
+	};
+
 	int current_material_idx = 0;
 	
-	//FIXME: Handle more than one mesh
-	struct mesh *meshes = calloc(1, sizeof(*meshes));
-	struct mesh *currentMeshPtr = NULL;
+	struct mesh_arr meshes = { 0 };
+	struct mesh *current = NULL;
 	
-	currentMeshPtr = meshes;
-	valid_meshes = 1;
+	struct vertex_buffer *file_buf = vertex_buf_ref(NULL);
+	struct material_buffer *mtllib = material_buf_ref(NULL);
 	
 	struct poly polybuf[2];
-	float surface_area = 0.0f;
 
-	char *head = firstLine(file);
-	char buf[LINEBUFFER_MAXSIZE];
+	//Start processing line-by-line, state machine style.
+	head = firstLine(file);
 	lineBuffer line = { .buf = buf };
 	while (head) {
 		fillLineBuffer(&line, head, ' ');
@@ -138,17 +153,16 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 		} else if (first[0] == '\0') {
 			head = nextLine(file);
 			continue;
-		} else if (first[0] == 'o' || first[0] == 'g') {
-			//FIXME: o and g probably have a distinction for a reason?
-			//currentMeshPtr = &meshes[currentMesh++];
-			currentMeshPtr->name = stringCopy(peekNextToken(&line));
-			//valid_meshes++;
+		} else if (first[0] == 'o'/* || first[0] == 'g'*/) { //FIXME: o and g probably have a distinction for a reason?
+			size_t idx = mesh_arr_add(&meshes, (struct mesh){ 0 });
+			current = &meshes.items[idx];
+			current->name = stringCopy(peekNextToken(&line));
 		} else if (stringEquals(first, "v")) {
-			vector_arr_add(&currentMeshPtr->vertices, parseVertex(&line));
+			vector_arr_add(&file_buf->vertices, parseVertex(&line));
 		} else if (stringEquals(first, "vt")) {
-			coord_arr_add(&currentMeshPtr->texture_coords, parseCoord(&line));
+			coord_arr_add(&file_buf->texture_coords, parseCoord(&line));
 		} else if (stringEquals(first, "vn")) {
-			vector_arr_add(&currentMeshPtr->normals, parseVertex(&line));
+			vector_arr_add(&file_buf->normals, parseVertex(&line));
 		} else if (stringEquals(first, "s")) {
 			// Smoothing groups. We don't care about these, we always smooth.
 		} else if (stringEquals(first, "f")) {
@@ -156,27 +170,30 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 			for (size_t i = 0; i < count; ++i) {
 				struct poly p = polybuf[i];
 				//TODO: Check if we actually need the file totals here
-				fixIndices(&p, currentMeshPtr->vertices.count, currentMeshPtr->texture_coords.count, currentMeshPtr->normals.count);
-				surface_area += get_poly_area(&p, currentMeshPtr->vertices.items);
+				// fixIndices(&p, current->vertices.count, current->texture_coords.count, current->normals.count);
+				fixIndices(&p, total_vertices, total_texcoords, total_normals);
+				//FIXME
+				// current->surface_area += get_poly_area(&p, current->vertices.items);
 				p.materialIndex = current_material_idx;
 				p.hasNormals = p.normalIndex[0] != -1;
-				poly_arr_add(&currentMeshPtr->polygons, p);
+				poly_arr_add(&current->polygons, p);
 			}
 		} else if (stringEquals(first, "usemtl")) {
 			char *name = peekNextToken(&line);
 			current_material_idx = 0;
-			for (size_t i = 0; i < mtllib.count; ++i) {
-				if (stringEquals(mtllib.items[i].name, name)) {
+			for (size_t i = 0; i < mtllib->materials.count; ++i) {
+				if (stringEquals(mtllib->materials.items[i].name, name)) {
 					current_material_idx = i;
 				}
 			}
 		} else if (stringEquals(first, "mtllib")) {
 			char *mtlFilePath = stringConcat(assetPath, peekNextToken(&line));
 			windowsFixPath(mtlFilePath);
-			mtllib = parse_mtllib(mtlFilePath, cache);
+			//FIXME: Handle multiple mtllibs
+			mtllib->materials = parse_mtllib(mtlFilePath, cache);
 			free(mtlFilePath);
 		} else {
-			char *fileName = get_file_name(filePath);
+			char *fileName = get_file_name(file_path);
 			logr(debug, "Unknown statement \"%s\" in OBJ \"%s\" on line %zu\n",
 				 first, fileName, file->current.line);
 			free(fileName);
@@ -184,23 +201,26 @@ struct mesh *parseWavefront(const char *filePath, size_t *finalMeshCount, struct
 		head = nextLine(file);
 	}
 	
-	if (finalMeshCount) *finalMeshCount = valid_meshes;
 	destroyTextBuffer(file);
-	free(rawText);
+	free(input);
 	free(assetPath);
 
-	if (mtllib.count) {
-		for (size_t i = 0; i < meshCount; ++i) {
-			meshes[i].materials = mtllib;
-		}
-	} else {
-		for (size_t i = 0; i < meshCount; ++i) {
-			material_arr_add(&meshes[i].materials, warningMaterial());
-		}
+	if (!mtllib->materials.count) {
+		material_arr_add(&mtllib->materials, warningMaterial());
 	}
 
-	logr(debug, "Mesh %s surface area is %.4fm²\n", currentMeshPtr->name, (double)surface_area);
+	for (size_t i = 0; i < meshes.count; ++i) {
+		meshes.items[i].mbuf = material_buf_ref(mtllib);
+	}
+
+	for (size_t i = 0; i < meshes.count; ++i) {
+		struct mesh *m = &meshes.items[i];
+		m->vbuf = vertex_buf_ref(file_buf);
+		logr(debug, "Mesh %s surface area is %.4fm²\n", m->name, (double)m->surface_area);
+	}
+
+	vertex_buf_unref(file_buf);
+	material_buf_unref(mtllib);
 	
-	currentMeshPtr->surface_area = surface_area;
 	return meshes;
 }

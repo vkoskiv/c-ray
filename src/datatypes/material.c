@@ -16,6 +16,26 @@
 
 dyn_array_def(material);
 
+struct material_buffer *material_buf_ref(struct material_buffer *buf) {
+	if (buf) {
+		buf->refs++;
+		return buf;
+	}
+	struct material_buffer *new = calloc(1, sizeof(*new));
+	new->refs = 1;
+	return new;
+}
+
+void material_buf_unref(struct material_buffer *buf) {
+	if (!buf) return;
+	if (--buf->refs) return;
+	for (size_t i = 0; i < buf->materials.count; ++i) {
+		destroyMaterial(&buf->materials.items[i]);
+	}
+	material_arr_free(&buf->materials);
+	free(buf);
+}
+
 //To showcase missing .MTL file, for example
 struct material warningMaterial() {
 	struct material newMat = { 0 };

@@ -19,11 +19,11 @@ dyn_array_def(poly);
 bool rayIntersectsWithPolygon(const struct mesh *mesh, const struct lightRay *ray, const struct poly *poly, struct hitRecord *isect) {
 	// Möller-Trumbore ray-triangle intersection routine
 	// (see "Fast, Minimum Storage Ray-Triangle Intersection", by T. Möller and B. Trumbore)
-	struct vector e1 = vec_sub(mesh->vertices.items[poly->vertexIndex[0]], mesh->vertices.items[poly->vertexIndex[1]]);
-	struct vector e2 = vec_sub(mesh->vertices.items[poly->vertexIndex[2]], mesh->vertices.items[poly->vertexIndex[0]]);
+	struct vector e1 = vec_sub(mesh->vbuf->vertices.items[poly->vertexIndex[0]], mesh->vbuf->vertices.items[poly->vertexIndex[1]]);
+	struct vector e2 = vec_sub(mesh->vbuf->vertices.items[poly->vertexIndex[2]], mesh->vbuf->vertices.items[poly->vertexIndex[0]]);
 	struct vector n = vec_cross(e1, e2);
 
-	struct vector c = vec_sub(mesh->vertices.items[poly->vertexIndex[0]], ray->start);
+	struct vector c = vec_sub(mesh->vbuf->vertices.items[poly->vertexIndex[0]], ray->start);
 	struct vector r = vec_cross(ray->direction, c);
 	float invDet = 1.0f / vec_dot(n, ray->direction);
 
@@ -39,9 +39,9 @@ bool rayIntersectsWithPolygon(const struct mesh *mesh, const struct lightRay *ra
 			isect->uv = (struct coord) { u, v };
 			isect->distance = t;
 			if (likely(poly->hasNormals)) {
-				struct vector upcomp = vec_scale(mesh->normals.items[poly->normalIndex[1]], u);
-				struct vector vpcomp = vec_scale(mesh->normals.items[poly->normalIndex[2]], v);
-				struct vector wpcomp = vec_scale(mesh->normals.items[poly->normalIndex[0]], w);
+				struct vector upcomp = vec_scale(mesh->vbuf->normals.items[poly->normalIndex[1]], u);
+				struct vector vpcomp = vec_scale(mesh->vbuf->normals.items[poly->normalIndex[2]], v);
+				struct vector wpcomp = vec_scale(mesh->vbuf->normals.items[poly->normalIndex[0]], w);
 				
 				isect->surfaceNormal = vec_add(vec_add(upcomp, vpcomp), wpcomp);
 			} else {
