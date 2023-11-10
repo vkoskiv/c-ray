@@ -160,12 +160,11 @@ static void setWindowIcon(struct sdl_window *w) {
 
 struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) {
 	if (!prefs->enabled) return NULL;
+	struct sdl_syms *syms = try_get_sdl2_syms();
+	if (!syms) return NULL;
+
 	struct sdl_window *w = calloc(1, sizeof(*w));
-	w->sym = try_get_sdl2_syms();
-	if (!w->sym) {
-		free(w);
-		return NULL;
-	}
+	w->sym = syms;
 
 	w->isFullScreen = prefs->fullscreen;
 	w->isBorderless = prefs->borderless;
