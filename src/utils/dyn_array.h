@@ -35,7 +35,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 }
 
 #define dyn_array_def(T) \
-	size_t T##_arr_add(struct T##_arr *a, T value) { \
+	size_t T##_arr_add(struct T##_arr *a, const T value) { \
 		if (a->count >= a->capacity) { \
 			size_t new_capacity = a->grow_fn ? a->grow_fn(a->capacity, sizeof(*a->items)) : grow_x_2(a->capacity, sizeof(*a->items)); \
 			a->items = realloc(a->items, sizeof(*a->items) * new_capacity); \
