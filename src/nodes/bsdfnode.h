@@ -11,6 +11,7 @@
 #include "../vendored/cJSON.h"
 #include "../datatypes/lightray.h"
 #include "../utils/mempool.h"
+#include "../utils/dyn_array.h"
 #include "valuenode.h"
 #include "vectornode.h"
 #include "colornode.h"
@@ -29,6 +30,17 @@ struct bsdfNode {
 	struct nodeBase base;
 	struct bsdfSample (*sample)(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record);
 };
+
+typedef const struct bsdfNode * bsdf_node_ptr;
+dyn_array_dec(bsdf_node_ptr);
+
+struct bsdf_buffer {
+	struct bsdf_node_ptr_arr bsdfs;
+	size_t refs;
+};
+
+struct bsdf_buffer *bsdf_buf_ref(struct bsdf_buffer *buf);
+void bsdf_buf_unref(struct bsdf_buffer *buf);
 
 #include "shaders/diffuse.h"
 #include "shaders/glass.h"

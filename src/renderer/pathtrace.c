@@ -42,7 +42,7 @@ static inline void recompute_uv(struct hitRecord *isect, float offset) {
 static inline struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler) {
 	//TODO: Consider passing in last instance idx + polygon to detect self-intersections?
 	struct hitRecord isect = { .incident_dir = incidentRay->direction, .instIndex = -1, .distance = FLT_MAX, .polygon = NULL };
-	if (traverse_top_level_bvh(scene->instances, scene->topLevel, incidentRay, &isect, sampler)) return isect;
+	if (traverse_top_level_bvh(scene->instances.items, scene->topLevel, incidentRay, &isect, sampler)) return isect;
 	// Didn't hit anything. Recompute the UV for the background
 	recompute_uv(&isect, scene->backgroundOffset);
 	return isect;

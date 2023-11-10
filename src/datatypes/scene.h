@@ -10,6 +10,7 @@
 
 #include <stddef.h>
 #include "mesh.h"
+#include "../renderer/instance.h"
 
 struct renderer;
 struct hashtable;
@@ -26,16 +27,14 @@ struct world {
 	//Optional environment map / ambient color
 	const struct bsdfNode *background;
 	struct mesh_arr meshes;
-	struct instance *instances;
+	struct instance_arr instances;
 	// Top-level bounding volume hierarchy,
 	// contains all 3D assets in the scene.
 	struct bvh *topLevel;
-	struct sphere *spheres;
+	struct sphere_arr spheres;
 	struct camera *cameras;
 	struct node_storage storage;
 	float backgroundOffset;
-	int instanceCount;
-	int sphereCount;
 	size_t camera_count;
 };
 

@@ -73,5 +73,3 @@ char *firstToken(lineBuffer *line);
 char *currentToken(const lineBuffer *line);
 
 char *lastToken(lineBuffer *line);
-
-void destroyLineBuffer(lineBuffer *line);

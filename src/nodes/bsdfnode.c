@@ -13,6 +13,25 @@
 #include "../utils/string.h"
 #include "bsdfnode.h"
 
+dyn_array_def(bsdf_node_ptr);
+
+struct bsdf_buffer *bsdf_buf_ref(struct bsdf_buffer *buf) {
+	if (buf) {
+		buf->refs++;
+		return buf;
+	}
+	struct bsdf_buffer *new = calloc(1, sizeof(*new));
+	new->refs = 1;
+	return new;
+}
+
+void bsdf_buf_unref(struct bsdf_buffer *buf) {
+	if (!buf) return;
+	if (--buf->refs) return;
+	bsdf_node_ptr_arr_free(&buf->bsdfs);
+	free(buf);
+}
+
 const struct bsdfNode *warningBsdf(const struct node_storage *s) {
 	return newMix(s,
 				  newDiffuse(s, newConstantTexture(s, warningMaterial().diffuse)),

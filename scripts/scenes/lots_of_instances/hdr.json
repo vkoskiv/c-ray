@@ -425,14 +425,17 @@
 			},
 			{
 				"fileName": "venusscaled.obj",
-				"instances": [
+				"pick_instances": [
 					{
-						"materials": {
-							"type": "glass",
-							"roughnessd": 0,
-							"IOR": 1.45,
-							"color": [1.0, 0.2705, 0.0]
-						},
+						"materials": [
+							{
+								"replace": "default",
+								"type": "glass",
+								"roughnessd": 0,
+								"IOR": 1.45,
+								"color": [1.0, 0.2705, 0.0]
+							}
+						],
 						"transforms": [
 							{
 								"type": "scaleUniform",

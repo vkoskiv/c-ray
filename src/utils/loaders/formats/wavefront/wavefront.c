@@ -170,7 +170,7 @@ struct mesh_arr parse_wavefront(const char *file_path, struct file_cache *cache)
 			for (size_t i = 0; i < count; ++i) {
 				struct poly p = polybuf[i];
 				//TODO: Check if we actually need the file totals here
-				// fixIndices(&p, current->vertices.count, current->texture_coords.count, current->normals.count);
+				// fixIndices(&p, current->vbuf->vertices.count, current->vbuf->texture_coords.count, current->vbuf->normals.count);
 				fixIndices(&p, total_vertices, total_texcoords, total_normals);
 				//FIXME
 				// current->surface_area += get_poly_area(&p, current->vertices.items);

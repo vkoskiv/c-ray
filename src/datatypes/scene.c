@@ -72,11 +72,11 @@ static void compute_accels(struct mesh_arr meshes) {
 	logr(plain, "\n");
 }
 
-struct bvh *computeTopLevelBvh(struct instance *instances, int instanceCount) {
+struct bvh *computeTopLevelBvh(struct instance_arr instances) {
 	logr(info, "Computing top-level BVH: ");
 	struct timeval timer = {0};
 	timer_start(&timer);
-	struct bvh *new = build_top_level_bvh(instances, instanceCount);
+	struct bvh *new = build_top_level_bvh(instances);
 	printSmartTime(timer_get_ms(timer));
 	logr(plain, "\n");
 	return new;
@@ -88,22 +88,21 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 	uint64_t polys = 0;
 	uint64_t vertices = 0;
 	uint64_t normals = 0;
-	//FIXME: Account for vertex buf duplication
-	for (int i = 0; i < scene->instanceCount; ++i) {
-		if (isMesh(&scene->instances[i])) {
-			const struct mesh *mesh = scene->instances[i].object;
+	for (size_t i = 0; i < scene->instances.count; ++i) {
+		if (isMesh(&scene->instances.items[i])) {
+			const struct mesh *mesh = &scene->meshes.items[scene->instances.items[i].object_idx];
 			polys += mesh->polygons.count;
-			vertices += 0;//mesh->vertices.count;
-			normals += 0;//mesh->normals.count;
+			vertices += mesh->vbuf->vertices.count;
+			normals += mesh->vbuf->normals.count;
 		}
 	}
 	logr(plain, "\n");
-	logr(info, "Totals: %liV, %liN, %iI, %liP, %iS, %zuM\n",
+	logr(info, "Totals: %liV, %liN, %zuI, %liP, %zuS, %zuM\n",
 		   vertices,
 		   normals,
-		   scene->instanceCount,
+		   scene->instances.count,
 		   polys,
-		   scene->sphereCount,
+		   scene->spheres.count,
 		   scene->meshes.count);
 }
 
@@ -216,7 +215,7 @@ int loadScene(struct renderer *r, char *input) {
 		// Compute BVH acceleration structures for all objects in the scene
 		compute_accels(r->scene->meshes);
 		// And then compute a single top-level BVH that contains all the objects
-		r->scene->topLevel = computeTopLevelBvh(r->scene->instances, r->scene->instanceCount);
+		r->scene->topLevel = computeTopLevelBvh(r->scene->instances);
 		printSceneStats(r->scene, timer_get_ms(timer));
 	} else {
 		logr(debug, "No local render threads, skipping local BVH construction.\n");
@@ -253,11 +252,11 @@ void destroyScene(struct world *scene) {
 		destroy_bvh(scene->topLevel);
 		destroyHashtable(scene->storage.node_table);
 		destroyBlocks(scene->storage.node_pool);
-		for (int i = 0; i < scene->instanceCount; ++i) {
-			if (scene->instances[i].bsdfs) free(scene->instances[i].bsdfs);
+		for (size_t i = 0; i < scene->instances.count; ++i) {
+			bsdf_buf_unref(scene->instances.items[i].bbuf);
 		}
-		free(scene->instances);
-		free(scene->spheres);
+		instance_arr_free(&scene->instances);
+		sphere_arr_free(&scene->spheres);
 		free(scene);
 	}
 }

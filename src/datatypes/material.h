@@ -11,6 +11,7 @@
 #include "color.h"
 #include "../renderer/samplers/sampler.h"
 #include "../utils/dyn_array.h"
+#include "../nodes/bsdfnode.h"
 
 /*
  From: https://blenderartists.org/forum/showthread.php?71202-Material-IOR-Value-reference

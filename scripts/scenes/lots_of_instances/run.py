@@ -21,10 +21,10 @@ data["scene"]["outputFileName"] = "lotsa_instances"
 # Yoink primitives
 data["scene"]["primitives"] = []
 
-instancelist = data["scene"]["meshes"][1]["instances"]
-for i in range(2000000):
+instancelist = data["scene"]["meshes"][1]["pick_instances"]
+for i in range(1000000):
 	skel = copy.deepcopy(instancelist[0])
-	skel["materials"]["color"] = {'type': 'hsl', 'h': random.uniform(0,360), 's': 100, 'l': 35}
+	skel["materials"][0]["color"] = {'type': 'hsl', 'h': random.uniform(0,360), 's': 100, 'l': 75}
 	skel["transforms"][1]["X"] = random.uniform(0, 10) - 5
 	skel["transforms"][1]["Z"] = random.uniform(0, 40) - 2.5
 	instancelist.append(skel)

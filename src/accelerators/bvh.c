@@ -610,8 +610,8 @@ struct bvh *build_mesh_bvh(const struct mesh *mesh) {
 	return build_bvh_generic(mesh, get_poly_bbox_and_center, mesh->polygons.count);
 }
 
-struct bvh *build_top_level_bvh(const struct instance *instances, size_t instance_count) {
-	return build_bvh_generic(instances, get_instance_bbox_and_center, instance_count);
+struct bvh *build_top_level_bvh(const struct instance_arr instances) {
+	return build_bvh_generic(instances.items, get_instance_bbox_and_center, instances.count);
 }
 
 bool traverse_bottom_level_bvh(

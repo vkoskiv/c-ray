@@ -403,7 +403,7 @@
 		"meshes": [
 			{
 				"fileName": "shapes/gridplane.obj",
-				"instances": [
+				"pick_instances": [
 					{
 						"for": "Plane",
 						"materials": [
@@ -426,8 +426,9 @@
 			},
 			{
 				"fileName": "venusscaled.obj",
-				"instances": [
+				"pick_instances": [
 					{
+						"for": "Venus",
 						"materials": {
 							"type": "plastic",
 							"roughness": 0,

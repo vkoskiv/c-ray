@@ -17,6 +17,8 @@
 #include "../datatypes/scene.h"
 #include "../utils/args.h"
 
+dyn_array_def(instance);
+
 struct sphereVolume {
 	struct sphere *sphere;
 	float density;
@@ -43,12 +45,12 @@ static bool intersectSphere(const struct instance *instance, const struct lightR
 	(void)sampler;
 	struct lightRay copy = *ray;
 	tform_ray(&copy, instance->composite.Ainv);
-	struct sphere *sphere = (struct sphere *)instance->object;
+	struct sphere *sphere = &((struct sphere_arr *)instance->object_arr)->items[instance->object_idx];
 	copy.start = vec_add(copy.start, vec_scale(copy.direction, sphere->rayOffset));
 	if (rayIntersectsWithSphere(&copy, sphere, isect)) {
 		isect->uv = getTexMapSphere(isect);
 		isect->polygon = NULL;
-		isect->bsdf = instance->bsdfs[0];
+		isect->bsdf = instance->bbuf->bsdfs.items[0];
 		tform_point(&isect->hitPoint, instance->composite.A);
 		tform_vector_transpose(&isect->surfaceNormal, instance->composite.Ainv);
 		return true;
@@ -57,13 +59,15 @@ static bool intersectSphere(const struct instance *instance, const struct lightR
 }
 
 static bool intersectSphereVolume(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler) {
+	return false;
 	struct hitRecord record1, record2;
 	record1 = *isect;
 	record2 = *isect;
 	struct lightRay copy1, copy2;
 	copy1 = *ray;
 	tform_ray(&copy1, instance->composite.Ainv);
-	struct sphereVolume *volume = (struct sphereVolume *)instance->object;
+	//FIXME
+	struct sphereVolume *volume = NULL;//(struct sphereVolume *)instance->object;
 	copy1.start = vec_add(copy1.start, vec_scale(copy1.direction, volume->sphere->rayOffset));
 	if (rayIntersectsWithSphere(&copy1, volume->sphere, &record1)) {
 		copy2 = (struct lightRay){ alongRay(&copy1, record1.distance + 0.0001f), copy1.direction };
@@ -77,7 +81,7 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 				isect->hitPoint = alongRay(ray, isect->distance);
 				isect->uv = (struct coord){-1.0f, -1.0f};
 				isect->polygon = NULL;
-				isect->bsdf = instance->bsdfs[0];
+				isect->bsdf = instance->bbuf->bsdfs.items[0];
 				tform_point(&isect->hitPoint, instance->composite.A);
 				isect->surfaceNormal = (struct vector){1.0f, 0.0f, 0.0f}; // Will be ignored by material anyway
 				tform_vector_transpose(&isect->surfaceNormal, instance->composite.Ainv); // Probably not needed
@@ -89,20 +93,19 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 }
 
 static void getSphereBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
-	struct sphere *sphere = (struct sphere *)instance->object;
-	*center = vec_zero();
-	tform_point(center, instance->composite.A);
+	struct sphere *sphere = &((struct sphere_arr *)instance->object_arr)->items[instance->object_idx];
 	bbox->min = (struct vector){ -sphere->radius, -sphere->radius, -sphere->radius };
 	bbox->max = (struct vector){  sphere->radius,  sphere->radius,  sphere->radius };
-	bbox->min = vec_add(bbox->min, *center);
-	bbox->max = vec_add(bbox->max, *center);
+	tform_bbox(bbox, instance->composite.A);
+	*center = bboxCenter(bbox);
 	sphere->rayOffset = rayOffset(*bbox);
 	if (isSet("v")) logr(plain, "\n");
 	logr(debug, "sphere offset: %f", (double)sphere->rayOffset);
 }
 
 static void getSphereVolumeBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
-	struct sphereVolume *volume = (struct sphereVolume *)instance->object;
+	return;
+	struct sphereVolume *volume = NULL;//(struct sphereVolume *)instance->object;
 	*center = vec_zero();
 	tform_point(center, instance->composite.A);
 	bbox->min = (struct vector){ -volume->sphere->radius, -volume->sphere->radius, -volume->sphere->radius };
@@ -114,20 +117,22 @@ static void getSphereVolumeBBoxAndCenter(const struct instance *instance, struct
 	logr(debug, "sphere offset: %f", (double)volume->sphere->rayOffset);
 }
 
-struct instance new_sphere_instance(struct sphere *sphere, float *density, struct block **pool) {
+struct instance new_sphere_instance(struct sphere_arr *spheres, size_t idx, float *density, struct block **pool) {
 	if (density && pool) {
 		struct sphereVolume *volume = allocBlock(pool, sizeof(*volume));
-		volume->sphere = sphere;
+		volume->sphere = NULL;//sphere;
 		volume->density = *density;
 		return (struct instance) {
-			.object = volume,
+			.object_arr = NULL,
+			.object_idx = 0,
 			.composite = tform_new(),
 			.intersectFn = intersectSphereVolume,
 			.getBBoxAndCenterFn = getSphereVolumeBBoxAndCenter
 		};
 	} else {
 		return (struct instance) {
-			.object = sphere,
+			.object_arr = spheres,
+			.object_idx = idx,
 			.composite = tform_new(),
 			.intersectFn = intersectSphere,
 			.getBBoxAndCenterFn = getSphereBBoxAndCenter
@@ -157,12 +162,12 @@ static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecor
 static bool intersectMesh(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler) {
 	struct lightRay copy = *ray;
 	tform_ray(&copy, instance->composite.Ainv);
-	struct mesh *mesh = instance->object;
+	struct mesh *mesh = &((struct mesh_arr *)instance->object_arr)->items[instance->object_idx];
 	copy.start = vec_add(copy.start, vec_scale(copy.direction, mesh->rayOffset));
 	if (traverse_bottom_level_bvh(mesh, &copy, isect, sampler)) {
 		// Repopulate uv with actual texture mapping
 		isect->uv = getTexMapMesh(mesh, isect);
-		isect->bsdf = instance->bsdfs[isect->polygon->materialIndex];
+		isect->bsdf = instance->bbuf->bsdfs.items[isect->polygon->materialIndex];
 		tform_point(&isect->hitPoint, instance->composite.A);
 		tform_vector_transpose(&isect->surfaceNormal, instance->composite.Ainv);
 		isect->surfaceNormal = vec_normalize(isect->surfaceNormal);
@@ -172,12 +177,14 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 }
 
 static bool intersectMeshVolume(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler) {
+	return false;
 	struct hitRecord record1, record2;
 	record1 = *isect;
 	record2 = *isect;
 	struct lightRay copy = *ray;
 	tform_ray(&copy, instance->composite.Ainv);
-	struct meshVolume *mesh = (struct meshVolume *)instance->object;
+	//FIXME
+	struct meshVolume *mesh = NULL;//(struct meshVolume *)instance->object;
 	copy.start = vec_add(copy.start, vec_scale(copy.direction, mesh->mesh->rayOffset));
 	if (traverse_bottom_level_bvh(mesh->mesh, &copy, &record1, sampler)) {
 		struct lightRay copy2 = (struct lightRay){ alongRay(&copy, record1.distance + 0.0001f), copy.direction };
@@ -190,7 +197,7 @@ static bool intersectMeshVolume(const struct instance *instance, const struct li
 				isect->distance = record1.distance + hitDistance;
 				isect->hitPoint = alongRay(ray, isect->distance);
 				isect->uv = (struct coord){-1.0f, -1.0f};
-				isect->bsdf = instance->bsdfs[0];
+				isect->bsdf = instance->bbuf->bsdfs.items[0];
 				tform_point(&isect->hitPoint, instance->composite.A);
 				isect->surfaceNormal = (struct vector){1.0f, 0.0f, 0.0f}; // Will be ignored by material anyway
 				tform_vector_transpose(&isect->surfaceNormal, instance->composite.Ainv); // Probably not needed
@@ -206,7 +213,7 @@ bool isMesh(const struct instance *instance) {
 }
 
 static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
-	struct mesh *mesh = (struct mesh *)instance->object;
+	struct mesh *mesh = &((struct mesh_arr *)instance->object_arr)->items[instance->object_idx];
 	*bbox = get_root_bbox(mesh->bvh);
 	tform_bbox(bbox, instance->composite.A);
 	*center = bboxCenter(bbox);
@@ -216,7 +223,9 @@ static void getMeshBBoxAndCenter(const struct instance *instance, struct boundin
 }
 
 static void getMeshVolumeBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
-	struct meshVolume *volume = (struct meshVolume *)instance->object;
+	return;
+	//FIXME
+	struct meshVolume *volume = NULL;//(struct meshVolume *)instance->object;
 	*bbox = get_root_bbox(volume->mesh->bvh);
 	tform_bbox(bbox, instance->composite.A);
 	*center = bboxCenter(bbox);
@@ -225,32 +234,26 @@ static void getMeshVolumeBBoxAndCenter(const struct instance *instance, struct b
 	logr(debug, "mesh \"%s\" offset: %f", volume->mesh->name, (double)volume->mesh->rayOffset);
 }
 
-struct instance new_mesh_instance(struct mesh *mesh, float *density, struct block **pool) {
+struct instance new_mesh_instance(struct mesh_arr *meshes, size_t idx, float *density, struct block **pool) {
 	if (density && pool) {
 		struct meshVolume *volume = allocBlock(pool, sizeof(*volume));
-		volume->mesh = mesh;
+		volume->mesh = NULL;//mesh;
 		volume->density = *density;
 		return (struct instance) {
-			.object = volume,
+			//FIXME
+			.object_arr = NULL,
+			.object_idx = 0,
 			.composite = tform_new(),
 			.intersectFn = intersectMeshVolume,
 			.getBBoxAndCenterFn = getMeshVolumeBBoxAndCenter
 		};
 	} else {
 		return (struct instance) {
-			.object = mesh,
+			.object_arr = meshes,
+			.object_idx = idx,
 			.composite = tform_new(),
 			.intersectFn = intersectMesh,
 			.getBBoxAndCenterFn = getMeshBBoxAndCenter
 		};
 	}
-}
-
-void addInstanceToScene(struct world *scene, struct instance instance) {
-	if (scene->instanceCount == 0) {
-		scene->instances = calloc(1, sizeof(*scene->instances));
-	} else {
-		scene->instances = realloc(scene->instances, (scene->instanceCount + 1) * sizeof(*scene->instances));
-	}
-	scene->instances[scene->instanceCount++] = instance;
 }

@@ -54,6 +54,10 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 	} \
 	void T##_arr_free(struct T##_arr *a) { \
 		if (!a) return; \
+		if (a->elem_free) { \
+			for (size_t i = 0; i < a->count; ++i) \
+				a->elem_free(&a->items[i]);\
+		}\
 		if (a->items) free(a->items); \
 		a->items = NULL; \
 		a->capacity = 0; \
@@ -67,6 +71,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		size_t count; \
 		size_t capacity; \
 		size_t (*grow_fn)(size_t capacity, size_t item_size); \
+		void   (*elem_free)(T *item); \
 	}; \
 	size_t T##_arr_add(struct T##_arr *a, T value); \
 	void T##_arr_trim(struct T##_arr *a); \
