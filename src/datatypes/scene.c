@@ -223,8 +223,8 @@ int loadScene(struct renderer *r, char *input) {
 	
 	//Quantize image into renderTiles
 	r->state.tileCount = quantizeImage(&r->state.renderTiles,
-									   r->scene->cameras[r->prefs.selected_camera].width,
-									   r->scene->cameras[r->prefs.selected_camera].height,
+									   r->scene->cameras.items[r->prefs.selected_camera].width,
+									   r->scene->cameras.items[r->prefs.selected_camera].height,
 									   r->prefs.tileWidth,
 									   r->prefs.tileHeight,
 									   r->prefs.tileOrder);
@@ -244,7 +244,7 @@ int loadScene(struct renderer *r, char *input) {
 //Free scene data
 void destroyScene(struct world *scene) {
 	if (scene) {
-		free(scene->cameras);
+		camera_arr_free(&scene->cameras);
 		for (size_t i = 0; i < scene->meshes.count; ++i) {
 			destroyMesh(&scene->meshes.items[i]);
 		}

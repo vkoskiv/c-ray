@@ -11,6 +11,7 @@
 #include <stddef.h>
 #include "mesh.h"
 #include "../renderer/instance.h"
+#include "../datatypes/camera.h"
 
 struct renderer;
 struct hashtable;
@@ -32,10 +33,9 @@ struct world {
 	// contains all 3D assets in the scene.
 	struct bvh *topLevel;
 	struct sphere_arr spheres;
-	struct camera *cameras;
+	struct camera_arr cameras;
 	struct node_storage storage;
 	float backgroundOffset;
-	size_t camera_count;
 };
 
 int loadScene(struct renderer *r, char *input);

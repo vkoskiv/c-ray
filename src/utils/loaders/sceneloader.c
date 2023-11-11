@@ -588,28 +588,19 @@ static struct camera parseCamera(const cJSON *data) {
 	return cam;
 }
 
-static void parseCameras(struct camera **cam, size_t *cam_count, const cJSON *data) {
+static void parseCameras(struct camera_arr *cameras, const cJSON *data) {
 	if (!data) return;
 
 	if (cJSON_IsObject(data)) {
 		// Single camera
-		*cam = calloc(1, sizeof(struct camera));
-		(*cam)[0] = parseCamera(data);
-		if (cam_count) *cam_count = 1;
+		camera_arr_add(cameras, parseCamera(data));
 		return;
 	}
-
 	ASSERT(cJSON_IsArray(data));
-	size_t camera_count = cJSON_GetArraySize(data);
-	*cam = calloc(camera_count, sizeof(struct camera));
-
 	cJSON *camera = NULL;
-	size_t current_camera = 0;
 	cJSON_ArrayForEach(camera, data) {
-		(*cam)[current_camera++] = parseCamera(camera);
+		camera_arr_add(cameras, parseCamera(camera));
 	}
-
-	if (cam_count) *cam_count = current_camera;
 }
 
 struct color parseColor(const cJSON *data) {
@@ -969,18 +960,18 @@ int parseJSON(struct renderer *r, const cJSON *json) {
 	}
 
 	parseDisplay(&r->prefs.window, cJSON_GetObjectItem(json, "display"));
-	parseCameras(&r->scene->cameras, &r->scene->camera_count, cJSON_GetObjectItem(json, "camera"));
+	parseCameras(&r->scene->cameras, cJSON_GetObjectItem(json, "camera"));
 
-	if (!r->scene->cameras) {
+	if (!r->scene->cameras.count) {
 		logr(warning, "No cameras specified, nothing to render.\n");
 		return -1;
 	}
 
 	if (r->prefs.override_dimensions) {
-		for (size_t i = 0; i < r->scene->camera_count; ++i) {
-			r->scene->cameras[i].width = r->prefs.override_width;
-			r->scene->cameras[i].height = r->prefs.override_height;
-			cam_recompute_optics(&r->scene->cameras[i]);
+		for (size_t i = 0; i < r->scene->cameras.count; ++i) {
+			r->scene->cameras.items[i].width = r->prefs.override_width;
+			r->scene->cameras.items[i].height = r->prefs.override_height;
+			cam_recompute_optics(&r->scene->cameras.items[i]);
 		}
 	}
 
@@ -989,7 +980,7 @@ int parseJSON(struct renderer *r, const cJSON *json) {
 		r->prefs.selected_camera = (size_t)selected_camera->valueint;
 	}
 
-	r->prefs.selected_camera = r->prefs.selected_camera < r->scene->camera_count ? r->prefs.selected_camera : r->scene->camera_count - 1;
+	r->prefs.selected_camera = r->prefs.selected_camera < r->scene->cameras.count ? r->prefs.selected_camera : r->scene->cameras.count - 1;
 	if (r->prefs.selected_camera != 0) logr(info, "Selecting camera %li\n", r->prefs.selected_camera);
 
 	parseScene(r, cJSON_GetObjectItem(json, "scene"));

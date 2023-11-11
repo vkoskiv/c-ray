@@ -55,7 +55,7 @@ struct texture *renderFrame(struct renderer *r) {
 	if (registerHandler(sigint, sigHandler)) {
 		logr(warning, "Unable to catch SIGINT\n");
 	}
-	struct camera camera = r->scene->cameras[r->prefs.selected_camera];
+	struct camera camera = r->scene->cameras.items[r->prefs.selected_camera];
 	struct texture *output = newTexture(char_p, camera.width, camera.height, 3);
 	
 	logr(info, "Starting c-ray renderer for frame %zu\n", r->prefs.imgCount);

@@ -13,6 +13,7 @@
 #include "lightray.h"
 #include "spline.h"
 #include "quaternion.h"
+#include "../utils/dyn_array.h"
 
 struct camera {
 	float FOV;
@@ -38,6 +39,9 @@ struct camera {
 	int width;
 	int height;
 };
+
+typedef struct camera camera;
+dyn_array_def(camera);
 
 void cam_recompute_optics(struct camera *cam);
 void cam_update_pose(struct camera *cam, const struct euler_angles *orientation, const struct vector *pos);
