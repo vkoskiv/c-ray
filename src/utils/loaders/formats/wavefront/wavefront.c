@@ -6,6 +6,7 @@
 //  Copyright © 2019-2023 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdint.h>
 #include <string.h>
 #include "../../../../includes.h"
 #include "../../../../datatypes/mesh.h"
@@ -68,21 +69,21 @@ static inline size_t parse_polys(lineBuffer *line, struct poly *buf) {
 	return polycount;
 }
 
-static int fixIndex(size_t max, int oldIndex) {
-	if (oldIndex == 0) // Unused
-		return -1;
-	
-	if (oldIndex < 0) // Relative to end of list
-		return (int)max + oldIndex;
-	
-	return oldIndex - 1;// Normal indexing
+static inline int fixIndex(int idx) {
+	if (idx == 0) return -1; // Unused
+	// Wavefront is supposed to support negative indexing, which
+	// would mean we would index off the end of the vertex list.
+	// But supporting that makes parsing super inefficient, and
+	// I've never seen a file that actually does that, so we don't
+	// support it anymore.
+	return idx - 1;// Normal indexing
 }
 
-static void fixIndices(struct poly *p, size_t totalVertices, size_t totalTexCoords, size_t totalNormals) {
+static inline void fixIndices(struct poly *p) {
 	for (int i = 0; i < MAX_CRAY_VERTEX_COUNT; ++i) {
-		p->vertexIndex[i] = fixIndex(totalVertices, p->vertexIndex[i]);
-		p->textureIndex[i] = fixIndex(totalTexCoords, p->textureIndex[i]);
-		p->normalIndex[i] = fixIndex(totalNormals, p->normalIndex[i]);
+		p->vertexIndex[i] = fixIndex(p->vertexIndex[i]);
+		p->textureIndex[i] = fixIndex(p->textureIndex[i]);
+		p->normalIndex[i] = fixIndex(p->normalIndex[i]);
 	}
 }
 
@@ -107,29 +108,6 @@ struct mesh_arr parse_wavefront(const char *file_path, struct file_cache *cache)
 	char *assetPath = get_file_path(file_path);
 	
 	char buf[LINEBUFFER_MAXSIZE];
-	// Count totals and preallocate space
-	size_t total_vertices  = 0;
-	size_t total_texcoords = 0;
-	size_t total_normals   = 0;
-	size_t total_polys     = 0;
-	char *head = firstLine(file);
-	lineBuffer line0 = { .buf = buf };
-	while (head) {
-		if (head[0] == 'v') {
-			total_vertices++;
-		} else if (head[0] == 'f') {
-			fillLineBuffer(&line0, head, ' ');
-			if (line0.amountOf.tokens > 4)
-				total_polys += 2;
-			else
-				total_polys++;
-		} else if (head[0] == 'v' && head[1] == 'n') {
-			total_normals++;
-		} else if (head[0] == 'v' && head[1] == 't') {
-			total_texcoords++;
-		}
-		head = nextLine(file);
-	};
 
 	int current_material_idx = 0;
 	
@@ -142,7 +120,7 @@ struct mesh_arr parse_wavefront(const char *file_path, struct file_cache *cache)
 	struct poly polybuf[2];
 
 	//Start processing line-by-line, state machine style.
-	head = firstLine(file);
+	char *head = firstLine(file);
 	lineBuffer line = { .buf = buf };
 	while (head) {
 		fillLineBuffer(&line, head, ' ');
@@ -169,9 +147,7 @@ struct mesh_arr parse_wavefront(const char *file_path, struct file_cache *cache)
 			size_t count = parse_polys(&line, polybuf);
 			for (size_t i = 0; i < count; ++i) {
 				struct poly p = polybuf[i];
-				//TODO: Check if we actually need the file totals here
-				// fixIndices(&p, current->vbuf->vertices.count, current->vbuf->texture_coords.count, current->vbuf->normals.count);
-				fixIndices(&p, total_vertices, total_texcoords, total_normals);
+				fixIndices(&p);
 				//FIXME
 				// current->surface_area += get_poly_area(&p, current->vertices.items);
 				p.materialIndex = current_material_idx;
