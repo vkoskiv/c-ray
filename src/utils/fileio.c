@@ -131,7 +131,7 @@ void write_file(const unsigned char *buf, size_t bufsize, const char *filePath) 
 bool is_valid_file(char *path, struct file_cache *cache) {
 	if (!isSet("use_clustering") && cache) return cache_contains(cache, path);
 #ifndef WINDOWS
-	struct stat path_stat;
+	struct stat path_stat = { 0 };
 	stat(path, &path_stat);
 	return S_ISREG(path_stat.st_mode);
 #else
