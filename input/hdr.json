@@ -345,7 +345,7 @@
 						"g": 1.0,
 						"b": 0.0
 					},
-					"intensity": 10.0
+					"strength": 10.0
 				},
 				"radius": 2.5
 			},
@@ -370,7 +370,7 @@
 						"g": 0.0,
 						"b": 1.0
 					},
-					"intensity": 10.0
+					"strength": 10.0
 				},
 				"radius": 2.5
 			},
@@ -395,7 +395,7 @@
 						"g": 1.0,
 						"b": 1.0
 					},
-					"intensity": 10.0
+					"strength": 10.0
 				},
 				"radius": 10
 			}

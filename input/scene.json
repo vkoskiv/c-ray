@@ -3,7 +3,7 @@
 	"renderer": {
 		"threads": 0,
 		"samples": 64,
-		"bounces": 50,
+		"bounces": 32,
 		"tileWidth": 64,
 		"tileHeight": 64,
 		"tileOrder": "fromMiddle",
@@ -68,13 +68,15 @@
 						]
 					}
 				],
-				"color": {
-					"r": 1.0,
-					"g": 0.0,
-					"b": 1.0
+				"material": {
+					"type": "metal",
+					"color": {
+						"r": 1.0,
+						"g": 0.0,
+						"b": 1.0
+					},
+					"reflectivity": 1.0
 				},
-				"bsdf": "metal",
-				"reflectivity": 1.0,
 				"radius": 150
 			},
 			{
@@ -91,13 +93,15 @@
 						]
 					}
 				],
-				"color": {
-					"r": 1.0,
-					"g": 1.0,
-					"b": 1.0
+				"material": {
+					"type": "metal",
+					"color": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"reflectivity": 1.0
 				},
-				"bsdf": "metal",
-				"reflectivity": 1.0,
 				"radius": 50
 			},
 			{
@@ -114,13 +118,15 @@
 						]
 					}
 				],
-				"color": {
-					"r": 1.0,
-					"g": 0.87,
-					"b": 0.0
+				"material": {
+					"type": "metal",
+					"color": {
+						"r": 1.0,
+						"g": 0.87,
+						"b": 0.0
+					},
+					"reflectivity": 0.0
 				},
-				"bsdf": "metal",
-				"reflectivity": 0.0,
 				"radius": 50
 			},
 			{
@@ -138,13 +144,15 @@
 					}
 				],
 				"radius": 2.5,
-				"color": {
-					"r": 1.0,
-					"g": 0.0,
-					"b": 0.0
-				},
-				"bsdf": "emissive",
-				"intensity": 10.0
+				"material": {
+					"type": "emissive",
+					"color": {
+						"r": 1.0,
+						"g": 0.0,
+						"b": 0.0
+					},
+					"strength": 10.0
+				}
 			},
 			{
 				"type": "sphere",
@@ -161,13 +169,15 @@
 					}
 				],
 				"radius": 2.5,
-				"color": {
-					"r": 0.0,
-					"g": 1.0,
-					"b": 0.0
-				},
-				"bsdf": "emissive",
-				"intensity": 10.0
+				"material": {
+					"type": "emissive",
+					"color": {
+						"r": 0.0,
+						"g": 1.0,
+						"b": 0.0
+					},
+					"strength": 10.0
+				}
 			},
 			{
 				"type": "sphere",
@@ -184,13 +194,15 @@
 					}
 				],
 				"radius": 2.5,
-				"color": {
-					"r": 0.0,
-					"g": 0.0,
-					"b": 1.0
-				},
-				"bsdf": "emissive",
-				"intensity": 10.0
+				"material": {
+					"type": "emissive",
+					"color": {
+						"r": 0.0,
+						"g": 0.0,
+						"b": 1.0
+					},
+					"strength": 10.0
+				}
 			},
 			{
 				"type": "sphere",
@@ -206,20 +218,22 @@
 						]
 					}
 				],
-				"color": {
-					"r": 1.0,
-					"g": 1.0,
-					"b": 1.0
+				"material": {
+					"type": "emissive",
+					"color": {
+						"r": 1.0,
+						"g": 1.0,
+						"b": 1.0
+					},
+					"strength": 10.0
 				},
-				"bsdf": "emissive",
-				"intensity": 10.0,
 				"radius": 10
 			}
 		],
 		"meshes": [
 			{
 				"fileName": "tonni.obj",
-				"instances": [
+				"pick_instances": [
 					{
 						"transforms": [
 							{
@@ -257,12 +271,11 @@
 						"roughness": 0,
 						"color": [0.5,0.5,0.5]
 					}
-				],
-				"instances": [{}]
+				]
 			},
 			{
 				"fileName": "torus.obj",
-				"instances": [
+				"pick_instances": [
 					{
 						"transforms": [
 							{
@@ -281,7 +294,7 @@
 			},
 			{
 				"fileName": "teapot.obj",
-				"instances": [
+				"pick_instances": [
 					{
 						"transforms": [
 							{
@@ -337,10 +350,13 @@
 						]
 					},
 					{
-						"materials": {
-							"type": "diffuse",
-							"color": [0, 1, 0]
-						},
+						"materials": [
+							{
+								"replace": "red",
+								"type": "diffuse",
+								"color": [0, 1, 0]
+							}
+						],
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -359,10 +375,13 @@
 						]
 					},
 					{
-						"materials": {
-							"type": "diffuse",
-							"color": [0, 1, 0]
-						},
+						"materials": [
+							{
+								"replace": "red",
+								"type": "diffuse",
+								"color": [0, 1, 0]
+							}
+						],
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -381,10 +400,13 @@
 						]
 					},
 					{
-						"materials": {
-							"type": "diffuse",
-							"color": [0, 1, 0]
-						},
+						"materials": [
+							{
+								"replace": "red",
+								"type": "diffuse",
+								"color": [0, 1, 0]
+							}
+						],
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -403,10 +425,13 @@
 						]
 					},
 					{
-						"materials": {
-							"type": "diffuse",
-							"color": [0, 0, 1]
-						},
+						"materials": [
+							{
+								"replace": "red",
+								"type": "diffuse",
+								"color": [0, 0, 1]
+							}
+						],
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -425,10 +450,13 @@
 						]
 					},
 					{
-						"materials": {
-							"type": "diffuse",
-							"color": [0, 0, 1]
-						},
+						"materials": [
+							{
+								"replace": "red",
+								"type": "diffuse",
+								"color": [0, 0, 1]
+							}
+						],
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -447,10 +475,13 @@
 						]
 					},
 					{
-						"materials": {
-							"type": "diffuse",
-							"color": [0, 0, 1]
-						},
+						"materials": [
+							{
+								"replace": "red",
+								"type": "diffuse",
+								"color": [0, 0, 1]
+							}
+						],
 						"transforms": [
 							{
 								"type": "scaleUniform",

@@ -143,7 +143,7 @@
 					"b": 0.0
 				},
 				"bsdf": "emissive",
-				"intensity": 10.0
+				"strength": 10.0
 			},
 			{
 				"type": "sphere",
@@ -166,7 +166,7 @@
 					"b": 0.945
 				},
 				"bsdf": "emissive",
-				"intensity": 15
+				"strength": 15
 			},
 			{
 				"type": "sphere",
@@ -189,7 +189,7 @@
 					"b": 0.0
 				},
 				"bsdf": "emissive",
-				"intensity": 10.0
+				"strength": 10.0
 			},
 			{
 				"type": "sphere",
@@ -212,14 +212,21 @@
 					"b": 1.0
 				},
 				"bsdf": "emissive",
-				"intensity": 10.0
+				"strength": 10.0
 			}
 		],
 		"meshes": [
 			{
 				"fileName": "venusscaled.obj",
-				"instances": [
+				"pick_instances": [
 					{
+						"materials": [
+							{
+								"replace": "default",
+								"type": "diffuse",
+								"color": [0.98, 0.98, 0.98]
+							}
+						],
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -240,27 +247,7 @@
 				]
 			},
 			{
-				"fileName": "newScene.obj",
-				"instances": [{}]
-			},
-			{
-				"fileName": "torus.obj",
-				"instances": [
-					{
-						"transforms": [
-							{
-								"type": "scaleUniform",
-								"scale": 40
-							},
-							{
-								"type": "translate",
-								"x": 1070,
-								"y": 310,
-								"z": 820
-							}
-						]
-					}
-				]
+				"fileName": "newScene.obj"
 			}
 		]
 	}

@@ -82,11 +82,12 @@
 		"meshes": [
 			{
 				"fileName": "shapes/gridplane.obj",
-				"instances": [
+				"pick_instances": [
 					{
 						"for": "Plane",
 						"materials": [
 							{
+								"replace": "Material.001",
 								"type": "diffuse",
 								"color": {
 									"type": "to_color",

@@ -133,13 +133,17 @@
 					}
 				],
 				"radius": 8,
-				"color": {
-					"r": 1.0,
-					"g": 0.0,
-					"b": 0.0
-				},
-				"bsdf": "emissive",
-				"intensity": 100.0
+				"material": [
+					{
+						"type": "emissive",
+						"color": {
+							"r": 1.0,
+							"g": 0.0,
+							"b": 0.0
+						},
+						"strength": 100.0
+					}
+				]
 			},
 			{
 				"type": "sphere",
@@ -156,13 +160,17 @@
 					}
 				],
 				"radius": 8,
-				"color": {
-					"r": 0.0,
-					"g": 1.0,
-					"b": 0.0
-				},
-				"bsdf": "emissive",
-				"intensity": 100.0
+				"material": [
+					{
+						"type": "emissive",
+						"color": {
+							"r": 0.0,
+							"g": 1.0,
+							"b": 0.0
+						},
+						"strength": 100.0
+					}
+				]
 			},
 			{
 				"type": "sphere",
@@ -179,23 +187,27 @@
 					}
 				],
 				"radius": 8,
-				"color": {
-					"r": 0.0,
-					"g": 0.0,
-					"b": 1.0
-				},
-				"bsdf": "emissive",
-				"intensity": 100.0
+				"material": [
+					{
+						"type": "emissive",
+						"color": {
+							"r": 0.0,
+							"g": 0.0,
+							"b": 1.0
+						},
+						"strength": 100.0
+					}
+				]
 			}
 		],
 		"meshes": [
 			{
-				"fileName": "newScene.obj",
-				"instances": [{}]
+				"fileName": "newScene.obj"
 			},
 			{
+				"for": "Cube.029",
 				"fileName": "fence.obj",
-				"instances": [
+				"pick_instances": [
 					{
 						"transforms": [
 							{

@@ -346,7 +346,7 @@
 					"b": 0.0
 				},
 				"bsdf": "emissive",
-				"intensity": 10.0
+				"strength": 10.0
 			},
 			{
 				"type": "sphere",
@@ -369,7 +369,7 @@
 					"b": 1.0
 				},
 				"bsdf": "emissive",
-				"intensity": 10.0
+				"strength": 10.0
 			},
 			{
 				"type": "sphere",
@@ -391,7 +391,7 @@
 					"b": 1.0
 				},
 				"bsdf": "emissive",
-				"intensity": 10.0,
+				"strength": 10.0,
 				"radius": 10
 			}
 		],

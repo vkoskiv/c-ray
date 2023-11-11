@@ -92,7 +92,7 @@
 		"meshes": [
 			{
 				"fileName": "shapes/gridplane.obj",
-				"instances": [
+				"pick_instances": [
 					{
 						"transforms": [
 							{
