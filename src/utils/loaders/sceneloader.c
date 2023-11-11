@@ -850,6 +850,7 @@ static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int mesh_
 			}
 			bsdf_node_ptr_arr_add(&new.bbuf->bsdfs, override_match ? override_match : file_bsdfs->bsdfs.items[i]);
 		}
+		mtl_override_arr_free(&instance_overrides);
 
 		new.composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
 		instance_arr_add(&r->scene->instances, new);
