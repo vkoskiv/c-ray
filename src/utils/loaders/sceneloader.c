@@ -818,7 +818,7 @@ static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int mesh_
 	const cJSON *instance = NULL;
 	cJSON_ArrayForEach(instance, instances) {
 		const cJSON *mesh_name = cJSON_GetObjectItem(instance, "for");
-		ssize_t target_idx = -1;
+		int64_t target_idx = -1;
 		if (!cJSON_IsString(mesh_name)) {
 			if (!pick_instances) continue;
 			target_idx = 0;
