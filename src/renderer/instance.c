@@ -99,8 +99,6 @@ static void getSphereBBoxAndCenter(const struct instance *instance, struct bound
 	tform_bbox(bbox, instance->composite.A);
 	*center = bboxCenter(bbox);
 	sphere->rayOffset = rayOffset(*bbox);
-	if (isSet("v")) logr(plain, "\n");
-	logr(debug, "sphere offset: %f", (double)sphere->rayOffset);
 }
 
 static void getSphereVolumeBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
@@ -113,8 +111,6 @@ static void getSphereVolumeBBoxAndCenter(const struct instance *instance, struct
 	bbox->min = vec_add(bbox->min, *center);
 	bbox->max = vec_add(bbox->max, *center);
 	volume->sphere->rayOffset = rayOffset(*bbox);
-	if (isSet("v")) logr(plain, "\n");
-	logr(debug, "sphere offset: %f", (double)volume->sphere->rayOffset);
 }
 
 struct instance new_sphere_instance(struct sphere_arr *spheres, size_t idx, float *density, struct block **pool) {
@@ -218,8 +214,6 @@ static void getMeshBBoxAndCenter(const struct instance *instance, struct boundin
 	tform_bbox(bbox, instance->composite.A);
 	*center = bboxCenter(bbox);
 	mesh->rayOffset = rayOffset(*bbox);
-	if (isSet("v")) logr(plain, "\n");
-	logr(debug, "mesh \"%s\" offset: %f", mesh->name, (double)mesh->rayOffset);
 }
 
 static void getMeshVolumeBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
@@ -230,8 +224,6 @@ static void getMeshVolumeBBoxAndCenter(const struct instance *instance, struct b
 	tform_bbox(bbox, instance->composite.A);
 	*center = bboxCenter(bbox);
 	volume->mesh->rayOffset = rayOffset(*bbox);
-	if (isSet("v")) logr(plain, "\n");
-	logr(debug, "mesh \"%s\" offset: %f", volume->mesh->name, (double)volume->mesh->rayOffset);
 }
 
 struct instance new_mesh_instance(struct mesh_arr *meshes, size_t idx, float *density, struct block **pool) {
