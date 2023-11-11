@@ -83,7 +83,7 @@ struct material {
 };
 
 typedef struct material material;
-dyn_array_dec(material);
+dyn_array_def(material);
 
 /*
 	Several meshes may refer to the same set of materials, so this is refcounted.

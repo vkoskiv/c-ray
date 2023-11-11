@@ -14,8 +14,6 @@
 #include "material.h"
 #include "vector.h"
 
-dyn_array_def(mesh);
-
 void destroyMesh(struct mesh *mesh) {
 	if (mesh) {
 		free(mesh->name);

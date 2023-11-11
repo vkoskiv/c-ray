@@ -14,8 +14,6 @@
 #include "image/texture.h"
 #include "../datatypes/scene.h"
 
-dyn_array_def(material);
-
 struct material_buffer *material_buf_ref(struct material_buffer *buf) {
 	if (buf) {
 		buf->refs++;

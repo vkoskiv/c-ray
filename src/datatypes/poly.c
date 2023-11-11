@@ -14,8 +14,6 @@
 #include "../renderer/pathtrace.h"
 #include "mesh.h"
 
-dyn_array_def(poly);
-
 bool rayIntersectsWithPolygon(const struct mesh *mesh, const struct lightRay *ray, const struct poly *poly, struct hitRecord *isect) {
 	// Möller-Trumbore ray-triangle intersection routine
 	// (see "Fast, Minimum Storage Ray-Triangle Intersection", by T. Möller and B. Trumbore)

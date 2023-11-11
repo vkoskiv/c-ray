@@ -36,7 +36,7 @@ struct mesh {
 };
 
 typedef struct mesh mesh;
-dyn_array_dec(mesh);
+dyn_array_def(mesh);
 
 void destroyMesh(struct mesh *mesh);
 

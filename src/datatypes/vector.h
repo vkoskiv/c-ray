@@ -19,7 +19,7 @@ struct vector {
 };
 
 typedef struct vector vector;
-dyn_array_dec(vector);
+dyn_array_def(vector);
 
 struct base {
 	struct vector i, j, k;
@@ -30,7 +30,7 @@ struct coord {
 };
 
 typedef struct coord coord;
-dyn_array_dec(coord);
+dyn_array_def(coord);
 
 struct intCoord {
 	int x, y;

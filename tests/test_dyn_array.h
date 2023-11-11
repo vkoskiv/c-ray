@@ -68,7 +68,6 @@ struct foo {
 	char c;
 };
 typedef struct foo foo;
-dyn_array_dec(foo);
 dyn_array_def(foo);
 
 bool dyn_array_custom(void) {

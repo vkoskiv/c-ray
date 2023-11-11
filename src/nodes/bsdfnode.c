@@ -13,8 +13,6 @@
 #include "../utils/string.h"
 #include "bsdfnode.h"
 
-dyn_array_def(bsdf_node_ptr);
-
 struct bsdf_buffer *bsdf_buf_ref(struct bsdf_buffer *buf) {
 	if (buf) {
 		buf->refs++;

@@ -32,7 +32,7 @@ struct bsdfNode {
 };
 
 typedef const struct bsdfNode * bsdf_node_ptr;
-dyn_array_dec(bsdf_node_ptr);
+dyn_array_def(bsdf_node_ptr);
 
 struct bsdf_buffer {
 	struct bsdf_node_ptr_arr bsdfs;

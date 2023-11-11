@@ -17,8 +17,6 @@
 #include "../datatypes/scene.h"
 #include "../utils/args.h"
 
-dyn_array_def(instance);
-
 struct sphereVolume {
 	struct sphere *sphere;
 	float density;

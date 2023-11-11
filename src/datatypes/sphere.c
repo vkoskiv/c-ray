@@ -12,8 +12,6 @@
 #include "../renderer/pathtrace.h"
 #include "lightray.h"
 
-dyn_array_def(sphere);
-
 //Calculates intersection with a sphere and a light ray
 bool intersect(const struct lightRay *ray, const struct sphere *sphere, float *t) {
 	//Vector dot product of the direction

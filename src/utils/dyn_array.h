@@ -34,8 +34,17 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 	return capacity * 2;
 }
 
+//TODO: T_arr_join(T_arr *,T_arr *)? Could be useful, see parse_mesh()
+
 #define dyn_array_def(T) \
-	size_t T##_arr_add(struct T##_arr *a, const T value) { \
+	struct T##_arr { \
+		T *items; \
+		size_t count; \
+		size_t capacity; \
+		size_t (*grow_fn)(size_t capacity, size_t item_size); \
+		void   (*elem_free)(T *item); \
+	}; \
+	static inline size_t T##_arr_add(struct T##_arr *a, const T value) { \
 		if (a->count >= a->capacity) { \
 			size_t new_capacity = a->grow_fn ? a->grow_fn(a->capacity, sizeof(*a->items)) : grow_x_2(a->capacity, sizeof(*a->items)); \
 			a->items = realloc(a->items, sizeof(*a->items) * new_capacity); \
@@ -44,7 +53,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		a->items[a->count] = value; \
 		return a->count++; \
 	} \
-	void T##_arr_trim(struct T##_arr *a) { \
+	static inline void T##_arr_trim(struct T##_arr *a) { \
 		if (!a || a->count >= a->capacity) return; \
 		T *new = malloc(a->count * sizeof(*a)); \
 		memcpy(new, a->items, a->count * sizeof(*a)); \
@@ -52,7 +61,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		a->items = new; \
 		a->capacity = a->count; \
 	} \
-	void T##_arr_free(struct T##_arr *a) { \
+	static inline void T##_arr_free(struct T##_arr *a) { \
 		if (!a) return; \
 		if (a->elem_free) { \
 			for (size_t i = 0; i < a->count; ++i) \
@@ -64,21 +73,8 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		a->count = 0; \
 	}
 
-//TODO: T_arr_join(T_arr *,T_arr *)? Could be useful, see parse_mesh()
-#define dyn_array_dec(T) \
-	struct T##_arr { \
-		T *items; \
-		size_t count; \
-		size_t capacity; \
-		size_t (*grow_fn)(size_t capacity, size_t item_size); \
-		void   (*elem_free)(T *item); \
-	}; \
-	size_t T##_arr_add(struct T##_arr *a, T value); \
-	void T##_arr_trim(struct T##_arr *a); \
-	void T##_arr_free(struct T##_arr *a);
-
-dyn_array_dec(int);
-dyn_array_dec(float);
-dyn_array_dec(size_t);
+dyn_array_def(int);
+dyn_array_def(float);
+dyn_array_def(size_t);
 
 #endif
