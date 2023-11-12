@@ -27,31 +27,32 @@ int main(int argc, char *argv[]) {
 		cr_renderer_set_str_pref(renderer, cr_renderer_asset_path, get_file_path(args_path()));
 	}
 
-	if (!args_is_set("is_worker")) {
-		size_t bytes = 0;
-		char *input = args_is_set("inputFile") ? load_file(args_path(), &bytes, NULL) : read_stdin(&bytes);
-		if (!input) {
-			logr(info, "No input provided, exiting.\n");
-			cr_destroy_renderer(renderer);
-			args_destroy();
-			return -1;
-		}
-		logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, args_is_set("inputFile") ? "file" : "stdin");
-		if (cr_load_scene_from_buf(renderer, input) < 0) {
-			logr(warning, "Scene parse failed, exiting.\n");
-			cr_destroy_renderer(renderer);
-			args_destroy();
-			return 0;
-		}
-
-		cr_start_renderer(renderer);
-		cr_write_image(renderer);
-	} else {
+	int ret = 0;
+	if (args_is_set("is_worker")) {
 		cr_start_render_worker();
+		goto done;
 	}
+
+	size_t bytes = 0;
+	char *input = args_is_set("inputFile") ? load_file(args_path(), &bytes, NULL) : read_stdin(&bytes);
+	if (!input) {
+		logr(info, "No input provided, exiting.\n");
+		ret = -1;
+		goto done;
+	}
+	logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, args_is_set("inputFile") ? "file" : "stdin");
+	if (cr_load_scene_from_buf(renderer, input) < 0) {
+		logr(warning, "Scene parse failed, exiting.\n");
+		ret = -1;
+		goto done;
+	}
+
+	cr_start_renderer(renderer);
+	cr_write_image(renderer);
 	
+done:
 	cr_destroy_renderer(renderer);
 	args_destroy();
 	logr(info, "Render finished, exiting.\n");
-	return 0;
+	return ret;
 }
