@@ -809,49 +809,51 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 		   scene->meshes.count);
 }
 
-int parse_json(struct renderer *r, cJSON *json) {
+int parse_json(struct cr_renderer *r, cJSON *json) {
 	struct timeval timer = {0};
 	timer_start(&timer);
 
+	struct renderer *todo_remove_r = (struct renderer *)r;
+
 	// --------------------------------------
 
-	parse_prefs((struct cr_renderer *)r, cJSON_GetObjectItem(json, "renderer"));
+	parse_prefs(r, cJSON_GetObjectItem(json, "renderer"));
 
 	if (args_is_set("output_path")) {
 		char *path = args_string("output_path");
 		logr(info, "Overriding output path to %s\n", path);
-		free(r->prefs.imgFileName);
-		free(r->prefs.imgFilePath);
-		r->prefs.imgFilePath = get_file_path(path);
-		r->prefs.imgFileName = get_file_name(path);
+		free(todo_remove_r->prefs.imgFileName);
+		free(todo_remove_r->prefs.imgFilePath);
+		todo_remove_r->prefs.imgFilePath = get_file_path(path);
+		todo_remove_r->prefs.imgFileName = get_file_name(path);
 	}
 
-	parseDisplay(&r->prefs.window, cJSON_GetObjectItem(json, "display"));
-	parse_cameras((struct cr_scene *)r->scene, cJSON_GetObjectItem(json, "camera"));
+	parseDisplay(&todo_remove_r->prefs.window, cJSON_GetObjectItem(json, "display"));
+	parse_cameras((struct cr_scene *)todo_remove_r->scene, cJSON_GetObjectItem(json, "camera"));
 
-	if (!r->scene->cameras.count) {
+	if (!todo_remove_r->scene->cameras.count) {
 		logr(warning, "No cameras specified, nothing to render.\n");
 		return -1;
 	}
 
-	if (r->prefs.override_width && r->prefs.override_height) {
-		for (size_t i = 0; i < r->scene->cameras.count; ++i) {
-			struct camera *cam = &r->scene->cameras.items[i];
-			cam->width = r->prefs.override_width ? (int)r->prefs.override_width : cam->width;
-			cam->height = r->prefs.override_height ? (int)r->prefs.override_height : cam->height;
-			cam_recompute_optics(&r->scene->cameras.items[i]);
+	if (todo_remove_r->prefs.override_width && todo_remove_r->prefs.override_height) {
+		for (size_t i = 0; i < todo_remove_r->scene->cameras.count; ++i) {
+			struct camera *cam = &todo_remove_r->scene->cameras.items[i];
+			cam->width = todo_remove_r->prefs.override_width ? (int)todo_remove_r->prefs.override_width : cam->width;
+			cam->height = todo_remove_r->prefs.override_height ? (int)todo_remove_r->prefs.override_height : cam->height;
+			cam_recompute_optics(&todo_remove_r->scene->cameras.items[i]);
 		}
 	}
 
 	const cJSON *selected_camera = cJSON_GetObjectItem(json, "selected_camera");
 	if (cJSON_IsNumber(selected_camera)) {
-		r->prefs.selected_camera = (size_t)selected_camera->valueint;
+		todo_remove_r->prefs.selected_camera = (size_t)selected_camera->valueint;
 	}
 
-	r->prefs.selected_camera = r->prefs.selected_camera < r->scene->cameras.count ? r->prefs.selected_camera : r->scene->cameras.count - 1;
-	if (r->prefs.selected_camera != 0) logr(info, "Selecting camera %li\n", r->prefs.selected_camera);
+	todo_remove_r->prefs.selected_camera = todo_remove_r->prefs.selected_camera < todo_remove_r->scene->cameras.count ? todo_remove_r->prefs.selected_camera : todo_remove_r->scene->cameras.count - 1;
+	if (todo_remove_r->prefs.selected_camera != 0) logr(info, "Selecting camera %li\n", todo_remove_r->prefs.selected_camera);
 
-	parseScene(r, cJSON_GetObjectItem(json, "scene"));
+	parseScene(todo_remove_r, cJSON_GetObjectItem(json, "scene"));
 
 	// --------------
 	
@@ -906,52 +908,52 @@ int parse_json(struct renderer *r, cJSON *json) {
 			}
 		}
 
-		if (r->prefs.selected_camera != 0) {
-			cJSON_AddItemToObject(json, "selected_camera", cJSON_CreateNumber(r->prefs.selected_camera));
+		if (todo_remove_r->prefs.selected_camera != 0) {
+			cJSON_AddItemToObject(json, "selected_camera", cJSON_CreateNumber(todo_remove_r->prefs.selected_camera));
 		}
 
 		// Store cache. This is what gets sent to worker nodes.
-		r->sceneCache = cJSON_PrintUnformatted(json);
+		todo_remove_r->sceneCache = cJSON_PrintUnformatted(json);
 	}
 	
 	logr(debug, "Deleting JSON...\n");
 	cJSON_Delete(json);
 	logr(debug, "Deleting done\n");
 
-	if (r->prefs.threads > 0) {
+	if (todo_remove_r->prefs.threads > 0) {
 		// Do some pre-render preparations
 		// Compute BVH acceleration structures for all meshes in the scene
-		compute_accels(r->scene->meshes);
+		compute_accels(todo_remove_r->scene->meshes);
 
 		// And then compute a single top-level BVH that contains all the objects
 		logr(info, "Computing top-level BVH: ");
 		struct timeval timer = {0};
 		timer_start(&timer);
-		r->scene->topLevel = build_top_level_bvh(r->scene->instances);
+		todo_remove_r->scene->topLevel = build_top_level_bvh(todo_remove_r->scene->instances);
 		printSmartTime(timer_get_ms(timer));
 		logr(plain, "\n");
 
-		printSceneStats(r->scene, timer_get_ms(timer));
+		printSceneStats(todo_remove_r->scene, timer_get_ms(timer));
 	} else {
 		logr(debug, "No local render threads, skipping local BVH construction.\n");
 	}
 
 	//Quantize image into renderTiles
-	tile_quantize(&r->state.tiles,
-					r->scene->cameras.items[r->prefs.selected_camera].width,
-					r->scene->cameras.items[r->prefs.selected_camera].height,
-					r->prefs.tileWidth,
-					r->prefs.tileHeight,
-					r->prefs.tileOrder);
+	tile_quantize(&todo_remove_r->state.tiles,
+					todo_remove_r->scene->cameras.items[todo_remove_r->prefs.selected_camera].width,
+					todo_remove_r->scene->cameras.items[todo_remove_r->prefs.selected_camera].height,
+					todo_remove_r->prefs.tileWidth,
+					todo_remove_r->prefs.tileHeight,
+					todo_remove_r->prefs.tileOrder);
 
-	for (size_t i = 0; i < r->state.tiles.count; ++i)
-		r->state.tiles.items[i].total_samples = r->prefs.sampleCount;
+	for (size_t i = 0; i < todo_remove_r->state.tiles.count; ++i)
+		todo_remove_r->state.tiles.items[i].total_samples = todo_remove_r->prefs.sampleCount;
 
 	//Print a useful warning to user if the defined tile size results in less renderThreads
-	if (r->state.tiles.count < r->prefs.threads) {
+	if (todo_remove_r->state.tiles.count < todo_remove_r->prefs.threads) {
 		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
-		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, r->state.tiles.count);
-		r->prefs.threads = r->state.tiles.count;
+		logr(warning, "Reducing thread count from %zu to %zu\n", todo_remove_r->prefs.threads, todo_remove_r->state.tiles.count);
+		todo_remove_r->prefs.threads = todo_remove_r->state.tiles.count;
 	}
 
 	return 0;

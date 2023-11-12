@@ -86,7 +86,8 @@ static cJSON *receiveScene(const cJSON *json) {
 	g_worker_socket_mutex = mutex_create();
 	cJSON *assetPathJson = cJSON_GetObjectItem(json, "assetPath");
 	g_worker_renderer->prefs.assetPath = stringCopy(assetPathJson->valuestring);
-	if (parse_json(g_worker_renderer, scene)) {
+	// FIXME
+	if (parse_json((struct cr_renderer *)g_worker_renderer, scene)) {
 		return errorResponse("Scene parsing error");
 	}
 	cache_destroy(cache);

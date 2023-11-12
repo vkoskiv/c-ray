@@ -10,6 +10,6 @@
 
 #include "../../vendored/cJSON.h"
 
-struct renderer;
+struct cr_renderer;
 
-int parse_json(struct renderer *r, cJSON *json);
+int parse_json(struct cr_renderer *r, cJSON *json);
