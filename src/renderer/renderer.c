@@ -363,6 +363,7 @@ static struct prefs defaults() {
 			.tileWidth = 32,
 			.tileHeight = 32,
 			.imgFilePath = stringCopy("./"),
+			.assetPath = stringCopy("./"),
 			.imgFileName = stringCopy("rendered"),
 			.imgCount = 0,
 			.override_dimensions = false,

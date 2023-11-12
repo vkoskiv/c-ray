@@ -20,6 +20,13 @@ int main(int argc, char *argv[]) {
 	logr(info, "c-ray v%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
 	args_parse(argc, argv);
 	struct cr_renderer *renderer = cr_new_renderer();
+
+	if (args_is_set("asset_path")) {
+		cr_renderer_set_str_pref(renderer, cr_renderer_asset_path, args_asset_path());
+	} else if (args_is_set("inputFile")) {
+		cr_renderer_set_str_pref(renderer, cr_renderer_asset_path, get_file_path(args_path()));
+	}
+
 	if (!args_is_set("is_worker")) {
 		size_t bytes = 0;
 		char *input = args_is_set("inputFile") ? load_file(args_path(), &bytes, NULL) : read_stdin(&bytes);

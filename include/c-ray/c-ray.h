@@ -21,7 +21,6 @@ char *cr_get_git_hash(void); //The current git hash of the build
 
 char *cr_get_file_path(char *full_path);
 
-
 struct cr_renderer;
 struct cr_renderer *cr_new_renderer(void);
 
@@ -35,6 +34,7 @@ enum cr_renderer_param {
 	cr_renderer_tile_order,
 	//TODO: Renderer shouldn't know these
 	cr_renderer_output_path,
+	cr_renderer_asset_path,
 	cr_renderer_output_name,
 	cr_renderer_output_filetype,
 	cr_renderer_output_num,
@@ -107,8 +107,6 @@ char *cr_get_output_path(struct cr_renderer *r);
 
 void cr_set_file_name(struct cr_renderer *r, char *fileName);
 char *cr_get_file_name(struct cr_renderer *r);
-
-void cr_set_asset_path(struct cr_renderer *r);
 
 //Single frame
 void cr_start_renderer(struct cr_renderer *r);

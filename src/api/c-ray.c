@@ -59,9 +59,7 @@ char *cr_get_file_path(char *full_path) {
 struct cr_renderer;
 
 struct cr_renderer *cr_new_renderer() {
-	struct renderer *r = renderer_new();
-	cr_set_asset_path((struct cr_renderer *)r);
-	return (struct cr_renderer *)r;
+	return (struct cr_renderer *)renderer_new();
 }
 
 bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p, uint64_t num) {
@@ -135,6 +133,11 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 		case cr_renderer_output_path: {
 			if (r->prefs.imgFilePath) free(r->prefs.imgFilePath);
 			r->prefs.imgFilePath = stringCopy(str);
+			return true;
+		}
+		case cr_renderer_asset_path: {
+			if (r->prefs.assetPath) free(r->prefs.assetPath);
+			r->prefs.assetPath = stringCopy(str);
 			return true;
 		}
 		case cr_renderer_output_name: {
@@ -370,11 +373,6 @@ int cr_get_sample_count(struct cr_renderer *ext) {
 int cr_get_bounces(struct cr_renderer *ext) {
 	struct renderer *r = (struct renderer *)ext;
 	return r->prefs.bounces;
-}
-
-void cr_set_asset_path(struct cr_renderer *ext) {
-	struct renderer *r = (struct renderer *)ext;
-	r->prefs.assetPath = args_is_set("inputFile") ? cr_get_file_path(args_path()) : args_is_set("asset_path") ? stringCopy(args_asset_path()) : stringCopy("./");
 }
 
 void cr_start_renderer(struct cr_renderer *ext) {
