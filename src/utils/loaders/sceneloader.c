@@ -502,7 +502,7 @@ static void parse_camera(struct cr_scene *s, const cJSON *data) {
 
 	const cJSON *height = cJSON_GetObjectItem(data, "height");
 	if (cJSON_IsNumber(height) && height->valueint > 0)
-		cr_camera_set_num_pref(s, cam, cr_camera_res_x, height->valuedouble);
+		cr_camera_set_num_pref(s, cam, cr_camera_res_y, height->valuedouble);
 
 	const cJSON *time = cJSON_GetObjectItem(data, "time");
 	if (cJSON_IsNumber(time) && time->valuedouble >= 0.0)
