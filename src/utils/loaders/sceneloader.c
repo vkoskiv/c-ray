@@ -420,9 +420,8 @@ static void parse_camera(struct cr_scene *s, const cJSON *data) {
 	cr_camera_update(s, cam);
 }
 
-static void parse_cameras(struct world *w, const cJSON *data) {
-	if (!data) return;
-	struct cr_scene *scene = (struct cr_scene *)w;
+static void parse_cameras(struct cr_scene *scene, const cJSON *data) {
+	if (!data || !scene) return;
 
 	if (cJSON_IsObject(data)) {
 		parse_camera(scene, data);
@@ -792,7 +791,7 @@ int parseJSON(struct renderer *r, const cJSON *json) {
 	}
 
 	parseDisplay(&r->prefs.window, cJSON_GetObjectItem(json, "display"));
-	parse_cameras(r->scene, cJSON_GetObjectItem(json, "camera"));
+	parse_cameras((struct cr_scene *)r->scene, cJSON_GetObjectItem(json, "camera"));
 
 	if (!r->scene->cameras.count) {
 		logr(warning, "No cameras specified, nothing to render.\n");
