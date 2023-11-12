@@ -157,7 +157,7 @@ struct texture *renderFrame(struct renderer *r) {
 			for (size_t t = 0; t < total_thread_count; ++t) {
 				completedSamples += r->state.workers[t].totalSamples;
 			}
-			uint64_t remainingTileSamples = (r->state.tileCount * r->prefs.sampleCount) - completedSamples;
+			uint64_t remainingTileSamples = (r->state.tiles.count * r->prefs.sampleCount) - completedSamples;
 			uint64_t msecTillFinished = 0.001f * (avgTimePerTilePass * remainingTileSamples);
 			float sps = (1000000.0f / usPerRay) * (r->prefs.threads + remoteThreads);
 			char rem[64];
@@ -165,7 +165,7 @@ struct texture *renderFrame(struct renderer *r) {
 			logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
 				 KBLU,
 				 interactive ? ((double)r->state.finishedPasses / (double)r->prefs.sampleCount) * 100.0 :
-							   ((double)r->state.finishedTileCount / (double)r->state.tileCount) * 100.0,
+							   ((double)r->state.finishedTileCount / (double)r->state.tiles.count) * 100.0,
 				 KNRM,
 				 (double)usPerRay,
 				 rem,
@@ -394,7 +394,7 @@ void renderer_destroy(struct renderer *r) {
 	if (r) {
 		destroyScene(r->scene);
 		if (r->state.renderBuffer) destroyTexture(r->state.renderBuffer);
-		free(r->state.renderTiles);
+		render_tile_arr_free(&r->state.tiles);
 		free(r->state.workers);
 		free(r->state.tileMutex);
 		if (r->state.file_cache) {

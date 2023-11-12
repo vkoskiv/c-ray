@@ -311,9 +311,9 @@ static void draw_bar(struct texture *overlay, struct render_tile *t) {
 	}
 }
 
-static void draw_prog_bars(struct texture *overlay, struct render_tile *tiles, size_t tile_count) {
-	for (size_t tile = 0; tile < tile_count; ++tile)
-		draw_bar(overlay, &tiles[tile]);
+static void draw_prog_bars(struct texture *overlay, struct render_tile_arr tiles) {
+	for (size_t tile = 0; tile < tiles.count; ++tile)
+		draw_bar(overlay, &tiles.items[tile]);
 }
 
 static void draw_frame(struct texture *buf, struct render_tile tile, struct color c) {
@@ -341,10 +341,10 @@ static void draw_frame(struct texture *buf, struct render_tile tile, struct colo
 	}
 }
 
-static void draw_frames(struct texture *overlay, struct render_tile *tiles, size_t tile_count) {
-	for (size_t i = 0; i < tile_count; ++i) {
-		struct render_tile tile = tiles[i];
-	if (tile.width < 8 || tile.height < 8) return;
+static void draw_frames(struct texture *overlay, struct render_tile_arr tiles) {
+	for (size_t i = 0; i < tiles.count; ++i) {
+		struct render_tile tile = tiles.items[i];
+		if (tile.width < 8 || tile.height < 8) return;
 		struct color c = tile.state == rendering ? g_frame_color : g_clear_color;
 		draw_frame(overlay, tile, c);
 	}
@@ -354,8 +354,8 @@ void win_update(struct sdl_window *w, struct renderer *r, struct texture *t) {
 	if (!w) return;
 	//Render frames
 	if (!isSet("interactive") || r->state.clients) {
-		draw_frames(w->overlay, r->state.renderTiles, r->state.tileCount);
-		draw_prog_bars(w->overlay, r->state.renderTiles, r->state.tileCount);
+		draw_frames(w->overlay, r->state.tiles);
+		draw_prog_bars(w->overlay, r->state.tiles);
 	}
 	//Update image data
 	w->sym->SDL_UpdateTexture(w->texture, NULL, t->data.byte_p, (int)t->width * 3);

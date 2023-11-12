@@ -35,8 +35,7 @@ struct worker {
 
 /// Renderer state data
 struct state {
-	struct render_tile *renderTiles; //Array of renderTiles to render
-	size_t tileCount; //Total amount of render tiles
+	struct render_tile_arr tiles;
 	size_t finishedTileCount;
 	size_t finishedPasses; // For interactive mode
 	struct texture *renderBuffer; //float-precision buffer for multisampling

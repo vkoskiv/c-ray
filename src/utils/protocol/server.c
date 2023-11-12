@@ -166,8 +166,8 @@ static cJSON *processSubmitWork(struct worker *state, const cJSON *json) {
 	struct texture *tileImage = decodeTexture(resultJson);
 	cJSON *tileJson = cJSON_GetObjectItem(json, "tile");
 	struct render_tile tile = decodeTile(tileJson);
-	state->renderer->state.renderTiles[tile.index] = tile;
-	state->renderer->state.renderTiles[tile.index].state = finished; // FIXME: Remove
+	state->renderer->state.tiles.items[tile.index] = tile;
+	state->renderer->state.tiles.items[tile.index].state = finished; // FIXME: Remove
 	for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 		for (int x = tile.begin.x; x < tile.end.x; ++x) {
 			struct color value = textureGetPixel(tileImage, x - tile.begin.x, y - tile.begin.y, false);
@@ -249,7 +249,7 @@ void *networkRenderThread(void *arg) {
 				cJSON *tile = NULL;
 				cJSON_ArrayForEach(tile, array) {
 					struct render_tile t = decodeTile(tile);
-					r->state.renderTiles[t.index] = t;
+					r->state.tiles.items[t.index] = t;
 					//r->state.renderTiles[t.tileNum].completed_samples = t.completed_samples;
 				}
 			}

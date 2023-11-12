@@ -222,21 +222,21 @@ int loadScene(struct renderer *r, char *input) {
 	}
 	
 	//Quantize image into renderTiles
-	r->state.tileCount = tile_quantize(&r->state.renderTiles,
-									   r->scene->cameras.items[r->prefs.selected_camera].width,
-									   r->scene->cameras.items[r->prefs.selected_camera].height,
-									   r->prefs.tileWidth,
-									   r->prefs.tileHeight,
-									   r->prefs.tileOrder);
+	tile_quantize(&r->state.tiles,
+					r->scene->cameras.items[r->prefs.selected_camera].width,
+					r->scene->cameras.items[r->prefs.selected_camera].height,
+					r->prefs.tileWidth,
+					r->prefs.tileHeight,
+					r->prefs.tileOrder);
 
-	for (size_t i = 0; i < r->state.tileCount; ++i)
-		r->state.renderTiles[i].total_samples = r->prefs.sampleCount;
+	for (size_t i = 0; i < r->state.tiles.count; ++i)
+		r->state.tiles.items[i].total_samples = r->prefs.sampleCount;
 	
 	//Print a useful warning to user if the defined tile size results in less renderThreads
-	if (r->state.tileCount < r->prefs.threads) {
+	if (r->state.tiles.count < r->prefs.threads) {
 		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
-		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, r->state.tileCount);
-		r->prefs.threads = r->state.tileCount;
+		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, r->state.tiles.count);
+		r->prefs.threads = r->state.tiles.count;
 	}
 	return 0;
 }

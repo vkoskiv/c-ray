@@ -117,10 +117,10 @@ static struct render_tile *getWork(int connectionSocket) {
 	// we can just keep track of indices, and compute the tile dims
 	cJSON *tileJson = cJSON_GetObjectItem(response, "tile");
 	struct render_tile tile = decodeTile(tileJson);
-	g_worker_renderer->state.renderTiles[tile.index] = tile;
+	g_worker_renderer->state.tiles.items[tile.index] = tile;
 	logr(debug, "Got work   : %i ((%i,%i),(%i,%i))\n", tile.index, tile.begin.x, tile.begin.y, tile.end.x, tile.end.y);
 	cJSON_Delete(response);
-	return &g_worker_renderer->state.renderTiles[tile.index];
+	return &g_worker_renderer->state.tiles.items[tile.index];
 }
 
 static bool submitWork(int sock, struct texture *work, struct render_tile *forTile) {
