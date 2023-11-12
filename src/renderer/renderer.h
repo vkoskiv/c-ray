@@ -97,10 +97,10 @@ struct renderer {
 };
 
 //Initialize a new renderer
-struct renderer *newRenderer(void);
+struct renderer *renderer_new(void);
 
 //Start main render loop
 struct texture *renderFrame(struct renderer *r);
 
 //Free renderer allocations
-void destroyRenderer(struct renderer *r);
+void renderer_destroy(struct renderer *r);

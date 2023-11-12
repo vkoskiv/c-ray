@@ -75,9 +75,9 @@ char *cr_get_file_path(char *full_path) {
 struct cr_renderer;
 
 struct cr_renderer *cr_new_renderer() {
-	struct renderer *r = newRenderer();
-	cr_set_asset_path(r);
-	return r;
+	struct renderer *r = renderer_new();
+	cr_set_asset_path((struct cr_renderer *)r);
+	return (struct cr_renderer *)r;
 }
 
 enum cr_renderer_param {
@@ -92,37 +92,48 @@ bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 	if (!ext) return false;
 	struct renderer *r = (struct renderer *)ext;
 	switch (p) {
-	case cr_renderer_threads: {
-		r->prefs.threads = num;
-		return true;
-	}
-	case cr_renderer_samples: {
-		r->prefs.sampleCount = num;
-		return true;
-	}
-	case cr_renderer_bounces: {
-		if (num > 512) return false;
-		r->prefs.bounces = num;
-		return true;
-	}
-	case cr_renderer_tile_width: {
-		
-	}
+		case cr_renderer_threads: {
+			r->prefs.threads = num;
+			return true;
+		}
+		case cr_renderer_samples: {
+			r->prefs.sampleCount = num;
+			return true;
+		}
+		case cr_renderer_bounces: {
+			if (num > 512) return false;
+			r->prefs.bounces = num;
+			return true;
+		}
+		case cr_renderer_tile_width: {
+			r->prefs.tileWidth = num;
+			return true;
+		}
+		case cr_renderer_tile_height: {
+			r->prefs.tileHeight = num;
+			return true;
+		}
 	}
 	return false;
 }
 
-uint64_t cr_renderer_get_num_pref(struct cr_renderer *r, enum cr_renderer_param p) {
-	//TODO
-	(void)r;
-	(void)p;
+uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_param p) {
+	if (!ext) return 0;
+	struct renderer *r = (struct renderer *)ext;
+	switch (p) {
+		case cr_renderer_threads: return r->prefs.threads;
+		case cr_renderer_samples: return r->prefs.sampleCount;
+		case cr_renderer_bounces: return r->prefs.bounces;
+		case cr_renderer_tile_width: return r->prefs.tileWidth;
+		case cr_renderer_tile_height: return r->prefs.tileHeight;
+	}
 	return 0;
 }
 
 void cr_destroy_renderer(struct cr_renderer *ext) {
 	struct renderer *r = (struct renderer *)ext;
 	ASSERT(r);
-	destroyRenderer(r);
+	renderer_destroy(r);
 }
 
 // -- Scene --
@@ -132,6 +143,11 @@ struct cr_scene;
 struct cr_scene *cr_scene_create(struct cr_renderer *r) {
 	(void)r;
 	return NULL;
+}
+
+void cr_scene_destroy(struct cr_scene *s) {
+	//TODO
+	(void)s;
 }
 
 struct cr_object;
@@ -249,12 +265,12 @@ void cr_write_image(struct cr_renderer *ext) {
 		if (r->state.saveImage) {
 			struct imageFile *file = newImageFile(currentImage, r->prefs.imgFilePath, r->prefs.imgFileName, r->prefs.imgCount, r->prefs.imgType);
 			file->info = (struct renderInfo){
-				.bounces = cr_get_bounces(r),
-				.samples = cr_get_sample_count(r),
+				.bounces = cr_get_bounces(ext),
+				.samples = cr_get_sample_count(ext),
 				.crayVersion = cr_get_version(),
 				.gitHash = cr_get_git_hash(),
 				.renderTime = timer_get_ms(r->state.timer),
-				.threadCount = cr_get_thread_count(r)
+				.threadCount = cr_get_thread_count(ext)
 			};
 			writeImage(file);
 			destroyImageFile(file);

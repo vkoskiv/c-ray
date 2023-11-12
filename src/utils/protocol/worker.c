@@ -80,7 +80,7 @@ static cJSON *receiveScene(const cJSON *json) {
 	cJSON *scene = cJSON_GetObjectItem(json, "data");
 	char *sceneText = cJSON_PrintUnformatted(scene);
 	logr(info, "Received scene description\n");
-	g_worker_renderer = newRenderer();
+	g_worker_renderer = renderer_new();
 	g_worker_renderer->state.file_cache = cache;
 	g_worker_socket_mutex = mutex_create();
 	cJSON *assetPathJson = cJSON_GetObjectItem(json, "assetPath");
@@ -317,7 +317,7 @@ static cJSON *processCommand(int connectionSocket, const cJSON *json) {
 }
 
 static void workerCleanup() {
-	destroyRenderer(g_worker_renderer);
+	renderer_destroy(g_worker_renderer);
 	g_worker_renderer = NULL;
 }
 

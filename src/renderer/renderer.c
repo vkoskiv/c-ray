@@ -353,7 +353,7 @@ void *renderThread(void *arg) {
 	return 0;
 }
 
-static struct prefs defaultPrefs() {
+static struct prefs defaults() {
 	return (struct prefs){
 			.tileOrder = renderOrderFromMiddle,
 			.threads = getSysCores() + 2,
@@ -378,9 +378,9 @@ static struct prefs defaultPrefs() {
 	};
 }
 
-struct renderer *newRenderer() {
+struct renderer *renderer_new() {
 	struct renderer *r = calloc(1, sizeof(*r));
-	r->prefs = defaultPrefs();
+	r->prefs = defaults();
 	r->state.finishedPasses = 1;
 	
 	r->state.tileMutex = mutex_create();
@@ -392,7 +392,7 @@ struct renderer *newRenderer() {
 	return r;
 }
 	
-void destroyRenderer(struct renderer *r) {
+void renderer_destroy(struct renderer *r) {
 	if (r) {
 		destroyScene(r->scene);
 		if (r->state.renderBuffer) destroyTexture(r->state.renderBuffer);
