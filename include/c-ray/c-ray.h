@@ -75,9 +75,6 @@ cr_camera cr_camera_new(struct cr_scene *ext);
 bool cr_camera_set_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_param p, double num);
 bool cr_camera_update(struct cr_scene *ext, cr_camera c);
 
-int cr_load_scene_from_file(struct cr_renderer *r, char *file_path);
-int cr_load_scene_from_buf(struct cr_renderer *r, char *buf);
-
 void cr_load_mesh_from_file(char *filePath);
 void cr_load_mesh_from_buf(char *buf);
 

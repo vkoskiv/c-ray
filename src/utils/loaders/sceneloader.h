@@ -12,6 +12,4 @@
 
 struct renderer;
 
-int parseJSON(struct renderer *r, const cJSON *json);
-
-struct color parseColor(const cJSON *data);
+int parse_json(struct renderer *r, cJSON *json);

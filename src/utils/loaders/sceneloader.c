@@ -38,6 +38,8 @@
 #include "../../utils/args.h"
 #include "../../utils/timer.h"
 #include "../../utils/string.h"
+#include "../../utils/platform/signal.h"
+#include "../../accelerators/bvh.h"
 #include "../../nodes/bsdfnode.h"
 #include "../../nodes/valuenode.h"
 #include "../../nodes/colornode.h"
@@ -434,41 +436,6 @@ static void parse_cameras(struct cr_scene *scene, const cJSON *data) {
 	}
 }
 
-struct color parseColor(const cJSON *data) {
-	if (cJSON_IsArray(data)) {
-		const float r = cJSON_IsNumber(cJSON_GetArrayItem(data, 0)) ? (float)cJSON_GetArrayItem(data, 0)->valuedouble : 0.0f;
-		const float g = cJSON_IsNumber(cJSON_GetArrayItem(data, 1)) ? (float)cJSON_GetArrayItem(data, 1)->valuedouble : 0.0f;
-		const float b = cJSON_IsNumber(cJSON_GetArrayItem(data, 2)) ? (float)cJSON_GetArrayItem(data, 2)->valuedouble : 0.0f;
-		const float a = cJSON_IsNumber(cJSON_GetArrayItem(data, 3)) ? (float)cJSON_GetArrayItem(data, 3)->valuedouble : 1.0f;
-		return (struct color){ r, g, b, a };
-	}
-	
-	ASSERT(cJSON_IsObject(data));
-	
-	const cJSON *kelvin = cJSON_GetObjectItem(data, "blackbody");
-	if (cJSON_IsNumber(kelvin)) return colorForKelvin(kelvin->valuedouble);
-
-	const cJSON *H = cJSON_GetObjectItem(data, "h");
-	const cJSON *S = cJSON_GetObjectItem(data, "s");
-	const cJSON *L = cJSON_GetObjectItem(data, "l");
-
-	if (cJSON_IsNumber(H) && cJSON_IsNumber(S) && cJSON_IsNumber(L)) {
-		return color_from_hsl(H->valuedouble, S->valuedouble, L->valuedouble);
-	}
-
-	const cJSON *R = cJSON_GetObjectItem(data, "r");
-	const cJSON *G = cJSON_GetObjectItem(data, "g");
-	const cJSON *B = cJSON_GetObjectItem(data, "b");
-	const cJSON *A = cJSON_GetObjectItem(data, "a");
-
-	return (struct color){
-		cJSON_IsNumber(R) ? (float)R->valuedouble : 0.0f,
-		cJSON_IsNumber(G) ? (float)G->valuedouble : 0.0f,
-		cJSON_IsNumber(B) ? (float)B->valuedouble : 0.0f,
-		cJSON_IsNumber(A) ? (float)A->valuedouble : 1.0f,
-	};
-}
-
 //FIXME: Convert this to use parseBsdfNode
 static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *offset = cJSON_GetObjectItem(data, "offset");
@@ -491,7 +458,7 @@ static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 	}
 	
 	if (down && up) {
-		r->scene->background = newBackground(&r->scene->storage, newGradientTexture(&r->scene->storage, parseColor(down), parseColor(up)), NULL);
+		r->scene->background = newBackground(&r->scene->storage, newGradientTexture(&r->scene->storage, color_parse(down), color_parse(up)), NULL);
 		return;
 	}
 
@@ -777,7 +744,76 @@ static void parseScene(struct renderer *r, const cJSON *data) {
 	parse_meshes(r, cJSON_GetObjectItem(data, "meshes"));
 }
 
-int parseJSON(struct renderer *r, const cJSON *json) {
+struct bvh_build_task {
+	struct bvh *bvh;
+	const struct mesh *mesh;
+};
+
+void *bvh_build_thread(void *arg) {
+	block_signals();
+	struct bvh_build_task *task = (struct bvh_build_task *)thread_user_data(arg);
+	task->bvh = build_mesh_bvh(task->mesh);
+	return NULL;
+}
+
+static void compute_accels(struct mesh_arr meshes) {
+	logr(info, "Computing BVHs: ");
+	struct timeval timer = { 0 };
+	timer_start(&timer);
+	struct bvh_build_task *tasks = calloc(meshes.count, sizeof(*tasks));
+	struct cr_thread *build_threads = calloc(meshes.count, sizeof(*build_threads));
+	for (size_t t = 0; t < meshes.count; ++t) {
+		tasks[t] = (struct bvh_build_task){
+			.mesh = &meshes.items[t],
+		};
+		build_threads[t] = (struct cr_thread){
+			.thread_fn = bvh_build_thread,
+			.user_data = &tasks[t]
+		};
+		if (thread_start(&build_threads[t])) {
+			logr(error, "Failed to create a bvhBuildTask\n");
+		}
+	}
+
+	for (size_t t = 0; t < meshes.count; ++t) {
+		thread_wait(&build_threads[t]);
+		meshes.items[t].bvh = tasks[t].bvh;
+	}
+	printSmartTime(timer_get_ms(timer));
+	free(tasks);
+	free(build_threads);
+	logr(plain, "\n");
+}
+
+static void printSceneStats(struct world *scene, unsigned long long ms) {
+	logr(info, "Scene construction completed in ");
+	printSmartTime(ms);
+	uint64_t polys = 0;
+	uint64_t vertices = 0;
+	uint64_t normals = 0;
+	for (size_t i = 0; i < scene->instances.count; ++i) {
+		if (isMesh(&scene->instances.items[i])) {
+			const struct mesh *mesh = &scene->meshes.items[scene->instances.items[i].object_idx];
+			polys += mesh->polygons.count;
+			vertices += mesh->vbuf->vertices.count;
+			normals += mesh->vbuf->normals.count;
+		}
+	}
+	logr(plain, "\n");
+	logr(info, "Totals: %liV, %liN, %zuI, %liP, %zuS, %zuM\n",
+		   vertices,
+		   normals,
+		   scene->instances.count,
+		   polys,
+		   scene->spheres.count,
+		   scene->meshes.count);
+}
+
+int parse_json(struct renderer *r, cJSON *json) {
+	struct timeval timer = {0};
+	timer_start(&timer);
+
+	// --------------------------------------
 
 	parse_prefs((struct cr_renderer *)r, cJSON_GetObjectItem(json, "renderer"));
 
@@ -816,6 +852,107 @@ int parseJSON(struct renderer *r, const cJSON *json) {
 	if (r->prefs.selected_camera != 0) logr(info, "Selecting camera %li\n", r->prefs.selected_camera);
 
 	parseScene(r, cJSON_GetObjectItem(json, "scene"));
+
+	// --------------
 	
+	// This is where we prepare a cache of scene data to be sent to worker nodes
+	// We also apply any potential command-line overrides to that cache here as well.
+	// FIXME: This overrides setting should be integrated with scene loading, probably.
+	if (args_is_set("use_clustering")) {
+		// Stash a cache of scene data here
+		// Apply overrides to the cache here
+		if (args_is_set("samples_override")) {
+			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
+			if (cJSON_IsObject(renderer)) {
+				int samples = args_int("samples_override");
+				logr(debug, "Overriding cache sample count to %i\n", samples);
+				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "samples"))) {
+					cJSON_ReplaceItemInObject(renderer, "samples", cJSON_CreateNumber(samples));
+				} else {
+					cJSON_AddItemToObject(renderer, "samples", cJSON_CreateNumber(samples));
+				}
+			}
+		}
+
+		if (args_is_set("dims_override")) {
+			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
+			if (cJSON_IsObject(renderer)) {
+				int width = args_int("dims_width");
+				int height = args_int("dims_height");
+				logr(info, "Overriding cache image dimensions to %ix%i\n", width, height);
+				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "width")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "height"))) {
+					cJSON_ReplaceItemInObject(renderer, "width", cJSON_CreateNumber(width));
+					cJSON_ReplaceItemInObject(renderer, "height", cJSON_CreateNumber(height));
+				} else {
+					cJSON_AddItemToObject(renderer, "width", cJSON_CreateNumber(width));
+					cJSON_AddItemToObject(renderer, "height", cJSON_CreateNumber(height));
+				}
+			}
+		}
+
+		if (args_is_set("tiledims_override")) {
+			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
+			if (cJSON_IsObject(renderer)) {
+				int width = args_int("tile_width");
+				int height = args_int("tile_height");
+				logr(info, "Overriding cache tile dimensions to %ix%i\n", width, height);
+				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileWidth")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileHeight"))) {
+					cJSON_ReplaceItemInObject(renderer, "tileWidth", cJSON_CreateNumber(width));
+					cJSON_ReplaceItemInObject(renderer, "tileHeight", cJSON_CreateNumber(height));
+				} else {
+					cJSON_AddItemToObject(renderer, "tileWidth", cJSON_CreateNumber(width));
+					cJSON_AddItemToObject(renderer, "tileHeight", cJSON_CreateNumber(height));
+				}
+			}
+		}
+
+		if (r->prefs.selected_camera != 0) {
+			cJSON_AddItemToObject(json, "selected_camera", cJSON_CreateNumber(r->prefs.selected_camera));
+		}
+
+		// Store cache. This is what gets sent to worker nodes.
+		r->sceneCache = cJSON_PrintUnformatted(json);
+	}
+	
+	logr(debug, "Deleting JSON...\n");
+	cJSON_Delete(json);
+	logr(debug, "Deleting done\n");
+
+	if (r->prefs.threads > 0) {
+		// Do some pre-render preparations
+		// Compute BVH acceleration structures for all meshes in the scene
+		compute_accels(r->scene->meshes);
+
+		// And then compute a single top-level BVH that contains all the objects
+		logr(info, "Computing top-level BVH: ");
+		struct timeval timer = {0};
+		timer_start(&timer);
+		r->scene->topLevel = build_top_level_bvh(r->scene->instances);
+		printSmartTime(timer_get_ms(timer));
+		logr(plain, "\n");
+
+		printSceneStats(r->scene, timer_get_ms(timer));
+	} else {
+		logr(debug, "No local render threads, skipping local BVH construction.\n");
+	}
+
+	//Quantize image into renderTiles
+	tile_quantize(&r->state.tiles,
+					r->scene->cameras.items[r->prefs.selected_camera].width,
+					r->scene->cameras.items[r->prefs.selected_camera].height,
+					r->prefs.tileWidth,
+					r->prefs.tileHeight,
+					r->prefs.tileOrder);
+
+	for (size_t i = 0; i < r->state.tiles.count; ++i)
+		r->state.tiles.items[i].total_samples = r->prefs.sampleCount;
+
+	//Print a useful warning to user if the defined tile size results in less renderThreads
+	if (r->state.tiles.count < r->prefs.threads) {
+		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
+		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, r->state.tiles.count);
+		r->prefs.threads = r->state.tiles.count;
+	}
+
 	return 0;
 }

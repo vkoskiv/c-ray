@@ -23,6 +23,7 @@
 #include "../../renderer/pathtrace.h"
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/scene.h"
+#include "../loaders/sceneloader.h"
 #include "../../datatypes/camera.h"
 #include "../platform/mutex.h"
 #include "../platform/thread.h"
@@ -58,11 +59,12 @@ struct workerThreadState {
 	struct render_tile *current;
 };
 
-static cJSON *validateHandshake(const cJSON *in) {
+static cJSON *validateHandshake(cJSON *in) {
 	const cJSON *version = cJSON_GetObjectItem(in, "version");
 	const cJSON *githash = cJSON_GetObjectItem(in, "githash");
 	if (!stringEquals(version->valuestring, PROTO_VERSION)) return errorResponse("Protocol version mismatch");
 	if (!stringEquals(githash->valuestring, gitHash())) return errorResponse("Git hash mismatch");
+	cJSON_Delete(in);
 	return newAction("startSync");
 }
 
@@ -78,14 +80,13 @@ static cJSON *receiveScene(const cJSON *json) {
 	
 	// And then the scene
 	cJSON *scene = cJSON_GetObjectItem(json, "data");
-	char *sceneText = cJSON_PrintUnformatted(scene);
 	logr(info, "Received scene description\n");
 	g_worker_renderer = renderer_new();
 	g_worker_renderer->state.file_cache = cache;
 	g_worker_socket_mutex = mutex_create();
 	cJSON *assetPathJson = cJSON_GetObjectItem(json, "assetPath");
 	g_worker_renderer->prefs.assetPath = stringCopy(assetPathJson->valuestring);
-	if (loadScene(g_worker_renderer, sceneText)) {
+	if (parse_json(g_worker_renderer, scene)) {
 		return errorResponse("Scene parsing error");
 	}
 	cache_destroy(cache);
@@ -288,7 +289,7 @@ static cJSON *startRender(int connectionSocket) {
 }
 
 // Worker command handler
-static cJSON *processCommand(int connectionSocket, const cJSON *json) {
+static cJSON *processCommand(int connectionSocket, cJSON *json) {
 	if (!json) {
 		return errorResponse("Couldn't parse incoming JSON");
 	}
@@ -306,9 +307,11 @@ static cJSON *processCommand(int connectionSocket, const cJSON *json) {
 			break;
 		case 3:
 			// startRender contains worker event loop and blocks until render completion.
+			cJSON_Delete(json);
 			return startRender(connectionSocket);
 			break;
 		default:
+			cJSON_Delete(json);
 			return errorResponse("Unknown command");
 			break;
 	}
@@ -412,13 +415,11 @@ int startWorkerServer() {
 			cJSON *myResponse = processCommand(connectionSocket, message);
 			if (!myResponse) {
 				if (buf) free(buf);
-				cJSON_Delete(message);
 				break;
 			}
 			char *responseText = cJSON_PrintUnformatted(myResponse);
 			if (!chunkedSend(connectionSocket, responseText, NULL)) {
 				logr(debug, "chunkedSend() failed, error %s\n", strerror(errno));
-				cJSON_Delete(message);
 				break;
 			};
 			free(responseText);
@@ -426,11 +427,9 @@ int startWorkerServer() {
 			buf = NULL;
 			if (containsGoodbye(myResponse) || containsError(myResponse)) {
 				cJSON_Delete(myResponse);
-				cJSON_Delete(message);
 				break;
 			}
 			cJSON_Delete(myResponse);
-			cJSON_Delete(message);
 		}
 	bail:
 		if (g_running) {

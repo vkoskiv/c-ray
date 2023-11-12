@@ -1,9 +1,9 @@
 //
 //  c-ray.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 5.1.2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -331,20 +331,6 @@ void cr_write_image(struct cr_renderer *ext) {
 	}
 }
 
-int cr_load_scene_from_file(struct cr_renderer *ext, char *file_path) {
-	struct renderer *r = (struct renderer *)ext;
-	size_t bytes = 0;
-	char *input = load_file(file_path, &bytes, NULL);
-	if (input) {
-		if (loadScene(r, file_path) != 0) {
-			return -1;
-		}
-	} else {
-		return -1;
-	}
-	return 0;
-}
-
 void cr_load_mesh_from_file(char *file_path) {
 	(void)file_path;
 	ASSERT_NOT_REACHED();
@@ -353,11 +339,6 @@ void cr_load_mesh_from_file(char *file_path) {
 void cr_load_mesh_from_buf(char *buf) {
 	(void)buf;
 	ASSERT_NOT_REACHED();
-}
-
-int cr_load_scene_from_buf(struct cr_renderer *ext, char *buf) {
-	struct renderer *r = (struct renderer *)ext;
-	return loadScene(r, buf);
 }
 
 int cr_get_thread_count(struct cr_renderer *ext) {

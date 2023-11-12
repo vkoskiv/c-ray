@@ -90,6 +90,7 @@ void logr(enum logType type, const char *fmt, ...) {
 	}
 }
 
+//TODO: Have this take a buf
 void printSmartTime(unsigned long long ms) {
 	char buf[64];
 	smartTime(ms, buf);

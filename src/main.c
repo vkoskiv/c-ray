@@ -1,6 +1,6 @@
 //
 //  main.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 12/02/2015.
 //  Copyright © 2015-2023 Valtteri Koskivuori. All rights reserved.
@@ -9,10 +9,13 @@
 #include <stdlib.h>
 #include <c-ray/c-ray.h>
 
+#include "vendored/cJSON.h"
+
 #include "utils/logging.h"
 #include "utils/fileio.h"
 #include "utils/args.h"
 #include "utils/platform/terminal.h"
+#include "utils/loaders/sceneloader.h"
 
 int main(int argc, char *argv[]) {
 	term_init();
@@ -41,7 +44,20 @@ int main(int argc, char *argv[]) {
 		goto done;
 	}
 	logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, args_is_set("inputFile") ? "file" : "stdin");
-	if (cr_load_scene_from_buf(renderer, input) < 0) {
+	cJSON *scene = cJSON_Parse(input);
+	if (!scene) {
+		const char *errptr = cJSON_GetErrorPtr();
+		if (errptr) {
+			logr(warning, "Failed to parse JSON\n");
+			logr(warning, "Error before: %s\n", errptr);
+			goto done;
+		}
+	}
+
+	//FIXME: mmap() input
+	free(input);
+
+	if (parse_json(renderer, scene) < 0) {
 		logr(warning, "Scene parse failed, exiting.\n");
 		ret = -1;
 		goto done;

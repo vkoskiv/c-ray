@@ -28,7 +28,7 @@ const struct colorNode *parseTextureNode(const char *asset_path, struct file_cac
 	if (!node) return NULL;
 
 	if (cJSON_IsArray(node)) {
-		return newConstantTexture(s, parseColor(node));
+		return newConstantTexture(s, color_parse(node));
 	}
 
 	// Handle options first
@@ -76,7 +76,7 @@ const struct colorNode *parseTextureNode(const char *asset_path, struct file_cac
 	//FIXME: No good way to know if it's a color, so just check if it's got "r" in there.
 	if (cJSON_HasObjectItem(node, "r")) {
 		// This is actually still a color object.
-		return newConstantTexture(s, parseColor(node));
+		return newConstantTexture(s, color_parse(node));
 	}
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
 	if (cJSON_IsString(type)) {

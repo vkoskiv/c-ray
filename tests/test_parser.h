@@ -17,7 +17,7 @@ bool parser_color_rgb(void) {
 	struct color c = { 0 };
 
 	data = cJSON_Parse("{}");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red,   0.0f);
 	roughly_equals(c.green, 0.0f);
 	roughly_equals(c.blue,  0.0f);
@@ -25,7 +25,7 @@ bool parser_color_rgb(void) {
 	cJSON_Delete(data);
 
 	data = cJSON_Parse("{\"r\": 0.1, \"g\": 0.2, \"b\": 0.3, \"a\": 0.4}");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red,   0.1f);
 	roughly_equals(c.green, 0.2f);
 	roughly_equals(c.blue,  0.3f);
@@ -33,7 +33,7 @@ bool parser_color_rgb(void) {
 	cJSON_Delete(data);
 
 	data = cJSON_Parse("{\"g\": 0.2, \"b\": 0.3, \"a\": 0.4}");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red,   0.0f);
 	roughly_equals(c.green, 0.2f);
 	roughly_equals(c.blue,  0.3f);
@@ -41,7 +41,7 @@ bool parser_color_rgb(void) {
 	cJSON_Delete(data);
 
 	data = cJSON_Parse("{\"r\": 0.1, \"b\": 0.3, \"a\": 0.4}");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red,   0.1f);
 	roughly_equals(c.green, 0.0f);
 	roughly_equals(c.blue,  0.3f);
@@ -49,7 +49,7 @@ bool parser_color_rgb(void) {
 	cJSON_Delete(data);
 
 	data = cJSON_Parse("{\"r\": 0.1, \"g\": 0.2, \"a\": 0.4}");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red,   0.1f);
 	roughly_equals(c.green, 0.2f);
 	roughly_equals(c.blue,  0.0f);
@@ -57,7 +57,7 @@ bool parser_color_rgb(void) {
 	cJSON_Delete(data);
 
 	data = cJSON_Parse("{\"r\": 0.1, \"g\": 0.2, \"b\": 0.3}");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red,   0.1f);
 	roughly_equals(c.green, 0.2f);
 	roughly_equals(c.blue,  0.3f);
@@ -73,7 +73,7 @@ bool parser_color_array(void) {
 	struct color c = { 0 };
 
 	data = cJSON_Parse("[]");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red,   0.0f);
 	roughly_equals(c.green, 0.0f);
 	roughly_equals(c.blue,  0.0f);
@@ -81,7 +81,7 @@ bool parser_color_array(void) {
 	cJSON_Delete(data);
 
 	data = cJSON_Parse("[0.1, 0.2, 0.3, 0.4]");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red, 0.1f);
 	roughly_equals(c.green, 0.2f);
 	roughly_equals(c.blue,  0.3f);
@@ -89,7 +89,7 @@ bool parser_color_array(void) {
 	cJSON_Delete(data);
 
 	data = cJSON_Parse("[0.2, 0.3, 0.4]");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red, 0.2f);
 	roughly_equals(c.green, 0.3f);
 	roughly_equals(c.blue,  0.4f);
@@ -97,7 +97,7 @@ bool parser_color_array(void) {
 	cJSON_Delete(data);
 
 	data = cJSON_Parse("[0.3, 0.4]");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red, 0.3f);
 	roughly_equals(c.green, 0.4f);
 	roughly_equals(c.blue,  0.0f);
@@ -105,7 +105,7 @@ bool parser_color_array(void) {
 	cJSON_Delete(data);
 
 	data = cJSON_Parse("[0.4]");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red, 0.4f);
 	roughly_equals(c.green, 0.0f);
 	roughly_equals(c.blue,  0.0f);
@@ -120,7 +120,7 @@ bool parser_color_blackbody(void) {
 	struct color c = { 0 };
 
 	data = cJSON_Parse("{\"blackbody\": 6000}");
-	c = parseColor(data);
+	c = color_parse(data);
 	very_roughly_equals(c.red, 1.0f);
 	very_roughly_equals(c.green, 0.96f);
 	very_roughly_equals(c.blue, 0.92f);
@@ -136,7 +136,7 @@ bool parser_color_hsl(void) {
 
 	// Lightness 1
 	data = cJSON_Parse("{\"h\": 0, \"s\": 100, \"l\": 100}");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red, 1.0f);
 	roughly_equals(c.green, 1.0f);
 	roughly_equals(c.blue, 1.0f);
@@ -145,7 +145,7 @@ bool parser_color_hsl(void) {
 
 	// Lightness 0
 	data = cJSON_Parse("{\"h\": 0, \"s\": 100, \"l\": 0}");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red, 0.0f);
 	roughly_equals(c.green, 0.0f);
 	roughly_equals(c.blue, 0.0f);
@@ -154,7 +154,7 @@ bool parser_color_hsl(void) {
 
 	// Red
 	data = cJSON_Parse("{\"h\": 0, \"s\": 100, \"l\": 50}");
-	c = parseColor(data);
+	c = color_parse(data);
 	roughly_equals(c.red, 1.0f);
 	roughly_equals(c.green, 0.0f);
 	roughly_equals(c.blue, 0.0f);
@@ -163,7 +163,7 @@ bool parser_color_hsl(void) {
 
 	// Green
 	data = cJSON_Parse("{\"h\": 120, \"s\": 100, \"l\": 50}");
-	c = parseColor(data);
+	c = color_parse(data);
 	very_roughly_equals(c.red, 0.0f);
 	very_roughly_equals(c.green, 1.0f);
 	very_roughly_equals(c.blue, 0.0f);
@@ -172,7 +172,7 @@ bool parser_color_hsl(void) {
 
 	// Blue
 	data = cJSON_Parse("{\"h\": 240, \"s\": 100, \"l\": 50}");
-	c = parseColor(data);
+	c = color_parse(data);
 	very_roughly_equals(c.red, 0.0f);
 	very_roughly_equals(c.green, 0.0f);
 	very_roughly_equals(c.blue, 1.0f);
@@ -181,7 +181,7 @@ bool parser_color_hsl(void) {
 
 	// Should be red again
 	data = cJSON_Parse("{\"h\": 360, \"s\": 100, \"l\": 50}");
-	c = parseColor(data);
+	c = color_parse(data);
 	very_roughly_equals(c.red, 1.0f);
 	very_roughly_equals(c.green, 0.0f);
 	very_roughly_equals(c.blue, 0.0f);

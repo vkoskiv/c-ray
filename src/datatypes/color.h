@@ -113,3 +113,7 @@ struct color colorForKelvin(float kelvin);
 struct color color_from_hsl(float hue, float saturation, float lightness);
 
 void color_dump(struct color c, char *buf, size_t bufsize);
+
+struct cJSON;
+
+struct color color_parse(const struct cJSON *data);
