@@ -19,11 +19,6 @@ struct texture;
 char *cr_get_version(void); //The current semantic version
 char *cr_get_git_hash(void); //The current git hash of the build
 
-void cr_parse_args(int argc, char **argv);
-int cr_is_option_set(char *key);
-char *cr_path_arg(void);
-void cr_destroy_options(void);
-
 char *cr_get_file_path(char *full_path);
 
 

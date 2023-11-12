@@ -21,7 +21,7 @@
 
 void writeImage(struct imageFile *image) {
 	char *buf = NULL;
-	if (isSet("output_path")) {
+	if (args_is_set("output_path")) {
 		asprintf(&buf, "%s%s", image->filePath, image->fileName);
 		image->type = guess_file_type(buf);
 	} else {

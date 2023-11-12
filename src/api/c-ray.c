@@ -50,22 +50,6 @@ char *cr_get_git_hash() {
 	return gitHash();
 }
 
-void cr_parse_args(int argc, char **argv) {
-	parseArgs(argc, argv);
-}
-
-int cr_is_option_set(char *key) {
-	return isSet(key);
-}
-
-char *cr_path_arg() {
-	return pathArg();
-}
-
-void cr_destroy_options() {
-	destroyOptions();
-}
-
 char *cr_get_file_path(char *full_path) {
 	return get_file_path(full_path);
 }
@@ -390,12 +374,12 @@ int cr_get_bounces(struct cr_renderer *ext) {
 
 void cr_set_asset_path(struct cr_renderer *ext) {
 	struct renderer *r = (struct renderer *)ext;
-	r->prefs.assetPath = cr_is_option_set("inputFile") ? cr_get_file_path(cr_path_arg()) : cr_is_option_set("asset_path") ? stringCopy(specifiedAssetPath()) : stringCopy("./");
+	r->prefs.assetPath = args_is_set("inputFile") ? cr_get_file_path(args_path()) : args_is_set("asset_path") ? stringCopy(args_asset_path()) : stringCopy("./");
 }
 
 void cr_start_renderer(struct cr_renderer *ext) {
 	struct renderer *r = (struct renderer *)ext;
-	if (isSet("use_clustering")) {
+	if (args_is_set("use_clustering")) {
 		r->prefs.useClustering = true;
 		r->state.clients = syncWithClients(r, &r->state.clientCount);
 		free(r->sceneCache);

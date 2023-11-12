@@ -69,7 +69,7 @@ bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
 	return true;
 }
 
-void parseArgs(int argc, char **argv) {
+void args_parse(int argc, char **argv) {
 	g_options = newConstantsDatabase();
 	static bool inputFileSet = false;
 	int testIdx = -1;
@@ -239,7 +239,7 @@ void parseArgs(int argc, char **argv) {
 	}
 	logr(debug, "Verbose mode enabled\n");
 	
-	if (isSet("shutdown") && isSet("nodes_list")) {
+	if (args_is_set("shutdown") && args_is_set("nodes_list")) {
 		shutdownClients();
 		term_restore();
 		exit(0);
@@ -250,10 +250,10 @@ void parseArgs(int argc, char **argv) {
 		alternatePath = NULL;
 	}
 	
-	if (isSet("runTests") || isSet("runPerfTests")) {
+	if (args_is_set("runTests") || args_is_set("runPerfTests")) {
 #ifdef CRAY_TESTING
 		char *suite = NULL;
-		if (isSet("test_suite")) suite = getDatabaseString(g_options, "test_suite");
+		if (args_is_set("test_suite")) suite = getDatabaseString(g_options, "test_suite");
 		switch (testIdx) {
 			case -3:
 				printf("%i", getPerfTestCount(suite));
@@ -264,10 +264,10 @@ void parseArgs(int argc, char **argv) {
 				exit(0);
 				break;
 			case -1:
-				exit(isSet("runPerfTests") ? runPerfTests(suite) : runTests(suite));
+				exit(args_is_set("runPerfTests") ? runPerfTests(suite) : runTests(suite));
 				break;
 			default:
-				exit(isSet("runPerfTests") ? runPerfTest(testIdx, suite) : runTest(testIdx, suite));
+				exit(args_is_set("runPerfTests") ? runPerfTest(testIdx, suite) : runTest(testIdx, suite));
 				break;
 		}
 #else
@@ -278,30 +278,30 @@ void parseArgs(int argc, char **argv) {
 	}
 }
 
-bool isSet(const char *key) {
+bool args_is_set(const char *key) {
 	if (!g_options) return false;
 	return existsInDatabase(g_options, key);
 }
 
-int intPref(const char *key) {
+int args_int(const char *key) {
 	ASSERT(existsInDatabase(g_options, key));
 	return getDatabaseInt(g_options, key);
 }
 
-char *stringPref(const char *key) {
+char *args_string(const char *key) {
 	return getDatabaseString(g_options, key);
 }
 
-char *pathArg() {
+char *args_path() {
 	ASSERT(existsInDatabase(g_options, "inputFile"));
 	return getDatabaseString(g_options, "inputFile");
 }
 
-char *specifiedAssetPath(void) {
+char *args_asset_path(void) {
 	ASSERT(existsInDatabase(g_options, "asset_path"));
 	return getDatabaseString(g_options, "asset_path");
 }
 
-void destroyOptions() {
+void args_destroy() {
 	freeConstantsDatabase(g_options);
 }

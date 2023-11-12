@@ -353,7 +353,7 @@ static void draw_frames(struct texture *overlay, struct render_tile_arr tiles) {
 void win_update(struct sdl_window *w, struct renderer *r, struct texture *t) {
 	if (!w) return;
 	//Render frames
-	if (!isSet("interactive") || r->state.clients) {
+	if (!args_is_set("interactive") || r->state.clients) {
 		draw_frames(w->overlay, r->state.tiles);
 		draw_prog_bars(w->overlay, r->state.tiles);
 	}

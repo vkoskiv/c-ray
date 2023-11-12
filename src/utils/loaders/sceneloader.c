@@ -230,8 +230,8 @@ void parse_prefs(struct cr_renderer *ext, const cJSON *data) {
 	// from there.
 
 	// Now check and apply potential CLI overrides.
-	if (isSet("thread_override")) {
-		size_t threads = intPref("thread_override");
+	if (args_is_set("thread_override")) {
+		size_t threads = args_int("thread_override");
 		int64_t curr = cr_renderer_get_num_pref(ext, cr_renderer_threads);
 		if (curr != (int64_t)threads) {
 			logr(info, "Overriding thread count to %zu\n", threads);
@@ -240,42 +240,42 @@ void parse_prefs(struct cr_renderer *ext, const cJSON *data) {
 		}
 	}
 	
-	if (isSet("samples_override")) {
-		if (isSet("is_worker")) {
+	if (args_is_set("samples_override")) {
+		if (args_is_set("is_worker")) {
 			logr(warning, "Can't override samples when in worker mode\n");
 		} else {
-			int samples = intPref("samples_override");
+			int samples = args_int("samples_override");
 			logr(info, "Overriding sample count to %i\n", samples);
 			cr_renderer_set_num_pref(ext, cr_renderer_samples, samples);
 		}
 	}
 	
-	if (isSet("dims_override")) {
-		if (isSet("is_worker")) {
+	if (args_is_set("dims_override")) {
+		if (args_is_set("is_worker")) {
 			logr(warning, "Can't override dimensions when in worker mode\n");
 		} else {
-			int width = intPref("dims_width");
-			int height = intPref("dims_height");
+			int width = args_int("dims_width");
+			int height = args_int("dims_height");
 			logr(info, "Overriding image dimensions to %ix%i\n", width, height);
 			cr_renderer_set_num_pref(ext, cr_renderer_override_width, width);
 			cr_renderer_set_num_pref(ext, cr_renderer_override_height, height);
 		}
 	}
 	
-	if (isSet("tiledims_override")) {
-		if (isSet("is_worker")) {
+	if (args_is_set("tiledims_override")) {
+		if (args_is_set("is_worker")) {
 			logr(warning, "Can't override tile dimensions when in worker mode\n");
 		} else {
-			int width = intPref("tile_width");
-			int height = intPref("tile_height");
+			int width = args_int("tile_width");
+			int height = args_int("tile_height");
 			logr(info, "Overriding tile  dimensions to %ix%i\n", width, height);
 			cr_renderer_set_num_pref(ext, cr_renderer_tile_width, width);
 			cr_renderer_set_num_pref(ext, cr_renderer_tile_height, height);
 		}
 	}
 
-	if (isSet("cam_index")) {
-		cr_renderer_set_num_pref(ext, cr_renderer_override_cam, intPref("cam_index"));
+	if (args_is_set("cam_index")) {
+		cr_renderer_set_num_pref(ext, cr_renderer_override_cam, args_int("cam_index"));
 	}
 }
 
@@ -781,8 +781,8 @@ int parseJSON(struct renderer *r, const cJSON *json) {
 
 	parse_prefs((struct cr_renderer *)r, cJSON_GetObjectItem(json, "renderer"));
 
-	if (isSet("output_path")) {
-		char *path = stringPref("output_path");
+	if (args_is_set("output_path")) {
+		char *path = args_string("output_path");
 		logr(info, "Overriding output path to %s\n", path);
 		free(r->prefs.imgFileName);
 		free(r->prefs.imgFilePath);

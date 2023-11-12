@@ -354,7 +354,7 @@ int startWorkerServer() {
 		logr(error, "Socket creation failed.\n");
 	}
 	
-	int port = isSet("worker_port") ? intPref("worker_port") : C_RAY_DEFAULT_PORT;
+	int port = args_is_set("worker_port") ? args_int("worker_port") : C_RAY_DEFAULT_PORT;
 	
 	bzero(&ownAddress, sizeof(ownAddress));
 	ownAddress.sin_family = AF_INET;

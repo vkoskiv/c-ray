@@ -11,28 +11,29 @@
 
 #include "utils/logging.h"
 #include "utils/fileio.h"
+#include "utils/args.h"
 #include "utils/platform/terminal.h"
 
 int main(int argc, char *argv[]) {
 	term_init();
 	atexit(term_restore);
 	logr(info, "c-ray v%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
-	cr_parse_args(argc, argv);
+	args_parse(argc, argv);
 	struct cr_renderer *renderer = cr_new_renderer();
-	if (!cr_is_option_set("is_worker")) {
+	if (!args_is_set("is_worker")) {
 		size_t bytes = 0;
-		char *input = cr_is_option_set("inputFile") ? load_file(cr_path_arg(), &bytes, NULL) : read_stdin(&bytes);
+		char *input = args_is_set("inputFile") ? load_file(args_path(), &bytes, NULL) : read_stdin(&bytes);
 		if (!input) {
 			logr(info, "No input provided, exiting.\n");
 			cr_destroy_renderer(renderer);
-			cr_destroy_options();
+			args_destroy();
 			return -1;
 		}
-		logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, cr_is_option_set("inputFile") ? "file" : "stdin");
+		logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, args_is_set("inputFile") ? "file" : "stdin");
 		if (cr_load_scene_from_buf(renderer, input) < 0) {
 			logr(warning, "Scene parse failed, exiting.\n");
 			cr_destroy_renderer(renderer);
-			cr_destroy_options();
+			args_destroy();
 			return 0;
 		}
 
@@ -43,7 +44,7 @@ int main(int argc, char *argv[]) {
 	}
 	
 	cr_destroy_renderer(renderer);
-	cr_destroy_options();
+	args_destroy();
 	logr(info, "Render finished, exiting.\n");
 	return 0;
 }

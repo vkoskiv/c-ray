@@ -108,9 +108,9 @@ static bool connectToClient(struct renderClient *client) {
 // Fetches list of nodes from arguments, verifies that they are reachable, and
 // returns them in a nice list. Also got the size there in the amount param, if you need it.
 static struct renderClient *buildClientList(size_t *amount) {
-	ASSERT(isSet("use_clustering"));
-	ASSERT(isSet("nodes_list"));
-	char *nodesString = stringPref("nodes_list");
+	ASSERT(args_is_set("use_clustering"));
+	ASSERT(args_is_set("nodes_list"));
+	char *nodesString = args_string("nodes_list");
 	// Really barebones parsing for IP addresses and ports in a comma-separated list
 	// Expected to break easily. Don't break it.
 	char buf[LINEBUFFER_MAXSIZE];

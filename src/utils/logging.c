@@ -66,7 +66,7 @@ static void printDate() {
 
 void logr(enum logType type, const char *fmt, ...) {
 	if (!fmt) return;
-	if (type == debug && !isSet("v")) return;
+	if (type == debug && !args_is_set("v")) return;
 	
 	if (type != plain) {
 		printPrefix(type);

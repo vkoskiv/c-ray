@@ -150,13 +150,13 @@ int loadScene(struct renderer *r, char *input) {
 	// This is where we prepare a cache of scene data to be sent to worker nodes
 	// We also apply any potential command-line overrides to that cache here as well.
 	// FIXME: This overrides setting should be integrated with scene loading, probably.
-	if (isSet("use_clustering")) {
+	if (args_is_set("use_clustering")) {
 		// Stash a cache of scene data here
 		// Apply overrides to the cache here
-		if (isSet("samples_override")) {
+		if (args_is_set("samples_override")) {
 			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
 			if (cJSON_IsObject(renderer)) {
-				int samples = intPref("samples_override");
+				int samples = args_int("samples_override");
 				logr(debug, "Overriding cache sample count to %i\n", samples);
 				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "samples"))) {
 					cJSON_ReplaceItemInObject(renderer, "samples", cJSON_CreateNumber(samples));
@@ -166,11 +166,11 @@ int loadScene(struct renderer *r, char *input) {
 			}
 		}
 		
-		if (isSet("dims_override")) {
+		if (args_is_set("dims_override")) {
 			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
 			if (cJSON_IsObject(renderer)) {
-				int width = intPref("dims_width");
-				int height = intPref("dims_height");
+				int width = args_int("dims_width");
+				int height = args_int("dims_height");
 				logr(info, "Overriding cache image dimensions to %ix%i\n", width, height);
 				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "width")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "height"))) {
 					cJSON_ReplaceItemInObject(renderer, "width", cJSON_CreateNumber(width));
@@ -182,11 +182,11 @@ int loadScene(struct renderer *r, char *input) {
 			}
 		}
 		
-		if (isSet("tiledims_override")) {
+		if (args_is_set("tiledims_override")) {
 			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
 			if (cJSON_IsObject(renderer)) {
-				int width = intPref("tile_width");
-				int height = intPref("tile_height");
+				int width = args_int("tile_width");
+				int height = args_int("tile_height");
 				logr(info, "Overriding cache tile dimensions to %ix%i\n", width, height);
 				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileWidth")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileHeight"))) {
 					cJSON_ReplaceItemInObject(renderer, "tileWidth", cJSON_CreateNumber(width));

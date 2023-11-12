@@ -77,7 +77,7 @@ struct texture *renderFrame(struct renderer *r) {
 		 KNRM,
 		 PLURAL(r->prefs.threads));
 	
-	logr(info, "Pathtracing%s...\n", isSet("interactive") ? " iteratively" : "");
+	logr(info, "Pathtracing%s...\n", args_is_set("interactive") ? " iteratively" : "");
 	
 	r->state.rendering = true;
 	r->state.render_aborted = false;
@@ -88,7 +88,7 @@ struct texture *renderFrame(struct renderer *r) {
 	float avgTimePerTilePass = 0.0f;
 	int pauser = 0;
 	int ctr = 1;
-	bool interactive = isSet("interactive");
+	bool interactive = args_is_set("interactive");
 	
 	size_t remoteThreads = 0;
 	for (size_t i = 0; i < r->state.clientCount; ++i) {
@@ -382,7 +382,7 @@ struct renderer *renderer_new() {
 	r->state.finishedPasses = 1;
 	
 	r->state.tileMutex = mutex_create();
-	if (isSet("use_clustering")) r->state.file_cache = calloc(1, sizeof(struct file_cache));
+	if (args_is_set("use_clustering")) r->state.file_cache = calloc(1, sizeof(struct file_cache));
 
 	r->scene = calloc(1, sizeof(*r->scene));
 	r->scene->storage.node_pool = newBlock(NULL, 1024);

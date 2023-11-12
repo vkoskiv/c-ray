@@ -8,16 +8,16 @@
 
 #pragma once
 
-void parseArgs(int argc, char **argv);
+void args_parse(int argc, char **argv);
 
-bool isSet(const char *key);
+bool args_is_set(const char *key);
 
-int intPref(const char *key);
+int args_int(const char *key);
 
-char *stringPref(const char *key);
+char *args_string(const char *key);
 
-char *pathArg(void);
+char *args_path(void);
 
-char *specifiedAssetPath(void);
+char *args_asset_path(void);
 
-void destroyOptions(void);
+void args_destroy(void);
