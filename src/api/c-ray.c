@@ -80,14 +80,6 @@ struct cr_renderer *cr_new_renderer() {
 	return (struct cr_renderer *)r;
 }
 
-enum cr_renderer_param {
-	cr_renderer_threads = 0,
-	cr_renderer_samples,
-	cr_renderer_bounces,
-	cr_renderer_tile_width,
-	cr_renderer_tile_height,
-};
-
 bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p, uint64_t num) {
 	if (!ext) return false;
 	struct renderer *r = (struct renderer *)ext;
@@ -113,6 +105,74 @@ bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			r->prefs.tileHeight = num;
 			return true;
 		}
+		case cr_renderer_output_num: {
+			r->prefs.imgCount = num;
+			return true;
+		}
+		case cr_renderer_override_width: {
+			r->prefs.override_width = num;
+			r->prefs.override_dimensions = true;
+			return true;
+		}
+		case cr_renderer_override_height: {
+			r->prefs.override_height = num;
+			r->prefs.override_dimensions = true;
+			return true;
+		}
+		case cr_renderer_override_cam: {
+			r->prefs.selected_camera = num;
+			return true;
+		}
+		default: {
+			logr(warning, "Renderer param %i not a number\n", p);
+		}
+	}
+	return false;
+}
+
+bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p, const char *str) {
+	if (!ext) return false;
+	struct renderer *r = (struct renderer *)ext;
+	switch (p) {
+		case cr_renderer_tile_order: {
+			if (stringEquals(str, "random")) {
+				r->prefs.tileOrder = renderOrderRandom;
+			} else if (stringEquals(str, "topToBottom")) {
+				r->prefs.tileOrder = renderOrderTopToBottom;
+			} else if (stringEquals(str, "fromMiddle")) {
+				r->prefs.tileOrder = renderOrderFromMiddle;
+			} else if (stringEquals(str, "toMiddle")) {
+				r->prefs.tileOrder = renderOrderToMiddle;
+			} else {
+				r->prefs.tileOrder = renderOrderNormal;
+			}
+			return true;
+		}
+		case cr_renderer_output_path: {
+			if (r->prefs.imgFilePath) free(r->prefs.imgFilePath);
+			r->prefs.imgFilePath = stringCopy(str);
+			return true;
+		}
+		case cr_renderer_output_name: {
+			if (r->prefs.imgFileName) free(r->prefs.imgFileName);
+			r->prefs.imgFileName = stringCopy(str);
+			return true;
+		}
+		case cr_renderer_output_filetype: {
+			if (stringEquals(str, "bmp")) {
+				r->prefs.imgType = bmp;
+			} else if (stringEquals(str, "png")) {
+				r->prefs.imgType = png;
+			} else if (stringEquals(str, "qoi")) {
+				r->prefs.imgType = qoi;
+			} else {
+				return false;
+			}
+			return true;
+		}
+		default: {
+			logr(warning, "Renderer param %i not a string\n", p);
+		}
 	}
 	return false;
 }
@@ -126,6 +186,10 @@ uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_para
 		case cr_renderer_bounces: return r->prefs.bounces;
 		case cr_renderer_tile_width: return r->prefs.tileWidth;
 		case cr_renderer_tile_height: return r->prefs.tileHeight;
+		case cr_renderer_output_num: return r->prefs.imgCount;
+		case cr_renderer_override_width: return r->prefs.override_width;
+		case cr_renderer_override_height: return r->prefs.override_height;
+		default: return 0; // TODO
 	}
 	return 0;
 }

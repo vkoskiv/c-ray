@@ -161,184 +161,82 @@ static struct transform parseTransform(const cJSON *data, char *targetName) {
 	return tform_new_translate(0.0f, 0.0f, 0.0f);
 }
 
-void parsePrefs(struct prefs *prefs, const cJSON *data) {
-	if (!data) return;
+void parse_prefs(struct cr_renderer *ext, const cJSON *data) {
+	if (!data || !ext) return;
 
 	const cJSON *threads = cJSON_GetObjectItem(data, "threads");
-	if (threads) {
-		if (cJSON_IsNumber(threads)) {
-			if (threads->valueint > 0) {
-				prefs->threads = threads->valueint;
-				prefs->fromSystem = false;
-			} else {
-				prefs->threads = getSysCores() + 2;
-				prefs->fromSystem = true;
-			}
+	if (cJSON_IsNumber(threads) && threads->valueint > 0) {
+		if (threads->valueint > 0) {
+			cr_renderer_set_num_pref(ext, cr_renderer_threads, threads->valueint);
+			// prefs->fromSystem = false;
 		} else {
-			logr(warning, "Invalid threads while parsing renderer\n");
+			cr_renderer_set_num_pref(ext, cr_renderer_threads, getSysCores() + 2);
+			// prefs->fromSystem = true;
 		}
 	}
 
 	const cJSON *samples = cJSON_GetObjectItem(data, "samples");
-	if (samples) {
-		if (cJSON_IsNumber(samples)) {
-			if (samples->valueint >= 1) {
-				prefs->sampleCount = samples->valueint;
-			} else {
-				prefs->sampleCount = 1;
-			}
-		} else {
-			logr(warning, "Invalid samples while parsing renderer\n");
-		}
-	}
+	if (cJSON_IsNumber(samples) && samples->valueint > 0)
+		cr_renderer_set_num_pref(ext, cr_renderer_samples, samples->valueint);
 
 	const cJSON *bounces = cJSON_GetObjectItem(data, "bounces");
-	if (bounces) {
-		if (cJSON_IsNumber(bounces)) {
-			if (bounces->valueint >= 0) {
-				prefs->bounces = bounces->valueint;
-			} else {
-				prefs->bounces = 1;
-			}
-		} else {
-			logr(warning, "Invalid bounces while parsing renderer\n");
-		}
+	if (cJSON_IsNumber(bounces) && bounces->valueint >= 0)
+		cr_renderer_set_num_pref(ext, cr_renderer_bounces, bounces->valueint);
+
+	const cJSON *tile_width = cJSON_GetObjectItem(data, "tileWidth");
+	if (cJSON_IsNumber(tile_width) && tile_width->valueint > 0)
+		cr_renderer_set_num_pref(ext, cr_renderer_tile_width, tile_width->valueint);
+
+	const cJSON *tile_height = cJSON_GetObjectItem(data, "tileHeight");
+	if (cJSON_IsNumber(tile_height) && tile_height->valueint > 0)
+		cr_renderer_set_num_pref(ext, cr_renderer_tile_height, tile_height->valueint);
+
+	const cJSON *tile_order = cJSON_GetObjectItem(data, "tileOrder");
+	if (cJSON_IsString(tile_order)) {
+		cr_renderer_set_str_pref(ext, cr_renderer_tile_order, tile_order->valuestring);
 	}
 
-	const cJSON *tileWidth = cJSON_GetObjectItem(data, "tileWidth");
-	if (tileWidth) {
-		if (cJSON_IsNumber(tileWidth)) {
-			if (tileWidth->valueint >= 1) {
-				prefs->tileWidth = tileWidth->valueint;
-			} else {
-				prefs->tileWidth = 1;
-			}
-		} else {
-			logr(warning, "Invalid tileWidth while parsing renderer\n");
-		}
+	const cJSON *file_path = cJSON_GetObjectItem(data, "outputFilePath");
+	if (cJSON_IsString(file_path)) {
+		cr_renderer_set_str_pref(ext, cr_renderer_output_path, file_path->valuestring);
 	}
 
-	const cJSON *tileHeight = cJSON_GetObjectItem(data, "tileHeight");
-	if (tileHeight) {
-		if (cJSON_IsNumber(tileHeight)) {
-			if (tileHeight->valueint >= 1) {
-				prefs->tileHeight = tileHeight->valueint;
-			} else {
-				prefs->tileHeight = 1;
-			}
-		} else {
-			logr(warning, "Invalid tileHeight while parsing renderer\n");
-		}
-	}
-
-	const cJSON *tileOrder = cJSON_GetObjectItem(data, "tileOrder");
-	if (tileOrder) {
-		if (cJSON_IsString(tileOrder)) {
-			if (stringEquals(tileOrder->valuestring, "random")) {
-				prefs->tileOrder = renderOrderRandom;
-			} else if (stringEquals(tileOrder->valuestring, "topToBottom")) {
-				prefs->tileOrder = renderOrderTopToBottom;
-			} else if (stringEquals(tileOrder->valuestring, "fromMiddle")) {
-				prefs->tileOrder = renderOrderFromMiddle;
-			} else if (stringEquals(tileOrder->valuestring, "toMiddle")) {
-				prefs->tileOrder = renderOrderToMiddle;
-			} else {
-				prefs->tileOrder = renderOrderNormal;
-			}
-		} else {
-			logr(warning, "Invalid tileOrder while parsing renderer\n");
-		}
-	}
-
-	const cJSON *filePath = cJSON_GetObjectItem(data, "outputFilePath");
-	if (filePath) {
-		if (cJSON_IsString(filePath)) {
-			free(prefs->imgFilePath);
-			prefs->imgFilePath = stringCopy(filePath->valuestring);
-		} else {
-			logr(warning, "Invalid filePath while parsing scene.\n");
-		}
-	}
-
-	const cJSON *fileName = cJSON_GetObjectItem(data, "outputFileName");
-	if (fileName) {
-		if (cJSON_IsString(fileName)) {
-			free(prefs->imgFileName);
-			prefs->imgFileName = stringCopy(fileName->valuestring);
-		} else {
-			logr(warning, "Invalid fileName while parsing scene.\n");
-		}
+	const cJSON *file_name = cJSON_GetObjectItem(data, "outputFileName");
+	if (cJSON_IsString(file_name)) {
+		cr_renderer_set_str_pref(ext, cr_renderer_output_name, file_name->valuestring);
 	}
 
 	const cJSON *count = cJSON_GetObjectItem(data, "count");
-	if (count) {
-		if (cJSON_IsNumber(count)) {
-			if (count->valueint >= 0) {
-				prefs->imgCount = count->valueint;
-			} else {
-				prefs->imgCount = 0;
-			}
-		} else {
-			logr(warning, "Invalid count while parsing scene.\n");
-		}
+	if (cJSON_IsNumber(count)) {
+		cr_renderer_set_num_pref(ext, cr_renderer_output_num, count->valueint);
 	}
 
-	bool width_set = false;
-	bool height_set = false;
 	const cJSON *width = cJSON_GetObjectItem(data, "width");
-	if (width) {
-		if (cJSON_IsNumber(width)) {
-			if (width->valueint >= 0) {
-				prefs->override_width = width->valueint;
-			} else {
-				prefs->override_width = 640;
-			}
-			width_set = true;
-		} else {
-			logr(warning, "Invalid width while parsing scene.\n");
-		}
+	if (cJSON_IsNumber(width)) {
+		cr_renderer_set_num_pref(ext, cr_renderer_override_width, width->valueint);
 	}
 
 	const cJSON *height = cJSON_GetObjectItem(data, "height");
-	if (height) {
-		if (cJSON_IsNumber(height)) {
-			if (height->valueint >= 0) {
-				prefs->override_height = height->valueint;
-			} else {
-				prefs->override_height = 400;
-			}
-			height_set = true;
-		} else {
-			logr(warning, "Invalid height while parsing scene.\n");
-		}
+	if (cJSON_IsNumber(height)) {
+		cr_renderer_set_num_pref(ext, cr_renderer_override_height, height->valueint);
 	}
-
-	if (width_set && height_set) prefs->override_dimensions = true;
 
 	const cJSON *fileType = cJSON_GetObjectItem(data, "fileType");
-	if (fileType) {
-		if (cJSON_IsString(fileType)) {
-			if (stringEquals(fileType->valuestring, "bmp")) {
-				prefs->imgType = bmp;
-			} else if (stringEquals(fileType->valuestring, "png")) {
-				prefs->imgType = png;
-			} else if (stringEquals(fileType->valuestring, "qoi")) {
-				prefs->imgType = qoi;
-			} else {
-				prefs->imgType = unknown;
-			}
-		} else {
-			logr(warning, "Invalid fileType while parsing scene.\n");
-		}
+	if (cJSON_IsString(fileType)) {
+		cr_renderer_set_str_pref(ext, cr_renderer_output_filetype, fileType->valuestring);
 	}
+
+	// FIXME: Remove global options table, store it in a local in main() and run overrides
+	// from there.
 
 	// Now check and apply potential CLI overrides.
 	if (isSet("thread_override")) {
 		size_t threads = intPref("thread_override");
-		if (prefs->threads != threads) {
+		int64_t curr = cr_renderer_get_num_pref(ext, cr_renderer_threads);
+		if (curr != (int64_t)threads) {
 			logr(info, "Overriding thread count to %zu\n", threads);
-			prefs->threads = threads;
-			prefs->fromSystem = false;
+			cr_renderer_set_num_pref(ext, cr_renderer_threads, threads);
+			// prefs->fromSystem = false; FIXME
 		}
 	}
 	
@@ -348,7 +246,7 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 		} else {
 			int samples = intPref("samples_override");
 			logr(info, "Overriding sample count to %i\n", samples);
-			prefs->sampleCount = samples;
+			cr_renderer_set_num_pref(ext, cr_renderer_samples, samples);
 		}
 	}
 	
@@ -359,9 +257,8 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 			int width = intPref("dims_width");
 			int height = intPref("dims_height");
 			logr(info, "Overriding image dimensions to %ix%i\n", width, height);
-			prefs->override_width = width;
-			prefs->override_height = height;
-			prefs->override_dimensions = true;
+			cr_renderer_set_num_pref(ext, cr_renderer_override_width, width);
+			cr_renderer_set_num_pref(ext, cr_renderer_override_height, height);
 		}
 	}
 	
@@ -372,13 +269,13 @@ void parsePrefs(struct prefs *prefs, const cJSON *data) {
 			int width = intPref("tile_width");
 			int height = intPref("tile_height");
 			logr(info, "Overriding tile  dimensions to %ix%i\n", width, height);
-			prefs->tileWidth = width;
-			prefs->tileHeight = height;
+			cr_renderer_set_num_pref(ext, cr_renderer_tile_width, width);
+			cr_renderer_set_num_pref(ext, cr_renderer_tile_height, height);
 		}
 	}
 
 	if (isSet("cam_index")) {
-		prefs->selected_camera = intPref("cam_index");
+		cr_renderer_set_num_pref(ext, cr_renderer_override_cam, intPref("cam_index"));
 	}
 }
 
@@ -883,7 +780,7 @@ static void parseScene(struct renderer *r, const cJSON *data) {
 
 int parseJSON(struct renderer *r, const cJSON *json) {
 
-	parsePrefs(&r->prefs, cJSON_GetObjectItem(json, "renderer"));
+	parse_prefs((struct cr_renderer *)r, cJSON_GetObjectItem(json, "renderer"));
 
 	if (isSet("output_path")) {
 		char *path = stringPref("output_path");
@@ -902,10 +799,11 @@ int parseJSON(struct renderer *r, const cJSON *json) {
 		return -1;
 	}
 
-	if (r->prefs.override_dimensions) {
+	if (r->prefs.override_width && r->prefs.override_height) {
 		for (size_t i = 0; i < r->scene->cameras.count; ++i) {
-			r->scene->cameras.items[i].width = r->prefs.override_width;
-			r->scene->cameras.items[i].height = r->prefs.override_height;
+			struct camera *cam = &r->scene->cameras.items[i];
+			cam->width = r->prefs.override_width ? (int)r->prefs.override_width : cam->width;
+			cam->height = r->prefs.override_height ? (int)r->prefs.override_height : cam->height;
 			cam_recompute_optics(&r->scene->cameras.items[i]);
 		}
 	}

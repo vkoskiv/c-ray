@@ -366,8 +366,6 @@ static struct prefs defaults() {
 			.imgFileName = stringCopy("rendered"),
 			.imgCount = 0,
 			.override_dimensions = false,
-			.override_width = 1280,
-			.override_height = 800,
 			.imgType = png,
 			.window = {
 				.enabled = true,

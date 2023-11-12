@@ -29,6 +29,28 @@ char *cr_get_file_path(char *full_path);
 
 struct cr_renderer;
 struct cr_renderer *cr_new_renderer(void);
+
+enum cr_renderer_param {
+	cr_renderer_threads = 0,
+	cr_renderer_samples,
+	cr_renderer_bounces,
+	cr_renderer_tile_width,
+	cr_renderer_tile_height,
+
+	cr_renderer_tile_order,
+	//TODO: Renderer shouldn't know these
+	cr_renderer_output_path,
+	cr_renderer_output_name,
+	cr_renderer_output_filetype,
+	cr_renderer_output_num,
+	cr_renderer_override_width,
+	cr_renderer_override_height,
+	cr_renderer_override_cam,
+};
+
+bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p, uint64_t num);
+bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p, const char *str);
+uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_param p);
 void cr_destroy_renderer(struct cr_renderer *r);
 
 struct cr_scene;
