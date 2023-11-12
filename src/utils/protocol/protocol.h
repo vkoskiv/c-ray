@@ -14,7 +14,7 @@
 #define C_RAY_DEFAULT_PORT 2222
 #define PROTO_VERSION "0.1"
 
-struct renderTile;
+struct render_tile;
 struct renderClient;
 struct texture;
 struct renderer;
@@ -37,9 +37,9 @@ cJSON *goodbye(void);
 
 cJSON *newAction(const char *action);
 
-cJSON *encodeTile(const struct renderTile *tile);
+cJSON *encodeTile(const struct render_tile *tile);
 
-struct renderTile decodeTile(const cJSON *json);
+struct render_tile decodeTile(const cJSON *json);
 
 cJSON *encodeTexture(const struct texture *t);
 

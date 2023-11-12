@@ -71,7 +71,7 @@ cJSON *newAction(const char *action) {
 	return actionJson;
 }
 
-cJSON *encodeTile(const struct renderTile *tile) {
+cJSON *encodeTile(const struct render_tile *tile) {
 	cJSON *json = cJSON_CreateObject();
 	cJSON_AddNumberToObject(json, "width", tile->width);
 	cJSON_AddNumberToObject(json, "height", tile->height);
@@ -86,8 +86,8 @@ cJSON *encodeTile(const struct renderTile *tile) {
 	return json;
 }
 
-struct renderTile decodeTile(const cJSON *json) {
-	struct renderTile tile = {0};
+struct render_tile decodeTile(const cJSON *json) {
+	struct render_tile tile = {0};
 	tile.width = cJSON_GetObjectItem(json, "width")->valueint;
 	tile.height = cJSON_GetObjectItem(json, "height")->valueint;
 	tile.begin.x = cJSON_GetObjectItem(json, "beginX")->valueint;

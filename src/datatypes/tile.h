@@ -12,12 +12,12 @@
 
 #include "vector.h"
 
-enum renderOrder {
-	renderOrderTopToBottom = 0,
-	renderOrderFromMiddle,
-	renderOrderToMiddle,
-	renderOrderNormal,
-	renderOrderRandom
+enum render_order {
+	ro_top_to_bottom = 0,
+	ro_from_middle,
+	ro_to_middle,
+	ro_normal,
+	ro_random
 };
 
 struct renderer;
@@ -28,33 +28,21 @@ enum tile_state {
 	finished
 };
 
-/**
- Render tile, contains needed information for the renderer
- */
-struct renderTile {
+struct render_tile {
 	unsigned width;
 	unsigned height;
 	struct intCoord begin;
 	struct intCoord end;
 	enum tile_state state;
-	bool networkRenderer; //FIXME: client struct ptr
+	bool network_renderer; //FIXME: client struct ptr
 	int index;
 	size_t total_samples;
 	size_t completed_samples;
 };
 
 /// Quantize the render plane into an array of tiles, with properties as specified in the parameters below
-/// @param renderTiles Array to place renderTiles into
-/// @param width Render plane width
-/// @param height Render plane height
-/// @param tileWidth Tile width
-/// @param tileHeight Tile height
-/// @param tileOrder Order for the renderer to render the tiles in
-unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum renderOrder tileOrder);
+unsigned tile_quantize(struct render_tile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum render_order tileOrder);
 
+struct render_tile *tile_next(struct renderer *r);
 
-/// Grab the next tile from the queue
-/// @param r It's the renderer, yo.
-struct renderTile *nextTile(struct renderer *r);
-
-struct renderTile *nextTileInteractive(struct renderer *r);
+struct render_tile *tile_next_interactive(struct renderer *r);

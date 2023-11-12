@@ -55,7 +55,7 @@ struct workerThreadState {
 	bool threadComplete;
 	size_t completedSamples;
 	long avgSampleTime;
-	struct renderTile *current;
+	struct render_tile *current;
 };
 
 static cJSON *validateHandshake(const cJSON *in) {
@@ -99,7 +99,7 @@ static cJSON *receiveScene(const cJSON *json) {
 }
 
 // Tilenum of -1 communicates that it failed to get work, signaling the work thread to exit
-static struct renderTile *getWork(int connectionSocket) {
+static struct render_tile *getWork(int connectionSocket) {
 	if (!sendJSON(connectionSocket, newAction("getWork"), NULL)) {
 		return NULL;
 	}
@@ -116,14 +116,14 @@ static struct renderTile *getWork(int connectionSocket) {
 	// In fact, this whole tile object thing might be a bit pointless, since
 	// we can just keep track of indices, and compute the tile dims
 	cJSON *tileJson = cJSON_GetObjectItem(response, "tile");
-	struct renderTile tile = decodeTile(tileJson);
+	struct render_tile tile = decodeTile(tileJson);
 	g_worker_renderer->state.renderTiles[tile.index] = tile;
 	logr(debug, "Got work   : %i ((%i,%i),(%i,%i))\n", tile.index, tile.begin.x, tile.begin.y, tile.end.x, tile.end.y);
 	cJSON_Delete(response);
 	return &g_worker_renderer->state.renderTiles[tile.index];
 }
 
-static bool submitWork(int sock, struct texture *work, struct renderTile *forTile) {
+static bool submitWork(int sock, struct texture *work, struct render_tile *forTile) {
 	cJSON *result = encodeTexture(work);
 	cJSON *tile = encodeTile(forTile);
 	cJSON *package = newAction("submitWork");
@@ -251,7 +251,7 @@ static cJSON *startRender(int connectionSocket) {
 			cJSON *array = cJSON_AddArrayToObject(stats, "tiles");
 			logr(debug, "( ");
 			for (size_t t = 0; t < threadCount; ++t) {
-				struct renderTile *tile = workerThreadStates[t].current;
+				struct render_tile *tile = workerThreadStates[t].current;
 				if (tile) {
 					cJSON_AddItemToArray(array, encodeTile(tile));
 					logr(plain, "%i: %5zu%s", tile->index, tile->completed_samples, t < threadCount - 1 ? ", " : " ");

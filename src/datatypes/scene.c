@@ -222,7 +222,7 @@ int loadScene(struct renderer *r, char *input) {
 	}
 	
 	//Quantize image into renderTiles
-	r->state.tileCount = quantizeImage(&r->state.renderTiles,
+	r->state.tileCount = tile_quantize(&r->state.renderTiles,
 									   r->scene->cameras.items[r->prefs.selected_camera].width,
 									   r->scene->cameras.items[r->prefs.selected_camera].height,
 									   r->prefs.tileWidth,

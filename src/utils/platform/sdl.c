@@ -300,7 +300,7 @@ void win_check_keyboard(struct sdl_window *sdl, struct renderer *r) {
 	}
 }
 
-static void draw_bar(struct texture *overlay, struct renderTile *t) {
+static void draw_bar(struct texture *overlay, struct render_tile *t) {
 	float prc = ((float)t->completed_samples / t->total_samples);
 	size_t pixels = (int)((float)t->width * prc);
 	struct color c = t->state == rendering ? g_prog_color : g_clear_color;
@@ -311,12 +311,12 @@ static void draw_bar(struct texture *overlay, struct renderTile *t) {
 	}
 }
 
-static void draw_prog_bars(struct texture *overlay, struct renderTile *tiles, size_t tile_count) {
+static void draw_prog_bars(struct texture *overlay, struct render_tile *tiles, size_t tile_count) {
 	for (size_t tile = 0; tile < tile_count; ++tile)
 		draw_bar(overlay, &tiles[tile]);
 }
 
-static void draw_frame(struct texture *buf, struct renderTile tile, struct color c) {
+static void draw_frame(struct texture *buf, struct render_tile tile, struct color c) {
 	unsigned length = tile.width  <= 16 ? 4 : 8;
 			 length = tile.height <= 16 ? 4 : 8;
 	length = length > tile.width ? tile.width : length;
@@ -341,9 +341,9 @@ static void draw_frame(struct texture *buf, struct renderTile tile, struct color
 	}
 }
 
-static void draw_frames(struct texture *overlay, struct renderTile *tiles, size_t tile_count) {
+static void draw_frames(struct texture *overlay, struct render_tile *tiles, size_t tile_count) {
 	for (size_t i = 0; i < tile_count; ++i) {
-		struct renderTile tile = tiles[i];
+		struct render_tile tile = tiles[i];
 	if (tile.width < 8 || tile.height < 8) return;
 		struct color c = tile.state == rendering ? g_frame_color : g_clear_color;
 		draw_frame(overlay, tile, c);

@@ -21,7 +21,7 @@ struct worker {
 	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.
 	
 	//Share info about the current tile with main thread
-	struct renderTile *currentTile;
+	struct render_tile *currentTile;
 	size_t completedSamples; //FIXME: Remove
 	uint64_t totalSamples;
 	
@@ -35,7 +35,7 @@ struct worker {
 
 /// Renderer state data
 struct state {
-	struct renderTile *renderTiles; //Array of renderTiles to render
+	struct render_tile *renderTiles; //Array of renderTiles to render
 	size_t tileCount; //Total amount of render tiles
 	size_t finishedTileCount;
 	size_t finishedPasses; // For interactive mode
@@ -61,7 +61,7 @@ struct sdl_prefs {
 
 /// Preferences data (Set by user)
 struct prefs {
-	enum renderOrder tileOrder;
+	enum render_order tileOrder;
 	
 	size_t threads; //Amount of threads to render with
 	bool fromSystem; //Did we ask the system for thread count

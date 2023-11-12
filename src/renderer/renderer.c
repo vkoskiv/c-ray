@@ -206,7 +206,7 @@ void *renderThreadInteractive(void *arg) {
 	struct camera *cam = threadState->cam;
 	
 	//First time setup for each thread
-	struct renderTile *tile = nextTileInteractive(r);
+	struct render_tile *tile = tile_next_interactive(r);
 	threadState->currentTile = tile;
 	
 	struct timeval timer = {0};
@@ -261,7 +261,7 @@ void *renderThreadInteractive(void *arg) {
 		tile->state = finished;
 		threadState->currentTile = NULL;
 		threadState->completedSamples = r->state.finishedPasses;
-		tile = nextTileInteractive(r);
+		tile = tile_next_interactive(r);
 		threadState->currentTile = tile;
 	}
 	destroySampler(sampler);
@@ -287,7 +287,7 @@ void *renderThread(void *arg) {
 	struct camera *cam = threadState->cam;
 
 	//First time setup for each thread
-	struct renderTile *tile = nextTile(r);
+	struct render_tile *tile = tile_next(r);
 	threadState->currentTile = tile;
 	
 	struct timeval timer = {0};
@@ -343,7 +343,7 @@ void *renderThread(void *arg) {
 		tile->state = finished;
 		threadState->currentTile = NULL;
 		threadState->completedSamples = 1;
-		tile = nextTile(r);
+		tile = tile_next(r);
 		threadState->currentTile = tile;
 	}
 	destroySampler(sampler);
@@ -355,7 +355,7 @@ void *renderThread(void *arg) {
 
 static struct prefs defaults() {
 	return (struct prefs){
-			.tileOrder = renderOrderFromMiddle,
+			.tileOrder = ro_from_middle,
 			.threads = getSysCores() + 2,
 			.fromSystem = true,
 			.sampleCount = 25,

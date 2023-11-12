@@ -153,9 +153,9 @@ static struct renderClient *buildClientList(size_t *amount) {
 static cJSON *processGetWork(struct worker *state, const cJSON *json) {
 	(void)state;
 	(void)json;
-	struct renderTile *tile = nextTile(state->renderer);
+	struct render_tile *tile = tile_next(state->renderer);
 	if (!tile) return newAction("renderComplete");
-	tile->networkRenderer = true;
+	tile->network_renderer = true;
 	cJSON *response = newAction("newWork");
 	cJSON_AddItemToObject(response, "tile", encodeTile(tile));
 	return response;
@@ -165,7 +165,7 @@ static cJSON *processSubmitWork(struct worker *state, const cJSON *json) {
 	cJSON *resultJson = cJSON_GetObjectItem(json, "result");
 	struct texture *tileImage = decodeTexture(resultJson);
 	cJSON *tileJson = cJSON_GetObjectItem(json, "tile");
-	struct renderTile tile = decodeTile(tileJson);
+	struct render_tile tile = decodeTile(tileJson);
 	state->renderer->state.renderTiles[tile.index] = tile;
 	state->renderer->state.renderTiles[tile.index].state = finished; // FIXME: Remove
 	for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
@@ -248,7 +248,7 @@ void *networkRenderThread(void *arg) {
 			if (cJSON_IsArray(array)) {
 				cJSON *tile = NULL;
 				cJSON_ArrayForEach(tile, array) {
-					struct renderTile t = decodeTile(tile);
+					struct render_tile t = decodeTile(tile);
 					r->state.renderTiles[t.index] = t;
 					//r->state.renderTiles[t.tileNum].completed_samples = t.completed_samples;
 				}

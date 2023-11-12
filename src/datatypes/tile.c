@@ -16,10 +16,10 @@
 #include "../vendored/pcg_basic.h"
 #include <string.h>
 
-static void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder);
+static void reorderTiles(struct render_tile **tiles, unsigned tileCount, enum render_order tileOrder);
 
-struct renderTile *nextTile(struct renderer *r) {
-	struct renderTile *tile = NULL;
+struct render_tile *tile_next(struct renderer *r) {
+	struct render_tile *tile = NULL;
 	mutex_lock(r->state.tileMutex);
 	if (r->state.finishedTileCount < r->state.tileCount) {
 		tile = &r->state.renderTiles[r->state.finishedTileCount];
@@ -28,8 +28,8 @@ struct renderTile *nextTile(struct renderer *r) {
 	} else {
 		// If a network worker disappeared during render, finish those tiles locally here at the end
 		for (size_t t = 0; t < r->state.tileCount; ++t) {
-			if (r->state.renderTiles[t].state == rendering && r->state.renderTiles[t].networkRenderer) {
-				r->state.renderTiles[t].networkRenderer = false;
+			if (r->state.renderTiles[t].state == rendering && r->state.renderTiles[t].network_renderer) {
+				r->state.renderTiles[t].network_renderer = false;
 				tile = &r->state.renderTiles[t];
 				tile->state = rendering;
 				tile->index = t;
@@ -41,8 +41,8 @@ struct renderTile *nextTile(struct renderer *r) {
 	return tile;
 }
 
-struct renderTile *nextTileInteractive(struct renderer *r) {
-	struct renderTile *tile = NULL;
+struct render_tile *tile_next_interactive(struct renderer *r) {
+	struct render_tile *tile = NULL;
 	mutex_lock(r->state.tileMutex);
 	again:
 	if (r->state.finishedPasses < r->prefs.sampleCount + 1) {
@@ -60,7 +60,7 @@ struct renderTile *nextTileInteractive(struct renderer *r) {
 	return tile;
 }
 
-unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum renderOrder tileOrder) {
+unsigned tile_quantize(struct render_tile **renderTiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum render_order tileOrder) {
 	
 	logr(info, "Quantizing render plane\n");
 	
@@ -85,7 +85,7 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 	int tileCount = 0;
 	for (unsigned y = 0; y < tilesY; ++y) {
 		for (unsigned x = 0; x < tilesX; ++x) {
-			struct renderTile *tile = &(*renderTiles)[x + y * tilesX];
+			struct render_tile *tile = &(*renderTiles)[x + y * tilesX];
 			tile->width  = tileWidth;
 			tile->height = tileHeight;
 			
@@ -113,10 +113,10 @@ unsigned quantizeImage(struct renderTile **renderTiles, unsigned width, unsigned
 	return tileCount;
 }
 
-static void reorderTopToBottom(struct renderTile **tiles, unsigned tileCount) {
+static void reorderTopToBottom(struct render_tile **tiles, unsigned tileCount) {
 	unsigned endIndex = tileCount - 1;
 	
-	struct renderTile *tempArray = calloc(tileCount, sizeof(*tempArray));
+	struct render_tile *tempArray = calloc(tileCount, sizeof(*tempArray));
 	
 	for (unsigned i = 0; i < tileCount; ++i) {
 		tempArray[i] = (*tiles)[endIndex--];
@@ -142,19 +142,19 @@ static unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_rand
 	return min + (r / buckets);
 }
 
-static void reorderRandom(struct renderTile **tiles, unsigned tileCount) {
+static void reorderRandom(struct render_tile **tiles, unsigned tileCount) {
 	pcg32_random_t rng;
 	pcg32_srandom_r(&rng, 3141592, 0);
 	for (unsigned i = 0; i < tileCount; ++i) {
 		unsigned random = rand_interval(0, tileCount - 1, &rng);
 		
-		struct renderTile temp = (*tiles)[i];
+		struct render_tile temp = (*tiles)[i];
 		(*tiles)[i] = (*tiles)[random];
 		(*tiles)[random] = temp;
 	}
 }
 
-static void reorderFromMiddle(struct renderTile **tiles, unsigned tileCount) {
+static void reorderFromMiddle(struct render_tile **tiles, unsigned tileCount) {
 	int midLeft = 0;
 	int midRight = 0;
 	bool isRight = true;
@@ -162,7 +162,7 @@ static void reorderFromMiddle(struct renderTile **tiles, unsigned tileCount) {
 	midRight = ceil(tileCount / 2);
 	midLeft = midRight - 1;
 	
-	struct renderTile *tempArray = calloc(tileCount, sizeof(*tempArray));
+	struct render_tile *tempArray = calloc(tileCount, sizeof(*tempArray));
 	
 	for (unsigned i = 0; i < tileCount; ++i) {
 		if (isRight) {
@@ -178,14 +178,14 @@ static void reorderFromMiddle(struct renderTile **tiles, unsigned tileCount) {
 	*tiles = tempArray;
 }
 
-static void reorderToMiddle(struct renderTile **tiles, unsigned tileCount) {
+static void reorderToMiddle(struct render_tile **tiles, unsigned tileCount) {
 	unsigned left = 0;
 	unsigned right = 0;
 	bool isRight = true;
 	
 	right = tileCount - 1;
 	
-	struct renderTile *tempArray = calloc(tileCount, sizeof(*tempArray));
+	struct render_tile *tempArray = calloc(tileCount, sizeof(*tempArray));
 	
 	for (unsigned i = 0; i < tileCount; ++i) {
 		if (isRight) {
@@ -201,18 +201,18 @@ static void reorderToMiddle(struct renderTile **tiles, unsigned tileCount) {
 	*tiles = tempArray;
 }
 
-static void reorderTiles(struct renderTile **tiles, unsigned tileCount, enum renderOrder tileOrder) {
+static void reorderTiles(struct render_tile **tiles, unsigned tileCount, enum render_order tileOrder) {
 	switch (tileOrder) {
-		case renderOrderFromMiddle:
+		case ro_from_middle:
 			reorderFromMiddle(tiles, tileCount);
 			break;
-		case renderOrderToMiddle:
+		case ro_to_middle:
 			reorderToMiddle(tiles, tileCount);
 			break;
-		case renderOrderTopToBottom:
+		case ro_top_to_bottom:
 			reorderTopToBottom(tiles, tileCount);
 			break;
-		case renderOrderRandom:
+		case ro_random:
 			reorderRandom(tiles, tileCount);
 			break;
 		default:

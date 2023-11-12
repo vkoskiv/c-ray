@@ -136,15 +136,15 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 	switch (p) {
 		case cr_renderer_tile_order: {
 			if (stringEquals(str, "random")) {
-				r->prefs.tileOrder = renderOrderRandom;
+				r->prefs.tileOrder = ro_random;
 			} else if (stringEquals(str, "topToBottom")) {
-				r->prefs.tileOrder = renderOrderTopToBottom;
+				r->prefs.tileOrder = ro_top_to_bottom;
 			} else if (stringEquals(str, "fromMiddle")) {
-				r->prefs.tileOrder = renderOrderFromMiddle;
+				r->prefs.tileOrder = ro_from_middle;
 			} else if (stringEquals(str, "toMiddle")) {
-				r->prefs.tileOrder = renderOrderToMiddle;
+				r->prefs.tileOrder = ro_to_middle;
 			} else {
-				r->prefs.tileOrder = renderOrderNormal;
+				r->prefs.tileOrder = ro_normal;
 			}
 			return true;
 		}
