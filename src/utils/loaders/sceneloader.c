@@ -10,10 +10,10 @@
 #include "sceneloader.h"
 
 //FIXME: We should only need to include c-ray.h here!
+#include <c-ray/c-ray.h>
 
 #include "../../datatypes/scene.h"
 #include "../../datatypes/vector.h"
-#include "../../datatypes/camera.h"
 #include "../../datatypes/mesh.h"
 #include "../../datatypes/sphere.h"
 #include "../../datatypes/material.h"
@@ -442,164 +442,99 @@ float getRadians(const cJSON *object) {
 	return 0.0f;
 }
 
-//TODO: Delet these two
-static struct euler_angles *parseRotations(const cJSON *transforms) {
-	if (!transforms) return NULL;
+static struct euler_angles parseRotations(const cJSON *transforms) {
+	if (!transforms) return (struct euler_angles){ 0 };
 	
-	struct euler_angles rotations = { 0 };
+	struct euler_angles angles = { 0 };
 	const cJSON *transform = NULL;
 	cJSON_ArrayForEach(transform, transforms) {
 		cJSON *type = cJSON_GetObjectItem(transform, "type");
 		if (stringEquals(type->valuestring, "rotateX")) {
-			rotations.roll = getRadians(transform);
+			angles.roll = getRadians(transform);
 		}
 		if (stringEquals(type->valuestring, "rotateY")) {
-			rotations.pitch = getRadians(transform);
+			angles.pitch = getRadians(transform);
 		}
 		if (stringEquals(type->valuestring, "rotateZ")) {
-			rotations.yaw = getRadians(transform);
+			angles.yaw = getRadians(transform);
 		}
 	}
-	
-	struct euler_angles *angles = calloc(1, sizeof(*angles));
-	*angles = rotations;
 	
 	return angles;
 }
 
-static struct vector *parseLocation(const cJSON *transforms) {
-	if (!transforms) return NULL;
+static struct vector parse_location(const cJSON *transforms) {
+	if (!transforms) return (struct vector){ 0 };
 	
-	struct vector *loc = NULL;
 	const cJSON *transform = NULL;
 	cJSON_ArrayForEach(transform, transforms) {
 		cJSON *type = cJSON_GetObjectItem(transform, "type");
 		if (stringEquals(type->valuestring, "translate")) {
-			loc = calloc(1, sizeof(*loc));
 			const cJSON *x = cJSON_GetObjectItem(transform, "x");
 			const cJSON *y = cJSON_GetObjectItem(transform, "y");
 			const cJSON *z = cJSON_GetObjectItem(transform, "z");
 			
-			*loc = (struct vector){x->valuedouble, y->valuedouble, z->valuedouble};
+			return (struct vector){x->valuedouble, y->valuedouble, z->valuedouble};
 		}
 	}
-	return loc;
+	return (struct vector){ 0 };
 }
 
-static struct camera parseCamera(const cJSON *data) {
-	struct camera cam = (struct camera){ 0 };
-	if (!cJSON_IsObject(data)) return cam;
+static void parse_camera(struct cr_scene *s, const cJSON *data) {
+	if (!cJSON_IsObject(data)) return;
+	cr_camera cam = cr_camera_new(s);
+
 	const cJSON *FOV = cJSON_GetObjectItem(data, "FOV");
-	if (FOV) {
-		if (cJSON_IsNumber(FOV)) {
-			if (FOV->valuedouble >= 0.0) {
-				if (FOV->valuedouble > 180.0) {
-					cam.FOV = 180.0f;
-				} else {
-					cam.FOV = FOV->valuedouble;
-				}
-			} else {
-				cam.FOV = 80.0f;
-			}
-		} else {
-			logr(warning, "Invalid FOV value while parsing camera.\n");
-		}
-	}
+	if (cJSON_IsNumber(FOV) && FOV->valuedouble >= 0.0 && FOV->valuedouble < 180.0)
+		cr_camera_set_num_pref(s, cam, cr_camera_fov, FOV->valuedouble);
 
-	const cJSON *focalDistance = cJSON_GetObjectItem(data, "focalDistance");
-	if (focalDistance) {
-		if (cJSON_IsNumber(focalDistance)) {
-			if (focalDistance->valuedouble >= 0.0) {
-				cam.focus_distance = focalDistance->valuedouble;
-			} else {
-				cam.focus_distance = 0.0f;
-			}
-		} else {
-			logr(warning, "Invalid focalDistance while parsing camera.\n");
-		}
-	}
+	const cJSON *focus_dist = cJSON_GetObjectItem(data, "focalDistance"); //FIXME: Rename in json
+	if (cJSON_IsNumber(focus_dist) && focus_dist->valuedouble >= 0.0)
+		cr_camera_set_num_pref(s, cam, cr_camera_focus_distance, focus_dist->valuedouble);
 
-	const cJSON *aperture = cJSON_GetObjectItem(data, "fstops");
-	if (aperture) {
-		if (cJSON_IsNumber(aperture)) {
-			if (aperture->valuedouble >= 0.0) {
-				cam.fstops = aperture->valuedouble;
-			} else {
-				cam.fstops = 0.0f;
-			}
-		} else {
-			logr(warning, "Invalid aperture while parsing camera.\n");
-		}
-	}
+	const cJSON *fstops = cJSON_GetObjectItem(data, "fstops");
+	if (cJSON_IsNumber(fstops) && fstops->valuedouble >= 0.0)
+		cr_camera_set_num_pref(s, cam, cr_camera_fstops, fstops->valuedouble);
 
 	const cJSON *width = cJSON_GetObjectItem(data, "width");
-	if (width) {
-		if (cJSON_IsNumber(width)) {
-			cam.width = width->valueint > 0 ? width->valueint : 640;
-		} else {
-			logr(warning, "Invalid sensor width while parsing camera.\n");
-		}
-	}
+	if (cJSON_IsNumber(width) && width->valueint > 0)
+		cr_camera_set_num_pref(s, cam, cr_camera_res_x, width->valuedouble);
 
 	const cJSON *height = cJSON_GetObjectItem(data, "height");
-	if (height) {
-		if (cJSON_IsNumber(height)) {
-			cam.height = height->valueint > 0 ? height->valueint : 400;
-		} else {
-			logr(warning, "Invalid sensor height while parsing camera.\n");
-		}
-	}
+	if (cJSON_IsNumber(height) && height->valueint > 0)
+		cr_camera_set_num_pref(s, cam, cr_camera_res_x, height->valuedouble);
 
 	const cJSON *time = cJSON_GetObjectItem(data, "time");
-	if (time) {
-		if (cJSON_IsNumber(time)) {
-			if (time->valuedouble >= 0.0) {
-				cam.time = time->valuedouble;
-			} else {
-				cam.time = 0.0f;
-			}
-		} else {
-			logr(warning, "Invalid time while parsing camera.\n");
-		}
-	}
+	if (cJSON_IsNumber(time) && time->valuedouble >= 0.0)
+		cr_camera_set_num_pref(s, cam, cr_camera_time, time->valuedouble);
 
-	// FIXME: Hack - we should really just not use transforms externally for the camera
-	// Just can't be bothered to fix up all the scene files by hand right now
-	struct euler_angles *rotations = NULL;
-	struct vector *location = NULL;
 	const cJSON *transforms = cJSON_GetObjectItem(data, "transforms");
-	if (transforms) {
-		if (cJSON_IsArray(transforms)) {
-			rotations = parseRotations(transforms);
-			location = parseLocation(transforms);
-		} else {
-			logr(warning, "Invalid transforms while parsing camera.\n");
-		}
-	}
 
-#ifdef TEST_BEZIER
-	cam.path = test();
-#endif
+	struct vector location = parse_location(transforms);
+	cr_camera_set_num_pref(s, cam, cr_camera_pose_x, (double)location.x);
+	cr_camera_set_num_pref(s, cam, cr_camera_pose_y, (double)location.y);
+	cr_camera_set_num_pref(s, cam, cr_camera_pose_z, (double)location.z);
 
-	cam_update_pose(&cam, rotations, location);
-	cam_recompute_optics(&cam);
-	free(rotations);
-	free(location);
-	return cam;
+	struct euler_angles pose = parseRotations(transforms);
+	cr_camera_set_num_pref(s, cam, cr_camera_pose_roll,  (double)pose.roll);
+	cr_camera_set_num_pref(s, cam, cr_camera_pose_pitch, (double)pose.pitch);
+	cr_camera_set_num_pref(s, cam, cr_camera_pose_yaw,   (double)pose.yaw);
+
+	cr_camera_update(s, cam);
 }
 
-static void parseCameras(struct camera_arr *cameras, const cJSON *data) {
+static void parse_cameras(struct world *w, const cJSON *data) {
 	if (!data) return;
+	struct cr_scene *scene = (struct cr_scene *)w;
 
 	if (cJSON_IsObject(data)) {
-		// Single camera
-		camera_arr_add(cameras, parseCamera(data));
+		parse_camera(scene, data);
 		return;
 	}
 	ASSERT(cJSON_IsArray(data));
 	cJSON *camera = NULL;
 	cJSON_ArrayForEach(camera, data) {
-		camera_arr_add(cameras, parseCamera(camera));
+		parse_camera(scene, camera);
 	}
 }
 
@@ -960,7 +895,7 @@ int parseJSON(struct renderer *r, const cJSON *json) {
 	}
 
 	parseDisplay(&r->prefs.window, cJSON_GetObjectItem(json, "display"));
-	parseCameras(&r->scene->cameras, cJSON_GetObjectItem(json, "camera"));
+	parse_cameras(r->scene, cJSON_GetObjectItem(json, "camera"));
 
 	if (!r->scene->cameras.count) {
 		logr(warning, "No cameras specified, nothing to render.\n");

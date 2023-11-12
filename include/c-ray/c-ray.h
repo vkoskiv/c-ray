@@ -9,6 +9,8 @@
 #pragma once
 
 // Cray public-facing API
+#include <stdbool.h>
+#include <stdint.h>
 
 struct renderInfo;
 struct texture;
@@ -28,6 +30,33 @@ char *cr_get_file_path(char *full_path);
 struct cr_renderer;
 struct cr_renderer *cr_new_renderer(void);
 void cr_destroy_renderer(struct cr_renderer *r);
+
+struct cr_scene;
+struct cr_scene *cr_scene_create(struct cr_renderer *r);
+void cr_scene_destroy(struct cr_scene *s);
+
+enum cr_camera_param {
+	cr_camera_fov,
+	cr_camera_focus_distance,
+	cr_camera_fstops,
+
+	cr_camera_pose_x,
+	cr_camera_pose_y,
+	cr_camera_pose_z,
+	cr_camera_pose_roll,
+	cr_camera_pose_pitch,
+	cr_camera_pose_yaw,
+
+	cr_camera_time,
+
+	cr_camera_res_x,
+	cr_camera_res_y,
+};
+
+typedef int32_t cr_camera;
+cr_camera cr_camera_new(struct cr_scene *ext);
+bool cr_camera_set_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_param p, double num);
+bool cr_camera_update(struct cr_scene *ext, cr_camera c);
 
 int cr_load_scene_from_file(struct cr_renderer *r, char *file_path);
 int cr_load_scene_from_buf(struct cr_renderer *r, char *buf);

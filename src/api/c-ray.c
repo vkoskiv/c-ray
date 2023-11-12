@@ -144,20 +144,97 @@ struct cr_object *cr_object_new(struct cr_scene *s) {
 struct cr_instance;
 
 struct cr_instance *cr_instance_new(struct cr_object *o) {
+	(void)o;
 	return NULL;
 }
 
 // -- Camera --
 
-struct cr_camera;
+struct camera default_camera = {
+	.FOV = 80.0f,
+	.focus_distance = 0.0f,
+	.fstops = 0.0f,
+	.width = 800,
+	.height = 600,
+};
 
-struct cr_camera *cr_camera_new(struct cr_scene *s) {
-	//TODO
-	(void)s;
-	return NULL;
+cr_camera cr_camera_new(struct cr_scene *ext) {
+	if (!ext) return -1;
+	struct world *scene = (struct world *)ext;
+	return camera_arr_add(&scene->cameras, default_camera);
 }
 
-bool cr_camera_remove(struct cr_scene *s, struct cr_camera *c) {
+bool cr_camera_set_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_param p, double num) {
+	if (c < 0 || !ext) return false;
+	struct world *scene = (struct world *)ext;
+	if ((size_t)c > scene->cameras.count - 1) return false;
+	struct camera *cam = &scene->cameras.items[c];
+	switch (p) {
+		case cr_camera_fov: {
+			cam->FOV = num;
+			return true;
+		}
+		case cr_camera_focus_distance: {
+			cam->focus_distance = num;
+			return true;
+		}
+		case cr_camera_fstops: {
+			cam->fstops = num;
+			return true;
+		}
+		case cr_camera_pose_x: {
+			cam->position.x = num;
+			return true;
+		}
+		case cr_camera_pose_y: {
+			cam->position.y = num;
+			return true;
+		}
+		case cr_camera_pose_z: {
+			cam->position.z = num;
+			return true;
+		}
+		case cr_camera_pose_roll: {
+			cam->orientation.roll = num;
+			return true;
+		}
+		case cr_camera_pose_pitch: {
+			cam->orientation.pitch = num;
+			return true;
+		}
+		case cr_camera_pose_yaw: {
+			cam->orientation.yaw = num;
+			return true;
+		}
+		case cr_camera_time: {
+			cam->time = num;
+			return true;
+		}
+		case cr_camera_res_x: {
+			cam->width = num;
+			return true;
+		}
+		case cr_camera_res_y: {
+			cam->height = num;
+			return true;
+		}
+	}
+
+	cam_update_pose(cam, &cam->orientation, &cam->position);
+	return false;
+}
+
+bool cr_camera_update(struct cr_scene *ext, cr_camera c) {
+	if (c < 0 || !ext) return false;
+	struct world *scene = (struct world *)ext;
+	if ((size_t)c > scene->cameras.count - 1) return false;
+	struct camera *cam = &scene->cameras.items[c];
+	cam_update_pose(cam, &cam->orientation, &cam->position);
+	cam_recompute_optics(cam);
+	return true;
+}
+
+bool cr_camera_remove(struct cr_scene *s, cr_camera c) {
 	//TODO
 	(void)s;
 	(void)c;
