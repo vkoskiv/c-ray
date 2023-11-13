@@ -23,12 +23,8 @@ struct renderInfo {
 struct imageFile {
 	struct texture *t;
 	enum fileType type;
-	char *filePath;
-	char *fileName;
+	const char *filePath;
+	const char *fileName;
 	int count;
 	struct renderInfo info;
 };
-
-struct imageFile *newImageFile(struct texture *t, const char *filePath, const char *fileName, int count, enum fileType type);
-
-void destroyImageFile(struct imageFile *file);

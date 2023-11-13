@@ -816,15 +816,6 @@ int parse_json(struct cr_renderer *r, cJSON *json) {
 
 	parse_prefs(r, cJSON_GetObjectItem(json, "renderer"));
 
-	if (args_is_set("output_path")) {
-		char *path = args_string("output_path");
-		logr(info, "Overriding output path to %s\n", path);
-		free(todo_remove_r->prefs.imgFileName);
-		free(todo_remove_r->prefs.imgFilePath);
-		todo_remove_r->prefs.imgFilePath = get_file_path(path);
-		todo_remove_r->prefs.imgFileName = get_file_name(path);
-	}
-
 	parseDisplay(&todo_remove_r->prefs.window, cJSON_GetObjectItem(json, "display"));
 	parse_cameras((struct cr_scene *)todo_remove_r->scene, cJSON_GetObjectItem(json, "camera"));
 

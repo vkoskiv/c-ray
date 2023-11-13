@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "../datatypes/image/imagefile.h"
 #include "../renderer/renderer.h"
 #include "../datatypes/scene.h"
 #include "../utils/gitsha1.h"
@@ -22,9 +21,7 @@
 #include "../utils/platform/terminal.h"
 #include "../utils/assert.h"
 #include "../datatypes/image/texture.h"
-#include "../utils/timer.h"
 #include "../utils/args.h"
-#include "../utils/encoders/encoder.h"
 #include "../utils/string.h"
 #include "../utils/protocol/server.h"
 #include "../utils/protocol/worker.h"
@@ -40,8 +37,6 @@
 #endif
 
 #define VERSION "0.6.3"DEBUG
-
-struct texture *currentImage = NULL;
 
 char *cr_get_version() {
 	return VERSION;
@@ -165,6 +160,17 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 	return false;
 }
 
+const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_param p) {
+	if (!ext) return NULL;
+	struct renderer *r = (struct renderer *)ext;
+	switch (p) {
+		case cr_renderer_output_path: return r->prefs.imgFilePath;
+		case cr_renderer_output_name: return r->prefs.imgFileName;
+		default: return NULL;
+	}
+	return NULL;
+}
+
 uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_param p) {
 	if (!ext) return 0;
 	struct renderer *r = (struct renderer *)ext;
@@ -177,6 +183,8 @@ uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_para
 		case cr_renderer_output_num: return r->prefs.imgCount;
 		case cr_renderer_override_width: return r->prefs.override_width;
 		case cr_renderer_override_height: return r->prefs.override_height;
+		case cr_renderer_should_save: return r->state.saveImage ? 1 : 0;
+		case cr_renderer_output_filetype: return r->prefs.imgType;
 		default: return 0; // TODO
 	}
 	return 0;
@@ -338,27 +346,6 @@ bool cr_camera_remove(struct cr_scene *s, cr_camera c) {
 
 // --
 
-void cr_write_image(struct cr_renderer *ext) {
-	struct renderer *r = (struct renderer *)ext;
-	if (currentImage) {
-		if (r->state.saveImage) {
-			struct imageFile *file = newImageFile(currentImage, r->prefs.imgFilePath, r->prefs.imgFileName, r->prefs.imgCount, r->prefs.imgType);
-			file->info = (struct renderInfo){
-				.bounces = cr_renderer_get_num_pref(ext, cr_renderer_bounces),
-				.samples = cr_renderer_get_num_pref(ext, cr_renderer_samples),
-				.crayVersion = cr_get_version(),
-				.gitHash = cr_get_git_hash(),
-				.renderTime = timer_get_ms(r->state.timer),
-				.threadCount = cr_renderer_get_num_pref(ext, cr_renderer_threads)
-			};
-			writeImage(file);
-			destroyImageFile(file);
-		} else {
-			logr(info, "Abort pressed, image won't be saved.\n");
-		}
-	}
-}
-
 void cr_load_mesh_from_file(char *file_path) {
 	(void)file_path;
 	ASSERT_NOT_REACHED();
@@ -369,7 +356,7 @@ void cr_load_mesh_from_buf(char *buf) {
 	ASSERT_NOT_REACHED();
 }
 
-void cr_start_renderer(struct cr_renderer *ext) {
+struct texture *cr_renderer_render(struct cr_renderer *ext) {
 	struct renderer *r = (struct renderer *)ext;
 	if (args_is_set("use_clustering")) {
 		r->prefs.useClustering = true;
@@ -380,14 +367,10 @@ void cr_start_renderer(struct cr_renderer *ext) {
 	}
 	if (!r->state.clients && r->prefs.threads == 0) {
 		logr(warning, "You specified 0 local threads, and no network clients were found. Nothing to do.\n");
-		return;
+		return NULL;
 	}
-	timer_start(&r->state.timer);
-	currentImage = renderFrame(r);
-	long ms = timer_get_ms(r->state.timer);
-	logr(info, "Finished render in ");
-	printSmartTime(ms);
-	logr(plain, "                     \n");
+	struct texture *image = renderFrame(r);
+	return image;
 }
 
 void cr_start_render_worker() {

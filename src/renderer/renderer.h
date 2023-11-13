@@ -45,7 +45,6 @@ struct state {
 	struct worker *workers;
 	struct renderClient *clients;
 	size_t clientCount;
-	struct timeval timer;
 	struct file_cache *file_cache; // A file cache for network render nodes. NULL if only local render.
 	
 	struct cr_mutex *tileMutex;

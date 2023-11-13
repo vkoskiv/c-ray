@@ -36,6 +36,31 @@ static char *getFileExtension(const char *fileName) {
 	return extension;
 }
 
+enum fileType match_file_type(const char *ext) {
+	if (!ext) return unknown;
+	if (stringEquals(ext, "bmp"))
+		return bmp;
+	if (stringEquals(ext, "png"))
+		return png;
+	if (stringEquals(ext, "hdr"))
+		return hdr;
+	if (stringEquals(ext, "obj"))
+		return obj;
+	if (stringEquals(ext, "mtl"))
+		return mtl;
+	if (stringEquals(ext, "jpg"))
+		return jpg;
+	if (stringEquals(ext, "tiff"))
+		return tiff;
+	if (stringEquals(ext, "qoi"))
+		return qoi;
+	if (stringEquals(ext, "gltf"))
+		return gltf;
+	if (stringEquals(ext, "glb"))
+		return glb;
+	return unknown;
+}
+
 enum fileType guess_file_type(const char *filePath) {
 	char *fileName = get_file_name(filePath);
 	char *extension = getFileExtension(fileName);
@@ -43,32 +68,8 @@ enum fileType guess_file_type(const char *filePath) {
 	free(extension);
 	extension = lower;
 	free(fileName);
-	
-	if (!extension) return unknown;
-	
-	enum fileType type = unknown;
-	if (stringEquals(extension, "bmp"))
-		type = bmp;
-	if (stringEquals(extension, "png"))
-		type = png;
-	if (stringEquals(extension, "hdr"))
-		type = hdr;
-	if (stringEquals(extension, "obj"))
-		type = obj;
-	if (stringEquals(extension, "mtl"))
-		type = mtl;
-	if (stringEquals(extension, "jpg"))
-		type = jpg;
-	if (stringEquals(extension, "tiff"))
-		type = tiff;
-	if (stringEquals(extension, "qoi"))
-		type = qoi;
-	if (stringEquals(extension, "gltf"))
-		type = gltf;
-	if (stringEquals(extension, "glb"))
-		type = glb;
+	enum fileType type = match_file_type(extension);
 	free(extension);
-	
 	return type;
 }
 

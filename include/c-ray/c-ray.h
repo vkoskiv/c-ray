@@ -40,11 +40,13 @@ enum cr_renderer_param {
 	cr_renderer_output_num,
 	cr_renderer_override_width,
 	cr_renderer_override_height,
+	cr_renderer_should_save, //FIXME: Remove
 	cr_renderer_override_cam,
 };
 
 bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p, uint64_t num);
 bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p, const char *str);
+const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_param p);
 uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_param p);
 void cr_destroy_renderer(struct cr_renderer *r);
 
@@ -88,10 +90,8 @@ bool cr_camera_update(struct cr_scene *ext, cr_camera c);
 void cr_load_mesh_from_file(char *filePath);
 void cr_load_mesh_from_buf(char *buf);
 
-void cr_write_image(struct cr_renderer *r); //Write out the current image to file
-
 //Single frame
-void cr_start_renderer(struct cr_renderer *r);
+struct texture *cr_renderer_render(struct cr_renderer *r);
 
 //Network render worker
 void cr_start_render_worker(void);
