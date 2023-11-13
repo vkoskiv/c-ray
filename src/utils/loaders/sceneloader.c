@@ -437,7 +437,8 @@ static void parse_cameras(struct cr_scene *scene, const cJSON *data) {
 }
 
 //FIXME: Convert this to use parseBsdfNode
-static void parseAmbientColor(struct renderer *r, const cJSON *data) {
+static void parse_ambient_color(struct cr_renderer *r_ext, struct cr_scene *s, const cJSON *data) {
+	struct renderer *r = (struct renderer *)r_ext;
 	const cJSON *offset = cJSON_GetObjectItem(data, "offset");
 	if (cJSON_IsNumber(offset)) {
 		r->scene->backgroundOffset = deg_to_rad(offset->valuedouble) / 4.0f;
@@ -448,21 +449,16 @@ static void parseAmbientColor(struct renderer *r, const cJSON *data) {
 	const cJSON *hdr = cJSON_GetObjectItem(data, "hdr");
 
 	if (cJSON_IsString(hdr)) {
-		char *fullPath = stringConcat(r->prefs.assetPath, hdr->valuestring);
-		if (is_valid_file(fullPath, r->state.file_cache)) {
-			r->scene->background = newBackground(&r->scene->storage, newImageTexture(&r->scene->storage, load_texture(fullPath, &r->scene->storage.node_pool, r->state.file_cache), 0), NULL);
-			free(fullPath);
-			return;
-		}
-		free(fullPath);
+		cr_scene_set_background_hdr(r_ext, s, hdr->valuestring);
+		return;
 	}
 	
 	if (down && up) {
-		r->scene->background = newBackground(&r->scene->storage, newGradientTexture(&r->scene->storage, color_parse(down), color_parse(up)), NULL);
+		struct color d = color_parse(down);
+		struct color u = color_parse(up);
+		cr_scene_set_background(s, (struct cr_color *)&d, (struct cr_color *)&u);
 		return;
 	}
-
-	r->scene->background = newBackground(&r->scene->storage, NULL, NULL);
 }
 
 struct transform parse_composite_transform(const cJSON *transforms) {
@@ -738,10 +734,11 @@ static void parse_primitives(struct renderer *r, const cJSON *data) {
 	}
 }
 
-static void parseScene(struct renderer *r, const cJSON *data) {
-	parseAmbientColor(r, cJSON_GetObjectItem(data, "ambientColor"));
-	parse_primitives(r, cJSON_GetObjectItem(data, "primitives"));
-	parse_meshes(r, cJSON_GetObjectItem(data, "meshes"));
+static void parseScene(struct cr_renderer *r, const cJSON *data) {
+	struct renderer *todo_remove_r = (struct renderer *)r;
+	parse_ambient_color(r, (struct cr_scene *)todo_remove_r->scene, cJSON_GetObjectItem(data, "ambientColor"));
+	parse_primitives(todo_remove_r, cJSON_GetObjectItem(data, "primitives"));
+	parse_meshes(todo_remove_r, cJSON_GetObjectItem(data, "meshes"));
 }
 
 struct bvh_build_task {
@@ -853,7 +850,7 @@ int parse_json(struct cr_renderer *r, cJSON *json) {
 	todo_remove_r->prefs.selected_camera = todo_remove_r->prefs.selected_camera < todo_remove_r->scene->cameras.count ? todo_remove_r->prefs.selected_camera : todo_remove_r->scene->cameras.count - 1;
 	if (todo_remove_r->prefs.selected_camera != 0) logr(info, "Selecting camera %li\n", todo_remove_r->prefs.selected_camera);
 
-	parseScene(todo_remove_r, cJSON_GetObjectItem(json, "scene"));
+	parseScene(r, cJSON_GetObjectItem(json, "scene"));
 
 	// --------------
 	

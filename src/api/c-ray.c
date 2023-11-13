@@ -31,6 +31,7 @@
 #include "../utils/filecache.h"
 #include "../utils/hashtable.h"
 #include "../datatypes/camera.h"
+#include "../utils/loaders/textureloader.h"
 
 #ifdef CRAY_DEBUG_ENABLED
 #define DEBUG "D"
@@ -181,6 +182,32 @@ uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_para
 	return 0;
 }
 
+bool cr_scene_set_background_hdr(struct cr_renderer *r_ext, struct cr_scene *s_ext, const char *hdr_filename) {
+	if (!r_ext || !s_ext) return false;
+	struct renderer *r = (struct renderer *)r_ext;
+	struct world *w = (struct world *)s_ext;
+	char *full_path = stringConcat(r->prefs.assetPath, hdr_filename);
+	if (is_valid_file(full_path, r->state.file_cache)) {
+		w->background = newBackground(&w->storage, newImageTexture(&w->storage, load_texture(full_path, &w->storage.node_pool, r->state.file_cache), 0), NULL);
+		free(full_path);
+		return true;
+	}
+	free(full_path);
+	return false;
+}
+
+bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_color *down, struct cr_color *up) {
+	if (!s_ext) return false;
+	struct world *s = (struct world *)s_ext;
+	if (down && up) {
+		s->background = newBackground(&s->storage, newGradientTexture(&s->storage, *(struct color *)down, *(struct color *)up), NULL);
+		return true;
+	} else {
+		s->background = newBackground(&s->storage, NULL, NULL);
+	}
+	return false;
+}
+
 void cr_destroy_renderer(struct cr_renderer *ext) {
 	struct renderer *r = (struct renderer *)ext;
 	ASSERT(r);
@@ -191,6 +218,7 @@ void cr_destroy_renderer(struct cr_renderer *ext) {
 
 struct cr_scene;
 
+// Do we want multiple scenes anyway?
 struct cr_scene *cr_scene_create(struct cr_renderer *r) {
 	(void)r;
 	return NULL;
