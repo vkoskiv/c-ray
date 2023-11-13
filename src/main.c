@@ -66,6 +66,58 @@ int main(int argc, char *argv[]) {
 		goto done;
 	}
 
+	// FIXME: Remove global options table, store it in a local in main() and run overrides
+	// from there.
+
+	// Now check and apply potential CLI overrides.
+	if (args_is_set("thread_override")) {
+		size_t threads = args_int("thread_override");
+		int64_t curr = cr_renderer_get_num_pref(renderer, cr_renderer_threads);
+		if (curr != (int64_t)threads) {
+			logr(info, "Overriding thread count to %zu\n", threads);
+			cr_renderer_set_num_pref(renderer, cr_renderer_threads, threads);
+			// prefs->fromSystem = false; FIXME
+		}
+	}
+	
+	if (args_is_set("samples_override")) {
+		if (args_is_set("is_worker")) {
+			logr(warning, "Can't override samples when in worker mode\n");
+		} else {
+			int samples = args_int("samples_override");
+			logr(info, "Overriding sample count to %i\n", samples);
+			cr_renderer_set_num_pref(renderer, cr_renderer_samples, samples);
+		}
+	}
+	
+	if (args_is_set("dims_override")) {
+		if (args_is_set("is_worker")) {
+			logr(warning, "Can't override dimensions when in worker mode\n");
+		} else {
+			int width = args_int("dims_width");
+			int height = args_int("dims_height");
+			logr(info, "Overriding image dimensions to %ix%i\n", width, height);
+			cr_renderer_set_num_pref(renderer, cr_renderer_override_width, width);
+			cr_renderer_set_num_pref(renderer, cr_renderer_override_height, height);
+		}
+	}
+	
+	if (args_is_set("tiledims_override")) {
+		if (args_is_set("is_worker")) {
+			logr(warning, "Can't override tile dimensions when in worker mode\n");
+		} else {
+			int width = args_int("tile_width");
+			int height = args_int("tile_height");
+			logr(info, "Overriding tile  dimensions to %ix%i\n", width, height);
+			cr_renderer_set_num_pref(renderer, cr_renderer_tile_width, width);
+			cr_renderer_set_num_pref(renderer, cr_renderer_tile_height, height);
+		}
+	}
+
+	if (args_is_set("cam_index")) {
+		cr_renderer_set_num_pref(renderer, cr_renderer_override_cam, args_int("cam_index"));
+	}
+
 	struct timeval timer;
 	timer_start(&timer);
 	struct texture *final = cr_renderer_render(renderer);

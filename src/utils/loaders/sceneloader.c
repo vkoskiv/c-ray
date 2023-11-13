@@ -228,57 +228,6 @@ void parse_prefs(struct cr_renderer *ext, const cJSON *data) {
 		cr_renderer_set_str_pref(ext, cr_renderer_output_filetype, fileType->valuestring);
 	}
 
-	// FIXME: Remove global options table, store it in a local in main() and run overrides
-	// from there.
-
-	// Now check and apply potential CLI overrides.
-	if (args_is_set("thread_override")) {
-		size_t threads = args_int("thread_override");
-		int64_t curr = cr_renderer_get_num_pref(ext, cr_renderer_threads);
-		if (curr != (int64_t)threads) {
-			logr(info, "Overriding thread count to %zu\n", threads);
-			cr_renderer_set_num_pref(ext, cr_renderer_threads, threads);
-			// prefs->fromSystem = false; FIXME
-		}
-	}
-	
-	if (args_is_set("samples_override")) {
-		if (args_is_set("is_worker")) {
-			logr(warning, "Can't override samples when in worker mode\n");
-		} else {
-			int samples = args_int("samples_override");
-			logr(info, "Overriding sample count to %i\n", samples);
-			cr_renderer_set_num_pref(ext, cr_renderer_samples, samples);
-		}
-	}
-	
-	if (args_is_set("dims_override")) {
-		if (args_is_set("is_worker")) {
-			logr(warning, "Can't override dimensions when in worker mode\n");
-		} else {
-			int width = args_int("dims_width");
-			int height = args_int("dims_height");
-			logr(info, "Overriding image dimensions to %ix%i\n", width, height);
-			cr_renderer_set_num_pref(ext, cr_renderer_override_width, width);
-			cr_renderer_set_num_pref(ext, cr_renderer_override_height, height);
-		}
-	}
-	
-	if (args_is_set("tiledims_override")) {
-		if (args_is_set("is_worker")) {
-			logr(warning, "Can't override tile dimensions when in worker mode\n");
-		} else {
-			int width = args_int("tile_width");
-			int height = args_int("tile_height");
-			logr(info, "Overriding tile  dimensions to %ix%i\n", width, height);
-			cr_renderer_set_num_pref(ext, cr_renderer_tile_width, width);
-			cr_renderer_set_num_pref(ext, cr_renderer_tile_height, height);
-		}
-	}
-
-	if (args_is_set("cam_index")) {
-		cr_renderer_set_num_pref(ext, cr_renderer_override_cam, args_int("cam_index"));
-	}
 }
 
 static void parseDisplay(struct sdl_prefs *win, const cJSON *data) {
@@ -824,15 +773,6 @@ int parse_json(struct cr_renderer *r, cJSON *json) {
 		return -1;
 	}
 
-	if (todo_remove_r->prefs.override_width && todo_remove_r->prefs.override_height) {
-		for (size_t i = 0; i < todo_remove_r->scene->cameras.count; ++i) {
-			struct camera *cam = &todo_remove_r->scene->cameras.items[i];
-			cam->width = todo_remove_r->prefs.override_width ? (int)todo_remove_r->prefs.override_width : cam->width;
-			cam->height = todo_remove_r->prefs.override_height ? (int)todo_remove_r->prefs.override_height : cam->height;
-			cam_recompute_optics(&todo_remove_r->scene->cameras.items[i]);
-		}
-	}
-
 	const cJSON *selected_camera = cJSON_GetObjectItem(json, "selected_camera");
 	if (cJSON_IsNumber(selected_camera)) {
 		todo_remove_r->prefs.selected_camera = (size_t)selected_camera->valueint;
@@ -924,24 +864,6 @@ int parse_json(struct cr_renderer *r, cJSON *json) {
 		printSceneStats(todo_remove_r->scene, timer_get_ms(timer));
 	} else {
 		logr(debug, "No local render threads, skipping local BVH construction.\n");
-	}
-
-	//Quantize image into renderTiles
-	tile_quantize(&todo_remove_r->state.tiles,
-					todo_remove_r->scene->cameras.items[todo_remove_r->prefs.selected_camera].width,
-					todo_remove_r->scene->cameras.items[todo_remove_r->prefs.selected_camera].height,
-					todo_remove_r->prefs.tileWidth,
-					todo_remove_r->prefs.tileHeight,
-					todo_remove_r->prefs.tileOrder);
-
-	for (size_t i = 0; i < todo_remove_r->state.tiles.count; ++i)
-		todo_remove_r->state.tiles.items[i].total_samples = todo_remove_r->prefs.sampleCount;
-
-	//Print a useful warning to user if the defined tile size results in less renderThreads
-	if (todo_remove_r->state.tiles.count < todo_remove_r->prefs.threads) {
-		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
-		logr(warning, "Reducing thread count from %zu to %zu\n", todo_remove_r->prefs.threads, todo_remove_r->state.tiles.count);
-		todo_remove_r->prefs.threads = todo_remove_r->state.tiles.count;
 	}
 
 	return 0;

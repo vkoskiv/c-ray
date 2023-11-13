@@ -69,7 +69,6 @@ struct prefs {
 	unsigned tileHeight;
 	
 	//Output prefs
-	bool override_dimensions;
 	unsigned override_width;
 	unsigned override_height;
 	size_t selected_camera;

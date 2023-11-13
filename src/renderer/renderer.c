@@ -55,7 +55,14 @@ struct texture *renderFrame(struct renderer *r) {
 	if (registerHandler(sigint, sigHandler)) {
 		logr(warning, "Unable to catch SIGINT\n");
 	}
+
 	struct camera camera = r->scene->cameras.items[r->prefs.selected_camera];
+	if (r->prefs.override_width && r->prefs.override_height) {
+		camera.width = r->prefs.override_width ? (int)r->prefs.override_width : camera.width;
+		camera.height = r->prefs.override_height ? (int)r->prefs.override_height : camera.height;
+		cam_recompute_optics(&camera);
+	}
+
 	struct texture *output = newTexture(char_p, camera.width, camera.height, 3);
 	
 	logr(info, "Starting c-ray renderer for frame %zu\n", r->prefs.imgCount);
@@ -77,6 +84,24 @@ struct texture *renderFrame(struct renderer *r) {
 		 KNRM,
 		 PLURAL(r->prefs.threads));
 	
+	//Quantize image into renderTiles
+	tile_quantize(&r->state.tiles,
+					camera.width,
+					camera.height,
+					r->prefs.tileWidth,
+					r->prefs.tileHeight,
+					r->prefs.tileOrder);
+
+	for (size_t i = 0; i < r->state.tiles.count; ++i)
+		r->state.tiles.items[i].total_samples = r->prefs.sampleCount;
+
+	//Print a useful warning to user if the defined tile size results in less renderThreads
+	if (r->state.tiles.count < r->prefs.threads) {
+		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
+		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, r->state.tiles.count);
+		r->prefs.threads = r->state.tiles.count;
+	}
+
 	logr(info, "Pathtracing%s...\n", args_is_set("interactive") ? " iteratively" : "");
 	
 	r->state.rendering = true;
@@ -366,7 +391,6 @@ static struct prefs defaults() {
 			.assetPath = stringCopy("./"),
 			.imgFileName = stringCopy("rendered"),
 			.imgCount = 0,
-			.override_dimensions = false,
 			.imgType = png,
 			.window = {
 				.enabled = true,

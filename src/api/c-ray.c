@@ -89,12 +89,10 @@ bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 		}
 		case cr_renderer_override_width: {
 			r->prefs.override_width = num;
-			r->prefs.override_dimensions = true;
 			return true;
 		}
 		case cr_renderer_override_height: {
 			r->prefs.override_height = num;
-			r->prefs.override_dimensions = true;
 			return true;
 		}
 		case cr_renderer_override_cam: {
