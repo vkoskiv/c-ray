@@ -39,7 +39,6 @@
 #include "../../utils/timer.h"
 #include "../../utils/string.h"
 #include "../../utils/platform/signal.h"
-#include "../../accelerators/bvh.h"
 #include "../../nodes/bsdfnode.h"
 #include "../../nodes/valuenode.h"
 #include "../../nodes/colornode.h"
@@ -690,71 +689,6 @@ static void parseScene(struct cr_renderer *r, const cJSON *data) {
 	parse_meshes(todo_remove_r, cJSON_GetObjectItem(data, "meshes"));
 }
 
-struct bvh_build_task {
-	struct bvh *bvh;
-	const struct mesh *mesh;
-};
-
-void *bvh_build_thread(void *arg) {
-	block_signals();
-	struct bvh_build_task *task = (struct bvh_build_task *)thread_user_data(arg);
-	task->bvh = build_mesh_bvh(task->mesh);
-	return NULL;
-}
-
-static void compute_accels(struct mesh_arr meshes) {
-	logr(info, "Computing BVHs: ");
-	struct timeval timer = { 0 };
-	timer_start(&timer);
-	struct bvh_build_task *tasks = calloc(meshes.count, sizeof(*tasks));
-	struct cr_thread *build_threads = calloc(meshes.count, sizeof(*build_threads));
-	for (size_t t = 0; t < meshes.count; ++t) {
-		tasks[t] = (struct bvh_build_task){
-			.mesh = &meshes.items[t],
-		};
-		build_threads[t] = (struct cr_thread){
-			.thread_fn = bvh_build_thread,
-			.user_data = &tasks[t]
-		};
-		if (thread_start(&build_threads[t])) {
-			logr(error, "Failed to create a bvhBuildTask\n");
-		}
-	}
-
-	for (size_t t = 0; t < meshes.count; ++t) {
-		thread_wait(&build_threads[t]);
-		meshes.items[t].bvh = tasks[t].bvh;
-	}
-	printSmartTime(timer_get_ms(timer));
-	free(tasks);
-	free(build_threads);
-	logr(plain, "\n");
-}
-
-static void printSceneStats(struct world *scene, unsigned long long ms) {
-	logr(info, "Scene construction completed in ");
-	printSmartTime(ms);
-	uint64_t polys = 0;
-	uint64_t vertices = 0;
-	uint64_t normals = 0;
-	for (size_t i = 0; i < scene->instances.count; ++i) {
-		if (isMesh(&scene->instances.items[i])) {
-			const struct mesh *mesh = &scene->meshes.items[scene->instances.items[i].object_idx];
-			polys += mesh->polygons.count;
-			vertices += mesh->vbuf->vertices.count;
-			normals += mesh->vbuf->normals.count;
-		}
-	}
-	logr(plain, "\n");
-	logr(info, "Totals: %liV, %liN, %zuI, %liP, %zuS, %zuM\n",
-		   vertices,
-		   normals,
-		   scene->instances.count,
-		   polys,
-		   scene->spheres.count,
-		   scene->meshes.count);
-}
-
 int parse_json(struct cr_renderer *r, cJSON *json) {
 	struct timeval timer = {0};
 	timer_start(&timer);
@@ -785,86 +719,5 @@ int parse_json(struct cr_renderer *r, cJSON *json) {
 
 	// --------------
 	
-	// This is where we prepare a cache of scene data to be sent to worker nodes
-	// We also apply any potential command-line overrides to that cache here as well.
-	// FIXME: This overrides setting should be integrated with scene loading, probably.
-	if (args_is_set("use_clustering")) {
-		// Stash a cache of scene data here
-		// Apply overrides to the cache here
-		if (args_is_set("samples_override")) {
-			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
-			if (cJSON_IsObject(renderer)) {
-				int samples = args_int("samples_override");
-				logr(debug, "Overriding cache sample count to %i\n", samples);
-				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "samples"))) {
-					cJSON_ReplaceItemInObject(renderer, "samples", cJSON_CreateNumber(samples));
-				} else {
-					cJSON_AddItemToObject(renderer, "samples", cJSON_CreateNumber(samples));
-				}
-			}
-		}
-
-		if (args_is_set("dims_override")) {
-			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
-			if (cJSON_IsObject(renderer)) {
-				int width = args_int("dims_width");
-				int height = args_int("dims_height");
-				logr(info, "Overriding cache image dimensions to %ix%i\n", width, height);
-				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "width")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "height"))) {
-					cJSON_ReplaceItemInObject(renderer, "width", cJSON_CreateNumber(width));
-					cJSON_ReplaceItemInObject(renderer, "height", cJSON_CreateNumber(height));
-				} else {
-					cJSON_AddItemToObject(renderer, "width", cJSON_CreateNumber(width));
-					cJSON_AddItemToObject(renderer, "height", cJSON_CreateNumber(height));
-				}
-			}
-		}
-
-		if (args_is_set("tiledims_override")) {
-			cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
-			if (cJSON_IsObject(renderer)) {
-				int width = args_int("tile_width");
-				int height = args_int("tile_height");
-				logr(info, "Overriding cache tile dimensions to %ix%i\n", width, height);
-				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileWidth")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileHeight"))) {
-					cJSON_ReplaceItemInObject(renderer, "tileWidth", cJSON_CreateNumber(width));
-					cJSON_ReplaceItemInObject(renderer, "tileHeight", cJSON_CreateNumber(height));
-				} else {
-					cJSON_AddItemToObject(renderer, "tileWidth", cJSON_CreateNumber(width));
-					cJSON_AddItemToObject(renderer, "tileHeight", cJSON_CreateNumber(height));
-				}
-			}
-		}
-
-		if (todo_remove_r->prefs.selected_camera != 0) {
-			cJSON_AddItemToObject(json, "selected_camera", cJSON_CreateNumber(todo_remove_r->prefs.selected_camera));
-		}
-
-		// Store cache. This is what gets sent to worker nodes.
-		todo_remove_r->sceneCache = cJSON_PrintUnformatted(json);
-	}
-	
-	logr(debug, "Deleting JSON...\n");
-	cJSON_Delete(json);
-	logr(debug, "Deleting done\n");
-
-	if (todo_remove_r->prefs.threads > 0) {
-		// Do some pre-render preparations
-		// Compute BVH acceleration structures for all meshes in the scene
-		compute_accels(todo_remove_r->scene->meshes);
-
-		// And then compute a single top-level BVH that contains all the objects
-		logr(info, "Computing top-level BVH: ");
-		struct timeval timer = {0};
-		timer_start(&timer);
-		todo_remove_r->scene->topLevel = build_top_level_bvh(todo_remove_r->scene->instances);
-		printSmartTime(timer_get_ms(timer));
-		logr(plain, "\n");
-
-		printSceneStats(todo_remove_r->scene, timer_get_ms(timer));
-	} else {
-		logr(debug, "No local render threads, skipping local BVH construction.\n");
-	}
-
 	return 0;
 }

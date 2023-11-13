@@ -29,6 +29,7 @@
 #include "../utils/platform/signal.h"
 #include "../utils/protocol/server.h"
 #include "../utils/string.h"
+#include "../accelerators/bvh.h"
 
 //Main thread loop speeds
 #define paused_msec 100
@@ -44,6 +45,29 @@ void sigHandler(int sig) {
 	}
 }
 
+static void printSceneStats(struct world *scene, unsigned long long ms) {
+	logr(info, "Scene construction completed in ");
+	printSmartTime(ms);
+	uint64_t polys = 0;
+	uint64_t vertices = 0;
+	uint64_t normals = 0;
+	for (size_t i = 0; i < scene->instances.count; ++i) {
+		if (isMesh(&scene->instances.items[i])) {
+			const struct mesh *mesh = &scene->meshes.items[scene->instances.items[i].object_idx];
+			polys += mesh->polygons.count;
+			vertices += mesh->vbuf->vertices.count;
+			normals += mesh->vbuf->normals.count;
+		}
+	}
+	logr(plain, "\n");
+	logr(info, "Totals: %liV, %liN, %zuI, %liP, %zuS, %zuM\n",
+		   vertices,
+		   normals,
+		   scene->instances.count,
+		   polys,
+		   scene->spheres.count,
+		   scene->meshes.count);
+}
 
 void *renderThread(void *arg);
 void *renderThreadInteractive(void *arg);
@@ -91,6 +115,20 @@ struct texture *renderFrame(struct renderer *r) {
 					r->prefs.tileWidth,
 					r->prefs.tileHeight,
 					r->prefs.tileOrder);
+
+	// Do some pre-render preparations
+	// Compute BVH acceleration structures for all meshes in the scene
+	compute_accels(r->scene->meshes);
+
+	// And then compute a single top-level BVH that contains all the objects
+	logr(info, "Computing top-level BVH: ");
+	struct timeval timer = {0};
+	timer_start(&timer);
+	r->scene->topLevel = build_top_level_bvh(r->scene->instances);
+	printSmartTime(timer_get_ms(timer));
+	logr(plain, "\n");
+
+	printSceneStats(r->scene, timer_get_ms(timer));
 
 	for (size_t i = 0; i < r->state.tiles.count; ++i)
 		r->state.tiles.items[i].total_samples = r->prefs.sampleCount;

@@ -51,3 +51,5 @@ bool traverse_bottom_level_bvh(
 
 /// Frees the memory allocated by the given BVH
 void destroy_bvh(struct bvh *);
+
+void compute_accels(struct mesh_arr meshes);

@@ -34,6 +34,7 @@
 #include "../timer.h"
 #include "../args.h"
 #include "../../utils/platform/signal.h"
+#include "../../accelerators/bvh.h"
 #include <stdio.h>
 #include <inttypes.h>
 
@@ -233,7 +234,18 @@ static cJSON *startRender(int connectionSocket) {
 	struct workerThreadState *workerThreadStates = calloc(threadCount, sizeof(*workerThreadStates));
 	
 	struct camera selected_cam = g_worker_renderer->scene->cameras.items[g_worker_renderer->prefs.selected_camera];
+	if (g_worker_renderer->prefs.override_width && g_worker_renderer->prefs.override_height) {
+		selected_cam.width = g_worker_renderer->prefs.override_width ? (int)g_worker_renderer->prefs.override_width : selected_cam.width;
+		selected_cam.height = g_worker_renderer->prefs.override_height ? (int)g_worker_renderer->prefs.override_height : selected_cam.height;
+		cam_recompute_optics(&selected_cam);
+	}
 	struct renderer *r = g_worker_renderer;
+	logr(info, "Got job: %s%i%s x %s%i%s, %s%zu%s samples with %s%zu%s bounces\n", KWHT, selected_cam.width, KNRM, KWHT, selected_cam.height, KNRM, KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
+	logr(info, "Rendering with %s%zu%s local thread%s.\n",
+		KRED,
+		r->prefs.threads,
+		KNRM,
+		PLURAL(r->prefs.threads));
 	//Quantize image into renderTiles
 	tile_quantize(&r->state.tiles,
 					selected_cam.width,
@@ -241,6 +253,19 @@ static cJSON *startRender(int connectionSocket) {
 					r->prefs.tileWidth,
 					r->prefs.tileHeight,
 					r->prefs.tileOrder);
+
+	logr(info, "%u x %u tiles\n", r->prefs.tileWidth, r->prefs.tileHeight);
+	// Do some pre-render preparations
+	// Compute BVH acceleration structures for all meshes in the scene
+	compute_accels(r->scene->meshes);
+
+	// And then compute a single top-level BVH that contains all the objects
+	logr(info, "Computing top-level BVH: ");
+	struct timeval timer = {0};
+	timer_start(&timer);
+	r->scene->topLevel = build_top_level_bvh(r->scene->instances);
+	printSmartTime(timer_get_ms(timer));
+	logr(plain, "\n");
 
 	for (size_t i = 0; i < r->state.tiles.count; ++i)
 		r->state.tiles.items[i].total_samples = r->prefs.sampleCount;

@@ -77,7 +77,7 @@ struct prefs {
 	char *assetPath;
 	size_t imgCount;
 	enum fileType imgType;
-	bool useClustering;
+	char *node_list;
 	bool isWorker;
 	struct sdl_prefs window;
 };

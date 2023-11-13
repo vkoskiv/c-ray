@@ -151,6 +151,16 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			}
 			return true;
 		}
+		case cr_renderer_node_list: {
+			if (r->prefs.node_list) free(r->prefs.node_list);
+			r->prefs.node_list = stringCopy(str);
+			return true;
+		}
+		case cr_renderer_scene_cache: {
+			if (r->sceneCache) free(r->sceneCache);
+			r->sceneCache = stringCopy(str);
+			return true;
+		}
 		default: {
 			logr(warning, "Renderer param %i not a string\n", p);
 		}
@@ -356,8 +366,7 @@ void cr_load_mesh_from_buf(char *buf) {
 
 struct texture *cr_renderer_render(struct cr_renderer *ext) {
 	struct renderer *r = (struct renderer *)ext;
-	if (args_is_set("use_clustering")) {
-		r->prefs.useClustering = true;
+	if (r->prefs.node_list) {
 		r->state.clients = syncWithClients(r, &r->state.clientCount);
 		free(r->sceneCache);
 		r->sceneCache = NULL;

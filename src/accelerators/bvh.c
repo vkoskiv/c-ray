@@ -15,6 +15,9 @@
 #include "../datatypes/mesh.h"
 #include "../renderer/instance.h"
 #include "../datatypes/vector.h"
+#include "../utils/platform/thread.h"
+#include "../utils/platform/signal.h"
+#include "../utils/timer.h"
 
 #include <limits.h>
 #include <assert.h>
@@ -643,3 +646,45 @@ void destroy_bvh(struct bvh *bvh) {
 		free(bvh);
 	}
 }
+
+struct bvh_build_task {
+	struct bvh *bvh;
+	const struct mesh *mesh;
+};
+
+void *bvh_build_thread(void *arg) {
+	block_signals();
+	struct bvh_build_task *task = (struct bvh_build_task *)thread_user_data(arg);
+	task->bvh = build_mesh_bvh(task->mesh);
+	return NULL;
+}
+
+void compute_accels(struct mesh_arr meshes) {
+	logr(info, "Computing BVHs: ");
+	struct timeval timer = { 0 };
+	timer_start(&timer);
+	struct bvh_build_task *tasks = calloc(meshes.count, sizeof(*tasks));
+	struct cr_thread *build_threads = calloc(meshes.count, sizeof(*build_threads));
+	for (size_t t = 0; t < meshes.count; ++t) {
+		tasks[t] = (struct bvh_build_task){
+			.mesh = &meshes.items[t],
+		};
+		build_threads[t] = (struct cr_thread){
+			.thread_fn = bvh_build_thread,
+			.user_data = &tasks[t]
+		};
+		if (thread_start(&build_threads[t])) {
+			logr(error, "Failed to create a bvhBuildTask\n");
+		}
+	}
+
+	for (size_t t = 0; t < meshes.count; ++t) {
+		thread_wait(&build_threads[t]);
+		meshes.items[t].bvh = tasks[t].bvh;
+	}
+	printSmartTime(timer_get_ms(timer));
+	free(tasks);
+	free(build_threads);
+	logr(plain, "\n");
+}
+

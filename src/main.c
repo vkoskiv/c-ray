@@ -66,6 +66,10 @@ int main(int argc, char *argv[]) {
 		goto done;
 	}
 
+	if (args_is_set("cam_index")) {
+		cr_renderer_set_num_pref(renderer, cr_renderer_override_cam, args_int("cam_index"));
+	}
+
 	// FIXME: Remove global options table, store it in a local in main() and run overrides
 	// from there.
 
@@ -114,9 +118,71 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	if (args_is_set("cam_index")) {
-		cr_renderer_set_num_pref(renderer, cr_renderer_override_cam, args_int("cam_index"));
+	// This is where we prepare a cache of scene data to be sent to worker nodes
+	// We also apply any potential command-line overrides to that cache here as well.
+	// FIXME: This overrides setting should be integrated with scene loading, probably.
+	if (args_is_set("nodes_list")) {
+		cr_renderer_set_str_pref(renderer, cr_renderer_node_list, args_string("nodes_list"));
+		// Stash a cache of scene data here
+		// Apply overrides to the cache here
+		if (args_is_set("samples_override")) {
+			cJSON *renderer = cJSON_GetObjectItem(scene, "renderer");
+			if (cJSON_IsObject(renderer)) {
+				int samples = args_int("samples_override");
+				logr(debug, "Overriding cache sample count to %i\n", samples);
+				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "samples"))) {
+					cJSON_ReplaceItemInObject(renderer, "samples", cJSON_CreateNumber(samples));
+				} else {
+					cJSON_AddItemToObject(renderer, "samples", cJSON_CreateNumber(samples));
+				}
+			}
+		}
+
+		if (args_is_set("dims_override")) {
+			cJSON *renderer = cJSON_GetObjectItem(scene, "renderer");
+			if (cJSON_IsObject(renderer)) {
+				int width = args_int("dims_width");
+				int height = args_int("dims_height");
+				logr(info, "Overriding cache image dimensions to %ix%i\n", width, height);
+				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "width")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "height"))) {
+					cJSON_ReplaceItemInObject(renderer, "width", cJSON_CreateNumber(width));
+					cJSON_ReplaceItemInObject(renderer, "height", cJSON_CreateNumber(height));
+				} else {
+					cJSON_AddItemToObject(renderer, "width", cJSON_CreateNumber(width));
+					cJSON_AddItemToObject(renderer, "height", cJSON_CreateNumber(height));
+				}
+			}
+		}
+
+		if (args_is_set("tiledims_override")) {
+			cJSON *renderer = cJSON_GetObjectItem(scene, "renderer");
+			if (cJSON_IsObject(renderer)) {
+				int width = args_int("tile_width");
+				int height = args_int("tile_height");
+				logr(info, "Overriding cache tile dimensions to %ix%i\n", width, height);
+				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileWidth")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileHeight"))) {
+					cJSON_ReplaceItemInObject(renderer, "tileWidth", cJSON_CreateNumber(width));
+					cJSON_ReplaceItemInObject(renderer, "tileHeight", cJSON_CreateNumber(height));
+				} else {
+					cJSON_AddItemToObject(renderer, "tileWidth", cJSON_CreateNumber(width));
+					cJSON_AddItemToObject(renderer, "tileHeight", cJSON_CreateNumber(height));
+				}
+			}
+		}
+
+		if (args_is_set("cam_index")) {
+			cJSON_AddItemToObject(scene, "selected_camera", cJSON_CreateNumber(args_int("cam_index")));
+		}
+
+		// Store cache. This is what gets sent to worker nodes.
+		char *cache = cJSON_PrintUnformatted(scene);
+		cr_renderer_set_str_pref(renderer, cr_renderer_scene_cache, cache);
+		free(cache);
 	}
+	
+	logr(debug, "Deleting JSON...\n");
+	cJSON_Delete(scene);
+	logr(debug, "Deleting done\n");
 
 	struct timeval timer;
 	timer_start(&timer);

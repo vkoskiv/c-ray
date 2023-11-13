@@ -105,17 +105,15 @@ static bool connectToClient(struct renderClient *client) {
 	return success;
 }
 
-// Fetches list of nodes from arguments, verifies that they are reachable, and
-// returns them in a nice list. Also got the size there in the amount param, if you need it.
-static struct renderClient *buildClientList(size_t *amount) {
-	ASSERT(args_is_set("use_clustering"));
-	ASSERT(args_is_set("nodes_list"));
-	char *nodesString = args_string("nodes_list");
+// Fetches list of nodes from node string, verifies that they are reachable, and
+// returns them in a nice list.
+static struct renderClient *buildClientList(const char *node_list, size_t *amount) {
+	ASSERT(node_list);
 	// Really barebones parsing for IP addresses and ports in a comma-separated list
 	// Expected to break easily. Don't break it.
 	char buf[LINEBUFFER_MAXSIZE];
 	lineBuffer line = { .buf = buf };
-	fillLineBuffer(&line, nodesString, ',');
+	fillLineBuffer(&line, node_list, ',');
 	ASSERT(line.amountOf.tokens > 0);
 	size_t clientCount = line.amountOf.tokens;
 	struct renderClient *clients = calloc(clientCount, sizeof(*clients));
@@ -352,9 +350,9 @@ static void *client_sync_thread(void *arg) {
 	return NULL;
 }
 
-void shutdownClients() {
+void shutdownClients(const char *node_list) {
 	size_t clientCount = 0;
-	struct renderClient *clients = buildClientList(&clientCount);
+	struct renderClient *clients = buildClientList(node_list, &clientCount);
 	logr(info, "Sending shutdown command to %zu client%s.\n", clientCount, PLURAL(clientCount));
 	if (clientCount < 1) {
 		logr(warning, "No clients found, exiting\n");
@@ -396,7 +394,7 @@ void printProgressBars(struct syncThreadParams *params, size_t clientCount) {
 struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	signal(SIGPIPE, SIG_IGN);
 	size_t clientCount = 0;
-	struct renderClient *clients = buildClientList(&clientCount);
+	struct renderClient *clients = buildClientList(r->prefs.node_list, &clientCount);
 	if (clientCount < 1) {
 		logr(warning, "No clients found, rendering solo.\n");
 		if (count) *count = 0;

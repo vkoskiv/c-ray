@@ -35,7 +35,7 @@ struct renderClient {
 	int id;
 };
 
-void shutdownClients(void);
+void shutdownClients(const char *node_list);
 
 // Synchronise renderer state with clients, and return a list of clients
 // ready to do some rendering

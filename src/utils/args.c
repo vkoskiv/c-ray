@@ -240,7 +240,7 @@ void args_parse(int argc, char **argv) {
 	logr(debug, "Verbose mode enabled\n");
 	
 	if (args_is_set("shutdown") && args_is_set("nodes_list")) {
-		shutdownClients();
+		shutdownClients(args_string("nodes_list"));
 		term_restore();
 		exit(0);
 	}
