@@ -397,8 +397,7 @@ static void parse_ambient_color(struct cr_renderer *r_ext, struct cr_scene *s, c
 	const cJSON *hdr = cJSON_GetObjectItem(data, "hdr");
 
 	if (cJSON_IsString(hdr)) {
-		cr_scene_set_background_hdr(r_ext, s, hdr->valuestring);
-		return;
+		if (cr_scene_set_background_hdr(r_ext, s, hdr->valuestring)) return;
 	}
 	
 	if (down && up) {
