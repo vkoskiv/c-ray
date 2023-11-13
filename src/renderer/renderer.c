@@ -445,7 +445,6 @@ struct renderer *renderer_new() {
 	r->state.finishedPasses = 1;
 	
 	r->state.tileMutex = mutex_create();
-	if (args_is_set("use_clustering")) r->state.file_cache = calloc(1, sizeof(struct file_cache));
 
 	r->scene = calloc(1, sizeof(*r->scene));
 	r->scene->storage.node_pool = newBlock(NULL, 1024);

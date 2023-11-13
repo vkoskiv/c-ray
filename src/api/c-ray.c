@@ -154,6 +154,7 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 		case cr_renderer_node_list: {
 			if (r->prefs.node_list) free(r->prefs.node_list);
 			r->prefs.node_list = stringCopy(str);
+			if (!r->state.file_cache) r->state.file_cache = calloc(1, sizeof(*r->state.file_cache));
 			return true;
 		}
 		case cr_renderer_scene_cache: {

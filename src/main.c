@@ -60,6 +60,10 @@ int main(int argc, char *argv[]) {
 	//FIXME: mmap() input
 	free(input);
 
+	if (args_is_set("nodes_list")) {
+		cr_renderer_set_str_pref(renderer, cr_renderer_node_list, args_string("nodes_list"));
+	}
+
 	if (parse_json(renderer, scene) < 0) {
 		logr(warning, "Scene parse failed, exiting.\n");
 		ret = -1;
@@ -122,7 +126,6 @@ int main(int argc, char *argv[]) {
 	// We also apply any potential command-line overrides to that cache here as well.
 	// FIXME: This overrides setting should be integrated with scene loading, probably.
 	if (args_is_set("nodes_list")) {
-		cr_renderer_set_str_pref(renderer, cr_renderer_node_list, args_string("nodes_list"));
 		// Stash a cache of scene data here
 		// Apply overrides to the cache here
 		if (args_is_set("samples_override")) {
