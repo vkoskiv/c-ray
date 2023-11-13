@@ -344,12 +344,12 @@ void cr_write_image(struct cr_renderer *ext) {
 		if (r->state.saveImage) {
 			struct imageFile *file = newImageFile(currentImage, r->prefs.imgFilePath, r->prefs.imgFileName, r->prefs.imgCount, r->prefs.imgType);
 			file->info = (struct renderInfo){
-				.bounces = cr_get_bounces(ext),
-				.samples = cr_get_sample_count(ext),
+				.bounces = cr_renderer_get_num_pref(ext, cr_renderer_bounces),
+				.samples = cr_renderer_get_num_pref(ext, cr_renderer_samples),
 				.crayVersion = cr_get_version(),
 				.gitHash = cr_get_git_hash(),
 				.renderTime = timer_get_ms(r->state.timer),
-				.threadCount = cr_get_thread_count(ext)
+				.threadCount = cr_renderer_get_num_pref(ext, cr_renderer_threads)
 			};
 			writeImage(file);
 			destroyImageFile(file);
@@ -367,21 +367,6 @@ void cr_load_mesh_from_file(char *file_path) {
 void cr_load_mesh_from_buf(char *buf) {
 	(void)buf;
 	ASSERT_NOT_REACHED();
-}
-
-int cr_get_thread_count(struct cr_renderer *ext) {
-	struct renderer *r = (struct renderer *)ext;
-	return r->prefs.threads;
-}
-
-int cr_get_sample_count(struct cr_renderer *ext) {
-	struct renderer *r = (struct renderer *)ext;
-	return r->prefs.sampleCount;
-}
-
-int cr_get_bounces(struct cr_renderer *ext) {
-	struct renderer *r = (struct renderer *)ext;
-	return r->prefs.bounces;
 }
 
 void cr_start_renderer(struct cr_renderer *ext) {

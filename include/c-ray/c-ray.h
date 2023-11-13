@@ -90,31 +90,6 @@ void cr_load_mesh_from_buf(char *buf);
 
 void cr_write_image(struct cr_renderer *r); //Write out the current image to file
 
-void cr_set_thread_count(struct cr_renderer *r, int thread_count, int is_from_system);
-int cr_get_thread_count(struct cr_renderer *r);
-
-int cr_get_sample_count(struct cr_renderer *r);
-
-int cr_get_bounces(struct cr_renderer *r);
-
-void cr_set_tile_width(struct cr_renderer *r, unsigned width);
-unsigned cr_get_tile_width(struct cr_renderer *r);
-
-void cr_set_tile_height(struct cr_renderer *r, unsigned height);
-unsigned cr_get_tile_height(struct cr_renderer *r);
-
-void cr_set_image_width(struct cr_renderer *r, unsigned width);
-unsigned cr_get_image_width(struct cr_renderer *r);
-
-void cr_set_image_height(struct cr_renderer *r, unsigned height);
-unsigned cr_get_image_height(struct cr_renderer *r);
-
-void cr_set_output_path(struct cr_renderer *r, char *filePath);
-char *cr_get_output_path(struct cr_renderer *r);
-
-void cr_set_file_name(struct cr_renderer *r, char *fileName);
-char *cr_get_file_name(struct cr_renderer *r);
-
 //Single frame
 void cr_start_renderer(struct cr_renderer *r);
 
