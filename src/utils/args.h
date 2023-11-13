@@ -8,16 +8,16 @@
 
 #pragma once
 
-void args_parse(int argc, char **argv);
+struct driver_args *args_parse(int argc, char **argv);
 
-bool args_is_set(const char *key);
+bool args_is_set(struct driver_args *args, const char *key);
 
-int args_int(const char *key);
+int args_int(struct driver_args *args, const char *key);
 
-char *args_string(const char *key);
+char *args_string(struct driver_args *args, const char *key);
 
-char *args_path(void);
+char *args_path(struct driver_args *args);
 
-char *args_asset_path(void);
+char *args_asset_path(struct driver_args *args);
 
-void args_destroy(void);
+void args_destroy(struct driver_args *args);

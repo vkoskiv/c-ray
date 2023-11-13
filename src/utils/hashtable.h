@@ -53,21 +53,21 @@ void forceInsertInHashtable(struct hashtable *hashtable, const void *element, si
 bool removeFromHashtable(struct hashtable *hashtable, const void *element, uint32_t hash);
 void destroyHashtable(struct hashtable *hashtable);
 
-// Database used by the scene to store constants.
-struct constantsDatabase {
+// Database used by the driver program to store constants.
+struct driver_args {
 	struct hashtable hashtable;
 };
 
-struct constantsDatabase *newConstantsDatabase(void);
-bool existsInDatabase(struct constantsDatabase *database, const char *key);
-void setDatabaseVector(struct constantsDatabase *database, const char *key, struct vector value);
-struct vector getDatabaseVector(struct constantsDatabase *database, const char *key);
-void setDatabaseFloat(struct constantsDatabase *database, const char *key, float value);
-float getDatabaseFloat(struct constantsDatabase *database, const char *key);
-void setDatabaseString(struct constantsDatabase *database, const char *key, const char *value);
-char *getDatabaseString(struct constantsDatabase *database, const char *key);
-void setDatabaseInt(struct constantsDatabase *database, const char *key, int value);
-int getDatabaseInt(struct constantsDatabase *database, const char *key);
+struct driver_args *newConstantsDatabase(void);
+bool existsInDatabase(struct driver_args *database, const char *key);
+void setDatabaseVector(struct driver_args *database, const char *key, struct vector value);
+struct vector getDatabaseVector(struct driver_args *database, const char *key);
+void setDatabaseFloat(struct driver_args *database, const char *key, float value);
+float getDatabaseFloat(struct driver_args *database, const char *key);
+void setDatabaseString(struct driver_args *database, const char *key, const char *value);
+char *getDatabaseString(struct driver_args *database, const char *key);
+void setDatabaseInt(struct driver_args *database, const char *key, int value);
+int getDatabaseInt(struct driver_args *database, const char *key);
 // No data is stored. This key is just occupied, and can be checked for with existsInDatabase()
-void setDatabaseTag(struct constantsDatabase *database, const char *key);
-void freeConstantsDatabase(struct constantsDatabase *database);
+void setDatabaseTag(struct driver_args *database, const char *key);
+void freeConstantsDatabase(struct driver_args *database);

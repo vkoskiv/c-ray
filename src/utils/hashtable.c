@@ -174,11 +174,11 @@ bool compareDatabaseEntry(const void *entry1, const void *entry2) {
 	return stringEquals((const char *)entry1, *(const char **)entry2);
 }
 
-struct constantsDatabase *newConstantsDatabase(void) {
-	return (struct constantsDatabase *)newHashtable(compareDatabaseEntry, NULL);
+struct driver_args *newConstantsDatabase(void) {
+	return (struct driver_args *)newHashtable(compareDatabaseEntry, NULL);
 }
 
-bool existsInDatabase(struct constantsDatabase *database, const char *key) {
+bool existsInDatabase(struct driver_args *database, const char *key) {
 	return findInHashtable(&database->hashtable, key, hashString(hashInit(), key)) != NULL;
 }
 
@@ -192,7 +192,7 @@ struct databaseEntry {
 		struct databaseEntry entry; \
 		T value; \
 	}; \
-	void setterName(struct constantsDatabase *database, const char *key, T value) { \
+	void setterName(struct driver_args *database, const char *key, T value) { \
 		uint32_t hash = hashString(hashInit(), key); \
 		struct entryName *entry = findInHashtable(&database->hashtable, key, hash); \
 		if (entry) { \
@@ -205,7 +205,7 @@ struct databaseEntry {
 				hash); \
 		} \
 	} \
-	T getterName(struct constantsDatabase *database, const char *key) { \
+	T getterName(struct driver_args *database, const char *key) { \
 		struct entryName *entry = findInHashtable(&database->hashtable, key, hashString(hashInit(), key)); \
 		return entry ? entry->value : (defaultValue); \
 	}
@@ -215,7 +215,7 @@ DATABASE_ACCESSORS(float,         floatEntry,  setDatabaseFloat,  getDatabaseFlo
 DATABASE_ACCESSORS(char *,        stringEntry, ignoreAccessor,    getDatabaseString, NULL)
 DATABASE_ACCESSORS(int,           intEntry,    setDatabaseInt,    getDatabaseInt,    0)
 
-void setDatabaseString(struct constantsDatabase *database, const char *key, const char *value) {
+void setDatabaseString(struct driver_args *database, const char *key, const char *value) {
 	struct stringEntry *entry = findInHashtable(&database->hashtable, key, hashString(hashInit(), key));
 	char *valueCopy = stringCopy(value);
 	if (entry) {
@@ -231,7 +231,7 @@ void setDatabaseString(struct constantsDatabase *database, const char *key, cons
 	}
 }
 
-void setDatabaseTag(struct constantsDatabase *database, const char *key) {
+void setDatabaseTag(struct driver_args *database, const char *key) {
 	uint32_t hash = hashString(hashInit(), key);
 	if (!findInHashtable(&database->hashtable, key, hash)) {
 		forceInsertInHashtable(
@@ -242,7 +242,7 @@ void setDatabaseTag(struct constantsDatabase *database, const char *key) {
 	}
 }
 
-void freeConstantsDatabase(struct constantsDatabase *database) {
+void freeConstantsDatabase(struct driver_args *database) {
 	for (size_t i = 0, n = database->hashtable.bucketCount; i < n; ++i) {
 		struct bucket *bucket = database->hashtable.buckets[i];
 		while (bucket) {

@@ -33,7 +33,7 @@ bool hashtable_doubleInsert(void) {
 }
 
 bool hashtable_mixed(void) {
-	struct constantsDatabase *database = newConstantsDatabase();
+	struct driver_args *database = newConstantsDatabase();
 	
 	setDatabaseVector(database, "key0", (struct vector){1.0f, 2.0f, 3.0f});
 	setDatabaseFloat(database, "key1", 123.4f);
@@ -53,7 +53,7 @@ bool hashtable_mixed(void) {
 }
 
 bool hashtable_fill(void) {
-	struct constantsDatabase *database = newConstantsDatabase();
+	struct driver_args *database = newConstantsDatabase();
 	char buf[20];
 	size_t iterCount = 10000;
 	for (size_t i = 0; i < iterCount; ++i) {

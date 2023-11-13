@@ -18,38 +18,40 @@
 #include "datatypes/image/imagefile.h"
 #include "utils/encoders/encoder.h"
 #include "utils/timer.h"
+#include "utils/hashtable.h"
 
 int main(int argc, char *argv[]) {
 	term_init();
 	atexit(term_restore);
 	logr(info, "c-ray v%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
-	args_parse(argc, argv);
+
+	struct driver_args *opts = args_parse(argc, argv);
 	
-	if (args_is_set("v")) log_toggle_verbose();
+	if (args_is_set(opts, "v")) log_toggle_verbose();
 	
 	struct cr_renderer *renderer = cr_new_renderer();
 
-	if (args_is_set("asset_path")) {
-		cr_renderer_set_str_pref(renderer, cr_renderer_asset_path, args_asset_path());
-	} else if (args_is_set("inputFile")) {
-		cr_renderer_set_str_pref(renderer, cr_renderer_asset_path, get_file_path(args_path()));
+	if (args_is_set(opts, "asset_path")) {
+		cr_renderer_set_str_pref(renderer, cr_renderer_asset_path, args_asset_path(opts));
+	} else if (args_is_set(opts, "inputFile")) {
+		cr_renderer_set_str_pref(renderer, cr_renderer_asset_path, get_file_path(args_path(opts)));
 	}
 
 	int ret = 0;
-	if (args_is_set("is_worker")) {
-		int port = args_is_set("worker_port") ? args_int("worker_port") : C_RAY_PROTO_DEFAULT_PORT;
+	if (args_is_set(opts, "is_worker")) {
+		int port = args_is_set(opts, "worker_port") ? args_int(opts, "worker_port") : C_RAY_PROTO_DEFAULT_PORT;
 		cr_start_render_worker(port);
 		goto done;
 	}
 
 	size_t bytes = 0;
-	char *input = args_is_set("inputFile") ? load_file(args_path(), &bytes, NULL) : read_stdin(&bytes);
+	char *input = args_is_set(opts, "inputFile") ? load_file(args_path(opts), &bytes, NULL) : read_stdin(&bytes);
 	if (!input) {
 		logr(info, "No input provided, exiting.\n");
 		ret = -1;
 		goto done;
 	}
-	logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, args_is_set("inputFile") ? "file" : "stdin");
+	logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, args_is_set(opts, "inputFile") ? "file" : "stdin");
 	cJSON *scene = cJSON_Parse(input);
 	if (!scene) {
 		const char *errptr = cJSON_GetErrorPtr();
@@ -63,8 +65,8 @@ int main(int argc, char *argv[]) {
 	//FIXME: mmap() input
 	free(input);
 
-	if (args_is_set("nodes_list")) {
-		cr_renderer_set_str_pref(renderer, cr_renderer_node_list, args_string("nodes_list"));
+	if (args_is_set(opts, "nodes_list")) {
+		cr_renderer_set_str_pref(renderer, cr_renderer_node_list, args_string(opts, "nodes_list"));
 	}
 
 	if (parse_json(renderer, scene) < 0) {
@@ -73,16 +75,16 @@ int main(int argc, char *argv[]) {
 		goto done;
 	}
 
-	if (args_is_set("cam_index")) {
-		cr_renderer_set_num_pref(renderer, cr_renderer_override_cam, args_int("cam_index"));
+	if (args_is_set(opts, "cam_index")) {
+		cr_renderer_set_num_pref(renderer, cr_renderer_override_cam, args_int(opts, "cam_index"));
 	}
 
 	// FIXME: Remove global options table, store it in a local in main() and run overrides
 	// from there.
 
 	// Now check and apply potential CLI overrides.
-	if (args_is_set("thread_override")) {
-		size_t threads = args_int("thread_override");
+	if (args_is_set(opts, "thread_override")) {
+		size_t threads = args_int(opts, "thread_override");
 		int64_t curr = cr_renderer_get_num_pref(renderer, cr_renderer_threads);
 		if (curr != (int64_t)threads) {
 			logr(info, "Overriding thread count to %zu\n", threads);
@@ -91,42 +93,42 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	
-	if (args_is_set("samples_override")) {
-		if (args_is_set("is_worker")) {
+	if (args_is_set(opts, "samples_override")) {
+		if (args_is_set(opts, "is_worker")) {
 			logr(warning, "Can't override samples when in worker mode\n");
 		} else {
-			int samples = args_int("samples_override");
+			int samples = args_int(opts, "samples_override");
 			logr(info, "Overriding sample count to %i\n", samples);
 			cr_renderer_set_num_pref(renderer, cr_renderer_samples, samples);
 		}
 	}
 	
-	if (args_is_set("dims_override")) {
-		if (args_is_set("is_worker")) {
+	if (args_is_set(opts, "dims_override")) {
+		if (args_is_set(opts, "is_worker")) {
 			logr(warning, "Can't override dimensions when in worker mode\n");
 		} else {
-			int width = args_int("dims_width");
-			int height = args_int("dims_height");
+			int width = args_int(opts, "dims_width");
+			int height = args_int(opts, "dims_height");
 			logr(info, "Overriding image dimensions to %ix%i\n", width, height);
 			cr_renderer_set_num_pref(renderer, cr_renderer_override_width, width);
 			cr_renderer_set_num_pref(renderer, cr_renderer_override_height, height);
 		}
 	}
 	
-	if (args_is_set("tiledims_override")) {
-		if (args_is_set("is_worker")) {
+	if (args_is_set(opts, "tiledims_override")) {
+		if (args_is_set(opts, "is_worker")) {
 			logr(warning, "Can't override tile dimensions when in worker mode\n");
 		} else {
-			int width = args_int("tile_width");
-			int height = args_int("tile_height");
+			int width = args_int(opts, "tile_width");
+			int height = args_int(opts, "tile_height");
 			logr(info, "Overriding tile  dimensions to %ix%i\n", width, height);
 			cr_renderer_set_num_pref(renderer, cr_renderer_tile_width, width);
 			cr_renderer_set_num_pref(renderer, cr_renderer_tile_height, height);
 		}
 	}
 
-	if (args_is_set("interactive")) {
-		if (args_is_set("nodes_list")) {
+	if (args_is_set(opts, "interactive")) {
+		if (args_is_set(opts, "nodes_list")) {
 			logr(warning, "Can't use iterative mode with network rendering yet, sorry.\n");
 		} else {
 			cr_renderer_set_num_pref(renderer, cr_renderer_is_iterative, 1);
@@ -136,13 +138,13 @@ int main(int argc, char *argv[]) {
 	// This is where we prepare a cache of scene data to be sent to worker nodes
 	// We also apply any potential command-line overrides to that cache here as well.
 	// FIXME: This overrides setting should be integrated with scene loading, probably.
-	if (args_is_set("nodes_list")) {
+	if (args_is_set(opts, "nodes_list")) {
 		// Stash a cache of scene data here
 		// Apply overrides to the cache here
-		if (args_is_set("samples_override")) {
+		if (args_is_set(opts, "samples_override")) {
 			cJSON *renderer = cJSON_GetObjectItem(scene, "renderer");
 			if (cJSON_IsObject(renderer)) {
-				int samples = args_int("samples_override");
+				int samples = args_int(opts, "samples_override");
 				logr(debug, "Overriding cache sample count to %i\n", samples);
 				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "samples"))) {
 					cJSON_ReplaceItemInObject(renderer, "samples", cJSON_CreateNumber(samples));
@@ -152,11 +154,11 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		if (args_is_set("dims_override")) {
+		if (args_is_set(opts, "dims_override")) {
 			cJSON *renderer = cJSON_GetObjectItem(scene, "renderer");
 			if (cJSON_IsObject(renderer)) {
-				int width = args_int("dims_width");
-				int height = args_int("dims_height");
+				int width = args_int(opts, "dims_width");
+				int height = args_int(opts, "dims_height");
 				logr(info, "Overriding cache image dimensions to %ix%i\n", width, height);
 				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "width")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "height"))) {
 					cJSON_ReplaceItemInObject(renderer, "width", cJSON_CreateNumber(width));
@@ -168,11 +170,11 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		if (args_is_set("tiledims_override")) {
+		if (args_is_set(opts, "tiledims_override")) {
 			cJSON *renderer = cJSON_GetObjectItem(scene, "renderer");
 			if (cJSON_IsObject(renderer)) {
-				int width = args_int("tile_width");
-				int height = args_int("tile_height");
+				int width = args_int(opts, "tile_width");
+				int height = args_int(opts, "tile_height");
 				logr(info, "Overriding cache tile dimensions to %ix%i\n", width, height);
 				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileWidth")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileHeight"))) {
 					cJSON_ReplaceItemInObject(renderer, "tileWidth", cJSON_CreateNumber(width));
@@ -184,8 +186,8 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		if (args_is_set("cam_index")) {
-			cJSON_AddItemToObject(scene, "selected_camera", cJSON_CreateNumber(args_int("cam_index")));
+		if (args_is_set(opts, "cam_index")) {
+			cJSON_AddItemToObject(scene, "selected_camera", cJSON_CreateNumber(args_int(opts, "cam_index")));
 		}
 
 		// Store cache. This is what gets sent to worker nodes.
@@ -209,8 +211,8 @@ int main(int argc, char *argv[]) {
 	// FIXME: What the fuck
 	const char *output_path = NULL;
 	const char *output_name = NULL;
-	if (args_is_set("output_path")) {
-		char *path = args_string("output_path");
+	if (args_is_set(opts, "output_path")) {
+		char *path = args_string(opts, "output_path");
 		logr(info, "Overriding output path to %s\n", path);
 		char *temp_path = get_file_path(path);
 		char *temp_name = get_file_name(path);
@@ -244,7 +246,7 @@ int main(int argc, char *argv[]) {
 	
 done:
 	cr_destroy_renderer(renderer);
-	args_destroy();
+	args_destroy(opts);
 	logr(info, "Render finished, exiting.\n");
 	return ret;
 }

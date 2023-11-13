@@ -1,9 +1,9 @@
 //
 //  args.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 6.4.2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdbool.h>
@@ -22,8 +22,6 @@
 #include "testrunner.h"
 #include "string.h"
 #include "protocol/server.h"
-
-static struct constantsDatabase *g_options;
 
 static void printUsage(const char *progname) {
 	printf("Usage: %s [-hjsdtocv] [input_json...]\n", progname);
@@ -69,8 +67,8 @@ bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
 	return true;
 }
 
-void args_parse(int argc, char **argv) {
-	g_options = newConstantsDatabase();
+struct driver_args *args_parse(int argc, char **argv) {
+	struct driver_args *args = newConstantsDatabase();
 	static bool inputFileSet = false;
 	int testIdx = -1;
 	(void)testIdx;
@@ -82,7 +80,7 @@ void args_parse(int argc, char **argv) {
 		// *only* in release builds. WTF.
 		if (stringEquals(argv[i], "--asset-path")) {
 			if (argv[i + 1]) {
-				setDatabaseString(g_options, "asset_path", argv[i + 1]);
+				setDatabaseString(args, "asset_path", argv[i + 1]);
 			}
 			continue;
 		}
@@ -94,10 +92,10 @@ void args_parse(int argc, char **argv) {
 		alternatePath = stringConcat(argv[i], ".json");
 		
 		if (is_valid_file(argv[i], NULL) && !inputFileSet) {
-			setDatabaseString(g_options, "inputFile", argv[i]);
+			setDatabaseString(args, "inputFile", argv[i]);
 			inputFileSet = true;
 		} else if (is_valid_file(alternatePath, NULL) && !inputFileSet) {
-			setDatabaseString(g_options, "inputFile", alternatePath);
+			setDatabaseString(args, "inputFile", alternatePath);
 			inputFileSet = true;
 		}
 		
@@ -111,7 +109,7 @@ void args_parse(int argc, char **argv) {
 				int n = atoi(threadstr);
 				n = n < 0 ? 0 : n;
 				n = n > getSysCores() * 2 ? getSysCores() * 2 : n;
-				setDatabaseInt(g_options, "thread_override", n);
+				setDatabaseInt(args, "thread_override", n);
 			} else {
 				logr(warning, "Invalid -j parameter given!\n");
 			}
@@ -122,7 +120,7 @@ void args_parse(int argc, char **argv) {
 			if (sampleStr) {
 				int n = atoi(sampleStr);
 				n = n < 1 ? 1 : n;
-				setDatabaseInt(g_options, "samples_override", n);
+				setDatabaseInt(args, "samples_override", n);
 			} else {
 				logr(warning, "Invalid -s parameter given!\n");
 			}
@@ -133,9 +131,9 @@ void args_parse(int argc, char **argv) {
 			int width = 0;
 			int height = 0;
 			if (parseDims(dimstr, &width, &height)) {
-				setDatabaseTag(g_options, "dims_override");
-				setDatabaseInt(g_options, "dims_width", width);
-				setDatabaseInt(g_options, "dims_height", height);
+				setDatabaseTag(args, "dims_override");
+				setDatabaseInt(args, "dims_width", width);
+				setDatabaseInt(args, "dims_height", height);
 			} else {
 				logr(warning, "Invalid -d parameter given!\n");
 			}
@@ -146,9 +144,9 @@ void args_parse(int argc, char **argv) {
 			int width = 0;
 			int height = 0;
 			if (parseDims(dimstr, &width, &height)) {
-				setDatabaseTag(g_options, "tiledims_override");
-				setDatabaseInt(g_options, "tile_width", width);
-				setDatabaseInt(g_options, "tile_height", height);
+				setDatabaseTag(args, "tiledims_override");
+				setDatabaseInt(args, "tile_width", width);
+				setDatabaseInt(args, "tile_height", height);
 			} else {
 				logr(warning, "Invalid -t parameter given!\n");
 			}
@@ -156,7 +154,7 @@ void args_parse(int argc, char **argv) {
 
 		if (stringEquals(argv[i], "-o")) {
 			char *pathstr = argv[i + 1];
-			setDatabaseString(g_options, "output_path", pathstr);
+			setDatabaseString(args, "output_path", pathstr);
 		}
 
 		if (stringEquals(argv[i], "-c")) {
@@ -164,7 +162,7 @@ void args_parse(int argc, char **argv) {
 			if (str) {
 				int n = atoi(str);
 				n = n < 0 ? 0 : n;
-				setDatabaseInt(g_options, "cam_index", n);
+				setDatabaseInt(args, "cam_index", n);
 			} else {
 				logr(warning, "Invalid -c parameter given!\n");
 			}
@@ -172,12 +170,12 @@ void args_parse(int argc, char **argv) {
 
 		if (stringEquals(argv[i], "--suite")) {
 			if (argv[i + 1]) {
-				setDatabaseString(g_options, "test_suite", argv[i + 1]);
+				setDatabaseString(args, "test_suite", argv[i + 1]);
 			}
 		}
 		
 		if (stringEquals(argv[i], "--test")) {
-			setDatabaseTag(g_options, "runTests");
+			setDatabaseTag(args, "runTests");
 			char *testIdxStr = argv[i + 1];
 			if (testIdxStr) {
 				int n = atoi(testIdxStr);
@@ -187,7 +185,7 @@ void args_parse(int argc, char **argv) {
 		}
 		
 		if (stringEquals(argv[i], "--test-perf")) {
-			setDatabaseTag(g_options, "runPerfTests");
+			setDatabaseTag(args, "runPerfTests");
 			char *testIdxStr = argv[i + 1];
 			if (testIdxStr) {
 				int n = atoi(testIdxStr);
@@ -197,49 +195,49 @@ void args_parse(int argc, char **argv) {
 		}
 		
 		if (stringEquals(argv[i], "--tcount")) {
-			setDatabaseTag(g_options, "runTests");
+			setDatabaseTag(args, "runTests");
 			testIdx = -2;
 		}
 		
 		if (stringEquals(argv[i], "--ptcount")) {
-			setDatabaseTag(g_options, "runTests");
+			setDatabaseTag(args, "runTests");
 			testIdx = -3;
 		}
 		
 		if (stringEquals(argv[i], "--iterative")) {
-			setDatabaseTag(g_options, "interactive");
+			setDatabaseTag(args, "interactive");
 		}
 		
 		if (stringEquals(argv[i], "--shutdown")) {
-			setDatabaseTag(g_options, "shutdown");
+			setDatabaseTag(args, "shutdown");
 		}
 		
 		if (stringEquals(argv[i], "--nodes")) {
 			ASSERT(i + 1 <= argc);
 			char *nodes = argv[i + 1];
-			if (nodes) setDatabaseString(g_options, "nodes_list", nodes);
+			if (nodes) setDatabaseString(args, "nodes_list", nodes);
 		}
 		
 		if (stringEquals(argv[i], "--worker")) {
-			setDatabaseTag(g_options, "is_worker");
+			setDatabaseTag(args, "is_worker");
 			char *portStr = argv[i + 1];
 			if (portStr && portStr[0] != '-') {
 				int port = atoi(portStr);
 				// Verify it's in the valid port range
 				port = port < 1024 ? 1024 : port;
 				port = port > 65535 ? 65535 : port;
-				setDatabaseInt(g_options, "worker_port", port);
+				setDatabaseInt(args, "worker_port", port);
 			}
 		}
 		
 		if (strncmp(argv[i], "-", 1) == 0) {
-			setDatabaseTag(g_options, ++argv[i]);
+			setDatabaseTag(args, ++argv[i]);
 		}
 	}
 	logr(debug, "Verbose mode enabled\n");
 	
-	if (args_is_set("shutdown") && args_is_set("nodes_list")) {
-		shutdownClients(args_string("nodes_list"));
+	if (args_is_set(args, "shutdown") && args_is_set(args, "nodes_list")) {
+		shutdownClients(args_string(args, "nodes_list"));
 		term_restore();
 		exit(0);
 	}
@@ -249,10 +247,10 @@ void args_parse(int argc, char **argv) {
 		alternatePath = NULL;
 	}
 	
-	if (args_is_set("runTests") || args_is_set("runPerfTests")) {
+	if (args_is_set(args, "runTests") || args_is_set(args, "runPerfTests")) {
 #ifdef CRAY_TESTING
 		char *suite = NULL;
-		if (args_is_set("test_suite")) suite = getDatabaseString(g_options, "test_suite");
+		if (args_is_set(args, "test_suite")) suite = getDatabaseString(args, "test_suite");
 		switch (testIdx) {
 			case -3:
 				printf("%i", getPerfTestCount(suite));
@@ -263,10 +261,10 @@ void args_parse(int argc, char **argv) {
 				exit(0);
 				break;
 			case -1:
-				exit(args_is_set("runPerfTests") ? runPerfTests(suite) : runTests(suite));
+				exit(args_is_set(args, "runPerfTests") ? runPerfTests(suite) : runTests(suite));
 				break;
 			default:
-				exit(args_is_set("runPerfTests") ? runPerfTest(testIdx, suite) : runTest(testIdx, suite));
+				exit(args_is_set(args, "runPerfTests") ? runPerfTest(testIdx, suite) : runTest(testIdx, suite));
 				break;
 		}
 #else
@@ -275,32 +273,33 @@ void args_parse(int argc, char **argv) {
 		exit(-1);
 #endif
 	}
+	return args;
 }
 
-bool args_is_set(const char *key) {
-	if (!g_options) return false;
-	return existsInDatabase(g_options, key);
+bool args_is_set(struct driver_args *args, const char *key) {
+	if (!args) return false;
+	return existsInDatabase(args, key);
 }
 
-int args_int(const char *key) {
-	ASSERT(existsInDatabase(g_options, key));
-	return getDatabaseInt(g_options, key);
+int args_int(struct driver_args *args, const char *key) {
+	ASSERT(existsInDatabase(args, key));
+	return getDatabaseInt(args, key);
 }
 
-char *args_string(const char *key) {
-	return getDatabaseString(g_options, key);
+char *args_string(struct driver_args *args, const char *key) {
+	return getDatabaseString(args, key);
 }
 
-char *args_path() {
-	ASSERT(existsInDatabase(g_options, "inputFile"));
-	return getDatabaseString(g_options, "inputFile");
+char *args_path(struct driver_args *args) {
+	ASSERT(existsInDatabase(args, "inputFile"));
+	return getDatabaseString(args, "inputFile");
 }
 
-char *args_asset_path(void) {
-	ASSERT(existsInDatabase(g_options, "asset_path"));
-	return getDatabaseString(g_options, "asset_path");
+char *args_asset_path(struct driver_args *args) {
+	ASSERT(existsInDatabase(args, "asset_path"));
+	return getDatabaseString(args, "asset_path");
 }
 
-void args_destroy() {
-	freeConstantsDatabase(g_options);
+void args_destroy(struct driver_args *args) {
+	freeConstantsDatabase(args);
 }
