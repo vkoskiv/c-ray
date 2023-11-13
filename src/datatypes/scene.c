@@ -11,7 +11,6 @@
 
 #include "../accelerators/bvh.h"
 #include "../utils/hashtable.h"
-#include "../utils/args.h"
 #include "../utils/textbuffer.h"
 #include "../utils/dyn_array.h"
 #include "camera.h"

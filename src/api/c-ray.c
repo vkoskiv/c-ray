@@ -21,7 +21,6 @@
 #include "../utils/platform/terminal.h"
 #include "../utils/assert.h"
 #include "../datatypes/image/texture.h"
-#include "../utils/args.h"
 #include "../utils/string.h"
 #include "../utils/protocol/server.h"
 #include "../utils/protocol/worker.h"

@@ -32,7 +32,6 @@
 #include "../networking.h"
 #include "../textbuffer.h"
 #include "../gitsha1.h"
-#include "../args.h"
 #include "../assert.h"
 #include "../filecache.h"
 #include "../platform/terminal.h"

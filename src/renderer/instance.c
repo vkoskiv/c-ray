@@ -15,7 +15,6 @@
 #include "../datatypes/mesh.h"
 #include "../datatypes/sphere.h"
 #include "../datatypes/scene.h"
-#include "../utils/args.h"
 
 struct sphereVolume {
 	struct sphere *sphere;

@@ -13,7 +13,6 @@
 #include "../logging.h"
 #include "../../vendored/asprintf.h"
 #include "../assert.h"
-#include "../args.h"
 
 #include "formats/png.h"
 #include "formats/bmp.h"

@@ -32,7 +32,6 @@
 #include "../filecache.h"
 #include "../gitsha1.h"
 #include "../timer.h"
-#include "../args.h"
 #include "../../utils/platform/signal.h"
 #include "../../accelerators/bvh.h"
 #include <stdio.h>
