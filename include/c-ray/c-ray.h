@@ -12,6 +12,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define C_RAY_PROTO_DEFAULT_PORT 2222
+
 struct renderInfo;
 struct texture;
 
@@ -97,5 +99,5 @@ void cr_load_mesh_from_buf(char *buf);
 struct texture *cr_renderer_render(struct cr_renderer *r);
 
 //Network render worker
-void cr_start_render_worker(void);
+void cr_start_render_worker(int port);
 

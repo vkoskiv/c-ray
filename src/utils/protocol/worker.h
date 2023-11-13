@@ -1,11 +1,11 @@
 //
 //  worker.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 06/04/2021.
-//  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-int startWorkerServer(void);
+int worker_start(int port);

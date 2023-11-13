@@ -1,9 +1,9 @@
 //
 //  worker.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 06/04/2021.
-//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../logging.h"
@@ -391,7 +391,7 @@ void exitHandler(int sig) {
 	close(recvsock_temp);
 }
 
-int startWorkerServer() {
+int worker_start(int port) {
 	signal(SIGPIPE, SIG_IGN);
 	if (registerHandler(sigint, exitHandler) < 0) {
 		logr(error, "registerHandler failed\n");
@@ -402,8 +402,6 @@ int startWorkerServer() {
 	if (receivingSocket == -1) {
 		logr(error, "Socket creation failed.\n");
 	}
-	
-	int port = args_is_set("worker_port") ? args_int("worker_port") : C_RAY_DEFAULT_PORT;
 	
 	bzero(&ownAddress, sizeof(ownAddress));
 	ownAddress.sin_family = AF_INET;

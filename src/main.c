@@ -6,7 +6,6 @@
 //  Copyright © 2015-2023 Valtteri Koskivuori. All rights reserved.
 //
 
-#include <stdlib.h>
 #include <c-ray/c-ray.h>
 
 #include "vendored/cJSON.h"
@@ -35,7 +34,8 @@ int main(int argc, char *argv[]) {
 
 	int ret = 0;
 	if (args_is_set("is_worker")) {
-		cr_start_render_worker();
+		int port = args_is_set("worker_port") ? args_int("worker_port") : C_RAY_PROTO_DEFAULT_PORT;
+		cr_start_render_worker(port);
 		goto done;
 	}
 

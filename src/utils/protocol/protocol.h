@@ -11,7 +11,6 @@
 #include "../../vendored/cJSON.h"
 #include <stdbool.h>
 
-#define C_RAY_DEFAULT_PORT 2222
 #define PROTO_VERSION "0.1"
 
 struct render_tile;
