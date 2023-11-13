@@ -45,6 +45,8 @@ char *colorEscape(int idx);
 
 #define PLURAL(x) (x) > 1 ? "s" : (x) == 0 ? "s" : ""
 
+void log_toggle_verbose(void);
+
 /**
 C-ray internal formatted logger.
 

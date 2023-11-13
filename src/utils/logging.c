@@ -12,8 +12,9 @@
 #include <stdarg.h>
 #include <time.h>
 #include <stdio.h>
-#include "args.h"
 #include "platform/terminal.h"
+
+static bool g_verbose_mode = false;
 
 char *color_escapes[] = {
 	"\x1B[0m",
@@ -64,9 +65,13 @@ static void printDate() {
 		   time.tm_sec);
 }
 
+void log_toggle_verbose(void) {
+	g_verbose_mode = !g_verbose_mode;
+}
+
 void logr(enum logType type, const char *fmt, ...) {
 	if (!fmt) return;
-	if (type == debug && !args_is_set("v")) return;
+	if (type == debug && !g_verbose_mode) return;
 	
 	if (type != plain) {
 		printPrefix(type);

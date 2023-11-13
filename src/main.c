@@ -24,6 +24,9 @@ int main(int argc, char *argv[]) {
 	atexit(term_restore);
 	logr(info, "c-ray v%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
 	args_parse(argc, argv);
+	
+	if (args_is_set("v")) log_toggle_verbose();
+	
 	struct cr_renderer *renderer = cr_new_renderer();
 
 	if (args_is_set("asset_path")) {
