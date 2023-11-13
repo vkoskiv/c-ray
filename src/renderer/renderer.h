@@ -80,6 +80,7 @@ struct prefs {
 	char *node_list;
 	bool isWorker;
 	struct sdl_prefs window;
+	bool iterative;
 };
 
 /**

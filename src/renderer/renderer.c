@@ -24,7 +24,6 @@
 #include "../utils/platform/mutex.h"
 #include "../utils/platform/sdl.h"
 #include "samplers/sampler.h"
-#include "../utils/args.h"
 #include "../utils/platform/capabilities.h"
 #include "../utils/platform/signal.h"
 #include "../utils/protocol/server.h"
@@ -140,7 +139,7 @@ struct texture *renderFrame(struct renderer *r) {
 		r->prefs.threads = r->state.tiles.count;
 	}
 
-	logr(info, "Pathtracing%s...\n", args_is_set("interactive") ? " iteratively" : "");
+	logr(info, "Pathtracing%s...\n", r->prefs.iterative ? " iteratively" : "");
 	
 	r->state.rendering = true;
 	r->state.render_aborted = false;
@@ -151,7 +150,6 @@ struct texture *renderFrame(struct renderer *r) {
 	float avgTimePerTilePass = 0.0f;
 	int pauser = 0;
 	int ctr = 1;
-	bool interactive = args_is_set("interactive");
 	
 	size_t remoteThreads = 0;
 	for (size_t i = 0; i < r->state.clientCount; ++i) {
@@ -163,7 +161,7 @@ struct texture *renderFrame(struct renderer *r) {
 	// Select the appropriate renderer type for local use
 	void *(*localRenderThread)(void *) = renderThread;
 	// Iterative mode is incompatible with network rendering at the moment
-	if (interactive && !r->state.clients) localRenderThread = renderThreadInteractive;
+	if (r->prefs.iterative && !r->state.clients) localRenderThread = renderThreadInteractive;
 	
 	// Local render threads + one thread for every client
 	size_t total_thread_count = r->prefs.threads + (int)r->state.clientCount;
@@ -227,8 +225,8 @@ struct texture *renderFrame(struct renderer *r) {
 			smartTime((msecTillFinished) / (r->prefs.threads + remoteThreads), rem);
 			logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
 				 KBLU,
-				 interactive ? ((double)r->state.finishedPasses / (double)r->prefs.sampleCount) * 100.0 :
-							   ((double)r->state.finishedTileCount / (double)r->state.tiles.count) * 100.0,
+				 r->prefs.iterative ? ((double)r->state.finishedPasses / (double)r->prefs.sampleCount) * 100.0 :
+									((double)r->state.finishedTileCount / (double)r->state.tiles.count) * 100.0,
 				 KNRM,
 				 (double)usPerRay,
 				 rem,

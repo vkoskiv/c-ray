@@ -44,6 +44,7 @@ enum cr_renderer_param {
 	cr_renderer_override_cam,
 	cr_renderer_node_list,
 	cr_renderer_scene_cache, // FIXME: Remove
+	cr_renderer_is_iterative,
 };
 
 bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p, uint64_t num);

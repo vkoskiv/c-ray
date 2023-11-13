@@ -122,6 +122,14 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	if (args_is_set("interactive")) {
+		if (args_is_set("nodes_list")) {
+			logr(warning, "Can't use iterative mode with network rendering yet, sorry.\n");
+		} else {
+			cr_renderer_set_num_pref(renderer, cr_renderer_is_iterative, 1);
+		}
+	}
+	
 	// This is where we prepare a cache of scene data to be sent to worker nodes
 	// We also apply any potential command-line overrides to that cache here as well.
 	// FIXME: This overrides setting should be integrated with scene loading, probably.

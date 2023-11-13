@@ -99,6 +99,10 @@ bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			r->prefs.selected_camera = num;
 			return true;
 		}
+		case cr_renderer_is_iterative: {
+			r->prefs.iterative = true;
+			return true;
+		}
 		default: {
 			logr(warning, "Renderer param %i not a number\n", p);
 		}

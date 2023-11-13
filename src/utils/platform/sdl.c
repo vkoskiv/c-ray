@@ -18,7 +18,6 @@
 #include "../assert.h"
 #include "../logo.h"
 #include "../loaders/textureloader.h"
-#include "../args.h"
 #include "thread.h"
 #include "signal.h"
 #include "dyn.h"
@@ -353,7 +352,7 @@ static void draw_frames(struct texture *overlay, struct render_tile_arr tiles) {
 void win_update(struct sdl_window *w, struct renderer *r, struct texture *t) {
 	if (!w) return;
 	//Render frames
-	if (!args_is_set("interactive") || r->state.clients) {
+	if (!r->prefs.iterative || r->state.clients) {
 		draw_frames(w->overlay, r->state.tiles);
 		draw_prog_bars(w->overlay, r->state.tiles);
 	}
