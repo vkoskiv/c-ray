@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include "filecache.h"
 #include "textbuffer.h"
-#include "args.h"
 
 static char *getFileExtension(const char *fileName) {
 	char buf[LINEBUFFER_MAXSIZE];
@@ -130,11 +129,10 @@ void write_file(const unsigned char *buf, size_t bufsize, const char *filePath) 
 
 
 bool is_valid_file(char *path, struct file_cache *cache) {
-	if (!args_is_set("use_clustering") && cache) return cache_contains(cache, path);
 #ifndef WINDOWS
 	struct stat path_stat = { 0 };
 	stat(path, &path_stat);
-	return S_ISREG(path_stat.st_mode);
+	return (S_ISREG(path_stat.st_mode) || (cache && cache_contains(cache, path)));
 #else
 	FILE *f = fopen(path, "r");
 	if (f) {
