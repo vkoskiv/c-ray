@@ -41,13 +41,13 @@ static void on_stop(struct cr_renderer_cb_info *info) {
 static void status(struct cr_renderer_cb_info *state) {
 	static int pauser = 0;
 	struct usr_data *d = state->user_data;
-	if (!d || !d->w) return;
+	if (!d) return;
 	struct input_state in = win_update(d->w, state->tiles, state->tiles_count, state->fb);
 	if (in.stop_render) cr_renderer_stop(d->r, in.should_save);
 	if (in.pause_render) cr_renderer_toggle_pause(d->r);
 
 	//Run the status printing about 4x/s
-	if (pauser >= 16) {
+	if (++pauser >= 16) {
 		pauser = 0;
 		char rem[64];
 		ms_to_readable(state->eta_ms, rem);
@@ -59,11 +59,7 @@ static void status(struct cr_renderer_cb_info *state) {
 			rem,
 			0.000001 * (double)state->samples_per_sec,
 			state->paused ? "[PAUSED]" : "");
-	
-		pauser = 0;
 	}
-	pauser++;
-
 }
 
 int main(int argc, char *argv[]) {
