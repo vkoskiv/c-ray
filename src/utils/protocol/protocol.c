@@ -42,10 +42,6 @@ cJSON *readJSON(int socket) {
 	if (chunkedReceive(socket, &recvBuf, &length) == 0) {
 		return NULL;
 	}
-	long millisecs = timer_get_ms(timer);
-	char *size = human_file_size(length);
-	logr(debug, "Received %s, took %lums.\n", size, millisecs);
-	free(size);
 	
 	cJSON *received = cJSON_Parse(recvBuf);
 	free(recvBuf);

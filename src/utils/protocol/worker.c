@@ -120,7 +120,6 @@ static struct render_tile *getWork(int connectionSocket) {
 	cJSON *tileJson = cJSON_GetObjectItem(response, "tile");
 	struct render_tile tile = decodeTile(tileJson);
 	g_worker_renderer->state.tiles.items[tile.index] = tile;
-	logr(debug, "Got work   : %i ((%i,%i),(%i,%i))\n", tile.index, tile.begin.x, tile.begin.y, tile.end.x, tile.end.y);
 	cJSON_Delete(response);
 	return &g_worker_renderer->state.tiles.items[tile.index];
 }
@@ -131,7 +130,6 @@ static bool submitWork(int sock, struct texture *work, struct render_tile *forTi
 	cJSON *package = newAction("submitWork");
 	cJSON_AddItemToObject(package, "result", result);
 	cJSON_AddItemToObject(package, "tile", tile);
-	logr(debug, "Submit work: %i\n", forTile->index);
 	return sendJSON(sock, package, NULL);
 }
 
@@ -295,6 +293,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 		if (pauser == 256 / active_msec) {
 			cJSON *stats = newAction("stats");
 			cJSON *array = cJSON_AddArrayToObject(stats, "tiles");
+			logr(plain, "\33[2K\r");
 			logr(debug, "( ");
 			for (size_t t = 0; t < threadCount; ++t) {
 				struct render_tile *tile = workerThreadStates[t].current;
@@ -303,7 +302,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 					logr(plain, "%i: %5zu%s", tile->index, tile->completed_samples, t < threadCount - 1 ? ", " : " ");
 				}
 			}
-			logr(plain, ")\n");
+			logr(plain, ")");
 
 			mutex_lock(g_worker_socket_mutex);
 			if (!sendJSON(connectionSocket, stats, NULL)) {
@@ -446,10 +445,6 @@ int worker_start(int port, size_t thread_limit) {
 				logr(warning, "Something went wrong. Error: %s\n", strerror(errno));
 				break;
 			}
-			long millisecs = timer_get_ms(timer);
-			char *size = human_file_size(length);
-			logr(debug, "Received %s, took %lums.\n", size, millisecs);
-			free(size);
 			cJSON *message = cJSON_Parse(buf);
 			if (isShutdown(message)) {
 				g_running = false;

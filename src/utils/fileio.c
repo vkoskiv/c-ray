@@ -241,6 +241,7 @@ char *read_stdin(size_t *bytes) {
 	return buf;
 }
 
+// FIXME: Have this take a buffer instead of allocating it in here
 char *human_file_size(unsigned long bytes) {
 	double kilobytes, megabytes, gigabytes, terabytes, petabytes, exabytes, zettabytes, yottabytes; // <- Futureproofing?!
 	kilobytes  = bytes      / 1000.0;
