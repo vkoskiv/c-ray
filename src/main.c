@@ -38,12 +38,32 @@ static void on_stop(struct cr_renderer_cb_info *info) {
 	if (d->w) win_destroy(d->w);
 }
 
-static void status(struct cr_renderer_cb_info *info) {
-	struct usr_data *d = info->user_data;
+static void status(struct cr_renderer_cb_info *state) {
+	static int pauser = 0;
+	struct usr_data *d = state->user_data;
 	if (!d || !d->w) return;
-	struct input_state in = win_update(d->w, info->tiles, info->tiles_count, info->fb);
+	struct input_state in = win_update(d->w, state->tiles, state->tiles_count, state->fb);
 	if (in.stop_render) cr_renderer_stop(d->r, in.should_save);
 	if (in.pause_render) cr_renderer_toggle_pause(d->r);
+
+	//Run the status printing about 4x/s
+	if (pauser >= 16) {
+		pauser = 0;
+		char rem[64];
+		smartTime(state->eta_ms, rem);
+		logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
+			KBLU,
+			state->completion * 100.0,
+			KNRM,
+			state->avg_per_ray_us,
+			rem,
+			0.000001 * (double)state->samples_per_sec,
+			state->paused ? "[PAUSED]" : "");
+	
+		pauser = 0;
+	}
+	pauser++;
+
 }
 
 int main(int argc, char *argv[]) {

@@ -26,7 +26,7 @@ struct worker {
 	size_t completedSamples; //FIXME: Remove
 	uint64_t totalSamples;
 	
-	long avgSampleTime; //Single tile pass
+	long avg_per_sample_us; //Single tile pass
 
 	struct camera *cam;
 	struct renderer *renderer;

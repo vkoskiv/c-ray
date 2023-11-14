@@ -70,7 +70,12 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 void *renderThread(void *arg);
 void *renderThreadInteractive(void *arg);
 
+//FIXME: Statistics computation is a gigantic mess. It will also break in the case
+//where a worker node disconnects during a render, so maybe fix that next.
 void update_cb_info(struct renderer *r, struct cr_renderer_cb_info *i) {
+	static uint64_t ctr = 1;
+	static uint64_t avg_per_sample_us = 0;
+	static uint64_t avg_tile_pass_us = 0;
 	i->user_data = r->state.cb.user_data;
 	if (!i->tiles) {
 		i->tiles_count = r->state.tiles.count;
@@ -78,6 +83,38 @@ void update_cb_info(struct renderer *r, struct cr_renderer_cb_info *i) {
 	}
 	// Notice: Casting away const here
 	memcpy((struct cr_tile *)i->tiles, r->state.tiles.items, sizeof(*i->tiles) * i->tiles_count);
+	if (!r->state.workers) return;
+	//Gather and maintain this average constantly.
+	size_t total_thread_count = r->prefs.threads + (int)r->state.clientCount;
+	size_t remote_threads = 0;
+	for (size_t i = 0; i < r->state.clientCount; ++i) {
+		remote_threads += r->state.clients[i].availableThreads;
+	}
+	if (!r->state.workers[0].paused) { // FIXME: Use renderer state instead
+		for (size_t t = 0; t < total_thread_count; ++t) {
+			avg_per_sample_us += r->state.workers[t].avg_per_sample_us; // FIXME: Not updated from remote nodes
+		}
+		avg_tile_pass_us += avg_per_sample_us / total_thread_count;
+		avg_tile_pass_us /= ctr++;
+	}
+	double avg_per_ray_us = (double)avg_tile_pass_us / (double)(r->prefs.tileHeight * r->prefs.tileWidth);
+	uint64_t completed_samples = 0;
+	for (size_t t = 0; t < total_thread_count; ++t) {
+		completed_samples += r->state.workers[t].totalSamples;
+	}
+	uint64_t remainingTileSamples = (r->state.tiles.count * r->prefs.sampleCount) - completed_samples;
+	uint64_t eta_ms_till_done = (avg_tile_pass_us * remainingTileSamples) / 1000;
+	eta_ms_till_done /= (r->prefs.threads + remote_threads);
+	uint64_t sps = (1000000 / avg_per_ray_us) * (r->prefs.threads + remote_threads);
+
+	i->paused = r->state.workers[0].paused;
+	i->avg_per_ray_us = avg_per_ray_us;
+	i->samples_per_sec = sps;
+	i->eta_ms = eta_ms_till_done;
+	i->completion = r->prefs.iterative ?
+		((double)r->state.finishedPasses / (double)r->prefs.sampleCount) :
+		((double)r->state.finishedTileCount / (double)r->state.tiles.count);
+
 }
 
 /// @todo Use defaultSettings state struct for this.
@@ -160,12 +197,6 @@ struct texture *renderFrame(struct renderer *r) {
 	r->state.render_aborted = false;
 	r->state.saveImage = true; // Set to false if user presses X
 	
-	//Main loop (input)
-	float avgSampleTime = 0.0f;
-	float avgTimePerTilePass = 0.0f;
-	int pauser = 0;
-	int ctr = 1;
-	
 	size_t remoteThreads = 0;
 	for (size_t i = 0; i < r->state.clientCount; ++i) {
 		remoteThreads += r->state.clients[i].availableThreads;
@@ -203,55 +234,17 @@ struct texture *renderFrame(struct renderer *r) {
 			logr(error, "Failed to start worker %d\n", t);
 	}
 
-	//Start main thread loop to handle SDL and statistics computation
-	//FIXME: Statistics computation is a gigantic mess. It will also break in the case
-	//where a worker node disconnects during a render, so maybe fix that next.
+	//Start main thread loop to handle renderer feedback and state management
 	while (r->state.rendering) {
-		if (r->state.cb.cr_renderer_status) {
-			update_cb_info(r, &cb_info);
-			r->state.cb.cr_renderer_status(&cb_info);
-		}
-
 		if (g_aborted) {
 			r->state.saveImage = false;
 			r->state.render_aborted = true;
 		}
 		
-		//Gather and maintain this average constantly.
-		if (!r->state.workers[0].paused) { // FIXME: Use renderer state instead
-			for (size_t t = 0; t < total_thread_count; ++t) {
-				avgSampleTime += r->state.workers[t].avgSampleTime;
-			}
-			avgTimePerTilePass += avgSampleTime / total_thread_count;
-			avgTimePerTilePass /= ctr++;
+		if (r->state.cb.cr_renderer_status) {
+			update_cb_info(r, &cb_info);
+			r->state.cb.cr_renderer_status(&cb_info);
 		}
-		
-		//Run the sample printing about 4x/s
-		if (pauser == 280 / active_msec) {
-			float usPerRay = avgTimePerTilePass / (r->prefs.tileHeight * r->prefs.tileWidth);
-			uint64_t completedSamples = 0;
-			for (size_t t = 0; t < total_thread_count; ++t) {
-				completedSamples += r->state.workers[t].totalSamples;
-			}
-			uint64_t remainingTileSamples = (r->state.tiles.count * r->prefs.sampleCount) - completedSamples;
-			uint64_t msecTillFinished = 0.001f * (avgTimePerTilePass * remainingTileSamples);
-			float sps = (1000000.0f / usPerRay) * (r->prefs.threads + remoteThreads);
-			char rem[64];
-			smartTime((msecTillFinished) / (r->prefs.threads + remoteThreads), rem);
-			logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
-				 KBLU,
-				 r->prefs.iterative ? ((double)r->state.finishedPasses / (double)r->prefs.sampleCount) * 100.0 :
-									((double)r->state.finishedTileCount / (double)r->state.tiles.count) * 100.0,
-				 KNRM,
-				 (double)usPerRay,
-				 rem,
-				 0.000001 * (double)sps,
-				 r->state.workers[0].paused ? "[PAUSED]" : "");
-			
-			pauser = 0;
-		}
-		pauser++;
-		
 
 		size_t inactive = 0;
 		for (size_t t = 0; t < total_thread_count; ++t) {
@@ -293,7 +286,7 @@ void *renderThreadInteractive(void *arg) {
 	threadState->completedSamples = 1;
 	
 	while (tile && r->state.rendering) {
-		long totalUsec = 0;
+		long total_us = 0;
 
 		timer_start(&timer);
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
@@ -327,14 +320,14 @@ void *renderThreadInteractive(void *arg) {
 			}
 		}
 		//For performance metrics
-		totalUsec += timer_get_us(timer);
+		total_us += timer_get_us(timer);
 		threadState->totalSamples++;
 		threadState->completedSamples++;
 		//Pause rendering when bool is set
 		while (threadState->paused && !r->state.render_aborted) {
 			timer_sleep_ms(100);
 		}
-		threadState->avgSampleTime = totalUsec / r->state.finishedPasses;
+		threadState->avg_per_sample_us = total_us / r->state.finishedPasses;
 		
 		//Tile has finished rendering, get a new one and start rendering it.
 		tile->state = finished;
@@ -373,7 +366,7 @@ void *renderThread(void *arg) {
 	threadState->completedSamples = 1;
 	
 	while (tile && r->state.rendering) {
-		long totalUsec = 0;
+		long total_us = 0;
 		long samples = 0;
 		
 		while (threadState->completedSamples < r->prefs.sampleCount + 1 && r->state.rendering) {
@@ -408,7 +401,7 @@ void *renderThread(void *arg) {
 			}
 			//For performance metrics
 			samples++;
-			totalUsec += timer_get_us(timer);
+			total_us += timer_get_us(timer);
 			threadState->totalSamples++;
 			threadState->completedSamples++;
 			tile->completed_samples++;
@@ -416,7 +409,7 @@ void *renderThread(void *arg) {
 			while (threadState->paused && !r->state.render_aborted) {
 				timer_sleep_ms(100);
 			}
-			threadState->avgSampleTime = totalUsec / samples;
+			threadState->avg_per_sample_us = total_us / samples;
 		}
 		//Tile has finished rendering, get a new one and start rendering it.
 		tile->state = finished;

@@ -75,6 +75,13 @@ struct cr_renderer_cb_info {
 	const struct texture *fb;
 	const struct cr_tile *tiles;
 	size_t tiles_count;
+
+	size_t active_threads;
+	double avg_per_ray_us;
+	int64_t samples_per_sec;
+	int64_t eta_ms;
+	double completion;
+	bool paused;
 };
 
 struct cr_renderer_callbacks {
