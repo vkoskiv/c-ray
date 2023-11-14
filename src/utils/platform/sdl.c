@@ -366,39 +366,24 @@ struct input_state win_update(struct sdl_window *w, const struct cr_tile *tiles,
 
 struct sdl_prefs sdl_parse(const cJSON *data) {
 	struct sdl_prefs prefs = { 0 };
+	prefs.scale = 1.0f;
 	prefs.enabled = true;
 	if (!data) return prefs;
 
 	const cJSON *enabled = cJSON_GetObjectItem(data, "enabled");
-	if (cJSON_IsBool(enabled)) {
+	if (cJSON_IsBool(enabled))
 		prefs.enabled = cJSON_IsTrue(enabled);
-	} else {
-		logr(warning, "Invalid enabled while parsing display prefs.\n");
-	}
 
 	const cJSON *isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
-	if (cJSON_IsBool(isFullscreen)) {
+	if (cJSON_IsBool(isFullscreen))
 		prefs.fullscreen = cJSON_IsTrue(isFullscreen);
-	} else {
-		logr(warning, "Invalid isFullscreen while parsing display prefs.\n");
-	}
 
 	const cJSON *isBorderless = cJSON_GetObjectItem(data, "isBorderless");
-	if (cJSON_IsBool(isBorderless)) {
+	if (cJSON_IsBool(isBorderless))
 		prefs.borderless = cJSON_IsTrue(isBorderless);
-	} else {
-		logr(warning, "Invalid isBorderless while parsing display prefs.\n");
-	}
 
 	const cJSON *windowScale = cJSON_GetObjectItem(data, "windowScale");
-	if (cJSON_IsNumber(windowScale)) {
-		if (windowScale->valuedouble >= 0) {
-			prefs.scale = windowScale->valuedouble;
-		} else {
-			prefs.scale = 1.0f;
-		}
-	} else {
-		logr(warning, "Invalid isBorderless while parsing display prefs.\n");
-	}
+	if (cJSON_IsNumber(windowScale) && windowScale->valuedouble >= 0)
+		prefs.scale = windowScale->valuedouble;
 	return prefs;
 }
