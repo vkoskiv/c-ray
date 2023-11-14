@@ -95,16 +95,16 @@ void logr(enum logType type, const char *fmt, ...) {
 	}
 }
 
-//TODO: Have this take a buf
 void printSmartTime(unsigned long long ms) {
 	char buf[64];
-	smartTime(ms, buf);
+	ms_to_readable(ms, buf);
 	printf("%s", buf);
 }
 
 // Print to buf a logically formatted string representing time given in milliseconds.
 // Example: "980ms", "2s", "1m 02s", "3h 12m", etc.
-void smartTime(unsigned long milliseconds, char *buf) {
+char *ms_to_readable(unsigned long milliseconds, char *buf) {
+	if (!buf) return NULL;
 	time_t secs = milliseconds / 1000;
 	time_t mins = secs / 60;
 	time_t hours = (secs / 60) / 60;
@@ -121,4 +121,5 @@ void smartTime(unsigned long milliseconds, char *buf) {
 	} else {
 		sprintf(buf, "%lums", milliseconds);
 	}
+	return buf;
 }

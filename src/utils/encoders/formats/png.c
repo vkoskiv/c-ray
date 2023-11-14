@@ -32,7 +32,7 @@ void encodePNGFromArray(const char *filename, const unsigned char *imgData, size
 	char bounces[16];
 	sprintf(bounces, "%i", imginfo.bounces);
 	char renderTime[64];
-	smartTime(imginfo.renderTime, renderTime);
+	ms_to_readable(imginfo.renderTime, renderTime);
 	char threads[16];
 	sprintf(threads, "%i", imginfo.threadCount);
 #ifndef WINDOWS

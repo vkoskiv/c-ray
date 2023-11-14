@@ -50,7 +50,7 @@ static void status(struct cr_renderer_cb_info *state) {
 	if (pauser >= 16) {
 		pauser = 0;
 		char rem[64];
-		smartTime(state->eta_ms, rem);
+		ms_to_readable(state->eta_ms, rem);
 		logr(info, "[%s%.0f%%%s] μs/path: %.02f, etf: %s, %.02lfMs/s %s        \r",
 			KBLU,
 			state->completion * 100.0,
@@ -260,9 +260,9 @@ int main(int argc, char *argv[]) {
 	timer_start(&timer);
 	struct texture *final = cr_renderer_render(renderer);
 	long ms = timer_get_ms(timer);
-	logr(info, "Finished render in ");
-	printSmartTime(ms);
-	logr(plain, "                     \n");
+	char buf[64] = { 0 };
+	logr(plain, "\n");
+	logr(info, "Finished render in %s\n", ms_to_readable(ms, buf));
 
 	// FIXME: What the fuck
 	const char *output_path = NULL;
