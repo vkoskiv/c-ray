@@ -8,4 +8,4 @@
 
 #pragma once
 
-int worker_start(int port);
+int worker_start(int port, size_t thread_limit);

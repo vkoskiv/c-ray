@@ -222,13 +222,13 @@ bail:
 
 #define active_msec  16
 
-static cJSON *startRender(int connectionSocket) {
+static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	g_worker_renderer->state.rendering = true;
 	g_worker_renderer->state.render_aborted = false;
 	g_worker_renderer->state.saveImage = false;
 	logr(info, "Starting network render job\n");
 	
-	size_t threadCount = g_worker_renderer->prefs.threads;
+	size_t threadCount = thread_limit ? thread_limit : g_worker_renderer->prefs.threads;
 	struct cr_thread *worker_threads = calloc(threadCount, sizeof(*worker_threads));
 	struct workerThreadState *workerThreadStates = calloc(threadCount, sizeof(*workerThreadStates));
 	
@@ -334,7 +334,7 @@ static cJSON *startRender(int connectionSocket) {
 }
 
 // Worker command handler
-static cJSON *processCommand(int connectionSocket, cJSON *json) {
+static cJSON *processCommand(int connectionSocket, cJSON *json, size_t thread_limit) {
 	if (!json) {
 		return errorResponse("Couldn't parse incoming JSON");
 	}
@@ -353,7 +353,7 @@ static cJSON *processCommand(int connectionSocket, cJSON *json) {
 		case 3:
 			// startRender contains worker event loop and blocks until render completion.
 			cJSON_Delete(json);
-			return startRender(connectionSocket);
+			return startRender(connectionSocket, thread_limit);
 			break;
 		default:
 			cJSON_Delete(json);
@@ -390,7 +390,7 @@ void exitHandler(int sig) {
 	close(recvsock_temp);
 }
 
-int worker_start(int port) {
+int worker_start(int port, size_t thread_limit) {
 	signal(SIGPIPE, SIG_IGN);
 	if (registerHandler(sigint, exitHandler) < 0) {
 		logr(error, "registerHandler failed\n");
@@ -427,6 +427,7 @@ int worker_start(int port) {
 	
 	while (g_running) {
 		logr(info, "Listening for connections on port %i\n", port);
+		if (thread_limit) logr(info, "Limiting to %zu threads\n", thread_limit);
 		connectionSocket = accept(receivingSocket, (struct sockaddr *)&masterAddress, &len);
 		if (connectionSocket < 0) {
 			logr(debug, "Failed to accept\n");
@@ -455,7 +456,7 @@ int worker_start(int port) {
 				cJSON_Delete(message);
 				break;
 			}
-			cJSON *myResponse = processCommand(connectionSocket, message);
+			cJSON *myResponse = processCommand(connectionSocket, message, thread_limit);
 			if (!myResponse) {
 				if (buf) free(buf);
 				break;

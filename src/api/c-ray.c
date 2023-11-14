@@ -408,7 +408,7 @@ struct texture *cr_renderer_render(struct cr_renderer *ext) {
 	return image;
 }
 
-void cr_start_render_worker(int port) {
-	worker_start(port);
+void cr_start_render_worker(int port, size_t thread_limit) {
+	worker_start(port, thread_limit);
 }
 

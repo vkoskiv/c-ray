@@ -72,8 +72,14 @@ int main(int argc, char *argv[]) {
 	logr(info, "c-ray v%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
 
 	struct driver_args *opts = args_parse(argc, argv);
-	
 	if (args_is_set(opts, "v")) log_toggle_verbose();
+	if (args_is_set(opts, "is_worker")) {
+		int port = args_is_set(opts, "worker_port") ? args_int(opts, "worker_port") : C_RAY_PROTO_DEFAULT_PORT;
+		size_t thread_limit = 0;
+		if (args_is_set(opts, "thread_override")) thread_limit = args_int(opts, "thread_override");
+		cr_start_render_worker(port, thread_limit);
+		return 0;
+	}
 	
 	struct cr_renderer *renderer = cr_new_renderer();
 
@@ -84,12 +90,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	int ret = 0;
-	if (args_is_set(opts, "is_worker")) {
-		int port = args_is_set(opts, "worker_port") ? args_int(opts, "worker_port") : C_RAY_PROTO_DEFAULT_PORT;
-		cr_start_render_worker(port);
-		goto done;
-	}
-
 	size_t bytes = 0;
 	char *input = args_is_set(opts, "inputFile") ? load_file(args_path(opts), &bytes, NULL) : read_stdin(&bytes);
 	if (!input) {

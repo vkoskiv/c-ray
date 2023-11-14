@@ -145,5 +145,5 @@ void cr_load_mesh_from_buf(char *buf);
 struct texture *cr_renderer_render(struct cr_renderer *r);
 
 //Network render worker
-void cr_start_render_worker(int port);
+void cr_start_render_worker(int port, size_t thread_limit);
 
