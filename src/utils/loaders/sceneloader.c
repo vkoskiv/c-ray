@@ -228,50 +228,6 @@ void parse_prefs(struct cr_renderer *ext, const cJSON *data) {
 
 }
 
-static void parseDisplay(struct sdl_prefs *win, const cJSON *data) {
-	if (!data) return;
-
-	const cJSON *enabled = cJSON_GetObjectItem(data, "enabled");
-	if (enabled) {
-		if (cJSON_IsBool(enabled)) {
-			win->enabled = cJSON_IsTrue(enabled);
-		} else {
-			logr(warning, "Invalid enabled while parsing display prefs.\n");
-		}
-	}
-
-	const cJSON *isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
-	if (isFullscreen) {
-		if (cJSON_IsBool(isFullscreen)) {
-			win->fullscreen = cJSON_IsTrue(isFullscreen);
-		} else {
-			logr(warning, "Invalid isFullscreen while parsing display prefs.\n");
-		}
-	}
-
-	const cJSON *isBorderless = cJSON_GetObjectItem(data, "isBorderless");
-	if (isBorderless) {
-		if (cJSON_IsBool(isBorderless)) {
-			win->borderless = cJSON_IsTrue(isBorderless);
-		} else {
-			logr(warning, "Invalid isBorderless while parsing display prefs.\n");
-		}
-	}
-
-	const cJSON *windowScale = cJSON_GetObjectItem(data, "windowScale");
-	if (windowScale) {
-		if (cJSON_IsNumber(windowScale)) {
-			if (windowScale->valuedouble >= 0) {
-				win->scale = windowScale->valuedouble;
-			} else {
-				win->scale = 1.0f;
-			}
-		} else {
-			logr(warning, "Invalid isBorderless while parsing display prefs.\n");
-		}
-	}
-}
-
 struct spline *test() {
 	return spline_new((struct vector){-0.1f, 0.0f, -0.7f}, (struct vector){-0.1f, 0.2f, -0.7f}, (struct vector){0.1f, 0.2f, -0.7f}, (struct vector){0.1f, 0.0f, -0.7f});
 }
@@ -697,7 +653,6 @@ int parse_json(struct cr_renderer *r, cJSON *json) {
 
 	parse_prefs(r, cJSON_GetObjectItem(json, "renderer"));
 
-	parseDisplay(&todo_remove_r->prefs.window, cJSON_GetObjectItem(json, "display"));
 	parse_cameras((struct cr_scene *)todo_remove_r->scene, cJSON_GetObjectItem(json, "camera"));
 
 	if (!todo_remove_r->scene->cameras.count) {

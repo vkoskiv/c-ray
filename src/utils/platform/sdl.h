@@ -7,13 +7,29 @@
 //
 
 #pragma once
+#include <stdbool.h>
+#include <stddef.h>
 
-struct renderer;
 struct texture;
-struct sdl_prefs;
+struct cr_tile;
+struct cJSON;
+
+struct sdl_prefs {
+	bool enabled;
+	bool fullscreen;
+	bool borderless;
+	float scale;
+};
 
 // Returns NULL if we couldn't load the SDL2 lib and/or needed SDL symbols.
 struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height);
-void win_update(struct sdl_window *w, struct renderer *r, struct texture *t);
-void win_check_keyboard(struct sdl_window *w, struct renderer *r);
+struct sdl_prefs sdl_parse(const struct cJSON *data);
+
+struct input_state {
+	bool pause_render;
+	bool stop_render;
+	bool should_save;
+};
+struct input_state win_update(struct sdl_window *w, const struct cr_tile *tiles, size_t tile_count, const struct texture *t);
+
 void win_destroy(struct sdl_window *);

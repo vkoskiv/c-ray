@@ -8,6 +8,7 @@
 
 #include <c-ray/c-ray.h>
 
+#include "datatypes/image/texture.h"
 #include "vendored/cJSON.h"
 
 #include "utils/logging.h"
@@ -19,6 +20,31 @@
 #include "utils/encoders/encoder.h"
 #include "utils/timer.h"
 #include "utils/hashtable.h"
+#include "utils/platform/sdl.h"
+
+struct usr_data {
+	struct cr_renderer *r;
+	struct sdl_window *w;
+	struct sdl_prefs p;
+};
+
+static void on_start(struct cr_renderer_cb_info *info) {
+	struct usr_data *d = info->user_data;
+	if (d->p.enabled && info->fb) d->w = win_try_init(&d->p, info->fb->width, info->fb->height);
+}
+
+static void on_stop(struct cr_renderer_cb_info *info) {
+	struct usr_data *d = info->user_data;
+	if (d->w) win_destroy(d->w);
+}
+
+static void status(struct cr_renderer_cb_info *info) {
+	struct usr_data *d = info->user_data;
+	if (!d || !d->w) return;
+	struct input_state in = win_update(d->w, info->tiles, info->tiles_count, info->fb);
+	if (in.stop_render) cr_renderer_stop(d->r, in.should_save);
+	if (in.pause_render) cr_renderer_toggle_pause(d->r);
+}
 
 int main(int argc, char *argv[]) {
 	term_init();
@@ -195,7 +221,17 @@ int main(int argc, char *argv[]) {
 		cr_renderer_set_str_pref(renderer, cr_renderer_scene_cache, cache);
 		free(cache);
 	}
-	
+
+	cr_renderer_set_callbacks(renderer, (struct cr_renderer_callbacks){
+		.cr_renderer_on_start = on_start,
+		.cr_renderer_on_stop = on_stop,
+		.cr_renderer_status = status,
+		.user_data = &(struct usr_data){
+			.p = sdl_parse(cJSON_GetObjectItem(scene, "display")),
+			.r = renderer
+		}
+	});
+
 	logr(debug, "Deleting JSON...\n");
 	cJSON_Delete(scene);
 	logr(debug, "Deleting done\n");

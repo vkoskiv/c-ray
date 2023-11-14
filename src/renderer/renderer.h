@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <c-ray/c-ray.h>
 #include "../datatypes/tile.h"
 #include "../datatypes/image/imagefile.h"
 #include "../utils/timer.h"
@@ -48,13 +49,7 @@ struct state {
 	struct file_cache *file_cache; // A file cache for network render nodes. NULL if only local render.
 	
 	struct cr_mutex *tileMutex;
-};
-
-struct sdl_prefs {
-	bool enabled;
-	bool fullscreen;
-	bool borderless;
-	float scale;
+	struct cr_renderer_callbacks cb;
 };
 
 /// Preferences data (Set by user)
@@ -79,7 +74,6 @@ struct prefs {
 	enum fileType imgType;
 	char *node_list;
 	bool isWorker;
-	struct sdl_prefs window;
 	bool iterative;
 };
 

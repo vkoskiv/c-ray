@@ -172,6 +172,30 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 	return false;
 }
 
+bool cr_renderer_set_callbacks(struct cr_renderer *ext, struct cr_renderer_callbacks cb) {
+	if (!ext) return false;
+	struct renderer *r = (struct renderer *)ext;
+	r->state.cb = cb;
+	return true;
+}
+
+void cr_renderer_stop(struct cr_renderer *ext, bool should_save) {
+	if (!ext) return;
+	struct renderer *r = (struct renderer *)ext;
+	r->state.saveImage = should_save;
+	r->state.render_aborted = true;
+}
+
+void cr_renderer_toggle_pause(struct cr_renderer *ext) {
+	if (!ext) return;
+	struct renderer *r = (struct renderer *)ext;
+	for (size_t i = 0; i < r->prefs.threads; ++i) {
+		// FIXME: Use array for workers
+		// FIXME: What about network renderers?
+		r->state.workers[i].paused = !r->state.workers[i].paused;
+	}
+}
+
 const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_param p) {
 	if (!ext) return NULL;
 	struct renderer *r = (struct renderer *)ext;

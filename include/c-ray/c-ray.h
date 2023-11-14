@@ -11,6 +11,7 @@
 // Cray public-facing API
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #define C_RAY_PROTO_DEFAULT_PORT 2222
 
@@ -49,8 +50,46 @@ enum cr_renderer_param {
 	cr_renderer_is_iterative,
 };
 
+enum cr_tile_state {
+	cr_tile_ready_to_render = 0,
+	cr_tile_rendering,
+	cr_tile_finished
+};
+
+struct cr_tile {
+	int w;
+	int h;
+	int start_x;
+	int start_y;
+	int end_x;
+	int end_y;
+	enum cr_tile_state state;
+	bool network_renderer;
+	int index;
+	size_t total_samples;
+	size_t completed_samples;
+};
+
+struct cr_renderer_cb_info {
+	void *user_data;
+	const struct texture *fb;
+	const struct cr_tile *tiles;
+	size_t tiles_count;
+};
+
+struct cr_renderer_callbacks {
+	void (*cr_renderer_on_start)(struct cr_renderer_cb_info *info);
+	void (*cr_renderer_on_stop)(struct cr_renderer_cb_info *info);
+	void (*cr_renderer_status)(struct cr_renderer_cb_info *info);
+	void (*cr_renderer_on_state_changed)(struct cr_renderer_cb_info *info);
+	void *user_data;
+};
+
 bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p, uint64_t num);
 bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p, const char *str);
+bool cr_renderer_set_callbacks(struct cr_renderer *ext, struct cr_renderer_callbacks cb);
+void cr_renderer_stop(struct cr_renderer *ext, bool should_save);
+void cr_renderer_toggle_pause(struct cr_renderer *ext);
 const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_param p);
 uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_param p);
 void cr_destroy_renderer(struct cr_renderer *r);

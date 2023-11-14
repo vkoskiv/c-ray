@@ -22,7 +22,6 @@
 #include "../datatypes/sphere.h"
 #include "../utils/platform/thread.h"
 #include "../utils/platform/mutex.h"
-#include "../utils/platform/sdl.h"
 #include "samplers/sampler.h"
 #include "../utils/platform/capabilities.h"
 #include "../utils/platform/signal.h"
@@ -71,6 +70,16 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 void *renderThread(void *arg);
 void *renderThreadInteractive(void *arg);
 
+void update_cb_info(struct renderer *r, struct cr_renderer_cb_info *i) {
+	i->user_data = r->state.cb.user_data;
+	if (!i->tiles) {
+		i->tiles_count = r->state.tiles.count;
+		i->tiles = calloc(i->tiles_count, sizeof(*i->tiles));
+	}
+	// Notice: Casting away const here
+	memcpy((struct cr_tile *)i->tiles, r->state.tiles.items, sizeof(*i->tiles) * i->tiles_count);
+}
+
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
 struct texture *renderFrame(struct renderer *r) {
@@ -86,8 +95,6 @@ struct texture *renderFrame(struct renderer *r) {
 		cam_recompute_optics(&camera);
 	}
 
-	struct texture *output = newTexture(char_p, camera.width, camera.height, 3);
-	
 	logr(info, "Starting c-ray renderer for frame %zu\n", r->prefs.imgCount);
 	
 	// Verify we have at least a single thread rendering.
@@ -139,6 +146,14 @@ struct texture *renderFrame(struct renderer *r) {
 		r->prefs.threads = r->state.tiles.count;
 	}
 
+	struct texture *output = newTexture(char_p, camera.width, camera.height, 3);
+	struct cr_renderer_cb_info cb_info = { 0 };
+	cb_info.fb = output;
+	if (r->state.cb.cr_renderer_on_start) {
+		update_cb_info(r, &cb_info);
+		r->state.cb.cr_renderer_on_start(&cb_info);
+	}
+
 	logr(info, "Pathtracing%s...\n", r->prefs.iterative ? " iteratively" : "");
 	
 	r->state.rendering = true;
@@ -188,13 +203,14 @@ struct texture *renderFrame(struct renderer *r) {
 			logr(error, "Failed to start worker %d\n", t);
 	}
 
-	struct sdl_window *sdl = win_try_init(&r->prefs.window, camera.width, camera.height);
-	
 	//Start main thread loop to handle SDL and statistics computation
 	//FIXME: Statistics computation is a gigantic mess. It will also break in the case
 	//where a worker node disconnects during a render, so maybe fix that next.
 	while (r->state.rendering) {
-		win_check_keyboard(sdl, r);
+		if (r->state.cb.cr_renderer_status) {
+			update_cb_info(r, &cb_info);
+			r->state.cb.cr_renderer_status(&cb_info);
+		}
 
 		if (g_aborted) {
 			r->state.saveImage = false;
@@ -202,8 +218,7 @@ struct texture *renderFrame(struct renderer *r) {
 		}
 		
 		//Gather and maintain this average constantly.
-		if (!r->state.workers[0].paused) {
-			win_update(sdl, r, output);
+		if (!r->state.workers[0].paused) { // FIXME: Use renderer state instead
 			for (size_t t = 0; t < total_thread_count; ++t) {
 				avgSampleTime += r->state.workers[t].avgSampleTime;
 			}
@@ -251,7 +266,10 @@ struct texture *renderFrame(struct renderer *r) {
 	for (size_t t = 0; t < total_thread_count; ++t) {
 		thread_wait(&r->state.workers[t].thread);
 	}
-	win_destroy(sdl);
+	if (r->state.cb.cr_renderer_on_stop) {
+		update_cb_info(r, &cb_info);
+		r->state.cb.cr_renderer_on_stop(&cb_info);
+	}
 	return output;
 }
 
@@ -428,12 +446,6 @@ static struct prefs defaults() {
 			.imgFileName = stringCopy("rendered"),
 			.imgCount = 0,
 			.imgType = png,
-			.window = {
-				.enabled = true,
-				.fullscreen = false,
-				.borderless = false,
-				.scale = 1.0f
-			}
 	};
 }
 

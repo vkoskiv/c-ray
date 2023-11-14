@@ -10,8 +10,6 @@
 #include "sdl.h"
 
 #include "../../datatypes/image/imagefile.h"
-#include "../../renderer/renderer.h"
-#include "../../datatypes/tile.h"
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/color.h"
 #include "../logging.h"
@@ -19,8 +17,10 @@
 #include "../logo.h"
 #include "../loaders/textureloader.h"
 #include "thread.h"
+#include "../../vendored/cJSON.h"
 #include "signal.h"
 #include "dyn.h"
+#include <c-ray/c-ray.h>
 
 #include "../../vendored/SDL2/SDL_render.h"
 #include "../../vendored/SDL2/SDL_events.h"
@@ -267,99 +267,138 @@ void win_destroy(struct sdl_window *w) {
 	w = NULL;
 }
 
-void win_check_keyboard(struct sdl_window *sdl, struct renderer *r) {
-	if (!sdl) return;
+static struct input_state win_check_keyboard(struct sdl_window *sdl) {
+	struct input_state cmd = { 0 };
+	if (!sdl) return cmd;
 	SDL_Event event;
 	while (sdl->sym->SDL_PollEvent(&event)) {
 		if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
 			if (event.key.keysym.sym == SDLK_s) {
 				printf("\n");
 				logr(info, "Aborting render, saving\n");
-				r->state.render_aborted = true;
-				r->state.saveImage = true;
+				cmd.stop_render = true;
+				cmd.should_save = true;
 			}
 			if (event.key.keysym.sym == SDLK_x) {
 				printf("\n");
 				logr(info, "Aborting render without saving\n");
-				r->state.render_aborted = true;
-				r->state.saveImage = false;
+				cmd.stop_render = true;
+				cmd.should_save = false;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
-				for (size_t i = 0; i < r->prefs.threads; ++i) {
-					r->state.workers[i].paused = !r->state.workers[i].paused;
-				}
+				cmd.pause_render = true;
 			}
 		}
 		if (event.type == SDL_QUIT) {
 			printf("\n");
 			logr(info, "Aborting render without saving\n");
-			r->state.render_aborted = true;
-			r->state.saveImage = false;
+			cmd.stop_render = true;
+			cmd.should_save = false;
 		}
 	}
+	return cmd;
 }
 
-static void draw_bar(struct texture *overlay, struct render_tile *t) {
+static void draw_bar(struct texture *overlay, const struct cr_tile *t) {
 	float prc = ((float)t->completed_samples / t->total_samples);
-	size_t pixels = (int)((float)t->width * prc);
-	struct color c = t->state == rendering ? g_prog_color : g_clear_color;
+	size_t pixels = (int)((float)t->w * prc);
+	struct color c = t->state == cr_tile_rendering ? g_prog_color : g_clear_color;
 	for (size_t i = 0; i < pixels; ++i) {
-		setPixel(overlay, c, t->begin.x + i, (t->begin.y + (t->height / 5)) - 1);
-		setPixel(overlay, c, t->begin.x + i, (t->begin.y + (t->height / 5))    );
-		setPixel(overlay, c, t->begin.x + i, (t->begin.y + (t->height / 5)) + 1);
+		setPixel(overlay, c, t->start_x + i, (t->start_y + (t->h / 5)) - 1);
+		setPixel(overlay, c, t->start_x + i, (t->start_y + (t->h / 5))    );
+		setPixel(overlay, c, t->start_x + i, (t->start_y + (t->h / 5)) + 1);
 	}
 }
 
-static void draw_prog_bars(struct texture *overlay, struct render_tile_arr tiles) {
-	for (size_t tile = 0; tile < tiles.count; ++tile)
-		draw_bar(overlay, &tiles.items[tile]);
+static void draw_prog_bars(struct texture *overlay, const struct cr_tile *tiles, size_t tile_count) {
+	for (size_t tile = 0; tile < tile_count; ++tile)
+		draw_bar(overlay, &tiles[tile]);
 }
 
-static void draw_frame(struct texture *buf, struct render_tile tile, struct color c) {
-	unsigned length = tile.width  <= 16 ? 4 : 8;
-			 length = tile.height <= 16 ? 4 : 8;
-	length = length > tile.width ? tile.width : length;
-	length = length > tile.height ? tile.height : length;
+static void draw_frame(struct texture *buf, struct cr_tile tile, struct color c) {
+	int length = tile.w  <= 16 ? 4 : 8;
+	length = tile.h <= 16 ? 4 : 8;
+	length = length > tile.w ? tile.w : length;
+	length = length > tile.h ? tile.h : length;
 
-	for (unsigned i = 1; i < length; ++i) {
+	for (int i = 1; i < length; ++i) {
 		//top left
-		setPixel(buf, c, tile.begin.x + i, tile.begin.y + 1);
-		setPixel(buf, c, tile.begin.x + 1, tile.begin.y + i);
+		setPixel(buf, c, tile.start_x + i, tile.start_y + 1);
+		setPixel(buf, c, tile.start_x + 1, tile.start_y + i);
 		
 		//top right
-		setPixel(buf, c, tile.end.x - i, tile.begin.y + 1);
-		setPixel(buf, c, tile.end.x - 1, tile.begin.y + i);
+		setPixel(buf, c, tile.end_x - i, tile.start_y + 1);
+		setPixel(buf, c, tile.end_x - 1, tile.start_y + i);
 		
 		//Bottom left
-		setPixel(buf, c, tile.begin.x + i, tile.end.y - 1);
-		setPixel(buf, c, tile.begin.x + 1, tile.end.y - i);
+		setPixel(buf, c, tile.start_x + i, tile.end_y - 1);
+		setPixel(buf, c, tile.start_x + 1, tile.end_y - i);
 		
 		//bottom right
-		setPixel(buf, c, tile.end.x - i, tile.end.y - 1);
-		setPixel(buf, c, tile.end.x - 1, tile.end.y - i);
+		setPixel(buf, c, tile.end_x - i, tile.end_y - 1);
+		setPixel(buf, c, tile.end_x - 1, tile.end_y - i);
 	}
 }
 
-static void draw_frames(struct texture *overlay, struct render_tile_arr tiles) {
-	for (size_t i = 0; i < tiles.count; ++i) {
-		struct render_tile tile = tiles.items[i];
-		if (tile.width < 8 || tile.height < 8) return;
-		struct color c = tile.state == rendering ? g_frame_color : g_clear_color;
+static void draw_frames(struct texture *overlay, const struct cr_tile *tiles, size_t tile_count) {
+	for (size_t i = 0; i < tile_count; ++i) {
+		struct cr_tile tile = tiles[i];
+		if (tile.w < 8 || tile.h < 8) return;
+		struct color c = tile.state == cr_tile_rendering ? g_frame_color : g_clear_color;
 		draw_frame(overlay, tile, c);
 	}
 }
 
-void win_update(struct sdl_window *w, struct renderer *r, struct texture *t) {
-	if (!w) return;
+struct input_state win_update(struct sdl_window *w, const struct cr_tile *tiles, size_t tile_count, const struct texture *t) {
+	if (!w) return (struct input_state){ 0 };
 	//Render frames
-	if (!r->prefs.iterative || r->state.clients) {
-		draw_frames(w->overlay, r->state.tiles);
-		draw_prog_bars(w->overlay, r->state.tiles);
-	}
+	// TODO: if (r->prefs.iterative || r->state.clients) {
+	draw_frames(w->overlay, tiles, tile_count);
+	draw_prog_bars(w->overlay, tiles, tile_count);
 	//Update image data
-	w->sym->SDL_UpdateTexture(w->texture, NULL, t->data.byte_p, (int)t->width * 3);
-	w->sym->SDL_UpdateTexture(w->overlay_sdl, NULL, w->overlay->data.byte_p, (int)t->width * 4);
+	if (t) w->sym->SDL_UpdateTexture(w->texture, NULL, t->data.byte_p, (int)w->width * 3);
+	w->sym->SDL_UpdateTexture(w->overlay_sdl, NULL, w->overlay->data.byte_p, (int)w->width * 4);
 	w->sym->SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
 	w->sym->SDL_RenderCopy(w->renderer, w->overlay_sdl, NULL, NULL);
 	w->sym->SDL_RenderPresent(w->renderer);
+	return win_check_keyboard(w);
+}
+
+struct sdl_prefs sdl_parse(const cJSON *data) {
+	struct sdl_prefs prefs = { 0 };
+	prefs.enabled = true;
+	if (!data) return prefs;
+
+	const cJSON *enabled = cJSON_GetObjectItem(data, "enabled");
+	if (cJSON_IsBool(enabled)) {
+		prefs.enabled = cJSON_IsTrue(enabled);
+	} else {
+		logr(warning, "Invalid enabled while parsing display prefs.\n");
+	}
+
+	const cJSON *isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
+	if (cJSON_IsBool(isFullscreen)) {
+		prefs.fullscreen = cJSON_IsTrue(isFullscreen);
+	} else {
+		logr(warning, "Invalid isFullscreen while parsing display prefs.\n");
+	}
+
+	const cJSON *isBorderless = cJSON_GetObjectItem(data, "isBorderless");
+	if (cJSON_IsBool(isBorderless)) {
+		prefs.borderless = cJSON_IsTrue(isBorderless);
+	} else {
+		logr(warning, "Invalid isBorderless while parsing display prefs.\n");
+	}
+
+	const cJSON *windowScale = cJSON_GetObjectItem(data, "windowScale");
+	if (cJSON_IsNumber(windowScale)) {
+		if (windowScale->valuedouble >= 0) {
+			prefs.scale = windowScale->valuedouble;
+		} else {
+			prefs.scale = 1.0f;
+		}
+	} else {
+		logr(warning, "Invalid isBorderless while parsing display prefs.\n");
+	}
+	return prefs;
 }
