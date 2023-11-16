@@ -12,23 +12,23 @@ bool fileio_humanFileSize(void) {
 	
 	char *humanSize = NULL;
 	
-	humanSize = human_file_size(600);
+	humanSize = human_file_size(600, NULL);
 	test_assert(stringEquals(humanSize, "600B"));
 	free(humanSize);
 	
-	humanSize = human_file_size(1000);
+	humanSize = human_file_size(1000, NULL);
 	test_assert(stringEquals(humanSize, "1.00kB"));
 	free(humanSize);
 	
-	humanSize = human_file_size(1000 * 1000);
+	humanSize = human_file_size(1000 * 1000, NULL);
 	test_assert(stringEquals(humanSize, "1.00MB"));
 	free(humanSize);
 	
-	humanSize = human_file_size(1000 * 1000 * 1000);
+	humanSize = human_file_size(1000 * 1000 * 1000, NULL);
 	test_assert(stringEquals(humanSize, "1.00GB"));
 	free(humanSize);
 	
-	humanSize = human_file_size((unsigned long)1000 * 1000 * 1000 * 1000);
+	humanSize = human_file_size((unsigned long)1000 * 1000 * 1000 * 1000, NULL);
 	test_assert(stringEquals(humanSize, "1.00TB"));
 	free(humanSize);
 	

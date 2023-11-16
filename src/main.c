@@ -93,8 +93,12 @@ int main(int argc, char *argv[]) {
 		ret = -1;
 		goto done;
 	}
-	logr(info, "%zi bytes of input JSON loaded from %s, parsing.\n", bytes, args_is_set(opts, "inputFile") ? "file" : "stdin");
-	cJSON *scene = cJSON_Parse(input);
+	char size_buf[64];
+	logr(info, "%s of input JSON loaded from %s, parsing.\n", human_file_size(bytes, size_buf), args_is_set(opts, "inputFile") ? "file" : "stdin");
+	struct timeval json_timer;
+	timer_start(&json_timer);
+	cJSON *scene = cJSON_ParseWithLength(input, bytes);
+	size_t json_ms = timer_get_ms(json_timer);
 	if (!scene) {
 		const char *errptr = cJSON_GetErrorPtr();
 		if (errptr) {
@@ -103,6 +107,7 @@ int main(int argc, char *argv[]) {
 			goto done;
 		}
 	}
+	logr(info, "JSON parse took %lums\n", json_ms);
 
 	//FIXME: mmap() input
 	free(input);

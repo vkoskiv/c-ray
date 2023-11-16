@@ -27,7 +27,7 @@ enum fileType {
 };
 
 enum fileType guess_file_type(const char *filePath);
-char *human_file_size(unsigned long bytes);
+char *human_file_size(unsigned long bytes, char *stat_buf);
 char *load_file(const char *filePath, size_t *bytes, struct file_cache *cache);
 // This is a more robust file writing function, that will seek alternate directories
 // if the specified one wasn't writeable.

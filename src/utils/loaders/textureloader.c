@@ -41,7 +41,7 @@ static struct texture *load_env_map(unsigned char *buf, size_t buflen, const cha
 		logr(warning, "Error while decoding HDR from %s - Corrupted?\n", path);
 		return NULL;
 	}
-	char *fsbuf = human_file_size(buflen);
+	char *fsbuf = human_file_size(buflen, NULL);
 	printf(" %s\n", fsbuf);
 	free(fsbuf);
 	return tex;

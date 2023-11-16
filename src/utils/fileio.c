@@ -122,7 +122,7 @@ void write_file(const unsigned char *buf, size_t bufsize, const char *filePath) 
 	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
 	//This will work for all image formats
 	unsigned long bytes = get_file_size(backupPath ? backupPath : filePath);
-	char *sizeString = human_file_size(bytes);
+	char *sizeString = human_file_size(bytes, NULL);
 	logr(info, "Wrote %s to file.\n", sizeString);
 	free(sizeString);
 }
@@ -241,8 +241,7 @@ char *read_stdin(size_t *bytes) {
 	return buf;
 }
 
-// FIXME: Have this take a buffer instead of allocating it in here
-char *human_file_size(unsigned long bytes) {
+char *human_file_size(unsigned long bytes, char *stat_buf) {
 	double kilobytes, megabytes, gigabytes, terabytes, petabytes, exabytes, zettabytes, yottabytes; // <- Futureproofing?!
 	kilobytes  = bytes      / 1000.0;
 	megabytes  = kilobytes  / 1000.0;
@@ -258,7 +257,7 @@ char *human_file_size(unsigned long bytes) {
 	// I *did* get it to go to yottabytes using __uint128_t, but that's
 	// not in C99. Maybe in the future.
 	
-	char *buf = calloc(64, sizeof(*buf));
+	char *buf = stat_buf ? stat_buf : calloc(64, sizeof(*buf));
 	
 	if (zettabytes >= 1000) {
 		sprintf(buf, "%.02fYB", yottabytes);
