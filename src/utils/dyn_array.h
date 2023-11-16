@@ -61,6 +61,13 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		a->items = new; \
 		a->capacity = a->count; \
 	} \
+	static inline struct T##_arr T##_arr_copy(const struct T##_arr a) { \
+		if (!a.items) return (struct T##_arr){ 0 }; \
+		struct T##_arr c = a; \
+		c.items = malloc(a.count * sizeof(*a.items)); \
+		memcpy(c.items, a.items, a.count * sizeof(*a.items)); \
+		return c; \
+	} \
 	static inline void T##_arr_free(struct T##_arr *a) { \
 		if (!a) return; \
 		if (a->elem_free) { \
@@ -71,6 +78,12 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		a->items = NULL; \
 		a->capacity = 0; \
 		a->count = 0; \
+	} \
+	static inline void T##_arr_join(struct T##_arr *a, struct T##_arr *b) { \
+		if (!a || !b) return; \
+		for (size_t i = 0; i < b->count; ++i) \
+			T##_arr_add(a, b->items[i]); \
+		T##_arr_free(b); \
 	}
 
 dyn_array_def(int);

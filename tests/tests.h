@@ -149,6 +149,8 @@ static test tests[] = {
 	{"dyn_array::custom", dyn_array_custom},
 	{"dyn_array::trim", dyn_array_trim},
 	{"dyn_array::trim_expand", dyn_array_trim_expand},
+	{"dyn_array::copy", dyn_array_copy},
+	{"dyn_array::join", dyn_array_join}
 };
 
 #define testCount (sizeof(tests) / sizeof(test))
