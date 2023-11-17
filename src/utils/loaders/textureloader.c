@@ -73,23 +73,22 @@ struct texture *load_texture_from_buffer(const unsigned char *buffer, const unsi
 }
 
 struct texture *load_texture(char *filePath, struct block **pool, struct file_cache *cache) {
-	size_t len = 0;
 	//Handle the trailing newline here
 	filePath[strcspn(filePath, "\n")] = 0;
-	unsigned char *file = (unsigned char*)load_file(filePath, &len, cache);
-	if (!file) return NULL;
+	file_data file = file_load(filePath, cache);
+	if (!file.items) return NULL;
 	
 	enum fileType type = guess_file_type(filePath);
 	
 	struct texture *new = NULL;
 	if (stbi_is_hdr(filePath)) {
-		new = load_env_map(file, len, filePath, pool);
+		new = load_env_map(file.items, file.count, filePath, pool);
 	} else if (type == qoi) {
-		new = load_qoi_from_buffer(file, (unsigned int)len, pool);
+		new = load_qoi_from_buffer(file.items, file.count, pool);
 	} else {
-		new = load_texture_from_buffer(file, (unsigned int)len, pool);
+		new = load_texture_from_buffer(file.items, file.count, pool);
 	}
-	free(file);
+	file_free(&file);
 	if (pool) copy_to_pool(pool, new);
 	if (!new) {
 		logr(warning, "^That happened while decoding texture \"%s\" - Corrupted?\n", filePath);

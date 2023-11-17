@@ -11,11 +11,11 @@
 #include <sys/types.h>
 #include <stdbool.h>
 #include "dyn_array.h"
+#include "fileio.h"
 
 struct file {
 	char *path;
-	size_t size;
-	void *data;
+	file_data data;
 };
 
 typedef struct file file;
@@ -25,9 +25,10 @@ struct file_cache {
 	struct file_arr files;
 };
 
+struct file_cache *cache_create(void);
 bool cache_contains(const struct file_cache *cache, const char *path);
 void cache_store(struct file_cache *cache, const char *path, const void *data, size_t length);
-void *cache_load(const struct file_cache *cache, const char *path, size_t *length);
+file_data cache_load(const struct file_cache *cache, const char *path);
 char *cache_encode(const struct file_cache *cache);
-void cache_decode(struct file_cache *cache, const char *data);
+struct file_cache *cache_decode(const char *data);
 void cache_destroy(struct file_cache *cache);

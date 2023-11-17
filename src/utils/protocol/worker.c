@@ -74,8 +74,7 @@ static cJSON *receiveScene(const cJSON *json) {
 	if (!fileCache) return errorResponse("No file cache found");
 	char *data = cJSON_PrintUnformatted(fileCache);
 	//FIXME: This is an awkward API, why not pass cJSON directly?
-	struct file_cache *cache = calloc(1, sizeof(*cache));
-	cache_decode(cache, data);
+	struct file_cache *cache = cache_decode(data);
 	free(data);
 	
 	// And then the scene

@@ -1,36 +1,37 @@
 //
 //  perf_base64.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 18/03/2021.
-//  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../src/utils/fileio.h"
+#include "../../src/utils/assert.h"
+#include "../../src/utils/base64.h"
+#include "../../src/utils/timer.h"
 
 time_t base64_bigfile_encode(void) {
-	size_t bytes = 0;
-	char *bigfile = load_file("input/venusscaled.obj", &bytes, NULL);
-	ASSERT(bigfile);
+	file_data bigfile = file_load("input/venusscaled.obj", NULL);
+	ASSERT(bigfile.items);
 	
 	struct timeval test;
 	timer_start(&test);
 	
-	char *encoded = b64encode(bigfile, bytes);
+	char *encoded = b64encode(bigfile.items, bigfile.count);
 	(void)encoded;
 	
 	time_t us = timer_get_us(test);
-	free(bigfile);
+	file_free(&bigfile);
 	free(encoded);
 	return us;
 }
 
 time_t base64_bigfile_decode(void) {
-	size_t bytes = 0;
-	char *bigfile = load_file("input/venusscaled.obj", &bytes, NULL);
-	ASSERT(bigfile);
+	file_data bigfile = file_load("input/venusscaled.obj", NULL);
+	ASSERT(bigfile.items);
 	
-	char *encoded = b64encode(bigfile, bytes);
+	char *encoded = b64encode(bigfile.items, bigfile.count);
 	size_t encodedLength = strlen(encoded);
 	
 	struct timeval test;
@@ -40,7 +41,7 @@ time_t base64_bigfile_decode(void) {
 	(void)decoded;
 	
 	time_t us = timer_get_us(test);
-	free(bigfile);
+	file_free(&bigfile);
 	free(encoded);
 	free(decoded);
 	return us;

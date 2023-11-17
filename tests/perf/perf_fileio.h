@@ -1,9 +1,9 @@
 //
 //  perf_fileio.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 10/11/2020.
-//  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../src/utils/fileio.h"
@@ -12,11 +12,10 @@ time_t fileio_load(void) {
 	struct timeval test;
 	timer_start(&test);
 	
-	size_t bytes = 0;
-	char *bigfile = load_file("input/venusscaled.obj", &bytes, NULL);
-	ASSERT(bigfile);
+	file_data bigfile = file_load("input/venusscaled.obj", NULL);
+	ASSERT(bigfile.items);
 	
 	time_t us = timer_get_us(test);
-	free(bigfile);
+	file_free(&bigfile);
 	return us;
 }

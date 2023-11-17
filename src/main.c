@@ -86,18 +86,17 @@ int main(int argc, char *argv[]) {
 	}
 
 	int ret = 0;
-	size_t bytes = 0;
-	char *input = args_is_set(opts, "inputFile") ? load_file(args_path(opts), &bytes, NULL) : read_stdin(&bytes);
-	if (!input) {
+	file_data input = args_is_set(opts, "inputFile") ? file_load(args_path(opts), NULL) : read_stdin();
+	if (!input.count) {
 		logr(info, "No input provided, exiting.\n");
 		ret = -1;
 		goto done;
 	}
 	char size_buf[64];
-	logr(info, "%s of input JSON loaded from %s, parsing.\n", human_file_size(bytes, size_buf), args_is_set(opts, "inputFile") ? "file" : "stdin");
+	logr(info, "%s of input JSON loaded from %s, parsing.\n", human_file_size(input.count, size_buf), args_is_set(opts, "inputFile") ? "file" : "stdin");
 	struct timeval json_timer;
 	timer_start(&json_timer);
-	cJSON *scene = cJSON_ParseWithLength(input, bytes);
+	cJSON *scene = cJSON_ParseWithLength((const char *)input.items, input.count);
 	size_t json_ms = timer_get_ms(json_timer);
 	if (!scene) {
 		const char *errptr = cJSON_GetErrorPtr();
@@ -109,8 +108,7 @@ int main(int argc, char *argv[]) {
 	}
 	logr(info, "JSON parse took %lums\n", json_ms);
 
-	//FIXME: mmap() input
-	free(input);
+	file_free(&input);
 
 	if (args_is_set(opts, "nodes_list")) {
 		cr_renderer_set_str_pref(renderer, cr_renderer_node_list, args_string(opts, "nodes_list"));

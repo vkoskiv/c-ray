@@ -23,6 +23,24 @@ bool cache_contains(const struct file_cache *cache, const char *path) {
 	return false;
 }
 
+static void file_elem_free(struct file *f) {
+	if (f->path) free(f->path);
+	if (f->data.items) {
+		// File cache data is received over the wire, so it's always malloc'd
+		// normally, files would use file_free(), which munmap()s, if appropriate.
+		free(f->data.items);
+		f->data.items = NULL;
+		f->data.count = 0;
+		f->data.capacity = 0;
+	}
+}
+
+struct file_cache *cache_create(void) {
+	struct file_cache *cache = calloc(1, sizeof(*cache));
+	cache->files.elem_free = file_elem_free;
+	return cache;
+}
+
 void cache_store(struct file_cache *cache, const char *path, const void *data, size_t length) {
 	if (cache_contains(cache, path)) {
 		logr(debug, "File %s already cached, skipping.\n", path);
@@ -30,33 +48,32 @@ void cache_store(struct file_cache *cache, const char *path, const void *data, s
 	}
 	struct file file;
 	file.path = stringCopy(path);
-	file.data = malloc(length);
-	file.size = length;
-	memcpy(file.data, data, length);
+	file.data = (file_data){
+		.items = malloc(length + 1),
+		.count = length,
+		.capacity = length,
+	};
+	memcpy(file.data.items, data, length + 1);
 	file_arr_add(&cache->files, file);
 	logr(debug, "Cached file %s\n", path);
 }
 
-void *cache_load(const struct file_cache *cache, const char *path, size_t *length) {
+file_data cache_load(const struct file_cache *cache, const char *path) {
 	for (size_t i = 0; i < cache->files.count; ++i) {
 		if (stringEquals(path, cache->files.items[i].path)) {
-			if (length) *length = cache->files.items[i].size;
-			char *ret = malloc(cache->files.items[i].size + 1);
-			memcpy(ret, cache->files.items[i].data, cache->files.items[i].size);
-			ret[cache->files.items[i].size] = 0;
 			logr(debug, "Retrieving file %s\n", path);
-			return ret;
+			return cache->files.items[i].data;
 		}
 	}
 	logr(debug, "File %s not found in cache\n", path);
-	return NULL;
+	return (file_data){ 0 };
 }
 
 char *cache_encode(const struct file_cache *cache) {
 	cJSON *fileCache = cJSON_CreateArray();
 	for (size_t i = 0; i < cache->files.count; ++i) {
 		cJSON *record = cJSON_CreateObject();
-		char *encoded = b64encode(cache->files.items[i].data, cache->files.items[i].size);
+		char *encoded = b64encode(cache->files.items[i].data.items, cache->files.items[i].data.count);
 		cJSON_AddStringToObject(record, "path", cache->files.items[i].path);
 		cJSON_AddStringToObject(record, "data", encoded);
 		free(encoded);
@@ -68,9 +85,10 @@ char *cache_encode(const struct file_cache *cache) {
 }
 
 //FIXME: Are we sure this can't have an error to be returned?
-void cache_decode(struct file_cache *cache, const char *data) {
+struct file_cache *cache_decode(const char *data) {
 	cJSON *receivedCache = cJSON_Parse(data);
 	const cJSON *record = NULL;
+	struct file_cache *cache = cache_create();
 	cJSON_ArrayForEach(record, receivedCache) {
 		cJSON *path = cJSON_GetObjectItem(record, "path");
 		cJSON *data = cJSON_GetObjectItem(record, "data");
@@ -80,13 +98,10 @@ void cache_decode(struct file_cache *cache, const char *data) {
 		free(decoded);
 	}
 	cJSON_Delete(receivedCache);
+	return cache;
 }
 
 void cache_destroy(struct file_cache *cache) {
-	for (size_t i = 0; i < cache->files.count; ++i) {
-		if (cache->files.items[i].data) free(cache->files.items[i].data);
-		if (cache->files.items[i].path) free(cache->files.items[i].path);
-	}
 	file_arr_free(&cache->files);
 	logr(debug, "Destroyed cache\n");
 }

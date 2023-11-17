@@ -42,6 +42,7 @@ textBuffer *newTextView(textBuffer *original, const size_t start, const size_t l
 	return new;
 }
 
+//TODO: Optional size
 textBuffer *newTextBuffer(const char *contents) {
 	if (!contents) return NULL;
 	textBuffer *new = calloc(1, sizeof(*new));

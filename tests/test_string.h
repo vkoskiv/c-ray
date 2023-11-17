@@ -6,6 +6,8 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
+#include "../src/utils/string.h"
+
 bool string_stringEquals(void) {
 	
 	test_assert(!stringEquals("TestStringOne", "TestStringTwo"));

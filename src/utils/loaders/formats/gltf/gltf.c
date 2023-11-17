@@ -45,7 +45,7 @@ size_t get_int_or_zero(const cJSON *object, const char *key) {
 	return cJSON_HasObjectItem(object, key) ? cJSON_GetObjectItem(object, key)->valueint : 0;
 }
 
-char *parse_buffer(const cJSON *data) {
+unsigned char *parse_buffer(const cJSON *data) {
 	const cJSON *byteLength = cJSON_GetObjectItem(data, "byteLength");
 	if (!cJSON_IsNumber(byteLength)) return NULL;
 	const cJSON *uri = cJSON_GetObjectItem(data, "uri");
@@ -54,7 +54,7 @@ char *parse_buffer(const cJSON *data) {
 	size_t expected_bytes = byteLength->valueint;
 	char *uri_string = uri->valuestring;
 	
-	char *buffer = NULL;
+	unsigned char *buffer = NULL;
 	char *prefix = "data:application/octet-stream;base64,";
 	if (stringStartsWith(prefix, uri_string)) {
 		// Cool, it's an embedded gltf with b64 data
@@ -74,20 +74,19 @@ char *parse_buffer(const cJSON *data) {
 			logr(warning, "Invalid buffer while parsing glTF. File %s not found.\n", uri_string);
 			return NULL;
 		}
-		size_t loaded_bytes = 0;
-		buffer = load_file(uri_string, &loaded_bytes, NULL); //FIXME cache
-		if (loaded_bytes != expected_bytes) {
-			logr(warning, "Invalid buffer while parsing glTF. Loaded file %s length %lu, expected %lu", uri_string, loaded_bytes, expected_bytes);
+		file_data data = file_load(uri_string, NULL); //FIXME cache
+		if (data.count != expected_bytes) {
+			logr(warning, "Invalid buffer while parsing glTF. Loaded file %s length %lu, expected %lu", uri_string, data.count, expected_bytes);
 		}
-		return buffer;
+		return data.items;
 	}
 	
 	return NULL;
 }
 
-char **parse_buffers(const cJSON *data, size_t *amount) {
+unsigned char **parse_buffers(const cJSON *data, size_t *amount) {
 	const cJSON *buffers_object = cJSON_GetObjectItem(data, "buffers");
-	char **buffers = NULL;
+	unsigned char **buffers = NULL;
 	size_t buffer_amount = 0;
 	if (cJSON_IsArray(buffers_object)) {
 		buffer_amount = cJSON_GetArraySize(buffers_object);
@@ -192,10 +191,9 @@ struct mesh *parse_glb_meshes(const char *data, size_t *meshCount) {
 }
 
 struct mesh *parse_glTF_meshes(const char *filePath, size_t *meshCount) {
-	size_t file_bytes = 0;
-	char *contents = load_file(filePath, &file_bytes, NULL); //FIXME cache
-	if (stringStartsWith("glTF", contents)) return parse_glb_meshes(contents, meshCount);
-	const cJSON *data = cJSON_Parse(contents);
+	file_data contents = file_load(filePath, NULL); //FIXME cache
+	if (stringStartsWith("glTF", (char *)contents.items)) return parse_glb_meshes((char *)contents.items, meshCount);
+	const cJSON *data = cJSON_Parse((char *)contents.items);
 	
 	const cJSON *asset = cJSON_GetObjectItem(data, "asset");
 	if (asset) {
@@ -207,7 +205,7 @@ struct mesh *parse_glTF_meshes(const char *filePath, size_t *meshCount) {
 	}
 	
 	size_t buffers_count = 0;
-	char **buffers = parse_buffers(data, &buffers_count);
+	unsigned char **buffers = parse_buffers(data, &buffers_count);
 	
 	//TODO: Validate that buffer views are valid, perhaps?
 	size_t buffer_views_count = 0;
@@ -218,7 +216,7 @@ struct mesh *parse_glTF_meshes(const char *filePath, size_t *meshCount) {
 	(void)accessors; //TODO
 	
 	size_t texture_count = 0;
-	struct texture *textures = parse_textures(cJSON_GetObjectItem(data, "images"), &texture_count, buffer_views, buffers);
+	struct texture *textures = parse_textures(cJSON_GetObjectItem(data, "images"), &texture_count, buffer_views, (char **)buffers);
 	(void)textures; //TODO
 	
 	if (meshCount) *meshCount = 0;

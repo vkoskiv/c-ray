@@ -11,6 +11,8 @@
 #include "../utils/logging.h"
 #include "assert.h"
 #ifndef WINDOWS
+#include <sys/mman.h>
+#include <fcntl.h>
 #include <libgen.h>
 #include <sys/types.h>
 #include <sys/select.h>
@@ -72,33 +74,74 @@ enum fileType guess_file_type(const char *filePath) {
 	return type;
 }
 
-char *load_file(const char *filePath, size_t *bytes, struct file_cache *cache) {
-	if (cache && cache_contains(cache, filePath)) return cache_load(cache, filePath, bytes);
-	FILE *file = fopen(filePath, "rb");
+size_t get_file_size(const char *path) {
+#ifndef WINDOWS
+	struct stat path_stat = { 0 };
+	if (stat(path, &path_stat) < 0) {
+		logr(warning, "Couldn't stat '%.*s': %s\n", (int)strlen(path), path, strerror(errno));
+		return 0;
+	}
+	return path_stat.st_size;
+#else
+	FILE *file = fopen(path, "rb");
 	if (!file) {
-		logr(warning, "Can't access '%.*s': %s\n", (int)strlen(filePath), filePath, strerror(errno));
-		return NULL;
+		logr(warning, "Can't access '%.*s': %s\n", (int)strlen(file_path), file_path, strerror(errno));
+		return 0;
 	}
-	size_t fileBytes = get_file_size(filePath);
-	if (!fileBytes) {
-		fclose(file);
-		return NULL;
+	fseek(file, 0L, SEEK_END);
+	size_t size = ftell(file);
+	fclose(file);
+	return size;
+#endif
+}
+
+file_data file_load(const char *file_path, struct file_cache *cache) {
+	if (cache && cache_contains(cache, file_path)) return cache_load(cache, file_path);
+	off_t size = get_file_size(file_path);
+	if (size == 0) {
+		return (file_data){ 0 };
 	}
-	char *buf = malloc(fileBytes + 1 * sizeof(char));
-	size_t readBytes = fread(buf, sizeof(char), fileBytes, file);
-	ASSERT(readBytes == fileBytes);
+#ifndef WINDOWS
+	int f = open(file_path, 0);
+	void *data = mmap(NULL, size, PROT_READ, MAP_SHARED, f, 0);
+	if (data == MAP_FAILED) {
+		logr(warning, "Couldn't mmap '%.*s': %s\n", (int)strlen(file_path), file_path, strerror(errno));
+		return (file_data){ 0 };
+	}
+	madvise(data, size, MADV_SEQUENTIAL);
+	file_data file = (file_data){ .items = data, .count = size, .capacity = size };
+	if (cache) cache_store(cache, file_path, file.items, file.count);
+	return file;
+#else
+	FILE *file = fopen(file_path, "rb");
+	file_bytes *buf = malloc(bytes + 1 * sizeof(char));
+	size_t readBytes = fread(buf, sizeof(char), bytes, file);
+	ASSERT(readBytes == bytes);
 	if (ferror(file) != 0) {
 		logr(warning, "Error reading file\n");
 	} else {
-		buf[fileBytes] = '\0';
+		buf[bytes] = '\0';
 	}
 	fclose(file);
-	if (bytes) *bytes = readBytes;
-	if (cache) cache_store(cache, filePath, buf, readBytes);
-	return buf;
+	file_data file = (file_data){ .items = buf, .count = readBytes, .capacity = readBytes };
+	if (cache) cache_store(cache, file_path, file.items, file.count);
+	return file;
+#endif
 }
 
-void write_file(const unsigned char *buf, size_t bufsize, const char *filePath) {
+void file_free(file_data *file) {
+	if (!file || !file->items) return;
+#ifndef WINDOWS
+	munmap(file->items, file->count);
+#else
+	free(file->items);
+#endif
+	file->items = NULL;
+	file->capacity = 0;
+	file->count = 0;
+}
+
+void write_file(file_data data, const char *filePath) {
 	FILE *file = fopen(filePath, "wb" );
 	char *backupPath = NULL;
 	if(!file) {
@@ -116,15 +159,14 @@ void write_file(const unsigned char *buf, size_t bufsize, const char *filePath) 
 		}
 	}
 	logr(info, "Saving result in %s\'%s\'%s\n", KGRN, backupPath ? backupPath : filePath, KNRM);
-	fwrite(buf, 1, bufsize, file);
+	fwrite(data.items, 1, data.count, file);
 	fclose(file);
 	
 	//We determine the file size after saving, because the lodePNG library doesn't have a way to tell the compressed file size
 	//This will work for all image formats
 	unsigned long bytes = get_file_size(backupPath ? backupPath : filePath);
-	char *sizeString = human_file_size(bytes, NULL);
-	logr(info, "Wrote %s to file.\n", sizeString);
-	free(sizeString);
+	char buf[64];
+	logr(info, "Wrote %s to file.\n", human_file_size(bytes, buf));
 }
 
 
@@ -209,22 +251,22 @@ char *get_file_path(const char *input) {
 
 #define chunksize 65536
 //Get scene data from stdin and return a pointer to it
-char *read_stdin(size_t *bytes) {
+file_data read_stdin(void) {
 	wait_for_stdin(2);
 	
 	char chunk[chunksize];
 	
 	size_t buf_size = 0;
-	char *buf = NULL;
+	unsigned char *buf = NULL;
 	int stdin_fd = fileno(stdin);
 	int read_bytes = 0;
 	while ((read_bytes = read(stdin_fd, &chunk, chunksize)) > 0) {
-		char *old = buf;
+		unsigned char *old = buf;
 		buf = realloc(buf, buf_size + read_bytes + 1);
 		if (!buf) {
 			logr(error, "Failed to realloc stdin buffer\n");
 			free(old);
-			return NULL;
+			return (file_data){ 0 };
 		}
 		memcpy(buf + buf_size, chunk, read_bytes);
 		buf_size += read_bytes;
@@ -233,12 +275,11 @@ char *read_stdin(size_t *bytes) {
 	if (ferror(stdin)) {
 		logr(error, "Failed to read from stdin\n");
 		free(buf);
-		return NULL;
+		return (file_data){ 0 };
 	}
 	
-	if (bytes) *bytes = buf_size - 1;
 	buf[buf_size ] = 0;
-	return buf;
+	return (file_data){ .items = buf, .count = buf_size - 1, .capacity = buf_size - 1 };
 }
 
 char *human_file_size(unsigned long bytes, char *stat_buf) {
@@ -279,13 +320,4 @@ char *human_file_size(unsigned long bytes, char *stat_buf) {
 		sprintf(buf, "%ldB", bytes);
 	}
 	return buf;
-}
-
-size_t get_file_size(const char *fileName) {
-	FILE *file = fopen(fileName, "r");
-	if (!file) return 0;
-	fseek(file, 0L, SEEK_END);
-	size_t size = ftell(file);
-	fclose(file);
-	return size;
 }

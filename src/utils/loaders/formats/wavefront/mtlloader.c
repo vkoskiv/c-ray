@@ -25,12 +25,11 @@ static struct color parse_color(lineBuffer *line) {
 }
 
 struct material_arr parse_mtllib(const char *filePath, struct file_cache *cache) {
-	size_t bytes = 0;
-	char *rawText = load_file(filePath, &bytes, cache);
-	if (!rawText) return (struct material_arr){ 0 };
+	file_data mtllib_text = file_load(filePath, cache);
+	if (!mtllib_text.count) return (struct material_arr){ 0 };
 	logr(debug, "Loading MTL at %s\n", filePath);
-	textBuffer *file = newTextBuffer(rawText);
-	free(rawText);
+	textBuffer *file = newTextBuffer((char *)mtllib_text.items);
+	file_free(&mtllib_text);
 	
 	char *assetPath = get_file_path(filePath);
 	

@@ -22,6 +22,6 @@ void encode_qoi_from_array(const char *filename, const unsigned char *imgData, s
 		.channels = 3,
 		.colorspace = QOI_SRGB
 	};
-	const unsigned char *encoded_data = qoi_encode(imgData, &desc, &encoded_bytes);
-	write_file(encoded_data, encoded_bytes, filename);
+	unsigned char *encoded_data = qoi_encode(imgData, &desc, &encoded_bytes);
+	write_file((file_data){ .items = encoded_data, .count = encoded_bytes }, filename);
 }

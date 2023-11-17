@@ -100,11 +100,10 @@ float get_poly_area(struct poly *p, struct vector *vertices) {
 }
 
 struct mesh_arr parse_wavefront(const char *file_path, struct file_cache *cache) {
-	size_t bytes = 0;
-	char *input = load_file(file_path, &bytes, cache);
-	if (!input) return (struct mesh_arr){ 0 };
+	file_data input = file_load(file_path, cache);
+	if (!input.items) return (struct mesh_arr){ 0 };
 	logr(debug, "Loading OBJ %s\n", file_path);
-	textBuffer *file = newTextBuffer(input);
+	textBuffer *file = newTextBuffer((char *)input.items);
 	char *assetPath = get_file_path(file_path);
 	
 	char buf[LINEBUFFER_MAXSIZE];
@@ -178,7 +177,7 @@ struct mesh_arr parse_wavefront(const char *file_path, struct file_cache *cache)
 	}
 	
 	destroyTextBuffer(file);
-	free(input);
+	file_free(&input);
 	free(assetPath);
 
 	if (!mtllib->materials.count) {
