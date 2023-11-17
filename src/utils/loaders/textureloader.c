@@ -51,6 +51,7 @@ static struct texture *load_env_map(unsigned char *buf, size_t buflen, const cha
 struct texture *load_qoi_from_buffer(const unsigned char *buffer, const unsigned int buflen, struct block **pool) {
 	qoi_desc desc;
 	void *decoded_data = qoi_decode(buffer, buflen, &desc, 3);
+	if (!decoded_data) return NULL;
 	struct texture *new = pool ? allocBlock(pool, sizeof(*new)) : newTexture(none, 0, 0, 0);
 	new->data.byte_p = decoded_data;
 	new->width = desc.width;
