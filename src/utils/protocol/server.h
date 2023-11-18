@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "../dyn_array.h"
+
 #ifndef WINDOWS
 #include <arpa/inet.h>
 #endif
@@ -35,10 +37,13 @@ struct render_client {
 	int id;
 };
 
+typedef struct render_client render_client;
+dyn_array_def(render_client);
+
 void clients_shutdown(const char *node_list);
 
 // Synchronise renderer state with clients, and return a list of clients
 // ready to do some rendering
-struct render_client *clients_sync(const struct renderer *r, size_t *count);
+struct render_client_arr clients_sync(const struct renderer *r);
 
 void *client_connection_thread(void *arg);

@@ -14,6 +14,7 @@
 #include "../utils/timer.h"
 #include "../utils/filecache.h"
 #include "../utils/platform/thread.h"
+#include "../utils/protocol/server.h"
 
 struct worker {
 	struct cr_thread thread;
@@ -44,8 +45,7 @@ struct state {
 	bool render_aborted; //SDL listens for X key pressed, which sets this
 	bool saveImage;
 	struct worker *workers;
-	struct render_client *clients;
-	size_t clientCount;
+	struct render_client_arr clients;
 	struct file_cache *file_cache; // A file cache for network render nodes. NULL if only local render.
 	
 	struct cr_mutex *tileMutex;

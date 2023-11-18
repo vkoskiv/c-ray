@@ -397,12 +397,12 @@ void cr_load_mesh_from_buf(char *buf) {
 struct texture *cr_renderer_render(struct cr_renderer *ext) {
 	struct renderer *r = (struct renderer *)ext;
 	if (r->prefs.node_list) {
-		r->state.clients = clients_sync(r, &r->state.clientCount);
+		r->state.clients = clients_sync(r);
 		free(r->sceneCache);
 		r->sceneCache = NULL;
 		cache_destroy(r->state.file_cache);
 	}
-	if (!r->state.clients && r->prefs.threads == 0) {
+	if (!r->state.clients.count && !r->prefs.threads) {
 		logr(warning, "You specified 0 local threads, and no network clients were found. Nothing to do.\n");
 		return NULL;
 	}

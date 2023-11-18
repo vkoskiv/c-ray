@@ -239,6 +239,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		// Store cache. This is what gets sent to worker nodes.
+		// FIXME: This doesn't need to be stored in renderer
 		char *cache = cJSON_PrintUnformatted(scene);
 		cr_renderer_set_str_pref(renderer, cr_renderer_scene_cache, cache);
 		free(cache);

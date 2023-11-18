@@ -81,10 +81,10 @@ void update_cb_info(struct renderer *r, struct cr_renderer_cb_info *i) {
 	memcpy((struct cr_tile *)i->tiles, r->state.tiles.items, sizeof(*i->tiles) * i->tiles_count);
 	if (!r->state.workers) return;
 	//Gather and maintain this average constantly.
-	size_t total_thread_count = r->prefs.threads + (int)r->state.clientCount;
+	size_t total_thread_count = r->prefs.threads + (int)r->state.clients.count;
 	size_t remote_threads = 0;
-	for (size_t i = 0; i < r->state.clientCount; ++i) {
-		remote_threads += r->state.clients[i].available_threads;
+	for (size_t i = 0; i < r->state.clients.count; ++i) {
+		remote_threads += r->state.clients.items[i].available_threads;
 	}
 	if (!r->state.workers[0].paused) { // FIXME: Use renderer state instead
 		for (size_t t = 0; t < total_thread_count; ++t) {
@@ -131,7 +131,7 @@ struct texture *renderFrame(struct renderer *r) {
 	logr(info, "Starting c-ray renderer for frame %zu\n", r->prefs.imgCount);
 	
 	// Verify we have at least a single thread rendering.
-	if (r->state.clientCount == 0 && r->prefs.threads < 1) {
+	if (r->state.clients.count == 0 && r->prefs.threads < 1) {
 		logr(warning, "No network render workers, setting thread count to 1\n");
 		r->prefs.threads = 1;
 	}
@@ -198,19 +198,19 @@ struct texture *renderFrame(struct renderer *r) {
 	r->state.saveImage = true; // Set to false if user presses X
 	
 	size_t remoteThreads = 0;
-	for (size_t i = 0; i < r->state.clientCount; ++i) {
-		remoteThreads += r->state.clients[i].available_threads;
+	for (size_t i = 0; i < r->state.clients.count; ++i) {
+		remoteThreads += r->state.clients.items[i].available_threads;
 	}
 	
-	if (r->state.clients) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clientCount, PLURAL(r->state.clientCount), remoteThreads, PLURAL(remoteThreads));
+	if (r->state.clients.count) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clients.count, PLURAL(r->state.clients.count), remoteThreads, PLURAL(remoteThreads));
 	
 	// Select the appropriate renderer type for local use
 	void *(*localRenderThread)(void *) = renderThread;
 	// Iterative mode is incompatible with network rendering at the moment
-	if (r->prefs.iterative && !r->state.clients) localRenderThread = renderThreadInteractive;
+	if (r->prefs.iterative && !r->state.clients.count) localRenderThread = renderThreadInteractive;
 	
 	// Local render threads + one thread for every client
-	size_t total_thread_count = r->prefs.threads + (int)r->state.clientCount;
+	size_t total_thread_count = r->prefs.threads + (int)r->state.clients.count;
 	r->state.workers = calloc(total_thread_count, sizeof(*r->state.workers));
 
 	//Allocate memory for render buffer
@@ -220,7 +220,7 @@ struct texture *renderFrame(struct renderer *r) {
 	//Create & boot workers (Nonblocking)
 	for (int t = 0; t < (int)total_thread_count; ++t) {
 		r->state.workers[t] = (struct worker){
-			.client = t > (int)r->prefs.threads - 1 ? &r->state.clients[t - r->prefs.threads] : NULL,
+			.client = t > (int)r->prefs.threads - 1 ? &r->state.clients.items[t - r->prefs.threads] : NULL,
 			.thread_complete = false,
 			.renderer = r,
 			.output = output,
@@ -465,7 +465,7 @@ void renderer_destroy(struct renderer *r) {
 	render_tile_arr_free(&r->state.tiles);
 	free(r->state.workers);
 	free(r->state.tileMutex);
-	if (r->state.clients) free(r->state.clients);
+	render_client_arr_free(&r->state.clients);
 	if (r->state.file_cache) {
 		cache_destroy(r->state.file_cache);
 		free(r->state.file_cache);

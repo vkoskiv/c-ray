@@ -107,49 +107,28 @@ static bool client_try_connect(struct render_client *client) {
 
 // Fetches list of nodes from node string, verifies that they are reachable, and
 // returns them in a nice list.
-static struct render_client *build_client_list(const char *node_list, size_t *amount) {
+static struct render_client_arr build_client_list(const char *node_list) {
 	ASSERT(node_list);
+	struct render_client_arr clients = { 0 };
 	// Really barebones parsing for IP addresses and ports in a comma-separated list
 	// Expected to break easily. Don't break it.
 	char buf[LINEBUFFER_MAXSIZE];
 	lineBuffer line = { .buf = buf };
 	fillLineBuffer(&line, node_list, ',');
 	ASSERT(line.amountOf.tokens > 0);
-	size_t client_count = line.amountOf.tokens;
-	struct render_client *clients = calloc(client_count, sizeof(*clients));
 	char *current = firstToken(&line);
-	for (size_t i = 0; i < client_count; ++i) {
-		clients[i].address = parse_address(current);
-		clients[i].status = client_try_connect(&clients[i]) ? Connected : ConnectionFailed;
+	for (size_t i = 0; i < line.amountOf.tokens; ++i) {
+		struct render_client client = { 0 };
+		client.address = parse_address(current);
+		client.status = client_try_connect(&client) ? Connected : ConnectionFailed;
+		if (client.status == Connected) render_client_arr_add(&clients, client);
 		current = nextToken(&line);
 	}
-	size_t valid_clients = 0;
-	for (size_t i = 0; i < client_count; ++i) {
-		valid_clients += clients[i].status == ConnectionFailed ? 0 : 1;
-	}
-	if (!valid_clients) {
-		free(clients);
-		if (amount) *amount = 0;
-		return NULL;
-	}
-	if (valid_clients < client_count) {
-		// Prune unavailable clients
-		struct render_client *confirmed_clients = calloc(valid_clients, sizeof(*confirmed_clients));
-		size_t j = 0;
-		for (size_t i = 0; i < client_count; ++i) {
-			if (clients[i].status != ConnectionFailed) {
-				confirmed_clients[j++] = clients[i];
-			}
-		}
-		free(clients);
-		clients = confirmed_clients;
+	
+	for (size_t i = 0; i < clients.count; ++i) {
+		clients.items[i].id = (int)i;
 	}
 	
-	for (size_t i = 0; i < valid_clients; ++i) {
-		clients[i].id = (int)i;
-	}
-	
-	if (amount) *amount = valid_clients;
 	return clients;
 }
 
@@ -356,19 +335,18 @@ static void *client_sync_thread(void *arg) {
 }
 
 void clients_shutdown(const char *node_list) {
-	size_t client_count = 0;
-	struct render_client *clients = build_client_list(node_list, &client_count);
-	logr(info, "Sending shutdown command to %zu client%s.\n", client_count, PLURAL(client_count));
-	if (client_count < 1) {
+	struct render_client_arr clients = build_client_list(node_list);
+	logr(info, "Sending shutdown command to %zu client%s.\n", clients.count, PLURAL(clients.count));
+	if (clients.count < 1) {
 		logr(warning, "No clients found, exiting\n");
 		return;
 	}
-	for (size_t i = 0; i < client_count; ++i) {
-		sendJSON(clients[i].socket, newAction("shutdown"), NULL);
-		client_drop(&clients[i]);
+	for (size_t i = 0; i < clients.count; ++i) {
+		sendJSON(clients.items[i].socket, newAction("shutdown"), NULL);
+		client_drop(&clients.items[i]);
 	}
 	logr(info, "Done, exiting.\n");
-	free(clients);
+	render_client_arr_free(&clients);
 }
 
 #define BAR_LENGTH 32
@@ -396,41 +374,39 @@ static void print_progbars(struct sync_thread *params, size_t clientCount) {
 	}
 }
 
-struct render_client *clients_sync(const struct renderer *r, size_t *count) {
+struct render_client_arr clients_sync(const struct renderer *r) {
 	signal(SIGPIPE, SIG_IGN);
-	size_t client_count = 0;
-	struct render_client *clients = build_client_list(r->prefs.node_list, &client_count);
-	if (client_count < 1) {
+	struct render_client_arr clients = build_client_list(r->prefs.node_list);
+	if (clients.count < 1) {
 		logr(warning, "No clients found, rendering solo.\n");
-		if (count) *count = 0;
-		return NULL;
+		return (struct render_client_arr){ 0 };
 	}
 	
 	char *asset_cache = cache_encode(r->state.file_cache);
 	
 	size_t transfer_bytes = strlen(asset_cache) + strlen(r->sceneCache);
 	char *transfer_size = human_file_size(transfer_bytes, NULL);
-	logr(info, "Sending %s to %lu client%s...\n", transfer_size, client_count, PLURAL(client_count));
+	logr(info, "Sending %s to %lu client%s...\n", transfer_size, clients.count, PLURAL(clients.count));
 	free(transfer_size);
 	
-	struct sync_thread *params = calloc(client_count, sizeof(*params));
+	struct sync_thread *params = calloc(clients.count, sizeof(*params));
 	logr(debug, "Client list:\n");
-	for (size_t i = 0; i < client_count; ++i) {
-		logr(debug, "\tclient %zu: %s:%i\n", i, inet_ntoa(clients[i].address.sin_addr), htons(clients[i].address.sin_port));
-		params[i].client = &clients[i];
+	for (size_t i = 0; i < clients.count; ++i) {
+		logr(debug, "\tclient %zu: %s:%i\n", i, inet_ntoa(clients.items[i].address.sin_addr), htons(clients.items[i].address.sin_port));
+		params[i].client = &clients.items[i];
 		params[i].renderer = r;
 		params[i].asset_cache = asset_cache;
 	}
 	
-	struct cr_thread *sync_threads = calloc(client_count, sizeof(*sync_threads));
-	for (size_t i = 0; i < client_count; ++i) {
+	struct cr_thread *sync_threads = calloc(clients.count, sizeof(*sync_threads));
+	for (size_t i = 0; i < clients.count; ++i) {
 		sync_threads[i] = (struct cr_thread){
 			.thread_fn = client_sync_thread,
 			.user_data = &params[i]
 		};
 	}
 	
-	for (size_t i = 0; i < client_count; ++i) {
+	for (size_t i = 0; i < clients.count; ++i) {
 		if (thread_start(&sync_threads[i])) {
 			logr(warning, "Something went wrong while starting the sync thread for client %i. May want to look into that.\n", (int)i);
 		}
@@ -439,28 +415,27 @@ struct render_client *clients_sync(const struct renderer *r, size_t *count) {
 	size_t loops = 0;
 	while (true) {
 		bool all_stopped = true;
-		for (size_t i = 0; i < client_count; ++i) {
+		for (size_t i = 0; i < clients.count; ++i) {
 			if (!params[i].done) all_stopped = false;
 		}
 		if (all_stopped) break;
 		timer_sleep_ms(10);
 		if (++loops == 10) {
 			loops = 0;
-			print_progbars(params, client_count);
-			printf("\033[%zuF", client_count);
+			print_progbars(params, clients.count);
+			printf("\033[%zuF", clients.count);
 		}
 	}
 	
 	// Block here and verify threads are done before continuing.
-	for (size_t i = 0; i < client_count; ++i) {
+	for (size_t i = 0; i < clients.count; ++i) {
 		thread_wait(&sync_threads[i]);
 	}
 	
 	free(asset_cache);
-	for (size_t i = 0; i < client_count; ++i) printf("\n");
+	for (size_t i = 0; i < clients.count; ++i) printf("\n");
 	logr(info, "Client sync finished.\n");
 
-	if (count) *count = client_count;
 	free(sync_threads);
 	free(params);
 	return clients;
