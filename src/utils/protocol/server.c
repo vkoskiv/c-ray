@@ -1,9 +1,9 @@
 //
 //  server.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 06/04/2021.
-//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stddef.h>
@@ -37,7 +37,7 @@
 #include "../platform/terminal.h"
 #include "../platform/signal.h"
 
-void disconnectFromClient(struct renderClient *client) {
+void client_drop(struct render_client *client) {
 	ASSERT(client->socket != -1);
 	shutdown(client->socket, SHUT_RDWR);
 	close(client->socket);
@@ -45,7 +45,7 @@ void disconnectFromClient(struct renderClient *client) {
 	client->status = Disconnected;
 }
 
-static cJSON *makeHandshake() {
+static cJSON *make_handshake() {
 	cJSON *handshake = cJSON_CreateObject();
 	cJSON_AddStringToObject(handshake, "action", "handshake");
 	cJSON_AddStringToObject(handshake, "version", PROTO_VERSION);
@@ -53,7 +53,7 @@ static cJSON *makeHandshake() {
 	return handshake;
 }
 
-static struct sockaddr_in parseAddress(const char *str) {
+static struct sockaddr_in parse_address(const char *str) {
 	char buf[LINEBUFFER_MAXSIZE];
 	lineBuffer line = { .buf = buf };
 	fillLineBuffer(&line, str, ':');
@@ -66,7 +66,7 @@ static struct sockaddr_in parseAddress(const char *str) {
 	return address;
 }
 
-static bool connectToClient(struct renderClient *client) {
+static bool client_try_connect(struct render_client *client) {
 	client->socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (client->socket == -1) {
 		logr(warning, "Failed to bind to socket on client %i\n", client->id);
@@ -78,7 +78,8 @@ static bool connectToClient(struct renderClient *client) {
 	fcntl(client->socket, F_SETFL, O_NONBLOCK);
 	fd_set fdset;
 	struct timeval tv;
-	connect(client->socket, (struct sockaddr *)&client->address, sizeof(client->address));
+	errno = 0;
+	(void)connect(client->socket, (struct sockaddr *)&client->address, sizeof(client->address));
 	FD_ZERO(&fdset);
 	FD_SET(client->socket, &fdset);
 	tv.tv_sec = 2; // 2 second timeout.
@@ -106,7 +107,7 @@ static bool connectToClient(struct renderClient *client) {
 
 // Fetches list of nodes from node string, verifies that they are reachable, and
 // returns them in a nice list.
-static struct renderClient *buildClientList(const char *node_list, size_t *amount) {
+static struct render_client *build_client_list(const char *node_list, size_t *amount) {
 	ASSERT(node_list);
 	// Really barebones parsing for IP addresses and ports in a comma-separated list
 	// Expected to break easily. Don't break it.
@@ -114,45 +115,45 @@ static struct renderClient *buildClientList(const char *node_list, size_t *amoun
 	lineBuffer line = { .buf = buf };
 	fillLineBuffer(&line, node_list, ',');
 	ASSERT(line.amountOf.tokens > 0);
-	size_t clientCount = line.amountOf.tokens;
-	struct renderClient *clients = calloc(clientCount, sizeof(*clients));
+	size_t client_count = line.amountOf.tokens;
+	struct render_client *clients = calloc(client_count, sizeof(*clients));
 	char *current = firstToken(&line);
-	for (size_t i = 0; i < clientCount; ++i) {
-		clients[i].address = parseAddress(current);
-		clients[i].status = connectToClient(&clients[i]) ? Connected : ConnectionFailed;
+	for (size_t i = 0; i < client_count; ++i) {
+		clients[i].address = parse_address(current);
+		clients[i].status = client_try_connect(&clients[i]) ? Connected : ConnectionFailed;
 		current = nextToken(&line);
 	}
-	size_t validClients = 0;
-	for (size_t i = 0; i < clientCount; ++i) {
-		validClients += clients[i].status == ConnectionFailed ? 0 : 1;
+	size_t valid_clients = 0;
+	for (size_t i = 0; i < client_count; ++i) {
+		valid_clients += clients[i].status == ConnectionFailed ? 0 : 1;
 	}
-	if (!validClients) {
+	if (!valid_clients) {
 		free(clients);
 		if (amount) *amount = 0;
 		return NULL;
 	}
-	if (validClients < clientCount) {
+	if (valid_clients < client_count) {
 		// Prune unavailable clients
-		struct renderClient *confirmedClients = calloc(validClients, sizeof(*confirmedClients));
+		struct render_client *confirmed_clients = calloc(valid_clients, sizeof(*confirmed_clients));
 		size_t j = 0;
-		for (size_t i = 0; i < clientCount; ++i) {
+		for (size_t i = 0; i < client_count; ++i) {
 			if (clients[i].status != ConnectionFailed) {
-				confirmedClients[j++] = clients[i];
+				confirmed_clients[j++] = clients[i];
 			}
 		}
 		free(clients);
-		clients = confirmedClients;
+		clients = confirmed_clients;
 	}
 	
-	for (size_t i = 0; i < validClients; ++i) {
+	for (size_t i = 0; i < valid_clients; ++i) {
 		clients[i].id = (int)i;
 	}
 	
-	if (amount) *amount = validClients;
+	if (amount) *amount = valid_clients;
 	return clients;
 }
 
-static cJSON *processGetWork(struct worker *state, const cJSON *json) {
+static cJSON *handle_get_work(struct worker *state, const cJSON *json) {
 	(void)state;
 	(void)json;
 	struct render_tile *tile = tile_next(state->renderer);
@@ -163,21 +164,21 @@ static cJSON *processGetWork(struct worker *state, const cJSON *json) {
 	return response;
 }
 
-static cJSON *processSubmitWork(struct worker *state, const cJSON *json) {
-	cJSON *resultJson = cJSON_GetObjectItem(json, "result");
-	struct texture *tileImage = decodeTexture(resultJson);
-	cJSON *tileJson = cJSON_GetObjectItem(json, "tile");
-	struct render_tile tile = decodeTile(tileJson);
+static cJSON *handle_submit_work(struct worker *state, const cJSON *json) {
+	cJSON *result = cJSON_GetObjectItem(json, "result");
+	struct texture *texture = decodeTexture(result);
+	cJSON *tile_json = cJSON_GetObjectItem(json, "tile");
+	struct render_tile tile = decodeTile(tile_json);
 	state->renderer->state.tiles.items[tile.index] = tile;
 	state->renderer->state.tiles.items[tile.index].state = finished; // FIXME: Remove
 	for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 		for (int x = tile.begin.x; x < tile.end.x; ++x) {
-			struct color value = textureGetPixel(tileImage, x - tile.begin.x, y - tile.begin.y, false);
+			struct color value = textureGetPixel(texture, x - tile.begin.x, y - tile.begin.y, false);
 			value = colorToSRGB(value);
 			setPixel(state->output, value, x, y);
 		}
 	}
-	destroyTexture(tileImage);
+	destroyTexture(texture);
 	return newAction("ok");
 }
 
@@ -187,7 +188,7 @@ struct command serverCommands[] = {
 	{"goodbye", 2},
 };
 
-static cJSON *processClientRequest(struct worker *state, const cJSON *json) {
+static cJSON *handle_client_request(struct worker *state, const cJSON *json) {
 	if (!json) {
 		return errorResponse("Couldn't parse incoming JSON");
 	}
@@ -198,10 +199,10 @@ static cJSON *processClientRequest(struct worker *state, const cJSON *json) {
 	
 	switch (matchCommand(serverCommands, sizeof(serverCommands) / sizeof(struct command), action->valuestring)) {
 		case 0:
-			return processGetWork(state, json);
+			return handle_get_work(state, json);
 			break;
 		case 1:
-			return processSubmitWork(state, json);
+			return handle_submit_work(state, json);
 			break;
 		case 2:
 			state->thread_complete = true;
@@ -220,11 +221,11 @@ static cJSON *processClientRequest(struct worker *state, const cJSON *json) {
 }
 
 // Master side
-void *networkRenderThread(void *arg) {
+void *client_connection_thread(void *arg) {
 	block_signals();
 	struct worker *state = (struct worker *)thread_user_data(arg);
 	struct renderer *r = state->renderer;
-	struct renderClient *client = state->client;
+	struct render_client *client = state->client;
 	if (!client) {
 		state->thread_complete = true;
 		return 0;
@@ -256,7 +257,7 @@ void *networkRenderThread(void *arg) {
 				}
 			}
 		} else {
-			cJSON *response = processClientRequest(state, request);
+			cJSON *response = handle_client_request(state, request);
 			if (containsError(response)) {
 				char *err = cJSON_PrintUnformatted(response);
 				logr(debug, "error, exiting netrender thread: %s\n", err);
@@ -275,18 +276,18 @@ void *networkRenderThread(void *arg) {
 	return 0;
 }
 
-struct syncThreadParams {
-	struct renderClient *client;
+struct sync_thread {
+	struct render_client *client;
 	const struct renderer *renderer;
-	const char *assetCache;
+	const char *asset_cache;
 	size_t progress;
 	bool done;
 };
 
 static void *client_sync_thread(void *arg) {
 	block_signals();
-	struct syncThreadParams *params = (struct syncThreadParams *)thread_user_data(arg);
-	struct renderClient *client = params->client;
+	struct sync_thread *params = (struct sync_thread *)thread_user_data(arg);
+	struct render_client *client = params->client;
 	if (client->status != Connected) {
 		logr(warning, "Won't sync with client %i, no connection.\n", client->id);
 		params->done = true;
@@ -295,7 +296,7 @@ static void *client_sync_thread(void *arg) {
 	client->status = Syncing;
 	
 	// Handshake with the client
-	if (!sendJSON(client->socket, makeHandshake(), NULL)) {
+	if (!sendJSON(client->socket, make_handshake(), NULL)) {
 		client->status = SyncFailed;
 		params->done = true;
 		return NULL;
@@ -318,7 +319,7 @@ static void *client_sync_thread(void *arg) {
 	logr(debug, "Syncing state: %s\n", params->renderer->sceneCache);
 	cJSON *data = cJSON_Parse(params->renderer->sceneCache);
 	cJSON_AddItemToObject(scene, "data", data);
-	cJSON_AddItemToObject(scene, "files", cJSON_Parse(params->assetCache));
+	cJSON_AddItemToObject(scene, "files", cJSON_Parse(params->asset_cache));
 	cJSON_AddStringToObject(scene, "assetPath", params->renderer->prefs.assetPath);
 	sendJSON(client->socket, scene, &params->progress);
 	response = readJSON(client->socket);
@@ -335,17 +336,17 @@ static void *client_sync_thread(void *arg) {
 		params->done = true;
 		cJSON_Delete(error);
 		cJSON_Delete(response);
-		disconnectFromClient(client);
+		client_drop(client);
 		return NULL;
 	}
 	cJSON *action = cJSON_GetObjectItem(response, "action");
 	if (cJSON_IsString(action)) {
 		cJSON *threadCount = cJSON_GetObjectItem(response, "threadCount");
 		if (cJSON_IsNumber(threadCount)) {
-			client->availableThreads = threadCount->valueint;
+			client->available_threads = threadCount->valueint;
 		}
 	}
-	logr(debug, "Finished client %i sync. It reports %i threads available for rendering.\n", client->id, client->availableThreads);
+	logr(debug, "Finished client %i sync. It reports %i threads available for rendering.\n", client->id, client->available_threads);
 	cJSON_Delete(response);
 	
 	// Sync successful, mark it as such
@@ -354,24 +355,24 @@ static void *client_sync_thread(void *arg) {
 	return NULL;
 }
 
-void shutdownClients(const char *node_list) {
-	size_t clientCount = 0;
-	struct renderClient *clients = buildClientList(node_list, &clientCount);
-	logr(info, "Sending shutdown command to %zu client%s.\n", clientCount, PLURAL(clientCount));
-	if (clientCount < 1) {
+void clients_shutdown(const char *node_list) {
+	size_t client_count = 0;
+	struct render_client *clients = build_client_list(node_list, &client_count);
+	logr(info, "Sending shutdown command to %zu client%s.\n", client_count, PLURAL(client_count));
+	if (client_count < 1) {
 		logr(warning, "No clients found, exiting\n");
 		return;
 	}
-	for (size_t i = 0; i < clientCount; ++i) {
+	for (size_t i = 0; i < client_count; ++i) {
 		sendJSON(clients[i].socket, newAction("shutdown"), NULL);
-		disconnectFromClient(&clients[i]);
+		client_drop(&clients[i]);
 	}
 	logr(info, "Done, exiting.\n");
 	free(clients);
 }
 
 #define BAR_LENGTH 32
-void printBar(struct syncThreadParams *param) {
+static void print_bar(struct sync_thread *param) {
 	size_t chars = param->progress * BAR_LENGTH / 100;
 	logr(info, "Client %i: [", param->client->id);
 	for (size_t i = 0; i < chars; ++i) {
@@ -387,49 +388,49 @@ void printBar(struct syncThreadParams *param) {
 	}
 }
 
-void printProgressBars(struct syncThreadParams *params, size_t clientCount) {
+static void print_progbars(struct sync_thread *params, size_t clientCount) {
 	if (!isTeleType()) return;
 	
 	for (size_t i = 0; i < clientCount; ++i) {
-		printBar(&params[i]);
+		print_bar(&params[i]);
 	}
 }
 
-struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
+struct render_client *clients_sync(const struct renderer *r, size_t *count) {
 	signal(SIGPIPE, SIG_IGN);
-	size_t clientCount = 0;
-	struct renderClient *clients = buildClientList(r->prefs.node_list, &clientCount);
-	if (clientCount < 1) {
+	size_t client_count = 0;
+	struct render_client *clients = build_client_list(r->prefs.node_list, &client_count);
+	if (client_count < 1) {
 		logr(warning, "No clients found, rendering solo.\n");
 		if (count) *count = 0;
 		return NULL;
 	}
 	
-	char *assetCache = cache_encode(r->state.file_cache);
+	char *asset_cache = cache_encode(r->state.file_cache);
 	
-	size_t transfer_bytes = strlen(assetCache) + strlen(r->sceneCache);
+	size_t transfer_bytes = strlen(asset_cache) + strlen(r->sceneCache);
 	char *transfer_size = human_file_size(transfer_bytes, NULL);
-	logr(info, "Sending %s to %lu client%s...\n", transfer_size, clientCount, PLURAL(clientCount));
+	logr(info, "Sending %s to %lu client%s...\n", transfer_size, client_count, PLURAL(client_count));
 	free(transfer_size);
 	
-	struct syncThreadParams *params = calloc(clientCount, sizeof(*params));
+	struct sync_thread *params = calloc(client_count, sizeof(*params));
 	logr(debug, "Client list:\n");
-	for (size_t i = 0; i < clientCount; ++i) {
+	for (size_t i = 0; i < client_count; ++i) {
 		logr(debug, "\tclient %zu: %s:%i\n", i, inet_ntoa(clients[i].address.sin_addr), htons(clients[i].address.sin_port));
 		params[i].client = &clients[i];
 		params[i].renderer = r;
-		params[i].assetCache = assetCache;
+		params[i].asset_cache = asset_cache;
 	}
 	
-	struct cr_thread *sync_threads = calloc(clientCount, sizeof(*sync_threads));
-	for (size_t i = 0; i < clientCount; ++i) {
+	struct cr_thread *sync_threads = calloc(client_count, sizeof(*sync_threads));
+	for (size_t i = 0; i < client_count; ++i) {
 		sync_threads[i] = (struct cr_thread){
 			.thread_fn = client_sync_thread,
 			.user_data = &params[i]
 		};
 	}
 	
-	for (size_t i = 0; i < clientCount; ++i) {
+	for (size_t i = 0; i < client_count; ++i) {
 		if (thread_start(&sync_threads[i])) {
 			logr(warning, "Something went wrong while starting the sync thread for client %i. May want to look into that.\n", (int)i);
 		}
@@ -438,43 +439,44 @@ struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
 	size_t loops = 0;
 	while (true) {
 		bool all_stopped = true;
-		for (size_t i = 0; i < clientCount; ++i) {
+		for (size_t i = 0; i < client_count; ++i) {
 			if (!params[i].done) all_stopped = false;
 		}
 		if (all_stopped) break;
 		timer_sleep_ms(10);
 		if (++loops == 10) {
 			loops = 0;
-			printProgressBars(params, clientCount);
-			printf("\033[%zuF", clientCount);
+			print_progbars(params, client_count);
+			printf("\033[%zuF", client_count);
 		}
 	}
 	
 	// Block here and verify threads are done before continuing.
-	for (size_t i = 0; i < clientCount; ++i) {
+	for (size_t i = 0; i < client_count; ++i) {
 		thread_wait(&sync_threads[i]);
 	}
 	
-	free(assetCache);
-	for (size_t i = 0; i < clientCount; ++i) printf("\n");
+	free(asset_cache);
+	for (size_t i = 0; i < client_count; ++i) printf("\n");
 	logr(info, "Client sync finished.\n");
 
-	if (count) *count = clientCount;
+	if (count) *count = client_count;
 	free(sync_threads);
+	free(params);
 	return clients;
 }
 
 #else
 
-void *networkRenderThread(void *arg) {
+void *client_connection_thread(void *arg) {
 	return 0;
 }
 
-void shutdownClients() {
+void clients_shutdown() {
 	logr(warning, "c-ray doesn't support the proprietary networking stack on Windows yet. Sorry!\n");
 }
 
-struct renderClient *syncWithClients(const struct renderer *r, size_t *count) {
+struct renderClient *clients_sync(const struct renderer *r, size_t *count) {
 	if (count) *count = 0;
 	logr(warning, "c-ray doesn't support the proprietary networking stack on Windows yet. Sorry!\n");
 	return NULL;

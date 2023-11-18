@@ -237,7 +237,7 @@ struct driver_args *args_parse(int argc, char **argv) {
 	logr(debug, "Verbose mode enabled\n");
 	
 	if (args_is_set(args, "shutdown") && args_is_set(args, "nodes_list")) {
-		shutdownClients(args_string(args, "nodes_list"));
+		clients_shutdown(args_string(args, "nodes_list"));
 		term_restore();
 		exit(0);
 	}

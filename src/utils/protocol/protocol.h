@@ -14,7 +14,7 @@
 #define PROTO_VERSION "0.1"
 
 struct render_tile;
-struct renderClient;
+struct render_client;
 struct texture;
 struct renderer;
 
@@ -49,5 +49,3 @@ bool containsError(const cJSON *json);
 bool containsGoodbye(const cJSON *json);
 
 bool containsStats(const cJSON *json);
-
-void disconnectFromClient(struct renderClient *client);

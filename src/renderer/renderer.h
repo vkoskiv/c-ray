@@ -31,7 +31,7 @@ struct worker {
 	struct camera *cam;
 	struct renderer *renderer;
 	struct texture *output;
-	struct renderClient *client; // Optional
+	struct render_client *client; // Optional
 };
 
 /// Renderer state data
@@ -44,7 +44,7 @@ struct state {
 	bool render_aborted; //SDL listens for X key pressed, which sets this
 	bool saveImage;
 	struct worker *workers;
-	struct renderClient *clients;
+	struct render_client *clients;
 	size_t clientCount;
 	struct file_cache *file_cache; // A file cache for network render nodes. NULL if only local render.
 	

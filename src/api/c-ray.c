@@ -395,7 +395,7 @@ void cr_load_mesh_from_buf(char *buf) {
 struct texture *cr_renderer_render(struct cr_renderer *ext) {
 	struct renderer *r = (struct renderer *)ext;
 	if (r->prefs.node_list) {
-		r->state.clients = syncWithClients(r, &r->state.clientCount);
+		r->state.clients = clients_sync(r, &r->state.clientCount);
 		free(r->sceneCache);
 		r->sceneCache = NULL;
 		cache_destroy(r->state.file_cache);

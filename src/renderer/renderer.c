@@ -84,7 +84,7 @@ void update_cb_info(struct renderer *r, struct cr_renderer_cb_info *i) {
 	size_t total_thread_count = r->prefs.threads + (int)r->state.clientCount;
 	size_t remote_threads = 0;
 	for (size_t i = 0; i < r->state.clientCount; ++i) {
-		remote_threads += r->state.clients[i].availableThreads;
+		remote_threads += r->state.clients[i].available_threads;
 	}
 	if (!r->state.workers[0].paused) { // FIXME: Use renderer state instead
 		for (size_t t = 0; t < total_thread_count; ++t) {
@@ -199,7 +199,7 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	size_t remoteThreads = 0;
 	for (size_t i = 0; i < r->state.clientCount; ++i) {
-		remoteThreads += r->state.clients[i].availableThreads;
+		remoteThreads += r->state.clients[i].available_threads;
 	}
 	
 	if (r->state.clients) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clientCount, PLURAL(r->state.clientCount), remoteThreads, PLURAL(remoteThreads));
@@ -226,7 +226,7 @@ struct texture *renderFrame(struct renderer *r) {
 			.output = output,
 			.cam = &camera,
 			.thread = (struct cr_thread){
-				.thread_fn = t > (int)r->prefs.threads - 1 ? networkRenderThread : localRenderThread,
+				.thread_fn = t > (int)r->prefs.threads - 1 ? client_connection_thread : localRenderThread,
 				.user_data = &r->state.workers[t]
 			}
 		};
