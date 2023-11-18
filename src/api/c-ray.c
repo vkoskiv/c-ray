@@ -263,14 +263,16 @@ void cr_destroy_renderer(struct cr_renderer *ext) {
 struct cr_scene;
 
 // Do we want multiple scenes anyway?
-struct cr_scene *cr_scene_create(struct cr_renderer *r) {
-	(void)r;
-	return NULL;
+struct cr_scene *cr_scene_create(struct cr_renderer *ext) {
+	if (!ext) return NULL;
+	struct renderer *r = (struct renderer *)ext;
+	return (struct cr_scene *)r->scene;
 }
 
-void cr_scene_destroy(struct cr_scene *s) {
-	//TODO
-	(void)s;
+void cr_scene_destroy(struct cr_scene *ext) {
+	if (!ext) return;
+	struct world *s = (struct world *)ext;
+	scene_destroy(s);
 }
 
 struct cr_object;

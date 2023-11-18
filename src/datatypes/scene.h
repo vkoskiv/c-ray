@@ -38,4 +38,4 @@ struct world {
 	float backgroundOffset;
 };
 
-void destroyScene(struct world *scene);
+void scene_destroy(struct world *scene);

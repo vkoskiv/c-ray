@@ -19,7 +19,7 @@
 #include "poly.h"
 
 //Free scene data
-void destroyScene(struct world *scene) {
+void scene_destroy(struct world *scene) {
 	if (scene) {
 		camera_arr_free(&scene->cameras);
 		for (size_t i = 0; i < scene->meshes.count; ++i) {
