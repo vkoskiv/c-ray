@@ -73,14 +73,9 @@ struct prefs {
 	size_t imgCount;
 	enum fileType imgType;
 	char *node_list;
-	bool isWorker;
 	bool iterative;
 };
 
-/**
- Main renderer. Stores needed information to keep track of render status,
- as well as information needed for the rendering routines.
- */
 struct renderer {
 	struct world *scene; //Scene to render
 	struct state state;  //Internal state
