@@ -44,6 +44,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+typedef unsigned char byte;
+
 #ifdef WINDOWS
 	#include <Windows.h>
 	#include <time.h>
