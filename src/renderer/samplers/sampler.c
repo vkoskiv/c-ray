@@ -24,7 +24,7 @@ struct sampler {
 };
 
 struct sampler *newSampler() {
-	return calloc(1, sizeof(*newSampler()));
+	return calloc(1, sizeof(struct sampler));
 }
 
 void initSampler(sampler *sampler, enum samplerType type, int pass, int maxPasses, uint32_t pixelIndex) {

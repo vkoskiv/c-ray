@@ -126,6 +126,11 @@ static struct renderClient *buildClientList(const char *node_list, size_t *amoun
 	for (size_t i = 0; i < clientCount; ++i) {
 		validClients += clients[i].status == ConnectionFailed ? 0 : 1;
 	}
+	if (!validClients) {
+		free(clients);
+		if (amount) *amount = 0;
+		return NULL;
+	}
 	if (validClients < clientCount) {
 		// Prune unavailable clients
 		struct renderClient *confirmedClients = calloc(validClients, sizeof(*confirmedClients));

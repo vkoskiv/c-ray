@@ -77,10 +77,6 @@ void update_cb_info(struct renderer *r, struct cr_renderer_cb_info *i) {
 	static uint64_t avg_per_sample_us = 0;
 	static uint64_t avg_tile_pass_us = 0;
 	i->user_data = r->state.cb.user_data;
-	if (!i->tiles) {
-		i->tiles_count = r->state.tiles.count;
-		i->tiles = calloc(i->tiles_count, sizeof(*i->tiles));
-	}
 	// Notice: Casting away const here
 	memcpy((struct cr_tile *)i->tiles, r->state.tiles.items, sizeof(*i->tiles) * i->tiles_count);
 	if (!r->state.workers) return;
@@ -184,7 +180,11 @@ struct texture *renderFrame(struct renderer *r) {
 	}
 
 	struct texture *output = newTexture(char_p, camera.width, camera.height, 3);
-	struct cr_renderer_cb_info cb_info = { 0 };
+	struct cr_tile *info_tiles = calloc(r->state.tiles.count, sizeof(*info_tiles));
+	struct cr_renderer_cb_info cb_info = {
+		.tiles = info_tiles,
+		.tiles_count = r->state.tiles.count
+	};
 	cb_info.fb = output;
 	if (r->state.cb.cr_renderer_on_start) {
 		update_cb_info(r, &cb_info);
@@ -263,6 +263,7 @@ struct texture *renderFrame(struct renderer *r) {
 		update_cb_info(r, &cb_info);
 		r->state.cb.cr_renderer_on_stop(&cb_info);
 	}
+	if (info_tiles) free(info_tiles);
 	return output;
 }
 
@@ -291,7 +292,7 @@ void *renderThreadInteractive(void *arg) {
 		timer_start(&timer);
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
-				if (r->state.render_aborted) return 0;
+				if (r->state.render_aborted) goto exit;
 				uint32_t pixIdx = (uint32_t)(y * image->width + x);
 				//FIXME: This does not converge to the same result as with regular renderThread.
 				//I assume that's because we'd have to init the sampler differently when we render all
@@ -336,6 +337,7 @@ void *renderThreadInteractive(void *arg) {
 		tile = tile_next_interactive(r);
 		threadState->currentTile = tile;
 	}
+exit:
 	destroySampler(sampler);
 	//No more tiles to render, exit thread. (render done)
 	threadState->thread_complete = true;
@@ -373,7 +375,7 @@ void *renderThread(void *arg) {
 			timer_start(&timer);
 			for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 				for (int x = tile->begin.x; x < tile->end.x; ++x) {
-					if (r->state.render_aborted) return 0;
+					if (r->state.render_aborted) goto exit;
 					uint32_t pixIdx = (uint32_t)(y * image->width + x);
 					initSampler(sampler, SAMPLING_STRATEGY, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
@@ -418,6 +420,7 @@ void *renderThread(void *arg) {
 		tile = tile_next(r);
 		threadState->currentTile = tile;
 	}
+exit:
 	destroySampler(sampler);
 	//No more tiles to render, exit thread. (render done)
 	threadState->thread_complete = true;
@@ -456,19 +459,20 @@ struct renderer *renderer_new() {
 }
 	
 void renderer_destroy(struct renderer *r) {
-	if (r) {
-		destroyScene(r->scene);
-		if (r->state.renderBuffer) destroyTexture(r->state.renderBuffer);
-		render_tile_arr_free(&r->state.tiles);
-		free(r->state.workers);
-		free(r->state.tileMutex);
-		if (r->state.file_cache) {
-			cache_destroy(r->state.file_cache);
-			free(r->state.file_cache);
-		}
-		free(r->prefs.imgFileName);
-		free(r->prefs.imgFilePath);
-		free(r->prefs.assetPath);
-		free(r);
+	if (!r) return;
+	scene_destroy(r->scene);
+	if (r->state.renderBuffer) destroyTexture(r->state.renderBuffer);
+	render_tile_arr_free(&r->state.tiles);
+	free(r->state.workers);
+	free(r->state.tileMutex);
+	if (r->state.clients) free(r->state.clients);
+	if (r->state.file_cache) {
+		cache_destroy(r->state.file_cache);
+		free(r->state.file_cache);
 	}
+	free(r->prefs.imgFileName);
+	free(r->prefs.imgFilePath);
+	free(r->prefs.assetPath);
+	if (r->prefs.node_list) free(r->prefs.node_list);
+	free(r);
 }

@@ -64,7 +64,6 @@ static cJSON *validateHandshake(cJSON *in) {
 	const cJSON *githash = cJSON_GetObjectItem(in, "githash");
 	if (!stringEquals(version->valuestring, PROTO_VERSION)) return errorResponse("Protocol version mismatch");
 	if (!stringEquals(githash->valuestring, gitHash())) return errorResponse("Git hash mismatch");
-	cJSON_Delete(in);
 	return newAction("startSync");
 }
 
@@ -84,6 +83,7 @@ static cJSON *receiveScene(const cJSON *json) {
 	g_worker_renderer->state.file_cache = cache;
 	g_worker_socket_mutex = mutex_create();
 	cJSON *assetPathJson = cJSON_GetObjectItem(json, "assetPath");
+	if (g_worker_renderer->prefs.assetPath) free(g_worker_renderer->prefs.assetPath);
 	g_worker_renderer->prefs.assetPath = stringCopy(assetPathJson->valuestring);
 	// FIXME
 	if (parse_json((struct cr_renderer *)g_worker_renderer, scene)) {
@@ -328,6 +328,8 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	for (size_t t = 0; t < threadCount; ++t) {
 		thread_wait(&worker_threads[t]);
 	}
+	free(worker_threads);
+	free(workerThreadStates);
 	return NULL;
 }
 
@@ -350,11 +352,9 @@ static cJSON *processCommand(int connectionSocket, cJSON *json, size_t thread_li
 			break;
 		case 3:
 			// startRender contains worker event loop and blocks until render completion.
-			cJSON_Delete(json);
 			return startRender(connectionSocket, thread_limit);
 			break;
 		default:
-			cJSON_Delete(json);
 			return errorResponse("Unknown command");
 			break;
 	}
@@ -363,6 +363,7 @@ static cJSON *processCommand(int connectionSocket, cJSON *json, size_t thread_li
 }
 
 static void workerCleanup() {
+	if (!g_worker_renderer) return;
 	renderer_destroy(g_worker_renderer);
 	g_worker_renderer = NULL;
 }
@@ -451,8 +452,12 @@ int worker_start(int port, size_t thread_limit) {
 				break;
 			}
 			cJSON *myResponse = processCommand(connectionSocket, message, thread_limit);
+			cJSON_Delete(message);
 			if (!myResponse) {
-				if (buf) free(buf);
+				if (buf) {
+					free(buf);
+					buf = NULL;
+				}
 				break;
 			}
 			char *responseText = cJSON_PrintUnformatted(myResponse);
@@ -461,8 +466,10 @@ int worker_start(int port, size_t thread_limit) {
 				break;
 			};
 			free(responseText);
-			if (buf) free(buf);
-			buf = NULL;
+			if (buf) {
+				free(buf);
+				buf = NULL;
+			}
 			if (containsGoodbye(myResponse) || containsError(myResponse)) {
 				cJSON_Delete(myResponse);
 				break;
@@ -479,7 +486,7 @@ int worker_start(int port, size_t thread_limit) {
 		close(connectionSocket);
 		workerCleanup(); // Prepare for next render
 	}
-	free(buf);
+	if (buf) free(buf);
 	shutdown(receivingSocket, SHUT_RDWR);
 	close(receivingSocket);
 	return 0;

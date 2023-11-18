@@ -74,6 +74,7 @@ int main(int argc, char *argv[]) {
 		size_t thread_limit = 0;
 		if (args_is_set(opts, "thread_override")) thread_limit = args_int(opts, "thread_override");
 		cr_start_render_worker(port, thread_limit);
+		args_destroy(opts);
 		return 0;
 	}
 	
@@ -82,7 +83,9 @@ int main(int argc, char *argv[]) {
 	if (args_is_set(opts, "asset_path")) {
 		cr_renderer_set_str_pref(renderer, cr_renderer_asset_path, args_asset_path(opts));
 	} else if (args_is_set(opts, "inputFile")) {
-		cr_renderer_set_str_pref(renderer, cr_renderer_asset_path, get_file_path(args_path(opts)));
+		char *asset_path = get_file_path(args_path(opts));
+		cr_renderer_set_str_pref(renderer, cr_renderer_asset_path, asset_path);
+		free(asset_path);
 	}
 
 	int ret = 0;
@@ -298,6 +301,7 @@ int main(int argc, char *argv[]) {
 	} else {
 		logr(info, "Abort pressed, image won't be saved.\n");
 	}
+	destroyTexture(final);
 	
 done:
 	cr_destroy_renderer(renderer);

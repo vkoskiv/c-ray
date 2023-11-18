@@ -404,8 +404,7 @@ struct texture *cr_renderer_render(struct cr_renderer *ext) {
 		logr(warning, "You specified 0 local threads, and no network clients were found. Nothing to do.\n");
 		return NULL;
 	}
-	struct texture *image = renderFrame(r);
-	return image;
+	return renderFrame(r);
 }
 
 void cr_start_render_worker(int port, size_t thread_limit) {
