@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../includes.h"
 
 #ifndef DYN_ARR_START_SIZE
 #define DYN_ARR_START_SIZE 16
@@ -34,8 +35,6 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 	return capacity * 2;
 }
 
-//TODO: T_arr_join(T_arr *,T_arr *)? Could be useful, see parse_mesh()
-
 #define dyn_array_def(T) \
 	struct T##_arr { \
 		T *items; \
@@ -44,7 +43,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		size_t (*grow_fn)(size_t capacity, size_t item_size); \
 		void   (*elem_free)(T *item); \
 	}; \
-	static inline size_t T##_arr_add(struct T##_arr *a, const T value) { \
+	static inline size_t CR_UNUSED T##_arr_add(struct T##_arr *a, const T value) { \
 		if (a->count >= a->capacity) { \
 			size_t new_capacity = a->grow_fn ? a->grow_fn(a->capacity, sizeof(*a->items)) : grow_x_2(a->capacity, sizeof(*a->items)); \
 			a->items = realloc(a->items, sizeof(*a->items) * new_capacity); \
@@ -53,7 +52,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		a->items[a->count] = value; \
 		return a->count++; \
 	} \
-	static inline void T##_arr_trim(struct T##_arr *a) { \
+	static inline void CR_UNUSED T##_arr_trim(struct T##_arr *a) { \
 		if (!a || a->count >= a->capacity) return; \
 		T *new = malloc(a->count * sizeof(*a)); \
 		memcpy(new, a->items, a->count * sizeof(*a)); \
@@ -61,14 +60,14 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		a->items = new; \
 		a->capacity = a->count; \
 	} \
-	static inline struct T##_arr T##_arr_copy(const struct T##_arr a) { \
+	static inline struct T##_arr CR_UNUSED T##_arr_copy(const struct T##_arr a) { \
 		if (!a.items) return (struct T##_arr){ 0 }; \
 		struct T##_arr c = a; \
 		c.items = malloc(a.count * sizeof(*a.items)); \
 		memcpy(c.items, a.items, a.count * sizeof(*a.items)); \
 		return c; \
 	} \
-	static inline void T##_arr_free(struct T##_arr *a) { \
+	static inline void CR_UNUSED T##_arr_free(struct T##_arr *a) { \
 		if (!a) return; \
 		if (a->elem_free) { \
 			for (size_t i = 0; i < a->count; ++i) \
@@ -79,7 +78,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		a->capacity = 0; \
 		a->count = 0; \
 	} \
-	static inline void T##_arr_join(struct T##_arr *a, struct T##_arr *b) { \
+	static inline void CR_UNUSED T##_arr_join(struct T##_arr *a, struct T##_arr *b) { \
 		if (!a || !b) return; \
 		for (size_t i = 0; i < b->count; ++i) \
 			T##_arr_add(a, b->items[i]); \

@@ -19,6 +19,12 @@
 //FIXME: Should be configurable at runtime
 #define SAMPLING_STRATEGY Halton
 
+#ifdef __GNUC__
+#define CR_UNUSED __attribute__((unused))
+#else
+#define CR_UNUSED
+#endif
+
 //Some macros
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
