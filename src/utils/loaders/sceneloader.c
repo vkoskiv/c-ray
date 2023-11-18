@@ -340,11 +340,11 @@ static void parse_cameras(struct cr_scene *scene, const cJSON *data) {
 }
 
 //FIXME: Convert this to use parseBsdfNode
-static void parse_ambient_color(struct cr_renderer *r_ext, struct cr_scene *s, const cJSON *data) {
-	struct renderer *r = (struct renderer *)r_ext;
+static void parse_ambient_color(struct cr_renderer *r, struct cr_scene *s, const cJSON *data) {
+	struct renderer *todo_remove_r = (struct renderer *)r;
 	const cJSON *offset = cJSON_GetObjectItem(data, "offset");
 	if (cJSON_IsNumber(offset)) {
-		r->scene->backgroundOffset = deg_to_rad(offset->valuedouble) / 4.0f;
+		todo_remove_r->scene->backgroundOffset = deg_to_rad(offset->valuedouble) / 4.0f;
 	}
 
 	const cJSON *down = cJSON_GetObjectItem(data, "down");
@@ -352,7 +352,7 @@ static void parse_ambient_color(struct cr_renderer *r_ext, struct cr_scene *s, c
 	const cJSON *hdr = cJSON_GetObjectItem(data, "hdr");
 
 	if (cJSON_IsString(hdr)) {
-		if (cr_scene_set_background_hdr(r_ext, s, hdr->valuestring)) return;
+		if (cr_scene_set_background_hdr(r, s, hdr->valuestring)) return;
 	}
 	
 	if (down && up) {
@@ -427,11 +427,14 @@ struct mtl_override_arr parse_override_list(struct renderer *r, const cJSON *lis
 	return overrides;
 }
 
-static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int mesh_file_count) {
+static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int mesh_file_count) {
 	const cJSON *file_name = cJSON_GetObjectItem(data, "fileName");
 	if (!cJSON_IsString(file_name)) return;
+
+	struct renderer *todo_remove_r = (struct renderer *)r;
+
 	//FIXME: This concat + path fixing should be an utility function
-	char *fullPath = stringConcat(r->prefs.assetPath, file_name->valuestring);
+	char *fullPath = stringConcat(todo_remove_r->prefs.assetPath, file_name->valuestring);
 	windowsFixPath(fullPath);
 
 	logr(plain, "\r");
@@ -439,7 +442,7 @@ static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int mesh_
 	struct timeval timer;
 	timer_start(&timer);
 	//FIXME: A new asset type that contains meshes, materials, etc separately would make this much more flexible.
-	struct mesh_arr meshes = load_meshes_from_file(fullPath, r->state.file_cache);
+	struct mesh_arr meshes = load_meshes_from_file(fullPath, todo_remove_r->state.file_cache);
 	long us = timer_get_us(timer);
 	free(fullPath);
 	long ms = us / 1000;
@@ -448,7 +451,7 @@ static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int mesh_
 	if (!meshes.count) return;
 
 	// Per JSON 'meshes' array element, these apply to materials before we assign them to instances
-	struct mtl_override_arr global_overrides = parse_override_list(r, cJSON_GetObjectItem(data, "materials"));
+	struct mtl_override_arr global_overrides = parse_override_list(todo_remove_r, cJSON_GetObjectItem(data, "materials"));
 
 	// Precompute guessed bsdfs for these instances
 	struct bsdf_buffer *file_bsdfs = bsdf_buf_ref(NULL);
@@ -465,7 +468,7 @@ static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int mesh_
 		if (match) {
 			bsdf_node_ptr_arr_add(&file_bsdfs->bsdfs, match);
 		} else {
-			bsdf_node_ptr_arr_add(&file_bsdfs->bsdfs, try_to_guess_bsdf(&r->scene->storage, &file_mats.items[i]));
+			bsdf_node_ptr_arr_add(&file_bsdfs->bsdfs, try_to_guess_bsdf(&todo_remove_r->scene->storage, &file_mats.items[i]));
 		}
 	}
 
@@ -486,13 +489,13 @@ static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int mesh_
 		goto done;
 	}
 
-	size_t current_mesh_count = r->scene->meshes.count;
+	size_t current_mesh_count = todo_remove_r->scene->meshes.count;
 	if (!cJSON_IsArray(pick_instances)) {
 		// Generate one instance for every mesh, identity transform.
 		for (size_t i = 0; i < meshes.count; ++i) {
-			struct instance new = new_mesh_instance(&r->scene->meshes, current_mesh_count + i, NULL, NULL);
+			struct instance new = new_mesh_instance(&todo_remove_r->scene->meshes, current_mesh_count + i, NULL, NULL);
 			new.bbuf = bsdf_buf_ref(file_bsdfs);
-			instance_arr_add(&r->scene->instances, new);
+			instance_arr_add(&todo_remove_r->scene->instances, new);
 		}
 		goto done;
 	}
@@ -518,14 +521,14 @@ static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int mesh_
 		struct instance new = { 0 };
 		const cJSON *density = cJSON_GetObjectItem(instance, "density");
 		if (cJSON_IsNumber(density)) {
-			new = new_mesh_instance(&r->scene->meshes, current_mesh_count + target_idx, (float *)&density->valuedouble, &r->scene->storage.node_pool);
+			new = new_mesh_instance(&todo_remove_r->scene->meshes, current_mesh_count + target_idx, (float *)&density->valuedouble, &todo_remove_r->scene->storage.node_pool);
 		} else {
 			//FIXME: Make newMesh*() and newSphere*() const
-			new = new_mesh_instance(&r->scene->meshes, current_mesh_count + target_idx, NULL, NULL);
+			new = new_mesh_instance(&todo_remove_r->scene->meshes, current_mesh_count + target_idx, NULL, NULL);
 		}
 		new.bbuf = bsdf_buf_ref(NULL);
 
-		struct mtl_override_arr instance_overrides = parse_override_list(r, cJSON_GetObjectItem(instance, "materials"));
+		struct mtl_override_arr instance_overrides = parse_override_list(todo_remove_r, cJSON_GetObjectItem(instance, "materials"));
 		for (size_t i = 0; i < file_mats.count; ++i) {
 			const struct bsdfNode *override_match = NULL;
 			for (size_t j = 0; j < instance_overrides.count; ++j) {
@@ -539,7 +542,7 @@ static void parse_mesh(struct renderer *r, const cJSON *data, int idx, int mesh_
 		mtl_override_arr_free(&instance_overrides);
 
 		new.composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
-		instance_arr_add(&r->scene->instances, new);
+		instance_arr_add(&todo_remove_r->scene->instances, new);
 	}
 done:
 
@@ -547,13 +550,13 @@ done:
 	// Store meshes
 	logr(debug, "Adding %zu meshes\n", meshes.count);
 	for (size_t i = 0; i < meshes.count; ++i) {
-		mesh_arr_add(&r->scene->meshes, meshes.items[i]);
+		mesh_arr_add(&todo_remove_r->scene->meshes, meshes.items[i]);
 	}
 
 	mesh_arr_free(&meshes);
 }
 
-static void parse_meshes(struct renderer *r, const cJSON *data) {
+static void parse_meshes(struct cr_renderer *r, const cJSON *data) {
 	if (!cJSON_IsArray(data)) return;
 	int idx = 0;
 	int mesh_file_count = cJSON_GetArraySize(data);
@@ -563,8 +566,10 @@ static void parse_meshes(struct renderer *r, const cJSON *data) {
 	}
 }
 
-static void parse_sphere(struct renderer *r, const cJSON *data) {
+static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 	struct sphere new = { 0 };
+
+	struct renderer *todo_remove_r = (struct renderer *)r;
 
 	const cJSON *radius = NULL;
 	radius = cJSON_GetObjectItem(data, "radius");
@@ -574,7 +579,7 @@ static void parse_sphere(struct renderer *r, const cJSON *data) {
 		new.radius = 1.0f;
 		logr(warning, "No radius specified for sphere, setting to %.0f\n", (double)new.radius);
 	}
-	const size_t new_idx = sphere_arr_add(&r->scene->spheres, new);
+	const size_t new_idx = sphere_arr_add(&todo_remove_r->scene->spheres, new);
 	
 	// Apply this to all instances that don't have their own "materials" object
 	const cJSON *sphere_global_materials = cJSON_GetObjectItem(data, "material");
@@ -587,9 +592,9 @@ static void parse_sphere(struct renderer *r, const cJSON *data) {
 
 			struct instance new_instance = { 0 };
 			if (cJSON_IsNumber(density)) {
-				new_instance = new_sphere_instance(&r->scene->spheres, new_idx, (float *)&density->valuedouble, &r->scene->storage.node_pool);
+				new_instance = new_sphere_instance(&todo_remove_r->scene->spheres, new_idx, (float *)&density->valuedouble, &todo_remove_r->scene->storage.node_pool);
 			} else {
-				new_instance = new_sphere_instance(&r->scene->spheres, new_idx, NULL, NULL);
+				new_instance = new_sphere_instance(&todo_remove_r->scene->spheres, new_idx, NULL, NULL);
 			}
 			new_instance.bbuf = bsdf_buf_ref(NULL);
 
@@ -603,19 +608,19 @@ static void parse_sphere(struct renderer *r, const cJSON *data) {
 				} else {
 					material = materials;
 				}
-				bsdf_node_ptr_arr_add(&new_instance.bbuf->bsdfs, parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, material));
+				bsdf_node_ptr_arr_add(&new_instance.bbuf->bsdfs, parseBsdfNode(todo_remove_r->prefs.assetPath, todo_remove_r->state.file_cache, &todo_remove_r->scene->storage, material));
 				const cJSON *type_string = cJSON_GetObjectItem(material, "type");
 				if (type_string && stringEquals(type_string->valuestring, "emissive")) new_instance.emits_light = true;
 			}
 
-			if (!new_instance.bbuf->bsdfs.count) bsdf_node_ptr_arr_add(&new_instance.bbuf->bsdfs, warningBsdf(&r->scene->storage));
+			if (!new_instance.bbuf->bsdfs.count) bsdf_node_ptr_arr_add(&new_instance.bbuf->bsdfs, warningBsdf(&todo_remove_r->scene->storage));
 			new_instance.composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
-			instance_arr_add(&r->scene->instances, new_instance);
+			instance_arr_add(&todo_remove_r->scene->instances, new_instance);
 		}
 	}
 }
 
-static void parse_primitive(struct renderer *r, const cJSON *data, int idx) {
+static void parse_primitive(struct cr_renderer *r, const cJSON *data, int idx) {
 	const cJSON *type = NULL;
 	type = cJSON_GetObjectItem(data, "type");
 	if (stringEquals(type->valuestring, "sphere")) {
@@ -625,7 +630,7 @@ static void parse_primitive(struct renderer *r, const cJSON *data, int idx) {
 	}
 }
 
-static void parse_primitives(struct renderer *r, const cJSON *data) {
+static void parse_primitives(struct cr_renderer *r, const cJSON *data) {
 	if (!cJSON_IsArray(data)) return;
 	if (data != NULL && cJSON_IsArray(data)) {
 		int i = 0;
@@ -637,10 +642,10 @@ static void parse_primitives(struct renderer *r, const cJSON *data) {
 }
 
 static void parseScene(struct cr_renderer *r, const cJSON *data) {
-	struct renderer *todo_remove_r = (struct renderer *)r;
-	parse_ambient_color(r, (struct cr_scene *)todo_remove_r->scene, cJSON_GetObjectItem(data, "ambientColor"));
-	parse_primitives(todo_remove_r, cJSON_GetObjectItem(data, "primitives"));
-	parse_meshes(todo_remove_r, cJSON_GetObjectItem(data, "meshes"));
+	struct cr_scene *scene = cr_renderer_scene_get(r);
+	parse_ambient_color(r, scene, cJSON_GetObjectItem(data, "ambientColor"));
+	parse_primitives(r, cJSON_GetObjectItem(data, "primitives"));
+	parse_meshes(r, cJSON_GetObjectItem(data, "meshes"));
 }
 
 int parse_json(struct cr_renderer *r, cJSON *json) {
