@@ -70,7 +70,7 @@ bool chunkedSend(int socket, const char *data, size_t *progress) {
 		//printf("chunk %lu: \"%.1024s\"\n", i, currentChunk);
 		n = send(socket, currentChunk, chunkSize, 0);
 		if (n == -1) {
-			logr(warning, "chunkedSend error: %s\n", strerror(errno));
+			logr(debug, "chunkedSend error: %s\n", strerror(errno));
 			free(currentChunk);
 			return false;
 		}
