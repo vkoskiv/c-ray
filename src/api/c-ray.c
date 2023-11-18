@@ -95,7 +95,10 @@ bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			return true;
 		}
 		case cr_renderer_override_cam: {
+			if (!r->scene->cameras.count) return false;
+			if (num >= r->scene->cameras.count) return false;
 			r->prefs.selected_camera = num;
+			logr(info, "Selected camera %lu\n", num);
 			return true;
 		}
 		case cr_renderer_is_iterative: {

@@ -662,11 +662,8 @@ int parse_json(struct cr_renderer *r, cJSON *json) {
 
 	const cJSON *selected_camera = cJSON_GetObjectItem(json, "selected_camera");
 	if (cJSON_IsNumber(selected_camera)) {
-		todo_remove_r->prefs.selected_camera = (size_t)selected_camera->valueint;
+		cr_renderer_set_num_pref(r, cr_renderer_override_cam, selected_camera->valueint);
 	}
-
-	todo_remove_r->prefs.selected_camera = todo_remove_r->prefs.selected_camera < todo_remove_r->scene->cameras.count ? todo_remove_r->prefs.selected_camera : todo_remove_r->scene->cameras.count - 1;
-	if (todo_remove_r->prefs.selected_camera != 0) logr(info, "Selecting camera %li\n", todo_remove_r->prefs.selected_camera);
 
 	parseScene(r, cJSON_GetObjectItem(json, "scene"));
 
