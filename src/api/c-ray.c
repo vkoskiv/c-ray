@@ -265,17 +265,20 @@ void cr_destroy_renderer(struct cr_renderer *ext) {
 
 struct cr_scene;
 
-// Do we want multiple scenes anyway?
-struct cr_scene *cr_scene_create(struct cr_renderer *ext) {
+struct cr_scene *cr_renderer_scene_get(struct cr_renderer *ext) {
 	if (!ext) return NULL;
-	struct renderer *r = (struct renderer *)ext;
-	return (struct cr_scene *)r->scene;
+	return (struct cr_scene *)((struct renderer *)ext)->scene;
 }
 
-void cr_scene_destroy(struct cr_scene *ext) {
-	if (!ext) return;
-	struct world *s = (struct world *)ext;
-	scene_destroy(s);
+struct cr_scene_totals cr_scene_totals(struct cr_scene *s_ext) {
+	if (!s_ext) return (struct cr_scene_totals){ 0 };
+	struct world *s = (struct world *)s_ext;
+	return (struct cr_scene_totals){
+		.meshes = s->meshes.count,
+		.spheres = s->spheres.count,
+		.instances = s->instances.count,
+		.cameras = s->cameras.count
+	};
 }
 
 struct cr_object;

@@ -102,7 +102,15 @@ uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_para
 void cr_destroy_renderer(struct cr_renderer *r);
 
 struct cr_scene;
-struct cr_scene *cr_scene_create(struct cr_renderer *r);
+struct cr_scene *cr_renderer_scene_get(struct cr_renderer *r);
+
+struct cr_scene_totals {
+	size_t meshes;
+	size_t spheres;
+	size_t instances;
+	size_t cameras;
+};
+struct cr_scene_totals cr_scene_totals(struct cr_scene *s_ext);
 
 //FIXME: This should only have to take cr_scene
 bool cr_scene_set_background_hdr(struct cr_renderer *r_ext, struct cr_scene *s_ext, const char *hdr_filename);
@@ -113,7 +121,6 @@ struct cr_color {
 	float a;
 };
 bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_color *down, struct cr_color *up);
-void cr_scene_destroy(struct cr_scene *s);
 
 enum cr_camera_param {
 	cr_camera_fov,

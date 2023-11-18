@@ -644,18 +644,10 @@ static void parseScene(struct cr_renderer *r, const cJSON *data) {
 }
 
 int parse_json(struct cr_renderer *r, cJSON *json) {
-	struct timeval timer = {0};
-	timer_start(&timer);
-
-	struct renderer *todo_remove_r = (struct renderer *)r;
-
-	// --------------------------------------
-
+	struct cr_scene *scene = cr_renderer_scene_get(r);
 	parse_prefs(r, cJSON_GetObjectItem(json, "renderer"));
-
-	parse_cameras((struct cr_scene *)todo_remove_r->scene, cJSON_GetObjectItem(json, "camera"));
-
-	if (!todo_remove_r->scene->cameras.count) {
+	parse_cameras(scene, cJSON_GetObjectItem(json, "camera"));
+	if (!cr_scene_totals(scene).cameras) {
 		logr(warning, "No cameras specified, nothing to render.\n");
 		return -1;
 	}
@@ -664,10 +656,7 @@ int parse_json(struct cr_renderer *r, cJSON *json) {
 	if (cJSON_IsNumber(selected_camera)) {
 		cr_renderer_set_num_pref(r, cr_renderer_override_cam, selected_camera->valueint);
 	}
-
 	parseScene(r, cJSON_GetObjectItem(json, "scene"));
-
-	// --------------
 	
 	return 0;
 }
