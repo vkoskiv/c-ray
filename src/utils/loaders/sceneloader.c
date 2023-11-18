@@ -11,6 +11,8 @@
 
 //FIXME: We should only need to include c-ray.h here!
 #include <c-ray/c-ray.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "../../datatypes/scene.h"
 #include "../../datatypes/vector.h"
@@ -19,34 +21,23 @@
 #include "../../datatypes/material.h"
 #include "../../datatypes/poly.h"
 #include "../../datatypes/transforms.h"
-#include "../logging.h"
-#include "../fileio.h"
-#include "../string.h"
-#include "../../vendored/cJSON.h"
-#ifdef WINDOWS // Sigh...
-#include <malloc.h>
-#else
-#include <alloca.h>
-#endif
-#include <stdlib.h>
-#include <string.h>
-#include "../platform/capabilities.h"
 #include "../../datatypes/image/imagefile.h"
+#include "../../vendored/cJSON.h"
 #include "../../renderer/renderer.h"
-#include "textureloader.h"
 #include "../../renderer/instance.h"
-#include "../../utils/timer.h"
 #include "../../utils/string.h"
-#include "../../utils/platform/signal.h"
 #include "../../nodes/bsdfnode.h"
 #include "../../nodes/valuenode.h"
 #include "../../nodes/colornode.h"
 #include "../../nodes/shaders/emission.h"
 #include "../../nodes/textures/constant.h"
 #include "../../nodes/valuenode.h"
+#include "../platform/capabilities.h"
+#include "../logging.h"
+#include "../fileio.h"
+#include "../string.h"
+#include "textureloader.h"
 #include "meshloader.h"
-
-struct transform parseTransformComposite(const cJSON *transforms);
 
 static struct transform parseTransform(const cJSON *data, char *targetName) {
 	cJSON *type = cJSON_GetObjectItem(data, "type");
