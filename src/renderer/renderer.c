@@ -79,31 +79,30 @@ void update_cb_info(struct renderer *r, struct cr_renderer_cb_info *i) {
 	i->user_data = r->state.cb.user_data;
 	// Notice: Casting away const here
 	memcpy((struct cr_tile *)i->tiles, r->state.tiles.items, sizeof(*i->tiles) * i->tiles_count);
-	if (!r->state.workers) return;
+	if (!r->state.workers.count) return;
 	//Gather and maintain this average constantly.
-	size_t total_thread_count = r->prefs.threads + (int)r->state.clients.count;
 	size_t remote_threads = 0;
 	for (size_t i = 0; i < r->state.clients.count; ++i) {
 		remote_threads += r->state.clients.items[i].available_threads;
 	}
-	if (!r->state.workers[0].paused) { // FIXME: Use renderer state instead
-		for (size_t t = 0; t < total_thread_count; ++t) {
-			avg_per_sample_us += r->state.workers[t].avg_per_sample_us; // FIXME: Not updated from remote nodes
+	if (!r->state.workers.items[0].paused) { // FIXME: Use renderer state instead
+		for (size_t t = 0; t < r->state.workers.count; ++t) {
+			avg_per_sample_us += r->state.workers.items[t].avg_per_sample_us; // FIXME: Not updated from remote nodes
 		}
-		avg_tile_pass_us += avg_per_sample_us / total_thread_count;
+		avg_tile_pass_us += avg_per_sample_us / r->state.workers.count;
 		avg_tile_pass_us /= ctr++;
 	}
 	double avg_per_ray_us = (double)avg_tile_pass_us / (double)(r->prefs.tileHeight * r->prefs.tileWidth);
 	uint64_t completed_samples = 0;
-	for (size_t t = 0; t < total_thread_count; ++t) {
-		completed_samples += r->state.workers[t].totalSamples;
+	for (size_t t = 0; t < r->state.workers.count; ++t) {
+		completed_samples += r->state.workers.items[t].totalSamples;
 	}
 	uint64_t remainingTileSamples = (r->state.tiles.count * r->prefs.sampleCount) - completed_samples;
 	uint64_t eta_ms_till_done = (avg_tile_pass_us * remainingTileSamples) / 1000;
 	eta_ms_till_done /= (r->prefs.threads + remote_threads);
 	uint64_t sps = (1000000 / avg_per_ray_us) * (r->prefs.threads + remote_threads);
 
-	i->paused = r->state.workers[0].paused;
+	i->paused = r->state.workers.items[0].paused;
 	i->avg_per_ray_us = avg_per_ray_us;
 	i->samples_per_sec = sps;
 	i->eta_ms = eta_ms_till_done;
@@ -209,29 +208,37 @@ struct texture *renderFrame(struct renderer *r) {
 	// Iterative mode is incompatible with network rendering at the moment
 	if (r->prefs.iterative && !r->state.clients.count) localRenderThread = renderThreadInteractive;
 	
-	// Local render threads + one thread for every client
-	size_t total_thread_count = r->prefs.threads + (int)r->state.clients.count;
-	r->state.workers = calloc(total_thread_count, sizeof(*r->state.workers));
-
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
 	r->state.renderBuffer = newTexture(float_p, camera.width, camera.height, 3);
 	
-	//Create & boot workers (Nonblocking)
-	for (int t = 0; t < (int)total_thread_count; ++t) {
-		r->state.workers[t] = (struct worker){
-			.client = t > (int)r->prefs.threads - 1 ? &r->state.clients.items[t - r->prefs.threads] : NULL,
-			.thread_complete = false,
+	// Create & boot workers (Nonblocking)
+	// Local render threads + one thread for every client
+	for (size_t t = 0; t < r->prefs.threads; ++t) {
+		worker_arr_add(&r->state.workers, (struct worker){
 			.renderer = r,
 			.output = output,
 			.cam = &camera,
 			.thread = (struct cr_thread){
-				.thread_fn = t > (int)r->prefs.threads - 1 ? client_connection_thread : localRenderThread,
-				.user_data = &r->state.workers[t]
+				.thread_fn = localRenderThread,
 			}
-		};
-		if (thread_start(&r->state.workers[t].thread))
-			logr(error, "Failed to start worker %d\n", t);
+		});
+	}
+	for (size_t c = 0; c < r->state.clients.count; ++c) {
+		worker_arr_add(&r->state.workers, (struct worker){
+			.client = &r->state.clients.items[c],
+			.renderer = r,
+			.output = output,
+			.cam = &camera,
+			.thread = (struct cr_thread){
+				.thread_fn = client_connection_thread
+			}
+		});
+	}
+	for (size_t w = 0; w < r->state.workers.count; ++w) {
+		r->state.workers.items[w].thread.user_data = &r->state.workers.items[w];
+		if (thread_start(&r->state.workers.items[w].thread))
+			logr(error, "Failed to start worker %zu\n", w);
 	}
 
 	//Start main thread loop to handle renderer feedback and state management
@@ -247,17 +254,17 @@ struct texture *renderFrame(struct renderer *r) {
 		}
 
 		size_t inactive = 0;
-		for (size_t t = 0; t < total_thread_count; ++t) {
-			if (r->state.workers[t].thread_complete) inactive++;
+		for (size_t w = 0; w < r->state.workers.count; ++w) {
+			if (r->state.workers.items[w].thread_complete) inactive++;
 		}
-		if (r->state.render_aborted || inactive == total_thread_count)
+		if (r->state.render_aborted || inactive == r->state.workers.count)
 			r->state.rendering = false;
-		timer_sleep_ms(r->state.workers[0].paused ? paused_msec : active_msec);
+		timer_sleep_ms(r->state.workers.items[0].paused ? paused_msec : active_msec);
 	}
 	
 	//Make sure render threads are terminated before continuing (This blocks)
-	for (size_t t = 0; t < total_thread_count; ++t) {
-		thread_wait(&r->state.workers[t].thread);
+	for (size_t w = 0; w < r->state.workers.count; ++w) {
+		thread_wait(&r->state.workers.items[w].thread);
 	}
 	if (r->state.cb.cr_renderer_on_stop) {
 		update_cb_info(r, &cb_info);
@@ -463,7 +470,7 @@ void renderer_destroy(struct renderer *r) {
 	scene_destroy(r->scene);
 	if (r->state.renderBuffer) destroyTexture(r->state.renderBuffer);
 	render_tile_arr_free(&r->state.tiles);
-	free(r->state.workers);
+	worker_arr_free(&r->state.workers);
 	free(r->state.tileMutex);
 	render_client_arr_free(&r->state.clients);
 	if (r->state.file_cache) {

@@ -34,6 +34,8 @@ struct worker {
 	struct texture *output;
 	struct render_client *client; // Optional
 };
+typedef struct worker worker;
+dyn_array_def(worker);
 
 /// Renderer state data
 struct state {
@@ -44,7 +46,7 @@ struct state {
 	bool rendering;
 	bool render_aborted; //SDL listens for X key pressed, which sets this
 	bool saveImage;
-	struct worker *workers;
+	struct worker_arr workers;
 	struct render_client_arr clients;
 	struct file_cache *file_cache; // A file cache for network render nodes. NULL if only local render.
 	

@@ -191,7 +191,7 @@ void cr_renderer_toggle_pause(struct cr_renderer *ext) {
 	for (size_t i = 0; i < r->prefs.threads; ++i) {
 		// FIXME: Use array for workers
 		// FIXME: What about network renderers?
-		r->state.workers[i].paused = !r->state.workers[i].paused;
+		r->state.workers.items[i].paused = !r->state.workers.items[i].paused;
 	}
 }
 
