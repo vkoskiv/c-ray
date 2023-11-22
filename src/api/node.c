@@ -72,7 +72,7 @@ static struct cr_value_node *vn_alloc(struct cr_value_node d) {
 	return desc;
 }
 
-struct cr_value_node *build_value_node_desc(const struct cJSON *node) {
+struct cr_value_node *cr_value_node_build(const struct cJSON *node) {
 	if (!node) return NULL;
 	if (cJSON_IsNumber(node)) {
 		return vn_alloc((struct cr_value_node){
@@ -85,7 +85,7 @@ struct cr_value_node *build_value_node_desc(const struct cJSON *node) {
 	if (!cJSON_IsString(type)) {
 		return vn_alloc((struct cr_value_node){
 			.type = cr_vn_grayscale,
-			.arg.grayscale.color = build_color_node_desc(node)
+			.arg.grayscale.color = cr_color_node_build(node)
 		});
 	}
 
@@ -93,8 +93,8 @@ struct cr_value_node *build_value_node_desc(const struct cJSON *node) {
 		return vn_alloc((struct cr_value_node){
 			.type = cr_vn_fresnel,
 			.arg.fresnel = {
-				.IOR = build_value_node_desc(cJSON_GetObjectItem(node, "IOR")),
-				.normal = build_vector_node_desc(cJSON_GetObjectItem(node, "normal"))
+				.IOR = cr_value_node_build(cJSON_GetObjectItem(node, "IOR")),
+				.normal = cr_vector_node_build(cJSON_GetObjectItem(node, "normal"))
 			}
 		});
 	}
@@ -102,11 +102,11 @@ struct cr_value_node *build_value_node_desc(const struct cJSON *node) {
 		return vn_alloc((struct cr_value_node){
 			.type = cr_vn_map_range,
 			.arg.map_range = {
-				.input_value = build_value_node_desc(cJSON_GetObjectItem(node, "input")),
-				.from_min = build_value_node_desc(cJSON_GetObjectItem(node, "from_min")),
-				.from_max = build_value_node_desc(cJSON_GetObjectItem(node, "from_max")),
-				.to_min = build_value_node_desc(cJSON_GetObjectItem(node, "to_min")),
-				.to_max = build_value_node_desc(cJSON_GetObjectItem(node, "to_max")),
+				.input_value = cr_value_node_build(cJSON_GetObjectItem(node, "input")),
+				.from_min = cr_value_node_build(cJSON_GetObjectItem(node, "from_min")),
+				.from_max = cr_value_node_build(cJSON_GetObjectItem(node, "from_max")),
+				.to_min = cr_value_node_build(cJSON_GetObjectItem(node, "to_min")),
+				.to_max = cr_value_node_build(cJSON_GetObjectItem(node, "to_max")),
 			}
 		});
 	}
@@ -118,14 +118,14 @@ struct cr_value_node *build_value_node_desc(const struct cJSON *node) {
 	if (stringEquals(type->valuestring, "alpha")) {
 		return vn_alloc((struct cr_value_node){
 			.type = cr_vn_alpha,
-			.arg.alpha.color = build_color_node_desc(cJSON_GetObjectItem(node, "color"))
+			.arg.alpha.color = cr_color_node_build(cJSON_GetObjectItem(node, "color"))
 		});
 	}
 	if (stringEquals(type->valuestring, "vec_to_value")) {
 		return vn_alloc((struct cr_value_node){
 			.type = cr_vn_vec_to_value,
 			.arg.vec_to_value = {
-				.vec = build_vector_node_desc(cJSON_GetObjectItem(node, "vector")),
+				.vec = cr_vector_node_build(cJSON_GetObjectItem(node, "vector")),
 				.comp = value_node_component(cJSON_GetObjectItem(node, "component"))
 			}
 		});
@@ -134,19 +134,19 @@ struct cr_value_node *build_value_node_desc(const struct cJSON *node) {
 		return vn_alloc((struct cr_value_node){
 			.type = cr_vn_math,
 			.arg.math = {
-				.A = build_value_node_desc(cJSON_GetObjectItem(node, "a")),
-				.B = build_value_node_desc(cJSON_GetObjectItem(node, "b")),
+				.A = cr_value_node_build(cJSON_GetObjectItem(node, "a")),
+				.B = cr_value_node_build(cJSON_GetObjectItem(node, "b")),
 				.op = value_node_op(cJSON_GetObjectItem(node, "op"))
 			}
 		});
 	}
 	return vn_alloc((struct cr_value_node){
 		.type = cr_vn_grayscale,
-		.arg.grayscale.color = build_color_node_desc(cJSON_GetObjectItem(node, "color"))
+		.arg.grayscale.color = cr_color_node_build(cJSON_GetObjectItem(node, "color"))
 	});
 }
 
-void cr_node_value_desc_del(struct cr_value_node *d) {
+void cr_value_node_free(struct cr_value_node *d) {
 	if (!d) return;
 	switch (d->type) {
 		case cr_vn_unknown:
@@ -154,30 +154,30 @@ void cr_node_value_desc_del(struct cr_value_node *d) {
 		case cr_vn_constant:
 			break;
 		case cr_vn_fresnel:
-			cr_node_value_desc_del(d->arg.fresnel.IOR);
-			cr_node_vector_desc_del(d->arg.fresnel.normal);
+			cr_value_node_free(d->arg.fresnel.IOR);
+			cr_vector_node_free(d->arg.fresnel.normal);
 			break;
 		case cr_vn_map_range:
-			cr_node_value_desc_del(d->arg.map_range.input_value);
-			cr_node_value_desc_del(d->arg.map_range.from_min);
-			cr_node_value_desc_del(d->arg.map_range.from_max);
-			cr_node_value_desc_del(d->arg.map_range.to_min);
-			cr_node_value_desc_del(d->arg.map_range.to_max);
+			cr_value_node_free(d->arg.map_range.input_value);
+			cr_value_node_free(d->arg.map_range.from_min);
+			cr_value_node_free(d->arg.map_range.from_max);
+			cr_value_node_free(d->arg.map_range.to_min);
+			cr_value_node_free(d->arg.map_range.to_max);
 			break;
 		case cr_vn_raylength:
 			break;
 		case cr_vn_alpha:
-			cr_node_color_desc_del(d->arg.alpha.color);
+			cr_color_node_free(d->arg.alpha.color);
 			break;
 		case cr_vn_vec_to_value:
-			cr_node_vector_desc_del(d->arg.vec_to_value.vec);
+			cr_vector_node_free(d->arg.vec_to_value.vec);
 			break;
 		case cr_vn_math:
-			cr_node_value_desc_del(d->arg.math.A);
-			cr_node_value_desc_del(d->arg.math.B);
+			cr_value_node_free(d->arg.math.A);
+			cr_value_node_free(d->arg.math.B);
 			break;
 		case cr_vn_grayscale:
-			cr_node_color_desc_del(d->arg.grayscale.color);
+			cr_color_node_free(d->arg.grayscale.color);
 	}
 	free(d);
 }
@@ -188,7 +188,7 @@ static struct cr_color_node *cn_alloc(struct cr_color_node d) {
 	return desc;
 }
 
-struct cr_color_node *build_color_node_desc(const struct cJSON *desc) {
+struct cr_color_node *cr_color_node_build(const struct cJSON *desc) {
 	if (!desc) return NULL;
 
 	if (cJSON_IsArray(desc)) {
@@ -257,9 +257,9 @@ struct cr_color_node *build_color_node_desc(const struct cJSON *desc) {
 			return cn_alloc((struct cr_color_node){
 				.type = cr_cn_checkerboard,
 				.arg.checkerboard = {
-					.a = build_color_node_desc(cJSON_GetObjectItem(desc, "color1")),
-					.b = build_color_node_desc(cJSON_GetObjectItem(desc, "color2")),
-					.scale = build_value_node_desc(cJSON_GetObjectItem(desc, "scale"))
+					.a = cr_color_node_build(cJSON_GetObjectItem(desc, "color1")),
+					.b = cr_color_node_build(cJSON_GetObjectItem(desc, "color2")),
+					.scale = cr_value_node_build(cJSON_GetObjectItem(desc, "scale"))
 				}
 			});
 		}
@@ -267,22 +267,22 @@ struct cr_color_node *build_color_node_desc(const struct cJSON *desc) {
 			// FIXME: valuenode
 			return cn_alloc((struct cr_color_node){
 				.type = cr_cn_blackbody,
-				.arg.blackbody.degrees = build_value_node_desc(cJSON_GetObjectItem(desc, "degrees"))
+				.arg.blackbody.degrees = cr_value_node_build(cJSON_GetObjectItem(desc, "degrees"))
 			});
 		}
 		if (stringEquals(type->valuestring, "split")) {
 			return cn_alloc((struct cr_color_node){
 				.type = cr_cn_split,
-				.arg.split.node = build_value_node_desc(cJSON_GetObjectItem(desc, "constant"))
+				.arg.split.node = cr_value_node_build(cJSON_GetObjectItem(desc, "constant"))
 			});
 		}
 		if (stringEquals(type->valuestring, "rgb")) {
 			return cn_alloc((struct cr_color_node){
 				.type = cr_cn_rgb,
 				.arg.rgb = {
-					.red = build_value_node_desc(cJSON_GetObjectItem(desc, "r")),
-					.green = build_value_node_desc(cJSON_GetObjectItem(desc, "g")),
-					.blue = build_value_node_desc(cJSON_GetObjectItem(desc, "b")),
+					.red = cr_value_node_build(cJSON_GetObjectItem(desc, "r")),
+					.green = cr_value_node_build(cJSON_GetObjectItem(desc, "g")),
+					.blue = cr_value_node_build(cJSON_GetObjectItem(desc, "b")),
 				}
 			});
 		}
@@ -290,16 +290,16 @@ struct cr_color_node *build_color_node_desc(const struct cJSON *desc) {
 			return cn_alloc((struct cr_color_node){
 				.type = cr_cn_hsl,
 				.arg.hsl = {
-					.H = build_value_node_desc(cJSON_GetObjectItem(desc, "h")),
-					.S = build_value_node_desc(cJSON_GetObjectItem(desc, "s")),
-					.L = build_value_node_desc(cJSON_GetObjectItem(desc, "l")),
+					.H = cr_value_node_build(cJSON_GetObjectItem(desc, "h")),
+					.S = cr_value_node_build(cJSON_GetObjectItem(desc, "s")),
+					.L = cr_value_node_build(cJSON_GetObjectItem(desc, "l")),
 				}
 			});
 		}
 		if (stringEquals(type->valuestring, "to_color")) {
 			return cn_alloc((struct cr_color_node){
 				.type = cr_cn_vec_to_color,
-				.arg.vec_to_color.vec = build_vector_node_desc(cJSON_GetObjectItem(desc, "vector"))
+				.arg.vec_to_color.vec = cr_vector_node_build(cJSON_GetObjectItem(desc, "vector"))
 			});
 		}
 	}
@@ -311,7 +311,7 @@ struct cr_color_node *build_color_node_desc(const struct cJSON *desc) {
 
 }
 
-void cr_node_color_desc_del(struct cr_color_node *d) {
+void cr_color_node_free(struct cr_color_node *d) {
 	if (!d) return;
 	switch (d->type) {
 		case cr_cn_unknown:
@@ -324,28 +324,28 @@ void cr_node_color_desc_del(struct cr_color_node *d) {
 			}
 			break;
 		case cr_cn_checkerboard:
-			cr_node_color_desc_del(d->arg.checkerboard.a);
-			cr_node_color_desc_del(d->arg.checkerboard.b);
-			cr_node_value_desc_del(d->arg.checkerboard.scale);
+			cr_color_node_free(d->arg.checkerboard.a);
+			cr_color_node_free(d->arg.checkerboard.b);
+			cr_value_node_free(d->arg.checkerboard.scale);
 			break;
 		case cr_cn_blackbody:
-			cr_node_value_desc_del(d->arg.blackbody.degrees);
+			cr_value_node_free(d->arg.blackbody.degrees);
 			break;
 		case cr_cn_split:
-			cr_node_value_desc_del(d->arg.split.node);
+			cr_value_node_free(d->arg.split.node);
 			break;
 		case cr_cn_rgb:
-			cr_node_value_desc_del(d->arg.rgb.red);
-			cr_node_value_desc_del(d->arg.rgb.green);
-			cr_node_value_desc_del(d->arg.rgb.blue);
+			cr_value_node_free(d->arg.rgb.red);
+			cr_value_node_free(d->arg.rgb.green);
+			cr_value_node_free(d->arg.rgb.blue);
 			break;
 		case cr_cn_hsl:
-			cr_node_value_desc_del(d->arg.hsl.H);
-			cr_node_value_desc_del(d->arg.hsl.S);
-			cr_node_value_desc_del(d->arg.hsl.L);
+			cr_value_node_free(d->arg.hsl.H);
+			cr_value_node_free(d->arg.hsl.S);
+			cr_value_node_free(d->arg.hsl.L);
 			break;
 		case cr_cn_vec_to_color:
-			cr_node_vector_desc_del(d->arg.vec_to_color.vec);
+			cr_vector_node_free(d->arg.vec_to_color.vec);
 			break;
 	}
 	free(d);
@@ -395,7 +395,7 @@ struct vector parseVector(const struct cJSON *data) {
 	return (struct vector){ x, y, z };
 }
 
-struct cr_vector_node *build_vector_node_desc(const struct cJSON *node) {
+struct cr_vector_node *cr_vector_node_build(const struct cJSON *node) {
 	if (!node) return NULL;
 	if (cJSON_IsArray(node)) {
 		struct vector v = parseVector(node);
@@ -425,10 +425,10 @@ struct cr_vector_node *build_vector_node_desc(const struct cJSON *node) {
 		return vecn_alloc((struct cr_vector_node){
 			.type = cr_vec_vecmath,
 			.arg.vecmath = {
-				.A = build_vector_node_desc(cJSON_GetObjectItem(node, "a")),
-				.B = build_vector_node_desc(cJSON_GetObjectItem(node, "b")),
-				.C = build_vector_node_desc(cJSON_GetObjectItem(node, "c")),
-				.f = build_value_node_desc(cJSON_GetObjectItem(node, "f")),
+				.A = cr_vector_node_build(cJSON_GetObjectItem(node, "a")),
+				.B = cr_vector_node_build(cJSON_GetObjectItem(node, "b")),
+				.C = cr_vector_node_build(cJSON_GetObjectItem(node, "c")),
+				.f = cr_value_node_build(cJSON_GetObjectItem(node, "f")),
 				.op = parseVectorOp(cJSON_GetObjectItem(node, "op"))
 			}
 		});
@@ -437,16 +437,16 @@ struct cr_vector_node *build_vector_node_desc(const struct cJSON *node) {
 		return vecn_alloc((struct cr_vector_node){
 			.type = cr_vec_mix,
 			.arg.vec_mix = {
-				.A = build_vector_node_desc(cJSON_GetObjectItem(node, "a")),
-				.B = build_vector_node_desc(cJSON_GetObjectItem(node, "b")),
-				.factor = build_value_node_desc(cJSON_GetObjectItem(node, "f")),
+				.A = cr_vector_node_build(cJSON_GetObjectItem(node, "a")),
+				.B = cr_vector_node_build(cJSON_GetObjectItem(node, "b")),
+				.factor = cr_value_node_build(cJSON_GetObjectItem(node, "f")),
 			}
 		});
 	}
 	return NULL;
 }
 
-void cr_node_vector_desc_del(struct cr_vector_node *d) {
+void cr_vector_node_free(struct cr_vector_node *d) {
 	if (!d) return;
 	switch (d->type) {
 		case cr_vec_unknown:
@@ -455,15 +455,15 @@ void cr_node_vector_desc_del(struct cr_vector_node *d) {
 		case cr_vec_uv:
 			break;
 		case cr_vec_vecmath:
-			cr_node_vector_desc_del(d->arg.vecmath.A);
-			cr_node_vector_desc_del(d->arg.vecmath.B);
-			cr_node_vector_desc_del(d->arg.vecmath.C);
-			cr_node_value_desc_del(d->arg.vecmath.f);
+			cr_vector_node_free(d->arg.vecmath.A);
+			cr_vector_node_free(d->arg.vecmath.B);
+			cr_vector_node_free(d->arg.vecmath.C);
+			cr_value_node_free(d->arg.vecmath.f);
 			break;
 		case cr_vec_mix:
-			cr_node_vector_desc_del(d->arg.vec_mix.A);
-			cr_node_vector_desc_del(d->arg.vec_mix.B);
-			cr_node_value_desc_del(d->arg.vec_mix.factor);
+			cr_vector_node_free(d->arg.vec_mix.A);
+			cr_vector_node_free(d->arg.vec_mix.B);
+			cr_value_node_free(d->arg.vec_mix.factor);
 			break;
 	}
 	free(d);
@@ -474,7 +474,7 @@ static struct cr_shader_node *bn_alloc(struct cr_shader_node d) {
 	memcpy(desc, &d, sizeof(*desc));
 	return desc;
 }
-struct cr_shader_node *build_bsdf_node_desc(const struct cJSON *node) {
+struct cr_shader_node *cr_shader_node_build(const struct cJSON *node) {
 	if (!node) return NULL;
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
 	if (!cJSON_IsString(type)) {
@@ -485,68 +485,68 @@ struct cr_shader_node *build_bsdf_node_desc(const struct cJSON *node) {
 	if (stringEquals(type->valuestring, "diffuse")) {
 		return bn_alloc((struct cr_shader_node){
 			.type = cr_bsdf_diffuse,
-			.arg.diffuse.color = build_color_node_desc(cJSON_GetObjectItem(node, "color"))
+			.arg.diffuse.color = cr_color_node_build(cJSON_GetObjectItem(node, "color"))
 		});
 	} else if (stringEquals(type->valuestring, "metal")) {
 		return bn_alloc((struct cr_shader_node){
 			.type = cr_bsdf_metal,
 			.arg.metal = {
-				.color = build_color_node_desc(cJSON_GetObjectItem(node, "color")),
-				.roughness = build_value_node_desc(cJSON_GetObjectItem(node, "roughness"))
+				.color = cr_color_node_build(cJSON_GetObjectItem(node, "color")),
+				.roughness = cr_value_node_build(cJSON_GetObjectItem(node, "roughness"))
 			}
 		});
 	} else if (stringEquals(type->valuestring, "glass")) {
 		return bn_alloc((struct cr_shader_node){
 			.type = cr_bsdf_glass,
 			.arg.glass = {
-				.color = build_color_node_desc(cJSON_GetObjectItem(node, "color")),
-				.roughness = build_value_node_desc(cJSON_GetObjectItem(node, "roughness")),
-				.IOR = build_value_node_desc(cJSON_GetObjectItem(node, "IOR"))
+				.color = cr_color_node_build(cJSON_GetObjectItem(node, "color")),
+				.roughness = cr_value_node_build(cJSON_GetObjectItem(node, "roughness")),
+				.IOR = cr_value_node_build(cJSON_GetObjectItem(node, "IOR"))
 			}
 		});
 	} else if (stringEquals(type->valuestring, "plastic")) {
 		return bn_alloc((struct cr_shader_node){
 			.type = cr_bsdf_plastic,
 			.arg.plastic = {
-				.color = build_color_node_desc(cJSON_GetObjectItem(node, "color")),
-				.roughness = build_value_node_desc(cJSON_GetObjectItem(node, "roughness")),
-				.IOR = build_value_node_desc(cJSON_GetObjectItem(node, "IOR"))
+				.color = cr_color_node_build(cJSON_GetObjectItem(node, "color")),
+				.roughness = cr_value_node_build(cJSON_GetObjectItem(node, "roughness")),
+				.IOR = cr_value_node_build(cJSON_GetObjectItem(node, "IOR"))
 			}
 		});
 	} else if (stringEquals(type->valuestring, "mix")) {
 		return bn_alloc((struct cr_shader_node){
 			.type = cr_bsdf_mix,
 			.arg.mix = {
-				.A = build_bsdf_node_desc(cJSON_GetObjectItem(node, "A")),
-				.B = build_bsdf_node_desc(cJSON_GetObjectItem(node, "B")),
-				.factor = build_value_node_desc(cJSON_GetObjectItem(node, "factor"))
+				.A = cr_shader_node_build(cJSON_GetObjectItem(node, "A")),
+				.B = cr_shader_node_build(cJSON_GetObjectItem(node, "B")),
+				.factor = cr_value_node_build(cJSON_GetObjectItem(node, "factor"))
 			}
 		});
 	} else if (stringEquals(type->valuestring, "add")) {
 		return bn_alloc((struct cr_shader_node){
 			.type = cr_bsdf_add,
 			.arg.add = {
-				.A = build_bsdf_node_desc(cJSON_GetObjectItem(node, "A")),
-				.B = build_bsdf_node_desc(cJSON_GetObjectItem(node, "B")),
+				.A = cr_shader_node_build(cJSON_GetObjectItem(node, "A")),
+				.B = cr_shader_node_build(cJSON_GetObjectItem(node, "B")),
 			}
 		});
 	} else if (stringEquals(type->valuestring, "transparent")) {
 		return bn_alloc((struct cr_shader_node){
 			.type = cr_bsdf_transparent,
-			.arg.transparent.color = build_color_node_desc(cJSON_GetObjectItem(node, "color"))
+			.arg.transparent.color = cr_color_node_build(cJSON_GetObjectItem(node, "color"))
 		});
 	} else if (stringEquals(type->valuestring, "emissive")) {
 		return bn_alloc((struct cr_shader_node){
 			.type = cr_bsdf_emissive,
 			.arg.emissive = {
-				.color = build_color_node_desc(cJSON_GetObjectItem(node, "color")),
-				.strength = build_value_node_desc(cJSON_GetObjectItem(node, "strength"))
+				.color = cr_color_node_build(cJSON_GetObjectItem(node, "color")),
+				.strength = cr_value_node_build(cJSON_GetObjectItem(node, "strength"))
 			}
 		});
 	} else if (stringEquals(type->valuestring, "translucent")) {
 		return bn_alloc((struct cr_shader_node){
 			.type = cr_bsdf_translucent,
-			.arg.translucent.color = build_color_node_desc(cJSON_GetObjectItem(node, "color"))
+			.arg.translucent.color = cr_color_node_build(cJSON_GetObjectItem(node, "color"))
 		});
 	}
 
@@ -563,46 +563,46 @@ const struct bsdfNode *warningBsdf(const struct node_storage *s) {
 				  newGrayscaleConverter(s, newCheckerBoardTexture(s, NULL, NULL, newConstantValue(s, 500.0f))));
 }
 
-void cr_node_bsdf_desc_del(struct cr_shader_node *d) {
+void cr_shader_node_free(struct cr_shader_node *d) {
 	if (!d) return;
 	switch (d->type) {
 		case cr_bsdf_unknown:
 			return;
 		case cr_bsdf_diffuse:
-			cr_node_color_desc_del(d->arg.diffuse.color);
+			cr_color_node_free(d->arg.diffuse.color);
 			break;
 		case cr_bsdf_metal:
-			cr_node_color_desc_del(d->arg.metal.color);
-			cr_node_value_desc_del(d->arg.metal.roughness);
+			cr_color_node_free(d->arg.metal.color);
+			cr_value_node_free(d->arg.metal.roughness);
 			break;
 		case cr_bsdf_glass:
-			cr_node_color_desc_del(d->arg.glass.color);
-			cr_node_value_desc_del(d->arg.glass.roughness);
-			cr_node_value_desc_del(d->arg.glass.IOR);
+			cr_color_node_free(d->arg.glass.color);
+			cr_value_node_free(d->arg.glass.roughness);
+			cr_value_node_free(d->arg.glass.IOR);
 			break;
 		case cr_bsdf_plastic:
-			cr_node_color_desc_del(d->arg.plastic.color);
-			cr_node_value_desc_del(d->arg.plastic.roughness);
-			cr_node_value_desc_del(d->arg.plastic.IOR);
+			cr_color_node_free(d->arg.plastic.color);
+			cr_value_node_free(d->arg.plastic.roughness);
+			cr_value_node_free(d->arg.plastic.IOR);
 			break;
 		case cr_bsdf_mix:
-			cr_node_bsdf_desc_del(d->arg.mix.A);
-			cr_node_bsdf_desc_del(d->arg.mix.B);
-			cr_node_value_desc_del(d->arg.mix.factor);
+			cr_shader_node_free(d->arg.mix.A);
+			cr_shader_node_free(d->arg.mix.B);
+			cr_value_node_free(d->arg.mix.factor);
 			break;
 		case cr_bsdf_add:
-			cr_node_bsdf_desc_del(d->arg.add.A);
-			cr_node_bsdf_desc_del(d->arg.add.B);
+			cr_shader_node_free(d->arg.add.A);
+			cr_shader_node_free(d->arg.add.B);
 			break;
 		case cr_bsdf_transparent:
-			cr_node_color_desc_del(d->arg.transparent.color);
+			cr_color_node_free(d->arg.transparent.color);
 			break;
 		case cr_bsdf_emissive:
-			cr_node_color_desc_del(d->arg.emissive.color);
-			cr_node_value_desc_del(d->arg.emissive.strength);
+			cr_color_node_free(d->arg.emissive.color);
+			cr_value_node_free(d->arg.emissive.strength);
 			break;
 		case cr_bsdf_translucent:
-			cr_node_color_desc_del(d->arg.translucent.color);
+			cr_color_node_free(d->arg.translucent.color);
 			break;
 	}
 	free(d);

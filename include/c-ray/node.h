@@ -55,7 +55,7 @@ enum cr_math_op {
 };
 
 struct cr_value_node {
-	enum value_node_type {
+	enum cr_value_node_type {
 		cr_vn_unknown = 0,
 		cr_vn_constant,
 		cr_vn_fresnel,
@@ -70,12 +70,12 @@ struct cr_value_node {
 	union {
 		double constant;
 
-		struct fresnel_params {
+		struct cr_fresnel_params {
 			struct cr_value_node *IOR;
 			struct cr_vector_node *normal;
 		} fresnel;
 
-		struct map_range_params {
+		struct cr_map_range_params {
 			struct cr_value_node *input_value;
 			struct cr_value_node *from_min;
 			struct cr_value_node *from_max;
@@ -83,24 +83,24 @@ struct cr_value_node {
 			struct cr_value_node *to_max;
 		} map_range;
 
-		struct alpha_params {
+		struct cr_alpha_params {
 			struct cr_color_node *color;
 		} alpha;
 
-		struct vec_to_value_params {
+		struct cr_vec_to_value_params {
 			enum cr_vec_to_value_component {
 				X, Y, Z, U, V, F
 			} comp;
 			struct cr_vector_node *vec;
 		} vec_to_value;
 
-		struct math_params {
+		struct cr_math_params {
 			struct cr_value_node *A;
 			struct cr_value_node *B;
 			enum cr_math_op op;
 		} math;
 
-		struct grayscale_params {
+		struct cr_grayscale_params {
 			struct cr_color_node *color;
 		} grayscale;
 
@@ -108,8 +108,8 @@ struct cr_value_node {
 };
 
 struct cJSON;
-struct cr_value_node *build_value_node_desc(const struct cJSON *node);
-void cr_node_value_desc_del(struct cr_value_node *d);
+struct cr_value_node *cr_value_node_build(const struct cJSON *node);
+void cr_value_node_free(struct cr_value_node *d);
 
 // ------
 
@@ -129,47 +129,47 @@ struct cr_color_node {
 	union {
 		struct cr_color constant;
 
-		struct image_texture_params {
+		struct cr_image_texture_params {
 			char *full_path;
 			uint8_t options;
 		} image;
 
-		struct checkerboard_params {
+		struct cr_checkerboard_params {
 			struct cr_color_node *a;
 			struct cr_color_node *b;
 			struct cr_value_node *scale;
 		} checkerboard;
 
-		struct blackbody_params {
+		struct cr_blackbody_params {
 			struct cr_value_node *degrees;
 		} blackbody;
 
-		struct split_params {
+		struct cr_split_params {
 			struct cr_value_node *node;
 		} split;
 
-		struct rgb_params {
+		struct cr_rgb_params {
 			struct cr_value_node *red;
 			struct cr_value_node *green;
 			struct cr_value_node *blue;
 			// Alpha?
 		} rgb;
 
-		struct hsl_params {
+		struct cr_hsl_params {
 			struct cr_value_node *H;
 			struct cr_value_node *S;
 			struct cr_value_node *L;
 		} hsl;
 
-		struct vec_to_color_params {
+		struct cr_vec_to_color_params {
 			struct cr_vector_node *vec;
 		} vec_to_color;
 
 	} arg;
 };
 
-struct cr_color_node *build_color_node_desc(const struct cJSON *desc);
-void cr_node_color_desc_del(struct cr_color_node *d);
+struct cr_color_node *cr_color_node_build(const struct cJSON *desc);
+void cr_color_node_free(struct cr_color_node *d);
 
 // -----
 
@@ -236,9 +236,8 @@ struct cr_vector_node {
 	} arg;
 };
 
-struct cr_vector_node *build_vector_node_desc(const struct cJSON *node);
-void cr_node_vector_desc_del(struct cr_vector_node *d);
-
+struct cr_vector_node *cr_vector_node_build(const struct cJSON *node);
+void cr_vector_node_free(struct cr_vector_node *d);
 
 struct cr_shader_node {
 	enum cr_bsdf_node_type {
@@ -255,53 +254,53 @@ struct cr_shader_node {
 	} type;
 
 	union {
-		struct diffuse_args {
+		struct cr_diffuse_args {
 			struct cr_color_node *color;
 		} diffuse;
 
-		struct metal_args {
+		struct cr_metal_args {
 			struct cr_color_node *color;
 			struct cr_value_node *roughness;
 		} metal;
 
-		struct glass_args {
+		struct cr_glass_args {
 			struct cr_color_node *color;
 			struct cr_value_node *roughness;
 			struct cr_value_node *IOR;
 		} glass;
 
-		struct plastic_args {
+		struct cr_plastic_args {
 			struct cr_color_node *color;
 			struct cr_value_node *roughness;
 			struct cr_value_node *IOR;
 		} plastic;
 
-		struct mix_args {
+		struct cr_mix_args {
 			struct cr_shader_node *A;
 			struct cr_shader_node *B;
 			struct cr_value_node *factor;
 		} mix;
 
-		struct add_args {
+		struct cr_add_args {
 			struct cr_shader_node *A;
 			struct cr_shader_node *B;
 		} add;
 
-		struct transparent_args {
+		struct cr_transparent_args {
 			struct cr_color_node *color;
 		} transparent;
 
-		struct emissive_args {
+		struct cr_emissive_args {
 			struct cr_color_node *color;
 			struct cr_value_node *strength;
 		} emissive;
 
-		struct translucent_args {
+		struct cr_translucent_args {
 			struct cr_color_node *color;
 		} translucent;
 
 	} arg;
 };
 
-struct cr_shader_node *build_bsdf_node_desc(const struct cJSON *node);
-void cr_node_bsdf_desc_del(struct cr_shader_node *d);
+struct cr_shader_node *cr_shader_node_build(const struct cJSON *node);
+void cr_shader_node_free(struct cr_shader_node *d);

@@ -387,7 +387,7 @@ struct cr_shader_node *global_desc(struct material_arr file_mats, const cJSON *g
 	cJSON_ArrayForEach(override, global_overrides) {
 		const cJSON *name = cJSON_GetObjectItem(override, "replace");
 		if (cJSON_IsString(name) && stringEquals(name->valuestring, file_mats.items[idx].name)) {
-			match = build_bsdf_node_desc(override);
+			match = cr_shader_node_build(override);
 		}
 	}
 	return match ? match : try_to_guess_bsdf(&file_mats.items[idx]);
@@ -429,7 +429,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	for (size_t i = 0; i < file_mats.count; ++i) {
 		struct cr_shader_node *desc = global_desc(file_mats, global_overrides, i);
 		cr_material_set_add(r, file_set, desc);
-		cr_node_bsdf_desc_del(desc);
+		cr_shader_node_free(desc);
 	}
 
 	// Now apply some slightly overcomplicated logic to choose instances to add to the scene.
@@ -476,17 +476,17 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 				cJSON_ArrayForEach(override, instance_overrides) {
 					const cJSON *name = cJSON_GetObjectItem(override, "replace");
 					if (cJSON_IsString(name) && stringEquals(name->valuestring, file_mats.items[i].name)) {
-						override_match = build_bsdf_node_desc(override);
+						override_match = cr_shader_node_build(override);
 						break;
 					}
 				}
 				if (override_match) {
 					cr_material_set_add(r, instance_set, override_match);
-					cr_node_bsdf_desc_del(override_match);
+					cr_shader_node_free(override_match);
 				} else {
 					struct cr_shader_node *global = global_desc(file_mats, global_overrides, i);
 					cr_material_set_add(r, instance_set, global);
-					cr_node_bsdf_desc_del(global);
+					cr_shader_node_free(global);
 				}
 			}
 
@@ -548,9 +548,9 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 				} else {
 					material = materials;
 				}
-				struct cr_shader_node *desc = build_bsdf_node_desc(material);
+				struct cr_shader_node *desc = cr_shader_node_build(material);
 				cr_material_set_add(r, instance_set, desc);
-				cr_node_bsdf_desc_del(desc);
+				cr_shader_node_free(desc);
 
 				// FIXME
 				// const cJSON *type_string = cJSON_GetObjectItem(material, "type");
