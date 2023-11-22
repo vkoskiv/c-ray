@@ -7,20 +7,20 @@
 //
 
 #include <c-ray/c-ray.h>
+#include "json_loader.h"
 
-#include "datatypes/image/texture.h"
-#include "vendored/cJSON.h"
+#include "../datatypes/image/texture.h"
+#include "../vendored/cJSON.h"
 
-#include "utils/logging.h"
-#include "utils/fileio.h"
-#include "utils/args.h"
-#include "utils/platform/terminal.h"
-#include "utils/loaders/sceneloader.h"
-#include "datatypes/image/imagefile.h"
-#include "utils/encoders/encoder.h"
-#include "utils/timer.h"
-#include "utils/hashtable.h"
-#include "utils/platform/sdl.h"
+#include "../utils/logging.h"
+#include "../utils/fileio.h"
+#include "../utils/args.h"
+#include "../utils/platform/terminal.h"
+#include "../datatypes/image/imagefile.h"
+#include "../utils/encoders/encoder.h"
+#include "../utils/timer.h"
+#include "../utils/hashtable.h"
+#include "sdl.h"
 
 struct usr_data {
 	struct cr_renderer *r;

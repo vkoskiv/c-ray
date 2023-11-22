@@ -1,20 +1,22 @@
 //
-//  node.c
+//  node_parse.c
 //  c-ray
 //
-//  Created by Valtteri Koskivuori on 19/11/2023.
+//  Created by Valtteri Koskivuori on 22/11/2023.
 //  Copyright © 2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <c-ray/c-ray.h>
 
+#include "node_parse.h"
+#include "../vendored/cJSON.h"
+#include "json_loader.h"
+
 #include "../renderer/renderer.h"
 #include "../datatypes/scene.h"
 #include "../utils/loaders/textureloader.h"
 #include "../utils/string.h"
-#include "../vendored/cJSON.h"
 #include "../utils/logging.h"
-#include "c-ray/node.h"
 
 static enum cr_vec_to_value_component value_node_component(const cJSON *data) {
 	if (!cJSON_IsString(data)) {
@@ -607,3 +609,39 @@ void cr_shader_node_free(struct cr_shader_node *d) {
 	}
 	free(d);
 }
+
+struct color color_parse(const cJSON *data) {
+	if (cJSON_IsArray(data)) {
+		const float r = cJSON_IsNumber(cJSON_GetArrayItem(data, 0)) ? (float)cJSON_GetArrayItem(data, 0)->valuedouble : 0.0f;
+		const float g = cJSON_IsNumber(cJSON_GetArrayItem(data, 1)) ? (float)cJSON_GetArrayItem(data, 1)->valuedouble : 0.0f;
+		const float b = cJSON_IsNumber(cJSON_GetArrayItem(data, 2)) ? (float)cJSON_GetArrayItem(data, 2)->valuedouble : 0.0f;
+		const float a = cJSON_IsNumber(cJSON_GetArrayItem(data, 3)) ? (float)cJSON_GetArrayItem(data, 3)->valuedouble : 1.0f;
+		return (struct color){ r, g, b, a };
+	}
+
+	ASSERT(cJSON_IsObject(data));
+
+	const cJSON *kelvin = cJSON_GetObjectItem(data, "blackbody");
+	if (cJSON_IsNumber(kelvin)) return colorForKelvin(kelvin->valuedouble);
+
+	const cJSON *H = cJSON_GetObjectItem(data, "h");
+	const cJSON *S = cJSON_GetObjectItem(data, "s");
+	const cJSON *L = cJSON_GetObjectItem(data, "l");
+
+	if (cJSON_IsNumber(H) && cJSON_IsNumber(S) && cJSON_IsNumber(L)) {
+		return color_from_hsl(H->valuedouble, S->valuedouble, L->valuedouble);
+	}
+
+	const cJSON *R = cJSON_GetObjectItem(data, "r");
+	const cJSON *G = cJSON_GetObjectItem(data, "g");
+	const cJSON *B = cJSON_GetObjectItem(data, "b");
+	const cJSON *A = cJSON_GetObjectItem(data, "a");
+
+	return (struct color){
+		cJSON_IsNumber(R) ? (float)R->valuedouble : 0.0f,
+		cJSON_IsNumber(G) ? (float)G->valuedouble : 0.0f,
+		cJSON_IsNumber(B) ? (float)B->valuedouble : 0.0f,
+		cJSON_IsNumber(A) ? (float)A->valuedouble : 1.0f,
+	};
+}
+

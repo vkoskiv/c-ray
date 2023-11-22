@@ -107,10 +107,6 @@ struct cr_value_node {
 	} arg;
 };
 
-struct cJSON;
-struct cr_value_node *cr_value_node_build(const struct cJSON *node);
-void cr_value_node_free(struct cr_value_node *d);
-
 // ------
 
 struct cr_color_node {
@@ -167,9 +163,6 @@ struct cr_color_node {
 
 	} arg;
 };
-
-struct cr_color_node *cr_color_node_build(const struct cJSON *desc);
-void cr_color_node_free(struct cr_color_node *d);
 
 // -----
 
@@ -236,9 +229,6 @@ struct cr_vector_node {
 	} arg;
 };
 
-struct cr_vector_node *cr_vector_node_build(const struct cJSON *node);
-void cr_vector_node_free(struct cr_vector_node *d);
-
 struct cr_shader_node {
 	enum cr_bsdf_node_type {
 		cr_bsdf_unknown = 0,
@@ -301,6 +291,3 @@ struct cr_shader_node {
 
 	} arg;
 };
-
-struct cr_shader_node *cr_shader_node_build(const struct cJSON *node);
-void cr_shader_node_free(struct cr_shader_node *d);

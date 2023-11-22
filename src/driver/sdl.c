@@ -6,24 +6,24 @@
 //  Copyright © 2017-2023 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../includes.h"
+#include "../includes.h"
 #include "sdl.h"
 
-#include "../../datatypes/image/imagefile.h"
-#include "../../datatypes/image/texture.h"
-#include "../../datatypes/color.h"
-#include "../logging.h"
-#include "../assert.h"
-#include "../logo.h"
-#include "../loaders/textureloader.h"
-#include "thread.h"
-#include "../../vendored/cJSON.h"
+#include "../datatypes/image/imagefile.h"
+#include "../datatypes/image/texture.h"
+#include "../datatypes/color.h"
+#include "../utils/logging.h"
+#include "../utils/assert.h"
+#include "../utils/logo.h"
+#include "../utils/loaders/textureloader.h"
+#include "../utils/platform/thread.h"
+#include "../utils/platform/dyn.h"
+#include "../vendored/cJSON.h"
 #include "signal.h"
-#include "dyn.h"
 #include <c-ray/c-ray.h>
 
-#include "../../vendored/SDL2/SDL_render.h"
-#include "../../vendored/SDL2/SDL_events.h"
+#include "vendored/SDL2/SDL_render.h"
+#include "vendored/SDL2/SDL_events.h"
 
 struct sdl_syms {
 	void *lib;

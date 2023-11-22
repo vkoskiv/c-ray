@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "../vendored/cJSON.h"
 #include "../datatypes/lightray.h"
 #include "../utils/mempool.h"
 #include "../utils/dyn_array.h"

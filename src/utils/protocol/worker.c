@@ -23,7 +23,7 @@
 #include "../../renderer/pathtrace.h"
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/scene.h"
-#include "../loaders/sceneloader.h"
+#include "../../driver/json_loader.h"
 #include "../../datatypes/camera.h"
 #include "../platform/mutex.h"
 #include "../platform/thread.h"

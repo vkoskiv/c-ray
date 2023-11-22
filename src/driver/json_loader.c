@@ -1,36 +1,38 @@
 //
-//  sceneloader.c
+//  json_loader.c
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
 //  Copyright © 2019-2023 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../includes.h"
-#include "sceneloader.h"
+#include "../includes.h"
+
+#include "json_loader.h"
+#include "../vendored/cJSON.h"
+#include "node_parse.h"
 
 //FIXME: We should only need to include c-ray.h here!
 #include <c-ray/c-ray.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../datatypes/scene.h"
-#include "../../datatypes/vector.h"
-#include "../../datatypes/mesh.h"
-#include "../../datatypes/sphere.h"
-#include "../../datatypes/material.h"
-#include "../../datatypes/poly.h"
-#include "../../datatypes/transforms.h"
-#include "../../datatypes/image/imagefile.h"
-#include "../../vendored/cJSON.h"
-#include "../../renderer/renderer.h"
-#include "../../utils/string.h"
-#include "../platform/capabilities.h"
-#include "../logging.h"
-#include "../fileio.h"
-#include "../string.h"
-#include "textureloader.h"
-#include "meshloader.h"
+#include "../datatypes/scene.h"
+#include "../datatypes/vector.h"
+#include "../datatypes/mesh.h"
+#include "../datatypes/sphere.h"
+#include "../datatypes/material.h"
+#include "../datatypes/poly.h"
+#include "../datatypes/transforms.h"
+#include "../datatypes/image/imagefile.h"
+#include "../renderer/renderer.h"
+#include "../utils/string.h"
+#include "../utils/platform/capabilities.h"
+#include "../utils/logging.h"
+#include "../utils/fileio.h"
+#include "../utils/string.h"
+#include "../utils/loaders/textureloader.h"
+#include "../utils/loaders/meshloader.h"
 
 static struct transform parseTransform(const cJSON *data, char *targetName) {
 	cJSON *type = cJSON_GetObjectItem(data, "type");
@@ -595,7 +597,7 @@ static void parseScene(struct cr_renderer *r, const cJSON *data) {
 	parse_meshes(r, cJSON_GetObjectItem(data, "meshes"));
 }
 
-int parse_json(struct cr_renderer *r, cJSON *json) {
+int parse_json(struct cr_renderer *r, struct cJSON *json) {
 	struct cr_scene *scene = cr_renderer_scene_get(r);
 	parse_prefs(r, cJSON_GetObjectItem(json, "renderer"));
 	parse_cameras(scene, cJSON_GetObjectItem(json, "camera"));

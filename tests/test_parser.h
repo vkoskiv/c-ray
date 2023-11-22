@@ -9,7 +9,9 @@
 #pragma once
 
 #include "../src/datatypes/color.h"
-#include "../src/utils/loaders/sceneloader.h"
+#include "../src/vendored/cJSON.h"
+#include "../src/driver/json_loader.h"
+#include "../src/driver/node_parse.h"
 
 bool parser_color_rgb(void) {
 

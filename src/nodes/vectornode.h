@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "../vendored/cJSON.h"
 #include "../renderer/samplers/sampler.h"
 #include "../datatypes/vector.h"
 #include "nodebase.h"

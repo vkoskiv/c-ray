@@ -15,7 +15,6 @@
 #include "../utils/string.h"
 #include "../datatypes/scene.h"
 #include "../utils/loaders/textureloader.h"
-#include "../utils/loaders/sceneloader.h"
 #include "bsdfnode.h"
 
 #include "colornode.h"
