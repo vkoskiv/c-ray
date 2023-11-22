@@ -72,13 +72,13 @@ void *renderThreadInteractive(void *arg);
 
 //FIXME: Statistics computation is a gigantic mess. It will also break in the case
 //where a worker node disconnects during a render, so maybe fix that next.
-void update_cb_info(struct renderer *r, struct cr_renderer_cb_info *i) {
+void update_cb_info(struct renderer *r, struct tile_set *set, struct cr_renderer_cb_info *i) {
 	static uint64_t ctr = 1;
 	static uint64_t avg_per_sample_us = 0;
 	static uint64_t avg_tile_pass_us = 0;
 	i->user_data = r->state.cb.user_data;
 	// Notice: Casting away const here
-	memcpy((struct cr_tile *)i->tiles, r->state.tiles.items, sizeof(*i->tiles) * i->tiles_count);
+	memcpy((struct cr_tile *)i->tiles, set->tiles.items, sizeof(*i->tiles) * i->tiles_count);
 	if (!r->state.workers.count) return;
 	//Gather and maintain this average constantly.
 	size_t remote_threads = 0;
@@ -97,7 +97,7 @@ void update_cb_info(struct renderer *r, struct cr_renderer_cb_info *i) {
 	for (size_t t = 0; t < r->state.workers.count; ++t) {
 		completed_samples += r->state.workers.items[t].totalSamples;
 	}
-	uint64_t remainingTileSamples = (r->state.tiles.count * r->prefs.sampleCount) - completed_samples;
+	uint64_t remainingTileSamples = (set->tiles.count * r->prefs.sampleCount) - completed_samples;
 	uint64_t eta_ms_till_done = (avg_tile_pass_us * remainingTileSamples) / 1000;
 	eta_ms_till_done /= (r->prefs.threads + remote_threads);
 	uint64_t sps = (1000000 / avg_per_ray_us) * (r->prefs.threads + remote_threads);
@@ -108,7 +108,7 @@ void update_cb_info(struct renderer *r, struct cr_renderer_cb_info *i) {
 	i->eta_ms = eta_ms_till_done;
 	i->completion = r->prefs.iterative ?
 		((double)r->state.finishedPasses / (double)r->prefs.sampleCount) :
-		((double)r->state.finishedTileCount / (double)r->state.tiles.count);
+		((double)r->state.finishedTileCount / (double)set->tiles.count);
 
 }
 
@@ -146,13 +146,7 @@ struct texture *renderFrame(struct renderer *r) {
 		 KNRM,
 		 PLURAL(r->prefs.threads));
 	
-	//Quantize image into renderTiles
-	tile_quantize(&r->state.tiles,
-					camera.width,
-					camera.height,
-					r->prefs.tileWidth,
-					r->prefs.tileHeight,
-					r->prefs.tileOrder);
+	struct tile_set set = tile_quantize(camera.width, camera.height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
 
 	// Do some pre-render preparations
 	// Compute BVH acceleration structures for all meshes in the scene
@@ -168,25 +162,25 @@ struct texture *renderFrame(struct renderer *r) {
 
 	printSceneStats(r->scene, timer_get_ms(timer));
 
-	for (size_t i = 0; i < r->state.tiles.count; ++i)
-		r->state.tiles.items[i].total_samples = r->prefs.sampleCount;
+	for (size_t i = 0; i < set.tiles.count; ++i)
+		set.tiles.items[i].total_samples = r->prefs.sampleCount;
 
 	//Print a useful warning to user if the defined tile size results in less renderThreads
-	if (r->state.tiles.count < r->prefs.threads) {
+	if (set.tiles.count < r->prefs.threads) {
 		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
-		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, r->state.tiles.count);
-		r->prefs.threads = r->state.tiles.count;
+		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, set.tiles.count);
+		r->prefs.threads = set.tiles.count;
 	}
 
 	struct texture *output = newTexture(char_p, camera.width, camera.height, 3);
-	struct cr_tile *info_tiles = calloc(r->state.tiles.count, sizeof(*info_tiles));
+	struct cr_tile *info_tiles = calloc(set.tiles.count, sizeof(*info_tiles));
 	struct cr_renderer_cb_info cb_info = {
 		.tiles = info_tiles,
-		.tiles_count = r->state.tiles.count
+		.tiles_count = set.tiles.count
 	};
 	cb_info.fb = output;
 	if (r->state.cb.cr_renderer_on_start) {
-		update_cb_info(r, &cb_info);
+		update_cb_info(r, &set, &cb_info);
 		r->state.cb.cr_renderer_on_start(&cb_info);
 	}
 
@@ -196,12 +190,7 @@ struct texture *renderFrame(struct renderer *r) {
 	r->state.render_aborted = false;
 	r->state.saveImage = true; // Set to false if user presses X
 	
-	size_t remoteThreads = 0;
-	for (size_t i = 0; i < r->state.clients.count; ++i) {
-		remoteThreads += r->state.clients.items[i].available_threads;
-	}
-	
-	if (r->state.clients.count) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clients.count, PLURAL(r->state.clients.count), remoteThreads, PLURAL(remoteThreads));
+	if (r->state.clients.count) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clients.count, PLURAL(r->state.clients.count), r->state.clients.count, PLURAL(r->state.clients.count));
 	
 	// Select the appropriate renderer type for local use
 	void *(*localRenderThread)(void *) = renderThread;
@@ -239,6 +228,7 @@ struct texture *renderFrame(struct renderer *r) {
 	}
 	for (size_t w = 0; w < r->state.workers.count; ++w) {
 		r->state.workers.items[w].thread.user_data = &r->state.workers.items[w];
+		r->state.workers.items[w].tiles = &set;
 		if (thread_start(&r->state.workers.items[w].thread))
 			logr(error, "Failed to start worker %zu\n", w);
 	}
@@ -251,7 +241,7 @@ struct texture *renderFrame(struct renderer *r) {
 		}
 		
 		if (r->state.cb.cr_renderer_status) {
-			update_cb_info(r, &cb_info);
+			update_cb_info(r, &set, &cb_info);
 			r->state.cb.cr_renderer_status(&cb_info);
 		}
 
@@ -269,11 +259,12 @@ struct texture *renderFrame(struct renderer *r) {
 		thread_wait(&r->state.workers.items[w].thread);
 	}
 	if (r->state.cb.cr_renderer_on_stop) {
-		update_cb_info(r, &cb_info);
+		update_cb_info(r, &set, &cb_info);
 		r->state.cb.cr_renderer_on_stop(&cb_info);
 	}
 	if (info_tiles) free(info_tiles);
 	destroyTexture(render_buf);
+	tile_set_free(&set);
 	return output;
 }
 
@@ -290,7 +281,7 @@ void *renderThreadInteractive(void *arg) {
 	struct camera *cam = threadState->cam;
 	
 	//First time setup for each thread
-	struct render_tile *tile = tile_next_interactive(r);
+	struct render_tile *tile = tile_next_interactive(r, threadState->tiles);
 	threadState->currentTile = tile;
 	
 	struct timeval timer = {0};
@@ -345,7 +336,7 @@ void *renderThreadInteractive(void *arg) {
 		tile->state = finished;
 		threadState->currentTile = NULL;
 		threadState->completedSamples = r->state.finishedPasses;
-		tile = tile_next_interactive(r);
+		tile = tile_next_interactive(r, threadState->tiles);
 		threadState->currentTile = tile;
 	}
 exit:
@@ -373,7 +364,7 @@ void *renderThread(void *arg) {
 	struct camera *cam = threadState->cam;
 
 	//First time setup for each thread
-	struct render_tile *tile = tile_next(r);
+	struct render_tile *tile = tile_next(r, threadState->tiles);
 	threadState->currentTile = tile;
 	
 	struct timeval timer = {0};
@@ -429,7 +420,7 @@ void *renderThread(void *arg) {
 		tile->state = finished;
 		threadState->currentTile = NULL;
 		threadState->completedSamples = 1;
-		tile = tile_next(r);
+		tile = tile_next(r, threadState->tiles);
 		threadState->currentTile = tile;
 	}
 exit:
@@ -462,8 +453,6 @@ struct renderer *renderer_new() {
 	r->prefs = defaults();
 	r->state.finishedPasses = 1;
 	
-	r->state.tile_mutex = mutex_create();
-
 	r->scene = calloc(1, sizeof(*r->scene));
 	r->scene->storage.node_pool = newBlock(NULL, 1024);
 	r->scene->storage.node_table = newHashtable(compareNodes, &r->scene->storage.node_pool);
@@ -473,9 +462,7 @@ struct renderer *renderer_new() {
 void renderer_destroy(struct renderer *r) {
 	if (!r) return;
 	scene_destroy(r->scene);
-	render_tile_arr_free(&r->state.tiles);
 	worker_arr_free(&r->state.workers);
-	free(r->state.tile_mutex);
 	render_client_arr_free(&r->state.clients);
 	if (r->state.file_cache) {
 		cache_destroy(r->state.file_cache);

@@ -23,6 +23,7 @@ struct worker {
 	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.
 	
 	//Share info about the current tile with main thread
+	struct tile_set *tiles;
 	struct render_tile *currentTile;
 	size_t completedSamples; //FIXME: Remove
 	uint64_t totalSamples;
@@ -40,8 +41,6 @@ dyn_array_def(worker);
 
 /// Renderer state data
 struct state {
-	struct render_tile_arr tiles;
-	struct cr_mutex *tile_mutex;
 
 	size_t finishedTileCount;
 	size_t finishedPasses; // For interactive mode

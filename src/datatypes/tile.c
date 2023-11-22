@@ -18,36 +18,36 @@
 
 static void tiles_reorder(struct render_tile_arr *tiles, enum render_order tileOrder);
 
-struct render_tile *tile_next(struct renderer *r) {
+struct render_tile *tile_next(struct renderer *r, struct tile_set *set) {
 	struct render_tile *tile = NULL;
-	mutex_lock(r->state.tile_mutex);
-	if (r->state.finishedTileCount < r->state.tiles.count) {
-		tile = &r->state.tiles.items[r->state.finishedTileCount];
+	mutex_lock(set->tile_mutex);
+	if (r->state.finishedTileCount < set->tiles.count) {
+		tile = &set->tiles.items[r->state.finishedTileCount];
 		tile->state = rendering;
 		tile->index = r->state.finishedTileCount++;
 	} else {
 		// If a network worker disappeared during render, finish those tiles locally here at the end
-		for (size_t t = 0; t < r->state.tiles.count; ++t) {
-			if (r->state.tiles.items[t].state == rendering && r->state.tiles.items[t].network_renderer) {
-				r->state.tiles.items[t].network_renderer = false;
-				tile = &r->state.tiles.items[t];
+		for (size_t t = 0; t < set->tiles.count; ++t) {
+			if (set->tiles.items[t].state == rendering && set->tiles.items[t].network_renderer) {
+				set->tiles.items[t].network_renderer = false;
+				tile = &set->tiles.items[t];
 				tile->state = rendering;
 				tile->index = t;
 				break;
 			}
 		}
 	}
-	mutex_release(r->state.tile_mutex);
+	mutex_release(set->tile_mutex);
 	return tile;
 }
 
-struct render_tile *tile_next_interactive(struct renderer *r) {
+struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *set) {
 	struct render_tile *tile = NULL;
-	mutex_lock(r->state.tile_mutex);
+	mutex_lock(set->tile_mutex);
 	again:
 	if (r->state.finishedPasses < r->prefs.sampleCount + 1) {
-		if (r->state.finishedTileCount < r->state.tiles.count) {
-			tile = &r->state.tiles.items[r->state.finishedTileCount];
+		if (r->state.finishedTileCount < set->tiles.count) {
+			tile = &set->tiles.items[r->state.finishedTileCount];
 			tile->state = rendering;
 			tile->index = r->state.finishedTileCount++;
 		} else {
@@ -56,41 +56,44 @@ struct render_tile *tile_next_interactive(struct renderer *r) {
 			goto again;
 		}
 	}
-	mutex_release(r->state.tile_mutex);
+	mutex_release(set->tile_mutex);
 	return tile;
 }
 
-unsigned tile_quantize(struct render_tile_arr *tiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum render_order tileOrder) {
-	
+struct tile_set tile_quantize(unsigned width, unsigned height, unsigned tile_w, unsigned tile_h, enum render_order order) {
+
 	logr(info, "Quantizing render plane\n");
-	
+
+	struct tile_set set = { 0 };
+	set.tile_mutex = mutex_create();
+
 	//Sanity check on tilesizes
-	if (tileWidth >= width) tileWidth = width;
-	if (tileHeight >= height) tileHeight = height;
-	if (tileWidth <= 0) tileWidth = 1;
-	if (tileHeight <= 0) tileHeight = 1;
-	
-	unsigned tilesX = width / tileWidth;
-	unsigned tilesY = height / tileHeight;
-	
-	tilesX = (width % tileWidth) != 0 ? tilesX + 1: tilesX;
-	tilesY = (height % tileHeight) != 0 ? tilesY + 1: tilesY;
+	if (tile_w >= width) tile_w = width;
+	if (tile_h >= height) tile_h = height;
+	if (tile_w <= 0) tile_w = 1;
+	if (tile_h <= 0) tile_h = 1;
+
+	unsigned tiles_x = width / tile_w;
+	unsigned tiles_y = height / tile_h;
+
+	tiles_x = (width % tile_w) != 0 ? tiles_x + 1: tiles_x;
+	tiles_y = (height % tile_h) != 0 ? tiles_y + 1: tiles_y;
 
 	int tileCount = 0;
-	for (unsigned y = 0; y < tilesY; ++y) {
-		for (unsigned x = 0; x < tilesX; ++x) {
+	for (unsigned y = 0; y < tiles_y; ++y) {
+		for (unsigned x = 0; x < tiles_x; ++x) {
 			struct render_tile tile = { 0 };
-			tile.width  = tileWidth;
-			tile.height = tileHeight;
+			tile.width  = tile_w;
+			tile.height = tile_h;
 			
-			tile.begin.x = x       * tileWidth;
-			tile.end.x   = (x + 1) * tileWidth;
+			tile.begin.x = x       * tile_w;
+			tile.end.x   = (x + 1) * tile_w;
 			
-			tile.begin.y = y       * tileHeight;
-			tile.end.y   = (y + 1) * tileHeight;
+			tile.begin.y = y       * tile_h;
+			tile.end.y   = (y + 1) * tile_h;
 			
-			tile.end.x = min((x + 1) * tileWidth, width);
-			tile.end.y = min((y + 1) * tileHeight, height);
+			tile.end.x = min((x + 1) * tile_w, width);
+			tile.end.y = min((y + 1) * tile_h, height);
 			
 			tile.width = tile.end.x - tile.begin.x;
 			tile.height = tile.end.y - tile.begin.y;
@@ -98,16 +101,21 @@ unsigned tile_quantize(struct render_tile_arr *tiles, unsigned width, unsigned h
 			tile.state = ready_to_render;
 
 			tile.index = tileCount++;
-			render_tile_arr_add(tiles, tile);
+			render_tile_arr_add(&set.tiles, tile);
 		}
 	}
-	logr(info, "Quantized image into %i tiles. (%ix%i)\n", (tilesX*tilesY), tilesX, tilesY);
-	
-	tiles_reorder(tiles, tileOrder);
-	
-	return tileCount;
+	logr(info, "Quantized image into %i tiles. (%ix%i)\n", (tiles_x * tiles_y), tiles_x, tiles_y);
+
+	tiles_reorder(&set.tiles, order);
+
+	return set;
 }
 
+void tile_set_free(struct tile_set *set) {
+	render_tile_arr_free(&set->tiles);
+	if (set->tile_mutex) free(set->tile_mutex);
+	set->tile_mutex = NULL;
+}
 static void reorder_top_to_bottom(struct render_tile_arr *tiles) {
 	struct render_tile_arr temp = { 0 };
 	

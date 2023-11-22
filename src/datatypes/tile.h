@@ -10,6 +10,7 @@
 
 #include "../includes.h"
 #include "../utils/dyn_array.h"
+#include "../utils/platform/mutex.h"
 
 #include "vector.h"
 
@@ -44,9 +45,14 @@ struct render_tile {
 typedef struct render_tile render_tile;
 dyn_array_def(render_tile);
 
-/// Quantize the render plane into an array of tiles, with properties as specified in the parameters below
-unsigned tile_quantize(struct render_tile_arr *tiles, unsigned width, unsigned height, unsigned tileWidth, unsigned tileHeight, enum render_order tileOrder);
+struct tile_set {
+	struct render_tile_arr tiles;
+	struct cr_mutex *tile_mutex;
+};
 
-struct render_tile *tile_next(struct renderer *r);
+struct tile_set tile_quantize(unsigned width, unsigned height, unsigned tile_w, unsigned tile_h, enum render_order order);
+void tile_set_free(struct tile_set *set);
 
-struct render_tile *tile_next_interactive(struct renderer *r);
+struct render_tile *tile_next(struct renderer *r, struct tile_set *set);
+
+struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *set);

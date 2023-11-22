@@ -135,7 +135,7 @@ static struct render_client_arr build_client_list(const char *node_list) {
 static cJSON *handle_get_work(struct worker *state, const cJSON *json) {
 	(void)state;
 	(void)json;
-	struct render_tile *tile = tile_next(state->renderer);
+	struct render_tile *tile = tile_next(state->renderer, state->tiles);
 	if (!tile) return newAction("renderComplete");
 	tile->network_renderer = true;
 	cJSON *response = newAction("newWork");
@@ -148,8 +148,8 @@ static cJSON *handle_submit_work(struct worker *state, const cJSON *json) {
 	struct texture *texture = decodeTexture(result);
 	cJSON *tile_json = cJSON_GetObjectItem(json, "tile");
 	struct render_tile tile = decodeTile(tile_json);
-	state->renderer->state.tiles.items[tile.index] = tile;
-	state->renderer->state.tiles.items[tile.index].state = finished; // FIXME: Remove
+	state->tiles->tiles.items[tile.index] = tile;
+	state->tiles->tiles.items[tile.index].state = finished; // FIXME: Remove
 	for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 		for (int x = tile.begin.x; x < tile.end.x; ++x) {
 			struct color value = textureGetPixel(texture, x - tile.begin.x, y - tile.begin.y, false);
@@ -231,7 +231,7 @@ void *client_connection_thread(void *arg) {
 				cJSON *tile = NULL;
 				cJSON_ArrayForEach(tile, array) {
 					struct render_tile t = decodeTile(tile);
-					r->state.tiles.items[t.index] = t;
+					state->tiles->tiles.items[t.index] = t;
 					//r->state.renderTiles[t.tileNum].completed_samples = t.completed_samples;
 				}
 			}

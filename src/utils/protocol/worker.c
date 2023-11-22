@@ -57,6 +57,7 @@ struct workerThreadState {
 	size_t completedSamples;
 	long avgSampleTime;
 	struct render_tile *current;
+	struct tile_set *tiles;
 };
 
 static cJSON *validateHandshake(cJSON *in) {
@@ -100,7 +101,7 @@ static cJSON *receiveScene(const cJSON *json) {
 }
 
 // Tilenum of -1 communicates that it failed to get work, signaling the work thread to exit
-static struct render_tile *getWork(int connectionSocket) {
+static struct render_tile *getWork(int connectionSocket, struct tile_set *tiles) {
 	if (!sendJSON(connectionSocket, newAction("getWork"), NULL)) {
 		return NULL;
 	}
@@ -118,9 +119,9 @@ static struct render_tile *getWork(int connectionSocket) {
 	// we can just keep track of indices, and compute the tile dims
 	cJSON *tileJson = cJSON_GetObjectItem(response, "tile");
 	struct render_tile tile = decodeTile(tileJson);
-	g_worker_renderer->state.tiles.items[tile.index] = tile;
+	tiles->tiles.items[tile.index] = tile;
 	cJSON_Delete(response);
-	return &g_worker_renderer->state.tiles.items[tile.index];
+	return &tiles->tiles.items[tile.index];
 }
 
 static bool submitWork(int sock, struct texture *work, struct render_tile *forTile) {
@@ -141,7 +142,7 @@ static void *workerThread(void *arg) {
 	
 	//Fetch initial task
 	mutex_lock(sockMutex);
-	thread->current = getWork(sock);
+	thread->current = getWork(sock, thread->tiles);
 	mutex_release(sockMutex);
 	struct texture *tileBuffer = newTexture(float_p, thread->current->width, thread->current->height, 3);
 	sampler *sampler = newSampler();
@@ -205,7 +206,7 @@ static void *workerThread(void *arg) {
 		mutex_release(sockMutex);
 		thread->completedSamples = 1;
 		mutex_lock(sockMutex);
-		thread->current = getWork(sock);
+		thread->current = getWork(sock, thread->tiles);
 		mutex_release(sockMutex);
 		tex_clear(tileBuffer);
 	}
@@ -243,12 +244,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 		KNRM,
 		PLURAL(r->prefs.threads));
 	//Quantize image into renderTiles
-	tile_quantize(&r->state.tiles,
-					selected_cam.width,
-					selected_cam.height,
-					r->prefs.tileWidth,
-					r->prefs.tileHeight,
-					r->prefs.tileOrder);
+	struct tile_set set = tile_quantize(selected_cam.width, selected_cam.height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
 
 	logr(info, "%u x %u tiles\n", r->prefs.tileWidth, r->prefs.tileHeight);
 	// Do some pre-render preparations
@@ -263,14 +259,14 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	printSmartTime(timer_get_ms(timer));
 	logr(plain, "\n");
 
-	for (size_t i = 0; i < r->state.tiles.count; ++i)
-		r->state.tiles.items[i].total_samples = r->prefs.sampleCount;
+	for (size_t i = 0; i < set.tiles.count; ++i)
+		set.tiles.items[i].total_samples = r->prefs.sampleCount;
 
 	//Print a useful warning to user if the defined tile size results in less renderThreads
-	if (r->state.tiles.count < r->prefs.threads) {
+	if (set.tiles.count < r->prefs.threads) {
 		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
-		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, r->state.tiles.count);
-		r->prefs.threads = r->state.tiles.count;
+		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, set.tiles.count);
+		r->prefs.threads = set.tiles.count;
 	}
 
 	//Create render threads (Nonblocking)
@@ -280,6 +276,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 				.connectionSocket = connectionSocket,
 				.socketMutex = g_worker_socket_mutex,
 				.renderer = g_worker_renderer,
+				.tiles = &set,
 				.cam = &selected_cam};
 		worker_threads[t] = (struct cr_thread){.thread_fn = workerThread, .user_data = &workerThreadStates[t]};
 		if (thread_start(&worker_threads[t]))
