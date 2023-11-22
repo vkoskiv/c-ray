@@ -17,9 +17,9 @@
 #include "../utils/args.h"
 #include "../utils/platform/terminal.h"
 #include "../datatypes/image/imagefile.h"
-#include "../utils/encoders/encoder.h"
 #include "../utils/timer.h"
 #include "../utils/hashtable.h"
+#include "encoders/encoder.h"
 #include "sdl.h"
 
 struct usr_data {

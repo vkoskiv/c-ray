@@ -10,9 +10,9 @@
 
 #include "../../datatypes/image/texture.h"
 #include "../../datatypes/image/imagefile.h"
-#include "../logging.h"
+#include "../../utils/logging.h"
 #include "../../vendored/asprintf.h"
-#include "../assert.h"
+#include "../../utils/assert.h"
 
 #include "formats/png.h"
 #include "formats/bmp.h"

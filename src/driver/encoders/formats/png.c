@@ -12,7 +12,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../logging.h"
+#include "../../../utils/fileio.h"
+#include "../../../utils/logging.h"
 
 #include "../../../vendored/lodepng.h"
 

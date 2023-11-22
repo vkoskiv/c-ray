@@ -11,7 +11,7 @@
 #include <string.h>
 #include "bmp.h"
 
-#include "../../fileio.h"
+#include "../../../utils/fileio.h"
 
 void encodeBMPFromArray(const char *file_name, const unsigned char *imgData, size_t width, size_t height) {
 	//Apparently BMP is BGR, whereas C-ray's internal buffer is RGB (Like it should be)
