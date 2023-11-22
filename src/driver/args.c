@@ -7,21 +7,22 @@
 //
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdio.h>
 #include "args.h"
-#include "hashtable.h"
-#include <string.h>
-#include "logging.h"
-#include "fileio.h"
-#include "assert.h"
-#include "platform/terminal.h"
-#include "platform/capabilities.h"
-#include <stdlib.h>
-#include "textbuffer.h"
-#include "testrunner.h"
-#include "string.h"
-#include "protocol/server.h"
+
+#include "../utils/platform/terminal.h"
+#include "../utils/platform/capabilities.h"
+#include "../utils/hashtable.h"
+#include "../utils/logging.h"
+#include "../utils/fileio.h"
+#include "../utils/assert.h"
+#include "../utils/textbuffer.h"
+#include "../utils/testrunner.h"
+#include "../utils/string.h"
+#include "../utils/protocol/server.h"
 
 static void printUsage(const char *progname) {
 	printf("Usage: %s [-hjsdtocv] [input_json...]\n", progname);
