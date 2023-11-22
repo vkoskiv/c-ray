@@ -380,9 +380,9 @@ struct transform parse_composite_transform(const cJSON *transforms) {
 	return composite;
 }
 
-struct bsdf_node_desc *global_desc(struct material_arr file_mats, const cJSON *global_overrides, size_t idx) {
+struct cr_shader_node *global_desc(struct material_arr file_mats, const cJSON *global_overrides, size_t idx) {
 	if (idx >= file_mats.count) return NULL;
-	struct bsdf_node_desc *match = NULL;
+	struct cr_shader_node *match = NULL;
 	const cJSON *override = NULL;
 	cJSON_ArrayForEach(override, global_overrides) {
 		const cJSON *name = cJSON_GetObjectItem(override, "replace");
@@ -427,7 +427,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	// FIXME: 0 index hack relies on wavefront parser behaviour that may change
 	struct material_arr file_mats = meshes.items[0].mbuf->materials;
 	for (size_t i = 0; i < file_mats.count; ++i) {
-		struct bsdf_node_desc *desc = global_desc(file_mats, global_overrides, i);
+		struct cr_shader_node *desc = global_desc(file_mats, global_overrides, i);
 		cr_material_set_add(r, file_set, desc);
 		cr_node_bsdf_desc_del(desc);
 	}
@@ -471,7 +471,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 			cr_material_set *instance_set = cr_material_set_new();
 			const cJSON *instance_overrides = cJSON_GetObjectItem(instance, "materials");
 			for (size_t i = 0; i < file_mats.count; ++i) {
-				struct bsdf_node_desc *override_match = NULL;
+				struct cr_shader_node *override_match = NULL;
 				const cJSON *override = NULL;
 				cJSON_ArrayForEach(override, instance_overrides) {
 					const cJSON *name = cJSON_GetObjectItem(override, "replace");
@@ -484,7 +484,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 					cr_material_set_add(r, instance_set, override_match);
 					cr_node_bsdf_desc_del(override_match);
 				} else {
-					struct bsdf_node_desc *global = global_desc(file_mats, global_overrides, i);
+					struct cr_shader_node *global = global_desc(file_mats, global_overrides, i);
 					cr_material_set_add(r, instance_set, global);
 					cr_node_bsdf_desc_del(global);
 				}
@@ -548,7 +548,7 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 				} else {
 					material = materials;
 				}
-				struct bsdf_node_desc *desc = build_bsdf_node_desc(material);
+				struct cr_shader_node *desc = build_bsdf_node_desc(material);
 				cr_material_set_add(r, instance_set, desc);
 				cr_node_bsdf_desc_del(desc);
 

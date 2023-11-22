@@ -431,7 +431,7 @@ cr_material_set *cr_material_set_new(void) {
 	return (cr_material_set *)bsdf_buf_ref(NULL);
 }
 
-void cr_material_set_add(struct cr_renderer *r_ext, cr_material_set *set, struct bsdf_node_desc *desc) {
+void cr_material_set_add(struct cr_renderer *r_ext, cr_material_set *set, struct cr_shader_node *desc) {
 	if (!set || !desc) return;
 	struct bsdf_buffer *buf = (struct bsdf_buffer *)set;
 	const struct bsdfNode *node = build_bsdf_node(r_ext, desc);

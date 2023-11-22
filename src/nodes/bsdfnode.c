@@ -32,7 +32,7 @@ void bsdf_buf_unref(struct bsdf_buffer *buf) {
 	free(buf);
 }
 
-const struct bsdfNode *build_bsdf_node(struct cr_renderer *r_ext, const struct bsdf_node_desc *desc) {
+const struct bsdfNode *build_bsdf_node(struct cr_renderer *r_ext, const struct cr_shader_node *desc) {
 	if (!r_ext) return NULL;
 	struct renderer *r = (struct renderer *)r_ext;
 	struct node_storage s = r->scene->storage;

@@ -59,7 +59,7 @@ const struct valueNode *newConstantValue(const struct node_storage *s, float val
 	});
 }
 
-const struct valueNode *build_value_node(struct cr_renderer *r_ext, const struct value_node_desc *desc) {
+const struct valueNode *build_value_node(struct cr_renderer *r_ext, const struct cr_value_node *desc) {
 	if (!r_ext || !desc) return NULL;
 	struct renderer *r = (struct renderer *)r_ext;
 	struct node_storage s = r->scene->storage;

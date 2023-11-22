@@ -99,7 +99,7 @@ const struct vectorNode *newConstantUV(const struct node_storage *s, const struc
 	});
 }
 
-const struct vectorNode *build_vector_node(struct cr_renderer *r_ext, const struct vector_node_desc *desc) {
+const struct vectorNode *build_vector_node(struct cr_renderer *r_ext, const struct cr_vector_node *desc) {
 	if (!r_ext || !desc) return NULL;
 	struct renderer *r = (struct renderer *)r_ext;
 	struct node_storage s = r->scene->storage;

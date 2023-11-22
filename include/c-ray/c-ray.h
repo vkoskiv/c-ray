@@ -171,7 +171,7 @@ bool cr_camera_update(struct cr_scene *ext, cr_camera c);
 
 typedef struct cr_material_set cr_material_set;
 cr_material_set *cr_material_set_new(void);
-void cr_material_set_add(struct cr_renderer *r_ext, cr_material_set *set, struct bsdf_node_desc *desc);
+void cr_material_set_add(struct cr_renderer *r_ext, cr_material_set *set, struct cr_shader_node *desc);
 void cr_material_set_del(cr_material_set *set);
 
 void cr_load_mesh_from_file(char *filePath);

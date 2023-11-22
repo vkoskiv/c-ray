@@ -54,7 +54,7 @@ enum cr_math_op {
 	ToDegrees,
 };
 
-struct value_node_desc {
+struct cr_value_node {
 	enum value_node_type {
 		cr_vn_unknown = 0,
 		cr_vn_constant,
@@ -71,49 +71,49 @@ struct value_node_desc {
 		double constant;
 
 		struct fresnel_params {
-			struct value_node_desc *IOR;
-			struct vector_node_desc *normal;
+			struct cr_value_node *IOR;
+			struct cr_vector_node *normal;
 		} fresnel;
 
 		struct map_range_params {
-			struct value_node_desc *input_value;
-			struct value_node_desc *from_min;
-			struct value_node_desc *from_max;
-			struct value_node_desc *to_min;
-			struct value_node_desc *to_max;
+			struct cr_value_node *input_value;
+			struct cr_value_node *from_min;
+			struct cr_value_node *from_max;
+			struct cr_value_node *to_min;
+			struct cr_value_node *to_max;
 		} map_range;
 
 		struct alpha_params {
-			struct color_node_desc *color;
+			struct cr_color_node *color;
 		} alpha;
 
 		struct vec_to_value_params {
 			enum cr_vec_to_value_component {
 				X, Y, Z, U, V, F
 			} comp;
-			struct vector_node_desc *vec;
+			struct cr_vector_node *vec;
 		} vec_to_value;
 
 		struct math_params {
-			struct value_node_desc *A;
-			struct value_node_desc *B;
+			struct cr_value_node *A;
+			struct cr_value_node *B;
 			enum cr_math_op op;
 		} math;
 
 		struct grayscale_params {
-			struct color_node_desc *color;
+			struct cr_color_node *color;
 		} grayscale;
 
 	} arg;
 };
 
 struct cJSON;
-struct value_node_desc *build_value_node_desc(const struct cJSON *node);
-void cr_node_value_desc_del(struct value_node_desc *d);
+struct cr_value_node *build_value_node_desc(const struct cJSON *node);
+void cr_node_value_desc_del(struct cr_value_node *d);
 
 // ------
 
-struct color_node_desc {
+struct cr_color_node {
 	enum color_node_type {
 		cr_cn_unknown = 0,
 		cr_cn_constant,
@@ -135,41 +135,41 @@ struct color_node_desc {
 		} image;
 
 		struct checkerboard_params {
-			struct color_node_desc *a;
-			struct color_node_desc *b;
-			struct value_node_desc *scale;
+			struct cr_color_node *a;
+			struct cr_color_node *b;
+			struct cr_value_node *scale;
 		} checkerboard;
 
 		struct blackbody_params {
-			struct value_node_desc *degrees;
+			struct cr_value_node *degrees;
 		} blackbody;
 
 		struct split_params {
-			struct value_node_desc *node;
+			struct cr_value_node *node;
 		} split;
 
 		struct rgb_params {
-			struct value_node_desc *red;
-			struct value_node_desc *green;
-			struct value_node_desc *blue;
+			struct cr_value_node *red;
+			struct cr_value_node *green;
+			struct cr_value_node *blue;
 			// Alpha?
 		} rgb;
 
 		struct hsl_params {
-			struct value_node_desc *H;
-			struct value_node_desc *S;
-			struct value_node_desc *L;
+			struct cr_value_node *H;
+			struct cr_value_node *S;
+			struct cr_value_node *L;
 		} hsl;
 
 		struct vec_to_color_params {
-			struct vector_node_desc *vec;
+			struct cr_vector_node *vec;
 		} vec_to_color;
 
 	} arg;
 };
 
-struct color_node_desc *build_color_node_desc(const struct cJSON *desc);
-void cr_node_color_desc_del(struct color_node_desc *d);
+struct cr_color_node *build_color_node_desc(const struct cJSON *desc);
+void cr_node_color_desc_del(struct cr_color_node *d);
 
 // -----
 
@@ -206,7 +206,7 @@ enum cr_vec_op {
 	VecTan,
 };
 
-struct vector_node_desc {
+struct cr_vector_node {
 	enum cr_vector_node_type {
 		cr_vec_unknown = 0,
 		cr_vec_constant,
@@ -220,27 +220,27 @@ struct vector_node_desc {
 		struct cr_vector constant;
 
 		struct cr_vecmath_params {
-			struct vector_node_desc *A;
-			struct vector_node_desc *B;
-			struct vector_node_desc *C;
-			struct value_node_desc *f;
+			struct cr_vector_node *A;
+			struct cr_vector_node *B;
+			struct cr_vector_node *C;
+			struct cr_value_node *f;
 			enum cr_vec_op op;
 		} vecmath;
 
 		struct cr_vec_mix_params {
-			struct vector_node_desc *A;
-			struct vector_node_desc *B;
-			struct value_node_desc *factor;
+			struct cr_vector_node *A;
+			struct cr_vector_node *B;
+			struct cr_value_node *factor;
 		} vec_mix;
 
 	} arg;
 };
 
-struct vector_node_desc *build_vector_node_desc(const struct cJSON *node);
-void cr_node_vector_desc_del(struct vector_node_desc *d);
+struct cr_vector_node *build_vector_node_desc(const struct cJSON *node);
+void cr_node_vector_desc_del(struct cr_vector_node *d);
 
 
-struct bsdf_node_desc {
+struct cr_shader_node {
 	enum cr_bsdf_node_type {
 		cr_bsdf_unknown = 0,
 		cr_bsdf_diffuse,
@@ -256,52 +256,52 @@ struct bsdf_node_desc {
 
 	union {
 		struct diffuse_args {
-			struct color_node_desc *color;
+			struct cr_color_node *color;
 		} diffuse;
 
 		struct metal_args {
-			struct color_node_desc *color;
-			struct value_node_desc *roughness;
+			struct cr_color_node *color;
+			struct cr_value_node *roughness;
 		} metal;
 
 		struct glass_args {
-			struct color_node_desc *color;
-			struct value_node_desc *roughness;
-			struct value_node_desc *IOR;
+			struct cr_color_node *color;
+			struct cr_value_node *roughness;
+			struct cr_value_node *IOR;
 		} glass;
 
 		struct plastic_args {
-			struct color_node_desc *color;
-			struct value_node_desc *roughness;
-			struct value_node_desc *IOR;
+			struct cr_color_node *color;
+			struct cr_value_node *roughness;
+			struct cr_value_node *IOR;
 		} plastic;
 
 		struct mix_args {
-			struct bsdf_node_desc *A;
-			struct bsdf_node_desc *B;
-			struct value_node_desc *factor;
+			struct cr_shader_node *A;
+			struct cr_shader_node *B;
+			struct cr_value_node *factor;
 		} mix;
 
 		struct add_args {
-			struct bsdf_node_desc *A;
-			struct bsdf_node_desc *B;
+			struct cr_shader_node *A;
+			struct cr_shader_node *B;
 		} add;
 
 		struct transparent_args {
-			struct color_node_desc *color;
+			struct cr_color_node *color;
 		} transparent;
 
 		struct emissive_args {
-			struct color_node_desc *color;
-			struct value_node_desc *strength;
+			struct cr_color_node *color;
+			struct cr_value_node *strength;
 		} emissive;
 
 		struct translucent_args {
-			struct color_node_desc *color;
+			struct cr_color_node *color;
 		} translucent;
 
 	} arg;
 };
 
-struct bsdf_node_desc *build_bsdf_node_desc(const struct cJSON *node);
-void cr_node_bsdf_desc_del(struct bsdf_node_desc *d);
+struct cr_shader_node *build_bsdf_node_desc(const struct cJSON *node);
+void cr_node_bsdf_desc_del(struct cr_shader_node *d);

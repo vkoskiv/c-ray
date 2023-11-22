@@ -55,4 +55,4 @@ void bsdf_buf_unref(struct bsdf_buffer *buf);
 #include "shaders/translucent.h"
 
 const struct bsdfNode *warningBsdf(const struct node_storage *s);
-const struct bsdfNode *build_bsdf_node(struct cr_renderer *r_ext, const struct bsdf_node_desc *desc);
+const struct bsdfNode *build_bsdf_node(struct cr_renderer *r_ext, const struct cr_shader_node *desc);

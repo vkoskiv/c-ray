@@ -35,4 +35,4 @@ struct colorNode {
 
 // const struct colorNode *unknownTextureNode(const struct node_storage *s);
 
-const struct colorNode *build_color_node(struct cr_renderer *r_ext, const struct color_node_desc *desc);
+const struct colorNode *build_color_node(struct cr_renderer *r_ext, const struct cr_color_node *desc);

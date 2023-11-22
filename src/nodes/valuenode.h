@@ -29,4 +29,4 @@ struct valueNode {
 
 const struct valueNode *newConstantValue(const struct node_storage *s, float value);
 
-const struct valueNode *build_value_node(struct cr_renderer *r_ext, const struct value_node_desc *desc);
+const struct valueNode *build_value_node(struct cr_renderer *r_ext, const struct cr_value_node *desc);

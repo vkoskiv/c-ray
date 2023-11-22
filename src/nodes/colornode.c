@@ -24,7 +24,7 @@
 // 	return newConstantTexture(s, g_black_color);
 // }
 
-const struct colorNode *build_color_node(struct cr_renderer *r_ext, const struct color_node_desc *desc) {
+const struct colorNode *build_color_node(struct cr_renderer *r_ext, const struct cr_color_node *desc) {
 	if (!r_ext || !desc) return NULL;
 	struct renderer *r = (struct renderer *)r_ext;
 	struct file_cache *cache = r->state.file_cache;
