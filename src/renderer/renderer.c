@@ -210,7 +210,7 @@ struct texture *renderFrame(struct renderer *r) {
 	
 	//Allocate memory for render buffer
 	//Render buffer is used to store accurate color values for the renderers' internal use
-	r->state.renderBuffer = newTexture(float_p, camera.width, camera.height, 3);
+	struct texture *render_buf = newTexture(float_p, camera.width, camera.height, 3);
 	
 	// Create & boot workers (Nonblocking)
 	// Local render threads + one thread for every client
@@ -218,6 +218,7 @@ struct texture *renderFrame(struct renderer *r) {
 		worker_arr_add(&r->state.workers, (struct worker){
 			.renderer = r,
 			.output = output,
+			.buf = render_buf,
 			.cam = &camera,
 			.thread = (struct cr_thread){
 				.thread_fn = localRenderThread,
@@ -229,6 +230,7 @@ struct texture *renderFrame(struct renderer *r) {
 			.client = &r->state.clients.items[c],
 			.renderer = r,
 			.output = output,
+			.buf = render_buf,
 			.cam = &camera,
 			.thread = (struct cr_thread){
 				.thread_fn = client_connection_thread
@@ -271,6 +273,7 @@ struct texture *renderFrame(struct renderer *r) {
 		r->state.cb.cr_renderer_on_stop(&cb_info);
 	}
 	if (info_tiles) free(info_tiles);
+	destroyTexture(render_buf);
 	return output;
 }
 
@@ -281,6 +284,7 @@ void *renderThreadInteractive(void *arg) {
 	struct worker *threadState = (struct worker*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
+	struct texture *buf = threadState->buf;
 	sampler *sampler = newSampler();
 
 	struct camera *cam = threadState->cam;
@@ -306,7 +310,7 @@ void *renderThreadInteractive(void *arg) {
 				//the tiles in one go per sample, instead of the other way around.
 				initSampler(sampler, SAMPLING_STRATEGY, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
-				struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
+				struct color output = textureGetPixel(buf, x, y, false);
 				struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
 
 				nan_clamp(&sample, &output);
@@ -318,7 +322,7 @@ void *renderThreadInteractive(void *arg) {
 				output = colorCoef(t, output);
 				
 				//Store internal render buffer (float precision)
-				setPixel(r->state.renderBuffer, output, x, y);
+				setPixel(buf, output, x, y);
 				
 				//Gamma correction
 				output = colorToSRGB(output);
@@ -363,6 +367,7 @@ void *renderThread(void *arg) {
 	struct worker *threadState = (struct worker*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
 	struct texture *image = threadState->output;
+	struct texture *buf = threadState->buf;
 	sampler *sampler = newSampler();
 
 	struct camera *cam = threadState->cam;
@@ -386,7 +391,7 @@ void *renderThread(void *arg) {
 					uint32_t pixIdx = (uint32_t)(y * image->width + x);
 					initSampler(sampler, SAMPLING_STRATEGY, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
-					struct color output = textureGetPixel(r->state.renderBuffer, x, y, false);
+					struct color output = textureGetPixel(buf, x, y, false);
 					struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
 					
 					// Clamp out fireflies - This is probably not a good way to do that.
@@ -399,7 +404,7 @@ void *renderThread(void *arg) {
 					output = colorCoef(t, output);
 					
 					//Store internal render buffer (float precision)
-					setPixel(r->state.renderBuffer, output, x, y);
+					setPixel(buf, output, x, y);
 					
 					//Gamma correction
 					output = colorToSRGB(output);
@@ -468,7 +473,6 @@ struct renderer *renderer_new() {
 void renderer_destroy(struct renderer *r) {
 	if (!r) return;
 	scene_destroy(r->scene);
-	if (r->state.renderBuffer) destroyTexture(r->state.renderBuffer);
 	render_tile_arr_free(&r->state.tiles);
 	worker_arr_free(&r->state.workers);
 	free(r->state.tile_mutex);

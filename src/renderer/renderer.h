@@ -32,6 +32,7 @@ struct worker {
 	struct camera *cam;
 	struct renderer *renderer;
 	struct texture *output;
+	struct texture *buf;
 	struct render_client *client; // Optional
 };
 typedef struct worker worker;
@@ -44,7 +45,6 @@ struct state {
 
 	size_t finishedTileCount;
 	size_t finishedPasses; // For interactive mode
-	struct texture *renderBuffer; //float-precision buffer for multisampling
 	bool rendering;
 	bool render_aborted; //SDL listens for X key pressed, which sets this
 	bool saveImage;
