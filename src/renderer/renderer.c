@@ -457,7 +457,7 @@ struct renderer *renderer_new() {
 	r->prefs = defaults();
 	r->state.finishedPasses = 1;
 	
-	r->state.tileMutex = mutex_create();
+	r->state.tile_mutex = mutex_create();
 
 	r->scene = calloc(1, sizeof(*r->scene));
 	r->scene->storage.node_pool = newBlock(NULL, 1024);
@@ -471,7 +471,7 @@ void renderer_destroy(struct renderer *r) {
 	if (r->state.renderBuffer) destroyTexture(r->state.renderBuffer);
 	render_tile_arr_free(&r->state.tiles);
 	worker_arr_free(&r->state.workers);
-	free(r->state.tileMutex);
+	free(r->state.tile_mutex);
 	render_client_arr_free(&r->state.clients);
 	if (r->state.file_cache) {
 		cache_destroy(r->state.file_cache);

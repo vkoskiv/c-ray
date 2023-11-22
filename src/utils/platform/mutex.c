@@ -17,34 +17,34 @@
 
 struct cr_mutex {
 	#ifdef WINDOWS
-		HANDLE tileMutex; // = INVALID_HANDLE_VALUE;
+		HANDLE lock; // = INVALID_HANDLE_VALUE;
 	#else
-		pthread_mutex_t tileMutex; // = PTHREAD_MUTEX_INITIALIZER;
+		pthread_mutex_t lock; // = PTHREAD_MUTEX_INITIALIZER;
 	#endif
 };
 
 struct cr_mutex *mutex_create() {
 	struct cr_mutex *new = calloc(1, sizeof(*new));
 #ifdef WINDOWS
-	new->tileMutex = CreateMutex(NULL, FALSE, NULL);
+	new->lock = CreateMutex(NULL, FALSE, NULL);
 #else
-	new->tileMutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+	new->lock = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 #endif
 	return new;
 }
 
 void mutex_lock(struct cr_mutex *m) {
 #ifdef WINDOWS
-	WaitForSingleObject(m->tileMutex, INFINITE);
+	WaitForSingleObject(m->lock, INFINITE);
 #else
-	pthread_mutex_lock(&m->tileMutex);
+	pthread_mutex_lock(&m->lock);
 #endif
 }
 
 void mutex_release(struct cr_mutex *m) {
 #ifdef WINDOWS
-	ReleaseMutex(m->tileMutex);
+	ReleaseMutex(m->lock);
 #else
-	pthread_mutex_unlock(&m->tileMutex);
+	pthread_mutex_unlock(&m->lock);
 #endif
 }

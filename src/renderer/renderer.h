@@ -40,6 +40,8 @@ dyn_array_def(worker);
 /// Renderer state data
 struct state {
 	struct render_tile_arr tiles;
+	struct cr_mutex *tile_mutex;
+
 	size_t finishedTileCount;
 	size_t finishedPasses; // For interactive mode
 	struct texture *renderBuffer; //float-precision buffer for multisampling
@@ -50,7 +52,6 @@ struct state {
 	struct render_client_arr clients;
 	struct file_cache *file_cache; // A file cache for network render nodes. NULL if only local render.
 	
-	struct cr_mutex *tileMutex;
 	struct cr_renderer_callbacks cb;
 };
 
