@@ -80,18 +80,15 @@ struct material_arr parse_mtllib(const char *filePath, struct file_cache *cache)
 		} else if (stringEquals(first, "map_Kd") || stringEquals(first, "map_Ka")) {
 			char *path = stringConcat(assetPath, nextToken(&line));
 			windowsFixPath(path);
-			current->texture = load_texture(path, NULL, cache);
-			free(path);
+			current->texture_path = path;
 		} else if (stringEquals(first, "norm") || stringEquals(first, "bump") || stringEquals(first, "map_bump")) {
 			char *path = stringConcat(assetPath, nextToken(&line));
 			windowsFixPath(path);
-			current->normalMap = load_texture(path, NULL, cache);
-			free(path);
+			current->normal_path = path;
 		} else if (stringEquals(first, "map_Ns")) {
 			char *path = stringConcat(assetPath, nextToken(&line));
 			windowsFixPath(path);
-			current->specularMap = load_texture(path, NULL, cache);
-			free(path);
+			current->specular_path = path;
 		} else {
 			char *fileName = get_file_name(filePath);
 			logr(debug, "Unknown statement \"%s\" in MTL \"%s\" on line %zu\n",

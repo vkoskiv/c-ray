@@ -63,9 +63,9 @@ enum bsdfType {
 
 struct material {
 	char *name;
-	struct texture *texture;
-	struct texture *normalMap;
-	struct texture *specularMap;
+	char *texture_path;
+	char *normal_path;
+	char *specular_path;
 	struct color diffuse;
 	struct color specular;
 	struct color emission;
@@ -100,7 +100,7 @@ struct material warningMaterial(void);
 
 struct node_storage;
 
-const struct bsdfNode *try_to_guess_bsdf(const struct node_storage *s, const struct material *mat);
+struct bsdf_node_desc *try_to_guess_bsdf(const struct material *mat);
 
 #include "../utils/mempool.h"
 #include "../nodes/valuenode.h" //FIXME: Remove

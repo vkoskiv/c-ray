@@ -10,8 +10,10 @@
 #include "../datatypes/color.h"
 #include "../datatypes/material.h"
 #include "../renderer/renderer.h"
+#include "../datatypes/scene.h"
 #include "../utils/string.h"
 #include "bsdfnode.h"
+#include <c-ray/c-ray.h>
 
 struct bsdf_buffer *bsdf_buf_ref(struct bsdf_buffer *buf) {
 	if (buf) {
@@ -30,51 +32,40 @@ void bsdf_buf_unref(struct bsdf_buffer *buf) {
 	free(buf);
 }
 
-const struct bsdfNode *warningBsdf(const struct node_storage *s) {
-	return newMix(s,
-				  newDiffuse(s, newConstantTexture(s, warningMaterial().diffuse)),
-				  newDiffuse(s, newConstantTexture(s, (struct color){0.2f, 0.2f, 0.2f, 1.0f})),
-				  newGrayscaleConverter(s, newCheckerBoardTexture(s, NULL, NULL, newConstantValue(s, 500.0f))));
-}
-
-const struct bsdfNode *parseBsdfNode(const char *asset_path, struct file_cache *cache, struct node_storage *s, const cJSON *node) {
-	if (!node) return NULL;
-	const cJSON *type = cJSON_GetObjectItem(node, "type");
-	if (!cJSON_IsString(type)) {
-		logr(warning, "No type provided for bsdfNode.\n");
-		return warningBsdf(s);
-	}
-
-	const struct colorNode *color = parseTextureNode(asset_path, cache, s, cJSON_GetObjectItem(node, "color"));
-	const struct valueNode *roughness = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "roughness"));
-	const struct valueNode *strength = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "strength"));
-	const struct valueNode *IOR = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "IOR"));
-	const struct valueNode *factor = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "factor"));
-	const struct bsdfNode *A = parseBsdfNode(asset_path, cache, s, cJSON_GetObjectItem(node, "A"));
-	const struct bsdfNode *B = parseBsdfNode(asset_path, cache, s, cJSON_GetObjectItem(node, "B"));
-
-	if (stringEquals(type->valuestring, "diffuse")) {
-		return newDiffuse(s, color);
-	} else if (stringEquals(type->valuestring, "metal")) {
-		return newMetal(s, color, roughness);
-	} else if (stringEquals(type->valuestring, "glass")) {
-		return newGlass(s, color, roughness, IOR);
-	} else if (stringEquals(type->valuestring, "plastic")) {
-		return newPlastic(s, color, roughness, IOR);
-	} else if (stringEquals(type->valuestring, "mix")) {
-		return newMix(s, A, B, factor);
-	} else if (stringEquals(type->valuestring, "add")) {
-		return newAdd(s, A, B);
-	} else if (stringEquals(type->valuestring, "transparent")) {
-		return newTransparent(s, color);
-	} else if (stringEquals(type->valuestring, "emissive")) {
-		return newEmission(s, color, strength);
-	} else if (stringEquals(type->valuestring, "translucent")) {
-		return newTranslucent(s, color);
-	}
-
-	logr(warning, "Failed to parse node. Here's a dump:\n");
-	logr(warning, "\n%s\n", cJSON_Print(node));
-	logr(warning, "Setting to an obnoxious pink material.\n");
-	return warningBsdf(s);
+const struct bsdfNode *build_bsdf_node(struct cr_renderer *r_ext, const struct bsdf_node_desc *desc) {
+	if (!r_ext) return NULL;
+	struct renderer *r = (struct renderer *)r_ext;
+	struct node_storage s = r->scene->storage;
+	if (!desc) return warningBsdf(&s);
+	switch (desc->type) {
+		case cr_bsdf_diffuse:
+			return newDiffuse(&s, build_color_node(r_ext, desc->arg.diffuse.color));
+		case cr_bsdf_metal:
+			return newMetal(&s, build_color_node(r_ext, desc->arg.metal.color), build_value_node(r_ext, desc->arg.metal.roughness));
+		case cr_bsdf_glass:
+			return newGlass(&s,
+				build_color_node(r_ext, desc->arg.glass.color),
+				build_value_node(r_ext, desc->arg.glass.roughness),
+				build_value_node(r_ext, desc->arg.glass.IOR));
+		case cr_bsdf_plastic:
+			return newPlastic(&s,
+				build_color_node(r_ext, desc->arg.plastic.color),
+				build_value_node(r_ext, desc->arg.plastic.roughness),
+				build_value_node(r_ext, desc->arg.plastic.IOR));
+		case cr_bsdf_mix:
+			return newMix(&s,
+				build_bsdf_node(r_ext, desc->arg.mix.A),
+				build_bsdf_node(r_ext, desc->arg.mix.B),
+				build_value_node(r_ext, desc->arg.mix.factor));
+		case cr_bsdf_add:
+			return newAdd(&s, build_bsdf_node(r_ext, desc->arg.add.A), build_bsdf_node(r_ext, desc->arg.add.B));
+		case cr_bsdf_transparent:
+			return newTransparent(&s, build_color_node(r_ext, desc->arg.transparent.color));
+		case cr_bsdf_emissive:
+			return newEmission(&s, build_color_node(r_ext, desc->arg.emissive.color), build_value_node(r_ext, desc->arg.emissive.strength));
+		case cr_bsdf_translucent:
+			return newTranslucent(&s, build_color_node(r_ext, desc->arg.translucent.color));
+		default:
+			return warningBsdf(&s);
+	};
 }

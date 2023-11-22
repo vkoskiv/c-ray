@@ -52,7 +52,7 @@ struct color path_trace(struct lightRay incident, const struct world *scene, int
 	struct color path_weight = g_white_color;
 	struct color path_radiance = g_black_color; // Final path contribution "color"
 	struct lightRay currentRay = incident;
-	
+
 	for (int bounce = 0; bounce <= max_bounces; ++bounce) {
 		const struct hitRecord isect = getClosestIsect(&currentRay, scene, sampler);
 		if (isect.instIndex < 0) {

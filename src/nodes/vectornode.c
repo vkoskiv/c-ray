@@ -13,6 +13,7 @@
 #include "../datatypes/scene.h"
 #include "../utils/hashtable.h"
 #include "../utils/string.h"
+#include "../renderer/renderer.h"
 #include "bsdfnode.h"
 
 #include "valuenode.h"
@@ -98,66 +99,32 @@ const struct vectorNode *newConstantUV(const struct node_storage *s, const struc
 	});
 }
 
-static enum vecOp parseVectorOp(const cJSON *data) {
-	if (!cJSON_IsString(data)) {
-		logr(warning, "No vector op given, defaulting to add.\n");
-		return VecAdd;
-	}
-	if (stringEquals(data->valuestring, "add")) return VecAdd;
-	if (stringEquals(data->valuestring, "subtract")) return VecSubtract;
-	if (stringEquals(data->valuestring, "multiply")) return VecMultiply;
-	if (stringEquals(data->valuestring, "divide")) return VecDivide;
-	if (stringEquals(data->valuestring, "cross")) return VecCross;
-	if (stringEquals(data->valuestring, "reflect")) return VecReflect;
-	if (stringEquals(data->valuestring, "refract")) return VecRefract;
-	if (stringEquals(data->valuestring, "dot")) return VecDot;
-	if (stringEquals(data->valuestring, "distance")) return VecDistance;
-	if (stringEquals(data->valuestring, "length")) return VecLength;
-	if (stringEquals(data->valuestring, "scale")) return VecScale;
-	if (stringEquals(data->valuestring, "normalize")) return VecNormalize;
-	if (stringEquals(data->valuestring, "wrap")) return VecWrap;
-	if (stringEquals(data->valuestring, "floor")) return VecFloor;
-	if (stringEquals(data->valuestring, "ceil")) return VecCeil;
-	if (stringEquals(data->valuestring, "mod")) return VecModulo;
-	if (stringEquals(data->valuestring, "abs")) return VecAbs;
-	if (stringEquals(data->valuestring, "min")) return VecMin;
-	if (stringEquals(data->valuestring, "max")) return VecMax;
-	if (stringEquals(data->valuestring, "sin")) return VecSin;
-	if (stringEquals(data->valuestring, "cos")) return VecCos;
-	if (stringEquals(data->valuestring, "tan")) return VecTan;
-	logr(warning, "Unknown vector op %s given, defaulting to add\n", data->valuestring);
-	return VecAdd;
+const struct vectorNode *build_vector_node(struct cr_renderer *r_ext, const struct vector_node_desc *desc) {
+	if (!r_ext || !desc) return NULL;
+	struct renderer *r = (struct renderer *)r_ext;
+	struct node_storage s = r->scene->storage;
+
+	switch (desc->type) {
+		case cr_vec_constant:
+			return newConstantVector(&s, (struct vector){ desc->arg.constant.x, desc->arg.constant.y, desc->arg.constant.z });
+		case cr_vec_normal:
+			return newNormal(&s);
+		case cr_vec_uv:
+			return newUV(&s);
+		case cr_vec_vecmath:
+			return newVecMath(&s,
+				build_vector_node(r_ext, desc->arg.vecmath.A),
+				build_vector_node(r_ext, desc->arg.vecmath.B),
+				build_vector_node(r_ext, desc->arg.vecmath.C),
+				build_value_node(r_ext, desc->arg.vecmath.f),
+				desc->arg.vecmath.op);
+		case cr_vec_mix:
+			return new_vec_mix(&s,
+				build_vector_node(r_ext, desc->arg.vec_mix.A),
+				build_vector_node(r_ext, desc->arg.vec_mix.B),
+				build_value_node(r_ext, desc->arg.vec_mix.factor));
+		default:
+			return NULL;
+	};
 }
 
-struct vector parseVector(const struct cJSON *data) {
-	const float x = cJSON_IsNumber(cJSON_GetArrayItem(data, 0)) ? (float)cJSON_GetArrayItem(data, 0)->valuedouble : 0.0f;
-	const float y = cJSON_IsNumber(cJSON_GetArrayItem(data, 1)) ? (float)cJSON_GetArrayItem(data, 1)->valuedouble : 0.0f;
-	const float z = cJSON_IsNumber(cJSON_GetArrayItem(data, 2)) ? (float)cJSON_GetArrayItem(data, 2)->valuedouble : 0.0f;
-	return (struct vector){ x, y, z };
-}
-const struct vectorNode *parseVectorNode(struct node_storage *s, const struct cJSON *node) {
-	if (!node) return NULL;
-	if (cJSON_IsArray(node)) {
-		return newConstantVector(s, parseVector(node));
-	}
-	const cJSON *type = cJSON_GetObjectItem(node, "type");
-	if (!cJSON_IsString(type)) {
-		logr(warning, "No type provided for vectorNode: %s\n", cJSON_PrintUnformatted(node));
-		return newConstantVector(s, vec_zero());
-	}
-
-	if (stringEquals(type->valuestring, "normal")) return newNormal(s);
-	if (stringEquals(type->valuestring, "uv")) return newUV(s);
-
-	const struct vectorNode *a = parseVectorNode(s, cJSON_GetObjectItem(node, "a"));
-	const struct vectorNode *b = parseVectorNode(s, cJSON_GetObjectItem(node, "b"));
-	const struct vectorNode *c = parseVectorNode(s, cJSON_GetObjectItem(node, "c"));
-	//FIXME: alpha won't work here, for now.
-	const struct valueNode  *f = parseValueNode(NULL, NULL, s, cJSON_GetObjectItem(node, "f"));
-	if (stringEquals(type->valuestring, "vecmath")) {
-		const enum vecOp op = parseVectorOp(cJSON_GetObjectItem(node, "op"));
-		return newVecMath(s, a, b, c, f, op);
-	}
-	if (stringEquals(type->valuestring, "mix")) return new_vec_mix(s, a, b, f);
-	return NULL;
-}

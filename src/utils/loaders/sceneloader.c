@@ -24,14 +24,7 @@
 #include "../../datatypes/image/imagefile.h"
 #include "../../vendored/cJSON.h"
 #include "../../renderer/renderer.h"
-#include "../../renderer/instance.h"
 #include "../../utils/string.h"
-#include "../../nodes/bsdfnode.h"
-#include "../../nodes/valuenode.h"
-#include "../../nodes/colornode.h"
-#include "../../nodes/shaders/emission.h"
-#include "../../nodes/textures/constant.h"
-#include "../../nodes/valuenode.h"
 #include "../platform/capabilities.h"
 #include "../logging.h"
 #include "../fileio.h"
@@ -387,35 +380,17 @@ struct transform parse_composite_transform(const cJSON *transforms) {
 	return composite;
 }
 
-struct mtl_override {
-	char *name;
-	const struct bsdfNode *bsdf;
-};
-typedef struct mtl_override mtl_override;
-dyn_array_def(mtl_override);
-
-void mtl_override_free(struct mtl_override *o) {
-	if (o->name) {
-		free(o->name);
-		o->name = NULL;
+struct bsdf_node_desc *global_desc(struct material_arr file_mats, const cJSON *global_overrides, size_t idx) {
+	if (idx >= file_mats.count) return NULL;
+	struct bsdf_node_desc *match = NULL;
+	const cJSON *override = NULL;
+	cJSON_ArrayForEach(override, global_overrides) {
+		const cJSON *name = cJSON_GetObjectItem(override, "replace");
+		if (cJSON_IsString(name) && stringEquals(name->valuestring, file_mats.items[idx].name)) {
+			match = build_bsdf_node_desc(override);
+		}
 	}
-}
-
-struct mtl_override_arr parse_override_list(struct renderer *r, const cJSON *list) {
-	struct mtl_override_arr overrides = { 0 };
-	overrides.elem_free = mtl_override_free;
-	if (!list || !cJSON_IsArray(list)) return overrides;
-	cJSON *material = NULL;
-	cJSON_ArrayForEach(material, list) {
-		cJSON *name = cJSON_GetObjectItem(material, "replace");
-		if (!cJSON_IsString(name)) continue;
-		
-		mtl_override_arr_add(&overrides, (struct mtl_override){
-			.bsdf = parseBsdfNode(r->prefs.assetPath, r->state.file_cache, &r->scene->storage, material),
-			.name = stringCopy(name->valuestring)
-		});
-	}
-	return overrides;
+	return match ? match : try_to_guess_bsdf(&file_mats.items[idx]);
 }
 
 static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int mesh_file_count) {
@@ -423,6 +398,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	if (!cJSON_IsString(file_name)) return;
 
 	struct renderer *todo_remove_r = (struct renderer *)r;
+	struct cr_scene *scene = cr_renderer_scene_get(r);
 
 	//FIXME: This concat + path fixing should be an utility function
 	char *fullPath = stringConcat(todo_remove_r->prefs.assetPath, file_name->valuestring);
@@ -442,28 +418,19 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	if (!meshes.count) return;
 
 	// Per JSON 'meshes' array element, these apply to materials before we assign them to instances
-	struct mtl_override_arr global_overrides = parse_override_list(todo_remove_r, cJSON_GetObjectItem(data, "materials"));
+	const struct cJSON *global_overrides = cJSON_GetObjectItem(data, "materials");
 
+	// FIXME: Textures get loaded multiple times, put them in a hash table
 	// Precompute guessed bsdfs for these instances
-	struct bsdf_buffer *file_bsdfs = bsdf_buf_ref(NULL);
+	cr_material_set *file_set = cr_material_set_new();
 	logr(debug, "Figuring out bsdfs for mtllib materials\n");
 	// FIXME: 0 index hack relies on wavefront parser behaviour that may change
 	struct material_arr file_mats = meshes.items[0].mbuf->materials;
 	for (size_t i = 0; i < file_mats.count; ++i) {
-		const struct bsdfNode *match = NULL;
-		for (size_t j = 0; j < global_overrides.count; ++j) {
-			if (stringEquals(file_mats.items[i].name, global_overrides.items[j].name)) {
-				match = global_overrides.items[j].bsdf;
-			}
-		}
-		if (match) {
-			bsdf_node_ptr_arr_add(&file_bsdfs->bsdfs, match);
-		} else {
-			bsdf_node_ptr_arr_add(&file_bsdfs->bsdfs, try_to_guess_bsdf(&todo_remove_r->scene->storage, &file_mats.items[i]));
-		}
+		struct bsdf_node_desc *desc = global_desc(file_mats, global_overrides, i);
+		cr_material_set_add(r, file_set, desc);
+		cr_node_bsdf_desc_del(desc);
 	}
-
-	mtl_override_arr_free(&global_overrides);
 
 	// Now apply some slightly overcomplicated logic to choose instances to add to the scene.
 	// It boils down to:
@@ -480,70 +447,57 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 		goto done;
 	}
 
-	size_t current_mesh_count = todo_remove_r->scene->meshes.count;
+	const cJSON *instances = pick_instances ? pick_instances : add_instances;
 	if (!cJSON_IsArray(pick_instances)) {
 		// Generate one instance for every mesh, identity transform.
 		for (size_t i = 0; i < meshes.count; ++i) {
-			struct instance new = new_mesh_instance(&todo_remove_r->scene->meshes, current_mesh_count + i, NULL, NULL);
-			new.bbuf = bsdf_buf_ref(file_bsdfs);
-			instance_arr_add(&todo_remove_r->scene->instances, new);
+			cr_mesh mesh = cr_scene_add_mesh(scene, &meshes.items[i]);
+			cr_instance m_instance = cr_instance_new(scene, mesh, cr_object_mesh);
+			cr_instance_bind_material_set(r, m_instance, file_set);
 		}
 		goto done;
 	}
 
-	const cJSON *instances = pick_instances ? pick_instances : add_instances;
-	if (!cJSON_IsArray(instances)) goto done;
-
-	const cJSON *instance = NULL;
-	cJSON_ArrayForEach(instance, instances) {
-		const cJSON *mesh_name = cJSON_GetObjectItem(instance, "for");
-		int64_t target_idx = -1;
-		if (!cJSON_IsString(mesh_name)) {
-			if (!pick_instances) continue;
-			target_idx = 0;
-		} else {
-			for (size_t i = 0; i < meshes.count; ++i) {
-				if (stringEquals(mesh_name->valuestring, meshes.items[i].name)) {
-					target_idx = i;
+	for (size_t m_idx = 0; m_idx < meshes.count; ++m_idx) {
+		const cJSON *instance = NULL;
+		cJSON_ArrayForEach(instance, instances) {
+			const cJSON *mesh_name = cJSON_GetObjectItem(instance, "for");
+			cr_mesh mesh = -1;
+			if (stringEquals(mesh_name->valuestring, meshes.items[m_idx].name)) {
+				mesh = cr_scene_add_mesh(scene, &meshes.items[m_idx]);
+			}
+			if (mesh < 0) continue;
+			cr_instance new = cr_instance_new(scene, mesh, cr_object_mesh);
+			cr_material_set *instance_set = cr_material_set_new();
+			const cJSON *instance_overrides = cJSON_GetObjectItem(instance, "materials");
+			for (size_t i = 0; i < file_mats.count; ++i) {
+				struct bsdf_node_desc *override_match = NULL;
+				const cJSON *override = NULL;
+				cJSON_ArrayForEach(override, instance_overrides) {
+					const cJSON *name = cJSON_GetObjectItem(override, "replace");
+					if (cJSON_IsString(name) && stringEquals(name->valuestring, file_mats.items[i].name)) {
+						override_match = build_bsdf_node_desc(override);
+						break;
+					}
+				}
+				if (override_match) {
+					cr_material_set_add(r, instance_set, override_match);
+					cr_node_bsdf_desc_del(override_match);
+				} else {
+					struct bsdf_node_desc *global = global_desc(file_mats, global_overrides, i);
+					cr_material_set_add(r, instance_set, global);
+					cr_node_bsdf_desc_del(global);
 				}
 			}
-		}
-		if (target_idx < 0) continue;
-		struct instance new = { 0 };
-		const cJSON *density = cJSON_GetObjectItem(instance, "density");
-		if (cJSON_IsNumber(density)) {
-			new = new_mesh_instance(&todo_remove_r->scene->meshes, current_mesh_count + target_idx, (float *)&density->valuedouble, &todo_remove_r->scene->storage.node_pool);
-		} else {
-			//FIXME: Make newMesh*() and newSphere*() const
-			new = new_mesh_instance(&todo_remove_r->scene->meshes, current_mesh_count + target_idx, NULL, NULL);
-		}
-		new.bbuf = bsdf_buf_ref(NULL);
 
-		struct mtl_override_arr instance_overrides = parse_override_list(todo_remove_r, cJSON_GetObjectItem(instance, "materials"));
-		for (size_t i = 0; i < file_mats.count; ++i) {
-			const struct bsdfNode *override_match = NULL;
-			for (size_t j = 0; j < instance_overrides.count; ++j) {
-				if (stringEquals(file_mats.items[i].name, instance_overrides.items[j].name)) {
-					override_match = instance_overrides.items[j].bsdf;
-				}
-			}
-			bsdf_node_ptr_arr_add(&new.bbuf->bsdfs, override_match ? override_match : file_bsdfs->bsdfs.items[i]);
+			cr_instance_set_transform(scene, new, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")));
+			cr_instance_bind_material_set(r, new, instance_set);
+			cr_material_set_del(instance_set);
 		}
-
-		mtl_override_arr_free(&instance_overrides);
-
-		new.composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
-		instance_arr_add(&todo_remove_r->scene->instances, new);
 	}
 done:
 
-	bsdf_buf_unref(file_bsdfs);
-	// Store meshes
-	logr(debug, "Adding %zu meshes\n", meshes.count);
-	for (size_t i = 0; i < meshes.count; ++i) {
-		mesh_arr_add(&todo_remove_r->scene->meshes, meshes.items[i]);
-	}
-
+	cr_material_set_del(file_set);
 	mesh_arr_free(&meshes);
 }
 
@@ -558,19 +512,19 @@ static void parse_meshes(struct cr_renderer *r, const cJSON *data) {
 }
 
 static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
-	struct sphere new = { 0 };
-
-	struct renderer *todo_remove_r = (struct renderer *)r;
+	struct cr_scene *scene = cr_renderer_scene_get(r);
 
 	const cJSON *radius = NULL;
 	radius = cJSON_GetObjectItem(data, "radius");
+	float rad = 0.0f;
 	if (radius != NULL && cJSON_IsNumber(radius)) {
-		new.radius = radius->valuedouble;
+		rad = radius->valuedouble;
 	} else {
-		new.radius = 1.0f;
-		logr(warning, "No radius specified for sphere, setting to %.0f\n", (double)new.radius);
+		rad = 1.0f;
+		logr(warning, "No radius specified for sphere, setting to %.0f\n", (double)rad);
 	}
-	const size_t new_idx = sphere_arr_add(&todo_remove_r->scene->spheres, new);
+
+	cr_sphere new_sphere = cr_scene_add_sphere(scene, rad);
 	
 	// Apply this to all instances that don't have their own "materials" object
 	const cJSON *sphere_global_materials = cJSON_GetObjectItem(data, "material");
@@ -579,15 +533,10 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 	const cJSON *instance = NULL;
 	if (cJSON_IsArray(instances)) {
 		cJSON_ArrayForEach(instance, instances) {
-			const cJSON *density = cJSON_GetObjectItem(data, "density");
 
-			struct instance new_instance = { 0 };
-			if (cJSON_IsNumber(density)) {
-				new_instance = new_sphere_instance(&todo_remove_r->scene->spheres, new_idx, (float *)&density->valuedouble, &todo_remove_r->scene->storage.node_pool);
-			} else {
-				new_instance = new_sphere_instance(&todo_remove_r->scene->spheres, new_idx, NULL, NULL);
-			}
-			new_instance.bbuf = bsdf_buf_ref(NULL);
+			cr_instance new_instance = cr_instance_new(scene, new_sphere, cr_object_sphere);
+
+			cr_material_set *instance_set = cr_material_set_new();
 
 			const cJSON *instance_materials = cJSON_GetObjectItem(instance, "materials");
 			const cJSON *materials = instance_materials ? instance_materials : sphere_global_materials;
@@ -599,14 +548,21 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 				} else {
 					material = materials;
 				}
-				bsdf_node_ptr_arr_add(&new_instance.bbuf->bsdfs, parseBsdfNode(todo_remove_r->prefs.assetPath, todo_remove_r->state.file_cache, &todo_remove_r->scene->storage, material));
-				const cJSON *type_string = cJSON_GetObjectItem(material, "type");
-				if (type_string && stringEquals(type_string->valuestring, "emissive")) new_instance.emits_light = true;
+				struct bsdf_node_desc *desc = build_bsdf_node_desc(material);
+				cr_material_set_add(r, instance_set, desc);
+				cr_node_bsdf_desc_del(desc);
+
+				// FIXME
+				// const cJSON *type_string = cJSON_GetObjectItem(material, "type");
+				// if (type_string && stringEquals(type_string->valuestring, "emissive")) new_instance.emits_light = true;
+			} else {
+				// TODO
+				// cr_material_set_add(r, instance_set, warning_material_desc);
 			}
 
-			if (!new_instance.bbuf->bsdfs.count) bsdf_node_ptr_arr_add(&new_instance.bbuf->bsdfs, warningBsdf(&todo_remove_r->scene->storage));
-			new_instance.composite = parse_composite_transform(cJSON_GetObjectItem(instance, "transforms"));
-			instance_arr_add(&todo_remove_r->scene->instances, new_instance);
+			cr_instance_set_transform(scene, new_instance, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")));
+			cr_instance_bind_material_set(r, new_instance, instance_set);
+			cr_material_set_del(instance_set);
 		}
 	}
 }

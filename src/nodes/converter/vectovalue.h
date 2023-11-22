@@ -8,13 +8,6 @@
 
 #pragma once
 
-enum component {
-	X,
-	Y,
-	Z,
-	U,
-	V,
-	F,
-};
+#include <c-ray/c-ray.h>
 
-const struct valueNode *newVecToValue(const struct node_storage *s, const struct vectorNode *vec, enum component component);
+const struct valueNode *newVecToValue(const struct node_storage *s, const struct vectorNode *vec, enum cr_vec_to_value_component component);

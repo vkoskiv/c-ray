@@ -19,7 +19,7 @@
 struct vecToValueNode {
 	struct valueNode node;
 	const struct vectorNode *vec;
-	enum component component_to_get;
+	enum cr_vec_to_value_component component_to_get;
 };
 
 static bool compare(const void *A, const void *B) {
@@ -36,7 +36,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-char component_to_char(enum component c) {
+char component_to_char(enum cr_vec_to_value_component c) {
 	switch (c) {
 		case X: return 'X';
 		case Y: return 'Y';
@@ -70,7 +70,7 @@ static float eval(const struct valueNode *node, sampler *sampler, const struct h
 	return 0.0f;
 }
 
-const struct valueNode *newVecToValue(const struct node_storage *s, const struct vectorNode *vec, enum component component) {
+const struct valueNode *newVecToValue(const struct node_storage *s, const struct vectorNode *vec, enum cr_vec_to_value_component component) {
 	HASH_CONS(s->node_table, hash, struct vecToValueNode, {
 		.vec = vec ? vec : newConstantVector(s, vec_zero()),
 		.component_to_get = component,

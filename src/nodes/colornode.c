@@ -20,100 +20,50 @@
 
 #include "colornode.h"
 
-const struct colorNode *unknownTextureNode(const struct node_storage *s) {
-	return newConstantTexture(s, g_black_color);
+// const struct colorNode *unknownTextureNode(const struct node_storage *s) {
+// 	return newConstantTexture(s, g_black_color);
+// }
+
+const struct colorNode *build_color_node(struct cr_renderer *r_ext, const struct color_node_desc *desc) {
+	if (!r_ext || !desc) return NULL;
+	struct renderer *r = (struct renderer *)r_ext;
+	struct file_cache *cache = r->state.file_cache;
+	struct node_storage s = r->scene->storage;
+
+	switch (desc->type) {
+		case cr_cn_constant:
+			return newConstantTexture(&s,
+				(struct color){
+					desc->arg.constant.r,
+					desc->arg.constant.g,
+					desc->arg.constant.b,
+					desc->arg.constant.a
+				});
+		case cr_cn_image:
+			return newImageTexture(&s, load_texture(desc->arg.image.full_path, &r->scene->storage.node_pool, cache), desc->arg.image.options);
+		case cr_cn_checkerboard:
+			return newCheckerBoardTexture(&s,
+				build_color_node(r_ext, desc->arg.checkerboard.a),
+				build_color_node(r_ext, desc->arg.checkerboard.b),
+				build_value_node(r_ext, desc->arg.checkerboard.scale));
+		case cr_cn_blackbody:
+			return newBlackbody(&s, build_value_node(r_ext, desc->arg.blackbody.degrees));
+		case cr_cn_split:
+			return newSplitValue(&s, build_value_node(r_ext, desc->arg.split.node));
+		case cr_cn_rgb:
+			return newCombineRGB(&s,
+				build_value_node(r_ext, desc->arg.rgb.red),
+				build_value_node(r_ext, desc->arg.rgb.green),
+				build_value_node(r_ext, desc->arg.rgb.blue));
+		case cr_cn_hsl:
+			return newCombineHSL(&s,
+				build_value_node(r_ext, desc->arg.hsl.H),
+				build_value_node(r_ext, desc->arg.hsl.S),
+				build_value_node(r_ext, desc->arg.hsl.L));
+		case cr_cn_vec_to_color:
+			return newVecToColor(&s, build_vector_node(r_ext, desc->arg.vec_to_color.vec));
+		default:
+			return NULL;
+	};
 }
 
-const struct colorNode *parseTextureNode(const char *asset_path, struct file_cache *cache, struct node_storage *s, const cJSON *node) {
-	if (!node) return NULL;
-
-	if (cJSON_IsArray(node)) {
-		return newConstantTexture(s, color_parse(node));
-	}
-
-	// Handle options first
-	uint8_t options = 0;
-	options |= SRGB_TRANSFORM; // Enabled by default.
-
-	if (cJSON_IsString(node)) {
-		// No options provided, go with defaults.
-		char *fullPath = stringConcat(asset_path, node->valuestring);
-		windowsFixPath(fullPath);
-		const struct colorNode *color_node = newImageTexture(s, load_texture(fullPath, &s->node_pool, cache), options);
-		free(fullPath);
-		return color_node;
-	}
-
-	// Should be an object, then.
-	if (!cJSON_IsObject(node)) {
-		logr(warning, "Invalid texture node given: \"%s\"\n", cJSON_PrintUnformatted(node));
-		return unknownTextureNode(s);
-	}
-
-	// Do we want to do an srgb transform?
-	const cJSON *srgbTransform = cJSON_GetObjectItem(node, "transform");
-	if (srgbTransform) {
-		if (!cJSON_IsTrue(srgbTransform)) {
-			options &= ~SRGB_TRANSFORM;
-		}
-	}
-
-	// Do we want bilinear interpolation enabled?
-	const cJSON *lerp = cJSON_GetObjectItem(node, "lerp");
-	if (!cJSON_IsTrue(lerp)) {
-		options |= NO_BILINEAR;
-	}
-
-	const cJSON *path = cJSON_GetObjectItem(node, "path");
-	if (cJSON_IsString(path)) {
-		char *fullPath = stringConcat(asset_path, path->valuestring);
-		windowsFixPath(fullPath);
-		const struct colorNode *color_node = newImageTexture(s, load_texture(fullPath, &s->node_pool, cache), options);
-		free(fullPath);
-		return color_node;
-	}
-
-	//FIXME: No good way to know if it's a color, so just check if it's got "r" in there.
-	if (cJSON_HasObjectItem(node, "r")) {
-		// This is actually still a color object.
-		return newConstantTexture(s, color_parse(node));
-	}
-	const cJSON *type = cJSON_GetObjectItem(node, "type");
-	if (cJSON_IsString(type)) {
-		// Oo, what's this?
-		if (stringEquals(type->valuestring, "checkerboard")) {
-			const struct colorNode *a = parseTextureNode(asset_path, cache, s, cJSON_GetObjectItem(node, "color1"));
-			const struct colorNode *b = parseTextureNode(asset_path, cache, s, cJSON_GetObjectItem(node, "color2"));
-			const struct valueNode *scale = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "scale"));
-			return newCheckerBoardTexture(s, a, b, scale);
-		}
-		if (stringEquals(type->valuestring, "blackbody")) {
-			const cJSON *degrees = cJSON_GetObjectItem(node, "degrees");
-			ASSERT(cJSON_IsNumber(degrees));
-			return newBlackbody(s, newConstantValue(s, degrees->valuedouble));
-		}
-		if (stringEquals(type->valuestring, "split")) {
-			return newSplitValue(s, parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "constant")));
-		}
-		if (stringEquals(type->valuestring, "rgb")) {
-			const struct valueNode *red   = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "r"));
-			const struct valueNode *green = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "g"));
-			const struct valueNode *blue  = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "b"));
-			return newCombineRGB(s, red, green, blue);
-		}
-		if (stringEquals(type->valuestring, "hsl")) {
-			const struct valueNode *H = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "h"));
-			const struct valueNode *S = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "s"));
-			const struct valueNode *L = parseValueNode(asset_path, cache, s, cJSON_GetObjectItem(node, "l"));
-			return newCombineHSL(s, H, S, L);
-		}
-		if (stringEquals(type->valuestring, "to_color")) {
-			return newVecToColor(s, parseVectorNode(s, cJSON_GetObjectItem(node, "vector")));
-		}
-	}
-
-	logr(warning, "Failed to parse textureNode. Here's a dump:\n");
-	logr(warning, "\n%s\n", cJSON_Print(node));
-	logr(warning, "Setting to an obnoxious pink material.\n");
-	return unknownTextureNode(s);
-}

@@ -24,7 +24,7 @@ struct vecMathNode {
 	const struct vectorNode *B;
 	const struct vectorNode *C;
 	const struct valueNode *f;
-	const enum vecOp op;
+	const enum cr_vec_op op;
 };
 
 static bool compare(const void *A, const void *B) {
@@ -44,7 +44,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump_vec_op(const enum vecOp op, char *buf, size_t bufsize) {
+static void dump_vec_op(const enum cr_vec_op op, char *buf, size_t bufsize) {
 	switch(op) {
 		case VecAdd:
 			snprintf(buf, bufsize, "add");
@@ -197,7 +197,7 @@ static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, 
 	return (struct vectorValue){ 0 };
 }
 
-const struct vectorNode *newVecMath(const struct node_storage *s, const struct vectorNode *A, const struct vectorNode *B, const struct vectorNode *C, const struct valueNode *f, const enum vecOp op) {
+const struct vectorNode *newVecMath(const struct node_storage *s, const struct vectorNode *A, const struct vectorNode *B, const struct vectorNode *C, const struct valueNode *f, const enum cr_vec_op op) {
 	HASH_CONS(s->node_table, hash, struct vecMathNode, {
 		.A = A ? A : newConstantVector(s, vec_zero()),
 		.B = B ? B : newConstantVector(s, vec_zero()),

@@ -33,8 +33,6 @@ struct colorNode {
 #include "converter/combinergb.h"
 #include "converter/combinehsl.h"
 
-const struct colorNode *unknownTextureNode(const struct node_storage *s);
+// const struct colorNode *unknownTextureNode(const struct node_storage *s);
 
-struct file_cache;
-// Not ideal, but for now we have to pass asset_path and file cache in here for texture loading
-const struct colorNode *parseTextureNode(const char *asset_path, struct file_cache *cache, struct node_storage *s, const cJSON *node);
+const struct colorNode *build_color_node(struct cr_renderer *r_ext, const struct color_node_desc *desc);

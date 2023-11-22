@@ -13,17 +13,19 @@
 #include <stdint.h>
 #include <stddef.h>
 
+// TODO: Maybe wrap these instead of exposing them
+#include "../src/datatypes/transforms.h"
+
 #define C_RAY_PROTO_DEFAULT_PORT 2222
 
 struct renderInfo;
 struct texture;
 
-//Utilities
+// -- Library info --
 char *cr_get_version(void); //The current semantic version
 char *cr_get_git_hash(void); //The current git hash of the build
 
-char *cr_get_file_path(char *full_path);
-
+// -- Renderer --
 struct cr_renderer;
 struct cr_renderer *cr_new_renderer(void);
 
@@ -99,7 +101,10 @@ void cr_renderer_stop(struct cr_renderer *ext, bool should_save);
 void cr_renderer_toggle_pause(struct cr_renderer *ext);
 const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_param p);
 uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_param p);
+struct texture *cr_renderer_render(struct cr_renderer *r);
 void cr_destroy_renderer(struct cr_renderer *r);
+
+// -- Scene --
 
 struct cr_scene;
 struct cr_scene *cr_renderer_scene_get(struct cr_renderer *r);
@@ -114,14 +119,30 @@ struct cr_scene_totals cr_scene_totals(struct cr_scene *s_ext);
 
 //FIXME: This should only have to take cr_scene
 bool cr_scene_set_background_hdr(struct cr_renderer *r_ext, struct cr_scene *s_ext, const char *hdr_filename);
+
 struct cr_color {
 	float r;
 	float g;
 	float b;
 	float a;
 };
+
 bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_color *down, struct cr_color *up);
 
+typedef int64_t cr_object;
+
+typedef cr_object cr_sphere;
+cr_sphere cr_scene_add_sphere(struct cr_scene *s_ext, float radius);
+typedef cr_object cr_mesh;
+struct mesh;
+cr_mesh cr_scene_add_mesh(struct cr_scene *s_ext, struct mesh *mesh); // FIXME
+
+struct cr_vector {
+	float x, y, z;
+};
+
+// -- Camera --
+// FIXME: Use cr_vector
 enum cr_camera_param {
 	cr_camera_fov,
 	cr_camera_focus_distance,
@@ -145,12 +166,29 @@ cr_camera cr_camera_new(struct cr_scene *ext);
 bool cr_camera_set_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_param p, double num);
 bool cr_camera_update(struct cr_scene *ext, cr_camera c);
 
+// -- Materials --
+#include "node.h"
+
+typedef struct cr_material_set cr_material_set;
+cr_material_set *cr_material_set_new(void);
+void cr_material_set_add(struct cr_renderer *r_ext, cr_material_set *set, struct bsdf_node_desc *desc);
+void cr_material_set_del(cr_material_set *set);
+
 void cr_load_mesh_from_file(char *filePath);
 void cr_load_mesh_from_buf(char *buf);
 
-//Single frame
-struct texture *cr_renderer_render(struct cr_renderer *r);
+// -- Instancing --
 
-//Network render worker
+typedef int64_t cr_instance;
+enum cr_object_type {
+	cr_object_mesh = 0,
+	cr_object_sphere
+};
+
+cr_instance cr_instance_new(struct cr_scene *s_ext, cr_object object, enum cr_object_type type);
+void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, struct transform tf);
+bool cr_instance_bind_material_set(struct cr_renderer *r_ext, cr_instance instance, cr_material_set *set);
+
+// -- Misc. --
 void cr_start_render_worker(int port, size_t thread_limit);
 

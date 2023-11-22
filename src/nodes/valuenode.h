@@ -29,5 +29,4 @@ struct valueNode {
 
 const struct valueNode *newConstantValue(const struct node_storage *s, float value);
 
-struct file_cache;
-const struct valueNode *parseValueNode(const char *asset_path, struct file_cache *cache, struct node_storage *s, const cJSON *node);
+const struct valueNode *build_value_node(struct cr_renderer *r_ext, const struct value_node_desc *desc);

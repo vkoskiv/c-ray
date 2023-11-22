@@ -9,6 +9,8 @@
 #include "../includes.h"
 #include "../utils/mempool.h"
 #include "material.h"
+#include "../utils/string.h"
+#include <c-ray/c-ray.h>
 
 #include "../renderer/pathtrace.h"
 #include "image/texture.h"
@@ -42,29 +44,116 @@ struct material warningMaterial() {
 	return newMat;
 }
 
+// FIXME: Delete these and use ones in node.c instead
+static struct bsdf_node_desc *alloc(struct bsdf_node_desc d) {
+	struct bsdf_node_desc *desc = calloc(1, sizeof(*desc));
+	memcpy(desc, &d, sizeof(*desc));
+	return desc;
+}
+
+static struct value_node_desc *val_alloc(struct value_node_desc d) {
+	struct value_node_desc *desc = calloc(1, sizeof(*desc));
+	memcpy(desc, &d, sizeof(*desc));
+	return desc;
+}
+
+static struct color_node_desc *col_alloc(struct color_node_desc d) {
+	struct color_node_desc *desc = calloc(1, sizeof(*desc));
+	memcpy(desc, &d, sizeof(*desc));
+	return desc;
+}
 //FIXME: Temporary hack to patch alpha directly to old materials using the alpha node.
-const struct bsdfNode *appendAlpha(const struct node_storage *s, const struct bsdfNode *base, const struct colorNode *color) {
+struct bsdf_node_desc *append_alpha(struct bsdf_node_desc *base, struct color_node_desc *color) {
 	//FIXME: MSVC in release build mode crashes if we apply alpha on here, need to find out why. Just disable it for now though
 #ifdef WINDOWS
+	(void)color;
 	return base;
 #else
-	return newMix(s, newTransparent(s, newConstantTexture(s, g_white_color)), base, newAlpha(s, color));
+	return alloc((struct bsdf_node_desc){
+		.type = cr_bsdf_mix,
+		.arg.mix = {
+			.A = alloc((struct bsdf_node_desc){
+				.type = cr_bsdf_transparent,
+				.arg.transparent.color = col_alloc((struct color_node_desc){
+					.type = cr_cn_constant,
+					.arg.constant = { g_white_color.red, g_white_color.green, g_white_color.blue, g_white_color.alpha }
+				})
+			}),
+			.B = base,
+			.factor = val_alloc((struct value_node_desc){
+				.type = cr_vn_alpha,
+				.arg.alpha.color = color
+			})
+		}
+	});
 #endif
 }
 
-const struct bsdfNode *try_to_guess_bsdf(const struct node_storage *s, const struct material *mat) {
-	const struct valueNode *roughness = mat->specularMap ? newGrayscaleConverter(s, newImageTexture(s, mat->specularMap, NO_BILINEAR)) : newConstantValue(s, mat->roughness);
-	const struct colorNode *color = mat->texture ? newImageTexture(s, mat->texture, SRGB_TRANSFORM) : newConstantTexture(s, mat->diffuse);
+struct color_node_desc *get_color(const struct material *mat) {
+	if (mat->texture_path) {
+		return col_alloc((struct color_node_desc){
+			.type = cr_cn_image,
+			.arg.image.options = SRGB_TRANSFORM,
+			.arg.image.full_path = stringCopy(mat->texture_path)
+		});
+	} else {
+		return col_alloc((struct color_node_desc){
+			.type = cr_cn_constant,
+			.arg.constant = { mat->diffuse.red, mat->diffuse.green, mat->diffuse.blue, mat->diffuse.alpha }
+		});
+	}
+}
+
+struct value_node_desc *get_rough(const struct material *mat) {
+	if (mat->specular_path) {
+		return val_alloc((struct value_node_desc){
+			.type = cr_vn_grayscale,
+			.arg.grayscale.color = col_alloc((struct color_node_desc){
+				.type = cr_cn_image,
+				.arg.image.options = NO_BILINEAR,
+				.arg.image.full_path = stringCopy(mat->specular_path)
+			})
+		});
+	} else {
+		return val_alloc((struct value_node_desc){
+			.type = cr_vn_constant,
+			.arg.constant = (double)mat->roughness
+		});
+	}
+}
+
+struct bsdf_node_desc *try_to_guess_bsdf(const struct material *mat) {
+	// FIXME: change material struct to only have path, and set up texture load here instead (nice!)
+
 	logr(debug, "name: %s, illum: %i\n", mat->name, mat->illum);
-	const struct bsdfNode *chosen_bsdf = NULL;
+	struct bsdf_node_desc *chosen_desc = NULL;
 	
 	// First, attempt to deduce type based on mtl properties
 	switch (mat->illum) {
 		case 5:
-			chosen_bsdf = appendAlpha(s, newMetal(s, color, roughness), color);
+			chosen_desc = append_alpha(alloc((struct bsdf_node_desc){
+				.type = cr_bsdf_metal,
+				.arg.metal = {
+					.color = get_color(mat),
+					.roughness = get_rough(mat)
+				}
+			}), get_color(mat));
 			break;
 		case 7:
-			chosen_bsdf = newGlass(s, newConstantTexture(s, mat->specular), roughness, newConstantValue(s, mat->IOR));
+			chosen_desc = alloc((struct bsdf_node_desc){
+				.type = cr_bsdf_glass,
+				.arg.glass = {
+					.color = col_alloc((struct color_node_desc){
+						.type = cr_cn_constant,
+						.arg.constant = { mat->specular.red, mat->specular.green, mat->specular.blue, mat->specular.alpha }
+					}),
+					.roughness = get_rough(mat),
+					.IOR = val_alloc((struct value_node_desc){
+						.type = cr_vn_constant,
+						.arg.constant = (double)mat->IOR
+					})
+				}
+			});
 			break;
 		default:
 			break;
@@ -73,47 +162,90 @@ const struct bsdfNode *try_to_guess_bsdf(const struct node_storage *s, const str
 	if (mat->emission.red > 0.0f ||
 		mat->emission.blue > 0.0f ||
 		mat->emission.green > 0.0f) {
-		chosen_bsdf = newEmission(s, newConstantTexture(s, mat->emission), NULL);
+		chosen_desc = alloc((struct bsdf_node_desc){
+			.type = cr_bsdf_emissive,
+			.arg.emissive = {
+				.color = col_alloc((struct color_node_desc){
+					.type = cr_cn_constant,
+					.arg.constant = { mat->emission.red, mat->emission.green, mat->emission.blue, mat->emission.alpha }
+				}),
+				.strength = val_alloc((struct value_node_desc){
+					.type = cr_vn_constant,
+					.arg.constant = 1.0
+				})
+			}
+		});
 	}
 	
-	if (chosen_bsdf) goto skip;
+	if (chosen_desc) goto skip;
 	
 	// Otherwise, fall back to our preassigned selection
 	switch (mat->type) {
 		case lambertian:
-			chosen_bsdf = newDiffuse(s, color);
+			chosen_desc = alloc((struct bsdf_node_desc){
+				.type = cr_bsdf_diffuse,
+				.arg.diffuse.color = get_color(mat)
+			});
 			break;
 		case glass:
-			chosen_bsdf = newGlass(s, color, roughness, newConstantValue(s, mat->IOR));
+			chosen_desc = alloc((struct bsdf_node_desc){
+				.type = cr_bsdf_glass,
+				.arg.glass = {
+					.color = get_color(mat),
+					.roughness = get_rough(mat),
+					.IOR = val_alloc((struct value_node_desc){
+						.type = cr_vn_constant,
+						.arg.constant = (double)mat->IOR
+					})
+				}
+			});
 			break;
 		case metal:
-			chosen_bsdf = newMetal(s, color, roughness);
+			chosen_desc = alloc((struct bsdf_node_desc){
+				.type = cr_bsdf_metal,
+				.arg.metal = {
+					.color = get_color(mat),
+					.roughness = get_rough(mat),
+				}
+			});
 			break;
 		case plastic:
-			chosen_bsdf = newPlastic(s, color, roughness, newConstantValue(s, mat->IOR));
+			chosen_desc = alloc((struct bsdf_node_desc){
+				.type = cr_bsdf_plastic,
+				.arg.plastic = {
+					.color = get_color(mat),
+					.roughness = get_rough(mat),
+					.IOR = val_alloc((struct value_node_desc){
+						.type = cr_vn_constant,
+						.arg.constant = (double)mat->IOR
+					})
+				}
+			});
 			break;
 		case emission:
-			chosen_bsdf = newDiffuse(s, color);
+			chosen_desc = alloc((struct bsdf_node_desc){
+				.type = cr_bsdf_diffuse,
+				.arg.diffuse.color = get_color(mat)
+			});
 			break;
 		default:
 			logr(warning, "Unknown bsdf type specified for \"%s\", setting to an obnoxious preset.\n", mat->name);
-			chosen_bsdf = warningBsdf(s);
+			chosen_desc = NULL;
 			break;
 	}
 
 	skip:
-	if (texture_uses_alpha(mat->texture)) {
-		chosen_bsdf = appendAlpha(s, chosen_bsdf, color);
-	}
 
-	return chosen_bsdf;
+	chosen_desc = append_alpha(chosen_desc, get_color(mat));
+
+	return chosen_desc;
 }
 
 void destroyMaterial(struct material *mat) {
 	if (mat) {
 		free(mat->name);
-		if (mat->texture) destroyTexture(mat->texture);
-		if (mat->normalMap) destroyTexture(mat->normalMap);
-		if (mat->specularMap) destroyTexture(mat->specularMap);
+		if (mat->texture_path) free(mat->texture_path);
+		if (mat->normal_path) free(mat->normal_path);
+		if (mat->specular_path) free(mat->specular_path);
 	}
 }

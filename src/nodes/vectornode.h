@@ -34,4 +34,5 @@ struct vectorNode {
 
 const struct vectorNode *newConstantVector(const struct node_storage *storage, struct vector vector);
 const struct vectorNode *newConstantUV(const struct node_storage *s, const struct coord c);
-const struct vectorNode *parseVectorNode(struct node_storage *s, const struct cJSON *node);
+
+const struct vectorNode *build_vector_node(struct cr_renderer *r_ext, const struct vector_node_desc *desc);

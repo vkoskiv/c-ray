@@ -20,7 +20,7 @@ struct mathNode {
 	struct valueNode node;
 	const struct valueNode *A;
 	const struct valueNode *B;
-	const enum mathOp op;
+	const enum cr_math_op op;
 };
 
 static bool compare(const void *A, const void *B) {
@@ -38,7 +38,7 @@ static uint32_t hash(const void *p) {
 	return h;
 }
 
-static void dump_math_op(const enum mathOp op, char *buf, size_t bufsize) {
+static void dump_math_op(const enum cr_math_op op, char *buf, size_t bufsize) {
 	switch(op) {
 		case Add:
 			snprintf(buf, bufsize, "add");
@@ -202,7 +202,7 @@ static float eval(const struct valueNode *node, sampler *sampler, const struct h
 	return 0.0f;
 }
 
-const struct valueNode *newMath(const struct node_storage *s, const struct valueNode *A, const struct valueNode *B, const enum mathOp op) {
+const struct valueNode *newMath(const struct node_storage *s, const struct valueNode *A, const struct valueNode *B, const enum cr_math_op op) {
 	HASH_CONS(s->node_table, hash, struct mathNode, {
 		.A = A ? A : newConstantValue(s, 0.0f),
 		.B = B ? B : newConstantValue(s, 0.0f),

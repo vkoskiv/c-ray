@@ -45,10 +45,6 @@ char *cr_get_git_hash() {
 	return gitHash();
 }
 
-char *cr_get_file_path(char *full_path) {
-	return get_file_path(full_path);
-}
-
 // -- Renderer --
 
 struct cr_renderer;
@@ -255,12 +251,6 @@ bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_color *down, stru
 	return false;
 }
 
-void cr_destroy_renderer(struct cr_renderer *ext) {
-	struct renderer *r = (struct renderer *)ext;
-	ASSERT(r);
-	renderer_destroy(r);
-}
-
 // -- Scene --
 
 struct cr_scene;
@@ -288,11 +278,58 @@ struct cr_object *cr_object_new(struct cr_scene *s) {
 	return NULL;
 }
 
-struct cr_instance;
+cr_sphere cr_scene_add_sphere(struct cr_scene *s_ext, float radius) {
+	if (!s_ext) return -1;
+	struct world *scene = (struct world *)s_ext;
+	return sphere_arr_add(&scene->spheres, (struct sphere){ .radius = radius });
+}
 
-struct cr_instance *cr_instance_new(struct cr_object *o) {
-	(void)o;
-	return NULL;
+cr_mesh cr_scene_add_mesh(struct cr_scene *s_ext, struct mesh *mesh) {
+	if (!s_ext) return -1;
+	struct world *scene = (struct world *)s_ext;
+	return mesh_arr_add(&scene->meshes, *mesh);
+}
+
+cr_instance cr_instance_new(struct cr_scene *s_ext, cr_object object, enum cr_object_type type) {
+	if (!s_ext) return -1;
+	struct world *scene = (struct world *)s_ext;
+	struct instance new;
+	switch (type) {
+		case cr_object_mesh:
+			new = new_mesh_instance(&scene->meshes, object, NULL, NULL);
+			break;
+		case cr_object_sphere:
+			new = new_sphere_instance(&scene->spheres, object, NULL, NULL);
+			break;
+		default:
+			return -1;
+	}
+
+	return instance_arr_add(&scene->instances, new);
+}
+
+void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, struct transform tf) {
+	if (!s_ext) return;
+	struct world *scene = (struct world *)s_ext;
+	if ((size_t)instance > scene->instances.count - 1) return;
+	struct instance *i = &scene->instances.items[instance];
+	i->composite = tf;
+}
+
+bool cr_instance_bind_material_set(struct cr_renderer *r_ext, cr_instance instance, cr_material_set *set) {
+	if (!r_ext || !set) return false;
+	struct renderer *r = (struct renderer *)r_ext;
+	struct world *scene = r->scene;
+	if ((size_t)instance > scene->instances.count - 1) return false;
+	struct instance *i = &scene->instances.items[instance];
+	i->bbuf = bsdf_buf_ref((struct bsdf_buffer *)set);
+	return true;
+}
+
+void cr_destroy_renderer(struct cr_renderer *ext) {
+	struct renderer *r = (struct renderer *)ext;
+	ASSERT(r);
+	renderer_destroy(r);
 }
 
 // -- Camera --
@@ -389,6 +426,22 @@ bool cr_camera_remove(struct cr_scene *s, cr_camera c) {
 }
 
 // --
+
+cr_material_set *cr_material_set_new(void) {
+	return (cr_material_set *)bsdf_buf_ref(NULL);
+}
+
+void cr_material_set_add(struct cr_renderer *r_ext, cr_material_set *set, struct bsdf_node_desc *desc) {
+	if (!set || !desc) return;
+	struct bsdf_buffer *buf = (struct bsdf_buffer *)set;
+	const struct bsdfNode *node = build_bsdf_node(r_ext, desc);
+	bsdf_node_ptr_arr_add(&buf->bsdfs, node);
+}
+
+void cr_material_set_del(cr_material_set *set) {
+	if (!set) return;
+	bsdf_buf_unref((struct bsdf_buffer *)set);
+}
 
 void cr_load_mesh_from_file(char *file_path) {
 	(void)file_path;
