@@ -115,7 +115,7 @@ struct cr_scene_totals {
 struct cr_scene_totals cr_scene_totals(struct cr_scene *s_ext);
 
 //FIXME: This should only have to take cr_scene
-bool cr_scene_set_background_hdr(struct cr_renderer *r_ext, struct cr_scene *s_ext, const char *hdr_filename);
+bool cr_scene_set_background_hdr(struct cr_renderer *r_ext, struct cr_scene *s_ext, const char *hdr_filename, float yaw);
 
 struct cr_color {
 	float r;

@@ -225,13 +225,14 @@ uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_para
 	return 0;
 }
 
-bool cr_scene_set_background_hdr(struct cr_renderer *r_ext, struct cr_scene *s_ext, const char *hdr_filename) {
+bool cr_scene_set_background_hdr(struct cr_renderer *r_ext, struct cr_scene *s_ext, const char *hdr_filename, float yaw) {
 	if (!r_ext || !s_ext) return false;
 	struct renderer *r = (struct renderer *)r_ext;
 	struct world *w = (struct world *)s_ext;
 	char *full_path = stringConcat(r->prefs.assetPath, hdr_filename);
 	if (is_valid_file(full_path, r->state.file_cache)) {
 		w->background = newBackground(&w->storage, newImageTexture(&w->storage, load_texture(full_path, &w->storage.node_pool, r->state.file_cache), 0), NULL);
+		r->scene->backgroundOffset = yaw;
 		free(full_path);
 		return true;
 	}

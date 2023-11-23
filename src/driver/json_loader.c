@@ -260,10 +260,10 @@ static void parse_cameras(struct cr_scene *scene, const cJSON *data) {
 
 //FIXME: Convert this to use parseBsdfNode
 static void parse_ambient_color(struct cr_renderer *r, struct cr_scene *s, const cJSON *data) {
-	struct renderer *todo_remove_r = (struct renderer *)r;
-	const cJSON *offset = cJSON_GetObjectItem(data, "offset");
-	if (cJSON_IsNumber(offset)) {
-		todo_remove_r->scene->backgroundOffset = deg_to_rad(offset->valuedouble) / 4.0f;
+	const cJSON *offset_in = cJSON_GetObjectItem(data, "offset");
+	float offset = 0.0f;
+	if (cJSON_IsNumber(offset_in)) {
+		offset = deg_to_rad(offset_in->valuedouble) / 4.0f;
 	}
 
 	const cJSON *down = cJSON_GetObjectItem(data, "down");
@@ -271,7 +271,7 @@ static void parse_ambient_color(struct cr_renderer *r, struct cr_scene *s, const
 	const cJSON *hdr = cJSON_GetObjectItem(data, "hdr");
 
 	if (cJSON_IsString(hdr)) {
-		if (cr_scene_set_background_hdr(r, s, hdr->valuestring)) return;
+		if (cr_scene_set_background_hdr(r, s, hdr->valuestring, offset)) return;
 	}
 	
 	if (down && up) {
