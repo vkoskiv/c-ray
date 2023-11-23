@@ -489,7 +489,9 @@ int worker_start(int port, size_t thread_limit) {
 	return 0;
 }
 #else
-int startWorkerServer() {
+int worker_start(int port, size_t thread_limit) {
+	(void)port;
+	(void)thread_limit;
 	logr(error, "c-ray doesn't support the proprietary networking stack on Windows yet. Sorry!\n");
 }
 #endif
