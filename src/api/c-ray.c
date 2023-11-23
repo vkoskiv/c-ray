@@ -308,12 +308,23 @@ cr_instance cr_instance_new(struct cr_scene *s_ext, cr_object object, enum cr_ob
 	return instance_arr_add(&scene->instances, new);
 }
 
-void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, struct transform tf) {
+void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]) {
 	if (!s_ext) return;
 	struct world *scene = (struct world *)s_ext;
 	if ((size_t)instance > scene->instances.count - 1) return;
 	struct instance *i = &scene->instances.items[instance];
-	i->composite = tf;
+	struct matrix4x4 mtx = {
+		.mtx = {
+			{ row_major[0][0], row_major[0][1], row_major[0][2], row_major[0][3] },
+			{ row_major[1][0], row_major[1][1], row_major[1][2], row_major[1][3] },
+			{ row_major[2][0], row_major[2][1], row_major[2][2], row_major[2][3] },
+			{ row_major[3][0], row_major[3][1], row_major[3][2], row_major[3][3] },
+		}
+	};
+	i->composite = (struct transform){
+		.A = mtx,
+		.Ainv = mat_invert(mtx)
+	};
 }
 
 bool cr_instance_bind_material_set(struct cr_renderer *r_ext, cr_instance instance, cr_material_set *set) {

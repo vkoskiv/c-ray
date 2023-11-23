@@ -13,9 +13,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-// TODO: Maybe wrap these instead of exposing them
-#include "../src/datatypes/transforms.h"
-
 #define C_RAY_PROTO_DEFAULT_PORT 2222
 
 struct renderInfo;
@@ -186,7 +183,7 @@ enum cr_object_type {
 };
 
 cr_instance cr_instance_new(struct cr_scene *s_ext, cr_object object, enum cr_object_type type);
-void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, struct transform tf);
+void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]);
 bool cr_instance_bind_material_set(struct cr_renderer *r_ext, cr_instance instance, cr_material_set *set);
 
 // -- Misc. --

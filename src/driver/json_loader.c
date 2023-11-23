@@ -378,7 +378,6 @@ struct transform parse_composite_transform(const cJSON *transforms) {
 			composite.A = mat_mul(composite.A, parseTransform(transform, "translates").A);
 		}
 	}
-	composite.Ainv = mat_invert(composite.A);
 	return composite;
 }
 
@@ -492,7 +491,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 				}
 			}
 
-			cr_instance_set_transform(scene, new, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")));
+			cr_instance_set_transform(scene, new, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")).A.mtx);
 			cr_instance_bind_material_set(r, new, instance_set);
 			cr_material_set_del(instance_set);
 		}
@@ -562,7 +561,7 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 				// cr_material_set_add(r, instance_set, warning_material_desc);
 			}
 
-			cr_instance_set_transform(scene, new_instance, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")));
+			cr_instance_set_transform(scene, new_instance, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")).A.mtx);
 			cr_instance_bind_material_set(r, new_instance, instance_set);
 			cr_material_set_del(instance_set);
 		}
