@@ -85,7 +85,7 @@ size_t get_file_size(const char *path) {
 #else
 	FILE *file = fopen(path, "rb");
 	if (!file) {
-		logr(warning, "Can't access '%.*s': %s\n", (int)strlen(file_path), file_path, strerror(errno));
+		logr(warning, "Can't access '%.*s': %s\n", (int)strlen(path), path, strerror(errno));
 		return 0;
 	}
 	fseek(file, 0L, SEEK_END);
@@ -114,18 +114,18 @@ file_data file_load(const char *file_path, struct file_cache *cache) {
 	return file;
 #else
 	FILE *file = fopen(file_path, "rb");
-	file_bytes *buf = malloc(bytes + 1 * sizeof(char));
-	size_t readBytes = fread(buf, sizeof(char), bytes, file);
-	ASSERT(readBytes == bytes);
+	file_bytes *buf = malloc(size + 1 * sizeof(char));
+	size_t readBytes = fread(buf, sizeof(char), size, file);
+	ASSERT(readBytes == size);
 	if (ferror(file) != 0) {
 		logr(warning, "Error reading file\n");
 	} else {
-		buf[bytes] = '\0';
+		buf[size] = '\0';
 	}
 	fclose(file);
-	file_data file = (file_data){ .items = buf, .count = readBytes, .capacity = readBytes };
-	if (cache) cache_store(cache, file_path, file.items, file.count);
-	return file;
+	file_data filedata = (file_data){ .items = buf, .count = readBytes, .capacity = readBytes };
+	if (cache) cache_store(cache, file_path, filedata.items, filedata.count);
+	return filedata;
 #endif
 }
 
