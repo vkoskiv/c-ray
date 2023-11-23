@@ -54,15 +54,14 @@ static void printPrefix(enum logType type) {
 
 static void printDate() {
 	const time_t curTime = time(NULL);
-	struct tm time = { 0 };
-	localtime_r(&curTime, &time);
+	struct tm *time = localtime(&curTime);
 	printf("[%d-%02d-%02d %02d:%02d:%02d] ",
-		   time.tm_year + 1900,
-		   time.tm_mon + 1,
-		   time.tm_mday,
-		   time.tm_hour,
-		   time.tm_min,
-		   time.tm_sec);
+		   time->tm_year + 1900,
+		   time->tm_mon + 1,
+		   time->tm_mday,
+		   time->tm_hour,
+		   time->tm_min,
+		   time->tm_sec);
 }
 
 void log_toggle_verbose(void) {
