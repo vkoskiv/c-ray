@@ -119,7 +119,8 @@ struct cr_color_node {
 		cr_cn_split,
 		cr_cn_rgb,
 		cr_cn_hsl,
-		cr_cn_vec_to_color
+		cr_cn_vec_to_color,
+		cr_cn_gradient,
 	} type;
 
 	union {
@@ -161,6 +162,10 @@ struct cr_color_node {
 			struct cr_vector_node *vec;
 		} vec_to_color;
 
+		struct cr_gradient_params {
+			struct cr_color_node *a;
+			struct cr_color_node *b;
+		} gradient;
 	} arg;
 };
 
@@ -209,6 +214,7 @@ struct cr_vector_node {
 		cr_vec_mix,
 	} type;
 
+	// TODO: Maybe express vectorValue vec/coord/float union a bit better here?
 	union {
 		struct cr_vector constant;
 
@@ -241,6 +247,7 @@ struct cr_shader_node {
 		cr_bsdf_transparent,
 		cr_bsdf_emissive,
 		cr_bsdf_translucent,
+		cr_bsdf_background,
 	} type;
 
 	union {
@@ -288,6 +295,12 @@ struct cr_shader_node {
 		struct cr_translucent_args {
 			struct cr_color_node *color;
 		} translucent;
+
+		struct cr_background_args {
+			struct cr_color_node *color;
+			struct cr_vector_node *pose;
+			struct cr_value_node *strength;
+		} background;
 
 	} arg;
 };

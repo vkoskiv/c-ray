@@ -23,28 +23,10 @@
 #include "../renderer/instance.h"
 #include "../nodes/shaders/background.h"
 
-static inline void recompute_uv(struct hitRecord *isect, float offset) {
-	struct vector ud = vec_normalize(isect->incident_dir);
-	//To polar from cartesian
-	float r = 1.0f; //Normalized above
-	float phi = (atan2f(ud.z, ud.x) / 4.0f) + offset;
-	float theta = acosf((-ud.y / r));
-	
-	float u = (phi / (PI / 2.0f));
-	float v = theta / PI;
-	
-	u = wrap_min_max(u, 0.0f, 1.0f);
-	v = wrap_min_max(v, 0.0f, 1.0f);
-	
-	isect->uv = (struct coord){ u, v };
-}
-
 static inline struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler) {
 	//TODO: Consider passing in last instance idx + polygon to detect self-intersections?
 	struct hitRecord isect = { .incident_dir = incidentRay->direction, .instIndex = -1, .distance = FLT_MAX, .polygon = NULL };
-	if (traverse_top_level_bvh(scene->instances.items, scene->topLevel, incidentRay, &isect, sampler)) return isect;
-	// Didn't hit anything. Recompute the UV for the background
-	recompute_uv(&isect, scene->backgroundOffset);
+	traverse_top_level_bvh(scene->instances.items, scene->topLevel, incidentRay, &isect, sampler);
 	return isect;
 }
 

@@ -225,31 +225,11 @@ uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_para
 	return 0;
 }
 
-bool cr_scene_set_background_hdr(struct cr_renderer *r_ext, struct cr_scene *s_ext, const char *hdr_filename, float yaw) {
+bool cr_scene_set_background(struct cr_renderer *r_ext, struct cr_scene *s_ext, struct cr_shader_node *desc) {
 	if (!r_ext || !s_ext) return false;
-	struct renderer *r = (struct renderer *)r_ext;
-	struct world *w = (struct world *)s_ext;
-	char *full_path = stringConcat(r->prefs.assetPath, hdr_filename);
-	if (is_valid_file(full_path, r->state.file_cache)) {
-		w->background = newBackground(&w->storage, newImageTexture(&w->storage, load_texture(full_path, &w->storage.node_pool, r->state.file_cache), 0), NULL);
-		r->scene->backgroundOffset = yaw;
-		free(full_path);
-		return true;
-	}
-	free(full_path);
-	return false;
-}
-
-bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_color *down, struct cr_color *up) {
-	if (!s_ext) return false;
 	struct world *s = (struct world *)s_ext;
-	if (down && up) {
-		s->background = newBackground(&s->storage, newGradientTexture(&s->storage, *(struct color *)down, *(struct color *)up), NULL);
-		return true;
-	} else {
-		s->background = newBackground(&s->storage, NULL, NULL);
-	}
-	return false;
+	s->background = desc ? build_bsdf_node(r_ext, desc) : newBackground(&s->storage, NULL, NULL, NULL);
+	return true;
 }
 
 // -- Scene --

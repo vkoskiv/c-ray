@@ -258,30 +258,6 @@ static void parse_cameras(struct cr_scene *scene, const cJSON *data) {
 	}
 }
 
-//FIXME: Convert this to use parseBsdfNode
-static void parse_ambient_color(struct cr_renderer *r, struct cr_scene *s, const cJSON *data) {
-	const cJSON *offset_in = cJSON_GetObjectItem(data, "offset");
-	float offset = 0.0f;
-	if (cJSON_IsNumber(offset_in)) {
-		offset = deg_to_rad(offset_in->valuedouble) / 4.0f;
-	}
-
-	const cJSON *down = cJSON_GetObjectItem(data, "down");
-	const cJSON *up = cJSON_GetObjectItem(data, "up");
-	const cJSON *hdr = cJSON_GetObjectItem(data, "hdr");
-
-	if (cJSON_IsString(hdr)) {
-		if (cr_scene_set_background_hdr(r, s, hdr->valuestring, offset)) return;
-	}
-	
-	if (down && up) {
-		struct color d = color_parse(down);
-		struct color u = color_parse(up);
-		cr_scene_set_background(s, (struct cr_color *)&d, (struct cr_color *)&u);
-		return;
-	}
-}
-
 struct transform parse_composite_transform(const cJSON *transforms) {
 	if (!transforms) return tform_new();
 	//TODO: Pass mesh/instance name as targetName for logging
@@ -524,7 +500,11 @@ static void parse_primitives(struct cr_renderer *r, const cJSON *data) {
 
 static void parseScene(struct cr_renderer *r, const cJSON *data) {
 	struct cr_scene *scene = cr_renderer_scene_get(r);
-	parse_ambient_color(r, scene, cJSON_GetObjectItem(data, "ambientColor"));
+
+	struct cr_shader_node *background = cr_shader_node_build(cJSON_GetObjectItem(data, "ambientColor"));
+	cr_scene_set_background(r, scene, background);
+	cr_shader_node_free(background);
+
 	parse_primitives(r, cJSON_GetObjectItem(data, "primitives"));
 	parse_meshes(r, cJSON_GetObjectItem(data, "meshes"));
 }

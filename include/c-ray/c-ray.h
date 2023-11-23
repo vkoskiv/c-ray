@@ -114,17 +114,12 @@ struct cr_scene_totals {
 };
 struct cr_scene_totals cr_scene_totals(struct cr_scene *s_ext);
 
-//FIXME: This should only have to take cr_scene
-bool cr_scene_set_background_hdr(struct cr_renderer *r_ext, struct cr_scene *s_ext, const char *hdr_filename, float yaw);
-
 struct cr_color {
 	float r;
 	float g;
 	float b;
 	float a;
 };
-
-bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_color *down, struct cr_color *up);
 
 typedef int64_t cr_object;
 
@@ -187,5 +182,6 @@ void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, flo
 bool cr_instance_bind_material_set(struct cr_renderer *r_ext, cr_instance instance, cr_material_set *set);
 
 // -- Misc. --
+bool cr_scene_set_background(struct cr_renderer *r_ext, struct cr_scene *s_ext, struct cr_shader_node *desc);
 void cr_start_render_worker(int port, size_t thread_limit);
 

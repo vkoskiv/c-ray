@@ -82,6 +82,7 @@
 	],
 	"scene": {
 		"ambientColor": {
+			"type": "background",
 			"hdr": "HDRs/roof_garden_1k.hdr",
 			"offset": 0,
 			"down": {

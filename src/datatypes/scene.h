@@ -35,7 +35,6 @@ struct world {
 	struct sphere_arr spheres;
 	struct camera_arr cameras;
 	struct node_storage storage;
-	float backgroundOffset; // TODO: Replace with pose tform
 };
 
 void scene_destroy(struct world *scene);

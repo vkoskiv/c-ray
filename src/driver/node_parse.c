@@ -349,6 +349,10 @@ void cr_color_node_free(struct cr_color_node *d) {
 		case cr_cn_vec_to_color:
 			cr_vector_node_free(d->arg.vec_to_color.vec);
 			break;
+		case cr_cn_gradient:
+			cr_color_node_free(d->arg.gradient.a);
+			cr_color_node_free(d->arg.gradient.b);
+			break;
 	}
 	free(d);
 }
@@ -399,6 +403,12 @@ struct vector parseVector(const struct cJSON *data) {
 
 struct cr_vector_node *cr_vector_node_build(const struct cJSON *node) {
 	if (!node) return NULL;
+	if (cJSON_IsNumber(node)) {
+		return vecn_alloc((struct cr_vector_node){
+			.type = cr_vec_constant,
+			.arg.constant.x = node->valuedouble
+		});
+	}
 	if (cJSON_IsArray(node)) {
 		struct vector v = parseVector(node);
 		return vecn_alloc((struct cr_vector_node){
@@ -550,6 +560,40 @@ struct cr_shader_node *cr_shader_node_build(const struct cJSON *node) {
 			.type = cr_bsdf_translucent,
 			.arg.translucent.color = cr_color_node_build(cJSON_GetObjectItem(node, "color"))
 		});
+	} else if (stringEquals(type->valuestring, "background")) {
+		struct cr_color_node *hdr = NULL;
+		struct cr_color_node *gradient = NULL;
+		// Special cases for scene.ambientColor
+		const cJSON *hdr_in = cJSON_GetObjectItem(node, "hdr");
+		if (cJSON_IsString(hdr_in)) {
+			hdr = cn_alloc((struct cr_color_node){
+				.type = cr_cn_image,
+				.arg.image.full_path = stringCopy(hdr_in->valuestring),
+				.arg.image.options = 0 // TODO: Options?
+			});
+		}
+		const cJSON *down = cJSON_GetObjectItem(node, "down");
+		const cJSON *up = cJSON_GetObjectItem(node, "up");
+		if (!hdr && cJSON_IsObject(down) && cJSON_IsObject(up)) {
+			gradient = cn_alloc((struct cr_color_node){
+				.type = cr_cn_gradient,
+				.arg.gradient = {
+					.a = cr_color_node_build(down),
+					.b = cr_color_node_build(up),
+				}
+			});
+		}
+
+		const cJSON *strength = cJSON_GetObjectItem(node, "strength");
+		const cJSON *offset = cJSON_GetObjectItem(node, "offset");
+		return bn_alloc((struct cr_shader_node){
+			.type = cr_bsdf_background,
+			.arg.background = {
+				.color = hdr ? hdr : gradient,
+				.pose = cr_vector_node_build(offset),
+				.strength = cr_value_node_build(strength),
+			}
+		});
 	}
 
 	logr(warning, "Failed to parse node. Here's a dump:\n");
@@ -605,6 +649,11 @@ void cr_shader_node_free(struct cr_shader_node *d) {
 			break;
 		case cr_bsdf_translucent:
 			cr_color_node_free(d->arg.translucent.color);
+			break;
+		case cr_bsdf_background:
+			cr_color_node_free(d->arg.background.color);
+			cr_vector_node_free(d->arg.background.pose);
+			cr_value_node_free(d->arg.background.strength);
 			break;
 	}
 	free(d);
