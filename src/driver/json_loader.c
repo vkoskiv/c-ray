@@ -34,117 +34,50 @@
 #include "../utils/loaders/textureloader.h"
 #include "../utils/loaders/meshloader.h"
 
-static struct transform parseTransform(const cJSON *data, char *targetName) {
-	cJSON *type = cJSON_GetObjectItem(data, "type");
+static struct transform parse_tform(const cJSON *data) {
+	const cJSON *type = cJSON_GetObjectItem(data, "type");
 	if (!cJSON_IsString(type)) {
-		logr(warning, "Failed to parse transform! No type found\n");
-		logr(warning, "Transform data: %s\n", cJSON_Print(data));
-		return tform_new_translate(0.0f, 0.0f, 0.0f);
+		logr(warning, "No type found for transform: %s\n", cJSON_Print(data));
+		return tform_new();
 	}
-	
-	cJSON *degrees = NULL;
-	cJSON *radians = NULL;
-	cJSON *scale = NULL;
-	cJSON *X = NULL;
-	cJSON *Y = NULL;
-	cJSON *Z = NULL;
-	
-	bool validDegrees = false;
-	bool validRadians = false;
-	bool validScale = false;
-	
-	degrees = cJSON_GetObjectItem(data, "degrees");
-	radians = cJSON_GetObjectItem(data, "radians");
-	scale = cJSON_GetObjectItem(data, "scale");
-	X = cJSON_GetObjectItem(data, "X");
-	Y = cJSON_GetObjectItem(data, "Y");
-	Z = cJSON_GetObjectItem(data, "Z");
-	
-	if (degrees != NULL && cJSON_IsNumber(degrees)) {
-		validDegrees = true;
-	}
-	if (radians != NULL && cJSON_IsNumber(radians)) {
-		validRadians = true;
-	}
-	if (scale != NULL && cJSON_IsNumber(scale)) {
-		validScale = true;
-	}
-	
+
 	//For translate, we want the default to be 0. For scaling, def should be 1
-	float def = 0.0f;
-	if (stringEquals(type->valuestring, "scale")) {
-		def = 1.0f;
-	}
+	const float fallback = stringEquals(type->valuestring, "scale") ? 1.0f : 0.0f;
 	
-	int validCoords = 0; //Accept if we have at least one provided
-	float Xval, Yval, Zval;
-	if (X != NULL && cJSON_IsNumber(X)) {
-		Xval = X->valuedouble;
-		validCoords++;
-	} else {
-		Xval = def;
-	}
-	if (Y != NULL && cJSON_IsNumber(Y)) {
-		Yval = Y->valuedouble;
-		validCoords++;
-	} else {
-		Yval = def;
-	}
-	if (Z != NULL && cJSON_IsNumber(Z)) {
-		Zval = Z->valuedouble;
-		validCoords++;
-	} else {
-		Zval = def;
-	}
+	const cJSON *x_in = cJSON_GetObjectItem(data, "x");
+	const float x = cJSON_IsNumber(x_in) ? x_in->valuedouble : fallback;
 	
+	const cJSON *y_in = cJSON_GetObjectItem(data, "y");
+	const float y = cJSON_IsNumber(y_in) ? y_in->valuedouble : fallback;
+
+	const cJSON *z_in = cJSON_GetObjectItem(data, "z");
+	const float z = cJSON_IsNumber(z_in) ? z_in->valuedouble : fallback;
+
+	const cJSON *scale_in = cJSON_GetObjectItem(data, "scale");
+	const float scale = cJSON_IsNumber(scale_in) ? scale_in->valuedouble : fallback;
+
+	const cJSON *degs_in = cJSON_GetObjectItem(data, "degrees");
+	const cJSON *rads_in = cJSON_GetObjectItem(data, "radians");
+	const float rads = cJSON_IsNumber(degs_in) ?
+						deg_to_rad(degs_in->valuedouble) :
+						cJSON_IsNumber(rads_in) ? rads_in->valuedouble : 0.0f;
 	if (stringEquals(type->valuestring, "rotateX")) {
-		if (validDegrees) {
-			return tform_new_rot_x(deg_to_rad(degrees->valuedouble));
-		} else if (validRadians) {
-			return tform_new_rot_x(radians->valuedouble);
-		} else {
-			logr(warning, "Found rotateX transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
-		}
+		return tform_new_rot_x(rads);
 	} else if (stringEquals(type->valuestring, "rotateY")) {
-		if (validDegrees) {
-			return tform_new_rot_y(deg_to_rad(degrees->valuedouble));
-		} else if (validRadians) {
-			return tform_new_rot_y(radians->valuedouble);
-		} else {
-			logr(warning, "Found rotateY transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
-		}
+		return tform_new_rot_y(rads);
 	} else if (stringEquals(type->valuestring, "rotateZ")) {
-		if (validDegrees) {
-			return tform_new_rot_z(deg_to_rad(degrees->valuedouble));
-		} else if (validRadians) {
-			return tform_new_rot_z(radians->valuedouble);
-		} else {
-			logr(warning, "Found rotateZ transform for object \"%s\" with no valid degrees or radians value given.\n", targetName);
-		}
+		return tform_new_rot_z(rads);
 	} else if (stringEquals(type->valuestring, "translate")) {
-		if (validCoords > 0) {
-			return tform_new_translate(Xval, Yval, Zval);
-		} else {
-			logr(warning, "Found translate transform for object \"%s\" with less than 1 valid coordinate given.\n", targetName);
-		}
+		return tform_new_translate(x, y, z);
 	} else if (stringEquals(type->valuestring, "scale")) {
-		if (validCoords > 0) {
-			return tform_new_scale3(Xval, Yval, Zval);
-		} else {
-			logr(warning, "Found scale transform for object \"%s\" with less than 1 valid scale value given.\n", targetName);
-		}
+		return tform_new_scale3(x, y, z);
 	} else if (stringEquals(type->valuestring, "scaleUniform")) {
-		if (validScale) {
-			return tform_new_scale(scale->valuedouble);
-		} else {
-			logr(warning, "Found scaleUniform transform for object \"%s\" with no valid scale value given.\n", targetName);
-		}
+		return tform_new_scale(scale);
 	} else {
-		logr(warning, "Found an invalid transform \"%s\" for object \"%s\"\n", type->valuestring, targetName);
+		logr(warning, "Found an invalid transform \"%s\"\n", type->valuestring);
 	}
-	
-	//Hack. This is essentially just a NOP transform that does nothing.
-	return tform_new_translate(0.0f, 0.0f, 0.0f);
+
+	return tform_new();
 }
 
 void parse_prefs(struct cr_renderer *ext, const cJSON *data) {
@@ -352,7 +285,7 @@ static void parse_ambient_color(struct cr_renderer *r, struct cr_scene *s, const
 struct transform parse_composite_transform(const cJSON *transforms) {
 	if (!transforms) return tform_new();
 	//TODO: Pass mesh/instance name as targetName for logging
-	if (!cJSON_IsArray(transforms)) return parseTransform(transforms, "compositeBuilder");
+	if (!cJSON_IsArray(transforms)) return parse_tform(transforms);
 	
 	struct transform composite = tform_new();
 
@@ -361,21 +294,21 @@ struct transform parse_composite_transform(const cJSON *transforms) {
 		const cJSON *type = cJSON_GetObjectItem(transform, "type");
 		if (!cJSON_IsString(type)) break;
 		if (stringStartsWith("translate", type->valuestring)) {
-			composite.A = mat_mul(composite.A, parseTransform(transform, "translates").A);
+			composite.A = mat_mul(composite.A, parse_tform(transform).A);
 		}
 	}
 	cJSON_ArrayForEach(transform, transforms) {
 		const cJSON *type = cJSON_GetObjectItem(transform, "type");
 		if (!cJSON_IsString(type)) break;
 		if (stringStartsWith("rotate", type->valuestring)) {
-			composite.A = mat_mul(composite.A, parseTransform(transform, "translates").A);
+			composite.A = mat_mul(composite.A, parse_tform(transform).A);
 		}
 	}
 	cJSON_ArrayForEach(transform, transforms) {
 		const cJSON *type = cJSON_GetObjectItem(transform, "type");
 		if (!cJSON_IsString(type)) break;
 		if (stringStartsWith("scale", type->valuestring)) {
-			composite.A = mat_mul(composite.A, parseTransform(transform, "translates").A);
+			composite.A = mat_mul(composite.A, parse_tform(transform).A);
 		}
 	}
 	return composite;
