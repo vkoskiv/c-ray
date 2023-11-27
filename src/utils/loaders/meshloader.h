@@ -8,6 +8,14 @@
 
 #pragma once
 
+#include "../../datatypes/mesh.h"
+
 struct file_cache;
 
-struct mesh_arr load_meshes_from_file(const char *file_path, struct file_cache *cache);
+struct mesh_parse_result {
+	struct mesh_arr meshes;
+	struct material_arr materials;
+	struct vertex_buffer geometry;
+};
+
+struct mesh_parse_result load_meshes_from_file(const char *file_path, struct file_cache *cache);

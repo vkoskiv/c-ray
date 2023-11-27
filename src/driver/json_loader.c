@@ -311,21 +311,30 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	struct cr_scene *scene = cr_renderer_scene_get(r);
 
 	//FIXME: This concat + path fixing should be an utility function
-	char *fullPath = stringConcat(todo_remove_r->prefs.assetPath, file_name->valuestring);
-	windowsFixPath(fullPath);
+	const char *asset_path = cr_renderer_get_str_pref(r, cr_renderer_asset_path);
+	char *full_path = stringConcat(asset_path, file_name->valuestring);
+	windowsFixPath(full_path);
 
 	logr(plain, "\r");
 	logr(info, "Loading mesh file %i/%i%s", idx + 1, mesh_file_count, (idx + 1) == mesh_file_count ? "\n" : "\r");
 	struct timeval timer;
 	timer_start(&timer);
-	//FIXME: A new asset type that contains meshes, materials, etc separately would make this much more flexible.
-	struct mesh_arr meshes = load_meshes_from_file(fullPath, todo_remove_r->state.file_cache);
+	struct mesh_parse_result result = load_meshes_from_file(full_path, todo_remove_r->state.file_cache);
 	long us = timer_get_us(timer);
-	free(fullPath);
+	free(full_path);
 	long ms = us / 1000;
 	logr(debug, "Parsing file %-35s took %zu %s\n", file_name->valuestring, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");
 
-	if (!meshes.count) return;
+	if (!result.meshes.count) return;
+
+	struct cr_vertex_buf *vbuf = cr_vertex_buf_new((struct cr_vertex_buf){
+		.vertices = (struct cr_vector *)result.geometry.vertices.items,
+		.vertex_count = result.geometry.vertices.count,
+		.normals = (struct cr_vector *)result.geometry.normals.items,
+		.normal_count = result.geometry.normals.count,
+		.tex_coords = (struct cr_coord *)result.geometry.texture_coords.items,
+		.tex_coord_count = result.geometry.texture_coords.count,
+	});
 
 	// Per JSON 'meshes' array element, these apply to materials before we assign them to instances
 	const struct cJSON *global_overrides = cJSON_GetObjectItem(data, "materials");
@@ -334,10 +343,8 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	// Precompute guessed bsdfs for these instances
 	cr_material_set *file_set = cr_material_set_new();
 	logr(debug, "Figuring out bsdfs for mtllib materials\n");
-	// FIXME: 0 index hack relies on wavefront parser behaviour that may change
-	struct material_arr file_mats = meshes.items[0].mbuf->materials;
-	for (size_t i = 0; i < file_mats.count; ++i) {
-		struct cr_shader_node *desc = global_desc(file_mats, global_overrides, i);
+	for (size_t i = 0; i < result.materials.count; ++i) {
+		struct cr_shader_node *desc = global_desc(result.materials, global_overrides, i);
 		cr_material_set_add(r, file_set, desc);
 		cr_shader_node_free(desc);
 	}
@@ -360,32 +367,36 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	const cJSON *instances = pick_instances ? pick_instances : add_instances;
 	if (!cJSON_IsArray(pick_instances)) {
 		// Generate one instance for every mesh, identity transform.
-		for (size_t i = 0; i < meshes.count; ++i) {
-			cr_mesh mesh = cr_scene_add_mesh(scene, &meshes.items[i]);
+		for (size_t i = 0; i < result.meshes.count; ++i) {
+			cr_mesh mesh = cr_scene_mesh_new(scene, result.meshes.items[i].name);
+			cr_mesh_bind_vertex_buf(scene, mesh, vbuf);
+			cr_mesh_bind_faces(scene, mesh, (struct cr_face *)result.meshes.items[i].polygons.items, result.meshes.items[i].polygons.count);
 			cr_instance m_instance = cr_instance_new(scene, mesh, cr_object_mesh);
 			cr_instance_bind_material_set(r, m_instance, file_set);
 		}
 		goto done;
 	}
 
-	for (size_t m_idx = 0; m_idx < meshes.count; ++m_idx) {
+	for (size_t m_idx = 0; m_idx < result.meshes.count; ++m_idx) {
 		const cJSON *instance = NULL;
 		cJSON_ArrayForEach(instance, instances) {
 			const cJSON *mesh_name = cJSON_GetObjectItem(instance, "for");
 			cr_mesh mesh = -1;
-			if (stringEquals(mesh_name->valuestring, meshes.items[m_idx].name)) {
-				mesh = cr_scene_add_mesh(scene, &meshes.items[m_idx]);
+			if (stringEquals(mesh_name->valuestring, result.meshes.items[m_idx].name)) {
+				mesh = cr_scene_mesh_new(scene, result.meshes.items[m_idx].name);
+				cr_mesh_bind_vertex_buf(scene, mesh, vbuf);
+				cr_mesh_bind_faces(scene, mesh, (struct cr_face *)result.meshes.items[m_idx].polygons.items, result.meshes.items[m_idx].polygons.count);
 			}
 			if (mesh < 0) continue;
 			cr_instance new = cr_instance_new(scene, mesh, cr_object_mesh);
 			cr_material_set *instance_set = cr_material_set_new();
 			const cJSON *instance_overrides = cJSON_GetObjectItem(instance, "materials");
-			for (size_t i = 0; i < file_mats.count; ++i) {
+			for (size_t i = 0; i < result.materials.count; ++i) {
 				struct cr_shader_node *override_match = NULL;
 				const cJSON *override = NULL;
 				cJSON_ArrayForEach(override, instance_overrides) {
 					const cJSON *name = cJSON_GetObjectItem(override, "replace");
-					if (cJSON_IsString(name) && stringEquals(name->valuestring, file_mats.items[i].name)) {
+					if (cJSON_IsString(name) && stringEquals(name->valuestring, result.materials.items[i].name)) {
 						override_match = cr_shader_node_build(override);
 						break;
 					}
@@ -394,7 +405,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 					cr_material_set_add(r, instance_set, override_match);
 					cr_shader_node_free(override_match);
 				} else {
-					struct cr_shader_node *global = global_desc(file_mats, global_overrides, i);
+					struct cr_shader_node *global = global_desc(result.materials, global_overrides, i);
 					cr_material_set_add(r, instance_set, global);
 					cr_shader_node_free(global);
 				}
@@ -408,7 +419,19 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 done:
 
 	cr_material_set_del(file_set);
-	mesh_arr_free(&meshes);
+	for (size_t i = 0; i < result.meshes.count; ++i) {
+		poly_arr_free(&result.meshes.items[i].polygons);
+		destroyMesh(&result.meshes.items[i]);
+	}
+	for (size_t i = 0; i < result.materials.count; ++i) {
+		destroyMaterial(&result.materials.items[i]);
+	}
+	mesh_arr_free(&result.meshes);
+	material_arr_free(&result.materials);
+	vector_arr_free(&result.geometry.vertices);
+	vector_arr_free(&result.geometry.normals);
+	coord_arr_free(&result.geometry.texture_coords);
+	cr_vertex_buf_del(vbuf);
 }
 
 static void parse_meshes(struct cr_renderer *r, const cJSON *data) {

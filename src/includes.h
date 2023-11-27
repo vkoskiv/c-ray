@@ -9,7 +9,6 @@
 #pragma once
 
 //Global constants
-#define MAX_CRAY_VERTEX_COUNT 3
 #define PI        3.141592653589793238462643383279502f
 #define CRAY_MATERIAL_NAME_SIZE 256
 #define CRAY_MESH_FILENAME_LENGTH 500

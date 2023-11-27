@@ -14,12 +14,12 @@
 #include "../logging.h"
 #include "../../datatypes/mesh.h"
 
-struct mesh_arr load_meshes_from_file(const char *filePath, struct file_cache *cache) {
-	switch (guess_file_type(filePath)) {
+struct mesh_parse_result load_meshes_from_file(const char *file_path, struct file_cache *cache) {
+	switch (guess_file_type(file_path)) {
 		case obj:
-			return parse_wavefront(filePath, cache);
+			return parse_wavefront(file_path, cache);
 		default:
-			logr(warning, "%s: Unknown file type, skipping.\n", filePath);
-			return (struct mesh_arr){ 0 };
+			logr(warning, "%s: Unknown file type, skipping.\n", file_path);
+			return (struct mesh_parse_result){ 0 };
 	}
 }

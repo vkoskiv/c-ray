@@ -10,13 +10,13 @@
 
 #include "../includes.h"
 #include "../utils/dyn_array.h"
+#include <c-ray/c-ray.h>
 
 struct poly {
 	int vertexIndex[MAX_CRAY_VERTEX_COUNT];
 	int normalIndex[MAX_CRAY_VERTEX_COUNT];
 	int textureIndex[MAX_CRAY_VERTEX_COUNT];
 	unsigned int materialIndex: 16;
-	unsigned int vertexCount: 3;
 	bool hasNormals;
 };
 

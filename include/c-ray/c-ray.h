@@ -14,6 +14,7 @@
 #include <stddef.h>
 
 #define C_RAY_PROTO_DEFAULT_PORT 2222
+#define MAX_CRAY_VERTEX_COUNT 3
 
 struct renderInfo;
 struct texture;
@@ -103,6 +104,14 @@ void cr_destroy_renderer(struct cr_renderer *r);
 
 // -- Scene --
 
+struct cr_vector {
+	float x, y, z;
+};
+
+struct cr_coord {
+	float u, v;
+};
+
 struct cr_scene;
 struct cr_scene *cr_renderer_scene_get(struct cr_renderer *r);
 
@@ -126,12 +135,31 @@ typedef int64_t cr_object;
 typedef cr_object cr_sphere;
 cr_sphere cr_scene_add_sphere(struct cr_scene *s_ext, float radius);
 typedef cr_object cr_mesh;
-struct mesh;
-cr_mesh cr_scene_add_mesh(struct cr_scene *s_ext, struct mesh *mesh); // FIXME
 
-struct cr_vector {
-	float x, y, z;
+struct cr_vertex_buf {
+	struct cr_vector *vertices;
+	size_t vertex_count;
+	struct cr_vector *normals;
+	size_t normal_count;
+	struct cr_coord *tex_coords;
+	size_t tex_coord_count;
 };
+
+struct cr_vertex_buf *cr_vertex_buf_new(struct cr_vertex_buf in);
+void cr_vertex_buf_del(struct cr_vertex_buf *buf);
+void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, struct cr_vertex_buf *buf);
+
+struct cr_face {
+	int vertex_idx[MAX_CRAY_VERTEX_COUNT];
+	int normal_idx[MAX_CRAY_VERTEX_COUNT];
+	int texture_idx[MAX_CRAY_VERTEX_COUNT];
+	unsigned int mat_idx: 16;
+	bool has_normals;
+};
+
+void cr_mesh_bind_faces(struct cr_scene *s_ext, cr_mesh mesh, struct cr_face *faces, size_t face_count);
+
+cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name);
 
 // -- Camera --
 // FIXME: Use cr_vector
@@ -165,9 +193,6 @@ typedef struct cr_material_set cr_material_set;
 cr_material_set *cr_material_set_new(void);
 void cr_material_set_add(struct cr_renderer *r_ext, cr_material_set *set, struct cr_shader_node *desc);
 void cr_material_set_del(cr_material_set *set);
-
-void cr_load_mesh_from_file(char *filePath);
-void cr_load_mesh_from_buf(char *buf);
 
 // -- Instancing --
 

@@ -10,4 +10,4 @@
 
 struct file_cache;
 
-struct mesh_arr parse_wavefront(const char *file_path, struct file_cache *cache);
+struct mesh_parse_result parse_wavefront(const char *file_path, struct file_cache *cache);

@@ -201,6 +201,7 @@ const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_p
 	switch (p) {
 		case cr_renderer_output_path: return r->prefs.imgFilePath;
 		case cr_renderer_output_name: return r->prefs.imgFileName;
+		case cr_renderer_asset_path: return r->prefs.assetPath;
 		default: return NULL;
 	}
 	return NULL;
@@ -252,23 +253,62 @@ struct cr_scene_totals cr_scene_totals(struct cr_scene *s_ext) {
 	};
 }
 
-struct cr_object;
-
-struct cr_object *cr_object_new(struct cr_scene *s) {
-	(void)s;
-	return NULL;
-}
-
 cr_sphere cr_scene_add_sphere(struct cr_scene *s_ext, float radius) {
 	if (!s_ext) return -1;
 	struct world *scene = (struct world *)s_ext;
 	return sphere_arr_add(&scene->spheres, (struct sphere){ .radius = radius });
 }
 
-cr_mesh cr_scene_add_mesh(struct cr_scene *s_ext, struct mesh *mesh) {
+struct cr_vertex_buf *cr_vertex_buf_new(struct cr_vertex_buf in) {
+	struct vertex_buffer *buf = vertex_buf_ref(NULL);
+	// TODO: T_arr_add_n()
+	if (in.vertices && in.vertex_count) {
+		for (size_t i = 0; i < in.vertex_count; ++i) {
+			vector_arr_add(&buf->vertices, *(struct vector *)&in.vertices[i]);
+		}
+	}
+	if (in.normals && in.normal_count) {
+		for (size_t i = 0; i < in.normal_count; ++i) {
+			vector_arr_add(&buf->normals, *(struct vector *)&in.normals[i]);
+		}
+	}
+	if (in.tex_coords && in.tex_coord_count) {
+		for (size_t i = 0; i < in.tex_coord_count; ++i) {
+			coord_arr_add(&buf->texture_coords, *(struct coord *)&in.tex_coords[i]);
+		}
+	}
+	return (struct cr_vertex_buf *)buf;
+}
+
+void cr_vertex_buf_del(struct cr_vertex_buf *buf) {
+	vertex_buf_unref((struct vertex_buffer *)buf);
+}
+
+void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, struct cr_vertex_buf *buf) {
+	if (!s_ext || !buf) return;
+	struct world *scene = (struct world *)s_ext;
+	if ((size_t)mesh > scene->meshes.count - 1) return;
+	struct mesh *m = &scene->meshes.items[mesh];
+	m->vbuf = vertex_buf_ref((struct vertex_buffer *)buf);
+}
+
+void cr_mesh_bind_faces(struct cr_scene *s_ext, cr_mesh mesh, struct cr_face *faces, size_t face_count) {
+	if (!s_ext || !faces) return;
+	struct world *scene = (struct world *)s_ext;
+	if ((size_t)mesh > scene->meshes.count - 1) return;
+	struct mesh *m = &scene->meshes.items[mesh];
+	// FIXME: memcpy
+	for (size_t i = 0; i < face_count; ++i) {
+		poly_arr_add(&m->polygons, *(struct poly *)&faces[i]);
+	}
+}
+
+cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name) {
 	if (!s_ext) return -1;
 	struct world *scene = (struct world *)s_ext;
-	return mesh_arr_add(&scene->meshes, *mesh);
+	struct mesh new = { 0 };
+	if (name) new.name = stringCopy(name);
+	return mesh_arr_add(&scene->meshes, new);
 }
 
 cr_instance cr_instance_new(struct cr_scene *s_ext, cr_object object, enum cr_object_type type) {
@@ -433,16 +473,6 @@ void cr_material_set_add(struct cr_renderer *r_ext, cr_material_set *set, struct
 void cr_material_set_del(cr_material_set *set) {
 	if (!set) return;
 	bsdf_buf_unref((struct bsdf_buffer *)set);
-}
-
-void cr_load_mesh_from_file(char *file_path) {
-	(void)file_path;
-	ASSERT_NOT_REACHED();
-}
-
-void cr_load_mesh_from_buf(char *buf) {
-	(void)buf;
-	ASSERT_NOT_REACHED();
 }
 
 struct texture *cr_renderer_render(struct cr_renderer *ext) {
