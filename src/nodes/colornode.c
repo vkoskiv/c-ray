@@ -38,8 +38,13 @@ const struct colorNode *build_color_node(struct cr_renderer *r_ext, const struct
 					desc->arg.constant.b,
 					desc->arg.constant.a
 				});
-		case cr_cn_image:
-			return newImageTexture(&s, load_texture(desc->arg.image.full_path, &r->scene->storage.node_pool, cache), desc->arg.image.options);
+		case cr_cn_image: {
+			char *full = stringConcat(r->prefs.assetPath, desc->arg.image.full_path);
+			windowsFixPath(full);
+			const struct colorNode *new = newImageTexture(&s, load_texture(full, &r->scene->storage.node_pool, cache), desc->arg.image.options);
+			free(full);
+			return new;
+		}
 		case cr_cn_checkerboard:
 			return newCheckerBoardTexture(&s,
 				build_color_node(r_ext, desc->arg.checkerboard.a),

@@ -66,14 +66,6 @@ const struct bsdfNode *build_bsdf_node(struct cr_renderer *r_ext, const struct c
 		case cr_bsdf_translucent:
 			return newTranslucent(&s, build_color_node(r_ext, desc->arg.translucent.color));
 		case cr_bsdf_background: {
-			// FIXME: Yuck
-			// Also, this will shit the bed if that path isn't a valid one
-			if (desc->arg.background.color->type == cr_cn_image && desc->arg.background.color->arg.image.full_path) {
-				char *path = stringConcat(r->prefs.assetPath, desc->arg.background.color->arg.image.full_path);
-				windowsFixPath(path);
-				free(desc->arg.background.color->arg.image.full_path);
-				desc->arg.background.color->arg.image.full_path = path;
-			}
 			return newBackground(&s,
 				build_color_node(r_ext, desc->arg.background.color),
 				build_value_node(r_ext, desc->arg.background.strength),

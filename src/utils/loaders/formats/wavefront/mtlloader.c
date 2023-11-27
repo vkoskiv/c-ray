@@ -31,8 +31,6 @@ struct material_arr parse_mtllib(const char *filePath, struct file_cache *cache)
 	textBuffer *file = newTextBuffer((char *)mtllib_text.items);
 	file_free(&mtllib_text);
 	
-	char *assetPath = get_file_path(filePath);
-	
 	struct material_arr materials = { 0 };
 	struct material *current = NULL;
 	
@@ -78,17 +76,11 @@ struct material_arr parse_mtllib(const char *filePath, struct file_cache *cache)
 		} else if (stringEquals(first, "Ni")) {
 			current->IOR = atof(nextToken(&line));
 		} else if (stringEquals(first, "map_Kd") || stringEquals(first, "map_Ka")) {
-			char *path = stringConcat(assetPath, nextToken(&line));
-			windowsFixPath(path);
-			current->texture_path = path;
+			current->texture_path = stringCopy(nextToken(&line));
 		} else if (stringEquals(first, "norm") || stringEquals(first, "bump") || stringEquals(first, "map_bump")) {
-			char *path = stringConcat(assetPath, nextToken(&line));
-			windowsFixPath(path);
-			current->normal_path = path;
+			current->normal_path = stringCopy(nextToken(&line));
 		} else if (stringEquals(first, "map_Ns")) {
-			char *path = stringConcat(assetPath, nextToken(&line));
-			windowsFixPath(path);
-			current->specular_path = path;
+			current->specular_path = stringCopy(nextToken(&line));
 		} else {
 			char *fileName = get_file_name(filePath);
 			logr(debug, "Unknown statement \"%s\" in MTL \"%s\" on line %zu\n",
@@ -99,7 +91,6 @@ struct material_arr parse_mtllib(const char *filePath, struct file_cache *cache)
 	}
 	
 	destroyTextBuffer(file);
-	free(assetPath);
 	logr(debug, "Found %zu materials\n", materials.count);
 	return materials;
 }
