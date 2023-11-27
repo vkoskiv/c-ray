@@ -1,6 +1,6 @@
 //
 //  gltf.c
-//  C-Ray
+//  c-Ray
 //
 //  Created by Valtteri Koskivuori on 26/09/2021.
 //  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
@@ -9,15 +9,15 @@
 #include "../../../../includes.h"
 
 #include "gltf.h"
-#include "../../../../vendored/cJSON.h"
-#include "../../../string.h"
-#include "../../../base64.h"
-#include "../../../../datatypes/vector.h"
-#include "../../../logging.h"
 #include <string.h>
-#include "../../../fileio.h"
+#include "../../../../vendored/cJSON.h"
+#include "../../../../utils/string.h"
+#include "../../../../utils/base64.h"
+#include "../../../../datatypes/vector.h"
+#include "../../../../utils/logging.h"
+#include "../../../../utils/fileio.h"
 #include "../../../../datatypes/image/texture.h"
-#include "../../textureloader.h"
+#include "../../../../utils/loaders/textureloader.h"
 
 enum accessor_type {
 	UNKNOWN,

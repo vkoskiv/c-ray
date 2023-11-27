@@ -12,12 +12,11 @@
 #include "mtlloader.h"
 
 #include "../../../../datatypes/material.h"
-#include "../../../logging.h"
-#include "../../../string.h"
-#include "../../../textbuffer.h"
-#include "../../../fileio.h"
-#include "../../../assert.h"
-#include "../../textureloader.h"
+#include "../../../../utils/logging.h"
+#include "../../../../utils/string.h"
+#include "../../../../utils/textbuffer.h"
+#include "../../../../utils/fileio.h"
+#include "../../../../utils/assert.h"
 
 static struct color parse_color(lineBuffer *line) {
 	ASSERT(line->amountOf.tokens == 4);

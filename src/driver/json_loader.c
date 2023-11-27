@@ -11,6 +11,7 @@
 #include "json_loader.h"
 #include "../vendored/cJSON.h"
 #include "node_parse.h"
+#include "loaders/meshloader.h"
 
 //FIXME: We should only need to include c-ray.h here!
 #include <c-ray/c-ray.h>
@@ -32,7 +33,6 @@
 #include "../utils/fileio.h"
 #include "../utils/string.h"
 #include "../utils/loaders/textureloader.h"
-#include "../utils/loaders/meshloader.h"
 
 static struct transform parse_tform(const cJSON *data) {
 	const cJSON *type = cJSON_GetObjectItem(data, "type");
