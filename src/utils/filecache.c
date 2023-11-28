@@ -15,6 +15,7 @@
 #include "logging.h"
 
 bool cache_contains(const struct file_cache *cache, const char *path) {
+	if (!cache || !path) return false;
 	for (size_t i = 0; i < cache->files.count; ++i) {
 		if (stringEquals(path, cache->files.items[i].path)) {
 			return true;
@@ -42,6 +43,7 @@ struct file_cache *cache_create(void) {
 }
 
 void cache_store(struct file_cache *cache, const char *path, const void *data, size_t length) {
+	if (!cache || !path || !data) return;
 	if (cache_contains(cache, path)) {
 		logr(debug, "File %s already cached, skipping.\n", path);
 		return;

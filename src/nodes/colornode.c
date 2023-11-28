@@ -1,9 +1,9 @@
 //
 //  texturenode.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 30/11/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../datatypes/color.h"
@@ -26,7 +26,6 @@
 const struct colorNode *build_color_node(struct cr_renderer *r_ext, const struct cr_color_node *desc) {
 	if (!r_ext || !desc) return NULL;
 	struct renderer *r = (struct renderer *)r_ext;
-	struct file_cache *cache = r->state.file_cache;
 	struct node_storage s = r->scene->storage;
 
 	switch (desc->type) {
@@ -41,8 +40,16 @@ const struct colorNode *build_color_node(struct cr_renderer *r_ext, const struct
 		case cr_cn_image: {
 			char *full = stringConcat(r->prefs.assetPath, desc->arg.image.full_path);
 			windowsFixPath(full);
-			const struct colorNode *new = newImageTexture(&s, load_texture(full, &r->scene->storage.node_pool, cache), desc->arg.image.options);
+			file_data tex;
+			if (cache_contains(r->state.file_cache, full)) {
+				tex = cache_load(r->state.file_cache, full);
+			} else {
+				tex = file_load(full, NULL);
+				cache_store(r->state.file_cache, full, tex.items, tex.count);
+			}
+			const struct colorNode *new = newImageTexture(&s, load_texture(full, tex, &r->scene->storage.node_pool), desc->arg.image.options);
 			free(full);
+			file_free(&tex);
 			return new;
 		}
 		case cr_cn_checkerboard:

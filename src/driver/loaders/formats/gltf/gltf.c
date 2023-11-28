@@ -168,14 +168,14 @@ struct texture *parse_textures(const cJSON *data, size_t *amount, const struct b
 			if (!cJSON_IsString(uri)) break;
 			char *uri_string = uri->valuestring;
 			//TODO: Add name to texture
-			images[i] = *load_texture(uri_string, NULL, NULL); //FIXME cache
+			images[i] = *load_texture(uri_string, (file_data){ 0 }, NULL); //FIXME
 		} else {
 			const cJSON *buffer_view = cJSON_GetObjectItem(element, "bufferView");
 			const cJSON *mime_type = cJSON_GetObjectItem(element, "mimeType");
 			if (!cJSON_IsNumber(buffer_view) || !cJSON_IsString(mime_type)) break;
 			size_t buffer_view_idx = buffer_view->valueint;
 			char *bytes = bytes_from_buffer_view(&views[buffer_view_idx], buffers);
-			images[i] = *load_texture_from_buffer((unsigned char *)data, (unsigned int)views[buffer_view_idx].byte_length, NULL);
+			// images[i] = *load_texture_from_buffer((unsigned char *)data, (unsigned int)views[buffer_view_idx].byte_length, NULL);
 			free(bytes);
 		}
 	}

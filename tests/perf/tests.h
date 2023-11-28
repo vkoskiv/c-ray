@@ -9,7 +9,6 @@
 static char *failed_expression;
 
 // Testable modules
-#include "perf_texture.h"
 #include "perf_fileio.h"
 #include "perf_base64.h"
 

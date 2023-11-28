@@ -1,13 +1,12 @@
 //
 //  textureloader.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "textureloader.h"
-#include "../fileio.h"
 #include "../logging.h"
 #include "../../datatypes/image/texture.h"
 #include "../../utils/assert.h"
@@ -30,27 +29,25 @@ void copy_to_pool(struct block **pool, struct texture *tex) {
 	tex->data.byte_p = newBuf;
 }
 
-static struct texture *load_env_map(unsigned char *buf, size_t buflen, const char *path, struct block **pool) {
-	ASSERT(buf);
+static struct texture *load_env_map(const file_data data, struct block **pool) {
 	logr(info, "Loading HDR...");
 	struct texture *tex = allocBlock(pool, sizeof(*tex));
-	tex->data.float_p = stbi_loadf_from_memory(buf, (int)buflen, (int *)&tex->width, (int *)&tex->height, (int *)&tex->channels, 0);
+	tex->data.float_p = stbi_loadf_from_memory(data.items, (int)data.count, (int *)&tex->width, (int *)&tex->height, (int *)&tex->channels, 0);
 	tex->precision = float_p;
 	if (!tex->data.float_p) {
 		destroyTexture(tex);
-		logr(warning, "Error while decoding HDR from %s - Corrupted?\n", path);
+		logr(warning, "Error while decoding HDR: %s\n", stbi_failure_reason());
 		return NULL;
 	}
-	char *fsbuf = human_file_size(buflen, NULL);
-	printf(" %s\n", fsbuf);
-	free(fsbuf);
+	char sbuf[64];
+	printf(" %s\n", human_file_size(data.count, sbuf));
 	return tex;
 }
 
 // We use copyToPool() in loadTexture to copy the actual image data into the memory pool. This code is a bit confusing.
-struct texture *load_qoi_from_buffer(const unsigned char *buffer, const unsigned int buflen, struct block **pool) {
+struct texture *load_qoi_from_buffer(const file_data data, struct block **pool) {
 	qoi_desc desc;
-	void *decoded_data = qoi_decode(buffer, buflen, &desc, 3);
+	void *decoded_data = qoi_decode(data.items, data.count, &desc, 3);
 	if (!decoded_data) return NULL;
 	struct texture *new = pool ? allocBlock(pool, sizeof(*new)) : newTexture(none, 0, 0, 0);
 	new->data.byte_p = decoded_data;
@@ -61,11 +58,11 @@ struct texture *load_qoi_from_buffer(const unsigned char *buffer, const unsigned
 	return new;
 }
 
-struct texture *load_texture_from_buffer(const unsigned char *buffer, const unsigned int buflen, struct block **pool) {
+static struct texture *load_texture_from_buffer(const file_data data, struct block **pool) {
 	struct texture *new = pool ? allocBlock(pool, sizeof(*new)) : newTexture(none, 0, 0, 0);
-	new->data.byte_p = stbi_load_from_memory(buffer, buflen, (int *)&new->width, (int *)&new->height, (int *)&new->channels, 0);
+	new->data.byte_p = stbi_load_from_memory(data.items, data.count, (int *)&new->width, (int *)&new->height, (int *)&new->channels, 0);
 	if (!new->data.byte_p) {
-		logr(warning, "Failed to decode texture from memory buffer of size %u. Reason: \"%s\"\n", buflen, stbi_failure_reason());
+		logr(warning, "Failed to decode texture from memory buffer of size %zu. Reason: \"%s\"\n", data.count, stbi_failure_reason());
 		destroyTexture(new);
 		return NULL;
 	}
@@ -73,29 +70,29 @@ struct texture *load_texture_from_buffer(const unsigned char *buffer, const unsi
 	return new;
 }
 
-struct texture *load_texture(char *filePath, struct block **pool, struct file_cache *cache) {
-	//Handle the trailing newline here
-	filePath[strcspn(filePath, "\n")] = 0;
-	file_data file = file_load(filePath, cache);
-	if (!file.items) return NULL;
-	
-	enum fileType type = guess_file_type(filePath);
-	
+struct texture *load_texture(const char *path, const file_data data, struct block **pool) {
+	if (!data.items) return NULL;
+
+	enum fileType type = guess_file_type(path);
+
 	struct texture *new = NULL;
-	if (stbi_is_hdr(filePath)) {
-		new = load_env_map(file.items, file.count, filePath, pool);
+	if (stbi_is_hdr_from_memory(data.items, data.count)) {
+		new = load_env_map(data, pool);
 	} else if (type == qoi) {
-		new = load_qoi_from_buffer(file.items, file.count, pool);
+		new = load_qoi_from_buffer(data, pool);
 	} else {
-		new = load_texture_from_buffer(file.items, file.count, pool);
+		new = load_texture_from_buffer(data, pool);
 	}
-	file_free(&file);
-	if (pool) copy_to_pool(pool, new);
+
 	if (!new) {
-		logr(warning, "^That happened while decoding texture \"%s\" - Corrupted?\n", filePath);
-		destroyTexture(new);
+		logr(warning, "^That happened while decoding texture \"%s\"\n", path);
 		return NULL;
 	}
-	
+	if (pool) copy_to_pool(pool, new);
+
+	size_t raw_bytes = (new->channels * (new->precision == float_p ? 4 : 1)) * new->width * new->height;
+	char b0[64];
+	char b1[64];
+	logr(debug, "Loaded texture %s, %s => %s\n", path, human_file_size(data.count, b0), human_file_size(raw_bytes, b1));
 	return new;
 }
