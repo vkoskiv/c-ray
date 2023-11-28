@@ -12,27 +12,20 @@
 #include "../vendored/cJSON.h"
 #include "node_parse.h"
 #include "loaders/meshloader.h"
+#include "../utils/loaders/textureloader.h"
 
-//FIXME: We should only need to include c-ray.h here!
+// FIXME: We should only need to include c-ray.h here!
+#include "../renderer/renderer.h" // REMOVE
 #include <c-ray/c-ray.h>
-#include <stdlib.h>
-#include <string.h>
 
-#include "../datatypes/scene.h"
-#include "../datatypes/vector.h"
-#include "../datatypes/mesh.h"
-#include "../datatypes/sphere.h"
-#include "../datatypes/material.h"
-#include "../datatypes/poly.h"
 #include "../datatypes/transforms.h"
-#include "../datatypes/image/imagefile.h"
-#include "../renderer/renderer.h"
+#include "../datatypes/quaternion.h"
+#include "../datatypes/spline.h"
+#include "../datatypes/vector.h"
 #include "../utils/string.h"
 #include "../utils/platform/capabilities.h"
 #include "../utils/logging.h"
 #include "../utils/fileio.h"
-#include "../utils/string.h"
-#include "../utils/loaders/textureloader.h"
 
 static struct transform parse_tform(const cJSON *data) {
 	const cJSON *type = cJSON_GetObjectItem(data, "type");
