@@ -1,0 +1,2 @@
+#!/bin/sh
+cmake . -DCMAKE_BUILD_TYPE=Debug -DTSAN=True && make -j"$(nproc)"
