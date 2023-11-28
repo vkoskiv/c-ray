@@ -126,9 +126,6 @@ int main(int argc, char *argv[]) {
 		cr_renderer_set_num_pref(renderer, cr_renderer_override_cam, args_int(opts, "cam_index"));
 	}
 
-	// FIXME: Remove global options table, store it in a local in main() and run overrides
-	// from there.
-
 	// Now check and apply potential CLI overrides.
 	if (args_is_set(opts, "thread_override")) {
 		size_t threads = args_int(opts, "thread_override");

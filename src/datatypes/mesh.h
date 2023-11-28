@@ -28,7 +28,6 @@ struct vertex_buffer {
 struct mesh {
 	struct vertex_buffer *vbuf;
 	struct poly_arr polygons;
-	struct material_buffer *mbuf;
 	struct bvh *bvh;
 	float surface_area;
 	char *name;

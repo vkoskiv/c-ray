@@ -20,7 +20,6 @@ void destroyMesh(struct mesh *mesh) {
 		vertex_buf_unref(mesh->vbuf);
 		poly_arr_free(&mesh->polygons);
 		destroy_bvh(mesh->bvh);
-		material_buf_unref(mesh->mbuf);
 	}
 }
 
