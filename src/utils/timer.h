@@ -14,6 +14,8 @@ typedef struct timeval {
 	long tv_sec;
 	long tv_usec;
 } TIMEVAL, *PTIMEVAL, *LPTIMEVAL;
+#else
+#include <time.h>
 #endif
 
 void timer_start(struct timeval *timer);
