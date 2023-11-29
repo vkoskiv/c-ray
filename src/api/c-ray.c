@@ -222,9 +222,8 @@ uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_para
 	return 0;
 }
 
-// TODO: Remove r_ext
-bool cr_scene_set_background(struct cr_renderer *r_ext, struct cr_scene *s_ext, struct cr_shader_node *desc) {
-	if (!r_ext || !s_ext) return false;
+bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_shader_node *desc) {
+	if (!s_ext) return false;
 	struct world *s = (struct world *)s_ext;
 	s->background = desc ? build_bsdf_node(s_ext, desc) : newBackground(&s->storage, NULL, NULL, NULL);
 	s->bg_desc = desc ? desc : NULL;
@@ -346,10 +345,9 @@ void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, flo
 	};
 }
 
-bool cr_instance_bind_material_set(struct cr_renderer *r_ext, cr_instance instance, cr_material_set set) {
-	if (!r_ext) return false;
-	struct renderer *r = (struct renderer *)r_ext;
-	struct world *scene = r->scene;
+bool cr_instance_bind_material_set(struct cr_scene *s_ext, cr_instance instance, cr_material_set set) {
+	if (!s_ext) return false;
+	struct world *scene = (struct world *)s_ext;
 	if ((size_t)instance > scene->instances.count - 1) return false;
 	if ((size_t)set > scene->shader_buffers.count - 1) return false;
 	struct instance *i = &scene->instances.items[instance];
@@ -465,12 +463,9 @@ cr_material_set cr_scene_new_material_set(struct cr_scene *s_ext) {
 	return bsdf_buffer_arr_add(&scene->shader_buffers, (struct bsdf_buffer){ 0 });
 }
 
-// TODO: Remove r_ext
-void cr_material_set_add(struct cr_renderer *r_ext, struct cr_scene *s_ext, cr_material_set set, struct cr_shader_node *desc) {
-	if (!r_ext || !s_ext) return;
-	struct renderer *r = (struct renderer *)r_ext;
+void cr_material_set_add(struct cr_scene *s_ext, cr_material_set set, struct cr_shader_node *desc) {
+	if (!s_ext) return;
 	struct world *s = (struct world *)s_ext;
-	if (s != r->scene) return;
 	if ((size_t)set > s->shader_buffers.count - 1) return;
 	struct bsdf_buffer *buf = &s->shader_buffers.items[set];
 	const struct bsdfNode *node = build_bsdf_node(s_ext, desc);

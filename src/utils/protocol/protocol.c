@@ -378,7 +378,6 @@ static cJSON *serialize_instance(const struct instance in) {
 }
 
 static struct instance deserialize_instance(const cJSON *in) {
-	// TODO: Remember to hook up bbuf and object_arr
 	if (!in) return (struct instance){ 0 };
 	size_t object_idx = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "object_idx"));
 	bool is_mesh = cJSON_IsTrue(cJSON_GetObjectItem(in, "is_mesh"));
@@ -781,7 +780,6 @@ struct world *deserialize_scene(const cJSON *in) {
 	if (cJSON_IsArray(meshes)) {
 		cJSON *mesh = NULL;
 		cJSON_ArrayForEach(mesh, meshes) {
-			// TODO: Remember to hook up vbufs
 			mesh_arr_add(&out->meshes, deserialize_mesh(mesh));
 		}
 	}

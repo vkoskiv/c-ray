@@ -336,7 +336,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	logr(debug, "Figuring out bsdfs for mtllib materials\n");
 	for (size_t i = 0; i < result.materials.count; ++i) {
 		struct cr_shader_node *desc = global_desc(result.materials, global_overrides, i);
-		cr_material_set_add(r, scene, file_set, desc);
+		cr_material_set_add(scene, file_set, desc);
 	}
 
 	// Now apply some slightly overcomplicated logic to choose instances to add to the scene.
@@ -362,7 +362,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 			cr_mesh_bind_vertex_buf(scene, mesh, vbuf);
 			cr_mesh_bind_faces(scene, mesh, (struct cr_face *)result.meshes.items[i].polygons.items, result.meshes.items[i].polygons.count);
 			cr_instance m_instance = cr_instance_new(scene, mesh, cr_object_mesh);
-			cr_instance_bind_material_set(r, m_instance, file_set);
+			cr_instance_bind_material_set(scene, m_instance, file_set);
 		}
 		goto done;
 	}
@@ -392,15 +392,15 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 					}
 				}
 				if (override_match) {
-					cr_material_set_add(r, scene, instance_set, override_match);
+					cr_material_set_add(scene, instance_set, override_match);
 				} else {
 					struct cr_shader_node *global = global_desc(result.materials, global_overrides, i);
-					cr_material_set_add(r, scene, instance_set, global);
+					cr_material_set_add(scene, instance_set, global);
 				}
 			}
 
 			cr_instance_set_transform(scene, new, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")).A.mtx);
-			cr_instance_bind_material_set(r, new, instance_set);
+			cr_instance_bind_material_set(scene, new, instance_set);
 		}
 	}
 done:
@@ -467,7 +467,7 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 					material = materials;
 				}
 				struct cr_shader_node *desc = cr_shader_node_build(material);
-				cr_material_set_add(r, scene, instance_set, desc);
+				cr_material_set_add(scene, instance_set, desc);
 
 				// FIXME
 				// const cJSON *type_string = cJSON_GetObjectItem(material, "type");
@@ -478,7 +478,7 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 			}
 
 			cr_instance_set_transform(scene, new_instance, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")).A.mtx);
-			cr_instance_bind_material_set(r, new_instance, instance_set);
+			cr_instance_bind_material_set(scene, new_instance, instance_set);
 		}
 	}
 }
@@ -508,7 +508,7 @@ static void parseScene(struct cr_renderer *r, const cJSON *data) {
 	struct cr_scene *scene = cr_renderer_scene_get(r);
 
 	struct cr_shader_node *background = cr_shader_node_build(cJSON_GetObjectItem(data, "ambientColor"));
-	cr_scene_set_background(r, scene, background);
+	cr_scene_set_background(scene, background);
 
 	parse_primitives(r, cJSON_GetObjectItem(data, "primitives"));
 	parse_meshes(r, cJSON_GetObjectItem(data, "meshes"));
