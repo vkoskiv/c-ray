@@ -111,6 +111,7 @@ static struct render_tile *getWork(int connectionSocket, struct tile_set *tiles)
 	if (cJSON_IsString(action)) {
 		if (stringEquals(action->valuestring, "renderComplete")) {
 			logr(debug, "Master reported render is complete\n");
+			cJSON_Delete(response);
 			return NULL;
 		}
 	}
@@ -144,7 +145,6 @@ static void *workerThread(void *arg) {
 	mutex_lock(sockMutex);
 	thread->current = getWork(sock, thread->tiles);
 	mutex_release(sockMutex);
-	struct texture *tileBuffer = newTexture(float_p, thread->current->width, thread->current->height, 3);
 	sampler *sampler = newSampler();
 
 	struct camera *cam = thread->cam;
@@ -152,8 +152,9 @@ static void *workerThread(void *arg) {
 	struct timeval timer = { 0 };
 	thread->completedSamples = 1;
 	
+	struct texture *tileBuffer = NULL;
 	while (thread->current && r->state.rendering) {
-		if (tileBuffer->width != thread->current->width || tileBuffer->height != thread->current->height) {
+		if (!tileBuffer || tileBuffer->width != thread->current->width || tileBuffer->height != thread->current->height) {
 			destroyTexture(tileBuffer);
 			tileBuffer = newTexture(float_p, thread->current->width, thread->current->height, 3);
 		}
@@ -201,8 +202,10 @@ static void *workerThread(void *arg) {
 		cJSON *resp = readJSON(sock);
 		if (!resp || !stringEquals(cJSON_GetObjectItem(resp, "action")->valuestring, "ok")) {
 			mutex_release(sockMutex);
+			cJSON_Delete(resp);
 			break;
 		}
+		cJSON_Delete(resp);
 		mutex_release(sockMutex);
 		thread->completedSamples = 1;
 		mutex_lock(sockMutex);
@@ -325,6 +328,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	for (size_t t = 0; t < threadCount; ++t) {
 		thread_wait(&worker_threads[t]);
 	}
+	tile_set_free(&set);
 	free(worker_threads);
 	free(workerThreadStates);
 	return NULL;
