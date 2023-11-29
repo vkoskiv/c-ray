@@ -24,10 +24,11 @@
 #include "../utils/string.h"
 #include "../utils/protocol/server.h"
 #include "../utils/protocol/worker.h"
-#include "../utils/filecache.h"
 #include "../utils/hashtable.h"
 #include "../datatypes/camera.h"
 #include "../utils/loaders/textureloader.h"
+#include "../driver/node_parse.h"
+#include "../utils/protocol/protocol.h"
 
 #ifdef CRAY_DEBUG_ENABLED
 #define DEBUG "D"
@@ -132,8 +133,9 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			return true;
 		}
 		case cr_renderer_asset_path: {
-			if (r->prefs.assetPath) free(r->prefs.assetPath);
-			r->prefs.assetPath = stringCopy(str);
+			// TODO: we shouldn't really be touching anything but prefs in here.
+			if (r->scene->asset_path) free(r->scene->asset_path);
+			r->scene->asset_path = stringCopy(str);
 			return true;
 		}
 		case cr_renderer_output_name: {
@@ -156,12 +158,6 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 		case cr_renderer_node_list: {
 			if (r->prefs.node_list) free(r->prefs.node_list);
 			r->prefs.node_list = stringCopy(str);
-			if (!r->state.file_cache) r->state.file_cache = cache_create();
-			return true;
-		}
-		case cr_renderer_scene_cache: {
-			if (r->sceneCache) free(r->sceneCache);
-			r->sceneCache = stringCopy(str);
 			return true;
 		}
 		default: {
@@ -201,7 +197,7 @@ const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_p
 	switch (p) {
 		case cr_renderer_output_path: return r->prefs.imgFilePath;
 		case cr_renderer_output_name: return r->prefs.imgFileName;
-		case cr_renderer_asset_path: return r->prefs.assetPath;
+		case cr_renderer_asset_path: return r->scene->asset_path;
 		default: return NULL;
 	}
 	return NULL;
@@ -226,10 +222,12 @@ uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_para
 	return 0;
 }
 
+// TODO: Remove r_ext
 bool cr_scene_set_background(struct cr_renderer *r_ext, struct cr_scene *s_ext, struct cr_shader_node *desc) {
 	if (!r_ext || !s_ext) return false;
 	struct world *s = (struct world *)s_ext;
-	s->background = desc ? build_bsdf_node(r_ext, desc) : newBackground(&s->storage, NULL, NULL, NULL);
+	s->background = desc ? build_bsdf_node(s_ext, desc) : newBackground(&s->storage, NULL, NULL, NULL);
+	s->bg_desc = desc ? desc : NULL;
 	return true;
 }
 
@@ -259,37 +257,37 @@ cr_sphere cr_scene_add_sphere(struct cr_scene *s_ext, float radius) {
 	return sphere_arr_add(&scene->spheres, (struct sphere){ .radius = radius });
 }
 
-struct cr_vertex_buf *cr_vertex_buf_new(struct cr_vertex_buf in) {
-	struct vertex_buffer *buf = vertex_buf_ref(NULL);
+cr_vertex_buf cr_scene_vertex_buf_new(struct cr_scene *s_ext, struct cr_vertex_buf_param in) {
+	if (!s_ext) return -1;
+	struct world *scene = (struct world *)s_ext;
+	struct vertex_buffer new = { 0 };
 	// TODO: T_arr_add_n()
 	if (in.vertices && in.vertex_count) {
 		for (size_t i = 0; i < in.vertex_count; ++i) {
-			vector_arr_add(&buf->vertices, *(struct vector *)&in.vertices[i]);
+			vector_arr_add(&new.vertices, *(struct vector *)&in.vertices[i]);
 		}
 	}
 	if (in.normals && in.normal_count) {
 		for (size_t i = 0; i < in.normal_count; ++i) {
-			vector_arr_add(&buf->normals, *(struct vector *)&in.normals[i]);
+			vector_arr_add(&new.normals, *(struct vector *)&in.normals[i]);
 		}
 	}
 	if (in.tex_coords && in.tex_coord_count) {
 		for (size_t i = 0; i < in.tex_coord_count; ++i) {
-			coord_arr_add(&buf->texture_coords, *(struct coord *)&in.tex_coords[i]);
+			coord_arr_add(&new.texture_coords, *(struct coord *)&in.tex_coords[i]);
 		}
 	}
-	return (struct cr_vertex_buf *)buf;
+	return vertex_buffer_arr_add(&scene->v_buffers, new);
 }
 
-void cr_vertex_buf_del(struct cr_vertex_buf *buf) {
-	vertex_buf_unref((struct vertex_buffer *)buf);
-}
-
-void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, struct cr_vertex_buf *buf) {
-	if (!s_ext || !buf) return;
+void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, cr_vertex_buf buf) {
+	if (!s_ext) return;
 	struct world *scene = (struct world *)s_ext;
 	if ((size_t)mesh > scene->meshes.count - 1) return;
 	struct mesh *m = &scene->meshes.items[mesh];
-	m->vbuf = vertex_buf_ref((struct vertex_buffer *)buf);
+	if ((size_t)buf > scene->v_buffers.count - 1) return;
+	m->vbuf = &scene->v_buffers.items[buf];
+	m->vbuf_idx = buf;
 }
 
 void cr_mesh_bind_faces(struct cr_scene *s_ext, cr_mesh mesh, struct cr_face *faces, size_t face_count) {
@@ -348,13 +346,15 @@ void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, flo
 	};
 }
 
-bool cr_instance_bind_material_set(struct cr_renderer *r_ext, cr_instance instance, cr_material_set *set) {
-	if (!r_ext || !set) return false;
+bool cr_instance_bind_material_set(struct cr_renderer *r_ext, cr_instance instance, cr_material_set set) {
+	if (!r_ext) return false;
 	struct renderer *r = (struct renderer *)r_ext;
 	struct world *scene = r->scene;
 	if ((size_t)instance > scene->instances.count - 1) return false;
+	if ((size_t)set > scene->shader_buffers.count - 1) return false;
 	struct instance *i = &scene->instances.items[instance];
-	i->bbuf = bsdf_buf_ref((struct bsdf_buffer *)set);
+	i->bbuf = &scene->shader_buffers.items[set];
+	i->bbuf_idx = set;
 	return true;
 }
 
@@ -459,29 +459,29 @@ bool cr_camera_remove(struct cr_scene *s, cr_camera c) {
 
 // --
 
-cr_material_set *cr_material_set_new(void) {
-	return (cr_material_set *)bsdf_buf_ref(NULL);
+cr_material_set cr_scene_new_material_set(struct cr_scene *s_ext) {
+	if (!s_ext) return -1;
+	struct world *scene = (struct world *)s_ext;
+	return bsdf_buffer_arr_add(&scene->shader_buffers, (struct bsdf_buffer){ 0 });
 }
 
-void cr_material_set_add(struct cr_renderer *r_ext, cr_material_set *set, struct cr_shader_node *desc) {
-	if (!set || !desc) return;
-	struct bsdf_buffer *buf = (struct bsdf_buffer *)set;
-	const struct bsdfNode *node = build_bsdf_node(r_ext, desc);
+// TODO: Remove r_ext
+void cr_material_set_add(struct cr_renderer *r_ext, struct cr_scene *s_ext, cr_material_set set, struct cr_shader_node *desc) {
+	if (!r_ext || !s_ext) return;
+	struct renderer *r = (struct renderer *)r_ext;
+	struct world *s = (struct world *)s_ext;
+	if (s != r->scene) return;
+	if ((size_t)set > s->shader_buffers.count - 1) return;
+	struct bsdf_buffer *buf = &s->shader_buffers.items[set];
+	const struct bsdfNode *node = build_bsdf_node(s_ext, desc);
+	cr_shader_node_ptr_arr_add(&buf->descriptions, desc);
 	bsdf_node_ptr_arr_add(&buf->bsdfs, node);
-}
-
-void cr_material_set_del(cr_material_set *set) {
-	if (!set) return;
-	bsdf_buf_unref((struct bsdf_buffer *)set);
 }
 
 struct texture *cr_renderer_render(struct cr_renderer *ext) {
 	struct renderer *r = (struct renderer *)ext;
 	if (r->prefs.node_list) {
 		r->state.clients = clients_sync(r);
-		free(r->sceneCache);
-		r->sceneCache = NULL;
-		cache_destroy(r->state.file_cache);
 	}
 	if (!r->state.clients.count && !r->prefs.threads) {
 		logr(warning, "You specified 0 local threads, and no network clients were found. Nothing to do.\n");

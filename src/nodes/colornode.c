@@ -23,10 +23,10 @@
 // 	return newConstantTexture(s, g_black_color);
 // }
 
-const struct colorNode *build_color_node(struct cr_renderer *r_ext, const struct cr_color_node *desc) {
-	if (!r_ext || !desc) return NULL;
-	struct renderer *r = (struct renderer *)r_ext;
-	struct node_storage s = r->scene->storage;
+const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr_color_node *desc) {
+	if (!s_ext || !desc) return NULL;
+	struct world *scene = (struct world *)s_ext;
+	struct node_storage s = scene->storage;
 
 	switch (desc->type) {
 		case cr_cn_constant:
@@ -38,41 +38,53 @@ const struct colorNode *build_color_node(struct cr_renderer *r_ext, const struct
 					desc->arg.constant.a
 				});
 		case cr_cn_image: {
-			char *full = stringConcat(r->prefs.assetPath, desc->arg.image.full_path);
-			windowsFixPath(full);
-			file_data tex;
-			if (cache_contains(r->state.file_cache, full)) {
-				tex = cache_load(r->state.file_cache, full);
-			} else {
-				tex = file_load(full, NULL);
-				cache_store(r->state.file_cache, full, tex.items, tex.count);
+			// FIXME: Hack, figure out a consistent way to deal with relative paths everywhere
+			char *full = NULL;
+			if (!stringStartsWith(scene->asset_path, desc->arg.image.full_path)) {
+				full = stringConcat(scene->asset_path, desc->arg.image.full_path);
+				windowsFixPath(full);
 			}
-			const struct colorNode *new = newImageTexture(&s, load_texture(full, tex, &r->scene->storage.node_pool), desc->arg.image.options);
-			free(full);
-			file_free(&tex);
+			const char *path = full ? full : desc->arg.image.full_path;
+			file_data data = file_load(path);
+			struct texture *tex = NULL;
+			for (size_t i = 0; i < scene->textures.count; ++i) {
+				if (stringEquals(scene->textures.items[i].path, path)) {
+					tex = scene->textures.items[i].t;
+				}
+			}
+			if (!tex) {
+				tex = load_texture(path, data);
+				texture_asset_arr_add(&scene->textures, (struct texture_asset){
+					.path = stringCopy(path),
+					.t = tex
+				});
+			}
+			file_free(&data);
+			const struct colorNode *new = newImageTexture(&s, tex, desc->arg.image.options);
+			if (full) free(full);
 			return new;
 		}
 		case cr_cn_checkerboard:
 			return newCheckerBoardTexture(&s,
-				build_color_node(r_ext, desc->arg.checkerboard.a),
-				build_color_node(r_ext, desc->arg.checkerboard.b),
-				build_value_node(r_ext, desc->arg.checkerboard.scale));
+				build_color_node(s_ext, desc->arg.checkerboard.a),
+				build_color_node(s_ext, desc->arg.checkerboard.b),
+				build_value_node(s_ext, desc->arg.checkerboard.scale));
 		case cr_cn_blackbody:
-			return newBlackbody(&s, build_value_node(r_ext, desc->arg.blackbody.degrees));
+			return newBlackbody(&s, build_value_node(s_ext, desc->arg.blackbody.degrees));
 		case cr_cn_split:
-			return newSplitValue(&s, build_value_node(r_ext, desc->arg.split.node));
+			return newSplitValue(&s, build_value_node(s_ext, desc->arg.split.node));
 		case cr_cn_rgb:
 			return newCombineRGB(&s,
-				build_value_node(r_ext, desc->arg.rgb.red),
-				build_value_node(r_ext, desc->arg.rgb.green),
-				build_value_node(r_ext, desc->arg.rgb.blue));
+				build_value_node(s_ext, desc->arg.rgb.red),
+				build_value_node(s_ext, desc->arg.rgb.green),
+				build_value_node(s_ext, desc->arg.rgb.blue));
 		case cr_cn_hsl:
 			return newCombineHSL(&s,
-				build_value_node(r_ext, desc->arg.hsl.H),
-				build_value_node(r_ext, desc->arg.hsl.S),
-				build_value_node(r_ext, desc->arg.hsl.L));
+				build_value_node(s_ext, desc->arg.hsl.H),
+				build_value_node(s_ext, desc->arg.hsl.S),
+				build_value_node(s_ext, desc->arg.hsl.L));
 		case cr_cn_vec_to_color:
-			return newVecToColor(&s, build_vector_node(r_ext, desc->arg.vec_to_color.vec));
+			return newVecToColor(&s, build_vector_node(s_ext, desc->arg.vec_to_color.vec));
 		default:
 			return NULL;
 	};

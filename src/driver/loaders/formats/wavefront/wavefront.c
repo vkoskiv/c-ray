@@ -100,8 +100,8 @@ float get_poly_area(struct poly *p, struct vector *vertices) {
 	return vec_length(cross) / 2.0f;
 }
 
-struct mesh_parse_result parse_wavefront(const char *file_path, struct file_cache *cache) {
-	file_data input = file_load(file_path, cache);
+struct mesh_parse_result parse_wavefront(const char *file_path) {
+	file_data input = file_load(file_path);
 	if (!input.items) return (struct mesh_parse_result){ 0 };
 	logr(debug, "Loading OBJ %s\n", file_path);
 	textBuffer *file = newTextBuffer((char *)input.items);
@@ -165,7 +165,7 @@ struct mesh_parse_result parse_wavefront(const char *file_path, struct file_cach
 			windowsFixPath(mtlFilePath);
 			//FIXME: Handle multiple mtllibs
 			ASSERT(!result.materials.count);
-			result.materials = parse_mtllib(mtlFilePath, cache);
+			result.materials = parse_mtllib(mtlFilePath);
 			free(mtlFilePath);
 		} else {
 			char *fileName = get_file_name(file_path);

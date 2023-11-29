@@ -29,7 +29,6 @@
 #include "../platform/thread.h"
 #include "../networking.h"
 #include "../string.h"
-#include "../filecache.h"
 #include "../gitsha1.h"
 #include "../timer.h"
 #include "../../utils/platform/signal.h"
@@ -69,28 +68,11 @@ static cJSON *validateHandshake(cJSON *in) {
 }
 
 static cJSON *receiveScene(const cJSON *json) {
-	// Load assets
-	cJSON *fileCache = cJSON_GetObjectItem(json, "files");
-	if (!fileCache) return errorResponse("No file cache found");
-	char *data = cJSON_PrintUnformatted(fileCache);
-	//FIXME: This is an awkward API, why not pass cJSON directly?
-	struct file_cache *cache = cache_decode(data);
-	free(data);
 	
 	// And then the scene
-	cJSON *scene = cJSON_GetObjectItem(json, "data");
 	logr(info, "Received scene description\n");
-	g_worker_renderer = renderer_new();
-	g_worker_renderer->state.file_cache = cache;
+	g_worker_renderer = deserialize_renderer(cJSON_GetStringValue(cJSON_GetObjectItem(json, "data")));
 	g_worker_socket_mutex = mutex_create();
-	cJSON *assetPathJson = cJSON_GetObjectItem(json, "assetPath");
-	if (g_worker_renderer->prefs.assetPath) free(g_worker_renderer->prefs.assetPath);
-	g_worker_renderer->prefs.assetPath = stringCopy(assetPathJson->valuestring);
-	// FIXME
-	if (parse_json((struct cr_renderer *)g_worker_renderer, scene)) {
-		return errorResponse("Scene parsing error");
-	}
-	cache_destroy(cache);
 	cJSON *resp = newAction("ready");
 	
 	// Stash in our capabilities here
@@ -126,7 +108,7 @@ static struct render_tile *getWork(int connectionSocket, struct tile_set *tiles)
 }
 
 static bool submitWork(int sock, struct texture *work, struct render_tile *forTile) {
-	cJSON *result = encodeTexture(work);
+	cJSON *result = serialize_texture(work);
 	cJSON *tile = encodeTile(forTile);
 	cJSON *package = newAction("submitWork");
 	cJSON_AddItemToObject(package, "result", result);

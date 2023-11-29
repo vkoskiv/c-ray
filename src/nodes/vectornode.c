@@ -99,10 +99,10 @@ const struct vectorNode *newConstantUV(const struct node_storage *s, const struc
 	});
 }
 
-const struct vectorNode *build_vector_node(struct cr_renderer *r_ext, const struct cr_vector_node *desc) {
-	if (!r_ext || !desc) return NULL;
-	struct renderer *r = (struct renderer *)r_ext;
-	struct node_storage s = r->scene->storage;
+const struct vectorNode *build_vector_node(struct cr_scene *s_ext, const struct cr_vector_node *desc) {
+	if (!s_ext || !desc) return NULL;
+	struct world *scene = (struct world *)s_ext;
+	struct node_storage s = scene->storage;
 
 	switch (desc->type) {
 		case cr_vec_constant:
@@ -113,16 +113,16 @@ const struct vectorNode *build_vector_node(struct cr_renderer *r_ext, const stru
 			return newUV(&s);
 		case cr_vec_vecmath:
 			return newVecMath(&s,
-				build_vector_node(r_ext, desc->arg.vecmath.A),
-				build_vector_node(r_ext, desc->arg.vecmath.B),
-				build_vector_node(r_ext, desc->arg.vecmath.C),
-				build_value_node(r_ext, desc->arg.vecmath.f),
+				build_vector_node(s_ext, desc->arg.vecmath.A),
+				build_vector_node(s_ext, desc->arg.vecmath.B),
+				build_vector_node(s_ext, desc->arg.vecmath.C),
+				build_value_node(s_ext, desc->arg.vecmath.f),
 				desc->arg.vecmath.op);
 		case cr_vec_mix:
 			return new_vec_mix(&s,
-				build_vector_node(r_ext, desc->arg.vec_mix.A),
-				build_vector_node(r_ext, desc->arg.vec_mix.B),
-				build_value_node(r_ext, desc->arg.vec_mix.factor));
+				build_vector_node(s_ext, desc->arg.vec_mix.A),
+				build_vector_node(s_ext, desc->arg.vec_mix.B),
+				build_value_node(s_ext, desc->arg.vec_mix.factor));
 		default:
 			return NULL;
 	};

@@ -29,9 +29,9 @@ void copy_to_pool(struct block **pool, struct texture *tex) {
 	tex->data.byte_p = newBuf;
 }
 
-static struct texture *load_env_map(const file_data data, struct block **pool) {
+static struct texture *load_env_map(const file_data data) {
 	logr(info, "Loading HDR...");
-	struct texture *tex = allocBlock(pool, sizeof(*tex));
+	struct texture *tex = newTexture(none, 0, 0, 0);
 	tex->data.float_p = stbi_loadf_from_memory(data.items, (int)data.count, (int *)&tex->width, (int *)&tex->height, (int *)&tex->channels, 0);
 	tex->precision = float_p;
 	if (!tex->data.float_p) {
@@ -44,12 +44,11 @@ static struct texture *load_env_map(const file_data data, struct block **pool) {
 	return tex;
 }
 
-// We use copyToPool() in loadTexture to copy the actual image data into the memory pool. This code is a bit confusing.
-struct texture *load_qoi_from_buffer(const file_data data, struct block **pool) {
+struct texture *load_qoi_from_buffer(const file_data data) {
 	qoi_desc desc;
 	void *decoded_data = qoi_decode(data.items, data.count, &desc, 3);
 	if (!decoded_data) return NULL;
-	struct texture *new = pool ? allocBlock(pool, sizeof(*new)) : newTexture(none, 0, 0, 0);
+	struct texture *new = newTexture(none, 0, 0, 0);
 	new->data.byte_p = decoded_data;
 	new->width = desc.width;
 	new->height = desc.height;
@@ -58,8 +57,8 @@ struct texture *load_qoi_from_buffer(const file_data data, struct block **pool) 
 	return new;
 }
 
-static struct texture *load_texture_from_buffer(const file_data data, struct block **pool) {
-	struct texture *new = pool ? allocBlock(pool, sizeof(*new)) : newTexture(none, 0, 0, 0);
+static struct texture *load_texture_from_buffer(const file_data data) {
+	struct texture *new = newTexture(none, 0, 0, 0);
 	new->data.byte_p = stbi_load_from_memory(data.items, data.count, (int *)&new->width, (int *)&new->height, (int *)&new->channels, 0);
 	if (!new->data.byte_p) {
 		logr(warning, "Failed to decode texture from memory buffer of size %zu. Reason: \"%s\"\n", data.count, stbi_failure_reason());
@@ -70,25 +69,24 @@ static struct texture *load_texture_from_buffer(const file_data data, struct blo
 	return new;
 }
 
-struct texture *load_texture(const char *path, const file_data data, struct block **pool) {
+struct texture *load_texture(const char *path, const file_data data) {
 	if (!data.items) return NULL;
 
 	enum fileType type = guess_file_type(path);
 
 	struct texture *new = NULL;
 	if (stbi_is_hdr_from_memory(data.items, data.count)) {
-		new = load_env_map(data, pool);
+		new = load_env_map(data);
 	} else if (type == qoi) {
-		new = load_qoi_from_buffer(data, pool);
+		new = load_qoi_from_buffer(data);
 	} else {
-		new = load_texture_from_buffer(data, pool);
+		new = load_texture_from_buffer(data);
 	}
 
 	if (!new) {
 		logr(warning, "^That happened while decoding texture \"%s\"\n", path);
 		return NULL;
 	}
-	if (pool) copy_to_pool(pool, new);
 
 	size_t raw_bytes = (new->channels * (new->precision == float_p ? 4 : 1)) * new->width * new->height;
 	char b0[64];

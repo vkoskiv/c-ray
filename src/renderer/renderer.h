@@ -12,7 +12,6 @@
 #include "../datatypes/tile.h"
 #include "../datatypes/image/imagefile.h"
 #include "../utils/timer.h"
-#include "../utils/filecache.h"
 #include "../utils/platform/thread.h"
 #include "../utils/protocol/server.h"
 
@@ -49,7 +48,6 @@ struct state {
 	bool saveImage;
 	struct worker_arr workers;
 	struct render_client_arr clients;
-	struct file_cache *file_cache; // A file cache for network render nodes. NULL if only local render.
 	
 	struct cr_renderer_callbacks cb;
 };
@@ -71,7 +69,6 @@ struct prefs {
 	size_t selected_camera;
 	char *imgFilePath;
 	char *imgFileName;
-	char *assetPath;
 	size_t imgCount;
 	enum fileType imgType;
 	char *node_list;
@@ -82,11 +79,11 @@ struct renderer {
 	struct world *scene; //Scene to render
 	struct state state;  //Internal state
 	struct prefs prefs;  //User prefs
-	char *sceneCache;    //Packed scene data that can be passed to workers
 };
 
 //Initialize a new renderer
 struct renderer *renderer_new(void);
+struct prefs default_prefs();
 
 //Start main render loop
 struct texture *renderFrame(struct renderer *r);

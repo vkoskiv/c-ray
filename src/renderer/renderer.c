@@ -431,7 +431,7 @@ exit:
 	return 0;
 }
 
-static struct prefs defaults() {
+struct prefs default_prefs() {
 	return (struct prefs){
 			.tileOrder = ro_from_middle,
 			.threads = getSysCores() + 2,
@@ -441,7 +441,6 @@ static struct prefs defaults() {
 			.tileWidth = 32,
 			.tileHeight = 32,
 			.imgFilePath = stringCopy("./"),
-			.assetPath = stringCopy("./"),
 			.imgFileName = stringCopy("rendered"),
 			.imgCount = 0,
 			.imgType = png,
@@ -450,10 +449,12 @@ static struct prefs defaults() {
 
 struct renderer *renderer_new() {
 	struct renderer *r = calloc(1, sizeof(*r));
-	r->prefs = defaults();
+	r->prefs = default_prefs();
 	r->state.finishedPasses = 1;
 	
+	// Move these elsewhere
 	r->scene = calloc(1, sizeof(*r->scene));
+	r->scene->asset_path = stringCopy("./");
 	r->scene->storage.node_pool = newBlock(NULL, 1024);
 	r->scene->storage.node_table = newHashtable(compareNodes, &r->scene->storage.node_pool);
 	return r;
@@ -464,13 +465,8 @@ void renderer_destroy(struct renderer *r) {
 	scene_destroy(r->scene);
 	worker_arr_free(&r->state.workers);
 	render_client_arr_free(&r->state.clients);
-	if (r->state.file_cache) {
-		cache_destroy(r->state.file_cache);
-		free(r->state.file_cache);
-	}
 	free(r->prefs.imgFileName);
 	free(r->prefs.imgFilePath);
-	free(r->prefs.assetPath);
 	if (r->prefs.node_list) free(r->prefs.node_list);
 	free(r);
 }

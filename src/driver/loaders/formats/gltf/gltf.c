@@ -70,11 +70,11 @@ unsigned char *parse_buffer(const cJSON *data) {
 		return buffer;
 	} else {
 		// Otherwise just try to load the specified file
-		if (!is_valid_file(uri_string, NULL)) { //FIXME cache
+		if (!is_valid_file(uri_string)) {
 			logr(warning, "Invalid buffer while parsing glTF. File %s not found.\n", uri_string);
 			return NULL;
 		}
-		file_data data = file_load(uri_string, NULL); //FIXME cache
+		file_data data = file_load(uri_string);
 		if (data.count != expected_bytes) {
 			logr(warning, "Invalid buffer while parsing glTF. Loaded file %s length %lu, expected %lu", uri_string, data.count, expected_bytes);
 		}
@@ -168,7 +168,7 @@ struct texture *parse_textures(const cJSON *data, size_t *amount, const struct b
 			if (!cJSON_IsString(uri)) break;
 			char *uri_string = uri->valuestring;
 			//TODO: Add name to texture
-			images[i] = *load_texture(uri_string, (file_data){ 0 }, NULL); //FIXME
+			images[i] = *load_texture(uri_string, (file_data){ 0 }); //FIXME
 		} else {
 			const cJSON *buffer_view = cJSON_GetObjectItem(element, "bufferView");
 			const cJSON *mime_type = cJSON_GetObjectItem(element, "mimeType");
@@ -191,7 +191,7 @@ struct mesh *parse_glb_meshes(const char *data, size_t *meshCount) {
 }
 
 struct mesh *parse_glTF_meshes(const char *filePath, size_t *meshCount) {
-	file_data contents = file_load(filePath, NULL); //FIXME cache
+	file_data contents = file_load(filePath);
 	if (stringStartsWith("glTF", (char *)contents.items)) return parse_glb_meshes((char *)contents.items, meshCount);
 	const cJSON *data = cJSON_Parse((char *)contents.items);
 	

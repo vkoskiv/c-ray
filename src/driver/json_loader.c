@@ -14,8 +14,6 @@
 #include "loaders/meshloader.h"
 #include "../utils/loaders/textureloader.h"
 
-// FIXME: We should only need to include c-ray.h here!
-#include "../renderer/renderer.h" // REMOVE
 #include <c-ray/c-ray.h>
 
 #include "../datatypes/transforms.h"
@@ -26,6 +24,7 @@
 #include "../utils/platform/capabilities.h"
 #include "../utils/logging.h"
 #include "../utils/fileio.h"
+#include "../utils/timer.h"
 
 static struct transform parse_tform(const cJSON *data) {
 	const cJSON *type = cJSON_GetObjectItem(data, "type");
@@ -300,7 +299,6 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	const cJSON *file_name = cJSON_GetObjectItem(data, "fileName");
 	if (!cJSON_IsString(file_name)) return;
 
-	struct renderer *todo_remove_r = (struct renderer *)r;
 	struct cr_scene *scene = cr_renderer_scene_get(r);
 
 	//FIXME: This concat + path fixing should be an utility function
@@ -312,7 +310,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	logr(info, "Loading mesh file %i/%i%s", idx + 1, mesh_file_count, (idx + 1) == mesh_file_count ? "\n" : "\r");
 	struct timeval timer;
 	timer_start(&timer);
-	struct mesh_parse_result result = load_meshes_from_file(full_path, todo_remove_r->state.file_cache);
+	struct mesh_parse_result result = load_meshes_from_file(full_path);
 	long us = timer_get_us(timer);
 	free(full_path);
 	long ms = us / 1000;
@@ -320,7 +318,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 
 	if (!result.meshes.count) return;
 
-	struct cr_vertex_buf *vbuf = cr_vertex_buf_new((struct cr_vertex_buf){
+	cr_vertex_buf vbuf = cr_scene_vertex_buf_new(scene, (struct cr_vertex_buf_param){
 		.vertices = (struct cr_vector *)result.geometry.vertices.items,
 		.vertex_count = result.geometry.vertices.count,
 		.normals = (struct cr_vector *)result.geometry.normals.items,
@@ -334,12 +332,11 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 
 	// FIXME: Textures get loaded multiple times, put them in a hash table
 	// Precompute guessed bsdfs for these instances
-	cr_material_set *file_set = cr_material_set_new();
+	cr_material_set file_set = cr_scene_new_material_set(scene);
 	logr(debug, "Figuring out bsdfs for mtllib materials\n");
 	for (size_t i = 0; i < result.materials.count; ++i) {
 		struct cr_shader_node *desc = global_desc(result.materials, global_overrides, i);
-		cr_material_set_add(r, file_set, desc);
-		cr_shader_node_free(desc);
+		cr_material_set_add(r, scene, file_set, desc);
 	}
 
 	// Now apply some slightly overcomplicated logic to choose instances to add to the scene.
@@ -382,7 +379,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 			}
 			if (mesh < 0) continue;
 			cr_instance new = cr_instance_new(scene, mesh, cr_object_mesh);
-			cr_material_set *instance_set = cr_material_set_new();
+			cr_material_set instance_set = cr_scene_new_material_set(scene);
 			const cJSON *instance_overrides = cJSON_GetObjectItem(instance, "materials");
 			for (size_t i = 0; i < result.materials.count; ++i) {
 				struct cr_shader_node *override_match = NULL;
@@ -395,23 +392,19 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 					}
 				}
 				if (override_match) {
-					cr_material_set_add(r, instance_set, override_match);
-					cr_shader_node_free(override_match);
+					cr_material_set_add(r, scene, instance_set, override_match);
 				} else {
 					struct cr_shader_node *global = global_desc(result.materials, global_overrides, i);
-					cr_material_set_add(r, instance_set, global);
-					cr_shader_node_free(global);
+					cr_material_set_add(r, scene, instance_set, global);
 				}
 			}
 
 			cr_instance_set_transform(scene, new, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")).A.mtx);
 			cr_instance_bind_material_set(r, new, instance_set);
-			cr_material_set_del(instance_set);
 		}
 	}
 done:
 
-	cr_material_set_del(file_set);
 	for (size_t i = 0; i < result.meshes.count; ++i) {
 		poly_arr_free(&result.meshes.items[i].polygons);
 		destroyMesh(&result.meshes.items[i]);
@@ -424,7 +417,6 @@ done:
 	vector_arr_free(&result.geometry.vertices);
 	vector_arr_free(&result.geometry.normals);
 	coord_arr_free(&result.geometry.texture_coords);
-	cr_vertex_buf_del(vbuf);
 }
 
 static void parse_meshes(struct cr_renderer *r, const cJSON *data) {
@@ -462,7 +454,7 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 
 			cr_instance new_instance = cr_instance_new(scene, new_sphere, cr_object_sphere);
 
-			cr_material_set *instance_set = cr_material_set_new();
+			cr_material_set instance_set = cr_scene_new_material_set(scene);
 
 			const cJSON *instance_materials = cJSON_GetObjectItem(instance, "materials");
 			const cJSON *materials = instance_materials ? instance_materials : sphere_global_materials;
@@ -475,8 +467,7 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 					material = materials;
 				}
 				struct cr_shader_node *desc = cr_shader_node_build(material);
-				cr_material_set_add(r, instance_set, desc);
-				cr_shader_node_free(desc);
+				cr_material_set_add(r, scene, instance_set, desc);
 
 				// FIXME
 				// const cJSON *type_string = cJSON_GetObjectItem(material, "type");
@@ -488,7 +479,6 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 
 			cr_instance_set_transform(scene, new_instance, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")).A.mtx);
 			cr_instance_bind_material_set(r, new_instance, instance_set);
-			cr_material_set_del(instance_set);
 		}
 	}
 }
@@ -519,7 +509,6 @@ static void parseScene(struct cr_renderer *r, const cJSON *data) {
 
 	struct cr_shader_node *background = cr_shader_node_build(cJSON_GetObjectItem(data, "ambientColor"));
 	cr_scene_set_background(r, scene, background);
-	cr_shader_node_free(background);
 
 	parse_primitives(r, cJSON_GetObjectItem(data, "primitives"));
 	parse_meshes(r, cJSON_GetObjectItem(data, "meshes"));
@@ -534,11 +523,12 @@ int parse_json(struct cr_renderer *r, struct cJSON *json) {
 		return -1;
 	}
 
-	const cJSON *selected_camera = cJSON_GetObjectItem(json, "selected_camera");
+	const cJSON *renderer = cJSON_GetObjectItem(json, "renderer");
+	const cJSON *selected_camera = cJSON_GetObjectItem(renderer, "selected_camera");
 	if (cJSON_IsNumber(selected_camera)) {
 		cr_renderer_set_num_pref(r, cr_renderer_override_cam, selected_camera->valueint);
 	}
 	parseScene(r, cJSON_GetObjectItem(json, "scene"));
-	
+
 	return 0;
 }

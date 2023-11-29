@@ -13,22 +13,20 @@
 #include "poly.h"
 #include "material.h"
 
-/*
-	Several meshes may point to the same vertex buffer, shared among meshes in
-	a wavefront file, for instance. A simple refcount is kept to make it easier
-	to automatically free it when adding and removing meshes.
-*/
 struct vertex_buffer {
 	struct vector_arr vertices;
 	struct vector_arr normals;
 	struct coord_arr texture_coords;
-	size_t refs;
 };
+
+typedef struct vertex_buffer vertex_buffer;
+dyn_array_def(vertex_buffer);
 
 struct mesh {
 	struct vertex_buffer *vbuf;
 	struct poly_arr polygons;
 	struct bvh *bvh;
+	size_t vbuf_idx;
 	float surface_area;
 	char *name;
 	float rayOffset;
@@ -39,5 +37,4 @@ dyn_array_def(mesh);
 
 void destroyMesh(struct mesh *mesh);
 
-struct vertex_buffer *vertex_buf_ref(struct vertex_buffer *buf);
-void vertex_buf_unref(struct vertex_buffer *buf);
+void vertex_buf_free(struct vertex_buffer buf);

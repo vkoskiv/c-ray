@@ -12,7 +12,7 @@ time_t fileio_load(void) {
 	struct timeval test;
 	timer_start(&test);
 	
-	file_data bigfile = file_load("input/venusscaled.obj", NULL);
+	file_data bigfile = file_load("input/venusscaled.obj");
 	ASSERT(bigfile.items);
 	
 	time_t us = timer_get_us(test);

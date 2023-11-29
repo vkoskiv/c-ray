@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../color.h"
+#include "../../utils/dyn_array.h"
 
 enum colorspace {
 	linear,
@@ -34,6 +35,14 @@ struct texture {
 	size_t width;
 	size_t height;
 };
+
+struct texture_asset {
+	char *path;
+	struct texture *t;
+};
+
+typedef struct texture_asset texture_asset;
+dyn_array_def(texture_asset);
 
 struct texture *newTexture(enum precision p, size_t width, size_t height, size_t channels);
 

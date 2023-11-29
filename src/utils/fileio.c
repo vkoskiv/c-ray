@@ -23,10 +23,10 @@
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
-#include "filecache.h"
 #include "textbuffer.h"
 
 static char *getFileExtension(const char *fileName) {
+	if (!fileName) return NULL;
 	char buf[LINEBUFFER_MAXSIZE];
 	lineBuffer line = { .buf = buf };
 	fillLineBuffer(&line, fileName, '.');
@@ -63,6 +63,7 @@ enum fileType match_file_type(const char *ext) {
 }
 
 enum fileType guess_file_type(const char *filePath) {
+	if (!filePath) return unknown;
 	char *fileName = get_file_name(filePath);
 	char *extension = getFileExtension(fileName);
 	char *lower = stringToLower(extension);
@@ -95,8 +96,7 @@ size_t get_file_size(const char *path) {
 #endif
 }
 
-file_data file_load(const char *file_path, struct file_cache *cache) {
-	if (cache && cache_contains(cache, file_path)) return cache_load(cache, file_path);
+file_data file_load(const char *file_path) {
 	off_t size = get_file_size(file_path);
 	if (size == 0) {
 		return (file_data){ 0 };
@@ -110,7 +110,6 @@ file_data file_load(const char *file_path, struct file_cache *cache) {
 	}
 	madvise(data, size, MADV_SEQUENTIAL);
 	file_data file = (file_data){ .items = data, .count = size, .capacity = size };
-	if (cache) cache_store(cache, file_path, file.items, file.count);
 	return file;
 #else
 	FILE *file = fopen(file_path, "rb");
@@ -124,7 +123,6 @@ file_data file_load(const char *file_path, struct file_cache *cache) {
 	}
 	fclose(file);
 	file_data filedata = (file_data){ .items = buf, .count = readBytes, .capacity = readBytes };
-	if (cache) cache_store(cache, file_path, filedata.items, filedata.count);
 	return filedata;
 #endif
 }
@@ -170,11 +168,11 @@ void write_file(file_data data, const char *filePath) {
 }
 
 
-bool is_valid_file(char *path, struct file_cache *cache) {
+bool is_valid_file(char *path) {
 #ifndef WINDOWS
 	struct stat path_stat = { 0 };
 	stat(path, &path_stat);
-	return (S_ISREG(path_stat.st_mode) || (cache && cache_contains(cache, path)));
+	return S_ISREG(path_stat.st_mode);
 #else
 	FILE *f = fopen(path, "r");
 	if (f) {
@@ -213,6 +211,7 @@ void wait_for_stdin(int seconds) {
  */
 //FIXME: Just return a pointer to the first byte of the filename? Why do we do all this
 char *get_file_name(const char *input) {
+	if (!input) return NULL;
 	//FIXME: We're doing two copies here, maybe just rework the algorithm instead.
 	char *copy = stringCopy(input);
 	char *fn;

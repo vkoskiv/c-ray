@@ -46,7 +46,6 @@ enum cr_renderer_param {
 	cr_renderer_should_save, //FIXME: Remove
 	cr_renderer_override_cam,
 	cr_renderer_node_list,
-	cr_renderer_scene_cache, // FIXME: Remove
 	cr_renderer_is_iterative,
 };
 
@@ -136,7 +135,7 @@ typedef cr_object cr_sphere;
 cr_sphere cr_scene_add_sphere(struct cr_scene *s_ext, float radius);
 typedef cr_object cr_mesh;
 
-struct cr_vertex_buf {
+struct cr_vertex_buf_param {
 	struct cr_vector *vertices;
 	size_t vertex_count;
 	struct cr_vector *normals;
@@ -145,9 +144,9 @@ struct cr_vertex_buf {
 	size_t tex_coord_count;
 };
 
-struct cr_vertex_buf *cr_vertex_buf_new(struct cr_vertex_buf in);
-void cr_vertex_buf_del(struct cr_vertex_buf *buf);
-void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, struct cr_vertex_buf *buf);
+typedef cr_object cr_vertex_buf;
+cr_vertex_buf cr_scene_vertex_buf_new(struct cr_scene *s_ext, struct cr_vertex_buf_param in);
+void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, cr_vertex_buf buf);
 
 struct cr_face {
 	int vertex_idx[MAX_CRAY_VERTEX_COUNT];
@@ -189,10 +188,9 @@ bool cr_camera_update(struct cr_scene *ext, cr_camera c);
 // -- Materials --
 #include "node.h"
 
-typedef struct cr_material_set cr_material_set;
-cr_material_set *cr_material_set_new(void);
-void cr_material_set_add(struct cr_renderer *r_ext, cr_material_set *set, struct cr_shader_node *desc);
-void cr_material_set_del(cr_material_set *set);
+typedef cr_object cr_material_set;
+cr_material_set cr_scene_new_material_set(struct cr_scene *s_ext);
+void cr_material_set_add(struct cr_renderer *r_ext, struct cr_scene *s_ext, cr_material_set set, struct cr_shader_node *desc);
 
 // -- Instancing --
 
@@ -204,7 +202,7 @@ enum cr_object_type {
 
 cr_instance cr_instance_new(struct cr_scene *s_ext, cr_object object, enum cr_object_type type);
 void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]);
-bool cr_instance_bind_material_set(struct cr_renderer *r_ext, cr_instance instance, cr_material_set *set);
+bool cr_instance_bind_material_set(struct cr_renderer *r_ext, cr_instance instance, cr_material_set set);
 
 // -- Misc. --
 bool cr_scene_set_background(struct cr_renderer *r_ext, struct cr_scene *s_ext, struct cr_shader_node *desc);

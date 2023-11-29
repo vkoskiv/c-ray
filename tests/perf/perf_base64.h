@@ -12,7 +12,7 @@
 #include "../../src/utils/timer.h"
 
 time_t base64_bigfile_encode(void) {
-	file_data bigfile = file_load("input/venusscaled.obj", NULL);
+	file_data bigfile = file_load("input/venusscaled.obj");
 	ASSERT(bigfile.items);
 	
 	struct timeval test;
@@ -28,7 +28,7 @@ time_t base64_bigfile_encode(void) {
 }
 
 time_t base64_bigfile_decode(void) {
-	file_data bigfile = file_load("input/venusscaled.obj", NULL);
+	file_data bigfile = file_load("input/venusscaled.obj");
 	ASSERT(bigfile.items);
 	
 	char *encoded = b64encode(bigfile.items, bigfile.count);

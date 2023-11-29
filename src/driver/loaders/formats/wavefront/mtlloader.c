@@ -23,12 +23,14 @@ static struct color parse_color(lineBuffer *line) {
 	return (struct color){ atof(nextToken(line)), atof(nextToken(line)), atof(nextToken(line)), 1.0f };
 }
 
-struct material_arr parse_mtllib(const char *filePath, struct file_cache *cache) {
-	file_data mtllib_text = file_load(filePath, cache);
+struct material_arr parse_mtllib(const char *filePath) {
+	file_data mtllib_text = file_load(filePath);
 	if (!mtllib_text.count) return (struct material_arr){ 0 };
 	logr(debug, "Loading MTL at %s\n", filePath);
 	textBuffer *file = newTextBuffer((char *)mtllib_text.items);
 	file_free(&mtllib_text);
+
+	char *asset_path = get_file_path(filePath);
 	
 	struct material_arr materials = { 0 };
 	struct material *current = NULL;
@@ -75,11 +77,17 @@ struct material_arr parse_mtllib(const char *filePath, struct file_cache *cache)
 		} else if (stringEquals(first, "Ni")) {
 			current->IOR = atof(nextToken(&line));
 		} else if (stringEquals(first, "map_Kd") || stringEquals(first, "map_Ka")) {
-			current->texture_path = stringCopy(nextToken(&line));
+			char *path = stringConcat(asset_path, peekNextToken(&line));
+			windowsFixPath(path);
+			current->texture_path = path;
 		} else if (stringEquals(first, "norm") || stringEquals(first, "bump") || stringEquals(first, "map_bump")) {
-			current->normal_path = stringCopy(nextToken(&line));
+			char *path = stringConcat(asset_path, peekNextToken(&line));
+			windowsFixPath(path);
+			current->normal_path = path;
 		} else if (stringEquals(first, "map_Ns")) {
-			current->specular_path = stringCopy(nextToken(&line));
+			char *path = stringConcat(asset_path, peekNextToken(&line));
+			windowsFixPath(path);
+			current->specular_path = path;
 		} else {
 			char *fileName = get_file_name(filePath);
 			logr(debug, "Unknown statement \"%s\" in MTL \"%s\" on line %zu\n",
@@ -88,6 +96,8 @@ struct material_arr parse_mtllib(const char *filePath, struct file_cache *cache)
 		}
 		head = nextLine(file);
 	}
+
+	if (asset_path) free(asset_path);
 	
 	destroyTextBuffer(file);
 	logr(debug, "Found %zu materials\n", materials.count);

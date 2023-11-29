@@ -10,7 +10,5 @@
 
 #include "../fileio.h"
 
-struct block;
-
 // Currently supports: JPEG, PNG, BMP, TGA, PIC, PNM, QOI, HDRI
-struct texture *load_texture(const char *path, const file_data data, struct block **pool);
+struct texture *load_texture(const char *path, const file_data data);

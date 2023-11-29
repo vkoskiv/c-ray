@@ -236,6 +236,7 @@ struct cr_vector_node {
 };
 
 struct cr_shader_node {
+	// TODO: s/bsdf/shader
 	enum cr_bsdf_node_type {
 		cr_bsdf_unknown = 0,
 		cr_bsdf_diffuse,

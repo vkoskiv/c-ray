@@ -91,6 +91,14 @@ struct cr_value_node *cr_value_node_build(const struct cJSON *node) {
 		});
 	}
 
+	// Note: Fallback for serializer
+	if (stringEquals(type->valuestring, "constant")) {
+		return vn_alloc((struct cr_value_node){
+			.type = cr_vn_constant,
+			.arg.constant = cJSON_GetNumberValue(cJSON_GetObjectItem(node, "value"))
+		});
+	}
+
 	if (stringEquals(type->valuestring, "fresnel")) {
 		return vn_alloc((struct cr_value_node){
 			.type = cr_vn_fresnel,
@@ -124,21 +132,23 @@ struct cr_value_node *cr_value_node_build(const struct cJSON *node) {
 		});
 	}
 	if (stringEquals(type->valuestring, "vec_to_value")) {
+		const cJSON *comp = cJSON_GetObjectItem(node, "component");
 		return vn_alloc((struct cr_value_node){
 			.type = cr_vn_vec_to_value,
 			.arg.vec_to_value = {
 				.vec = cr_vector_node_build(cJSON_GetObjectItem(node, "vector")),
-				.comp = value_node_component(cJSON_GetObjectItem(node, "component"))
+				.comp = cJSON_IsNumber(comp) ? comp->valueint : value_node_component(comp) // For serializer
 			}
 		});
 	}
 	if (stringEquals(type->valuestring, "math")) {
+		const cJSON *op = cJSON_GetObjectItem(node, "op");
 		return vn_alloc((struct cr_value_node){
 			.type = cr_vn_math,
 			.arg.math = {
 				.A = cr_value_node_build(cJSON_GetObjectItem(node, "a")),
 				.B = cr_value_node_build(cJSON_GetObjectItem(node, "b")),
-				.op = value_node_op(cJSON_GetObjectItem(node, "op"))
+				.op = cJSON_IsNumber(op) ? op->valueint : value_node_op(op) // For serializer
 			}
 		});
 	}
@@ -234,6 +244,12 @@ struct cr_color_node *cr_color_node_build(const struct cJSON *desc) {
 		options |= NO_BILINEAR;
 	}
 
+	// Fallback for serializer, specify options explicitly
+	const cJSON *opt = cJSON_GetObjectItem(desc, "options");
+	if (cJSON_IsNumber(opt)) {
+		options = opt->valueint;
+	}
+
 	const cJSON *path = cJSON_GetObjectItem(desc, "path");
 	if (cJSON_IsString(path)) {
 		return cn_alloc((struct cr_color_node){
@@ -254,7 +270,22 @@ struct cr_color_node *cr_color_node_build(const struct cJSON *desc) {
 	}
 	const cJSON *type = cJSON_GetObjectItem(desc, "type");
 	if (cJSON_IsString(type)) {
-		// Oo, what's this?
+		if (stringEquals(type->valuestring, "constant")) {
+			struct color c = color_parse(cJSON_GetObjectItem(desc, "color"));
+			return cn_alloc((struct cr_color_node){
+				.type = cr_cn_constant,
+				.arg.constant = { c.red, c.green, c.blue, c.alpha }
+			});
+		}
+		if (!stringEquals(type->valuestring, "image")) {
+			if (cJSON_IsString(path)) {
+				return cn_alloc((struct cr_color_node){
+					.type = cr_cn_image,
+					.arg.image.full_path = stringCopy(path->valuestring),
+					.arg.image.options = options
+				});
+			}
+		}
 		if (stringEquals(type->valuestring, "checkerboard")) {
 			return cn_alloc((struct cr_color_node){
 				.type = cr_cn_checkerboard,
@@ -302,6 +333,15 @@ struct cr_color_node *cr_color_node_build(const struct cJSON *desc) {
 			return cn_alloc((struct cr_color_node){
 				.type = cr_cn_vec_to_color,
 				.arg.vec_to_color.vec = cr_vector_node_build(cJSON_GetObjectItem(desc, "vector"))
+			});
+		}
+		if (stringEquals(type->valuestring, "gradient")) {
+			return cn_alloc((struct cr_color_node){
+				.type = cr_cn_gradient,
+				.arg.gradient = {
+					.a = cr_color_node_build(cJSON_GetObjectItem(desc, "down")),
+					.b = cr_color_node_build(cJSON_GetObjectItem(desc, "up")),
+				}
 			});
 		}
 	}
@@ -422,6 +462,15 @@ struct cr_vector_node *cr_vector_node_build(const struct cJSON *node) {
 		return NULL;
 	}
 
+	// Note: Fallback for serializer
+	if (stringEquals(type->valuestring, "constant")) {
+		struct vector v = parseVector(cJSON_GetObjectItem(node, "vec"));
+		return vecn_alloc((struct cr_vector_node){
+			.type = cr_vec_constant,
+			.arg.constant = { v.x, v.y, v.z }
+		});
+	}
+
 	if (stringEquals(type->valuestring, "normal")) {
 		return vecn_alloc((struct cr_vector_node){
 			.type = cr_vec_normal
@@ -434,6 +483,7 @@ struct cr_vector_node *cr_vector_node_build(const struct cJSON *node) {
 	}
 
 	if (stringEquals(type->valuestring, "vecmath")) {
+		const cJSON *op = cJSON_GetObjectItem(node, "op");
 		return vecn_alloc((struct cr_vector_node){
 			.type = cr_vec_vecmath,
 			.arg.vecmath = {
@@ -441,7 +491,7 @@ struct cr_vector_node *cr_vector_node_build(const struct cJSON *node) {
 				.B = cr_vector_node_build(cJSON_GetObjectItem(node, "b")),
 				.C = cr_vector_node_build(cJSON_GetObjectItem(node, "c")),
 				.f = cr_value_node_build(cJSON_GetObjectItem(node, "f")),
-				.op = parseVectorOp(cJSON_GetObjectItem(node, "op"))
+				.op = cJSON_IsNumber(op) ? op->valueint : parseVectorOp(op) // Note: Fallback for serializer
 			}
 		});
 	}
@@ -486,6 +536,7 @@ static struct cr_shader_node *bn_alloc(struct cr_shader_node d) {
 	memcpy(desc, &d, sizeof(*desc));
 	return desc;
 }
+
 struct cr_shader_node *cr_shader_node_build(const struct cJSON *node) {
 	if (!node) return NULL;
 	const cJSON *type = cJSON_GetObjectItem(node, "type");
@@ -561,27 +612,37 @@ struct cr_shader_node *cr_shader_node_build(const struct cJSON *node) {
 			.arg.translucent.color = cr_color_node_build(cJSON_GetObjectItem(node, "color"))
 		});
 	} else if (stringEquals(type->valuestring, "background")) {
-		struct cr_color_node *hdr = NULL;
-		struct cr_color_node *gradient = NULL;
-		// Special cases for scene.ambientColor
-		const cJSON *hdr_in = cJSON_GetObjectItem(node, "hdr");
-		if (cJSON_IsString(hdr_in)) {
-			hdr = cn_alloc((struct cr_color_node){
-				.type = cr_cn_image,
-				.arg.image.full_path = stringCopy(hdr_in->valuestring),
-				.arg.image.options = 0 // TODO: Options?
-			});
-		}
-		const cJSON *down = cJSON_GetObjectItem(node, "down");
-		const cJSON *up = cJSON_GetObjectItem(node, "up");
-		if (!hdr && cJSON_IsObject(down) && cJSON_IsObject(up)) {
-			gradient = cn_alloc((struct cr_color_node){
-				.type = cr_cn_gradient,
-				.arg.gradient = {
-					.a = cr_color_node_build(down),
-					.b = cr_color_node_build(up),
-				}
-			});
+		// Note: Fallback for serializer
+		struct cr_color_node *color = NULL;
+		const cJSON *color_in = cJSON_GetObjectItem(node, "color");
+		if (cJSON_IsObject(color_in)) {
+			// This was generated by the internal serializer.
+			color = cr_color_node_build(color_in);
+		} else {
+			// Normal (ugly) encoding from json
+			struct cr_color_node *hdr = NULL;
+			struct cr_color_node *gradient = NULL;
+			// Special cases for scene.ambientColor
+			const cJSON *hdr_in = cJSON_GetObjectItem(node, "hdr");
+			if (cJSON_IsString(hdr_in)) {
+				hdr = cn_alloc((struct cr_color_node){
+					.type = cr_cn_image,
+					.arg.image.full_path = stringCopy(hdr_in->valuestring),
+					.arg.image.options = 0 // TODO: Options?
+				});
+			}
+			const cJSON *down = cJSON_GetObjectItem(node, "down");
+			const cJSON *up = cJSON_GetObjectItem(node, "up");
+			if (!hdr && cJSON_IsObject(down) && cJSON_IsObject(up)) {
+				gradient = cn_alloc((struct cr_color_node){
+					.type = cr_cn_gradient,
+					.arg.gradient = {
+						.a = cr_color_node_build(down),
+						.b = cr_color_node_build(up),
+					}
+				});
+			}
+			color = hdr ? hdr : gradient;
 		}
 
 		const cJSON *strength = cJSON_GetObjectItem(node, "strength");
@@ -589,7 +650,7 @@ struct cr_shader_node *cr_shader_node_build(const struct cJSON *node) {
 		return bn_alloc((struct cr_shader_node){
 			.type = cr_bsdf_background,
 			.arg.background = {
-				.color = hdr ? hdr : gradient,
+				.color = color,
 				.pose = cr_vector_node_build(offset),
 				.strength = cr_value_node_build(strength),
 			}

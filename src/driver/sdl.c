@@ -128,7 +128,7 @@ struct sdl_window {
 
 static void setWindowIcon(struct sdl_window *w) {
 #ifndef NO_LOGO
-	struct texture *icon = load_texture("logo.h", (file_data){ .items = logo_png_data, .count = logo_png_data_len }, NULL);
+	struct texture *icon = load_texture("logo.h", (file_data){ .items = logo_png_data, .count = logo_png_data_len });
 	uint32_t rmask;
 	uint32_t gmask;
 	uint32_t bmask;

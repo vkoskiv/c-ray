@@ -33,13 +33,16 @@ struct bsdfNode {
 typedef const struct bsdfNode * bsdf_node_ptr;
 dyn_array_def(bsdf_node_ptr);
 
+typedef struct cr_shader_node * cr_shader_node_ptr;
+dyn_array_def(cr_shader_node_ptr);
+
 struct bsdf_buffer {
 	struct bsdf_node_ptr_arr bsdfs;
-	size_t refs;
+	struct cr_shader_node_ptr_arr descriptions;
 };
 
-struct bsdf_buffer *bsdf_buf_ref(struct bsdf_buffer *buf);
-void bsdf_buf_unref(struct bsdf_buffer *buf);
+typedef struct bsdf_buffer bsdf_buffer;
+dyn_array_def(bsdf_buffer);
 
 #include "shaders/diffuse.h"
 #include "shaders/glass.h"
@@ -54,4 +57,4 @@ void bsdf_buf_unref(struct bsdf_buffer *buf);
 #include "shaders/translucent.h"
 
 const struct bsdfNode *warningBsdf(const struct node_storage *s);
-const struct bsdfNode *build_bsdf_node(struct cr_renderer *r_ext, const struct cr_shader_node *desc);
+const struct bsdfNode *build_bsdf_node(struct cr_scene *s_ext, const struct cr_shader_node *desc);

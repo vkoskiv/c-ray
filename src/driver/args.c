@@ -92,10 +92,10 @@ struct driver_args *args_parse(int argc, char **argv) {
 		}
 		alternatePath = stringConcat(argv[i], ".json");
 		
-		if (is_valid_file(argv[i], NULL) && !inputFileSet) {
+		if (is_valid_file(argv[i]) && !inputFileSet) {
 			setDatabaseString(args, "inputFile", argv[i]);
 			inputFileSet = true;
-		} else if (is_valid_file(alternatePath, NULL) && !inputFileSet) {
+		} else if (is_valid_file(alternatePath) && !inputFileSet) {
 			setDatabaseString(args, "inputFile", alternatePath);
 			inputFileSet = true;
 		}

@@ -12,6 +12,8 @@
 #include "mesh.h"
 #include "../renderer/instance.h"
 #include "../datatypes/camera.h"
+#include "../datatypes/image/texture.h"
+#include "../nodes/bsdfnode.h"
 
 struct renderer;
 struct hashtable;
@@ -27,14 +29,20 @@ struct node_storage {
 struct world {
 	//Optional environment map / ambient color
 	const struct bsdfNode *background;
+	struct cr_shader_node *bg_desc;
+	struct texture_asset_arr textures;
+	struct vertex_buffer_arr v_buffers;
+	struct bsdf_buffer_arr shader_buffers;
 	struct mesh_arr meshes;
 	struct instance_arr instances;
 	// Top-level bounding volume hierarchy,
 	// contains all 3D assets in the scene.
-	struct bvh *topLevel;
+	struct bvh *topLevel; // FIXME: Move to state?
 	struct sphere_arr spheres;
 	struct camera_arr cameras;
-	struct node_storage storage;
+	struct node_storage storage; // FIXME: Move to state?
+
+	char *asset_path;
 };
 
 void scene_destroy(struct world *scene);

@@ -35,12 +35,12 @@ typedef struct file_bytes_arr file_data;
 
 enum fileType guess_file_type(const char *path);
 char *human_file_size(unsigned long bytes, char *stat_buf);
-file_data file_load(const char *filePath, struct file_cache *cache);
+file_data file_load(const char *filePath);
 void file_free(file_data *file);
 // This is a more robust file writing function, that will seek alternate directories
 // if the specified one wasn't writeable.
 void write_file(file_data file, const char *path);
-bool is_valid_file(char *path, struct file_cache *cache);
+bool is_valid_file(char *path);
 char *get_file_name(const char *input);
 char *get_file_path(const char *input);
 // Await for input on stdin for up to 2 seconds. If nothing shows up, return empty file_data

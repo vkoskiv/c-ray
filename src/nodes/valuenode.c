@@ -59,36 +59,36 @@ const struct valueNode *newConstantValue(const struct node_storage *s, float val
 	});
 }
 
-const struct valueNode *build_value_node(struct cr_renderer *r_ext, const struct cr_value_node *desc) {
-	if (!r_ext || !desc) return NULL;
-	struct renderer *r = (struct renderer *)r_ext;
-	struct node_storage s = r->scene->storage;
+const struct valueNode *build_value_node(struct cr_scene *s_ext, const struct cr_value_node *desc) {
+	if (!s_ext || !desc) return NULL;
+	struct world *scene = (struct world *)s_ext;
+	struct node_storage s = scene->storage;
 
 	switch (desc->type) {
 		case cr_vn_constant:
 			return newConstantValue(&s, desc->arg.constant);
 		case cr_vn_fresnel:
-			return newFresnel(&s, build_value_node(r_ext, desc->arg.fresnel.IOR), build_vector_node(r_ext, desc->arg.fresnel.normal));
+			return newFresnel(&s, build_value_node(s_ext, desc->arg.fresnel.IOR), build_vector_node(s_ext, desc->arg.fresnel.normal));
 		case cr_vn_map_range:
 			return newMapRange(&s,
-				build_value_node(r_ext, desc->arg.map_range.input_value),
-				build_value_node(r_ext, desc->arg.map_range.from_min),
-				build_value_node(r_ext, desc->arg.map_range.from_max),
-				build_value_node(r_ext, desc->arg.map_range.to_min),
-				build_value_node(r_ext, desc->arg.map_range.to_max));
+				build_value_node(s_ext, desc->arg.map_range.input_value),
+				build_value_node(s_ext, desc->arg.map_range.from_min),
+				build_value_node(s_ext, desc->arg.map_range.from_max),
+				build_value_node(s_ext, desc->arg.map_range.to_min),
+				build_value_node(s_ext, desc->arg.map_range.to_max));
 		case cr_vn_raylength:
 			return newRayLength(&s);
 		case cr_vn_alpha:
-			return newAlpha(&s, build_color_node(r_ext, desc->arg.alpha.color));
+			return newAlpha(&s, build_color_node(s_ext, desc->arg.alpha.color));
 		case cr_vn_vec_to_value:
-			return newVecToValue(&s, build_vector_node(r_ext, desc->arg.vec_to_value.vec), desc->arg.vec_to_value.comp);
+			return newVecToValue(&s, build_vector_node(s_ext, desc->arg.vec_to_value.vec), desc->arg.vec_to_value.comp);
 		case cr_vn_math:
 			return newMath(&s,
-				build_value_node(r_ext, desc->arg.math.A),
-				build_value_node(r_ext, desc->arg.math.B),
+				build_value_node(s_ext, desc->arg.math.A),
+				build_value_node(s_ext, desc->arg.math.B),
 				desc->arg.math.op);
 		case cr_vn_grayscale:
-			return newGrayscaleConverter(&s, build_color_node(r_ext, desc->arg.grayscale.color));
+			return newGrayscaleConverter(&s, build_color_node(s_ext, desc->arg.grayscale.color));
 		default:
 			return NULL;
 	}

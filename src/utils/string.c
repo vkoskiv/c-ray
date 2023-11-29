@@ -82,6 +82,7 @@ void windowsFixPath(char *path) {
 }
 
 char *stringToLower(const char *orig) {
+	if (!orig) return NULL;
 	char *str = stringCopy(orig);
 	size_t len = strlen(str);
 	for (size_t i = 0; i < len; ++i) {

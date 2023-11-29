@@ -33,7 +33,6 @@
 #include "../textbuffer.h"
 #include "../gitsha1.h"
 #include "../assert.h"
-#include "../filecache.h"
 #include "../platform/terminal.h"
 #include "../platform/signal.h"
 
@@ -145,7 +144,7 @@ static cJSON *handle_get_work(struct worker *state, const cJSON *json) {
 
 static cJSON *handle_submit_work(struct worker *state, const cJSON *json) {
 	cJSON *result = cJSON_GetObjectItem(json, "result");
-	struct texture *texture = decodeTexture(result);
+	struct texture *texture = deserialize_texture(result);
 	cJSON *tile_json = cJSON_GetObjectItem(json, "tile");
 	struct render_tile tile = decodeTile(tile_json);
 	state->tiles->tiles.items[tile.index] = tile;
@@ -257,8 +256,7 @@ void *client_connection_thread(void *arg) {
 
 struct sync_thread {
 	struct render_client *client;
-	const struct renderer *renderer;
-	const char *asset_cache;
+	char *serialized_renderer;
 	size_t progress;
 	bool done;
 };
@@ -295,11 +293,9 @@ static void *client_sync_thread(void *arg) {
 	// Send the scene & assets
 	cJSON *scene = cJSON_CreateObject();
 	cJSON_AddStringToObject(scene, "action", "loadScene");
-	logr(debug, "Syncing state: %s\n", params->renderer->sceneCache);
-	cJSON *data = cJSON_Parse(params->renderer->sceneCache);
-	cJSON_AddItemToObject(scene, "data", data);
-	cJSON_AddItemToObject(scene, "files", cJSON_Parse(params->asset_cache));
-	cJSON_AddStringToObject(scene, "assetPath", params->renderer->prefs.assetPath);
+	logr(debug, "Syncing state to client %d\n", client->id);
+	// FIXME: Would be better to just send the string directly instead of wrapping it in json
+	cJSON_AddStringToObject(scene, "data", params->serialized_renderer);
 	sendJSON(client->socket, scene, &params->progress);
 	response = readJSON(client->socket);
 	if (!response) {
@@ -382,20 +378,17 @@ struct render_client_arr clients_sync(const struct renderer *r) {
 		return (struct render_client_arr){ 0 };
 	}
 	
-	char *asset_cache = cache_encode(r->state.file_cache);
-	
-	size_t transfer_bytes = strlen(asset_cache) + strlen(r->sceneCache);
-	char *transfer_size = human_file_size(transfer_bytes, NULL);
-	logr(info, "Sending %s to %lu client%s...\n", transfer_size, clients.count, PLURAL(clients.count));
-	free(transfer_size);
+	char *serialized = serialize_renderer(r);
+	size_t transfer_bytes = strlen(serialized);
+	char buf[64];
+	logr(info, "Sending %s to %lu client%s...\n", human_file_size(transfer_bytes, buf), clients.count, PLURAL(clients.count));
 	
 	struct sync_thread *params = calloc(clients.count, sizeof(*params));
 	logr(debug, "Client list:\n");
 	for (size_t i = 0; i < clients.count; ++i) {
 		logr(debug, "\tclient %zu: %s:%i\n", i, inet_ntoa(clients.items[i].address.sin_addr), htons(clients.items[i].address.sin_port));
 		params[i].client = &clients.items[i];
-		params[i].renderer = r;
-		params[i].asset_cache = asset_cache;
+		params[i].serialized_renderer = serialized;
 	}
 	
 	struct cr_thread *sync_threads = calloc(clients.count, sizeof(*sync_threads));
@@ -432,10 +425,10 @@ struct render_client_arr clients_sync(const struct renderer *r) {
 		thread_wait(&sync_threads[i]);
 	}
 	
-	free(asset_cache);
 	for (size_t i = 0; i < clients.count; ++i) printf("\n");
 	logr(info, "Client sync finished.\n");
 
+	free(serialized);
 	free(sync_threads);
 	free(params);
 	return clients;

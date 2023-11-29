@@ -116,6 +116,7 @@ void tile_set_free(struct tile_set *set) {
 	if (set->tile_mutex) free(set->tile_mutex);
 	set->tile_mutex = NULL;
 }
+
 static void reorder_top_to_bottom(struct render_tile_arr *tiles) {
 	struct render_tile_arr temp = { 0 };
 	

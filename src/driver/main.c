@@ -88,19 +88,19 @@ int main(int argc, char *argv[]) {
 	}
 
 	int ret = 0;
-	file_data input = args_is_set(opts, "inputFile") ? file_load(args_path(opts), NULL) : read_stdin();
-	if (!input.count) {
+	file_data input_bytes = args_is_set(opts, "inputFile") ? file_load(args_path(opts)) : read_stdin();
+	if (!input_bytes.count) {
 		logr(info, "No input provided, exiting.\n");
 		ret = -1;
 		goto done;
 	}
 	char size_buf[64];
-	logr(info, "%s of input JSON loaded from %s, parsing.\n", human_file_size(input.count, size_buf), args_is_set(opts, "inputFile") ? "file" : "stdin");
+	logr(info, "%s of input JSON loaded from %s, parsing.\n", human_file_size(input_bytes.count, size_buf), args_is_set(opts, "inputFile") ? "file" : "stdin");
 	struct timeval json_timer;
 	timer_start(&json_timer);
-	cJSON *scene = cJSON_ParseWithLength((const char *)input.items, input.count);
+	cJSON *input_json = cJSON_ParseWithLength((const char *)input_bytes.items, input_bytes.count);
 	size_t json_ms = timer_get_ms(json_timer);
-	if (!scene) {
+	if (!input_json) {
 		const char *errptr = cJSON_GetErrorPtr();
 		if (errptr) {
 			logr(warning, "Failed to parse JSON\n");
@@ -110,13 +110,13 @@ int main(int argc, char *argv[]) {
 	}
 	logr(info, "JSON parse took %lums\n", json_ms);
 
-	file_free(&input);
+	file_free(&input_bytes);
 
 	if (args_is_set(opts, "nodes_list")) {
 		cr_renderer_set_str_pref(renderer, cr_renderer_node_list, args_string(opts, "nodes_list"));
 	}
 
-	if (parse_json(renderer, scene) < 0) {
+	if (parse_json(renderer, input_json) < 0) {
 		logr(warning, "Scene parse failed, exiting.\n");
 		ret = -1;
 		goto done;
@@ -179,80 +179,18 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	
-	// This is where we prepare a cache of scene data to be sent to worker nodes
-	// We also apply any potential command-line overrides to that cache here as well.
-	// FIXME: This overrides setting should be integrated with scene loading, probably.
-	if (args_is_set(opts, "nodes_list")) {
-		// Stash a cache of scene data here
-		// Apply overrides to the cache here
-		if (args_is_set(opts, "samples_override")) {
-			cJSON *renderer = cJSON_GetObjectItem(scene, "renderer");
-			if (cJSON_IsObject(renderer)) {
-				int samples = args_int(opts, "samples_override");
-				logr(debug, "Overriding cache sample count to %i\n", samples);
-				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "samples"))) {
-					cJSON_ReplaceItemInObject(renderer, "samples", cJSON_CreateNumber(samples));
-				} else {
-					cJSON_AddItemToObject(renderer, "samples", cJSON_CreateNumber(samples));
-				}
-			}
-		}
-
-		if (args_is_set(opts, "dims_override")) {
-			cJSON *renderer = cJSON_GetObjectItem(scene, "renderer");
-			if (cJSON_IsObject(renderer)) {
-				int width = args_int(opts, "dims_width");
-				int height = args_int(opts, "dims_height");
-				logr(info, "Overriding cache image dimensions to %ix%i\n", width, height);
-				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "width")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "height"))) {
-					cJSON_ReplaceItemInObject(renderer, "width", cJSON_CreateNumber(width));
-					cJSON_ReplaceItemInObject(renderer, "height", cJSON_CreateNumber(height));
-				} else {
-					cJSON_AddItemToObject(renderer, "width", cJSON_CreateNumber(width));
-					cJSON_AddItemToObject(renderer, "height", cJSON_CreateNumber(height));
-				}
-			}
-		}
-
-		if (args_is_set(opts, "tiledims_override")) {
-			cJSON *renderer = cJSON_GetObjectItem(scene, "renderer");
-			if (cJSON_IsObject(renderer)) {
-				int width = args_int(opts, "tile_width");
-				int height = args_int(opts, "tile_height");
-				logr(info, "Overriding cache tile dimensions to %ix%i\n", width, height);
-				if (cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileWidth")) && cJSON_IsNumber(cJSON_GetObjectItem(renderer, "tileHeight"))) {
-					cJSON_ReplaceItemInObject(renderer, "tileWidth", cJSON_CreateNumber(width));
-					cJSON_ReplaceItemInObject(renderer, "tileHeight", cJSON_CreateNumber(height));
-				} else {
-					cJSON_AddItemToObject(renderer, "tileWidth", cJSON_CreateNumber(width));
-					cJSON_AddItemToObject(renderer, "tileHeight", cJSON_CreateNumber(height));
-				}
-			}
-		}
-
-		if (args_is_set(opts, "cam_index")) {
-			cJSON_AddItemToObject(scene, "selected_camera", cJSON_CreateNumber(args_int(opts, "cam_index")));
-		}
-
-		// Store cache. This is what gets sent to worker nodes.
-		// FIXME: This doesn't need to be stored in renderer
-		char *cache = cJSON_PrintUnformatted(scene);
-		cr_renderer_set_str_pref(renderer, cr_renderer_scene_cache, cache);
-		free(cache);
-	}
-
 	cr_renderer_set_callbacks(renderer, (struct cr_renderer_callbacks){
 		.cr_renderer_on_start = on_start,
 		.cr_renderer_on_stop = on_stop,
 		.cr_renderer_status = status,
 		.user_data = &(struct usr_data){
-			.p = sdl_parse(cJSON_GetObjectItem(scene, "display")),
+			.p = sdl_parse(cJSON_GetObjectItem(input_json, "display")),
 			.r = renderer
 		}
 	});
 
 	logr(debug, "Deleting JSON...\n");
-	cJSON_Delete(scene);
+	cJSON_Delete(input_json);
 	logr(debug, "Deleting done\n");
 
 	struct timeval timer;

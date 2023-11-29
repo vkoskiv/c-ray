@@ -40,12 +40,15 @@ cJSON *encodeTile(const struct render_tile *tile);
 
 struct render_tile decodeTile(const cJSON *json);
 
-cJSON *encodeTexture(const struct texture *t);
+cJSON *serialize_texture(const struct texture *t);
 
-struct texture *decodeTexture(const cJSON *json);
+struct texture *deserialize_texture(const cJSON *json);
 
 bool containsError(const cJSON *json);
 
 bool containsGoodbye(const cJSON *json);
 
 bool containsStats(const cJSON *json);
+
+char *serialize_renderer(const struct renderer *r);
+struct renderer *deserialize_renderer(const char *data);

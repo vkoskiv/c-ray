@@ -24,6 +24,7 @@ struct hitRecord;
 struct instance {
 	struct transform composite;
 	struct bsdf_buffer *bbuf;
+	size_t bbuf_idx;
 	bool emits_light;
 	bool (*intersectFn)(const struct instance *, const struct lightRay *, struct hitRecord *, sampler *);
 	void (*getBBoxAndCenterFn)(const struct instance *, struct boundingBox *, struct vector *);
