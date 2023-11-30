@@ -1,9 +1,9 @@
 //
 //  capabilities.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 29.3.2020.
-//  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "capabilities.h"
@@ -13,7 +13,7 @@
 #include <sys/sysctl.h>
 #elif _WIN32
 #include <windows.h>
-#elif __linux__
+#elif __linux__ || __COSMOPOLITAN__
 #include <unistd.h>
 #endif
 
@@ -38,7 +38,7 @@ int getSysCores() {
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
 	return sysInfo.dwNumberOfProcessors;
-#elif __linux__
+#elif __linux__ || __COSMOPOLITAN__
 	return (int)sysconf(_SC_NPROCESSORS_ONLN);
 #else
 	return 1;
