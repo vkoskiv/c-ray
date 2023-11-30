@@ -66,7 +66,7 @@ void timer_sleep_ms(int ms) {
 	ts.tv_sec = ms / 1000;
 	ts.tv_nsec = (ms % 1000) * 1000000;
 	nanosleep(&ts, NULL);
-#elif __linux__
+#else
 	usleep(ms * 1000);
 #endif
 }
