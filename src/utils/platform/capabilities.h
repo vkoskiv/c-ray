@@ -11,4 +11,4 @@
 /// Get amount of logical processing cores on the system
 /// @remark Is unaware of NUMA nodes on high core count systems
 /// @return Amount of logical processing cores
-int getSysCores(void);
+int sys_get_cores(void);

@@ -109,7 +109,7 @@ struct driver_args *args_parse(int argc, char **argv) {
 			if (threadstr) {
 				int n = atoi(threadstr);
 				n = n < 0 ? 0 : n;
-				n = n > getSysCores() * 2 ? getSysCores() * 2 : n;
+				n = n > sys_get_cores() * 2 ? sys_get_cores() * 2 : n;
 				setDatabaseInt(args, "thread_override", n);
 			} else {
 				logr(warning, "Invalid -j parameter given!\n");

@@ -81,7 +81,7 @@ void parse_prefs(struct cr_renderer *ext, const cJSON *data) {
 			cr_renderer_set_num_pref(ext, cr_renderer_threads, threads->valueint);
 			// prefs->fromSystem = false;
 		} else {
-			cr_renderer_set_num_pref(ext, cr_renderer_threads, getSysCores() + 2);
+			cr_renderer_set_num_pref(ext, cr_renderer_threads, sys_get_cores() + 2);
 			// prefs->fromSystem = true;
 		}
 	}

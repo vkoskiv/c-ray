@@ -135,7 +135,7 @@ struct texture *renderFrame(struct renderer *r) {
 		r->prefs.threads = 1;
 	}
 	
-	bool threadsReduced = (size_t)getSysCores() > r->prefs.threads;
+	bool threadsReduced = (size_t)sys_get_cores() > r->prefs.threads;
 	
 	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, camera.width, KNRM, KWHT, camera.height, KNRM);
 	logr(info, "Rendering %s%zu%s samples with %s%zu%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
@@ -434,7 +434,7 @@ exit:
 struct prefs default_prefs() {
 	return (struct prefs){
 			.tileOrder = ro_from_middle,
-			.threads = getSysCores() + 2,
+			.threads = sys_get_cores() + 2,
 			.fromSystem = true,
 			.sampleCount = 25,
 			.bounces = 20,

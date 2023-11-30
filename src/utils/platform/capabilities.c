@@ -17,7 +17,7 @@
 #include <unistd.h>
 #endif
 
-int getSysCores() {
+int sys_get_cores() {
 #ifdef __APPLE__
 	int nm[2];
 	size_t len = 4;
