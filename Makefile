@@ -24,3 +24,5 @@ dummy:
 	$(shell sed "s/@GIT_SHA1@/`git rev-parse --verify HEAD || echo "NoHash" | cut -c 1-8`/g" src/utils/gitsha1.c.in > generated/gitsha1.c)
 clean:
 	rm -rf bin/*
+
+include cosmo.mk
