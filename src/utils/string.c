@@ -19,7 +19,7 @@ bool stringEquals(const char *s1, const char *s2) {
 
 bool stringContains(const char *haystack, const char *needle) {
 	ASSERT(haystack); ASSERT(needle);
-	return strstr(haystack, needle);
+	return strstr(haystack, needle) ? true : false;
 }
 
 bool stringStartsWith(const char *prefix, const char *string) {
