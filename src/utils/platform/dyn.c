@@ -22,6 +22,14 @@ void *dyn_sym(void *handle, const char *name) {
 #endif
 }
 
+char *dyn_error(void) {
+#if defined(WINDOWS)
+	return NULL;
+#else
+	return dlerror();
+#endif
+}
+
 int dyn_close(void *handle) {
 #ifdef WINDOWS
 	return (int)FreeLibrary((HMODULE)handle);

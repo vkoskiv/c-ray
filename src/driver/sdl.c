@@ -63,7 +63,7 @@ static void *try_find_sdl2_lib(void) {
 		if ((lib = dyn_load(candidates[i]))) return lib;
 	}
 
-	logr(info, "Couldn't find SDL library, tried the following names: ");
+	logr(info, "Couldn't find SDL library (%s), tried the following names: ", dyn_error());
 	for (size_t i = 0; i < (sizeof(candidates) / sizeof(*candidates)); ++i) {
 		logr(plain, "\"%s\" ", candidates[i]);
 	}
