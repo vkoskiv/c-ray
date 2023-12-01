@@ -135,7 +135,7 @@ static struct render_client_arr build_client_list(const char *node_list) {
 static cJSON *handle_get_work(struct worker *state, const cJSON *json) {
 	(void)state;
 	(void)json;
-	struct render_tile *tile = tile_next(state->renderer, state->tiles);
+	struct render_tile *tile = tile_next(state->tiles);
 	if (!tile) return newAction("renderComplete");
 	tile->network_renderer = true;
 	cJSON *response = newAction("newWork");

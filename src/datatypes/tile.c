@@ -18,13 +18,13 @@
 
 static void tiles_reorder(struct render_tile_arr *tiles, enum render_order tileOrder);
 
-struct render_tile *tile_next(struct renderer *r, struct tile_set *set) {
+struct render_tile *tile_next(struct tile_set *set) {
 	struct render_tile *tile = NULL;
 	mutex_lock(set->tile_mutex);
-	if (r->state.finishedTileCount < set->tiles.count) {
-		tile = &set->tiles.items[r->state.finishedTileCount];
+	if (set->finished < set->tiles.count) {
+		tile = &set->tiles.items[set->finished];
 		tile->state = rendering;
-		tile->index = r->state.finishedTileCount++;
+		tile->index = set->finished++;
 	} else {
 		// If a network worker disappeared during render, finish those tiles locally here at the end
 		for (size_t t = 0; t < set->tiles.count; ++t) {
@@ -46,13 +46,13 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 	mutex_lock(set->tile_mutex);
 	again:
 	if (r->state.finishedPasses < r->prefs.sampleCount + 1) {
-		if (r->state.finishedTileCount < set->tiles.count) {
-			tile = &set->tiles.items[r->state.finishedTileCount];
+		if (set->finished < set->tiles.count) {
+			tile = &set->tiles.items[set->finished];
 			tile->state = rendering;
-			tile->index = r->state.finishedTileCount++;
+			tile->index = set->finished++;
 		} else {
 			r->state.finishedPasses++;
-			r->state.finishedTileCount = 0;
+			set->finished = 0;
 			goto again;
 		}
 	}

@@ -108,7 +108,7 @@ void update_cb_info(struct renderer *r, struct tile_set *set, struct cr_renderer
 	i->eta_ms = eta_ms_till_done;
 	i->completion = r->prefs.iterative ?
 		((double)r->state.finishedPasses / (double)r->prefs.sampleCount) :
-		((double)r->state.finishedTileCount / (double)set->tiles.count);
+		((double)set->finished / (double)set->tiles.count);
 
 }
 
@@ -364,7 +364,7 @@ void *renderThread(void *arg) {
 	struct camera *cam = threadState->cam;
 
 	//First time setup for each thread
-	struct render_tile *tile = tile_next(r, threadState->tiles);
+	struct render_tile *tile = tile_next(threadState->tiles);
 	threadState->currentTile = tile;
 	
 	struct timeval timer = {0};
@@ -420,7 +420,7 @@ void *renderThread(void *arg) {
 		tile->state = finished;
 		threadState->currentTile = NULL;
 		threadState->completedSamples = 1;
-		tile = tile_next(r, threadState->tiles);
+		tile = tile_next(threadState->tiles);
 		threadState->currentTile = tile;
 	}
 exit:

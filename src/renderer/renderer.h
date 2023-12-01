@@ -40,8 +40,6 @@ dyn_array_def(worker);
 
 /// Renderer state data
 struct state {
-
-	size_t finishedTileCount;
 	size_t finishedPasses; // For interactive mode
 	bool rendering;
 	bool render_aborted; //SDL listens for X key pressed, which sets this
