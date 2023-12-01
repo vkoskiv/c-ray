@@ -286,8 +286,6 @@ void *renderThreadInteractive(void *arg) {
 	
 	struct timeval timer = {0};
 	
-	threadState->completedSamples = 1;
-	
 	while (tile && r->state.rendering) {
 		long total_us = 0;
 
@@ -325,7 +323,6 @@ void *renderThreadInteractive(void *arg) {
 		//For performance metrics
 		total_us += timer_get_us(timer);
 		threadState->totalSamples++;
-		threadState->completedSamples++;
 		//Pause rendering when bool is set
 		while (threadState->paused && !r->state.render_aborted) {
 			timer_sleep_ms(100);
@@ -335,7 +332,6 @@ void *renderThreadInteractive(void *arg) {
 		//Tile has finished rendering, get a new one and start rendering it.
 		tile->state = finished;
 		threadState->currentTile = NULL;
-		threadState->completedSamples = r->state.finishedPasses;
 		tile = tile_next_interactive(r, threadState->tiles);
 		threadState->currentTile = tile;
 	}
@@ -367,20 +363,19 @@ void *renderThread(void *arg) {
 	struct render_tile *tile = tile_next(threadState->tiles);
 	threadState->currentTile = tile;
 	
-	struct timeval timer = {0};
-	threadState->completedSamples = 1;
+	struct timeval timer = { 0 };
+	size_t samples = 1;
 	
 	while (tile && r->state.rendering) {
 		long total_us = 0;
-		long samples = 0;
 		
-		while (threadState->completedSamples < r->prefs.sampleCount + 1 && r->state.rendering) {
+		while (samples < r->prefs.sampleCount + 1 && r->state.rendering) {
 			timer_start(&timer);
 			for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 				for (int x = tile->begin.x; x < tile->end.x; ++x) {
 					if (r->state.render_aborted) goto exit;
 					uint32_t pixIdx = (uint32_t)(y * image->width + x);
-					initSampler(sampler, SAMPLING_STRATEGY, threadState->completedSamples - 1, r->prefs.sampleCount, pixIdx);
+					initSampler(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(buf, x, y, false);
 					struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
@@ -389,9 +384,9 @@ void *renderThread(void *arg) {
 					nan_clamp(&sample, &output);
 
 					//And process the running average
-					output = colorCoef((float)(threadState->completedSamples - 1), output);
+					output = colorCoef((float)(samples - 1), output);
 					output = colorAdd(output, sample);
-					float t = 1.0f / threadState->completedSamples;
+					float t = 1.0f / samples;
 					output = colorCoef(t, output);
 					
 					//Store internal render buffer (float precision)
@@ -405,10 +400,9 @@ void *renderThread(void *arg) {
 				}
 			}
 			//For performance metrics
-			samples++;
 			total_us += timer_get_us(timer);
 			threadState->totalSamples++;
-			threadState->completedSamples++;
+			samples++;
 			tile->completed_samples++;
 			//Pause rendering when bool is set
 			while (threadState->paused && !r->state.render_aborted) {
@@ -419,7 +413,7 @@ void *renderThread(void *arg) {
 		//Tile has finished rendering, get a new one and start rendering it.
 		tile->state = finished;
 		threadState->currentTile = NULL;
-		threadState->completedSamples = 1;
+		samples = 1;
 		tile = tile_next(threadState->tiles);
 		threadState->currentTile = tile;
 	}

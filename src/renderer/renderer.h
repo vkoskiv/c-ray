@@ -24,7 +24,6 @@ struct worker {
 	//Share info about the current tile with main thread
 	struct tile_set *tiles;
 	struct render_tile *currentTile;
-	size_t completedSamples; //FIXME: Remove
 	uint64_t totalSamples;
 	
 	long avg_per_sample_us; //Single tile pass
@@ -46,7 +45,6 @@ struct state {
 	bool saveImage;
 	struct worker_arr workers;
 	struct render_client_arr clients;
-	
 	struct cr_renderer_callbacks cb;
 };
 
