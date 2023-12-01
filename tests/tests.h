@@ -10,6 +10,33 @@
 
 static char *failed_expression;
 
+//Test assert
+#define test_assert(x) if (!(x)) { failed_expression = #x; return false; }
+
+// And an approximate one for math stuff
+#define _roughly_equals(a, b, tolerance) \
+	do { \
+		float expect_close_lhs = a; \
+		float expect_close_rhs = b; \
+		float expect_close_diff = (float)(expect_close_lhs) - (float)(expect_close_rhs); \
+		if (fabsf(expect_close_diff) > tolerance) { \
+			failed_expression = "roughly_equals (" #a " !≈ " #b ")";\
+			return false; \
+		} \
+	} while (false)
+
+#define roughly_equals(a, b) _roughly_equals(a, b, 0.0000005f)
+#define very_roughly_equals(a, b) _roughly_equals(a, b, 0.01f)
+
+#define vec_roughly_equals(veca, vecb) \
+	do { \
+		struct vector vec_a = veca; \
+		struct vector vec_b = vecb; \
+		roughly_equals(vec_a.x, vec_b.x); \
+		roughly_equals(vec_a.y, vec_b.y); \
+		roughly_equals(vec_a.z, vec_b.z); \
+	} while (false)
+
 // Testable modules
 #include "test_textbuffer.h"
 #include "test_transforms.h"
@@ -22,6 +49,11 @@ static char *failed_expression;
 #include "test_linked_list.h"
 #include "test_parser.h"
 #include "test_dyn_array.h"
+
+typedef struct {
+	char *test_name;
+	bool (*func)(void);
+} test;
 
 static test tests[] = {
 	{"vector::vecZero", vector_vecZero},

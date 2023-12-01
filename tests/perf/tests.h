@@ -12,11 +12,16 @@ static char *failed_expression;
 #include "perf_fileio.h"
 #include "perf_base64.h"
 
-static perfTest perfTests[] = {
+typedef struct {
+	char *test_name;
+	time_t (*func)(void);
+} perf_test;
+
+static perf_test perf_tests[] = {
 	{"fileio::load", fileio_load},
 	{"base64::bigfile_encode", base64_bigfile_encode},
 	{"base64::bigfile_decode", base64_bigfile_decode},
 };
 
-#define perfTestCount (sizeof(perfTests) / sizeof(perfTest))
+#define perf_test_count (sizeof(perf_tests) / sizeof(perf_test))
 

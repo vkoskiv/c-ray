@@ -7,6 +7,8 @@
 //
 
 #include "../../src/utils/fileio.h"
+#include "../../src/utils/timer.h"
+#include "../../src/utils/assert.h"
 
 time_t fileio_load(void) {
 	struct timeval test;

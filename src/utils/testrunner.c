@@ -13,43 +13,6 @@
 #include "../utils/assert.h"
 #include "testrunner.h"
 
-//Test assert
-#define test_assert(x) if (!(x)) { failed_expression = #x; return false; }
-
-// And an approximate one for math stuff
-#define _roughly_equals(a, b, tolerance) \
-	do { \
-		float expect_close_lhs = a; \
-		float expect_close_rhs = b; \
-		float expect_close_diff = (float)(expect_close_lhs) - (float)(expect_close_rhs); \
-		if (fabsf(expect_close_diff) > tolerance) { \
-			failed_expression = "roughly_equals (" #a " !≈ " #b ")";\
-			return false; \
-		} \
-	} while (false)
-
-#define roughly_equals(a, b) _roughly_equals(a, b, 0.0000005f)
-#define very_roughly_equals(a, b) _roughly_equals(a, b, 0.01f)
-
-#define vec_roughly_equals(veca, vecb) \
-	do { \
-		struct vector vec_a = veca; \
-		struct vector vec_b = vecb; \
-		roughly_equals(vec_a.x, vec_b.x); \
-		roughly_equals(vec_a.y, vec_b.y); \
-		roughly_equals(vec_a.z, vec_b.z); \
-	} while (false)
-
-typedef struct {
-	char *testName;
-	bool (*func)(void);
-} test;
-
-typedef struct {
-	char *testName;
-	time_t (*func)(void);
-} perfTest;
-
 #ifdef CRAY_TESTING
 
 int firstTestIdx(char *suite);
@@ -60,7 +23,7 @@ int firstPerfTestIdx(char *suite);
 #include "../../tests/perf/tests.h"
 
 unsigned totalTests = testCount;
-unsigned performanceTests = perfTestCount;
+unsigned performanceTests = perf_test_count;
 
 int runTests(char *suite) {
 	unsigned test_count = getTestCount(suite);
@@ -107,7 +70,7 @@ int runTest(unsigned t, char *suite) {
 		 "[%3u/%u] "
 		 "%-32s ",
 		 t + 1, test_count,
-		 tests[first_idx + t].testName);
+		 tests[first_idx + t].test_name);
 	
 	struct timeval test;
 	timer_start(&test);
@@ -135,13 +98,13 @@ int runPerfTest(unsigned t, char *suite) {
 		 "[%3u/%u] "
 		 "%-32s ",
 		 t + 1, test_count,
-		 perfTests[first_idx + t].testName);
+		 perf_tests[first_idx + t].test_name);
 	
 	
 	time_t usecs = 0;
 	
 	for (size_t i = 0; i < PERF_AVG_COUNT; ++i) {
-		usecs += perfTests[t].func();
+		usecs += perf_tests[t].func();
 	}
 	
 	usecs = usecs / PERF_AVG_COUNT;
@@ -153,39 +116,39 @@ int runPerfTest(unsigned t, char *suite) {
 int firstTestIdx(char *suite) {
 	if (!suite) return 0;
 	for (size_t i = 0; i < testCount; ++i) {
-		if (stringStartsWith(suite, tests[i].testName)) return (int)i;
+		if (stringStartsWith(suite, tests[i].test_name)) return (int)i;
 	}
 	return 0;
 }
 
 int getTestCount(char *suite) {
 	if (suite) {
-		int test_count = 0;
+		int suite_count = 0;
 		for (size_t i = 0; i < testCount; ++i) {
-			if (stringStartsWith(suite, tests[i].testName)) test_count++;
+			if (stringStartsWith(suite, tests[i].test_name)) suite_count++;
 		}
-		return test_count;
+		return suite_count;
 	}
 	return testCount;
 }
 
 int firstPerfTestIdx(char *suite) {
 	if (!suite) return 0;
-	for (size_t i = 0; i < perfTestCount; ++i) {
-		if (stringStartsWith(suite, perfTests[i].testName)) return (int)i;
+	for (size_t i = 0; i < perf_test_count; ++i) {
+		if (stringStartsWith(suite, perf_tests[i].test_name)) return (int)i;
 	}
 	return 0;
 }
 
 int getPerfTestCount(char *suite) {
 	if (suite) {
-		int perf_test_count = 0;
-		for (size_t i = 0; i < perfTestCount; ++i) {
-			if (stringStartsWith(suite, perfTests[i].testName)) perf_test_count++;
+		int suite_count = 0;
+		for (size_t i = 0; i < perf_test_count; ++i) {
+			if (stringStartsWith(suite, perf_tests[i].test_name)) suite_count++;
 		}
-		return perf_test_count;
+		return suite_count;
 	}
-	return perfTestCount;
+	return perf_test_count;
 }
 
 #endif
