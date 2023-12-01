@@ -114,7 +114,7 @@ void update_cb_info(struct renderer *r, struct tile_set *set, struct cr_renderer
 
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
-struct texture *renderFrame(struct renderer *r) {
+struct texture *renderer_render(struct renderer *r) {
 	//Check for CTRL-C
 	if (registerHandler(sigint, sigHandler)) {
 		logr(warning, "Unable to catch SIGINT\n");

@@ -81,12 +81,8 @@ struct renderer {
 	struct prefs prefs;  //User prefs
 };
 
-//Initialize a new renderer
 struct renderer *renderer_new(void);
-struct prefs default_prefs();
-
-//Start main render loop
-struct texture *renderFrame(struct renderer *r);
-
-//Free renderer allocations
+struct texture *renderer_render(struct renderer *r);
 void renderer_destroy(struct renderer *r);
+
+struct prefs default_prefs(); // TODO: Remove

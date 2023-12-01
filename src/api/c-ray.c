@@ -475,7 +475,7 @@ struct texture *cr_renderer_render(struct cr_renderer *ext) {
 	if (!r->state.clients.count && !r->prefs.threads) {
 		return NULL;
 	}
-	return renderFrame(r);
+	return renderer_render(r);
 }
 
 void cr_start_render_worker(int port, size_t thread_limit) {
