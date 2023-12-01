@@ -16,7 +16,6 @@
 #include "../renderer/renderer.h"
 #include "../datatypes/scene.h"
 #include "../utils/gitsha1.h"
-#include "../utils/logging.h"
 #include "../utils/fileio.h"
 #include "../utils/platform/terminal.h"
 #include "../utils/assert.h"
@@ -95,16 +94,13 @@ bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			if (!r->scene->cameras.count) return false;
 			if (num >= r->scene->cameras.count) return false;
 			r->prefs.selected_camera = num;
-			logr(info, "Selected camera %lu\n", num);
 			return true;
 		}
 		case cr_renderer_is_iterative: {
 			r->prefs.iterative = true;
 			return true;
 		}
-		default: {
-			logr(warning, "Renderer param %i not a number\n", p);
-		}
+		default: return false;
 	}
 	return false;
 }
@@ -160,9 +156,7 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			r->prefs.node_list = stringCopy(str);
 			return true;
 		}
-		default: {
-			logr(warning, "Renderer param %i not a string\n", p);
-		}
+		default: return false;
 	}
 	return false;
 }
@@ -479,7 +473,6 @@ struct texture *cr_renderer_render(struct cr_renderer *ext) {
 		r->state.clients = clients_sync(r);
 	}
 	if (!r->state.clients.count && !r->prefs.threads) {
-		logr(warning, "You specified 0 local threads, and no network clients were found. Nothing to do.\n");
 		return NULL;
 	}
 	return renderFrame(r);
