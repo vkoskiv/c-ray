@@ -7,6 +7,7 @@
 //
 
 #include "protocol.h"
+#include <stdio.h>
 
 #ifndef WINDOWS
 
@@ -866,14 +867,27 @@ struct prefs deserialize_prefs(const cJSON *in) {
 	return p;
 }
 
-char *serialize_renderer(const struct renderer *r) {
+static cJSON *serialize_json(const struct renderer *r) {
 	if (!r) return NULL;
 	cJSON *out = cJSON_CreateObject();
 	cJSON_AddItemToObject(out, "scene", serialize_scene(r->scene));
 	cJSON_AddItemToObject(out, "prefs", serialize_prefs(r->prefs));
+	return out;
+}
+
+char *serialize_renderer(const struct renderer *r) {
+	if (!r) return NULL;
+	cJSON *out = serialize_json(r);
 	char *data = cJSON_PrintUnformatted(out);
 	cJSON_Delete(out);
 	return data;
+}
+
+void dump_renderer_state(const struct renderer *r) {
+	if (!r) return;
+	cJSON *out = serialize_json(r);
+	printf("%s\n", cJSON_Print(out));
+	cJSON_Delete(out);
 }
 
 struct renderer *deserialize_renderer(const char *data) {

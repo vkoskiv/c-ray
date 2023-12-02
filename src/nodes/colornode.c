@@ -47,6 +47,7 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 			const char *path = full ? full : desc->arg.image.full_path;
 			file_data data = file_load(path);
 			struct texture *tex = NULL;
+			// Note: We also deduplicate texture loads here, which ideally shouldn't be necessary.
 			for (size_t i = 0; i < scene->textures.count; ++i) {
 				if (stringEquals(scene->textures.items[i].path, path)) {
 					tex = scene->textures.items[i].t;

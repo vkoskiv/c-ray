@@ -52,3 +52,5 @@ bool containsStats(const cJSON *json);
 
 char *serialize_renderer(const struct renderer *r);
 struct renderer *deserialize_renderer(const char *data);
+
+void dump_renderer_state(const struct renderer *r);

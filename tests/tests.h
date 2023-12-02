@@ -49,6 +49,7 @@ static char *failed_expression;
 #include "test_linked_list.h"
 #include "test_parser.h"
 #include "test_dyn_array.h"
+#include "test_serializer.h"
 
 typedef struct {
 	char *test_name;
@@ -182,7 +183,9 @@ static test tests[] = {
 	{"dyn_array::trim", dyn_array_trim},
 	{"dyn_array::trim_expand", dyn_array_trim_expand},
 	{"dyn_array::copy", dyn_array_copy},
-	{"dyn_array::join", dyn_array_join}
+	{"dyn_array::join", dyn_array_join},
+
+	{"serializer::serialize", serializer_serialize}
 };
 
 #define testCount (sizeof(tests) / sizeof(test))
