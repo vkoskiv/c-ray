@@ -15,11 +15,18 @@
 #include "bsdfnode.h"
 #include <c-ray/c-ray.h>
 
+static const struct bsdfNode *warning_bsdf(const struct node_storage *s) {
+	return newMix(s,
+				  newDiffuse(s, newConstantTexture(s, warningMaterial().diffuse)),
+				  newDiffuse(s, newConstantTexture(s, (struct color){0.2f, 0.2f, 0.2f, 1.0f})),
+				  newGrayscaleConverter(s, newCheckerBoardTexture(s, NULL, NULL, newConstantValue(s, 500.0f))));
+}
+
 const struct bsdfNode *build_bsdf_node(struct cr_scene *s_ext, const struct cr_shader_node *desc) {
 	if (!s_ext) return NULL;
 	struct world *scene = (struct world *)s_ext;
 	struct node_storage s = scene->storage;
-	if (!desc) return warningBsdf(&s);
+	if (!desc) return warning_bsdf(&s);
 	switch (desc->type) {
 		case cr_bsdf_diffuse:
 			return newDiffuse(&s, build_color_node(s_ext, desc->arg.diffuse.color));
@@ -55,6 +62,6 @@ const struct bsdfNode *build_bsdf_node(struct cr_scene *s_ext, const struct cr_s
 				build_vector_node(s_ext, desc->arg.background.pose));
 		}
 		default:
-			return warningBsdf(&s);
+			return warning_bsdf(&s);
 	};
 }

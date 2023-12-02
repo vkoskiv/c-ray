@@ -663,13 +663,6 @@ struct cr_shader_node *cr_shader_node_build(const struct cJSON *node) {
 	return NULL;
 }
 
-const struct bsdfNode *warningBsdf(const struct node_storage *s) {
-	return newMix(s,
-				  newDiffuse(s, newConstantTexture(s, warningMaterial().diffuse)),
-				  newDiffuse(s, newConstantTexture(s, (struct color){0.2f, 0.2f, 0.2f, 1.0f})),
-				  newGrayscaleConverter(s, newCheckerBoardTexture(s, NULL, NULL, newConstantValue(s, 500.0f))));
-}
-
 void cr_shader_node_free(struct cr_shader_node *d) {
 	if (!d) return;
 	switch (d->type) {
