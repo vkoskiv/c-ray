@@ -15,7 +15,7 @@
 #include "../../../common/fileio.h"
 #include "../../../common/logging.h"
 
-#include "../../../vendored/lodepng.h"
+#include "../../vendored/lodepng.h"
 
 #ifndef WINDOWS
 #include <sys/utsname.h>
