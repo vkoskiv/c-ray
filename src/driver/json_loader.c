@@ -362,7 +362,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 		for (size_t i = 0; i < result.meshes.count; ++i) {
 			cr_mesh mesh = cr_scene_mesh_new(scene, result.meshes.items[i].name);
 			cr_mesh_bind_vertex_buf(scene, mesh, vbuf);
-			cr_mesh_bind_faces(scene, mesh, (struct cr_face *)result.meshes.items[i].polygons.items, result.meshes.items[i].polygons.count);
+			cr_mesh_bind_faces(scene, mesh, result.meshes.items[i].faces.items, result.meshes.items[i].faces.count);
 			cr_instance m_instance = cr_instance_new(scene, mesh, cr_object_mesh);
 			cr_instance_bind_material_set(scene, m_instance, file_set);
 		}
@@ -381,7 +381,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 				if (mesh < 0) {
 					mesh = cr_scene_mesh_new(scene, result.meshes.items[i].name);
 					cr_mesh_bind_vertex_buf(scene, mesh, vbuf);
-					cr_mesh_bind_faces(scene, mesh, (struct cr_face *)result.meshes.items[i].polygons.items, result.meshes.items[i].polygons.count);
+					cr_mesh_bind_faces(scene, mesh, result.meshes.items[i].faces.items, result.meshes.items[i].faces.count);
 				}
 			}
 		}
@@ -408,11 +408,8 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	
 done:
 
-	for (size_t i = 0; i < result.meshes.count; ++i) {
-		poly_arr_free(&result.meshes.items[i].polygons);
-		destroyMesh(&result.meshes.items[i]);
-	}
-	mesh_arr_free(&result.meshes);
+	result.meshes.elem_free = ext_mesh_free;
+	ext_mesh_arr_free(&result.meshes);
 	result.materials.elem_free = mesh_material_free;
 	mesh_material_arr_free(&result.materials);
 	vector_arr_free(&result.geometry.vertices);

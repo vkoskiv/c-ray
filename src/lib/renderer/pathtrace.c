@@ -16,7 +16,7 @@
 #include "../../common/texture.h"
 #include "../datatypes/sphere.h"
 #include "../datatypes/poly.h"
-#include "../../driver/loaders/mesh.h" // FIXME: CROSS
+#include "../datatypes/mesh.h"
 #include "samplers/sampler.h"
 #include "sky.h"
 #include "../datatypes/transforms.h"

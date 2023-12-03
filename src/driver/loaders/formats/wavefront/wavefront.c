@@ -9,9 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "../../../../includes.h"
-#include "../../mesh.h"
 #include "../../../../common/vector.h"
-#include "../../../../lib/datatypes/poly.h" // FIXME: CROSS
 #include "../../../../common/logging.h"
 #include "../../../../common/string.h"
 #include "../../../../common/fileio.h"
@@ -40,7 +38,7 @@ static struct coord parseCoord(lineBuffer *line) {
 // f v1//vn1 v2//vn2 v3//vn3
 // Or a quad:
 // f v1//vn1 v2//vn2 v3//vn3 v4//vn4
-static inline size_t parse_polys(lineBuffer *line, struct poly *buf) {
+static inline size_t parse_polys(lineBuffer *line, struct cr_face *buf) {
 	char container[LINEBUFFER_MAXSIZE];
 	lineBuffer batch = { .buf = container };
 	size_t polycount = line->amountOf.tokens - 3;
@@ -54,12 +52,12 @@ static inline size_t parse_polys(lineBuffer *line, struct poly *buf) {
 	bool skipped = false;
 	for (size_t i = 0; i < polycount; ++i) {
 		firstToken(line);
-		struct poly *p = &buf[i];
+		struct cr_face *p = &buf[i];
 		for (int j = 0; j < MAX_CRAY_VERTEX_COUNT; ++j) {
 			fillLineBuffer(&batch, nextToken(line), '/');
-			if (batch.amountOf.tokens >= 1) p->vertexIndex[j] = atoi(firstToken(&batch));
-			if (batch.amountOf.tokens >= 2) p->textureIndex[j] = atoi(nextToken(&batch));
-			if (batch.amountOf.tokens >= 3) p->normalIndex[j] = atoi(nextToken(&batch));
+			if (batch.amountOf.tokens >= 1) p->vertex_idx[j] = atoi(firstToken(&batch));
+			if (batch.amountOf.tokens >= 2) p->texture_idx[j] = atoi(nextToken(&batch));
+			if (batch.amountOf.tokens >= 3) p->normal_idx[j] = atoi(nextToken(&batch));
 			if (i == 1 && !skipped) {
 				nextToken(line);
 				skipped = true;
@@ -79,18 +77,18 @@ static inline int fixIndex(int idx) {
 	return idx - 1;// Normal indexing
 }
 
-static inline void fixIndices(struct poly *p) {
+static inline void fixIndices(struct cr_face *p) {
 	for (int i = 0; i < MAX_CRAY_VERTEX_COUNT; ++i) {
-		p->vertexIndex[i] = fixIndex(p->vertexIndex[i]);
-		p->textureIndex[i] = fixIndex(p->textureIndex[i]);
-		p->normalIndex[i] = fixIndex(p->normalIndex[i]);
+		p->vertex_idx[i] = fixIndex(p->vertex_idx[i]);
+		p->texture_idx[i] = fixIndex(p->texture_idx[i]);
+		p->normal_idx[i] = fixIndex(p->normal_idx[i]);
 	}
 }
 
-float get_poly_area(struct poly *p, struct vector *vertices) {
-	const struct vector v0 = vertices[p->vertexIndex[0]];
-	const struct vector v1 = vertices[p->vertexIndex[1]];
-	const struct vector v2 = vertices[p->vertexIndex[2]];
+float get_poly_area(struct cr_face *p, struct vector *vertices) {
+	const struct vector v0 = vertices[p->vertex_idx[0]];
+	const struct vector v1 = vertices[p->vertex_idx[1]];
+	const struct vector v2 = vertices[p->vertex_idx[2]];
 
 	const struct vector a = vec_sub(v1, v0);
 	const struct vector b = vec_sub(v2, v0);
@@ -110,11 +108,11 @@ struct mesh_parse_result parse_wavefront(const char *file_path) {
 
 	int current_material_idx = 0;
 	
-	struct mesh *current = NULL;
+	struct ext_mesh *current = NULL;
 	
 	struct mesh_parse_result result = { 0 };
 	
-	struct poly polybuf[2];
+	struct cr_face polybuf[2];
 
 	//Start processing line-by-line, state machine style.
 	char *head = firstLine(file);
@@ -129,7 +127,7 @@ struct mesh_parse_result parse_wavefront(const char *file_path) {
 			head = nextLine(file);
 			continue;
 		} else if (first[0] == 'o'/* || first[0] == 'g'*/) { //FIXME: o and g probably have a distinction for a reason?
-			size_t idx = mesh_arr_add(&result.meshes, (struct mesh){ 0 });
+			size_t idx = ext_mesh_arr_add(&result.meshes, (struct ext_mesh){ 0 });
 			current = &result.meshes.items[idx];
 			current->name = stringCopy(peekNextToken(&line));
 		} else if (stringEquals(first, "v")) {
@@ -143,13 +141,13 @@ struct mesh_parse_result parse_wavefront(const char *file_path) {
 		} else if (stringEquals(first, "f")) {
 			size_t count = parse_polys(&line, polybuf);
 			for (size_t i = 0; i < count; ++i) {
-				struct poly p = polybuf[i];
+				struct cr_face p = polybuf[i];
 				fixIndices(&p);
 				//FIXME
 				// current->surface_area += get_poly_area(&p, current->vertices.items);
-				p.materialIndex = current_material_idx;
-				p.hasNormals = p.normalIndex[0] != -1;
-				poly_arr_add(&current->polygons, p);
+				p.mat_idx = current_material_idx;
+				p.has_normals= p.normal_idx[0] != -1;
+				cr_face_arr_add(&current->faces, p);
 			}
 		} else if (stringEquals(first, "usemtl")) {
 			char *name = peekNextToken(&line);

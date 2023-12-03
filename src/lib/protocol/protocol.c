@@ -15,7 +15,6 @@
 #include <stdlib.h>
 
 #include "../../common/logging.h"
-#include "../../driver/imagefile.h" // FIXME: CROSS
 #include "../../common/vector.h"
 #include "../datatypes/tile.h"
 #include "../../common/texture.h"
@@ -25,7 +24,6 @@
 #include "../datatypes/transforms.h"
 #include "../datatypes/quaternion.h"
 #include "../../driver/node_parse.h" // FIXME: CROSS
-#include "../../driver/loaders/mesh.h" // FIXME: CROSS
 #include "../../common/hashtable.h"
 #include "assert.h"
 #include "../../common/string.h"

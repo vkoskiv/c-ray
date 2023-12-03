@@ -12,7 +12,7 @@
 #include "../../common/vector.h"
 #include "lightray.h"
 #include "../renderer/pathtrace.h"
-#include "../../driver/loaders/mesh.h" // FIXME: CROSS
+#include "../datatypes/mesh.h"
 
 bool rayIntersectsWithPolygon(const struct mesh *mesh, const struct lightRay *ray, const struct poly *poly, struct hitRecord *isect) {
 	// Möller-Trumbore ray-triangle intersection routine

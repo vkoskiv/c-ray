@@ -17,7 +17,7 @@
 #include "../../common/texture.h"
 #include "camera.h"
 #include "tile.h"
-#include "../../driver/loaders/mesh.h" // FIXME: CROSS
+#include "../datatypes/mesh.h"
 #include "poly.h"
 
 void tex_asset_free(struct texture_asset *a) {
@@ -43,10 +43,8 @@ void scene_destroy(struct world *scene) {
 		bsdf_buffer_arr_free(&scene->shader_buffers);
 
 		cr_shader_node_free(scene->bg_desc);
-		// TODO: set as dyn_array elem_free somewhere
-		for (size_t i = 0; i < scene->v_buffers.count; ++i) {
-			vertex_buf_free(scene->v_buffers.items[i]);
-		}
+
+		scene->v_buffers.elem_free = vertex_buf_free;
 		vertex_buffer_arr_free(&scene->v_buffers);
 		instance_arr_free(&scene->instances);
 		sphere_arr_free(&scene->spheres);

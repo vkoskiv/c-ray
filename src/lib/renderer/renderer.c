@@ -12,7 +12,6 @@
 #include "renderer.h"
 #include "pathtrace.h"
 #include "../../driver/imagefile.h" // FIXME: CROSS
-#include "../../driver/loaders/mesh.h" // FIXME: COMMON
 #include "../../common/logging.h"
 #include "../../common/timer.h"
 #include "../../common/texture.h"
@@ -21,6 +20,7 @@
 #include "../../common/platform/capabilities.h"
 #include "../../common/platform/signal.h"
 #include "../../common/string.h"
+#include "../datatypes/mesh.h"
 #include "../datatypes/camera.h"
 #include "../datatypes/scene.h"
 #include "../datatypes/tile.h"

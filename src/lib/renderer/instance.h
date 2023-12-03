@@ -15,7 +15,7 @@
 #include "../../common/dyn_array.h"
 #include "samplers/sampler.h"
 #include "../nodes/bsdfnode.h"
-#include "../../driver/loaders/mesh.h" // FIXME: CROSS
+#include "../datatypes/mesh.h"
 #include "../datatypes/sphere.h"
 
 struct lightRay;

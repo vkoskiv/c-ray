@@ -9,7 +9,7 @@
 #pragma once
 
 #include <stddef.h>
-#include "../../driver/loaders/mesh.h" // FIXME: CROSS
+#include "../datatypes/mesh.h"
 #include "../renderer/instance.h"
 #include "camera.h"
 #include "../../common/texture.h"

@@ -46,6 +46,22 @@ static inline struct coord coord_zero() {
 	return (struct coord){ 0.0f, 0.0f };
 }
 
+struct vertex_buffer {
+	struct vector_arr vertices;
+	struct vector_arr normals;
+	struct coord_arr texture_coords;
+};
+
+typedef struct vertex_buffer vertex_buffer;
+dyn_array_def(vertex_buffer);
+
+
+static inline void vertex_buf_free(struct vertex_buffer *buf) {
+	vector_arr_free(&buf->vertices);
+	vector_arr_free(&buf->normals);
+	coord_arr_free(&buf->texture_coords);
+}
+
 static inline float clamp(float value, float min, float max) {
 	return min(max(value, min), max);
 }

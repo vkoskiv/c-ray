@@ -8,18 +8,13 @@
 
 #pragma once
 
+#include <c-ray/c-ray.h>
+#include "../datatypes/poly.h"
 #include "../../common/dyn_array.h"
 #include "../../common/vector.h"
-#include "../../lib/datatypes/poly.h" // FIXME: CROSS
 
-struct vertex_buffer {
-	struct vector_arr vertices;
-	struct vector_arr normals;
-	struct coord_arr texture_coords;
-};
-
-typedef struct vertex_buffer vertex_buffer;
-dyn_array_def(vertex_buffer);
+typedef struct cr_face cr_face;
+dyn_array_def(cr_face);
 
 struct mesh {
 	struct vertex_buffer *vbuf;
@@ -35,5 +30,3 @@ typedef struct mesh mesh;
 dyn_array_def(mesh);
 
 void destroyMesh(struct mesh *mesh);
-
-void vertex_buf_free(struct vertex_buffer buf);

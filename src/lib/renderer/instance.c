@@ -12,7 +12,7 @@
 #include "../../common/vector.h"
 #include "instance.h"
 #include "../datatypes/bbox.h"
-#include "../../driver/loaders/mesh.h" // FIXME: CROSS
+#include "../datatypes/mesh.h"
 #include "../datatypes/sphere.h"
 #include "../datatypes/scene.h"
 

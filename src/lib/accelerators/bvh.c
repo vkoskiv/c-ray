@@ -12,7 +12,8 @@
 #include "../renderer/pathtrace.h"
 
 #include "../datatypes/bbox.h"
-#include "../../driver/loaders/mesh.h" // FIXME: CROSS
+#include "../datatypes/mesh.h"
+#include "../datatypes/poly.h"
 #include "../renderer/instance.h"
 #include "../../common/vector.h"
 #include "../../common/platform/thread.h"
