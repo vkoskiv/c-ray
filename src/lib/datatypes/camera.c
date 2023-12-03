@@ -7,9 +7,9 @@
 //
 
 #include "../../includes.h"
-#include "transforms.h"
 #include "camera.h"
 
+#include "../../common/transforms.h"
 #include "../../common/vector.h"
 #include "../renderer/samplers/vec.h"
 

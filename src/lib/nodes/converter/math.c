@@ -10,9 +10,9 @@
 #include "../nodebase.h"
 
 #include "../../../common/hashtable.h"
+#include "../../../common/transforms.h"
 #include "../../datatypes/scene.h"
 #include "../../datatypes/hitrecord.h"
-#include "../../datatypes/transforms.h"
 
 #include "math.h"
 

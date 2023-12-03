@@ -8,11 +8,11 @@
 
 #pragma once
 
-#include "transforms.h"
 #include "../../common/vector.h"
 #include "lightray.h"
 #include "spline.h"
-#include "quaternion.h"
+#include "../../common/quaternion.h"
+#include "../../common/transforms.h"
 #include "../../common/dyn_array.h"
 
 struct camera {

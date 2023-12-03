@@ -10,7 +10,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../datatypes/transforms.h"
+#include "../../common/transforms.h"
 #include "../../common/mempool.h"
 #include "../../common/dyn_array.h"
 #include "samplers/sampler.h"

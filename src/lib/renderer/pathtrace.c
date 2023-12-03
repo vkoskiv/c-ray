@@ -12,14 +12,14 @@
 #include <float.h>
 #include "../datatypes/scene.h"
 #include "../datatypes/camera.h"
-#include "../accelerators/bvh.h"
-#include "../../common/texture.h"
 #include "../datatypes/sphere.h"
 #include "../datatypes/poly.h"
 #include "../datatypes/mesh.h"
+#include "../accelerators/bvh.h"
+#include "../../common/texture.h"
+#include "../../common/transforms.h"
 #include "samplers/sampler.h"
 #include "sky.h"
-#include "../datatypes/transforms.h"
 #include "../renderer/instance.h"
 #include "../nodes/shaders/background.h"
 

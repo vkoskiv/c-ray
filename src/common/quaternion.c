@@ -8,7 +8,7 @@
 
 #include <math.h>
 #include "quaternion.h"
-#include "../../common/vector.h"
+#include "vector.h"
 
 struct quaternion euler_to_quaternion(float roll, float pitch, float yaw) {
 	const float cy = cosf(yaw * 0.5f);

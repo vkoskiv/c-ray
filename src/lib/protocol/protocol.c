@@ -16,21 +16,21 @@
 
 #include "../../common/logging.h"
 #include "../../common/vector.h"
-#include "../datatypes/tile.h"
 #include "../../common/texture.h"
-#include "../renderer/renderer.h"
-#include "../renderer/instance.h"
-#include "../datatypes/scene.h"
-#include "../datatypes/transforms.h"
-#include "../datatypes/quaternion.h"
-#include "../../driver/node_parse.h" // FIXME: CROSS
+#include "../../common/transforms.h"
+#include "../../common/quaternion.h"
 #include "../../common/hashtable.h"
-#include "assert.h"
 #include "../../common/string.h"
 #include "../../common/gitsha1.h"
 #include "../../common/networking.h"
 #include "../../common/base64.h"
 #include "../../common/timer.h"
+#include "../../driver/node_parse.h" // FIXME: CROSS
+#include "../renderer/renderer.h"
+#include "../renderer/instance.h"
+#include "../datatypes/tile.h"
+#include "../datatypes/scene.h"
+#include "assert.h"
 
 // Consumes given json, no need to free it after.
 bool sendJSON(int socket, cJSON *json, size_t *progress) {

@@ -6,7 +6,7 @@
 //  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../src/lib/datatypes/transforms.h"
+#include "../src/common/transforms.h"
 #include "../src/common/vector.h"
 
 // Grab private functions

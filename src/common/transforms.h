@@ -58,5 +58,3 @@ bool mat_eq(struct matrix4x4, struct matrix4x4);
 void tform_point(struct vector *vec, struct matrix4x4);
 void tform_vector(struct vector *vec, struct matrix4x4);
 void tform_vector_transpose(struct vector *vec, struct matrix4x4);
-void tform_bbox(struct boundingBox *bbox, struct matrix4x4);
-void tform_ray(struct lightRay *ray, struct matrix4x4);

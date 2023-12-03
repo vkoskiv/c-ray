@@ -6,13 +6,11 @@
 //  Copyright © 2017-2021 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../includes.h"
+#include "../includes.h"
 #include "transforms.h"
 
-#include "../../common/logging.h"
-#include "../../common/vector.h"
-#include "bbox.h"
-#include "lightray.h"
+#include "logging.h"
+#include "vector.h"
 #include "quaternion.h"
 
 //For ease of use
@@ -65,16 +63,6 @@ void tform_point(struct vector *vec, const struct matrix4x4 m) {
 	*vec = temp;
 }
 
-void tform_bbox(struct boundingBox *bbox, const struct matrix4x4 m) {
-	struct matrix4x4 abs = mat_abs(m);
-	struct vector center = vec_scale(vec_add(bbox->min, bbox->max), 0.5f);
-	struct vector halfExtents = vec_scale(vec_sub(bbox->max, bbox->min), 0.5f);
-	tform_vector(&halfExtents, abs);
-	tform_point(&center, abs);
-	bbox->min = vec_sub(center, halfExtents);
-	bbox->max = vec_add(center, halfExtents);
-}
-
 void tform_vector(struct vector *vec, const struct matrix4x4 m) {
 	struct vector temp;
 	temp.x = (m.mtx[0][0] * vec->x) + (m.mtx[0][1] * vec->y) + (m.mtx[0][2] * vec->z);
@@ -88,11 +76,6 @@ void tform_vector_transpose(struct vector *vec, const struct matrix4x4 mat) {
 	// to inline the calls to transformVector() and transposeMatrix()
 	struct matrix4x4 t = mat_transpose(mat);
 	tform_vector(vec, t);
-}
-
-void tform_ray(struct lightRay *ray, const struct matrix4x4 mat) {
-	tform_point(&ray->start, mat);
-	tform_vector(&ray->direction, mat);
 }
 
 struct transform tform_new_rot_x(float rads) {

@@ -11,6 +11,7 @@
 #include "../../includes.h"
 #include <float.h>
 #include "../../common/vector.h"
+#include "../../common/transforms.h"
 
 /// Bounding box for a given set of primitives
 struct boundingBox {
@@ -43,4 +44,14 @@ static inline float bboxDiagonal(const struct boundingBox bbox) {
 
 static inline float rayOffset(const struct boundingBox bbox) {
 	return RAY_OFFSET_MULTIPLIER * bboxDiagonal(bbox);
+}
+
+static inline void tform_bbox(struct boundingBox *bbox, const struct matrix4x4 m) {
+	struct matrix4x4 abs = mat_abs(m);
+	struct vector center = vec_scale(vec_add(bbox->min, bbox->max), 0.5f);
+	struct vector halfExtents = vec_scale(vec_sub(bbox->max, bbox->min), 0.5f);
+	tform_vector(&halfExtents, abs);
+	tform_point(&center, abs);
+	bbox->min = vec_sub(center, halfExtents);
+	bbox->max = vec_add(center, halfExtents);
 }

@@ -16,9 +16,9 @@
 
 #include <c-ray/c-ray.h>
 
-#include "../lib/datatypes/transforms.h" // FIXME: CROSS
-#include "../lib/datatypes/quaternion.h" // FIXME: CROSS
 #include "../lib/datatypes/spline.h" // FIXME: CROSS
+#include "../common/quaternion.h"
+#include "../common/transforms.h"
 #include "../common/vector.h"
 #include "../common/string.h"
 #include "../common/platform/capabilities.h"

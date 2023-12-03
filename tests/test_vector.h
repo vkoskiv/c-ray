@@ -9,9 +9,9 @@
 #pragma once
 
 #include "../src/common/vector.h"
+#include "../src/common/transforms.h"
 #include "../src/lib/renderer/samplers/sampler.h"
 #include "../src/lib/renderer/samplers/vec.h"
-#include "../src/lib/datatypes/transforms.h"
 
 #define ATTEMPTS 1024
 
