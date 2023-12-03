@@ -16,7 +16,6 @@
 
 #include <c-ray/c-ray.h>
 
-#include "../lib/datatypes/spline.h" // FIXME: CROSS
 #include "../common/quaternion.h"
 #include "../common/transforms.h"
 #include "../common/vector.h"
@@ -137,10 +136,6 @@ void parse_prefs(struct cr_renderer *ext, const cJSON *data) {
 		cr_renderer_set_str_pref(ext, cr_renderer_output_filetype, fileType->valuestring);
 	}
 
-}
-
-struct spline *test() {
-	return spline_new((struct vector){-0.1f, 0.0f, -0.7f}, (struct vector){-0.1f, 0.2f, -0.7f}, (struct vector){0.1f, 0.2f, -0.7f}, (struct vector){0.1f, 0.0f, -0.7f});
 }
 
 float getRadians(const cJSON *object) {
