@@ -10,13 +10,13 @@
 
 #include "../imagefile.h"
 #include "../../common/logging.h"
-#include "../../vendored/asprintf.h"
 #include "../../common/texture.h"
 #include "../../common/assert.h"
 
 #include "formats/png.h"
 #include "formats/bmp.h"
 #include "formats/qoi.h"
+#include <stdio.h>
 
 void writeImage(struct imageFile *image) {
 	char *suffix;
@@ -43,8 +43,8 @@ void writeImage(struct imageFile *image) {
 			image->type = png;
 			break;
 	}
-	char *buf = NULL;
-	asprintf(&buf, "%s%s_%04d.%s", image->filePath, image->fileName, image->count, suffix);
+	char buf[2048];
+	snprintf(buf, 2048 - 1, "%s%s_%04d.%s", image->filePath, image->fileName, image->count, suffix);
 	switch (image->type) {
 		case png:
 			encodePNGFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height, image->info);
@@ -60,5 +60,4 @@ void writeImage(struct imageFile *image) {
 			ASSERT_NOT_REACHED();
 			break;
 	}
-	free(buf);
 }
