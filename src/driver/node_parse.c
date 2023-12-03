@@ -138,7 +138,7 @@ struct cr_value_node *cr_value_node_build(const struct cJSON *node) {
 			.type = cr_vn_vec_to_value,
 			.arg.vec_to_value = {
 				.vec = cr_vector_node_build(cJSON_GetObjectItem(node, "vector")),
-				.comp = cJSON_IsNumber(comp) ? comp->valueint : value_node_component(comp) // For serializer
+				.comp = cJSON_IsNumber(comp) ? (enum cr_vec_to_value_component)comp->valueint : value_node_component(comp) // For serializer
 			}
 		});
 	}
@@ -149,7 +149,7 @@ struct cr_value_node *cr_value_node_build(const struct cJSON *node) {
 			.arg.math = {
 				.A = cr_value_node_build(cJSON_GetObjectItem(node, "a")),
 				.B = cr_value_node_build(cJSON_GetObjectItem(node, "b")),
-				.op = cJSON_IsNumber(op) ? op->valueint : value_node_op(op) // For serializer
+				.op = cJSON_IsNumber(op) ? (enum cr_math_op)op->valueint : value_node_op(op) // For serializer
 			}
 		});
 	}
@@ -492,7 +492,7 @@ struct cr_vector_node *cr_vector_node_build(const struct cJSON *node) {
 				.B = cr_vector_node_build(cJSON_GetObjectItem(node, "b")),
 				.C = cr_vector_node_build(cJSON_GetObjectItem(node, "c")),
 				.f = cr_value_node_build(cJSON_GetObjectItem(node, "f")),
-				.op = cJSON_IsNumber(op) ? op->valueint : parseVectorOp(op) // Note: Fallback for serializer
+				.op = cJSON_IsNumber(op) ? (enum cr_vec_op)op->valueint : parseVectorOp(op) // Note: Fallback for serializer
 			}
 		});
 	}
