@@ -97,7 +97,7 @@ size_t get_file_size(const char *path) {
 }
 
 #ifdef WINDOWS
-typedef size_t off_t
+typedef size_t off_t;
 #endif
 
 file_data file_load(const char *file_path) {
