@@ -26,7 +26,6 @@
 #include "../../common/hashtable.h"
 #include "../datatypes/camera.h"
 #include "../../common/loaders/textureloader.h"
-#include "../../driver/node_parse.h" // FIXME: CROSS
 #include "../protocol/protocol.h"
 
 #ifdef CRAY_DEBUG_ENABLED

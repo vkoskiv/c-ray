@@ -11,7 +11,6 @@
 
 #include "renderer.h"
 #include "pathtrace.h"
-#include "../../driver/imagefile.h" // FIXME: CROSS
 #include "../../common/logging.h"
 #include "../../common/timer.h"
 #include "../../common/texture.h"

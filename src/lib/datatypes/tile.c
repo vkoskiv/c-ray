@@ -7,7 +7,6 @@
 //
 
 #include "../../includes.h"
-#include "../../driver/imagefile.h" // FIXME: CROSS
 #include "../renderer/renderer.h"
 #include "tile.h"
 

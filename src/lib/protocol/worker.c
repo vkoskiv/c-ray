@@ -24,7 +24,6 @@
 #include "../datatypes/tile.h"
 #include "../datatypes/scene.h"
 #include "../datatypes/camera.h"
-#include "../../driver/json_loader.h" // FIXME: CROSS
 #include "../../common/texture.h"
 #include "../../common/platform/mutex.h"
 #include "../../common/platform/thread.h"
