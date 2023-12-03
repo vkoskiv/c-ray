@@ -33,6 +33,7 @@ typedef byte file_bytes;
 dyn_array_def(file_bytes);
 typedef struct file_bytes_arr file_data;
 
+enum fileType match_file_type(const char *ext);
 enum fileType guess_file_type(const char *path);
 char *human_file_size(unsigned long bytes, char *stat_buf);
 file_data file_load(const char *filePath);

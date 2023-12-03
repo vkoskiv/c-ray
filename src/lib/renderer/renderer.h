@@ -10,7 +10,6 @@
 
 #include <c-ray/c-ray.h>
 #include "../datatypes/tile.h"
-#include "../../driver/imagefile.h" // FIXME: CROSS
 #include "../../common/timer.h"
 #include "../../common/platform/thread.h"
 #include "../protocol/server.h"
@@ -66,7 +65,6 @@ struct prefs {
 	char *imgFilePath;
 	char *imgFileName;
 	size_t imgCount;
-	enum fileType imgType;
 	char *node_list;
 	bool iterative;
 };

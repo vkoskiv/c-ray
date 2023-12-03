@@ -443,7 +443,6 @@ struct prefs default_prefs() {
 			.imgFilePath = stringCopy("./"),
 			.imgFileName = stringCopy("rendered"),
 			.imgCount = 0,
-			.imgType = png,
 	};
 }
 

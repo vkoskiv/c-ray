@@ -49,7 +49,7 @@ enum fileType match_file_type(const char *ext) {
 		return obj;
 	if (stringEquals(ext, "mtl"))
 		return mtl;
-	if (stringEquals(ext, "jpg"))
+	if (stringEquals(ext, "jpg") || stringEquals(ext, "jpeg"))
 		return jpg;
 	if (stringEquals(ext, "tiff"))
 		return tiff;

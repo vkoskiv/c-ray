@@ -34,6 +34,7 @@
 #include "../../common/textbuffer.h"
 #include "../../common/gitsha1.h"
 #include "../../common/assert.h"
+#include "../../common/fileio.h"
 #include "../../common/platform/terminal.h"
 #include "../../common/platform/signal.h"
 

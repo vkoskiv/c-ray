@@ -19,8 +19,32 @@
 #include "formats/qoi.h"
 
 void writeImage(struct imageFile *image) {
+	char *suffix;
+	switch (image->type) {
+		case bmp:
+			suffix = "bmp";
+			break;
+		case png:
+			suffix = "png";
+			break;
+		case qoi:
+			suffix = "qoi";
+			break;
+		case hdr:
+		case obj:
+		case mtl:
+		case jpg:
+		case tiff:
+		case gltf:
+		case glb:
+		default:
+			logr(warning, "Unsupported file type, falling back to PNG\n");
+			suffix = "png";
+			image->type = png;
+			break;
+	}
 	char *buf = NULL;
-	asprintf(&buf, "%s%s_%04d.%s", image->filePath, image->fileName, image->count, image->type == png ? "png" : image->type == bmp ? "bmp" : "qoi");
+	asprintf(&buf, "%s%s_%04d.%s", image->filePath, image->fileName, image->count, suffix);
 	switch (image->type) {
 		case png:
 			encodePNGFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height, image->info);
@@ -32,9 +56,6 @@ void writeImage(struct imageFile *image) {
 			encode_qoi_from_array(buf, image->t->data.byte_p, image->t->width, image->t->height);
 			break;
 		case unknown:
-			logr(warning, "Unknown file type with -o flag, defaulting to png\n");
-			encodePNGFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height, image->info);
-			break;
 		default:
 			ASSERT_NOT_REACHED();
 			break;

@@ -189,6 +189,10 @@ int main(int argc, char *argv[]) {
 		}
 	});
 
+	const cJSON *r = cJSON_GetObjectItem(input_json, "renderer");
+	const cJSON *file_type = cJSON_GetObjectItem(r, "fileType");
+	enum fileType output_type = match_file_type(cJSON_GetStringValue(file_type));
+
 	logr(debug, "Deleting JSON...\n");
 	cJSON_Delete(input_json);
 	logr(debug, "Deleting done\n");
@@ -221,7 +225,7 @@ int main(int argc, char *argv[]) {
 			.filePath = output_path,
 			.fileName = output_name,
 			.count =  cr_renderer_get_num_pref(renderer, cr_renderer_output_num),
-			.type = cr_renderer_get_num_pref(renderer, cr_renderer_output_filetype),
+			.type = output_type,
 			.info = {
 				.bounces = cr_renderer_get_num_pref(renderer, cr_renderer_bounces),
 				.samples = cr_renderer_get_num_pref(renderer, cr_renderer_samples),
