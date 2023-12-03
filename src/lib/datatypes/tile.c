@@ -12,7 +12,7 @@
 
 #include "../../common/logging.h"
 #include "../../common/platform/mutex.h"
-#include "../../vendored/pcg_basic.h"
+#include "../vendored/pcg_basic.h"
 #include <string.h>
 
 static void tiles_reorder(struct render_tile_arr *tiles, enum render_order tileOrder);
