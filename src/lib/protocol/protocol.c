@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "../../utils/logging.h"
+#include "../../common/logging.h"
 #include "../../datatypes/image/imagefile.h"
 #include "../../datatypes/vector.h"
 #include "../datatypes/tile.h"
