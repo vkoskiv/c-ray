@@ -25,7 +25,7 @@
 #include "../../common/networking.h"
 #include "../../common/base64.h"
 #include "../../common/timer.h"
-#include "../../driver/node_parse.h" // FIXME: CROSS
+#include "../../common/node_parse.h"
 #include "../renderer/renderer.h"
 #include "../renderer/instance.h"
 #include "../datatypes/tile.h"

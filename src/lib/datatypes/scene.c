@@ -13,7 +13,7 @@
 #include "../../common/hashtable.h"
 #include "../../common/textbuffer.h"
 #include "../../common/dyn_array.h"
-#include "../../driver/node_parse.h" // FIXME: CROSS
+#include "../../common/node_parse.h"
 #include "../../common/texture.h"
 #include "camera.h"
 #include "tile.h"

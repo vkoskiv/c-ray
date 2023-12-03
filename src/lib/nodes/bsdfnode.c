@@ -10,7 +10,7 @@
 #include "../../common/color.h"
 #include "../renderer/renderer.h"
 #include "../datatypes/scene.h"
-#include "../../driver/node_parse.h" // FIXME: CROSS
+#include "../../common/node_parse.h"
 #include "../../common/string.h"
 #include "bsdfnode.h"
 #include <c-ray/c-ray.h>

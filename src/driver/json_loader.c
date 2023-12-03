@@ -10,12 +10,12 @@
 
 #include "json_loader.h"
 #include "../vendored/cJSON.h"
-#include "node_parse.h"
 #include "loaders/meshloader.h"
-#include "../common/loaders/textureloader.h"
 
 #include <c-ray/c-ray.h>
 
+#include "../common/node_parse.h"
+#include "../common/loaders/textureloader.h"
 #include "../common/quaternion.h"
 #include "../common/transforms.h"
 #include "../common/vector.h"
