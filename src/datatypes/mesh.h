@@ -11,7 +11,6 @@
 #include "../utils/dyn_array.h"
 #include "vector.h"
 #include "poly.h"
-#include "material.h"
 
 struct vertex_buffer {
 	struct vector_arr vertices;

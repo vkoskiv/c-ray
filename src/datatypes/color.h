@@ -24,6 +24,7 @@ extern const struct color g_black_color;
 extern const struct color g_gray_color;
 extern const struct color g_white_color;
 extern const struct color g_clear_color;
+extern const struct color g_pink_color;
 
 //Colors for the SDL elements
 extern const struct color g_background_color;

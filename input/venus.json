@@ -41,6 +41,7 @@
 	},
 	"scene": {
 		"ambientColor": {
+			"type": "background",
 			"down": {
 				"r": 1.0,
 				"g": 1.0,
@@ -220,6 +221,7 @@
 				"fileName": "venusscaled.obj",
 				"pick_instances": [
 					{
+						"for": "Venus",
 						"materials": [
 							{
 								"replace": "default",

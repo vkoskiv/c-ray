@@ -37,14 +37,11 @@ void scene_destroy(struct world *scene) {
 		destroy_bvh(scene->topLevel);
 		destroyHashtable(scene->storage.node_table);
 		destroyBlocks(scene->storage.node_pool);
-		for (size_t i = 0; i < scene->shader_buffers.count; ++i) {
-			for (size_t j = 0; j < scene->shader_buffers.items[i].descriptions.count; ++j) {
-				cr_shader_node_free(scene->shader_buffers.items[i].descriptions.items[j]);
-			}
-			cr_shader_node_ptr_arr_free(&scene->shader_buffers.items[i].descriptions);
-			bsdf_node_ptr_arr_free(&scene->shader_buffers.items[i].bsdfs);
-		}
+
+		// TODO: find out a nicer way to bind elem_free to the array init
+		scene->shader_buffers.elem_free = bsdf_buffer_free;
 		bsdf_buffer_arr_free(&scene->shader_buffers);
+
 		cr_shader_node_free(scene->bg_desc);
 		// TODO: set as dyn_array elem_free somewhere
 		for (size_t i = 0; i < scene->v_buffers.count; ++i) {

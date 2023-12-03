@@ -8,10 +8,7 @@
 
 #pragma once
 
-#include "../datatypes/vector.h"
-#include "../datatypes/poly.h"
 #include "../datatypes/lightray.h"
-#include "../datatypes/material.h"
 #include "../nodes/bsdfnode.h"
 
 struct world;

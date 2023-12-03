@@ -34,6 +34,7 @@
 	},
 	"scene": {
 		"ambientColor": {
+			"type": "background",
 			"offset": 0,
 			"down": {
 				"r": 0.1,

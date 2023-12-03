@@ -28,7 +28,7 @@ struct imageTexture {
 //Transform the intersection coordinates to the texture coordinate space
 //And grab the color at that point. Texture mapping.
 struct color internalColor(const struct texture *tex, const struct hitRecord *isect, uint8_t options) {
-	if (!tex) return warningMaterial().diffuse;
+	if (!tex) return g_pink_color;
 	
 	//Get the color value at these XY coordinates
 	struct color output;

@@ -12,7 +12,6 @@
 #include "../../../../datatypes/mesh.h"
 #include "../../../../datatypes/vector.h"
 #include "../../../../datatypes/poly.h"
-#include "../../../../datatypes/material.h"
 #include "../../../../utils/logging.h"
 #include "../../../../utils/string.h"
 #include "../../../../utils/fileio.h"
@@ -181,7 +180,10 @@ struct mesh_parse_result parse_wavefront(const char *file_path) {
 	free(assetPath);
 
 	if (!result.materials.count) {
-		material_arr_add(&result.materials, warningMaterial());
+		mesh_material_arr_add(&result.materials, (struct mesh_material){
+			.mat = NULL,
+			.name = stringCopy("Unknown")
+		});
 	}
 
 	return result;

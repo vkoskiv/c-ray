@@ -431,12 +431,15 @@
 				"pick_instances": [
 					{
 						"for": "Venus",
-						"materials": {
-							"type": "plastic",
-							"roughness": 0,
-							"IOR": 1.45,
-							"color": [1.0, 0.2705, 0.0]
-						},
+						"materials": [
+							{
+								"replace": "default",
+								"type": "plastic",
+								"roughness": 0,
+								"IOR": 1.45,
+								"color": [1.0, 0.2705, 0.0]
+							}
+						],
 						"transforms": [
 							{
 								"type": "scaleUniform",

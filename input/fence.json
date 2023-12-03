@@ -37,6 +37,7 @@
 	},
 	"scene": {
 		"ambientColor": {
+			"type": "background",
 			"down": {
 				"r": 0.056470,
 				"g": 0.072549,

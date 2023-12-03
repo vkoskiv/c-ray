@@ -661,6 +661,7 @@ void *bvh_build_thread(void *arg) {
 
 // FIXME: dining room bench scene has 310 meshes, meaning this spawns 310 threads.
 // That might be somewhat excessive.
+// FIXME: Add pthread_cancel() support
 void compute_accels(struct mesh_arr meshes) {
 	logr(info, "Computing BVHs: ");
 	struct timeval timer = { 0 };

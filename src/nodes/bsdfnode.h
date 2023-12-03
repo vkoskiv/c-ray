@@ -1,14 +1,15 @@
 //
 //  bsdfnode.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 29/11/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 #include "../datatypes/lightray.h"
+#include "../datatypes/color.h"
 #include "../utils/mempool.h"
 #include "../utils/dyn_array.h"
 #include "valuenode.h"
@@ -40,6 +41,8 @@ struct bsdf_buffer {
 	struct bsdf_node_ptr_arr bsdfs;
 	struct cr_shader_node_ptr_arr descriptions;
 };
+
+void bsdf_buffer_free(struct bsdf_buffer *b);
 
 typedef struct bsdf_buffer bsdf_buffer;
 dyn_array_def(bsdf_buffer);

@@ -11,7 +11,6 @@
 
 #include "../accelerators/bvh.h"
 #include "poly.h"
-#include "material.h"
 #include "vector.h"
 
 void destroyMesh(struct mesh *mesh) {

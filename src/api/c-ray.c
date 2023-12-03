@@ -302,6 +302,17 @@ cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name) {
 	return mesh_arr_add(&scene->meshes, new);
 }
 
+cr_mesh cr_scene_get_mesh(struct cr_scene *s_ext, const char *name) {
+	if (!s_ext || !name) return -1;
+	struct world *scene = (struct world *)s_ext;
+	for (size_t i = 0; i < scene->meshes.count; ++i) {
+		if (stringEquals(scene->meshes.items[i].name, name)) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 cr_instance cr_instance_new(struct cr_scene *s_ext, cr_object object, enum cr_object_type type) {
 	if (!s_ext) return -1;
 	struct world *scene = (struct world *)s_ext;
@@ -345,7 +356,6 @@ bool cr_instance_bind_material_set(struct cr_scene *s_ext, cr_instance instance,
 	if ((size_t)instance > scene->instances.count - 1) return false;
 	if ((size_t)set > scene->shader_buffers.count - 1) return false;
 	struct instance *i = &scene->instances.items[instance];
-	i->bbuf = &scene->shader_buffers.items[set];
 	i->bbuf_idx = set;
 	return true;
 }
@@ -457,13 +467,183 @@ cr_material_set cr_scene_new_material_set(struct cr_scene *s_ext) {
 	return bsdf_buffer_arr_add(&scene->shader_buffers, (struct bsdf_buffer){ 0 });
 }
 
+struct cr_vector_node *vector_deepcopy(const struct cr_vector_node *in);
+struct cr_color_node *color_deepcopy(const struct cr_color_node *in);
+
+struct cr_value_node *value_deepcopy(const struct cr_value_node *in) {
+	if (!in) return NULL;
+	struct cr_value_node *out = calloc(1, sizeof(*out));
+	out->type = in->type;
+	switch (in->type) {
+		case cr_vn_constant:
+			out->arg.constant = in->arg.constant;
+			break;
+		case cr_vn_fresnel:
+			out->arg.fresnel.IOR = value_deepcopy(in->arg.fresnel.IOR);
+			out->arg.fresnel.normal = vector_deepcopy(in->arg.fresnel.normal);
+			break;
+		case cr_vn_map_range:
+			out->arg.map_range.from_max = value_deepcopy(in->arg.map_range.from_max);
+			out->arg.map_range.from_min = value_deepcopy(in->arg.map_range.from_min);
+			out->arg.map_range.to_max = value_deepcopy(in->arg.map_range.to_max);
+			out->arg.map_range.to_min = value_deepcopy(in->arg.map_range.to_min);
+			break;
+		case cr_vn_raylength:
+			break;
+		case cr_vn_alpha:
+			out->arg.alpha.color = color_deepcopy(in->arg.alpha.color);
+			break;
+		case cr_vn_vec_to_value:
+			out->arg.vec_to_value.comp = in->arg.vec_to_value.comp;
+			out->arg.vec_to_value.vec = vector_deepcopy(in->arg.vec_to_value.vec);
+			break;
+		case cr_vn_math:
+			out->arg.math.A = value_deepcopy(in->arg.math.A);
+			out->arg.math.B = value_deepcopy(in->arg.math.B);
+			out->arg.math.op = in->arg.math.op;
+			break;
+		case cr_vn_grayscale:
+			out->arg.grayscale.color = color_deepcopy(in->arg.grayscale.color);
+			break;
+		default:
+			break;
+		
+	}
+	return out;
+}
+
+struct cr_color_node *color_deepcopy(const struct cr_color_node *in) {
+	if (!in) return NULL;
+	struct cr_color_node *out = calloc(1, sizeof(*out));
+	out->type = in->type;
+	switch (in->type) {
+		case cr_cn_constant:
+			out->arg.constant = in->arg.constant;
+			break;
+		case cr_cn_image:
+			out->arg.image.full_path = stringCopy(in->arg.image.full_path);
+			out->arg.image.options = in->arg.image.options;
+			break;
+		case cr_cn_checkerboard:
+			out->arg.checkerboard.a = color_deepcopy(in->arg.checkerboard.a);
+			out->arg.checkerboard.b = color_deepcopy(in->arg.checkerboard.b);
+			out->arg.checkerboard.scale = value_deepcopy(in->arg.checkerboard.scale);
+			break;
+		case cr_cn_blackbody:
+			out->arg.blackbody.degrees = value_deepcopy(in->arg.blackbody.degrees);
+			break;
+		case cr_cn_split:
+			out->arg.split.node = value_deepcopy(in->arg.split.node);
+			break;
+		case cr_cn_rgb:
+			out->arg.rgb.red = value_deepcopy(in->arg.rgb.red);
+			out->arg.rgb.green = value_deepcopy(in->arg.rgb.green);
+			out->arg.rgb.blue = value_deepcopy(in->arg.rgb.blue);
+			break;
+		case cr_cn_hsl:
+			out->arg.hsl.H = value_deepcopy(in->arg.hsl.H);
+			out->arg.hsl.S = value_deepcopy(in->arg.hsl.S);
+			out->arg.hsl.L = value_deepcopy(in->arg.hsl.L);
+			break;
+		case cr_cn_vec_to_color:
+			out->arg.vec_to_color.vec = vector_deepcopy(in->arg.vec_to_color.vec);
+		case cr_cn_gradient:
+			out->arg.gradient.a = color_deepcopy(in->arg.gradient.a);
+			out->arg.gradient.b = color_deepcopy(in->arg.gradient.b);
+		default:
+			break;
+	}
+	return out;
+}
+
+struct cr_vector_node *vector_deepcopy(const struct cr_vector_node *in) {
+	if (!in) return NULL;
+	struct cr_vector_node *out = calloc(1, sizeof(*out));
+	out->type = in->type;
+	switch (in->type) {
+		case cr_vec_constant:
+			out->arg.constant = in->arg.constant;
+		case cr_vec_normal:
+		case cr_vec_uv:
+			break;
+		case cr_vec_vecmath:
+			out->arg.vecmath.A = vector_deepcopy(in->arg.vecmath.A);
+			out->arg.vecmath.B = vector_deepcopy(in->arg.vecmath.B);
+			out->arg.vecmath.C = vector_deepcopy(in->arg.vecmath.C);
+			out->arg.vecmath.f = value_deepcopy(in->arg.vecmath.f);
+			out->arg.vecmath.op = in->arg.vecmath.op;
+			break;
+		case cr_vec_mix:
+			out->arg.vec_mix.A = vector_deepcopy(in->arg.vec_mix.A);
+			out->arg.vec_mix.B = vector_deepcopy(in->arg.vec_mix.B);
+			out->arg.vec_mix.factor = value_deepcopy(in->arg.vec_mix.factor);
+			break;
+		default:
+			break;
+	}
+	return out;
+}
+
+struct cr_shader_node *shader_deepcopy(const struct cr_shader_node *in) {
+	if (!in) return NULL;
+	struct cr_shader_node *out = calloc(1, sizeof(*out));
+	out->type = in->type;
+	switch (in->type) {
+		case cr_bsdf_diffuse:
+			out->arg.diffuse.color = color_deepcopy(in->arg.diffuse.color);
+			break;
+		case cr_bsdf_metal:
+			out->arg.metal.color = color_deepcopy(in->arg.metal.color);
+			out->arg.metal.roughness = value_deepcopy(in->arg.metal.roughness);
+			break;
+		case cr_bsdf_glass:
+			out->arg.glass.color = color_deepcopy(in->arg.glass.color);
+			out->arg.glass.roughness = value_deepcopy(in->arg.glass.roughness);
+			out->arg.glass.IOR = value_deepcopy(in->arg.glass.IOR);
+			break;
+		case cr_bsdf_plastic:
+			out->arg.plastic.color = color_deepcopy(in->arg.plastic.color);
+			out->arg.plastic.roughness = value_deepcopy(in->arg.plastic.roughness);
+			out->arg.plastic.IOR = value_deepcopy(in->arg.plastic.IOR);
+			break;
+		case cr_bsdf_mix:
+			out->arg.mix.A = shader_deepcopy(in->arg.mix.A);
+			out->arg.mix.B = shader_deepcopy(in->arg.mix.B);
+			out->arg.mix.factor = value_deepcopy(in->arg.mix.factor);
+			break;
+		case cr_bsdf_add:
+			out->arg.add.A = shader_deepcopy(in->arg.add.A);
+			out->arg.add.B = shader_deepcopy(in->arg.add.B);
+			break;
+		case cr_bsdf_transparent:
+			out->arg.transparent.color = color_deepcopy(in->arg.transparent.color);
+			break;
+		case cr_bsdf_emissive:
+			out->arg.emissive.color = color_deepcopy(in->arg.emissive.color);
+			out->arg.emissive.strength = value_deepcopy(in->arg.emissive.strength);
+			break;
+		case cr_bsdf_translucent:
+			out->arg.translucent.color = color_deepcopy(in->arg.translucent.color);
+			break;
+		case cr_bsdf_background:
+			out->arg.background.color = color_deepcopy(in->arg.background.color);
+			out->arg.background.pose = vector_deepcopy(in->arg.background.pose);
+			out->arg.background.strength = value_deepcopy(in->arg.background.strength);
+		default:
+			break;
+
+	}
+
+	return out;
+}
+
 void cr_material_set_add(struct cr_scene *s_ext, cr_material_set set, struct cr_shader_node *desc) {
 	if (!s_ext) return;
 	struct world *s = (struct world *)s_ext;
 	if ((size_t)set > s->shader_buffers.count - 1) return;
 	struct bsdf_buffer *buf = &s->shader_buffers.items[set];
 	const struct bsdfNode *node = build_bsdf_node(s_ext, desc);
-	cr_shader_node_ptr_arr_add(&buf->descriptions, desc);
+	cr_shader_node_ptr_arr_add(&buf->descriptions, shader_deepcopy(desc));
 	bsdf_node_ptr_arr_add(&buf->bsdfs, node);
 }
 

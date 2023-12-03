@@ -42,6 +42,7 @@
 	},
 	"scene": {
 		"ambientColor": {
+			"type": "background",
 			"down": {
 				"r": 1.0,
 				"g": 1.0,
@@ -235,6 +236,7 @@
 				"fileName": "tonni.obj",
 				"pick_instances": [
 					{
+						"for": "tonninseteli",
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -277,6 +279,7 @@
 				"fileName": "torus.obj",
 				"pick_instances": [
 					{
+						"for": "Torus",
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -296,6 +299,7 @@
 				"fileName": "teapot.obj",
 				"pick_instances": [
 					{
+						"for": "teapot.005",
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -314,6 +318,7 @@
 						]
 					},
 					{
+						"for": "teapot.005",
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -332,6 +337,7 @@
 						]
 					},
 					{
+						"for": "teapot.005",
 						"transforms": [
 							{
 								"type": "scaleUniform",
@@ -350,6 +356,7 @@
 						]
 					},
 					{
+						"for": "teapot.005",
 						"materials": [
 							{
 								"replace": "red",
@@ -375,6 +382,7 @@
 						]
 					},
 					{
+						"for": "teapot.005",
 						"materials": [
 							{
 								"replace": "red",
@@ -400,6 +408,7 @@
 						]
 					},
 					{
+						"for": "teapot.005",
 						"materials": [
 							{
 								"replace": "red",
@@ -425,6 +434,7 @@
 						]
 					},
 					{
+						"for": "teapot.005",
 						"materials": [
 							{
 								"replace": "red",
@@ -450,6 +460,7 @@
 						]
 					},
 					{
+						"for": "teapot.005",
 						"materials": [
 							{
 								"replace": "red",
@@ -475,6 +486,7 @@
 						]
 					},
 					{
+						"for": "teapot.005",
 						"materials": [
 							{
 								"replace": "red",

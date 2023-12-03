@@ -148,6 +148,12 @@ struct texture *renderer_render(struct renderer *r) {
 	
 	struct tile_set set = tile_quantize(camera.width, camera.height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
 
+	// Bind object buffers to instances
+	for (size_t i = 0; i < r->scene->instances.count; ++i) {
+		struct instance *inst = &r->scene->instances.items[i];
+		inst->bbuf = &r->scene->shader_buffers.items[inst->bbuf_idx];
+	}
+	
 	// Do some pre-render preparations
 	// Compute BVH acceleration structures for all meshes in the scene
 	compute_accels(r->scene->meshes);

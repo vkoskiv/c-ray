@@ -1,14 +1,16 @@
 //
 //  colornode.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 30/11/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 #include "../renderer/samplers/sampler.h"
+#include "../datatypes/hitrecord.h"
+#include <c-ray/c-ray.h>
 #include "nodebase.h"
 
 enum textureType {

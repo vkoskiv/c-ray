@@ -19,6 +19,7 @@ const struct color g_black_color = { 0.0f, 0.0f, 0.0f, 1.0f };
 const struct color g_gray_color =  { 0.5f, 0.5f, 0.5f, 1.0f };
 const struct color g_white_color = { 1.0f, 1.0f, 1.0f, 1.0f };
 const struct color g_clear_color = { 0.0f, 0.0f, 0.0f, 0.0f };
+const struct color g_pink_color  = { 1.0f, 0.0f, 0.5f, 1.0f };
 
 //Colors for the SDL elements
 const struct color g_background_color = { 0.1921568627f, 0.2f, 0.2117647059f, 1.0f };

@@ -282,28 +282,33 @@ struct transform parse_composite_transform(const cJSON *transforms) {
 	return composite;
 }
 
-struct cr_shader_node *global_desc(struct material_arr file_mats, const cJSON *global_overrides, size_t idx) {
-	if (idx >= file_mats.count) return NULL;
-	struct cr_shader_node *match = NULL;
+struct cr_shader_node *check_overrides(struct mesh_material_arr file_mats, size_t mat_idx, const cJSON *overrides) {
+	if (mat_idx >= file_mats.count) return NULL;
 	const cJSON *override = NULL;
-	cJSON_ArrayForEach(override, global_overrides) {
+	if (!cJSON_IsArray(overrides)) return NULL;
+	cJSON_ArrayForEach(override, overrides) {
 		const cJSON *name = cJSON_GetObjectItem(override, "replace");
-		if (cJSON_IsString(name) && stringEquals(name->valuestring, file_mats.items[idx].name)) {
-			match = cr_shader_node_build(override);
+		if (cJSON_IsString(name) && stringEquals(name->valuestring, file_mats.items[mat_idx].name)) {
+			return cr_shader_node_build(override);
 		}
 	}
-	return match ? match : try_to_guess_bsdf(&file_mats.items[idx]);
+	return NULL;
+}
+
+void mesh_material_free(struct mesh_material *m) {
+	if (m->name) free(m->name);
+	if (m->mat) cr_shader_node_free(m->mat);
 }
 
 static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int mesh_file_count) {
-	const cJSON *file_name = cJSON_GetObjectItem(data, "fileName");
-	if (!cJSON_IsString(file_name)) return;
+	const char *file_name = cJSON_GetStringValue(cJSON_GetObjectItem(data, "fileName"));
+	if (!file_name) return;
 
 	struct cr_scene *scene = cr_renderer_scene_get(r);
 
 	//FIXME: This concat + path fixing should be an utility function
 	const char *asset_path = cr_renderer_get_str_pref(r, cr_renderer_asset_path);
-	char *full_path = stringConcat(asset_path, file_name->valuestring);
+	char *full_path = stringConcat(asset_path, file_name);
 	windowsFixPath(full_path);
 
 	logr(plain, "\r");
@@ -314,7 +319,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	long us = timer_get_us(timer);
 	free(full_path);
 	long ms = us / 1000;
-	logr(debug, "Parsing file %-35s took %zu %s\n", file_name->valuestring, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");
+	logr(debug, "Parsing file %-35s took %zu %s\n", file_name, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");
 
 	if (!result.meshes.count) return;
 
@@ -330,13 +335,10 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	// Per JSON 'meshes' array element, these apply to materials before we assign them to instances
 	const struct cJSON *global_overrides = cJSON_GetObjectItem(data, "materials");
 
-	// FIXME: Textures get loaded multiple times, put them in a hash table
-	// Precompute guessed bsdfs for these instances
+	// Copy mesh materials to set
 	cr_material_set file_set = cr_scene_new_material_set(scene);
-	logr(debug, "Figuring out bsdfs for mtllib materials\n");
 	for (size_t i = 0; i < result.materials.count; ++i) {
-		struct cr_shader_node *desc = global_desc(result.materials, global_overrides, i);
-		cr_material_set_add(scene, file_set, desc);
+		cr_material_set_add(scene, file_set, result.materials.items[i].mat);
 	}
 
 	// Now apply some slightly overcomplicated logic to choose instances to add to the scene.
@@ -350,7 +352,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	const cJSON *add_instances = cJSON_GetObjectItem(data, "add_instances");
 
 	if (pick_instances && add_instances) {
-		logr(warning, "Can't combine pick_instances and add_instances (%s)\n", file_name->valuestring);
+		logr(warning, "Can't combine pick_instances and add_instances (%s)\n", file_name);
 		goto done;
 	}
 
@@ -367,53 +369,52 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 		goto done;
 	}
 
-	for (size_t m_idx = 0; m_idx < result.meshes.count; ++m_idx) {
-		const cJSON *instance = NULL;
-		cJSON_ArrayForEach(instance, instances) {
-			const cJSON *mesh_name = cJSON_GetObjectItem(instance, "for");
-			cr_mesh mesh = -1;
-			if (stringEquals(mesh_name->valuestring, result.meshes.items[m_idx].name)) {
-				mesh = cr_scene_mesh_new(scene, result.meshes.items[m_idx].name);
-				cr_mesh_bind_vertex_buf(scene, mesh, vbuf);
-				cr_mesh_bind_faces(scene, mesh, (struct cr_face *)result.meshes.items[m_idx].polygons.items, result.meshes.items[m_idx].polygons.count);
-			}
-			if (mesh < 0) continue;
-			cr_instance new = cr_instance_new(scene, mesh, cr_object_mesh);
-			cr_material_set instance_set = cr_scene_new_material_set(scene);
-			const cJSON *instance_overrides = cJSON_GetObjectItem(instance, "materials");
-			for (size_t i = 0; i < result.materials.count; ++i) {
-				struct cr_shader_node *override_match = NULL;
-				const cJSON *override = NULL;
-				cJSON_ArrayForEach(override, instance_overrides) {
-					const cJSON *name = cJSON_GetObjectItem(override, "replace");
-					if (cJSON_IsString(name) && stringEquals(name->valuestring, result.materials.items[i].name)) {
-						override_match = cr_shader_node_build(override);
-						break;
-					}
-				}
-				if (override_match) {
-					cr_material_set_add(scene, instance_set, override_match);
-				} else {
-					struct cr_shader_node *global = global_desc(result.materials, global_overrides, i);
-					cr_material_set_add(scene, instance_set, global);
+	const cJSON *instance = NULL;
+	cJSON_ArrayForEach(instance, instances) {
+		char *mesh_name = cJSON_GetStringValue(cJSON_GetObjectItem(instance, "for"));
+		if (!mesh_name) continue;
+		// Find this mesh in parse result, and add it to the scene if it isn't there yet.
+		cr_mesh mesh = -1;
+		for (size_t i = 0; i < result.meshes.count; ++i) {
+			if (stringEquals(result.meshes.items[i].name, mesh_name)) {
+				mesh = cr_scene_get_mesh(scene, result.meshes.items[i].name);
+				if (mesh < 0) {
+					mesh = cr_scene_mesh_new(scene, result.meshes.items[i].name);
+					cr_mesh_bind_vertex_buf(scene, mesh, vbuf);
+					cr_mesh_bind_faces(scene, mesh, (struct cr_face *)result.meshes.items[i].polygons.items, result.meshes.items[i].polygons.count);
 				}
 			}
-
-			cr_instance_set_transform(scene, new, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")).A.mtx);
-			cr_instance_bind_material_set(scene, new, instance_set);
 		}
+		if (mesh < 0) continue;
+		// And now create the instance
+		cr_instance new = cr_instance_new(scene, mesh, cr_object_mesh);
+		cr_material_set instance_set = cr_scene_new_material_set(scene);
+		// For the instance materials, we iterate the mesh materials, check if a "replace" exists with that name,
+		// if one does, use that, otherwise grab the mesh material.
+		const cJSON *instance_overrides = cJSON_GetObjectItem(instance, "materials");
+		for (size_t i = 0; i < result.materials.count; ++i) {
+			struct cr_shader_node *material = NULL;
+			// Find the material we want to use. First, check instance overrides
+			material = check_overrides(result.materials, i, instance_overrides);
+			// Then see if the mesh-global overrides has it
+			if (!material) material = check_overrides(result.materials, i, global_overrides);
+			// If it's still NULL here, it gets set to an obnoxious material internally.
+			cr_material_set_add(scene, instance_set, material ? material : result.materials.items[i].mat);
+			cr_shader_node_free(material);
+		}
+		cr_instance_set_transform(scene, new, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")).A.mtx);
+		cr_instance_bind_material_set(scene, new, instance_set);
 	}
+	
 done:
 
 	for (size_t i = 0; i < result.meshes.count; ++i) {
 		poly_arr_free(&result.meshes.items[i].polygons);
 		destroyMesh(&result.meshes.items[i]);
 	}
-	for (size_t i = 0; i < result.materials.count; ++i) {
-		destroyMaterial(&result.materials.items[i]);
-	}
 	mesh_arr_free(&result.meshes);
-	material_arr_free(&result.materials);
+	result.materials.elem_free = mesh_material_free;
+	mesh_material_arr_free(&result.materials);
 	vector_arr_free(&result.geometry.vertices);
 	vector_arr_free(&result.geometry.normals);
 	coord_arr_free(&result.geometry.texture_coords);
@@ -448,38 +449,37 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 	const cJSON *sphere_global_materials = cJSON_GetObjectItem(data, "material");
 	
 	const cJSON *instances = cJSON_GetObjectItem(data, "instances");
+	if (!cJSON_IsArray(instances)) return;
 	const cJSON *instance = NULL;
-	if (cJSON_IsArray(instances)) {
-		cJSON_ArrayForEach(instance, instances) {
+	cJSON_ArrayForEach(instance, instances) {
 
-			cr_instance new_instance = cr_instance_new(scene, new_sphere, cr_object_sphere);
+		cr_instance new_instance = cr_instance_new(scene, new_sphere, cr_object_sphere);
 
-			cr_material_set instance_set = cr_scene_new_material_set(scene);
+		cr_material_set instance_set = cr_scene_new_material_set(scene);
 
-			const cJSON *instance_materials = cJSON_GetObjectItem(instance, "materials");
-			const cJSON *materials = instance_materials ? instance_materials : sphere_global_materials;
+		const cJSON *instance_materials = cJSON_GetObjectItem(instance, "materials");
+		const cJSON *materials = instance_materials ? instance_materials : sphere_global_materials;
 
-			if (materials) {
-				const cJSON *material = NULL;
-				if (cJSON_IsArray(materials)) {
-					material = cJSON_GetArrayItem(materials, 0);
-				} else {
-					material = materials;
-				}
-				struct cr_shader_node *desc = cr_shader_node_build(material);
-				cr_material_set_add(scene, instance_set, desc);
-
-				// FIXME
-				// const cJSON *type_string = cJSON_GetObjectItem(material, "type");
-				// if (type_string && stringEquals(type_string->valuestring, "emissive")) new_instance.emits_light = true;
+		if (materials) {
+			const cJSON *material = NULL;
+			if (cJSON_IsArray(materials)) {
+				material = cJSON_GetArrayItem(materials, 0);
 			} else {
-				// TODO
-				// cr_material_set_add(r, instance_set, warning_material_desc);
+				material = materials;
 			}
+			struct cr_shader_node *desc = cr_shader_node_build(material);
+			cr_material_set_add(scene, instance_set, desc);
+			cr_shader_node_free(desc);
 
-			cr_instance_set_transform(scene, new_instance, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")).A.mtx);
-			cr_instance_bind_material_set(scene, new_instance, instance_set);
+			// FIXME
+			// const cJSON *type_string = cJSON_GetObjectItem(material, "type");
+			// if (type_string && stringEquals(type_string->valuestring, "emissive")) new_instance.emits_light = true;
+		} else {
+			cr_material_set_add(scene, instance_set, NULL);
 		}
+
+		cr_instance_set_transform(scene, new_instance, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")).A.mtx);
+		cr_instance_bind_material_set(scene, new_instance, instance_set);
 	}
 }
 

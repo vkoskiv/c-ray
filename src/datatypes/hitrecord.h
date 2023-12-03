@@ -8,8 +8,7 @@
 
 #pragma once
 
-#include "material.h"
-#include "lightray.h"
+#include "../datatypes/vector.h"
 
 struct hitRecord {
 	struct vector incident_dir;		//Incident ray direction

@@ -10,7 +10,6 @@
 #include "../renderer/samplers/sampler.h"
 #include "../renderer/renderer.h"
 #include "../datatypes/vector.h"
-#include "../datatypes/material.h"
 #include "../datatypes/poly.h"
 #include "../utils/string.h"
 #include "../datatypes/scene.h"

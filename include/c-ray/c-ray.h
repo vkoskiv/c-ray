@@ -159,6 +159,7 @@ struct cr_face {
 void cr_mesh_bind_faces(struct cr_scene *s_ext, cr_mesh mesh, struct cr_face *faces, size_t face_count);
 
 cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name);
+cr_mesh cr_scene_get_mesh(struct cr_scene *s_ext, const char *name);
 
 // -- Camera --
 // FIXME: Use cr_vector

@@ -8,18 +8,30 @@
 
 #include "../datatypes/vector.h"
 #include "../datatypes/color.h"
-#include "../datatypes/material.h"
 #include "../renderer/renderer.h"
 #include "../datatypes/scene.h"
+#include "../driver/node_parse.h" // FIXME: bad
 #include "../utils/string.h"
 #include "bsdfnode.h"
 #include <c-ray/c-ray.h>
 
 static const struct bsdfNode *warning_bsdf(const struct node_storage *s) {
 	return newMix(s,
-				  newDiffuse(s, newConstantTexture(s, warningMaterial().diffuse)),
+				  newDiffuse(s, newConstantTexture(s, g_pink_color)),
 				  newDiffuse(s, newConstantTexture(s, (struct color){0.2f, 0.2f, 0.2f, 1.0f})),
 				  newGrayscaleConverter(s, newCheckerBoardTexture(s, NULL, NULL, newConstantValue(s, 500.0f))));
+}
+
+void description_free(struct cr_shader_node **s) {
+	if (!s || !*s) return;
+	cr_shader_node_free(*s);
+}
+
+void bsdf_buffer_free(struct bsdf_buffer *b) {
+	if (!b) return;
+	bsdf_node_ptr_arr_free(&b->bsdfs);
+	b->descriptions.elem_free = description_free;
+	cr_shader_node_ptr_arr_free(&b->descriptions);
 }
 
 const struct bsdfNode *build_bsdf_node(struct cr_scene *s_ext, const struct cr_shader_node *desc) {
