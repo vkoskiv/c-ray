@@ -12,19 +12,19 @@
 #include "../vendored/cJSON.h"
 #include "node_parse.h"
 #include "loaders/meshloader.h"
-#include "../utils/loaders/textureloader.h"
+#include "../common/loaders/textureloader.h"
 
 #include <c-ray/c-ray.h>
 
-#include "../datatypes/transforms.h"
-#include "../datatypes/quaternion.h"
-#include "../datatypes/spline.h"
-#include "../datatypes/vector.h"
-#include "../utils/string.h"
-#include "../utils/platform/capabilities.h"
-#include "../utils/logging.h"
-#include "../utils/fileio.h"
-#include "../utils/timer.h"
+#include "../lib/datatypes/transforms.h" // FIXME: CROSS
+#include "../lib/datatypes/quaternion.h" // FIXME: CROSS
+#include "../lib/datatypes/spline.h"
+#include "../common/vector.h"
+#include "../common/string.h"
+#include "../common/platform/capabilities.h"
+#include "../common/logging.h"
+#include "../common/fileio.h"
+#include "../common/timer.h"
 
 static struct transform parse_tform(const cJSON *data) {
 	const cJSON *type = cJSON_GetObjectItem(data, "type");

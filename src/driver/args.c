@@ -13,16 +13,16 @@
 #include <stdio.h>
 #include "args.h"
 
-#include "../utils/platform/terminal.h"
-#include "../utils/platform/capabilities.h"
-#include "../utils/hashtable.h"
-#include "../utils/logging.h"
-#include "../utils/fileio.h"
-#include "../utils/assert.h"
-#include "../utils/textbuffer.h"
-#include "../utils/testrunner.h"
-#include "../utils/string.h"
-#include "../utils/protocol/server.h"
+#include "../common/platform/terminal.h"
+#include "../common/platform/capabilities.h"
+#include "../common/hashtable.h"
+#include "../common/logging.h"
+#include "../common/fileio.h"
+#include "../common/assert.h"
+#include "../common/textbuffer.h"
+#include "../common/testrunner.h"
+#include "../common/string.h"
+#include "../lib/protocol/server.h"
 
 static void printUsage(const char *progname) {
 	printf("Usage: %s [-hjsdtocv] [input_json...]\n", progname);

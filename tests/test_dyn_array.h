@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "../src/utils/dyn_array.h"
-#include "../src/datatypes/vector.h"
+#include "../src/common/dyn_array.h"
+#include "../src/common/vector.h"
 
 #define dyn_test_count 1000
 

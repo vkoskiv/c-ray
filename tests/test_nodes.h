@@ -8,15 +8,15 @@
 
 #pragma once
 
-#include "../src/datatypes/scene.h"
-#include "../src/utils/hashtable.h"
-#include "../src/utils/mempool.h"
-#include "../src/nodes/nodebase.h"
-#include "../src/nodes/valuenode.h"
-#include "../src/nodes/vectornode.h"
-#include "../src/nodes/converter/math.h"
-#include "../src/nodes/converter/map_range.h"
-#include "../src/renderer/samplers/sampler.h"
+#include "../src/lib/datatypes/scene.h"
+#include "../src/common/hashtable.h"
+#include "../src/common/mempool.h"
+#include "../src/lib/nodes/nodebase.h"
+#include "../src/lib/nodes/valuenode.h"
+#include "../src/lib/nodes/vectornode.h"
+#include "../src/lib/nodes/converter/math.h"
+#include "../src/lib/nodes/converter/map_range.h"
+#include "../src/lib/renderer/samplers/sampler.h"
 
 struct node_storage *make_storage() {
 	struct node_storage *storage = calloc(1, sizeof(*storage));

@@ -21,7 +21,7 @@ $(BIN): $(OBJS) $(OBJDIR)
 # A sneaky target to run a bit of code generation
 dummy:
 	@echo "Generating gitsha1.c"
-	$(shell sed "s/@GIT_SHA1@/`git rev-parse --verify HEAD || echo "NoHash" | cut -c 1-8`/g" src/utils/gitsha1.c.in > generated/gitsha1.c)
+	$(shell sed "s/@GIT_SHA1@/`git rev-parse --verify HEAD || echo "NoHash" | cut -c 1-8`/g" src/common/gitsha1.c.in > generated/gitsha1.c)
 clean:
 	rm -rf bin/*
 

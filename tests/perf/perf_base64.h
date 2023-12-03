@@ -6,9 +6,9 @@
 //  Copyright © 2021-2023 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../src/utils/fileio.h"
-#include "../../src/utils/assert.h"
-#include "../../src/utils/base64.h"
+#include "../../src/common/fileio.h"
+#include "../../src/common/assert.h"
+#include "../../src/common/base64.h"
 
 time_t base64_bigfile_encode(void) {
 	file_data bigfile = file_load("input/venusscaled.obj");

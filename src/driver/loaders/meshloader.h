@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../../datatypes/mesh.h"
+#include "mesh.h"
 
 struct mesh_material {
 	char *name;

@@ -6,9 +6,9 @@
 //  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../src/utils/fileio.h"
-#include "../../src/utils/timer.h"
-#include "../../src/utils/assert.h"
+#include "../../src/common/fileio.h"
+#include "../../src/common/timer.h"
+#include "../../src/common/assert.h"
 
 time_t fileio_load(void) {
 	struct timeval test;

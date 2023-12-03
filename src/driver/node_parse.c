@@ -12,11 +12,12 @@
 #include "../vendored/cJSON.h"
 #include "json_loader.h"
 
-#include "../renderer/renderer.h"
-#include "../datatypes/scene.h"
-#include "../utils/loaders/textureloader.h"
-#include "../utils/string.h"
-#include "../utils/logging.h"
+#include "../common/loaders/textureloader.h"
+#include "../common/string.h"
+#include "../common/logging.h"
+#include "../common/color.h"
+#include "../common/vector.h"
+#include "../lib/nodes/textures/image.h" // FIXME: CROSS
 
 static enum cr_vec_to_value_component value_node_component(const cJSON *data) {
 	if (!cJSON_IsString(data)) {

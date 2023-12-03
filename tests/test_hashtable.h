@@ -8,8 +8,8 @@
 
 #include <stdio.h>
 
-#include "../src/utils/hashtable.h"
-#include "../src/datatypes/vector.h"
+#include "../src/common/hashtable.h"
+#include "../src/common/vector.h"
 
 //TODO: Consider having some of these common comparators included with the hashtable API.
 bool compare(const void *A, const void *B) {;

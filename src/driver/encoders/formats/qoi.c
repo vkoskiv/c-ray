@@ -8,7 +8,7 @@
 
 #include <stddef.h>
 #include "qoi.h"
-#include "../../../utils/fileio.h"
+#include "../../../common/fileio.h"
 
 #define QOI_IMPLEMENTATION
 #define QOI_NO_STDIO

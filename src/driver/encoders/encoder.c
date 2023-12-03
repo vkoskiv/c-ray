@@ -8,11 +8,11 @@
 
 #include "encoder.h"
 
-#include "../../datatypes/image/texture.h"
-#include "../../datatypes/image/imagefile.h"
-#include "../../utils/logging.h"
+#include "../imagefile.h"
+#include "../../common/logging.h"
 #include "../../vendored/asprintf.h"
-#include "../../utils/assert.h"
+#include "../../common/texture.h"
+#include "../../common/assert.h"
 
 #include "formats/png.h"
 #include "formats/bmp.h"

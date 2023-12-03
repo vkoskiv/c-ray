@@ -12,12 +12,12 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
-#include "../src/renderer/renderer.h"
-#include "../src/utils/protocol/protocol.h"
-#include "../src/utils/fileio.h"
+#include "../src/lib/renderer/renderer.h"
+#include "../src/lib/protocol/protocol.h"
+#include "../src/common/fileio.h"
 #include "../src/vendored/cJSON.h"
 #include "../src/driver/json_loader.h"
-#include "../src/utils/string.h"
+#include "../src/common/string.h"
 
 void silence_stdout(int *bak, int *new) {
 	fflush(stdout);

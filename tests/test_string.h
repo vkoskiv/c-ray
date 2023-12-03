@@ -6,7 +6,7 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../src/utils/string.h"
+#include "../src/common/string.h"
 
 bool string_stringEquals(void) {
 	

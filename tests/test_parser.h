@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../src/datatypes/color.h"
+#include "../src/common/color.h"
 #include "../src/vendored/cJSON.h"
 #include "../src/driver/json_loader.h"
 #include "../src/driver/node_parse.h"

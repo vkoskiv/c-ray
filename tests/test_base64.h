@@ -6,9 +6,9 @@
 //  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../src/utils/base64.h"
-#include "../src/utils/string.h"
-#include "../src/utils/fileio.h"
+#include "../src/common/base64.h"
+#include "../src/common/string.h"
+#include "../src/common/fileio.h"
 
 bool base64_basic(void) {
 	char *original = "This is the original string right here.";

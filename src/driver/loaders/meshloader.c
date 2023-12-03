@@ -10,8 +10,8 @@
 
 #include "meshloader.h"
 #include "formats/wavefront/wavefront.h"
-#include "../../utils/fileio.h"
-#include "../../utils/logging.h"
+#include "../../common/fileio.h"
+#include "../../common/logging.h"
 
 struct mesh_parse_result load_meshes_from_file(const char *file_path) {
 	switch (guess_file_type(file_path)) {

@@ -9,13 +9,13 @@
 #include <stdint.h>
 #include <string.h>
 #include "../../../../includes.h"
-#include "../../../../datatypes/mesh.h"
-#include "../../../../datatypes/vector.h"
-#include "../../../../datatypes/poly.h"
-#include "../../../../utils/logging.h"
-#include "../../../../utils/string.h"
-#include "../../../../utils/fileio.h"
-#include "../../../../utils/textbuffer.h"
+#include "../../mesh.h"
+#include "../../../../common/vector.h"
+#include "../../../../lib/datatypes/poly.h" // FIXME: CROSS
+#include "../../../../common/logging.h"
+#include "../../../../common/string.h"
+#include "../../../../common/fileio.h"
+#include "../../../../common/textbuffer.h"
 #include "../../../loaders/meshloader.h"
 #include <c-ray/c-ray.h>
 #include "mtlloader.h"

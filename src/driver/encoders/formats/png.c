@@ -6,14 +6,14 @@
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../../datatypes/image/imagefile.h"
+#include "../../imagefile.h"
 #include <stddef.h>
 #include "png.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../../utils/fileio.h"
-#include "../../../utils/logging.h"
+#include "../../../common/fileio.h"
+#include "../../../common/logging.h"
 
 #include "../../../vendored/lodepng.h"
 

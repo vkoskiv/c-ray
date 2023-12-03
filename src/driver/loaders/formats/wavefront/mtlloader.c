@@ -11,14 +11,14 @@
 #include "../../../../includes.h"
 #include "mtlloader.h"
 
-#include "../../../../utils/logging.h"
-#include "../../../../utils/string.h"
-#include "../../../../utils/textbuffer.h"
-#include "../../../../utils/fileio.h"
-#include "../../../../utils/assert.h"
+#include "../../../../common/logging.h"
+#include "../../../../common/string.h"
+#include "../../../../common/textbuffer.h"
+#include "../../../../common/fileio.h"
+#include "../../../../common/assert.h"
 #include "../../meshloader.h"
-#include "../../../../datatypes/color.h"
-#include "../../../../nodes/textures/image.h"
+#include "../../../../common/color.h"
+#include "../../../../lib/nodes/textures/image.h" // FIXME: CROSS
 
 /*
  From: https://blenderartists.org/forum/showthread.php?71202-Material-IOR-Value-reference

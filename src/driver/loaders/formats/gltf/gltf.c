@@ -11,13 +11,13 @@
 #include "gltf.h"
 #include <string.h>
 #include "../../../../vendored/cJSON.h"
-#include "../../../../utils/string.h"
-#include "../../../../utils/base64.h"
-#include "../../../../datatypes/vector.h"
-#include "../../../../utils/logging.h"
-#include "../../../../utils/fileio.h"
-#include "../../../../datatypes/image/texture.h"
-#include "../../../../utils/loaders/textureloader.h"
+#include "../../../../common/string.h"
+#include "../../../../common/base64.h"
+#include "../../../../common/vector.h"
+#include "../../../../common/logging.h"
+#include "../../../../common/fileio.h"
+#include "../../../../common/texture.h"
+#include "../../../../common/loaders/textureloader.h"
 
 enum accessor_type {
 	UNKNOWN,

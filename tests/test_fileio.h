@@ -6,7 +6,7 @@
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../src/utils/fileio.h"
+#include "../src/common/fileio.h"
 
 bool fileio_humanFileSize(void) {
 	

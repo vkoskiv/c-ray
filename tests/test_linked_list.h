@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../src/utils/linked_list.h"
+#include "../src/common/linked_list.h"
 
 #define ATTEMPTS 1024
 

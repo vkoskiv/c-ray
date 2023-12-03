@@ -8,13 +8,13 @@
 
 #include <c-ray/c-ray.h>
 
-#include "../datatypes/image/texture.h"
-#include "../datatypes/image/imagefile.h"
-#include "../utils/logging.h"
-#include "../utils/fileio.h"
-#include "../utils/platform/terminal.h"
-#include "../utils/timer.h"
-#include "../utils/hashtable.h"
+#include "../common/texture.h"
+#include "imagefile.h"
+#include "../common/logging.h"
+#include "../common/fileio.h"
+#include "../common/platform/terminal.h"
+#include "../common/timer.h"
+#include "../common/hashtable.h"
 #include "../vendored/cJSON.h"
 #include "encoders/encoder.h"
 #include "json_loader.h"
