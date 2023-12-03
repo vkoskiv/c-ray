@@ -648,3 +648,6 @@ void cr_start_render_worker(int port, size_t thread_limit) {
 	worker_start(port, thread_limit);
 }
 
+void cr_send_shutdown_to_workers(const char *node_list) {
+	clients_shutdown(node_list);
+}

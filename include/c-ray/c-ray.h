@@ -208,4 +208,4 @@ bool cr_instance_bind_material_set(struct cr_scene *s_ext, cr_instance instance,
 // -- Misc. --
 bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_shader_node *desc);
 void cr_start_render_worker(int port, size_t thread_limit);
-
+void cr_send_shutdown_to_workers(const char *node_list);

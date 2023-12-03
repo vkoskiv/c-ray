@@ -18,7 +18,7 @@
 
 #include "../lib/datatypes/transforms.h" // FIXME: CROSS
 #include "../lib/datatypes/quaternion.h" // FIXME: CROSS
-#include "../lib/datatypes/spline.h"
+#include "../lib/datatypes/spline.h" // FIXME: CROSS
 #include "../common/vector.h"
 #include "../common/string.h"
 #include "../common/platform/capabilities.h"

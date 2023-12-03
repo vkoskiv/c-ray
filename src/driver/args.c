@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+
+#include <c-ray/c-ray.h>
 #include "args.h"
 
 #include "../common/platform/terminal.h"
@@ -22,7 +24,6 @@
 #include "../common/textbuffer.h"
 #include "../common/testrunner.h"
 #include "../common/string.h"
-#include "../lib/protocol/server.h"
 
 static void printUsage(const char *progname) {
 	printf("Usage: %s [-hjsdtocv] [input_json...]\n", progname);
@@ -238,7 +239,7 @@ struct driver_args *args_parse(int argc, char **argv) {
 	logr(debug, "Verbose mode enabled\n");
 	
 	if (args_is_set(args, "shutdown") && args_is_set(args, "nodes_list")) {
-		clients_shutdown(args_string(args, "nodes_list"));
+		cr_send_shutdown_to_workers(args_string(args, "nodes_list"));
 		term_restore();
 		exit(0);
 	}
