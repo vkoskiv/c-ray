@@ -12,7 +12,7 @@
 #include "../accelerators/bvh.h"
 #include "../../common/vector.h"
 
-void destroyMesh(struct mesh *mesh) {
+void mesh_free(struct mesh *mesh) {
 	if (mesh) {
 		free(mesh->name);
 		poly_arr_free(&mesh->polygons);

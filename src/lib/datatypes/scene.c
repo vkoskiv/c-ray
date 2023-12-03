@@ -30,9 +30,7 @@ void scene_destroy(struct world *scene) {
 		scene->textures.elem_free = tex_asset_free;
 		texture_asset_arr_free(&scene->textures);
 		camera_arr_free(&scene->cameras);
-		for (size_t i = 0; i < scene->meshes.count; ++i) {
-			destroyMesh(&scene->meshes.items[i]);
-		}
+		scene->meshes.elem_free = mesh_free;
 		mesh_arr_free(&scene->meshes);
 		destroy_bvh(scene->topLevel);
 		destroyHashtable(scene->storage.node_table);

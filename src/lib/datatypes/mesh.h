@@ -29,4 +29,4 @@ struct mesh {
 typedef struct mesh mesh;
 dyn_array_def(mesh);
 
-void destroyMesh(struct mesh *mesh);
+void mesh_free(struct mesh *mesh);
