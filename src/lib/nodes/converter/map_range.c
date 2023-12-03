@@ -9,8 +9,8 @@
 #include <stdio.h>
 #include "../nodebase.h"
 #include "../../../common/hashtable.h"
+#include "../../../common/vector.h"
 #include "../../datatypes/scene.h"
-#include "../../datatypes/vector.h"
 #include "../valuenode.h"
 
 #include "map_range.h"

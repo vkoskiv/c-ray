@@ -15,8 +15,8 @@
 #include <stdlib.h>
 
 #include "../../common/logging.h"
-#include "../../datatypes/image/imagefile.h"
-#include "../../datatypes/vector.h"
+#include "../../driver/imagefile.h" // FIXME: CROSS
+#include "../../common/vector.h"
 #include "../datatypes/tile.h"
 #include "../../common/texture.h"
 #include "../renderer/renderer.h"

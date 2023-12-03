@@ -11,7 +11,7 @@
 
 #include "common.h"
 #include "../../../common/assert.h"
-#include "../../datatypes/vector.h"
+#include "../../../common/vector.h"
 
 static const unsigned int primes[] = {2, 3, 5, 7, 11, 13};
 static const unsigned int primesCount = 6;

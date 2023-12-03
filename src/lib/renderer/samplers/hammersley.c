@@ -10,7 +10,7 @@
 #include "hammersley.h"
 
 #include "common.h"
-#include "../../datatypes/vector.h"
+#include "../../../common/vector.h"
 #include "../../../common/assert.h"
 
 static const unsigned int primes[] = {2, 3, 5, 7, 11, 13};

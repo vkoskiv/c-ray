@@ -7,7 +7,7 @@
 //
 
 #include <stdio.h>
-#include "../../datatypes/vector.h"
+#include "../../../common/vector.h"
 #include "../../../common/hashtable.h"
 #include "../../datatypes/scene.h"
 #include "../valuenode.h"

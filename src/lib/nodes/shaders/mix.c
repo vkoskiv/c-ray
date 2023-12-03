@@ -7,9 +7,9 @@
 //
 
 #include <stdio.h>
-#include "../../../common/color.h"
 #include "../../renderer/samplers/sampler.h"
-#include "../../datatypes/vector.h"
+#include "../../../common/color.h"
+#include "../../../common/vector.h"
 #include "../../../common/hashtable.h"
 #include "../../datatypes/scene.h"
 #include "../bsdfnode.h"
