@@ -44,6 +44,10 @@ struct texture_asset {
 typedef struct texture_asset texture_asset;
 dyn_array_def(texture_asset);
 
+//FIXME: These are opposite states, which is kinda confusing.
+#define SRGB_TRANSFORM 0x01
+#define NO_BILINEAR    0x02
+
 struct texture *newTexture(enum precision p, size_t width, size_t height, size_t channels);
 
 void setPixel(struct texture *t, struct color c, size_t x, size_t y);

@@ -18,7 +18,7 @@
 #include "../../../../common/assert.h"
 #include "../../meshloader.h"
 #include "../../../../common/color.h"
-#include "../../../../lib/nodes/textures/image.h" // FIXME: CROSS
+#include "../../../../common/texture.h"
 
 /*
  From: https://blenderartists.org/forum/showthread.php?71202-Material-IOR-Value-reference
@@ -55,14 +55,14 @@
  */
 
 enum bsdfType {
-	none = 0,
-	emission,
-	lambertian,
-	glass,
-	plastic,
-	metal,
-	translucent,
-	transparent
+	bt_none = 0,
+	bt_emission,
+	bt_lambertian,
+	bt_glass,
+	bt_plastic,
+	bt_metal,
+	bt_translucent,
+	bt_transparent
 };
 
 struct material {
