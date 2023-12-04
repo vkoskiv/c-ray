@@ -3,8 +3,8 @@
 
 LIB=lib/libc-ray.so
 BIN_lib=lib/c-ray
-OBJDIR_lib=lib/lib_obj
-OBJDIR_driver=lib/driver_obj
+OBJDIR_lib=lib/obj_lib
+OBJDIR_driver=lib/obj_driver
 SRCS_lib=$(shell find src/lib src/common generated/ -name '*.c')
 OBJS_lib=$(patsubst %.c, $(OBJDIR_lib)/%.o, $(SRCS_lib))
 SRCS_driver=$(shell find src/driver src/common -name '*.c')
