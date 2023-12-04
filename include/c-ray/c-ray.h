@@ -203,6 +203,7 @@ enum cr_object_type {
 
 cr_instance cr_instance_new(struct cr_scene *s_ext, cr_object object, enum cr_object_type type);
 void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]);
+void cr_instance_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]);
 bool cr_instance_bind_material_set(struct cr_scene *s_ext, cr_instance instance, cr_material_set set);
 
 // -- Misc. --

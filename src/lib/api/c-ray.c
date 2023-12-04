@@ -317,12 +317,8 @@ cr_instance cr_instance_new(struct cr_scene *s_ext, cr_object object, enum cr_ob
 	return instance_arr_add(&scene->instances, new);
 }
 
-void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]) {
-	if (!s_ext) return;
-	struct world *scene = (struct world *)s_ext;
-	if ((size_t)instance > scene->instances.count - 1) return;
-	struct instance *i = &scene->instances.items[instance];
-	struct matrix4x4 mtx = {
+static inline struct matrix4x4 mtx_convert(float row_major[4][4]) {
+	return (struct matrix4x4){
 		.mtx = {
 			{ row_major[0][0], row_major[0][1], row_major[0][2], row_major[0][3] },
 			{ row_major[1][0], row_major[1][1], row_major[1][2], row_major[1][3] },
@@ -330,10 +326,28 @@ void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, flo
 			{ row_major[3][0], row_major[3][1], row_major[3][2], row_major[3][3] },
 		}
 	};
+}
+
+void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]) {
+	if (!s_ext) return;
+	struct world *scene = (struct world *)s_ext;
+	if ((size_t)instance > scene->instances.count - 1) return;
+	struct instance *i = &scene->instances.items[instance];
+	struct matrix4x4 mtx = mtx_convert(row_major);
 	i->composite = (struct transform){
 		.A = mtx,
 		.Ainv = mat_invert(mtx)
 	};
+}
+
+void cr_instance_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]) {
+	if (!s_ext) return;
+	struct world *scene = (struct world *)s_ext;
+	if ((size_t)instance > scene->instances.count - 1) return;
+	struct instance *i = &scene->instances.items[instance];
+	struct matrix4x4 mtx = mtx_convert(row_major);
+	i->composite.A = mat_mul(i->composite.A, mtx);
+	i->composite.Ainv = mat_invert(i->composite.A);
 }
 
 bool cr_instance_bind_material_set(struct cr_scene *s_ext, cr_instance instance, cr_material_set set) {
