@@ -533,9 +533,11 @@ struct cr_color_node *color_deepcopy(const struct cr_color_node *in) {
 			break;
 		case cr_cn_vec_to_color:
 			out->arg.vec_to_color.vec = vector_deepcopy(in->arg.vec_to_color.vec);
+			break;
 		case cr_cn_gradient:
 			out->arg.gradient.a = color_deepcopy(in->arg.gradient.a);
 			out->arg.gradient.b = color_deepcopy(in->arg.gradient.b);
+			break;
 		default:
 			break;
 	}
