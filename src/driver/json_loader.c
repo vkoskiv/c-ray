@@ -333,7 +333,9 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	// Copy mesh materials to set
 	cr_material_set file_set = cr_scene_new_material_set(scene);
 	for (size_t i = 0; i < result.materials.count; ++i) {
-		cr_material_set_add(scene, file_set, result.materials.items[i].mat);
+		struct cr_shader_node *maybe_override = check_overrides(result.materials, i, global_overrides);
+		cr_material_set_add(scene, file_set, maybe_override ? maybe_override : result.materials.items[i].mat);
+		if (maybe_override) cr_shader_node_free(maybe_override);
 	}
 
 	// Now apply some slightly overcomplicated logic to choose instances to add to the scene.
@@ -389,11 +391,9 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 		const cJSON *instance_overrides = cJSON_GetObjectItem(instance, "materials");
 		for (size_t i = 0; i < result.materials.count; ++i) {
 			struct cr_shader_node *material = NULL;
-			// Find the material we want to use. First, check instance overrides
+			// Find the material we want to use. Check if instance overrides it, otherwise use mesh global one
 			material = check_overrides(result.materials, i, instance_overrides);
-			// Then see if the mesh-global overrides has it
-			if (!material) material = check_overrides(result.materials, i, global_overrides);
-			// If it's still NULL here, it gets set to an obnoxious material internally.
+			// If material is NULL here, it gets set to an obnoxious material internally.
 			cr_material_set_add(scene, instance_set, material ? material : result.materials.items[i].mat);
 			cr_shader_node_free(material);
 		}
