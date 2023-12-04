@@ -16,6 +16,11 @@
 #define STBI_NO_GIF
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../common/vendored/stb_image.h"
+
+#ifdef CR_BUILDING_LIB
+#define QOI_IMPLEMENTATION
+#define QOI_NO_STDIO
+#endif
 #include "../../common/vendored/qoi.h" // encoder defines implementation macro already
 
 // I don't want to mess with memory allocation within the different

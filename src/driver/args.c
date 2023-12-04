@@ -22,7 +22,6 @@
 #include "../common/fileio.h"
 #include "../common/assert.h"
 #include "../common/textbuffer.h"
-#include "../common/testrunner.h"
 #include "../common/string.h"
 
 static void printUsage(const char *progname) {
@@ -41,7 +40,7 @@ static void printUsage(const char *progname) {
 	printf("    [--nodes <list>] -> Use worker nodes in comma-separated ip:port list for a faster render (Experimental)\n");
 	printf("    [--shutdown]     -> Use in conjunction with a node list to send a shutdown command to a list of clients\n");
 	printf("    [--asset-path]   -> Specify an asset path to load assets from, useful in scripts\n");
-	printf("    [--test]         -> Run the test suite\n");
+	// printf("    [--test]         -> Run the test suite\n"); // FIXME
 	term_restore();
 	exit(0);
 }
@@ -249,32 +248,6 @@ struct driver_args *args_parse(int argc, char **argv) {
 		alternatePath = NULL;
 	}
 	
-	if (args_is_set(args, "runTests") || args_is_set(args, "runPerfTests")) {
-#ifdef CRAY_TESTING
-		char *suite = NULL;
-		if (args_is_set(args, "test_suite")) suite = getDatabaseString(args, "test_suite");
-		switch (testIdx) {
-			case -3:
-				printf("%i", getPerfTestCount(suite));
-				exit(0);
-				break;
-			case -2:
-				printf("%i", getTestCount(suite));
-				exit(0);
-				break;
-			case -1:
-				exit(args_is_set(args, "runPerfTests") ? runPerfTests(suite) : runTests(suite));
-				break;
-			default:
-				exit(args_is_set(args, "runPerfTests") ? runPerfTest(testIdx, suite) : runTest(testIdx, suite));
-				break;
-		}
-#else
-		logr(warning, "You need to compile with tests enabled.\n");
-		logr(warning, "Run: `cmake . -DTESTING=True` and then `make`\n");
-		exit(-1);
-#endif
-	}
 	return args;
 }
 

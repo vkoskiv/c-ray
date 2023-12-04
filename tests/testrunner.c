@@ -6,11 +6,11 @@
 //  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../includes.h"
-#include "logging.h"
-#include "timer.h"
+#include "../src/includes.h"
+#include "../src/common/logging.h"
+#include "../src/common/timer.h"
 
-#include "../common/assert.h"
+#include "../src/common/assert.h"
 #include "testrunner.h"
 
 #ifdef CRAY_TESTING
@@ -19,8 +19,8 @@ int firstTestIdx(char *suite);
 int firstPerfTestIdx(char *suite);
 
 // Grab tests
-#include "../../tests/tests.h"
-#include "../../tests/perf/tests.h"
+#include "tests.h"
+#include "perf/tests.h"
 
 unsigned totalTests = testCount;
 unsigned performanceTests = perf_test_count;
@@ -150,5 +150,40 @@ int getPerfTestCount(char *suite) {
 	}
 	return perf_test_count;
 }
+
+#if defined(CR_BUILDING_LIB)
+
+int main(int argc, char *argv[]) {
+	struct driver_args *args = args_parse(argc, argv);
+	if (args_is_set(args, "runTests") || args_is_set(args, "runPerfTests")) {
+#if defined(CRAY_TESTING)
+		char *suite = NULL;
+		if (args_is_set(args, "test_suite")) suite = getDatabaseString(args, "test_suite");
+		switch (testIdx) {
+			case -3:
+				printf("%i", getPerfTestCount(suite));
+				exit(0);
+				break;
+			case -2:
+				printf("%i", getTestCount(suite));
+				exit(0);
+				break;
+			case -1:
+				exit(args_is_set(args, "runPerfTests") ? runPerfTests(suite) : runTests(suite));
+				break;
+			default:
+				exit(args_is_set(args, "runPerfTests") ? runPerfTest(testIdx, suite) : runTest(testIdx, suite));
+				break;
+		}
+#else
+		logr(warning, "You need to compile with tests enabled.\n");
+		logr(warning, "Run: `cmake . -DTESTING=True` and then `make`\n");
+		exit(-1);
+#endif
+	}
+	return 0;
+}
+
+#endif
 
 #endif
