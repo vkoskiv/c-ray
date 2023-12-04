@@ -18,24 +18,24 @@ class cr_renderer(ct.Structure):
 c_ray.cr_new_renderer.restype = ct.POINTER(cr_renderer)
 c_ray.cr_destroy_renderer.argtypes = [ct.POINTER(cr_renderer)]
 
-class cr_renderer_param(IntEnum):
-	cr_renderer_threads = 0
-	cr_renderer_samples = 1
-	cr_renderer_bounces = 2
-	cr_renderer_tile_width = 3
-	cr_renderer_tile_height = 4
-	cr_renderer_tile_order = 5
-	cr_renderer_output_path = 6
-	cr_renderer_asset_path = 7
-	cr_renderer_output_name = 8
-	cr_renderer_output_filetype = 9
-	cr_renderer_output_num = 10
-	cr_renderer_override_width = 11
-	cr_renderer_override_height = 12
-	cr_renderer_should_save = 13
-	cr_renderer_override_cam = 14
-	cr_renderer_node_list = 15
-	cr_renderer_is_iterative = 16
+class cr_rparam(IntEnum):
+	threads = 0
+	samples = 1
+	bounces = 2
+	tile_width = 3
+	tile_height = 4
+	tile_order = 5
+	output_path = 6
+	asset_path = 7
+	output_name = 8
+	output_filetype = 9
+	output_num = 10
+	override_width = 11
+	override_height = 12
+	should_save = 13
+	override_cam = 14
+	node_list = 15
+	is_iterative = 16
 
 c_ray.cr_renderer_set_num_pref.restype = ct.c_bool
 c_ray.cr_renderer_set_num_pref.argtypes = [ct.POINTER(cr_renderer), ct.c_int, ct.c_uint64]
@@ -50,17 +50,12 @@ class Renderer:
     def close(self):
         c_ray.cr_destroy_renderer(self.obj_ptr)
 
-    def set_num(self, param, val):
-        if not isinstance(param, cr_renderer_param):
-            raise TypeError("Expected an instance of cr_renderer_param")
-        if not isinstance(val, ct.c_uint64):
-            raise TypeError("Expected an instance of c_uint64")
-        return c_ray.cr_renderer_set_num_pref(self.obj_ptr, param, val)
+    def get_threads(self):
+        return c_ray.cr_renderer_get_num_pref(self.obj_ptr, cr_rparam.threads)
+    def set_threads(self, value):
+        c_ray.cr_renderer_set_num_pref(self.obj_ptr, cr_rparam.threads, value)
 
-    def get_num(self, param):
-        if not isinstance(param, cr_renderer_param):
-            raise TypeError("Expected an instance of cr_renderer_param")
-        return c_ray.cr_renderer_get_num_pref(self.obj_ptr, param)
+    threads = property(get_threads, set_threads, None, "Local thread count, defaults to nproc + 2")
 
     @classmethod
     def from_param(cls, param):
@@ -81,7 +76,10 @@ if __name__ == "__main__":
     print("Hello, c-ray!");
     print("libc-ray version {} ({})".format(cr_get_version().decode(), cr_get_git_hash().decode()))
     with Renderer() as r:
-        r.set_num(cr_renderer_param.cr_renderer_threads, ct.c_uint64(42))
-        print("Got value {}".format(r.get_num(cr_renderer_param.cr_renderer_threads)))
-        r.set_num(cr_renderer_param.cr_renderer_threads, ct.c_uint64(69))
-        print("Got value {}".format(r.get_num(cr_renderer_param.cr_renderer_threads)))
+        print("Initial value {}".format(r.threads))
+        r.threads = 42
+        print("Got value {}".format(r.threads))
+        r.threads = 69
+        print("Got value {}".format(r.threads))
+        r.threads = 1234
+        print("Got value {}".format(r.threads))
