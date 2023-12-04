@@ -4,6 +4,7 @@
 *.png
 *.bmp
 bin/*
+lib/*
 output/*
 *.vcxproj
 *.vcxproj.filters
