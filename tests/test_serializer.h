@@ -15,7 +15,7 @@
 #include "../src/lib/renderer/renderer.h"
 #include "../src/lib/protocol/protocol.h"
 #include "../src/common/fileio.h"
-#include "../src/vendored/cJSON.h"
+#include "../src/common/vendored/cJSON.h"
 #include "../src/driver/json_loader.h"
 #include "../src/common/string.h"
 

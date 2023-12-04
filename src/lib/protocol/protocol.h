@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../../vendored/cJSON.h"
+#include "../../common/vendored/cJSON.h"
 #include <stdbool.h>
 
 #define PROTO_VERSION "0.1"

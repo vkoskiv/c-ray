@@ -18,7 +18,7 @@
 #include "../common/loaders/textureloader.h"
 #include "../common/platform/thread.h"
 #include "../common/platform/dyn.h"
-#include "../vendored/cJSON.h"
+#include "../common/vendored/cJSON.h"
 #include "signal.h"
 #include <c-ray/c-ray.h>
 

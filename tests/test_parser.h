@@ -9,7 +9,7 @@
 #pragma once
 
 #include "../src/common/color.h"
-#include "../src/vendored/cJSON.h"
+#include "../src/common/vendored/cJSON.h"
 #include "../src/driver/json_loader.h"
 #include "../src/common/node_parse.h"
 

@@ -9,7 +9,7 @@
 #include "../includes.h"
 
 #include "json_loader.h"
-#include "../vendored/cJSON.h"
+#include "../common/vendored/cJSON.h"
 #include "loaders/meshloader.h"
 
 #include <c-ray/c-ray.h>

@@ -9,7 +9,7 @@
 #include <c-ray/c-ray.h>
 
 #include "node_parse.h"
-#include "../vendored/cJSON.h"
+#include "../common/vendored/cJSON.h"
 
 #include "loaders/textureloader.h"
 #include "texture.h"

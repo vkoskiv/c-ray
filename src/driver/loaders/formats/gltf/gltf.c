@@ -10,7 +10,7 @@
 
 #include "gltf.h"
 #include <string.h>
-#include "../../../../vendored/cJSON.h"
+#include "../../../../common/vendored/cJSON.h"
 #include "../../../../common/string.h"
 #include "../../../../common/base64.h"
 #include "../../../../common/vector.h"

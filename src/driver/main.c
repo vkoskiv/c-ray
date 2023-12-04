@@ -15,7 +15,7 @@
 #include "../common/platform/terminal.h"
 #include "../common/timer.h"
 #include "../common/hashtable.h"
-#include "../vendored/cJSON.h"
+#include "../common/vendored/cJSON.h"
 #include "encoders/encoder.h"
 #include "json_loader.h"
 #include "args.h"

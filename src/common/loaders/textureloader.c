@@ -15,8 +15,8 @@
 #define STBI_NO_PSD
 #define STBI_NO_GIF
 #define STB_IMAGE_IMPLEMENTATION
-#include "../../vendored/stb_image.h"
-#include "../../vendored/qoi.h" // encoder defines implementation macro already
+#include "../../common/vendored/stb_image.h"
+#include "../../common/vendored/qoi.h" // encoder defines implementation macro already
 
 // I don't want to mess with memory allocation within the different
 // image parsing libs, so I just copy out to a pool afterwards.
