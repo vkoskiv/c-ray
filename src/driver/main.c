@@ -237,6 +237,7 @@ int main(int argc, char *argv[]) {
 			.t = final
 		};
 		writeImage(&file);
+		logr(info, "Render finished, exiting.\n");
 	} else {
 		logr(info, "Abort pressed, image won't be saved.\n");
 	}
@@ -245,6 +246,5 @@ int main(int argc, char *argv[]) {
 done:
 	cr_destroy_renderer(renderer);
 	args_destroy(opts);
-	logr(info, "Render finished, exiting.\n");
 	return ret;
 }
