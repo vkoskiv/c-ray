@@ -43,25 +43,25 @@ struct cr_renderer;
 CR_EXPORT struct cr_renderer *cr_new_renderer(void);
 
 enum cr_renderer_param {
+	// Num
 	cr_renderer_threads = 0,
 	cr_renderer_samples,
 	cr_renderer_bounces,
 	cr_renderer_tile_width,
 	cr_renderer_tile_height,
-
 	cr_renderer_tile_order,
-	//TODO: Renderer shouldn't know these
-	cr_renderer_output_path,
-	cr_renderer_asset_path,
-	cr_renderer_output_name,
-	cr_renderer_output_filetype,
 	cr_renderer_output_num,
 	cr_renderer_override_width,
 	cr_renderer_override_height,
 	cr_renderer_should_save, //FIXME: Remove
 	cr_renderer_override_cam,
-	cr_renderer_node_list,
 	cr_renderer_is_iterative,
+	// String
+	cr_renderer_output_path,
+	cr_renderer_asset_path,
+	cr_renderer_output_name,
+	cr_renderer_output_filetype,
+	cr_renderer_node_list,
 };
 
 enum cr_tile_state {
