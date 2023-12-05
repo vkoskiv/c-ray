@@ -833,7 +833,6 @@ struct world *deserialize_scene(const cJSON *in) {
 
 static cJSON *serialize_prefs(const struct prefs in) {
 	cJSON *out = cJSON_CreateObject();
-	cJSON_AddItemToObject(out, "threads", cJSON_CreateNumber(in.threads));
 	cJSON_AddItemToObject(out, "samples", cJSON_CreateNumber(in.sampleCount));
 	cJSON_AddItemToObject(out, "bounces", cJSON_CreateNumber(in.bounces));
 	cJSON_AddItemToObject(out, "tileWidth", cJSON_CreateNumber(in.tileWidth));
@@ -851,7 +850,6 @@ static cJSON *serialize_prefs(const struct prefs in) {
 struct prefs deserialize_prefs(const cJSON *in) {
 	struct prefs p = default_prefs();
 	if (!in) return p;
-	p.threads = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "threads"));
 	p.sampleCount = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "samples"));
 	p.bounces = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "bounces"));
 	p.tileWidth = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "tileWidth"));
