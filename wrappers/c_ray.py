@@ -15,6 +15,26 @@ def cr_get_git_hash():
 class cr_renderer(ct.Structure):
 	pass
 
+class cr_bm_union(ct.Union):
+	_fields_ = [
+		("byte_ptr", ct.POINTER(ct.c_ubyte)),
+		("float_ptr", ct.POINTER(ct.c_float))
+	]
+
+class cr_bitmap(ct.Structure):
+	_fields_ = [
+		("colorspace", ct.c_int),
+		("precision", ct.c_int),
+		("data", cr_bm_union),
+		("stride", ct.c_size_t),
+		("width", ct.c_size_t),
+		("height", ct.c_size_t),
+	]
+
+c_ray.cr_renderer_render.restype = ct.POINTER(cr_bitmap)
+c_ray.cr_renderer_render.argtypes = [ct.POINTER(cr_renderer)]
+c_ray.cr_bitmap_free.argtypes = [ct.POINTER(cr_bitmap)]
+
 c_ray.cr_new_renderer.restype = ct.POINTER(cr_renderer)
 c_ray.cr_destroy_renderer.argtypes = [ct.POINTER(cr_renderer)]
 
