@@ -21,7 +21,7 @@ struct renderInfo {
 };
 
 struct imageFile {
-	struct texture *t;
+	struct cr_bitmap *t;
 	enum fileType type;
 	const char *filePath;
 	const char *fileName;

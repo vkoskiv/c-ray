@@ -41,6 +41,7 @@ CR_EXPORT char *cr_get_git_hash(void); //The current git hash of the build
 // -- Renderer --
 struct cr_renderer;
 CR_EXPORT struct cr_renderer *cr_new_renderer(void);
+CR_EXPORT void cr_destroy_renderer(struct cr_renderer *r);
 
 enum cr_renderer_param {
 	// Num
@@ -86,7 +87,7 @@ struct cr_tile {
 
 struct cr_renderer_cb_info {
 	void *user_data;
-	const struct texture *fb;
+	const struct cr_bitmap *fb;
 	const struct cr_tile *tiles;
 	size_t tiles_count;
 
@@ -113,8 +114,26 @@ CR_EXPORT void cr_renderer_stop(struct cr_renderer *ext, bool should_save);
 CR_EXPORT void cr_renderer_toggle_pause(struct cr_renderer *ext);
 CR_EXPORT const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_param p);
 CR_EXPORT uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_param p);
-CR_EXPORT struct texture *cr_renderer_render(struct cr_renderer *r);
-CR_EXPORT void cr_destroy_renderer(struct cr_renderer *r);
+
+struct cr_bitmap {
+	enum cr_bm_colorspace {
+		cr_bm_linear = 0,
+		cr_bm_sRGB
+	} colorspace;
+	enum cr_bm_channel_precision {
+		cr_bm_char,
+		cr_bm_float
+	} precision;
+	union {
+		unsigned char *byte_ptr;
+		float *float_ptr;
+	} data;
+	size_t stride;
+	size_t width;
+	size_t height;
+};
+CR_EXPORT struct cr_bitmap *cr_renderer_render(struct cr_renderer *r);
+CR_EXPORT void cr_bitmap_free(struct cr_bitmap *b);
 
 // -- Scene --
 

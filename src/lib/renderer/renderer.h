@@ -76,7 +76,7 @@ struct renderer {
 };
 
 struct renderer *renderer_new(void);
-struct texture *renderer_render(struct renderer *r);
+struct cr_bitmap *renderer_render(struct renderer *r);
 void renderer_destroy(struct renderer *r);
 
 struct prefs default_prefs(); // TODO: Remove

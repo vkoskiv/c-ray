@@ -113,7 +113,7 @@ void update_cb_info(struct renderer *r, struct tile_set *set, struct cr_renderer
 
 /// @todo Use defaultSettings state struct for this.
 /// @todo Clean this up, it's ugly.
-struct texture *renderer_render(struct renderer *r) {
+struct cr_bitmap *renderer_render(struct renderer *r) {
 	//Check for CTRL-C
 	if (registerHandler(sigint, sigHandler)) {
 		logr(warning, "Unable to catch SIGINT\n");
@@ -183,7 +183,7 @@ struct texture *renderer_render(struct renderer *r) {
 		.tiles = info_tiles,
 		.tiles_count = set.tiles.count
 	};
-	cb_info.fb = output;
+	cb_info.fb = (struct cr_bitmap *)output;
 	if (r->state.cb.cr_renderer_on_start) {
 		update_cb_info(r, &set, &cb_info);
 		r->state.cb.cr_renderer_on_start(&cb_info);
@@ -270,7 +270,7 @@ struct texture *renderer_render(struct renderer *r) {
 	if (info_tiles) free(info_tiles);
 	destroyTexture(render_buf);
 	tile_set_free(&set);
-	return output;
+	return (struct cr_bitmap *)output;
 }
 
 // An interactive render thread that progressively

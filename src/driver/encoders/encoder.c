@@ -10,13 +10,13 @@
 
 #include "../imagefile.h"
 #include "../../common/logging.h"
-#include "../../common/texture.h"
 #include "../../common/assert.h"
 
 #include "formats/png.h"
 #include "formats/bmp.h"
 #include "formats/qoi.h"
 #include <stdio.h>
+#include <c-ray/c-ray.h>
 
 void writeImage(struct imageFile *image) {
 	char *suffix;
@@ -47,13 +47,13 @@ void writeImage(struct imageFile *image) {
 	snprintf(buf, 2048 - 1, "%s%s_%04d.%s", image->filePath, image->fileName, image->count, suffix);
 	switch (image->type) {
 		case png:
-			encodePNGFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height, image->info);
+			encodePNGFromArray(buf, image->t->data.byte_ptr, image->t->width, image->t->height, image->info);
 			break;
 		case bmp:
-			encodeBMPFromArray(buf, image->t->data.byte_p, image->t->width, image->t->height);
+			encodeBMPFromArray(buf, image->t->data.byte_ptr, image->t->width, image->t->height);
 			break;
 		case qoi:
-			encode_qoi_from_array(buf, image->t->data.byte_p, image->t->width, image->t->height);
+			encode_qoi_from_array(buf, image->t->data.byte_ptr, image->t->width, image->t->height);
 			break;
 		case unknown:
 		default:

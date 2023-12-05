@@ -8,7 +8,6 @@
 
 #include <c-ray/c-ray.h>
 
-#include "../common/texture.h"
 #include "imagefile.h"
 #include "../common/logging.h"
 #include "../common/fileio.h"
@@ -41,7 +40,7 @@ static void status(struct cr_renderer_cb_info *state) {
 	static int pauser = 0;
 	struct usr_data *d = state->user_data;
 	if (!d) return;
-	struct input_state in = win_update(d->w, state->tiles, state->tiles_count, state->fb);
+	struct input_state in = win_update(d->w, state->tiles, state->tiles_count, (struct texture *)state->fb);
 	if (in.stop_render) cr_renderer_stop(d->r, in.should_save);
 	if (in.pause_render) cr_renderer_toggle_pause(d->r);
 
@@ -199,7 +198,7 @@ int main(int argc, char *argv[]) {
 
 	struct timeval timer;
 	timer_start(&timer);
-	struct texture *final = cr_renderer_render(renderer);
+	struct cr_bitmap *final = cr_renderer_render(renderer);
 	long ms = timer_get_ms(timer);
 	char buf[64] = { 0 };
 	logr(plain, "\n");
@@ -241,7 +240,7 @@ int main(int argc, char *argv[]) {
 	} else {
 		logr(info, "Abort pressed, image won't be saved.\n");
 	}
-	destroyTexture(final);
+	cr_bitmap_free(final);
 	
 done:
 	cr_destroy_renderer(renderer);
