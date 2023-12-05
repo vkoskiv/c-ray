@@ -185,7 +185,7 @@ class _pref:
 		_r_set_str(self.r_ptr, _cr_rparam.node_list, value)
 	node_list = property(_get_node_list, _set_node_list, None, "")
 
-class Renderer:
+class renderer:
 	def __init__(self):
 		self.obj_ptr = c_ray.cr_new_renderer()
 		self.prefs = _pref(self.obj_ptr)
@@ -208,16 +208,3 @@ class Renderer:
 		return self
 	def __exit__(self, exc_type, exc_value, traceback):
 		self.close()
-
-if __name__ == "__main__":
-	print("libc-ray version {} ({})".format(cr_get_version(), cr_get_git_hash()))
-	with Renderer() as r:
-		print("Initial value {}".format(r.prefs.threads))
-		r.prefs.threads = 42
-		print("Got value {}".format(r.prefs.threads))
-		r.prefs.threads = 69
-		print("Got value {}".format(r.prefs.threads))
-		r.prefs.threads = 1234
-		print("Got value {}".format(r.prefs.threads))
-		r.prefs.asdf = 1234
-		print("Default filename: {}".format(r.prefs.output_name))
