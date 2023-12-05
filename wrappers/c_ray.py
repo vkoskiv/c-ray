@@ -6,11 +6,11 @@ c_ray = ct.CDLL("lib/libc-ray.so")
 
 c_ray.cr_get_version.restype = ct.c_char_p
 def cr_get_version():
-    return c_ray.cr_get_version()
+    return c_ray.cr_get_version().decode()
 
 c_ray.cr_get_git_hash.restype = ct.c_char_p
 def cr_get_git_hash():
-    return c_ray.cr_get_git_hash()
+    return c_ray.cr_get_git_hash().decode()
 
 class cr_renderer(ct.Structure):
     pass
@@ -19,6 +19,7 @@ c_ray.cr_new_renderer.restype = ct.POINTER(cr_renderer)
 c_ray.cr_destroy_renderer.argtypes = [ct.POINTER(cr_renderer)]
 
 class _cr_rparam(IntEnum):
+	# int
 	threads = 0
 	samples = 1
 	bounces = 2
@@ -31,6 +32,7 @@ class _cr_rparam(IntEnum):
 	should_save = 9
 	override_cam = 10
 	is_iterative = 11
+	# str
 	output_path = 12
 	asset_path = 13
 	output_name = 14
@@ -39,15 +41,23 @@ class _cr_rparam(IntEnum):
 
 c_ray.cr_renderer_set_num_pref.restype = ct.c_bool
 c_ray.cr_renderer_set_num_pref.argtypes = [ct.POINTER(cr_renderer), ct.c_int, ct.c_uint64]
+def _r_set_num(ptr, param, value):
+	return c_ray.cr_renderer_set_num_pref(ptr, param, value)
 
 c_ray.cr_renderer_get_num_pref.restype = ct.c_uint64
 c_ray.cr_renderer_get_num_pref.argtypes = [ct.POINTER(cr_renderer), ct.c_int]
-
-def _r_set_num(ptr, param, value):
-    c_ray.cr_renderer_set_num_pref(ptr, param, value)
-
 def _r_get_num(ptr, param):
-    return c_ray.cr_renderer_get_num_pref(ptr, param)
+	return c_ray.cr_renderer_get_num_pref(ptr, param)
+
+c_ray.cr_renderer_set_str_pref.restype = ct.c_bool
+c_ray.cr_renderer_set_str_pref.argtypes = [ct.POINTER(cr_renderer), ct.c_int, ct.c_char_p]
+def _r_set_str(ptr, param, value):
+	return c_ray.cr_renderer_set_str_pref(ptr, param, value.encode())
+
+c_ray.cr_renderer_get_str_pref.restype = ct.c_char_p
+c_ray.cr_renderer_get_str_pref.argtypes = [ct.POINTER(cr_renderer), ct.c_int]
+def _r_get_str(ptr, param):
+	return c_ray.cr_renderer_get_str_pref(ptr, param).decode()
 
 class _pref:
     def __init__(self, r_ptr):
@@ -125,35 +135,35 @@ class _pref:
         _r_set_num(self.r_ptr, _cr_rparam.is_iterative, value)
     is_iterative = property(_get_is_iterative, _set_is_iterative, None, "")
 
-    def _get_threads(self):
-        return _r_get_num(self.r_ptr, _cr_rparam.threads)
-    def _set_threads(self, value):
-        _r_set_num(self.r_ptr, _cr_rparam.threads, value)
-    threads = property(_get_threads, _set_threads, None, "")
+    def _get_output_path(self):
+        return _r_get_str(self.r_ptr, _cr_rparam.output_path)
+    def _set_output_path(self, value):
+        _r_set_str(self.r_ptr, _cr_rparam.output_path, value)
+    output_path = property(_get_output_path, _set_output_path, None, "")
 
-    def _get_threads(self):
-        return _r_get_num(self.r_ptr, _cr_rparam.threads)
-    def _set_threads(self, value):
-        _r_set_num(self.r_ptr, _cr_rparam.threads, value)
-    threads = property(_get_threads, _set_threads, None, "")
+    def _get_asset_path(self):
+        return _r_get_str(self.r_ptr, _cr_rparam.asset_path)
+    def _set_asset_path(self, value):
+        _r_set_str(self.r_ptr, _cr_rparam.asset_path, value)
+    asset_path = property(_get_asset_path, _set_asset_path, None, "")
 
-    def _get_threads(self):
-        return _r_get_num(self.r_ptr, _cr_rparam.threads)
-    def _set_threads(self, value):
-        _r_set_num(self.r_ptr, _cr_rparam.threads, value)
-    threads = property(_get_threads, _set_threads, None, "")
+    def _get_output_name(self):
+        return _r_get_str(self.r_ptr, _cr_rparam.output_name)
+    def _set_output_name(self, value):
+        _r_set_str(self.r_ptr, _cr_rparam.output_name, value)
+    output_name = property(_get_output_name, _set_output_name, None, "")
 
-    def _get_threads(self):
-        return _r_get_num(self.r_ptr, _cr_rparam.threads)
-    def _set_threads(self, value):
-        _r_set_num(self.r_ptr, _cr_rparam.threads, value)
-    threads = property(_get_threads, _set_threads, None, "")
+    def _get_output_filetype(self):
+        return _r_get_str(self.r_ptr, _cr_rparam.output_filetype)
+    def _set_output_filetype(self, value):
+        _r_set_str(self.r_ptr, _cr_rparam.output_filetype, value)
+    output_filetype = property(_get_output_filetype, _set_output_filetype, None, "")
 
-    def _get_threads(self):
-        return _r_get_num(self.r_ptr, _cr_rparam.threads)
-    def _set_threads(self, value):
-        _r_set_num(self.r_ptr, _cr_rparam.threads, value)
-    threads = property(_get_threads, _set_threads, None, "")
+    def _get_node_list(self):
+        return _r_get_str(self.r_ptr, _cr_rparam.node_list)
+    def _set_node_list(self, value):
+        _r_set_str(self.r_ptr, _cr_rparam.node_list, value)
+    node_list = property(_get_node_list, _set_node_list, None, "")
 
 class Renderer:
     def __init__(self):
@@ -180,7 +190,7 @@ class Renderer:
         self.close()
 
 if __name__ == "__main__":
-    print("libc-ray version {} ({})".format(cr_get_version().decode(), cr_get_git_hash().decode()))
+    print("libc-ray version {} ({})".format(cr_get_version(), cr_get_git_hash()))
     with Renderer() as r:
         print("Initial value {}".format(r.prefs.threads))
         r.prefs.threads = 42
@@ -190,3 +200,4 @@ if __name__ == "__main__":
         r.prefs.threads = 1234
         print("Got value {}".format(r.prefs.threads))
         r.prefs.asdf = 1234
+        print("Default filename: {}".format(r.prefs.output_name))
