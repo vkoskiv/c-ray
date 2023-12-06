@@ -5,6 +5,8 @@
 *.bmp
 bin/*
 lib/*
+wrappers/*.so
+wrappers/*.o
 output/*
 *.vcxproj
 *.vcxproj.filters
