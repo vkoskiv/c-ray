@@ -2,15 +2,7 @@ import ctypes as ct
 from contextlib import contextmanager
 from enum import IntEnum
 
-c_ray = ct.CDLL("lib/libc-ray.so")
-
-c_ray.cr_get_version.restype = ct.c_char_p
-def cr_get_version():
-	return c_ray.cr_get_version().decode()
-
-c_ray.cr_get_git_hash.restype = ct.c_char_p
-def cr_get_git_hash():
-	return c_ray.cr_get_git_hash().decode()
+from . import cray_wrap as _lib
 
 class cr_renderer(ct.Structure):
 	pass
@@ -30,13 +22,6 @@ class cr_bitmap(ct.Structure):
 		("width", ct.c_size_t),
 		("height", ct.c_size_t),
 	]
-
-c_ray.cr_renderer_render.restype = ct.POINTER(cr_bitmap)
-c_ray.cr_renderer_render.argtypes = [ct.POINTER(cr_renderer)]
-c_ray.cr_bitmap_free.argtypes = [ct.POINTER(cr_bitmap)]
-
-c_ray.cr_new_renderer.restype = ct.POINTER(cr_renderer)
-c_ray.cr_destroy_renderer.argtypes = [ct.POINTER(cr_renderer)]
 
 class _cr_rparam(IntEnum):
 	# int
@@ -59,25 +44,17 @@ class _cr_rparam(IntEnum):
 	output_filetype = 15
 	node_list = 16
 
-c_ray.cr_renderer_set_num_pref.restype = ct.c_bool
-c_ray.cr_renderer_set_num_pref.argtypes = [ct.POINTER(cr_renderer), ct.c_int, ct.c_uint64]
 def _r_set_num(ptr, param, value):
-	return c_ray.cr_renderer_set_num_pref(ptr, param, value)
+	return _lib.renderer_set_num_pref(ptr, param, value)
 
-c_ray.cr_renderer_get_num_pref.restype = ct.c_uint64
-c_ray.cr_renderer_get_num_pref.argtypes = [ct.POINTER(cr_renderer), ct.c_int]
 def _r_get_num(ptr, param):
-	return c_ray.cr_renderer_get_num_pref(ptr, param)
+	return _lib.renderer_get_num_pref(ptr, param)
 
-c_ray.cr_renderer_set_str_pref.restype = ct.c_bool
-c_ray.cr_renderer_set_str_pref.argtypes = [ct.POINTER(cr_renderer), ct.c_int, ct.c_char_p]
 def _r_set_str(ptr, param, value):
-	return c_ray.cr_renderer_set_str_pref(ptr, param, value.encode())
+	return _lib.renderer_set_str_pref(ptr, param, value)
 
-c_ray.cr_renderer_get_str_pref.restype = ct.c_char_p
-c_ray.cr_renderer_get_str_pref.argtypes = [ct.POINTER(cr_renderer), ct.c_int]
 def _r_get_str(ptr, param):
-	return c_ray.cr_renderer_get_str_pref(ptr, param).decode()
+	return _lib.renderer_get_str_pref(ptr, param)
 
 class _pref:
 	def __init__(self, r_ptr):
@@ -185,14 +162,23 @@ class _pref:
 		_r_set_str(self.r_ptr, _cr_rparam.node_list, value)
 	node_list = property(_get_node_list, _set_node_list, None, "")
 
+class _version:
+	def _get_semantic(self):
+		return _lib.get_version()
+	semantic = property(_get_semantic, None, None, "")
+	def _get_hash(self):
+		return _lib.get_git_hash()
+	githash = property(_get_hash, None, None, "")
+
+version = _version()
+
 class renderer:
 	def __init__(self):
-		self.obj_ptr = c_ray.cr_new_renderer()
+		self.obj_ptr = _lib.new_renderer()
 		self.prefs = _pref(self.obj_ptr)
 
 	def close(self):
-		c_ray.cr_destroy_renderer(self.obj_ptr)
-
+		del(self.obj_ptr)
 
 	@classmethod
 	def from_param(cls, param):

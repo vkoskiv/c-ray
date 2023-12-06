@@ -585,7 +585,7 @@ static PyMethodDef cray_methods[] = {
 	{ NULL, NULL, 0, NULL }
 };
 
-static struct PyModuleDef cray = {
+static struct PyModuleDef cray_wrap = {
 	PyModuleDef_HEAD_INIT,
 	"cray",
 	NULL,
@@ -593,6 +593,6 @@ static struct PyModuleDef cray = {
 	cray_methods
 };
 
-PyMODINIT_FUNC PyInit_cray(void) {
-	return PyModule_Create(&cray);
+PyMODINIT_FUNC PyInit_cray_wrap(void) {
+	return PyModule_Create(&cray_wrap);
 }
