@@ -173,25 +173,99 @@ class _version:
 version = _version()
 
 class mesh:
-	def __init__(self, scene_ptr, mesh_idx):
+	def __init__(self, scene_ptr, name):
 		self.scene_ptr = scene_ptr
-		self.mesh_idx = mesh_idx
+		self.name = name
+		self.mesh_idx = _lib.scene_mesh_new(self.scene_ptr, self.name)
 
+	def bind_vertex_buf(self, buf):
+		_lib.mesh_bind_vertex_buf(self.scene_ptr, self.mesh_idx, buf)
 	def bind_faces(self, faces, face_count):
 		_lib.mesh_bind_faces(self.scene_ptr, self.mesh_idx, faces, face_count)
 
+class sphere:
+	def __init__(self, scene_ptr, radius):
+		self.scene_ptr = scene_ptr
+		self.radius = radius
+		self.sphere_idx = _lib.scene_add_sphere(self.scene_ptr, self.radius)
+
+class cam_param(IntEnum):
+	fov = 0
+	focus_distance = 1
+	fstops = 2
+	pose_x = 3
+	pose_y = 4
+	pose_z = 5
+	pose_roll = 6
+	pose_pitch = 7
+	pose_yaw = 8
+	time = 9
+	res_x = 10
+	res_y = 11
+
+class camera:
+	def __init__(self, scene_ptr):
+		self.scene_ptr = scene_ptr
+		self.camera_idx = _lib.camera_new(self.scene_ptr)
+
+	def set_param(self, param, value):
+		ret =  _lib.camera_set_num_pref(self.scene_ptr, self.camera_idx, param, value)
+		# Weird. Could just do this internally, no?
+		_lib.camera_update(self.scene_ptr, self.camera_idx)
+
+class material_set:
+	def __init__(self, scene_ptr):
+		self.scene_ptr = scene_ptr
+		self.materials = []
+		self.ms_idx = _lib.scene_new_material_set(self.scene_ptr)
+
+	def add(self, material):
+		self.materials.append(material)
+		_lib.material_set_add(self.scene_ptr, self.ms_idx, material)
+
+def inst_type(IntEnum):
+	mesh = 0
+	sphere = 1
+
+class instance:
+	def __init__(self, scene_ptr, object_idx, type):
+		self.scene_ptr = scene_ptr
+		self.object_idx = object_idx
+		self.type = type
+		self.inst_idx = _lib.instance_new(self.scene_ptr, self.object_idx, self.type)
+
+	def set_transform(self, matrix):
+		self.matrix = matrix
+		_lib.instance_set_transform(self.scene_ptr, self.inst_idx, self.matrix)
+
+	def transform(self, matrix):
+		# TODO: Figure out matmul in python
+		# self.matrix = self.matrix * matrix
+		_lib.instance_set_transform(self.scene_ptr, self.inst_idx, self.matrix)
+
+	def bind_materials(self, material_set):
+		_lib.instance_bind_material_set(self.scene_ptr, self.inst_idx, material_set.ms_idx)
+
 class scene:
-	def __init__(self, s_ptr):
-		self.obj_ptr = s_ptr
+	def __init__(self, scene_ptr):
+		self.s_ptr = scene_ptr
 	def close(self):
-		del(self.obj_ptr)
+		del(self.s_ptr)
 
 	def totals():
-		return _lib.scene_totals(self.obj_ptr)
+		return _lib.scene_totals(self.s_ptr)
 	def mesh_new(self, name):
-		self.name = name
-		return mesh(self.obj_ptr, _lib.scene_mesh_new(self.obj_ptr, self.name))
-
+		return mesh(self.s_ptr, name)
+	def sphere_new(self, radius):
+		return sphere(self.s_ptr, radius)
+	def camera_new(self):
+		return camera(self.s_ptr)
+	def material_set_new(self):
+		return material_set(self.s_ptr)
+	def instance_new(self):
+		return instance(self.s_ptr)
+	def set_background(self, material):
+		return _lib.scene_set_background(self.s_ptr, material)
 
 class renderer:
 	def __init__(self):
@@ -200,6 +274,18 @@ class renderer:
 
 	def close(self):
 		del(self.obj_ptr)
+
+	def set_callbacks(self, on_start, on_stop, on_status, on_state_changed, user_data):
+		_lib.renderer_set_callbacks(self.obj_ptr, on_start, on_stop, on_status, on_state_changed, user_data)
+
+	def stop(should_save):
+		_lib.renderer_stop(self.obj_ptr, should_save)
+
+	def toggle_pause():
+		_lib.renderer_toggle_pause(self.obj_ptr)
+
+	def render():
+		return _lib.renderer_render(self.obj_ptr)
 
 	def scene_get(self):
 		return scene(_lib.renderer_scene_get(self.obj_ptr))
@@ -218,3 +304,9 @@ class renderer:
 		return self
 	def __exit__(self, exc_type, exc_value, traceback):
 		self.close()
+
+def start_render_worker(port, thread_limit):
+	_lib.start_render_worker(port, thread_limit)
+
+def send_shutdown_to_workers(node_list):
+	_lib.send_shutdown_to_workers(node_list)

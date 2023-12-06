@@ -123,7 +123,7 @@ static PyObject *py_cr_renderer_toggle_pause(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
 	PyObject *r_ext;
 
-	if (!PyArg_ParseTuple(args, "Op", &r_ext)) {
+	if (!PyArg_ParseTuple(args, "O", &r_ext)) {
 		return NULL;
 	}
 	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
@@ -524,9 +524,9 @@ static PyObject *py_cr_scene_set_background(PyObject *self, PyObject *args) {
 
 static PyObject *py_cr_start_render_worker(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
-	int port;
-	size_t thread_limit;
-	if (!PyArg_ParseTuple(args, "in", &port, &thread_limit)) {
+	int port = 2222;
+	size_t thread_limit = 0;
+	if (!PyArg_ParseTuple(args, "|in", &port, &thread_limit)) {
 		return NULL;
 	}
 	Py_BEGIN_ALLOW_THREADS
