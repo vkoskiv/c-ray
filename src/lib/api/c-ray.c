@@ -483,6 +483,7 @@ struct cr_value_node *value_deepcopy(const struct cr_value_node *in) {
 			out->arg.fresnel.normal = vector_deepcopy(in->arg.fresnel.normal);
 			break;
 		case cr_vn_map_range:
+			out->arg.map_range.input_value = value_deepcopy(in->arg.map_range.input_value);
 			out->arg.map_range.from_max = value_deepcopy(in->arg.map_range.from_max);
 			out->arg.map_range.from_min = value_deepcopy(in->arg.map_range.from_min);
 			out->arg.map_range.to_max = value_deepcopy(in->arg.map_range.to_max);
