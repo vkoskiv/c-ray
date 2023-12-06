@@ -172,6 +172,27 @@ class _version:
 
 version = _version()
 
+class mesh:
+	def __init__(self, scene_ptr, mesh_idx):
+		self.scene_ptr = scene_ptr
+		self.mesh_idx = mesh_idx
+
+	def bind_faces(self, faces, face_count):
+		_lib.mesh_bind_faces(self.scene_ptr, self.mesh_idx, faces, face_count)
+
+class scene:
+	def __init__(self, s_ptr):
+		self.obj_ptr = s_ptr
+	def close(self):
+		del(self.obj_ptr)
+
+	def totals():
+		return _lib.scene_totals(self.obj_ptr)
+	def mesh_new(self, name):
+		self.name = name
+		return mesh(self.obj_ptr, _lib.scene_mesh_new(self.obj_ptr, self.name))
+
+
 class renderer:
 	def __init__(self):
 		self.obj_ptr = _lib.new_renderer()
@@ -179,6 +200,9 @@ class renderer:
 
 	def close(self):
 		del(self.obj_ptr)
+
+	def scene_get(self):
+		return scene(_lib.renderer_scene_get(self.obj_ptr))
 
 	@classmethod
 	def from_param(cls, param):
