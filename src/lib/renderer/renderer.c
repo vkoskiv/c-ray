@@ -75,7 +75,6 @@ void update_cb_info(struct renderer *r, struct tile_set *set, struct cr_renderer
 	static uint64_t ctr = 1;
 	static uint64_t avg_per_sample_us = 0;
 	static uint64_t avg_tile_pass_us = 0;
-	i->user_data = r->state.cb.user_data;
 	// Notice: Casting away const here
 	memcpy((struct cr_tile *)i->tiles, set->tiles.items, sizeof(*i->tiles) * i->tiles_count);
 	if (!r->state.workers.count) return;
@@ -181,12 +180,14 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	struct cr_tile *info_tiles = calloc(set.tiles.count, sizeof(*info_tiles));
 	struct cr_renderer_cb_info cb_info = {
 		.tiles = info_tiles,
-		.tiles_count = set.tiles.count
+		.tiles_count = set.tiles.count,
+		.fb = (struct cr_bitmap *)output
 	};
-	cb_info.fb = (struct cr_bitmap *)output;
-	if (r->state.cb.cr_renderer_on_start) {
+	
+	struct callback start = r->state.callbacks[cr_cb_on_start];
+	if (start.fn) {
 		update_cb_info(r, &set, &cb_info);
-		r->state.cb.cr_renderer_on_start(&cb_info);
+		start.fn(&cb_info, start.user_data);
 	}
 
 	logr(info, "Pathtracing%s...\n", r->prefs.iterative ? " iteratively" : "");
@@ -245,9 +246,10 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 			r->state.render_aborted = true;
 		}
 		
-		if (r->state.cb.cr_renderer_status) {
+		struct callback status = r->state.callbacks[cr_cb_status_update];
+		if (status.fn) {
 			update_cb_info(r, &set, &cb_info);
-			r->state.cb.cr_renderer_status(&cb_info);
+			status.fn(&cb_info, status.user_data);
 		}
 
 		size_t inactive = 0;
@@ -263,9 +265,10 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	for (size_t w = 0; w < r->state.workers.count; ++w) {
 		thread_wait(&r->state.workers.items[w].thread);
 	}
-	if (r->state.cb.cr_renderer_on_stop) {
+	struct callback stop = r->state.callbacks[cr_cb_on_stop];
+	if (stop.fn) {
 		update_cb_info(r, &set, &cb_info);
-		r->state.cb.cr_renderer_on_stop(&cb_info);
+		stop.fn(&cb_info, stop.user_data);
 	}
 	if (info_tiles) free(info_tiles);
 	destroyTexture(render_buf);

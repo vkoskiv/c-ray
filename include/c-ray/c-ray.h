@@ -86,7 +86,6 @@ struct cr_tile {
 };
 
 struct cr_renderer_cb_info {
-	void *user_data;
 	const struct cr_bitmap *fb;
 	const struct cr_tile *tiles;
 	size_t tiles_count;
@@ -99,17 +98,20 @@ struct cr_renderer_cb_info {
 	bool paused;
 };
 
-struct cr_renderer_callbacks {
-	void (*cr_renderer_on_start)(struct cr_renderer_cb_info *info);
-	void (*cr_renderer_on_stop)(struct cr_renderer_cb_info *info);
-	void (*cr_renderer_status)(struct cr_renderer_cb_info *info);
-	void (*cr_renderer_on_state_changed)(struct cr_renderer_cb_info *info);
-	void *user_data;
+enum cr_renderer_callback {
+	cr_cb_on_start = 0,
+	cr_cb_on_stop,
+	cr_cb_status_update,
+	cr_cb_on_state_changed
 };
+
+CR_EXPORT bool cr_renderer_set_callback(struct cr_renderer *ext,
+                                        enum cr_renderer_callback t,
+                                        void (*callback_fn)(struct cr_renderer_cb_info *, void *),
+                                        void *user_data);
 
 CR_EXPORT bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p, uint64_t num);
 CR_EXPORT bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p, const char *str);
-CR_EXPORT bool cr_renderer_set_callbacks(struct cr_renderer *ext, struct cr_renderer_callbacks cb);
 CR_EXPORT void cr_renderer_stop(struct cr_renderer *ext, bool should_save);
 CR_EXPORT void cr_renderer_toggle_pause(struct cr_renderer *ext);
 CR_EXPORT const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_param p);

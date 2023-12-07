@@ -267,6 +267,21 @@ class scene:
 	def set_background(self, material):
 		return _lib.scene_set_background(self.s_ptr, material)
 
+class cr_cb_info(ct.Structure):
+	_fields_ = [
+		("fb", ct.POINTER(cr_bitmap)),
+		("tiles", ct.POINTER(ct.c_void_p)), # TODO
+		("tiles_count", ct.c_size_t),
+		("active_threads", ct.c_size_t),
+		("avg_per_ray_us", ct.c_double),
+		("samples_per_sec", ct.c_int64),
+		("eta_ms", ct.c_int64),
+		("completion", ct.c_double),
+		("paused", ct.c_bool),
+	]
+
+cr_cb_func = ct.CFUNCTYPE(ct.c_void_p, ct.POINTER(cr_cb_info), ct.POINTER(ct.c_void_p))
+
 class renderer:
 	def __init__(self, path = None):
 		self.obj_ptr = _lib.new_renderer()
@@ -277,8 +292,10 @@ class renderer:
 	def close(self):
 		del(self.obj_ptr)
 
-	def set_callbacks(self, on_start, on_stop, on_status, on_state_changed, user_data):
-		_lib.renderer_set_callbacks(self.obj_ptr, on_start, on_stop, on_status, on_state_changed, user_data)
+	def set_callback(self, type, callback_fn, user_data):
+		if not callable(callback_fn):
+			raise TypeError("callback_fn not callable")
+		_lib.renderer_set_callback(self.obj_ptr, type, cr_cb_func(callback_fn), user_data)
 
 	def stop(should_save):
 		_lib.renderer_stop(self.obj_ptr, should_save)

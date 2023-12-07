@@ -53,6 +53,18 @@ struct cr_renderer *cr_new_renderer() {
 	return (struct cr_renderer *)renderer_new();
 }
 
+bool cr_renderer_set_callback(struct cr_renderer *ext,
+							enum cr_renderer_callback t,
+							void (*callback_fn)(struct cr_renderer_cb_info *, void *),
+							void *user_data) {
+	if (!ext) return false;
+	if (t > cr_cb_on_state_changed) return false;
+	struct renderer *r = (struct renderer *)ext;
+	r->state.callbacks[t].fn = callback_fn;
+	r->state.callbacks[t].user_data = user_data;
+	return true;
+}
+
 bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p, uint64_t num) {
 	if (!ext) return false;
 	struct renderer *r = (struct renderer *)ext;
@@ -147,13 +159,6 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 		default: return false;
 	}
 	return false;
-}
-
-bool cr_renderer_set_callbacks(struct cr_renderer *ext, struct cr_renderer_callbacks cb) {
-	if (!ext) return false;
-	struct renderer *r = (struct renderer *)ext;
-	r->state.cb = cb;
-	return true;
 }
 
 void cr_renderer_stop(struct cr_renderer *ext, bool should_save) {

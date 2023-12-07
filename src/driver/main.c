@@ -26,19 +26,20 @@ struct usr_data {
 	struct sdl_prefs p;
 };
 
-static void on_start(struct cr_renderer_cb_info *info) {
-	struct usr_data *d = info->user_data;
+static void on_start(struct cr_renderer_cb_info *info, void *user_data) {
+	struct usr_data *d = user_data;
 	if (d->p.enabled && info->fb) d->w = win_try_init(&d->p, info->fb->width, info->fb->height);
 }
 
-static void on_stop(struct cr_renderer_cb_info *info) {
-	struct usr_data *d = info->user_data;
+static void on_stop(struct cr_renderer_cb_info *info, void *user_data) {
+	(void)info;
+	struct usr_data *d = user_data;
 	if (d->w) win_destroy(d->w);
 }
 
-static void status(struct cr_renderer_cb_info *state) {
+static void status(struct cr_renderer_cb_info *state, void *user_data) {
 	static int pauser = 0;
-	struct usr_data *d = state->user_data;
+	struct usr_data *d = user_data;
 	if (!d) return;
 	struct input_state in = win_update(d->w, state->tiles, state->tiles_count, (struct texture *)state->fb);
 	if (in.stop_render) cr_renderer_stop(d->r, in.should_save);
@@ -178,15 +179,13 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	
-	cr_renderer_set_callbacks(renderer, (struct cr_renderer_callbacks){
-		.cr_renderer_on_start = on_start,
-		.cr_renderer_on_stop = on_stop,
-		.cr_renderer_status = status,
-		.user_data = &(struct usr_data){
-			.p = sdl_parse(cJSON_GetObjectItem(input_json, "display")),
-			.r = renderer
-		}
-	});
+	struct usr_data usrdata = (struct usr_data){
+		.p = sdl_parse(cJSON_GetObjectItem(input_json, "display")),
+		.r = renderer,
+	};
+	cr_renderer_set_callback(renderer, cr_cb_on_start, on_start, &usrdata);
+	cr_renderer_set_callback(renderer, cr_cb_on_stop, on_stop, &usrdata);
+	cr_renderer_set_callback(renderer, cr_cb_status_update, status, &usrdata);
 
 	const cJSON *r = cJSON_GetObjectItem(input_json, "renderer");
 	const cJSON *file_type = cJSON_GetObjectItem(r, "fileType");

@@ -36,6 +36,11 @@ struct worker {
 typedef struct worker worker;
 dyn_array_def(worker);
 
+struct callback {
+	void (*fn)(struct cr_renderer_cb_info *, void *);
+	void *user_data;
+};
+
 /// Renderer state data
 struct state {
 	size_t finishedPasses; // For interactive mode
@@ -44,7 +49,7 @@ struct state {
 	bool saveImage;
 	struct worker_arr workers;
 	struct render_client_arr clients;
-	struct cr_renderer_callbacks cb;
+	struct callback callbacks[4];
 };
 
 /// Preferences data (Set by user)

@@ -67,42 +67,27 @@ static PyObject *py_cr_renderer_set_str_pref(PyObject *self, PyObject *args) {
 	return PyBool_FromLong(ret);
 }
 
-static PyObject *py_cr_renderer_set_callbacks(PyObject *self, PyObject *args) {
+static PyObject *py_cr_renderer_set_callback(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
 	PyObject *r_ext;
-	PyObject *cb_on_start;
-	PyObject *cb_on_stop;
-	PyObject *cb_status;
-	PyObject *cb_on_state_changed;
+	enum cr_renderer_callback callback_type;
+	PyObject *callback_fn;
 	void *user_data = NULL;
 
-	if (!PyArg_ParseTuple(args, "OOOOO|p", &r_ext, &cb_on_start, &cb_on_stop, &cb_status, &cb_on_state_changed, &user_data)) {
+	if (!PyArg_ParseTuple(args, "OIO|p", &r_ext, &callback_type, &callback_fn, &user_data)) {
+		return NULL;
+	}
+	if (callback_type > cr_cb_status_update) {
+		PyErr_SetString(PyExc_ValueError, "Unknown callback type");
 		return NULL;
 	}
 	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
-	if (!PyCallable_Check(cb_on_start)) {
-		PyErr_SetString(PyExc_ValueError, "on_start must be callable");
+	if (!PyCallable_Check(callback_fn)) {
+		PyErr_SetString(PyExc_ValueError, "callback must be callable");
 		return NULL;
 	}
-	if (!PyCallable_Check(cb_on_stop)) {
-		PyErr_SetString(PyExc_ValueError, "on_stop must be callable");
-		return NULL;
-	}
-	if (!PyCallable_Check(cb_status)) {
-		PyErr_SetString(PyExc_ValueError, "status must be callable");
-		return NULL;
-	}
-	if (!PyCallable_Check(cb_on_state_changed)) {
-		PyErr_SetString(PyExc_ValueError, "on_state_changed must be callable");
-		return NULL;
-	}
-	bool ret = cr_renderer_set_callbacks(r, (struct cr_renderer_callbacks){
-		.cr_renderer_on_start = PyCapsule_GetPointer(cb_on_start, NULL),
-		.cr_renderer_on_stop = PyCapsule_GetPointer(cb_on_stop, NULL),
-		.cr_renderer_status = PyCapsule_GetPointer(cb_status, NULL),
-		.cr_renderer_on_state_changed = PyCapsule_GetPointer(cb_on_state_changed, NULL),
-		.user_data = user_data
-	});
+
+	bool ret = cr_renderer_set_callback(r, callback_type, PyCapsule_GetPointer(callback_fn, NULL), user_data);
 	return PyBool_FromLong(ret);
 }
 
@@ -566,7 +551,7 @@ static PyMethodDef cray_methods[] = {
 	// { "destroy_renderer", py_cr_destroy_renderer, METH_VARARGS, "" },
 	{ "renderer_set_num_pref", py_cr_renderer_set_num_pref, METH_VARARGS, "" },
 	{ "renderer_set_str_pref", py_cr_renderer_set_str_pref, METH_VARARGS, "" },
-	{ "renderer_set_callbacks", py_cr_renderer_set_callbacks, METH_VARARGS, "" },
+	{ "renderer_set_callback", py_cr_renderer_set_callback, METH_VARARGS, "" },
 	{ "renderer_stop", py_cr_renderer_stop, METH_VARARGS, "" },
 	{ "renderer_toggle_pause", py_cr_renderer_toggle_pause, METH_VARARGS, "" },
 	{ "renderer_get_str_pref", py_cr_renderer_get_str_pref, METH_VARARGS, "" },
