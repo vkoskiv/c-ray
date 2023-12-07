@@ -26,6 +26,7 @@
 #include "../../common/hashtable.h"
 #include "../datatypes/camera.h"
 #include "../../common/loaders/textureloader.h"
+#include "../../common/json_loader.h"
 #include "../protocol/protocol.h"
 
 #ifdef CRAY_DEBUG_ENABLED
@@ -671,4 +672,18 @@ void cr_start_render_worker(int port, size_t thread_limit) {
 
 void cr_send_shutdown_to_workers(const char *node_list) {
 	clients_shutdown(node_list);
+}
+
+bool cr_load_json(struct cr_renderer *r_ext, const char *file_path) {
+	if (!r_ext || !file_path) return false;
+	file_data input_bytes = file_load(file_path);
+	if (!input_bytes.count) return false;
+	char *asset_path = get_file_path(file_path);
+	cr_renderer_set_str_pref(r_ext, cr_renderer_asset_path, asset_path);
+	free(asset_path);
+	cJSON *input = cJSON_ParseWithLength((const char *)input_bytes.items, input_bytes.count);
+	if (parse_json(r_ext, input) < 0) {
+		return false;
+	}
+	return true;
 }

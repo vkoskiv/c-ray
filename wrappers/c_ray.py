@@ -252,7 +252,7 @@ class scene:
 	def close(self):
 		del(self.s_ptr)
 
-	def totals():
+	def totals(self):
 		return _lib.scene_totals(self.s_ptr)
 	def mesh_new(self, name):
 		return mesh(self.s_ptr, name)
@@ -268,9 +268,11 @@ class scene:
 		return _lib.scene_set_background(self.s_ptr, material)
 
 class renderer:
-	def __init__(self):
+	def __init__(self, path = None):
 		self.obj_ptr = _lib.new_renderer()
 		self.prefs = _pref(self.obj_ptr)
+		if path != None:
+			_lib.load_json(self.obj_ptr, path)
 
 	def close(self):
 		del(self.obj_ptr)
@@ -284,7 +286,7 @@ class renderer:
 	def toggle_pause():
 		_lib.renderer_toggle_pause(self.obj_ptr)
 
-	def render():
+	def render(self):
 		return _lib.renderer_render(self.obj_ptr)
 
 	def scene_get(self):

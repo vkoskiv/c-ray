@@ -547,6 +547,17 @@ static PyObject *py_cr_send_shutdown_to_workers(PyObject *self, PyObject *args) 
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_cr_load_json(PyObject *self, PyObject *args) {
+	(void)self;
+	PyObject *r_ext;
+	char *path = NULL;
+	if (!PyArg_ParseTuple(args, "Os", &r_ext, &path)) {
+		return NULL;
+	}
+	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
+	bool ret = cr_load_json(r, path);
+	return PyBool_FromLong(ret);
+}
 
 static PyMethodDef cray_methods[] = {
 	{ "get_version", py_cr_get_version, METH_NOARGS, "" },
@@ -582,6 +593,7 @@ static PyMethodDef cray_methods[] = {
 	{ "scene_set_background", py_cr_scene_set_background, METH_VARARGS, "" },
 	{ "start_render_worker", py_cr_start_render_worker, METH_VARARGS, "" },
 	{ "send_shutdown_to_workers", py_cr_send_shutdown_to_workers, METH_VARARGS, "" },
+	{ "load_json", py_cr_load_json, METH_VARARGS, "" },
 	{ NULL, NULL, 0, NULL }
 };
 

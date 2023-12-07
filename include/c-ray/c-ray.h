@@ -247,6 +247,7 @@ CR_EXPORT bool cr_instance_bind_material_set(struct cr_scene *s_ext, cr_instance
 CR_EXPORT bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_shader_node *desc);
 CR_EXPORT void cr_start_render_worker(int port, size_t thread_limit);
 CR_EXPORT void cr_send_shutdown_to_workers(const char *node_list);
+CR_EXPORT bool cr_load_json(struct cr_renderer *r_ext, const char *file_path);
 
 #ifdef __cplusplus
 }
