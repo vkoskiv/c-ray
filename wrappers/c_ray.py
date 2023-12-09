@@ -172,6 +172,17 @@ class _version:
 
 version = _version()
 
+threeint = ct.c_int * 3
+
+class cr_face(ct.Structure):
+	_fields_ = [
+		("vertex_idx", threeint),
+		("normal_idx", threeint),
+		("texture_idx", threeint),
+		("mat_idx", ct.c_uint, 16),
+		("has_normals", ct.c_bool, 1)
+	]
+
 class mesh:
 	def __init__(self, scene_ptr, name):
 		self.scene_ptr = scene_ptr
@@ -262,8 +273,8 @@ class scene:
 		return camera(self.s_ptr)
 	def material_set_new(self):
 		return material_set(self.s_ptr)
-	def instance_new(self):
-		return instance(self.s_ptr)
+	def instance_new(self, object_idx, type):
+		return instance(self.s_ptr, object_idx, type)
 	def set_background(self, material):
 		return _lib.scene_set_background(self.s_ptr, material)
 
