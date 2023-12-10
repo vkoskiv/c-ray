@@ -238,6 +238,11 @@ def inst_type(IntEnum):
 	mesh = 0
 	sphere = 1
 
+class cr_matrix(ct.Structure):
+	_fields_ = [
+		("mtx", (ct.c_float * 16))
+	]
+
 class instance:
 	def __init__(self, scene_ptr, object, type):
 		self.scene_ptr = scene_ptr

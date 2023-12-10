@@ -20,6 +20,8 @@ from . import (
 	c_ray
 )
 
+import ctypes as ct
+
 from bpy.props import IntProperty
 from bpy.props import PointerProperty
 
@@ -62,6 +64,37 @@ def mesh_triangulate(mesh):
 	bm.to_mesh(mesh)
 	bm.free()
 
+def to_cr_matrix(matrix):
+	cr_mtx = c_ray.cr_matrix()
+	cr_mtx.mtx[0] = matrix[0][0]
+	cr_mtx.mtx[1] = matrix[0][1]
+	cr_mtx.mtx[2] = matrix[0][2]
+	cr_mtx.mtx[3] = matrix[0][3]
+	cr_mtx.mtx[4] = matrix[1][0]
+	cr_mtx.mtx[5] = matrix[1][1]
+	cr_mtx.mtx[6] = matrix[1][2]
+	cr_mtx.mtx[7] = matrix[1][3]
+	cr_mtx.mtx[8] = matrix[2][0]
+	cr_mtx.mtx[9] = matrix[2][1]
+	cr_mtx.mtx[10] = matrix[2][2]
+	cr_mtx.mtx[11] = matrix[2][3]
+	cr_mtx.mtx[12] = matrix[3][0]
+	cr_mtx.mtx[13] = matrix[3][1]
+	cr_mtx.mtx[14] = matrix[3][2]
+	cr_mtx.mtx[15] = matrix[3][3]
+	return cr_mtx
+
+def to_cr_face(me, poly):
+	cr_face = c_ray.cr_face()
+	indices = []
+	for loop_idx in range(poly.loop_start, poly.loop_start + poly.loop_total):
+		indices.append(me.loops[loop_idx].vertex_index)
+	face = c_ray.cr_face()
+	face.vertex_idx = (ct.c_int * len(indices))(*indices)
+	face.mat_idx = 0
+	face.has_normals = 0
+	return cr_face
+
 class CrayRender(bpy.types.RenderEngine):
 	bl_idname = "c-ray"
 	bl_label = "c-ray integration for Blender"
@@ -70,11 +103,13 @@ class CrayRender(bpy.types.RenderEngine):
 	def sync_scene(self, renderer, depsgraph, b_scene):
 		cr_scene = renderer.scene_get()
 		objects = b_scene.objects
-		for ob_main in enumerate(objects):
+		for idx, ob_main in enumerate(objects):
+			if ob_main.type != 'MESH':
+				continue
 			cr_mesh = cr_scene.mesh_new(ob_main.name)
 			instances = []
 			new_inst = cr_scene.instance_new(cr_mesh, 0)
-			new_inst.set_transform(ob_main.matrix_world)
+			new_inst.set_transform(to_cr_matrix(ob_main.matrix_world))
 			instances.append(new_inst)
 			if ob_main.is_instancer:
 				for dup in depsgraph.object_instances:
@@ -93,16 +128,10 @@ class CrayRender(bpy.types.RenderEngine):
 			me.calc_normals_split()
 			faces = []
 			for poly in me.polygons:
-				indices = []
-				for loop_idx in range(poly.loop_start, poly.loop_start + poly.loop_total):
-					indices.append(me.loops[loop_idx].vertex_index)
-				face = c_ray.cr_face()
-				face.vertex_idx = indices
-				face.mat_idx = 0
-				face.has_normals = 0
-				faces.append(face)
+				faces.append(to_cr_face(me, poly))
 			facebuf = (c_ray.cr_face * len(faces))(*faces)
 			cr_mesh.bind_faces(bytearray(facebuf), len(faces))
+		return cr_scene
 
 	def render(self, depsgraph):
 		b_scene = depsgraph.scene
@@ -112,7 +141,9 @@ class CrayRender(bpy.types.RenderEngine):
 
 		renderer = c_ray.renderer()
 		cr_scene = self.sync_scene(renderer, depsgraph, b_scene)
-		self.render_scene(scene)
+		print(cr_scene.totals())
+		del(renderer)
+		# self.render_scene(scene)
 
 	def test_render_scene(self, scene):
 		pixel_count = self.size_x * self.size_y
