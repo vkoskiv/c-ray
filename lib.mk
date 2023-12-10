@@ -12,7 +12,7 @@ OBJS_driver=$(patsubst %.c, $(OBJDIR_driver)/%.o, $(SRCS_driver))
 
 lib: $(BIN_lib)
 
-pylib: wrappers/cray_wrap.so
+pylib: bindings/cray_wrap.so
 
 $(OBJDIR_driver)/%.o: %.c $(OBJDIR_driver)
 	@mkdir -p '$(@D)'
@@ -32,6 +32,6 @@ $(LIB): $(OBJS_lib)
 $(BIN_lib): $(LIB) $(OBJS_driver) $(OBJDIR_driver)
 	@echo "LD $@"
 	@$(CC) $(CFLAGS) $(OBJS_driver) $(LIB) -o $@ $(LDFLAGS)
-wrappers/cray_wrap.so: $(OBJS_lib) wrappers/cray_wrap.c
+bindings/cray_wrap.so: $(OBJS_lib) bindings/cray_wrap.c
 	@echo "Building Python module"
-	@$(CC) -shared $(CFLAGS) -fPIC `pkg-config --cflags python3` wrappers/cray_wrap.c $(OBJS_lib) -o $@
+	@$(CC) -shared $(CFLAGS) -fPIC `pkg-config --cflags python3` bindings/cray_wrap.c $(OBJS_lib) -o $@
