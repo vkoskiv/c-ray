@@ -228,8 +228,9 @@ static PyObject *py_cr_scene_vertex_buf_new(PyObject *self, PyObject *args) {
 		PyErr_SetString(PyExc_MemoryError, "Failed to parse vec_view");
 		return NULL;
 	}
-	if ((vec_view.len / sizeof(struct cr_vector)) != vec_count) {
+	if (vec_count && (vec_view.len / sizeof(struct cr_vector)) != vec_count) {
 		printf("vec_count: %zu\n", vec_count);
+		printf("vec_view.len: %zu\n", vec_view.len);
 		PyErr_SetString(PyExc_MemoryError, "vec_view / sizeof(struct cr_vector) != vec_count");
 		return NULL;
 	}
@@ -239,8 +240,9 @@ static PyObject *py_cr_scene_vertex_buf_new(PyObject *self, PyObject *args) {
 		PyErr_SetString(PyExc_MemoryError, "Failed to parse nor_view");
 		return NULL;
 	}
-	if ((nor_view.len / sizeof(struct cr_vector)) != nor_count) {
+	if (nor_count && (nor_view.len / sizeof(struct cr_vector)) != nor_count) {
 		printf("nor_count: %zu\n", nor_count);
+		printf("nor_view.len: %zu\n", nor_view.len);
 		PyErr_SetString(PyExc_MemoryError, "nor_view / sizeof(struct cr_vector) != nor_count");
 		return NULL;
 	}
@@ -250,8 +252,9 @@ static PyObject *py_cr_scene_vertex_buf_new(PyObject *self, PyObject *args) {
 		PyErr_SetString(PyExc_MemoryError, "Failed to parse tex_view");
 		return NULL;
 	}
-	if ((tex_view.len / sizeof(struct cr_coord)) != tex_count) {
+	if (tex_count && (tex_view.len / sizeof(struct cr_coord)) != tex_count) {
 		printf("tex_count: %zu\n", tex_count);
+		printf("tex_view.len: %zu\n", tex_view.len);
 		PyErr_SetString(PyExc_MemoryError, "tex_view / sizeof(struct cr_coord) != tex_count");
 		return NULL;
 	}

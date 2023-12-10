@@ -190,7 +190,7 @@ class mesh:
 		self.cr_idx = _lib.scene_mesh_new(self.scene_ptr, self.name)
 
 	def bind_vertex_buf(self, buf):
-		_lib.mesh_bind_vertex_buf(self.scene_ptr, self.cr_idx, buf)
+		_lib.mesh_bind_vertex_buf(self.scene_ptr, self.cr_idx, buf.cr_idx)
 	def bind_faces(self, faces, face_count):
 		_lib.mesh_bind_faces(self.scene_ptr, self.cr_idx, faces, face_count)
 
@@ -262,6 +262,30 @@ class instance:
 	def bind_materials(self, material_set):
 		_lib.instance_bind_material_set(self.scene_ptr, self.cr_idx, material_set.ms_idx)
 
+class cr_vector(ct.Structure):
+	_fields_ = [
+		("x", ct.c_float),
+		("y", ct.c_float),
+		("z", ct.c_float),
+	]
+
+class cr_coord(ct.Structure):
+	_fields_ = [
+		("u", ct.c_float),
+		("v", ct.c_float)
+	]
+
+class vertex_buf:
+	def __init__(self, scene_ptr, v, vn, n, nn, t, tn):
+		self.cr_ptr = scene_ptr
+		self.v = v
+		self.vn = vn
+		self.n = n
+		self.nn = nn
+		self.t = t
+		self.tn = tn
+		self.cr_idx = _lib.scene_vertex_buf_new(self.cr_ptr, self.v, self.vn, self.n, self.nn, self.t, self.tn)
+
 class scene:
 	def __init__(self, scene_ptr):
 		self.cr_ptr = scene_ptr
@@ -282,6 +306,8 @@ class scene:
 		return instance(self.cr_ptr, object, type)
 	def set_background(self, material):
 		return _lib.scene_set_background(self.cr_ptr, material)
+	def vertex_buf_new(self, v, vn, n, nn, t, tn):
+		return vertex_buf(self.cr_ptr, v, vn, n, nn, t, tn)
 
 class cr_cb_info(ct.Structure):
 	_fields_ = [

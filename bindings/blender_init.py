@@ -95,6 +95,23 @@ def to_cr_face(me, poly):
 	face.has_normals = 0
 	return cr_face
 
+def cr_vertex_buf(scene, me):
+	verts = []
+	for v in me.vertices:
+		cr_vert = c_ray.cr_vector()
+		cr_vert.x = v.co[0]
+		cr_vert.y = v.co[1]
+		cr_vert.z = v.co[2]
+		verts.append(cr_vert)
+	normals = []
+	texcoords = []
+	vbuf = (c_ray.cr_vector * len(verts))(*verts)
+	nbuf = (c_ray.cr_vector * len(verts))(*normals)
+	tbuf = (c_ray.cr_coord  * len(verts))(*texcoords)
+	print(len(normals))
+	cr_vbuf = scene.vertex_buf_new(bytearray(vbuf), len(verts), bytearray(nbuf), len(normals), bytearray(tbuf), len(texcoords))
+	return cr_vbuf
+
 class CrayRender(bpy.types.RenderEngine):
 	bl_idname = "c-ray"
 	bl_label = "c-ray integration for Blender"
@@ -131,6 +148,7 @@ class CrayRender(bpy.types.RenderEngine):
 				faces.append(to_cr_face(me, poly))
 			facebuf = (c_ray.cr_face * len(faces))(*faces)
 			cr_mesh.bind_faces(bytearray(facebuf), len(faces))
+			cr_mesh.bind_vertex_buf(cr_vertex_buf(cr_scene, me))
 		return cr_scene
 
 	def render(self, depsgraph):
