@@ -26,9 +26,9 @@ $(OBJDIR_lib): dummy
 	mkdir -p $@
 $(OBJDIR_driver):
 	mkdir -p $@
-$(LIB): $(OBJS_lib) $(OBJDIR_lib)
+$(LIB): $(OBJS_lib)
 	@echo "LD -fPIC $@"
-	@$(CC) -DCR_BUILDING_LIB $(CFLAGS) -fvisibility=hidden $(OBJS_lib) -shared -fPIC -o $@
+	@$(CC) $(CFLAGS) $(OBJS_lib) -shared -o $@
 $(BIN_lib): $(LIB) $(OBJS_driver) $(OBJDIR_driver)
 	@echo "LD $@"
 	@$(CC) $(CFLAGS) $(OBJS_driver) $(LIB) -o $@ $(LDFLAGS)
