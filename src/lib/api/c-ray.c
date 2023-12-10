@@ -692,3 +692,9 @@ bool cr_load_json(struct cr_renderer *r_ext, const char *file_path) {
 	}
 	return true;
 }
+
+CR_EXPORT void cr_debug_dump_state(struct cr_renderer *r_ext) {
+	if (!r_ext) return;
+	struct renderer *r = (struct renderer *)r_ext;
+	dump_renderer_state(r);
+}

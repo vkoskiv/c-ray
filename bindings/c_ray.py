@@ -325,6 +325,9 @@ class renderer:
 	def scene_get(self):
 		return scene(_lib.renderer_scene_get(self.obj_ptr))
 
+	def debug_dump(self):
+		_lib.debug_dump_state(self.obj_ptr)
+
 	@classmethod
 	def from_param(cls, param):
 		if not isinstance(param, cls):

@@ -142,6 +142,7 @@ class CrayRender(bpy.types.RenderEngine):
 		renderer = c_ray.renderer()
 		cr_scene = self.sync_scene(renderer, depsgraph, b_scene)
 		print(cr_scene.totals())
+		renderer.debug_dump()
 		del(renderer)
 		# self.render_scene(scene)
 
