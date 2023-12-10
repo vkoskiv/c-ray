@@ -187,18 +187,18 @@ class mesh:
 	def __init__(self, scene_ptr, name):
 		self.scene_ptr = scene_ptr
 		self.name = name
-		self.mesh_idx = _lib.scene_mesh_new(self.scene_ptr, self.name)
+		self.cr_idx = _lib.scene_mesh_new(self.scene_ptr, self.name)
 
 	def bind_vertex_buf(self, buf):
-		_lib.mesh_bind_vertex_buf(self.scene_ptr, self.mesh_idx, buf)
+		_lib.mesh_bind_vertex_buf(self.scene_ptr, self.cr_idx, buf)
 	def bind_faces(self, faces, face_count):
-		_lib.mesh_bind_faces(self.scene_ptr, self.mesh_idx, faces, face_count)
+		_lib.mesh_bind_faces(self.scene_ptr, self.cr_idx, faces, face_count)
 
 class sphere:
 	def __init__(self, scene_ptr, radius):
 		self.scene_ptr = scene_ptr
 		self.radius = radius
-		self.sphere_idx = _lib.scene_add_sphere(self.scene_ptr, self.radius)
+		self.cr_idx = _lib.scene_add_sphere(self.scene_ptr, self.radius)
 
 class cam_param(IntEnum):
 	fov = 0
@@ -217,66 +217,66 @@ class cam_param(IntEnum):
 class camera:
 	def __init__(self, scene_ptr):
 		self.scene_ptr = scene_ptr
-		self.camera_idx = _lib.camera_new(self.scene_ptr)
+		self.cr_idx = _lib.camera_new(self.scene_ptr)
 
 	def set_param(self, param, value):
-		ret =  _lib.camera_set_num_pref(self.scene_ptr, self.camera_idx, param, value)
+		ret =  _lib.camera_set_num_pref(self.scene_ptr, self.cr_idx, param, value)
 		# Weird. Could just do this internally, no?
-		_lib.camera_update(self.scene_ptr, self.camera_idx)
+		_lib.camera_update(self.scene_ptr, self.cr_idx)
 
 class material_set:
 	def __init__(self, scene_ptr):
 		self.scene_ptr = scene_ptr
 		self.materials = []
-		self.ms_idx = _lib.scene_new_material_set(self.scene_ptr)
+		self.cr_idx = _lib.scene_new_material_set(self.scene_ptr)
 
 	def add(self, material):
 		self.materials.append(material)
-		_lib.material_set_add(self.scene_ptr, self.ms_idx, material)
+		_lib.material_set_add(self.scene_ptr, self.cr_idx, material)
 
 def inst_type(IntEnum):
 	mesh = 0
 	sphere = 1
 
 class instance:
-	def __init__(self, scene_ptr, object_idx, type):
+	def __init__(self, scene_ptr, object, type):
 		self.scene_ptr = scene_ptr
-		self.object_idx = object_idx
+		self.object = object
 		self.type = type
-		self.inst_idx = _lib.instance_new(self.scene_ptr, self.object_idx, self.type)
+		self.cr_idx = _lib.instance_new(self.scene_ptr, self.object.cr_idx, self.type)
 
 	def set_transform(self, matrix):
 		self.matrix = matrix
-		_lib.instance_set_transform(self.scene_ptr, self.inst_idx, self.matrix)
+		_lib.instance_set_transform(self.scene_ptr, self.cr_idx, self.matrix)
 
 	def transform(self, matrix):
 		# TODO: Figure out matmul in python
 		# self.matrix = self.matrix * matrix
-		_lib.instance_set_transform(self.scene_ptr, self.inst_idx, self.matrix)
+		_lib.instance_set_transform(self.scene_ptr, self.cr_idx, self.matrix)
 
 	def bind_materials(self, material_set):
-		_lib.instance_bind_material_set(self.scene_ptr, self.inst_idx, material_set.ms_idx)
+		_lib.instance_bind_material_set(self.scene_ptr, self.cr_idx, material_set.ms_idx)
 
 class scene:
 	def __init__(self, scene_ptr):
-		self.s_ptr = scene_ptr
+		self.cr_ptr = scene_ptr
 	def close(self):
 		del(self.s_ptr)
 
 	def totals(self):
-		return _lib.scene_totals(self.s_ptr)
+		return _lib.scene_totals(self.cr_ptr)
 	def mesh_new(self, name):
-		return mesh(self.s_ptr, name)
+		return mesh(self.cr_ptr, name)
 	def sphere_new(self, radius):
-		return sphere(self.s_ptr, radius)
+		return sphere(self.cr_ptr, radius)
 	def camera_new(self):
-		return camera(self.s_ptr)
+		return camera(self.cr_ptr)
 	def material_set_new(self):
-		return material_set(self.s_ptr)
-	def instance_new(self, object_idx, type):
-		return instance(self.s_ptr, object_idx, type)
+		return material_set(self.cr_ptr)
+	def instance_new(self, object, type):
+		return instance(self.cr_ptr, object, type)
 	def set_background(self, material):
-		return _lib.scene_set_background(self.s_ptr, material)
+		return _lib.scene_set_background(self.cr_ptr, material)
 
 class cr_cb_info(ct.Structure):
 	_fields_ = [
