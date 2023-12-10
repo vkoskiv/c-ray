@@ -6,7 +6,6 @@ bl_info = {
 	"description": "Experimenting with the new c-ray Python API",
 	"doc_url": "https://github.com/vkoskiv/c-ray",
 	"tracker_url": "",
-	"support": "UNOFFICIAL",
 	"category": "Render"
 }
 
@@ -20,6 +19,9 @@ import bpy
 from . import (
 	c_ray
 )
+
+from bpy.props import IntProperty
+from bpy.props import PointerProperty
 
 class CrayRenderSettings(bpy.types.PropertyGroup):
 	samples: IntProperty(
@@ -65,7 +67,7 @@ class CrayRender(bpy.types.RenderEngine):
 	bl_label = "c-ray integration for Blender"
 	bl_use_preview = False
 
-	def sync_scene(renderer, depsgraph, b_scene):
+	def sync_scene(self, renderer, depsgraph, b_scene):
 		cr_scene = renderer.scene_get()
 		objects = b_scene.objects
 		for ob_main in enumerate(objects):
@@ -135,28 +137,32 @@ def get_panels():
 	return panels
 
 def register():
-	bpy.utils.register_class(CrayRenderEngine)
+	import faulthandler
+	faulthandler.enable()
+	print("Register libc-ray version {} ({})".format(c_ray.version.semantic, c_ray.version.githash))
+	bpy.utils.register_class(CrayRender)
 	bpy.utils.register_class(CrayRenderSettings)
 
 	from bl_ui import (
 		properties_render,
 		properties_material,
 	)
-	properties_render.RENDER_PT_render.COMPAT_ENGINES.add(CrayRenderEngine.bl_idname)
-	properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add(CrayRenderEngine.bl_idname)
+	# properties_render.RENDER_PT_render.COMPAT_ENGINES.add(CrayRender.bl_idname)
+	properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add(CrayRender.bl_idname)
 	for panel in get_panels():
 		panel.COMPAT_ENGINES.add('C_RAY')
     
 def unregister():
+	print("Unregister libc-ray version {} ({})".format(c_ray.version.semantic, c_ray.version.githash))
 	bpy.utils.unregister_class(CrayRenderSettings)
-	bpy.utils.unregister_class(CrayRenderEngine)
+	bpy.utils.unregister_class(CrayRender)
 
 	from bl_ui import (
 		properties_render,
 		properties_material,
 	)
-	properties_render.RENDER_PT_render.COMPAT_ENGINES.remove(CrayRenderEngine.bl_idname)
-	properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.remove(CrayRenderEngine.bl_idname)
+	# properties_render.RENDER_PT_render.COMPAT_ENGINES.remove(CrayRender.bl_idname)
+	properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.remove(CrayRender.bl_idname)
 	for panel in get_panels():
 		if 'C_RAY' in panel.COMPAT_ENGINES:
 			panel.COMPAT_ENGINES.remove('C_RAY')
