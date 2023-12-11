@@ -120,6 +120,32 @@ class CrayRender(bpy.types.RenderEngine):
 	def sync_scene(self, renderer, depsgraph, b_scene):
 		cr_scene = renderer.scene_get()
 		objects = b_scene.objects
+		# Sync cameras
+		for idx, ob_main in enumerate(objects):
+			if ob_main.type != 'CAMERA':
+				continue
+			bl_cam_eval = ob_main.evaluated_get(depsgraph)
+			bl_cam = bl_cam_eval.data
+
+			cr_cam = cr_scene.camera_new()
+			mtx = ob_main.matrix_world
+			euler = mtx.to_euler('ZXY')
+			loc = mtx.to_translation()
+			cr_cam.set_param(c_ray.cam_param.fov, 80) #todo
+			cr_cam.set_param(c_ray.cam_param.pose_x, loc[0])
+			cr_cam.set_param(c_ray.cam_param.pose_y, loc[1])
+			cr_cam.set_param(c_ray.cam_param.pose_z, loc[2])
+			cr_cam.set_param(c_ray.cam_param.pose_roll, euler[0])
+			cr_cam.set_param(c_ray.cam_param.pose_pitch, euler[1])
+			cr_cam.set_param(c_ray.cam_param.pose_yaw, euler[2])
+			cr_cam.set_param(c_ray.cam_param.res_x, self.size_x)
+			cr_cam.set_param(c_ray.cam_param.res_y, self.size_y)
+			# TODO: We don't tell blender that we support this, so it's not available yet
+			if bl_cam.dof.use_dof:
+				cr_cam.set_param(c_ray.cam_param.fstops, bl_cam.dof.aperture_fstop)
+				cr_cam.set_param(c_ray.cam_param.focus_distance, bl_cam.dof.focus_distance)
+
+		# Sync meshes
 		for idx, ob_main in enumerate(objects):
 			if ob_main.type != 'MESH':
 				continue

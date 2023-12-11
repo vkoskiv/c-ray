@@ -202,6 +202,7 @@ CR_EXPORT cr_mesh cr_scene_get_mesh(struct cr_scene *s_ext, const char *name);
 
 // -- Camera --
 // FIXME: Use cr_vector
+// TODO: Support quaternions, or maybe just a mtx4x4?
 enum cr_camera_param {
 	cr_camera_fov,
 	cr_camera_focus_distance,
