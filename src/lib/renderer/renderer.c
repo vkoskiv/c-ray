@@ -132,6 +132,10 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 		logr(warning, "No network render workers, setting thread count to 1\n");
 		r->prefs.threads = 1;
 	}
+
+	if (!r->scene->background) {
+		r->scene->background = newBackground(&r->scene->storage, NULL, NULL, NULL);
+	}
 	
 	bool threadsReduced = (size_t)sys_get_cores() > r->prefs.threads;
 	
