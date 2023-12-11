@@ -346,7 +346,13 @@ class renderer:
 		_lib.renderer_toggle_pause(self.obj_ptr)
 
 	def render(self):
-		return _lib.renderer_render(self.obj_ptr)
+		ret = _lib.renderer_render(self.obj_ptr)
+		# I saw this in several places, and suggested by a token predictor. Ehh?
+		ct.pythonapi.PyCapsule_GetPointer.restype = ct.c_void_p
+		ct.pythonapi.PyCapsule_GetPointer.argtypes = [ct.py_object, ct.c_char_p]
+		ptr = ct.pythonapi.PyCapsule_GetPointer(ret, "cray.cr_bitmap".encode())
+		ret_bitmap = ct.cast(ptr, ct.POINTER(cr_bitmap)).contents
+		return ret_bitmap
 
 	def scene_get(self):
 		return scene(_lib.renderer_scene_get(self.obj_ptr))

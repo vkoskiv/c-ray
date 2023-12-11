@@ -21,6 +21,7 @@ from . import (
 )
 
 import ctypes as ct
+from array import array
 
 from bpy.props import IntProperty
 from bpy.props import PointerProperty
@@ -189,9 +190,38 @@ class CrayRender(bpy.types.RenderEngine):
 		cr_scene = self.sync_scene(renderer, depsgraph, b_scene)
 		renderer.prefs.output_path = "/tmp/"
 		print(cr_scene.totals())
-		renderer.debug_dump()
+		# renderer.debug_dump()
+		renderer.prefs.samples = 1
+		bm = renderer.render()
+		# self.test_render_scene(b_scene)
+		self.display_bitmap(bm)
 		del(renderer)
 		# self.render_scene(scene)
+
+	def display_bitmap(self, bm):
+		pixel_count = bm.width * bm.height
+		bytecount = bm.width * bm.height * bm.stride
+		# bytes = (ct.c_ubyte * bytecount)(*bm.data.byte_ptr)
+		# print(bytes)
+		# bytes = bm.data.byte_ptr.contents
+		# for byte in bytes:
+		# 	print(byte)
+		bytes = array('B', bm.data.byte_ptr[:bytecount])
+		floats = []
+		for byte in bytes:
+			floats.append(byte / 255.0)
+		rect = []
+		for i in range(0, len(floats), 3):
+			temp = []
+			temp.append(floats[i + 0])
+			temp.append(floats[i + 1])
+			temp.append(floats[i + 2])
+			temp.append(0)
+			rect.append(temp)
+		result = self.begin_result(0, 0, bm.width, bm.height)
+		layer = result.layers[0].passes["Combined"]
+		layer.rect = rect
+		self.end_result(result)
 
 	def test_render_scene(self, scene):
 		pixel_count = self.size_x * self.size_y
