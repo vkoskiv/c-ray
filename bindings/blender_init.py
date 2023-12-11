@@ -152,6 +152,9 @@ class CrayRender(bpy.types.RenderEngine):
 			instances = []
 			new_inst = cr_scene.instance_new(cr_mesh, 0)
 			new_inst.set_transform(to_cr_matrix(ob_main.matrix_world))
+			cr_mat_set = cr_scene.material_set_new()
+			cr_mat_set.add(None)
+			new_inst.bind_materials(cr_mat_set)
 			instances.append(new_inst)
 			if ob_main.is_instancer:
 				for dup in depsgraph.object_instances:
@@ -184,6 +187,7 @@ class CrayRender(bpy.types.RenderEngine):
 
 		renderer = c_ray.renderer()
 		cr_scene = self.sync_scene(renderer, depsgraph, b_scene)
+		renderer.prefs.output_path = "/tmp/"
 		print(cr_scene.totals())
 		renderer.debug_dump()
 		del(renderer)

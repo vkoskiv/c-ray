@@ -260,7 +260,7 @@ class instance:
 		_lib.instance_set_transform(self.scene_ptr, self.cr_idx, self.matrix)
 
 	def bind_materials(self, material_set):
-		_lib.instance_bind_material_set(self.scene_ptr, self.cr_idx, material_set.ms_idx)
+		_lib.instance_bind_material_set(self.scene_ptr, self.cr_idx, material_set.cr_idx)
 
 class cr_vector(ct.Structure):
 	_fields_ = [
