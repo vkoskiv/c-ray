@@ -376,7 +376,7 @@ static PyObject *py_cr_camera_set_num_pref(PyObject *self, PyObject *args) {
 	cr_camera cam;
 	enum cr_camera_param param;
 	double num;
-	if (!PyArg_ParseTuple(args, "Olld", &s_ext, &cam, &param, &num)) {
+	if (!PyArg_ParseTuple(args, "Olid", &s_ext, &cam, &param, &num)) {
 		return NULL;
 	}
 	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
