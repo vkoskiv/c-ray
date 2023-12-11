@@ -216,7 +216,7 @@ class CrayRender(bpy.types.RenderEngine):
 			temp.append(floats[i + 0])
 			temp.append(floats[i + 1])
 			temp.append(floats[i + 2])
-			temp.append(0)
+			temp.append(1.0)
 			rect.append(temp)
 		result = self.begin_result(0, 0, bm.width, bm.height)
 		layer = result.layers[0].passes["Combined"]
