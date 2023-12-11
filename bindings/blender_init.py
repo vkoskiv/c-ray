@@ -85,14 +85,13 @@ def to_cr_matrix(matrix):
 	return cr_mtx
 
 def to_cr_face(me, poly):
-	cr_face = c_ray.cr_face()
 	indices = []
 	for loop_idx in range(poly.loop_start, poly.loop_start + poly.loop_total):
 		indices.append(me.loops[loop_idx].vertex_index)
-	face = c_ray.cr_face()
-	face.vertex_idx = (ct.c_int * len(indices))(*indices)
-	face.mat_idx = 0
-	face.has_normals = 0
+	cr_face = c_ray.cr_face()
+	cr_face.vertex_idx[:] = indices
+	cr_face.mat_idx = 0
+	cr_face.has_normals = 0
 	return cr_face
 
 def cr_vertex_buf(scene, me):
