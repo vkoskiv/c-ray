@@ -110,7 +110,7 @@ def cr_vertex_buf(scene, me):
 	vbuf = (c_ray.cr_vector * len(verts))(*verts)
 	nbuf = (c_ray.cr_vector * len(verts))(*normals)
 	tbuf = (c_ray.cr_coord  * len(verts))(*texcoords)
-	print(len(normals))
+	print("new vbuf: v: {}, n: {}, t: {}".format(len(verts), len(normals), len(texcoords)))
 	cr_vbuf = scene.vertex_buf_new(bytearray(vbuf), len(verts), bytearray(nbuf), len(normals), bytearray(tbuf), len(texcoords))
 	return cr_vbuf
 
@@ -196,19 +196,11 @@ class CrayRender(bpy.types.RenderEngine):
 		# renderer.debug_dump()
 		renderer.prefs.samples = 1
 		bm = renderer.render()
-		# self.test_render_scene(b_scene)
 		self.display_bitmap(bm)
 		del(renderer)
-		# self.render_scene(scene)
 
 	def display_bitmap(self, bm):
-		pixel_count = bm.width * bm.height
 		bytecount = bm.width * bm.height * bm.stride
-		# bytes = (ct.c_ubyte * bytecount)(*bm.data.byte_ptr)
-		# print(bytes)
-		# bytes = bm.data.byte_ptr.contents
-		# for byte in bytes:
-		# 	print(byte)
 		bytes = array('B', bm.data.byte_ptr[:bytecount])
 		floats = []
 		for byte in bytes:
@@ -224,14 +216,6 @@ class CrayRender(bpy.types.RenderEngine):
 		result = self.begin_result(0, 0, bm.width, bm.height)
 		layer = result.layers[0].passes["Combined"]
 		layer.rect = rect
-		self.end_result(result)
-
-	def test_render_scene(self, scene):
-		pixel_count = self.size_x * self.size_y
-		blueRect = [[0.0, 0.0, 1.0, 1.0]] * pixel_count
-		result = self.begin_result(0, 0, self.size_x, self.size_y)
-		layer = result.layers[0].passes["Combined"]
-		layer.rect = blueRect
 		self.end_result(result)
 
 def get_panels():
