@@ -900,4 +900,9 @@ struct renderer *deserialize_renderer(const char *data) {
 	return r;
 }
 
+#else
+// Empty stub for Windows
+void dump_renderer_state(const struct renderer *r) {
+	(void)r;
+}
 #endif
