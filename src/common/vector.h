@@ -35,8 +35,6 @@ struct intCoord {
 	int x, y;
 };
 
-static const struct vector g_world_up = { 0.0f, 1.0f, 0.0f };
-
 //For defaults
 static inline struct vector vec_zero() {
 	return (struct vector){ 0.0f, 0.0f, 0.0f };

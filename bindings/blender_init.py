@@ -22,6 +22,8 @@ from . import (
 
 import ctypes as ct
 from array import array
+import math
+import mathutils
 
 from bpy.props import IntProperty
 from bpy.props import PointerProperty
@@ -128,8 +130,8 @@ class CrayRender(bpy.types.RenderEngine):
 			bl_cam = bl_cam_eval.data
 
 			cr_cam = cr_scene.camera_new()
-			mtx = ob_main.matrix_world
-			euler = mtx.to_euler('ZXY')
+			mtx = fix_coord(ob_main.matrix_world)
+			euler = mtx.to_euler('XYZ')
 			loc = mtx.to_translation()
 			cr_cam.set_param(c_ray.cam_param.fov, 80) #todo
 			cr_cam.set_param(c_ray.cam_param.pose_x, loc[0])
@@ -140,6 +142,7 @@ class CrayRender(bpy.types.RenderEngine):
 			cr_cam.set_param(c_ray.cam_param.pose_yaw, euler[2])
 			cr_cam.set_param(c_ray.cam_param.res_x, self.size_x)
 			cr_cam.set_param(c_ray.cam_param.res_y, self.size_y)
+			cr_cam.set_param(c_ray.cam_param.blender_coord, 1)
 			# TODO: We don't tell blender that we support this, so it's not available yet
 			if bl_cam.dof.use_dof:
 				cr_cam.set_param(c_ray.cam_param.fstops, bl_cam.dof.aperture_fstop)

@@ -380,6 +380,10 @@ struct camera default_camera = {
 	.fstops = 0.0f,
 	.width = 800,
 	.height = 600,
+	.look_at = { 0.0f, 0.0f, 1.0f },
+	.forward = { 0.0f, 0.0f, 1.0f },
+	.right = { 1.0f, 0.0f, 0.0f },
+	.up = { 0.0f, 1.0f, 0.0f }
 };
 
 cr_camera cr_camera_new(struct cr_scene *ext) {
@@ -440,6 +444,13 @@ bool cr_camera_set_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_pa
 		}
 		case cr_camera_res_y: {
 			cam->height = num;
+			return true;
+		}
+		case cr_camera_blender_coord: {
+			cam->look_at = (struct vector){0.0f, 0.0f, -1.0f};
+			cam->forward = vec_normalize(cam->look_at);
+			cam->right = (struct vector){1.0f, 0.0f, 0.0f};
+			cam->up = (struct vector){0.0f, -1.0f, 0.0f};
 			return true;
 		}
 	}

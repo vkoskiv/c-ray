@@ -213,6 +213,7 @@ class cam_param(IntEnum):
 	time = 9
 	res_x = 10
 	res_y = 11
+	blender_coord = 12
 
 class camera:
 	def __init__(self, scene_ptr):

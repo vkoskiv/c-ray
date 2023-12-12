@@ -219,6 +219,7 @@ enum cr_camera_param {
 
 	cr_camera_res_x,
 	cr_camera_res_y,
+	cr_camera_blender_coord,
 };
 
 typedef cr_object cr_camera;
