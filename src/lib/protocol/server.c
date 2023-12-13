@@ -111,6 +111,7 @@ static bool client_try_connect(struct render_client *client) {
 static struct render_client_arr build_client_list(const char *node_list) {
 	ASSERT(node_list);
 	struct render_client_arr clients = { 0 };
+	if (strlen(node_list) == 0) return clients;
 	// Really barebones parsing for IP addresses and ports in a comma-separated list
 	// Expected to break easily. Don't break it.
 	char buf[LINEBUFFER_MAXSIZE];

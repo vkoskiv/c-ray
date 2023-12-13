@@ -22,16 +22,12 @@ class C_RAY_RENDER_PT_sampling_render(CrayButtonsPanel, Panel):
 
 	def draw(self, context):
 		layout = self.layout
-		scene = context.scene
-		# I have no idea where I could patch in my own object for storing settings,
-		# so I'm just reusing the Cycles one.
-		cscene = scene.cycles
 		layout.use_property_split = True
 		layout.use_property_decorate = False
 
 		heading = layout.column(align=True, heading="Samples")
 		row = heading.row(align=True)
-		row.prop(cscene, "samples", text="Samples")
+		row.prop(context.scene.c_ray, "samples", text="Samples")
 
 class C_RAY_RENDER_PT_performance(CrayButtonsPanel, Panel):
 	bl_label = "Performance"
@@ -46,16 +42,11 @@ class C_RAY_RENDER_PT_performance_threads(CrayButtonsPanel, Panel):
 
 	def draw(self, context):
 		layout = self.layout
-		scene = context.scene
 		layout.use_property_split = True
 		layout.use_property_decorate = False
 
-		rd = scene.render
 		col = layout.column()
-		col.prop(rd, "threads_mode")
-		sub = col.column(align=True)
-		sub.enabled = rd.threads_mode == 'FIXED'
-		sub.prop(rd, "threads")
+		col.prop(context.scene.c_ray, "threads")
 
 class C_RAY_RENDER_PT_performance_tiling(CrayButtonsPanel, Panel):
 	bl_label = "Tiling"
@@ -63,14 +54,23 @@ class C_RAY_RENDER_PT_performance_tiling(CrayButtonsPanel, Panel):
 
 	def draw(self, context):
 		layout = self.layout
-		scene = context.scene
 		layout.use_property_split = True
 		layout.use_property_decorate = False
 
-		cscene = scene.cycles
+		col = layout.column()
+		col.prop(context.scene.c_ray, "tile_size")
+
+class C_RAY_RENDER_PT_performance_clustering(CrayButtonsPanel, Panel):
+	bl_label = "Clustering"
+	bl_parent_id = "C_RAY_RENDER_PT_performance"
+
+	def draw(self, context):
+		layout = self.layout
+		layout.use_property_split = True
+		layout.use_property_decorate = False
 
 		col = layout.column()
-		col.prop(cscene, "tile_size")
+		col.prop(context.scene.c_ray, "node_list", text="Worker node list")
 
 class C_RAY_RENDER_PT_light_paths(CrayButtonsPanel, Panel):
 	bl_label = "Light Paths"
@@ -88,9 +88,8 @@ class C_RAY_RENDER_PT_light_paths_bounces(CrayButtonsPanel, Panel):
 		layout.use_property_split = True
 		layout.use_property_decorate = False
 
-		cscene = context.scene.cycles
 		col = layout.column()
-		col.prop(cscene, "max_bounces", text="Total")
+		col.prop(context.scene.c_ray, "bounces", text="Total")
 
 def get_panels():
 	exclude_panels = {
@@ -112,6 +111,7 @@ classes = (
 	C_RAY_RENDER_PT_performance,
 	C_RAY_RENDER_PT_performance_threads,
 	C_RAY_RENDER_PT_performance_tiling,
+	C_RAY_RENDER_PT_performance_clustering,
 	C_RAY_RENDER_PT_light_paths,
 	C_RAY_RENDER_PT_light_paths_bounces,
 )

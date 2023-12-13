@@ -29,27 +29,42 @@ from array import array
 import math
 import mathutils
 
-from bpy.props import IntProperty
-from bpy.props import PointerProperty
+from bpy.props import (
+	IntProperty,
+	PointerProperty,
+	StringProperty,
+)
 
 class CrayRenderSettings(bpy.types.PropertyGroup):
 	samples: IntProperty(
 		name="Samples",
 		description="Number of samples to render for each pixel",
 		min=1, max=(1 << 24),
-		default=1,
+		default=32,
 	)
-	bounces: IntProperty(
-		name="Bounces",
-		description="Max number of bounces for each light path",
-		min=0, max=1024,
-		default=12,
+	threads: IntProperty(
+		name="Threads",
+		description="Number of threads to use for rendering",
+		min=1, max=256,
+		default=4,
 	)
 	tile_size: IntProperty(
 		name="Tile Size",
 		description="Size of tile for each thread",
 		min=0, max=1024,
-		default=12,
+		default=32,
+	)
+	bounces: IntProperty(
+		name="Bounces",
+		description="Max number of bounces for each light path",
+		min=0, max=1024,
+		default=16,
+	)
+	node_list: StringProperty(
+		name="Worker node list",
+		description="comma-separated list of IP:port pairs",
+		maxlen=4096,
+		default=""
 	)
 	@classmethod
 	def register(cls):
@@ -198,11 +213,12 @@ class CrayRender(bpy.types.RenderEngine):
 		cr_scene = self.sync_scene(renderer, depsgraph, b_scene)
 		print(cr_scene.totals())
 		# renderer.debug_dump()
-		renderer.prefs.samples = b_scene.cycles.samples
-		renderer.prefs.threads = b_scene.render.threads
-		renderer.prefs.tile_x = b_scene.cycles.tile_size
-		renderer.prefs.tile_y = b_scene.cycles.tile_size
-		renderer.prefs.bounces = b_scene.cycles.max_bounces
+		renderer.prefs.samples = b_scene.c_ray.samples
+		renderer.prefs.threads = b_scene.c_ray.threads
+		renderer.prefs.tile_x = b_scene.c_ray.tile_size
+		renderer.prefs.tile_y = b_scene.c_ray.tile_size
+		renderer.prefs.bounces = b_scene.c_ray.bounces
+		renderer.prefs.node_list = b_scene.c_ray.node_list
 		bm = renderer.render()
 		self.display_bitmap(bm)
 		del(renderer)
