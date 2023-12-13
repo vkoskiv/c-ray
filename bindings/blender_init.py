@@ -199,7 +199,7 @@ class CrayRender(bpy.types.RenderEngine):
 		renderer.prefs.output_path = "/tmp/"
 		print(cr_scene.totals())
 		# renderer.debug_dump()
-		renderer.prefs.samples = 1
+		renderer.prefs.samples = b_scene.cycles.samples
 		bm = renderer.render()
 		self.display_bitmap(bm)
 		del(renderer)

@@ -16,6 +16,23 @@ class C_RAY_RENDER_PT_sampling(CrayButtonsPanel, Panel):
 	def draw(self, context):
 		pass
 
+class C_RAY_RENDER_PT_sampling_render(CrayButtonsPanel, Panel):
+	bl_label = "Render"
+	bl_parent_id = "C_RAY_RENDER_PT_sampling"
+
+	def draw(self, context):
+		layout = self.layout
+		scene = context.scene
+		# I have no idea where I could patch in my own object for storing settings,
+		# so I'm just reusing the Cycles one.
+		cscene = scene.cycles
+		layout.use_property_split = True
+		layout.use_property_decorate = False
+
+		heading = layout.column(align=True, heading="Samples")
+		row = heading.row(align=True)
+		row.prop(cscene, "samples", text="Samples")
+
 def get_panels():
 	exclude_panels = {
 		'VIEWLAYER_PT_filter',
@@ -43,6 +60,7 @@ def register():
 		panel.COMPAT_ENGINES.add('C_RAY')
 
 	register_class(C_RAY_RENDER_PT_sampling)
+	register_class(C_RAY_RENDER_PT_sampling_render)
 
 def unregister():
 	from bpy.utils import unregister_class
@@ -58,3 +76,4 @@ def unregister():
 			panel.COMPAT_ENGINES.remove('C_RAY')
 
 	unregister_class(C_RAY_RENDER_PT_sampling)
+	unregister_class(C_RAY_RENDER_PT_sampling_render)
