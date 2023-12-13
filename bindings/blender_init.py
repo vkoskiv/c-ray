@@ -133,7 +133,7 @@ class CrayRender(bpy.types.RenderEngine):
 			mtx = ob_main.matrix_world
 			euler = mtx.to_euler('XYZ')
 			loc = mtx.to_translation()
-			cr_cam.set_param(c_ray.cam_param.fov, 80) #todo
+			cr_cam.set_param(c_ray.cam_param.fov, math.degrees(bl_cam.angle))
 			cr_cam.set_param(c_ray.cam_param.pose_x, loc[0])
 			cr_cam.set_param(c_ray.cam_param.pose_y, loc[1])
 			cr_cam.set_param(c_ray.cam_param.pose_z, loc[2])
