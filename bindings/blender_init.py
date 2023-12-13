@@ -13,6 +13,10 @@ if "bpy" in locals():
 	import importlib
 	if "c_ray" in locals():
 		importlib.reload(c_ray)
+	if "properties" in locals():
+		importlib.reload(properties)
+	if "ui" in locals():
+		importlib.reload(ui)
 
 import bpy
 
@@ -115,8 +119,8 @@ def cr_vertex_buf(scene, me):
 	return cr_vbuf
 
 class CrayRender(bpy.types.RenderEngine):
-	bl_idname = "c-ray"
-	bl_label = "c-ray integration for Blender"
+	bl_idname = "C_RAY"
+	bl_label = "c-ray for Blender"
 	bl_use_preview = False
 
 	def sync_scene(self, renderer, depsgraph, b_scene):
@@ -218,50 +222,29 @@ class CrayRender(bpy.types.RenderEngine):
 		layer.rect = rect
 		self.end_result(result)
 
-def get_panels():
-	exclude_panels = {
-		'VIEWLAYER_PT_filter',
-		'VIEWLAYER_PT_layer_passes',
-	}
-
-	panels = []
-	for panel in bpy.types.Panel.__subclasses__():
-		if hasattr(panel, 'COMPAT_ENGINES') and 'BLENDER_RENDER' in panel.COMPAT_ENGINES:
-			if panel.__name__ not in exclude_panels:
-				panels.append(panel)
-
-	return panels
-
 def register():
+	from . import properties
+	from . import ui
 	import faulthandler
 	faulthandler.enable()
 	print("Register libc-ray version {} ({})".format(c_ray.version.semantic, c_ray.version.githash))
+	properties.register()
+	ui.register()
 	bpy.utils.register_class(CrayRender)
 	bpy.utils.register_class(CrayRenderSettings)
 
-	from bl_ui import (
-		properties_render,
-		properties_material,
-	)
-	# properties_render.RENDER_PT_render.COMPAT_ENGINES.add(CrayRender.bl_idname)
-	properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add(CrayRender.bl_idname)
-	for panel in get_panels():
-		panel.COMPAT_ENGINES.add('C_RAY')
     
 def unregister():
+	from . import properties
+	from . import ui
 	print("Unregister libc-ray version {} ({})".format(c_ray.version.semantic, c_ray.version.githash))
+
+	properties.unregister()
+	ui.unregister()
+
 	bpy.utils.unregister_class(CrayRenderSettings)
 	bpy.utils.unregister_class(CrayRender)
 
-	from bl_ui import (
-		properties_render,
-		properties_material,
-	)
-	# properties_render.RENDER_PT_render.COMPAT_ENGINES.remove(CrayRender.bl_idname)
-	properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.remove(CrayRender.bl_idname)
-	for panel in get_panels():
-		if 'C_RAY' in panel.COMPAT_ENGINES:
-			panel.COMPAT_ENGINES.remove('C_RAY')
     
 if __name__ == "__main__":
 	register()
