@@ -202,6 +202,7 @@ class CrayRender(bpy.types.RenderEngine):
 		renderer.prefs.threads = b_scene.render.threads
 		renderer.prefs.tile_x = b_scene.cycles.tile_size
 		renderer.prefs.tile_y = b_scene.cycles.tile_size
+		renderer.prefs.bounces = b_scene.cycles.max_bounces
 		bm = renderer.render()
 		self.display_bitmap(bm)
 		del(renderer)

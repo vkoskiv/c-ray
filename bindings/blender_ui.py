@@ -71,7 +71,27 @@ class C_RAY_RENDER_PT_performance_tiling(CrayButtonsPanel, Panel):
 
 		col = layout.column()
 		col.prop(cscene, "tile_size")
-		
+
+class C_RAY_RENDER_PT_light_paths(CrayButtonsPanel, Panel):
+	bl_label = "Light Paths"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw(self, context):
+		pass
+
+class C_RAY_RENDER_PT_light_paths_bounces(CrayButtonsPanel, Panel):
+	bl_label = "Bounces"
+	bl_parent_id = "C_RAY_RENDER_PT_light_paths"
+
+	def draw(self, context):
+		layout = self.layout
+		layout.use_property_split = True
+		layout.use_property_decorate = False
+
+		cscene = context.scene.cycles
+		col = layout.column()
+		col.prop(cscene, "max_bounces", text="Total")
+
 def get_panels():
 	exclude_panels = {
 		'VIEWLAYER_PT_filter',
@@ -92,6 +112,8 @@ classes = (
 	C_RAY_RENDER_PT_performance,
 	C_RAY_RENDER_PT_performance_threads,
 	C_RAY_RENDER_PT_performance_tiling,
+	C_RAY_RENDER_PT_light_paths,
+	C_RAY_RENDER_PT_light_paths_bounces,
 )
 
 def register():
