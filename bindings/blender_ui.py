@@ -33,6 +33,45 @@ class C_RAY_RENDER_PT_sampling_render(CrayButtonsPanel, Panel):
 		row = heading.row(align=True)
 		row.prop(cscene, "samples", text="Samples")
 
+class C_RAY_RENDER_PT_performance(CrayButtonsPanel, Panel):
+	bl_label = "Performance"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw(self, context):
+		pass
+
+class C_RAY_RENDER_PT_performance_threads(CrayButtonsPanel, Panel):
+	bl_label = "Threads"
+	bl_parent_id = "C_RAY_RENDER_PT_performance"
+
+	def draw(self, context):
+		layout = self.layout
+		scene = context.scene
+		layout.use_property_split = True
+		layout.use_property_decorate = False
+
+		rd = scene.render
+		col = layout.column()
+		col.prop(rd, "threads_mode")
+		sub = col.column(align=True)
+		sub.enabled = rd.threads_mode == 'FIXED'
+		sub.prop(rd, "threads")
+
+class C_RAY_RENDER_PT_performance_tiling(CrayButtonsPanel, Panel):
+	bl_label = "Tiling"
+	bl_parent_id = "C_RAY_RENDER_PT_performance"
+
+	def draw(self, context):
+		layout = self.layout
+		scene = context.scene
+		layout.use_property_split = True
+		layout.use_property_decorate = False
+
+		cscene = scene.cycles
+
+		col = layout.column()
+		col.prop(cscene, "tile_size")
+		
 def get_panels():
 	exclude_panels = {
 		'VIEWLAYER_PT_filter',
@@ -47,6 +86,14 @@ def get_panels():
 
 	return panels
 
+classes = (
+	C_RAY_RENDER_PT_sampling,
+	C_RAY_RENDER_PT_sampling_render,
+	C_RAY_RENDER_PT_performance,
+	C_RAY_RENDER_PT_performance_threads,
+	C_RAY_RENDER_PT_performance_tiling,
+)
+
 def register():
 	from bpy.utils import register_class
 
@@ -59,8 +106,8 @@ def register():
 	for panel in get_panels():
 		panel.COMPAT_ENGINES.add('C_RAY')
 
-	register_class(C_RAY_RENDER_PT_sampling)
-	register_class(C_RAY_RENDER_PT_sampling_render)
+	for cls in classes:
+		register_class(cls)
 
 def unregister():
 	from bpy.utils import unregister_class
@@ -75,5 +122,5 @@ def unregister():
 		if 'C_RAY' in panel.COMPAT_ENGINES:
 			panel.COMPAT_ENGINES.remove('C_RAY')
 
-	unregister_class(C_RAY_RENDER_PT_sampling)
-	unregister_class(C_RAY_RENDER_PT_sampling_render)
+	for cls in classes:
+		unregister_class(cls)

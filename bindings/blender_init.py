@@ -196,10 +196,12 @@ class CrayRender(bpy.types.RenderEngine):
 
 		renderer = c_ray.renderer()
 		cr_scene = self.sync_scene(renderer, depsgraph, b_scene)
-		renderer.prefs.output_path = "/tmp/"
 		print(cr_scene.totals())
 		# renderer.debug_dump()
 		renderer.prefs.samples = b_scene.cycles.samples
+		renderer.prefs.threads = b_scene.render.threads
+		renderer.prefs.tile_x = b_scene.cycles.tile_size
+		renderer.prefs.tile_y = b_scene.cycles.tile_size
 		bm = renderer.render()
 		self.display_bitmap(bm)
 		del(renderer)
