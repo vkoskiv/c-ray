@@ -3,6 +3,8 @@ from contextlib import contextmanager
 from enum import IntEnum
 
 from . import cray_wrap as _lib
+import nodes.shader
+import nodes.vector.cr_vector
 
 class cr_renderer(ct.Structure):
 	pass
@@ -225,16 +227,6 @@ class camera:
 		# Weird. Could just do this internally, no?
 		_lib.camera_update(self.scene_ptr, self.cr_idx)
 
-class material_set:
-	def __init__(self, scene_ptr):
-		self.scene_ptr = scene_ptr
-		self.materials = []
-		self.cr_idx = _lib.scene_new_material_set(self.scene_ptr)
-
-	def add(self, material):
-		self.materials.append(material)
-		_lib.material_set_add(self.scene_ptr, self.cr_idx, material)
-
 def inst_type(IntEnum):
 	mesh = 0
 	sphere = 1
@@ -263,13 +255,6 @@ class instance:
 	def bind_materials(self, material_set):
 		_lib.instance_bind_material_set(self.scene_ptr, self.cr_idx, material_set.cr_idx)
 
-class cr_vector(ct.Structure):
-	_fields_ = [
-		("x", ct.c_float),
-		("y", ct.c_float),
-		("z", ct.c_float),
-	]
-
 class cr_coord(ct.Structure):
 	_fields_ = [
 		("u", ct.c_float),
@@ -286,6 +271,16 @@ class vertex_buf:
 		self.t = t
 		self.tn = tn
 		self.cr_idx = _lib.scene_vertex_buf_new(self.cr_ptr, self.v, self.vn, self.n, self.nn, self.t, self.tn)
+
+class material_set:
+	def __init__(self, scene_ptr):
+		self.scene_ptr = scene_ptr
+		self.materials = []
+		self.cr_idx = _lib.scene_new_material_set(self.scene_ptr)
+
+	def add(self, material):
+		self.materials.append(material)
+		_lib.material_set_add(self.scene_ptr, self.cr_idx, material)
 
 class scene:
 	def __init__(self, scene_ptr):
