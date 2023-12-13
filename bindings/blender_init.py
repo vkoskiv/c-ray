@@ -122,6 +122,7 @@ class CrayRender(bpy.types.RenderEngine):
 	bl_idname = "C_RAY"
 	bl_label = "c-ray for Blender"
 	bl_use_preview = False
+	bl_use_shading_nodes_custom = False
 
 	def sync_scene(self, renderer, depsgraph, b_scene):
 		cr_scene = renderer.scene_get()
