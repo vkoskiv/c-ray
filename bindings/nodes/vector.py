@@ -2,14 +2,6 @@ import ctypes as ct
 from enum import IntEnum
 from . node import _value
 
-class _vector_type(IntEnum):
-	unknown  = 0
-	constant = 1
-	normal   = 2
-	uv       = 3
-	vecmath  = 4
-	mix      = 5
-
 class _vector(ct.Structure):
 	pass
 
@@ -18,6 +10,12 @@ class cr_vector(ct.Structure):
 		("x", ct.c_float),
 		("y", ct.c_float),
 		("z", ct.c_float),
+	]
+
+class cr_coord(ct.Structure):
+	_fields_ = [
+		("u", ct.c_float),
+		("v", ct.c_float)
 	]
 
 # These are ripped off here:
@@ -54,11 +52,11 @@ class _vector_op(IntEnum):
 
 class _vector_arg_vecmath(ct.Structure):
 	_fields_ = [
-		("A", ct.POINTER(_vector))
-		("B", ct.POINTER(_vector))
-		("C", ct.POINTER(_vector))
+		("A", ct.POINTER(_vector)),
+		("B", ct.POINTER(_vector)),
+		("C", ct.POINTER(_vector)),
 		("f", ct.POINTER(_value)),
-		("op", _vector_op)
+		("op", ct.c_int) # _vector_op
 	]
 
 class _vector_arg_vec_mix(ct.Structure):
@@ -75,8 +73,16 @@ class _vector_arg(ct.Union):
 		("vec_mix", _vector_arg_vec_mix)
 	]
 
+class _vector_type(IntEnum):
+	unknown  = 0
+	constant = 1
+	normal   = 2
+	uv       = 3
+	vecmath  = 4
+	mix      = 5
+
 _vector._fields_ = [
-		("type", _vector_type)
+		("type", ct.c_int), # _vector_type
 		("arg", _vector_arg)
 	]
 

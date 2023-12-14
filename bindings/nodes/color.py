@@ -2,21 +2,10 @@ import ctypes as ct
 from enum import IntEnum
 from . node import _vector
 from . node import _value
+from . node import _color
 
-class _color_type(IntEnum):
-	unknown      = 0
-	constant     = 1
-	image        = 2
-	checkerboard = 3
-	blackbody    = 4
-	split        = 5
-	rgb          = 6
-	hsl          = 7
-	vec_to_color = 8
-	gradient     = 9
-
-class _color(ct.Structure):
-	pass
+# class _color(ct.Structure):
+# 	pass
 
 class cr_color(ct.Structure):
 	_fields_ = [
@@ -87,7 +76,27 @@ class _color_arg(ct.Union):
 		("gradient", _color_arg_gradient),
 	]
 
+class _color_type(IntEnum):
+	unknown      = 0
+	constant     = 1
+	image        = 2
+	checkerboard = 3
+	blackbody    = 4
+	split        = 5
+	rgb          = 6
+	hsl          = 7
+	vec_to_color = 8
+	gradient     = 9
+
+_color._anonymous_ = ("arg",)
 _color._fields_ = [
-		("type", _color_type)
-		("arg", _color_arg)
+		("type", ct.c_int), # _color_type
+		("arg", _color_arg),
 	]
+
+class ColorConstant:
+	def __init__(self, color):
+		self.color = color
+		self.cr_struct = _color()
+		self.cr_struct.type = _color_type.constant
+		self.cr_struct.constant = self.color

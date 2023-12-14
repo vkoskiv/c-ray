@@ -7,14 +7,6 @@ from . node import _vector
 class _shader(ct.Structure):
 	pass
 
-class Diffuse:
-	def __init__(self, color):
-		self.color = color
-		self.cr_ptr = ct.pointer(_shader)
-		self.cr_ptr.type = diffuse
-		self.cr_ptr.arg = _shader_arg_diffuse(self.color)
-	
-
 class _shader_arg_diffuse(ct.Structure):
 	_fields_ = [
 		("color", ct.POINTER(_color))
@@ -95,8 +87,18 @@ class _shader_arg(ct.Union):
 		("background", _shader_arg_background),
 	]
 
+_shader._anonymous_ = ("arg",)
 _shader._fields_ = [
 		("type", ct.c_int), # _shader_type
 		("arg", _shader_arg)
 	]
+
+class Diffuse:
+	def __init__(self, color):
+		self.color = color
+		self.cr_struct = _shader()
+		self.cr_struct.type = _shader_type.diffuse
+		ref = ct.byref(self.color.cr_struct)
+		casted = ct.cast(ref, ct.POINTER(_color))
+		self.cr_struct.diffuse = _shader_arg_diffuse(casted)
 

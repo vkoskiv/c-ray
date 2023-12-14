@@ -120,6 +120,6 @@ class _value_arg(ct.Union):
 	]
 
 _value._fields_ = [
-		("type", _value_type)
+		("type", _value_type),
 		("arg", _value_arg)
 	]

@@ -3,8 +3,10 @@ from contextlib import contextmanager
 from enum import IntEnum
 
 from . import cray_wrap as _lib
-import nodes.shader
-import nodes.vector.cr_vector
+from . nodes.vector import (
+	cr_vector,
+	cr_coord
+)
 
 class cr_renderer(ct.Structure):
 	pass
@@ -255,12 +257,6 @@ class instance:
 	def bind_materials(self, material_set):
 		_lib.instance_bind_material_set(self.scene_ptr, self.cr_idx, material_set.cr_idx)
 
-class cr_coord(ct.Structure):
-	_fields_ = [
-		("u", ct.c_float),
-		("v", ct.c_float)
-	]
-
 class vertex_buf:
 	def __init__(self, scene_ptr, v, vn, n, nn, t, tn):
 		self.cr_ptr = scene_ptr
@@ -280,7 +276,11 @@ class material_set:
 
 	def add(self, material):
 		self.materials.append(material)
-		_lib.material_set_add(self.scene_ptr, self.cr_idx, material)
+		ct.pythonapi.PyCapsule_New.argtypes = [ct.c_void_p, ct.c_char_p, ct.c_void_p]
+		ct.pythonapi.PyCapsule_New.restype = ct.py_object
+		name = b'cray.shader_node'
+		capsule = ct.pythonapi.PyCapsule_New(ct.byref(material.cr_struct), name, None)
+		_lib.material_set_add(self.scene_ptr, self.cr_idx, capsule)
 
 class scene:
 	def __init__(self, scene_ptr):
