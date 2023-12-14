@@ -1,31 +1,19 @@
 import ctypes as ct
-from color import _color
-from value import _value
-from vector import _vector
-
-class _shader_type(IntEnum):
-	unknown     = 0
-	diffuse     = 1
-	metal       = 2
-	glass       = 3
-	plastic     = 4
-	mix         = 5
-	add         = 6
-	transparent = 7
-	emissive    = 8
-	translucent = 9
-	background  = 10
+from enum import IntEnum
+from . node import _color
+from . node import _value
+from . node import _vector
 
 class _shader(ct.Structure):
-	_fields_ = [
-		("type", _shader_type),
-		("arg", _shader_arg)
-	]
+	pass
 
-class _shader_arg(ct.Union):
-	_fields_ = [
-		("diffuse", _shader_arg_diffuse)
-	]
+class Diffuse:
+	def __init__(self, color):
+		self.color = color
+		self.cr_ptr = ct.pointer(_shader)
+		self.cr_ptr.type = diffuse
+		self.cr_ptr.arg = _shader_arg_diffuse(self.color)
+	
 
 class _shader_arg_diffuse(ct.Structure):
 	_fields_ = [
@@ -81,8 +69,34 @@ class _shader_arg_background(ct.Structure):
 		("strength", ct.POINTER(_value))
 	]
 
-class _shader_arg_diffuse(ct.Structure):
+class _shader_type(IntEnum):
+	unknown     = 0
+	diffuse     = 1
+	metal       = 2
+	glass       = 3
+	plastic     = 4
+	mix         = 5
+	add         = 6
+	transparent = 7
+	emissive    = 8
+	translucent = 9
+	background  = 10
+
+class _shader_arg(ct.Union):
 	_fields_ = [
-		("color", ct.POINTER(_color))
+		("diffuse", _shader_arg_diffuse),
+		("metal", _shader_arg_metal),
+		("plastic", _shader_arg_plastic),
+		("mix", _shader_arg_mix),
+		("add", _shader_arg_add),
+		("transparent", _shader_arg_transparent),
+		("emissive", _shader_arg_emissive),
+		("translucent", _shader_arg_translucent),
+		("background", _shader_arg_background),
+	]
+
+_shader._fields_ = [
+		("type", ct.c_int), # _shader_type
+		("arg", _shader_arg)
 	]
 

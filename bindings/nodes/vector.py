@@ -1,5 +1,6 @@
 import ctypes as ct
-from value import _value
+from enum import IntEnum
+from . node import _value
 
 class _vector_type(IntEnum):
 	unknown  = 0
@@ -10,10 +11,7 @@ class _vector_type(IntEnum):
 	mix      = 5
 
 class _vector(ct.Structure):
-	_fields_ = [
-		("type", _vector_type)
-		("arg", _vector_arg)
-	]
+	pass
 
 class cr_vector(ct.Structure):
 	_fields_ = [
@@ -21,14 +19,6 @@ class cr_vector(ct.Structure):
 		("y", ct.c_float),
 		("z", ct.c_float),
 	]
-
-class _vector_arg(ct.Union):
-	_fields_ = [
-		("constant", cr_vector),
-		("vecmath", _vector_arg_vecmath),
-		("vec_mix", _vector_arg_vec_mix)
-	]
-
 
 # These are ripped off here:
 # https://docs.blender.org/manual/en/latest/render/shader_nodes/converter/vector_math.html
@@ -67,7 +57,7 @@ class _vector_arg_vecmath(ct.Structure):
 		("A", ct.POINTER(_vector))
 		("B", ct.POINTER(_vector))
 		("C", ct.POINTER(_vector))
-		("f", ct.POINTER(_value),
+		("f", ct.POINTER(_value)),
 		("op", _vector_op)
 	]
 
@@ -78,4 +68,15 @@ class _vector_arg_vec_mix(ct.Structure):
 		("factor", ct.POINTER(_value))
 	]
 
+class _vector_arg(ct.Union):
+	_fields_ = [
+		("constant", cr_vector),
+		("vecmath", _vector_arg_vecmath),
+		("vec_mix", _vector_arg_vec_mix)
+	]
+
+_vector._fields_ = [
+		("type", _vector_type)
+		("arg", _vector_arg)
+	]
 

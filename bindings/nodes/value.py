@@ -1,6 +1,7 @@
 import ctypes as ct
-from vector import _vector
-from color import _color
+from enum import IntEnum
+from . node import _vector
+from . node import _color
 
 class _value_type(IntEnum):
 	unknown      = 1
@@ -14,17 +15,7 @@ class _value_type(IntEnum):
 	grayscale    = 9
 
 class _value(ct.Structure):
-	_fields_ = [
-		("type", _value_type)
-		("arg", _value_arg)
-	]
-
-class _value_arg(ct.Union):
-	_fields_ = [
-		("constant", ct.c_double),
-		("fresnel", _value_arg_fresnel),
-		("map_range", _value_arg_map_range)
-	]
+	pass
 
 class _value_arg_fresnel(ct.Structure):
 	_fields_ = [
@@ -56,7 +47,7 @@ class _component(IntEnum):
 
 class _value_arg_vec_to_value(ct.Structure):
 	_fields_ = [
-		("comp", _component),
+		("comp", ct.c_int), # _component
 		("vec", ct.POINTER(_vector))
 	]
 
@@ -109,10 +100,26 @@ class _value_arg_math(ct.Structure):
 	_fields_ = [
 		("A", ct.POINTER(_value)),
 		("B", ct.POINTER(_value)),
-		("op", _math_op)
+		("op", ct.c_int) # _math_op
 	]
 
 class _value_arg_grayscale(ct.Structure):
 	_fields_ = [
 		("color", ct.POINTER(_color))
+	]
+
+class _value_arg(ct.Union):
+	_fields_ = [
+		("constant", ct.c_double),
+		("fresnel", _value_arg_fresnel),
+		("map_range", _value_arg_map_range),
+		("alpha", _value_arg_alpha),
+		("vec_to_value", _value_arg_vec_to_value),
+		("math", _value_arg_math),
+		("grayscale", _value_arg_grayscale)
+	]
+
+_value._fields_ = [
+		("type", _value_type)
+		("arg", _value_arg)
 	]
