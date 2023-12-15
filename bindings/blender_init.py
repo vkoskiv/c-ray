@@ -29,17 +29,11 @@ from array import array
 import math
 import mathutils
 
-from . nodes.shader import (
-	NodeShaderDiffuse,
-	NodeShaderMetal
-)
 from . nodes.color import (
-	NodeColorConstant,
 	cr_color
 )
-from . nodes.value import (
-	NodeValueConstant
-)
+
+from . nodes.convert import *
 
 from bpy.props import (
 	IntProperty,
@@ -124,7 +118,7 @@ def to_cr_face(me, poly):
 		indices.append(me.loops[loop_idx].vertex_index)
 	cr_face = c_ray.cr_face()
 	cr_face.vertex_idx[:] = indices
-	cr_face.mat_idx = 0
+	cr_face.mat_idx = poly.material_index
 	cr_face.has_normals = 0
 	return cr_face
 
@@ -189,9 +183,6 @@ class CrayRender(bpy.types.RenderEngine):
 			new_inst = cr_scene.instance_new(cr_mesh, 0)
 			new_inst.set_transform(to_cr_matrix(ob_main.matrix_world))
 			cr_mat_set = cr_scene.material_set_new()
-			test = NodeShaderMetal(NodeColorConstant(cr_color(0.101, 0.059, 0.8, 1.0)), NodeValueConstant(0.0))
-			cr_mat_set.add(test)
-			# cr_mat_set.add(None)
 			new_inst.bind_materials(cr_mat_set)
 			instances.append(new_inst)
 			if ob_main.is_instancer:
@@ -206,6 +197,12 @@ class CrayRender(bpy.types.RenderEngine):
 				me = None
 			if me is None:
 				continue
+			for bl_mat in me.materials:
+				if bl_mat.use_nodes:
+					cr_mat_set.add(convert_node_tree(depsgraph, bl_mat, bl_mat.node_tree))
+				else:
+					print("Material {} doesn't use nodes, do something about that".format(bl_mat.name))
+					cr_mat_set.add(None)
 			mesh_triangulate(me)
 			verts = me.vertices[:]
 			me.calc_normals_split()

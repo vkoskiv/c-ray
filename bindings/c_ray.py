@@ -275,6 +275,9 @@ class material_set:
 		self.cr_idx = _lib.scene_new_material_set(self.scene_ptr)
 
 	def add(self, material):
+		if material is None:
+			_lib.material_set_add(self.scene_ptr, self.cr_idx, None)
+			return
 		self.materials.append(material)
 		ct.pythonapi.PyCapsule_New.argtypes = [ct.c_void_p, ct.c_char_p, ct.c_void_p]
 		ct.pythonapi.PyCapsule_New.restype = ct.py_object
