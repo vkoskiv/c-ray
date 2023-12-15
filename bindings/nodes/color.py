@@ -4,9 +4,6 @@ from . node import _vector
 from . node import _value
 from . node import _color
 
-# class _color(ct.Structure):
-# 	pass
-
 class cr_color(ct.Structure):
 	_fields_ = [
 		("r", ct.c_float),
@@ -94,9 +91,71 @@ _color._fields_ = [
 		("arg", _color_arg),
 	]
 
-class ColorConstant:
+class NodeColorBase:
+	cr_struct = _color()
+	def castref(self):
+		ref = ct.byref(self.cr_struct)
+		return ct.cast(ref, ct.POINTER(_color))
+
+class NodeColorConstant(NodeColorBase):
 	def __init__(self, color):
 		self.color = color
-		self.cr_struct = _color()
 		self.cr_struct.type = _color_type.constant
 		self.cr_struct.constant = self.color
+
+class NodeColorImageTexture(NodeColorBase):
+	def __init__(self, full_path, options):
+		self.full_path = full_path
+		self.options = options
+		self.cr_struct.type = _color_type.image
+		self.cr_struct.image = _color_arg_image(self.full_path.encode(), self.options)
+
+class NodeColorCheckerboard(NodeColorBase):
+	def __init__(self, a, b, scale):
+		self.a = a
+		self.b = b
+		self.scale = scale
+		self.cr_struct.type = _color_type.checkerboard
+		self.cr_struct.checkerboard = _color_arg_checkerboard(self.a.castref(), self.b.castref(), self.scale.castref())
+
+class NodeColorBlackbody(NodeColorBase):
+	def __init__(self, degrees):
+		self.degrees = degrees
+		self.cr_struct.type = _color_type.blackbody
+		self.cr_struct.blackbody = _color_arg_blackbody(self.degrees.castref())
+
+class NodeColorSplit(NodeColorBase):
+	def __init__(self, node):
+		self.node = node
+		self.cr_struct.type = _color_type.split
+		self.cr_struct.split = _color_arg_split(self.node.castref())
+
+class NodeColorRGB(NodeColorBase):
+	def __init__(self, r, g, b):
+		self.r = r
+		self.g = g
+		self.b = b
+		self.cr_struct.type = _color_type.rgb
+		self.cr_struct.rgb = _color_arg_rgb(self.r.castref(), self.g.castref(), self.b.castref())
+		
+class NodeColorHSL(NodeColorBase):
+	def __init__(self, h, s, l):
+		self.h = h
+		self.s = s
+		self.l = l
+		self.cr_struct.type = _color_type.hsl
+		self.cr_struct.hsl = _color_arg_hsl(self.h.castref(), self.s.castref(), self.l.castref())
+
+class NodeColorVecToColor(NodeColorBase):
+	def __init__(self, vec):
+		self.vec = vec
+		self.cr_struct.type = _color_type.vec_to_color
+		self.cr_struct.vec_to_color = _color_arg_vec_to_color(self.vec.castref())
+
+class NodeColorGradient(NodeColorBase):
+	def __init__(self, a, b):
+		self.a = a
+		self.b = b
+		self.cr_struct.type = _color_type.gradient
+		self.cr_struct.gradient = _color_arg_gradient(self.a.castref(), self.b.castref())
+		

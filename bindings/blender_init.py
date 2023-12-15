@@ -30,11 +30,15 @@ import math
 import mathutils
 
 from . nodes.shader import (
-	Diffuse
+	NodeShaderDiffuse,
+	NodeShaderMetal
 )
 from . nodes.color import (
-	ColorConstant,
+	NodeColorConstant,
 	cr_color
+)
+from . nodes.value import (
+	NodeValueConstant
 )
 
 from bpy.props import (
@@ -185,7 +189,7 @@ class CrayRender(bpy.types.RenderEngine):
 			new_inst = cr_scene.instance_new(cr_mesh, 0)
 			new_inst.set_transform(to_cr_matrix(ob_main.matrix_world))
 			cr_mat_set = cr_scene.material_set_new()
-			test = Diffuse(ColorConstant(cr_color(0.101, 0.059, 0.8, 1.0)))
+			test = NodeShaderMetal(NodeColorConstant(cr_color(0.101, 0.059, 0.8, 1.0)), NodeValueConstant(0.0))
 			cr_mat_set.add(test)
 			# cr_mat_set.add(None)
 			new_inst.bind_materials(cr_mat_set)

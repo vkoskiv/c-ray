@@ -1,21 +1,8 @@
 import ctypes as ct
 from enum import IntEnum
 from . node import _vector
+from . node import _value
 from . node import _color
-
-class _value_type(IntEnum):
-	unknown      = 1
-	constant     = 2
-	fresnel      = 3
-	map_range    = 4
-	raylength    = 5
-	alpha        = 6
-	vec_to_value = 7
-	math         = 8
-	grayscale    = 9
-
-class _value(ct.Structure):
-	pass
 
 class _value_arg_fresnel(ct.Structure):
 	_fields_ = [
@@ -119,7 +106,75 @@ class _value_arg(ct.Union):
 		("grayscale", _value_arg_grayscale)
 	]
 
+class _value_type(IntEnum):
+	unknown      = 1
+	constant     = 2
+	fresnel      = 3
+	map_range    = 4
+	raylength    = 5
+	alpha        = 6
+	vec_to_value = 7
+	math         = 8
+	grayscale    = 9
+
+_value._anonymous_ = ("arg",)
 _value._fields_ = [
-		("type", _value_type),
+		("type", ct.c_int), # _value_type
 		("arg", _value_arg)
 	]
+
+class NodeValueBase:
+	cr_struct = _value()
+	def castref(self):
+		ref = ct.byref(self.cr_struct)
+		return ct.cast(ref, ct.POINTER(_value))
+
+class NodeValueConstant(NodeValueBase):
+	def __init__(self, constant):
+		self.constant = constant
+		self.cr_struct.type = _value_type.constant
+		self.cr_struct.constant = self.constant
+
+class NodeValueFresnel(NodeValueBase):
+	def __init__(self, IOR, normal):
+		self.IOR = IOR
+		self.normal = normal
+		self.cr_struct.type = _value_type.fresnel
+		self.cr_struct.fresnel = _value_arg_fresnel(self.IOR.castref(), self.normal.castref())
+
+class NodeValueMapRange(NodeValueBase):
+	def __init__(self, input_value, from_min, from_max, to_min, to_max):
+		self.input_value = input_value
+		self.from_min = from_min
+		self.from_max = from_max
+		self.to_min = to_min
+		self.to_max = to_max
+		self.cr_struct.type = _value_type.map_range
+		self.cr_struct.map_range = _value_arg_map_range(self.input_value.castref(), self.from_min.castref(), self.from_max.castref(), self.to_min.castref(), self.to_max.castref())
+
+class NodeValueAlpha(NodeValueBase):
+	def __init__(self, color):
+		self.color = color
+		self.cr_struct.type = _value_type.alpha
+		self.cr_struct.alpha = _value_arg_alpha(self.color.castref())
+
+class NodeValueVecToValue(NodeValueBase):
+	def __init__(self, comp, vec):
+		self.comp = comp
+		self.vec = vec
+		self.cr_struct.type = _value_type.vec_to_value
+		self.cr_struct.vec_to_value = _value_arg_vec_to_value(self.comp, self.vec.castref())
+
+class NodeValueMath(NodeValueBase):
+	def __init__(self, a, b, op):
+		self.a = a
+		self.b = b
+		self.op = op
+		self.cr_struct.type = _value_type.math
+		self.cr_struct.math = _value_arg_math(self.a.castref(), self.b.castref(), self.op)
+
+class NodeValueGrayscale(NodeValueBase):
+	def __init__(self, color):
+		self.color = color
+		self.cr_struct.type = _value_type.grayscale
+		self.cr_struct.grayscale = _value_arg_grayscale(self.color.castref())

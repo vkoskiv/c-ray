@@ -1,9 +1,8 @@
 import ctypes as ct
 from enum import IntEnum
+from . node import _vector
 from . node import _value
-
-class _vector(ct.Structure):
-	pass
+from . node import _color
 
 class cr_vector(ct.Structure):
 	_fields_ = [
@@ -81,8 +80,46 @@ class _vector_type(IntEnum):
 	vecmath  = 4
 	mix      = 5
 
+_vector._anonymous_ = ("arg",)
 _vector._fields_ = [
 		("type", ct.c_int), # _vector_type
 		("arg", _vector_arg)
 	]
 
+class NodeVectorBase:
+	cr_struct = _vector()
+	def castref(self):
+		ref = ct.byref(self.cr_struct)
+		return ct.cast(ref, ct.POINTER(_vector))
+
+class NodeVectorConstant(NodeVectorBase):
+	def __init__(self, vector):
+		self.vector = vector
+		self.cr_struct.type = _vector_type.constant
+		self.cr_struct.constant = self.vector
+
+class NodeVectorNormal(NodeVectorBase):
+	def __init__(self):
+		self.cr_struct.type = _vector_type.normal
+
+class NodeVectorUV(NodeVectorBase):
+	def __init__(self):
+		self.cr_struct.type = _vector_type.uv
+
+class NodeVectorVecMath(NodeVectorBase):
+	def __init__(self, a, b, c, f, op):
+		self.a = a
+		self.b = b
+		self.c = c
+		self.f = f
+		self.op = op
+		self.cr_struct.type = _vector_type.vecmath
+		self.cr_struct.vecmath = _vector_arg_vecmath(self.a.castref(), self.b.castref(), self.c.castref(), self.f.castref(), self.op)
+
+class NodeVectorVecMix(NodeVectorBase):
+	def __init__(self, a, b, factor):
+		self.a = a
+		self.b = b
+		self.factor = factor
+		self.cr_struct.type = _vector_type.mix
+		self.cr_struct.vec_mix = _vector_arg_vec_mix(self.a.castref(), self.b.castref(), self.factor.castref())
