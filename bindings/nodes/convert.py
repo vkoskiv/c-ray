@@ -5,6 +5,17 @@ from . color import *
 from . value import *
 from . vector import *
 
+def convert_background(nt):
+	if len(nt.nodes) < 1:
+		print("No nodes found for background, bailing out")
+		return None
+	if not 'World Output' in nt.nodes:
+		print("No World Output node found in tree for background, bailing out")
+		return None
+	root = nt.nodes['World Output']
+	return parse_node(root.inputs['Surface'].links[0].from_node)
+		
+
 def convert_node_tree(bl_depsgraph, mat, nt):
 	if len(nt.nodes) < 1:
 		print("No nodes found for material {}, bailing out".format(mat.name))
@@ -27,8 +38,11 @@ def parse_color(input):
 			return NodeColorConstant(cr_color(vals[0], vals[1], vals[2], vals[3]))
 		# case 'ShaderNodeTexImage':
 		# 	return warning_color
-		# case 'ShaderNodeTexChecker':
-		# 	return warning_color
+		case 'ShaderNodeTexChecker':
+			color1 = parse_color(input.inputs['Color1'])
+			color2 = parse_color(input.inputs['Color2'])
+			scale = parse_value(input.inputs['Scale'])
+			return NodeColorCheckerboard(color1, color2, scale)
 		# case 'ShaderNodeBlackbody':
 		# 	return warning_color
 		# case 'ShaderNodeCombineRGB':
@@ -85,6 +99,12 @@ def parse_node(input):
 		case 'ShaderNodeBsdfTranslucent':
 			color = parse_color(input.inputs['Color'])
 			return NodeShaderTranslucent(color)
+		case 'ShaderNodeBackground':
+			color = parse_color(input.inputs['Color'])
+			# Blender doesn't specify the pose here
+			pose = NodeVectorConstant(cr_vector(0.0, 0.0, 0.0))
+			strength = parse_value(input.inputs['Strength'])
+			return NodeShaderBackground(color, pose, strength)
 		case _:
 			print("Unknown shader node of type {}, maybe fix.".format(input.bl_idname))
 			return warning_shader

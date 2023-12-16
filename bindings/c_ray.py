@@ -304,7 +304,14 @@ class scene:
 	def instance_new(self, object, type):
 		return instance(self.cr_ptr, object, type)
 	def set_background(self, material):
-		return _lib.scene_set_background(self.cr_ptr, material)
+		if material is None:
+			return _lib.scene_set_background(self.cr_ptr, material)
+		self.background = material
+		ct.pythonapi.PyCapsule_New.argtypes = [ct.c_void_p, ct.c_char_p, ct.c_void_p]
+		ct.pythonapi.PyCapsule_New.restype = ct.py_object
+		name = b'cray.shader_node'
+		capsule = ct.pythonapi.PyCapsule_New(ct.byref(material.cr_struct), name, None)
+		return _lib.scene_set_background(self.cr_ptr, capsule)
 	def vertex_buf_new(self, v, vn, n, nn, t, tn):
 		return vertex_buf(self.cr_ptr, v, vn, n, nn, t, tn)
 

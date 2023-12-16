@@ -518,8 +518,12 @@ static PyObject *py_cr_scene_set_background(PyObject *self, PyObject *args) {
 		return NULL;
 	}
 	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
-	// TODO
-	bool ret = cr_scene_set_background(s, NULL);
+	if (!PyCapsule_IsValid(node_desc, "cray.shader_node")) {
+		cr_scene_set_background(s, NULL);
+		Py_RETURN_NONE;
+	}
+	struct cr_shader_node *desc = PyCapsule_GetPointer(node_desc, "cray.shader_node");
+	bool ret = cr_scene_set_background(s, desc);
 	return PyBool_FromLong(ret);
 }
 
