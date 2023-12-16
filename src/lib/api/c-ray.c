@@ -45,6 +45,8 @@ char *cr_get_git_hash() {
 	return gitHash();
 }
 
+struct cr_shader_node *shader_deepcopy(const struct cr_shader_node *in);
+
 // -- Renderer --
 
 struct cr_renderer;
@@ -212,7 +214,7 @@ bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_shader_node *desc
 	if (!s_ext) return false;
 	struct world *s = (struct world *)s_ext;
 	s->background = desc ? build_bsdf_node(s_ext, desc) : newBackground(&s->storage, NULL, NULL, NULL);
-	s->bg_desc = desc ? desc : NULL;
+	s->bg_desc = desc ? shader_deepcopy(desc) : NULL;
 	return true;
 }
 
