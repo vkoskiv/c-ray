@@ -107,15 +107,15 @@ class _value_arg(ct.Union):
 	]
 
 class _value_type(IntEnum):
-	unknown      = 1
-	constant     = 2
-	fresnel      = 3
-	map_range    = 4
-	raylength    = 5
-	alpha        = 6
-	vec_to_value = 7
-	math         = 8
-	grayscale    = 9
+	unknown      = 0
+	constant     = 1
+	fresnel      = 2
+	map_range    = 3
+	raylength    = 4
+	alpha        = 5
+	vec_to_value = 6
+	math         = 7
+	grayscale    = 8
 
 _value._anonymous_ = ("arg",)
 _value._fields_ = [
