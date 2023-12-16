@@ -658,7 +658,7 @@ struct cr_shader_node *shader_deepcopy(const struct cr_shader_node *in) {
 }
 
 // TODO: Remove once not needed anymore, and mark serialize_shader_node as static again
-#define NODE_DEBUG
+// #define NODE_DEBUG
 
 #ifdef NODE_DEBUG
 #include "../../common/vendored/cJSON.h"

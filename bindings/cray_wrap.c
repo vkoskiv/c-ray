@@ -296,6 +296,15 @@ static PyObject *py_cr_mesh_bind_vertex_buf(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static void dump_face(struct cr_face f) {
+	printf("v0: %i, v1: %i, v2: %i\nn0: %i, n1: %i, n2: %i\nt0: %i, t1: %i, t2: %i\nmat_id: %i, has_normals: %i\n",
+		f.vertex_idx[0], f.vertex_idx[1], f.vertex_idx[2],
+		f.normal_idx[0], f.normal_idx[1], f.normal_idx[2],
+		f.texture_idx[0], f.texture_idx[1], f.texture_idx[2],
+		f.mat_idx,
+		f.has_normals == 1 ? 1 : 0);
+}
+
 static PyObject *py_cr_mesh_bind_faces(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
 	PyObject *s_ext;
@@ -318,9 +327,9 @@ static PyObject *py_cr_mesh_bind_faces(PyObject *self, PyObject *args) {
 
 	struct cr_face *faces = calloc(face_count, sizeof(*faces));
 	memcpy(faces, face_view.buf, face_count * sizeof(*faces));
-	// for (size_t i = 0; i < face_count; ++i) {
-	// 	dump_face(faces[i]);
-	// }
+	for (size_t i = 0; i < face_count; ++i) {
+		dump_face(faces[i]);
+	}
 
 	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
 	cr_mesh_bind_faces(s, mesh, faces, face_count);
