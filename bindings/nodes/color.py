@@ -92,19 +92,22 @@ _color._fields_ = [
 	]
 
 class NodeColorBase:
-	cr_struct = _color()
+	def __init__(self):
+		self.cr_struct = _color()
 	def castref(self):
 		ref = ct.byref(self.cr_struct)
 		return ct.cast(ref, ct.POINTER(_color))
 
 class NodeColorConstant(NodeColorBase):
 	def __init__(self, color):
+		super().__init__()
 		self.color = color
 		self.cr_struct.type = _color_type.constant
 		self.cr_struct.constant = self.color
 
 class NodeColorImageTexture(NodeColorBase):
 	def __init__(self, full_path, options):
+		super().__init__()
 		self.full_path = full_path
 		self.options = options
 		self.cr_struct.type = _color_type.image
@@ -112,6 +115,7 @@ class NodeColorImageTexture(NodeColorBase):
 
 class NodeColorCheckerboard(NodeColorBase):
 	def __init__(self, a, b, scale):
+		super().__init__()
 		self.a = a
 		self.b = b
 		self.scale = scale
@@ -120,18 +124,21 @@ class NodeColorCheckerboard(NodeColorBase):
 
 class NodeColorBlackbody(NodeColorBase):
 	def __init__(self, degrees):
+		super().__init__()
 		self.degrees = degrees
 		self.cr_struct.type = _color_type.blackbody
 		self.cr_struct.blackbody = _color_arg_blackbody(self.degrees.castref())
 
 class NodeColorSplit(NodeColorBase):
 	def __init__(self, node):
+		super().__init__()
 		self.node = node
 		self.cr_struct.type = _color_type.split
 		self.cr_struct.split = _color_arg_split(self.node.castref())
 
 class NodeColorRGB(NodeColorBase):
 	def __init__(self, r, g, b):
+		super().__init__()
 		self.r = r
 		self.g = g
 		self.b = b
@@ -140,6 +147,7 @@ class NodeColorRGB(NodeColorBase):
 		
 class NodeColorHSL(NodeColorBase):
 	def __init__(self, h, s, l):
+		super().__init__()
 		self.h = h
 		self.s = s
 		self.l = l
@@ -148,12 +156,14 @@ class NodeColorHSL(NodeColorBase):
 
 class NodeColorVecToColor(NodeColorBase):
 	def __init__(self, vec):
+		super().__init__()
 		self.vec = vec
 		self.cr_struct.type = _color_type.vec_to_color
 		self.cr_struct.vec_to_color = _color_arg_vec_to_color(self.vec.castref())
 
 class NodeColorGradient(NodeColorBase):
 	def __init__(self, a, b):
+		super().__init__()
 		self.a = a
 		self.b = b
 		self.cr_struct.type = _color_type.gradient

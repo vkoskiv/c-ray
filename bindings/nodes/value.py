@@ -124,19 +124,22 @@ _value._fields_ = [
 	]
 
 class NodeValueBase:
-	cr_struct = _value()
+	def __init__(self):
+		self.cr_struct = _value()
 	def castref(self):
 		ref = ct.byref(self.cr_struct)
 		return ct.cast(ref, ct.POINTER(_value))
 
 class NodeValueConstant(NodeValueBase):
 	def __init__(self, constant):
+		super().__init__()
 		self.constant = constant
 		self.cr_struct.type = _value_type.constant
 		self.cr_struct.constant = self.constant
 
 class NodeValueFresnel(NodeValueBase):
 	def __init__(self, IOR, normal):
+		super().__init__()
 		self.IOR = IOR
 		self.normal = normal
 		self.cr_struct.type = _value_type.fresnel
@@ -144,6 +147,7 @@ class NodeValueFresnel(NodeValueBase):
 
 class NodeValueMapRange(NodeValueBase):
 	def __init__(self, input_value, from_min, from_max, to_min, to_max):
+		super().__init__()
 		self.input_value = input_value
 		self.from_min = from_min
 		self.from_max = from_max
@@ -154,12 +158,14 @@ class NodeValueMapRange(NodeValueBase):
 
 class NodeValueAlpha(NodeValueBase):
 	def __init__(self, color):
+		super().__init__()
 		self.color = color
 		self.cr_struct.type = _value_type.alpha
 		self.cr_struct.alpha = _value_arg_alpha(self.color.castref())
 
 class NodeValueVecToValue(NodeValueBase):
 	def __init__(self, comp, vec):
+		super().__init__()
 		self.comp = comp
 		self.vec = vec
 		self.cr_struct.type = _value_type.vec_to_value
@@ -167,6 +173,7 @@ class NodeValueVecToValue(NodeValueBase):
 
 class NodeValueMath(NodeValueBase):
 	def __init__(self, a, b, op):
+		super().__init__()
 		self.a = a
 		self.b = b
 		self.op = op
@@ -175,6 +182,7 @@ class NodeValueMath(NodeValueBase):
 
 class NodeValueGrayscale(NodeValueBase):
 	def __init__(self, color):
+		super().__init__()
 		self.color = color
 		self.cr_struct.type = _value_type.grayscale
 		self.cr_struct.grayscale = _value_arg_grayscale(self.color.castref())

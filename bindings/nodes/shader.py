@@ -102,19 +102,22 @@ _shader._fields_ = [
 	]
 
 class NodeShaderBase:
-	cr_struct = _shader()
+	def __init__(self):
+		self.cr_struct = _shader()
 	def castref(self):
 		ref = ct.byref(self.cr_struct)
 		return ct.cast(ref, ct.POINTER(_shader))
 
 class NodeShaderDiffuse(NodeShaderBase):
 	def __init__(self, color):
+		super().__init__()
 		self.color = color
 		self.cr_struct.type = _shader_type.diffuse
 		self.cr_struct.diffuse = _shader_arg_diffuse(self.color.castref())
 
 class NodeShaderMetal(NodeShaderBase):
 	def __init__(self, color, roughness):
+		super().__init__()
 		self.color = color
 		self.roughness = roughness
 		self.cr_struct.type = _shader_type.metal
@@ -122,6 +125,7 @@ class NodeShaderMetal(NodeShaderBase):
 
 class NodeShaderGlass(NodeShaderBase):
 	def __init__(self, color, roughness, IOR):
+		super().__init__()
 		self.color = color
 		self.roughness = roughness
 		self.IOR = IOR
@@ -130,6 +134,7 @@ class NodeShaderGlass(NodeShaderBase):
 
 class NodeShaderPlastic(NodeShaderBase):
 	def __init__(self, color, roughness, IOR):
+		super().__init__()
 		self.color = color
 		self.roughness = roughness
 		self.IOR = IOR
@@ -138,6 +143,7 @@ class NodeShaderPlastic(NodeShaderBase):
 
 class NodeShaderMix(NodeShaderBase):
 	def __init__(self, a, b, factor):
+		super().__init__()
 		self.a = a
 		self.b = b
 		self.factor = factor
@@ -146,6 +152,7 @@ class NodeShaderMix(NodeShaderBase):
 
 class NodeShaderAdd(NodeShaderBase):
 	def __init__(self, a, b):
+		super().__init__()
 		self.a = a
 		self.b = b
 		self.cr_struct.type = _shader_type.add
@@ -153,12 +160,14 @@ class NodeShaderAdd(NodeShaderBase):
 
 class NodeShaderTransparent(NodeShaderBase):
 	def __init__(self, color):
+		super().__init__()
 		self.color = color
 		self.cr_struct.type = _shader_type.transparent
 		self.cr_struct.transparent = _shader_arg_transparent(self.color.castref())
 
 class NodeShaderEmissive(NodeShaderBase):
 	def __init__(self, color, strength):
+		super().__init__()
 		self.color = color
 		self.strength = strength
 		self.cr_struct.type = _shader_type.emissive
@@ -166,12 +175,14 @@ class NodeShaderEmissive(NodeShaderBase):
 
 class NodeShaderTranslucent(NodeShaderBase):
 	def __init__(self, color):
+		super().__init__()
 		self.color = color
 		self.cr_struct.type = _shader_type.translucent
 		self.cr_struct.translucent = _shader_arg_translucent(self.color.castref())
 
 class NodeShaderBackground(NodeShaderBase):
 	def __init__(self, color, pose, strength):
+		super().__init__()
 		self.color = color
 		self.pose = pose
 		self.strength = strength

@@ -87,27 +87,32 @@ _vector._fields_ = [
 	]
 
 class NodeVectorBase:
-	cr_struct = _vector()
+	def __init__(self):
+		self.cr_struct = _vector()
 	def castref(self):
 		ref = ct.byref(self.cr_struct)
 		return ct.cast(ref, ct.POINTER(_vector))
 
 class NodeVectorConstant(NodeVectorBase):
 	def __init__(self, vector):
+		super().__init__()
 		self.vector = vector
 		self.cr_struct.type = _vector_type.constant
 		self.cr_struct.constant = self.vector
 
 class NodeVectorNormal(NodeVectorBase):
 	def __init__(self):
+		super().__init__()
 		self.cr_struct.type = _vector_type.normal
 
 class NodeVectorUV(NodeVectorBase):
 	def __init__(self):
+		super().__init__()
 		self.cr_struct.type = _vector_type.uv
 
 class NodeVectorVecMath(NodeVectorBase):
 	def __init__(self, a, b, c, f, op):
+		super().__init__()
 		self.a = a
 		self.b = b
 		self.c = c
@@ -118,6 +123,7 @@ class NodeVectorVecMath(NodeVectorBase):
 
 class NodeVectorVecMix(NodeVectorBase):
 	def __init__(self, a, b, factor):
+		super().__init__()
 		self.a = a
 		self.b = b
 		self.factor = factor
