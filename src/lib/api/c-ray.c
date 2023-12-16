@@ -657,10 +657,33 @@ struct cr_shader_node *shader_deepcopy(const struct cr_shader_node *in) {
 	return out;
 }
 
+// TODO: Remove once not needed anymore, and mark serialize_shader_node as static again
+#define NODE_DEBUG
+
+#ifdef NODE_DEBUG
+#include "../../common/vendored/cJSON.h"
+cJSON *serialize_shader_node(const struct cr_shader_node *in);
+#endif
+
+static void debug_dump_node_tree(const struct cr_shader_node *desc) {
+#ifdef NODE_DEBUG
+	if (desc) {
+		cJSON *debug = serialize_shader_node(desc);
+		printf("%s\n", cJSON_Print(debug));
+		cJSON_Delete(debug);
+	} else {
+		printf("NULL\n");
+	}
+#else
+	(void)desc;
+#endif
+}
+
 void cr_material_set_add(struct cr_scene *s_ext, cr_material_set set, struct cr_shader_node *desc) {
 	if (!s_ext) return;
 	struct world *s = (struct world *)s_ext;
 	if ((size_t)set > s->shader_buffers.count - 1) return;
+	debug_dump_node_tree(desc);
 	struct bsdf_buffer *buf = &s->shader_buffers.items[set];
 	const struct bsdfNode *node = build_bsdf_node(s_ext, desc);
 	cr_shader_node_ptr_arr_add(&buf->descriptions, shader_deepcopy(desc));

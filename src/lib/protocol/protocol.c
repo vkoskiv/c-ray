@@ -601,7 +601,7 @@ static cJSON *serialize_color_node(const struct cr_color_node *in) {
 	return out;
 }
 
-static cJSON *serialize_shader_node(const struct cr_shader_node *in) {
+cJSON *serialize_shader_node(const struct cr_shader_node *in) {
 	if (!in) return NULL;
 	cJSON *out = cJSON_CreateObject();
 	switch (in->type) {
