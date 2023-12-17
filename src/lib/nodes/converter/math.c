@@ -132,6 +132,7 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 	snprintf(dumpbuf, bufsize, "mathNode { A: %s, B: %s, op: %s }", A, B, op);
 }
 
+// FIXME: c is supposed to be epsilon, not that hard coded value
 float rough_compare(float a, float b) {
 	if (fabsf(a - b) > 0.0000005f) return false;
 	return true;

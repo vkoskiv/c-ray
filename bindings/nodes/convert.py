@@ -5,6 +5,11 @@ from . color import *
 from . value import *
 from . vector import *
 
+# No clue why, * apparently still skips some imports
+from . vector import _vector_op
+from . value import _math_op
+from . value import _component
+
 def convert_background(nt):
 	if len(nt.nodes) < 1:
 		print("No nodes found for background, bailing out")
@@ -30,6 +35,19 @@ def convert_node_tree(bl_depsgraph, mat, nt):
 
 warning_color = NodeColorCheckerboard(NodeColorConstant(cr_color(1.0, 0.0, 0.0, 0.0)), NodeColorConstant(cr_color(1.0, 1.0, 1.0, 1.0)), NodeValueConstant(100.0))
 
+# Blender's mix node (ShaderNodeMix) is internally shared among different types.
+# Confusingly, the different inputs share the same names, so here are the input indices, names and types:
+# 0:Factor --> NodeSocketFloatFactor
+# 1:Factor --> NodeSocketVector
+# 2:A --> NodeSocketFloat
+# 3:B --> NodeSocketFloat
+# 4:A --> NodeSocketVector
+# 5:B --> NodeSocketVector
+# 6:A --> NodeSocketColor
+# 7:B --> NodeSocketColor
+# 8:A --> NodeSocketRotation
+# 9:B --> NodeSocketRotation
+
 def parse_color(input):
 	match input.bl_idname:
 		case 'NodeSocketColor':
@@ -54,9 +72,12 @@ def parse_color(input):
 			color = input.outputs[0].default_value
 			return NodeColorConstant(cr_color(color[0], color[1], color[2], color[3]))
 		case 'ShaderNodeMix':
+			factor = parse_value(input.inputs[0])
+			if input.inputs[4].is_linked and input.inputs[5].is_linked:
+				return NodeColorVecToColor(parse_vector(input))
+
 			a = parse_color(input.inputs[6])
 			b = parse_color(input.inputs[7])
-			factor = parse_value(input.inputs[0])
 			return NodeColorMix(a, b, factor)
 		# case 'ShaderNodeBlackbody':
 		# 	return warning_color
@@ -70,6 +91,81 @@ def parse_color(input):
 		case _:
 			print("Unknown color node of type {}, maybe fix.".format(input.bl_idname))
 			return warning_color
+
+def map_math_op(bl_op):
+	m = _math_op
+	match bl_op:
+		case 'ADD':
+			return m.Add
+		case 'SUBTRACT':
+			return m.Subtract
+		case 'MULTIPLY':
+			return m.Multiply
+		case 'DIVIDE':
+			return m.Divide
+		# case 'MULTIPLY_ADD':
+		case 'POWER':
+			return m.Power
+		case 'LOGARITHM':
+			return m.Log
+		case 'SQRT':
+			return m.SquareRoot
+		case 'INVERSE_SQRT':
+			return m.InvSquareRoot
+		case 'ABSOLUTE':
+			return m.Absolute
+		# case 'EXPONENT':
+		case 'MINIMUM':
+			return m.Min
+		case 'MAXIMUM':
+			return m.Max
+		case 'LESS_THAN':
+			return m.LessThan
+		case 'GREATER_THAN':
+			return m.GreaterThan
+		case 'SIGN':
+			return m.Sign
+		case 'COMPARE':
+			# FIXME: Ignoring c, using hard-coded epsilon
+			return m.Compare
+		# case 'SMOOTH_MIN':
+		# case 'SMOOTH_MAX':
+		case 'ROUND':
+			return m.Round
+		case 'FLOOR':
+			return m.Floor
+		case 'CEIL':
+			return m.Ceil
+		case 'TRUNC':
+			return m.Truncate
+		case 'FRACT':
+			return m.Fraction
+		case 'MODULO':
+			return m.Modulo
+		# case 'FLOORED_MODULO':
+		# case 'WRAP':
+		# case 'SNAP':
+		# case 'PINGPONG':
+		case 'SINE':
+			return m.Sine
+		case 'COSINE':
+			return m.Cosine
+		case 'TANGENT':
+			return m.Tangent
+		# case 'ARCSINE':
+		# case 'ARCCOSINE':
+		# case 'ARCTANGENT':
+		# case 'ARCTAN2':
+		# case 'SINH':
+		# case 'COSH':
+		# case 'TANH':
+		case 'RADIANS':
+			return m.ToRadians
+		case 'DEGREES':
+			return m.ToDegrees
+		case _:
+			print("Unknown math op {}, defaulting to ADD".format(bl_op))
+			return m.Add
 
 def parse_value(input):
 	match input.bl_idname:
@@ -85,8 +181,75 @@ def parse_value(input):
 		case 'ShaderNodeValue':
 			value = input.outputs[0].default_value
 			return NodeValueConstant(value)
+		case 'ShaderNodeMath':
+			a = parse_value(input.inputs[0])
+			b = parse_value(input.inputs[1])
+			# c = parse_value(input.inputs[2])
+			op = map_math_op(input.operation)
+			return NodeValueMath(a, b, op)
+		case 'ShaderNodeVectorMath':
+			vec = parse_vector(input)
+			return NodeValueVecToValue(_component.F, vec)
 		case _:
 			print("Unknown value node of type {}, maybe fix.".format(input.bl_idname))
+
+# From here: https://docs.blender.org/api/current/bpy_types_enum_items/node_vec_math_items.html#rna-enum-node-vec-math-items
+# Commented ones aren't implemented yet, and will emit a notice to stdout
+def map_vec_op(bl_op):
+	v = _vector_op
+	match bl_op:
+		case 'ADD':
+			return v.Add
+		case 'SUBTRACT':
+			return v.Subtract
+		case 'MULTIPLY':
+			return v.Multiply
+		case 'DIVIDE':
+			return v.Divide
+		# case 'MULTIPLY_ADD':
+		case 'CROSS_PRODUCT':
+			return v.Cross
+		# case 'PROJECT':
+		case 'REFLECT':
+			return v.Reflect
+		case 'REFRACT':
+			return v.Refract
+		# case 'FACEFORWARD':
+		case 'DOT_PRODUCT':
+			return v.Dot
+		case 'DISTANCE':
+			return v.Distance
+		case 'LENGTH':
+			return v.Length
+		case 'SCALE':
+			return v.Scale
+		case 'NORMALIZE':
+			return v.Normalize
+		case 'ABSOLUTE':
+			return v.Abs
+		case 'MINIMUM':
+			return v.Min
+		case 'MAXIMUM':
+			return v.Max
+		case 'FLOOR':
+			return v.Floor
+		case 'CEIL':
+			return v.Ceil
+		# case 'FRACTION':
+		case 'MODULO':
+			return v.Modulo
+		case 'WRAP':
+			return v.Wrap
+		# case 'SNAP':
+		case 'SINE':
+			return v.Sin
+		case 'COSINE':
+			return v.Cos
+		case 'TANGENT':
+			return v.Tan
+		case _:
+			print("Unknown vector op {}, defaulting to ADD".format(bl_op))
+			return v.Add
 
 def parse_vector(input):
 	match input.bl_idname:
@@ -95,6 +258,26 @@ def parse_vector(input):
 				return parse_vector(input.links[0].from_node)
 			vec = input.default_value
 			return NodeVectorConstant(cr_vector(vec[0], vec[1], vec[2]))
+		case 'ShaderNodeMix':
+			a = parse_vector(input.inputs[4])
+			b = parse_vector(input.inputs[5])
+			factor = parse_value(input.inputs[0])
+			return NodeVectorVecMix(a, b, factor)
+		case 'ShaderNodeVectorMath':
+			a = parse_vector(input.inputs[0])
+			b = parse_vector(input.inputs[1])
+			c = parse_vector(input.inputs[2])
+			f = parse_value(input.inputs[3])
+			op = map_vec_op(input.operation)
+			return NodeVectorVecMath(a, b, c, f, op)
+		case 'ShaderNodeTexCoord':
+			if input.outputs['UV'].is_linked:
+				return NodeVectorUV()
+			if input.outputs['Normal'].is_linked:
+				return NodeVectorNormal()
+			print("Unsupported ShaderNodeTexCoord, here's a dump:")
+			for output in input.outputs:
+				print("{}: {}".format(output.name, output.is_linked))
 		case _:
 			print("Unknown vector node of type {}, maybe fix.".format(input.bl_idname))
 
