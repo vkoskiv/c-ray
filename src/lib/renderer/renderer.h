@@ -72,6 +72,7 @@ struct prefs {
 	size_t imgCount;
 	char *node_list;
 	bool iterative;
+	bool blender_mode;
 };
 
 struct renderer {

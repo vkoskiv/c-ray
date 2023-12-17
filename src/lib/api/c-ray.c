@@ -114,6 +114,10 @@ bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			r->prefs.iterative = true;
 			return true;
 		}
+		case cr_renderer_blender_mode: {
+			r->prefs.blender_mode = num;
+			return true;
+		}
 		default: return false;
 	}
 	return false;

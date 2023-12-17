@@ -47,6 +47,7 @@ class _cr_rparam(IntEnum):
 	output_name = 14
 	output_filetype = 15
 	node_list = 16
+	blender_mode = 17
 
 def _r_set_num(ptr, param, value):
 	return _lib.renderer_set_num_pref(ptr, param, value)
@@ -165,6 +166,12 @@ class _pref:
 	def _set_node_list(self, value):
 		_r_set_str(self.r_ptr, _cr_rparam.node_list, value)
 	node_list = property(_get_node_list, _set_node_list, None, "")
+
+	def _get_blender_mode(self):
+		return _r_get_num(self.r_ptr, _cr_rparam.blender_mode)
+	def _set_blender_mode(self, value):
+		_r_set_num(self.r_ptr, _cr_rparam.blender_mode, value)
+	blender_mode = property(_get_blender_mode, _set_blender_mode, None, "")
 
 class _version:
 	def _get_semantic(self):

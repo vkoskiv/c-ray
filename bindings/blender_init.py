@@ -234,16 +234,14 @@ class CrayRender(bpy.types.RenderEngine):
 		renderer.prefs.tile_y = b_scene.c_ray.tile_size
 		renderer.prefs.bounces = b_scene.c_ray.bounces
 		renderer.prefs.node_list = b_scene.c_ray.node_list
+		renderer.prefs.blender_mode = True
 		bm = renderer.render()
 		self.display_bitmap(bm)
 		del(renderer)
 
 	def display_bitmap(self, bm):
-		bytecount = bm.width * bm.height * bm.stride
-		bytes = array('B', bm.data.byte_ptr[:bytecount])
-		floats = []
-		for byte in bytes:
-			floats.append(byte / 255.0)
+		float_count = bm.width * bm.height * bm.stride
+		floats = array('f', bm.data.float_ptr[:float_count])
 		rect = []
 		for i in range(0, len(floats), 3):
 			temp = []

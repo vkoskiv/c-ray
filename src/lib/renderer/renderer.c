@@ -180,7 +180,13 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 		r->prefs.threads = set.tiles.count;
 	}
 
-	struct texture *output = newTexture(char_p, camera.width, camera.height, 3);
+	//Allocate memory for render buffer
+	//Render buffer is used to store accurate color values for the renderers' internal use
+	struct texture *render_buf = newTexture(float_p, camera.width, camera.height, 3);
+	struct texture *output = NULL;
+	if (!r->prefs.blender_mode) {
+		output = newTexture(char_p, camera.width, camera.height, 3);
+	}
 	struct cr_tile *info_tiles = calloc(set.tiles.count, sizeof(*info_tiles));
 	struct cr_renderer_cb_info cb_info = {
 		.tiles = info_tiles,
@@ -206,10 +212,6 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	void *(*localRenderThread)(void *) = renderThread;
 	// Iterative mode is incompatible with network rendering at the moment
 	if (r->prefs.iterative && !r->state.clients.count) localRenderThread = renderThreadInteractive;
-	
-	//Allocate memory for render buffer
-	//Render buffer is used to store accurate color values for the renderers' internal use
-	struct texture *render_buf = newTexture(float_p, camera.width, camera.height, 3);
 	
 	// Create & boot workers (Nonblocking)
 	// Local render threads + one thread for every client
@@ -275,9 +277,13 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 		stop.fn(&cb_info, stop.user_data);
 	}
 	if (info_tiles) free(info_tiles);
-	destroyTexture(render_buf);
 	tile_set_free(&set);
-	return (struct cr_bitmap *)output;
+	if (r->prefs.blender_mode) {
+		return (struct cr_bitmap *)render_buf;
+	} else {
+		destroyTexture(render_buf);
+		return (struct cr_bitmap *)output;
+	}
 }
 
 // An interactive render thread that progressively
@@ -305,7 +311,7 @@ void *renderThreadInteractive(void *arg) {
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
 				if (r->state.render_aborted) goto exit;
-				uint32_t pixIdx = (uint32_t)(y * image->width + x);
+				uint32_t pixIdx = (uint32_t)(y * buf->width + x);
 				//FIXME: This does not converge to the same result as with regular renderThread.
 				//I assume that's because we'd have to init the sampler differently when we render all
 				//the tiles in one go per sample, instead of the other way around.
@@ -325,11 +331,12 @@ void *renderThreadInteractive(void *arg) {
 				//Store internal render buffer (float precision)
 				setPixel(buf, output, x, y);
 				
-				//Gamma correction
-				output = colorToSRGB(output);
-				
-				//And store the image data
-				setPixel(image, output, x, y);
+				if (image) {
+					//Gamma correction
+					output = colorToSRGB(output);
+					//And store the image data
+					setPixel(image, output, x, y);
+				}
 			}
 		}
 		//For performance metrics
@@ -386,7 +393,7 @@ void *renderThread(void *arg) {
 			for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 				for (int x = tile->begin.x; x < tile->end.x; ++x) {
 					if (r->state.render_aborted) goto exit;
-					uint32_t pixIdx = (uint32_t)(y * image->width + x);
+					uint32_t pixIdx = (uint32_t)(y * buf->width + x);
 					initSampler(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(buf, x, y, false);
@@ -404,11 +411,12 @@ void *renderThread(void *arg) {
 					//Store internal render buffer (float precision)
 					setPixel(buf, output, x, y);
 					
-					//Gamma correction
-					output = colorToSRGB(output);
-					
-					//And store the image data
-					setPixel(image, output, x, y);
+					if (image) {
+						//Gamma correction
+						output = colorToSRGB(output);
+						//And store the image data
+						setPixel(image, output, x, y);
+					}
 				}
 			}
 			//For performance metrics

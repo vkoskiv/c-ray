@@ -63,6 +63,7 @@ enum cr_renderer_param {
 	cr_renderer_output_name,
 	cr_renderer_output_filetype,
 	cr_renderer_node_list,
+	cr_renderer_blender_mode,
 };
 
 enum cr_tile_state {
