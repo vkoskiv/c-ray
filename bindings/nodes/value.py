@@ -27,10 +27,10 @@ class _value_arg_alpha(ct.Structure):
 class _component(IntEnum):
 	X = 0
 	Y = 1
-	Z = 3
-	U = 4
-	V = 5
-	F = 6
+	Z = 2
+	U = 3
+	V = 4
+	F = 5
 
 class _value_arg_vec_to_value(ct.Structure):
 	_fields_ = [

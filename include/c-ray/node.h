@@ -89,7 +89,7 @@ struct cr_value_node {
 
 		struct cr_vec_to_value_params {
 			enum cr_vec_to_value_component {
-				X, Y, Z, U, V, F
+				X = 0, Y, Z, U, V, F
 			} comp;
 			struct cr_vector_node *vec;
 		} vec_to_value;
