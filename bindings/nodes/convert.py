@@ -90,6 +90,10 @@ warning_shader = NodeShaderDiffuse(warning_color)
 
 def parse_node(input):
 	match input.bl_idname:
+		case 'NodeSocketShader':
+			if input.is_linked:
+				return parse_node(input.links[0].from_node)
+			return None
 		case 'ShaderNodeBsdfDiffuse':
 			color = parse_color(input.inputs['Color'])
 			return NodeShaderDiffuse(color) # note: missing roughness + normal
@@ -111,6 +115,25 @@ def parse_node(input):
 			pose = NodeVectorConstant(cr_vector(0.0, 0.0, 0.0))
 			strength = parse_value(input.inputs['Strength'])
 			return NodeShaderBackground(color, pose, strength)
+		case 'ShaderNodeMixShader':
+			factor = parse_value(input.inputs[0])
+			a = parse_node(input.inputs[1])
+			b = parse_node(input.inputs[2])
+			return NodeShaderMix(a, b, factor)
+		case 'ShaderNodeBsdfTransparent':
+			color = parse_color(input.inputs['Color'])
+			return NodeShaderTransparent(color)
+		case 'ShaderNodeBsdfTranslucent':
+			color = parse_color(input.inputs['Color'])
+			return NodeShaderTranslucent(color)
+		case 'ShaderNodeEmission':
+			color = parse_color(input.inputs['Color'])
+			strength = parse_value(input.inputs['Strength'])
+			return NodeShaderEmissive(color, strength)
+		case 'ShaderNodeAddShader':
+			a = parse_node(input.inputs[0])
+			b = parse_node(input.inputs[1])
+			return NodeShaderAdd(a, b)
 		case _:
 			print("Unknown shader node of type {}, maybe fix.".format(input.bl_idname))
 			return warning_shader
