@@ -225,6 +225,7 @@ class CrayRender(bpy.types.RenderEngine):
 		self.size_y = int(b_scene.render.resolution_y * scale)
 
 		renderer = c_ray.renderer()
+		renderer.prefs.asset_path = ""
 		cr_scene = self.sync_scene(renderer, depsgraph, b_scene)
 		print(cr_scene.totals())
 		# renderer.debug_dump()

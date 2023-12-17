@@ -46,8 +46,8 @@ def parse_color(input):
 			if input.image is None:
 				print("No image set in blender environment texture {}".format(input.name))
 				return warning_color
-			path = input.image.filepath
-			return NodeColorImageTexture(path[2:], 0)
+			path = input.image.filepath_from_user()
+			return NodeColorImageTexture(path, 0)
 		case 'ShaderNodeRGB':
 			color = input.outputs[0].default_value
 			return NodeColorConstant(cr_color(color[0], color[1], color[2], color[3]))
