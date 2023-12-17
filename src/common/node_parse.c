@@ -344,6 +344,16 @@ struct cr_color_node *cr_color_node_build(const struct cJSON *desc) {
 				}
 			});
 		}
+		if (stringEquals(type->valuestring, "color_mix")) {
+			return cn_alloc((struct cr_color_node){
+				.type = cr_cn_color_mix,
+				.arg.color_mix = {
+					.a = cr_color_node_build(cJSON_GetObjectItem(desc, "a")),
+					.b = cr_color_node_build(cJSON_GetObjectItem(desc, "b")),
+					.factor = cr_value_node_build(cJSON_GetObjectItem(desc, "factor"))
+				}
+			});
+		}
 	}
 
 	logr(warning, "Failed to parse textureNode. Here's a dump:\n");
@@ -392,6 +402,11 @@ void cr_color_node_free(struct cr_color_node *d) {
 		case cr_cn_gradient:
 			cr_color_node_free(d->arg.gradient.a);
 			cr_color_node_free(d->arg.gradient.b);
+			break;
+		case cr_cn_color_mix:
+			cr_color_node_free(d->arg.color_mix.a);
+			cr_color_node_free(d->arg.color_mix.b);
+			cr_value_node_free(d->arg.color_mix.factor);
 			break;
 	}
 	free(d);

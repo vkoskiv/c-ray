@@ -60,6 +60,13 @@ class _color_arg_gradient(ct.Structure):
 		("b", ct.POINTER(_color)),
 	]
 
+class _color_arg_color_mix(ct.Structure):
+	_fields_ = [
+		("a", ct.POINTER(_color)),
+		("b", ct.POINTER(_color)),
+		("factor", ct.POINTER(_value))
+	]
+
 class _color_arg(ct.Union):
 	_fields_ = [
 		("constant", cr_color),
@@ -71,6 +78,7 @@ class _color_arg(ct.Union):
 		("hsl", _color_arg_hsl),
 		("vec_to_color", _color_arg_vec_to_color),
 		("gradient", _color_arg_gradient),
+		("color_mix", _color_arg_color_mix),
 	]
 
 class _color_type(IntEnum):
@@ -84,6 +92,7 @@ class _color_type(IntEnum):
 	hsl          = 7
 	vec_to_color = 8
 	gradient     = 9
+	color_mix    = 10
 
 _color._anonymous_ = ("arg",)
 _color._fields_ = [
@@ -169,3 +178,11 @@ class NodeColorGradient(NodeColorBase):
 		self.cr_struct.type = _color_type.gradient
 		self.cr_struct.gradient = _color_arg_gradient(self.a.castref(), self.b.castref())
 		
+class NodeColorMix(NodeColorBase):
+	def __init__(self, a, b, factor):
+		super().__init__()
+		self.a = a
+		self.b = b
+		self.factor = factor
+		self.cr_struct.type = _color_type.color_mix
+		self.cr_struct.color_mix = _color_arg_color_mix(self.a.castref(), self.b.castref(), self.factor.castref())

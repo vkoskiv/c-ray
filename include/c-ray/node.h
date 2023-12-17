@@ -121,6 +121,7 @@ struct cr_color_node {
 		cr_cn_hsl,
 		cr_cn_vec_to_color,
 		cr_cn_gradient,
+		cr_cn_color_mix,
 	} type;
 
 	union {
@@ -166,6 +167,12 @@ struct cr_color_node {
 			struct cr_color_node *a;
 			struct cr_color_node *b;
 		} gradient;
+
+		struct cr_color_mix_params {
+			struct cr_color_node *a;
+			struct cr_color_node *b;
+			struct cr_value_node *factor;
+		} color_mix;
 	} arg;
 };
 

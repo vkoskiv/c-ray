@@ -85,6 +85,11 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 				build_value_node(s_ext, desc->arg.hsl.L));
 		case cr_cn_vec_to_color:
 			return newVecToColor(&s, build_vector_node(s_ext, desc->arg.vec_to_color.vec));
+		case cr_cn_color_mix:
+			return new_color_mix(&s,
+				build_color_node(s_ext, desc->arg.color_mix.a),
+				build_color_node(s_ext, desc->arg.color_mix.b),
+				build_value_node(s_ext, desc->arg.color_mix.factor));
 		default:
 			return NULL;
 	};

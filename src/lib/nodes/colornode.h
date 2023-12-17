@@ -28,6 +28,7 @@ struct colorNode {
 #include "textures/constant.h"
 #include "textures/image.h"
 #include "textures/gradient.h"
+#include "textures/colormix.h"
 #include "converter/grayscale.h"
 #include "converter/blackbody.h"
 #include "converter/split.h"

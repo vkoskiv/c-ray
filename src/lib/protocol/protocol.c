@@ -597,6 +597,12 @@ static cJSON *serialize_color_node(const struct cr_color_node *in) {
 			cJSON_AddItemToObject(out, "down", serialize_color_node(in->arg.gradient.a));
 			cJSON_AddItemToObject(out, "up", serialize_color_node(in->arg.gradient.b));
 			break;
+		case cr_cn_color_mix:
+			cJSON_AddStringToObject(out, "type", "color_mix");
+			cJSON_AddItemToObject(out, "a", serialize_color_node(in->arg.color_mix.a));
+			cJSON_AddItemToObject(out, "b", serialize_color_node(in->arg.color_mix.b));
+			cJSON_AddItemToObject(out, "factor", serialize_value_node(in->arg.color_mix.factor));
+			break;
 	}
 	return out;
 }

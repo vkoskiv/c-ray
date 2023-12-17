@@ -51,6 +51,11 @@ def parse_color(input):
 		case 'ShaderNodeRGB':
 			color = input.outputs[0].default_value
 			return NodeColorConstant(cr_color(color[0], color[1], color[2], color[3]))
+		case 'ShaderNodeMix':
+			a = parse_color(input.inputs[6])
+			b = parse_color(input.inputs[7])
+			factor = parse_value(input.inputs[0])
+			return NodeColorMix(a, b, factor)
 		# case 'ShaderNodeBlackbody':
 		# 	return warning_color
 		# case 'ShaderNodeCombineRGB':
