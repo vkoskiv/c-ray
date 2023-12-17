@@ -34,7 +34,6 @@ def parse_color(input):
 			if input.is_linked:
 				return parse_color(input.links[0].from_node)
 			vals = input.default_value
-			print("foobar {}".format(vals))
 			return NodeColorConstant(cr_color(vals[0], vals[1], vals[2], vals[3]))
 		# case 'ShaderNodeTexImage':
 		# 	return warning_color
@@ -49,6 +48,9 @@ def parse_color(input):
 				return warning_color
 			path = input.image.filepath
 			return NodeColorImageTexture(path[2:], 0)
+		case 'ShaderNodeRGB':
+			color = input.outputs[0].default_value
+			return NodeColorConstant(cr_color(color[0], color[1], color[2], color[3]))
 		# case 'ShaderNodeBlackbody':
 		# 	return warning_color
 		# case 'ShaderNodeCombineRGB':
@@ -73,6 +75,9 @@ def parse_value(input):
 			if input.is_linked:
 				return parse_value(input.links[0].from_node)
 			return NodeValueConstant(input.default_value)
+		case 'ShaderNodeValue':
+			value = input.outputs[0].default_value
+			return NodeValueConstant(value)
 		case _:
 			print("Unknown value node of type {}, maybe fix.".format(input.bl_idname))
 
@@ -134,9 +139,50 @@ def parse_node(input):
 			a = parse_node(input.inputs[0])
 			b = parse_node(input.inputs[1])
 			return NodeShaderAdd(a, b)
+		case 'ShaderNodeBsdfPrincipled':
+			# I haven't read how this works, so for now, we just patch in a rough approximation
+			# Patch behaves slightly differently to a real principled shader, primarily because we don't handle the specular portion. We also don't support subsurface or 'sheen'
+			base_color = parse_color(input.inputs['Base Color'])
+			base_metallic = parse_value(input.inputs['Metallic'])
+			base_roughness = parse_value(input.inputs['Roughness'])
+			base_ior = parse_value(input.inputs['IOR'])
+			base_alpha = parse_value(input.inputs['Alpha'])
+
+			transmission_weight = parse_value(input.inputs['Transmission Weight'])
+
+			coat_ior = parse_value(input.inputs['Coat IOR'])
+			coat_roughness = parse_value(input.inputs['Coat Roughness'])
+			coat_tint = parse_color(input.inputs['Coat Tint'])
+			coat_weight = parse_value(input.inputs['Coat Weight'])
+
+			emission_color = parse_color(input.inputs['Emission Color'])
+			emission_strength = parse_value(input.inputs['Emission Strength'])
+
+			return build_fake_principled(
+				base_color,
+				base_metallic,
+				base_roughness,
+				base_ior,
+				base_alpha,
+				transmission_weight,
+				coat_ior,
+				coat_roughness,
+				coat_tint,
+				coat_weight,
+				emission_color,
+				emission_strength
+			)
 		case _:
 			print("Unknown shader node of type {}, maybe fix.".format(input.bl_idname))
 			return warning_shader
-			
-		
-	
+
+def build_fake_principled(base_color, base_metallic, base_roughness, base_ior, base_alpha, transmission_weight, coat_ior, coat_roughness, coat_tint, coat_weight, emission_color, emission_strength):
+	base = NodeShaderMix(NodeShaderDiffuse(base_color), NodeShaderTranslucent(base_color), transmission_weight)
+	coat = NodeShaderPlastic(base_color, coat_roughness, coat_ior)
+	base_and_coat = NodeShaderMix(base, coat, coat_weight)
+	metal = NodeShaderMetal(base_color, base_roughness)
+	base_and_coat_and_metal = NodeShaderMix(base_and_coat, metal, base_metallic)
+	with_alpha = NodeShaderMix(NodeShaderTransparent(NodeColorConstant(cr_color(1.0, 1.0, 1.0, 1.0))), base_and_coat_and_metal, base_alpha)
+	emission = NodeShaderEmissive(emission_color, emission_strength)
+	with_emission = NodeShaderAdd(emission, with_alpha)
+	return with_emission

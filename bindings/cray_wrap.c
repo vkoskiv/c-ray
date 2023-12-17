@@ -327,9 +327,9 @@ static PyObject *py_cr_mesh_bind_faces(PyObject *self, PyObject *args) {
 
 	struct cr_face *faces = calloc(face_count, sizeof(*faces));
 	memcpy(faces, face_view.buf, face_count * sizeof(*faces));
-	for (size_t i = 0; i < face_count; ++i) {
-		dump_face(faces[i]);
-	}
+	// for (size_t i = 0; i < face_count; ++i) {
+	// 	dump_face(faces[i]);
+	// }
 
 	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
 	cr_mesh_bind_faces(s, mesh, faces, face_count);

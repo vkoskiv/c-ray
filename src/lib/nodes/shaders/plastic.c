@@ -105,6 +105,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	}
 }
 
+// TODO: Separate clear coat + base colors
 const struct bsdfNode *newPlastic(const struct node_storage *s, const struct colorNode *color, const struct valueNode *roughness, const struct valueNode *IOR) {
 	HASH_CONS(s->node_table, hash, struct plasticBsdf, {
 		.diffuse = newDiffuse(s, color),

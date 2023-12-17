@@ -50,9 +50,14 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	struct addBsdf *mixBsdf = (struct addBsdf *)bsdf;
 	struct bsdfSample A = mixBsdf->A->sample(mixBsdf->A, sampler, record);
 	struct bsdfSample B = mixBsdf->B->sample(mixBsdf->B, sampler, record);
-	//TODO: Do we just add the outgoing vertices together or what...?
-	//TODO: Find out if we want to even keep this node around.
-	return (struct bsdfSample){.out = vec_add(A.out, B.out), .weight = colorAdd(A.weight, B.weight)};
+	// TODO: Do we just add the outgoing vertices together or what...?
+	// TODO: Find out if we want to even keep this node around.
+	// FIXME: Hackery. We're using B.out here, so our fake Principled Shader graph works
+	// as expected. This will be resolved once this shader system is rewritten to be correct,
+	// we're not supposed to compute the out direction here.
+	// Cycles does the add with OSL shading closures, instead of at this stage, so we'd have to
+	// do something similar to that, probably.
+	return (struct bsdfSample){.out = B.out, .weight = colorAdd(A.weight, B.weight)};
 }
 
 const struct bsdfNode *newAdd(const struct node_storage *s, const struct bsdfNode *A, const struct bsdfNode *B) {
