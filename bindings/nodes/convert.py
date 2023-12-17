@@ -43,6 +43,12 @@ def parse_color(input):
 			color2 = parse_color(input.inputs['Color2'])
 			scale = parse_value(input.inputs['Scale'])
 			return NodeColorCheckerboard(color1, color2, scale)
+		case 'ShaderNodeTexEnvironment':
+			if input.image is None:
+				print("No image set in blender environment texture {}".format(input.name))
+				return warning_color
+			path = input.image.filepath
+			return NodeColorImageTexture(path[2:], 0)
 		# case 'ShaderNodeBlackbody':
 		# 	return warning_color
 		# case 'ShaderNodeCombineRGB':
