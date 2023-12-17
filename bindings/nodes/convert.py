@@ -24,6 +24,8 @@ def convert_node_tree(bl_depsgraph, mat, nt):
 		print("No Material Output node found in tree for {}, bailing out".format(mat.name))
 		return None
 	root = nt.nodes['Material Output']
+	if not root.inputs['Surface'].is_linked:
+		return NodeShaderDiffuse(NodeColorConstant(cr_color(0.0, 0.0, 0.0, 1.0)))
 	return parse_node(root.inputs['Surface'].links[0].from_node)
 
 warning_color = NodeColorCheckerboard(NodeColorConstant(cr_color(1.0, 0.0, 0.0, 0.0)), NodeColorConstant(cr_color(1.0, 1.0, 1.0, 1.0)), NodeValueConstant(100.0))
