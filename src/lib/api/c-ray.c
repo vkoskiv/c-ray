@@ -277,7 +277,6 @@ void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, cr_vertex_buf
 	if ((size_t)mesh > scene->meshes.count - 1) return;
 	struct mesh *m = &scene->meshes.items[mesh];
 	if ((size_t)buf > scene->v_buffers.count - 1) return;
-	m->vbuf = &scene->v_buffers.items[buf];
 	m->vbuf_idx = buf;
 }
 

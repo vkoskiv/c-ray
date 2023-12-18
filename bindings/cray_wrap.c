@@ -261,8 +261,8 @@ static PyObject *py_cr_scene_vertex_buf_new(PyObject *self, PyObject *args) {
 
 	// TODO: add checks
 	struct cr_vector *vertices = calloc(vec_count, sizeof(*vertices));
-	struct cr_vector *normals = calloc(vec_count, sizeof(*normals));
-	struct cr_coord *texcoords = calloc(vec_count, sizeof(*texcoords));
+	struct cr_vector *normals = calloc(nor_count, sizeof(*normals));
+	struct cr_coord *texcoords = calloc(tex_count, sizeof(*texcoords));
 	memcpy(vertices, vec_view.buf, vec_count * sizeof(*vertices));
 	memcpy(normals, nor_view.buf, nor_count * sizeof(*normals));
 	memcpy(texcoords, tex_view.buf, tex_count * sizeof(*texcoords));

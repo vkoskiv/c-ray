@@ -133,8 +133,8 @@ def cr_vertex_buf(scene, me):
 	normals = []
 	texcoords = []
 	vbuf = (c_ray.cr_vector * len(verts))(*verts)
-	nbuf = (c_ray.cr_vector * len(verts))(*normals)
-	tbuf = (c_ray.cr_coord  * len(verts))(*texcoords)
+	nbuf = (c_ray.cr_vector * len(normals))(*normals)
+	tbuf = (c_ray.cr_coord  * len(texcoords))(*texcoords)
 	print("new vbuf: v: {}, n: {}, t: {}".format(len(verts), len(normals), len(texcoords)))
 	cr_vbuf = scene.vertex_buf_new(bytearray(vbuf), len(verts), bytearray(nbuf), len(normals), bytearray(tbuf), len(texcoords))
 	return cr_vbuf

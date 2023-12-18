@@ -156,6 +156,11 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 		inst->bbuf = &r->scene->shader_buffers.items[inst->bbuf_idx];
 	}
 	
+	for (size_t i = 0; i < r->scene->meshes.count; ++i) {
+		struct mesh *m = &r->scene->meshes.items[i];
+		m->vbuf = &r->scene->v_buffers.items[m->vbuf_idx];
+	}
+
 	// Do some pre-render preparations
 	// Compute BVH acceleration structures for all meshes in the scene
 	compute_accels(r->scene->meshes);
