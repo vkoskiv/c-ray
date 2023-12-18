@@ -150,6 +150,12 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	
 	struct tile_set set = tile_quantize(camera.width, camera.height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
 
+	for (size_t i = 0; i < r->scene->shader_buffers.count; ++i) {
+		if (!r->scene->shader_buffers.items[i].bsdfs.count) {
+			logr(warning, "bsdf buffer %zu is empty, patching in placeholder\n", i);
+			bsdf_node_ptr_arr_add(&r->scene->shader_buffers.items[i].bsdfs, build_bsdf_node((struct cr_scene *)r->scene, NULL));
+		}
+	}
 	// Bind object buffers to instances
 	for (size_t i = 0; i < r->scene->instances.count; ++i) {
 		struct instance *inst = &r->scene->instances.items[i];

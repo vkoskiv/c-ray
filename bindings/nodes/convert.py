@@ -25,6 +25,9 @@ def convert_background(nt):
 		
 
 def convert_node_tree(bl_depsgraph, mat, nt):
+	if not nt:
+		print("No node tree in material {}, bailing out".format(mat.name))
+		return None
 	if len(nt.nodes) < 1:
 		print("No nodes found for material {}, bailing out".format(mat.name))
 		return None

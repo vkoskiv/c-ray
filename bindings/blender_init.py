@@ -184,6 +184,11 @@ class CrayRender(bpy.types.RenderEngine):
 				else:
 					cr_cam.set_param(c_ray.cam_param.focus_distance, bl_cam.dof.focus_distance)
 
+		cr_materials = {}
+		for bl_mat in bpy.data.materials:
+			print("Converting {}".format(bl_mat.name))
+			cr_materials[bl_mat.name] = convert_node_tree(depsgraph, bl_mat, bl_mat.node_tree)
+		
 		# Sync meshes
 		for idx, ob_main in enumerate(objects):
 			if ob_main.type != 'MESH':
@@ -209,12 +214,15 @@ class CrayRender(bpy.types.RenderEngine):
 				continue
 			# FIXME: Parse & convert these to an array before parsing meshes, then pick from there
 			# We're doing duplicate work for many materials
+			if len(me.materials) < 1:
+				cr_mat_set.add(None)
 			for bl_mat in me.materials:
 				if not bl_mat:
 					print("WTF, array contains NoneType?")
+					cr_mat_set.add(None)
 				elif bl_mat.use_nodes:
-					print("Converting material {}".format(bl_mat.name))
-					cr_mat_set.add(convert_node_tree(depsgraph, bl_mat, bl_mat.node_tree))
+					print("Fetching material {}".format(bl_mat.name))
+					cr_mat_set.add(cr_materials[bl_mat.name])
 				else:
 					print("Material {} doesn't use nodes, do something about that".format(bl_mat.name))
 					cr_mat_set.add(None)
