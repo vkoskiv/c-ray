@@ -207,8 +207,13 @@ class CrayRender(bpy.types.RenderEngine):
 				me = None
 			if me is None:
 				continue
+			# FIXME: Parse & convert these to an array before parsing meshes, then pick from there
+			# We're doing duplicate work for many materials
 			for bl_mat in me.materials:
-				if bl_mat.use_nodes:
+				if not bl_mat:
+					print("WTF, array contains NoneType?")
+				elif bl_mat.use_nodes:
+					print("Converting material {}".format(bl_mat.name))
 					cr_mat_set.add(convert_node_tree(depsgraph, bl_mat, bl_mat.node_tree))
 				else:
 					print("Material {} doesn't use nodes, do something about that".format(bl_mat.name))
