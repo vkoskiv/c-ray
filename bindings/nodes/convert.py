@@ -54,11 +54,13 @@ warning_color = NodeColorCheckerboard(NodeColorConstant(cr_color(1.0, 0.0, 0.0, 
 # 8:A --> NodeSocketRotation
 # 9:B --> NodeSocketRotation
 
-def parse_color(input):
+def parse_color(input, group_inputs):
 	match input.bl_idname:
 		case 'NodeSocketColor':
 			if input.is_linked:
-				return parse_color(input.links[0].from_node)
+				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
+					return group_inputs[input.links[0].from_socket.name]
+				return parse_color(input.links[0].from_node, group_inputs)
 			vals = input.default_value
 			return NodeColorConstant(cr_color(vals[0], vals[1], vals[2], vals[3]))
 		case 'ShaderNodeTexImage':
@@ -68,9 +70,9 @@ def parse_color(input):
 			path = input.image.filepath_from_user()
 			return NodeColorImageTexture(path, 0)
 		case 'ShaderNodeTexChecker':
-			color1 = parse_color(input.inputs['Color1'])
-			color2 = parse_color(input.inputs['Color2'])
-			scale = parse_value(input.inputs['Scale'])
+			color1 = parse_color(input.inputs['Color1'], group_inputs)
+			color2 = parse_color(input.inputs['Color2'], group_inputs)
+			scale = parse_value(input.inputs['Scale'], group_inputs)
 			return NodeColorCheckerboard(color1, color2, scale)
 		case 'ShaderNodeTexEnvironment':
 			if input.image is None:
@@ -82,12 +84,12 @@ def parse_color(input):
 			color = input.outputs[0].default_value
 			return NodeColorConstant(cr_color(color[0], color[1], color[2], color[3]))
 		case 'ShaderNodeMix':
-			factor = parse_value(input.inputs[0])
+			factor = parse_value(input.inputs[0], group_inputs)
 			if input.inputs[4].is_linked and input.inputs[5].is_linked:
-				return NodeColorVecToColor(parse_vector(input))
+				return NodeColorVecToColor(parse_vector(input, group_inputs))
 
-			a = parse_color(input.inputs[6])
-			b = parse_color(input.inputs[7])
+			a = parse_color(input.inputs[6], group_inputs)
+			b = parse_color(input.inputs[7], group_inputs)
 			return NodeColorMix(a, b, factor)
 		# case 'ShaderNodeBlackbody':
 		# 	return warning_color
@@ -177,31 +179,36 @@ def map_math_op(bl_op):
 			print("Unknown math op {}, defaulting to ADD".format(bl_op))
 			return m.Add
 
-def parse_value(input):
+def parse_value(input, group_inputs):
 	match input.bl_idname:
 		case 'NodeSocketFloat':
 			if input.is_linked:
-				return parse_value(input.links[0].from_node)
+				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
+					return group_inputs[input.links[0].from_socket.name]
+				return parse_value(input.links[0].from_node, group_inputs)
 			return NodeValueConstant(input.default_value)
 		case 'NodeSocketFloatFactor':
 			# note: same as Float, but range is [0,1]
 			if input.is_linked:
-				return parse_value(input.links[0].from_node)
+				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
+					return group_inputs[input.links[0].from_socket.name]
+				return parse_value(input.links[0].from_node, group_inputs)
 			return NodeValueConstant(input.default_value)
 		case 'ShaderNodeValue':
 			value = input.outputs[0].default_value
 			return NodeValueConstant(value)
 		case 'ShaderNodeMath':
-			a = parse_value(input.inputs[0])
-			b = parse_value(input.inputs[1])
-			# c = parse_value(input.inputs[2])
+			a = parse_value(input.inputs[0], group_inputs)
+			b = parse_value(input.inputs[1], group_inputs)
+			# c = parse_value(input.inputs[2], group_inputs)
 			op = map_math_op(input.operation)
 			return NodeValueMath(a, b, op)
 		case 'ShaderNodeVectorMath':
-			vec = parse_vector(input)
+			vec = parse_vector(input, group_inputs)
 			return NodeValueVecToValue(_component.F, vec)
 		case _:
 			print("Unknown value node of type {}, maybe fix.".format(input.bl_idname))
+			return NodeValueConstant(0.0)
 
 # From here: https://docs.blender.org/api/current/bpy_types_enum_items/node_vec_math_items.html#rna-enum-node-vec-math-items
 # Commented ones aren't implemented yet, and will emit a notice to stdout
@@ -261,23 +268,25 @@ def map_vec_op(bl_op):
 			print("Unknown vector op {}, defaulting to ADD".format(bl_op))
 			return v.Add
 
-def parse_vector(input):
+def parse_vector(input, group_inputs):
 	match input.bl_idname:
 		case 'NodeSocketVector':
 			if input.is_linked:
-				return parse_vector(input.links[0].from_node)
+				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
+					return group_inputs[input.links[0].from_socket.name]
+				return parse_vector(input.links[0].from_node, group_inputs)
 			vec = input.default_value
 			return NodeVectorConstant(cr_vector(vec[0], vec[1], vec[2]))
 		case 'ShaderNodeMix':
-			a = parse_vector(input.inputs[4])
-			b = parse_vector(input.inputs[5])
-			factor = parse_value(input.inputs[0])
+			a = parse_vector(input.inputs[4], group_inputs)
+			b = parse_vector(input.inputs[5], group_inputs)
+			factor = parse_value(input.inputs[0], group_inputs)
 			return NodeVectorVecMix(a, b, factor)
 		case 'ShaderNodeVectorMath':
-			a = parse_vector(input.inputs[0])
-			b = parse_vector(input.inputs[1])
-			c = parse_vector(input.inputs[2])
-			f = parse_value(input.inputs[3])
+			a = parse_vector(input.inputs[0], group_inputs)
+			b = parse_vector(input.inputs[1], group_inputs)
+			c = parse_vector(input.inputs[2], group_inputs)
+			f = parse_value(input.inputs[3], group_inputs)
 			op = map_vec_op(input.operation)
 			return NodeVectorVecMath(a, b, c, f, op)
 		case 'ShaderNodeTexCoord':
@@ -290,73 +299,109 @@ def parse_vector(input):
 				print("{}: {}".format(output.name, output.is_linked))
 		case _:
 			print("Unknown vector node of type {}, maybe fix.".format(input.bl_idname))
+			return NodeVectorConstant(cr_vector(0.0, 0.0, 0.0))
 
 warning_shader = NodeShaderDiffuse(warning_color)
 
-def parse_node(input):
+# group_inputs is populated when we're parsing a node group (see ShaderNodeGroup below)
+def parse_node(input, group_inputs=None):
 	match input.bl_idname:
+		case 'ShaderNodeGroup':
+			if not input.node_tree.nodes['Group Output']:
+				print("No group output in node group {}".format(input.name))
+				return warning_shader
+			if not input.node_tree.nodes['Group Input']:
+				print("No group input in node group {}".format(input.name))
+				return warning_shader
+			subroot = input.node_tree.nodes['Group Output']
+			# Hack - Just blindly find first shader input and use that
+			# TODO: Should handle more than one shader output for a node group
+			first_output = None
+			for sub_output in subroot.inputs:
+				if sub_output.is_linked and sub_output.bl_idname == 'NodeSocketShader':
+					first_output = sub_output
+			if not first_output:
+				print("Couldn't find shader output in subtree {}".format(input.name))
+				return warning_shader
+			# if not subroot.inputs['Surface'].is_linked:
+			# 	print("Subroot {} output surface socket not linked".format(input.name))
+			# 	return warning_shader
+			subtree_inputs = {}
+			for bl_input in input.inputs:
+				match bl_input.bl_idname:
+					case 'NodeSocketFloat' | 'NodeSocketFloatFactor':
+						subtree_inputs[bl_input.name] = parse_value(bl_input, group_inputs)
+					case 'NodeSocketVector':
+						subtree_inputs[bl_input.name] = parse_vector(bl_input, group_inputs)
+					case 'NodeSocketColor':
+						subtree_inputs[bl_input.name] = parse_color(bl_input, group_inputs)
+					case 'NodeSocketShader':
+						subtree_inputs[bl_input.name] = parse_node(bl_input, group_inputs)
+			return parse_node(first_output.links[0].from_node, subtree_inputs)
 		case 'NodeSocketShader':
 			if input.is_linked:
-				return parse_node(input.links[0].from_node)
+				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
+					return group_inputs[input.links[0].from_socket.name]
+				return parse_node(input.links[0].from_node, group_inputs)
 			return None
 		case 'ShaderNodeBsdfDiffuse':
-			color = parse_color(input.inputs['Color'])
+			color = parse_color(input.inputs['Color'], group_inputs)
 			return NodeShaderDiffuse(color) # note: missing roughness + normal
 		case 'ShaderNodeBsdfGlass':
-			color = parse_color(input.inputs['Color'])
-			rough = parse_value(input.inputs['Roughness'])
-			ior   = parse_value(input.inputs['IOR'])
+			color = parse_color(input.inputs['Color'], group_inputs)
+			rough = parse_value(input.inputs['Roughness'], group_inputs)
+			ior   = parse_value(input.inputs['IOR'], group_inputs)
 			# note: skipping normal
 			return NodeShaderGlass(color, rough, ior)
 		case 'ShaderNodeBsdfTransparent':
-			color = parse_color(input.inputs['Color'])
+			color = parse_color(input.inputs['Color'], group_inputs)
 			return NodeShaderTransparent(color)
 		case 'ShaderNodeBsdfTranslucent':
-			color = parse_color(input.inputs['Color'])
+			color = parse_color(input.inputs['Color'], group_inputs)
 			return NodeShaderTranslucent(color)
 		case 'ShaderNodeBackground':
-			color = parse_color(input.inputs['Color'])
+			color = parse_color(input.inputs['Color'], group_inputs)
 			# Blender doesn't specify the pose here
 			pose = NodeVectorConstant(cr_vector(0.0, 0.0, 0.0))
-			strength = parse_value(input.inputs['Strength'])
+			strength = parse_value(input.inputs['Strength'], group_inputs)
 			return NodeShaderBackground(color, pose, strength)
 		case 'ShaderNodeMixShader':
-			factor = parse_value(input.inputs[0])
-			a = parse_node(input.inputs[1])
-			b = parse_node(input.inputs[2])
+			factor = parse_value(input.inputs[0], group_inputs)
+			a = parse_node(input.inputs[1], group_inputs)
+			b = parse_node(input.inputs[2], group_inputs)
 			return NodeShaderMix(a, b, factor)
 		case 'ShaderNodeBsdfTransparent':
-			color = parse_color(input.inputs['Color'])
+			color = parse_color(input.inputs['Color'], group_inputs)
 			return NodeShaderTransparent(color)
 		case 'ShaderNodeBsdfTranslucent':
-			color = parse_color(input.inputs['Color'])
+			color = parse_color(input.inputs['Color'], group_inputs)
 			return NodeShaderTranslucent(color)
 		case 'ShaderNodeEmission':
-			color = parse_color(input.inputs['Color'])
-			strength = parse_value(input.inputs['Strength'])
+			color = parse_color(input.inputs['Color'], group_inputs)
+			strength = parse_value(input.inputs['Strength'], group_inputs)
 			return NodeShaderEmissive(color, strength)
 		case 'ShaderNodeAddShader':
-			a = parse_node(input.inputs[0])
-			b = parse_node(input.inputs[1])
+			a = parse_node(input.inputs[0], group_inputs)
+			b = parse_node(input.inputs[1], group_inputs)
 			return NodeShaderAdd(a, b)
 		case 'ShaderNodeBsdfPrincipled':
 			# I haven't read how this works, so for now, we just patch in a rough approximation
 			# Patch behaves slightly differently to a real principled shader, primarily because we don't handle the specular portion. We also don't support subsurface or 'sheen'
-			base_color = parse_color(input.inputs['Base Color'])
-			base_metallic = parse_value(input.inputs['Metallic'])
-			base_roughness = parse_value(input.inputs['Roughness'])
-			base_ior = parse_value(input.inputs['IOR'])
-			base_alpha = parse_value(input.inputs['Alpha'])
+			base_color = parse_color(input.inputs['Base Color'], group_inputs)
+			base_metallic = parse_value(input.inputs['Metallic'], group_inputs)
+			base_roughness = parse_value(input.inputs['Roughness'], group_inputs)
+			base_ior = parse_value(input.inputs['IOR'], group_inputs)
+			base_alpha = parse_value(input.inputs['Alpha'], group_inputs)
 
-			transmission_weight = parse_value(input.inputs['Transmission Weight'])
+			transmission_weight = parse_value(input.inputs['Transmission Weight'], group_inputs)
 
-			coat_ior = parse_value(input.inputs['Coat IOR'])
-			coat_roughness = parse_value(input.inputs['Coat Roughness'])
-			coat_tint = parse_color(input.inputs['Coat Tint'])
-			coat_weight = parse_value(input.inputs['Coat Weight'])
+			coat_ior = parse_value(input.inputs['Coat IOR'], group_inputs)
+			coat_roughness = parse_value(input.inputs['Coat Roughness'], group_inputs)
+			coat_tint = parse_color(input.inputs['Coat Tint'], group_inputs)
+			coat_weight = parse_value(input.inputs['Coat Weight'], group_inputs)
 
-			emission_color = parse_color(input.inputs['Emission Color'])
-			emission_strength = parse_value(input.inputs['Emission Strength'])
+			emission_color = parse_color(input.inputs['Emission Color'], group_inputs)
+			emission_strength = parse_value(input.inputs['Emission Strength'], group_inputs)
 
 			return build_fake_principled(
 				base_color,
