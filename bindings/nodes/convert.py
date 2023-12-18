@@ -11,6 +11,9 @@ from . value import _math_op
 from . value import _component
 
 def convert_background(nt):
+	if not nt:
+		print("No background shader set, bailing out")
+		return None
 	if len(nt.nodes) < 1:
 		print("No nodes found for background, bailing out")
 		return None
