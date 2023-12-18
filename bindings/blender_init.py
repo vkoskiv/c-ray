@@ -172,7 +172,17 @@ class CrayRender(bpy.types.RenderEngine):
 			# TODO: We don't tell blender that we support this, so it's not available yet
 			if bl_cam.dof.use_dof:
 				cr_cam.set_param(c_ray.cam_param.fstops, bl_cam.dof.aperture_fstop)
-				cr_cam.set_param(c_ray.cam_param.focus_distance, bl_cam.dof.focus_distance)
+				if bl_cam.dof.focus_object:
+					focus_loc = bl_cam.dof.focus_object.location
+					cam_loc = bl_cam_eval.location
+					# I'm sure Blender has a function for this somewhere, I couldn't find it
+					dx = focus_loc.x - cam_loc.x
+					dy = focus_loc.y - cam_loc.y
+					dz = focus_loc.z - cam_loc.z
+					distance = math.sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2))
+					cr_cam.set_param(c_ray.cam_param.focus_distance, distance)
+				else:
+					cr_cam.set_param(c_ray.cam_param.focus_distance, bl_cam.dof.focus_distance)
 
 		# Sync meshes
 		for idx, ob_main in enumerate(objects):
