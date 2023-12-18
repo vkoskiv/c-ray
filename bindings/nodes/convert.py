@@ -55,8 +55,12 @@ def parse_color(input):
 				return parse_color(input.links[0].from_node)
 			vals = input.default_value
 			return NodeColorConstant(cr_color(vals[0], vals[1], vals[2], vals[3]))
-		# case 'ShaderNodeTexImage':
-		# 	return warning_color
+		case 'ShaderNodeTexImage':
+			if input.image is None:
+				print("No image set in blender image texture {}".format(input.name))
+				return warning_color
+			path = input.image.filepath_from_user()
+			return NodeColorImageTexture(path, 0)
 		case 'ShaderNodeTexChecker':
 			color1 = parse_color(input.inputs['Color1'])
 			color2 = parse_color(input.inputs['Color2'])
