@@ -71,7 +71,7 @@ const struct bsdfNode *build_bsdf_node(struct cr_scene *s_ext, const struct cr_s
 			return newBackground(&s,
 				build_color_node(s_ext, desc->arg.background.color),
 				build_value_node(s_ext, desc->arg.background.strength),
-				build_vector_node(s_ext, desc->arg.background.pose));
+				build_vector_node(s_ext, desc->arg.background.pose), scene->use_blender_coordinates);
 		}
 		default:
 			return warning_bsdf(&s);

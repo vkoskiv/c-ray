@@ -8,4 +8,4 @@
 
 #pragma once
 
-const struct bsdfNode *newBackground(const struct node_storage *s, const struct colorNode *tex, const struct valueNode *strength, const struct vectorNode *pose);
+const struct bsdfNode *newBackground(const struct node_storage *s, const struct colorNode *tex, const struct valueNode *strength, const struct vectorNode *pose, bool blender);

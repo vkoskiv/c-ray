@@ -133,7 +133,7 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	}
 
 	if (!r->scene->background) {
-		r->scene->background = newBackground(&r->scene->storage, NULL, NULL, NULL);
+		r->scene->background = newBackground(&r->scene->storage, NULL, NULL, NULL, r->scene->use_blender_coordinates);
 	}
 	
 	struct tile_set set = tile_quantize(camera.width, camera.height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);

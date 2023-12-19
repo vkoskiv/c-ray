@@ -21,6 +21,7 @@ struct backgroundBsdf {
 	const struct colorNode *color;
 	const struct valueNode *strength;
 	const struct vectorNode *pose;
+	bool blender;
 };
 
 static bool compare(const void *A, const void *B) {
@@ -45,12 +46,19 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 	snprintf(dumpbuf, bufsize, "backgroundBsdf { color: %s, strength: %s }", color, strength);
 }
 
-static inline void recompute_uv(struct hitRecord *isect, float offset) {
+static inline void recompute_uv(struct hitRecord *isect, float offset, bool blender) {
 	struct vector ud = vec_normalize(isect->incident_dir);
 	//To polar from cartesian
 	float r = 1.0f; //Normalized above
-	float phi = (atan2f(ud.z, ud.x) / 4.0f) + offset;
-	float theta = acosf((-ud.y / r));
+	float phi;
+	float theta;
+	if (blender) {
+		phi = (atan2f(ud.y, -ud.x) / 4.0f) + offset;
+		theta = acosf((-ud.z / r));
+	} else {
+		phi = (atan2f(ud.z, ud.x) / 4.0f) + offset;
+		theta = acosf((-ud.y / r));
+	}
 
 	float u = (phi / (PI / 2.0f));
 	float v = theta / PI;
@@ -68,18 +76,19 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	float pose = background->pose->eval(background->pose, sampler, record).f;
 	pose = deg_to_rad(pose) / 4.0f;
 	struct hitRecord copy = *record;
-	recompute_uv(&copy, pose);
+	recompute_uv(&copy, pose, background->blender);
 	return (struct bsdfSample){
 		.out = vec_zero(),
 		.weight = colorCoef(strength, background->color->eval(background->color, sampler, &copy))
 	};
 }
 
-const struct bsdfNode *newBackground(const struct node_storage *s, const struct colorNode *tex, const struct valueNode *strength, const struct vectorNode *pose) {
+const struct bsdfNode *newBackground(const struct node_storage *s, const struct colorNode *tex, const struct valueNode *strength, const struct vectorNode *pose, bool blender) {
 	HASH_CONS(s->node_table, hash, struct backgroundBsdf, {
 		.color = tex ? tex : newConstantTexture(s, g_gray_color),
 		.strength = strength ? strength : newConstantValue(s, 1.0f),
 		.pose = pose ? pose : newConstantVector(s, (struct vector){ 0 }),
+		.blender = blender,
 		.bsdf = {
 			.sample = sample,
 			.base = { .compare = compare, .dump = dump }

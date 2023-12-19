@@ -42,6 +42,10 @@ struct world {
 	struct camera_arr cameras;
 	struct node_storage storage; // FIXME: Move to state?
 
+	// c-ray is Y up, blender is Z up. This flag toggles
+	// between the two in c-ray.
+	bool use_blender_coordinates;
+
 	char *asset_path;
 };
 

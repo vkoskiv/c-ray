@@ -215,7 +215,7 @@ uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_para
 bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_shader_node *desc) {
 	if (!s_ext) return false;
 	struct world *s = (struct world *)s_ext;
-	s->background = desc ? build_bsdf_node(s_ext, desc) : newBackground(&s->storage, NULL, NULL, NULL);
+	s->background = desc ? build_bsdf_node(s_ext, desc) : newBackground(&s->storage, NULL, NULL, NULL, s->use_blender_coordinates);
 	s->bg_desc = desc ? shader_deepcopy(desc) : NULL;
 	return true;
 }
@@ -226,7 +226,10 @@ struct cr_scene;
 
 struct cr_scene *cr_renderer_scene_get(struct cr_renderer *ext) {
 	if (!ext) return NULL;
-	return (struct cr_scene *)((struct renderer *)ext)->scene;
+	struct renderer *r = (struct renderer *)ext;
+	struct world *scene = r->scene;
+	if (r->prefs.blender_mode) scene->use_blender_coordinates = true;
+	return (struct cr_scene *)scene;
 }
 
 struct cr_scene_totals cr_scene_totals(struct cr_scene *s_ext) {

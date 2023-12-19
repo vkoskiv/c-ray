@@ -249,6 +249,7 @@ class CrayRender(bpy.types.RenderEngine):
 
 		renderer = c_ray.renderer()
 		renderer.prefs.asset_path = ""
+		renderer.prefs.blender_mode = True
 		cr_scene = self.sync_scene(renderer, depsgraph, b_scene)
 		print(cr_scene.totals())
 		# renderer.debug_dump()
@@ -258,7 +259,6 @@ class CrayRender(bpy.types.RenderEngine):
 		renderer.prefs.tile_y = b_scene.c_ray.tile_size
 		renderer.prefs.bounces = b_scene.c_ray.bounces
 		renderer.prefs.node_list = b_scene.c_ray.node_list
-		renderer.prefs.blender_mode = True
 		bm = renderer.render()
 		self.display_bitmap(bm)
 		del(renderer)
