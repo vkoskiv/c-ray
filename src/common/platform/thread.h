@@ -14,6 +14,8 @@
 	#include <pthread.h>
 #endif
 
+#include "../dyn_array.h"
+
 //Multi-platform threading
 
 /**
@@ -29,6 +31,9 @@ struct cr_thread {
 	void *user_data; // Thread I/O.
 	void *(*thread_fn)(void *); // Code you want to run.
 };
+
+typedef struct cr_thread cr_thread;
+dyn_array_def(cr_thread);
 
 // Fetch the user data pointer from args parameter
 void *thread_user_data(void *arg);
