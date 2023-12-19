@@ -325,7 +325,7 @@ cr_instance cr_instance_new(struct cr_scene *s_ext, cr_object object, enum cr_ob
 		default:
 			return -1;
 	}
-
+	scene->instances_dirty = true;
 	return instance_arr_add(&scene->instances, new);
 }
 
@@ -350,6 +350,7 @@ void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, flo
 		.A = mtx,
 		.Ainv = mat_invert(mtx)
 	};
+	scene->instances_dirty = true;
 }
 
 void cr_instance_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]) {
@@ -360,6 +361,7 @@ void cr_instance_transform(struct cr_scene *s_ext, cr_instance instance, float r
 	struct matrix4x4 mtx = mtx_convert(row_major);
 	i->composite.A = mat_mul(i->composite.A, mtx);
 	i->composite.Ainv = mat_invert(i->composite.A);
+	scene->instances_dirty = true;
 }
 
 bool cr_instance_bind_material_set(struct cr_scene *s_ext, cr_instance instance, cr_material_set set) {

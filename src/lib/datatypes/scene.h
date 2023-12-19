@@ -35,6 +35,7 @@ struct world {
 	struct bsdf_buffer_arr shader_buffers;
 	struct mesh_arr meshes;
 	struct instance_arr instances;
+	bool instances_dirty; // Recompute top-level BVH?
 	// Top-level bounding volume hierarchy,
 	// contains all 3D assets in the scene.
 	struct bvh *topLevel; // FIXME: Move to state?

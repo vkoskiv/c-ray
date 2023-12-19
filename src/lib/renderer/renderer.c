@@ -42,9 +42,7 @@ void sigHandler(int sig) {
 	}
 }
 
-static void printSceneStats(struct world *scene, unsigned long long ms) {
-	logr(info, "Scene construction completed in ");
-	printSmartTime(ms);
+static void print_stats(const struct world *scene) {
 	uint64_t polys = 0;
 	uint64_t vertices = 0;
 	uint64_t normals = 0;
@@ -56,7 +54,6 @@ static void printSceneStats(struct world *scene, unsigned long long ms) {
 			normals += mesh->vbuf->normals.count;
 		}
 	}
-	logr(plain, "\n");
 	logr(info, "Totals: %liV, %liN, %zuI, %liP, %zuS, %zuM\n",
 		   vertices,
 		   normals,
@@ -160,14 +157,18 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	compute_accels(r->scene->meshes);
 
 	// And then compute a single top-level BVH that contains all the objects
-	logr(info, "Computing top-level BVH: ");
-	struct timeval timer = {0};
-	timer_start(&timer);
-	r->scene->topLevel = build_top_level_bvh(r->scene->instances);
-	printSmartTime(timer_get_ms(timer));
-	logr(plain, "\n");
+	if (r->scene->instances_dirty) {
+		logr(info, "%s top-level BVH: ", r->scene->topLevel ? "Updating" : "Computing");
+		if (r->scene->topLevel) destroy_bvh(r->scene->topLevel);
+		struct timeval bvh_timer = {0};
+		timer_start(&bvh_timer);
+		r->scene->topLevel = build_top_level_bvh(r->scene->instances);
+		printSmartTime(timer_get_ms(bvh_timer));
+		logr(plain, "\n");
+		r->scene->instances_dirty = false;
+	}
 
-	printSceneStats(r->scene, timer_get_ms(timer));
+	print_stats(r->scene);
 
 	for (size_t i = 0; i < set.tiles.count; ++i)
 		set.tiles.items[i].total_samples = r->prefs.sampleCount;
@@ -463,6 +464,7 @@ struct renderer *renderer_new() {
 	
 	// Move these elsewhere
 	r->scene = calloc(1, sizeof(*r->scene));
+	r->scene->instances_dirty = true;
 	r->scene->asset_path = stringCopy("./");
 	r->scene->storage.node_pool = newBlock(NULL, 1024);
 	r->scene->storage.node_table = newHashtable(compareNodes, &r->scene->storage.node_pool);
