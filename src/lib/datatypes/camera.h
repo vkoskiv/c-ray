@@ -38,6 +38,8 @@ struct camera {
 	
 	int width;
 	int height;
+
+	bool is_blender;
 };
 
 typedef struct camera camera;

@@ -386,7 +386,8 @@ struct camera default_camera = {
 	.look_at = { 0.0f, 0.0f, 1.0f },
 	.forward = { 0.0f, 0.0f, 1.0f },
 	.right = { 1.0f, 0.0f, 0.0f },
-	.up = { 0.0f, 1.0f, 0.0f }
+	.up = { 0.0f, 1.0f, 0.0f },
+	.is_blender = false,
 };
 
 cr_camera cr_camera_new(struct cr_scene *ext) {
@@ -454,6 +455,7 @@ bool cr_camera_set_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_pa
 			cam->forward = vec_normalize(cam->look_at);
 			cam->right = (struct vector){1.0f, 0.0f, 0.0f};
 			cam->up = (struct vector){0.0f, -1.0f, 0.0f};
+			cam->is_blender = true;
 			return true;
 		}
 	}

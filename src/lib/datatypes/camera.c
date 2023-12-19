@@ -32,7 +32,7 @@ void recomputeComposite(struct camera *cam) {
 		struct vector positionAtT = spline_at(cam->path, cam->time);
 		transforms[0] = tform_new_translate(positionAtT.x, positionAtT.y, positionAtT.z);
 	} else {
-		transforms[0] = tform_new_translate(cam->position.x, cam->position.y, cam->position.z);
+		transforms[0] = tform_new_translate(cam->is_blender ? cam->position.x : -cam->position.x, cam->position.y, cam->position.z);
 	}
 	transforms[1] = tform_new_rot(cam->orientation.roll, cam->orientation.pitch, cam->orientation.yaw);
 
@@ -73,7 +73,7 @@ struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampl
 	const float jitter_x = triangleDistribution(getDimension(sampler));
 	const float jitter_y = triangleDistribution(getDimension(sampler));
 	
-	const struct vector pix_x = vec_scale(cam->right, (cam->sensor_size.x / cam->width));
+	const struct vector pix_x = vec_scale(cam->is_blender ? cam->right : vec_negate(cam->right), (cam->sensor_size.x / cam->width));
 	const struct vector pix_y = vec_scale(cam->up, (cam->sensor_size.y / cam->height));
 	const struct vector pix_v = vec_add(
 							cam->forward,
