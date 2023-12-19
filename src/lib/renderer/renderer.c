@@ -126,8 +126,6 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 		cam_recompute_optics(&camera);
 	}
 
-	logr(info, "Starting c-ray renderer for frame %zu\n", r->prefs.imgCount);
-	
 	// Verify we have at least a single thread rendering.
 	if (r->state.clients.count == 0 && r->prefs.threads < 1) {
 		logr(warning, "No network render workers, setting thread count to 1\n");
@@ -137,17 +135,6 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	if (!r->scene->background) {
 		r->scene->background = newBackground(&r->scene->storage, NULL, NULL, NULL);
 	}
-	
-	bool threadsReduced = (size_t)sys_get_cores() > r->prefs.threads;
-	
-	logr(info, "Rendering at %s%i%s x %s%i%s\n", KWHT, camera.width, KNRM, KWHT, camera.height, KNRM);
-	logr(info, "Rendering %s%zu%s samples with %s%zu%s bounces.\n", KBLU, r->prefs.sampleCount, KNRM, KGRN, r->prefs.bounces, KNRM);
-	logr(info, "Rendering with %s%zu%s%s local thread%s.\n",
-		 KRED,
-		 r->prefs.fromSystem && !threadsReduced ? r->prefs.threads - 2 : r->prefs.threads,
-		 r->prefs.fromSystem && !threadsReduced ? "+2" : "",
-		 KNRM,
-		 PLURAL(r->prefs.threads));
 	
 	struct tile_set set = tile_quantize(camera.width, camera.height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
 
@@ -459,7 +446,6 @@ struct prefs default_prefs() {
 	return (struct prefs){
 			.tileOrder = ro_from_middle,
 			.threads = sys_get_cores() + 2,
-			.fromSystem = true,
 			.sampleCount = 25,
 			.bounces = 20,
 			.tileWidth = 32,

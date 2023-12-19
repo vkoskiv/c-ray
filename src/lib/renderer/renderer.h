@@ -56,7 +56,6 @@ struct prefs {
 	enum render_order tileOrder;
 	
 	size_t threads; //Amount of threads to render with
-	bool fromSystem; //Did we ask the system for thread count
 	size_t sampleCount;
 	size_t bounces;
 	unsigned tileWidth;

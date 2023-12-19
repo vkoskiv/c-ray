@@ -16,6 +16,7 @@
 #include "../common/hashtable.h"
 #include "../common/vendored/cJSON.h"
 #include "../common/json_loader.h"
+#include "../common/platform/capabilities.h"
 #include "encoders/encoder.h"
 #include "args.h"
 #include "sdl.h"
@@ -197,6 +198,24 @@ int main(int argc, char *argv[]) {
 	logr(debug, "Deleting JSON...\n");
 	cJSON_Delete(input_json);
 	logr(debug, "Deleting done\n");
+
+	uint64_t out_num = cr_renderer_get_num_pref(renderer, cr_renderer_output_num);
+	uint64_t threads = cr_renderer_get_num_pref(renderer, cr_renderer_threads);
+	uint64_t width   = cr_renderer_get_num_pref(renderer, cr_renderer_override_width);
+	uint64_t height  = cr_renderer_get_num_pref(renderer, cr_renderer_override_height);
+	uint64_t samples = cr_renderer_get_num_pref(renderer, cr_renderer_samples);
+	uint64_t bounces = cr_renderer_get_num_pref(renderer, cr_renderer_bounces);
+
+	logr(info, "Starting c-ray renderer for frame %zu\n", out_num);
+	bool sys_thread = threads == (size_t)sys_get_cores() + 2;
+	logr(info, "Rendering at %s%lu%s x %s%lu%s\n", KWHT, width, KNRM, KWHT, height, KNRM);
+	logr(info, "Rendering %s%zu%s samples with %s%zu%s bounces.\n", KBLU, samples, KNRM, KGRN, bounces, KNRM);
+	logr(info, "Rendering with %s%zu%s%s local thread%s.\n",
+		KRED,
+		sys_thread ? threads - 2 : threads,
+		sys_thread ? "+2" : "",
+		KNRM,
+		PLURAL(threads));
 
 	struct timeval timer;
 	timer_start(&timer);
