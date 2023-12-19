@@ -29,7 +29,6 @@ struct worker {
 
 	struct camera *cam;
 	struct renderer *renderer;
-	struct texture *output;
 	struct texture *buf;
 	struct render_client *client; // Optional
 };
@@ -49,6 +48,8 @@ struct state {
 	struct worker_arr workers;
 	struct render_client_arr clients;
 	struct callback callbacks[4];
+
+	struct texture *result_buf;
 };
 
 /// Preferences data (Set by user)
@@ -80,7 +81,7 @@ struct renderer {
 };
 
 struct renderer *renderer_new(void);
-struct cr_bitmap *renderer_render(struct renderer *r);
+void renderer_render(struct renderer *r);
 void renderer_destroy(struct renderer *r);
 
 struct prefs default_prefs(); // TODO: Remove

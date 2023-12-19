@@ -116,6 +116,7 @@ struct sdl_window {
 	SDL_Renderer *renderer;
 	SDL_Texture *texture;
 	SDL_Texture *overlay_sdl;
+	struct texture *internal;
 	struct texture *overlay;
 	bool isBorderless;
 	bool isFullScreen;
@@ -228,6 +229,7 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 		return NULL;
 	}
 	w->overlay = newTexture(char_p, width, height, 4);
+	w->internal = newTexture(char_p, width, height, 3);
 	
 	//And set blend modes for textures too
 	w->sym->SDL_SetTextureBlendMode(w->texture, SDL_BLENDMODE_BLEND);
@@ -251,6 +253,7 @@ void win_destroy(struct sdl_window *w) {
 			w->sym->SDL_DestroyTexture(w->overlay_sdl);
 			w->texture = NULL;
 		}
+		destroyTexture(w->internal);
 		destroyTexture(w->overlay);
 		if (w->renderer) {
 			w->sym->SDL_DestroyRenderer(w->renderer);
@@ -348,14 +351,36 @@ static void draw_frames(struct texture *overlay, const struct cr_tile *tiles, si
 	}
 }
 
+
 struct input_state win_update(struct sdl_window *w, const struct cr_tile *tiles, size_t tile_count, const struct texture *t) {
 	if (!w) return (struct input_state){ 0 };
+	// Copy regions
+	ASSERT(w->internal->precision == char_p);
+	ASSERT(t->precision == float_p);
+	ASSERT(w->internal->width == t->width);
+	ASSERT(w->internal->height == t->height);
+
+	unsigned char *restrict dst = w->internal->data.byte_p;
+	float *restrict src = t->data.float_p;
+	
+	const int width = w->internal->width;
+	for (size_t i = 0; i < tile_count; ++i) {
+		for (int y = 0; y < tiles[i].h; ++y) {
+			for (int x = 0; x < tiles[i].w; ++x) {
+				const int ax = x + tiles[i].start_x;
+				const int ay = y + tiles[i].start_y;
+				dst[(ax + (ay * width)) * 3 + 0] = (unsigned char)min(linearToSRGB(src[(ax + (ay * width)) * 3 + 0]) * 255.0f, 255.0f);
+				dst[(ax + (ay * width)) * 3 + 1] = (unsigned char)min(linearToSRGB(src[(ax + (ay * width)) * 3 + 1]) * 255.0f, 255.0f);
+				dst[(ax + (ay * width)) * 3 + 2] = (unsigned char)min(linearToSRGB(src[(ax + (ay * width)) * 3 + 2]) * 255.0f, 255.0f);
+			}
+		}
+	}
 	//Render frames
 	// TODO: if (r->prefs.iterative || r->state.clients) {
 	draw_frames(w->overlay, tiles, tile_count);
 	draw_prog_bars(w->overlay, tiles, tile_count);
 	//Update image data
-	if (t) w->sym->SDL_UpdateTexture(w->texture, NULL, t->data.byte_p, (int)w->width * 3);
+	if (t) w->sym->SDL_UpdateTexture(w->texture, NULL, w->internal->data.byte_p, (int)w->width * 3);
 	w->sym->SDL_UpdateTexture(w->overlay_sdl, NULL, w->overlay->data.byte_p, (int)w->width * 4);
 	w->sym->SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
 	w->sym->SDL_RenderCopy(w->renderer, w->overlay_sdl, NULL, NULL);

@@ -184,6 +184,7 @@ class CrayRender(bpy.types.RenderEngine):
 				else:
 					cr_cam.set_param(c_ray.cam_param.focus_distance, bl_cam.dof.focus_distance)
 
+		# Convert materials
 		cr_materials = {}
 		for bl_mat in bpy.data.materials:
 			print("Converting {}".format(bl_mat.name))
@@ -259,7 +260,8 @@ class CrayRender(bpy.types.RenderEngine):
 		renderer.prefs.tile_y = b_scene.c_ray.tile_size
 		renderer.prefs.bounces = b_scene.c_ray.bounces
 		renderer.prefs.node_list = b_scene.c_ray.node_list
-		bm = renderer.render()
+		renderer.render()
+		bm = renderer.get_result()
 		self.display_bitmap(bm)
 		del(renderer)
 

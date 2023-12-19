@@ -219,7 +219,7 @@ int main(int argc, char *argv[]) {
 
 	struct timeval timer;
 	timer_start(&timer);
-	struct cr_bitmap *final = cr_renderer_render(renderer);
+	cr_renderer_render(renderer);
 	long ms = timer_get_ms(timer);
 	char buf[64] = { 0 };
 	logr(plain, "\n");
@@ -254,14 +254,13 @@ int main(int argc, char *argv[]) {
 				.renderTime = ms,
 				.threadCount = cr_renderer_get_num_pref(renderer, cr_renderer_threads)
 			},
-			.t = final
+			.t = cr_renderer_get_result(renderer)
 		};
 		writeImage(&file);
 		logr(info, "Render finished, exiting.\n");
 	} else {
 		logr(info, "Abort pressed, image won't be saved.\n");
 	}
-	cr_bitmap_free(final);
 	
 done:
 	cr_destroy_renderer(renderer);

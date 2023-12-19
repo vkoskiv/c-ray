@@ -36,6 +36,7 @@ struct camera {
 	struct spline *path;
 	float time;
 	
+	// TODO: size_t
 	int width;
 	int height;
 

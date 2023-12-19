@@ -147,9 +147,15 @@ static PyObject *py_cr_renderer_get_num_pref(PyObject *self, PyObject *args) {
 	return PyLong_FromUnsignedLong(ret);
 }
 
-void py_internal_bitmap_free(PyObject *capsule) {
-	struct cr_bitmap *bm = PyCapsule_GetPointer(capsule, "cray.cr_bitmap");
-	cr_bitmap_free(bm);
+static PyObject *py_cr_renderer_get_result(PyObject *self, PyObject *args) {
+	(void)self;
+	PyObject *r_ext;
+	if (!PyArg_ParseTuple(args, "O", &r_ext)) {
+		return NULL;
+	}
+	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
+	struct cr_bitmap *bm = cr_renderer_get_result(r);
+	return PyCapsule_New(bm, "cray.cr_bitmap", NULL);
 }
 
 static PyObject *py_cr_renderer_render(PyObject *self, PyObject *args) {
@@ -159,11 +165,10 @@ static PyObject *py_cr_renderer_render(PyObject *self, PyObject *args) {
 		return NULL;
 	}
 	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
-	struct cr_bitmap *out = NULL;
 	Py_BEGIN_ALLOW_THREADS
-	out = cr_renderer_render(r);
+	cr_renderer_render(r);
 	Py_END_ALLOW_THREADS
-	return PyCapsule_New(out, "cray.cr_bitmap", NULL);
+	Py_RETURN_NONE;
 }
 
 // TODO: Same here, not sure if we want an explicit teardown
@@ -585,6 +590,7 @@ static PyMethodDef cray_methods[] = {
 	{ "renderer_toggle_pause", py_cr_renderer_toggle_pause, METH_VARARGS, "" },
 	{ "renderer_get_str_pref", py_cr_renderer_get_str_pref, METH_VARARGS, "" },
 	{ "renderer_get_num_pref", py_cr_renderer_get_num_pref, METH_VARARGS, "" },
+	{ "renderer_get_result", py_cr_renderer_get_result, METH_VARARGS, "" },
 	{ "renderer_render", py_cr_renderer_render, METH_VARARGS, "" },
 	// { "bitmap_free", py_cr_bitmap_free, METH_VARARGS, "" },
 	{ "renderer_scene_get", py_cr_renderer_scene_get, METH_VARARGS, "" },

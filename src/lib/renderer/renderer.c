@@ -107,9 +107,8 @@ void update_cb_info(struct renderer *r, struct tile_set *set, struct cr_renderer
 
 }
 
-/// @todo Use defaultSettings state struct for this.
-/// @todo Clean this up, it's ugly.
-struct cr_bitmap *renderer_render(struct renderer *r) {
+// TODO: Clean this up, it's ugly.
+void renderer_render(struct renderer *r) {
 	//Check for CTRL-C
 	// TODO: Move signal to driver
 	if (registerHandler(sigint, sigHandler)) {
@@ -180,18 +179,26 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 		r->prefs.threads = set.tiles.count;
 	}
 
-	//Allocate memory for render buffer
-	//Render buffer is used to store accurate color values for the renderers' internal use
-	struct texture *render_buf = newTexture(float_p, camera.width, camera.height, 3);
-	struct texture *output = NULL;
-	if (!r->prefs.blender_mode) {
-		output = newTexture(char_p, camera.width, camera.height, 3);
+	// Render buffer is used to store accurate color values for the renderers' internal use
+	if (!r->state.result_buf) {
+		// Allocate
+		r->state.result_buf = newTexture(float_p, camera.width, camera.height, 3);
+	} else if (r->state.result_buf->width != (size_t)camera.width || r->state.result_buf->height != (size_t)camera.height) {
+		// Resize
+		if (r->state.result_buf) destroyTexture(r->state.result_buf);
+		r->state.result_buf = newTexture(float_p, camera.width, camera.height, 3);
+	} else {
+		// Clear
+		tex_clear(r->state.result_buf);
 	}
+
+	struct texture *result = r->state.result_buf;
+
 	struct cr_tile *info_tiles = calloc(set.tiles.count, sizeof(*info_tiles));
 	struct cr_renderer_cb_info cb_info = {
 		.tiles = info_tiles,
 		.tiles_count = set.tiles.count,
-		.fb = (struct cr_bitmap *)output
+		.fb = (struct cr_bitmap *)result,
 	};
 	
 	struct callback start = r->state.callbacks[cr_cb_on_start];
@@ -217,8 +224,7 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	for (size_t t = 0; t < r->prefs.threads; ++t) {
 		worker_arr_add(&r->state.workers, (struct worker){
 			.renderer = r,
-			.output = output,
-			.buf = render_buf,
+			.buf = result,
 			.cam = &camera,
 			.thread = (struct cr_thread){
 				.thread_fn = local_render_thread,
@@ -229,8 +235,7 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 		worker_arr_add(&r->state.workers, (struct worker){
 			.client = &r->state.clients.items[c],
 			.renderer = r,
-			.output = output,
-			.buf = render_buf,
+			.buf = result,
 			.cam = &camera,
 			.thread = (struct cr_thread){
 				.thread_fn = client_connection_thread
@@ -276,12 +281,6 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	}
 	if (info_tiles) free(info_tiles);
 	tile_set_free(&set);
-	if (r->prefs.blender_mode) {
-		return (struct cr_bitmap *)render_buf;
-	} else {
-		destroyTexture(render_buf);
-		return (struct cr_bitmap *)output;
-	}
 }
 
 // An interactive render thread that progressively
@@ -290,7 +289,6 @@ void *render_thread_interactive(void *arg) {
 	block_signals();
 	struct worker *threadState = (struct worker*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
-	struct texture *image = threadState->output;
 	struct texture *buf = threadState->buf;
 	sampler *sampler = newSampler();
 
@@ -328,13 +326,6 @@ void *render_thread_interactive(void *arg) {
 				
 				//Store internal render buffer (float precision)
 				setPixel(buf, output, x, y);
-				
-				if (image) {
-					//Gamma correction
-					output = colorToSRGB(output);
-					//And store the image data
-					setPixel(image, output, x, y);
-				}
 			}
 		}
 		//For performance metrics
@@ -370,7 +361,6 @@ void *render_thread(void *arg) {
 	block_signals();
 	struct worker *threadState = (struct worker*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
-	struct texture *image = threadState->output;
 	struct texture *buf = threadState->buf;
 	sampler *sampler = newSampler();
 
@@ -408,13 +398,6 @@ void *render_thread(void *arg) {
 					
 					//Store internal render buffer (float precision)
 					setPixel(buf, output, x, y);
-					
-					if (image) {
-						//Gamma correction
-						output = colorToSRGB(output);
-						//And store the image data
-						setPixel(image, output, x, y);
-					}
 				}
 			}
 			//For performance metrics
@@ -479,5 +462,6 @@ void renderer_destroy(struct renderer *r) {
 	free(r->prefs.imgFileName);
 	free(r->prefs.imgFilePath);
 	if (r->prefs.node_list) free(r->prefs.node_list);
+	if (r->state.result_buf) destroyTexture(r->state.result_buf);
 	free(r);
 }

@@ -704,19 +704,22 @@ void cr_material_set_add(struct cr_scene *s_ext, cr_material_set set, struct cr_
 	bsdf_node_ptr_arr_add(&buf->bsdfs, node);
 }
 
-struct cr_bitmap *cr_renderer_render(struct cr_renderer *ext) {
+void cr_renderer_render(struct cr_renderer *ext) {
+	if (!ext) return;
 	struct renderer *r = (struct renderer *)ext;
 	if (r->prefs.node_list) {
 		r->state.clients = clients_sync(r);
 	}
 	if (!r->state.clients.count && !r->prefs.threads) {
-		return NULL;
+		return;
 	}
-	return renderer_render(r);
+	renderer_render(r);
 }
 
-void cr_bitmap_free(struct cr_bitmap *ext) {
-	destroyTexture((struct texture *)ext);
+struct cr_bitmap *cr_renderer_get_result(struct cr_renderer *ext) {
+	if (!ext) return NULL;
+	struct renderer *r = (struct renderer *)ext;
+	return (struct cr_bitmap *)r->state.result_buf;
 }
 
 void cr_start_render_worker(int port, size_t thread_limit) {

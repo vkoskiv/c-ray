@@ -11,6 +11,7 @@
 #include "../imagefile.h"
 #include "../../common/logging.h"
 #include "../../common/assert.h"
+#include "../../common/texture.h"
 
 #include "formats/png.h"
 #include "formats/bmp.h"
@@ -45,19 +46,27 @@ void writeImage(struct imageFile *image) {
 	}
 	char buf[2048];
 	snprintf(buf, 2048 - 1, "%s%s_%04d.%s", image->filePath, image->fileName, image->count, suffix);
+	struct texture *tmp = newTexture(char_p, image->t->width, image->t->height, 3);
+	textureToSRGB((struct texture *)image->t);
+	for (size_t y = 0; y < tmp->height; ++y) {
+		for (size_t x = 0; x < tmp->width; ++x) {
+			setPixel(tmp, textureGetPixel((struct texture *)image->t, x, y, false), x, y);
+		}
+	}
 	switch (image->type) {
 		case png:
-			encodePNGFromArray(buf, image->t->data.byte_ptr, image->t->width, image->t->height, image->info);
+			encodePNGFromArray(buf, tmp->data.byte_p, tmp->width, tmp->height, image->info);
 			break;
 		case bmp:
-			encodeBMPFromArray(buf, image->t->data.byte_ptr, image->t->width, image->t->height);
+			encodeBMPFromArray(buf, tmp->data.byte_p, tmp->width, tmp->height);
 			break;
 		case qoi:
-			encode_qoi_from_array(buf, image->t->data.byte_ptr, image->t->width, image->t->height);
+			encode_qoi_from_array(buf, tmp->data.byte_p, tmp->width, tmp->height);
 			break;
 		case unknown:
 		default:
 			ASSERT_NOT_REACHED();
 			break;
 	}
+	destroyTexture(tmp);
 }
