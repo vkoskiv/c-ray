@@ -63,8 +63,8 @@ static void print_stats(const struct world *scene) {
 		   scene->meshes.count);
 }
 
-void *renderThread(void *arg);
-void *renderThreadInteractive(void *arg);
+void *render_thread(void *arg);
+void *render_thread_interactive(void *arg);
 
 //FIXME: Statistics computation is a gigantic mess. It will also break in the case
 //where a worker node disconnects during a render, so maybe fix that next.
@@ -208,9 +208,9 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	if (r->state.clients.count) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clients.count, PLURAL(r->state.clients.count), r->state.clients.count, PLURAL(r->state.clients.count));
 	
 	// Select the appropriate renderer type for local use
-	void *(*localRenderThread)(void *) = renderThread;
+	void *(*local_render_thread)(void *) = render_thread;
 	// Iterative mode is incompatible with network rendering at the moment
-	if (r->prefs.iterative && !r->state.clients.count) localRenderThread = renderThreadInteractive;
+	if (r->prefs.iterative && !r->state.clients.count) local_render_thread = render_thread_interactive;
 	
 	// Create & boot workers (Nonblocking)
 	// Local render threads + one thread for every client
@@ -221,7 +221,7 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 			.buf = render_buf,
 			.cam = &camera,
 			.thread = (struct cr_thread){
-				.thread_fn = localRenderThread,
+				.thread_fn = local_render_thread,
 			}
 		});
 	}
@@ -286,7 +286,7 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 
 // An interactive render thread that progressively
 // renders samples up to a limit
-void *renderThreadInteractive(void *arg) {
+void *render_thread_interactive(void *arg) {
 	block_signals();
 	struct worker *threadState = (struct worker*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
@@ -366,7 +366,7 @@ exit:
  @param arg Thread information (see threadInfo struct)
  @return Exits when thread is done
  */
-void *renderThread(void *arg) {
+void *render_thread(void *arg) {
 	block_signals();
 	struct worker *threadState = (struct worker*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
