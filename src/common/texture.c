@@ -115,7 +115,7 @@ struct texture *newTexture(enum precision p, size_t width, size_t height, size_t
 }
 
 void textureFromSRGB(struct texture *t) {
-	if (t->colorspace == sRGB) return;
+	if (t->colorspace == linear) return;
 	for (unsigned x = 0; x < t->width; ++x) {
 		for (unsigned y = 0; y < t->height; ++y) {
 			setPixel(t, colorFromSRGB(textureGetPixel(t, x, y, false)), x, y);
@@ -125,7 +125,7 @@ void textureFromSRGB(struct texture *t) {
 }
 
 void textureToSRGB(struct texture *t) {
-	if (t->colorspace == linear) return;
+	if (t->colorspace == sRGB) return;
 	for (unsigned x = 0; x < t->width; ++x) {
 		for (unsigned y = 0; y < t->height; ++y) {
 			setPixel(t, colorToSRGB(textureGetPixel(t, x, y, false)), x, y);
