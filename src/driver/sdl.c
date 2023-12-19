@@ -268,7 +268,7 @@ void win_destroy(struct sdl_window *w) {
 }
 
 static struct input_state win_check_keyboard(struct sdl_window *sdl) {
-	struct input_state cmd = { 0 };
+	struct input_state cmd = { .should_save = true };
 	if (!sdl) return cmd;
 	SDL_Event event;
 	while (sdl->sym->SDL_PollEvent(&event)) {
@@ -277,7 +277,6 @@ static struct input_state win_check_keyboard(struct sdl_window *sdl) {
 				printf("\n");
 				logr(info, "Aborting render, saving\n");
 				cmd.stop_render = true;
-				cmd.should_save = true;
 			}
 			if (event.key.keysym.sym == SDLK_x) {
 				printf("\n");

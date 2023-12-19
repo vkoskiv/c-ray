@@ -24,6 +24,7 @@ struct usr_data {
 	struct cr_renderer *r;
 	struct sdl_window *w;
 	struct sdl_prefs p;
+	bool should_save;
 };
 
 static void on_start(struct cr_renderer_cb_info *info, void *user_data) {
@@ -42,7 +43,8 @@ static void status(struct cr_renderer_cb_info *state, void *user_data) {
 	struct usr_data *d = user_data;
 	if (!d) return;
 	struct input_state in = win_update(d->w, state->tiles, state->tiles_count, (struct texture *)state->fb);
-	if (in.stop_render) cr_renderer_stop(d->r, in.should_save);
+	d->should_save = in.should_save;
+	if (in.stop_render) cr_renderer_stop(d->r);
 	if (in.pause_render) cr_renderer_toggle_pause(d->r);
 
 	//Run the status printing about 4x/s
@@ -182,6 +184,7 @@ int main(int argc, char *argv[]) {
 	struct usr_data usrdata = (struct usr_data){
 		.p = sdl_parse(cJSON_GetObjectItem(input_json, "display")),
 		.r = renderer,
+		.should_save = true,
 	};
 	cr_renderer_set_callback(renderer, cr_cb_on_start, on_start, &usrdata);
 	cr_renderer_set_callback(renderer, cr_cb_on_stop, on_stop, &usrdata);
@@ -218,7 +221,7 @@ int main(int argc, char *argv[]) {
 		output_name = cr_renderer_get_str_pref(renderer, cr_renderer_output_name);
 	}
 
-	if (cr_renderer_get_num_pref(renderer, cr_renderer_should_save)) {
+	if (usrdata.should_save) {
 		struct imageFile file = (struct imageFile){
 			.filePath = output_path,
 			.fileName = output_name,

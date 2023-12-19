@@ -114,6 +114,7 @@ void update_cb_info(struct renderer *r, struct tile_set *set, struct cr_renderer
 /// @todo Clean this up, it's ugly.
 struct cr_bitmap *renderer_render(struct renderer *r) {
 	//Check for CTRL-C
+	// TODO: Move signal to driver
 	if (registerHandler(sigint, sigHandler)) {
 		logr(warning, "Unable to catch SIGINT\n");
 	}
@@ -215,7 +216,6 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	
 	r->state.rendering = true;
 	r->state.render_aborted = false;
-	r->state.saveImage = true; // Set to false if user presses X
 	
 	if (r->state.clients.count) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clients.count, PLURAL(r->state.clients.count), r->state.clients.count, PLURAL(r->state.clients.count));
 	
@@ -259,7 +259,6 @@ struct cr_bitmap *renderer_render(struct renderer *r) {
 	//Start main thread loop to handle renderer feedback and state management
 	while (r->state.rendering) {
 		if (g_aborted) {
-			r->state.saveImage = false;
 			r->state.render_aborted = true;
 		}
 		

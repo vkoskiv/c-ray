@@ -208,7 +208,6 @@ bail:
 static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	g_worker_renderer->state.rendering = true;
 	g_worker_renderer->state.render_aborted = false;
-	g_worker_renderer->state.saveImage = false;
 	logr(info, "Starting network render job\n");
 	
 	size_t threadCount = thread_limit ? thread_limit : g_worker_renderer->prefs.threads;

@@ -38,16 +38,15 @@ class _cr_rparam(IntEnum):
 	output_num = 6
 	override_width = 7
 	override_height = 8
-	should_save = 9
-	override_cam = 10
-	is_iterative = 11
+	override_cam = 9
+	is_iterative = 10
 	# str
-	output_path = 12
-	asset_path = 13
-	output_name = 14
-	output_filetype = 15
-	node_list = 16
-	blender_mode = 17
+	output_path = 11
+	asset_path = 12
+	output_name = 13
+	output_filetype = 14
+	node_list = 15
+	blender_mode = 16
 
 def _r_set_num(ptr, param, value):
 	return _lib.renderer_set_num_pref(ptr, param, value)
@@ -352,8 +351,8 @@ class renderer:
 			raise TypeError("callback_fn not callable")
 		_lib.renderer_set_callback(self.obj_ptr, type, cr_cb_func(callback_fn), user_data)
 
-	def stop(should_save):
-		_lib.renderer_stop(self.obj_ptr, should_save)
+	def stop():
+		_lib.renderer_stop(self.obj_ptr)
 
 	def toggle_pause():
 		_lib.renderer_toggle_pause(self.obj_ptr)

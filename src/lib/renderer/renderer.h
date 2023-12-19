@@ -46,7 +46,6 @@ struct state {
 	size_t finishedPasses; // For interactive mode
 	bool rendering;
 	bool render_aborted; //SDL listens for X key pressed, which sets this
-	bool saveImage;
 	struct worker_arr workers;
 	struct render_client_arr clients;
 	struct callback callbacks[4];

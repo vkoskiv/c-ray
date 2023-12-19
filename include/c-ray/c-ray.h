@@ -54,7 +54,6 @@ enum cr_renderer_param {
 	cr_renderer_output_num,
 	cr_renderer_override_width,
 	cr_renderer_override_height,
-	cr_renderer_should_save, //FIXME: Remove
 	cr_renderer_override_cam,
 	cr_renderer_is_iterative,
 	// String
@@ -113,7 +112,7 @@ CR_EXPORT bool cr_renderer_set_callback(struct cr_renderer *ext,
 
 CR_EXPORT bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p, uint64_t num);
 CR_EXPORT bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p, const char *str);
-CR_EXPORT void cr_renderer_stop(struct cr_renderer *ext, bool should_save);
+CR_EXPORT void cr_renderer_stop(struct cr_renderer *ext);
 CR_EXPORT void cr_renderer_toggle_pause(struct cr_renderer *ext);
 CR_EXPORT const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_param p);
 CR_EXPORT uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_param p);

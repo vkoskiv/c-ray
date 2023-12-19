@@ -94,13 +94,12 @@ static PyObject *py_cr_renderer_set_callback(PyObject *self, PyObject *args) {
 static PyObject *py_cr_renderer_stop(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
 	PyObject *r_ext;
-	bool should_save;
 
-	if (!PyArg_ParseTuple(args, "Op", &r_ext, &should_save)) {
+	if (!PyArg_ParseTuple(args, "O", &r_ext)) {
 		return NULL;
 	}
 	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
-	cr_renderer_stop(r, should_save);
+	cr_renderer_stop(r);
 	Py_RETURN_NONE;
 }
 

@@ -167,10 +167,9 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 	return false;
 }
 
-void cr_renderer_stop(struct cr_renderer *ext, bool should_save) {
+void cr_renderer_stop(struct cr_renderer *ext) {
 	if (!ext) return;
 	struct renderer *r = (struct renderer *)ext;
-	r->state.saveImage = should_save;
 	r->state.render_aborted = true;
 }
 
@@ -208,7 +207,6 @@ uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_para
 		case cr_renderer_output_num: return r->prefs.imgCount;
 		case cr_renderer_override_width: return r->prefs.override_width;
 		case cr_renderer_override_height: return r->prefs.override_height;
-		case cr_renderer_should_save: return r->state.saveImage ? 1 : 0;
 		default: return 0; // TODO
 	}
 	return 0;
