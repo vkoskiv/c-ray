@@ -87,6 +87,7 @@ def parse_color(input, group_inputs):
 			return NodeColorConstant(cr_color(color[0], color[1], color[2], color[3]))
 		case 'ShaderNodeMix':
 			factor = parse_value(input.inputs[0], group_inputs)
+			# Hack - piggyback off vec_mix instead of implementing one for color
 			if input.inputs[4].is_linked and input.inputs[5].is_linked:
 				return NodeColorVecToColor(parse_vector(input, group_inputs))
 
@@ -211,6 +212,13 @@ def parse_value(input, group_inputs):
 		case 'ShaderNodeVectorMath':
 			vec = parse_vector(input, group_inputs)
 			return NodeValueVecToValue(_component.F, vec)
+		case 'ShaderNodeMix':
+			factor = parse_value(input.inputs[0], group_inputs)
+			a = parse_value(input.inputs[2], group_inputs)
+			b = parse_value(input.inputs[3], group_inputs)
+			# Hack - We should implement dedicated color and value mix
+			color = NodeColorMix(NodeColorSplit(a), NodeColorSplit(b), factor)
+			return NodeValueGrayscale(color)
 		case _:
 			print("Unknown value node of type {}, maybe fix.".format(input.bl_idname))
 			return NodeValueConstant(0.0)
