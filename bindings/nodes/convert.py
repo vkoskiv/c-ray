@@ -56,6 +56,8 @@ warning_color = NodeColorCheckerboard(NodeColorConstant(cr_color(1.0, 0.0, 0.0, 
 
 def parse_color(input, group_inputs):
 	match input.bl_idname:
+		case 'ShaderNodeGroup':
+			return parse_subtree(input, ['NodeSocketColor'], parse_color, group_inputs, warning_color)
 		case 'NodeSocketColor':
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
@@ -182,6 +184,8 @@ def map_math_op(bl_op):
 
 def parse_value(input, group_inputs):
 	match input.bl_idname:
+		case 'ShaderNodeGroup':
+			return parse_subtree(input, ['NodeSocketFloat', 'NodeSocketfloatFactor'], parse_value, group_inputs, NodeValueConstant(0.0))
 		case 'NodeSocketFloat':
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
@@ -269,8 +273,12 @@ def map_vec_op(bl_op):
 			print("Unknown vector op {}, defaulting to ADD".format(bl_op))
 			return v.Add
 
+zero_vec = NodeVectorConstant(cr_vector(0.0, 0.0, 0.0))
+
 def parse_vector(input, group_inputs):
 	match input.bl_idname:
+		case 'ShaderNodeGroup':
+			return parse_subtree(input, ['NodeSocketVector'], parse_vector, group_inputs, zero_vec)
 		case 'NodeSocketVector':
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
@@ -300,45 +308,45 @@ def parse_vector(input, group_inputs):
 				print("{}: {}".format(output.name, output.is_linked))
 		case _:
 			print("Unknown vector node of type {}, maybe fix.".format(input.bl_idname))
-			return NodeVectorConstant(cr_vector(0.0, 0.0, 0.0))
+			return zero_vec
 
 warning_shader = NodeShaderDiffuse(warning_color)
+
+def parse_subtree(input, out_sock_types, sub_parser, group_inputs, default=None):
+	if not input.node_tree.nodes['Group Output']:
+		print("No group output in node group {}".format(input.name))
+		return default
+	if not input.node_tree.nodes['Group Input']:
+		print("No group input in node group {}".format(input.name))
+		return default
+	subroot = input.node_tree.nodes['Group Output']
+	# Hack - Just blindly find first shader input and use that
+	# TODO: Should handle more than one shader output for a node group
+	first_output = None
+	for sub_output in subroot.inputs:
+		if sub_output.is_linked and sub_output.bl_idname in out_sock_types:
+			first_output = sub_output
+	if not first_output:
+		print("Couldn't find shader output in subtree {}".format(input.name))
+		return default
+	subtree_inputs = {}
+	for bl_input in input.inputs:
+		match bl_input.bl_idname:
+			case 'NodeSocketFloat' | 'NodeSocketFloatFactor':
+				subtree_inputs[bl_input.name] = parse_value(bl_input, group_inputs)
+			case 'NodeSocketVector':
+				subtree_inputs[bl_input.name] = parse_vector(bl_input, group_inputs)
+			case 'NodeSocketColor':
+				subtree_inputs[bl_input.name] = parse_color(bl_input, group_inputs)
+			case 'NodeSocketShader':
+				subtree_inputs[bl_input.name] = parse_node(bl_input, group_inputs)
+	return sub_parser(first_output.links[0].from_node, subtree_inputs)
 
 # group_inputs is populated when we're parsing a node group (see ShaderNodeGroup below)
 def parse_node(input, group_inputs=None):
 	match input.bl_idname:
 		case 'ShaderNodeGroup':
-			if not input.node_tree.nodes['Group Output']:
-				print("No group output in node group {}".format(input.name))
-				return warning_shader
-			if not input.node_tree.nodes['Group Input']:
-				print("No group input in node group {}".format(input.name))
-				return warning_shader
-			subroot = input.node_tree.nodes['Group Output']
-			# Hack - Just blindly find first shader input and use that
-			# TODO: Should handle more than one shader output for a node group
-			first_output = None
-			for sub_output in subroot.inputs:
-				if sub_output.is_linked and sub_output.bl_idname == 'NodeSocketShader':
-					first_output = sub_output
-			if not first_output:
-				print("Couldn't find shader output in subtree {}".format(input.name))
-				return warning_shader
-			# if not subroot.inputs['Surface'].is_linked:
-			# 	print("Subroot {} output surface socket not linked".format(input.name))
-			# 	return warning_shader
-			subtree_inputs = {}
-			for bl_input in input.inputs:
-				match bl_input.bl_idname:
-					case 'NodeSocketFloat' | 'NodeSocketFloatFactor':
-						subtree_inputs[bl_input.name] = parse_value(bl_input, group_inputs)
-					case 'NodeSocketVector':
-						subtree_inputs[bl_input.name] = parse_vector(bl_input, group_inputs)
-					case 'NodeSocketColor':
-						subtree_inputs[bl_input.name] = parse_color(bl_input, group_inputs)
-					case 'NodeSocketShader':
-						subtree_inputs[bl_input.name] = parse_node(bl_input, group_inputs)
-			return parse_node(first_output.links[0].from_node, subtree_inputs)
+			return parse_subtree(input, ['NodeSocketShader'], parse_node, group_inputs, warning_shader)
 		case 'NodeSocketShader':
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
