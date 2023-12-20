@@ -147,7 +147,7 @@ def dump(obj):
 class CrayRender(bpy.types.RenderEngine):
 	bl_idname = "C_RAY"
 	bl_label = "c-ray for Blender"
-	bl_use_preview = False
+	bl_use_preview = True
 	bl_use_shading_nodes_custom = False
 
 	def __init__(self):

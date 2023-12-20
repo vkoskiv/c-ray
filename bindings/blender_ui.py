@@ -91,6 +91,19 @@ class C_RAY_RENDER_PT_light_paths_bounces(CrayButtonsPanel, Panel):
 		col = layout.column()
 		col.prop(context.scene.c_ray, "bounces", text="Total")
 
+class C_RAY_MATERIAL_PT_preview(CrayButtonsPanel, Panel):
+	bl_label = "Preview"
+	bl_context = "material"
+	bl_options = {'DEFAULT_CLOSED'}
+
+	@classmethod
+	def poll(cls, context):
+		mat = context.material
+		return mat and (not mat.grease_pencil) and CrayButtonsPanel.poll(context)
+
+	def draw(self, context):
+		self.layout.template_preview(context.material)
+
 class C_RAY_CAMERA_PT_dof(CrayButtonsPanel, Panel):
 	bl_label = "Depth of Field"
 	bl_context = "data"
@@ -165,6 +178,7 @@ classes = (
 	C_RAY_RENDER_PT_performance_clustering,
 	C_RAY_RENDER_PT_light_paths,
 	C_RAY_RENDER_PT_light_paths_bounces,
+	C_RAY_MATERIAL_PT_preview,
 	C_RAY_CAMERA_PT_dof,
 	C_RAY_CAMERA_PT_dof_aperture,
 )
