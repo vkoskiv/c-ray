@@ -155,6 +155,7 @@ static PyObject *py_cr_renderer_get_result(PyObject *self, PyObject *args) {
 	}
 	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
 	struct cr_bitmap *bm = cr_renderer_get_result(r);
+	if (!bm) Py_RETURN_NONE;
 	return PyCapsule_New(bm, "cray.cr_bitmap", NULL);
 }
 

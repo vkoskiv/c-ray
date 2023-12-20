@@ -362,6 +362,8 @@ class renderer:
 
 	def get_result(self):
 		ret = _lib.renderer_get_result(self.obj_ptr)
+		if not ret:
+			return None
 		# I saw this in several places, and suggested by a token predictor. Ehh?
 		ct.pythonapi.PyCapsule_GetPointer.restype = ct.c_void_p
 		ct.pythonapi.PyCapsule_GetPointer.argtypes = [ct.py_object, ct.c_char_p]
