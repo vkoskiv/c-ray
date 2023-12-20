@@ -297,12 +297,12 @@ class CrayRender(bpy.types.RenderEngine):
 		float_count = bm.width * bm.height * bm.stride
 		floats = array('f', bm.data.float_ptr[:float_count])
 		rect = []
-		for i in range(0, len(floats), 3):
+		for i in range(0, len(floats), 4):
 			temp = []
 			temp.append(floats[i + 0])
 			temp.append(floats[i + 1])
 			temp.append(floats[i + 2])
-			temp.append(1.0)
+			temp.append(floats[i + 3])
 			rect.append(temp)
 		result = self.begin_result(0, 0, bm.width, bm.height)
 		layer = result.layers[0].passes["Combined"]

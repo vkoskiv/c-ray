@@ -1,6 +1,8 @@
 import bpy
 from bpy.types import Panel
 
+# Most of this is just a carbon-copy of the Cycles UI boilerplate
+
 class CrayButtonsPanel:
 	bl_space_type = "PROPERTIES"
 	bl_region_type = "WINDOW"

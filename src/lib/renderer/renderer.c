@@ -182,11 +182,11 @@ void renderer_render(struct renderer *r) {
 	// Render buffer is used to store accurate color values for the renderers' internal use
 	if (!r->state.result_buf) {
 		// Allocate
-		r->state.result_buf = newTexture(float_p, camera.width, camera.height, 3);
+		r->state.result_buf = newTexture(float_p, camera.width, camera.height, 4);
 	} else if (r->state.result_buf->width != (size_t)camera.width || r->state.result_buf->height != (size_t)camera.height) {
 		// Resize
 		if (r->state.result_buf) destroyTexture(r->state.result_buf);
-		r->state.result_buf = newTexture(float_p, camera.width, camera.height, 3);
+		r->state.result_buf = newTexture(float_p, camera.width, camera.height, 4);
 	} else {
 		// Clear
 		tex_clear(r->state.result_buf);
