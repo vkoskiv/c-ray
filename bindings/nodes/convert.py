@@ -91,8 +91,9 @@ def parse_color(input, group_inputs):
 			a = parse_color(input.inputs[6], group_inputs)
 			b = parse_color(input.inputs[7], group_inputs)
 			return NodeColorMix(a, b, factor)
-		# case 'ShaderNodeBlackbody':
-		# 	return warning_color
+		case 'ShaderNodeBlackbody':
+			degrees = parse_value(input.inputs[0], group_inputs)
+			return NodeColorBlackbody(degrees)
 		# case 'ShaderNodeCombineRGB':
 		# 	return warning_color
 		# case 'ShaderNodeCombineHSL':
