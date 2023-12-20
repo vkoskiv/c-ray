@@ -210,7 +210,11 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 	
 	w->sym->SDL_RenderSetScale(w->renderer, w->windowScale, w->windowScale);
 	//Init pixel texture
-	w->texture = w->sym->SDL_CreateTexture(w->renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, w->width, w->height);
+	uint32_t format = SDL_PIXELFORMAT_ABGR8888;
+#if SDL_BYTEORDER == BIG_ENDIAN
+	format = SDL_PIXELFORMAT_RGBA8888;
+#endif
+	w->texture = w->sym->SDL_CreateTexture(w->renderer, format, SDL_TEXTUREACCESS_STREAMING, w->width, w->height);
 	if (w->texture == NULL) {
 		logr(warning, "Texture couldn't be created, error: \"%s\"\n", w->sym->SDL_GetError());
 		win_destroy(w);
@@ -218,10 +222,6 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 	}
 	//Init overlay texture (for UI info)
 
-	uint32_t format = SDL_PIXELFORMAT_ABGR8888;
-#if SDL_BYTEORDER == BIG_ENDIAN
-	format = SDL_PIXELFORMAT_RGBA8888;
-#endif
 	w->overlay_sdl = w->sym->SDL_CreateTexture(w->renderer, format, SDL_TEXTUREACCESS_STREAMING, w->width, w->height);
 	if (w->overlay_sdl == NULL) {
 		logr(warning, "Overlay texture couldn't be created, error: \"%s\"\n", w->sym->SDL_GetError());
@@ -229,7 +229,7 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 		return NULL;
 	}
 	w->overlay = newTexture(char_p, width, height, 4);
-	w->internal = newTexture(char_p, width, height, 3);
+	w->internal = newTexture(char_p, width, height, 4);
 	
 	//And set blend modes for textures too
 	w->sym->SDL_SetTextureBlendMode(w->texture, SDL_BLENDMODE_BLEND);
@@ -380,7 +380,7 @@ struct input_state win_update(struct sdl_window *w, const struct cr_tile *tiles,
 	draw_frames(w->overlay, tiles, tile_count);
 	draw_prog_bars(w->overlay, tiles, tile_count);
 	//Update image data
-	if (t) w->sym->SDL_UpdateTexture(w->texture, NULL, w->internal->data.byte_p, (int)w->width * 3);
+	if (t) w->sym->SDL_UpdateTexture(w->texture, NULL, w->internal->data.byte_p, (int)w->width * 4);
 	w->sym->SDL_UpdateTexture(w->overlay_sdl, NULL, w->overlay->data.byte_p, (int)w->width * 4);
 	w->sym->SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
 	w->sym->SDL_RenderCopy(w->renderer, w->overlay_sdl, NULL, NULL);
