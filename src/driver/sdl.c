@@ -369,9 +369,10 @@ struct input_state win_update(struct sdl_window *w, const struct cr_tile *tiles,
 			for (int x = 0; x < tiles[i].w; ++x) {
 				const int ax = x + tiles[i].start_x;
 				const int ay = y + tiles[i].start_y;
-				dst[(ax + (ay * width)) * 3 + 0] = (unsigned char)min(linearToSRGB(src[(ax + (ay * width)) * 3 + 0]) * 255.0f, 255.0f);
-				dst[(ax + (ay * width)) * 3 + 1] = (unsigned char)min(linearToSRGB(src[(ax + (ay * width)) * 3 + 1]) * 255.0f, 255.0f);
-				dst[(ax + (ay * width)) * 3 + 2] = (unsigned char)min(linearToSRGB(src[(ax + (ay * width)) * 3 + 2]) * 255.0f, 255.0f);
+				dst[(ax + (ay * width)) * 4 + 0] = (unsigned char)min(linearToSRGB(src[(ax + (ay * width)) * 4 + 0]) * 255.0f, 255.0f);
+				dst[(ax + (ay * width)) * 4 + 1] = (unsigned char)min(linearToSRGB(src[(ax + (ay * width)) * 4 + 1]) * 255.0f, 255.0f);
+				dst[(ax + (ay * width)) * 4 + 2] = (unsigned char)min(linearToSRGB(src[(ax + (ay * width)) * 4 + 2]) * 255.0f, 255.0f);
+				dst[(ax + (ay * width)) * 4 + 3] = 255;
 			}
 		}
 	}
