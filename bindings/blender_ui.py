@@ -91,6 +91,57 @@ class C_RAY_RENDER_PT_light_paths_bounces(CrayButtonsPanel, Panel):
 		col = layout.column()
 		col.prop(context.scene.c_ray, "bounces", text="Total")
 
+class C_RAY_CAMERA_PT_dof(CrayButtonsPanel, Panel):
+	bl_label = "Depth of Field"
+	bl_context = "data"
+
+	@classmethod
+	def poll(cls, context):
+		return context.camera and CrayButtonsPanel.poll(context)
+
+	def draw_header(self, context):
+		cam = context.camera
+		dof = cam.dof
+		self.layout.prop(dof, "use_dof", text="")
+
+	def draw(self, context):
+		layout = self.layout
+		layout.use_property_split = True
+
+		cam = context.camera
+		dof = cam.dof
+		layout.active = dof.use_dof
+
+		split = layout.split()
+
+		col = split.column()
+		col.prop(dof, "focus_object", text="Focus Object")
+		if dof.focus_object and dof.focus_object.type == 'ARMATURE':
+			col.prop_search(dof, "focus_subtarget", dof.focus_object.data, "bones", text="Focus Bone")
+		sub = col.row()
+		sub.active = dof.focus_object is None
+		sub.prop(dof, "focus_distance", text="Distance")
+
+class C_RAY_CAMERA_PT_dof_aperture(CrayButtonsPanel, Panel):
+	bl_label = "Aperture"
+	bl_parent_id = "C_RAY_CAMERA_PT_dof"
+
+	@classmethod
+	def poll(cls, context):
+		return context.camera and CrayButtonsPanel.poll(context)
+
+	def draw(self, context):
+		layout = self.layout
+		layout.use_property_split = True
+
+		cam = context.camera
+		dof = cam.dof
+		layout.active = dof.use_dof
+		flow = layout.grid_flow(row_major=True, columns=0, even_columns=True, even_rows=False, align=False)
+
+		col = flow.column()
+		col.prop(dof, "aperture_fstop")
+
 def get_panels():
 	exclude_panels = {
 		'VIEWLAYER_PT_filter',
@@ -114,6 +165,8 @@ classes = (
 	C_RAY_RENDER_PT_performance_clustering,
 	C_RAY_RENDER_PT_light_paths,
 	C_RAY_RENDER_PT_light_paths_bounces,
+	C_RAY_CAMERA_PT_dof,
+	C_RAY_CAMERA_PT_dof_aperture,
 )
 
 def register():
