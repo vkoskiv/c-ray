@@ -84,10 +84,14 @@ struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampl
 						);
 	new_ray.direction = vec_normalize(pix_v);
 	
+	// Unused if aperture == 0.0, but still computed to maintain the same
+	// prng sequence for both codepaths
+	struct coord random = coord_on_unit_disc(sampler);
+
 	if (cam->aperture > 0.0f) {
 		const float ft = cam->focus_distance / vec_dot(new_ray.direction, cam->forward);
 		const struct vector focus_point = alongRay(&new_ray, ft);
-		const struct coord lens_point = coord_scale(cam->aperture, coord_on_unit_disc(sampler));
+		const struct coord lens_point = coord_scale(cam->aperture, random);
 		new_ray.start = vec_add(new_ray.start, vec_add(vec_scale(cam->right, lens_point.x), vec_scale(cam->up, lens_point.y)));
 		new_ray.direction = vec_normalize(vec_sub(focus_point, new_ray.start));
 	}
