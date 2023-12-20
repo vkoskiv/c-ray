@@ -229,9 +229,13 @@ class camera:
 	def __init__(self, scene_ptr):
 		self.scene_ptr = scene_ptr
 		self.cr_idx = _lib.camera_new(self.scene_ptr)
+		self.params = {}
 
 	def set_param(self, param, value):
-		ret =  _lib.camera_set_num_pref(self.scene_ptr, self.cr_idx, param, value)
+		if param in self.params and self.params[param] == value:
+			return
+		self.params[param] = value
+		ret =  _lib.camera_set_num_pref(self.scene_ptr, self.cr_idx, param, self.params[param])
 		# Weird. Could just do this internally, no?
 		_lib.camera_update(self.scene_ptr, self.cr_idx)
 
@@ -294,17 +298,21 @@ class material_set:
 class scene:
 	def __init__(self, scene_ptr):
 		self.cr_ptr = scene_ptr
+		self.meshes = {}
+		self.cameras = {}
 	def close(self):
 		del(self.s_ptr)
 
 	def totals(self):
 		return _lib.scene_totals(self.cr_ptr)
 	def mesh_new(self, name):
-		return mesh(self.cr_ptr, name)
+		self.meshes[name] = mesh(self.cr_ptr, name)
+		return self.meshes[name]
 	def sphere_new(self, radius):
 		return sphere(self.cr_ptr, radius)
-	def camera_new(self):
-		return camera(self.cr_ptr)
+	def camera_new(self, name):
+		self.cameras[name] = camera(self.cr_ptr)
+		return self.cameras[name]
 	def material_set_new(self):
 		return material_set(self.cr_ptr)
 	def instance_new(self, object, type):

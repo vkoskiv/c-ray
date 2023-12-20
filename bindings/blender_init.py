@@ -139,14 +139,27 @@ def cr_vertex_buf(scene, me):
 	cr_vbuf = scene.vertex_buf_new(bytearray(vbuf), len(verts), bytearray(nbuf), len(normals), bytearray(tbuf), len(texcoords))
 	return cr_vbuf
 
+def dump(obj):
+	for attr in dir(obj):
+		if hasattr(obj, attr):
+			print("obj.{} = {}".format(attr, getattr(obj, attr)))
+
 class CrayRender(bpy.types.RenderEngine):
 	bl_idname = "C_RAY"
 	bl_label = "c-ray for Blender"
 	bl_use_preview = False
 	bl_use_shading_nodes_custom = False
 
-	def sync_scene(self, renderer, depsgraph, b_scene):
-		cr_scene = renderer.scene_get()
+	def __init__(self):
+		print("c-ray initialized")
+		self.cr_renderer = None
+		self.cr_scene = None
+
+	def __del__(self):
+		print("c-ray deleted")
+
+	def sync_scene(self, depsgraph):
+		b_scene = depsgraph.scene
 		objects = b_scene.objects
 		# Sync cameras
 		for idx, ob_main in enumerate(objects):
@@ -155,7 +168,11 @@ class CrayRender(bpy.types.RenderEngine):
 			bl_cam_eval = ob_main.evaluated_get(depsgraph)
 			bl_cam = bl_cam_eval.data
 
-			cr_cam = cr_scene.camera_new()
+			cr_cam = None
+			if bl_cam.name in self.cr_scene.cameras:
+				cr_cam = self.cr_scene.cameras[bl_cam.name]
+			else:
+				cr_cam = self.cr_scene.camera_new(ob_main.name)
 			mtx = ob_main.matrix_world
 			euler = mtx.to_euler('XYZ')
 			loc = mtx.to_translation()
@@ -166,8 +183,12 @@ class CrayRender(bpy.types.RenderEngine):
 			cr_cam.set_param(c_ray.cam_param.pose_roll, euler[0])
 			cr_cam.set_param(c_ray.cam_param.pose_pitch, euler[1])
 			cr_cam.set_param(c_ray.cam_param.pose_yaw, euler[2])
-			cr_cam.set_param(c_ray.cam_param.res_x, self.size_x)
-			cr_cam.set_param(c_ray.cam_param.res_y, self.size_y)
+
+			scale = b_scene.render.resolution_percentage / 100.0
+			size_x = int(b_scene.render.resolution_x * scale)
+			size_y = int(b_scene.render.resolution_y * scale)
+			cr_cam.set_param(c_ray.cam_param.res_x, size_x)
+			cr_cam.set_param(c_ray.cam_param.res_y, size_y)
 			cr_cam.set_param(c_ray.cam_param.blender_coord, 1)
 			# TODO: We don't tell blender that we support this, so it's not available yet
 			if bl_cam.dof.use_dof:
@@ -194,17 +215,22 @@ class CrayRender(bpy.types.RenderEngine):
 		for idx, ob_main in enumerate(objects):
 			if ob_main.type != 'MESH':
 				continue
-			cr_mesh = cr_scene.mesh_new(ob_main.name)
+			if ob_main.name in self.cr_scene.meshes:
+				print("Mesh '{}' already synced, skipping".format(ob_main.name))
+				break
+			print("Syncing mesh {}".format(ob_main.name))
+			# dump(ob_main)
+			cr_mesh = self.cr_scene.mesh_new(ob_main.name)
 			instances = []
-			new_inst = cr_scene.instance_new(cr_mesh, 0)
+			new_inst = self.cr_scene.instance_new(cr_mesh, 0)
 			new_inst.set_transform(to_cr_matrix(ob_main.matrix_world))
-			cr_mat_set = cr_scene.material_set_new()
+			cr_mat_set = self.cr_scene.material_set_new()
 			new_inst.bind_materials(cr_mat_set)
 			instances.append(new_inst)
-			if ob_main.is_instancer:
+			if ob_main.is_instancer and ob_main.show_instancer_for_render:
 				for dup in depsgraph.object_instances:
 					if dup.parent and dup.parent.original == ob_main:
-						new_inst = cr_scene.instance_new(cr_mesh, 0)
+						new_inst = self.cr_scene.instance_new(cr_mesh, 0)
 						new_inst.set_transform(dup.matrix_world.copy())
 			ob_for_convert = ob_main.evaluated_get(depsgraph)
 			try:
@@ -212,9 +238,9 @@ class CrayRender(bpy.types.RenderEngine):
 			except RuntimeError:
 				me = None
 			if me is None:
+				print("Whoops, mesh {} couldn't be converted".format(ob_main.name))
 				continue
-			# FIXME: Parse & convert these to an array before parsing meshes, then pick from there
-			# We're doing duplicate work for many materials
+
 			if len(me.materials) < 1:
 				cr_mat_set.add(None)
 			for bl_mat in me.materials:
@@ -223,7 +249,11 @@ class CrayRender(bpy.types.RenderEngine):
 					cr_mat_set.add(None)
 				elif bl_mat.use_nodes:
 					print("Fetching material {}".format(bl_mat.name))
-					cr_mat_set.add(cr_materials[bl_mat.name])
+					if bl_mat.name not in cr_materials:
+						print("Weird, {} not found in cr_materials".format(bl_mat.name))
+						cr_mat_set.add(None)
+					else:
+						cr_mat_set.add(cr_materials[bl_mat.name])
 				else:
 					print("Material {} doesn't use nodes, do something about that".format(bl_mat.name))
 					cr_mat_set.add(None)
@@ -235,35 +265,33 @@ class CrayRender(bpy.types.RenderEngine):
 				faces.append(to_cr_face(me, poly))
 			facebuf = (c_ray.cr_face * len(faces))(*faces)
 			cr_mesh.bind_faces(bytearray(facebuf), len(faces))
-			cr_mesh.bind_vertex_buf(cr_vertex_buf(cr_scene, me))
+			cr_mesh.bind_vertex_buf(cr_vertex_buf(self.cr_scene, me))
 		
 		# Set background shader
 		bl_nodetree = bpy.data.worlds[0].node_tree
-		cr_scene.set_background(convert_background(bl_nodetree))
-		return cr_scene
+		self.cr_scene.set_background(convert_background(bl_nodetree))
+
+	def update(self, data, depsgraph):
+		if not self.cr_renderer:
+			self.cr_renderer = c_ray.renderer()
+			self.cr_renderer.prefs.asset_path = ""
+			self.cr_renderer.prefs.blender_mode = True
+			self.cr_scene = self.cr_renderer.scene_get()
+		self.sync_scene(depsgraph)
+		print(self.cr_scene.totals())
+		# self.cr_renderer.debug_dump()
+		self.cr_renderer.prefs.samples = depsgraph.scene.c_ray.samples
+		self.cr_renderer.prefs.threads = depsgraph.scene.c_ray.threads
+		self.cr_renderer.prefs.tile_x = depsgraph.scene.c_ray.tile_size
+		self.cr_renderer.prefs.tile_y = depsgraph.scene.c_ray.tile_size
+		self.cr_renderer.prefs.bounces = depsgraph.scene.c_ray.bounces
+		self.cr_renderer.prefs.node_list = depsgraph.scene.c_ray.node_list
 
 	def render(self, depsgraph):
-		b_scene = depsgraph.scene
-		scale = b_scene.render.resolution_percentage / 100.0
-		self.size_x = int(b_scene.render.resolution_x * scale)
-		self.size_y = int(b_scene.render.resolution_y * scale)
-
-		renderer = c_ray.renderer()
-		renderer.prefs.asset_path = ""
-		renderer.prefs.blender_mode = True
-		cr_scene = self.sync_scene(renderer, depsgraph, b_scene)
-		print(cr_scene.totals())
-		# renderer.debug_dump()
-		renderer.prefs.samples = b_scene.c_ray.samples
-		renderer.prefs.threads = b_scene.c_ray.threads
-		renderer.prefs.tile_x = b_scene.c_ray.tile_size
-		renderer.prefs.tile_y = b_scene.c_ray.tile_size
-		renderer.prefs.bounces = b_scene.c_ray.bounces
-		renderer.prefs.node_list = b_scene.c_ray.node_list
-		renderer.render()
-		bm = renderer.get_result()
+		self.cr_renderer.render()
+		bm = self.cr_renderer.get_result()
+		print("Render done")
 		self.display_bitmap(bm)
-		del(renderer)
 
 	def display_bitmap(self, bm):
 		float_count = bm.width * bm.height * bm.stride

@@ -28,6 +28,7 @@
 #include "../../common/loaders/textureloader.h"
 #include "../../common/json_loader.h"
 #include "../protocol/protocol.h"
+#include "../../common/node_parse.h"
 
 #ifdef CRAY_DEBUG_ENABLED
 #define DEBUG "D"
@@ -216,6 +217,7 @@ bool cr_scene_set_background(struct cr_scene *s_ext, struct cr_shader_node *desc
 	if (!s_ext) return false;
 	struct world *s = (struct world *)s_ext;
 	s->background = desc ? build_bsdf_node(s_ext, desc) : newBackground(&s->storage, NULL, NULL, NULL, s->use_blender_coordinates);
+	if (s->bg_desc) cr_shader_node_free(s->bg_desc);
 	s->bg_desc = desc ? shader_deepcopy(desc) : NULL;
 	return true;
 }
