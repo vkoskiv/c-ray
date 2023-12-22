@@ -28,8 +28,12 @@ struct checkerTexture {
 // UV-mapped variant
 static struct color mappedCheckerBoard(const struct hitRecord *isect, sampler *sampler, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale) {
 	const float coef = scale->eval(scale, sampler, isect);
-	const float sines = sinf(coef * isect->uv.x) * sinf(coef * isect->uv.y);
-	if (sines < 0.0f) {
+	const coord uv = coord_scale(coef, isect->uv);
+	float x_i = (uv.x + 0.000001) * 0.999999;
+	float y_i = (uv.y + 0.000001) * 0.999999;
+	x_i = (int)fabsf(floorf(x_i));
+	y_i = (int)fabsf(floorf(y_i));
+	if (fmodf(x_i, 2.0f) == fmodf(y_i, 2.0f)) {
 		return A->eval(A, sampler, isect);
 	} else {
 		return B->eval(B, sampler, isect);
@@ -39,8 +43,14 @@ static struct color mappedCheckerBoard(const struct hitRecord *isect, sampler *s
 // Fallback axis-aligned checkerboard
 static struct color unmappedCheckerBoard(const struct hitRecord *isect, sampler *sampler, const struct colorNode *A, const struct colorNode *B, const struct valueNode *scale) {
 	const float coef = scale->eval(scale, sampler, isect);
-	const float sines = sinf(coef*isect->hitPoint.x) * sinf(coef*isect->hitPoint.y) * sinf(coef*isect->hitPoint.z);
-	if (sines < 0.0f) {
+	const vector v = vec_scale(isect->hitPoint, coef);
+	float x_i = (v.x + 0.000001) * 0.999999;
+	float y_i = (v.y + 0.000001) * 0.999999;
+	float z_i = (v.z + 0.000001) * 0.999999;
+	x_i = (int)fabsf(floorf(x_i));
+	y_i = (int)fabsf(floorf(y_i));
+	z_i = (int)fabsf(floorf(z_i));
+	if ((fmodf(x_i, 2.0f) == fmodf(y_i, 2.0f)) == fmodf(z_i, 2.0f)) {
 		return A->eval(A, sampler, isect);
 	} else {
 		return B->eval(B, sampler, isect);
