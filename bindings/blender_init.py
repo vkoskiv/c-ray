@@ -19,6 +19,8 @@ if "bpy" in locals():
 		importlib.reload(ui)
 
 import bpy
+import numpy as np
+import time
 
 from . import (
 	c_ray
@@ -298,19 +300,32 @@ class CrayRender(bpy.types.RenderEngine):
 		self.display_bitmap(bm)
 
 	def display_bitmap(self, bm):
+		# Get float array from libc-ray
+		print("Grabbing float array from lib")
+		start_first = time.time()
 		float_count = bm.width * bm.height * bm.stride
 		floats = array('f', bm.data.float_ptr[:float_count])
-		rect = []
-		for i in range(0, len(floats), 4):
-			temp = []
-			temp.append(floats[i + 0])
-			temp.append(floats[i + 1])
-			temp.append(floats[i + 2])
-			temp.append(floats[i + 3])
-			rect.append(temp)
+		end = time.time()
+		print("Done, took {}s".format(end - start_first))
+
+		# We need to work around a bug in foreach_set(), where it gets the length of the first array dimension, instead of the whole array.
+		print("Converting")
+		start = time.time()
+		floats = np.asarray(floats).reshape(-1, 4)
+
+		# Could also use memoryview, but that's only supported in Blender 4.0 and up
+		# floats = memoryview(floats).cast('b').cast('f', (bm.width * bm.height, 4))
+		end = time.time()
+		print("DONE, took {}".format(end - start))
 		result = self.begin_result(0, 0, bm.width, bm.height)
-		layer = result.layers[0].passes["Combined"]
-		layer.rect = rect
+		r_pass = result.layers[0].passes["Combined"]
+		print("Copying to RenderPass")
+		start = time.time()
+		r_pass.rect.foreach_set(floats)
+		end = time.time()
+		print("Done, took {}".format(end - start))
+		print("Displaying bitmap took a total of {}s".format(end - start_first))
+
 		self.end_result(result)
 
 def register():
