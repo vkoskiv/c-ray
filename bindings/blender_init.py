@@ -144,6 +144,9 @@ def dump(obj):
 		if hasattr(obj, attr):
 			print("obj.{} = {}".format(attr, getattr(obj, attr)))
 
+def on_start(renderer_cb_info, user_data):
+	print("on_start called")
+
 class CrayRender(bpy.types.RenderEngine):
 	bl_idname = "C_RAY"
 	bl_label = "c-ray for Blender"
@@ -286,6 +289,7 @@ class CrayRender(bpy.types.RenderEngine):
 		self.cr_renderer.prefs.tile_y = depsgraph.scene.c_ray.tile_size
 		self.cr_renderer.prefs.bounces = depsgraph.scene.c_ray.bounces
 		self.cr_renderer.prefs.node_list = depsgraph.scene.c_ray.node_list
+		self.cr_renderer.callbacks.on_start = (on_start, None)
 
 	def render(self, depsgraph):
 		self.cr_renderer.render()

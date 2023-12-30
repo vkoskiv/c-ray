@@ -67,27 +67,54 @@ static PyObject *py_cr_renderer_set_str_pref(PyObject *self, PyObject *args) {
 	return PyBool_FromLong(ret);
 }
 
+void py_callable_wrapper(struct cr_renderer_cb_info *info, void *arg) {
+	PyObject *py_callback_fn = NULL;
+	PyObject *py_user_data = NULL;
+	PyGILState_STATE state = PyGILState_Ensure();
+	if (!PyArg_ParseTuple(arg, "OO", &py_callback_fn, &py_user_data)) {
+		printf("Failed to parse args in py_callable_wrapper\n");
+		return;
+	}
+	PyObject *info_capsule = PyCapsule_New(info, "cray.renderer_cb_info", NULL);
+	PyObject *py_args = Py_BuildValue("(OO)", info_capsule, py_user_data);
+	if (!py_args) {
+		printf("In py_callable_wrapper: ");
+		PyErr_Print();
+		return;
+	}
+	Py_INCREF(py_args);
+	PyObject_Call(py_callback_fn, py_args, NULL);
+	PyGILState_Release(state);
+}
+
 static PyObject *py_cr_renderer_set_callback(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
 	PyObject *r_ext;
 	enum cr_renderer_callback callback_type;
-	PyObject *callback_fn;
-	void *user_data = NULL;
+	PyObject *py_callback_fn;
+	PyObject *py_user_data = NULL;
 
-	if (!PyArg_ParseTuple(args, "OIO|p", &r_ext, &callback_type, &callback_fn, &user_data)) {
+	if (!PyArg_ParseTuple(args, "OIO|O", &r_ext, &callback_type, &py_callback_fn, &py_user_data)) {
 		return NULL;
 	}
 	if (callback_type > cr_cb_status_update) {
 		PyErr_SetString(PyExc_ValueError, "Unknown callback type");
 		return NULL;
 	}
-	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
-	if (!PyCallable_Check(callback_fn)) {
+	if (!PyCallable_Check(py_callback_fn)) {
 		PyErr_SetString(PyExc_ValueError, "callback must be callable");
 		return NULL;
 	}
 
-	bool ret = cr_renderer_set_callback(r, callback_type, PyCapsule_GetPointer(callback_fn, NULL), user_data);
+	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
+	PyObject *py_arg = Py_BuildValue("(OO)", py_callback_fn, py_user_data);
+	if (!py_arg) {
+		printf("In py_cr_renderer_set_callback: ");
+		PyErr_Print();
+		return NULL;
+	}
+	Py_INCREF(py_arg);
+	bool ret = cr_renderer_set_callback(r, callback_type, py_callable_wrapper, py_arg);
 	return PyBool_FromLong(ret);
 }
 

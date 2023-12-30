@@ -60,6 +60,37 @@ def _r_set_str(ptr, param, value):
 def _r_get_str(ptr, param):
 	return _lib.renderer_get_str_pref(ptr, param)
 
+class _cr_cb_type(IntEnum):
+	on_start = 0,
+	on_stop = 1,
+	on_status_update = 2,
+	on_state_changed = 3, # Not connected currently, c-ray never calls this
+
+class _callbacks:
+	def __init__(self, r_ptr):
+		self.r_ptr = r_ptr
+
+	def _set_on_start(self, fn_and_userdata):
+		fn, user_data = fn_and_userdata
+		if not callable(fn):
+			raise TypeError("on_start callback function not callable")
+		_lib.renderer_set_callback(self.r_ptr, _cr_cb_type.on_start, fn, user_data)
+	on_start = property(None, _set_on_start, None, "Tuple (fn,user_data) - fn will be called when c-ray starts rendering, with arguments (cr_cb_info, user_data)")
+
+	def _set_on_stop(self, fn_and_userdata):
+		fn, user_data = fn_and_userdata
+		if not callable(fn):
+			raise TypeError("on_stop callback function not callable")
+		_lib.renderer_set_callback(self.r_ptr, _cr_cb_type.on_stop, fn, user_data)
+	on_stop = property(None, _set_on_stop, None, "Tuple (fn,user_data) - fn will be called when c-ray is done rendering, with arguments (cr_cb_info, user_data)")
+
+	def _set_on_status_update(self, fn_and_userdata):
+		fn, user_data = fn_and_userdata
+		if not callable(fn):
+			raise TypeError("on_status_update callback function not callable")
+		_lib.renderer_set_callback(self.r_ptr, _cr_cb_type.on_status_update, fn, user_data)
+	on_status_update = property(None, _set_on_status_update, None, "Tuple (fn,user_data) - fn will be called periodically while c-ray is rendering, with arguments (cr_cb_info, user_data)")
+
 class _pref:
 	def __init__(self, r_ptr):
 		self.r_ptr = r_ptr
@@ -348,18 +379,14 @@ class renderer:
 	def __init__(self, path = None):
 		self.obj_ptr = _lib.new_renderer()
 		self.prefs = _pref(self.obj_ptr)
+		self.callbacks = _callbacks(self.obj_ptr)
 		if path != None:
 			_lib.load_json(self.obj_ptr, path)
 
 	def close(self):
 		del(self.obj_ptr)
 
-	def set_callback(self, type, callback_fn, user_data):
-		if not callable(callback_fn):
-			raise TypeError("callback_fn not callable")
-		_lib.renderer_set_callback(self.obj_ptr, type, cr_cb_func(callback_fn), user_data)
-
-	def stop():
+	def stop(self):
 		_lib.renderer_stop(self.obj_ptr)
 
 	def toggle_pause():
