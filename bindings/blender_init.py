@@ -170,13 +170,15 @@ class CrayRender(bpy.types.RenderEngine):
 	bl_label = "c-ray for Blender"
 	bl_use_preview = True
 	bl_use_shading_nodes_custom = False
+	cr_renderer = None
 
 	def __init__(self):
 		print("c-ray initialized")
-		self.cr_renderer = None
 		self.cr_scene = None
 
 	def __del__(self):
+		if self.cr_renderer:
+			self.cr_renderer.close()
 		print("c-ray deleted")
 
 	def sync_scene(self, depsgraph):

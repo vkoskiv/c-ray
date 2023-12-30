@@ -384,6 +384,7 @@ class renderer:
 			_lib.load_json(self.obj_ptr, path)
 
 	def close(self):
+		_lib.renderer_destroy(self.obj_ptr)
 		del(self.obj_ptr)
 
 	def stop(self):

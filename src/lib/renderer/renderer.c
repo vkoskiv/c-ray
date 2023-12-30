@@ -453,7 +453,7 @@ struct renderer *renderer_new() {
 	r->scene->storage.node_table = newHashtable(compareNodes, &r->scene->storage.node_pool);
 	return r;
 }
-	
+
 void renderer_destroy(struct renderer *r) {
 	if (!r) return;
 	scene_destroy(r->scene);

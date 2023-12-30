@@ -19,11 +19,6 @@ static PyObject *py_cr_get_git_hash(PyObject *self, PyObject *args) {
 	return PyUnicode_FromString(cr_get_git_hash());
 }
 
-void py_internal_destroy_renderer(PyObject *capsule) {
-	struct cr_renderer *renderer = PyCapsule_GetPointer(capsule, "cray.cr_renderer");
-	cr_destroy_renderer(renderer);
-}
-
 static PyObject *py_cr_new_renderer(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
 	struct cr_renderer *new = cr_new_renderer();
@@ -31,13 +26,19 @@ static PyObject *py_cr_new_renderer(PyObject *self, PyObject *args) {
 		PyErr_SetString(PyExc_MemoryError, "Failed to allocate renderer");
 		return NULL;
 	}
-	return PyCapsule_New(new, "cray.cr_renderer", py_internal_destroy_renderer);
+	return PyCapsule_New(new, "cray.cr_renderer", NULL);
 }
 
-// TODO: Not sure if we want to keep this explicit teardown func, or trust the destructor above
-// static PyObject *py_cr_destroy_renderer(PyObject *self, PyObject *args) {
-// 	return NULL;
-// }
+static PyObject *py_cr_destroy_renderer(PyObject *self, PyObject *args) {
+	(void)self;
+	PyObject *r_ext;
+	if (!PyArg_ParseTuple(args, "O", &r_ext)) {
+		return NULL;
+	}
+	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
+	cr_destroy_renderer(r);
+	Py_RETURN_NONE;
+}
 
 static PyObject *py_cr_renderer_set_num_pref(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
@@ -365,6 +366,7 @@ static PyObject *py_cr_mesh_bind_faces(PyObject *self, PyObject *args) {
 
 	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
 	cr_mesh_bind_faces(s, mesh, faces, face_count);
+	free(faces);
 	Py_RETURN_NONE;
 }
 
@@ -609,6 +611,7 @@ static PyObject *py_debug_dump_state(PyObject *self, PyObject *args) {
 static PyMethodDef cray_methods[] = {
 	{ "get_version", py_cr_get_version, METH_NOARGS, "" },
 	{ "get_git_hash", py_cr_get_git_hash, METH_NOARGS, "" },
+	{ "renderer_destroy", py_cr_destroy_renderer, METH_VARARGS, "" },
 	{ "new_renderer", py_cr_new_renderer, METH_NOARGS, "" },
 	// { "destroy_renderer", py_cr_destroy_renderer, METH_VARARGS, "" },
 	{ "renderer_set_num_pref", py_cr_renderer_set_num_pref, METH_VARARGS, "" },

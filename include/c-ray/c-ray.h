@@ -135,8 +135,6 @@ struct cr_bitmap {
 	size_t height;
 };
 
-// TODO: Maybe redo this to have this update an internal render buffer,
-// and another func to get a ptr to that? No need for awkward free() then
 CR_EXPORT void cr_renderer_render(struct cr_renderer *r);
 CR_EXPORT struct cr_bitmap *cr_renderer_get_result(struct cr_renderer *r);
 
