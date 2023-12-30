@@ -153,14 +153,17 @@ def on_start(renderer_cb_info, user_data):
 def on_stop(renderer_cb_info, user_data):
 	print("on_stop called")
 
-def on_status_update(renderer_cb_info, funcs):
+def on_status_update(renderer_cb_info, args):
 	ct.pythonapi.PyCapsule_GetPointer.restype = ct.c_void_p
 	ct.pythonapi.PyCapsule_GetPointer.argtypes = [ct.py_object, ct.c_char_p]
 	ptr = ct.pythonapi.PyCapsule_GetPointer(renderer_cb_info, "cray.renderer_cb_info".encode())
 	info = ct.cast(ptr, ct.POINTER(c_ray.cr_cb_info)).contents
-	update_progress, update_stats = funcs
+	cr_renderer, update_progress, update_stats, test_break = args
 	update_stats("", "ETA: {}".format(str(datetime.timedelta(milliseconds=info.eta_ms))))
 	update_progress(info.completion)
+	if test_break():
+		print("Stopping c-ray")
+		cr_renderer.stop()
 
 class CrayRender(bpy.types.RenderEngine):
 	bl_idname = "C_RAY"
@@ -305,7 +308,7 @@ class CrayRender(bpy.types.RenderEngine):
 		self.cr_renderer.prefs.node_list = depsgraph.scene.c_ray.node_list
 		self.cr_renderer.callbacks.on_start = (on_start, None)
 		self.cr_renderer.callbacks.on_stop = (on_stop, None)
-		self.cr_renderer.callbacks.on_status_update = (on_status_update, (self.update_progress, self.update_stats))
+		self.cr_renderer.callbacks.on_status_update = (on_status_update, (self.cr_renderer, self.update_progress, self.update_stats, self.test_break))
 
 	def render(self, depsgraph):
 		self.cr_renderer.render()
