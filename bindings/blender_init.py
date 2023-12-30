@@ -21,6 +21,7 @@ if "bpy" in locals():
 import bpy
 import numpy as np
 import time
+import datetime
 
 from . import (
 	c_ray
@@ -149,6 +150,18 @@ def dump(obj):
 def on_start(renderer_cb_info, user_data):
 	print("on_start called")
 
+def on_stop(renderer_cb_info, user_data):
+	print("on_stop called")
+
+def on_status_update(renderer_cb_info, funcs):
+	ct.pythonapi.PyCapsule_GetPointer.restype = ct.c_void_p
+	ct.pythonapi.PyCapsule_GetPointer.argtypes = [ct.py_object, ct.c_char_p]
+	ptr = ct.pythonapi.PyCapsule_GetPointer(renderer_cb_info, "cray.renderer_cb_info".encode())
+	info = ct.cast(ptr, ct.POINTER(c_ray.cr_cb_info)).contents
+	update_progress, update_stats = funcs
+	update_stats("", "ETA: {}".format(str(datetime.timedelta(milliseconds=info.eta_ms))))
+	update_progress(info.completion)
+
 class CrayRender(bpy.types.RenderEngine):
 	bl_idname = "C_RAY"
 	bl_label = "c-ray for Blender"
@@ -195,7 +208,6 @@ class CrayRender(bpy.types.RenderEngine):
 			cr_cam.set_param(c_ray.cam_param.res_x, size_x)
 			cr_cam.set_param(c_ray.cam_param.res_y, size_y)
 			cr_cam.set_param(c_ray.cam_param.blender_coord, 1)
-			# TODO: We don't tell blender that we support this, so it's not available yet
 			if bl_cam.dof.use_dof:
 				cr_cam.set_param(c_ray.cam_param.fstops, bl_cam.dof.aperture_fstop)
 				if bl_cam.dof.focus_object:
@@ -292,6 +304,8 @@ class CrayRender(bpy.types.RenderEngine):
 		self.cr_renderer.prefs.bounces = depsgraph.scene.c_ray.bounces
 		self.cr_renderer.prefs.node_list = depsgraph.scene.c_ray.node_list
 		self.cr_renderer.callbacks.on_start = (on_start, None)
+		self.cr_renderer.callbacks.on_stop = (on_stop, None)
+		self.cr_renderer.callbacks.on_status_update = (on_status_update, (self.update_progress, self.update_stats))
 
 	def render(self, depsgraph):
 		self.cr_renderer.render()
