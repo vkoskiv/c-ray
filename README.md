@@ -6,8 +6,6 @@
 
 A portable, hackable, embeddable software path tracer.
 
-## Status
-
 [![Build Status](https://github.com/VKoskiv/c-ray/workflows/C-ray%20CI/badge.svg)](https://github.com/VKoskiv/c-ray/actions?query=workflow%3A%22C-ray+CI%22)
 [![justforfunnoreally.dev badge](https://img.shields.io/badge/justforfunnoreally-dev-9ff)](https://justforfunnoreally.dev)
 
