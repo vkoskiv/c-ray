@@ -294,6 +294,7 @@ class CrayRender(bpy.types.RenderEngine):
 		self.cr_scene.set_background(convert_background(bl_nodetree))
 
 	def update(self, data, depsgraph):
+		start = time.time()
 		if not self.cr_renderer:
 			self.cr_renderer = c_ray.renderer()
 			self.cr_renderer.prefs.asset_path = ""
@@ -311,11 +312,14 @@ class CrayRender(bpy.types.RenderEngine):
 		self.cr_renderer.callbacks.on_start = (on_start, None)
 		self.cr_renderer.callbacks.on_stop = (on_stop, None)
 		self.cr_renderer.callbacks.on_status_update = (on_status_update, (self.cr_renderer, self.update_progress, self.update_stats, self.test_break))
+		end = time.time()
 
 	def render(self, depsgraph):
+		start = time.time()
 		self.cr_renderer.render()
+		end = time.time()
+		print("Render done (took {} seconds)".format(end - start))
 		bm = self.cr_renderer.get_result()
-		print("Render done")
 		self.display_bitmap(bm)
 
 	def display_bitmap(self, bm):
