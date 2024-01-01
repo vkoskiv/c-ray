@@ -115,11 +115,11 @@ void renderer_render(struct renderer *r) {
 		logr(warning, "Unable to catch SIGINT\n");
 	}
 
-	struct camera camera = r->scene->cameras.items[r->prefs.selected_camera];
+	struct camera *camera = &r->scene->cameras.items[r->prefs.selected_camera];
 	if (r->prefs.override_width && r->prefs.override_height) {
-		camera.width = r->prefs.override_width ? (int)r->prefs.override_width : camera.width;
-		camera.height = r->prefs.override_height ? (int)r->prefs.override_height : camera.height;
-		cam_recompute_optics(&camera);
+		camera->width = r->prefs.override_width ? (int)r->prefs.override_width : camera->width;
+		camera->height = r->prefs.override_height ? (int)r->prefs.override_height : camera->height;
+		cam_recompute_optics(camera);
 	}
 
 	// Verify we have at least a single thread rendering.
@@ -132,7 +132,7 @@ void renderer_render(struct renderer *r) {
 		r->scene->background = newBackground(&r->scene->storage, NULL, NULL, NULL, r->scene->use_blender_coordinates);
 	}
 	
-	struct tile_set set = tile_quantize(camera.width, camera.height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
+	struct tile_set set = tile_quantize(camera->width, camera->height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
 
 	for (size_t i = 0; i < r->scene->shader_buffers.count; ++i) {
 		if (!r->scene->shader_buffers.items[i].bsdfs.count) {
@@ -182,11 +182,11 @@ void renderer_render(struct renderer *r) {
 	// Render buffer is used to store accurate color values for the renderers' internal use
 	if (!r->state.result_buf) {
 		// Allocate
-		r->state.result_buf = newTexture(float_p, camera.width, camera.height, 4);
-	} else if (r->state.result_buf->width != (size_t)camera.width || r->state.result_buf->height != (size_t)camera.height) {
+		r->state.result_buf = newTexture(float_p, camera->width, camera->height, 4);
+	} else if (r->state.result_buf->width != (size_t)camera->width || r->state.result_buf->height != (size_t)camera->height) {
 		// Resize
 		if (r->state.result_buf) destroyTexture(r->state.result_buf);
-		r->state.result_buf = newTexture(float_p, camera.width, camera.height, 4);
+		r->state.result_buf = newTexture(float_p, camera->width, camera->height, 4);
 	} else {
 		// Clear
 		tex_clear(r->state.result_buf);
@@ -225,7 +225,7 @@ void renderer_render(struct renderer *r) {
 		worker_arr_add(&r->state.workers, (struct worker){
 			.renderer = r,
 			.buf = result,
-			.cam = &camera,
+			.cam = camera,
 			.thread = (struct cr_thread){
 				.thread_fn = local_render_thread,
 			}
@@ -236,7 +236,7 @@ void renderer_render(struct renderer *r) {
 			.client = &r->state.clients.items[c],
 			.renderer = r,
 			.buf = result,
-			.cam = &camera,
+			.cam = camera,
 			.thread = (struct cr_thread){
 				.thread_fn = client_connection_thread
 			}
