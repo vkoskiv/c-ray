@@ -65,6 +65,7 @@ class _cr_cb_type(IntEnum):
 	on_stop = 1,
 	on_status_update = 2,
 	on_state_changed = 3, # Not connected currently, c-ray never calls this
+	on_interactive_pass_finished = 4
 
 class _callbacks:
 	def __init__(self, r_ptr):
@@ -90,6 +91,13 @@ class _callbacks:
 			raise TypeError("on_status_update callback function not callable")
 		_lib.renderer_set_callback(self.r_ptr, _cr_cb_type.on_status_update, fn, user_data)
 	on_status_update = property(None, _set_on_status_update, None, "Tuple (fn,user_data) - fn will be called periodically while c-ray is rendering, with arguments (cr_cb_info, user_data)")
+
+	def _set_on_interactive_pass_finished(self, fn_and_userdata):
+		fn, user_data = fn_and_userdata
+		if not callable(fn):
+			raise TypeError("on_interactive_pass_finished callback function not callable")
+		_lib.renderer_set_callback(self.r_ptr, _cr_cb_type.on_interactive_pass_finished, fn, user_data)
+	on_interactive_pass_finished = property(None, _set_on_interactive_pass_finished, None, "Tuple (fn,user_data) - fn will be called every time c-ray finishes rendering a pass in interactive mode, with arguments (cr_cb_info, user_data)")
 
 class _pref:
 	def __init__(self, r_ptr):
@@ -390,11 +398,17 @@ class renderer:
 	def stop(self):
 		_lib.renderer_stop(self.obj_ptr)
 
+	def restart(self):
+		_lib.renderer_restart(self.obj_ptr)
+
 	def toggle_pause():
 		_lib.renderer_toggle_pause(self.obj_ptr)
 
 	def render(self):
 		_lib.renderer_render(self.obj_ptr)
+
+	def start_interactive(self):
+		_lib.renderer_start_interactive(self.obj_ptr)
 
 	def get_result(self):
 		ret = _lib.renderer_get_result(self.obj_ptr)

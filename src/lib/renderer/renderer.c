@@ -107,6 +107,22 @@ void update_cb_info(struct renderer *r, struct tile_set *set, struct cr_renderer
 
 }
 
+static void *thread_stub(void *arg) {
+	struct renderer *r = thread_user_data(arg);
+	renderer_render(r);
+	return NULL;
+}
+
+// Nonblocking function to make python happy, just shove the normal loop in a
+// background thread.
+void renderer_start_interactive(struct renderer *r) {
+	static struct cr_thread main_loop = {
+		.thread_fn = thread_stub,
+	};
+	main_loop.user_data = r;
+	thread_start(&main_loop);
+}
+
 // TODO: Clean this up, it's ugly.
 void renderer_render(struct renderer *r) {
 	//Check for CTRL-C
@@ -133,6 +149,7 @@ void renderer_render(struct renderer *r) {
 	}
 	
 	struct tile_set set = tile_quantize(camera->width, camera->height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
+	r->state.current_set = &set;
 
 	for (size_t i = 0; i < r->scene->shader_buffers.count; ++i) {
 		if (!r->scene->shader_buffers.items[i].bsdfs.count) {
@@ -269,6 +286,8 @@ void renderer_render(struct renderer *r) {
 			r->state.rendering = false;
 		timer_sleep_ms(r->state.workers.items[0].paused ? paused_msec : active_msec);
 	}
+
+	r->state.current_set = NULL;
 	
 	//Make sure render threads are terminated before continuing (This blocks)
 	for (size_t w = 0; w < r->state.workers.count; ++w) {
@@ -281,6 +300,8 @@ void renderer_render(struct renderer *r) {
 	}
 	if (info_tiles) free(info_tiles);
 	tile_set_free(&set);
+	logr(info, "Renderer exiting\n");
+	r->state.interactive_exit_done = true;
 }
 
 // An interactive render thread that progressively

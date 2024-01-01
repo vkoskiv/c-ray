@@ -61,7 +61,7 @@ bool cr_renderer_set_callback(struct cr_renderer *ext,
 							void (*callback_fn)(struct cr_renderer_cb_info *, void *),
 							void *user_data) {
 	if (!ext) return false;
-	if (t > cr_cb_on_state_changed) return false;
+	if (t > cr_cb_on_interactive_pass_finished) return false;
 	struct renderer *r = (struct renderer *)ext;
 	r->state.callbacks[t].fn = callback_fn;
 	r->state.callbacks[t].user_data = user_data;
@@ -172,6 +172,9 @@ void cr_renderer_stop(struct cr_renderer *ext) {
 	if (!ext) return;
 	struct renderer *r = (struct renderer *)ext;
 	r->state.render_aborted = true;
+	while (!r->state.interactive_exit_done) {
+		timer_sleep_ms(10);
+	}
 }
 
 void cr_renderer_toggle_pause(struct cr_renderer *ext) {
@@ -716,6 +719,49 @@ void cr_renderer_render(struct cr_renderer *ext) {
 		return;
 	}
 	renderer_render(r);
+}
+
+void cr_renderer_start_interactive(struct cr_renderer *ext) {
+	if (!ext) return;
+	struct renderer *r = (struct renderer *)ext;
+	r->prefs.iterative = true;
+	if (!r->prefs.threads) {
+		return;
+	}
+	renderer_start_interactive(r);
+}
+
+void cr_renderer_restart_interactive(struct cr_renderer *ext) {
+	if (!ext) return;
+	struct renderer *r = (struct renderer *)ext;
+	if (!r->prefs.iterative) {
+		logr(warning, "restart: Not iterative, bailing\n");
+		return;
+	}
+	if (!r->state.workers.count) {
+		logr(warning, "restart: No workers, bailing\n");
+		return;
+	}
+	if (!r->state.result_buf) {
+		logr(warning, "restart: No result buf, bailing\n");
+		return;
+	}
+	if (!r->state.current_set) {
+		logr(warning, "restart: No tile set, bailing\n");
+		return;
+	}
+	// sus
+	r->state.finishedPasses = 1;
+	mutex_lock(r->state.current_set->tile_mutex);
+	tex_clear(r->state.result_buf);
+	r->state.current_set->finished = 0;
+	for (size_t i = 0; i < r->prefs.threads; ++i) {
+		// FIXME: Use array for workers
+		// FIXME: What about network renderers?
+		r->state.workers.items[i].totalSamples = 0;
+	}
+	mutex_release(r->state.current_set->tile_mutex);
+	logr(info, "Renderer restarted\n");
 }
 
 struct cr_bitmap *cr_renderer_get_result(struct cr_renderer *ext) {

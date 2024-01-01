@@ -44,12 +44,15 @@ struct callback {
 struct state {
 	size_t finishedPasses; // For interactive mode
 	bool rendering;
+	// TODO: Rename to request_abort, and use an enum for actual state
 	bool render_aborted; //SDL listens for X key pressed, which sets this
+	bool interactive_exit_done;
 	struct worker_arr workers;
 	struct render_client_arr clients;
-	struct callback callbacks[4];
+	struct callback callbacks[5];
 
 	struct texture *result_buf;
+	struct tile_set *current_set;
 };
 
 /// Preferences data (Set by user)
@@ -82,6 +85,7 @@ struct renderer {
 
 struct renderer *renderer_new(void);
 void renderer_render(struct renderer *r);
+void renderer_start_interactive(struct renderer *r);
 void renderer_destroy(struct renderer *r);
 
 struct prefs default_prefs(); // TODO: Remove

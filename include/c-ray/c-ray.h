@@ -102,7 +102,8 @@ enum cr_renderer_callback {
 	cr_cb_on_start = 0,
 	cr_cb_on_stop,
 	cr_cb_status_update,
-	cr_cb_on_state_changed
+	cr_cb_on_state_changed,
+	cr_cb_on_interactive_pass_finished,
 };
 
 CR_EXPORT bool cr_renderer_set_callback(struct cr_renderer *ext,
@@ -113,6 +114,7 @@ CR_EXPORT bool cr_renderer_set_callback(struct cr_renderer *ext,
 CR_EXPORT bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p, uint64_t num);
 CR_EXPORT bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p, const char *str);
 CR_EXPORT void cr_renderer_stop(struct cr_renderer *ext);
+CR_EXPORT void cr_renderer_restart_interactive(struct cr_renderer *ext);
 CR_EXPORT void cr_renderer_toggle_pause(struct cr_renderer *ext);
 CR_EXPORT const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_param p);
 CR_EXPORT uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_param p);
@@ -136,6 +138,7 @@ struct cr_bitmap {
 };
 
 CR_EXPORT void cr_renderer_render(struct cr_renderer *r);
+CR_EXPORT void cr_renderer_start_interactive(struct cr_renderer *ext);
 CR_EXPORT struct cr_bitmap *cr_renderer_get_result(struct cr_renderer *r);
 
 // -- Scene --

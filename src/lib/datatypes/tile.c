@@ -51,9 +51,19 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 			tile->index = set->finished++;
 		} else {
 			r->state.finishedPasses++;
+			struct cr_renderer_cb_info cb_info = { 0 };
+			struct callback cb = r->state.callbacks[cr_cb_on_interactive_pass_finished];
+			if (cb.fn) cb.fn(&cb_info, cb.user_data);
+			logr(info, "finished passes: %zu\n", r->state.finishedPasses);
 			set->finished = 0;
 			goto again;
 		}
+	}
+	if (!tile) {
+		if (r->state.render_aborted) return NULL;
+		logr(info, "Sleeping 300ms, finishedPasses: %zu\n", r->state.finishedPasses);
+		timer_sleep_ms(300);
+		goto again;
 	}
 	mutex_release(set->tile_mutex);
 	return tile;

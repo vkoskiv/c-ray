@@ -98,7 +98,7 @@ static PyObject *py_cr_renderer_set_callback(PyObject *self, PyObject *args) {
 	if (!PyArg_ParseTuple(args, "OIO|O", &r_ext, &callback_type, &py_callback_fn, &py_user_data)) {
 		return NULL;
 	}
-	if (callback_type > cr_cb_status_update) {
+	if (callback_type > cr_cb_on_interactive_pass_finished) {
 		PyErr_SetString(PyExc_ValueError, "Unknown callback type");
 		return NULL;
 	}
@@ -127,7 +127,21 @@ static PyObject *py_cr_renderer_stop(PyObject *self, PyObject *args) {
 		return NULL;
 	}
 	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
+	Py_BEGIN_ALLOW_THREADS
 	cr_renderer_stop(r);
+	Py_END_ALLOW_THREADS
+	Py_RETURN_NONE;
+}
+
+static PyObject *py_cr_renderer_restart(PyObject *self, PyObject *args) {
+	(void)self; (void)args;
+	PyObject *r_ext;
+
+	if (!PyArg_ParseTuple(args, "O", &r_ext)) {
+		return NULL;
+	}
+	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
+	cr_renderer_restart_interactive(r);
 	Py_RETURN_NONE;
 }
 
@@ -197,6 +211,17 @@ static PyObject *py_cr_renderer_render(PyObject *self, PyObject *args) {
 	Py_BEGIN_ALLOW_THREADS
 	cr_renderer_render(r);
 	Py_END_ALLOW_THREADS
+	Py_RETURN_NONE;
+}
+
+static PyObject *py_cr_renderer_start_interactive(PyObject *self, PyObject *args) {
+	(void)self; (void)args;
+	PyObject *r_ext;
+	if (!PyArg_ParseTuple(args, "O", &r_ext)) {
+		return NULL;
+	}
+	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
+	cr_renderer_start_interactive(r);
 	Py_RETURN_NONE;
 }
 
@@ -618,11 +643,13 @@ static PyMethodDef cray_methods[] = {
 	{ "renderer_set_str_pref", py_cr_renderer_set_str_pref, METH_VARARGS, "" },
 	{ "renderer_set_callback", py_cr_renderer_set_callback, METH_VARARGS, "" },
 	{ "renderer_stop", py_cr_renderer_stop, METH_VARARGS, "" },
+	{ "renderer_restart", py_cr_renderer_restart, METH_VARARGS, "" },
 	{ "renderer_toggle_pause", py_cr_renderer_toggle_pause, METH_VARARGS, "" },
 	{ "renderer_get_str_pref", py_cr_renderer_get_str_pref, METH_VARARGS, "" },
 	{ "renderer_get_num_pref", py_cr_renderer_get_num_pref, METH_VARARGS, "" },
 	{ "renderer_get_result", py_cr_renderer_get_result, METH_VARARGS, "" },
 	{ "renderer_render", py_cr_renderer_render, METH_VARARGS, "" },
+	{ "renderer_start_interactive", py_cr_renderer_start_interactive, METH_VARARGS, "" },
 	// { "bitmap_free", py_cr_bitmap_free, METH_VARARGS, "" },
 	{ "renderer_scene_get", py_cr_renderer_scene_get, METH_VARARGS, "" },
 	{ "scene_totals", py_cr_scene_totals, METH_VARARGS, "" },
