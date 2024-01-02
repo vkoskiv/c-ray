@@ -60,7 +60,10 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 		}
 	}
 	if (!tile) {
-		if (r->state.render_aborted) return NULL;
+		if (r->state.render_aborted) {
+			mutex_release(set->tile_mutex);
+			return NULL;
+		}
 		logr(info, "Sleeping 300ms, finishedPasses: %zu\n", r->state.finishedPasses);
 		timer_sleep_ms(300);
 		goto again;
