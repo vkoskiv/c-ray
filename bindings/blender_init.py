@@ -168,8 +168,10 @@ def on_status_update(renderer_cb_info, args):
 		print("Stopping c-ray")
 		cr_renderer.stop()
 
+
 def status_update_interactive(renderer_cb_info, args):
-	tag_redraw, tag_update = args
+	tag_redraw, tag_update, cr_renderer = args
+	cr_renderer.pass_ready = True
 	tag_redraw()
 
 class CrayRender(bpy.types.RenderEngine):
@@ -180,6 +182,7 @@ class CrayRender(bpy.types.RenderEngine):
 	cr_interactive_running = False
 	cr_renderer = None
 	old_mtx = None
+	pass_ready = False
 
 	def __init__(self):
 		print("c-ray initialized")
@@ -343,19 +346,23 @@ class CrayRender(bpy.types.RenderEngine):
 			print("self.old_mtx != mtx, tagging update")
 			self.tag_update()
 		self.old_mtx = mtx
-		dimensions = (context.region.width, context.region.height)
-		gpu.state.blend_set('ALPHA_PREMULT')
-		self.bind_display_space_shader(depsgraph.scene)
-		if not self.draw_data or self.draw_data.dimensions != dimensions:
-			bm = self.cr_renderer.get_result()
-			if not bm:
-				print("No bitmap yet")
-				return
-			self.draw_data = CrayDrawData(dimensions, bm)
+		if self.pass_ready == True:
+			dimensions = (context.region.width, context.region.height)
+			gpu.state.blend_set('ALPHA_PREMULT')
+			self.bind_display_space_shader(depsgraph.scene)
+			if not self.draw_data or self.draw_data.dimensions != dimensions:
+				print("Regenerating draw_data")
+				bm = self.cr_renderer.get_result()
+				if not bm:
+					print("No bitmap yet")
+					return
+				self.draw_data = CrayDrawData(dimensions, bm)
 
-		self.draw_data.draw()
-		self.unbind_display_space_shader()
-		gpu.state.blend_set('NONE')
+			self.draw_data.draw()
+			self.unbind_display_space_shader()
+			gpu.state.blend_set('NONE')
+
+		self.pass_ready = False
 
 		print("view_draw_end")
 
@@ -395,7 +402,7 @@ class CrayRender(bpy.types.RenderEngine):
 			self.cr_renderer.restart()
 		else:
 			print("Kicking off background renderer")
-			self.cr_renderer.callbacks.on_interactive_pass_finished = (status_update_interactive, (self.tag_redraw, self.tag_update))
+			self.cr_renderer.callbacks.on_interactive_pass_finished = (status_update_interactive, (self.tag_redraw, self.tag_update, self))
 			self.cr_renderer.start_interactive()
 			self.cr_interactive_running = True
 		print("view_update_end")
