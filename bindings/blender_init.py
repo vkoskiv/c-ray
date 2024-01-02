@@ -168,10 +168,16 @@ def on_status_update(renderer_cb_info, args):
 		print("Stopping c-ray")
 		cr_renderer.stop()
 
-
 def status_update_interactive(renderer_cb_info, args):
-	tag_redraw, tag_update, cr_renderer = args
-	cr_renderer.pass_ready = True
+	tag_redraw, update_stats, self = args
+	ct.pythonapi.PyCapsule_GetPointer.restype = ct.c_void_p
+	ct.pythonapi.PyCapsule_GetPointer.argtypes = [ct.py_object, ct.c_char_p]
+	ptr = ct.pythonapi.PyCapsule_GetPointer(renderer_cb_info, "cray.renderer_cb_info".encode())
+	info = ct.cast(ptr, ct.POINTER(c_ray.cr_cb_info)).contents
+	if info.finished_passes == self.cr_renderer.prefs.samples:
+		update_stats("Rendering done", "")
+	else:
+		update_stats("Sample {}".format(info.finished_passes), "")
 	tag_redraw()
 
 class CrayRender(bpy.types.RenderEngine):
@@ -182,7 +188,6 @@ class CrayRender(bpy.types.RenderEngine):
 	cr_interactive_running = False
 	cr_renderer = None
 	old_mtx = None
-	pass_ready = False
 
 	def __init__(self):
 		print("c-ray initialized")
@@ -340,34 +345,26 @@ class CrayRender(bpy.types.RenderEngine):
 		self.display_bitmap(bm)
 
 	def view_draw(self, context, depsgraph):
-		print("view_draw_start")
 		mtx = context.region_data.view_matrix.inverted()
 		if not self.old_mtx or mtx != self.old_mtx:
-			print("self.old_mtx != mtx, tagging update")
 			self.tag_update()
 		self.old_mtx = mtx
-		if self.pass_ready == True:
-			dimensions = (context.region.width, context.region.height)
-			gpu.state.blend_set('ALPHA_PREMULT')
-			self.bind_display_space_shader(depsgraph.scene)
-			if not self.draw_data or self.draw_data.dimensions != dimensions:
-				print("Regenerating draw_data")
-				bm = self.cr_renderer.get_result()
-				if not bm:
-					print("No bitmap yet")
-					return
-				self.draw_data = CrayDrawData(dimensions, bm)
+		dimensions = (context.region.width, context.region.height)
+		gpu.state.blend_set('ALPHA_PREMULT')
+		self.bind_display_space_shader(depsgraph.scene)
+		if not self.draw_data or self.draw_data.dimensions != dimensions:
+			print("Regenerating draw_data")
+			bm = self.cr_renderer.get_result()
+			if not bm:
+				print("No bitmap yet")
+				return
+			self.draw_data = CrayDrawData(dimensions, bm)
 
-			self.draw_data.draw()
-			self.unbind_display_space_shader()
-			gpu.state.blend_set('NONE')
-
-		self.pass_ready = False
-
-		print("view_draw_end")
+		self.draw_data.draw()
+		self.unbind_display_space_shader()
+		gpu.state.blend_set('NONE')
 
 	def view_update(self, context, depsgraph):
-		print("view_update_start")
 		if not self.cr_renderer:
 			self.cr_renderer = c_ray.renderer()
 			self.cr_renderer.prefs.asset_path = ""
@@ -380,7 +377,6 @@ class CrayRender(bpy.types.RenderEngine):
 		self.cr_renderer.prefs.tile_y = depsgraph.scene.c_ray.tile_size
 		self.cr_renderer.prefs.bounces = depsgraph.scene.c_ray.bounces
 		self.cr_renderer.prefs.node_list = depsgraph.scene.c_ray.node_list
-		print("depsgraph_len: {}".format(len(depsgraph.object_instances)))
 		self.cr_renderer.prefs.is_iterative = 1
 		cr_cam = self.cr_scene.cameras['Camera']
 		mtx = context.region_data.view_matrix.inverted()
@@ -398,14 +394,12 @@ class CrayRender(bpy.types.RenderEngine):
 		cr_cam.set_param(c_ray.cam_param.blender_coord, 1)
 
 		if self.cr_interactive_running == True:
-			print("bg thread already running, sending restart")
 			self.cr_renderer.restart()
 		else:
 			print("Kicking off background renderer")
-			self.cr_renderer.callbacks.on_interactive_pass_finished = (status_update_interactive, (self.tag_redraw, self.tag_update, self))
+			self.cr_renderer.callbacks.on_interactive_pass_finished = (status_update_interactive, (self.tag_redraw, self.update_stats, self))
 			self.cr_renderer.start_interactive()
 			self.cr_interactive_running = True
-		print("view_update_end")
 
 	def display_bitmap(self, bm):
 		# Get float array from libc-ray
@@ -458,20 +452,16 @@ class CrayDrawData:
 			print("No self.pixels")
 
 	def draw(self):
-		start = time.time()
 		# FIXME: I have no idea how to create a GPUTexture that points to my raw float array on the C side.
 		# So for now, just generate a new texture from the data on every redraw instead.
 		width, height = self.dimensions
-
+		texture = None
 		try:
 			texture = gpu.types.GPUTexture((width, height), format='RGBA32F', data=self.pixels)
 		except ValueError:
 			print("Texture creation didn't work. width: {}, height: {}".format(width, height))
-
 		if texture:
 			draw_texture_2d(texture, (0, 0), texture.width, texture.height)
-		end = time.time()
-		print("texture create + draw took {} seconds".format(end - start))
 
 def register():
 	from . import properties

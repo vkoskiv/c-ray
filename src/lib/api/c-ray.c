@@ -761,7 +761,6 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 		r->state.workers.items[i].totalSamples = 0;
 	}
 	mutex_release(r->state.current_set->tile_mutex);
-	logr(info, "Renderer restarted\n");
 }
 
 struct cr_bitmap *cr_renderer_get_result(struct cr_renderer *ext) {

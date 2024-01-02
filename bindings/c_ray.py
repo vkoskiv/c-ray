@@ -377,6 +377,7 @@ class cr_cb_info(ct.Structure):
 		("avg_per_ray_us", ct.c_double),
 		("samples_per_sec", ct.c_int64),
 		("eta_ms", ct.c_int64),
+		("finished_passes", ct.c_size_t),
 		("completion", ct.c_double),
 		("paused", ct.c_bool),
 	]

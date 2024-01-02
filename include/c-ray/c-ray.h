@@ -94,6 +94,7 @@ struct cr_renderer_cb_info {
 	double avg_per_ray_us;
 	int64_t samples_per_sec;
 	int64_t eta_ms;
+	size_t finished_passes;
 	double completion;
 	bool paused;
 };
