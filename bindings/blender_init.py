@@ -430,44 +430,40 @@ class CrayRender(bpy.types.RenderEngine):
 		self.end_result(result)
 
 class CrayDrawData:
-	texture = None
+	pixels = None
 	def __init__(self, dimensions, bitmap):
 		self.dimensions = dimensions
 		self.bitmap = bitmap
-		# width, height = dimensions
-
-		# float_count = self.bitmap.width * self.bitmap.height * self.bitmap.stride
-		# pixels = array('f', self.bitmap.data.float_ptr[:float_count])
-		# pixels = gpu.types.Buffer('FLOAT', float_count, pixels)
-
-		# try:
-		# 	self.texture = gpu.types.GPUTexture((width, height), format='RGBA32F', data=pixels)
-		# except ValueError:
-		# 	print("Texture creation didn't work. width: {}, height: {}".format(width, height))
-
-	def __del__(self):
-		try:
-			del self.texture
-		except AttributeError:
-			print("No self.texture")
-
-	def draw(self):
-		# FIXME: I have no idea how to create a GPUTexture that points to my raw float array on the C side.
-		# So for now, just do a really slow copy of the data on every redraw instead.
 		width, height = self.dimensions
 
 		float_count = self.bitmap.width * self.bitmap.height * self.bitmap.stride
-		pixels = array('f', self.bitmap.data.float_ptr[:float_count])
-		pixels = gpu.types.Buffer('FLOAT', float_count, pixels)
+		buffer_from_memory = ct.pythonapi.PyMemoryView_FromMemory
+		buffer_from_memory.restype = ct.py_object
+		buffer = buffer_from_memory(self.bitmap.data.float_ptr, 8 * float_count)
+		pixels = np.frombuffer(buffer, float)
+		self.pixels = gpu.types.Buffer('FLOAT', float_count, pixels)
+
+	def __del__(self):
 		try:
-			texture = gpu.types.GPUTexture((width, height), format='RGBA32F', data=pixels)
+			del self.pixels
+		except AttributeError:
+			print("No self.pixels")
+
+	def draw(self):
+		start = time.time()
+		# FIXME: I have no idea how to create a GPUTexture that points to my raw float array on the C side.
+		# So for now, just generate a new texture from the data on every redraw instead.
+		width, height = self.dimensions
+
+		try:
+			texture = gpu.types.GPUTexture((width, height), format='RGBA32F', data=self.pixels)
 		except ValueError:
 			print("Texture creation didn't work. width: {}, height: {}".format(width, height))
 
 		if texture:
 			draw_texture_2d(texture, (0, 0), texture.width, texture.height)
-		# if self.texture:
-		# 	draw_texture_2d(self.texture, (0, 0), self.texture.width, self.texture.height)
+		end = time.time()
+		print("texture create + draw took {} seconds".format(end - start))
 
 def register():
 	from . import properties
