@@ -440,8 +440,8 @@ class CrayDrawData:
 		float_count = self.bitmap.width * self.bitmap.height * self.bitmap.stride
 		buffer_from_memory = ct.pythonapi.PyMemoryView_FromMemory
 		buffer_from_memory.restype = ct.py_object
-		buffer = buffer_from_memory(self.bitmap.data.float_ptr, 8 * float_count)
-		pixels = np.frombuffer(buffer, float)
+		buffer = buffer_from_memory(self.bitmap.data.float_ptr, 4 * float_count)
+		pixels = np.frombuffer(buffer, np.float32)
 		self.pixels = gpu.types.Buffer('FLOAT', float_count, pixels)
 
 	def __del__(self):
