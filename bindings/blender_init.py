@@ -405,15 +405,16 @@ class CrayRender(bpy.types.RenderEngine):
 		print("Grabbing float array from lib")
 		start_first = time.time()
 		float_count = bm.width * bm.height * bm.stride
-		floats = array('f', bm.data.float_ptr[:float_count])
+		buffer_from_memory = ct.pythonapi.PyMemoryView_FromMemory
+		buffer_from_memory.restype = ct.py_object
+		buffer = buffer_from_memory(bm.data.float_ptr, 4 * float_count)
 		end = time.time()
 		print("Done, took {}s".format(end - start_first))
 
 		# We need to work around a bug in foreach_set(), where it gets the length of the first array dimension, instead of the whole array.
 		print("Converting")
 		start = time.time()
-		floats = np.asarray(floats).reshape(-1, 4)
-
+		floats = np.frombuffer(buffer, np.float32).reshape(-1, 4)
 		# Could also use memoryview, but that's only supported in Blender 4.0 and up
 		# floats = memoryview(floats).cast('b').cast('f', (bm.width * bm.height, 4))
 		end = time.time()
