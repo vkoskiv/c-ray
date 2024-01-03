@@ -64,7 +64,7 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 			mutex_release(set->tile_mutex);
 			return NULL;
 		}
-		timer_sleep_ms(300);
+		timer_sleep_ms(32);
 		goto again;
 	}
 	mutex_release(set->tile_mutex);
