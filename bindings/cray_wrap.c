@@ -143,7 +143,12 @@ static PyObject *py_cr_renderer_restart(PyObject *self, PyObject *args) {
 		return NULL;
 	}
 	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
+	// Unsure why, but we get a deadlock if we're restarting the renderer while it's calling
+	// the Python callback to report a pass was finished and we don't wrap this call with these
+	// begin/allow macros. Adding them fixed the deadlock, so I'm happy.
+	Py_BEGIN_ALLOW_THREADS;
 	cr_renderer_restart_interactive(r);
+	Py_END_ALLOW_THREADS;
 	Py_RETURN_NONE;
 }
 
