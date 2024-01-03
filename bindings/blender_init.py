@@ -168,6 +168,23 @@ def on_status_update(renderer_cb_info, args):
 		print("Stopping c-ray")
 		cr_renderer.stop()
 
+def draw_direct(bitmap):
+	if not bitmap:
+		return
+	float_count = bitmap.width * bitmap.height * bitmap.stride
+	buffer_from_memory = ct.pythonapi.PyMemoryView_FromMemory
+	buffer_from_memory.restype = ct.py_object
+	buffer = buffer_from_memory(bitmap.data.float_ptr, 4 * float_count)
+	pixels = np.frombuffer(buffer, np.float32)
+	pixels = gpu.types.Buffer('FLOAT', float_count, pixels)
+	texture = None
+	try:
+		texture = gpu.types.GPUTexture((bitmap.width, bitmap.height), format='RGBA32F', data=pixels)
+	except ValueError as error:
+		print("Texture creation didn't work: {} (width: {}, height: {})".format(error, bitmap.width, bitmap.height))
+	if texture:
+		draw_texture_2d(texture, (0, 0), texture.width, texture.height)
+
 def status_update_interactive(renderer_cb_info, args):
 	tag_redraw, update_stats, self = args
 	ct.pythonapi.PyCapsule_GetPointer.restype = ct.c_void_p
@@ -188,11 +205,11 @@ class CrayRender(bpy.types.RenderEngine):
 	cr_interactive_running = False
 	cr_renderer = None
 	old_mtx = None
+	old_dims = None
 
 	def __init__(self):
 		print("c-ray initialized")
 		self.cr_scene = None
-		self.draw_data = None
 		self.cr_interactive_running = False
 
 	def __del__(self):
@@ -349,18 +366,16 @@ class CrayRender(bpy.types.RenderEngine):
 		if not self.old_mtx or mtx != self.old_mtx:
 			self.tag_update()
 		self.old_mtx = mtx
-		dimensions = (context.region.width, context.region.height)
+		new_dims = (context.region.width, context.region.height)
+		if not self.old_dims or self.old_dims != new_dims:
+			cr_cam = self.cr_scene.cameras['Camera']
+			cr_cam.set_param(c_ray.cam_param.res_x, context.region.width)
+			cr_cam.set_param(c_ray.cam_param.res_y, context.region.height)
+			self.cr_renderer.restart()
+			self.old_dims = new_dims
 		gpu.state.blend_set('ALPHA_PREMULT')
 		self.bind_display_space_shader(depsgraph.scene)
-		if not self.draw_data or self.draw_data.dimensions != dimensions:
-			print("Regenerating draw_data")
-			bm = self.cr_renderer.get_result()
-			if not bm:
-				print("No bitmap yet")
-				return
-			self.draw_data = CrayDrawData(dimensions, bm)
-
-		self.draw_data.draw()
+		draw_direct(self.cr_renderer.get_result())
 		self.unbind_display_space_shader()
 		gpu.state.blend_set('NONE')
 
@@ -430,38 +445,6 @@ class CrayRender(bpy.types.RenderEngine):
 		print("Displaying bitmap took a total of {}s".format(end - start_first))
 
 		self.end_result(result)
-
-class CrayDrawData:
-	pixels = None
-	def __init__(self, dimensions, bitmap):
-		self.dimensions = dimensions
-		self.bitmap = bitmap
-		width, height = self.dimensions
-
-		float_count = self.bitmap.width * self.bitmap.height * self.bitmap.stride
-		buffer_from_memory = ct.pythonapi.PyMemoryView_FromMemory
-		buffer_from_memory.restype = ct.py_object
-		buffer = buffer_from_memory(self.bitmap.data.float_ptr, 4 * float_count)
-		pixels = np.frombuffer(buffer, np.float32)
-		self.pixels = gpu.types.Buffer('FLOAT', float_count, pixels)
-
-	def __del__(self):
-		try:
-			del self.pixels
-		except AttributeError:
-			print("No self.pixels")
-
-	def draw(self):
-		# FIXME: I have no idea how to create a GPUTexture that points to my raw float array on the C side.
-		# So for now, just generate a new texture from the data on every redraw instead.
-		width, height = self.dimensions
-		texture = None
-		try:
-			texture = gpu.types.GPUTexture((width, height), format='RGBA32F', data=self.pixels)
-		except ValueError:
-			print("Texture creation didn't work. width: {}, height: {}".format(width, height))
-		if texture:
-			draw_texture_2d(texture, (0, 0), texture.width, texture.height)
 
 def register():
 	from . import properties

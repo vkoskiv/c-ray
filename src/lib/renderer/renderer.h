@@ -19,6 +19,7 @@ struct worker {
 	bool thread_complete;
 	
 	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.
+	bool in_pause_loop;
 	
 	//Share info about the current tile with main thread
 	struct tile_set *tiles;
@@ -29,7 +30,7 @@ struct worker {
 
 	struct camera *cam;
 	struct renderer *renderer;
-	struct texture *buf;
+	struct texture **buf;
 	struct render_client *client; // Optional
 };
 typedef struct worker worker;

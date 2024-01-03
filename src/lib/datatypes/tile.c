@@ -60,7 +60,8 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 		}
 	}
 	if (!tile) {
-		if (r->state.render_aborted) {
+		// FIXME: shared state to indicate pause instead of accessing worker state
+		if (r->state.render_aborted || r->state.workers.items[0].paused) {
 			mutex_release(set->tile_mutex);
 			return NULL;
 		}

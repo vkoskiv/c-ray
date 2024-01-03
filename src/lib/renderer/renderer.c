@@ -209,7 +209,7 @@ void renderer_render(struct renderer *r) {
 		tex_clear(r->state.result_buf);
 	}
 
-	struct texture *result = r->state.result_buf;
+	struct texture **result = &r->state.result_buf;
 
 	struct cr_tile *info_tiles = calloc(set.tiles.count, sizeof(*info_tiles));
 	struct cr_renderer_cb_info cb_info = {
@@ -309,8 +309,9 @@ void renderer_render(struct renderer *r) {
 void *render_thread_interactive(void *arg) {
 	block_signals();
 	struct worker *threadState = (struct worker*)thread_user_data(arg);
+	threadState->in_pause_loop = false;
 	struct renderer *r = threadState->renderer;
-	struct texture *buf = threadState->buf;
+	struct texture **buf = threadState->buf;
 	sampler *sampler = newSampler();
 
 	struct camera *cam = threadState->cam;
@@ -328,13 +329,13 @@ void *render_thread_interactive(void *arg) {
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
 				if (r->state.render_aborted) goto exit;
-				uint32_t pixIdx = (uint32_t)(y * buf->width + x);
+				uint32_t pixIdx = (uint32_t)(y * (*buf)->width + x);
 				//FIXME: This does not converge to the same result as with regular renderThread.
 				//I assume that's because we'd have to init the sampler differently when we render all
 				//the tiles in one go per sample, instead of the other way around.
 				initSampler(sampler, SAMPLING_STRATEGY, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
-				struct color output = textureGetPixel(buf, x, y, false);
+				struct color output = textureGetPixel(*buf, x, y, false);
 				struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
 
 				nan_clamp(&sample, &output);
@@ -346,22 +347,26 @@ void *render_thread_interactive(void *arg) {
 				output = colorCoef(t, output);
 				
 				//Store internal render buffer (float precision)
-				setPixel(buf, output, x, y);
+				setPixel(*buf, output, x, y);
 			}
 		}
 		//For performance metrics
 		total_us += timer_get_us(timer);
 		threadState->totalSamples++;
-		//Pause rendering when bool is set
-		while (threadState->paused && !r->state.render_aborted) {
-			timer_sleep_ms(100);
-		}
 		threadState->avg_per_sample_us = total_us / r->state.finishedPasses;
 		
 		//Tile has finished rendering, get a new one and start rendering it.
 		tile->state = finished;
 		threadState->currentTile = NULL;
 		tile = tile_next_interactive(r, threadState->tiles);
+		//Pause rendering when bool is set
+		while (threadState->paused && !r->state.render_aborted) {
+			threadState->in_pause_loop = true;
+			timer_sleep_ms(100);
+		}
+		threadState->in_pause_loop = false;
+		// In case we got NULL back because we were paused:
+		if (!tile) tile = tile_next_interactive(r, threadState->tiles);
 		threadState->currentTile = tile;
 	}
 exit:
@@ -382,7 +387,7 @@ void *render_thread(void *arg) {
 	block_signals();
 	struct worker *threadState = (struct worker*)thread_user_data(arg);
 	struct renderer *r = threadState->renderer;
-	struct texture *buf = threadState->buf;
+	struct texture **buf = threadState->buf;
 	sampler *sampler = newSampler();
 
 	struct camera *cam = threadState->cam;
@@ -402,10 +407,10 @@ void *render_thread(void *arg) {
 			for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 				for (int x = tile->begin.x; x < tile->end.x; ++x) {
 					if (r->state.render_aborted) goto exit;
-					uint32_t pixIdx = (uint32_t)(y * buf->width + x);
+					uint32_t pixIdx = (uint32_t)(y * (*buf)->width + x);
 					initSampler(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
 					
-					struct color output = textureGetPixel(buf, x, y, false);
+					struct color output = textureGetPixel(*buf, x, y, false);
 					struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
 					
 					// Clamp out fireflies - This is probably not a good way to do that.
@@ -418,7 +423,7 @@ void *render_thread(void *arg) {
 					output = colorCoef(t, output);
 					
 					//Store internal render buffer (float precision)
-					setPixel(buf, output, x, y);
+					setPixel(*buf, output, x, y);
 				}
 			}
 			//For performance metrics

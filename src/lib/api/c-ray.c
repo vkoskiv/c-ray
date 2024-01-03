@@ -750,6 +750,22 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 		logr(warning, "restart: No tile set, bailing\n");
 		return;
 	}
+	struct camera *cam = &r->scene->cameras.items[r->prefs.selected_camera];
+	if (r->state.result_buf->width != (size_t)cam->width || r->state.result_buf->height != (size_t)cam->height) {
+		// Resize result buffer. First, pause render threads and wait for them to ack
+		logr(info, "Resizing result_buf (%zu,%zu) -> (%d,%d)\n", r->state.result_buf->width, r->state.result_buf->height, cam->width, cam->height);
+		cr_renderer_toggle_pause((struct cr_renderer *)r);
+		for (size_t i = 0; i < r->state.workers.count; ++i) {
+			while (!r->state.workers.items[i].in_pause_loop) {
+				timer_sleep_ms(1);
+			}
+		}
+		// Okay, threads are now paused, swap the buffer
+		destroyTexture(r->state.result_buf);
+		r->state.result_buf = newTexture(float_p, cam->width, cam->height, 4);
+
+		cr_renderer_toggle_pause((struct cr_renderer *)r);
+	}
 	// sus
 	r->state.finishedPasses = 1;
 	mutex_lock(r->state.current_set->tile_mutex);
