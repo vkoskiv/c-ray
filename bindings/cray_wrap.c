@@ -84,7 +84,9 @@ void py_callable_wrapper(struct cr_renderer_cb_info *info, void *arg) {
 		return;
 	}
 	Py_INCREF(py_args);
-	PyObject_Call(py_callback_fn, py_args, NULL);
+	PyObject *result = PyObject_Call(py_callback_fn, py_args, NULL);
+	if (result) Py_DECREF(result);
+	Py_DECREF(py_args);
 	PyGILState_Release(state);
 }
 
