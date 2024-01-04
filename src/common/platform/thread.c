@@ -28,6 +28,7 @@ void *thread_stub(void *arg) {
 void thread_wait(struct cr_thread *t) {
 #ifdef WINDOWS
 	WaitForSingleObjectEx(t->thread_handle, INFINITE, FALSE);
+	CloseHandle(t->thread_handle);
 #else
 	if (pthread_join(t->thread_id, NULL)) {
 		logr(warning, "Thread frozen! (This shouldn't happen.)");
