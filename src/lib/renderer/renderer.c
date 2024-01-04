@@ -215,7 +215,7 @@ void renderer_render(struct renderer *r) {
 	struct cr_renderer_cb_info cb_info = {
 		.tiles = info_tiles,
 		.tiles_count = set.tiles.count,
-		.fb = (struct cr_bitmap *)result,
+		.fb = (const struct cr_bitmap **)result,
 	};
 	
 	struct callback start = r->state.callbacks[cr_cb_on_start];

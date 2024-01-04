@@ -30,7 +30,7 @@ struct usr_data {
 
 static void on_start(struct cr_renderer_cb_info *info, void *user_data) {
 	struct usr_data *d = user_data;
-	if (d->p.enabled && info->fb) d->w = win_try_init(&d->p, info->fb->width, info->fb->height);
+	if (d->p.enabled && *info->fb) d->w = win_try_init(&d->p, (*info->fb)->width, (*info->fb)->height);
 }
 
 static void on_stop(struct cr_renderer_cb_info *info, void *user_data) {
@@ -43,7 +43,7 @@ static void status(struct cr_renderer_cb_info *state, void *user_data) {
 	static int pauser = 0;
 	struct usr_data *d = user_data;
 	if (!d) return;
-	struct input_state in = win_update(d->w, state->tiles, state->tiles_count, (struct texture *)state->fb);
+	struct input_state in = win_update(d->w, state->tiles, state->tiles_count, *((struct texture **)state->fb));
 	d->should_save = in.should_save;
 	if (in.stop_render) cr_renderer_stop(d->r);
 	if (in.pause_render) cr_renderer_toggle_pause(d->r);

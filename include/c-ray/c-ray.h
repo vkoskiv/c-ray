@@ -86,7 +86,7 @@ struct cr_tile {
 };
 
 struct cr_renderer_cb_info {
-	const struct cr_bitmap *fb;
+	const struct cr_bitmap **fb;
 	const struct cr_tile *tiles;
 	size_t tiles_count;
 
