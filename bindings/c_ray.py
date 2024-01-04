@@ -335,8 +335,9 @@ class material_set:
 		_lib.material_set_add(self.scene_ptr, self.cr_idx, capsule)
 
 class scene:
-	def __init__(self, scene_ptr):
-		self.cr_ptr = scene_ptr
+	def __init__(self, cr_renderer):
+		self.cr_renderer = cr_renderer
+		self.cr_ptr = _lib.renderer_scene_get(self.cr_renderer)
 		self.meshes = {}
 		self.cameras = {}
 	def close(self):
@@ -389,6 +390,7 @@ class renderer:
 		self.obj_ptr = _lib.new_renderer()
 		self.prefs = _pref(self.obj_ptr)
 		self.callbacks = _callbacks(self.obj_ptr)
+		self.interactive = False
 		if path != None:
 			_lib.load_json(self.obj_ptr, path)
 
@@ -397,6 +399,7 @@ class renderer:
 		del(self.obj_ptr)
 
 	def stop(self):
+		self.interactive = False
 		_lib.renderer_stop(self.obj_ptr)
 
 	def restart(self):
@@ -409,6 +412,7 @@ class renderer:
 		_lib.renderer_render(self.obj_ptr)
 
 	def start_interactive(self):
+		self.interactive = True
 		_lib.renderer_start_interactive(self.obj_ptr)
 
 	def get_result(self):
@@ -423,7 +427,7 @@ class renderer:
 		return ret_bitmap
 
 	def scene_get(self):
-		return scene(_lib.renderer_scene_get(self.obj_ptr))
+		return scene(self.obj_ptr)
 
 	def debug_dump(self):
 		_lib.debug_dump_state(self.obj_ptr)
