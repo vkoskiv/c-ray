@@ -17,7 +17,7 @@
 
 struct cr_mutex {
 	#ifdef WINDOWS
-		HANDLE lock; // = INVALID_HANDLE_VALUE;
+		CRITICAL_SECTION lock;
 	#else
 		pthread_mutex_t lock; // = PTHREAD_MUTEX_INITIALIZER;
 	#endif
@@ -26,7 +26,7 @@ struct cr_mutex {
 struct cr_mutex *mutex_create() {
 	struct cr_mutex *new = calloc(1, sizeof(*new));
 #ifdef WINDOWS
-	new->lock = CreateMutex(NULL, FALSE, NULL);
+	InitializeCriticalSection(&new->lock);
 #else
 	new->lock = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 #endif
@@ -35,7 +35,7 @@ struct cr_mutex *mutex_create() {
 
 void mutex_lock(struct cr_mutex *m) {
 #ifdef WINDOWS
-	WaitForSingleObject(m->lock, INFINITE);
+	EnterCriticalSection(&m->lock);
 #else
 	pthread_mutex_lock(&m->lock);
 #endif
@@ -43,7 +43,7 @@ void mutex_lock(struct cr_mutex *m) {
 
 void mutex_release(struct cr_mutex *m) {
 #ifdef WINDOWS
-	ReleaseMutex(m->lock);
+	LeaveCriticalSection(&m->lock);
 #else
 	pthread_mutex_unlock(&m->lock);
 #endif
