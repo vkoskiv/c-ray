@@ -172,7 +172,7 @@ void cr_renderer_stop(struct cr_renderer *ext) {
 	if (!ext) return;
 	struct renderer *r = (struct renderer *)ext;
 	r->state.render_aborted = true;
-	while (!r->state.interactive_exit_done) {
+	while (r->prefs.iterative && !r->state.exit_done) {
 		timer_sleep_ms(10);
 	}
 }

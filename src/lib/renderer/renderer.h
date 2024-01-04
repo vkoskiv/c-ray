@@ -47,7 +47,7 @@ struct state {
 	bool rendering;
 	// TODO: Rename to request_abort, and use an enum for actual state
 	bool render_aborted; //SDL listens for X key pressed, which sets this
-	bool interactive_exit_done;
+	bool exit_done;
 	struct worker_arr workers;
 	struct render_client_arr clients;
 	struct callback callbacks[5];

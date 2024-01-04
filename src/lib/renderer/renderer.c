@@ -301,7 +301,7 @@ void renderer_render(struct renderer *r) {
 	if (info_tiles) free(info_tiles);
 	tile_set_free(&set);
 	logr(info, "Renderer exiting\n");
-	r->state.interactive_exit_done = true;
+	r->state.exit_done = true;
 }
 
 // An interactive render thread that progressively
