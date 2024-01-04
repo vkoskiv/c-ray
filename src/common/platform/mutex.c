@@ -9,20 +9,6 @@
 #include "mutex.h"
 #include <stdlib.h>
 
-#ifdef WINDOWS
-#include <Windows.h>
-#else
-#include <pthread.h>
-#endif
-
-struct cr_mutex {
-	#ifdef WINDOWS
-		CRITICAL_SECTION lock;
-	#else
-		pthread_mutex_t lock; // = PTHREAD_MUTEX_INITIALIZER;
-	#endif
-};
-
 struct cr_mutex *mutex_create() {
 	struct cr_mutex *new = calloc(1, sizeof(*new));
 #ifdef WINDOWS
@@ -40,6 +26,7 @@ void mutex_destroy(struct cr_mutex *m) {
 #else
 	pthread_mutex_destroy(&m->lock);
 #endif
+	free(m);
 }
 
 void mutex_lock(struct cr_mutex *m) {

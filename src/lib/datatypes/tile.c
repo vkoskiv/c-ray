@@ -125,7 +125,6 @@ struct tile_set tile_quantize(unsigned width, unsigned height, unsigned tile_w, 
 
 void tile_set_free(struct tile_set *set) {
 	render_tile_arr_free(&set->tiles);
-	if (set->tile_mutex) free(set->tile_mutex);
 	mutex_destroy(set->tile_mutex);
 	set->tile_mutex = NULL;
 }

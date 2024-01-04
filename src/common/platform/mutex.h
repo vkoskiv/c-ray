@@ -10,7 +10,20 @@
 
 //Platform-agnostic mutexes
 
-struct cr_mutex;
+#ifdef WINDOWS
+#include <Windows.h>
+#else
+#include <pthread.h>
+#endif
+
+struct cr_mutex {
+#ifdef WINDOWS
+	LPCRITICAL_SECTION lock;
+#else
+	pthread_mutex_t lock; // = PTHREAD_MUTEX_INITIALIZER;
+#endif
+};
+
 
 struct cr_mutex *mutex_create(void);
 

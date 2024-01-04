@@ -153,6 +153,7 @@ int getPerfTestCount(char *suite) {
 
 #if defined(CR_BUILDING_LIB)
 
+// FIXME: This doesn't even get built, fix
 int main(int argc, char *argv[]) {
 	struct driver_args *args = args_parse(argc, argv);
 	if (args_is_set(args, "runTests") || args_is_set(args, "runPerfTests")) {

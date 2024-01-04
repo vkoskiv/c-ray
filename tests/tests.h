@@ -50,6 +50,7 @@ static char *failed_expression;
 #include "test_parser.h"
 #include "test_dyn_array.h"
 #include "test_serializer.h"
+#include "test_thread_pool.h"
 
 typedef struct {
 	char *test_name;
@@ -185,7 +186,9 @@ static test tests[] = {
 	{"dyn_array::copy", dyn_array_copy},
 	{"dyn_array::join", dyn_array_join},
 
-	{"serializer::serialize", serializer_serialize}
+	{"serializer::serialize", serializer_serialize},
+
+	{"threadpool::basic", test_thread_pool},
 };
 
 #define testCount (sizeof(tests) / sizeof(test))

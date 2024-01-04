@@ -17,6 +17,8 @@
 #include "../renderer/instance.h"
 #include "../../common/vector.h"
 #include "../../common/platform/thread.h"
+#include "../../common/platform/thread_pool.h"
+#include "../../common/platform/capabilities.h"
 #include "../../common/platform/signal.h"
 #include "../../common/timer.h"
 
@@ -648,40 +650,25 @@ void destroy_bvh(struct bvh *bvh) {
 	}
 }
 
-void *bvh_build_thread(void *arg) {
+void bvh_build_task(void *arg) {
 	block_signals();
-	struct mesh *mesh = (struct mesh *)thread_user_data(arg);
+	struct mesh *mesh = (struct mesh *)arg;
 	mesh->bvh = build_mesh_bvh(mesh);
-	return NULL;
 }
 
-// FIXME: dining room bench scene has 310 meshes, meaning this spawns 310 threads.
-// That might be somewhat excessive.
 // FIXME: Add pthread_cancel() support
 void compute_accels(struct mesh_arr meshes) {
-	struct cr_thread_arr threads = { 0 };
-	for (size_t i = 0; i < meshes.count; ++i) {
-		if (meshes.items[i].bvh) continue;
-		cr_thread_arr_add(&threads, (struct cr_thread){
-			.thread_fn = bvh_build_thread,
-			.user_data = &meshes.items[i]
-		});
-	}
-
-	logr(info, "Updating %zu BVHs: ", threads.count);
+	struct cr_thread_pool *pool = thread_pool_create(sys_get_cores());
+	logr(info, "Updating %zu BVHs: ", meshes.count);
 	struct timeval timer = { 0 };
 	timer_start(&timer);
-	for (size_t t = 0; t < threads.count; ++t) {
-		if (thread_start(&threads.items[t])) {
-			logr(error, "Failed to create a bvhBuildTask\n");
-		}
+	for (size_t i = 0; i < meshes.count; ++i) {
+		if (!meshes.items[i].bvh) thread_pool_enqueue(pool, bvh_build_task, &meshes.items[i]);
 	}
-
-	for (size_t t = 0; t < threads.count; ++t)
-		thread_wait(&threads.items[t]);
+	thread_pool_wait(pool);
 
 	printSmartTime(timer_get_ms(timer));
-	cr_thread_arr_free(&threads);
 	logr(plain, "\n");
+	thread_pool_destroy(pool);
 }
 
