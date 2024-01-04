@@ -312,6 +312,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	tile_set_free(&set);
 	free(worker_threads);
 	free(workerThreadStates);
+	mutex_destroy(g_worker_socket_mutex);
 	return NULL;
 }
 

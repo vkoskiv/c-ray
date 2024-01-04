@@ -33,6 +33,15 @@ struct cr_mutex *mutex_create() {
 	return new;
 }
 
+void mutex_destroy(struct cr_mutex *m) {
+	if (!m) return;
+#ifdef WINDOWS
+	DeleteCriticalSection(m->lock);
+#else
+	pthread_mutex_destroy(&m->lock);
+#endif
+}
+
 void mutex_lock(struct cr_mutex *m) {
 #ifdef WINDOWS
 	EnterCriticalSection(&m->lock);

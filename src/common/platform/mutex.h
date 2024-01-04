@@ -14,6 +14,8 @@ struct cr_mutex;
 
 struct cr_mutex *mutex_create(void);
 
+void mutex_destroy(struct cr_mutex *m);
+
 void mutex_lock(struct cr_mutex *m);
 
 void mutex_release(struct cr_mutex *m);
