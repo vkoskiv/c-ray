@@ -16,6 +16,7 @@ output/*
 .clangd
 generated/*
 .cache/*
+tests/testrunner
 
 # Heavy HDR files, just include a small one for demo
 input/HDRs/*

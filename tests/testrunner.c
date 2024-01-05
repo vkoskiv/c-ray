@@ -1,19 +1,18 @@
 //
 //  testrunner.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 23.6.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../src/includes.h"
 #include "../src/common/logging.h"
 #include "../src/common/timer.h"
+#include "../src/driver/args.h"
 
 #include "../src/common/assert.h"
 #include "testrunner.h"
-
-#ifdef CRAY_TESTING
 
 int firstTestIdx(char *suite);
 int firstPerfTestIdx(char *suite);
@@ -151,16 +150,12 @@ int getPerfTestCount(char *suite) {
 	return perf_test_count;
 }
 
-#if defined(CR_BUILDING_LIB)
-
-// FIXME: This doesn't even get built, fix
 int main(int argc, char *argv[]) {
 	struct driver_args *args = args_parse(argc, argv);
 	if (args_is_set(args, "runTests") || args_is_set(args, "runPerfTests")) {
-#if defined(CRAY_TESTING)
-		char *suite = NULL;
-		if (args_is_set(args, "test_suite")) suite = getDatabaseString(args, "test_suite");
-		switch (testIdx) {
+		char *suite = args_string(args, "test_suite");
+		int test_idx = args_int(args, "test_idx");
+		switch (test_idx) {
 			case -3:
 				printf("%i", getPerfTestCount(suite));
 				exit(0);
@@ -173,18 +168,9 @@ int main(int argc, char *argv[]) {
 				exit(args_is_set(args, "runPerfTests") ? runPerfTests(suite) : runTests(suite));
 				break;
 			default:
-				exit(args_is_set(args, "runPerfTests") ? runPerfTest(testIdx, suite) : runTest(testIdx, suite));
+				exit(args_is_set(args, "runPerfTests") ? runPerfTest(test_idx, suite) : runTest(test_idx, suite));
 				break;
 		}
-#else
-		logr(warning, "You need to compile with tests enabled.\n");
-		logr(warning, "Run: `cmake . -DTESTING=True` and then `make`\n");
-		exit(-1);
-#endif
 	}
 	return 0;
 }
-
-#endif
-
-#endif

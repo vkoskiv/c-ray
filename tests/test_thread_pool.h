@@ -18,7 +18,6 @@ void test_task(void *arg) {
 
 	*input += 1000;
 
-	printf("tid=%lu, input=%d, val=%d\n", pthread_self(), old, *input);
 	if (*input % 2) {
 		timer_sleep_ms(10);
 	}
@@ -33,7 +32,6 @@ bool test_thread_pool(void) {
 	int *values = calloc(iterations, sizeof(*values));
 	for (int i = 0; i < iterations; ++i) {
 		values[i] = i;
-		printf("values[i] = %i\n", i);
 		thread_pool_enqueue(pool, test_task, values + i);
 	}
 

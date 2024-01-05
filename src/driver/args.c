@@ -71,8 +71,6 @@ bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
 struct driver_args *args_parse(int argc, char **argv) {
 	struct driver_args *args = newConstantsDatabase();
 	static bool inputFileSet = false;
-	int testIdx = -1;
-	(void)testIdx;
 	char *alternatePath = NULL;
 	//Always omit the first argument.
 	for (int i = 1; i < argc; ++i) {
@@ -181,7 +179,7 @@ struct driver_args *args_parse(int argc, char **argv) {
 			if (testIdxStr) {
 				int n = atoi(testIdxStr);
 				n = n < 0 ? 0 : n;
-				testIdx = n;
+				setDatabaseInt(args, "test_idx", n);
 			}
 		}
 		
@@ -191,18 +189,18 @@ struct driver_args *args_parse(int argc, char **argv) {
 			if (testIdxStr) {
 				int n = atoi(testIdxStr);
 				n = n < 0 ? 0 : n;
-				testIdx = n;
+				setDatabaseInt(args, "test_idx", n);
 			}
 		}
 		
 		if (stringEquals(argv[i], "--tcount")) {
 			setDatabaseTag(args, "runTests");
-			testIdx = -2;
+			setDatabaseInt(args, "test_idx", -2);
 		}
 		
 		if (stringEquals(argv[i], "--ptcount")) {
 			setDatabaseTag(args, "runTests");
-			testIdx = -3;
+			setDatabaseInt(args, "test_idx", -3);
 		}
 		
 		if (stringEquals(argv[i], "--iterative")) {
