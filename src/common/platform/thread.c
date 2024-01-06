@@ -124,19 +124,19 @@ int thread_cond_timed_wait(struct cr_cond *cond, struct cr_mutex *mutex, const s
 int thread_cond_signal(struct cr_cond *cond) {
 	if (!cond) return -1;
 #ifdef WINDOWS
-	return WakeConditionVariable(&cond->cond);
+	WakeConditionVariable(&cond->cond);
+	return 0;
 #else
 	return pthread_cond_signal(&cond->cond);
 #endif
-	return 0;
 }
 
 int thread_cond_broadcast(struct cr_cond *cond) {
 	if (!cond) return -1;
 #ifdef WINDOWS
-	return WakeAllConditionVariable(&cond->cond);
+	WakeAllConditionVariable(&cond->cond);
+	return 0;
 #else
 	return pthread_cond_broadcast(&cond->cond);
 #endif
-	return 0;
 }
