@@ -17,17 +17,15 @@
 	https://nachtimwald.com/2019/04/05/cross-platform-thread-wrapper/
 */
 
-void *thread_user_data(void *arg) {
-	struct cr_thread *thread = (struct cr_thread *)arg;
-	return thread->user_data;
-}
 // Multiplatform thread stub
 #ifdef WINDOWS
 DWORD WINAPI thread_stub(LPVOID arg) {
 #else
 void *thread_stub(void *arg) {
 #endif
-	return ((struct cr_thread *)arg)->thread_fn(arg);
+	struct cr_thread copy = *(struct cr_thread *)arg;
+	free(arg);
+	return copy.thread_fn(copy.user_data);
 }
 
 void thread_wait(struct cr_thread *t) {
@@ -41,29 +39,37 @@ void thread_wait(struct cr_thread *t) {
 #endif
 }
 
+// NOTE: To be able to pass in a stack-local cr_thread struct, we do a temporary
+// allocation here to extend the lifetime.
+
 int thread_create_detach(struct cr_thread *t) {
 	if (!t) return -1;
+	struct cr_thread *temp = calloc(1, sizeof(*temp));
+	*temp = *t;
 #ifdef WINDOWS
-	t->thread_handle = CreateThread(NULL, 0, thread_stub, t, 0, &t->thread_id);
+	t->thread_handle = CreateThread(NULL, 0, thread_stub, temp, 0, &t->thread_id);
 	CloseHandle(t->thread_handle);
 	return 0;
 #else
-	pthread_create(&t->thread_id, NULL, thread_stub, t);
+	pthread_create(&t->thread_id, NULL, thread_stub, temp);
 	pthread_detach(t->thread_id);
 	return 0;
 #endif
 }
 
 int thread_start(struct cr_thread *t) {
+	if (!t) return -1;
+	struct cr_thread *temp = calloc(1, sizeof(*temp));
+	*temp = *t;
 #ifdef WINDOWS
-	t->thread_handle = CreateThread(NULL, 0, thread_stub, t, 0, &t->thread_id);
+	t->thread_handle = CreateThread(NULL, 0, thread_stub, temp, 0, &t->thread_id);
 	if (t->thread_handle == NULL) return -1;
 	return 0;
 #else
 	pthread_attr_t attribs;
 	pthread_attr_init(&attribs);
 	pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
-	int ret = pthread_create(&t->thread_id, &attribs, thread_stub, t);
+	int ret = pthread_create(&t->thread_id, &attribs, thread_stub, temp);
 	pthread_attr_destroy(&attribs);
 	return ret;
 #endif

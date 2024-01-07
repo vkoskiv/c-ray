@@ -108,7 +108,7 @@ void update_cb_info(struct renderer *r, struct tile_set *set, struct cr_renderer
 }
 
 static void *thread_stub(void *arg) {
-	struct renderer *r = thread_user_data(arg);
+	struct renderer *r = arg;
 	renderer_render(r);
 	return NULL;
 }
@@ -116,11 +116,10 @@ static void *thread_stub(void *arg) {
 // Nonblocking function to make python happy, just shove the normal loop in a
 // background thread.
 void renderer_start_interactive(struct renderer *r) {
-	static struct cr_thread main_loop = {
+	thread_start(&(struct cr_thread){
 		.thread_fn = thread_stub,
-	};
-	main_loop.user_data = r;
-	thread_start(&main_loop);
+		.user_data = r
+	});
 }
 
 // TODO: Clean this up, it's ugly.
@@ -308,7 +307,7 @@ void renderer_render(struct renderer *r) {
 // renders samples up to a limit
 void *render_thread_interactive(void *arg) {
 	block_signals();
-	struct worker *threadState = (struct worker*)thread_user_data(arg);
+	struct worker *threadState = arg;
 	threadState->in_pause_loop = false;
 	struct renderer *r = threadState->renderer;
 	struct texture **buf = threadState->buf;
@@ -385,7 +384,7 @@ exit:
  */
 void *render_thread(void *arg) {
 	block_signals();
-	struct worker *threadState = (struct worker*)thread_user_data(arg);
+	struct worker *threadState = arg;
 	struct renderer *r = threadState->renderer;
 	struct texture **buf = threadState->buf;
 	sampler *sampler = newSampler();

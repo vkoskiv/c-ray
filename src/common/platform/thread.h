@@ -45,13 +45,10 @@ struct cr_cond {
 typedef struct cr_thread cr_thread;
 dyn_array_def(cr_thread);
 
-// Fetch the user data pointer from args parameter
-void *thread_user_data(void *arg);
-
 // Create & detach a thread. Used by thread pool.
 int thread_create_detach(struct cr_thread *t);
-/// Start a new c-ray platform abstracted thread
-/// @param t Pointer to the thread to be started
+
+// NOTE: t may have automatic lifetime, but t->user_data contents may not.
 int thread_start(struct cr_thread *t);
 
 /// Block until the given thread has terminated.

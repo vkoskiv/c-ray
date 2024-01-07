@@ -54,7 +54,7 @@ static struct cr_task *thread_pool_get_task(struct cr_thread_pool *pool) {
 }
 
 static void *cr_worker(void *arg) {
-	struct cr_thread_pool *pool = thread_user_data(arg);
+	struct cr_thread_pool *pool = arg;
 	while (true) {
 		mutex_lock(pool->mutex);
 		while (!pool->first && !pool->stop_flag)

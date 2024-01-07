@@ -204,7 +204,7 @@ static cJSON *handle_client_request(struct worker *state, const cJSON *json) {
 // Master side
 void *client_connection_thread(void *arg) {
 	block_signals();
-	struct worker *state = (struct worker *)thread_user_data(arg);
+	struct worker *state = arg;
 	struct renderer *r = state->renderer;
 	struct render_client *client = state->client;
 	if (!client) {
@@ -266,7 +266,7 @@ struct sync_thread {
 
 static void *client_sync_thread(void *arg) {
 	block_signals();
-	struct sync_thread *params = (struct sync_thread *)thread_user_data(arg);
+	struct sync_thread *params = arg;
 	struct render_client *client = params->client;
 	if (client->status != Connected) {
 		logr(warning, "Won't sync with client %i, no connection.\n", client->id);

@@ -118,7 +118,7 @@ static bool submitWork(int sock, struct texture *work, struct render_tile *forTi
 
 static void *workerThread(void *arg) {
 	block_signals();
-	struct workerThreadState *thread = (struct workerThreadState *)thread_user_data(arg);
+	struct workerThreadState *thread = arg;
 	struct renderer *r = thread->renderer;
 	int sock = thread->connectionSocket;
 	struct cr_mutex *sockMutex = thread->socketMutex;
