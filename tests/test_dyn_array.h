@@ -261,5 +261,11 @@ bool dyn_array_join(void) {
 		test_assert(combined.items[i] == i);
 	}
 
+	int_arr_free(&combined);
+
+	// Unneeded, these should be NOPs, since T_arr_join(a, b) frees b
+	int_arr_free(&a);
+	int_arr_free(&b);
+
 	return true;
 }
