@@ -55,7 +55,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 	static inline void CR_UNUSED T##_arr_trim(struct T##_arr *a) { \
 		if (!a || a->count >= a->capacity) return; \
 		T *new = malloc(a->count * sizeof(*a)); \
-		memcpy(new, a->items, a->count * sizeof(*a)); \
+		memcpy(new, a->items, a->count * sizeof(*new)); \
 		free(a->items); \
 		a->items = new; \
 		a->capacity = a->count; \
