@@ -147,10 +147,9 @@ char *lastLine(textBuffer *file) {
 }
 
 void destroyTextBuffer(textBuffer *file) {
-	if (file) {
-		if (file->buf) free(file->buf);
-		free(file);
-	}
+	if (!file) return;
+	if (file->buf) free(file->buf);
+	free(file);
 }
 
 void fillLineBuffer(lineBuffer *line, const char *contents, char delimiter) {

@@ -25,6 +25,8 @@ bool textbuffer_new(void) {
 	textBuffer *original = newTextBuffer(string);
 	test_assert(original->amountOf.lines == 3);
 	test_assert(original->buflen == strlen(string));
+	destroyTextBuffer(original);
+
 	return true;
 }
 
@@ -51,6 +53,9 @@ bool textbuffer_gotoline(void) {
 	test_assert(!goToLine(original, -1));
 	
 	test_assert(original->current.line == 2);
+
+	destroyTextBuffer(original);
+
 	return true;
 }
 
@@ -74,6 +79,8 @@ bool textbuffer_peekline(void) {
 	
 	test_assert(!peekLine(original, -1));
 	
+	destroyTextBuffer(original);
+
 	return true;
 }
 
@@ -87,6 +94,8 @@ bool textbuffer_nextline(void) {
 	
 	test_assert(!nextLine(original));
 	
+	destroyTextBuffer(original);
+
 	return true;
 }
 
@@ -106,6 +115,8 @@ bool textbuffer_previousline(void) {
 	
 	test_assert(!previousLine(original));
 	
+	destroyTextBuffer(original);
+
 	return true;
 }
 
@@ -119,6 +130,8 @@ bool textbuffer_peeknextline(void) {
 	
 	test_assert(stringEquals(peekNextLine(original), "string!"));
 	
+	destroyTextBuffer(original);
+
 	return true;
 }
 
@@ -130,6 +143,8 @@ bool textbuffer_firstline(void) {
 	
 	test_assert(stringEquals(firstLine(original), "This is a"));
 	
+	destroyTextBuffer(original);
+
 	return true;
 }
 
@@ -150,6 +165,8 @@ bool textbuffer_currentline(void) {
 	test_assert(stringEquals(firstLine(original), "This is a"));
 	
 	test_assert(stringEquals(currentLine(original), "This is a"));
+
+	destroyTextBuffer(original);
 	
 	return true;
 }
@@ -159,6 +176,7 @@ bool textbuffer_lastline(void) {
 	
 	textBuffer *original = newTextBuffer(string);
 	test_assert(stringEquals(lastLine(original), "string!"));
+	destroyTextBuffer(original);
 	
 	return true;
 }
