@@ -71,12 +71,15 @@ bool serializer_serialize(void) {
 	test_assert(deserialized);
 
 	char *ser1 = serialize_renderer(deserialized);
-	test_assert(stringEquals(ser0, ser1));
+	bool match = stringEquals(ser0, ser1);
 
 	free(ser0);
 	free(ser1);
 
 	cr_destroy_renderer(ext);
+	cr_destroy_renderer((struct cr_renderer *)deserialized);
+
+	test_assert(match);
 
 	return true;
 }
