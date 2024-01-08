@@ -502,6 +502,7 @@ static void parseScene(struct cr_renderer *r, const cJSON *data) {
 
 	struct cr_shader_node *background = cr_shader_node_build(cJSON_GetObjectItem(data, "ambientColor"));
 	cr_scene_set_background(scene, background);
+	cr_shader_node_free(background);
 
 	parse_primitives(r, cJSON_GetObjectItem(data, "primitives"));
 	parse_meshes(r, cJSON_GetObjectItem(data, "meshes"));
