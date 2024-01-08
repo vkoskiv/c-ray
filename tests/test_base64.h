@@ -82,6 +82,7 @@ bool base64_varying(void) {
 		test_assert(strlen(original) == decoded_length);
 		test_assert(strlen(decoded) == decoded_length);
 		free(decoded);
+		free(encoded);
 		free(original);
 	}
 	return true;
