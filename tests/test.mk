@@ -11,12 +11,12 @@ test: $(BIN_test)
 $(OBJDIR_test)/%.o: %.c $(TEST_HDRS) $(OBJDIR_test)
 	@mkdir -p '$(@D)'
 	@echo "CC $<"
-	@$(CC) $(CFLAGS) -DCRAY_TESTING -c $< -o $@
+	@$(CC) $(CFLAGS) -fsanitize=address,undefined -DCRAY_TESTING -c $< -o $@
 $(OBJDIR_test):
 	mkdir -p $@
 $(BIN_test): $(OBJS_test) $(OBJDIR_test)
 	@echo "LD $@"
-	@$(CC) $(CFLAGS) $(OBJS_test) -o $@ $(LDFLAGS)
+	@$(CC) $(CFLAGS) -fsanitize=address,undefined $(OBJS_test) -o $@ $(LDFLAGS)
 
 clean_test:
 	rm -rf tests/obj tests/testrunner
