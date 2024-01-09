@@ -459,6 +459,19 @@ static PyObject *py_cr_camera_set_num_pref(PyObject *self, PyObject *args) {
 	return PyBool_FromLong(ret);
 }
 
+static PyObject *py_cr_camera_get_num_pref(PyObject *self, PyObject *args) {
+	(void)self; (void)args;
+	PyObject *s_ext;
+	cr_camera cam;
+	enum cr_camera_param param;
+	if (!PyArg_ParseTuple(args, "Oli", &s_ext, &cam, &param)) {
+		return NULL;
+	}
+	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
+	double value = cr_camera_get_num_pref(s, cam, param);
+	return PyLong_FromDouble(value);
+}
+
 static PyObject *py_cr_camera_update(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
 	PyObject *s_ext;
@@ -668,6 +681,7 @@ static PyMethodDef cray_methods[] = {
 	{ "scene_get_mesh", py_cr_scene_get_mesh, METH_VARARGS, "" },
 	{ "camera_new", py_cr_camera_new, METH_VARARGS, "" },
 	{ "camera_set_num_pref", py_cr_camera_set_num_pref, METH_VARARGS, "" },
+	{ "camera_get_num_pref", py_cr_camera_get_num_pref, METH_VARARGS, "" },
 	{ "camera_update", py_cr_camera_update, METH_VARARGS, "" },
 	{ "scene_new_material_set", py_cr_scene_new_material_set, METH_VARARGS, "" },
 	{ "material_set_add", py_cr_material_set_add, METH_VARARGS, "" },

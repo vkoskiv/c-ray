@@ -474,6 +474,55 @@ bool cr_camera_set_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_pa
 	return false;
 }
 
+double cr_camera_get_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_param p) {
+	if (c < 0 || !ext) return 0.0;
+	struct world *scene = (struct world *)ext;
+	if ((size_t)c > scene->cameras.count - 1) return 0.0;
+	struct camera *cam = &scene->cameras.items[c];
+	switch (p) {
+		case cr_camera_fov: {
+			return cam->FOV;
+		}
+		case cr_camera_focus_distance: {
+			return cam->focus_distance;
+		}
+		case cr_camera_fstops: {
+			return cam->fstops;
+		}
+		case cr_camera_pose_x: {
+			return cam->position.x;
+		}
+		case cr_camera_pose_y: {
+			return cam->position.y;
+		}
+		case cr_camera_pose_z: {
+			return cam->position.z;
+		}
+		case cr_camera_pose_roll: {
+			return cam->orientation.roll;
+		}
+		case cr_camera_pose_pitch: {
+			return cam->orientation.pitch;
+		}
+		case cr_camera_pose_yaw: {
+			return cam->orientation.yaw;
+		}
+		case cr_camera_time: {
+			return cam->time;
+		}
+		case cr_camera_res_x: {
+			return cam->width;
+		}
+		case cr_camera_res_y: {
+			return cam->height;
+		}
+		case cr_camera_blender_coord: {
+			return cam->is_blender ? 1.0 : 0.0;
+		}
+	}
+	return 0.0;
+}
+
 bool cr_camera_update(struct cr_scene *ext, cr_camera c) {
 	if (c < 0 || !ext) return false;
 	struct world *scene = (struct world *)ext;

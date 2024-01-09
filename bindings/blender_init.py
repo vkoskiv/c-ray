@@ -238,22 +238,22 @@ class CrayRender(bpy.types.RenderEngine):
 			mtx = ob_main.matrix_world
 			euler = mtx.to_euler('XYZ')
 			loc = mtx.to_translation()
-			cr_cam.set_param(c_ray.cam_param.fov, math.degrees(bl_cam.angle))
-			cr_cam.set_param(c_ray.cam_param.pose_x, loc[0])
-			cr_cam.set_param(c_ray.cam_param.pose_y, loc[1])
-			cr_cam.set_param(c_ray.cam_param.pose_z, loc[2])
-			cr_cam.set_param(c_ray.cam_param.pose_roll, euler[0])
-			cr_cam.set_param(c_ray.cam_param.pose_pitch, euler[1])
-			cr_cam.set_param(c_ray.cam_param.pose_yaw, euler[2])
+			cr_cam.opts.fov = math.degrees(bl_cam.angle)
+			cr_cam.opts.pose_x = loc[0]
+			cr_cam.opts.pose_y = loc[1]
+			cr_cam.opts.pose_z = loc[2]
+			cr_cam.opts.pose_roll = euler[0]
+			cr_cam.opts.pose_pitch = euler[1]
+			cr_cam.opts.pose_yaw = euler[2]
 
 			scale = b_scene.render.resolution_percentage / 100.0
 			size_x = int(b_scene.render.resolution_x * scale)
 			size_y = int(b_scene.render.resolution_y * scale)
-			cr_cam.set_param(c_ray.cam_param.res_x, size_x)
-			cr_cam.set_param(c_ray.cam_param.res_y, size_y)
-			cr_cam.set_param(c_ray.cam_param.blender_coord, 1)
+			cr_cam.opts.res_x = size_x
+			cr_cam.opts.res_y = size_y
+			cr_cam.opts.blender_coord = 1
 			if bl_cam.dof.use_dof:
-				cr_cam.set_param(c_ray.cam_param.fstops, bl_cam.dof.aperture_fstop)
+				cr_cam.opts.fstops = bl_cam.dof.aperture_fstop
 				if bl_cam.dof.focus_object:
 					focus_loc = bl_cam.dof.focus_object.location
 					cam_loc = bl_cam_eval.location
@@ -262,9 +262,9 @@ class CrayRender(bpy.types.RenderEngine):
 					dy = focus_loc.y - cam_loc.y
 					dz = focus_loc.z - cam_loc.z
 					distance = math.sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2))
-					cr_cam.set_param(c_ray.cam_param.focus_distance, distance)
+					cr_cam.opts.focus_distance = distance
 				else:
-					cr_cam.set_param(c_ray.cam_param.focus_distance, bl_cam.dof.focus_distance)
+					cr_cam.opts.focus_distance = bl_cam.dof.focus_distance
 
 		# Convert materials
 		cr_materials = {}
@@ -369,8 +369,8 @@ class CrayRender(bpy.types.RenderEngine):
 		new_dims = (context.region.width, context.region.height)
 		if not self.old_dims or self.old_dims != new_dims:
 			cr_cam = self.cr_scene.cameras['Camera']
-			cr_cam.set_param(c_ray.cam_param.res_x, context.region.width)
-			cr_cam.set_param(c_ray.cam_param.res_y, context.region.height)
+			cr_cam.opts.res_x = context.region.width
+			cr_cam.opts.res_y = context.region.height
 			self.cr_renderer.restart()
 			self.old_dims = new_dims
 		gpu.state.blend_set('ALPHA_PREMULT')
@@ -397,16 +397,16 @@ class CrayRender(bpy.types.RenderEngine):
 		mtx = context.region_data.view_matrix.inverted()
 		euler = mtx.to_euler('XYZ')
 		loc = mtx.to_translation()
-		cr_cam.set_param(c_ray.cam_param.pose_x, loc[0])
-		cr_cam.set_param(c_ray.cam_param.pose_y, loc[1])
-		cr_cam.set_param(c_ray.cam_param.pose_z, loc[2])
-		cr_cam.set_param(c_ray.cam_param.pose_roll, euler[0])
-		cr_cam.set_param(c_ray.cam_param.pose_pitch, euler[1])
-		cr_cam.set_param(c_ray.cam_param.pose_yaw, euler[2])
+		cr_cam.opts.pose_x = loc[0]
+		cr_cam.opts.pose_y = loc[1]
+		cr_cam.opts.pose_z = loc[2]
+		cr_cam.opts.pose_roll = euler[0]
+		cr_cam.opts.pose_pitch = euler[1]
+		cr_cam.opts.pose_yaw = euler[2]
 
-		cr_cam.set_param(c_ray.cam_param.res_x, context.region.width)
-		cr_cam.set_param(c_ray.cam_param.res_y, context.region.height)
-		cr_cam.set_param(c_ray.cam_param.blender_coord, 1)
+		cr_cam.opts.res_x = context.region.width
+		cr_cam.opts.res_y = context.region.height
+		cr_cam.opts.blender_coord = 1
 
 		if self.cr_interactive_running == True:
 			self.cr_renderer.restart()

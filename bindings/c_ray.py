@@ -249,7 +249,7 @@ class sphere:
 		self.radius = radius
 		self.cr_idx = _lib.scene_add_sphere(self.scene_ptr, self.radius)
 
-class cam_param(IntEnum):
+class _cam_param(IntEnum):
 	fov = 0
 	focus_distance = 1
 	fstops = 2
@@ -264,19 +264,100 @@ class cam_param(IntEnum):
 	res_y = 11
 	blender_coord = 12
 
+def _cam_get_num(scene_ptr, cam_idx, param):
+	return _lib.camera_get_num_pref(scene_ptr, cam_idx, param)
+
+def _cam_set_num(scene_ptr, cam_idx, param, value):
+	_lib.camera_set_num_pref(scene_ptr, cam_idx, param, value)
+	# Weird. Could just do this internally, no?
+	_lib.camera_update(scene_ptr, cam_idx)
+
+class _cam_pref:
+	def __init__(self, scene_ptr, cam_idx):
+		self.scene_ptr = scene_ptr
+		self.cam_idx = cam_idx
+
+	def _get_fov(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.fov)
+	def _set_fov(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.fov, value)
+	fov = property(_get_fov, _set_fov, None, "Camera field of view, in radians")
+
+	def _get_focus_distance(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.focus_distance)
+	def _set_focus_distance(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.focus_distance, value)
+	focus_distance = property(_get_focus_distance, _set_focus_distance, None, "Camera focus distance, in meters")
+
+	def _get_fstops(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.fstops)
+	def _set_fstops(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.fstops, value)
+	fstops = property(_get_fstops, _set_fstops, None, "Camera aperture, in f-stops")
+
+	def _get_pose_x(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.pose_x)
+	def _set_pose_x(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.pose_x, value)
+	pose_x = property(_get_pose_x, _set_pose_x, None, "Camera x coordinate in world space")
+
+	def _get_pose_y(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.pose_y)
+	def _set_pose_y(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.pose_y, value)
+	pose_y = property(_get_pose_y, _set_pose_y, None, "Camera y coordinate in world space")
+
+	def _get_pose_z(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.pose_z)
+	def _set_pose_z(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.pose_z, value)
+	pose_z = property(_get_pose_z, _set_pose_z, None, "Camera z coordinate in world space")
+
+	def _get_pose_roll(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.pose_roll)
+	def _set_pose_roll(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.pose_roll, value)
+	pose_roll = property(_get_pose_roll, _set_pose_roll, None, "Camera roll, in radians")
+
+	def _get_pose_pitch(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.pose_pitch)
+	def _set_pose_pitch(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.pose_pitch, value)
+	pose_pitch = property(_get_pose_pitch, _set_pose_pitch, None, "Camera pitch, in radians")
+
+	def _get_pose_yaw(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.pose_yaw)
+	def _set_pose_yaw(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.pose_yaw, value)
+	pose_yaw = property(_get_pose_yaw, _set_pose_yaw, None, "Camera yaw, in radians")
+
+	def _get_time(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.time)
+	def _set_time(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.time, value)
+	time = property(_get_time, _set_time, None, "Camera animation t")
+
+	def _get_res_x(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.res_x)
+	def _set_res_x(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.res_x, value)
+	res_x = property(_get_res_x, _set_res_x, None, "Camera x resolution, in pixels")
+	def _get_res_y(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.res_y)
+	def _set_res_y(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.res_y, value)
+	res_y = property(_get_res_y, _set_res_y, None, "Camera y resolution, in pixels")
+	def _get_blender_coord(self):
+		return _cam_get_num(self.scene_ptr, self.cam_idx, _cam_param.blender_coord)
+	def _set_blender_coord(self, value):
+		return _cam_set_num(self.scene_ptr, self.cam_idx, _cam_param.blender_coord, value)
+	blender_coord = property(_get_blender_coord, _set_blender_coord, None, "Boolean toggle to use Blender coordinate system in c-ray")
 class camera:
 	def __init__(self, scene_ptr):
 		self.scene_ptr = scene_ptr
 		self.cr_idx = _lib.camera_new(self.scene_ptr)
+		self.opts = _cam_pref(self.scene_ptr, self.cr_idx)
 		self.params = {}
-
-	def set_param(self, param, value):
-		if param in self.params and self.params[param] == value:
-			return
-		self.params[param] = value
-		ret =  _lib.camera_set_num_pref(self.scene_ptr, self.cr_idx, param, self.params[param])
-		# Weird. Could just do this internally, no?
-		_lib.camera_update(self.scene_ptr, self.cr_idx)
 
 def inst_type(IntEnum):
 	mesh = 0

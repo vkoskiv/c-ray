@@ -227,6 +227,7 @@ enum cr_camera_param {
 typedef cr_object cr_camera;
 CR_EXPORT cr_camera cr_camera_new(struct cr_scene *ext);
 CR_EXPORT bool cr_camera_set_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_param p, double num);
+CR_EXPORT double cr_camera_get_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_param p);
 CR_EXPORT bool cr_camera_update(struct cr_scene *ext, cr_camera c);
 
 // -- Materials --
