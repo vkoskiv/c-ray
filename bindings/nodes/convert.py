@@ -58,6 +58,8 @@ def parse_color(input, group_inputs):
 	match input.bl_idname:
 		case 'ShaderNodeGroup':
 			return parse_subtree(input, ['NodeSocketColor'], parse_color, group_inputs, warning_color)
+		case 'NodeReroute':
+			return parse_color(input.inputs[0], group_inputs)
 		case 'NodeSocketColor':
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
@@ -187,6 +189,8 @@ def parse_value(input, group_inputs):
 	match input.bl_idname:
 		case 'ShaderNodeGroup':
 			return parse_subtree(input, ['NodeSocketFloat', 'NodeSocketfloatFactor'], parse_value, group_inputs, NodeValueConstant(0.0))
+		case 'NodeReroute':
+			return parse_value(input.inputs[0], group_inputs)
 		case 'NodeSocketFloat':
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
@@ -291,6 +295,8 @@ def parse_vector(input, group_inputs):
 	match input.bl_idname:
 		case 'ShaderNodeGroup':
 			return parse_subtree(input, ['NodeSocketVector'], parse_vector, group_inputs, zero_vec)
+		case 'NodeReroute':
+			return parse_vector(input.inputs[0], group_inputs)
 		case 'NodeSocketVector':
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
@@ -359,6 +365,8 @@ def parse_node(input, group_inputs=None):
 	match input.bl_idname:
 		case 'ShaderNodeGroup':
 			return parse_subtree(input, ['NodeSocketShader'], parse_node, group_inputs, warning_shader)
+		case 'NodeReroute':
+			return parse_node(input.inputs[0], group_inputs)
 		case 'NodeSocketShader':
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
