@@ -219,6 +219,10 @@ def parse_value(input, group_inputs):
 			# Hack - We should implement dedicated color and value mix
 			color = NodeColorMix(NodeColorSplit(a), NodeColorSplit(b), factor)
 			return NodeValueGrayscale(color)
+		case 'ShaderNodeFresnel':
+			ior = parse_value(input.inputs[0], group_inputs)
+			normal = parse_vector(input.inputs[1], group_inputs)
+			return NodeValueFresnel(ior, normal)
 		case _:
 			print("Unknown value node of type {}, maybe fix.".format(input.bl_idname))
 			return NodeValueConstant(0.0)
