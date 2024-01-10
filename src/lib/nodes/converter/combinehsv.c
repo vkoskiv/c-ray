@@ -58,8 +58,8 @@ const struct colorNode *newCombineHSV(const struct node_storage *s, const struct
 	if (H->constant && S->constant && V->constant) {
 		float hue = H->eval(H, NULL, NULL);
 		float sat = S->eval(S, NULL, NULL);
-		float lig = V->eval(V, NULL, NULL);
-		return newConstantTexture(s, hsv_to_rgb((struct hsv){ hue, sat, lig }));
+		float val = V->eval(V, NULL, NULL);
+		return newConstantTexture(s, hsv_to_rgb((struct hsv){ hue, sat, val }));
 	}
 	HASH_CONS(s->node_table, hash, struct HSVTransform, {
 		.H = H ? H : newConstantValue(s, 0.0f),
