@@ -1,9 +1,9 @@
 //
 //  logging.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 14/09/2015.
-//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -14,7 +14,16 @@
 #include <stdio.h>
 #include "platform/terminal.h"
 
-static bool g_verbose_mode = false;
+static enum cr_log_level g_logging_level = Silent;
+
+void log_level_set(enum cr_log_level level) {
+	g_logging_level = level;
+	logr(info, "Log level set to %s\n", level == Silent ? "Silent" : level == Info ? "Info" : "Debug");
+}
+
+enum cr_log_level log_level_get(void) {
+	return g_logging_level;
+}
 
 char *color_escapes[] = {
 	"\x1B[0m",
@@ -64,13 +73,10 @@ static void printDate() {
 		   time->tm_sec);
 }
 
-void log_toggle_verbose(void) {
-	g_verbose_mode = !g_verbose_mode;
-}
-
 void logr(enum logType type, const char *fmt, ...) {
 	if (!fmt) return;
-	if (type == debug && !g_verbose_mode) return;
+	if (g_logging_level == Silent) return;
+	if (type == debug && g_logging_level != Debug) return;
 	
 	if (type != plain) {
 		printPrefix(type);

@@ -1,12 +1,14 @@
 //
 //  logging.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 14/09/2015.
-//  Copyright © 2015-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
+
+#include "../../include/c-ray/c-ray.h"
 
 struct renderer;
 
@@ -45,7 +47,8 @@ char *colorEscape(int idx);
 
 #define PLURAL(x) (x) > 1 ? "s" : (x) == 0 ? "s" : ""
 
-void log_toggle_verbose(void);
+void log_level_set(enum cr_log_level);
+enum cr_log_level log_level_get(void);
 
 /**
 C-ray internal formatted logger.

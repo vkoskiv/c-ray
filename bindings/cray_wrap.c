@@ -643,6 +643,22 @@ static PyObject *py_cr_load_json(PyObject *self, PyObject *args) {
 	return PyBool_FromLong(ret);
 }
 
+static PyObject *py_log_level_set(PyObject *self, PyObject *args) {
+	(void)self;
+	enum cr_log_level level;
+	if (!PyArg_ParseTuple(args, "I", &level)) {
+		return NULL;
+	}
+	cr_log_level_set(level);
+	Py_RETURN_NONE;
+}
+
+static PyObject *py_log_level_get(PyObject *self, PyObject *args) {
+	(void)self;
+	(void)args;
+	return PyLong_FromLong(cr_log_level_get());
+}
+
 static PyObject *py_debug_dump_state(PyObject *self, PyObject *args) {
 	(void)self;
 	PyObject *r_ext;
@@ -693,6 +709,8 @@ static PyMethodDef cray_methods[] = {
 	{ "start_render_worker", py_cr_start_render_worker, METH_VARARGS, "" },
 	{ "send_shutdown_to_workers", py_cr_send_shutdown_to_workers, METH_VARARGS, "" },
 	{ "load_json", py_cr_load_json, METH_VARARGS, "" },
+	{ "log_level_set", py_log_level_set, METH_VARARGS, "" },
+	{ "log_level_get", py_log_level_get, METH_NOARGS, "" },
 	{ "debug_dump_state", py_debug_dump_state, METH_VARARGS, "" },
 	{ NULL, NULL, 0, NULL }
 };

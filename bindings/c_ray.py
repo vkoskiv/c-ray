@@ -533,3 +533,15 @@ def start_render_worker(port, thread_limit):
 
 def send_shutdown_to_workers(node_list):
 	_lib.send_shutdown_to_workers(node_list)
+
+
+class log_level(IntEnum):
+	Silent = 0
+	Info = 1
+	Verbose = 2
+
+def log_level_set(level):
+	_lib.log_level_set(level)
+
+def log_level_get():
+	return _lib.log_level_get()

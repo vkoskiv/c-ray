@@ -256,6 +256,15 @@ CR_EXPORT void cr_start_render_worker(int port, size_t thread_limit);
 CR_EXPORT void cr_send_shutdown_to_workers(const char *node_list);
 CR_EXPORT bool cr_load_json(struct cr_renderer *r_ext, const char *file_path);
 
+enum cr_log_level {
+	Silent = 0,
+	Info,
+	Debug,
+};
+
+CR_EXPORT void cr_log_level_set(enum cr_log_level);
+CR_EXPORT enum cr_log_level cr_log_level_get(void);
+
 CR_EXPORT void cr_debug_dump_state(struct cr_renderer *r_ext);
 #ifdef __cplusplus
 }

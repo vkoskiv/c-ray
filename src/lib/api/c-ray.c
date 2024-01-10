@@ -856,6 +856,14 @@ bool cr_load_json(struct cr_renderer *r_ext, const char *file_path) {
 	return true;
 }
 
+void cr_log_level_set(enum cr_log_level level) {
+	log_level_set(level);
+}
+
+enum cr_log_level cr_log_level_get(void) {
+	return log_level_get();
+}
+
 CR_EXPORT void cr_debug_dump_state(struct cr_renderer *r_ext) {
 	if (!r_ext) return;
 	struct renderer *r = (struct renderer *)r_ext;

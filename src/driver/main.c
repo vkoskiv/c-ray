@@ -67,10 +67,11 @@ static void status(struct cr_renderer_cb_info *state, void *user_data) {
 int main(int argc, char *argv[]) {
 	term_init();
 	atexit(term_restore);
+	cr_log_level_set(Info);
 	logr(info, "c-ray v%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
 
 	struct driver_args *opts = args_parse(argc, argv);
-	if (args_is_set(opts, "v")) log_toggle_verbose();
+	if (args_is_set(opts, "v")) cr_log_level_set(Debug);
 	if (args_is_set(opts, "is_worker")) {
 		int port = args_is_set(opts, "worker_port") ? args_int(opts, "worker_port") : C_RAY_PROTO_DEFAULT_PORT;
 		size_t thread_limit = 0;
