@@ -783,22 +783,10 @@ void cr_renderer_start_interactive(struct cr_renderer *ext) {
 void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 	if (!ext) return;
 	struct renderer *r = (struct renderer *)ext;
-	if (!r->prefs.iterative) {
-		logr(warning, "restart: Not iterative, bailing\n");
-		return;
-	}
-	if (!r->state.workers.count) {
-		logr(warning, "restart: No workers, bailing\n");
-		return;
-	}
-	if (!r->state.result_buf) {
-		logr(warning, "restart: No result buf, bailing\n");
-		return;
-	}
-	if (!r->state.current_set) {
-		logr(warning, "restart: No tile set, bailing\n");
-		return;
-	}
+	if (!r->prefs.iterative) return;
+	if (!r->state.workers.count) return;
+	if (!r->state.result_buf) return;
+	if (!r->state.current_set) return;
 	struct camera *cam = &r->scene->cameras.items[r->prefs.selected_camera];
 	if (r->state.result_buf->width != (size_t)cam->width || r->state.result_buf->height != (size_t)cam->height) {
 		// Resize result buffer. First, pause render threads and wait for them to ack
