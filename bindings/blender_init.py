@@ -223,13 +223,13 @@ class CrayRender(bpy.types.RenderEngine):
 
 	def sync_scene(self, depsgraph):
 		b_scene = depsgraph.scene
-		objects = b_scene.objects
+		objects = depsgraph.objects
 		# Sync cameras
 		for idx, ob_main in enumerate(objects):
 			if ob_main.type != 'CAMERA':
 				continue
-			bl_cam_eval = ob_main.evaluated_get(depsgraph)
-			bl_cam = bl_cam_eval.data
+
+			bl_cam = ob_main.data
 
 			cr_cam = None
 			if bl_cam.name in self.cr_scene.cameras:
