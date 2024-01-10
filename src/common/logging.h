@@ -17,7 +17,8 @@ enum logType {
 	info,
 	warning,
 	debug,
-	plain
+	plain,
+	spam, // Mostly node dumps, easily overwhelms a terminal emulator in a complex scene :]
 };
 
 char *colorEscape(int idx);

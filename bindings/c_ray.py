@@ -538,7 +538,8 @@ def send_shutdown_to_workers(node_list):
 class log_level(IntEnum):
 	Silent = 0
 	Info = 1
-	Verbose = 2
+	Debug = 2
+	Spam = 3
 
 def log_level_set(level):
 	_lib.log_level_set(level)

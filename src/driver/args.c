@@ -35,6 +35,7 @@ static void printUsage(const char *progname) {
 	printf("    [-o <path>]      -> Override output file path to <path>\n");
 	printf("    [-c <cam_index>] -> Select camera. Defaults to 0\n");
 	printf("    [-v]             -> Enable verbose mode\n");
+	printf("    [-vv]            -> Enable very verbose mode\n");
 	printf("    [--iterative]    -> Start in iterative mode (Experimental)\n");
 	printf("    [--worker]       -> Start up as a network render worker (Experimental)\n");
 	printf("    [--nodes <list>] -> Use worker nodes in comma-separated ip:port list for a faster render (Experimental)\n");
@@ -230,10 +231,18 @@ struct driver_args *args_parse(int argc, char **argv) {
 		}
 		
 		if (strncmp(argv[i], "-", 1) == 0) {
-			setDatabaseTag(args, ++argv[i]);
+			int vees = 0;
+			char c = 0;
+			char *head = argv[i];
+			while ((c = *head++))
+				if (c == 'v') vees++;
+			if (vees == 1) {
+				setDatabaseString(args, "log_level", "debug");
+			} else if (vees >= 2) {
+				setDatabaseString(args, "log_level", "spam");
+			}
 		}
 	}
-	logr(debug, "Verbose mode enabled\n");
 	
 	if (args_is_set(args, "shutdown") && args_is_set(args, "nodes_list")) {
 		cr_send_shutdown_to_workers(args_string(args, "nodes_list"));

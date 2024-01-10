@@ -14,11 +14,11 @@
 #include <stdio.h>
 #include "platform/terminal.h"
 
-static enum cr_log_level g_logging_level = Silent;
+static enum cr_log_level g_logging_level = Info;
 
 void log_level_set(enum cr_log_level level) {
 	g_logging_level = level;
-	logr(info, "Log level set to %s\n", level == Silent ? "Silent" : level == Info ? "Info" : "Debug");
+	logr(info, "Log level set to %s\n", level == Silent ? "Silent" : level == Info ? "Info" : level == Debug ? "Debug" : "Spam");
 }
 
 enum cr_log_level log_level_get(void) {
@@ -56,6 +56,9 @@ static void printPrefix(enum logType type) {
 		case debug:
 			printf("%sDEBG%s ", KBLU, KNRM);
 			break;
+		case spam:
+			printf("%sDEBG%s ", KMAG, KNRM);
+			break;
 		default:
 			break;
 	}
@@ -77,6 +80,7 @@ void logr(enum logType type, const char *fmt, ...) {
 	if (!fmt) return;
 	if (g_logging_level == Silent) return;
 	if (type == debug && g_logging_level != Debug) return;
+	if (type == spam && g_logging_level != Spam) return;
 	
 	if (type != plain) {
 		printPrefix(type);

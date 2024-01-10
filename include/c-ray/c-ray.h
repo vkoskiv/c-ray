@@ -260,6 +260,7 @@ enum cr_log_level {
 	Silent = 0,
 	Info,
 	Debug,
+	Spam,
 };
 
 CR_EXPORT void cr_log_level_set(enum cr_log_level);

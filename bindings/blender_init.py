@@ -211,7 +211,7 @@ class CrayRender(bpy.types.RenderEngine):
 		print("c-ray initialized")
 		self.cr_scene = None
 		self.cr_interactive_running = False
-		c_ray.log_level_set(c_ray.log_level.Info)
+		c_ray.log_level_set(c_ray.log_level.Debug)
 
 	def __del__(self):
 		if self.cr_interactive_running:

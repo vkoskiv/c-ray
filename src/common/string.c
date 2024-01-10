@@ -13,26 +13,24 @@
 #include "assert.h"
 
 bool stringEquals(const char *s1, const char *s2) {
-	ASSERT(s1); ASSERT(s2);
+	if (!s1 || !s2) return false;
 	return strcmp(s1, s2) == 0;
 }
 
 bool stringContains(const char *haystack, const char *needle) {
-	ASSERT(haystack); ASSERT(needle);
+	if (!haystack || !needle) return false;
 	return strstr(haystack, needle) ? true : false;
 }
 
 bool stringStartsWith(const char *prefix, const char *string) {
-	ASSERT(prefix); ASSERT(string);
+	if (!prefix || !string) return false;
 	size_t prefix_len = strlen(prefix);
 	size_t string_len = strlen(string);
 	return string_len < prefix_len ? false : memcmp(prefix, string, prefix_len) == 0;
 }
 
 bool stringEndsWith(const char *postfix, const char *string) {
-	ASSERT(postfix); ASSERT(string);
-	if (!postfix) return false;
-	if (!string) return false;
+	if (!postfix || !string) return false;
 	size_t postfix_len = strlen(postfix);
 	size_t string_len = strlen(string);
 	return string_len < postfix_len ? false : memcmp(postfix, string + string_len - postfix_len, postfix_len) == 0;
@@ -40,7 +38,7 @@ bool stringEndsWith(const char *postfix, const char *string) {
 
 //Copies source over to the destination pointer.
 char *stringCopy(const char *source) {
-	ASSERT(source);
+	if (!source) return NULL;
 	char *copy = malloc(strlen(source) + 1);
 	strcpy(copy, source);
 	return copy;
