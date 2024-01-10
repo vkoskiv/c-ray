@@ -329,6 +329,28 @@ struct cr_color_node *cr_color_node_build(const struct cJSON *desc) {
 				}
 			});
 		}
+		if (stringEquals(type->valuestring, "hsv")) {
+			return cn_alloc((struct cr_color_node){
+				.type = cr_cn_hsv,
+				.arg.hsv = {
+					.H = cr_value_node_build(cJSON_GetObjectItem(desc, "h")),
+					.S = cr_value_node_build(cJSON_GetObjectItem(desc, "s")),
+					.V = cr_value_node_build(cJSON_GetObjectItem(desc, "v")),
+				}
+			});
+		}
+		if (stringEquals(type->valuestring, "hsv_tform")) {
+			return cn_alloc((struct cr_color_node){
+				.type = cr_cn_hsv_tform,
+				.arg.hsv_tform = {
+					.tex = cr_color_node_build(cJSON_GetObjectItem(desc, "tex")),
+					.H = cr_value_node_build(cJSON_GetObjectItem(desc, "h")),
+					.S = cr_value_node_build(cJSON_GetObjectItem(desc, "s")),
+					.V = cr_value_node_build(cJSON_GetObjectItem(desc, "v")),
+					.f = cr_value_node_build(cJSON_GetObjectItem(desc, "f")),
+				}
+			});
+		}
 		if (stringEquals(type->valuestring, "to_color")) {
 			return cn_alloc((struct cr_color_node){
 				.type = cr_cn_vec_to_color,
@@ -395,6 +417,18 @@ void cr_color_node_free(struct cr_color_node *d) {
 			cr_value_node_free(d->arg.hsl.H);
 			cr_value_node_free(d->arg.hsl.S);
 			cr_value_node_free(d->arg.hsl.L);
+			break;
+		case cr_cn_hsv:
+			cr_value_node_free(d->arg.hsv.H);
+			cr_value_node_free(d->arg.hsv.S);
+			cr_value_node_free(d->arg.hsv.V);
+			break;
+		case cr_cn_hsv_tform:
+			cr_color_node_free(d->arg.hsv_tform.tex);
+			cr_value_node_free(d->arg.hsv_tform.H);
+			cr_value_node_free(d->arg.hsv_tform.S);
+			cr_value_node_free(d->arg.hsv_tform.V);
+			cr_value_node_free(d->arg.hsv_tform.f);
 			break;
 		case cr_cn_vec_to_color:
 			cr_vector_node_free(d->arg.vec_to_color.vec);
@@ -745,11 +779,16 @@ struct color color_parse(const cJSON *data) {
 	const cJSON *H = cJSON_GetObjectItem(data, "h");
 	const cJSON *S = cJSON_GetObjectItem(data, "s");
 	const cJSON *L = cJSON_GetObjectItem(data, "l");
+	const cJSON *V = cJSON_GetObjectItem(data, "v");
 
 	if (cJSON_IsNumber(H) && cJSON_IsNumber(S) && cJSON_IsNumber(L)) {
-		return color_from_hsl(H->valuedouble, S->valuedouble, L->valuedouble);
+		return hsl_to_rgb((struct hsl){ H->valuedouble, S->valuedouble, L->valuedouble });
 	}
 
+	if (cJSON_IsNumber(H) && cJSON_IsNumber(S) && cJSON_IsNumber(V)) {
+		return hsv_to_rgb((struct hsv){ H->valuedouble, S->valuedouble, V->valuedouble });
+	}
+	
 	const cJSON *R = cJSON_GetObjectItem(data, "r");
 	const cJSON *G = cJSON_GetObjectItem(data, "g");
 	const cJSON *B = cJSON_GetObjectItem(data, "b");

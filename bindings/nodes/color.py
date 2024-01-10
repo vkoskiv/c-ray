@@ -49,6 +49,22 @@ class _color_arg_hsl(ct.Structure):
 		("L", ct.POINTER(_value)),
 	]
 
+class _color_arg_hsv(ct.Structure):
+	_fields_ = [
+		("H", ct.POINTER(_value)),
+		("S", ct.POINTER(_value)),
+		("V", ct.POINTER(_value)),
+	]
+
+class _color_arg_hsv_tform(ct.Structure):
+	_fields_ = [
+		("tex", ct.POINTER(_color)),
+		("H", ct.POINTER(_value)),
+		("S", ct.POINTER(_value)),
+		("V", ct.POINTER(_value)),
+		("f", ct.POINTER(_value)),
+	]
+
 class _color_arg_vec_to_color(ct.Structure):
 	_fields_ = [
 		("vec", ct.POINTER(_vector))
@@ -76,6 +92,8 @@ class _color_arg(ct.Union):
 		("split", _color_arg_split),
 		("rgb", _color_arg_rgb),
 		("hsl", _color_arg_hsl),
+		("hsv", _color_arg_hsv),
+		("hsv_tform", _color_arg_hsv_tform),
 		("vec_to_color", _color_arg_vec_to_color),
 		("gradient", _color_arg_gradient),
 		("color_mix", _color_arg_color_mix),
@@ -90,9 +108,11 @@ class _color_type(IntEnum):
 	split        = 5
 	rgb          = 6
 	hsl          = 7
-	vec_to_color = 8
-	gradient     = 9
-	color_mix    = 10
+	hsv          = 8
+	hsv_tform    = 9
+	vec_to_color = 10
+	gradient     = 11
+	color_mix    = 12
 
 _color._anonymous_ = ("arg",)
 _color._fields_ = [
@@ -162,6 +182,26 @@ class NodeColorHSL(NodeColorBase):
 		self.l = l
 		self.cr_struct.type = _color_type.hsl
 		self.cr_struct.hsl = _color_arg_hsl(self.h.castref(), self.s.castref(), self.l.castref())
+
+class NodeColorHSV(NodeColorBase):
+	def __init__(self, h, s, v):
+		super().__init__()
+		self.h = h
+		self.s = s
+		self.v = v
+		self.cr_struct.type = _color_type.hsv
+		self.cr_struct.hsv = _color_arg_hsv(self.h.castref(), self.s.castref(), self.v.castref())
+
+class NodeColorHSVTransform(NodeColorBase):
+	def __init__(self, tex, h, s, v, f):
+		super().__init__()
+		self.tex = tex
+		self.h = h
+		self.s = s
+		self.v = v
+		self.f = f
+		self.cr_struct.type = _color_type.hsv_tform
+		self.cr_struct.hsv_tform = _color_arg_hsv_tform(self.tex.castref(), self.h.castref(), self.s.castref(), self.v.castref(), self.f.castref())
 
 class NodeColorVecToColor(NodeColorBase):
 	def __init__(self, vec):

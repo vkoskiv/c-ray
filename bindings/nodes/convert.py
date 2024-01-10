@@ -99,6 +99,13 @@ def parse_color(input, group_inputs):
 		case 'ShaderNodeBlackbody':
 			degrees = parse_value(input.inputs[0], group_inputs)
 			return NodeColorBlackbody(degrees)
+		case 'ShaderNodeHueSaturation':
+			color = parse_color(input.inputs['Color'], group_inputs)
+			hue = parse_value(input.inputs['Hue'], group_inputs)
+			sat = parse_value(input.inputs['Saturation'], group_inputs)
+			val = parse_value(input.inputs['Value'], group_inputs)
+			fac = parse_value(input.inputs['Fac'], group_inputs)
+			return NodeColorHSVTransform(color, hue, sat, val, fac)
 		# case 'ShaderNodeCombineRGB':
 		# 	return warning_color
 		# case 'ShaderNodeCombineHSL':

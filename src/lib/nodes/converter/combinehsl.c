@@ -51,7 +51,7 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	const struct combineHSL *this = (struct combineHSL *)node;
-	return color_from_hsl(this->H->eval(this->H, sampler, record), this->S->eval(this->S, sampler, record), this->L->eval(this->L, sampler, record));
+	return hsl_to_rgb((struct hsl){ this->H->eval(this->H, sampler, record), this->S->eval(this->S, sampler, record), this->L->eval(this->L, sampler, record) });
 }
 
 const struct colorNode *newCombineHSL(const struct node_storage *s, const struct valueNode *H, const struct valueNode *S, const struct valueNode *L) {
@@ -59,7 +59,7 @@ const struct colorNode *newCombineHSL(const struct node_storage *s, const struct
 		float hue = H->eval(H, NULL, NULL);
 		float sat = S->eval(S, NULL, NULL);
 		float lig = L->eval(L, NULL, NULL);
-		return newConstantTexture(s, color_from_hsl(hue, sat, lig));
+		return newConstantTexture(s, hsl_to_rgb((struct hsl){ hue, sat, lig }));
 	}
 	HASH_CONS(s->node_table, hash, struct combineHSL, {
 		.H = H ? H : newConstantValue(s, 0.0f),

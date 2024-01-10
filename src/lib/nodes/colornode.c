@@ -83,6 +83,18 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 				build_value_node(s_ext, desc->arg.hsl.H),
 				build_value_node(s_ext, desc->arg.hsl.S),
 				build_value_node(s_ext, desc->arg.hsl.L));
+		case cr_cn_hsv:
+			return newCombineHSV(&s,
+				build_value_node(s_ext, desc->arg.hsv.H),
+				build_value_node(s_ext, desc->arg.hsv.S),
+				build_value_node(s_ext, desc->arg.hsv.V));
+		case cr_cn_hsv_tform:
+			return newHSVTransform(&s,
+				build_color_node(s_ext, desc->arg.hsv_tform.tex),
+				build_value_node(s_ext, desc->arg.hsv_tform.H),
+				build_value_node(s_ext, desc->arg.hsv_tform.S),
+				build_value_node(s_ext, desc->arg.hsv_tform.V),
+				build_value_node(s_ext, desc->arg.hsv_tform.f));
 		case cr_cn_vec_to_color:
 			return newVecToColor(&s, build_vector_node(s_ext, desc->arg.vec_to_color.vec));
 		case cr_cn_color_mix:

@@ -16,6 +16,14 @@ struct color {
 	float red, green, blue, alpha;
 };
 
+struct hsl {
+	float h, s, l;
+};
+
+struct hsv {
+	float h, s, v;
+};
+
 //Some standard colours
 extern const struct color g_red_color;
 extern const struct color g_green_color;
@@ -111,6 +119,13 @@ static inline void nan_clamp(struct color *a, struct color *b) {
 
 struct color colorForKelvin(float kelvin);
 
-struct color color_from_hsl(float hue, float saturation, float lightness);
+// NOTE:
+// h => [0,360]
+// s => [0,100]
+// l => [0,100]
+struct color hsl_to_rgb(struct hsl in);
+struct hsl rgb_to_hsl(struct color in);
+struct color hsv_to_rgb(struct hsv in);
+struct hsv rgb_to_hsv(struct color in);
 
 void color_dump(struct color c, char *buf, size_t bufsize);

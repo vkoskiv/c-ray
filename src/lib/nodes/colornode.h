@@ -34,6 +34,8 @@ struct colorNode {
 #include "converter/split.h"
 #include "converter/combinergb.h"
 #include "converter/combinehsl.h"
+#include "converter/combinehsv.h"
+#include "textures/hsv_transform.h"
 
 // const struct colorNode *unknownTextureNode(const struct node_storage *s);
 

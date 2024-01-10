@@ -119,6 +119,8 @@ struct cr_color_node {
 		cr_cn_split,
 		cr_cn_rgb,
 		cr_cn_hsl,
+		cr_cn_hsv,
+		cr_cn_hsv_tform,
 		cr_cn_vec_to_color,
 		cr_cn_gradient,
 		cr_cn_color_mix,
@@ -158,6 +160,20 @@ struct cr_color_node {
 			struct cr_value_node *S;
 			struct cr_value_node *L;
 		} hsl;
+
+		struct cr_hsv_params {
+			struct cr_value_node *H;
+			struct cr_value_node *S;
+			struct cr_value_node *V;
+		} hsv;
+
+		struct cr_hsv_tform_params {
+			struct cr_color_node *tex;
+			struct cr_value_node *H;
+			struct cr_value_node *S;
+			struct cr_value_node *V;
+			struct cr_value_node *f;
+		} hsv_tform;
 
 		struct cr_vec_to_color_params {
 			struct cr_vector_node *vec;

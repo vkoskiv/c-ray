@@ -588,6 +588,20 @@ static cJSON *serialize_color_node(const struct cr_color_node *in) {
 			cJSON_AddItemToObject(out, "s", serialize_value_node(in->arg.hsl.S));
 			cJSON_AddItemToObject(out, "l", serialize_value_node(in->arg.hsl.L));
 			break;
+		case cr_cn_hsv:
+			cJSON_AddStringToObject(out, "type", "hsv");
+			cJSON_AddItemToObject(out, "h", serialize_value_node(in->arg.hsv.H));
+			cJSON_AddItemToObject(out, "s", serialize_value_node(in->arg.hsv.S));
+			cJSON_AddItemToObject(out, "v", serialize_value_node(in->arg.hsv.V));
+			break;
+		case cr_cn_hsv_tform:
+			cJSON_AddStringToObject(out, "type", "hsv_tform");
+			cJSON_AddItemToObject(out, "tex", serialize_color_node(in->arg.hsv_tform.tex));
+			cJSON_AddItemToObject(out, "h", serialize_value_node(in->arg.hsv_tform.H));
+			cJSON_AddItemToObject(out, "s", serialize_value_node(in->arg.hsv_tform.S));
+			cJSON_AddItemToObject(out, "v", serialize_value_node(in->arg.hsv_tform.V));
+			cJSON_AddItemToObject(out, "f", serialize_value_node(in->arg.hsv_tform.f));
+			break;
 		case cr_cn_vec_to_color:
 			cJSON_AddStringToObject(out, "type", "to_color");
 			cJSON_AddItemToObject(out, "vector", serialize_vector_node(in->arg.vec_to_color.vec));

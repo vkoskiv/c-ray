@@ -627,6 +627,18 @@ struct cr_color_node *color_deepcopy(const struct cr_color_node *in) {
 			out->arg.hsl.S = value_deepcopy(in->arg.hsl.S);
 			out->arg.hsl.L = value_deepcopy(in->arg.hsl.L);
 			break;
+		case cr_cn_hsv:
+			out->arg.hsv.H = value_deepcopy(in->arg.hsv.H);
+			out->arg.hsv.S = value_deepcopy(in->arg.hsv.S);
+			out->arg.hsv.V = value_deepcopy(in->arg.hsv.V);
+			break;
+		case cr_cn_hsv_tform:
+			out->arg.hsv_tform.tex = color_deepcopy(in->arg.hsv_tform.tex);
+			out->arg.hsv_tform.H = value_deepcopy(in->arg.hsv_tform.H);
+			out->arg.hsv_tform.S = value_deepcopy(in->arg.hsv_tform.S);
+			out->arg.hsv_tform.V = value_deepcopy(in->arg.hsv_tform.V);
+			out->arg.hsv_tform.f = value_deepcopy(in->arg.hsv_tform.f);
+			break;
 		case cr_cn_vec_to_color:
 			out->arg.vec_to_color.vec = vector_deepcopy(in->arg.vec_to_color.vec);
 			break;
