@@ -206,6 +206,7 @@ class CrayRender(bpy.types.RenderEngine):
 	cr_renderer = None
 	old_mtx = None
 	old_dims = None
+	old_zoom = None
 
 	def __init__(self):
 		print("c-ray initialized")
@@ -363,10 +364,14 @@ class CrayRender(bpy.types.RenderEngine):
 		self.display_bitmap(bm)
 
 	def view_draw(self, context, depsgraph):
+		zoom = context.region_data.view_camera_zoom
 		mtx = context.region_data.view_matrix.inverted()
 		if not self.old_mtx or mtx != self.old_mtx:
+			self.old_mtx = mtx
 			self.tag_update()
-		self.old_mtx = mtx
+		if not self.old_zoom or zoom != self.old_zoom:
+			self.old_zoom = zoom
+			self.tag_update()
 		new_dims = (context.region.width, context.region.height)
 		if not self.old_dims or self.old_dims != new_dims:
 			cr_cam = self.cr_scene.cameras['Camera']
@@ -398,6 +403,15 @@ class CrayRender(bpy.types.RenderEngine):
 		mtx = context.region_data.view_matrix.inverted()
 		euler = mtx.to_euler('XYZ')
 		loc = mtx.to_translation()
+		new_fov = math.degrees(context.space_data.camera.data.angle)
+		# I haven't the faintest clue why an offset of 32 degrees makes this match perfectly.
+		# If you know, please do let me know.
+		if context.region_data.view_perspective == 'PERSP':
+			new_fov += 32
+		else:
+			if self.old_zoom:
+				new_fov -= (self.old_zoom - 32)
+		cr_cam.opts.fov = new_fov
 		cr_cam.opts.pose_x = loc[0]
 		cr_cam.opts.pose_y = loc[1]
 		cr_cam.opts.pose_z = loc[2]
