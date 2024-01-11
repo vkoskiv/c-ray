@@ -387,6 +387,27 @@ class CrayRender(bpy.types.RenderEngine):
 		self.unbind_display_space_shader()
 		gpu.state.blend_set('NONE')
 
+	def partial_update_mesh(self, update):
+		mesh = update.id
+		print("Mesh {} was updated".format(mesh.name))
+		if update.is_updated_transform:
+			# FIXME: How do I get the actual instance index from Blender?
+			# Just grabbing the first one for now.
+			inst = self.cr_scene.meshes[mesh.name].instances[-1]
+			inst.set_transform(to_cr_matrix(mesh.matrix_world))
+	def partial_update(self, updates):
+		for update in updates:
+			# Kind of annoying that seemingly every update has 'type', except if it's an
+			# update in the Scene datablock. I'm sure there is a good reason for this though.
+			if not hasattr(update.id, 'type'):
+				print("Scene update")
+			else:
+				# print("Update, ID: '{}'".format(update.id.type))
+				match update.id.type:
+					case 'MESH':
+						self.partial_update_mesh(update)
+		# Maybe return if we actually need to restart?
+
 	def view_update(self, context, depsgraph):
 		if not self.cr_renderer:
 			self.cr_renderer = c_ray.renderer()
@@ -394,6 +415,8 @@ class CrayRender(bpy.types.RenderEngine):
 			self.cr_renderer.prefs.blender_mode = True
 			self.cr_scene = self.cr_renderer.scene_get()
 			self.sync_scene(depsgraph)
+
+		self.partial_update(depsgraph.updates)
 		self.cr_renderer.prefs.samples = depsgraph.scene.c_ray.samples
 		self.cr_renderer.prefs.threads = depsgraph.scene.c_ray.threads
 		self.cr_renderer.prefs.tile_x = depsgraph.scene.c_ray.tile_size
