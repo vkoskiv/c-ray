@@ -377,6 +377,8 @@ class instance:
 		self.scene_ptr = scene_ptr
 		self.object = object
 		self.type = type
+		self.material_set = None
+		self.matrix = None
 		self.cr_idx = _lib.instance_new(self.scene_ptr, self.object.cr_idx, self.type)
 
 	def set_transform(self, matrix):
@@ -389,7 +391,8 @@ class instance:
 		_lib.instance_set_transform(self.scene_ptr, self.cr_idx, self.matrix)
 
 	def bind_materials(self, material_set):
-		_lib.instance_bind_material_set(self.scene_ptr, self.cr_idx, material_set.cr_idx)
+		self.material_set = material_set
+		_lib.instance_bind_material_set(self.scene_ptr, self.cr_idx, self.material_set.cr_idx)
 
 class vertex_buf:
 	def __init__(self, scene_ptr, v, vn, n, nn, t, tn):
