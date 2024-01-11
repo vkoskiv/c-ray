@@ -12,6 +12,7 @@
 #include "logging.h"
 #include "vector.h"
 #include "quaternion.h"
+#include <float.h>
 
 //For ease of use
 float deg_to_rad(float degrees) {
@@ -242,11 +243,22 @@ static void findAdjoint(const float A[4][4], float adjoint[4][4]) {
 	}
 }
 
-struct matrix4x4 mat_invert(const struct matrix4x4 m) {
-	struct matrix4x4 inverse = {{{0}}};
+struct matrix4x4 mat_invert(struct matrix4x4 m) {
+	struct matrix4x4 inverse = {{{ 0 }}};
 	float det = findDeterminant4x4(m.mtx);
-	if (det <= 0.0f) {
-		logr(error, "No inverse for given transform!\n");
+	if (det == 0.0f) {
+		// Matrix is degenerated, i.e. zero on one or more axis, no inverse.
+		// Add an epsilon and try again
+		m.mtx[0][0] += FLT_EPSILON;
+		m.mtx[1][1] += FLT_EPSILON;
+		m.mtx[2][2] += FLT_EPSILON;
+		m.mtx[3][3] += FLT_EPSILON;
+		// Try that again now
+		det = findDeterminant4x4(m.mtx);
+		if (det <= 0.0f) {
+			// Still no dice. Just set to identity and go with that.
+			m = mat_id();
+		}
 	}
 	
 	float adjoint[4][4];
