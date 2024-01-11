@@ -98,6 +98,7 @@ def mesh_triangulate(mesh):
 	bm.to_mesh(mesh)
 	bm.free()
 
+# TODO: Probably a better way to do this
 def to_cr_matrix(matrix):
 	cr_mtx = c_ray.cr_matrix()
 	cr_mtx.mtx[0] = matrix[0][0]
@@ -118,6 +119,7 @@ def to_cr_matrix(matrix):
 	cr_mtx.mtx[15] = matrix[3][3]
 	return cr_mtx
 
+# TODO: Normals & tex coords
 def to_cr_face(me, poly):
 	indices = []
 	for loop_idx in range(poly.loop_start, poly.loop_start + poly.loop_total):
@@ -285,7 +287,7 @@ class CrayRender(bpy.types.RenderEngine):
 			# dump(ob_main)
 			cr_mesh = self.cr_scene.mesh_new(ob_main.name)
 			instances = []
-			new_inst = self.cr_scene.instance_new(cr_mesh, 0)
+			new_inst = cr_mesh.instance_new()
 			new_inst.set_transform(to_cr_matrix(ob_main.matrix_world))
 			cr_mat_set = self.cr_scene.material_set_new()
 			new_inst.bind_materials(cr_mat_set)
@@ -293,7 +295,7 @@ class CrayRender(bpy.types.RenderEngine):
 			if ob_main.is_instancer and ob_main.show_instancer_for_render:
 				for dup in depsgraph.object_instances:
 					if dup.parent and dup.parent.original == ob_main:
-						new_inst = self.cr_scene.instance_new(cr_mesh, 0)
+						new_inst = cr_mesh.instance_new()
 						new_inst.set_transform(dup.matrix_world.copy())
 			ob_for_convert = ob_main.evaluated_get(depsgraph)
 			try:

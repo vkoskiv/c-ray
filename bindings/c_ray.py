@@ -236,12 +236,16 @@ class mesh:
 	def __init__(self, scene_ptr, name):
 		self.scene_ptr = scene_ptr
 		self.name = name
+		self.instances = []
 		self.cr_idx = _lib.scene_mesh_new(self.scene_ptr, self.name)
 
 	def bind_vertex_buf(self, buf):
 		_lib.mesh_bind_vertex_buf(self.scene_ptr, self.cr_idx, buf.cr_idx)
 	def bind_faces(self, faces, face_count):
 		_lib.mesh_bind_faces(self.scene_ptr, self.cr_idx, faces, face_count)
+	def instance_new(self):
+		self.instances.append(instance(self.scene_ptr, self, 0))
+		return self.instances[-1]
 
 class sphere:
 	def __init__(self, scene_ptr, radius):
@@ -436,8 +440,6 @@ class scene:
 		return self.cameras[name]
 	def material_set_new(self):
 		return material_set(self.cr_ptr)
-	def instance_new(self, object, type):
-		return instance(self.cr_ptr, object, type)
 	def set_background(self, material):
 		if material is None:
 			return _lib.scene_set_background(self.cr_ptr, material)
