@@ -270,3 +270,19 @@ static inline float schlick(float cosine, float IOR) {
 	r0 = r0 * r0;
 	return r0 + (1.0f - r0) * powf((1.0f - cosine), 5.0f);
 }
+
+static inline float lerp(float min, float max, float t) {
+	return ((1.0f - t) * min) + (t * max);
+}
+
+static inline float inv_lerp(float min, float max, float between) {
+	return (between - min) / (max - min);
+}
+
+static inline struct vector vec_lerp(const struct vector a, const struct vector b, const float t) {
+	return (struct vector){
+		lerp(a.x, b.x, t),
+		lerp(a.y, b.y, t),
+		lerp(a.z, b.z, t)
+	};
+}

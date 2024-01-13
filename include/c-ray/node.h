@@ -124,6 +124,7 @@ struct cr_color_node {
 		cr_cn_vec_to_color,
 		cr_cn_gradient,
 		cr_cn_color_mix,
+		cr_cn_color_ramp,
 	} type;
 
 	union {
@@ -189,6 +190,30 @@ struct cr_color_node {
 			struct cr_color_node *b;
 			struct cr_value_node *factor;
 		} color_mix;
+
+		struct cr_color_ramp_params {
+			struct cr_value_node *factor;
+			enum cr_color_mode {
+				cr_mode_rgb,
+				cr_mode_hsv,
+				cr_mode_hsl,
+			} color_mode;
+
+			enum cr_interpolation {
+				cr_ease,     // TODO
+				cr_cardinal, // TODO
+				cr_linear,
+				cr_b_spline, // TODO
+				cr_constant,
+			} interpolation;
+
+			struct ramp_element {
+				struct cr_color color;
+				float position; // [0.0,1.0]
+			} *elements;
+
+			int element_count;
+		} color_ramp;
 	} arg;
 };
 

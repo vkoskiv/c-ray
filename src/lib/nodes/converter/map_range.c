@@ -62,10 +62,6 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 		input, from_min, from_max, to_min, to_max);
 }
 
-static inline float lerp(float min, float max, float t) {
-	return ((1.0f - t) * min) + (t * max);
-}
-
 static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
 	const struct mapRangeNode *this = (const struct mapRangeNode *)node;
 	const float input_value = this->input_value->eval(this->input_value, sampler, record);

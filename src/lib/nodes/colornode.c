@@ -102,8 +102,16 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 				build_color_node(s_ext, desc->arg.color_mix.a),
 				build_color_node(s_ext, desc->arg.color_mix.b),
 				build_value_node(s_ext, desc->arg.color_mix.factor));
-		default:
+		case cr_cn_color_ramp:
+			return new_color_ramp(&s,
+				build_value_node(s_ext, desc->arg.color_ramp.factor),
+				desc->arg.color_ramp.color_mode,
+				desc->arg.color_ramp.interpolation,
+				desc->arg.color_ramp.elements,
+				desc->arg.color_ramp.element_count);
+		default: // FIXME: default remove
 			return NULL;
 	};
+	return NULL;
 }
 

@@ -83,6 +83,33 @@ class _color_arg_color_mix(ct.Structure):
 		("factor", ct.POINTER(_value))
 	]
 
+class ramp_element(ct.Structure):
+	_fields_ = [
+		("color", cr_color),
+		("position", ct.c_float)
+	]
+
+class color_mode(IntEnum):
+	mode_rgb = 0
+	mode_hsv = 1
+	mode_hsl = 2
+
+class interpolation(IntEnum):
+	ease = 0
+	cardinal = 1
+	linear = 2
+	b_spline = 3
+	constant = 4
+	
+class _color_arg_color_ramp(ct.Structure):
+	_fields_ = [
+		("factor", ct.POINTER(_value)),
+		("color_mode", ct.c_int),
+		("interpolation", ct.c_int),
+		("elements", ct.POINTER(ramp_element)),
+		("element_count", ct.c_int)
+	]
+
 class _color_arg(ct.Union):
 	_fields_ = [
 		("constant", cr_color),
@@ -97,6 +124,7 @@ class _color_arg(ct.Union):
 		("vec_to_color", _color_arg_vec_to_color),
 		("gradient", _color_arg_gradient),
 		("color_mix", _color_arg_color_mix),
+		("color_ramp", _color_arg_color_ramp),
 	]
 
 class _color_type(IntEnum):
@@ -113,6 +141,7 @@ class _color_type(IntEnum):
 	vec_to_color = 10
 	gradient     = 11
 	color_mix    = 12
+	color_ramp   = 13
 
 _color._anonymous_ = ("arg",)
 _color._fields_ = [
@@ -226,3 +255,13 @@ class NodeColorMix(NodeColorBase):
 		self.factor = factor
 		self.cr_struct.type = _color_type.color_mix
 		self.cr_struct.color_mix = _color_arg_color_mix(self.a.castref(), self.b.castref(), self.factor.castref())
+
+class NodeColorRamp(NodeColorBase):
+	def __init__(self, factor, color_mode, interpolation, elements):
+		super().__init__()
+		self.factor = factor
+		self.color_mode = color_mode
+		self.interpolation = interpolation
+		self.elements = (ramp_element * len(elements))(*elements)
+		self.element_count = len(elements)
+		self.cr_struct.color_ramp = _color_arg_color_ramp(self.factor.castref(), self.color_mode, self.interpolation, self.elements, self.element_count)

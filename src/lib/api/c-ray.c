@@ -650,7 +650,17 @@ struct cr_color_node *color_deepcopy(const struct cr_color_node *in) {
 			out->arg.color_mix.a = color_deepcopy(in->arg.color_mix.a);
 			out->arg.color_mix.b = color_deepcopy(in->arg.color_mix.b);
 			out->arg.color_mix.factor = value_deepcopy(in->arg.color_mix.factor);
-		default:
+			break;
+		case cr_cn_color_ramp:
+			out->arg.color_ramp.factor = value_deepcopy(in->arg.color_ramp.factor);
+			out->arg.color_ramp.color_mode = in->arg.color_ramp.color_mode;
+			out->arg.color_ramp.interpolation = in->arg.color_ramp.interpolation;
+			out->arg.color_ramp.element_count = in->arg.color_ramp.element_count;
+			int ct = out->arg.color_ramp.element_count;
+			out->arg.color_ramp.elements = calloc(ct, sizeof(*out->arg.color_ramp.elements));
+			for (int i = 0; i < ct; ++i) out->arg.color_ramp.elements[i] = in->arg.color_ramp.elements[i];
+			break;
+		default: // FIXME: default remove
 			break;
 	}
 	return out;

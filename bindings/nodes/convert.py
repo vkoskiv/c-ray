@@ -106,6 +106,43 @@ def parse_color(input, group_inputs):
 			val = parse_value(input.inputs['Value'], group_inputs)
 			fac = parse_value(input.inputs['Fac'], group_inputs)
 			return NodeColorHSVTransform(color, hue, sat, val, fac)
+		case 'ShaderNodeValToRGB':
+			# Confusing name, this is the Color Ramp node.
+			factor = parse_value(input.inputs['Fac'], group_inputs)
+			color = input.color
+			ramp = input.color_ramp
+			# ramp has: hue_interpolation, interpolation, color_mode
+			elements = []
+			for element in ramp.elements:
+				blc = element.color
+				color = cr_color(blc[0], blc[1], blc[2], blc[3])
+				elements.append(ramp_element(color, element.position))
+			# element has: position, color, alpha
+			def match_interpolation(bl_mode):
+				match bl_mode:
+					case 'EASE':
+						return interpolation.ease
+					case 'CARDINAL':
+						return interpolation.cardinal
+					case 'LINEAR':
+						return interpolation.linear
+					case 'B_SPLINE':
+						return interpolation.b_spline
+					case 'CONSTANT':
+						return interpolation.constant
+					case _:
+						print("cm WTF: {}".format(bl_mode))
+			def match_color_mode(bl_int):
+				match bl_int:
+					case 'RGB':
+						return color_mode.mode_rgb
+					case 'HSV':
+						return color_mode.mode_hsv
+					case 'HSL':
+						return color_mode.mode_hsl
+					case _:
+						print("interp WTF: {}".format(bl_int))
+			return NodeColorRamp(factor, match_color_mode(ramp.color_mode), match_interpolation(ramp.interpolation), elements)
 		# case 'ShaderNodeCombineRGB':
 		# 	return warning_color
 		# case 'ShaderNodeCombineHSL':
@@ -234,6 +271,9 @@ def parse_value(input, group_inputs):
 			ior = parse_value(input.inputs[0], group_inputs)
 			normal = parse_vector(input.inputs[1], group_inputs)
 			return NodeValueFresnel(ior, normal)
+		case 'ShaderNodeValToRGB':
+			color = parse_color(input, group_inputs)
+			return NodeValueGrayscale(color)
 		case _:
 			print("Unknown value node of type {}, maybe fix.".format(input.bl_idname))
 			return NodeValueConstant(0.0)

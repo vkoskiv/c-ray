@@ -617,6 +617,19 @@ static cJSON *serialize_color_node(const struct cr_color_node *in) {
 			cJSON_AddItemToObject(out, "b", serialize_color_node(in->arg.color_mix.b));
 			cJSON_AddItemToObject(out, "factor", serialize_value_node(in->arg.color_mix.factor));
 			break;
+		case cr_cn_color_ramp:
+			cJSON_AddStringToObject(out, "type", "color_ramp");
+			cJSON_AddItemToObject(out, "factor", serialize_value_node(in->arg.color_ramp.factor));
+			cJSON_AddNumberToObject(out, "color_mode", in->arg.color_ramp.color_mode);
+			cJSON_AddNumberToObject(out, "interpolation", in->arg.color_ramp.interpolation);
+			cJSON *array = cJSON_AddArrayToObject(out, "elements");
+			for (int i = 0; i < in->arg.color_ramp.element_count; ++i) {
+				cJSON *element = cJSON_CreateObject();
+				cJSON_AddItemToObject(element, "color", serialize_color(in->arg.color_ramp.elements[i].color));
+				cJSON_AddNumberToObject(element, "position", in->arg.color_ramp.elements[i].position);
+				cJSON_AddItemToArray(array, element);
+			}
+			break;
 	}
 	return out;
 }

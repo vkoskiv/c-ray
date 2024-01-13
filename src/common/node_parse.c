@@ -200,6 +200,38 @@ static struct cr_color_node *cn_alloc(struct cr_color_node d) {
 	return desc;
 }
 
+static enum cr_color_mode get_color_mode(char *mode_str) {
+	if (stringEquals(mode_str, "rgb")) return cr_mode_rgb;
+	if (stringEquals(mode_str, "hsv")) return cr_mode_hsv;
+	if (stringEquals(mode_str, "hsl")) return cr_mode_hsl;
+	return cr_mode_rgb;
+}
+
+static enum cr_interpolation get_interpolation(char *interp_str) {
+	if (stringEquals(interp_str, "ease")) return cr_ease;
+	if (stringEquals(interp_str, "cardinal")) return cr_cardinal;
+	if (stringEquals(interp_str, "linear")) return cr_linear;
+	if (stringEquals(interp_str, "b_spline")) return cr_b_spline;
+	if (stringEquals(interp_str, "constant")) return cr_constant;
+	return cr_linear;
+}
+
+static struct ramp_element elem_parse(const struct cJSON *elem_in) {
+	struct color c = color_parse(cJSON_GetObjectItem(elem_in, "color"));
+	float pos = cJSON_GetNumberValue(cJSON_GetObjectItem(elem_in, "position"));
+	return (struct ramp_element){ .color = { c.red, c.green, c.blue, c.alpha }, .position = pos };
+}
+
+static struct ramp_element *get_elements(const struct cJSON *arr) {
+	size_t count = cJSON_GetArraySize(arr);
+	if (!count) return NULL;
+	struct ramp_element *elems = calloc(count, sizeof(*elems));
+	for (size_t i = 0; i < count; ++i) {
+		elems[i] = elem_parse(cJSON_GetArrayItem(arr, i));
+	}
+	return elems;
+}
+
 struct cr_color_node *cr_color_node_build(const struct cJSON *desc) {
 	if (!desc) return NULL;
 
@@ -376,6 +408,18 @@ struct cr_color_node *cr_color_node_build(const struct cJSON *desc) {
 				}
 			});
 		}
+		if (stringEquals(type->valuestring, "color_ramp")) {
+			return cn_alloc((struct cr_color_node){
+				.type = cr_cn_color_ramp,
+				.arg.color_ramp = {
+					.factor = cr_value_node_build(cJSON_GetObjectItem(desc, "factor")),
+					.color_mode = get_color_mode(cJSON_GetStringValue(cJSON_GetObjectItem(desc, "color_mode"))),
+					.interpolation = get_interpolation(cJSON_GetStringValue(cJSON_GetObjectItem(desc, "interpolation"))),
+					.elements = get_elements(cJSON_GetObjectItem(desc, "elements")),
+					.element_count = cJSON_GetArraySize(cJSON_GetObjectItem(desc, "elements"))
+				}
+			});
+		}
 	}
 
 	logr(warning, "Failed to parse textureNode. Here's a dump:\n");
@@ -442,6 +486,10 @@ void cr_color_node_free(struct cr_color_node *d) {
 			cr_color_node_free(d->arg.color_mix.b);
 			cr_value_node_free(d->arg.color_mix.factor);
 			break;
+		case cr_cn_color_ramp:
+			cr_value_node_free(d->arg.color_ramp.factor);
+			if (d->arg.color_ramp.elements)
+				free(d->arg.color_ramp.elements);
 	}
 	free(d);
 }
