@@ -1,9 +1,9 @@
 //
 //  glass.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 30/11/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
@@ -84,15 +84,17 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 		refracted = vec_add(refracted, fuzz);
 	}
 	
-	struct vector scatterDir = {0};
+	struct lightRay out = { .start = record->hitPoint };
 	if (getDimension(sampler) < reflectionProbability) {
-		scatterDir = reflected;
+		out.direction = reflected;
+		out.type = rt_reflection | (roughness == 0.0f ? rt_singular : rt_glossy);
 	} else {
-		scatterDir = refracted;
+		out.direction = refracted;
+		out.type = rt_transmission | (roughness == 0.0f ? rt_singular : rt_glossy);
 	}
 	
 	return (struct bsdfSample){
-		.out = scatterDir,
+		.out = out,
 		.weight = glassBsdf->color->eval(glassBsdf->color, sampler, record)
 	};
 }

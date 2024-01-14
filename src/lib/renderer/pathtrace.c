@@ -1,9 +1,9 @@
 //
 //  pathtrace.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 27/04/2017.
-//  Copyright © 2017-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
@@ -50,7 +50,7 @@ struct color path_trace(struct lightRay incident, const struct world *scene, int
 		// }
 		if (bounce == max_bounces) break;
 
-		currentRay = (struct lightRay){ .start = isect.hitPoint, .direction = sample.out };
+		currentRay = sample.out;
 		const struct color attenuation = sample.weight;
 		
 		// Russian Roulette - Abort a path early if it won't contribute much to the final image

@@ -1,9 +1,9 @@
 //
 //  plastic.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 01/12/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
@@ -66,7 +66,7 @@ static struct bsdfSample sampleShiny(const struct bsdfNode *bsdf, sampler *sampl
 		reflected = vec_add(reflected, fuzz);
 	}
 	return (struct bsdfSample){
-		.out = reflected,
+		.out = { .start = record->hitPoint, .direction = reflected, .type = rt_reflection | (roughness == 0.0f ? rt_singular : rt_glossy) },
 		.weight = plastic->clear_coat->eval(plastic->clear_coat, sampler, record)
 	};
 }

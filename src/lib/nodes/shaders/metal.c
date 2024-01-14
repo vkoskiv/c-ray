@@ -1,9 +1,9 @@
 //
 //  metal.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 30/11/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
@@ -58,7 +58,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	}
 	
 	return (struct bsdfSample){
-		.out = reflected,
+		.out = { .start = record->hitPoint, .direction = reflected, .type = rt_reflection | (roughness == 0.0f ? rt_singular : rt_glossy) },
 		.weight = metalBsdf->color->eval(metalBsdf->color, sampler, record)
 	};
 }

@@ -1,9 +1,9 @@
 //
 //  camera.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 02/03/2015.
-//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
@@ -66,9 +66,7 @@ static inline float triangleDistribution(float v) {
 }
 
 struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampler *sampler) {
-	struct lightRay new_ray = {{0}};
-	
-	new_ray.start = vec_zero();
+	struct lightRay new_ray = { .type = rt_camera };
 	
 	const float jitter_x = triangleDistribution(getDimension(sampler));
 	const float jitter_y = triangleDistribution(getDimension(sampler));

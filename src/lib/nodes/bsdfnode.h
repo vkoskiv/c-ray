@@ -3,7 +3,7 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 29/11/2020.
-//  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
@@ -19,7 +19,7 @@
 #include "nodebase.h"
 
 struct bsdfSample {
-	struct vector out;
+	struct lightRay out;
 	float pdf;
 	struct color weight;
 	struct color emitted; // FIXME: Not really the right place for this

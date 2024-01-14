@@ -1,9 +1,9 @@
 //
 //  background.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 19/12/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
@@ -78,7 +78,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	struct hitRecord copy = *record;
 	recompute_uv(&copy, pose, background->blender);
 	return (struct bsdfSample){
-		.out = vec_zero(),
+		.out = { { 0 } },
 		.weight = colorCoef(strength, background->color->eval(background->color, sampler, &copy))
 	};
 }

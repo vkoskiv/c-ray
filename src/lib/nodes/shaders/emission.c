@@ -1,9 +1,9 @@
 //
 //  emission.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 2.1.2021.
-//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
@@ -52,7 +52,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	struct emissiveBsdf *emitBsdf = (struct emissiveBsdf *)bsdf;
 	const struct vector scatterDir = vec_normalize(vec_add(record->surfaceNormal, vec_on_unit_sphere(sampler)));
 	return (struct bsdfSample){
-		.out = scatterDir,
+		.out = { .start = record->hitPoint, .direction = scatterDir, .type = rt_reflection | rt_diffuse },
 		.emitted = colorCoef(emitBsdf->strength->eval(emitBsdf->strength, sampler, record), emitBsdf->color->eval(emitBsdf->color, sampler, record))
 	};
 }

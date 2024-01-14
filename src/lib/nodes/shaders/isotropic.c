@@ -1,9 +1,9 @@
 //
 //  isotropic.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 27.5.2021.
-//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
@@ -46,9 +46,9 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct isotropicBsdf *isoBsdf = (struct isotropicBsdf *)bsdf;
-	const struct vector scatterDir = vec_normalize(vec_on_unit_sphere(sampler)); // Is this normalized already?
+	const struct vector scatterDir = vec_on_unit_sphere(sampler);
 	return (struct bsdfSample){
-		.out = scatterDir,
+		.out = { .start= record->hitPoint, .direction = scatterDir, .type = rt_transmission | rt_diffuse },
 		.weight = isoBsdf->color->eval(isoBsdf->color, sampler, record)
 	};
 }

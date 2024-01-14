@@ -1,9 +1,9 @@
 //
 //  diffuse.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 30/11/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2024 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
@@ -48,7 +48,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	struct diffuseBsdf *diffBsdf = (struct diffuseBsdf *)bsdf;
 	const struct vector scatterDir = vec_normalize(vec_add(record->surfaceNormal, vec_on_unit_sphere(sampler)));
 	return (struct bsdfSample){
-		.out = scatterDir,
+		.out = { .start= record->hitPoint, .direction = scatterDir, .type = rt_reflection | rt_diffuse },
 		.weight = diffBsdf->color->eval(diffBsdf->color, sampler, record)
 	};
 }
