@@ -66,19 +66,23 @@ static uint32_t hash(const void *p) {
 // 	(void)self;
 // }
 
+static inline struct color convert(struct cr_color c) {
+	return (struct color){ c.r, c.g, c.b, c.a };
+}
+
 // TODO: This most certainly needs a bunch of tests to verify correctness
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
 	const struct color_ramp_node *this = (const struct color_ramp_node *)node;
 	const float pos = this->input_value->eval(this->input_value, sampler, record);
 	
 	if (this->elements.count == 1)
-		return *(struct color *)&this->elements.items[0].color;
+		return convert(this->elements.items[0].color);
 
 	if (pos <= this->elements.items[0].position)
-		return *(struct color *)&this->elements.items[0].color;
+		return convert(this->elements.items[0].color);
 
 	if (pos >= this->elements.items[this->elements.count - 1].position)
-		return *(struct color *)&this->elements.items[this->elements.count - 1].color;
+		return convert(this->elements.items[this->elements.count - 1].color);
 	
 	struct ramp_element *left = NULL;
 	for (size_t i = 0; i < this->elements.count; ++i) {
@@ -99,10 +103,10 @@ static struct color eval(const struct colorNode *node, sampler *sampler, const s
 	}
 
 	if (this->interpolation == cr_constant) {
-		return *(struct color *)&left->color;
+		return convert(left->color);
 	}
 	float t = inv_lerp(left->position, right->position, pos);
-	return colorLerp(*(struct color *)&left->color, *(struct color *)&right->color, t);
+	return colorLerp(convert(left->color), convert(right->color), t);
 }
 
 const struct colorNode *new_color_ramp(const struct node_storage *s,
