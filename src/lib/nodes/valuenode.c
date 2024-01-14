@@ -76,8 +76,8 @@ const struct valueNode *build_value_node(struct cr_scene *s_ext, const struct cr
 				build_value_node(s_ext, desc->arg.map_range.from_max),
 				build_value_node(s_ext, desc->arg.map_range.to_min),
 				build_value_node(s_ext, desc->arg.map_range.to_max));
-		case cr_vn_raylength:
-			return newRayLength(&s);
+		case cr_vn_light_path:
+			return new_light_path(&s, desc->arg.light_path.query);
 		case cr_vn_alpha:
 			return newAlpha(&s, build_color_node(s_ext, desc->arg.alpha.color));
 		case cr_vn_vec_to_value:

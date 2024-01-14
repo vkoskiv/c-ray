@@ -47,7 +47,7 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 }
 
 static inline void recompute_uv(struct hitRecord *isect, float offset, bool blender) {
-	struct vector ud = vec_normalize(isect->incident_dir);
+	struct vector ud = vec_normalize(isect->incident->direction);
 	//To polar from cartesian
 	float r = 1.0f; //Normalized above
 	float phi;

@@ -19,6 +19,11 @@ class _value_arg_map_range(ct.Structure):
 		("to_max", ct.POINTER(_value)),
 	]
 
+class _value_arg_light_path(ct.Structure):
+	_fields_ = [
+		("query", ct.c_int)
+	]
+
 class _value_arg_alpha(ct.Structure):
 	_fields_ = [
 		("color", ct.POINTER(_color))
@@ -100,6 +105,7 @@ class _value_arg(ct.Union):
 		("constant", ct.c_double),
 		("fresnel", _value_arg_fresnel),
 		("map_range", _value_arg_map_range),
+		("light_path", _value_arg_light_path),
 		("alpha", _value_arg_alpha),
 		("vec_to_value", _value_arg_vec_to_value),
 		("math", _value_arg_math),
@@ -111,7 +117,7 @@ class _value_type(IntEnum):
 	constant     = 1
 	fresnel      = 2
 	map_range    = 3
-	raylength    = 4
+	light_path   = 4
 	alpha        = 5
 	vec_to_value = 6
 	math         = 7
@@ -155,6 +161,23 @@ class NodeValueMapRange(NodeValueBase):
 		self.to_max = to_max
 		self.cr_struct.type = _value_type.map_range
 		self.cr_struct.map_range = _value_arg_map_range(self.input_value.castref(), self.from_min.castref(), self.from_max.castref(), self.to_min.castref(), self.to_max.castref())
+
+class light_path_query(IntEnum):
+	is_camera_ray       = 0
+	is_shadow_ray       = 1
+	is_diffuse_ray      = 2
+	is_glossy_ray       = 3
+	is_singular_ray     = 4
+	is_reflection_ray   = 5
+	is_transmission_ray = 6
+	ray_length          = 7
+
+class NodeValueLightPath(NodeValueBase):
+	def __init__(self, query):
+		super().__init__()
+		self.query = query
+		self.cr_struct.type = _value_type.light_path
+		self.cr_struct.light_path = _value_arg_light_path(self.query)
 
 class NodeValueAlpha(NodeValueBase):
 	def __init__(self, color):

@@ -20,7 +20,7 @@ struct valueNode {
 };
 
 #include "input/fresnel.h"
-#include "input/raylength.h"
+#include "input/light_path.h"
 #include "textures/alpha.h"
 #include "converter/math.h"
 #include "converter/map_range.h"

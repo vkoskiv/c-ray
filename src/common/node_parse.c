@@ -120,9 +120,10 @@ struct cr_value_node *cr_value_node_build(const struct cJSON *node) {
 			}
 		});
 	}
-	if (stringEquals(type->valuestring, "raylength")) {
+	if (stringEquals(type->valuestring, "light_path")) {
 		return vn_alloc((struct cr_value_node){
-			.type = cr_vn_raylength,
+			.type = cr_vn_light_path,
+			.arg.light_path.query = cJSON_GetNumberValue(cJSON_GetObjectItem(node, "query"))
 		});
 	}
 	if (stringEquals(type->valuestring, "alpha")) {
@@ -176,7 +177,7 @@ void cr_value_node_free(struct cr_value_node *d) {
 			cr_value_node_free(d->arg.map_range.to_min);
 			cr_value_node_free(d->arg.map_range.to_max);
 			break;
-		case cr_vn_raylength:
+		case cr_vn_light_path:
 			break;
 		case cr_vn_alpha:
 			cr_color_node_free(d->arg.alpha.color);

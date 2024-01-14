@@ -60,7 +60,7 @@ struct cr_value_node {
 		cr_vn_constant,
 		cr_vn_fresnel,
 		cr_vn_map_range,
-		cr_vn_raylength,
+		cr_vn_light_path,
 		cr_vn_alpha,
 		cr_vn_vec_to_value,
 		cr_vn_math,
@@ -82,6 +82,19 @@ struct cr_value_node {
 			struct cr_value_node *to_min;
 			struct cr_value_node *to_max;
 		} map_range;
+
+		struct cr_light_path_params {
+			enum cr_light_path_info {
+				cr_is_camera_ray = 0,
+				cr_is_shadow_ray,
+				cr_is_diffuse_ray,
+				cr_is_glossy_ray,
+				cr_is_singular_ray,
+				cr_is_reflection_ray,
+				cr_is_transmission_ray,
+				cr_ray_length,
+			} query;
+		} light_path;
 
 		struct cr_alpha_params {
 			struct cr_color_node *color;

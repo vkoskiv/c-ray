@@ -570,7 +570,8 @@ struct cr_value_node *value_deepcopy(const struct cr_value_node *in) {
 			out->arg.map_range.to_max = value_deepcopy(in->arg.map_range.to_max);
 			out->arg.map_range.to_min = value_deepcopy(in->arg.map_range.to_min);
 			break;
-		case cr_vn_raylength:
+		case cr_vn_light_path:
+			out->arg.light_path.query = in->arg.light_path.query;
 			break;
 		case cr_vn_alpha:
 			out->arg.alpha.color = color_deepcopy(in->arg.alpha.color);

@@ -229,6 +229,28 @@ def map_math_op(bl_op):
 			print("Unknown math op {}, defaulting to ADD".format(bl_op))
 			return m.Add
 
+def match_query(name):
+	match name:
+		case 'Is Camera Ray':
+			return light_path_query.is_camera_ray
+		case 'Is Shadow Ray':
+			return light_path_query.is_shadow_ray
+		case 'Is Diffuse Ray':
+			return light_path_query.is_diffuse_ray
+		case 'Is Glossy Ray':
+			return light_path_query.is_glossy_ray
+		case 'Is Singular Ray':
+			return light_path_query.is_singular_ray
+		case 'Is Reflection Ray':
+			return light_path_query.is_reflection_ray
+		case 'Is Transmission Ray':
+			return light_path_query.is_transmission_ray
+		case 'Ray Length':
+			return light_path_query.ray_length
+		case _:
+			print("Unknown light path query {}, defaulting to Ray Length".format(name))
+			return light_path_query.ray_length
+
 def parse_value(input, group_inputs):
 	match input.bl_idname:
 		case 'ShaderNodeGroup':
@@ -239,6 +261,9 @@ def parse_value(input, group_inputs):
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
 					return group_inputs[input.links[0].from_socket.name]
+				if input.links[0].from_node.bl_idname == 'ShaderNodeLightPath':
+					socket_name = input.links[0].from_socket.name
+					return NodeValueLightPath(match_query(socket_name))
 				return parse_value(input.links[0].from_node, group_inputs)
 			return NodeValueConstant(input.default_value)
 		case 'NodeSocketFloatFactor':
@@ -246,6 +271,9 @@ def parse_value(input, group_inputs):
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
 					return group_inputs[input.links[0].from_socket.name]
+				if input.links[0].from_node.bl_idname == 'ShaderNodeLightPath':
+					socket_name = input.links[0].from_socket.name
+					return NodeValueLightPath(match_query(socket_name))
 				return parse_value(input.links[0].from_node, group_inputs)
 			return NodeValueConstant(input.default_value)
 		case 'ShaderNodeValue':

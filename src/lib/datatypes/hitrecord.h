@@ -9,9 +9,10 @@
 #pragma once
 
 #include "../../common/vector.h"
+#include "lightray.h"
 
 struct hitRecord {
-	struct vector incident_dir;		//Incident ray direction
+	struct lightRay *incident;		//Incident ray
 	struct vector hitPoint;			//Hit point vector in world space
 	struct vector surfaceNormal;	//Surface normal at that point of intersection
 	struct coord uv;				//UV barycentric coordinates for intersection point

@@ -49,7 +49,7 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record) {
 	struct metalBsdf *metalBsdf = (struct metalBsdf *)bsdf;
 	
-	const struct vector normalizedDir = vec_normalize(record->incident_dir);
+	const struct vector normalizedDir = vec_normalize(record->incident->direction);
 	struct vector reflected = vec_reflect(normalizedDir, record->surfaceNormal);
 	float roughness = metalBsdf->roughness->eval(metalBsdf->roughness, sampler, record);
 	if (roughness > 0.0f) {

@@ -483,8 +483,9 @@ static cJSON *serialize_value_node(const struct cr_value_node *in) {
 			cJSON_AddItemToObject(out, "to_min", serialize_value_node(in->arg.map_range.to_min));
 			cJSON_AddItemToObject(out, "to_max", serialize_value_node(in->arg.map_range.to_max));
 			break;
-		case cr_vn_raylength:
-			cJSON_AddStringToObject(out, "type", "raylength");
+		case cr_vn_light_path:
+			cJSON_AddStringToObject(out, "type", "light_path");
+			cJSON_AddNumberToObject(out, "query", in->arg.light_path.query);
 			break;
 		case cr_vn_alpha:
 			cJSON_AddStringToObject(out, "type", "alpha");

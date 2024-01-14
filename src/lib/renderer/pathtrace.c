@@ -25,7 +25,7 @@
 
 static inline struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler) {
 	//TODO: Consider passing in last instance idx + polygon to detect self-intersections?
-	struct hitRecord isect = { .incident_dir = incidentRay->direction, .instIndex = -1, .distance = FLT_MAX, .polygon = NULL };
+	struct hitRecord isect = { .incident = incidentRay, .instIndex = -1, .distance = FLT_MAX, .polygon = NULL };
 	traverse_top_level_bvh(scene->instances.items, scene->topLevel, incidentRay, &isect, sampler);
 	return isect;
 }

@@ -47,7 +47,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	(void)sampler;
 	struct transparent *this = (struct transparent *)bsdf;
 	return (struct bsdfSample){
-		.out = { .start = record->hitPoint, .direction = record->incident_dir, .type = rt_transmission | rt_singular }, // TODO: Correct?
+		.out = { .start = record->hitPoint, .direction = record->incident->direction, .type = rt_transmission | rt_singular }, // TODO: Correct?
 		.weight = this->color->eval(this->color, sampler, record)
 	};
 }

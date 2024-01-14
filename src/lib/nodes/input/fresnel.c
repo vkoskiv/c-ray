@@ -51,10 +51,10 @@ static float eval(const struct valueNode *node, sampler *sampler, const struct h
 	
 	float IOR = this->IOR->eval(this->IOR, sampler, record);
 	float cosine;
-	if (vec_dot(record->incident_dir, record->surfaceNormal) > 0.0f) {
-		cosine = IOR * vec_dot(record->incident_dir, record->surfaceNormal) / vec_length(record->incident_dir);
+	if (vec_dot(record->incident->direction, record->surfaceNormal) > 0.0f) {
+		cosine = IOR * vec_dot(record->incident->direction, record->surfaceNormal) / vec_length(record->incident->direction);
 	} else {
-		cosine = -(vec_dot(record->incident_dir, record->surfaceNormal) / vec_length(record->incident_dir));
+		cosine = -(vec_dot(record->incident->direction, record->surfaceNormal) / vec_length(record->incident->direction));
 	}
 	
 	return schlick(cosine, this->IOR->eval(this->IOR, sampler, record));
