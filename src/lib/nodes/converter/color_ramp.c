@@ -119,7 +119,7 @@ const struct colorNode *new_color_ramp(const struct node_storage *s,
 		logr(warning, "color_ramp: No control points provided, bailing out\n");
 		return newConstantTexture(s, g_pink_color);
 	}
-	struct ramp_element_arr element_arr;
+	struct ramp_element_arr element_arr = { 0 };
 	for (int i = 0; i < element_count; ++i) {
 		ramp_element_arr_add(&element_arr, elements[i]);
 	}
