@@ -23,7 +23,7 @@ input/HDRs/*
 !input/HDRs/rooitou_park_1k.hdr
 
 # for git version string
-src/utils/gitsha1.c
+generated/gitsha1.c
 
 input/*
 !input/newScene.*
