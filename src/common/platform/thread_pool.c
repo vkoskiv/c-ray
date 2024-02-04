@@ -11,6 +11,15 @@
 #include "thread.h"
 #include "../logging.h"
 
+// Mostly based on John Schember's excellent blog post:
+// https://nachtimwald.com/2019/04/12/thread-pool-in-c/
+//
+// I just added an extra pool->first check to thread_pool_wait()
+// since I discovered a race condition in my torture tests for this
+// implementation. Basically, sometimes we could blow through a
+// call to thread_pool_wait() if we enqueue a small amount of work
+// and call it before threads had a chance to fetch work.
+
 struct cr_task {
 	void (*fn)(void *arg);
 	void *arg;
@@ -148,7 +157,7 @@ void thread_pool_wait(struct cr_thread_pool *pool) {
 	if (!pool) return;
 	mutex_lock(pool->mutex);
 	while (true) {
-		if ((!pool->stop_flag && pool->active_workers != 0) || (pool->stop_flag && pool->thread_count != 0)) {
+		if (pool->first || (!pool->stop_flag && pool->active_workers != 0) || (pool->stop_flag && pool->thread_count != 0)) {
 			thread_cond_wait(&pool->work_ongoing, pool->mutex);
 		} else {
 			break;

@@ -14,10 +14,7 @@
 
 void test_task(void *arg) {
 	int *input = arg;
-	int old = *input;
-
 	*input += 1000;
-
 	if (*input % 2) {
 		timer_sleep_ms(10);
 	}
@@ -25,20 +22,24 @@ void test_task(void *arg) {
 
 bool test_thread_pool(void) {
 
-	const size_t threads = 4;
-	const int iterations = 100;
+	const size_t threads = 8;
+	const int iterations = 10;
+	int loops = 100;
 
 	struct cr_thread_pool *pool = thread_pool_create(threads);
 	int *values = calloc(iterations, sizeof(*values));
-	for (int i = 0; i < iterations; ++i) {
-		values[i] = i;
-		thread_pool_enqueue(pool, test_task, values + i);
-	}
+	while (loops--) {
+		for (int i = 0; i < iterations; ++i) {
+			values[i] = i;
+			thread_pool_enqueue(pool, test_task, &values[i]);
+		}
 
-	thread_pool_wait(pool);
+		thread_pool_wait(pool);
 
-	for (int i = 0; i < iterations; ++i) {
-		test_assert(values[i] == i + 1000);
+		for (int i = 0; i < iterations; ++i) {
+			test_assert(values[i] == i + 1000);
+		}
+		memset(values, 0, iterations * sizeof(*values));
 	}
 
 	thread_pool_destroy(pool);
