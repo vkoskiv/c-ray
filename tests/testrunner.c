@@ -152,25 +152,26 @@ int getPerfTestCount(char *suite) {
 
 int main(int argc, char *argv[]) {
 	struct driver_args *args = args_parse(argc, argv);
+	int ret = 0;
 	if (args_is_set(args, "runTests") || args_is_set(args, "runPerfTests")) {
 		char *suite = args_string(args, "test_suite");
 		int test_idx = args_int(args, "test_idx");
+		bool perf_tests = args_is_set(args, "runPerfTests");
 		switch (test_idx) {
 			case -3:
 				printf("%i", getPerfTestCount(suite));
-				exit(0);
 				break;
 			case -2:
 				printf("%i", getTestCount(suite));
-				exit(0);
 				break;
 			case -1:
-				exit(args_is_set(args, "runPerfTests") ? runPerfTests(suite) : runTests(suite));
+				ret = perf_tests ? runPerfTests(suite) : runTests(suite);
 				break;
 			default:
-				exit(args_is_set(args, "runPerfTests") ? runPerfTest(test_idx, suite) : runTest(test_idx, suite));
+				ret = perf_tests ? runPerfTest(test_idx, suite) : runTest(test_idx, suite);
 				break;
 		}
 	}
-	return 0;
+	args_destroy(args);
+	return ret;
 }
