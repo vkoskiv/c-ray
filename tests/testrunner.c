@@ -152,6 +152,12 @@ int getPerfTestCount(char *suite) {
 
 int main(int argc, char *argv[]) {
 	struct driver_args *args = args_parse(argc, argv);
+	char *log_level = args_string(args, "log_level");
+	if (stringEquals(log_level, "debug")) {
+		cr_log_level_set(Debug);
+	} else if (stringEquals(log_level, "spam")) {
+		cr_log_level_set(Spam);
+	}
 	int ret = 0;
 	if (args_is_set(args, "runTests") || args_is_set(args, "runPerfTests")) {
 		char *suite = args_string(args, "test_suite");
