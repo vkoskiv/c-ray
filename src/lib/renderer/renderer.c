@@ -451,7 +451,7 @@ exit:
 	return 0;
 }
 
-struct prefs default_prefs() {
+struct prefs default_prefs(void) {
 	return (struct prefs){
 			.tileOrder = ro_from_middle,
 			.threads = sys_get_cores() + 2,
@@ -465,7 +465,7 @@ struct prefs default_prefs() {
 	};
 }
 
-struct renderer *renderer_new() {
+struct renderer *renderer_new(void) {
 	struct renderer *r = calloc(1, sizeof(*r));
 	r->prefs = default_prefs();
 	r->state.finishedPasses = 1;

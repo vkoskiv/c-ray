@@ -384,7 +384,7 @@ int worker_start(int port, size_t thread_limit) {
 		logr(error, "Socket creation failed.\n");
 	}
 	
-	bzero(&ownAddress, sizeof(ownAddress));
+	memset(&ownAddress, 0, sizeof(ownAddress));
 	ownAddress.sin_family = AF_INET;
 	ownAddress.sin_addr.s_addr = htonl(INADDR_ANY);
 	ownAddress.sin_port = htons(port);

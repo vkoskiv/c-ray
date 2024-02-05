@@ -112,7 +112,6 @@ file_data file_load(const char *file_path) {
 		logr(warning, "Couldn't mmap '%.*s': %s\n", (int)strlen(file_path), file_path, strerror(errno));
 		return (file_data){ 0 };
 	}
-	madvise(data, size, MADV_SEQUENTIAL);
 	file_data file = (file_data){ .items = data, .count = size, .capacity = size };
 	return file;
 #else

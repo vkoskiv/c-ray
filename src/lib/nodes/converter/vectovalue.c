@@ -57,7 +57,7 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 
 static float eval(const struct valueNode *node, sampler *sampler, const struct hitRecord *record) {
 	struct vecToValueNode *this = (struct vecToValueNode *)node;
-	const struct vectorValue val = this->vec->eval(this->vec, sampler, record);
+	const union vector_value val = this->vec->eval(this->vec, sampler, record);
 	switch (this->component_to_get) {
 		case X: return val.v.x;
 		case Y: return val.v.y;

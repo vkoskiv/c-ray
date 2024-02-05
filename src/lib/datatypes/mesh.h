@@ -14,7 +14,7 @@
 #include "../../common/vector.h"
 
 typedef struct cr_face cr_face;
-dyn_array_def(cr_face);
+dyn_array_def(cr_face)
 
 struct mesh {
 	struct vertex_buffer *vbuf;
@@ -27,6 +27,6 @@ struct mesh {
 };
 
 typedef struct mesh mesh;
-dyn_array_def(mesh);
+dyn_array_def(mesh)
 
 void mesh_free(struct mesh *mesh);

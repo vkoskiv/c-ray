@@ -40,11 +40,11 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 	snprintf(dumpbuf, bufsize, "uvNode { }");
 }
 
-static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
+static union vector_value eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	(void)node;
 	(void)sampler;
-	return (struct vectorValue){ .c = record->uv };
+	return (union vector_value){ .c = record->uv };
 }
 
 const struct vectorNode *newUV(const struct node_storage *s) {

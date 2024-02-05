@@ -43,7 +43,7 @@ struct cr_cond {
 };
 
 typedef struct cr_thread cr_thread;
-dyn_array_def(cr_thread);
+dyn_array_def(cr_thread)
 
 // Create & detach a thread. Used by thread pool.
 int thread_create_detach(struct cr_thread *t);

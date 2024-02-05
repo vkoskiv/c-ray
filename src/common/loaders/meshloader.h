@@ -17,10 +17,10 @@ struct mesh_material {
 };
 
 typedef struct mesh_material mesh_material;
-dyn_array_def(mesh_material);
+dyn_array_def(mesh_material)
 
 typedef struct cr_face cr_face;
-dyn_array_def(cr_face);
+dyn_array_def(cr_face)
 
 struct ext_mesh {
 	struct vertex_buffer *vbuf;
@@ -32,7 +32,7 @@ struct ext_mesh {
 };
 
 typedef struct ext_mesh ext_mesh;
-dyn_array_def(ext_mesh);
+dyn_array_def(ext_mesh)
 
 static inline void ext_mesh_free(struct ext_mesh *m) {
 	if (m->vbuf) vertex_buf_free(m->vbuf);

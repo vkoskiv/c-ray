@@ -62,7 +62,7 @@ static struct sockaddr_in parse_address(const char *str) {
 	address.sin_family = AF_INET;
 	char *addr_string = firstToken(&line);
 	struct hostent *ent = gethostbyname(addr_string);
-	memcpy(&address.sin_addr.s_addr, ent->h_addr, ent->h_length);
+	memcpy(&address.sin_addr.s_addr, ent->h_addr_list[0], ent->h_length);
 	address.sin_port = line.amountOf.tokens > 1 ? htons(atoi(lastToken(&line))) : htons(2222);
 	return address;
 }

@@ -626,7 +626,7 @@ bool mathnode_sine(void) {
 	struct node_storage *s = make_storage();
 	struct sampler *sampler = newSampler();
 	initSampler(sampler, Halton, 0, 16, 128);
-	const struct valueNode *A = newConstantValue(s, M_PI);
+	const struct valueNode *A = newConstantValue(s, PI);
 	const struct valueNode *result = newMath(s, A, NULL, Sine);
 	
 	roughly_equals(result->eval(result, sampler, NULL), 0.0f);
@@ -640,7 +640,7 @@ bool mathnode_cosine(void) {
 	struct node_storage *s = make_storage();
 	struct sampler *sampler = newSampler();
 	initSampler(sampler, Halton, 0, 16, 128);
-	const struct valueNode *A = newConstantValue(s, M_PI);
+	const struct valueNode *A = newConstantValue(s, PI);
 	const struct valueNode *result = newMath(s, A, NULL, Cosine);
 	
 	roughly_equals(result->eval(result, sampler, NULL), -1.0f);
@@ -654,7 +654,7 @@ bool mathnode_tangent(void) {
 	struct node_storage *s = make_storage();
 	struct sampler *sampler = newSampler();
 	initSampler(sampler, Halton, 0, 16, 128);
-	const struct valueNode *A = newConstantValue(s, M_PI);
+	const struct valueNode *A = newConstantValue(s, PI);
 	const struct valueNode *result = newMath(s, A, NULL, Tangent);
 	
 	roughly_equals(result->eval(result, sampler, NULL), -0.0f);
@@ -671,7 +671,7 @@ bool mathnode_toradians(void) {
 	const struct valueNode *A = newConstantValue(s, 180.0f);
 	const struct valueNode *result = newMath(s, A, NULL, ToRadians);
 	
-	roughly_equals(result->eval(result, sampler, NULL), M_PI);
+	roughly_equals(result->eval(result, sampler, NULL), PI);
 	
 	delete_storage(s);
 	destroySampler(sampler);
@@ -682,7 +682,7 @@ bool mathnode_todegrees(void) {
 	struct node_storage *s = make_storage();
 	struct sampler *sampler = newSampler();
 	initSampler(sampler, Halton, 0, 16, 128);
-	const struct valueNode *A = newConstantValue(s, M_PI);
+	const struct valueNode *A = newConstantValue(s, PI);
 	const struct valueNode *result = newMath(s, A, NULL, ToDegrees);
 	
 	roughly_equals(result->eval(result, sampler, NULL), 180.0f);
@@ -701,7 +701,7 @@ bool vecmath_vecAdd(void) {
 	
 	const struct vectorNode *add = newVecMath(s, A, B, NULL, NULL, VecAdd);
 	
-	struct vectorValue result = add->eval(add, sampler, NULL);
+	union vector_value result = add->eval(add, sampler, NULL);
 	struct vector expected = (struct vector){2.0f, 4.0f, 6.0f};
 	vec_roughly_equals(result.v, expected);
 	
@@ -719,7 +719,7 @@ bool vecmath_vecSubtract(void) {
 	
 	const struct vectorNode *add = newVecMath(s, A, B, NULL, NULL, VecSubtract);
 	
-	struct vectorValue result = add->eval(add, sampler, NULL);
+	union vector_value result = add->eval(add, sampler, NULL);
 	struct vector expected = vec_zero();
 	vec_roughly_equals(result.v, expected);
 	
@@ -737,7 +737,7 @@ bool vecmath_vecMultiply(void) {
 	
 	const struct vectorNode *add = newVecMath(s, A, B, NULL, NULL, VecMultiply);
 	
-	struct vectorValue result = add->eval(add, sampler, NULL);
+	union vector_value result = add->eval(add, sampler, NULL);
 	struct vector expected = (struct vector){1.0f, 4.0f, 9.0f};
 	vec_roughly_equals(result.v, expected);
 	
@@ -755,7 +755,7 @@ bool vecmath_vecDot(void) {
 	
 	const struct vectorNode *dot = newVecMath(s, up, right, NULL, NULL, VecDot);
 	
-	struct vectorValue result = dot->eval(dot, sampler, NULL);
+	union vector_value result = dot->eval(dot, sampler, NULL);
 	roughly_equals(result.f, 0.0f);
 	
 	const struct vectorNode *down = newConstantVector(s, vec_negate(g_world_up));
@@ -781,7 +781,7 @@ bool vecmath_vecCross(void) {
 	
 	const struct vectorNode *op = newVecMath(s, A, B, NULL, NULL, VecCross);
 	
-	struct vectorValue result = op->eval(op, sampler, NULL);
+	union vector_value result = op->eval(op, sampler, NULL);
 	struct vector expected = (struct vector){0.0f, 0.0f, 1.0f};
 	vec_roughly_equals(result.v, expected);
 	
@@ -815,7 +815,7 @@ bool vecmath_vecReflect(void) {
 	
 	const struct vectorNode *op = newVecMath(s, toReflect, normal, NULL, NULL, VecReflect);
 	
-	struct vectorValue reflected = op->eval(op, sampler, NULL);
+	union vector_value reflected = op->eval(op, sampler, NULL);
 	roughly_equals(vec_length(reflected.v), 1.0f);
 	
 	struct vector expected = vec_normalize((struct vector){1.0f, -1.0f, 0.0f});
@@ -834,7 +834,7 @@ bool vecmath_vecLength(void) {
 	
 	const struct vectorNode *op = newVecMath(s, A, NULL, NULL, NULL, VecLength);
 	
-	struct vectorValue lengthValue = op->eval(op, sampler, NULL);
+	union vector_value lengthValue = op->eval(op, sampler, NULL);
 	roughly_equals(lengthValue.f, 2.0f);
 	
 	delete_storage(s);
@@ -850,7 +850,7 @@ bool vecmath_vecAbs(void) {
 	
 	const struct vectorNode *op = newVecMath(s, A, NULL, NULL, NULL, VecAbs);
 	
-	struct vectorValue result = op->eval(op, sampler, NULL);
+	union vector_value result = op->eval(op, sampler, NULL);
 	struct vector expected = (struct vector){10.0f, 2.0f, 3.0f};
 	vec_roughly_equals(result.v, expected);
 	
@@ -867,7 +867,7 @@ bool vecmath_vecScale(void) {
 	
 	const struct vectorNode *op = newVecMath(s, A, NULL, NULL, newConstantValue(s, 2.0f), VecScale);
 	
-	struct vectorValue result = op->eval(op, sampler, NULL);
+	union vector_value result = op->eval(op, sampler, NULL);
 	struct vector expected = (struct vector){ 2.0f, 0.0f, 0.0f };
 	vec_roughly_equals(result.v, expected);
 	

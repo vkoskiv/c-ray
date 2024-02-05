@@ -12,17 +12,15 @@
 #include "../../common/vector.h"
 #include "nodebase.h"
 
-struct vectorValue {
-	union {
-		struct vector v;
-		struct coord c;
-		float f;
-	};
+union vector_value {
+	struct vector v;
+	struct coord c;
+	float f;
 };
 
 struct vectorNode {
 	struct nodeBase base;
-	struct vectorValue (*eval)(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record);
+	union vector_value (*eval)(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record);
 };
 
 #include "input/normal.h"

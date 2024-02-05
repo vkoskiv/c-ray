@@ -135,7 +135,7 @@ static inline float wrap(float value, float max, float min) {
 	return (range != 0.0f) ? value - (range * floorf((value - min) / range)) : min;
 }
  
-static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
+static union vector_value eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	struct vecMathNode *this = (struct vecMathNode *)node;
 	
 	const struct vector a = this->A->eval(this->A, sampler, record).v;
@@ -145,56 +145,56 @@ static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, 
 	
 	switch (this->op) {
 		case VecAdd:
-			return (struct vectorValue){ .v = vec_add(a, b) };
+			return (union vector_value){ .v = vec_add(a, b) };
 		case VecSubtract:
-			return (struct vectorValue){ .v = vec_sub(a, b) };
+			return (union vector_value){ .v = vec_sub(a, b) };
 		case VecMultiply:
-			return (struct vectorValue){ .v = vec_mul(a, b) };
+			return (union vector_value){ .v = vec_mul(a, b) };
 		case VecDivide:
-			return (struct vectorValue){ .v = { a.x / b.x, a.y / b.y, a.z / b.z } };
+			return (union vector_value){ .v = { a.x / b.x, a.y / b.y, a.z / b.z } };
 		case VecCross:
-			return (struct vectorValue){ .v = vec_cross(a, b) };
+			return (union vector_value){ .v = vec_cross(a, b) };
 		case VecReflect:
-			return (struct vectorValue){ .v = vec_reflect(a, b) };
+			return (union vector_value){ .v = vec_reflect(a, b) };
 		case VecRefract:
 		{
-			struct vectorValue v = { 0 };
+			union vector_value v = { 0 };
 			v.f = vec_refract(a, b, f, &v.v) ? 1.0f : 0.0f;
 			return v;
 		}
 		case VecDot:
-			return (struct vectorValue){ .f = vec_dot(a, b) };
+			return (union vector_value){ .f = vec_dot(a, b) };
 		case VecDistance:
-			return (struct vectorValue){ .f = vec_distance_to(a, b) };
+			return (union vector_value){ .f = vec_distance_to(a, b) };
 		case VecLength:
-			return (struct vectorValue){ .f = vec_length(a) };
+			return (union vector_value){ .f = vec_length(a) };
 		case VecScale:
-			return (struct vectorValue){ .v = vec_scale(a, f) };
+			return (union vector_value){ .v = vec_scale(a, f) };
 		case VecNormalize:
-			return (struct vectorValue){ .v = vec_normalize(a) };
+			return (union vector_value){ .v = vec_normalize(a) };
 		case VecWrap:
-			return (struct vectorValue){ .v = { wrap(a.x, b.x, c.x), wrap(a.y, b.y, c.y), wrap(a.z, b.z, c.z) } };
+			return (union vector_value){ .v = { wrap(a.x, b.x, c.x), wrap(a.y, b.y, c.y), wrap(a.z, b.z, c.z) } };
 		case VecFloor:
-			return (struct vectorValue){ .v = { .x = floorf(a.x), .y = floorf(a.y), .z = floorf(a.z) } };
+			return (union vector_value){ .v = { .x = floorf(a.x), .y = floorf(a.y), .z = floorf(a.z) } };
 		case VecCeil:
-			return (struct vectorValue){ .v = { .x = ceilf(a.x), .y = ceilf(a.y), .z = ceilf(a.z) } };
+			return (union vector_value){ .v = { .x = ceilf(a.x), .y = ceilf(a.y), .z = ceilf(a.z) } };
 		case VecModulo:
-			return (struct vectorValue){ .v = { .x = fmodf(a.x, b.x), .y = fmodf(a.y, b.y), .z = fmodf(a.z, b.z) } };
+			return (union vector_value){ .v = { .x = fmodf(a.x, b.x), .y = fmodf(a.y, b.y), .z = fmodf(a.z, b.z) } };
 		case VecAbs:
-			return (struct vectorValue){ .v = { .x = fabsf(a.x), .y = fabsf(a.y), .z = fabsf(a.z) } };
+			return (union vector_value){ .v = { .x = fabsf(a.x), .y = fabsf(a.y), .z = fabsf(a.z) } };
 		case VecMin:
-			return (struct vectorValue){ .v = { .x = fminf(a.x, b.x), .y = fminf(a.y, b.y), .z = fminf(a.z, b.z) } };
+			return (union vector_value){ .v = { .x = fminf(a.x, b.x), .y = fminf(a.y, b.y), .z = fminf(a.z, b.z) } };
 		case VecMax:
-			return (struct vectorValue){ .v = { .x = fmaxf(a.x, b.x), .y = fmaxf(a.y, b.y), .z = fmaxf(a.z, b.z) } };
+			return (union vector_value){ .v = { .x = fmaxf(a.x, b.x), .y = fmaxf(a.y, b.y), .z = fmaxf(a.z, b.z) } };
 		case VecSin:
-			return (struct vectorValue){ .v = { .x = sinf(a.x), .y = sinf(a.y), .z = sinf(a.z) } };
+			return (union vector_value){ .v = { .x = sinf(a.x), .y = sinf(a.y), .z = sinf(a.z) } };
 		case VecCos:
-			return (struct vectorValue){ .v = { .x = cosf(a.x), .y = cosf(a.y), .z = cosf(a.z) } };
+			return (union vector_value){ .v = { .x = cosf(a.x), .y = cosf(a.y), .z = cosf(a.z) } };
 		case VecTan:
-			return (struct vectorValue){ .v = { .x = tanf(a.x), .y = tanf(a.y), .z = tanf(a.z) } };
+			return (union vector_value){ .v = { .x = tanf(a.x), .y = tanf(a.y), .z = tanf(a.z) } };
 	}
 	ASSERT_NOT_REACHED();
-	return (struct vectorValue){ 0 };
+	return (union vector_value){ 0 };
 }
 
 const struct vectorNode *newVecMath(const struct node_storage *s, const struct vectorNode *A, const struct vectorNode *B, const struct vectorNode *C, const struct valueNode *f, const enum cr_vec_op op) {

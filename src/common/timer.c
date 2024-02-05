@@ -6,7 +6,6 @@
 //  Copyright © 2018-2020 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../includes.h"
 #include "timer.h"
 
 #ifdef WINDOWS
@@ -67,6 +66,9 @@ void timer_sleep_ms(int ms) {
 	ts.tv_nsec = (ms % 1000) * 1000000;
 	nanosleep(&ts, NULL);
 #else
-	usleep(ms * 1000);
+	struct timeval tv = { 0 };
+	tv.tv_sec = ms / 1000;
+	tv.tv_usec = ms % 1000 * 1000;
+	select(0, NULL, NULL, NULL, &tv);
 #endif
 }

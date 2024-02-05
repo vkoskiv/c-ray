@@ -43,7 +43,7 @@ struct render_tile {
 };
 
 typedef struct render_tile render_tile;
-dyn_array_def(render_tile);
+dyn_array_def(render_tile)
 
 struct tile_set {
 	struct render_tile_arr tiles;

@@ -42,11 +42,11 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 	snprintf(dumpbuf, bufsize, "constantVector { %.2f, %.2f, %.2f }", (double)self->vector.x, (double)self->vector.y, (double)self->vector.z);
 }
 
-static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
+static union vector_value eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	(void)sampler;
 	struct constantVector *this = (struct constantVector *)node;
-	return (struct vectorValue){ .v = this->vector };
+	return (union vector_value){ .v = this->vector };
 }
 
 const struct vectorNode *newConstantVector(const struct node_storage *s, const struct vector vector) {
@@ -82,11 +82,11 @@ static void dump_uv(const void *node, char *dumpbuf, int bufsize) {
 	snprintf(dumpbuf, bufsize, "constantUV { %.2f, %.2f }", (double)self->uv.x, (double)self->uv.y);
 }
 
-static struct vectorValue eval_uv(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
+static union vector_value eval_uv(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	(void)sampler;
 	struct constantUV *this = (struct constantUV *)node;
-	return (struct vectorValue){ .c = this->uv };
+	return (union vector_value){ .c = this->uv };
 }
 
 const struct vectorNode *newConstantUV(const struct node_storage *s, const struct coord c) {

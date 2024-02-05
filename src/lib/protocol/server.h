@@ -38,7 +38,7 @@ struct render_client {
 };
 
 typedef struct render_client render_client;
-dyn_array_def(render_client);
+dyn_array_def(render_client)
 
 void clients_shutdown(const char *node_list);
 

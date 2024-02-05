@@ -40,11 +40,11 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 	snprintf(dumpbuf, bufsize, "normalNode { }");
 }
 
-static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
+static union vector_value eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	(void)record;
 	(void)node;
 	(void)sampler;
-	return (struct vectorValue){ .v = record->surfaceNormal };
+	return (union vector_value){ .v = record->surfaceNormal };
 }
 
 const struct vectorNode *newNormal(const struct node_storage *s) {

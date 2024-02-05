@@ -48,15 +48,15 @@ static void dump(const void *node, char *dumpbuf, int bufsize) {
 	snprintf(dumpbuf, bufsize, "vec_mix { A: %s, B: %s, f: %s }", A, B, f);
 }
 
-static struct vectorValue eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
+static union vector_value eval(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
 	struct vec_mix *this = (struct vec_mix *)node;
 	
 	const float lerp = this->f->eval(this->f, sampler, record);
 
 	if (getDimension(sampler) > lerp) {
-		return (struct vectorValue){ .v = this->A->eval(this->A, sampler, record).v };
+		return (union vector_value){ .v = this->A->eval(this->A, sampler, record).v };
 	} else {
-		return (struct vectorValue){ .v = this->B->eval(this->B, sampler, record).v };
+		return (union vector_value){ .v = this->B->eval(this->B, sampler, record).v };
 	}
 }
 

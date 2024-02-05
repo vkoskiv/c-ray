@@ -62,7 +62,7 @@ cJSON *errorResponse(const char *error) {
 	return errorMsg;
 }
 
-cJSON *goodbye() {
+cJSON *goodbye(void) {
 	cJSON *goodbye = cJSON_CreateObject();
 	cJSON_AddStringToObject(goodbye, "action", "goodbye");
 	return goodbye;

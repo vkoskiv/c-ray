@@ -16,7 +16,7 @@
 #include "color_ramp.h"
 
 typedef struct ramp_element ramp_element;
-dyn_array_def(ramp_element);
+dyn_array_def(ramp_element)
 
 struct color_ramp_node {
 	struct colorNode node;

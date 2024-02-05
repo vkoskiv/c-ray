@@ -32,7 +32,7 @@ bool isTeleType(void) {
 static void show_cursor(bool show) {
 	(void)show;
 #ifndef NO_COLOR
-	if (isTeleType()) show ? fputs("\e[?25h", stdout) : fputs("\e[?25l", stdout);
+	if (isTeleType()) show ? fputs("\033[?25h", stdout) : fputs("\033[?25l", stdout);
 #endif
 }
 
@@ -46,7 +46,7 @@ static void handler(int sig) {
 	}
 }
 
-void term_init() {
+void term_init(void) {
 	if (registerHandler(sigint, handler)) {
 		logr(warning, "Unable to catch SIGINT\n");
 	}
@@ -70,7 +70,7 @@ void term_init() {
 #endif
 }
 
-void term_restore() {
+void term_restore(void) {
 #ifndef WINDOWS
 	show_cursor(true);
 #endif

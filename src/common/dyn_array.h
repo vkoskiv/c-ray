@@ -85,8 +85,8 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		T##_arr_free(b); \
 	}
 
-dyn_array_def(int);
-dyn_array_def(float);
-dyn_array_def(size_t);
+dyn_array_def(int)
+dyn_array_def(float)
+dyn_array_def(size_t)
 
 #endif

@@ -42,7 +42,7 @@ struct texture_asset {
 };
 
 typedef struct texture_asset texture_asset;
-dyn_array_def(texture_asset);
+dyn_array_def(texture_asset)
 
 //FIXME: These are opposite states, which is kinda confusing.
 #define SRGB_TRANSFORM 0x01

@@ -30,7 +30,7 @@ enum fileType {
 };
 
 typedef byte file_bytes;
-dyn_array_def(file_bytes);
+dyn_array_def(file_bytes)
 typedef struct file_bytes_arr file_data;
 
 enum fileType match_file_type(const char *ext);

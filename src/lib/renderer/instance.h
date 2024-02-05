@@ -33,7 +33,7 @@ struct instance {
 };
 
 typedef struct instance instance;
-dyn_array_def(instance);
+dyn_array_def(instance)
 
 struct instance new_sphere_instance(struct sphere_arr *spheres, size_t idx, float *density, struct block **pool);
 struct instance new_mesh_instance(struct mesh_arr *meshes, size_t idx, float *density, struct block **pool);

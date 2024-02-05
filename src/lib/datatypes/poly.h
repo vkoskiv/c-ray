@@ -21,7 +21,7 @@ struct poly {
 };
 
 typedef struct poly poly;
-dyn_array_def(poly);
+dyn_array_def(poly)
 
 struct lightRay;
 struct hitRecord;

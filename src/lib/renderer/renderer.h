@@ -34,7 +34,7 @@ struct worker {
 	struct render_client *client; // Optional
 };
 typedef struct worker worker;
-dyn_array_def(worker);
+dyn_array_def(worker)
 
 struct callback {
 	void (*fn)(struct cr_renderer_cb_info *, void *);
@@ -89,4 +89,4 @@ void renderer_render(struct renderer *r);
 void renderer_start_interactive(struct renderer *r);
 void renderer_destroy(struct renderer *r);
 
-struct prefs default_prefs(); // TODO: Remove
+struct prefs default_prefs(void); // TODO: Remove

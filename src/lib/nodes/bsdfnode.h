@@ -32,10 +32,10 @@ struct bsdfNode {
 };
 
 typedef const struct bsdfNode * bsdf_node_ptr;
-dyn_array_def(bsdf_node_ptr);
+dyn_array_def(bsdf_node_ptr)
 
 typedef struct cr_shader_node * cr_shader_node_ptr;
-dyn_array_def(cr_shader_node_ptr);
+dyn_array_def(cr_shader_node_ptr)
 
 struct bsdf_buffer {
 	struct bsdf_node_ptr_arr bsdfs;
@@ -45,7 +45,7 @@ struct bsdf_buffer {
 void bsdf_buffer_free(struct bsdf_buffer *b);
 
 typedef struct bsdf_buffer bsdf_buffer;
-dyn_array_def(bsdf_buffer);
+dyn_array_def(bsdf_buffer)
 
 #include "shaders/diffuse.h"
 #include "shaders/glass.h"

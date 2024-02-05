@@ -18,7 +18,7 @@ struct vector {
 };
 
 typedef struct vector vector;
-dyn_array_def(vector);
+dyn_array_def(vector)
 
 struct base {
 	struct vector i, j, k;
@@ -29,7 +29,7 @@ struct coord {
 };
 
 typedef struct coord coord;
-dyn_array_def(coord);
+dyn_array_def(coord)
 
 struct intCoord {
 	int x, y;
@@ -38,11 +38,11 @@ struct intCoord {
 static const struct vector g_world_up = { 0.0f, 1.0f, 0.0f };
 
 //For defaults
-static inline struct vector vec_zero() {
+static inline struct vector vec_zero(void) {
 	return (struct vector){ 0.0f, 0.0f, 0.0f };
 }
 
-static inline struct coord coord_zero() {
+static inline struct coord coord_zero(void) {
 	return (struct coord){ 0.0f, 0.0f };
 }
 
@@ -53,7 +53,7 @@ struct vertex_buffer {
 };
 
 typedef struct vertex_buffer vertex_buffer;
-dyn_array_def(vertex_buffer);
+dyn_array_def(vertex_buffer)
 
 
 static inline void vertex_buf_free(struct vertex_buffer *buf) {

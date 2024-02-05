@@ -23,7 +23,7 @@ float rad_to_deg(float radians) {
 	return radians * (180.0f / PI);
 }
 
-struct matrix4x4 mat_id() {
+struct matrix4x4 mat_id(void) {
 	return (struct matrix4x4) {
 		.mtx = {
 			{1.0f, 0.0f, 0.0f, 0.0f},
@@ -34,7 +34,7 @@ struct matrix4x4 mat_id() {
 	};
 }
 
-struct transform tform_new() {
+struct transform tform_new(void) {
 	struct transform tf;
 	tf.A = mat_id();
 	tf.Ainv = tf.A; // Inverse of I == I
@@ -212,7 +212,7 @@ float findDeterminant4x4(const float A[4][4]) {
 }
 
 //Find det of a given 4x4 matrix A
-float findDeterminant(float A[4][4], int n) {
+float findDeterminant(const float A[4][4], int n) {
 	float det = 0.0f;
 	
 	if (n == 1)

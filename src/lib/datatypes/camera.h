@@ -44,7 +44,7 @@ struct camera {
 };
 
 typedef struct camera camera;
-dyn_array_def(camera);
+dyn_array_def(camera)
 
 struct sampler;
 

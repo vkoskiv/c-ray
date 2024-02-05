@@ -18,6 +18,6 @@ struct sphere {
 };
 
 typedef struct sphere sphere;
-dyn_array_def(sphere);
+dyn_array_def(sphere)
 
 bool rayIntersectsWithSphere(const struct lightRay *ray, const struct sphere *sphere, struct hitRecord *isect);
