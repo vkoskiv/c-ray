@@ -124,7 +124,7 @@ If you make a cool scene and have Python3 installed, you can bundle up the scene
 3rd party libraries included in this project include:
 
 - lodePNG PNG compression library: http://lodev.org/lodepng/
-- stb\_image.h by Sean Barrett: https://github.com/nothings/stb/blob/master/stb\_image.h
+- stb\_image.h by Sean Barrett: https://github.com/nothings/stb/blob/master/stb_image.h
 - SDL2: https://www.libsdl.org/index.php (Optional)
 - JSON parsing library: https://github.com/DaveGamble/cJSON
 - PCG random number generator: http://www.pcg-random.org
