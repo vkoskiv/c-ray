@@ -32,9 +32,9 @@ struct cr_thread_pool {
 	struct cr_mutex *mutex;
 	struct cr_cond work_available;
 	struct cr_cond work_ongoing;
-	size_t active_workers;
+	size_t active_threads;
 	struct cr_thread *threads;
-	size_t thread_count;
+	size_t alive_threads;
 	bool stop_flag;
 };
 
@@ -70,19 +70,19 @@ static void *cr_worker(void *arg) {
 			thread_cond_wait(&pool->work_available, pool->mutex);
 		if (pool->stop_flag) break;
 		struct cr_task *task = thread_pool_get_task(pool);
-		pool->active_workers++;
+		pool->active_threads++;
 		mutex_release(pool->mutex);
 		if (task) {
 			task->fn(task->arg);
 			free(task);
 		}
 		mutex_lock(pool->mutex);
-		pool->active_workers--;
-		if (!pool->stop_flag && pool->active_workers == 0 && !pool->first)
+		pool->active_threads--;
+		if (!pool->stop_flag && pool->active_threads == 0 && !pool->first)
 			thread_cond_signal(&pool->work_ongoing);
 		mutex_release(pool->mutex);
 	}
-	pool->thread_count--;
+	pool->alive_threads--;
 	thread_cond_signal(&pool->work_ongoing);
 	mutex_release(pool->mutex);
 	return NULL;
@@ -92,14 +92,14 @@ struct cr_thread_pool *thread_pool_create(size_t threads) {
 	if (!threads) threads = 2;
 	struct cr_thread_pool *pool = calloc(1, sizeof(*pool));
 	logr(debug, "Spawning thread pool (%lut, %p)\n", threads, (void *)pool);
-	pool->thread_count = threads;
-	pool->threads = calloc(pool->thread_count, sizeof(*pool->threads));
+	pool->alive_threads = threads;
+	pool->threads = calloc(pool->alive_threads, sizeof(*pool->threads));
 
 	pool->mutex = mutex_create();
 	thread_cond_init(&pool->work_available);
 	thread_cond_init(&pool->work_ongoing);
 
-	for (size_t i = 0; i < pool->thread_count; ++i) {
+	for (size_t i = 0; i < pool->alive_threads; ++i) {
 		pool->threads[i] = (struct cr_thread){
 			.thread_fn = cr_worker,
 			.user_data = pool
@@ -111,7 +111,7 @@ struct cr_thread_pool *thread_pool_create(size_t threads) {
 
 void thread_pool_destroy(struct cr_thread_pool *pool) {
 	if (!pool) return;
-	logr(debug, "Closing thread pool (%lut, %p)\n", pool->thread_count, (void *)pool);
+	logr(debug, "Closing thread pool (%lut, %p)\n", pool->alive_threads, (void *)pool);
 	mutex_lock(pool->mutex);
 	// Clear work queue
 	struct cr_task *head = pool->first;
@@ -157,7 +157,7 @@ void thread_pool_wait(struct cr_thread_pool *pool) {
 	if (!pool) return;
 	mutex_lock(pool->mutex);
 	while (true) {
-		if (pool->first || (!pool->stop_flag && pool->active_workers != 0) || (pool->stop_flag && pool->thread_count != 0)) {
+		if (pool->first || (!pool->stop_flag && pool->active_threads != 0) || (pool->stop_flag && pool->alive_threads != 0)) {
 			thread_cond_wait(&pool->work_ongoing, pool->mutex);
 		} else {
 			break;
