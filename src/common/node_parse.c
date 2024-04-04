@@ -70,7 +70,7 @@ static enum cr_math_op value_node_op(const cJSON *data) {
 
 static struct cr_value_node *vn_alloc(struct cr_value_node d) {
 	struct cr_value_node *desc = calloc(1, sizeof(*desc));
-	memcpy(desc, &d, sizeof(*desc));
+	*desc = d;
 	return desc;
 }
 
@@ -197,7 +197,7 @@ void cr_value_node_free(struct cr_value_node *d) {
 
 static struct cr_color_node *cn_alloc(struct cr_color_node d) {
 	struct cr_color_node *desc = calloc(1, sizeof(*desc));
-	memcpy(desc, &d, sizeof(*desc));
+	*desc = d;
 	return desc;
 }
 
@@ -497,7 +497,7 @@ void cr_color_node_free(struct cr_color_node *d) {
 
 static struct cr_vector_node *vecn_alloc(struct cr_vector_node d) {
 	struct cr_vector_node *desc = calloc(1, sizeof(*desc));
-	memcpy(desc, &d, sizeof(*desc));
+	*desc = d;
 	return desc;
 }
 
@@ -631,7 +631,7 @@ void cr_vector_node_free(struct cr_vector_node *d) {
 
 static struct cr_shader_node *bn_alloc(struct cr_shader_node d) {
 	struct cr_shader_node *desc = calloc(1, sizeof(*desc));
-	memcpy(desc, &d, sizeof(*desc));
+	*desc = d;
 	return desc;
 }
 
