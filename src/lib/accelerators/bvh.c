@@ -390,8 +390,10 @@ static inline struct bvh *build_bvh_generic(
 	void (*get_bbox_and_center)(const void *, unsigned, struct boundingBox *, struct vector *),
 	size_t count)
 {
-	if (count < 1)
-		return calloc(1, sizeof(struct bvh));
+	if (count < 1) {
+		logr(debug, "bvh count < 1\n");
+		return NULL;
+	}
 
 	struct vector *centers = malloc(sizeof(struct vector) * count);
 	struct boundingBox *bboxes = malloc(sizeof(struct boundingBox) * count);
@@ -653,7 +655,14 @@ void destroy_bvh(struct bvh *bvh) {
 void bvh_build_task(void *arg) {
 	block_signals();
 	struct mesh *mesh = (struct mesh *)arg;
+	struct timeval timer = { 0 };
+	timer_start(&timer);
 	mesh->bvh = build_mesh_bvh(mesh);
+	if (mesh->bvh) {
+		logr(debug, "Built BVH for %s, took %lums\n", mesh->name, timer_get_ms(timer));
+	} else {
+		logr(debug, "BVH build FAILED for %s\n", mesh->name);
+	}
 }
 
 // FIXME: Add pthread_cancel() support
