@@ -243,8 +243,6 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 void win_destroy(struct sdl_window *w) {
 	if (!w) return;
 	if (w->sym) {
-		w->sym->SDL_VideoQuit();
-		w->sym->SDL_Quit();
 		if (w->texture) {
 			w->sym->SDL_DestroyTexture(w->texture);
 			w->texture = NULL;
@@ -263,6 +261,8 @@ void win_destroy(struct sdl_window *w) {
 			w->sym->SDL_DestroyWindow(w->window);
 			w->window = NULL;
 		}
+		w->sym->SDL_VideoQuit();
+		w->sym->SDL_Quit();
 		dyn_close(w->sym->lib);
 		free(w->sym);
 	}
