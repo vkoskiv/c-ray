@@ -25,6 +25,10 @@ struct bvh;
 /// Returns the bounding box of the root of the given BVH
 struct boundingBox get_root_bbox(const struct bvh *bvh);
 
+/// Returns the transformed bounding box of the BVH, using a better approximation than transforming
+/// the root bounding box.
+struct boundingBox get_transformed_root_bbox(const struct bvh *bvh, const struct matrix4x4 *);
+
 /// Builds a BVH for a given mesh
 /// @param mesh Mesh containing polygons to process
 /// @param count Amount of polygons given

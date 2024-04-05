@@ -214,8 +214,7 @@ static void getMeshBBoxAndCenter(const struct instance *instance, struct boundin
 		mesh->rayOffset = 0.0f;
 		return;
 	}
-	*bbox = get_root_bbox(mesh->bvh);
-	tform_bbox(bbox, instance->composite.A);
+	*bbox = get_transformed_root_bbox(mesh->bvh, &instance->composite.A);
 	*center = bboxCenter(bbox);
 	mesh->rayOffset = rayOffset(*bbox);
 }
