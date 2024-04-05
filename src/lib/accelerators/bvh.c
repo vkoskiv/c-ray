@@ -614,6 +614,44 @@ struct boundingBox get_root_bbox(const struct bvh *bvh) {
 	return load_bbox_from_node(&bvh->nodes[0]);
 }
 
+struct boundingBox get_transformed_root_bbox(const struct bvh *bvh, const struct matrix4x4 *mat) {
+	// This algorithm recursively traverses the BVH in order to get a better approximation of the
+	// bounding box of the transformed BVH. An area threshold, expressed as a fraction of the area
+	// of the root node, is used to stop recursion early: For nodes that have a smaller area, the
+	// bounding box of the node is used as a proxy for the bounding box of the elements contained
+	// in the subtree. Thus, the smaller the threshold, the more precise the algorithm is, at the
+	// cost of more iterations.
+	const float area_threshold = 0.1f * bboxHalfArea((struct boundingBox[]) { get_root_bbox(bvh) });
+
+	index_t stack[MAX_BVH_DEPTH + 1];
+	index_t top = 0;
+	size_t stack_size = 0;
+	struct boundingBox bbox = emptyBBox;
+
+	while (true) {
+		struct bvh_node* node = &bvh->nodes[top];
+		struct boundingBox node_bbox = load_bbox_from_node(node);
+
+		// Stop recursing at a fixed depth, when we hit a leaf, or when the surface area of the bounding
+		// box is lower than the given threshold.
+		if (stack_size >= MAX_BVH_DEPTH + 1 ||
+			node->index.prim_count > 0 ||
+			bboxHalfArea(&node_bbox) < area_threshold)
+		{
+			tform_bbox(&node_bbox, *mat);
+			extendBBox(&bbox, &node_bbox);
+			if (stack_size <= 0)
+				break;
+			top = stack[--stack_size];
+		} else {
+			stack[stack_size++] = node->index.first_child_or_prim + 0;
+			top = node->index.first_child_or_prim + 1;
+		}
+	}
+
+	return bbox;
+}
+
 struct bvh *build_mesh_bvh(const struct mesh *mesh) {
 	return build_bvh_generic(mesh, get_poly_bbox_and_center, mesh->polygons.count);
 }
