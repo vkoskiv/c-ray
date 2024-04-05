@@ -11,8 +11,8 @@
 		"outputFileName": "rendered",
 		"fileType": "png",
 		"count": 0,
-		"width": 1280,
-		"height": 800
+		"width": 1920,
+		"height": 1080
 	},
 	"display": {
 		"isFullscreen": false,
@@ -63,7 +63,7 @@
 			]
 		},
 		{
-			"FOV": 90.0,
+			"FOV": 100.0,
 			"focalDistance": 0.2,
 			"fstops": 0,
 			"transforms": [
@@ -445,10 +445,6 @@
 							{
 								"type": "translate",
 								"X": 0.08
-							},
-							{
-								"type": "rotateY",
-								"degrees": 0
 							}
 						]
 					}

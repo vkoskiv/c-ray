@@ -281,7 +281,7 @@ file_data read_stdin(void) {
 	}
 	
 	buf[buf_size ] = 0;
-	return (file_data){ .items = buf, .count = buf_size - 1, .capacity = buf_size - 1 };
+	return (file_data){ .items = buf, .count = buf_size, .capacity = buf_size };
 }
 
 char *human_file_size(unsigned long bytes, char *stat_buf) {
