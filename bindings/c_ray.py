@@ -7,6 +7,9 @@ from . nodes.vector import (
 	cr_vector,
 	cr_coord
 )
+from . cray_wrap import (
+	CallbackInfo
+)
 
 class cr_renderer(ct.Structure):
 	pass

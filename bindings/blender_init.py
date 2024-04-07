@@ -158,14 +158,10 @@ def on_start(renderer_cb_info, user_data):
 def on_stop(renderer_cb_info, user_data):
 	print("on_stop called")
 
-def on_status_update(renderer_cb_info, args):
-	ct.pythonapi.PyCapsule_GetPointer.restype = ct.c_void_p
-	ct.pythonapi.PyCapsule_GetPointer.argtypes = [ct.py_object, ct.c_char_p]
-	ptr = ct.pythonapi.PyCapsule_GetPointer(renderer_cb_info, "cray.renderer_cb_info".encode())
-	info = ct.cast(ptr, ct.POINTER(c_ray.cr_cb_info)).contents
+def on_status_update(cb_info, args):
 	cr_renderer, update_progress, update_stats, test_break = args
-	update_stats("", "ETA: {}".format(str(datetime.timedelta(milliseconds=info.eta_ms))))
-	update_progress(info.completion)
+	update_stats("", "ETA: {}".format(str(datetime.timedelta(milliseconds=cb_info.eta_ms))))
+	update_progress(cb_info.completion)
 	if test_break():
 		print("Stopping c-ray")
 		cr_renderer.stop()
