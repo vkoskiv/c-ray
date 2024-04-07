@@ -459,12 +459,9 @@ class CrayRender(bpy.types.RenderEngine):
 		end = time.time()
 		print("Done, took {}s".format(end - start_first))
 
-		# We need to work around a bug in foreach_set(), where it gets the length of the first array dimension, instead of the whole array.
 		print("Converting")
 		start = time.time()
-		floats = np.frombuffer(buffer, np.float32).reshape(-1, 4)
-		# Could also use memoryview, but that's only supported in Blender 4.0 and up
-		# floats = memoryview(floats).cast('b').cast('f', (bm.width * bm.height, 4))
+		floats = np.frombuffer(buffer, np.float32)
 		end = time.time()
 		print("DONE, took {}".format(end - start))
 		result = self.begin_result(0, 0, bm.width, bm.height)
