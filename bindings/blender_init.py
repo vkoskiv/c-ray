@@ -183,12 +183,8 @@ def draw_direct(bitmap):
 	if texture:
 		draw_texture_2d(texture, (0, 0), texture.width, texture.height)
 
-def status_update_interactive(renderer_cb_info, args):
+def status_update_interactive(cb_info, args):
 	tag_redraw, update_stats, self = args
-	ct.pythonapi.PyCapsule_GetPointer.restype = ct.c_void_p
-	ct.pythonapi.PyCapsule_GetPointer.argtypes = [ct.py_object, ct.c_char_p]
-	ptr = ct.pythonapi.PyCapsule_GetPointer(renderer_cb_info, "cray.renderer_cb_info".encode())
-	info = ct.cast(ptr, ct.POINTER(c_ray.cr_cb_info)).contents
 	if info.finished_passes == self.cr_renderer.prefs.samples:
 		update_stats("Rendering done", "")
 	else:
