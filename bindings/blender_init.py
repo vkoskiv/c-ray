@@ -320,7 +320,7 @@ class CrayRender(bpy.types.RenderEngine):
 					cr_mat_set.add(None)
 			mesh_triangulate(me)
 			verts = me.vertices[:]
-			me.calc_normals_split()
+			# me.calc_normals_split()
 			faces = []
 			for poly in me.polygons:
 				faces.append(to_cr_face(me, poly))

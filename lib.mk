@@ -15,7 +15,7 @@ lib: $(BIN_lib)
 
 pylib: bindings/cray_wrap.so
 
-BLENDER_ROOT=$(HOME)/.config/blender/4.0
+BLENDER_ROOT=$(HOME)/.config/blender/4.1
 
 blsync: bindings/cray_wrap.so $(SRCS_python)
 	mkdir -p $(BLENDER_ROOT)/scripts/addons/c_ray
