@@ -185,11 +185,11 @@ def draw_direct(bitmap):
 
 def status_update_interactive(cb_info, args):
 	tag_redraw, update_stats, self = args
+	tag_redraw()
 	if info.finished_passes == self.cr_renderer.prefs.samples:
 		update_stats("Rendering done", "")
 	else:
 		update_stats("Sample {}".format(info.finished_passes), "")
-	tag_redraw()
 
 class CrayRender(bpy.types.RenderEngine):
 	bl_idname = "C_RAY"
