@@ -51,6 +51,8 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 			tile->index = set->finished++;
 		} else {
 			r->state.finishedPasses++;
+			// FIXME: It's pretty confusing that we're firing this callback here instead of in the
+			// renderer main loop directly.
 			struct cr_renderer_cb_info cb_info = { 0 };
 			cb_info.finished_passes = r->state.finishedPasses - 1;
 			struct callback cb = r->state.callbacks[cr_cb_on_interactive_pass_finished];

@@ -81,6 +81,7 @@ static PyMemberDef CallbackInfo_members[] = {
 	{ "avg_per_ray", T_DOUBLE, offsetof(CallbackInfoObject, info.avg_per_ray_us), 0, "Microseconds per ray, on average" },
 	{ "samples_per_sec", T_LONG, offsetof(CallbackInfoObject, info.samples_per_sec), 0, "Samples per second" },
 	{ "eta_ms", T_LONG, offsetof(CallbackInfoObject, info.eta_ms), 0, "ETA to render finished, in milliseconds" },
+	{ "finished_passes", T_ULONG, offsetof(CallbackInfoObject, info.finished_passes), 0, "Passes finished in interactive mode" },
 	{ "completion", T_DOUBLE, offsetof(CallbackInfoObject, info.completion), 0, "Render completion" },
 	{ "paused", T_INT, offsetof(CallbackInfoObject, info.paused), 0, "Boolean, render paused" },
 	{ NULL },
