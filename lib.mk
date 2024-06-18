@@ -15,7 +15,8 @@ lib: $(BIN_lib)
 
 pylib: bindings/cray_wrap.so
 
-BLENDER_ROOT=$(HOME)/.config/blender/4.1
+BLENDER_VERSION=$(shell blender --version | head -n1 | cut -d ' ' -f 2 | cut -c 1-3)
+BLENDER_ROOT=$(HOME)/.config/blender/$(BLENDER_VERSION)
 
 blsync: bindings/cray_wrap.so $(SRCS_python)
 	mkdir -p $(BLENDER_ROOT)/scripts/addons/c_ray
