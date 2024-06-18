@@ -384,6 +384,9 @@ class CrayRender(bpy.types.RenderEngine):
 		mesh = update.id
 		print("Mesh {} was updated".format(mesh.name))
 		# For now, we only handle transforms.
+		# I find it frustrating that the only way to inspect these types is by
+		# dumping them at runtime. It's a really slow way to explore an API.
+		# Surely there is a better way?
 		if update.is_updated_transform:
 			# FIXME: How do I get the actual instance index from Blender?
 			# Just grabbing the first one for now.
@@ -451,7 +454,7 @@ class CrayRender(bpy.types.RenderEngine):
 			self.cr_renderer.start_interactive()
 
 	def display_bitmap(self, bm):
-		# Get float array from libc-ray
+		# Get float array from libc-ray containing the raw render buffer, and then build a render result with it
 		print("Grabbing float array from lib")
 		start_first = time.time()
 		float_count = bm.width * bm.height * bm.stride
