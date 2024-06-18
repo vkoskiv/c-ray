@@ -385,6 +385,8 @@ class instance:
 		self.cr_idx = _lib.instance_new(self.scene_ptr, self.object.cr_idx, self.type)
 
 	def set_transform(self, matrix):
+		if self.matrix == matrix:
+			return
 		self.matrix = matrix
 		_lib.instance_set_transform(self.scene_ptr, self.cr_idx, self.matrix)
 
@@ -457,22 +459,6 @@ class scene:
 		return _lib.scene_set_background(self.cr_ptr, capsule)
 	def vertex_buf_new(self, v, vn, n, nn, t, tn):
 		return vertex_buf(self.cr_ptr, v, vn, n, nn, t, tn)
-
-class cr_cb_info(ct.Structure):
-	_fields_ = [
-		("fb", ct.POINTER(cr_bitmap)),
-		("tiles", ct.POINTER(ct.c_void_p)), # TODO
-		("tiles_count", ct.c_size_t),
-		("active_threads", ct.c_size_t),
-		("avg_per_ray_us", ct.c_double),
-		("samples_per_sec", ct.c_int64),
-		("eta_ms", ct.c_int64),
-		("finished_passes", ct.c_size_t),
-		("completion", ct.c_double),
-		("paused", ct.c_bool),
-	]
-
-cr_cb_func = ct.CFUNCTYPE(ct.c_void_p, ct.POINTER(cr_cb_info), ct.POINTER(ct.c_void_p))
 
 class renderer:
 	def __init__(self, path = None):

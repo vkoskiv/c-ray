@@ -196,7 +196,6 @@ class CrayRender(bpy.types.RenderEngine):
 	bl_label = "c-ray for Blender"
 	bl_use_preview = True
 	bl_use_shading_nodes_custom = False
-	cr_interactive_running = False
 	cr_renderer = None
 	old_mtx = None
 	old_dims = None
@@ -205,14 +204,14 @@ class CrayRender(bpy.types.RenderEngine):
 	def __init__(self):
 		print("c-ray initialized")
 		self.cr_scene = None
-		self.cr_interactive_running = False
 		c_ray.log_level_set(c_ray.log_level.Debug)
 
 	def __del__(self):
-		if self.cr_interactive_running:
-			self.cr_renderer.stop()
-			self.cr_interactive_running = False
+		# FIXME: This never gets called when leaving rendered viewport shading mode
+		# which ends up leaving zombie instances of c-ray running in the background
 		if self.cr_renderer:
+			if self.cr_renderer.interactive:
+				self.cr_renderer.stop()
 			self.cr_renderer.close()
 		print("c-ray deleted")
 
@@ -262,7 +261,7 @@ class CrayRender(bpy.types.RenderEngine):
 				else:
 					cr_cam.opts.focus_distance = bl_cam.dof.focus_distance
 
-		# Convert materials
+		# Convert Cycles materials into c-ray node graphs
 		cr_materials = {}
 		for bl_mat in bpy.data.materials:
 			print("Converting {}".format(bl_mat.name))
@@ -302,7 +301,7 @@ class CrayRender(bpy.types.RenderEngine):
 				cr_mat_set.add(None)
 			for bl_mat in me.materials:
 				if not bl_mat:
-					print("WTF, array contains NoneType?")
+					print("Huh, array contains NoneType?")
 					cr_mat_set.add(None)
 				elif bl_mat.use_nodes:
 					print("Fetching material {}".format(bl_mat.name))
@@ -314,6 +313,7 @@ class CrayRender(bpy.types.RenderEngine):
 				else:
 					print("Material {} doesn't use nodes, do something about that".format(bl_mat.name))
 					cr_mat_set.add(None)
+			# c-ray only supports triangles
 			mesh_triangulate(me)
 			verts = me.vertices[:]
 			# me.calc_normals_split()
@@ -357,6 +357,7 @@ class CrayRender(bpy.types.RenderEngine):
 		bm = self.cr_renderer.get_result()
 		self.display_bitmap(bm)
 
+	# This is still very buggy, don't resize the viewport
 	def view_draw(self, context, depsgraph):
 		zoom = context.region_data.view_camera_zoom
 		mtx = context.region_data.view_matrix.inverted()
@@ -382,11 +383,13 @@ class CrayRender(bpy.types.RenderEngine):
 	def partial_update_mesh(self, update):
 		mesh = update.id
 		print("Mesh {} was updated".format(mesh.name))
+		# For now, we only handle transforms.
 		if update.is_updated_transform:
 			# FIXME: How do I get the actual instance index from Blender?
 			# Just grabbing the first one for now.
 			inst = self.cr_scene.meshes[mesh.name].instances[-1]
 			inst.set_transform(to_cr_matrix(mesh.matrix_world))
+
 	def partial_update(self, updates):
 		for update in updates:
 			# Kind of annoying that seemingly every update has 'type', except if it's an
@@ -440,13 +443,12 @@ class CrayRender(bpy.types.RenderEngine):
 		cr_cam.opts.res_y = context.region.height
 		cr_cam.opts.blender_coord = 1
 
-		if self.cr_interactive_running == True:
+		if self.cr_renderer.interactive == True:
 			self.cr_renderer.restart()
 		else:
 			print("Kicking off background renderer")
 			self.cr_renderer.callbacks.on_interactive_pass_finished = (status_update_interactive, (self.tag_redraw, self.update_stats, self))
 			self.cr_renderer.start_interactive()
-			self.cr_interactive_running = True
 
 	def display_bitmap(self, bm):
 		# Get float array from libc-ray
