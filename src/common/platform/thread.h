@@ -46,7 +46,7 @@ struct cr_cond {
 
 struct cr_rwlock {
 #ifdef WINDOWS
-	SRWLock lock;
+	SRWLOCK lock;
 	bool exclusive;
 #else
 	pthread_rwlock_t lock;
