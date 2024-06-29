@@ -122,6 +122,21 @@ void renderer_start_interactive(struct renderer *r) {
 	});
 }
 
+void update_toplevel_bvh(struct world *s) {
+	if (!s->top_level_dirty) return;
+	logr(info, "%s top-level BVH\n", s->topLevel ? "Updating" : "Computing");
+	struct bvh *new = build_top_level_bvh(s->instances);
+	//!//!//!//!//!//!//!//!//!//!//!//!
+	thread_rwlock_wrlock(&s->bvh_lock);
+	struct bvh *old = s->topLevel;
+	s->topLevel = new;
+	thread_rwlock_unlock(&s->bvh_lock);
+	//!//!//!//!//!//!//!//!//!//!//!//!
+	destroy_bvh(old);
+	logr(info, "BVH update done\n");
+	s->top_level_dirty = false;
+}
+
 // TODO: Clean this up, it's ugly.
 void renderer_render(struct renderer *r) {
 	//Check for CTRL-C
@@ -171,17 +186,8 @@ void renderer_render(struct renderer *r) {
 	// Compute BVH acceleration structures for all meshes in the scene
 	compute_accels(r->scene->meshes);
 
-	// And then compute a single top-level BVH that contains all the objects
-	if (r->scene->instances_dirty) {
-		logr(info, "%s top-level BVH: ", r->scene->topLevel ? "Updating" : "Computing");
-		if (r->scene->topLevel) destroy_bvh(r->scene->topLevel);
-		struct timeval bvh_timer = {0};
-		timer_start(&bvh_timer);
-		r->scene->topLevel = build_top_level_bvh(r->scene->instances);
-		printSmartTime(timer_get_ms(bvh_timer));
-		logr(plain, "\n");
-		r->scene->instances_dirty = false;
-	}
+	// And compute an initial top-level BVH.
+	update_toplevel_bvh(r->scene);
 
 	print_stats(r->scene);
 
@@ -335,7 +341,9 @@ void *render_thread_interactive(void *arg) {
 				initSampler(sampler, SAMPLING_STRATEGY, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
 				struct color output = textureGetPixel(*buf, x, y, false);
+				thread_rwlock_rdlock(&r->scene->bvh_lock);
 				struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
+				thread_rwlock_unlock(&r->scene->bvh_lock);
 
 				nan_clamp(&sample, &output);
 				
@@ -410,7 +418,9 @@ void *render_thread(void *arg) {
 					initSampler(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = textureGetPixel(*buf, x, y, false);
+					thread_rwlock_rdlock(&r->scene->bvh_lock);
 					struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
+					thread_rwlock_unlock(&r->scene->bvh_lock);
 					
 					// Clamp out fireflies - This is probably not a good way to do that.
 					nan_clamp(&sample, &output);

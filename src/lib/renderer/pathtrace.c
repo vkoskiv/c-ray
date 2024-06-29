@@ -22,6 +22,7 @@
 #include "sky.h"
 #include "../renderer/instance.h"
 #include "../nodes/shaders/background.h"
+#include "../../common/platform/thread.h"
 
 static inline struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler) {
 	//TODO: Consider passing in last instance idx + polygon to detect self-intersections?

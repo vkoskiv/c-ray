@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "../../includes.h"
+
 #ifdef WINDOWS
 	#include <stdbool.h>
 	#include <Windows.h>
@@ -42,6 +44,15 @@ struct cr_cond {
 #endif
 };
 
+struct cr_rwlock {
+#ifdef WINDOWS
+	SRWLock lock;
+	bool exclusive;
+#else
+	pthread_rwlock_t lock;
+#endif
+};
+
 typedef struct cr_thread cr_thread;
 dyn_array_def(cr_thread)
 
@@ -68,3 +79,9 @@ int thread_cond_timed_wait(struct cr_cond *cond, struct cr_mutex *mutex, const s
 int thread_cond_signal(struct cr_cond *cond);
 
 int thread_cond_broadcast(struct cr_cond *cond);
+
+int thread_rwlock_init(struct cr_rwlock *lock);
+int thread_rwlock_destroy(struct cr_rwlock *lock);
+int thread_rwlock_rdlock(struct cr_rwlock *lock);
+int thread_rwlock_wrlock(struct cr_rwlock *lock);
+int thread_rwlock_unlock(struct cr_rwlock *lock);

@@ -32,7 +32,11 @@ void scene_destroy(struct world *scene) {
 		camera_arr_free(&scene->cameras);
 		scene->meshes.elem_free = mesh_free;
 		mesh_arr_free(&scene->meshes);
+
+		thread_rwlock_wrlock(&scene->bvh_lock);
 		destroy_bvh(scene->topLevel);
+		thread_rwlock_unlock(&scene->bvh_lock);
+
 		destroyHashtable(scene->storage.node_table);
 		destroyBlocks(scene->storage.node_pool);
 

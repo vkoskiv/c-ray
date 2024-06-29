@@ -146,3 +146,61 @@ int thread_cond_broadcast(struct cr_cond *cond) {
 	return pthread_cond_broadcast(&cond->cond);
 #endif
 }
+
+int thread_rwlock_init(struct cr_rwlock *lock) {
+	if (!lock) return -1;
+#ifdef WINDOWS
+	InitializeSRWLock(&lock->lock);
+	lock->exclusive = false;
+	return 0;
+#else
+	return pthread_rwlock_init(&lock->lock, NULL);
+#endif
+}
+
+int thread_rwlock_destroy(struct cr_rwlock *lock) {
+	if (!lock) return -1;
+#ifdef WINDOWS
+	(void)lock;
+	return 0;
+#else
+	return pthread_rwlock_destroy(&lock->lock);
+#endif
+}
+
+int thread_rwlock_rdlock(struct cr_rwlock *lock) {
+	if (!lock) return -1;
+#ifdef WINDOWS
+	AcquireSRWLockShared(&lock->lock);
+	return 0;
+#else
+	return pthread_rwlock_rdlock(&lock->lock);
+#endif
+}
+
+int thread_rwlock_wrlock(struct cr_rwlock *lock) {
+	if (!lock) return -1;
+#ifdef WINDOWS
+	AcquireSRWLockExclusive(&lock->lock);
+	lock->exclusive = true;
+	return 0;
+#else
+	return pthread_rwlock_wrlock(&lock->lock);
+#endif
+}
+
+int thread_rwlock_unlock(struct cr_rwlock *lock) {
+	if (!lock) return -1;
+#ifdef WINDOWS
+	if (lock->exclusive) {
+		lock->exclusive = false;
+		ReleaseSRWLockExclusive(&lock->lock);
+	} else {
+		ReleaseSRWLockShared(&lock->lock);
+	}
+	return 0;
+#else
+	return pthread_rwlock_unlock(&lock->lock);
+#endif
+}
+

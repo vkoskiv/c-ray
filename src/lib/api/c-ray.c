@@ -351,11 +351,12 @@ void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, flo
 	if ((size_t)instance > scene->instances.count - 1) return;
 	struct instance *i = &scene->instances.items[instance];
 	struct matrix4x4 mtx = mtx_convert(row_major);
+	if (memcmp(&i->composite, &mtx, sizeof(mtx)) == 0) return;
 	i->composite = (struct transform){
 		.A = mtx,
 		.Ainv = mat_invert(mtx)
 	};
-	scene->instances_dirty = true;
+	scene->top_level_dirty = true;
 }
 
 void cr_instance_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]) {
@@ -836,6 +837,7 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 		// FIXME: What about network renderers?
 		r->state.workers.items[i].totalSamples = 0;
 	}
+	update_toplevel_bvh(r->scene);
 	mutex_release(r->state.current_set->tile_mutex);
 }
 

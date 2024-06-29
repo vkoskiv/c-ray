@@ -89,4 +89,7 @@ void renderer_render(struct renderer *r);
 void renderer_start_interactive(struct renderer *r);
 void renderer_destroy(struct renderer *r);
 
+// Exposed for now, so API calls can synchronously ensure the BVH is up to date
+void update_toplevel_bvh(struct world *s);
+
 struct prefs default_prefs(void); // TODO: Remove

@@ -683,11 +683,10 @@ bool traverse_top_level_bvh(
 }
 
 void destroy_bvh(struct bvh *bvh) {
-	if (bvh) {
-		if (bvh->nodes) free(bvh->nodes);
-		if (bvh->prim_indices) free(bvh->prim_indices);
-		free(bvh);
-	}
+	if (!bvh) return;
+	if (bvh->nodes) free(bvh->nodes);
+	if (bvh->prim_indices) free(bvh->prim_indices);
+	free(bvh);
 }
 
 void bvh_build_task(void *arg) {
