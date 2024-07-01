@@ -1,5 +1,6 @@
 import bpy
 from bpy.types import Panel
+from bpy_extras.node_utils import find_node_input
 
 # Most of this is just a carbon-copy of the Cycles UI boilerplate
 
@@ -198,6 +199,34 @@ class C_RAY_CAMERA_PT_dof(CrayButtonsPanel, Panel):
 		sub.active = dof.focus_object is None
 		sub.prop(dof, "focus_distance", text="Distance")
 
+def panel_node_draw(layout, id_data, output_type, input_name):
+	ntree = id_data.node_tree
+	node = ntree.get_output_node('CYCLES')
+	if node:
+		input = find_node_input(node, input_name)
+		if input:
+			layout.template_node_view(ntree, node, input)
+		else:
+			layout.label(text="Incompatible output node")
+	else:
+		layout.label(text="No output node")
+	return True
+
+class C_RAY_WORLD_PT_surface(CrayButtonsPanel, Panel):
+	bl_label = "Surface"
+	bl_context = "world"
+
+	@classmethod
+	def poll(cls, context):
+		return context.world and CrayButtonsPanel.poll(context)
+
+	def draw(self, context):
+		layout = self.layout
+		layout.use_property_split = True
+		world = context.world
+		if not panel_node_draw(layout, world, 'OUTPUT_WORLD', 'Surface'):
+			layout.prop(world, "color")
+
 class C_RAY_CAMERA_PT_dof_aperture(CrayButtonsPanel, Panel):
 	bl_label = "Aperture"
 	bl_parent_id = "C_RAY_CAMERA_PT_dof"
@@ -245,6 +274,7 @@ classes = (
 	C_RAY_MATERIAL_PT_preview,
 	C_RAY_CAMERA_PT_dof,
 	C_RAY_CAMERA_PT_dof_aperture,
+	C_RAY_WORLD_PT_surface,
 )
 
 def register():

@@ -402,8 +402,8 @@ class CrayRender(bpy.types.RenderEngine):
 			# Kind of annoying that seemingly every update has 'type', except if it's an
 			# update in the Scene datablock. I'm sure there is a good reason for this though.
 			if not hasattr(update.id, 'type'):
-				if update.id.id_type == 'MATERIAL':
-					update_matname = update.id.name
+				if update.id.id_type == 'WORLD':
+					self.cr_scene.set_background(convert_background(update.id.node_tree))
 			else:
 				match update.id.type:
 					case 'MESH':
