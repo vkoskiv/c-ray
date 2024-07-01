@@ -771,15 +771,28 @@ static void debug_dump_node_tree(const struct cr_shader_node *desc) {
 #endif
 }
 
-void cr_material_set_add(struct cr_scene *s_ext, cr_material_set set, struct cr_shader_node *desc) {
-	if (!s_ext) return;
+cr_material cr_material_set_add(struct cr_scene *s_ext, cr_material_set set, struct cr_shader_node *desc) {
+	if (!s_ext) return -1;
 	struct world *s = (struct world *)s_ext;
-	if ((size_t)set > s->shader_buffers.count - 1) return;
+	if ((size_t)set > s->shader_buffers.count - 1) return -1;
 	debug_dump_node_tree(desc);
 	struct bsdf_buffer *buf = &s->shader_buffers.items[set];
 	const struct bsdfNode *node = build_bsdf_node(s_ext, desc);
 	cr_shader_node_ptr_arr_add(&buf->descriptions, shader_deepcopy(desc));
-	bsdf_node_ptr_arr_add(&buf->bsdfs, node);
+	return bsdf_node_ptr_arr_add(&buf->bsdfs, node);
+}
+
+void cr_material_update(struct cr_scene *s_ext, cr_material_set set, cr_material mat, struct cr_shader_node *desc) {
+	if (!s_ext) return;
+	struct world *s = (struct world *)s_ext;
+	if ((size_t)set > s->shader_buffers.count - 1) return;
+	struct bsdf_buffer *buf = &s->shader_buffers.items[set];
+	if ((size_t)mat > buf->descriptions.count - 1) return;
+	// struct bsdfNode *old_node = buf->bsdfs.items[mat];
+	buf->bsdfs.items[mat] = build_bsdf_node(s_ext, desc);
+	struct cr_shader_node *old_desc = buf->descriptions.items[mat];
+	cr_shader_node_free(old_desc);
+	buf->descriptions.items[mat] = shader_deepcopy(desc);
 }
 
 void cr_renderer_render(struct cr_renderer *ext) {

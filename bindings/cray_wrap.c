@@ -539,11 +539,29 @@ static PyObject *py_cr_material_set_add(PyObject *self, PyObject *args) {
 	}
 	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
 	if (!PyCapsule_IsValid(node_desc, "cray.shader_node")) {
-		cr_material_set_add(s, set, NULL);
+		cr_material new = cr_material_set_add(s, set, NULL);
+		return PyLong_FromLong(new);
+	}
+	struct cr_shader_node *desc = PyCapsule_GetPointer(node_desc, "cray.shader_node");
+	cr_material new = cr_material_set_add(s, set, desc);
+	return PyLong_FromLong(new);
+}
+
+static PyObject *py_cr_material_update(PyObject *self, PyObject *args) {
+	(void)self; (void)args;
+	PyObject *s_ext;
+	cr_material_set set;
+	cr_material mat;
+	PyObject *node_desc;
+	if (!PyArg_ParseTuple(args, "OllO", &s_ext, &set, &mat, &node_desc)) {
+		return NULL;
+	}
+	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
+	if (!PyCapsule_IsValid(node_desc, "cray.shader_node")) {
 		Py_RETURN_NONE;
 	}
 	struct cr_shader_node *desc = PyCapsule_GetPointer(node_desc, "cray.shader_node");
-	cr_material_set_add(s, set, desc);
+	cr_material_update(s, set, mat, desc);
 	Py_RETURN_NONE;
 }
 
@@ -735,6 +753,7 @@ static PyMethodDef cray_methods[] = {
 	{ "camera_update", py_cr_camera_update, METH_VARARGS, "" },
 	{ "scene_new_material_set", py_cr_scene_new_material_set, METH_VARARGS, "" },
 	{ "material_set_add", py_cr_material_set_add, METH_VARARGS, "" },
+	{ "material_update", py_cr_material_update, METH_VARARGS, "" },
 	{ "instance_new", py_cr_instance_new, METH_VARARGS, "" },
 	{ "instance_set_transform", py_cr_instance_set_transform, METH_VARARGS, "" },
 	{ "instance_transform", py_cr_instance_transform, METH_VARARGS, "" },

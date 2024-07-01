@@ -413,19 +413,29 @@ class vertex_buf:
 class material_set:
 	def __init__(self, scene_ptr):
 		self.scene_ptr = scene_ptr
-		self.materials = []
+		self.materials = {}
 		self.cr_idx = _lib.scene_new_material_set(self.scene_ptr)
 
-	def add(self, material):
+	def add(self, material, name):
 		if material is None:
 			_lib.material_set_add(self.scene_ptr, self.cr_idx, None)
 			return
-		self.materials.append(material)
 		ct.pythonapi.PyCapsule_New.argtypes = [ct.c_void_p, ct.c_char_p, ct.c_void_p]
 		ct.pythonapi.PyCapsule_New.restype = ct.py_object
 		name = b'cray.shader_node'
 		capsule = ct.pythonapi.PyCapsule_New(ct.byref(material.cr_struct), name, None)
-		_lib.material_set_add(self.scene_ptr, self.cr_idx, capsule)
+		idx = _lib.material_set_add(self.scene_ptr, self.cr_idx, capsule)
+		print("matset {} idx {}".format(self.cr_idx, idx))
+		self.materials[name] = idx
+	def update(self, matname, new):
+		if new is None:
+			return
+		ct.pythonapi.PyCapsule_New.argtypes = [ct.c_void_p, ct.c_char_p, ct.c_void_p]
+		ct.pythonapi.PyCapsule_New.restype = ct.py_object
+		name = b'cray.shader_node'
+		capsule = ct.pythonapi.PyCapsule_New(ct.byref(new.cr_struct), name, None)
+		_lib.material_update(self.scene_ptr, self.cr_idx, self.materials[name], capsule)
+		print("matset {} material {} ({}) updated".format(self.cr_idx, matname, self.materials[name]))
 
 class scene:
 	def __init__(self, cr_renderer):
@@ -433,6 +443,7 @@ class scene:
 		self.cr_ptr = _lib.renderer_scene_get(self.cr_renderer)
 		self.meshes = {}
 		self.cameras = {}
+		self.material_sets = {}
 	def close(self):
 		del(self.s_ptr)
 
@@ -446,8 +457,9 @@ class scene:
 	def camera_new(self, name):
 		self.cameras[name] = camera(self.cr_ptr)
 		return self.cameras[name]
-	def material_set_new(self):
-		return material_set(self.cr_ptr)
+	def material_set_new(self, name):
+		self.material_sets[name] = material_set(self.cr_ptr)
+		return self.material_sets[name]
 	def set_background(self, material):
 		if material is None:
 			return _lib.scene_set_background(self.cr_ptr, material)

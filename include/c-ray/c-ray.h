@@ -234,8 +234,10 @@ CR_EXPORT bool cr_camera_update(struct cr_scene *ext, cr_camera c);
 #include "node.h"
 
 typedef cr_object cr_material_set;
+typedef cr_object cr_material;
 CR_EXPORT cr_material_set cr_scene_new_material_set(struct cr_scene *s_ext);
-CR_EXPORT void cr_material_set_add(struct cr_scene *s_ext, cr_material_set set, struct cr_shader_node *desc);
+CR_EXPORT cr_material cr_material_set_add(struct cr_scene *s_ext, cr_material_set set, struct cr_shader_node *desc);
+CR_EXPORT void cr_material_update(struct cr_scene *s_ext, cr_material_set set, cr_material mat, struct cr_shader_node *desc);
 
 // -- Instancing --
 

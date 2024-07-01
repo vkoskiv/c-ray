@@ -24,15 +24,15 @@ def convert_background(nt):
 	return parse_node(root.inputs['Surface'].links[0].from_node)
 		
 
-def convert_node_tree(bl_depsgraph, mat, nt):
+def convert_node_tree(bl_depsgraph, name, nt):
 	if not nt:
-		print("No node tree in material {}, bailing out".format(mat.name))
+		print("No node tree in material {}, bailing out".format(name))
 		return None
 	if len(nt.nodes) < 1:
-		print("No nodes found for material {}, bailing out".format(mat.name))
+		print("No nodes found for material {}, bailing out".format(name))
 		return None
 	if not 'Material Output' in nt.nodes:
-		print("No Material Output node found in tree for {}, bailing out".format(mat.name))
+		print("No Material Output node found in tree for {}, bailing out".format(name))
 		return None
 	root = nt.nodes['Material Output']
 	if not root.inputs['Surface'].is_linked:

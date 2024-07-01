@@ -265,7 +265,7 @@ class CrayRender(bpy.types.RenderEngine):
 		cr_materials = {}
 		for bl_mat in bpy.data.materials:
 			print("Converting {}".format(bl_mat.name))
-			cr_materials[bl_mat.name] = convert_node_tree(depsgraph, bl_mat, bl_mat.node_tree)
+			cr_materials[bl_mat.name] = convert_node_tree(depsgraph, bl_mat.name, bl_mat.node_tree)
 		
 		# Sync meshes
 		for idx, ob_main in enumerate(objects):
@@ -280,7 +280,7 @@ class CrayRender(bpy.types.RenderEngine):
 			instances = []
 			new_inst = cr_mesh.instance_new()
 			new_inst.set_transform(to_cr_matrix(ob_main.matrix_world))
-			cr_mat_set = self.cr_scene.material_set_new()
+			cr_mat_set = self.cr_scene.material_set_new(ob_main.name)
 			new_inst.bind_materials(cr_mat_set)
 			instances.append(new_inst)
 			if ob_main.is_instancer and ob_main.show_instancer_for_render:
@@ -298,21 +298,21 @@ class CrayRender(bpy.types.RenderEngine):
 				continue
 
 			if len(me.materials) < 1:
-				cr_mat_set.add(None)
+				cr_mat_set.add(None, bl_mat.name)
 			for bl_mat in me.materials:
 				if not bl_mat:
 					print("Huh, array contains NoneType?")
-					cr_mat_set.add(None)
+					cr_mat_set.add(None, bl_mat.name)
 				elif bl_mat.use_nodes:
 					print("Fetching material {}".format(bl_mat.name))
 					if bl_mat.name not in cr_materials:
 						print("Weird, {} not found in cr_materials".format(bl_mat.name))
-						cr_mat_set.add(None)
+						cr_mat_set.add(None, bl_mat.name)
 					else:
-						cr_mat_set.add(cr_materials[bl_mat.name])
+						cr_mat_set.add(cr_materials[bl_mat.name], bl_mat.name)
 				else:
 					print("Material {} doesn't use nodes, do something about that".format(bl_mat.name))
-					cr_mat_set.add(None)
+					cr_mat_set.add(None, bl_mat.name)
 			# c-ray only supports triangles
 			mesh_triangulate(me)
 			verts = me.vertices[:]
@@ -380,31 +380,38 @@ class CrayRender(bpy.types.RenderEngine):
 		self.unbind_display_space_shader()
 		gpu.state.blend_set('NONE')
 
-	def partial_update_mesh(self, update):
+	def partial_update_mesh(self, depsgraph, update):
 		mesh = update.id
-		print("Mesh {} was updated".format(mesh.name))
-		# For now, we only handle transforms.
+		mat = update.id.active_material
 		# I find it frustrating that the only way to inspect these types is by
 		# dumping them at runtime. It's a really slow way to explore an API.
 		# Surely there is a better way?
+		if update.is_updated_shading:
+			print("Mesh {} material {} updated".format(mesh.name, mat.name))
+			self.cr_scene.material_sets[mesh.name].update(mat.name, convert_node_tree(depsgraph, mat.name, mat.node_tree))
 		if update.is_updated_transform:
 			# FIXME: How do I get the actual instance index from Blender?
 			# Just grabbing the first one for now.
 			inst = self.cr_scene.meshes[mesh.name].instances[-1]
 			inst.set_transform(to_cr_matrix(mesh.matrix_world))
 
-	def partial_update(self, updates):
-		for update in updates:
+	def partial_update(self, depsgraph):
+		# print("Got {} updates:".format(len(depsgraph.updates)))
+
+		for update in depsgraph.updates:
 			# Kind of annoying that seemingly every update has 'type', except if it's an
 			# update in the Scene datablock. I'm sure there is a good reason for this though.
 			if not hasattr(update.id, 'type'):
-				print("Scene update")
+				if update.id.id_type == 'MATERIAL':
+					update_matname = update.id.name
 			else:
-				# print("Update, ID: '{}'".format(update.id.type))
 				match update.id.type:
 					case 'MESH':
-						self.partial_update_mesh(update)
-		# Maybe return if we actually need to restart?
+						update_meshname = update.id.name
+						self.partial_update_mesh(depsgraph, update)
+					case 'SHADER':
+						update_nodetree = update.id
+		# TODO: Maybe return if we actually need to restart?
 
 	def view_update(self, context, depsgraph):
 		if not self.cr_renderer:
@@ -414,7 +421,7 @@ class CrayRender(bpy.types.RenderEngine):
 			self.cr_scene = self.cr_renderer.scene_get()
 			self.sync_scene(depsgraph)
 
-		self.partial_update(depsgraph.updates)
+		self.partial_update(depsgraph)
 		self.cr_renderer.prefs.samples = depsgraph.scene.c_ray.samples
 		self.cr_renderer.prefs.threads = depsgraph.scene.c_ray.threads
 		self.cr_renderer.prefs.tile_x = depsgraph.scene.c_ray.tile_size
