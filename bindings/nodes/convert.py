@@ -302,6 +302,16 @@ def parse_value(input, group_inputs):
 		case 'ShaderNodeValToRGB':
 			color = parse_color(input, group_inputs)
 			return NodeValueGrayscale(color)
+		case 'ShaderNodeLayerWeight':
+			# FIXME: Ignoring blend
+			blend = parse_value(input.inputs[0], group_inputs)
+			normal = parse_vector(input.inputs[1], group_inputs)
+			# FIXME: If both are linked, will always take this first one
+			if input.outputs['Fresnel'].is_linked:
+				return NodeValueFresnel(NodeValueConstant(1.0), normal)
+			if input.outputs['Facing'].is_linked:
+				# TODO
+				return NodeValueConstant(0.0)
 		case _:
 			print("Unknown value node of type {}, maybe fix.".format(input.bl_idname))
 			return NodeValueConstant(0.0)
@@ -392,6 +402,7 @@ def parse_vector(input, group_inputs):
 			op = map_vec_op(input.operation)
 			return NodeVectorVecMath(a, b, c, f, op)
 		case 'ShaderNodeTexCoord':
+			# FIXME: I doubt this will work
 			if input.outputs['UV'].is_linked:
 				return NodeVectorUV()
 			if input.outputs['Normal'].is_linked:
