@@ -124,7 +124,6 @@ void renderer_start_interactive(struct renderer *r) {
 
 void update_toplevel_bvh(struct world *s) {
 	if (!s->top_level_dirty) return;
-	logr(info, "%s top-level BVH\n", s->topLevel ? "Updating" : "Computing");
 	struct bvh *new = build_top_level_bvh(s->instances);
 	//!//!//!//!//!//!//!//!//!//!//!//!
 	thread_rwlock_wrlock(&s->bvh_lock);
@@ -133,7 +132,6 @@ void update_toplevel_bvh(struct world *s) {
 	thread_rwlock_unlock(&s->bvh_lock);
 	//!//!//!//!//!//!//!//!//!//!//!//!
 	destroy_bvh(old);
-	logr(info, "BVH update done\n");
 	s->top_level_dirty = false;
 }
 
