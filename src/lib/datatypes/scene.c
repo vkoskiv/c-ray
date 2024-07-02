@@ -46,8 +46,6 @@ void scene_destroy(struct world *scene) {
 
 		cr_shader_node_free(scene->bg_desc);
 
-		scene->v_buffers.elem_free = vertex_buf_free;
-		vertex_buffer_arr_free(&scene->v_buffers);
 		instance_arr_free(&scene->instances);
 		sphere_arr_free(&scene->spheres);
 		if (scene->asset_path) free(scene->asset_path);

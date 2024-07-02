@@ -290,16 +290,17 @@ static PyObject *py_cr_scene_add_sphere(PyObject *self, PyObject *args) {
 	return PyLong_FromLong(sphere);
 }
 
-static PyObject *py_cr_scene_vertex_buf_new(PyObject *self, PyObject *args) {
+static PyObject *py_cr_mesh_bind_vertex_buf(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
 	PyObject *s_ext;
+	cr_mesh mesh;
 	PyObject *vec_buff;
 	size_t vec_count;
 	PyObject *nor_buff;
 	size_t nor_count;
 	PyObject *tex_buff;
 	size_t tex_count;
-	if (!PyArg_ParseTuple(args, "OOnOnOn", &s_ext, &vec_buff, &vec_count, &nor_buff, &nor_count, &tex_buff, &tex_count)) {
+	if (!PyArg_ParseTuple(args, "OlOnOnOn", &s_ext, &mesh, &vec_buff, &vec_count, &nor_buff, &nor_count, &tex_buff, &tex_count)) {
 		return NULL;
 	}
 	Py_buffer vec_view;
@@ -347,7 +348,7 @@ static PyObject *py_cr_scene_vertex_buf_new(PyObject *self, PyObject *args) {
 	memcpy(texcoords, tex_view.buf, tex_count * sizeof(*texcoords));
 
 	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
-	cr_vertex_buf buf = cr_scene_vertex_buf_new(s, (struct cr_vertex_buf_param){
+	cr_mesh_bind_vertex_buf(s, mesh, (struct cr_vertex_buf_param){
 		.vertices = vertices,
 		.vertex_count = vec_count,
 		.normals = normals,
@@ -359,19 +360,6 @@ static PyObject *py_cr_scene_vertex_buf_new(PyObject *self, PyObject *args) {
 	free(vertices);
 	free(normals);
 	free(texcoords);
-	return PyLong_FromLong(buf);
-}
-
-static PyObject *py_cr_mesh_bind_vertex_buf(PyObject *self, PyObject *args) {
-	(void)self; (void)args;
-	PyObject *s_ext;
-	cr_mesh mesh;
-	cr_vertex_buf vbuf;
-	if (!PyArg_ParseTuple(args, "Oll", &s_ext, &mesh, &vbuf)) {
-		return NULL;
-	}
-	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
-	cr_mesh_bind_vertex_buf(s, mesh, vbuf);
 	Py_RETURN_NONE;
 }
 
@@ -710,7 +698,6 @@ static PyMethodDef cray_methods[] = {
 	{ "renderer_scene_get", py_cr_renderer_scene_get, METH_VARARGS, "" },
 	{ "scene_totals", py_cr_scene_totals, METH_VARARGS, "" },
 	{ "scene_add_sphere", py_cr_scene_add_sphere, METH_VARARGS, "" },
-	{ "scene_vertex_buf_new", py_cr_scene_vertex_buf_new, METH_VARARGS, "" },
 	{ "mesh_bind_vertex_buf", py_cr_mesh_bind_vertex_buf, METH_VARARGS, "" },
 	{ "mesh_bind_faces", py_cr_mesh_bind_faces, METH_VARARGS, "" },
 	{ "scene_mesh_new", py_cr_scene_mesh_new, METH_VARARGS, "" },

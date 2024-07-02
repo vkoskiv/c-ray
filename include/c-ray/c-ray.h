@@ -186,10 +186,6 @@ struct cr_vertex_buf_param {
 	size_t tex_coord_count;
 };
 
-typedef cr_object cr_vertex_buf;
-CR_EXPORT cr_vertex_buf cr_scene_vertex_buf_new(struct cr_scene *s_ext, struct cr_vertex_buf_param in);
-CR_EXPORT void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, cr_vertex_buf buf);
-
 struct cr_face {
 	int vertex_idx[MAX_CRAY_VERTEX_COUNT];
 	int normal_idx[MAX_CRAY_VERTEX_COUNT];
@@ -198,10 +194,11 @@ struct cr_face {
 	bool has_normals;
 };
 
-CR_EXPORT void cr_mesh_bind_faces(struct cr_scene *s_ext, cr_mesh mesh, struct cr_face *faces, size_t face_count);
-
 CR_EXPORT cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name);
 CR_EXPORT cr_mesh cr_scene_get_mesh(struct cr_scene *s_ext, const char *name);
+
+CR_EXPORT void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, struct cr_vertex_buf_param buf);
+CR_EXPORT void cr_mesh_bind_faces(struct cr_scene *s_ext, cr_mesh mesh, struct cr_face *faces, size_t face_count);
 
 // -- Camera --
 // FIXME: Use cr_vector

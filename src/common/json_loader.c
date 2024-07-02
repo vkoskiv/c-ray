@@ -318,15 +318,14 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 
 	if (!result.meshes.count) return;
 
-	cr_vertex_buf vbuf = cr_scene_vertex_buf_new(scene, (struct cr_vertex_buf_param){
+	struct cr_vertex_buf_param vbuf = {
 		.vertices = (struct cr_vector *)result.geometry.vertices.items,
 		.vertex_count = result.geometry.vertices.count,
 		.normals = (struct cr_vector *)result.geometry.normals.items,
 		.normal_count = result.geometry.normals.count,
 		.tex_coords = (struct cr_coord *)result.geometry.texture_coords.items,
 		.tex_coord_count = result.geometry.texture_coords.count,
-	});
-
+	};
 	// Per JSON 'meshes' array element, these apply to materials before we assign them to instances
 	const struct cJSON *global_overrides = cJSON_GetObjectItem(data, "materials");
 
@@ -359,6 +358,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 		for (size_t i = 0; i < result.meshes.count; ++i) {
 			cr_mesh mesh = cr_scene_mesh_new(scene, result.meshes.items[i].name);
 			cr_mesh_bind_vertex_buf(scene, mesh, vbuf);
+
 			cr_mesh_bind_faces(scene, mesh, result.meshes.items[i].faces.items, result.meshes.items[i].faces.count);
 			cr_instance m_instance = cr_instance_new(scene, mesh, cr_object_mesh);
 			cr_instance_bind_material_set(scene, m_instance, file_set);

@@ -252,36 +252,29 @@ cr_sphere cr_scene_add_sphere(struct cr_scene *s_ext, float radius) {
 	return sphere_arr_add(&scene->spheres, (struct sphere){ .radius = radius });
 }
 
-cr_vertex_buf cr_scene_vertex_buf_new(struct cr_scene *s_ext, struct cr_vertex_buf_param in) {
-	if (!s_ext) return -1;
-	struct world *scene = (struct world *)s_ext;
-	struct vertex_buffer new = { 0 };
-	// TODO: T_arr_add_n()
-	if (in.vertices && in.vertex_count) {
-		for (size_t i = 0; i < in.vertex_count; ++i) {
-			vector_arr_add(&new.vertices, *(struct vector *)&in.vertices[i]);
-		}
-	}
-	if (in.normals && in.normal_count) {
-		for (size_t i = 0; i < in.normal_count; ++i) {
-			vector_arr_add(&new.normals, *(struct vector *)&in.normals[i]);
-		}
-	}
-	if (in.tex_coords && in.tex_coord_count) {
-		for (size_t i = 0; i < in.tex_coord_count; ++i) {
-			coord_arr_add(&new.texture_coords, *(struct coord *)&in.tex_coords[i]);
-		}
-	}
-	return vertex_buffer_arr_add(&scene->v_buffers, new);
-}
-
-void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, cr_vertex_buf buf) {
+void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, struct cr_vertex_buf_param buf) {
 	if (!s_ext) return;
 	struct world *scene = (struct world *)s_ext;
 	if ((size_t)mesh > scene->meshes.count - 1) return;
 	struct mesh *m = &scene->meshes.items[mesh];
-	if ((size_t)buf > scene->v_buffers.count - 1) return;
-	m->vbuf_idx = buf;
+	struct vertex_buffer new = { 0 };
+	// TODO: T_arr_add_n()
+	if (buf.vertices && buf.vertex_count) {
+		for (size_t i = 0; i < buf.vertex_count; ++i) {
+			vector_arr_add(&new.vertices, *(struct vector *)&buf.vertices[i]);
+		}
+	}
+	if (buf.normals && buf.normal_count) {
+		for (size_t i = 0; i < buf.normal_count; ++i) {
+			vector_arr_add(&new.normals, *(struct vector *)&buf.normals[i]);
+		}
+	}
+	if (buf.tex_coords && buf.tex_coord_count) {
+		for (size_t i = 0; i < buf.tex_coord_count; ++i) {
+			coord_arr_add(&new.texture_coords, *(struct coord *)&buf.tex_coords[i]);
+		}
+	}
+	m->vbuf = new;
 }
 
 void cr_mesh_bind_faces(struct cr_scene *s_ext, cr_mesh mesh, struct cr_face *faces, size_t face_count) {

@@ -220,8 +220,26 @@ class mesh:
 		self.instances = []
 		self.cr_idx = _lib.scene_mesh_new(self.scene_ptr, self.name)
 
-	def bind_vertex_buf(self, buf):
-		_lib.mesh_bind_vertex_buf(self.scene_ptr, self.cr_idx, buf.cr_idx)
+	def bind_vertex_buf(self, me):
+		verts = []
+		for v in me.vertices:
+			cr_vert = cr_vector()
+			cr_vert.x = v.co[0]
+			cr_vert.y = v.co[1]
+			cr_vert.z = v.co[2]
+			verts.append(cr_vert)
+		normals = []
+		texcoords = []
+		vbuf = (cr_vector * len(verts))(*verts)
+		nbuf = (cr_vector * len(normals))(*normals)
+		tbuf = (cr_coord  * len(texcoords))(*texcoords)
+		self.v = bytearray(vbuf)
+		self.vn = len(verts)
+		self.n = bytearray(nbuf)
+		self.nn = len(normals)
+		self.t = bytearray(tbuf)
+		self.tn = len(texcoords)
+		_lib.mesh_bind_vertex_buf(self.scene_ptr, self.cr_idx, self.v, self.vn, self.n, self.nn, self.t, self.tn)
 	def bind_faces(self, faces, face_count):
 		_lib.mesh_bind_faces(self.scene_ptr, self.cr_idx, faces, face_count)
 	def instance_new(self):
@@ -377,17 +395,6 @@ class instance:
 		self.material_set = material_set
 		_lib.instance_bind_material_set(self.scene_ptr, self.cr_idx, self.material_set.cr_idx)
 
-class vertex_buf:
-	def __init__(self, scene_ptr, v, vn, n, nn, t, tn):
-		self.cr_ptr = scene_ptr
-		self.v = v
-		self.vn = vn
-		self.n = n
-		self.nn = nn
-		self.t = t
-		self.tn = tn
-		self.cr_idx = _lib.scene_vertex_buf_new(self.cr_ptr, self.v, self.vn, self.n, self.nn, self.t, self.tn)
-
 class material_set:
 	def __init__(self, scene_ptr):
 		self.scene_ptr = scene_ptr
@@ -447,8 +454,6 @@ class scene:
 		name = b'cray.shader_node'
 		capsule = ct.pythonapi.PyCapsule_New(ct.byref(material.cr_struct), name, None)
 		return _lib.scene_set_background(self.cr_ptr, capsule)
-	def vertex_buf_new(self, v, vn, n, nn, t, tn):
-		return vertex_buf(self.cr_ptr, v, vn, n, nn, t, tn)
 
 class renderer:
 	ret_bitmap = None
