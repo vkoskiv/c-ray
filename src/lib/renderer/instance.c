@@ -134,7 +134,7 @@ struct instance new_sphere_instance(struct sphere_arr *spheres, size_t idx, floa
 }
 
 static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecord *isect) {
-	if (mesh->vbuf->texture_coords.count == 0) return (struct coord){-1.0f, -1.0f};
+	if (mesh->vbuf.texture_coords.count == 0) return (struct coord){-1.0f, -1.0f};
 	struct poly *p = isect->polygon;
 	if (p->textureIndex[0] == -1) return (struct coord){-1.0f, -1.0f};
 	
@@ -144,9 +144,9 @@ static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecor
 	const float w = 1.0f - u - v;
 	
 	//Weighted texture coordinates
-	const struct coord ucomponent = coord_scale(u, mesh->vbuf->texture_coords.items[p->textureIndex[1]]);
-	const struct coord vcomponent = coord_scale(v, mesh->vbuf->texture_coords.items[p->textureIndex[2]]);
-	const struct coord wcomponent = coord_scale(w, mesh->vbuf->texture_coords.items[p->textureIndex[0]]);
+	const struct coord ucomponent = coord_scale(u, mesh->vbuf.texture_coords.items[p->textureIndex[1]]);
+	const struct coord vcomponent = coord_scale(v, mesh->vbuf.texture_coords.items[p->textureIndex[2]]);
+	const struct coord wcomponent = coord_scale(w, mesh->vbuf.texture_coords.items[p->textureIndex[0]]);
 	
 	// textureXY = u * v1tex + v * v2tex + w * v3tex
 	return coord_add(coord_add(ucomponent, vcomponent), wcomponent);

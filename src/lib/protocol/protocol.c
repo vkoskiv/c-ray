@@ -342,7 +342,7 @@ struct poly_arr deserialize_faces(const cJSON *in) {
 static cJSON *serialize_mesh(const struct mesh in) {
 	cJSON *out = cJSON_CreateObject();
 	cJSON_AddItemToObject(out, "polygons", serialize_faces(in.polygons));
-	cJSON_AddNumberToObject(out, "vbuf_idx", in.vbuf_idx);
+	cJSON_AddItemToObject(out, "vbuf", serialize_vertex_buffer(in.vbuf));
 	// TODO: name
 	return out;
 }
@@ -352,7 +352,7 @@ static struct mesh deserialize_mesh(const cJSON *in) {
 	if (!in) return out;
 
 	out.polygons = deserialize_faces(cJSON_GetObjectItem(in, "polygons"));
-	out.vbuf_idx = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "vbuf_idx"));
+	out.vbuf = deserialize_vertex_buffer(cJSON_GetObjectItem(in, "vbuf"));
 
 	return out;
 }
@@ -721,12 +721,6 @@ static cJSON *serialize_scene(const struct world *in) {
 	}
 	cJSON_AddItemToObject(out, "textures", textures);
 
-	cJSON *v_buffers = cJSON_CreateArray();
-	for (size_t i = 0; i < in->v_buffers.count; ++i) {
-		cJSON_AddItemToArray(v_buffers, serialize_vertex_buffer(in->v_buffers.items[i]));
-	}
-	cJSON_AddItemToObject(out, "v_buffers", v_buffers);
-
 	// Note: We only really need the descriptions, since we can't serialize the actual shaders anyway
 	cJSON *shader_buffers = cJSON_CreateArray();
 	for (size_t i = 0; i < in->shader_buffers.count; ++i) {
@@ -794,13 +788,7 @@ struct world *deserialize_scene(const cJSON *in) {
 			});
 		}
 	}
-	const cJSON *v_buffers = cJSON_GetObjectItem(in, "v_buffers");
-	if (cJSON_IsArray(v_buffers)) {
-		cJSON *v_buffer = NULL;
-		cJSON_ArrayForEach(v_buffer, v_buffers) {
-			vertex_buffer_arr_add(&out->v_buffers, deserialize_vertex_buffer(v_buffer));
-		}
-	}
+
 	const cJSON *shader_buffers = cJSON_GetObjectItem(in, "shader_buffers");
 	if (cJSON_IsArray(shader_buffers)) {
 		cJSON *s_buffer = NULL;
@@ -824,12 +812,6 @@ struct world *deserialize_scene(const cJSON *in) {
 		cJSON_ArrayForEach(mesh, meshes) {
 			mesh_arr_add(&out->meshes, deserialize_mesh(mesh));
 		}
-	}
-
-	// Hook up vertex buffers to meshes
-	for (size_t i = 0; i < out->meshes.count; ++i) {
-		struct mesh *m = &out->meshes.items[i];
-		m->vbuf = &out->v_buffers.items[m->vbuf_idx];
 	}
 
 	cJSON *spheres = cJSON_GetObjectItem(in, "spheres");
