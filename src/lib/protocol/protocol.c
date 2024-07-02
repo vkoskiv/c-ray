@@ -543,6 +543,10 @@ static cJSON *serialize_vector_node(const struct cr_vector_node *in) {
 			cJSON_AddItemToObject(out, "b", serialize_vector_node(in->arg.vec_mix.B));
 			cJSON_AddItemToObject(out, "f", serialize_value_node(in->arg.vec_mix.factor));
 			break;
+		case cr_vec_from_color:
+			cJSON_AddStringToObject(out, "type", "vec_from_color");
+			cJSON_AddItemToObject(out, "c", serialize_color_node(in->arg.vec_from_color.C));
+			break;
 	}
 	return out;
 }

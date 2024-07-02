@@ -302,7 +302,7 @@ class CrayRender(bpy.types.RenderEngine):
 			for bl_mat in me.materials:
 				if not bl_mat:
 					print("Huh, array contains NoneType?")
-					cr_mat_set.add(None, bl_mat.name)
+					cr_mat_set.add(None, "MissingMaterial")
 				elif bl_mat.use_nodes:
 					print("Fetching material {}".format(bl_mat.name))
 					if bl_mat.name not in cr_materials:

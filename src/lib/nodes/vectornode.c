@@ -99,6 +99,50 @@ const struct vectorNode *newConstantUV(const struct node_storage *s, const struc
 	});
 }
 
+
+struct color_to_vec {
+	struct vectorNode node;
+	const struct colorNode *c;
+};
+
+static bool compare_color_to_vec(const void *A, const void *B) {
+	const struct color_to_vec *this = A;
+	const struct color_to_vec *other = B;
+	return this->c == other->c;
+}
+
+static uint32_t hash_color_to_vec(const void *p) {
+	const struct color_to_vec *this = p;
+	uint32_t h = hashInit();
+	h = hashBytes(h, &this->c, sizeof(this->c));
+	return h;
+}
+
+static void dump_color_to_vec(const void *node, char *dumpbuf, int bufsize) {
+	struct color_to_vec *this = (struct color_to_vec *)node;
+	char C[DUMPBUF_SIZE / 2] = "";
+	if (this->c->base.dump) this->c->base.dump(this->c, C, sizeof(C));
+	snprintf(dumpbuf, bufsize, "color_to_vec { %s }", C);
+}
+
+static union vector_value eval_color_to_vec(const struct vectorNode *node, sampler *sampler, const struct hitRecord *record) {
+	(void)record;
+	(void)sampler;
+	struct color_to_vec *this = (struct color_to_vec *)node;
+	const struct color c = this->c->eval(this->c, sampler, record);
+	return (union vector_value){ .v = { c.red, c.green, c.blue } };
+}
+
+const struct vectorNode *new_color_to_vec(const struct node_storage *s, const struct colorNode *c) {
+	HASH_CONS(s->node_table, hash_color_to_vec, struct color_to_vec, {
+		.c = c ? c : newConstantTexture(s, g_white_color),
+		.node = {
+			.eval = eval_color_to_vec,
+			.base = { .compare = compare_color_to_vec, .dump = dump_color_to_vec }
+		}
+	});
+}
+
 const struct vectorNode *build_vector_node(struct cr_scene *s_ext, const struct cr_vector_node *desc) {
 	if (!s_ext || !desc) return NULL;
 	struct world *scene = (struct world *)s_ext;
@@ -123,6 +167,8 @@ const struct vectorNode *build_vector_node(struct cr_scene *s_ext, const struct 
 				build_vector_node(s_ext, desc->arg.vec_mix.A),
 				build_vector_node(s_ext, desc->arg.vec_mix.B),
 				build_value_node(s_ext, desc->arg.vec_mix.factor));
+		case cr_vec_from_color:
+			return new_color_to_vec(&s, build_color_node(s_ext, desc->arg.vec_from_color.C));
 		default:
 			return NULL;
 	};

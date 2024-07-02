@@ -273,6 +273,7 @@ struct cr_vector_node {
 		cr_vec_uv,
 		cr_vec_vecmath,
 		cr_vec_mix,
+		cr_vec_from_color,
 	} type;
 
 	// TODO: Maybe express vectorValue vec/coord/float union a bit better here?
@@ -292,6 +293,10 @@ struct cr_vector_node {
 			struct cr_vector_node *B;
 			struct cr_value_node *factor;
 		} vec_mix;
+
+		struct cr_vec_from_color_params {
+			struct cr_color_node *C;
+		} vec_from_color;
 
 	} arg;
 };

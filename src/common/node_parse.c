@@ -603,6 +603,12 @@ struct cr_vector_node *cr_vector_node_build(const struct cJSON *node) {
 			}
 		});
 	}
+	if (stringEquals(type->valuestring, "vec_from_color")) {
+		return vecn_alloc((struct cr_vector_node){
+			.type = cr_vec_from_color,
+			.arg.vec_from_color.C = cr_color_node_build(cJSON_GetObjectItem(node, "c"))
+		});
+	}
 	return NULL;
 }
 
@@ -624,6 +630,9 @@ void cr_vector_node_free(struct cr_vector_node *d) {
 			cr_vector_node_free(d->arg.vec_mix.A);
 			cr_vector_node_free(d->arg.vec_mix.B);
 			cr_value_node_free(d->arg.vec_mix.factor);
+			break;
+		case cr_vec_from_color:
+			cr_color_node_free(d->arg.vec_from_color.C);
 			break;
 	}
 	free(d);

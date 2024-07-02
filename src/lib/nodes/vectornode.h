@@ -31,5 +31,6 @@ struct vectorNode {
 
 const struct vectorNode *newConstantVector(const struct node_storage *storage, struct vector vector);
 const struct vectorNode *newConstantUV(const struct node_storage *s, const struct coord c);
+const struct vectorNode *new_color_to_vec(const struct node_storage *s, const struct colorNode *c);
 
 const struct vectorNode *build_vector_node(struct cr_scene *s_ext, const struct cr_vector_node *desc);

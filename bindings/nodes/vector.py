@@ -65,20 +65,27 @@ class _vector_arg_vec_mix(ct.Structure):
 		("factor", ct.POINTER(_value))
 	]
 
+class _vector_arg_from_color(ct.Structure):
+	_fields_ = [
+		("C", ct.POINTER(_color))
+	]
+
 class _vector_arg(ct.Union):
 	_fields_ = [
 		("constant", cr_vector),
 		("vecmath", _vector_arg_vecmath),
-		("vec_mix", _vector_arg_vec_mix)
+		("vec_mix", _vector_arg_vec_mix),
+		("vec_from_color", _vector_arg_from_color)
 	]
 
 class _vector_type(IntEnum):
-	unknown  = 0
-	constant = 1
-	normal   = 2
-	uv       = 3
-	vecmath  = 4
-	mix      = 5
+	unknown    = 0
+	constant   = 1
+	normal     = 2
+	uv         = 3
+	vecmath    = 4
+	mix        = 5
+	from_color = 6
 
 _vector._anonymous_ = ("arg",)
 _vector._fields_ = [
@@ -120,6 +127,13 @@ class NodeVectorVecMath(NodeVectorBase):
 		self.op = op
 		self.cr_struct.type = _vector_type.vecmath
 		self.cr_struct.vecmath = _vector_arg_vecmath(self.a.castref(), self.b.castref(), self.c.castref(), self.f.castref(), self.op)
+
+class NodeVectorFromColor(NodeVectorBase):
+	def __init__(self, c):
+		super().__init__()
+		self.c = c
+		self.cr_struct.type =_vector_type.from_color
+		self.cr_struct.from_color =_vector_arg_from_color(self.c.castref())
 
 class NodeVectorVecMix(NodeVectorBase):
 	def __init__(self, a, b, factor):

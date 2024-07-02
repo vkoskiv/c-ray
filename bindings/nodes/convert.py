@@ -67,6 +67,13 @@ def parse_color(input, group_inputs):
 				return parse_color(input.links[0].from_node, group_inputs)
 			vals = input.default_value
 			return NodeColorConstant(cr_color(vals[0], vals[1], vals[2], vals[3]))
+		case 'NodeSocketVector':
+			if input.is_linked:
+				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
+					return group_inputs[input.links[0].from_socket.name]
+				return NodeColorVecToColor(parse_vector(input.links[0].from_node, group_inputs))
+			vec = input.default_value
+			return NodeColorVecToColor(NodeVectorConstant(vec))
 		case 'ShaderNodeTexImage':
 			if input.image is None:
 				print("No image set in blender image texture {}".format(input.name))
@@ -257,6 +264,13 @@ def parse_value(input, group_inputs):
 			return parse_subtree(input, ['NodeSocketFloat', 'NodeSocketfloatFactor'], parse_value, group_inputs, NodeValueConstant(0.0))
 		case 'NodeReroute':
 			return parse_value(input.inputs[0], group_inputs)
+		case 'NodeSocketColor':
+			if input.is_linked:
+				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
+					return group_inputs[input.links[0].from_socket.name]
+				return NodeValueGrayscale(parse_color(input.links[0].from_node, group_inputs))
+			vals = input.default_value
+			return NodeValueGrayscale(NodeColorConstant(cr_color(vals[0], vals[1], vals[2], vals[3])))
 		case 'NodeSocketFloat':
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
@@ -382,6 +396,13 @@ def parse_vector(input, group_inputs):
 			return parse_subtree(input, ['NodeSocketVector'], parse_vector, group_inputs, zero_vec)
 		case 'NodeReroute':
 			return parse_vector(input.inputs[0], group_inputs)
+		case 'NodeSocketColor':
+			if input.is_linked:
+				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
+					return group_inputs[input.links[0].from_socket.name]
+				return NodeVectorFromColor(parse_color(input.links[0].from_node, group_inputs))
+			vals = input.default_value
+			return NodeVectorFromColor(NodeColorConstant(cr_color(vals[0], vals[1], vals[2], vals[3])))
 		case 'NodeSocketVector':
 			if input.is_linked:
 				if input.links[0].from_node.bl_idname == 'NodeGroupInput':
