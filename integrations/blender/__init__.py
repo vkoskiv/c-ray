@@ -324,6 +324,7 @@ class CrayRender(bpy.types.RenderEngine):
 			facebuf = (c_ray.cr_face * len(faces))(*faces)
 			cr_mesh.bind_faces(bytearray(facebuf), len(faces))
 			cr_mesh.bind_vertex_buf(me)
+			cr_mesh.finalize()
 		
 		# Set background shader
 		bl_nodetree = bpy.data.worlds[0].node_tree

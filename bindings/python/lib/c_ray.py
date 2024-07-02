@@ -242,6 +242,8 @@ class mesh:
 		_lib.mesh_bind_vertex_buf(self.scene_ptr, self.cr_idx, self.v, self.vn, self.n, self.nn, self.t, self.tn)
 	def bind_faces(self, faces, face_count):
 		_lib.mesh_bind_faces(self.scene_ptr, self.cr_idx, faces, face_count)
+	def finalize(self):
+		_lib.mesh_finalize(self.scene_ptr, self.cr_idx)
 	def instance_new(self):
 		self.instances.append(instance(self.scene_ptr, self, 0))
 		return self.instances[-1]

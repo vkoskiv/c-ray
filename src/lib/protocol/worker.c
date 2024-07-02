@@ -32,6 +32,7 @@
 #include <common/gitsha1.h>
 #include <common/timer.h>
 #include <common/platform/signal.h>
+#include <common/platform/thread_pool.h>
 #include <accelerators/bvh.h>
 #include <stdio.h>
 #include <inttypes.h>
@@ -231,9 +232,8 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	struct tile_set set = tile_quantize(selected_cam.width, selected_cam.height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
 
 	logr(info, "%u x %u tiles\n", r->prefs.tileWidth, r->prefs.tileHeight);
-	// Do some pre-render preparations
-	// Compute BVH acceleration structures for all meshes in the scene
-	compute_accels(r->scene->meshes);
+	// Ensure BVHs are up to date
+	thread_pool_wait(r->scene->bvh_builder);
 
 	// And then compute a single top-level BVH that contains all the objects
 	logr(info, "Computing top-level BVH: ");

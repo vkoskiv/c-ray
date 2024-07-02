@@ -392,6 +392,19 @@ static PyObject *py_cr_mesh_bind_faces(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_cr_mesh_finalize(PyObject *self, PyObject *args) {
+	(void)self; (void)args;
+	PyObject *s_ext;
+	cr_mesh mesh;
+	if (!PyArg_ParseTuple(args, "Ol", &s_ext, &mesh)) {
+		return NULL;
+	}
+
+	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
+	cr_mesh_finalize(s, mesh);
+	Py_RETURN_NONE;
+}
+
 static PyObject *py_cr_scene_mesh_new(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
 	PyObject *s_ext;
@@ -700,6 +713,7 @@ static PyMethodDef cray_methods[] = {
 	{ "scene_add_sphere", py_cr_scene_add_sphere, METH_VARARGS, "" },
 	{ "mesh_bind_vertex_buf", py_cr_mesh_bind_vertex_buf, METH_VARARGS, "" },
 	{ "mesh_bind_faces", py_cr_mesh_bind_faces, METH_VARARGS, "" },
+	{ "mesh_finalize", py_cr_mesh_finalize, METH_VARARGS, "" },
 	{ "scene_mesh_new", py_cr_scene_mesh_new, METH_VARARGS, "" },
 	{ "scene_get_mesh", py_cr_scene_get_mesh, METH_VARARGS, "" },
 	{ "camera_new", py_cr_camera_new, METH_VARARGS, "" },

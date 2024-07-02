@@ -18,6 +18,7 @@
 #include <common/platform/mutex.h>
 #include <common/platform/capabilities.h>
 #include <common/platform/signal.h>
+#include <common/platform/thread_pool.h>
 #include <common/cr_string.h>
 #include <datatypes/mesh.h>
 #include <datatypes/camera.h>
@@ -175,9 +176,10 @@ void renderer_render(struct renderer *r) {
 		inst->bbuf = &r->scene->shader_buffers.items[inst->bbuf_idx];
 	}
 	
-	// Do some pre-render preparations
-	// Compute BVH acceleration structures for all meshes in the scene
-	compute_accels(r->scene->meshes);
+	// Ensure BVHs are up to date
+	logr(debug, "Waiting for BVH thread pool\n");
+	thread_pool_wait(r->scene->bvh_builder);
+	logr(debug, "Continuing\n");
 
 	// And compute an initial top-level BVH.
 	update_toplevel_bvh(r->scene);
@@ -480,11 +482,13 @@ struct renderer *renderer_new(void) {
 	r->scene->asset_path = stringCopy("./");
 	r->scene->storage.node_pool = newBlock(NULL, 1024);
 	r->scene->storage.node_table = newHashtable(compareNodes, &r->scene->storage.node_pool);
+	r->scene->bvh_builder = thread_pool_create(sys_get_cores());
 	return r;
 }
 
 void renderer_destroy(struct renderer *r) {
 	if (!r) return;
+	thread_pool_destroy(r->scene->bvh_builder);
 	scene_destroy(r->scene);
 	worker_arr_free(&r->state.workers);
 	render_client_arr_free(&r->state.clients);

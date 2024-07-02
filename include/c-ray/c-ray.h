@@ -199,6 +199,7 @@ CR_EXPORT cr_mesh cr_scene_get_mesh(struct cr_scene *s_ext, const char *name);
 
 CR_EXPORT void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, struct cr_vertex_buf_param buf);
 CR_EXPORT void cr_mesh_bind_faces(struct cr_scene *s_ext, cr_mesh mesh, struct cr_face *faces, size_t face_count);
+CR_EXPORT void cr_mesh_finalize(struct cr_scene *s_ext, cr_mesh mesh);
 
 // -- Camera --
 // FIXME: Use cr_vector

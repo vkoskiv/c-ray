@@ -21,6 +21,9 @@
 #include <common/hashtable.h>
 #include <common/json_loader.h>
 #include <common/node_parse.h>
+#include <common/platform/thread_pool.h>
+#include <common/platform/signal.h>
+#include <accelerators/bvh.h>
 #include <renderer/renderer.h>
 #include <datatypes/camera.h>
 #include <datatypes/scene.h>
@@ -252,6 +255,20 @@ cr_sphere cr_scene_add_sphere(struct cr_scene *s_ext, float radius) {
 	return sphere_arr_add(&scene->spheres, (struct sphere){ .radius = radius });
 }
 
+void bvh_build_task(void *arg) {
+	block_signals();
+	struct mesh *mesh = (struct mesh *)arg;
+	if (mesh->bvh) destroy_bvh(mesh->bvh);
+	struct timeval timer = { 0 };
+	timer_start(&timer);
+	mesh->bvh = build_mesh_bvh(mesh);
+	if (mesh->bvh) {
+		logr(debug, "Built BVH for %s, took %lums\n", mesh->name, timer_get_ms(timer));
+	} else {
+		logr(debug, "BVH build FAILED for %s\n", mesh->name);
+	}
+}
+
 void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, struct cr_vertex_buf_param buf) {
 	if (!s_ext) return;
 	struct world *scene = (struct world *)s_ext;
@@ -286,6 +303,14 @@ void cr_mesh_bind_faces(struct cr_scene *s_ext, cr_mesh mesh, struct cr_face *fa
 	for (size_t i = 0; i < face_count; ++i) {
 		poly_arr_add(&m->polygons, *(struct poly *)&faces[i]);
 	}
+}
+
+void cr_mesh_finalize(struct cr_scene *s_ext, cr_mesh mesh) {
+	if (!s_ext) return;
+	struct world *scene = (struct world *)s_ext;
+	if ((size_t)mesh > scene->meshes.count - 1) return;
+	struct mesh *m = &scene->meshes.items[mesh];
+	thread_pool_enqueue(scene->bvh_builder, bvh_build_task, m);
 }
 
 cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name) {
@@ -842,6 +867,7 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 		r->state.workers.items[i].totalSamples = 0;
 	}
 	update_toplevel_bvh(r->scene);
+	thread_pool_wait(r->scene->bvh_builder);
 	mutex_release(r->state.current_set->tile_mutex);
 }
 

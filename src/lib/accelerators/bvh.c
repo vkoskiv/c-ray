@@ -689,32 +689,3 @@ void destroy_bvh(struct bvh *bvh) {
 	free(bvh);
 }
 
-void bvh_build_task(void *arg) {
-	block_signals();
-	struct mesh *mesh = (struct mesh *)arg;
-	struct timeval timer = { 0 };
-	timer_start(&timer);
-	mesh->bvh = build_mesh_bvh(mesh);
-	if (mesh->bvh) {
-		logr(debug, "Built BVH for %s, took %lums\n", mesh->name, timer_get_ms(timer));
-	} else {
-		logr(debug, "BVH build FAILED for %s\n", mesh->name);
-	}
-}
-
-// FIXME: Add pthread_cancel() support
-void compute_accels(struct mesh_arr meshes) {
-	struct cr_thread_pool *pool = thread_pool_create(sys_get_cores());
-	logr(info, "Updating %zu BVHs: ", meshes.count);
-	struct timeval timer = { 0 };
-	timer_start(&timer);
-	for (size_t i = 0; i < meshes.count; ++i) {
-		if (!meshes.items[i].bvh) thread_pool_enqueue(pool, bvh_build_task, &meshes.items[i]);
-	}
-	thread_pool_wait(pool);
-
-	printSmartTime(timer_get_ms(timer));
-	logr(plain, "\n");
-	thread_pool_destroy(pool);
-}
-
