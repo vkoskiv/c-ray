@@ -557,9 +557,9 @@ pop:
 
 static void get_poly_bbox_and_center(const void *userData, unsigned i, struct boundingBox *bbox, struct vector *center) {
 	const struct mesh *mesh = userData;
-	struct vector v0 = mesh->vbuf->vertices.items[mesh->polygons.items[i].vertexIndex[0]];
-	struct vector v1 = mesh->vbuf->vertices.items[mesh->polygons.items[i].vertexIndex[1]];
-	struct vector v2 = mesh->vbuf->vertices.items[mesh->polygons.items[i].vertexIndex[2]];
+	struct vector v0 = mesh->vbuf.vertices.items[mesh->polygons.items[i].vertexIndex[0]];
+	struct vector v1 = mesh->vbuf.vertices.items[mesh->polygons.items[i].vertexIndex[1]];
+	struct vector v2 = mesh->vbuf.vertices.items[mesh->polygons.items[i].vertexIndex[2]];
 	*center = vec_get_midpoint(v0, v1, v2);
 	bbox->min = vec_min(v0, vec_min(v1, v2));
 	bbox->max = vec_max(v0, vec_max(v1, v2));

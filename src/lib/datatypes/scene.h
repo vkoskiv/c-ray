@@ -31,7 +31,6 @@ struct world {
 	const struct bsdfNode *background;
 	struct cr_shader_node *bg_desc;
 	struct texture_asset_arr textures;
-	struct vertex_buffer_arr v_buffers;
 	struct bsdf_buffer_arr shader_buffers;
 	struct mesh_arr meshes;
 	struct instance_arr instances;
