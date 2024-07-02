@@ -363,6 +363,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 			cr_instance m_instance = cr_instance_new(scene, mesh, cr_object_mesh);
 			cr_instance_bind_material_set(scene, m_instance, file_set);
 			cr_instance_set_transform(scene, m_instance, parse_composite_transform(cJSON_GetObjectItem(data, "transforms")).A.mtx);
+			cr_mesh_finalize(scene, mesh);
 		}
 		goto done;
 	}
@@ -380,6 +381,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 					mesh = cr_scene_mesh_new(scene, result.meshes.items[i].name);
 					cr_mesh_bind_vertex_buf(scene, mesh, vbuf);
 					cr_mesh_bind_faces(scene, mesh, result.meshes.items[i].faces.items, result.meshes.items[i].faces.count);
+					cr_mesh_finalize(scene, mesh);
 				}
 			}
 		}
