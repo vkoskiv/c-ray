@@ -255,18 +255,29 @@ cr_sphere cr_scene_add_sphere(struct cr_scene *s_ext, float radius) {
 	return sphere_arr_add(&scene->spheres, (struct sphere){ .radius = radius });
 }
 
+struct bvh_build_task_arg {
+	struct mesh mesh;
+	struct world *scene;
+	size_t mesh_idx;
+};
+
 void bvh_build_task(void *arg) {
 	block_signals();
-	struct mesh *mesh = (struct mesh *)arg;
-	if (mesh->bvh) destroy_bvh(mesh->bvh);
+	// Mesh array may get realloc'd at any time, so we use a copy of mesh while working
+	struct bvh_build_task_arg *bt = (struct bvh_build_task_arg *)arg;
+	if (bt->mesh.bvh) destroy_bvh(bt->mesh.bvh);
 	struct timeval timer = { 0 };
 	timer_start(&timer);
-	mesh->bvh = build_mesh_bvh(mesh);
-	if (mesh->bvh) {
-		logr(debug, "Built BVH for %s, took %lums\n", mesh->name, timer_get_ms(timer));
+	struct bvh *bvh = build_mesh_bvh(&bt->mesh);
+	if (bvh) {
+		logr(debug, "Built BVH for %s, took %lums\n", bt->mesh.name, timer_get_ms(timer));
 	} else {
-		logr(debug, "BVH build FAILED for %s\n", mesh->name);
+		logr(debug, "BVH build FAILED for %s\n", bt->mesh.name);
 	}
+	thread_rwlock_wrlock(&bt->scene->bvh_lock);
+	bt->scene->meshes.items[bt->mesh_idx].bvh = bvh;
+	thread_rwlock_unlock(&bt->scene->bvh_lock);
+	free(bt);
 }
 
 void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, struct cr_vertex_buf_param buf) {
@@ -310,7 +321,11 @@ void cr_mesh_finalize(struct cr_scene *s_ext, cr_mesh mesh) {
 	struct world *scene = (struct world *)s_ext;
 	if ((size_t)mesh > scene->meshes.count - 1) return;
 	struct mesh *m = &scene->meshes.items[mesh];
-	thread_pool_enqueue(scene->bvh_builder, bvh_build_task, m);
+	struct bvh_build_task_arg *arg = calloc(1, sizeof(*arg));
+	arg->mesh = *m;
+	arg->scene = scene;
+	arg->mesh_idx = mesh;
+	thread_pool_enqueue(scene->bvh_builder, bvh_build_task, arg);
 }
 
 cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name) {
@@ -318,7 +333,10 @@ cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name) {
 	struct world *scene = (struct world *)s_ext;
 	struct mesh new = { 0 };
 	if (name) new.name = stringCopy(name);
-	return mesh_arr_add(&scene->meshes, new);
+	thread_rwlock_wrlock(&scene->bvh_lock);
+	cr_mesh idx = mesh_arr_add(&scene->meshes, new);
+	thread_rwlock_unlock(&scene->bvh_lock);
+	return idx;
 }
 
 cr_mesh cr_scene_get_mesh(struct cr_scene *s_ext, const char *name) {

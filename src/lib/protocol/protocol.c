@@ -810,7 +810,9 @@ struct world *deserialize_scene(const cJSON *in) {
 	if (cJSON_IsArray(meshes)) {
 		cJSON *mesh = NULL;
 		cJSON_ArrayForEach(mesh, meshes) {
+			thread_rwlock_wrlock(&out->bvh_lock);
 			mesh_arr_add(&out->meshes, deserialize_mesh(mesh));
+			thread_rwlock_unlock(&out->bvh_lock);
 		}
 	}
 

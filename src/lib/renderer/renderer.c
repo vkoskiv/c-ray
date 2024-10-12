@@ -482,6 +482,7 @@ struct renderer *renderer_new(void) {
 	r->scene->asset_path = stringCopy("./");
 	r->scene->storage.node_pool = newBlock(NULL, 1024);
 	r->scene->storage.node_table = newHashtable(compareNodes, &r->scene->storage.node_pool);
+	thread_rwlock_init(&r->scene->bvh_lock);
 	r->scene->bvh_builder = thread_pool_create(sys_get_cores());
 	return r;
 }
