@@ -123,7 +123,7 @@ void renderer_start_interactive(struct renderer *r) {
 }
 
 void update_toplevel_bvh(struct world *s) {
-	if (!s->top_level_dirty) return;
+	if (!s->top_level_dirty && s->topLevel) return;
 	struct bvh *new = build_top_level_bvh(s->instances);
 	//!//!//!//!//!//!//!//!//!//!//!//!
 	thread_rwlock_wrlock(&s->bvh_lock);
@@ -480,7 +480,6 @@ struct renderer *renderer_new(void) {
 	
 	// Move these elsewhere
 	r->scene = calloc(1, sizeof(*r->scene));
-	r->scene->instances_dirty = true;
 	r->scene->asset_path = stringCopy("./");
 	r->scene->storage.node_pool = newBlock(NULL, 1024);
 	r->scene->storage.node_table = newHashtable(compareNodes, &r->scene->storage.node_pool);
