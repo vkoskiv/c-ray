@@ -243,6 +243,7 @@
 				"bsdf": "lambertian",
 				"pick_instances": [
 					{
+						"for": "Torus",
 						"transforms": [
 							{
 								"type": "scaleUniform",

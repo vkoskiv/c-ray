@@ -95,6 +95,7 @@
 				"fileName": "shapes/gridplane.obj",
 				"pick_instances": [
 					{
+						"for": "Plane",
 						"transforms": [
 							{
 								"type": "translate",
