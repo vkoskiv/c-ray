@@ -12,15 +12,15 @@ A portable, hackable, embeddable software path tracer.
 ## Example renders
 
 <p align="center">
-	<img src="https://teensyimg.com/images/AJRDYdERsy.png" width="768">
+	<img src="https://vkoskiv.com/c-ray/renders/readme_0.png" width="768">
 	<br>(1000 samples, 1920x1080, 512 max bounces, 26min, scene by <a href="https://www.blendswap.com/blend/13953">Scott Graham</a>)
 </p>
 <p align="center">
-	<img src="https://teensyimg.com/images/fuexHP7SiJ.png" width="768">
+	<img src="https://vkoskiv.com/c-ray/renders/readme_1.png" width="768">
 	<br>(256 samples, 2560x1440, 12 max bounces, 9min 37s, scene by <a href="https://www.blendswap.com/blend/18762">MaTTeSr</a>)
 </p>
 <p align="center">
-	<img src="https://teensyimg.com/images/sTYqjhGMo.png" width="768">
+	<img src="https://vkoskiv.com/c-ray/renders/readme_2.png" width="768">
 	<br>(512 samples, 2560x1600, 30 max bounces, 8min)
 </p>
 
