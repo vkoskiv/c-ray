@@ -44,7 +44,6 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 				windowsFixPath(full);
 			}
 			const char *path = full ? full : desc->arg.image.full_path;
-			file_data data = file_load(path);
 			struct texture *tex = NULL;
 			// Note: We also deduplicate texture loads here, which ideally shouldn't be necessary.
 			for (size_t i = 0; i < scene->textures.count; ++i) {
@@ -53,13 +52,14 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 				}
 			}
 			if (!tex) {
+				file_data data = file_load(path);
 				tex = load_texture(path, data);
 				texture_asset_arr_add(&scene->textures, (struct texture_asset){
 					.path = stringCopy(path),
 					.t = tex
 				});
+				file_free(&data);
 			}
-			file_free(&data);
 			const struct colorNode *new = newImageTexture(&s, tex, desc->arg.image.options);
 			if (full) free(full);
 			return new;
