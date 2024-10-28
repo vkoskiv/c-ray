@@ -19,68 +19,74 @@
 #define QOI_NO_STDIO
 #include "../../common/vendored/qoi.h"
 
-static struct texture *load_env_map(const file_data data) {
+static int load_env_map(const file_data data, struct texture *out) {
 	logr(info, "Loading HDR...");
-	struct texture *tex = tex_new(none, 0, 0, 0);
-	tex->data.float_p = stbi_loadf_from_memory(data.items, (int)data.count, (int *)&tex->width, (int *)&tex->height, (int *)&tex->channels, 0);
-	tex->precision = float_p;
-	if (!tex->data.float_p) {
-		tex_destroy(tex);
+	if (!out) return 1;
+	float *new = stbi_loadf_from_memory(data.items, (int)data.count, (int *)&out->width, (int *)&out->height, (int *)&out->channels, 0);
+	if (!new) {
 		logr(warning, "Error while decoding HDR: %s\n", stbi_failure_reason());
-		return NULL;
+		return 1;
 	}
+	if (out->data.byte_p) free(out->data.byte_p);
+	out->data.float_p = new;
+	out->precision = float_p;
 	char sbuf[64];
 	printf(" %s\n", human_file_size(data.count, sbuf));
-	return tex;
+	return 0;
 }
 
-struct texture *load_qoi_from_buffer(const file_data data) {
+static int load_qoi_from_buffer(const file_data data, struct texture *out) {
+	if (!out) return 1;
 	qoi_desc desc;
 	void *decoded_data = qoi_decode(data.items, data.count, &desc, 3);
-	if (!decoded_data) return NULL;
-	struct texture *new = tex_new(none, 0, 0, 0);
-	new->data.byte_p = decoded_data;
-	new->width = desc.width;
-	new->height = desc.height;
-	new->channels = desc.channels;
-	new->precision = char_p;
-	return new;
-}
-
-static struct texture *load_texture_from_buffer(const file_data data) {
-	struct texture *new = tex_new(none, 0, 0, 0);
-	new->data.byte_p = stbi_load_from_memory(data.items, data.count, (int *)&new->width, (int *)&new->height, (int *)&new->channels, 0);
-	if (!new->data.byte_p) {
-		logr(warning, "Failed to decode texture from memory buffer of size %zu. Reason: \"%s\"\n", data.count, stbi_failure_reason());
-		tex_destroy(new);
-		return NULL;
+	if (!decoded_data) {
+		logr(warning, "Error while decoding QOI\n");
+		return 1;
 	}
-	new->precision = char_p;
-	return new;
+	if (out->data.byte_p) free(out->data.byte_p);
+	out->data.byte_p = decoded_data;
+	out->width = desc.width;
+	out->height = desc.height;
+	out->channels = desc.channels;
+	out->precision = char_p;
+	return 0;
 }
 
-struct texture *load_texture(const char *path, const file_data data) {
-	if (!data.items) return NULL;
+static int load_texture_from_buffer(const file_data data, struct texture *out) {
+	if (!out) return 1;
+	unsigned char *new = stbi_load_from_memory(data.items, data.count, (int *)&out->width, (int *)&out->height, (int *)&out->channels, 0);
+	if (!new) {
+		logr(warning, "Failed to decode texture from memory buffer of size %zu. Reason: \"%s\"\n", data.count, stbi_failure_reason());
+		return 1;
+	}
+	if (out->data.byte_p) free(out->data.byte_p);
+	out->data.byte_p = new;
+	out->precision = char_p;
+	return 0;
+}
+
+int load_texture(const char *path, file_data data, struct texture *out) {
+	if (!path || !data.items || !out) return 1;
 
 	enum fileType type = guess_file_type(path);
-
-	struct texture *new = NULL;
+	int ret = 0;
 	if (stbi_is_hdr_from_memory(data.items, data.count)) {
-		new = load_env_map(data);
+		ret = load_env_map(data, out);
+		if (ret) goto error;
 	} else if (type == qoi) {
-		new = load_qoi_from_buffer(data);
+		ret = load_qoi_from_buffer(data, out);
+		if (ret) goto error;
 	} else {
-		new = load_texture_from_buffer(data);
+		ret = load_texture_from_buffer(data, out);
+		if (ret) goto error;
 	}
 
-	if (!new) {
-		logr(warning, "^That happened while decoding texture \"%s\"\n", path);
-		return NULL;
-	}
-
-	size_t raw_bytes = (new->channels * (new->precision == float_p ? 4 : 1)) * new->width * new->height;
+	size_t raw_bytes = (out->channels * (out->precision == float_p ? 4 : 1)) * out->width * out->height;
 	char b0[64];
 	char b1[64];
 	logr(debug, "Loaded texture %s, %s => %s\n", path, human_file_size(data.count, b0), human_file_size(raw_bytes, b1));
-	return new;
+	return 0;
+error:
+	logr(warning, "^That happened while decoding texture \"%s\"\n", path);
+	return 1;
 }
