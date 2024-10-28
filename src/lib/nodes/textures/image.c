@@ -35,9 +35,9 @@ struct color internalColor(const struct texture *tex, const struct hitRecord *is
 	if (options & NO_BILINEAR) {
 		float x = isect->uv.x * tex->width;
 		float y = isect->uv.y * tex->height;
-		output = textureGetPixel(tex, x, y, false);
+		output = tex_get_px(tex, x, y, false);
 	} else {
-		output = textureGetPixel(tex, isect->uv.x, isect->uv.y, true);
+		output = tex_get_px(tex, isect->uv.x, isect->uv.y, true);
 	}
 	
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering

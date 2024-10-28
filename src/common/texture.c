@@ -14,7 +14,7 @@
 #include <string.h>
 
 //General-purpose setPixel function
-void setPixel(struct texture *t, struct color c, size_t x, size_t y) {
+void tex_set_px(struct texture *t, struct color c, size_t x, size_t y) {
 	ASSERT(x < t->width); ASSERT(y < t->height);
 	if (t->precision == char_p) {
 		t->data.byte_p[(x + (t->height - (y + 1)) * t->width) * t->channels + 0] = (unsigned char)min(c.red * 255.0f, 255.0f);
@@ -64,7 +64,7 @@ static struct color textureGetPixelInternal(const struct texture *t, size_t x, s
 }
 
 //FIXME: This API is confusing. The semantic meaning of x and y change completely based on the filtered flag.
-struct color textureGetPixel(const struct texture *t, float x, float y, bool filtered) {
+struct color tex_get_px(const struct texture *t, float x, float y, bool filtered) {
 	if (!filtered) return textureGetPixelInternal(t, (size_t)x, (size_t)y);
 	x = x * t->width;
 	y = y * t->height;
@@ -79,7 +79,7 @@ struct color textureGetPixel(const struct texture *t, float x, float y, bool fil
 	return colorLerp(colorLerp(topleft, topright, xcopy - xint), colorLerp(botleft, botright, xcopy - xint), ycopy - yint);
 }
 
-struct texture *newTexture(enum precision p, size_t width, size_t height, size_t channels) {
+struct texture *tex_new(enum precision p, size_t width, size_t height, size_t channels) {
 	struct texture *t = calloc(1, sizeof(*t));
 	t->width = width;
 	t->height = height;
@@ -94,7 +94,7 @@ struct texture *newTexture(enum precision p, size_t width, size_t height, size_t
 			t->data.byte_p = calloc(channels * width * height, sizeof(*t->data.byte_p));
 			if (!t->data.byte_p) {
 				logr(warning, "Failed to allocate %zux%zu texture.\n", width, height);
-				destroyTexture(t);
+				tex_destroy(t);
 				return NULL;
 			}
 		}
@@ -103,7 +103,7 @@ struct texture *newTexture(enum precision p, size_t width, size_t height, size_t
 			t->data.float_p = calloc(channels * width * height, sizeof(*t->data.float_p));
 			if (!t->data.float_p) {
 				logr(warning, "Failed to allocate %zux%zu texture.\n", width, height);
-				destroyTexture(t);
+				tex_destroy(t);
 				return NULL;
 			}
 		}
@@ -114,32 +114,32 @@ struct texture *newTexture(enum precision p, size_t width, size_t height, size_t
 	return t;
 }
 
-void textureFromSRGB(struct texture *t) {
+void tex_from_srgb(struct texture *t) {
 	if (t->colorspace == linear) return;
 	for (unsigned x = 0; x < t->width; ++x) {
 		for (unsigned y = 0; y < t->height; ++y) {
-			setPixel(t, colorFromSRGB(textureGetPixel(t, x, y, false)), x, y);
+			tex_set_px(t, colorFromSRGB(tex_get_px(t, x, y, false)), x, y);
 		}
 	}
 	t->colorspace = linear;
 }
 
-void textureToSRGB(struct texture *t) {
+void tex_to_srgb(struct texture *t) {
 	if (t->colorspace == sRGB) return;
 	for (unsigned x = 0; x < t->width; ++x) {
 		for (unsigned y = 0; y < t->height; ++y) {
-			setPixel(t, colorToSRGB(textureGetPixel(t, x, y, false)), x, y);
+			tex_set_px(t, colorToSRGB(tex_get_px(t, x, y, false)), x, y);
 		}
 	}
 	t->colorspace = sRGB;
 }
 
-bool texture_uses_alpha(const struct texture *t) {
+bool tex_uses_alpha(const struct texture *t) {
 	if (!t) return false;
 	if (t->channels < 4) return false;
 	for (unsigned x = 0; x < t->width; ++x) {
 		for (unsigned y = 0; y < t->height; ++y) {
-			if (textureGetPixel(t, x, y, false).alpha < 1.0f) return true;
+			if (tex_get_px(t, x, y, false).alpha < 1.0f) return true;
 		}
 	}
 	return false;
@@ -152,7 +152,7 @@ void tex_clear(struct texture *t) {
 	memset(t->data.byte_p, 0, bytes);
 }
 
-void destroyTexture(struct texture *t) {
+void tex_destroy(struct texture *t) {
 	if (t) {
 		free(t->data.byte_p);
 		free(t);

@@ -138,8 +138,8 @@ static void *workerThread(void *arg) {
 	struct texture *tileBuffer = NULL;
 	while (thread->current && r->state.rendering) {
 		if (!tileBuffer || tileBuffer->width != thread->current->width || tileBuffer->height != thread->current->height) {
-			destroyTexture(tileBuffer);
-			tileBuffer = newTexture(float_p, thread->current->width, thread->current->height, 3);
+			tex_destroy(tileBuffer);
+			tileBuffer = tex_new(float_p, thread->current->width, thread->current->height, 3);
 		}
 		long totalUsec = 0;
 		long samples = 0;
@@ -154,7 +154,7 @@ static void *workerThread(void *arg) {
 					
 					int local_x = x - thread->current->begin.x;
 					int local_y = y - thread->current->begin.y;
-					struct color output = textureGetPixel(tileBuffer, local_x, local_y, false);
+					struct color output = tex_get_px(tileBuffer, local_x, local_y, false);
 					struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
 
 					nan_clamp(&sample, &output);
@@ -165,7 +165,7 @@ static void *workerThread(void *arg) {
 					float t = 1.0f / thread->completedSamples;
 					output = colorCoef(t, output);
 					
-					setPixel(tileBuffer, output, local_x, local_y);
+					tex_set_px(tileBuffer, output, local_x, local_y);
 				}
 			}
 			//For performance metrics
@@ -198,7 +198,7 @@ static void *workerThread(void *arg) {
 	}
 bail:
 	destroySampler(sampler);
-	destroyTexture(tileBuffer);
+	tex_destroy(tileBuffer);
 	
 	thread->threadComplete = true;
 	return 0;
