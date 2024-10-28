@@ -53,11 +53,17 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 			}
 			if (!tex) {
 				file_data data = file_load(path);
-				tex = load_texture(path, data);
-				texture_asset_arr_add(&scene->textures, (struct texture_asset){
-					.path = stringCopy(path),
-					.t = tex
-				});
+				tex = tex_new(none, 0, 0, 0);
+				int ret = load_texture(path, data, tex);
+				if (!ret) {
+					texture_asset_arr_add(&scene->textures, (struct texture_asset){
+						.path = stringCopy(path),
+						.t = tex
+					});
+				} else {
+					tex_destroy(tex);
+					tex = NULL;
+				}
 				file_free(&data);
 			}
 			const struct colorNode *new = newImageTexture(&s, tex, desc->arg.image.options);

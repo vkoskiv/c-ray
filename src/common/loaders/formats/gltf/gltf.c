@@ -168,7 +168,7 @@ struct texture *parse_textures(const cJSON *data, size_t *amount, const struct b
 			if (!cJSON_IsString(uri)) break;
 			char *uri_string = uri->valuestring;
 			//TODO: Add name to texture
-			images[i] = *load_texture(uri_string, (file_data){ 0 }); //FIXME
+			load_texture(uri_string, (file_data){ 0 }, &images[i]);
 		} else {
 			const cJSON *buffer_view = cJSON_GetObjectItem(element, "bufferView");
 			const cJSON *mime_type = cJSON_GetObjectItem(element, "mimeType");
