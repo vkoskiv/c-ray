@@ -289,7 +289,11 @@ class CrayRender(bpy.types.RenderEngine):
 					if dup.parent and dup.parent.original == ob_main:
 						new_inst = cr_mesh.instance_new()
 						new_inst.set_transform(dup.matrix_world.copy())
+			s = datetime.datetime.now()
 			ob_for_convert = ob_main.evaluated_get(depsgraph)
+			e = datetime.datetime.now()
+			print('eval_get    took {}'.format(e - s))
+			s = datetime.datetime.now()
 			try:
 				me = ob_for_convert.to_mesh()
 			except RuntimeError:
@@ -298,6 +302,8 @@ class CrayRender(bpy.types.RenderEngine):
 				print("Whoops, mesh {} couldn't be converted".format(ob_main.name))
 				continue
 
+			e = datetime.datetime.now()
+			print('to_mesh     took {}'.format(e - s))
 			if len(me.materials) < 1:
 				cr_mat_set.add(None, bl_mat.name)
 			for bl_mat in me.materials:
@@ -315,21 +321,45 @@ class CrayRender(bpy.types.RenderEngine):
 					print("Material {} doesn't use nodes, do something about that".format(bl_mat.name))
 					cr_mat_set.add(None, bl_mat.name)
 			# c-ray only supports triangles
+			s = datetime.datetime.now()
 			mesh_triangulate(me)
-			verts = me.vertices[:]
+			e = datetime.datetime.now()
+			print('triangulate took {}'.format(e - s))
+
 			# me.calc_normals_split()
 			faces = []
+			s = datetime.datetime.now()
 			for poly in me.polygons:
 				faces.append(to_cr_face(me, poly))
+			e = datetime.datetime.now()
+			print('poly loop   took {}'.format(e - s))
+
+			s = datetime.datetime.now()
 			facebuf = (c_ray.cr_face * len(faces))(*faces)
+			e = datetime.datetime.now()
+			print('facebuf     took {}'.format(e - s))
+
+			s = datetime.datetime.now()
 			cr_mesh.bind_faces(bytearray(facebuf), len(faces))
+			e = datetime.datetime.now()
+			print('bind_faces  took {}'.format(e - s))
+
+			s = datetime.datetime.now()
 			cr_mesh.bind_vertex_buf(me)
+			e = datetime.datetime.now()
+			print('bind_vertex took {}'.format(e - s))
+
+			s = datetime.datetime.now()
 			cr_mesh.finalize()
+			e = datetime.datetime.now()
+			print('finalize    took {}'.format(e - s))
 		
 		# Set background shader
 		bl_nodetree = bpy.data.worlds[0].node_tree
 		self.cr_scene.set_background(convert_background(bl_nodetree))
 
+	# This is almost identical to view_update, but *only* gets called when
+	# doing an actual render (F12)
 	def update(self, data, depsgraph):
 		start = time.time()
 		if not self.cr_renderer:

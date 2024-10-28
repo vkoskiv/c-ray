@@ -412,7 +412,7 @@ class material_set:
 		name = b'cray.shader_node'
 		capsule = ct.pythonapi.PyCapsule_New(ct.byref(material.cr_struct), name, None)
 		idx = _lib.material_set_add(self.scene_ptr, self.cr_idx, capsule)
-		print("matset {} idx {}".format(self.cr_idx, idx))
+		# print("matset {} idx {}".format(self.cr_idx, idx))
 		self.materials[name] = idx
 	def update(self, matname, new):
 		if new is None:
