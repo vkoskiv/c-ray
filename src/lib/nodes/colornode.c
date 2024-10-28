@@ -28,6 +28,7 @@
 struct decode_task_arg {
 	char *path;
 	struct texture *out;
+	uint8_t options;
 };
 
 void tex_decode_task(void *arg) {
@@ -37,6 +38,8 @@ void tex_decode_task(void *arg) {
 	timer_start(&timer);
 	file_data data = file_load(dt->path);
 	load_texture(dt->path, data, dt->out);
+	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
+	if (dt->options & SRGB_TRANSFORM) tex_from_srgb(dt->out);
 	file_free(&data);
 	free(dt->path);
 	free(dt);
@@ -76,10 +79,14 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 				tex = tex_new(none, 0, 0, 0);
 				texture_asset_arr_add(&scene->textures, (struct texture_asset){
 					.path = stringCopy(path),
-					.t = tex
+					.t = tex,
 				});
 				struct decode_task_arg *arg = calloc(1, sizeof(*arg));
-				*arg = (struct decode_task_arg){ .path = stringCopy(path), .out = tex };
+				*arg = (struct decode_task_arg){
+					.path = stringCopy(path),
+					.out = tex,
+					.options = desc->arg.image.options
+				};
 				thread_pool_enqueue(scene->bg_worker, tex_decode_task, arg);
 			}
 			const struct colorNode *new = newImageTexture(&s, tex, desc->arg.image.options);
