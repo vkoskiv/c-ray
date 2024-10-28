@@ -79,8 +79,8 @@ static void printDate() {
 void logr(enum logType type, const char *fmt, ...) {
 	if (!fmt) return;
 	if (g_logging_level == Silent) return;
-	if (type == debug && g_logging_level != Debug) return;
-	if (type == spam && g_logging_level != Spam) return;
+	if (type == debug && g_logging_level < Debug) return;
+	if (type == spam && g_logging_level < Spam) return;
 	
 	if (type != plain) {
 		printPrefix(type);
