@@ -153,7 +153,7 @@ static void setWindowIcon(struct sdl_window *w) {
 														rmask, gmask, bmask, amask);
 	w->sym->SDL_SetWindowIcon(w->window, iconSurface);
 	w->sym->SDL_FreeSurface(iconSurface);
-	destroyTexture(icon);
+	tex_destroy(icon);
 #endif
 }
 
@@ -227,8 +227,8 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 		win_destroy(w);
 		return NULL;
 	}
-	w->overlay = newTexture(char_p, width, height, 4);
-	w->internal = newTexture(char_p, width, height, 4);
+	w->overlay = tex_new(char_p, width, height, 4);
+	w->internal = tex_new(char_p, width, height, 4);
 	
 	//And set blend modes for textures too
 	w->sym->SDL_SetTextureBlendMode(w->texture, SDL_BLENDMODE_BLEND);
@@ -250,8 +250,8 @@ void win_destroy(struct sdl_window *w) {
 			w->sym->SDL_DestroyTexture(w->overlay_sdl);
 			w->texture = NULL;
 		}
-		destroyTexture(w->internal);
-		destroyTexture(w->overlay);
+		tex_destroy(w->internal);
+		tex_destroy(w->overlay);
 		if (w->renderer) {
 			w->sym->SDL_DestroyRenderer(w->renderer);
 			w->renderer = NULL;
@@ -305,9 +305,9 @@ static void draw_bar(struct texture *overlay, const struct cr_tile *t) {
 	size_t pixels = (int)((float)t->w * prc);
 	struct color c = t->state == cr_tile_rendering ? g_prog_color : g_clear_color;
 	for (size_t i = 0; i < pixels; ++i) {
-		setPixel(overlay, c, t->start_x + i, (t->start_y + (t->h / 5)) - 1);
-		setPixel(overlay, c, t->start_x + i, (t->start_y + (t->h / 5))    );
-		setPixel(overlay, c, t->start_x + i, (t->start_y + (t->h / 5)) + 1);
+		tex_set_px(overlay, c, t->start_x + i, (t->start_y + (t->h / 5)) - 1);
+		tex_set_px(overlay, c, t->start_x + i, (t->start_y + (t->h / 5))    );
+		tex_set_px(overlay, c, t->start_x + i, (t->start_y + (t->h / 5)) + 1);
 	}
 }
 
@@ -324,20 +324,20 @@ static void draw_frame(struct texture *buf, struct cr_tile tile, struct color c)
 
 	for (int i = 1; i < length; ++i) {
 		//top left
-		setPixel(buf, c, tile.start_x + i, tile.start_y + 1);
-		setPixel(buf, c, tile.start_x + 1, tile.start_y + i);
+		tex_set_px(buf, c, tile.start_x + i, tile.start_y + 1);
+		tex_set_px(buf, c, tile.start_x + 1, tile.start_y + i);
 		
 		//top right
-		setPixel(buf, c, tile.end_x - i, tile.start_y + 1);
-		setPixel(buf, c, tile.end_x - 1, tile.start_y + i);
+		tex_set_px(buf, c, tile.end_x - i, tile.start_y + 1);
+		tex_set_px(buf, c, tile.end_x - 1, tile.start_y + i);
 		
 		//Bottom left
-		setPixel(buf, c, tile.start_x + i, tile.end_y - 1);
-		setPixel(buf, c, tile.start_x + 1, tile.end_y - i);
+		tex_set_px(buf, c, tile.start_x + i, tile.end_y - 1);
+		tex_set_px(buf, c, tile.start_x + 1, tile.end_y - i);
 		
 		//bottom right
-		setPixel(buf, c, tile.end_x - i, tile.end_y - 1);
-		setPixel(buf, c, tile.end_x - 1, tile.end_y - i);
+		tex_set_px(buf, c, tile.end_x - i, tile.end_y - 1);
+		tex_set_px(buf, c, tile.end_x - 1, tile.end_y - i);
 	}
 }
 

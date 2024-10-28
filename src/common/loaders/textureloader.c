@@ -34,11 +34,11 @@ void copy_to_pool(struct block **pool, struct texture *tex) {
 
 static struct texture *load_env_map(const file_data data) {
 	logr(info, "Loading HDR...");
-	struct texture *tex = newTexture(none, 0, 0, 0);
+	struct texture *tex = tex_new(none, 0, 0, 0);
 	tex->data.float_p = stbi_loadf_from_memory(data.items, (int)data.count, (int *)&tex->width, (int *)&tex->height, (int *)&tex->channels, 0);
 	tex->precision = float_p;
 	if (!tex->data.float_p) {
-		destroyTexture(tex);
+		tex_destroy(tex);
 		logr(warning, "Error while decoding HDR: %s\n", stbi_failure_reason());
 		return NULL;
 	}
@@ -51,7 +51,7 @@ struct texture *load_qoi_from_buffer(const file_data data) {
 	qoi_desc desc;
 	void *decoded_data = qoi_decode(data.items, data.count, &desc, 3);
 	if (!decoded_data) return NULL;
-	struct texture *new = newTexture(none, 0, 0, 0);
+	struct texture *new = tex_new(none, 0, 0, 0);
 	new->data.byte_p = decoded_data;
 	new->width = desc.width;
 	new->height = desc.height;
@@ -61,11 +61,11 @@ struct texture *load_qoi_from_buffer(const file_data data) {
 }
 
 static struct texture *load_texture_from_buffer(const file_data data) {
-	struct texture *new = newTexture(none, 0, 0, 0);
+	struct texture *new = tex_new(none, 0, 0, 0);
 	new->data.byte_p = stbi_load_from_memory(data.items, data.count, (int *)&new->width, (int *)&new->height, (int *)&new->channels, 0);
 	if (!new->data.byte_p) {
 		logr(warning, "Failed to decode texture from memory buffer of size %zu. Reason: \"%s\"\n", data.count, stbi_failure_reason());
-		destroyTexture(new);
+		tex_destroy(new);
 		return NULL;
 	}
 	new->precision = char_p;

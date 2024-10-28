@@ -199,11 +199,11 @@ void renderer_render(struct renderer *r) {
 	// Render buffer is used to store accurate color values for the renderers' internal use
 	if (!r->state.result_buf) {
 		// Allocate
-		r->state.result_buf = newTexture(float_p, camera->width, camera->height, 4);
+		r->state.result_buf = tex_new(float_p, camera->width, camera->height, 4);
 	} else if (r->state.result_buf->width != (size_t)camera->width || r->state.result_buf->height != (size_t)camera->height) {
 		// Resize
-		if (r->state.result_buf) destroyTexture(r->state.result_buf);
-		r->state.result_buf = newTexture(float_p, camera->width, camera->height, 4);
+		if (r->state.result_buf) tex_destroy(r->state.result_buf);
+		r->state.result_buf = tex_new(float_p, camera->width, camera->height, 4);
 	} else {
 		// Clear
 		tex_clear(r->state.result_buf);
@@ -337,7 +337,7 @@ void *render_thread_interactive(void *arg) {
 				//the tiles in one go per sample, instead of the other way around.
 				initSampler(sampler, SAMPLING_STRATEGY, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
-				struct color output = textureGetPixel(*buf, x, y, false);
+				struct color output = tex_get_px(*buf, x, y, false);
 				thread_rwlock_rdlock(&r->scene->bvh_lock);
 				struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
 				thread_rwlock_unlock(&r->scene->bvh_lock);
@@ -351,7 +351,7 @@ void *render_thread_interactive(void *arg) {
 				output = colorCoef(t, output);
 				
 				//Store internal render buffer (float precision)
-				setPixel(*buf, output, x, y);
+				tex_set_px(*buf, output, x, y);
 			}
 		}
 		//For performance metrics
@@ -414,7 +414,7 @@ void *render_thread(void *arg) {
 					uint32_t pixIdx = (uint32_t)(y * (*buf)->width + x);
 					initSampler(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
 					
-					struct color output = textureGetPixel(*buf, x, y, false);
+					struct color output = tex_get_px(*buf, x, y, false);
 					thread_rwlock_rdlock(&r->scene->bvh_lock);
 					struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
 					thread_rwlock_unlock(&r->scene->bvh_lock);
@@ -429,7 +429,7 @@ void *render_thread(void *arg) {
 					output = colorCoef(t, output);
 					
 					//Store internal render buffer (float precision)
-					setPixel(*buf, output, x, y);
+					tex_set_px(*buf, output, x, y);
 				}
 			}
 			//For performance metrics
@@ -496,6 +496,6 @@ void renderer_destroy(struct renderer *r) {
 	free(r->prefs.imgFileName);
 	free(r->prefs.imgFilePath);
 	if (r->prefs.node_list) free(r->prefs.node_list);
-	if (r->state.result_buf) destroyTexture(r->state.result_buf);
+	if (r->state.result_buf) tex_destroy(r->state.result_buf);
 	free(r);
 }

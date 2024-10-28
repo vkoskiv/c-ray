@@ -156,11 +156,11 @@ static cJSON *handle_submit_work(struct worker *state, const cJSON *json) {
 	state->tiles->tiles.items[tile.index].state = finished; // FIXME: Remove
 	for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 		for (int x = tile.begin.x; x < tile.end.x; ++x) {
-			struct color value = textureGetPixel(texture, x - tile.begin.x, y - tile.begin.y, false);
-			setPixel(*state->buf, value, x, y);
+			struct color value = tex_get_px(texture, x - tile.begin.x, y - tile.begin.y, false);
+			tex_set_px(*state->buf, value, x, y);
 		}
 	}
-	destroyTexture(texture);
+	tex_destroy(texture);
 	return newAction("ok");
 }
 

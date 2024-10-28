@@ -46,11 +46,12 @@ void writeImage(struct imageFile *image) {
 	}
 	char buf[2048];
 	snprintf(buf, 2048 - 1, "%s%s_%04d.%s", image->filePath, image->fileName, image->count, suffix);
-	struct texture *tmp = newTexture(char_p, image->t->width, image->t->height, 3);
-	textureToSRGB((struct texture *)image->t);
+	struct texture *tmp = tex_new(char_p, image->t->width, image->t->height, 3);
+	tex_to_srgb((struct texture *)image->t);
+	// FIXME: WTF? memcpy this, or just get rid of this seemingly useless copy?
 	for (size_t y = 0; y < tmp->height; ++y) {
 		for (size_t x = 0; x < tmp->width; ++x) {
-			setPixel(tmp, textureGetPixel((struct texture *)image->t, x, y, false), x, y);
+			tex_set_px(tmp, tex_get_px((struct texture *)image->t, x, y, false), x, y);
 		}
 	}
 	switch (image->type) {
@@ -68,5 +69,5 @@ void writeImage(struct imageFile *image) {
 			ASSERT_NOT_REACHED();
 			break;
 	}
-	destroyTexture(tmp);
+	tex_destroy(tmp);
 }

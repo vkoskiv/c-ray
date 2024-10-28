@@ -22,7 +22,7 @@
 
 void tex_asset_free(struct texture_asset *a) {
 	if (a->path) free(a->path);
-	if (a->t) destroyTexture(a->t);
+	if (a->t) tex_destroy(a->t);
 }
 
 void scene_destroy(struct world *scene) {

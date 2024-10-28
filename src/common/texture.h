@@ -48,28 +48,28 @@ dyn_array_def(texture_asset)
 #define SRGB_TRANSFORM 0x01
 #define NO_BILINEAR    0x02
 
-struct texture *newTexture(enum precision p, size_t width, size_t height, size_t channels);
+struct texture *tex_new(enum precision p, size_t width, size_t height, size_t channels);
 
-void setPixel(struct texture *t, struct color c, size_t x, size_t y);
+void tex_set_px(struct texture *t, struct color c, size_t x, size_t y);
 
 /// Get a color value for a given pixel in a texture
 /// @remarks When filtered == false, pass in the integer coordinates, otherwise pass in a 0.0f->1.0f coefficient
-struct color textureGetPixel(const struct texture *t, float x, float y, bool filtered);
+struct color tex_get_px(const struct texture *t, float x, float y, bool filtered);
 
 /// Convert texture from sRGB to linear color space
 /// @remarks The texture data will be modified directly.
 /// @param t Texture to convert
-void textureFromSRGB(struct texture *t);
+void tex_from_srgb(struct texture *t);
 
 /// Convert texture from linear color space to sRGB.
 /// @remarks The texture data will be modified directly.
 /// @param t Texture to convert
-void textureToSRGB(struct texture *t);
+void tex_to_srgb(struct texture *t);
 
-bool texture_uses_alpha(const struct texture *t);
+bool tex_uses_alpha(const struct texture *t);
 
 void tex_clear(struct texture *t);
 
 /// Deallocate a given texture
 /// @param tex Texture to deallocate
-void destroyTexture(struct texture *tex);
+void tex_destroy(struct texture *tex);

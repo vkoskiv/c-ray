@@ -869,8 +869,8 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 			}
 		}
 		// Okay, threads are now paused, swap the buffer
-		destroyTexture(r->state.result_buf);
-		r->state.result_buf = newTexture(float_p, cam->width, cam->height, 4);
+		tex_destroy(r->state.result_buf);
+		r->state.result_buf = tex_new(float_p, cam->width, cam->height, 4);
 
 		cr_renderer_toggle_pause((struct cr_renderer *)r);
 	}
