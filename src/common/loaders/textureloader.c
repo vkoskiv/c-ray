@@ -9,8 +9,6 @@
 #include "textureloader.h"
 #include <logging.h>
 #include <texture.h>
-#include <cr_assert.h>
-#include <mempool.h>
 
 #define STBI_NO_PSD
 #define STBI_NO_GIF
@@ -20,17 +18,6 @@
 #define QOI_IMPLEMENTATION
 #define QOI_NO_STDIO
 #include "../../common/vendored/qoi.h"
-
-// I don't want to mess with memory allocation within the different
-// image parsing libs, so I just copy out to a pool afterwards.
-void copy_to_pool(struct block **pool, struct texture *tex) {
-	size_t unitSize = tex->precision == float_p ? sizeof(float) : sizeof(unsigned char);
-	size_t bytes = tex->width * tex->height * tex->channels * unitSize;
-	void *newBuf = allocBlock(pool, bytes);
-	memcpy(newBuf, tex->data.byte_p, bytes);
-	free(tex->data.byte_p);
-	tex->data.byte_p = newBuf;
-}
 
 static struct texture *load_env_map(const file_data data) {
 	logr(info, "Loading HDR...");
