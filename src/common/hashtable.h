@@ -58,6 +58,7 @@ struct driver_args {
 	struct hashtable hashtable;
 };
 
+// TODO: Move to driver
 struct driver_args *newConstantsDatabase(void);
 bool existsInDatabase(struct driver_args *database, const char *key);
 void setDatabaseVector(struct driver_args *database, const char *key, struct vector value);

@@ -46,6 +46,8 @@ static int load_qoi_from_buffer(const file_data data, struct texture *out) {
 	out->height = desc.height;
 	out->channels = desc.channels;
 	out->precision = char_p;
+	// TODO: Maybe don't assume
+	out->colorspace = sRGB;
 	return 0;
 }
 
@@ -59,6 +61,8 @@ static int load_texture_from_buffer(const file_data data, struct texture *out) {
 	if (out->data.byte_p) free(out->data.byte_p);
 	out->data.byte_p = new;
 	out->precision = char_p;
+	// TODO: Maybe don't assume
+	out->colorspace = sRGB;
 	return 0;
 }
 
