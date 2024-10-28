@@ -369,7 +369,7 @@ class CrayRender(bpy.types.RenderEngine):
 			self.tag_update()
 		new_dims = (context.region.width, context.region.height)
 		if not self.old_dims or self.old_dims != new_dims:
-			cr_cam = self.cr_scene.cameras['Camera']
+			cr_cam = self.cr_scene.cameras[context.scene.camera.name]
 			cr_cam.opts.res_x = context.region.width
 			cr_cam.opts.res_y = context.region.height
 			self.cr_renderer.restart()
@@ -429,7 +429,11 @@ class CrayRender(bpy.types.RenderEngine):
 		self.cr_renderer.prefs.bounces = depsgraph.scene.c_ray.bounces
 		self.cr_renderer.prefs.node_list = depsgraph.scene.c_ray.node_list
 		self.cr_renderer.prefs.is_iterative = 1
-		cr_cam = self.cr_scene.cameras['Camera']
+
+		# For reasons I can't fathom, depsgraph.updates doesn't let us know if the
+		# viewport camera changed, so we'll just assume that it did and fetch the whole
+		# thing manually instead.
+		cr_cam = self.cr_scene.cameras[context.scene.camera.name]
 		mtx = context.region_data.view_matrix.inverted()
 		euler = mtx.to_euler('XYZ')
 		loc = mtx.to_translation()
