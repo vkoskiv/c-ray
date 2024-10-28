@@ -177,8 +177,8 @@ void renderer_render(struct renderer *r) {
 	}
 	
 	// Ensure BVHs are up to date
-	logr(debug, "Waiting for BVH thread pool\n");
-	thread_pool_wait(r->scene->bvh_builder);
+	logr(debug, "Waiting for thread pool\n");
+	thread_pool_wait(r->scene->bg_worker);
 	logr(debug, "Continuing\n");
 
 	// And compute an initial top-level BVH.
@@ -483,13 +483,13 @@ struct renderer *renderer_new(void) {
 	r->scene->storage.node_pool = newBlock(NULL, 1024);
 	r->scene->storage.node_table = newHashtable(compareNodes, &r->scene->storage.node_pool);
 	thread_rwlock_init(&r->scene->bvh_lock);
-	r->scene->bvh_builder = thread_pool_create(sys_get_cores());
+	r->scene->bg_worker = thread_pool_create(sys_get_cores());
 	return r;
 }
 
 void renderer_destroy(struct renderer *r) {
 	if (!r) return;
-	thread_pool_destroy(r->scene->bvh_builder);
+	thread_pool_destroy(r->scene->bg_worker);
 	scene_destroy(r->scene);
 	worker_arr_free(&r->state.workers);
 	render_client_arr_free(&r->state.clients);

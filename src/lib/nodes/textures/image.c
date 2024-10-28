@@ -28,6 +28,7 @@ struct imageTexture {
 //Transform the intersection coordinates to the texture coordinate space
 //And grab the color at that point. Texture mapping.
 static struct color internalColor(const struct texture *tex, const struct hitRecord *isect, uint8_t options) {
+	if (unlikely(!tex->data.byte_p)) return g_pink_color; // Async img decode fails -> we may get an empty texture
 	//Get the color value at these XY coordinates
 	struct color output;
 	if (options & NO_BILINEAR) {
@@ -63,6 +64,10 @@ static void dump(const void *node, char *dumpbuf, int len) {
 	//TODO: Consider having imageTexture have a func to dump this.
 	if (!self->tex) {
 		snprintf(dumpbuf, len, "imageTexture { tex: null }");
+		return;
+	}
+	if (!self->tex->data.byte_p) {
+		snprintf(dumpbuf, len, "imageTexture { tex: pending }");
 		return;
 	}
 	snprintf(dumpbuf, len, "imageTexture { tex: { %lux%lu, %lu channels, %s, %s }, options: %s %s }",

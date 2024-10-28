@@ -15,12 +15,33 @@
 #include <datatypes/poly.h>
 #include <datatypes/scene.h>
 #include "bsdfnode.h"
+#include "../../common/platform/thread_pool.h"
+#include "../../common/platform/signal.h"
+#include "../../common/timer.h"
 
 #include "colornode.h"
 
 // const struct colorNode *unknownTextureNode(const struct node_storage *s) {
 // 	return newConstantTexture(s, g_black_color);
 // }
+
+struct decode_task_arg {
+	char *path;
+	struct texture *out;
+};
+
+void tex_decode_task(void *arg) {
+	block_signals();
+	struct decode_task_arg *dt = (struct decode_task_arg *)arg;
+	struct timeval timer = { 0 };
+	timer_start(&timer);
+	file_data data = file_load(dt->path);
+	load_texture(dt->path, data, dt->out);
+	file_free(&data);
+	free(dt->path);
+	free(dt);
+	logr(debug, "Async decode task took %lums\n", timer_get_ms(timer));
+}
 
 const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr_color_node *desc) {
 	if (!s_ext || !desc) return NULL;
@@ -52,19 +73,14 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 				}
 			}
 			if (!tex) {
-				file_data data = file_load(path);
 				tex = tex_new(none, 0, 0, 0);
-				int ret = load_texture(path, data, tex);
-				if (!ret) {
-					texture_asset_arr_add(&scene->textures, (struct texture_asset){
-						.path = stringCopy(path),
-						.t = tex
-					});
-				} else {
-					tex_destroy(tex);
-					tex = NULL;
-				}
-				file_free(&data);
+				texture_asset_arr_add(&scene->textures, (struct texture_asset){
+					.path = stringCopy(path),
+					.t = tex
+				});
+				struct decode_task_arg *arg = calloc(1, sizeof(*arg));
+				*arg = (struct decode_task_arg){ .path = stringCopy(path), .out = tex };
+				thread_pool_enqueue(scene->bg_worker, tex_decode_task, arg);
 			}
 			const struct colorNode *new = newImageTexture(&s, tex, desc->arg.image.options);
 			if (full) free(full);

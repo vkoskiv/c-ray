@@ -233,7 +233,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 
 	logr(info, "%u x %u tiles\n", r->prefs.tileWidth, r->prefs.tileHeight);
 	// Ensure BVHs are up to date
-	thread_pool_wait(r->scene->bvh_builder);
+	thread_pool_wait(r->scene->bg_worker);
 
 	// And then compute a single top-level BVH that contains all the objects
 	logr(info, "Computing top-level BVH: ");

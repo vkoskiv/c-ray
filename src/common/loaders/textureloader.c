@@ -20,7 +20,6 @@
 #include "../../common/vendored/qoi.h"
 
 static int load_env_map(const file_data data, struct texture *out) {
-	logr(info, "Loading HDR...");
 	if (!out) return 1;
 	float *new = stbi_loadf_from_memory(data.items, (int)data.count, (int *)&out->width, (int *)&out->height, (int *)&out->channels, 0);
 	if (!new) {
@@ -30,8 +29,6 @@ static int load_env_map(const file_data data, struct texture *out) {
 	if (out->data.byte_p) free(out->data.byte_p);
 	out->data.float_p = new;
 	out->precision = float_p;
-	char sbuf[64];
-	printf(" %s\n", human_file_size(data.count, sbuf));
 	return 0;
 }
 

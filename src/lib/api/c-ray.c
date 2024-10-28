@@ -325,7 +325,7 @@ void cr_mesh_finalize(struct cr_scene *s_ext, cr_mesh mesh) {
 	arg->mesh = *m;
 	arg->scene = scene;
 	arg->mesh_idx = mesh;
-	thread_pool_enqueue(scene->bvh_builder, bvh_build_task, arg);
+	thread_pool_enqueue(scene->bg_worker, bvh_build_task, arg);
 }
 
 cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name) {
@@ -885,7 +885,7 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 		r->state.workers.items[i].totalSamples = 0;
 	}
 	update_toplevel_bvh(r->scene);
-	thread_pool_wait(r->scene->bvh_builder);
+	thread_pool_wait(r->scene->bg_worker);
 	mutex_release(r->state.current_set->tile_mutex);
 }
 

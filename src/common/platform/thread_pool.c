@@ -71,6 +71,7 @@ static void *cr_worker(void *arg) {
 		if (pool->stop_flag) break;
 		struct cr_task *task = thread_pool_get_task(pool);
 		pool->active_threads++;
+		logr(spam, "++threadpool => %zu\n", pool->active_threads);
 		mutex_release(pool->mutex);
 		if (task) {
 			task->fn(task->arg);
@@ -78,6 +79,7 @@ static void *cr_worker(void *arg) {
 		}
 		mutex_lock(pool->mutex);
 		pool->active_threads--;
+		logr(spam, "--threadpool => %zu\n", pool->active_threads);
 		if (!pool->stop_flag && pool->active_threads == 0 && !pool->first)
 			thread_cond_signal(&pool->work_ongoing);
 		mutex_release(pool->mutex);
