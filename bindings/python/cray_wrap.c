@@ -339,27 +339,16 @@ static PyObject *py_cr_mesh_bind_vertex_buf(PyObject *self, PyObject *args) {
 		return NULL;
 	}
 
-	// TODO: add checks
-	struct cr_vector *vertices = calloc(vec_count, sizeof(*vertices));
-	struct cr_vector *normals = calloc(nor_count, sizeof(*normals));
-	struct cr_coord *texcoords = calloc(tex_count, sizeof(*texcoords));
-	memcpy(vertices, vec_view.buf, vec_count * sizeof(*vertices));
-	memcpy(normals, nor_view.buf, nor_count * sizeof(*normals));
-	memcpy(texcoords, tex_view.buf, tex_count * sizeof(*texcoords));
-
 	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
 	cr_mesh_bind_vertex_buf(s, mesh, (struct cr_vertex_buf_param){
-		.vertices = vertices,
+		.vertices = vec_view.buf,
 		.vertex_count = vec_count,
-		.normals = normals,
+		.normals = nor_view.buf,
 		.normal_count = nor_count,
-		.tex_coords = texcoords,
+		.tex_coords = tex_view.buf,
 		.tex_coord_count = tex_count
 	});
 
-	free(vertices);
-	free(normals);
-	free(texcoords);
 	Py_RETURN_NONE;
 }
 
@@ -383,12 +372,9 @@ static PyObject *py_cr_mesh_bind_faces(PyObject *self, PyObject *args) {
 		return NULL;
 	}
 
-	struct cr_face *faces = calloc(face_count, sizeof(*faces));
-	memcpy(faces, face_view.buf, face_count * sizeof(*faces));
-
 	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
-	cr_mesh_bind_faces(s, mesh, faces, face_count);
-	free(faces);
+	cr_mesh_bind_faces(s, mesh, face_view.buf, face_count);
+
 	Py_RETURN_NONE;
 }
 
