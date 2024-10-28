@@ -415,6 +415,7 @@ class CrayRender(bpy.types.RenderEngine):
 		# TODO: Maybe return if we actually need to restart?
 
 	def view_update(self, context, depsgraph):
+		sync_start = time.time()
 		if not self.cr_renderer:
 			self.cr_renderer = c_ray.renderer()
 			self.cr_renderer.prefs.asset_path = ""
@@ -461,6 +462,8 @@ class CrayRender(bpy.types.RenderEngine):
 		if self.cr_renderer.interactive == True:
 			self.cr_renderer.restart()
 		else:
+			sync_end = time.time()
+			print("Sync took {}s".format(sync_end - sync_start))
 			print("Kicking off background renderer")
 			self.cr_renderer.callbacks.on_interactive_pass_finished = (status_update_interactive, (self.tag_redraw, self.update_stats, self))
 			self.cr_renderer.start_interactive()
