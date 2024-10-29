@@ -377,7 +377,7 @@ static cJSON *serialize_instance(const struct instance in) {
 	cJSON_AddItemToObject(out, "composite", serialize_transform(in.composite));
 	cJSON_AddNumberToObject(out, "object_idx", in.object_idx);
 	cJSON_AddNumberToObject(out, "bbuf_idx", in.bbuf_idx);
-	cJSON_AddBoolToObject(out, "is_mesh", isMesh(&in));
+	cJSON_AddBoolToObject(out, "is_mesh", instance_type(&in) == CR_I_MESH);
 	return out;
 }
 
@@ -835,7 +835,7 @@ struct world *deserialize_scene(const cJSON *in) {
 	for (size_t i = 0; i < out->instances.count; ++i) {
 		struct instance *inst = &out->instances.items[i];
 		inst->bbuf = &out->shader_buffers.items[inst->bbuf_idx];
-		if (isMesh(inst)) {
+		if (instance_type(inst) == CR_I_MESH) {
 			inst->object_arr = &out->meshes;
 		} else {
 			inst->object_arr = &out->spheres;
