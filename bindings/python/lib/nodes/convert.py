@@ -261,7 +261,7 @@ def match_query(name):
 def parse_value(input, group_inputs):
 	match input.bl_idname:
 		case 'ShaderNodeGroup':
-			return parse_subtree(input, ['NodeSocketFloat', 'NodeSocketfloatFactor'], parse_value, group_inputs, NodeValueConstant(0.0))
+			return parse_subtree(input, ['NodeSocketFloat', 'NodeSocketfloatFactor'], parse_value, group_inputs, NodeValueConstant(1.0))
 		case 'NodeReroute':
 			return parse_value(input.inputs[0], group_inputs)
 		case 'NodeSocketColor':
@@ -328,7 +328,7 @@ def parse_value(input, group_inputs):
 				return NodeValueConstant(0.0)
 		case _:
 			print("Unknown value node of type {}, maybe fix.".format(input.bl_idname))
-			return NodeValueConstant(0.0)
+			return NodeValueConstant(1.0)
 
 # From here: https://docs.blender.org/api/current/bpy_types_enum_items/node_vec_math_items.html#rna-enum-node-vec-math-items
 # Commented ones aren't implemented yet, and will emit a notice to stdout
