@@ -101,25 +101,11 @@ def mesh_triangulate(mesh):
 	bm.to_mesh(mesh)
 	bm.free()
 
-# TODO: Probably a better way to do this
 def to_cr_matrix(matrix):
 	cr_mtx = c_ray.cr_matrix()
-	cr_mtx.mtx[0] = matrix[0][0]
-	cr_mtx.mtx[1] = matrix[0][1]
-	cr_mtx.mtx[2] = matrix[0][2]
-	cr_mtx.mtx[3] = matrix[0][3]
-	cr_mtx.mtx[4] = matrix[1][0]
-	cr_mtx.mtx[5] = matrix[1][1]
-	cr_mtx.mtx[6] = matrix[1][2]
-	cr_mtx.mtx[7] = matrix[1][3]
-	cr_mtx.mtx[8] = matrix[2][0]
-	cr_mtx.mtx[9] = matrix[2][1]
-	cr_mtx.mtx[10] = matrix[2][2]
-	cr_mtx.mtx[11] = matrix[2][3]
-	cr_mtx.mtx[12] = matrix[3][0]
-	cr_mtx.mtx[13] = matrix[3][1]
-	cr_mtx.mtx[14] = matrix[3][2]
-	cr_mtx.mtx[15] = matrix[3][3]
+	for i in range(4):
+		for j in range(4):
+			cr_mtx.mtx[i * 4 + j] = matrix[i][j]
 	return cr_mtx
 
 # TODO: Normals & tex coords
