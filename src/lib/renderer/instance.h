@@ -38,4 +38,10 @@ dyn_array_def(instance)
 struct instance new_sphere_instance(struct sphere_arr *spheres, size_t idx, float *density, struct block **pool);
 struct instance new_mesh_instance(struct mesh_arr *meshes, size_t idx, float *density, struct block **pool);
 
-bool isMesh(const struct instance *instance);
+enum cr_instance_type {
+	CR_I_UNKNOWN = 0,
+	CR_I_MESH,
+	CR_I_SPHERE,
+};
+
+enum cr_instance_type instance_type(const struct instance *i);

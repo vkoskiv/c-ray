@@ -48,7 +48,7 @@ static void print_stats(const struct world *scene) {
 	uint64_t vertices = 0;
 	uint64_t normals = 0;
 	for (size_t i = 0; i < scene->instances.count; ++i) {
-		if (isMesh(&scene->instances.items[i])) {
+		if (instance_type(&scene->instances.items[i]) == CR_I_MESH) {
 			const struct mesh *mesh = &scene->meshes.items[scene->instances.items[i].object_idx];
 			polys += mesh->polygons.count;
 			vertices += mesh->vbuf.vertices.count;

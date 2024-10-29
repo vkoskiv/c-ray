@@ -202,8 +202,10 @@ static bool intersectMeshVolume(const struct instance *instance, const struct li
 	return false;
 }
 
-bool isMesh(const struct instance *instance) {
-	return instance->intersectFn == intersectMesh;
+enum cr_instance_type instance_type(const struct instance *i) {
+	if (i->intersectFn == intersectMesh) return CR_I_MESH;
+	if (i->intersectFn == intersectSphere) return CR_I_SPHERE;
+	return CR_I_UNKNOWN;
 }
 
 static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
