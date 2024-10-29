@@ -221,29 +221,39 @@ class mesh:
 		self.cr_idx = _lib.scene_mesh_new(self.scene_ptr, self.name)
 
 	def bind_vertex_buf(self, me):
-		verts = []
-		for v in me.vertices:
-			cr_vert = cr_vector()
-			cr_vert.x = v.co[0]
-			cr_vert.y = v.co[1]
-			cr_vert.z = v.co[2]
-			verts.append(cr_vert)
-		normals = []
-		texcoords = []
-		vbuf = (cr_vector * len(verts))(*verts)
-		nbuf = (cr_vector * len(normals))(*normals)
-		tbuf = (cr_coord  * len(texcoords))(*texcoords)
-		self.v = bytearray(vbuf)
-		self.vn = len(verts)
-		self.n = bytearray(nbuf)
-		self.nn = len(normals)
-		self.t = bytearray(tbuf)
-		self.tn = len(texcoords)
-		_lib.mesh_bind_vertex_buf(self.scene_ptr, self.cr_idx, self.v, self.vn, self.n, self.nn, self.t, self.tn)
+		num_verts = len(me.vertices)
+		if num_verts < 1:
+			print('Mesh \'{}\' has no vertices, bailing'.format(me.name))
+			return
+		ptr_v = ct.cast(me.vertices[0].as_pointer(), ct.POINTER(ct.c_float))
+		name_v = b'cray.cr_vector'
+		capsule_v = ct.pythonapi.PyCapsule_New(ptr_v, name_v, None)
+
+		capsule_n = None
+		num_normals = len(me.corner_normals)
+		if num_normals > 0:
+			ptr_n = ct.cast(me.corner_normals[0].as_pointer(), ct.POINTER(ct.c_float))
+			capsule_n = ct.pythonapi.PyCapsule_New(ptr_n, name_v, None)
+
+		num_texcoords = 0
+		capsule_t = None
+		num_uv_layers = len(me.uv_layers)
+		if num_uv_layers > 0:
+			# TODO: Do we dump all of these, or just the first one?
+			layer = me.uv_layers[0]
+			num_texcoords = len(layer.uv)
+			ptr_t = ct.cast(layer.uv[0].as_pointer(), ct.POINTER(ct.c_float))
+			name_t = b'cray.cr_coord'
+			capsule_t = ct.pythonapi.PyCapsule_New(ptr_t, name_t, None)
+
+		_lib.mesh_bind_vertex_buf(self.scene_ptr, self.cr_idx, capsule_v, num_verts, capsule_n, num_normals, capsule_t, num_texcoords)
+
 	def bind_faces(self, faces, face_count):
 		_lib.mesh_bind_faces(self.scene_ptr, self.cr_idx, faces, face_count)
+
 	def finalize(self):
 		_lib.mesh_finalize(self.scene_ptr, self.cr_idx)
+
 	def instance_new(self):
 		self.instances.append(instance(self.scene_ptr, self, 0))
 		return self.instances[-1]

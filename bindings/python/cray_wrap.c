@@ -294,59 +294,71 @@ static PyObject *py_cr_mesh_bind_vertex_buf(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
 	PyObject *s_ext;
 	cr_mesh mesh;
-	PyObject *vec_buff;
-	size_t vec_count;
-	PyObject *nor_buff;
-	size_t nor_count;
-	PyObject *tex_buff;
-	size_t tex_count;
-	if (!PyArg_ParseTuple(args, "OlOnOnOn", &s_ext, &mesh, &vec_buff, &vec_count, &nor_buff, &nor_count, &tex_buff, &tex_count)) {
-		return NULL;
-	}
-	Py_buffer vec_view;
-	if (PyObject_GetBuffer(vec_buff, &vec_view, PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) == -1) {
-		PyErr_SetString(PyExc_MemoryError, "Failed to parse vec_view");
-		return NULL;
-	}
-	if (vec_count && (vec_view.len / sizeof(struct cr_vector)) != vec_count) {
-		printf("vec_count: %zu\n", vec_count);
-		printf("vec_view.len: %zu\n", vec_view.len);
-		PyErr_SetString(PyExc_MemoryError, "vec_view / sizeof(struct cr_vector) != vec_count");
+	PyObject *v, *n, *t;
+	size_t v_n, n_n, t_n;
+	if (!PyArg_ParseTuple(args, "OlOlOlOl", &s_ext, &mesh, &v, &v_n, &n, &n_n, &t, &t_n)) {
 		return NULL;
 	}
 
-	Py_buffer nor_view;
-	if (PyObject_GetBuffer(nor_buff, &nor_view, PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) == -1) {
-		PyErr_SetString(PyExc_MemoryError, "Failed to parse nor_view");
-		return NULL;
-	}
-	if (nor_count && (nor_view.len / sizeof(struct cr_vector)) != nor_count) {
-		printf("nor_count: %zu\n", nor_count);
-		printf("nor_view.len: %zu\n", nor_view.len);
-		PyErr_SetString(PyExc_MemoryError, "nor_view / sizeof(struct cr_vector) != nor_count");
-		return NULL;
+	struct cr_vector *v_buf = NULL;
+	if (v != Py_None) {
+		if (!PyCapsule_IsValid(v, "cray.cr_vector")) {
+			PyErr_SetString(PyExc_TypeError, "vertices not cray.cr_vector");
+			return NULL;
+		}
+		v_buf = PyCapsule_GetPointer(v, "cray.cr_vector");
+		if (!v_buf) {
+			PyErr_SetString(PyExc_ValueError, "v_buf == NULL");
+			return NULL;
+		}
+	} else {
+		if (v_n) {
+			PyErr_SetString(PyExc_BufferError, "v_n > 0, but buffer is NULL");
+		}
 	}
 
-	Py_buffer tex_view;
-	if (PyObject_GetBuffer(tex_buff, &tex_view, PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) == -1) {
-		PyErr_SetString(PyExc_MemoryError, "Failed to parse tex_view");
-		return NULL;
+	struct cr_vector *n_buf = NULL;
+	if (n != Py_None) {
+		if (!PyCapsule_IsValid(n, "cray.cr_vector")) {
+			PyErr_SetString(PyExc_TypeError, "normals not cray.cr_vector");
+			return NULL;
+		}
+		n_buf = PyCapsule_GetPointer(n, "cray.cr_vector");
+		if (!n_buf) {
+			PyErr_SetString(PyExc_ValueError, "n_buf == NULL");
+			return NULL;
+		}
+	} else {
+		if (n_n) {
+			PyErr_SetString(PyExc_BufferError, "n_n > 0, but buffer is NULL");
+		}
 	}
-	if (tex_count && (tex_view.len / sizeof(struct cr_coord)) != tex_count) {
-		printf("tex_count: %zu\n", tex_count);
-		printf("tex_view.len: %zu\n", tex_view.len);
-		PyErr_SetString(PyExc_MemoryError, "tex_view / sizeof(struct cr_coord) != tex_count");
-		return NULL;
+
+	struct cr_coord *t_buf = NULL;
+	if (t != Py_None) {
+		if (!PyCapsule_IsValid(t, "cray.cr_coord")) {
+			PyErr_SetString(PyExc_TypeError, "texcoords not cray.cr_coord");
+			return NULL;
+		}
+		t_buf = PyCapsule_GetPointer(t, "cray.cr_coord");
+		if (!t_buf) {
+			PyErr_SetString(PyExc_ValueError, "t_buf == NULL");
+			return NULL;
+		}
+	} else {
+		if (t_n) {
+			PyErr_SetString(PyExc_BufferError, "t_n > 0, but buffer is NULL");
+		}
 	}
 
 	struct cr_scene *s = PyCapsule_GetPointer(s_ext, "cray.cr_scene");
 	cr_mesh_bind_vertex_buf(s, mesh, (struct cr_vertex_buf_param){
-		.vertices = vec_view.buf,
-		.vertex_count = vec_count,
-		.normals = nor_view.buf,
-		.normal_count = nor_count,
-		.tex_coords = tex_view.buf,
-		.tex_coord_count = tex_count
+		.vertices = v_buf,
+		.vertex_count = v_n,
+		.normals = n_buf,
+		.normal_count = n_n,
+		.tex_coords = t_buf,
+		.tex_coord_count = t_n,
 	});
 
 	Py_RETURN_NONE;
