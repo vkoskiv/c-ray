@@ -234,19 +234,19 @@ class CrayRender(bpy.types.RenderEngine):
 			cr_cam.opts.res_x = size_x
 			cr_cam.opts.res_y = size_y
 			cr_cam.opts.blender_coord = 1
-			if bl_cam.dof.use_dof:
-				cr_cam.opts.fstops = bl_cam.dof.aperture_fstop
-				if bl_cam.dof.focus_object:
-					focus_loc = bl_cam.dof.focus_object.location
-					cam_loc = bl_cam_eval.location
-					# I'm sure Blender has a function for this somewhere, I couldn't find it
-					dx = focus_loc.x - cam_loc.x
-					dy = focus_loc.y - cam_loc.y
-					dz = focus_loc.z - cam_loc.z
-					distance = math.sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2))
-					cr_cam.opts.focus_distance = distance
-				else:
-					cr_cam.opts.focus_distance = bl_cam.dof.focus_distance
+			# if bl_cam.dof.use_dof:
+			# 	cr_cam.opts.fstops = bl_cam.dof.aperture_fstop
+			# 	if bl_cam.dof.focus_object:
+			# 		focus_loc = bl_cam.dof.focus_object.location
+			# 		cam_loc = bl_cam.location
+			# 		# I'm sure Blender has a function for this somewhere, I couldn't find it
+			# 		dx = focus_loc.x - cam_loc.x
+			# 		dy = focus_loc.y - cam_loc.y
+			# 		dz = focus_loc.z - cam_loc.z
+			# 		distance = math.sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2))
+			# 		cr_cam.opts.focus_distance = distance
+			# 	else:
+			# 		cr_cam.opts.focus_distance = bl_cam.dof.focus_distance
 
 		# Convert Cycles materials into c-ray node graphs
 		cr_materials = {}
