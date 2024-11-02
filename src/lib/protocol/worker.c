@@ -136,7 +136,7 @@ static void *workerThread(void *arg) {
 	thread->completedSamples = 1;
 	
 	struct texture *tileBuffer = NULL;
-	while (thread->current && r->state.rendering) {
+	while (thread->current && r->state.s == r_rendering) {
 		if (!tileBuffer || tileBuffer->width != thread->current->width || tileBuffer->height != thread->current->height) {
 			tex_destroy(tileBuffer);
 			tileBuffer = tex_new(float_p, thread->current->width, thread->current->height, 3);
@@ -144,11 +144,11 @@ static void *workerThread(void *arg) {
 		long totalUsec = 0;
 		long samples = 0;
 		
-		while (thread->completedSamples < r->prefs.sampleCount+1 && r->state.rendering) {
+		while (thread->completedSamples < r->prefs.sampleCount+1 && r->state.s == r_rendering) {
 			timer_start(&timer);
 			for (int y = thread->current->end.y - 1; y > thread->current->begin.y - 1; --y) {
 				for (int x = thread->current->begin.x; x < thread->current->end.x; ++x) {
-					if (r->state.render_aborted || !g_running) goto bail;
+					if (r->state.s != r_rendering || !g_running) goto bail;
 					uint32_t pixIdx = (uint32_t)(y * cam->width + x);
 					initSampler(sampler, SAMPLING_STRATEGY, thread->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
@@ -207,8 +207,7 @@ bail:
 #define active_msec  16
 
 static cJSON *startRender(int connectionSocket, size_t thread_limit) {
-	g_worker_renderer->state.rendering = true;
-	g_worker_renderer->state.render_aborted = false;
+	g_worker_renderer->state.s = r_rendering;
 	logr(info, "Starting network render job\n");
 	
 	size_t threadCount = thread_limit ? thread_limit : g_worker_renderer->prefs.threads;
@@ -268,7 +267,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	}
 	
 	int pauser = 0;
-	while (g_worker_renderer->state.rendering) {
+	while (g_worker_renderer->state.s == r_rendering) {
 		// Send stats about 4x/s
 		if (pauser == 256 / active_msec) {
 			cJSON *stats = newAction("stats");
@@ -288,7 +287,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 			if (!sendJSON(connectionSocket, stats, NULL)) {
 				logr(debug, "Connection lost, bailing out.\n");
 				// Setting this flag also kills the threads.
-				g_worker_renderer->state.rendering = false;
+				g_worker_renderer->state.s = r_exiting;
 			}
 			mutex_release(g_worker_socket_mutex);
 			pauser = 0;
@@ -299,11 +298,12 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 		for (size_t t = 0; t < threadCount; ++t) {
 			if (workerThreadStates[t].threadComplete) inactive++;
 		}
-		if (g_worker_renderer->state.render_aborted || inactive == threadCount)
-			g_worker_renderer->state.rendering = false;
+		if (inactive == threadCount) break;
 
 		timer_sleep_ms(active_msec);
 	}
+
+	g_worker_renderer->state.s = r_exiting;
 
 	//Make sure workder threads are terminated before continuing (This blocks)
 	for (size_t t = 0; t < threadCount; ++t) {
