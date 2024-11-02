@@ -40,13 +40,17 @@ struct callback {
 	void *user_data;
 };
 
+enum renderer_state {
+	r_idle = 0,
+	r_rendering,
+	r_restarting,
+	r_exiting,
+};
+
 /// Renderer state data
 struct state {
 	size_t finishedPasses; // For interactive mode
-	bool rendering;
-	// TODO: Rename to request_abort, and use an enum for actual state
-	bool render_aborted; //SDL listens for X key pressed, which sets this
-	bool exit_done;
+	enum renderer_state s;
 	struct worker_arr workers;
 	struct render_client_arr clients;
 	// TODO: Single callback that has event type as first arg

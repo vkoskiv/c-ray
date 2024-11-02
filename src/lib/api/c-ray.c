@@ -172,10 +172,11 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 void cr_renderer_stop(struct cr_renderer *ext) {
 	if (!ext) return;
 	struct renderer *r = (struct renderer *)ext;
-	r->state.render_aborted = true;
-	while (r->prefs.iterative && !r->state.exit_done) {
+	r->state.s = r_exiting;
+	// TODO: use pthread_cond instead of silly busy-waiting loops like this
+	do {
 		timer_sleep_ms(10);
-	}
+	} while (r->prefs.iterative && r->state.s == r_exiting);
 }
 
 void cr_renderer_toggle_pause(struct cr_renderer *ext) {

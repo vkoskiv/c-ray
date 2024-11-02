@@ -35,6 +35,8 @@
 
 static bool g_aborted = false;
 
+// FIXME: c-ray is a library now, so just setting upa global handler like this
+//        is a bit ugly.
 void sigHandler(int sig) {
 	if (sig == 2) { //SIGINT
 		logr(plain, "\n");
@@ -226,8 +228,7 @@ void renderer_render(struct renderer *r) {
 
 	logr(info, "Pathtracing%s...\n", r->prefs.iterative ? " iteratively" : "");
 	
-	r->state.rendering = true;
-	r->state.render_aborted = false;
+	r->state.s = r_rendering;
 	
 	if (r->state.clients.count) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clients.count, PLURAL(r->state.clients.count), r->state.clients.count, PLURAL(r->state.clients.count));
 	
@@ -267,10 +268,12 @@ void renderer_render(struct renderer *r) {
 	}
 
 	//Start main thread loop to handle renderer feedback and state management
-	while (r->state.rendering) {
-		if (g_aborted) {
-			r->state.render_aborted = true;
+	while (r->state.s == r_rendering) {
+		size_t inactive = 0;
+		for (size_t w = 0; w < r->state.workers.count; ++w) {
+			if (r->state.workers.items[w].thread_complete) inactive++;
 		}
+		if (g_aborted || inactive == r->state.workers.count) break;
 		
 		struct callback status = r->state.callbacks[cr_cb_status_update];
 		if (status.fn) {
@@ -278,32 +281,27 @@ void renderer_render(struct renderer *r) {
 			status.fn(&cb_info, status.user_data);
 		}
 
-		size_t inactive = 0;
-		for (size_t w = 0; w < r->state.workers.count; ++w) {
-			if (r->state.workers.items[w].thread_complete) inactive++;
-		}
-		if (r->state.render_aborted || inactive == r->state.workers.count)
-			r->state.rendering = false;
 		timer_sleep_ms(r->state.workers.items[0].paused ? paused_msec : active_msec);
 	}
 
+	r->state.s = r_exiting;
 	r->state.current_set = NULL;
 	
 	//Make sure render threads are terminated before continuing (This blocks)
-	for (size_t w = 0; w < r->state.workers.count; ++w) {
+	for (size_t w = 0; w < r->state.workers.count; ++w)
 		thread_wait(&r->state.workers.items[w].thread);
-	}
+
 	struct callback stop = r->state.callbacks[cr_cb_on_stop];
 	if (stop.fn) {
 		update_cb_info(r, &set, &cb_info);
-		if (r->state.render_aborted)
+		if (g_aborted)
 			cb_info.aborted = true;
 		stop.fn(&cb_info, stop.user_data);
 	}
 	if (info_tiles) free(info_tiles);
 	tile_set_free(&set);
 	logr(info, "Renderer exiting\n");
-	r->state.exit_done = true;
+	r->state.s = r_idle;
 }
 
 // An interactive render thread that progressively
@@ -324,13 +322,13 @@ void *render_thread_interactive(void *arg) {
 	
 	struct timeval timer = {0};
 	
-	while (tile && r->state.rendering) {
+	while (tile && r->state.s == r_rendering) {
 		long total_us = 0;
 
 		timer_start(&timer);
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
-				if (r->state.render_aborted) goto exit;
+				if (r->state.s != r_rendering) goto exit;
 				uint32_t pixIdx = (uint32_t)(y * (*buf)->width + x);
 				//FIXME: This does not converge to the same result as with regular renderThread.
 				//I assume that's because we'd have to init the sampler differently when we render all
@@ -364,7 +362,7 @@ void *render_thread_interactive(void *arg) {
 		threadState->currentTile = NULL;
 		tile = tile_next_interactive(r, threadState->tiles);
 		//Pause rendering when bool is set
-		while (threadState->paused && !r->state.render_aborted) {
+		while (threadState->paused && r->state.s == r_rendering) {
 			threadState->in_pause_loop = true;
 			timer_sleep_ms(100);
 		}
@@ -403,14 +401,14 @@ void *render_thread(void *arg) {
 	struct timeval timer = { 0 };
 	size_t samples = 1;
 	
-	while (tile && r->state.rendering) {
+	while (tile && r->state.s == r_rendering) {
 		long total_us = 0;
 		
-		while (samples < r->prefs.sampleCount + 1 && r->state.rendering) {
+		while (samples < r->prefs.sampleCount + 1 && r->state.s == r_rendering) {
 			timer_start(&timer);
 			for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 				for (int x = tile->begin.x; x < tile->end.x; ++x) {
-					if (r->state.render_aborted) goto exit;
+					if (r->state.s != r_rendering) goto exit;
 					uint32_t pixIdx = (uint32_t)(y * (*buf)->width + x);
 					initSampler(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
 					
@@ -438,7 +436,7 @@ void *render_thread(void *arg) {
 			samples++;
 			tile->completed_samples++;
 			//Pause rendering when bool is set
-			while (threadState->paused && !r->state.render_aborted) {
+			while (threadState->paused && r->state.s == r_rendering) {
 				timer_sleep_ms(100);
 			}
 			threadState->avg_per_sample_us = total_us / samples;

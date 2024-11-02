@@ -226,7 +226,7 @@ void *client_connection_thread(void *arg) {
 	}
 	
 	// And just wait for commands.
-	while (r->state.rendering && !state->thread_complete) {
+	while (r->state.s == r_rendering && !state->thread_complete) {
 		cJSON *request = readJSON(client->socket);
 		if (containsStats(request)) {
 			cJSON *array = cJSON_GetObjectItem(request, "tiles");
