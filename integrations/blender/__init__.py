@@ -325,10 +325,7 @@ class CrayRender(bpy.types.RenderEngine):
 			if ob_main.name in self.cr_scene.meshes:
 				print("Mesh '{}' already synced, skipping".format(ob_main.name))
 				break
-			if profiling:
-				cProfile.runctx('self.sync_mesh(depsgraph, ob_main)', globals(), locals(), sort='tottime')
-			else:
-				self.sync_mesh(depsgraph, ob_main)
+			self.sync_mesh(depsgraph, ob_main)
 		# Set background shader
 		bl_nodetree = bpy.data.worlds[0].node_tree
 		self.cr_scene.set_background(convert_background(bl_nodetree))
@@ -423,7 +420,10 @@ class CrayRender(bpy.types.RenderEngine):
 	def view_update(self, context, depsgraph):
 		sync_start = time.time()
 		if self.initial_sync == False:
-			self.sync_scene(depsgraph)
+			if profiling:
+				cProfile.runctx('self.sync_scene(depsgraph)', globals(), locals(), sort='tottime')
+			else:
+				self.sync_scene(depsgraph)
 			self.initial_sync = True
 		else:
 			self.partial_update(depsgraph)
