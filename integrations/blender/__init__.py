@@ -187,22 +187,32 @@ class CrayRender(bpy.types.RenderEngine):
 	bl_label = "c-ray for Blender"
 	bl_use_preview = True
 	bl_use_shading_nodes_custom = False
-	cr_renderer = None
-	old_mtx = None
-	old_dims = None
-	old_zoom = None
 
 	def __init__(self):
-		print("c-ray initialized")
-		self.cr_scene = None
+		self.cr_renderer = c_ray.renderer()
+		self.cr_renderer.prefs.asset_path = ""
+		self.cr_renderer.prefs.blender_mode = True
+		self.cr_scene = self.cr_renderer.scene_get()
+
+		self.old_dims = (0,0)
+		self.old_zoom = 0
+		self.old_mtx = None
+		self.initial_sync = False
 		c_ray.log_level_set(c_ray.log_level.Debug)
+		print('c-ray initialized')
 
 	def __del__(self):
-		if self.cr_renderer:
-			if self.cr_renderer.interactive:
-				self.cr_renderer.stop()
-			self.cr_renderer.close()
-		print("c-ray deleted")
+		try:
+			cr_renderer = getattr(self, 'cr_renderer')
+			if cr_renderer.interactive:
+				print('Stopping')
+				cr_renderer.stop()
+			print('Closing')
+			cr_renderer.close()
+			print('Closed')
+		except:
+			print('Blender called __del__ on an uninitialized CrayRender')
+		print('c-ray deleted')
 
 	def sync_mesh(self, depsgraph, bl_mesh):
 		print("Syncing mesh {}".format(bl_mesh.name))
@@ -412,14 +422,11 @@ class CrayRender(bpy.types.RenderEngine):
 
 	def view_update(self, context, depsgraph):
 		sync_start = time.time()
-		if not self.cr_renderer:
-			self.cr_renderer = c_ray.renderer()
-			self.cr_renderer.prefs.asset_path = ""
-			self.cr_renderer.prefs.blender_mode = True
-			self.cr_scene = self.cr_renderer.scene_get()
+		if self.initial_sync == False:
 			self.sync_scene(depsgraph)
-
-		self.partial_update(depsgraph)
+			self.initial_sync = True
+		else:
+			self.partial_update(depsgraph)
 		self.cr_renderer.prefs.samples = depsgraph.scene.c_ray.samples
 		self.cr_renderer.prefs.threads = depsgraph.scene.c_ray.threads
 		self.cr_renderer.prefs.tile_x = depsgraph.scene.c_ray.tile_size
