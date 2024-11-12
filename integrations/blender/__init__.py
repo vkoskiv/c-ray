@@ -26,6 +26,10 @@ import gpu
 from gpu_extras.presets import draw_texture_2d
 import threading
 
+profiling = False
+if profiling:
+	import cProfile
+
 from . import (
 	c_ray
 )
@@ -200,6 +204,58 @@ class CrayRender(bpy.types.RenderEngine):
 			self.cr_renderer.close()
 		print("c-ray deleted")
 
+	def sync_mesh(self, depsgraph, bl_mesh):
+		print("Syncing mesh {}".format(bl_mesh.name))
+		# dump(bl_mesh)
+		ob_for_convert = bl_mesh.evaluated_get(depsgraph)
+		try:
+			me = ob_for_convert.to_mesh()
+		except RuntimeError:
+			me = None
+		if me is None:
+			print("Whoops, mesh {} couldn't be converted".format(bl_mesh.name))
+			return
+
+		cr_mesh = self.cr_scene.mesh_new(bl_mesh.name)
+		instances = []
+		new_inst = cr_mesh.instance_new()
+		new_inst.set_transform(to_cr_matrix(bl_mesh.matrix_world))
+		cr_mat_set = self.cr_scene.material_set_new(bl_mesh.name)
+		new_inst.bind_materials(cr_mat_set)
+		instances.append(new_inst)
+		if bl_mesh.is_instancer and bl_mesh.show_instancer_for_render:
+			for dup in depsgraph.object_instances:
+				if dup.parent and dup.parent.original == bl_mesh:
+					new_inst = cr_mesh.instance_new()
+					new_inst.set_transform(dup.matrix_world.copy())
+		if len(me.materials) < 1:
+			cr_mat_set.add(None, bl_mat.name)
+		for bl_mat in me.materials:
+			if not bl_mat:
+				print("Huh, array contains NoneType?")
+				cr_mat_set.add(None, "MissingMaterial")
+			elif bl_mat.use_nodes:
+				# print("Fetching material {}".format(bl_mat.name))
+				if bl_mat.name not in self.cr_materials:
+					print("Weird, {} not found in cr_materials".format(bl_mat.name))
+					cr_mat_set.add(None, bl_mat.name)
+				else:
+					cr_mat_set.add(self.cr_materials[bl_mat.name], bl_mat.name)
+			else:
+				print("Material {} doesn't use nodes, do something about that".format(bl_mat.name))
+				cr_mat_set.add(None, bl_mat.name)
+		# c-ray only supports triangles
+		mesh_triangulate(me)
+		faces = []
+		for poly in me.polygons:
+			faces.append(to_cr_face(me, poly))
+		# TODO: normals
+		# TODO: tex coords
+		facebuf = (c_ray.cr_face * len(faces))(*faces)
+		cr_mesh.bind_faces(bytearray(facebuf), len(faces))
+		cr_mesh.bind_vertex_buf(me)
+		cr_mesh.finalize()
+
 	def sync_scene(self, depsgraph):
 		b_scene = depsgraph.scene
 		objects = depsgraph.objects
@@ -247,10 +303,10 @@ class CrayRender(bpy.types.RenderEngine):
 			# 		cr_cam.opts.focus_distance = bl_cam.dof.focus_distance
 
 		# Convert Cycles materials into c-ray node graphs
-		cr_materials = {}
+		self.cr_materials = {}
 		for bl_mat in bpy.data.materials:
 			print("Converting {}".format(bl_mat.name))
-			cr_materials[bl_mat.name] = convert_node_tree(depsgraph, bl_mat.name, bl_mat.node_tree)
+			self.cr_materials[bl_mat.name] = convert_node_tree(depsgraph, bl_mat.name, bl_mat.node_tree)
 		
 		# Sync meshes
 		for idx, ob_main in enumerate(objects):
@@ -259,85 +315,10 @@ class CrayRender(bpy.types.RenderEngine):
 			if ob_main.name in self.cr_scene.meshes:
 				print("Mesh '{}' already synced, skipping".format(ob_main.name))
 				break
-			print("Syncing mesh {}".format(ob_main.name))
-			# dump(ob_main)
-			cr_mesh = self.cr_scene.mesh_new(ob_main.name)
-			instances = []
-			new_inst = cr_mesh.instance_new()
-			new_inst.set_transform(to_cr_matrix(ob_main.matrix_world))
-			cr_mat_set = self.cr_scene.material_set_new(ob_main.name)
-			new_inst.bind_materials(cr_mat_set)
-			instances.append(new_inst)
-			if ob_main.is_instancer and ob_main.show_instancer_for_render:
-				for dup in depsgraph.object_instances:
-					if dup.parent and dup.parent.original == ob_main:
-						new_inst = cr_mesh.instance_new()
-						new_inst.set_transform(dup.matrix_world.copy())
-			s = datetime.datetime.now()
-			ob_for_convert = ob_main.evaluated_get(depsgraph)
-			e = datetime.datetime.now()
-			print('eval_get    took {}'.format(e - s))
-			s = datetime.datetime.now()
-			try:
-				me = ob_for_convert.to_mesh()
-			except RuntimeError:
-				me = None
-			if me is None:
-				print("Whoops, mesh {} couldn't be converted".format(ob_main.name))
-				continue
-
-			e = datetime.datetime.now()
-			print('to_mesh     took {}'.format(e - s))
-			if len(me.materials) < 1:
-				cr_mat_set.add(None, bl_mat.name)
-			for bl_mat in me.materials:
-				if not bl_mat:
-					print("Huh, array contains NoneType?")
-					cr_mat_set.add(None, "MissingMaterial")
-				elif bl_mat.use_nodes:
-					print("Fetching material {}".format(bl_mat.name))
-					if bl_mat.name not in cr_materials:
-						print("Weird, {} not found in cr_materials".format(bl_mat.name))
-						cr_mat_set.add(None, bl_mat.name)
-					else:
-						cr_mat_set.add(cr_materials[bl_mat.name], bl_mat.name)
-				else:
-					print("Material {} doesn't use nodes, do something about that".format(bl_mat.name))
-					cr_mat_set.add(None, bl_mat.name)
-			# c-ray only supports triangles
-			s = datetime.datetime.now()
-			mesh_triangulate(me)
-			e = datetime.datetime.now()
-			print('triangulate took {}'.format(e - s))
-
-			# me.calc_normals_split()
-			faces = []
-			s = datetime.datetime.now()
-			for poly in me.polygons:
-				faces.append(to_cr_face(me, poly))
-			e = datetime.datetime.now()
-			print('poly loop   took {}'.format(e - s))
-
-			s = datetime.datetime.now()
-			facebuf = (c_ray.cr_face * len(faces))(*faces)
-			e = datetime.datetime.now()
-			print('facebuf     took {}'.format(e - s))
-
-			s = datetime.datetime.now()
-			cr_mesh.bind_faces(bytearray(facebuf), len(faces))
-			e = datetime.datetime.now()
-			print('bind_faces  took {}'.format(e - s))
-
-			s = datetime.datetime.now()
-			cr_mesh.bind_vertex_buf(me)
-			e = datetime.datetime.now()
-			print('bind_vertex took {}'.format(e - s))
-
-			s = datetime.datetime.now()
-			cr_mesh.finalize()
-			e = datetime.datetime.now()
-			print('finalize    took {}'.format(e - s))
-		
+			if profiling:
+				cProfile.runctx('self.sync_mesh(depsgraph, ob_main)', globals(), locals(), sort='tottime')
+			else:
+				self.sync_mesh(depsgraph, ob_main)
 		# Set background shader
 		bl_nodetree = bpy.data.worlds[0].node_tree
 		self.cr_scene.set_background(convert_background(bl_nodetree))
