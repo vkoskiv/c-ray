@@ -68,7 +68,7 @@ static void status(struct cr_renderer_cb_info *state, void *user_data) {
 int main(int argc, char *argv[]) {
 	term_init();
 	atexit(term_restore);
-	logr(info, "c-ray v%s [%.8s], © 2015-2023 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
+	logr(info, "c-ray v%s [%.8s], © 2015-2025 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
 
 	struct driver_args *opts = args_parse(argc, argv);
 	char *log_level = args_string(opts, "log_level");
