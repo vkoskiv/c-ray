@@ -1,0 +1,2 @@
+#!/bin/sh
+rm -f generated/gitsha1.c
