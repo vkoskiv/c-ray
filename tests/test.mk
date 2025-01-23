@@ -1,6 +1,6 @@
 BIN_test=tests/testrunner
 OBJDIR_test=tests/obj
-SRCS_test=$(shell find src/lib src/driver src/common generated/ tests/ -name '*.c' -not -name 'main.c')
+SRCS_test=$(shell find src/lib src/driver src/common tests/ -name '*.c' -not -name 'main.c')
 TEST_HDRS=$(shell find tests/ -name '*.h')
 OBJS_test=$(patsubst %.c, $(OBJDIR_test)/%.o, $(SRCS_test))
 # suite=vector

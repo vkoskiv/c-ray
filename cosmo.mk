@@ -9,7 +9,7 @@ $(OBJDIR_cosmo)/%.o: %.c $(OBJDIR_cosmo)
 	@mkdir -p '$(@D)'
 	@echo "cosmocc $<"
 	@$(CC_cosmo) $(CFLAGS) -c $< -o $@
-$(OBJDIR_cosmo): dummy
+$(OBJDIR_cosmo):
 	mkdir -p $@
 $(BIN_cosmo): $(OBJS_cosmo) $(OBJDIR_cosmo)
 	@echo "LD $@"

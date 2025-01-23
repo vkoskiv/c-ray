@@ -9,7 +9,7 @@ BINDIR=bin
 
 all: $(BINDIR)/$(BIN)
 
-SRCS=$(shell find src/lib src/driver src/common generated/ -name '*.c') generated/gitsha1.c
+SRCS=$(shell find src/lib src/driver src/common -name '*.c') generated/gitsha1.c
 OBJS=$(SRCS:%.c=$(BINDIR)/%.o)
 DEPS=$(OBJS:%.o=%.d)
 

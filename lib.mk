@@ -5,7 +5,7 @@ LIB=lib/libc-ray.so
 BIN_lib=lib/c-ray
 OBJDIR_lib=lib/obj_lib
 OBJDIR_driver=lib/obj_driver
-SRCS_lib=$(shell find src/lib src/common generated/ -name '*.c')
+SRCS_lib=$(shell find src/lib src/common -name '*.c') generated/gitsha1.c
 OBJS_lib=$(patsubst %.c, $(OBJDIR_lib)/%.o, $(SRCS_lib))
 SRCS_driver=$(shell find src/driver src/common -name '*.c')
 OBJS_driver=$(patsubst %.c, $(OBJDIR_driver)/%.o, $(SRCS_driver))
@@ -45,7 +45,7 @@ $(OBJDIR_lib)/%.o: %.c $(OBJDIR_lib)
 	@mkdir -p '$(@D)'
 	@echo "CC -fPIC $<"
 	@$(CC) -DCR_BUILDING_LIB $(CFLAGS) -fvisibility=hidden -c -fPIC $< -o $@
-$(OBJDIR_lib): dummy
+$(OBJDIR_lib):
 	mkdir -p $@
 $(OBJDIR_driver):
 	mkdir -p $@
