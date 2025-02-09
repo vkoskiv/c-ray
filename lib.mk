@@ -9,33 +9,27 @@ SRCS_lib=$(shell find src/lib src/common -name '*.c') generated/gitsha1.c
 OBJS_lib=$(patsubst %.c, $(OBJDIR_lib)/%.o, $(SRCS_lib))
 SRCS_driver=$(shell find src/driver src/common -name '*.c')
 OBJS_driver=$(patsubst %.c, $(OBJDIR_driver)/%.o, $(SRCS_driver))
-SRCS_python=$(shell find bindings -name '*.py')
+SRCS_pylib=$(shell find bindings/python/lib -name '*.py')
 
 lib: $(BIN_lib)
 
-pylib: bindings/cray_wrap.so
+pylib: bindings/python/lib/cray_wrap.so $(SRCS_pylib)
 
 BLENDER_VERSION=$(shell blender --version | head -n1 | cut -d ' ' -f 2 | cut -c 1-3)
 BLENDER_ROOT=$(HOME)/.config/blender/$(BLENDER_VERSION)
 
-blsync: bindings/cray_wrap.so $(SRCS_python)
+# Only copy .py files, which Blender seems to handle okay.
+blsync: $(SRCS_pylib)
 	mkdir -p $(BLENDER_ROOT)/scripts/addons/c_ray
-	cp bindings/c_ray.py $(BLENDER_ROOT)/scripts/addons/c_ray/
-	cp bindings/blender_init.py $(BLENDER_ROOT)/scripts/addons/c_ray/__init__.py
-	cp bindings/blender_properties.py $(BLENDER_ROOT)/scripts/addons/c_ray/properties.py
-	cp bindings/blender_ui.py $(BLENDER_ROOT)/scripts/addons/c_ray/ui.py
-	cp -r bindings/nodes $(BLENDER_ROOT)/scripts/addons/c_ray/
+	cp $(SRCS_pylib) $(BLENDER_ROOT)/scripts/addons/c_ray/
+	cp -r integrations/blender/* $(BLENDER_ROOT)/scripts/addons/c_ray/
 
 # Blender crashes if I swap out the .so, no idea why, so updating the library
 # requires a restart of blender and the use of this target.
-fullblsync: bindings/cray_wrap.so $(SRCS_python)
+fullblsync: pylib
 	mkdir -p $(BLENDER_ROOT)/scripts/addons/c_ray
-	cp bindings/cray_wrap.so $(BLENDER_ROOT)/scripts/addons/c_ray/
-	cp bindings/c_ray.py $(BLENDER_ROOT)/scripts/addons/c_ray/
-	cp bindings/blender_init.py $(BLENDER_ROOT)/scripts/addons/c_ray/__init__.py
-	cp bindings/blender_properties.py $(BLENDER_ROOT)/scripts/addons/c_ray/properties.py
-	cp bindings/blender_ui.py $(BLENDER_ROOT)/scripts/addons/c_ray/ui.py
-	cp -r bindings/nodes $(BLENDER_ROOT)/scripts/addons/c_ray/
+	cp -r bindings/python/lib/* $(BLENDER_ROOT)/scripts/addons/c_ray/
+	cp -r integrations/blender/* $(BLENDER_ROOT)/scripts/addons/c_ray/
 
 $(OBJDIR_driver)/%.o: %.c $(OBJDIR_driver)
 	@mkdir -p '$(@D)'
@@ -55,6 +49,6 @@ $(LIB): $(OBJS_lib)
 $(BIN_lib): $(LIB) $(OBJS_driver) $(OBJDIR_driver)
 	@echo "LD $@"
 	@$(CC) $(CFLAGS) $(OBJS_driver) $(LIB) -o $@ $(LDFLAGS)
-bindings/cray_wrap.so: $(OBJS_lib) bindings/cray_wrap.c
-	@echo "Building Python module"
-	@$(CC) -shared $(CFLAGS) -fPIC `pkg-config --cflags python3` bindings/cray_wrap.c $(OBJS_lib) -o $@
+bindings/python/lib/cray_wrap.so: $(OBJS_lib) bindings/python/cray_wrap.c
+	@echo "Building CPython module"
+	@$(CC) -shared $(CFLAGS) -fPIC `pkg-config --cflags python3` bindings/python/cray_wrap.c $(OBJS_lib) -o bindings/python/lib/cray_wrap.so
