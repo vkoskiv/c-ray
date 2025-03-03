@@ -9,6 +9,7 @@
 #include <Python.h>
 #include <structmember.h>
 #include <c-ray/c-ray.h>
+#include "py_types.h"
 
 static PyObject *py_cr_get_version(PyObject *self, PyObject *args) {
 	(void)self; (void)args;
@@ -69,35 +70,6 @@ static PyObject *py_cr_renderer_set_str_pref(PyObject *self, PyObject *args) {
 	return PyBool_FromLong(ret);
 }
 
-
-typedef struct {
-	PyObject_HEAD
-	struct cr_renderer_cb_info info;
-} CallbackInfoObject;
-
-static PyMemberDef CallbackInfo_members[] = {
-	{ "tiles_count", T_ULONG, offsetof(CallbackInfoObject, info.tiles_count), 0, "Amount of tiles" },
-	{ "active_threads", T_ULONG, offsetof(CallbackInfoObject, info.active_threads), 0, "Amount of active threads" },
-	{ "avg_per_ray", T_DOUBLE, offsetof(CallbackInfoObject, info.avg_per_ray_us), 0, "Microseconds per ray, on average" },
-	{ "samples_per_sec", T_LONG, offsetof(CallbackInfoObject, info.samples_per_sec), 0, "Samples per second" },
-	{ "eta_ms", T_LONG, offsetof(CallbackInfoObject, info.eta_ms), 0, "ETA to render finished, in milliseconds" },
-	{ "finished_passes", T_ULONG, offsetof(CallbackInfoObject, info.finished_passes), 0, "Passes finished in interactive mode" },
-	{ "completion", T_DOUBLE, offsetof(CallbackInfoObject, info.completion), 0, "Render completion" },
-	{ "paused", T_INT, offsetof(CallbackInfoObject, info.paused), 0, "Boolean, render paused" },
-	{ NULL },
-};
-
-static PyTypeObject CallbackInfoType = {
-	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
-	.tp_name = "c_ray.CallbackInfo",
-	.tp_doc = PyDoc_STR(""),
-	.tp_basicsize = sizeof(CallbackInfoObject),
-	.tp_itemsize = 0,
-	.tp_flags = Py_TPFLAGS_DEFAULT,
-	.tp_new = PyType_GenericNew,
-	.tp_members = CallbackInfo_members,
-};
-
 void py_callable_wrapper(struct cr_renderer_cb_info *info, void *arg) {
 	PyObject *py_callback_fn = NULL;
 	PyObject *py_user_data = NULL;
@@ -107,7 +79,7 @@ void py_callable_wrapper(struct cr_renderer_cb_info *info, void *arg) {
 		return;
 	}
 	PyObject *args = Py_BuildValue("()");
-	CallbackInfoObject *cb = (CallbackInfoObject *)CallbackInfoType.tp_new(&CallbackInfoType, args, NULL);
+	py_renderer_cb_info *cb = (py_renderer_cb_info *)type_py_renderer_cb_info.tp_new(&type_py_renderer_cb_info, args, NULL);
 	Py_DECREF(args);
 	cb->info = *info;
 	PyObject *py_args = Py_BuildValue("(OO)", cb, py_user_data);
@@ -239,7 +211,7 @@ static PyObject *py_cr_renderer_get_result(PyObject *self, PyObject *args) {
 	struct cr_renderer *r = PyCapsule_GetPointer(r_ext, "cray.cr_renderer");
 	struct cr_bitmap *bm = cr_renderer_get_result(r);
 	if (!bm) Py_RETURN_NONE;
-	return PyCapsule_New(bm, "cray.cr_bitmap", NULL);
+	return py_bitmap_wrap(bm);
 }
 
 static PyObject *py_cr_renderer_render(PyObject *self, PyObject *args) {
@@ -779,17 +751,21 @@ static struct PyModuleDef cray_wrap = {
 PyMODINIT_FUNC PyInit_cray_wrap(void) {
 	PyObject *m = NULL;
 
-	if (PyType_Ready(&CallbackInfoType) < 0)
-		return NULL;
+	for (int i = 0; all_types[i].py_object; ++i) {
+		if (PyType_Ready(all_types[i].py_object) < 0)
+			return NULL;
+	}
 
 	m = PyModule_Create(&cray_wrap);
 	if (!m) return NULL;
 
-	Py_INCREF(&CallbackInfoType);
-	if (PyModule_AddObject(m, "CallbackInfo", (PyObject *)&CallbackInfoType) < 0) {
-		Py_DECREF(&CallbackInfoType);
-		Py_DECREF(m);
-		return NULL;
+	for (int i = 0; all_types[i].py_object; ++i) {
+		Py_INCREF(all_types[i].py_object);
+		if (PyModule_AddObject(m, all_types[i].py_name, (PyObject *)all_types[i].py_object) < 0) {
+			Py_DECREF(all_types[i].py_object);
+			Py_DECREF(m);
+			return NULL;
+		}
 	}
 	return m;
 }

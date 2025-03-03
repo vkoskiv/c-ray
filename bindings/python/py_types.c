@@ -1,0 +1,116 @@
+//
+//  py_types.c
+//  libc-ray CPython wrapper
+//
+//  Created by Valtteri on 9.2.2025
+//  Copyright © 2025 Valtteri Koskivuori. All rights reserved.
+//
+
+#include "py_types.h"
+#include <structmember.h>
+
+static void py_bitmap_dealloc(py_bitmap *self) {
+	Py_TYPE(self)->tp_free((PyObject *)self);
+}
+
+#define REF_GETTER(type, field, pytype) \
+	static PyObject *type##_get_##field(type *self, void *closure) { \
+		(void)closure; \
+		if (!self->ref) Py_RETURN_NONE; \
+		return Py_BuildValue(pytype, self->ref->field); \
+	}
+
+#define REF_SETTER(type, field, pytype, ctype) \
+	static int type##_set_##field(type *self, PyObject *value, void *closure) { \
+		(void)closure; \
+		if (!self->ref || !value) return -1; \
+		ctype temp; \
+		if (!PyArg_Parse(value, pytype, &temp)) return -1; \
+		self->ref->field = temp; \
+		return 0; \
+	}
+#define PY_BITMAP_FIELDS \
+	X(py_bitmap, colorspace, "i", int) \
+	X(py_bitmap, precision, "i", int) \
+	X(py_bitmap, stride, "n", size_t) \
+	X(py_bitmap, width, "n", size_t) \
+	X(py_bitmap, height, "n", size_t) \
+
+#define X(type, field, pytype, ctype) REF_GETTER(type, field, pytype)
+PY_BITMAP_FIELDS
+#undef X
+
+#define X(type, field, pytype, ctype) REF_SETTER(type, field, pytype, ctype)
+PY_BITMAP_FIELDS
+#undef X
+
+static PyObject *py_cr_bitmap_get_data(py_bitmap *self, void *closure) {
+	(void)closure;
+	if (!self->ref) Py_RETURN_NONE;
+	if (self->ref->precision == cr_bm_char) {
+		return PyBytes_FromStringAndSize((char *)self->ref->data.byte_ptr, self->ref->width * self->ref->height * self->ref->stride);
+	} else if (self->ref->precision == cr_bm_float) {
+		// Could we apply tp_as_buffer for this? Not sure how that would look from the python side, though.
+		return PyMemoryView_FromMemory((char *)self->ref->data.float_ptr, self->ref->width * self->ref->height * self->ref->stride * sizeof(float), PyBUF_READ);
+	}
+	Py_RETURN_NONE;
+}
+
+#define X(type, field, pytype, ctype) {#field, (getter)type##_get_##field, (setter)type##_set_##field, #field, NULL},
+static PyGetSetDef py_bitmap_getters_setters[] = {
+	PY_BITMAP_FIELDS
+	{ "data", (getter)py_cr_bitmap_get_data, NULL, "data", NULL },
+	{ 0 },
+};
+#undef X
+
+PyTypeObject type_py_bitmap = {
+	PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "c_ray.bitmap",
+	.tp_doc = PyDoc_STR(""),
+	.tp_basicsize = sizeof(py_bitmap),
+	.tp_dealloc = (destructor)py_bitmap_dealloc,
+	.tp_itemsize = 0, // Huh?
+	.tp_flags = Py_TPFLAGS_DEFAULT,
+	.tp_new = PyType_GenericNew,
+	.tp_getset = py_bitmap_getters_setters,
+	.tp_alloc = PyType_GenericAlloc,
+};
+
+PyObject *py_bitmap_wrap(struct cr_bitmap *ref) {
+	if (!ref) return NULL;
+	py_bitmap *self = (py_bitmap *)type_py_bitmap.tp_alloc(&type_py_bitmap, 0);
+	if (!self) return NULL;
+	self->ref = ref;
+	return (PyObject *)self;
+}
+
+static PyMemberDef py_renderer_cb_info_members[] = {
+	{ "tiles_count", T_ULONG, offsetof(py_renderer_cb_info, info.tiles_count), 0, "Amount of tiles" },
+	{ "active_threads", T_ULONG, offsetof(py_renderer_cb_info, info.active_threads), 0, "Amount of active threads" },
+	{ "avg_per_ray", T_DOUBLE, offsetof(py_renderer_cb_info, info.avg_per_ray_us), 0, "Microseconds per ray, on average" },
+	{ "samples_per_sec", T_LONG, offsetof(py_renderer_cb_info, info.samples_per_sec), 0, "Samples per second" },
+	{ "eta_ms", T_LONG, offsetof(py_renderer_cb_info, info.eta_ms), 0, "ETA to render finished, in milliseconds" },
+	{ "finished_passes", T_ULONG, offsetof(py_renderer_cb_info, info.finished_passes), 0, "Passes finished in interactive mode" },
+	{ "completion", T_DOUBLE, offsetof(py_renderer_cb_info, info.completion), 0, "Render completion" },
+	{ "paused", T_INT, offsetof(py_renderer_cb_info, info.paused), 0, "Boolean, render paused" },
+	{ NULL },
+};
+
+PyTypeObject type_py_renderer_cb_info = {
+	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "c_ray.callback_info",
+	.tp_doc = PyDoc_STR(""),
+	.tp_basicsize = sizeof(py_renderer_cb_info),
+	.tp_itemsize = 0,
+	.tp_flags = Py_TPFLAGS_DEFAULT,
+	.tp_new = PyType_GenericNew,
+	.tp_members = py_renderer_cb_info_members,
+};
+
+struct cr_python_type all_types[] = {
+	{ &type_py_bitmap, "bitmap" },
+	{ &type_py_renderer_cb_info, "callback_info" },
+	{ 0 },
+};
+

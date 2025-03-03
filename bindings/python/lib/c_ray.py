@@ -7,28 +7,10 @@ from . nodes.vector import (
 	cr_vector,
 	cr_coord
 )
-from . cray_wrap import (
-	CallbackInfo
-)
+from . cray_wrap import *
 
 class cr_renderer(ct.Structure):
 	pass
-
-class cr_bm_union(ct.Union):
-	_fields_ = [
-		("byte_ptr", ct.POINTER(ct.c_ubyte)),
-		("float_ptr", ct.POINTER(ct.c_float))
-	]
-
-class cr_bitmap(ct.Structure):
-	_fields_ = [
-		("colorspace", ct.c_int),
-		("precision", ct.c_int),
-		("data", cr_bm_union),
-		("stride", ct.c_size_t),
-		("width", ct.c_size_t),
-		("height", ct.c_size_t),
-	]
 
 class _cr_rparam(IntEnum):
 	# int
@@ -473,6 +455,7 @@ class scene:
 		return vertex_buf(self.cr_ptr, v, vn, n, nn, t, tn)
 
 class renderer:
+	ret_bitmap = None
 	def __init__(self, path = None):
 		self.obj_ptr = _lib.new_renderer()
 		self.prefs = _pref(self.obj_ptr)
@@ -503,15 +486,11 @@ class renderer:
 		_lib.renderer_start_interactive(self.obj_ptr)
 
 	def get_result(self):
-		ret = _lib.renderer_get_result(self.obj_ptr)
-		if not ret:
-			return None
-		# I saw this in several places, and suggested by a token predictor. Ehh?
-		ct.pythonapi.PyCapsule_GetPointer.restype = ct.c_void_p
-		ct.pythonapi.PyCapsule_GetPointer.argtypes = [ct.py_object, ct.c_char_p]
-		ptr = ct.pythonapi.PyCapsule_GetPointer(ret, "cray.cr_bitmap".encode())
-		ret_bitmap = ct.cast(ptr, ct.POINTER(cr_bitmap)).contents
-		return ret_bitmap
+		# TODO: Would also be nice if the result object as well as renderer.prefs would have dims as a tuple/array? I think that's a nicer way to express those in python.
+		if self.ret_bitmap is not None:
+			return self.ret_bitmap
+		self.ret_bitmap = _lib.renderer_get_result(self.obj_ptr)
+		return self.ret_bitmap
 
 	def scene_get(self):
 		return scene(self.obj_ptr)

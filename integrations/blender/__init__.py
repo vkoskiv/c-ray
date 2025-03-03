@@ -170,10 +170,7 @@ def draw_direct(bitmap):
 	if not bitmap:
 		return
 	float_count = bitmap.width * bitmap.height * bitmap.stride
-	buffer_from_memory = ct.pythonapi.PyMemoryView_FromMemory
-	buffer_from_memory.restype = ct.py_object
-	buffer = buffer_from_memory(bitmap.data.float_ptr, 4 * float_count)
-	pixels = np.frombuffer(buffer, np.float32)
+	pixels = np.frombuffer(bitmap.data, np.float32)
 	pixels = gpu.types.Buffer('FLOAT', float_count, pixels)
 	texture = None
 	try:
@@ -465,30 +462,10 @@ class CrayRender(bpy.types.RenderEngine):
 			self.cr_renderer.start_interactive()
 
 	def display_bitmap(self, bm):
-		# Get float array from libc-ray containing the raw render buffer, and then build a render result with it
-		print("Grabbing float array from lib")
-		start_first = time.time()
-		float_count = bm.width * bm.height * bm.stride
-		buffer_from_memory = ct.pythonapi.PyMemoryView_FromMemory
-		buffer_from_memory.restype = ct.py_object
-		buffer = buffer_from_memory(bm.data.float_ptr, 4 * float_count)
-		end = time.time()
-		print("Done, took {}s".format(end - start_first))
-
-		print("Converting")
-		start = time.time()
-		floats = np.frombuffer(buffer, np.float32)
-		end = time.time()
-		print("DONE, took {}".format(end - start))
+		floats = np.frombuffer(bm.data, np.float32)
 		result = self.begin_result(0, 0, bm.width, bm.height)
 		r_pass = result.layers[0].passes["Combined"]
-		print("Copying to RenderPass")
-		start = time.time()
 		r_pass.rect.foreach_set(floats)
-		end = time.time()
-		print("Done, took {}".format(end - start))
-		print("Displaying bitmap took a total of {}s".format(end - start_first))
-
 		self.end_result(result)
 
 def register():
