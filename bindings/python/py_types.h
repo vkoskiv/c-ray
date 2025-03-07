@@ -12,6 +12,18 @@
 #include <Python.h>
 #include <c-ray/c-ray.h>
 
+extern PyTypeObject type_py_vector;
+typedef struct {
+	PyObject_HEAD;
+	struct cr_vector val;
+} py_vector;
+
+extern PyTypeObject type_py_coord;
+typedef struct {
+	PyObject_HEAD;
+	struct cr_coord val;
+} py_coord;
+
 extern PyTypeObject type_py_bitmap;
 typedef struct {
 	PyObject_HEAD;

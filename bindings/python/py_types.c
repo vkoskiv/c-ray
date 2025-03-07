@@ -9,6 +9,181 @@
 #include "py_types.h"
 #include <structmember.h>
 
+static PyMemberDef py_vector_members[] = {
+	{ "x", T_FLOAT, offsetof(py_vector, val.x), 0, "x" },
+	{ "y", T_FLOAT, offsetof(py_vector, val.y), 0, "y" },
+	{ "z", T_FLOAT, offsetof(py_vector, val.z), 0, "z" },
+	{ NULL },
+};
+
+/*
+	WTF. If I mark this specific function as static, Python throws a bizarre UnicodeDecodeError when trying to import the .so:
+	Traceback (most recent call last):
+	  File "<python-input-0>", line 1, in <module>
+	    from bindings.python.lib import c_ray
+	  File "/home/vkoskiv/c-ray/bindings/python/lib/c_ray.py", line 5, in <module>
+	    from . import cray_wrap as _lib
+	UnicodeDecodeError: 'utf-8' codec can't decode byte 0xb8 in position 0: invalid start byte
+*/
+Py_ssize_t py_vector_length(PyObject *o) {
+	(void)o;
+	return 3;
+}
+
+static PyObject *py_vector_subscript(PyObject *o, PyObject *key) {
+	py_vector *self = (py_vector *)o;
+	if (PyLong_Check(key)) {
+		long index = PyLong_AsLong(key);
+		if (index < 0 || index > 2) {
+			PyErr_SetString(PyExc_IndexError, "cr_vector index out of range");
+			return NULL;
+		}
+		return PyFloat_FromDouble((index == 0) ? self->val.x : (index == 1) ? self->val.y : self->val.z);
+	}
+	if (PySlice_Check(key)) {
+		Py_ssize_t start, stop, step;
+		if (PySlice_Unpack(key, &start, &stop, &step) < 0)
+			return NULL;
+		Py_ssize_t indices[3] = { 0, 1, 2 };
+		PyObject *result = PyList_New(0);
+		if (!result)
+			return NULL;
+		for (Py_ssize_t i = start; i < stop && i >= 0 && i <= 2; i += step) {
+			PyObject *py_value = PyFloat_FromDouble((indices[i] == 0) ? self->val.x : (indices[i] == 1) ? self->val.y : self->val.z);
+			if (!py_value) {
+				Py_DECREF(result);
+				return NULL;
+			}
+			PyList_Append(result, py_value);
+			Py_DECREF(py_value);
+		}
+		return result;
+	}
+	PyErr_SetString(PyExc_TypeError, "cr_vector indices must be integers or slices");
+	return NULL;
+}
+
+static int py_vector_ass_subscript(PyObject *o, PyObject *key, PyObject *value) {
+	py_vector *self = (py_vector *)o;
+	if (PyLong_Check(key)) {
+		long index = PyLong_AsLong(key);
+		if (index < 0 || index > 2) {
+			PyErr_SetString(PyExc_IndexError, "cr_vector index out of range");
+			return -1;
+		}
+		if (!PyFloat_Check(value) && !PyLong_Check(value)) {
+			PyErr_SetString(PyExc_IndexError, "cr_vector values must be float or int");
+			return -1;
+		}
+		double val = PyFloat_AsDouble(value);
+		((float *)&self->val)[index] = val;
+		return 0;
+	}
+	
+	PyErr_SetString(PyExc_TypeError, "cr_vector indices must be integers");
+	return -1;
+}
+
+static PyMappingMethods py_vector_mapping_methods = {
+	.mp_length = py_vector_length,
+	.mp_subscript = py_vector_subscript,
+	.mp_ass_subscript = py_vector_ass_subscript,
+};
+
+PyTypeObject type_py_vector = {
+	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "c_ray.cr_vector",
+	.tp_doc = PyDoc_STR("c-ray native 3D vector type"),
+	.tp_basicsize = sizeof(py_vector),
+	.tp_itemsize = 0,
+	.tp_flags = Py_TPFLAGS_DEFAULT,
+	.tp_new = PyType_GenericNew,
+	.tp_members = py_vector_members,
+	.tp_as_mapping = &py_vector_mapping_methods,
+};
+
+static PyMemberDef py_coord_members[] = {
+	{ "u", T_FLOAT, offsetof(py_coord, val.u), 0, "u" },
+	{ "v", T_FLOAT, offsetof(py_coord, val.v), 0, "v" },
+};
+
+static Py_ssize_t py_coord_length(PyObject *o) {
+	(void)o;
+	return 2;
+}
+
+static PyObject *py_coord_subscript(PyObject *o, PyObject *key) {
+	py_coord *self = (py_coord *)o;
+	if (PyLong_Check(key)) {
+		long index = PyLong_AsLong(key);
+		if (index < 0 || index > 1) {
+			PyErr_SetString(PyExc_IndexError, "cr_coord index out of range");
+			return NULL;
+		}
+		return PyFloat_FromDouble((index == 0) ? self->val.u : self->val.v);
+	}
+	if (PySlice_Check(key)) {
+		Py_ssize_t start, stop, step;
+		if (PySlice_Unpack(key, &start, &stop, &step) < 0)
+			return NULL;
+		Py_ssize_t indices[3] = { 0, 1 };
+		PyObject *result = PyList_New(0);
+		if (!result)
+			return NULL;
+		for (Py_ssize_t i = start; i < stop && i >= 0 && i <= 1; i += step) {
+			PyObject *py_value = PyFloat_FromDouble((indices[i] == 0) ? self->val.u : self->val.v);
+			if (!py_value) {
+				Py_DECREF(result);
+				return NULL;
+			}
+			PyList_Append(result, py_value);
+			Py_DECREF(py_value);
+		}
+		return result;
+	}
+	PyErr_SetString(PyExc_TypeError, "cr_coord indices must be integers or slices");
+	return NULL;
+}
+
+static int py_coord_ass_subscript(PyObject *o, PyObject *key, PyObject *value) {
+	py_coord *self = (py_coord *)o;
+	if (PyLong_Check(key)) {
+		long index = PyLong_AsLong(key);
+		if (index < 0 || index > 1) {
+			PyErr_SetString(PyExc_IndexError, "cr_coord index out of range");
+			return -1;
+		}
+		if (!PyFloat_Check(value) && !PyLong_Check(value)) {
+			PyErr_SetString(PyExc_IndexError, "cr_coord values must be float or int");
+			return -1;
+		}
+		double val = PyFloat_AsDouble(value);
+		((float *)&self->val)[index] = val;
+		return 0;
+	}
+	
+	PyErr_SetString(PyExc_TypeError, "cr_coord indices must be integers");
+	return -1;
+}
+
+static PyMappingMethods py_coord_mapping_methods = {
+	.mp_length = py_coord_length,
+	.mp_subscript = py_coord_subscript,
+	.mp_ass_subscript = py_coord_ass_subscript,
+};
+
+PyTypeObject type_py_coord = {
+	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "c_ray.cr_coord",
+	.tp_doc = PyDoc_STR("c-ray native 2D vector type"),
+	.tp_basicsize = sizeof(py_coord),
+	.tp_itemsize = 0,
+	.tp_flags = Py_TPFLAGS_DEFAULT,
+	.tp_new = PyType_GenericNew,
+	.tp_members = py_coord_members,
+	.tp_as_mapping = &py_coord_mapping_methods,
+};
+
 static void py_bitmap_dealloc(py_bitmap *self) {
 	Py_TYPE(self)->tp_free((PyObject *)self);
 }
@@ -109,6 +284,8 @@ PyTypeObject type_py_renderer_cb_info = {
 };
 
 struct cr_python_type all_types[] = {
+	{ &type_py_vector, "cr_vector" },
+	{ &type_py_coord, "cr_coord" },
 	{ &type_py_bitmap, "bitmap" },
 	{ &type_py_renderer_cb_info, "callback_info" },
 	{ 0 },

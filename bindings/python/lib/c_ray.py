@@ -3,10 +3,6 @@ from contextlib import contextmanager
 from enum import IntEnum
 
 from . import cray_wrap as _lib
-from . nodes.vector import (
-	cr_vector,
-	cr_coord
-)
 from . cray_wrap import *
 
 class cr_renderer(ct.Structure):

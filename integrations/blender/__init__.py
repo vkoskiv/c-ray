@@ -30,6 +30,9 @@ from . import (
 	c_ray
 )
 
+from . nodes.vector import cr_vector as ct_vector
+from . nodes.vector import cr_coord as ct_coord
+
 import ctypes as ct
 from array import array
 import math
@@ -133,16 +136,17 @@ def to_cr_face(me, poly):
 def cr_vertex_buf(scene, me):
 	verts = []
 	for v in me.vertices:
-		cr_vert = c_ray.cr_vector()
+		# FIXME
+		cr_vert = ct_vector()
 		cr_vert.x = v.co[0]
 		cr_vert.y = v.co[1]
 		cr_vert.z = v.co[2]
 		verts.append(cr_vert)
 	normals = []
 	texcoords = []
-	vbuf = (c_ray.cr_vector * len(verts))(*verts)
-	nbuf = (c_ray.cr_vector * len(normals))(*normals)
-	tbuf = (c_ray.cr_coord  * len(texcoords))(*texcoords)
+	vbuf = (ct_vector * len(verts))(*verts)
+	nbuf = (ct_vector * len(normals))(*normals)
+	tbuf = (ct_coord  * len(texcoords))(*texcoords)
 	print("new vbuf: v: {}, n: {}, t: {}".format(len(verts), len(normals), len(texcoords)))
 	cr_vbuf = scene.vertex_buf_new(bytearray(vbuf), len(verts), bytearray(nbuf), len(normals), bytearray(tbuf), len(texcoords))
 	return cr_vbuf
