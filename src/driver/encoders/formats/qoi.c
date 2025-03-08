@@ -10,8 +10,6 @@
 #include "qoi.h"
 #include "../../../common/fileio.h"
 
-#define QOI_IMPLEMENTATION
-#define QOI_NO_STDIO
 #include "../../../common/vendored/qoi.h"
 
 void encode_qoi_from_array(const char *filename, const unsigned char *imgData, size_t width, size_t height) {

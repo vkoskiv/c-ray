@@ -17,12 +17,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../common/vendored/stb_image.h"
 
-#if defined(CR_BUILDING_LIB)
 #define QOI_IMPLEMENTATION
 #define QOI_NO_STDIO
-#endif
-
-#include "../../common/vendored/qoi.h" // encoder defines implementation macro already
+#include "../../common/vendored/qoi.h"
 
 // I don't want to mess with memory allocation within the different
 // image parsing libs, so I just copy out to a pool afterwards.
