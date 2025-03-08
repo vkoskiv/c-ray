@@ -97,6 +97,7 @@ struct cr_renderer_cb_info {
 	size_t finished_passes;
 	double completion;
 	bool paused;
+	bool aborted;
 };
 
 enum cr_renderer_callback {

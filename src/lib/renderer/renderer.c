@@ -299,6 +299,8 @@ void renderer_render(struct renderer *r) {
 	struct callback stop = r->state.callbacks[cr_cb_on_stop];
 	if (stop.fn) {
 		update_cb_info(r, &set, &cb_info);
+		if (r->state.render_aborted)
+			cb_info.aborted = true;
 		stop.fn(&cb_info, stop.user_data);
 	}
 	if (info_tiles) free(info_tiles);

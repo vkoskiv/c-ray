@@ -38,6 +38,8 @@ static void on_stop(struct cr_renderer_cb_info *info, void *user_data) {
 	(void)info;
 	struct usr_data *d = user_data;
 	if (d->w) win_destroy(d->w);
+	if (info->aborted)
+		d->should_save = false;
 }
 
 static void status(struct cr_renderer_cb_info *state, void *user_data) {

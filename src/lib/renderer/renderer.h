@@ -50,6 +50,9 @@ struct state {
 	bool exit_done;
 	struct worker_arr workers;
 	struct render_client_arr clients;
+	// TODO: Single callback that has event type as first arg
+	// instead of this awkward set of several different callbacks
+	// for different events
 	struct callback callbacks[5];
 
 	struct texture *result_buf;
