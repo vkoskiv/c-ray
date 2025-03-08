@@ -9,6 +9,14 @@
 #ifndef PY_TYPES_H
 #define PY_TYPES_H
 
+/*
+	Note: We define _POSIX_C_SOURCE on the command line because our includes
+	are a huge mess, for the time being. Python wants 200809L instead of our
+	default of '200112L', so we make an exception here to suppress warnings.
+*/
+#ifdef _POSIX_C_SOURCE
+	#undef _POSIX_C_SOURCE
+#endif
 #include <Python.h>
 #include <c-ray/c-ray.h>
 

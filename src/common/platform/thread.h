@@ -20,7 +20,7 @@
 #include "../dyn_array.h"
 #include "mutex.h"
 
-//Multi-platform threading
+// small thread/sync abstraction for POSIX and Windows
 
 /**
  Thread information struct to communicate with main thread

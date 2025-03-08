@@ -1,7 +1,7 @@
 MAKEFLAGS += --no-builtin-rules
 CC=cc
 OPT?=-O2
-CFLAGS=-I./include/ -Wall -Wextra -Wno-missing-field-initializers -std=c99 -D_POSIX_C_SOURCE -D_XOPEN_SOURCE=600 $(OPT) -g -ftree-vectorize
+CFLAGS=-I./include/ -Wall -Wextra -Wno-missing-field-initializers -std=c99 -D_POSIX_C_SOURCE=200112L $(OPT) -g -ftree-vectorize
 LDFLAGS=-lpthread -lm -ldl
 
 BIN=c-ray
