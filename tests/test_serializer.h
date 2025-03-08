@@ -11,7 +11,7 @@
 #include <c-ray/c-ray.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <string.h>
+#include <unistd.h>
 #include "../src/lib/renderer/renderer.h"
 #include "../src/lib/protocol/protocol.h"
 #include "../src/common/fileio.h"
