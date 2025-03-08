@@ -353,7 +353,7 @@ static void draw_frames(struct texture *overlay, const struct cr_tile *tiles, si
 
 
 struct input_state win_update(struct sdl_window *w, const struct cr_tile *tiles, size_t tile_count, const struct texture *t) {
-	if (!w) return (struct input_state){ 0 };
+	if (!w) return (struct input_state){ .should_save = true };
 	// Copy regions
 	ASSERT(w->internal->precision == char_p);
 	ASSERT(t->precision == float_p);
