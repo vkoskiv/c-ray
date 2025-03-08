@@ -15,3 +15,4 @@ $(BIN_cosmo): $(OBJS_cosmo) $(OBJDIR_cosmo)
 	@echo "LD $@"
 	@$(CC_cosmo) $(CFLAGS) $(OBJS_cosmo) -o $@ $(LDFLAGS)
 
+clean_cosmo:

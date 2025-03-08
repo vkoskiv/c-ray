@@ -43,6 +43,11 @@ $(OBJDIR_lib):
 	mkdir -p $@
 $(OBJDIR_driver):
 	mkdir -p $@
+
+# FIXME: We're linking LDLIBS to the binary instead of .so because
+# transforms.o uses libm and lives under common/ because json_loader.c
+# depends on it.
+
 $(LIB): $(OBJS_lib)
 	@echo "LD -fPIC $@"
 	@$(CC) $(LDFLAGS) $(OBJS_lib) -shared -o $@
@@ -52,3 +57,7 @@ $(BIN_lib): $(LIB) $(OBJS_driver) $(OBJDIR_driver)
 bindings/python/lib/cray_wrap.so: $(OBJS_lib) bindings/python/cray_wrap.c bindings/python/py_types.c
 	@echo "Building CPython module"
 	@$(CC) -shared $(CFLAGS) -fPIC `pkg-config --cflags python3` bindings/python/cray_wrap.c bindings/python/py_types.c $(OBJS_lib) -o bindings/python/lib/cray_wrap.so $(LDLIBS)
+
+clean_lib:
+	rm -rf lib/*
+	rm -rf bindings/python/lib/cray_wrap.so

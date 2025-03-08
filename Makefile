@@ -28,9 +28,9 @@ $(BINDIR)/%.o: %.c
 generated/gitsha1.c: src/common/gitsha1.c.in
 	@echo "Generating gitsha1.c"
 	$(shell sed "s/@GIT_SHA1@/`git rev-parse --verify HEAD || echo "NoHash" | cut -c 1-8`/g" src/common/gitsha1.c.in > generated/gitsha1.c)
-# todo: Separate cleans out to sub-makefiles
-clean:
-	rm -rf bin/* lib/* bindings/*o bindings/*.so
+
+clean: clean_test clean_lib clean_cosmo
+	rm -rf bin/*
 
 enable-git-hooks:
 	git config --local include.path ../.gitconfig
