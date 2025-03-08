@@ -13,6 +13,7 @@ $(OBJDIR_cosmo):
 	mkdir -p $@
 $(BIN_cosmo): $(OBJS_cosmo) $(OBJDIR_cosmo)
 	@echo "LD $@"
-	@$(CC_cosmo) $(CFLAGS) $(OBJS_cosmo) -o $@ $(LDFLAGS)
+	@$(CC_cosmo) $(LDFLAGS) $(OBJS_cosmo) -o $@ $(LDLIBS)
 
 clean_cosmo:
+	rm -rf bin/c-ray.* bin/obj_cosmo

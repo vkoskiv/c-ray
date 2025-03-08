@@ -31,7 +31,7 @@ generated/gitsha1.c: src/common/gitsha1.c.in
 	$(shell sed "s/@GIT_SHA1@/`git rev-parse --verify HEAD || echo "NoHash" | cut -c 1-8`/g" src/common/gitsha1.c.in > generated/gitsha1.c)
 
 clean: clean_test clean_lib clean_cosmo
-	rm -rf bin/*
+	rm -rf bin/c-ray bin/src bin/generated
 
 enable-git-hooks:
 	git config --local include.path ../.gitconfig
