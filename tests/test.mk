@@ -16,7 +16,7 @@ $(OBJDIR_test):
 	mkdir -p $@
 $(BIN_test): $(OBJS_test) $(OBJDIR_test)
 	@echo "LD $@"
-	@$(CC) $(CFLAGS) -fsanitize=address,undefined $(OBJS_test) -o $@ $(LDFLAGS)
+	@$(CC) $(LDFLAGS) -fsanitize=address,undefined $(OBJS_test) -o $@ $(LDLIBS)
 
 clean_test:
 	rm -rf tests/obj tests/testrunner
