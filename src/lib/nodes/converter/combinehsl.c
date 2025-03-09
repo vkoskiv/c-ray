@@ -3,15 +3,15 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 20/07/2022.
-//  Copyright © 2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2022-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
-#include "../../../common/color.h"
-#include "../../../common/mempool.h"
-#include "../../../common/hashtable.h"
-#include "../../datatypes/hitrecord.h"
-#include "../../datatypes/scene.h"
+#include <common/color.h>
+#include <common/mempool.h>
+#include <common/hashtable.h>
+#include <datatypes/hitrecord.h>
+#include <datatypes/scene.h>
 
 #include "combinehsl.h"
 #include "../../nodes/textures/constant.h"

@@ -1,6 +1,6 @@
 //
 //  uv.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 09/08/2021.
 //  Copyright © 2021 Valtteri Koskivuori. All rights reserved.

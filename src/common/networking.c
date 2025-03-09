@@ -1,9 +1,9 @@
 //
 //  networking.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 5.1.2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -22,7 +22,7 @@
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <string.h>
-#include "assert.h"
+#include "cr_assert.h"
 #include <errno.h>
 #include "fileio.h"
 

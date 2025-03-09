@@ -3,14 +3,14 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 12/01/2024.
-//  Copyright © 2024 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2024-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
-#include "../../../common/hashtable.h"
-#include "../../../common/vector.h"
-#include "../../datatypes/scene.h"
-#include "../../../../include/c-ray/node.h"
+#include <common/hashtable.h>
+#include <common/vector.h>
+#include <datatypes/scene.h>
+#include <c-ray/node.h>
 #include "../colornode.h"
 
 #include "color_ramp.h"

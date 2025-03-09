@@ -1,6 +1,6 @@
 //
 //  sky.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 16/06/2020.
 //  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.

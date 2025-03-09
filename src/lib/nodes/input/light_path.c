@@ -3,16 +3,16 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 21/12/2020.
-//  Copyright © 2020-2024 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
-#include "../../datatypes/hitrecord.h"
-#include "../../datatypes/scene.h"
-#include "../../../common/vector.h"
-#include "../../../common/vector.h"
-#include "../../../common/hashtable.h"
-#include "../bsdfnode.h"
+#include <datatypes/hitrecord.h>
+#include <datatypes/scene.h>
+#include <common/vector.h>
+#include <common/vector.h>
+#include <common/hashtable.h>
+#include <nodes/bsdfnode.h>
 
 #include "light_path.h"
 

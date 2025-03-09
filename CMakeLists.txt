@@ -65,18 +65,39 @@ endif()
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${c-ray_SOURCE_DIR}/cmake")
-file(GLOB_RECURSE SOURCES src/*.c)
+
+file(GLOB_RECURSE SOURCES_LIB src/lib/*.c)
+file(GLOB_RECURSE SOURCES_DRIVER src/driver/*.c)
+file(GLOB_RECURSE SOURCES_COMMON src/common/*.c)
 
 include(set_up_ccache)
 
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 configure_file("${c-ray_SOURCE_DIR}/src/common/gitsha1.c.in" "${c-ray_BINARY_DIR}/generated/gitsha1.c" @ONLY)
-list(APPEND SOURCES "${c-ray_BINARY_DIR}/generated/gitsha1.c")
+list(APPEND SOURCES_COMMON "${c-ray_BINARY_DIR}/generated/gitsha1.c")
 
-add_executable(c-ray ${SOURCES})
-target_include_directories(c-ray PRIVATE ${c-ray_SOURCE_DIR}/include)
-target_include_directories(c-ray PRIVATE ${c-ray_SOURCE_DIR}/tests)
+add_library(lib OBJECT ${SOURCES_LIB})
+target_include_directories(lib PRIVATE ${CMAKE_SOURCE_DIR}/src/lib)
+
+add_library(driver OBJECT ${SOURCES_DRIVER})
+target_include_directories(driver PRIVATE ${CMAKE_SOURCE_DIR}/src/driver)
+
+add_library(common OBJECT ${SOURCES_COMMON})
+target_include_directories(common PRIVATE ${CMAKE_SOURCE_DIR}/src/common)
+
+foreach(x IN ITEMS lib driver common)
+	target_include_directories(${x} PRIVATE ${CMAKE_SOURCE_DIR}/include)
+	target_include_directories(${x} PRIVATE ${CMAKE_SOURCE_DIR}/src)
+	target_include_directories(${x} PRIVATE ${CMAKE_SOURCE_DIR}/tests)
+endforeach()
+
+add_executable(c-ray
+	$<TARGET_OBJECTS:lib>
+	$<TARGET_OBJECTS:driver>
+	$<TARGET_OBJECTS:common>
+)
+
 if (NOT MSVC)
 	target_link_libraries(c-ray PRIVATE -lpthread -lm -ldl)
 endif ()

@@ -1,15 +1,15 @@
 //
 //  fileio.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 #include "fileio.h"
 #include "logging.h"
-#include "assert.h"
+#include "cr_assert.h"
 #ifndef WINDOWS
 #include <sys/mman.h>
 #include <fcntl.h>
@@ -19,7 +19,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
-#include "string.h"
+#include "cr_string.h"
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>

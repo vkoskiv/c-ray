@@ -1,19 +1,19 @@
 //
 //  vectornode.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 16/12/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
-#include "../../common/color.h"
-#include "../../common/vector.h"
-#include "../datatypes/hitrecord.h"
-#include "../datatypes/scene.h"
-#include "../../common/hashtable.h"
-#include "../../common/string.h"
-#include "../renderer/renderer.h"
+#include <common/color.h>
+#include <common/vector.h>
+#include <common/hashtable.h>
+#include <common/cr_string.h>
+#include <datatypes/hitrecord.h>
+#include <datatypes/scene.h>
+#include <renderer/renderer.h>
 #include "bsdfnode.h"
 
 #include "valuenode.h"

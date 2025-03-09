@@ -9,7 +9,7 @@
 #pragma once
 
 #include <c-ray/c-ray.h>
-#include "../../common/vector.h"
+#include "../vector.h"
 
 struct mesh_material {
 	char *name;

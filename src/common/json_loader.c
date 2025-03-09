@@ -3,27 +3,27 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2019-2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 
 #include "json_loader.h"
-#include "../common/vendored/cJSON.h"
+#include "vendored/cJSON.h"
 #include "loaders/meshloader.h"
 
 #include <c-ray/c-ray.h>
 
-#include "../common/node_parse.h"
-#include "../common/loaders/textureloader.h"
-#include "../common/quaternion.h"
-#include "../common/transforms.h"
-#include "../common/vector.h"
-#include "../common/string.h"
-#include "../common/platform/capabilities.h"
-#include "../common/logging.h"
-#include "../common/fileio.h"
-#include "../common/timer.h"
+#include "node_parse.h"
+#include "loaders/textureloader.h"
+#include "quaternion.h"
+#include "transforms.h"
+#include "vector.h"
+#include "cr_string.h"
+#include "platform/capabilities.h"
+#include "logging.h"
+#include "fileio.h"
+#include "timer.h"
 
 static struct transform parse_tform(const cJSON *data) {
 	const cJSON *type = cJSON_GetObjectItem(data, "type");

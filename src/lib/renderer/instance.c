@@ -1,20 +1,20 @@
 //
 //  instance.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 23.6.2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
-#include "../accelerators/bvh.h"
-#include "../renderer/pathtrace.h"
-#include "../../common/vector.h"
+#include <common/vector.h>
+#include <accelerators/bvh.h>
+#include <renderer/pathtrace.h>
 #include "instance.h"
-#include "../datatypes/bbox.h"
-#include "../datatypes/mesh.h"
-#include "../datatypes/sphere.h"
-#include "../datatypes/scene.h"
+#include <datatypes/bbox.h>
+#include <datatypes/mesh.h>
+#include <datatypes/sphere.h>
+#include <datatypes/scene.h>
 
 struct sphereVolume {
 	struct sphere *sphere;

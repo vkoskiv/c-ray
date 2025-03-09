@@ -1,4 +1,4 @@
-Since we now load our desired SDL symbols at runtime, this set gutted SDL includes
+Since we now load our desired SDL symbols at runtime, this set of gutted SDL headers
 contains only what is needed for a few types we need for event handling.
 All the function declarations have been yanked out, as well as a bunch of other
 stuff.

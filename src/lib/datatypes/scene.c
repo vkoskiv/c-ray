@@ -3,21 +3,21 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
 #include "scene.h"
 
-#include "../accelerators/bvh.h"
-#include "../../common/hashtable.h"
-#include "../../common/textbuffer.h"
-#include "../../common/dyn_array.h"
-#include "../../common/node_parse.h"
-#include "../../common/texture.h"
+#include <accelerators/bvh.h>
+#include <common/hashtable.h>
+#include <common/textbuffer.h>
+#include <common/dyn_array.h>
+#include <common/node_parse.h>
+#include <common/texture.h>
 #include "camera.h"
 #include "tile.h"
-#include "../datatypes/mesh.h"
+#include "mesh.h"
 #include "poly.h"
 
 void tex_asset_free(struct texture_asset *a) {

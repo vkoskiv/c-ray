@@ -1,16 +1,16 @@
 //
 //  map_range.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 11/08/2021.
-//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
+#include <common/hashtable.h>
+#include <common/vector.h>
+#include <datatypes/scene.h>
 #include "../nodebase.h"
-#include "../../../common/hashtable.h"
-#include "../../../common/vector.h"
-#include "../../datatypes/scene.h"
 #include "../valuenode.h"
 
 #include "map_range.h"

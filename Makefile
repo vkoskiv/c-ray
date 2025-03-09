@@ -2,7 +2,7 @@ MAKEFLAGS += --no-builtin-rules
 CC?=cc
 -include ccache.mk
 OPT?=-O2
-CFLAGS=-I./include/ -Wall -Wextra -Wno-missing-field-initializers -std=c99 -D_POSIX_C_SOURCE=200112L $(OPT) -g -ftree-vectorize
+CFLAGS=-I./include/ -I./src/ -Wall -Wextra -Wno-missing-field-initializers -std=c99 -D_POSIX_C_SOURCE=200112L $(OPT) -g -ftree-vectorize
 LDLIBS=-lpthread -lm -ldl
 
 BIN=c-ray
@@ -10,8 +10,20 @@ BINDIR=bin
 
 all: $(BINDIR)/$(BIN)
 
-SRCS=$(shell find src/lib src/driver src/common -name '*.c') generated/gitsha1.c
-OBJS=$(SRCS:%.c=$(BINDIR)/%.o)
+SRCS_LIB=$(shell find src/lib -name '*.c')
+OBJS_LIB=$(SRCS_LIB:%.c=$(BINDIR)/%.o)
+$(OBJS_LIB): CFLAGS += -I./src/lib/
+
+SRCS_DRIVER=$(shell find src/driver -name '*.c')
+OBJS_DRIVER=$(SRCS_DRIVER:%.c=$(BINDIR)/%.o)
+$(OBJS_DRIVER): CFLAGS += -I./src/driver/
+
+SRCS_COMMON=$(shell find src/common -name '*.c') generated/gitsha1.c
+OBJS_COMMON=$(SRCS_COMMON:%.c=$(BINDIR)/%.o)
+$(OBJS_COMMON): CFLAGS += -I./src/common/
+
+OBJS := $(OBJS_LIB) $(OBJS_DRIVER) $(OBJS_COMMON)
+
 DEPS=$(OBJS:%.o=%.d)
 
 $(BINDIR)/$(BIN): $(OBJS)

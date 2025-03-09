@@ -1,6 +1,6 @@
 //
 //  mempool.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 05/12/2020.
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.

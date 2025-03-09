@@ -3,32 +3,30 @@
 //  c-ray
 //
 //  Created by Valtteri on 5.1.2020.
-//  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../includes.h"
 #include <c-ray/c-ray.h>
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "../renderer/renderer.h"
-#include "../datatypes/scene.h"
-#include "../../common/gitsha1.h"
-#include "../../common/fileio.h"
-#include "../../common/platform/terminal.h"
-#include "../../common/assert.h"
-#include "../../common/texture.h"
-#include "../../common/string.h"
-#include "../protocol/server.h"
-#include "../protocol/worker.h"
-#include "../../common/hashtable.h"
-#include "../datatypes/camera.h"
-#include "../../common/loaders/textureloader.h"
-#include "../../common/json_loader.h"
-#include "../protocol/protocol.h"
-#include "../../common/node_parse.h"
+#include <common/timer.h>
+#include <common/gitsha1.h>
+#include <common/fileio.h>
+#include <common/cr_assert.h>
+#include <common/texture.h>
+#include <common/cr_string.h>
+#include <common/hashtable.h>
+#include <common/json_loader.h>
+#include <common/node_parse.h>
+#include <renderer/renderer.h>
+#include <datatypes/camera.h>
+#include <datatypes/scene.h>
+#include <protocol/server.h>
+#include <protocol/worker.h>
+#include <protocol/protocol.h>
 
 #ifdef CRAY_DEBUG_ENABLED
 #define DEBUG "D"

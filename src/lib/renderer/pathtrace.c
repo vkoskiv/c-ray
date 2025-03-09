@@ -3,26 +3,20 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 27/04/2017.
-//  Copyright © 2017-2024 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
 #include "pathtrace.h"
 
 #include <float.h>
-#include "../datatypes/scene.h"
-#include "../datatypes/camera.h"
-#include "../datatypes/sphere.h"
-#include "../datatypes/poly.h"
-#include "../datatypes/mesh.h"
-#include "../accelerators/bvh.h"
-#include "../../common/texture.h"
-#include "../../common/transforms.h"
+#include <datatypes/scene.h>
+#include <datatypes/poly.h>
+#include <renderer/instance.h>
+#include <accelerators/bvh.h>
+#include <common/transforms.h>
 #include "samplers/sampler.h"
 #include "sky.h"
-#include "../renderer/instance.h"
-#include "../nodes/shaders/background.h"
-#include "../../common/platform/thread.h"
 
 static inline struct hitRecord getClosestIsect(struct lightRay *incidentRay, const struct world *scene, sampler *sampler) {
 	//TODO: Consider passing in last instance idx + polygon to detect self-intersections?

@@ -1,6 +1,6 @@
 //
 //  ui.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 19/02/2017.
 //  Copyright © 2017-2020 Valtteri Koskivuori. All rights reserved.

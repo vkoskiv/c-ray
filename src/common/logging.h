@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../../include/c-ray/c-ray.h"
+#include <c-ray/c-ray.h>
 
 struct renderer;
 

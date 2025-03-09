@@ -1,6 +1,6 @@
 //
 //  transforms.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 07/02/2017.
 //  Copyright © 2017-2021 Valtteri Koskivuori. All rights reserved.

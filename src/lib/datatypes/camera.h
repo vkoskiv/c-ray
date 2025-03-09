@@ -1,19 +1,19 @@
 //
 //  camera.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 02/03/2015.
-//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-#include "../../common/vector.h"
+#include <common/vector.h>
+#include <common/quaternion.h>
+#include <common/transforms.h>
+#include <common/dyn_array.h>
 #include "lightray.h"
 #include "spline.h"
-#include "../../common/quaternion.h"
-#include "../../common/transforms.h"
-#include "../../common/dyn_array.h"
 
 struct camera {
 	float FOV;

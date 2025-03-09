@@ -1,6 +1,6 @@
 //
 //  vecmath.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/12/2020.
 //  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.

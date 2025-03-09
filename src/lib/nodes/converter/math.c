@@ -1,18 +1,18 @@
 //
 //  math.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/12/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
 #include "../nodebase.h"
 
-#include "../../../common/hashtable.h"
-#include "../../../common/transforms.h"
-#include "../../datatypes/scene.h"
-#include "../../datatypes/hitrecord.h"
+#include <common/hashtable.h>
+#include <common/transforms.h>
+#include <datatypes/scene.h>
+#include <datatypes/hitrecord.h>
 
 #include "math.h"
 

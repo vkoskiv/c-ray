@@ -1,15 +1,15 @@
 //
 //  bvh.h
-//  C-ray
+//  c-ray
 //
 //  Created by Arsène Pérard-Gayot on 07/06/2020.
-//  Copyright © 2020-2022 Arsène Pérard-Gayot (@madmann91), Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Arsène Pérard-Gayot (@madmann91), Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-#include "../renderer/samplers/sampler.h"
-#include "../renderer/instance.h"
+#include <renderer/samplers/sampler.h>
+#include <renderer/instance.h>
 
 #include <stdbool.h>
 #include <stddef.h>

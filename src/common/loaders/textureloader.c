@@ -3,14 +3,14 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2019-2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "textureloader.h"
-#include "../logging.h"
-#include "../texture.h"
-#include "../assert.h"
-#include "../mempool.h"
+#include <logging.h>
+#include <texture.h>
+#include <cr_assert.h>
+#include <mempool.h>
 
 #define STBI_NO_PSD
 #define STBI_NO_GIF

@@ -1,15 +1,15 @@
 //
 //  sphere.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
 #include "sphere.h"
 
-#include "../renderer/pathtrace.h"
+#include <renderer/pathtrace.h>
 #include "lightray.h"
 
 //Calculates intersection with a sphere and a light ray

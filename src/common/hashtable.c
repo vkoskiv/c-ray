@@ -1,9 +1,9 @@
 //
 //  hashtable.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 17.11.2019.
-//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -12,9 +12,9 @@
 #include <inttypes.h>
 #include <string.h>
 #include "vector.h"
-#include "assert.h"
+#include "cr_assert.h"
 #include "fileio.h"
-#include "string.h"
+#include "cr_string.h"
 #include "mempool.h"
 
 #define FNV_OFFSET UINT32_C(0x811C9DC5) // Initial value for an empty hash

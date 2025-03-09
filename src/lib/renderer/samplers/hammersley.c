@@ -1,17 +1,17 @@
 //
 //  hammersley.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 28.4.2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdint.h>
 #include "hammersley.h"
 
 #include "common.h"
-#include "../../../common/vector.h"
-#include "../../../common/assert.h"
+#include <common/vector.h>
+#include <common/cr_assert.h>
 
 static const unsigned int primes[] = {2, 3, 5, 7, 11, 13};
 static const unsigned int primes_count = 6;

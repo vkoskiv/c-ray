@@ -1,22 +1,22 @@
 //
 //  instance.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 23.6.2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../../common/transforms.h"
-#include "../../common/mempool.h"
-#include "../../common/dyn_array.h"
+#include <common/transforms.h>
+#include <common/mempool.h>
+#include <common/dyn_array.h>
 #include "samplers/sampler.h"
-#include "../nodes/bsdfnode.h"
-#include "../datatypes/mesh.h"
-#include "../datatypes/sphere.h"
+#include <nodes/bsdfnode.h>
+#include <datatypes/mesh.h>
+#include <datatypes/sphere.h>
 
 struct lightRay;
 struct hitRecord;

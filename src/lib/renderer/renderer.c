@@ -1,31 +1,31 @@
 //
 //  renderer.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 19/02/2017.
-//  Copyright © 2017-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2025 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../common/hashtable.h"
 #include "../../includes.h"
 
 #include "renderer.h"
 #include "pathtrace.h"
-#include "../../common/logging.h"
-#include "../../common/timer.h"
-#include "../../common/texture.h"
-#include "../../common/platform/thread.h"
-#include "../../common/platform/mutex.h"
-#include "../../common/platform/capabilities.h"
-#include "../../common/platform/signal.h"
-#include "../../common/string.h"
-#include "../datatypes/mesh.h"
-#include "../datatypes/camera.h"
-#include "../datatypes/scene.h"
-#include "../datatypes/tile.h"
-#include "../datatypes/sphere.h"
-#include "../protocol/server.h"
-#include "../accelerators/bvh.h"
+#include <common/hashtable.h>
+#include <common/logging.h>
+#include <common/timer.h>
+#include <common/texture.h>
+#include <common/platform/thread.h>
+#include <common/platform/mutex.h>
+#include <common/platform/capabilities.h>
+#include <common/platform/signal.h>
+#include <common/cr_string.h>
+#include <datatypes/mesh.h>
+#include <datatypes/camera.h>
+#include <datatypes/scene.h>
+#include <datatypes/tile.h>
+#include <datatypes/sphere.h>
+#include <protocol/server.h>
+#include <accelerators/bvh.h>
 #include "samplers/sampler.h"
 
 //Main thread loop speeds

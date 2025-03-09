@@ -1,17 +1,17 @@
 //
 //  encoder.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 8.4.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "encoder.h"
 
-#include "../imagefile.h"
-#include "../../common/logging.h"
-#include "../../common/assert.h"
-#include "../../common/texture.h"
+#include <imagefile.h>
+#include <common/logging.h>
+#include <common/cr_assert.h>
+#include <common/texture.h>
 
 #include "formats/png.h"
 #include "formats/bmp.h"

@@ -1,6 +1,6 @@
 //
 //  linked_list.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/5/2022
 //  Copyright © 2022 Valtteri Koskivuori. All rights reserved.

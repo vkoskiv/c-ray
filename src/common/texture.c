@@ -1,16 +1,16 @@
 //
 //  texture.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 09/04/2019.
-//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
 
 #include "texture.h"
 #include "logging.h"
-#include "assert.h"
+#include "cr_assert.h"
 #include <string.h>
 
 //General-purpose setPixel function

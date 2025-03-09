@@ -8,19 +8,19 @@
 
 #include <c-ray/c-ray.h>
 
-#include "imagefile.h"
-#include "../common/logging.h"
-#include "../common/string.h"
-#include "../common/fileio.h"
-#include "../common/platform/terminal.h"
-#include "../common/timer.h"
-#include "../common/hashtable.h"
-#include "../common/vendored/cJSON.h"
-#include "../common/json_loader.h"
-#include "../common/platform/capabilities.h"
-#include "encoders/encoder.h"
-#include "args.h"
-#include "sdl.h"
+#include <imagefile.h>
+#include <common/logging.h>
+#include <common/cr_string.h>
+#include <common/fileio.h>
+#include <common/platform/terminal.h>
+#include <common/timer.h>
+#include <common/hashtable.h>
+#include <common/vendored/cJSON.h>
+#include <common/json_loader.h>
+#include <common/platform/capabilities.h>
+#include <encoders/encoder.h>
+#include <args.h>
+#include <sdl.h>
 
 struct usr_data {
 	struct cr_renderer *r;

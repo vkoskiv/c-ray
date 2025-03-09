@@ -1,16 +1,16 @@
 //
 //  mesh.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 27/04/2017.
-//  Copyright © 2017-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
 #include "mesh.h"
 
-#include "../accelerators/bvh.h"
-#include "../../common/vector.h"
+#include <accelerators/bvh.h>
+#include <common/vector.h>
 
 void mesh_free(struct mesh *mesh) {
 	if (mesh) {

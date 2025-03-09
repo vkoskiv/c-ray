@@ -3,12 +3,12 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 06/04/2021.
-//  Copyright © 2021-2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-#include "../../common/dyn_array.h"
+#include <common/dyn_array.h>
 
 #ifndef WINDOWS
 #include <arpa/inet.h>

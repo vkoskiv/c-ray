@@ -3,11 +3,11 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 06/04/2021.
-//  Copyright © 2021-2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stddef.h>
-#include "../../common/logging.h"
+#include <common/logging.h>
 //Windows is annoying, so it's just not going to have networking. Because it is annoying and proprietary.
 #ifndef WINDOWS
 
@@ -27,16 +27,17 @@
 #include "server.h"
 #include "protocol.h"
 
-#include "../renderer/renderer.h"
-#include "../../common/texture.h"
-#include "../../common/platform/thread.h"
-#include "../../common/networking.h"
-#include "../../common/textbuffer.h"
-#include "../../common/gitsha1.h"
-#include "../../common/assert.h"
-#include "../../common/fileio.h"
-#include "../../common/platform/terminal.h"
-#include "../../common/platform/signal.h"
+#include <renderer/renderer.h>
+#include <common/texture.h>
+#include <common/timer.h>
+#include <common/platform/thread.h>
+#include <common/networking.h>
+#include <common/textbuffer.h>
+#include <common/gitsha1.h>
+#include <common/cr_assert.h>
+#include <common/fileio.h>
+#include <common/platform/terminal.h>
+#include <common/platform/signal.h>
 
 void client_drop(struct render_client *client) {
 	ASSERT(client->socket != -1);

@@ -1,14 +1,14 @@
 //
 //  imagefile.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 16.4.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-#include "../common/fileio.h"
+#include <common/fileio.h>
 
 struct renderInfo {
 	int samples;

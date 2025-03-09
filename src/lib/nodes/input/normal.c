@@ -1,19 +1,19 @@
 //
 //  normal.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 20/12/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
-#include "../../renderer/samplers/sampler.h"
-#include "../../../common/color.h"
-#include "../../../common/vector.h"
-#include "../../../common/vector.h"
-#include "../../../common/hashtable.h"
-#include "../../datatypes/hitrecord.h"
-#include "../../datatypes/scene.h"
+#include <renderer/samplers/sampler.h>
+#include <common/color.h>
+#include <common/vector.h>
+#include <common/vector.h>
+#include <common/hashtable.h>
+#include <datatypes/hitrecord.h>
+#include <datatypes/scene.h>
 #include "../bsdfnode.h"
 
 #include "normal.h"

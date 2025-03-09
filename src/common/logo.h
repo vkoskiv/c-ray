@@ -1,6 +1,6 @@
 //
 //  logo.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 2.6.2020.
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.

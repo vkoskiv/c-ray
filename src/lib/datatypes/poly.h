@@ -1,15 +1,15 @@
 //
 //  poly.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 #include "../../includes.h"
-#include "../../common/dyn_array.h"
+#include <common/dyn_array.h>
 #include <c-ray/c-ray.h>
 
 struct poly {

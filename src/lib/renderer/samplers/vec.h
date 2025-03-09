@@ -3,11 +3,11 @@
 //  c-ray
 //
 //  Created by Valtteri on 02.12.2023.
-//  Copyright © 2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2023-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "sampler.h"
-#include "../../../common/vector.h"
+#include <common/vector.h>
 
 // FIXME: Move to a better place
 static inline float rand_in_range(float min, float max, sampler *sampler) {

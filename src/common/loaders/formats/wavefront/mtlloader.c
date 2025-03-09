@@ -1,24 +1,24 @@
 //
 //  mtlloader.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2025 Valtteri Koskivuori. All rights reserved.
 //
 
-// C-ray MTL file parser
+// c-ray MTL file parser
 
 #include "../../../../includes.h"
 #include "mtlloader.h"
 
-#include "../../../../common/logging.h"
-#include "../../../../common/string.h"
-#include "../../../../common/textbuffer.h"
-#include "../../../../common/fileio.h"
-#include "../../../../common/assert.h"
-#include "../../meshloader.h"
-#include "../../../../common/color.h"
-#include "../../../../common/texture.h"
+#include <logging.h>
+#include <cr_string.h>
+#include <textbuffer.h>
+#include <fileio.h>
+#include <cr_assert.h>
+#include <loaders/meshloader.h>
+#include <color.h>
+#include <texture.h>
 
 /*
  From: https://blenderartists.org/forum/showthread.php?71202-Material-IOR-Value-reference

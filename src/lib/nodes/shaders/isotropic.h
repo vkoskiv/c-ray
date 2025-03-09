@@ -1,6 +1,6 @@
 //
 //  isotropic.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 27.5.2021.
 //  Copyright © 2021 Valtteri Koskivuori. All rights reserved.

@@ -1,6 +1,6 @@
 //
 //  gltf.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 26/09/2021.
 //  Copyright © 2021 Valtteri Koskivuori. All rights reserved.

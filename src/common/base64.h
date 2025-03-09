@@ -1,6 +1,6 @@
 //
 //  base64.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 18/03/2021.
 //  Copyright © 2021 Valtteri Koskivuori. All rights reserved.

@@ -3,18 +3,18 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 02/04/2019.
-//  Copyright © 2019-2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdint.h>
 #include <string.h>
 #include "../../../../includes.h"
-#include "../../../../common/vector.h"
-#include "../../../../common/logging.h"
-#include "../../../../common/string.h"
-#include "../../../../common/fileio.h"
-#include "../../../../common/textbuffer.h"
-#include "../../../loaders/meshloader.h"
+#include <vector.h>
+#include <logging.h>
+#include <cr_string.h>
+#include <fileio.h>
+#include <textbuffer.h>
+#include <loaders/meshloader.h>
 #include <c-ray/c-ray.h>
 #include "mtlloader.h"
 

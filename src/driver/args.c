@@ -15,14 +15,14 @@
 #include <c-ray/c-ray.h>
 #include "args.h"
 
-#include "../common/platform/terminal.h"
-#include "../common/platform/capabilities.h"
-#include "../common/hashtable.h"
-#include "../common/logging.h"
-#include "../common/fileio.h"
-#include "../common/assert.h"
-#include "../common/textbuffer.h"
-#include "../common/string.h"
+#include <common/platform/terminal.h>
+#include <common/platform/capabilities.h>
+#include <common/hashtable.h>
+#include <common/logging.h>
+#include <common/fileio.h>
+#include <common/cr_assert.h>
+#include <common/textbuffer.h>
+#include <common/cr_string.h>
 
 static void printUsage(const char *progname) {
 	printf("Usage: %s [-hjsdtocv] [input_json...]\n", progname);

@@ -1,17 +1,17 @@
 //
 //  bbox.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/04/2017.
-//  Copyright © 2017-2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 #include "../../includes.h"
 #include <float.h>
-#include "../../common/vector.h"
-#include "../../common/transforms.h"
+#include <common/vector.h>
+#include <common/transforms.h>
 
 /// Bounding box for a given set of primitives
 struct boundingBox {

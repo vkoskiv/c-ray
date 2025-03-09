@@ -3,13 +3,13 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 17/12/2023.
-//  Copyright © 2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2023-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
-#include "../../../common/color.h"
-#include "../../../common/hashtable.h"
-#include "../../datatypes/scene.h"
+#include <common/color.h>
+#include <common/hashtable.h>
+#include <datatypes/scene.h>
 #include "../valuenode.h"
 #include "../colornode.h"
 

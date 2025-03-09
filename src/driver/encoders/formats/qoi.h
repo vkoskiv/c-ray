@@ -1,6 +1,6 @@
 //
 //  qoi.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 23.12.2021.
 //  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.

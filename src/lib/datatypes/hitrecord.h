@@ -1,14 +1,14 @@
 //
 //  hitrecord.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 06/12/2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-#include "../../common/vector.h"
+#include <common/vector.h>
 #include "lightray.h"
 
 struct hitRecord {

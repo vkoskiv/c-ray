@@ -1,9 +1,9 @@
 //
 //  spline.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 01/09/2021.
-//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "spline.h"

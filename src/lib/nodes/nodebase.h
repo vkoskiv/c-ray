@@ -1,14 +1,14 @@
 //
 //  nodebase.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 07/12/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-#include "../../common/logging.h"
+#include <common/logging.h>
 #include <stdbool.h>
 
 #define DUMPBUF_SIZE 16384
@@ -17,6 +17,7 @@
 
 struct node_storage;
 
+// TODO: node_base
 struct nodeBase {
 	bool (*compare)(const void *, const void *);
 	void (*dump)(const void *, char *, int);

@@ -3,15 +3,15 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 02/03/2015.
-//  Copyright © 2015-2024 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
 #include "camera.h"
 
-#include "../../common/transforms.h"
-#include "../../common/vector.h"
-#include "../renderer/samplers/vec.h"
+#include <common/transforms.h>
+#include <common/vector.h>
+#include <renderer/samplers/vec.h>
 
 void cam_recompute_optics(struct camera *cam) {
 	if (!cam) return;

@@ -1,16 +1,16 @@
 //
-//  string.c
-//  C-ray
+//  cr_string.c
+//  c-ray
 //
 //  Created by Valtteri on 12.4.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdbool.h>
-#include "string.h"
+#include "cr_string.h"
 #include <string.h>
 #include <stdlib.h>
-#include "assert.h"
+#include "cr_assert.h"
 
 bool stringEquals(const char *s1, const char *s2) {
 	if (!s1 || !s2) return false;

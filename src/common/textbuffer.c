@@ -1,9 +1,9 @@
 //
 //  textbuffer.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 12.4.2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../includes.h"
@@ -14,9 +14,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "logging.h"
-#include "string.h"
+#include "cr_string.h"
 #include <stdio.h>
-#include "assert.h"
+#include "cr_assert.h"
 
 textBuffer *newTextView(textBuffer *original, const size_t start, const size_t lines) {
 	ASSERT(original);

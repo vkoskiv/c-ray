@@ -1,6 +1,6 @@
 //
 //  translucent.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 05/06/2022.
 //  Copyright © 2022 Valtteri Koskivuori. All rights reserved.

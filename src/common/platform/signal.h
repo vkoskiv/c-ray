@@ -1,6 +1,6 @@
 //
 //  signal.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 7.4.2020.
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.

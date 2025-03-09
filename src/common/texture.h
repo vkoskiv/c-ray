@@ -1,6 +1,6 @@
 //
 //  texture.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 09/04/2019.
 //  Copyright © 2019-2022 Valtteri Koskivuori. All rights reserved.

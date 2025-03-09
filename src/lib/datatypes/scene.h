@@ -3,17 +3,17 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-#include "../datatypes/mesh.h"
-#include "../../common/platform/thread.h"
-#include "../renderer/instance.h"
+#include <datatypes/mesh.h>
+#include <common/platform/thread.h>
+#include <common/texture.h>
+#include <renderer/instance.h>
 #include "camera.h"
-#include "../../common/texture.h"
-#include "../nodes/bsdfnode.h"
+#include <nodes/bsdfnode.h>
 
 struct renderer;
 struct hashtable;

@@ -3,17 +3,17 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 22/11/2023.
-//  Copyright © 2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2023-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <c-ray/c-ray.h>
 
 #include "node_parse.h"
-#include "../common/vendored/cJSON.h"
+#include <vendored/cJSON.h>
 
 #include "loaders/textureloader.h"
 #include "texture.h"
-#include "string.h"
+#include "cr_string.h"
 #include "logging.h"
 #include "color.h"
 #include "vector.h"

@@ -1,9 +1,9 @@
 //
 //  protocol.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 21/03/2021.
-//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "protocol.h"
@@ -14,23 +14,23 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "../../common/logging.h"
-#include "../../common/vector.h"
-#include "../../common/texture.h"
-#include "../../common/transforms.h"
-#include "../../common/quaternion.h"
-#include "../../common/hashtable.h"
-#include "../../common/string.h"
-#include "../../common/gitsha1.h"
-#include "../../common/networking.h"
-#include "../../common/base64.h"
-#include "../../common/timer.h"
-#include "../../common/node_parse.h"
-#include "../renderer/renderer.h"
-#include "../renderer/instance.h"
-#include "../datatypes/tile.h"
-#include "../datatypes/scene.h"
-#include "assert.h"
+#include <common/logging.h>
+#include <common/vector.h>
+#include <common/texture.h>
+#include <common/transforms.h>
+#include <common/quaternion.h>
+#include <common/hashtable.h>
+#include <common/cr_string.h>
+#include <common/gitsha1.h>
+#include <common/networking.h>
+#include <common/base64.h>
+#include <common/timer.h>
+#include <common/node_parse.h>
+#include <renderer/renderer.h>
+#include <renderer/instance.h>
+#include <datatypes/tile.h>
+#include <datatypes/scene.h>
+#include <common/cr_assert.h>
 
 // Consumes given json, no need to free it after.
 bool sendJSON(int socket, cJSON *json, size_t *progress) {

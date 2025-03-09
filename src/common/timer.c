@@ -1,6 +1,6 @@
 //
 //  timer.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 06/07/2018.
 //  Copyright © 2018-2020 Valtteri Koskivuori. All rights reserved.

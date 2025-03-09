@@ -3,18 +3,18 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 09/01/2024.
-//  Copyright © 2024 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2024-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
-#include "../../../common/color.h"
-#include "../../../common/mempool.h"
-#include "../../../common/hashtable.h"
-#include "../../datatypes/hitrecord.h"
-#include "../../datatypes/scene.h"
+#include <common/color.h>
+#include <common/mempool.h>
+#include <common/hashtable.h>
+#include <datatypes/hitrecord.h>
+#include <datatypes/scene.h>
 
 #include "hsv_transform.h"
-#include "../../nodes/textures/constant.h"
+#include "../textures/constant.h"
 
 struct HSVTransform {
 	struct colorNode node;

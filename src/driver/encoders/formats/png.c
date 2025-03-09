@@ -1,21 +1,20 @@
 //
 //  png.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 8.4.2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../imagefile.h"
+#include <imagefile.h>
 #include <stddef.h>
 #include "png.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../../common/fileio.h"
-#include "../../../common/logging.h"
-
-#include "../../vendored/lodepng.h"
+#include <common/fileio.h>
+#include <common/logging.h>
+#include <vendored/lodepng.h>
 
 #ifndef WINDOWS
 #include <sys/utsname.h>

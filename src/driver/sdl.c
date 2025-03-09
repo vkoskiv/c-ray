@@ -10,16 +10,15 @@
 #include "sdl.h"
 
 #include "imagefile.h"
-#include "../common/texture.h"
-#include "../common/color.h"
-#include "../common/logging.h"
-#include "../common/assert.h"
-#include "../common/logo.h"
-#include "../common/loaders/textureloader.h"
-#include "../common/platform/thread.h"
-#include "../common/platform/dyn.h"
-#include "../common/vendored/cJSON.h"
-#include "signal.h"
+#include <common/texture.h>
+#include <common/color.h>
+#include <common/logging.h>
+#include <common/cr_assert.h>
+#include <common/logo.h>
+#include <common/loaders/textureloader.h>
+#include <common/platform/thread.h>
+#include <common/platform/dyn.h>
+#include <common/vendored/cJSON.h>
 #include <c-ray/c-ray.h>
 
 #include "vendored/SDL2/SDL_render.h"

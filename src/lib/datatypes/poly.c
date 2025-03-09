@@ -1,18 +1,18 @@
 //
 //  poly.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
 #include "poly.h"
 
-#include "../../common/vector.h"
 #include "lightray.h"
-#include "../renderer/pathtrace.h"
-#include "../datatypes/mesh.h"
+#include <common/vector.h>
+#include <renderer/pathtrace.h>
+#include <datatypes/mesh.h>
 
 bool rayIntersectsWithPolygon(const struct mesh *mesh, const struct lightRay *ray, const struct poly *poly, struct hitRecord *isect) {
 	// Möller-Trumbore ray-triangle intersection routine

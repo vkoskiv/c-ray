@@ -1,26 +1,26 @@
 //
 //  bvh.c
-//  C-ray
+//  c-ray
 //
 //  Created by Arsène Pérard-Gayot on 07/06/2020.
-//  Copyright © 2020-2022 Arsène Pérard-Gayot (@madmann91), Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Arsène Pérard-Gayot (@madmann91), Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
 #include "bvh.h"
 
-#include "../renderer/pathtrace.h"
+#include <renderer/pathtrace.h>
 
-#include "../datatypes/bbox.h"
-#include "../datatypes/mesh.h"
-#include "../datatypes/poly.h"
-#include "../renderer/instance.h"
-#include "../../common/vector.h"
-#include "../../common/platform/thread.h"
-#include "../../common/platform/thread_pool.h"
-#include "../../common/platform/capabilities.h"
-#include "../../common/platform/signal.h"
-#include "../../common/timer.h"
+#include <datatypes/bbox.h>
+#include <datatypes/mesh.h>
+#include <datatypes/poly.h>
+#include <renderer/instance.h>
+#include <common/vector.h>
+#include <common/platform/thread.h>
+#include <common/platform/thread_pool.h>
+#include <common/platform/capabilities.h>
+#include <common/platform/signal.h>
+#include <common/timer.h>
 
 #include <limits.h>
 #include <assert.h>

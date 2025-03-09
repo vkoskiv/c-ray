@@ -1,17 +1,17 @@
 //
 //  halton.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 23.4.2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdint.h>
 #include "halton.h"
 
 #include "common.h"
-#include "../../../common/assert.h"
-#include "../../../common/vector.h"
+#include <common/cr_assert.h>
+#include <common/vector.h>
 
 static const unsigned int primes[] = {2, 3, 5, 7, 11, 13};
 static const unsigned int primesCount = 6;

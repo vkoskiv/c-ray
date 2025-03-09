@@ -1,6 +1,6 @@
 //
 //  capabilities.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 29.3.2020.
 //  Copyright © 2020 Valtteri Koskivuori. All rights reserved.

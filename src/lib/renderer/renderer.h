@@ -1,18 +1,17 @@
 //
 //  renderer.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 19/02/2017.
-//  Copyright © 2017-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 #include <c-ray/c-ray.h>
-#include "../datatypes/tile.h"
-#include "../../common/timer.h"
-#include "../../common/platform/thread.h"
-#include "../protocol/server.h"
+#include <datatypes/tile.h>
+#include <common/platform/thread.h>
+#include <protocol/server.h>
 
 struct worker {
 	struct cr_thread thread;

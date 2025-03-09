@@ -3,10 +3,10 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 06/04/2021.
-//  Copyright © 2021-2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2025 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../common/logging.h"
+#include <common/logging.h>
 //Windows is annoying, so it's just not going to have networking. Because it is annoying and proprietary.
 #ifndef WINDOWS
 #include <signal.h>
@@ -19,20 +19,20 @@
 #include "worker.h"
 #include "protocol.h"
 
-#include "../renderer/renderer.h"
-#include "../renderer/pathtrace.h"
-#include "../datatypes/tile.h"
-#include "../datatypes/scene.h"
-#include "../datatypes/camera.h"
-#include "../../common/texture.h"
-#include "../../common/platform/mutex.h"
-#include "../../common/platform/thread.h"
-#include "../../common/networking.h"
-#include "../../common/string.h"
-#include "../../common/gitsha1.h"
-#include "../../common/timer.h"
-#include "../../common/platform/signal.h"
-#include "../accelerators/bvh.h"
+#include <renderer/renderer.h>
+#include <renderer/pathtrace.h>
+#include <datatypes/tile.h>
+#include <datatypes/scene.h>
+#include <datatypes/camera.h>
+#include <common/texture.h>
+#include <common/platform/mutex.h>
+#include <common/platform/thread.h>
+#include <common/networking.h>
+#include <common/cr_string.h>
+#include <common/gitsha1.h>
+#include <common/timer.h>
+#include <common/platform/signal.h>
+#include <accelerators/bvh.h>
 #include <stdio.h>
 #include <inttypes.h>
 

@@ -1,6 +1,6 @@
 //
 //  hashtable.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 17.11.2019.
 //  Copyright © 2019-2020 Valtteri Koskivuori. All rights reserved.

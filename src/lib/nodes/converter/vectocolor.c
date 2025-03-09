@@ -1,18 +1,18 @@
 //
 //  vectocolor.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 15/04/2021.
-//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
 #include "../nodebase.h"
 
-#include "../../renderer/samplers/sampler.h"
-#include "../../../common/hashtable.h"
-#include "../../datatypes/scene.h"
-#include "../../datatypes/hitrecord.h"
+#include <common/hashtable.h>
+#include <renderer/samplers/sampler.h>
+#include <datatypes/scene.h>
+#include <datatypes/hitrecord.h>
 #include "../colornode.h"
 #include "../vectornode.h"
 

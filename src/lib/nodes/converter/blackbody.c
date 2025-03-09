@@ -1,17 +1,17 @@
 //
 //  blackbody.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 16/12/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
 #include "../nodebase.h"
 
-#include "../../../common/hashtable.h"
-#include "../../datatypes/scene.h"
-#include "../../datatypes/hitrecord.h"
+#include <common/hashtable.h>
+#include <datatypes/scene.h>
+#include <datatypes/hitrecord.h>
 #include "../colornode.h"
 #include "../valuenode.h"
 

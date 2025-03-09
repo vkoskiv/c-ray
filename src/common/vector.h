@@ -1,16 +1,16 @@
 //
 //  vector.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
-//  Copyright © 2015-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2015-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 #include <math.h>
 #include "dyn_array.h"
-#include "assert.h"
+#include "cr_assert.h"
 #include "../includes.h"
 
 struct vector {

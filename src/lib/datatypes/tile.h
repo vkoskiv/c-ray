@@ -1,18 +1,18 @@
 //
 //  tile.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 06/07/2018.
-//  Copyright © 2018-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2018-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 #include "../../includes.h"
-#include "../../common/dyn_array.h"
-#include "../../common/platform/mutex.h"
+#include <common/dyn_array.h>
+#include <common/platform/mutex.h>
 
-#include "../../common/vector.h"
+#include <common/vector.h>
 
 enum render_order {
 	ro_top_to_bottom = 0,

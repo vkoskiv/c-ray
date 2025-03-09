@@ -1,9 +1,9 @@
 //
-//  string.h
-//  C-ray
+//  cr_string.h
+//  c-ray
 //
 //  Created by Valtteri on 12.4.2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once

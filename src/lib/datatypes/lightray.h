@@ -1,15 +1,15 @@
 //
-//  lightRay.h
+//  lightray.h
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 18/05/2017.
-//  Copyright © 2017-2024 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-#include "../../common/vector.h"
-#include "../../common/transforms.h"
+#include <common/vector.h>
+#include <common/transforms.h>
 
 enum ray_type {
 	rt_camera       = 1 << 1,

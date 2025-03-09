@@ -1,18 +1,19 @@
 //
 //  tile.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 06/07/2018.
-//  Copyright © 2018-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2018-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
-#include "../renderer/renderer.h"
+#include <renderer/renderer.h>
 #include "tile.h"
 
-#include "../../common/logging.h"
-#include "../../common/platform/mutex.h"
-#include "../vendored/pcg_basic.h"
+#include <common/logging.h>
+#include <common/timer.h>
+#include <common/platform/mutex.h>
+#include <vendored/pcg_basic.h>
 #include <string.h>
 
 static void tiles_reorder(struct render_tile_arr *tiles, enum render_order tileOrder);

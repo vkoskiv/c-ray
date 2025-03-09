@@ -1,6 +1,6 @@
 //
 //  textbuffer.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 12.4.2020.
 //  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.

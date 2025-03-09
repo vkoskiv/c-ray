@@ -1,17 +1,17 @@
 //
 //  mesh.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 27/04/2017.
-//  Copyright © 2017-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2017-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
 #include <c-ray/c-ray.h>
-#include "../datatypes/poly.h"
-#include "../../common/dyn_array.h"
-#include "../../common/vector.h"
+#include <datatypes/poly.h>
+#include <common/dyn_array.h>
+#include <common/vector.h>
 
 typedef struct cr_face cr_face;
 dyn_array_def(cr_face)

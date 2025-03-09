@@ -1,9 +1,9 @@
 //
-//  assert.h
-//  C-ray
+//  cr_assert.h
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 11.12.2019.
-//  Copyright © 2019-2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2019-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once

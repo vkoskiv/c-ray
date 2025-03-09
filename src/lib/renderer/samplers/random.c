@@ -1,13 +1,13 @@
 //
 //  random.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 28.4.2020.
-//  Copyright © 2020 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "random.h"
-#include "../../../common/assert.h"
+#include <common/cr_assert.h>
 
 void initRandom(randomSampler *s, uint64_t seed) {
 	pcg32_srandom_r(&s->rng, seed, 0);

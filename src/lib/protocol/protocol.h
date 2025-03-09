@@ -1,14 +1,14 @@
 //
 //  protocol.h
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 21/03/2021.
-//  Copyright © 2021-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #pragma once
 
-#include "../../common/vendored/cJSON.h"
+#include <common/vendored/cJSON.h>
 #include <stdbool.h>
 
 #define PROTO_VERSION "0.1"

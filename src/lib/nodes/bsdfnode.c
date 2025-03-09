@@ -1,18 +1,18 @@
 //
 //  bsdfnode.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 29/11/2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../common/vector.h"
-#include "../../common/color.h"
-#include "../renderer/renderer.h"
-#include "../datatypes/scene.h"
-#include "../../common/node_parse.h"
-#include "../../common/string.h"
 #include "bsdfnode.h"
+#include <common/vector.h>
+#include <common/color.h>
+#include <common/cr_string.h>
+#include <renderer/renderer.h>
+#include <datatypes/scene.h>
+#include <common/node_parse.h>
 #include <c-ray/c-ray.h>
 
 static const struct bsdfNode *warning_bsdf(const struct node_storage *s) {

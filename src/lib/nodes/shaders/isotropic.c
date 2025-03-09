@@ -3,17 +3,17 @@
 //  c-ray
 //
 //  Created by Valtteri on 27.5.2021.
-//  Copyright © 2021-2024 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stdio.h>
-#include "../../renderer/samplers/sampler.h"
-#include "../../renderer/samplers/vec.h"
-#include "../../../common/color.h"
-#include "../../../common/vector.h"
-#include "../../../common/hashtable.h"
-#include "../../datatypes/hitrecord.h"
-#include "../../datatypes/scene.h"
+#include <common/color.h>
+#include <common/vector.h>
+#include <common/hashtable.h>
+#include <datatypes/hitrecord.h>
+#include <datatypes/scene.h>
+#include <renderer/samplers/sampler.h>
+#include <renderer/samplers/vec.h>
 #include "../colornode.h"
 #include "../bsdfnode.h"
 

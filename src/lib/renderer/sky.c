@@ -1,17 +1,17 @@
 //
 //  sky.c
-//  C-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 16/06/2020.
-//  Copyright © 2020-2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../includes.h"
 #include "sky.h"
 
-#include "../../common/vector.h"
-#include "../../common/color.h"
-#include "../datatypes/lightray.h"
+#include <common/vector.h>
+#include <common/color.h>
+#include <datatypes/lightray.h>
 
 /*
  This implementation here is adapted from the CUDA implementation found at this URL:

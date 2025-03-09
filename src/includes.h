@@ -1,6 +1,6 @@
 //
 //  includes.h
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 28/02/2015.
 //  Copyright © 2015-2022 Valtteri Koskivuori. All rights reserved.

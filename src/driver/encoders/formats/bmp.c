@@ -1,9 +1,9 @@
 //
 //  bmp.c
-//  C-ray
+//  c-ray
 //
 //  Created by Valtteri on 8.4.2020.
-//  Copyright © 2020-2022 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include <stddef.h>
@@ -11,7 +11,7 @@
 #include <string.h>
 #include "bmp.h"
 
-#include "../../../common/fileio.h"
+#include <common/fileio.h>
 
 void encodeBMPFromArray(const char *file_name, const unsigned char *imgData, size_t width, size_t height) {
 	//Apparently BMP is BGR, whereas C-ray's internal buffer is RGB (Like it should be)

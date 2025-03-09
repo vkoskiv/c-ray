@@ -3,17 +3,17 @@
 //  c-ray
 //
 //  Created by Valtteri Koskivuori on 30/11/2020.
-//  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
-#include "../../common/color.h"
-#include "../renderer/samplers/sampler.h"
-#include "../renderer/renderer.h"
-#include "../../common/vector.h"
-#include "../datatypes/poly.h"
-#include "../../common/string.h"
-#include "../datatypes/scene.h"
-#include "../../common/loaders/textureloader.h"
+#include <renderer/samplers/sampler.h>
+#include <renderer/renderer.h>
+#include <common/color.h>
+#include <common/vector.h>
+#include <common/loaders/textureloader.h>
+#include <common/cr_string.h>
+#include <datatypes/poly.h>
+#include <datatypes/scene.h>
 #include "bsdfnode.h"
 
 #include "colornode.h"

@@ -1,23 +1,23 @@
 //
 //  gltf.c
-//  c-Ray
+//  c-ray
 //
 //  Created by Valtteri Koskivuori on 26/09/2021.
-//  Copyright © 2021 Valtteri Koskivuori. All rights reserved.
+//  Copyright © 2021-2025 Valtteri Koskivuori. All rights reserved.
 //
 
 #include "../../../../includes.h"
 
 #include "gltf.h"
 #include <string.h>
-#include "../../../../common/vendored/cJSON.h"
-#include "../../../../common/string.h"
-#include "../../../../common/base64.h"
-#include "../../../../common/vector.h"
-#include "../../../../common/logging.h"
-#include "../../../../common/fileio.h"
-#include "../../../../common/texture.h"
-#include "../../../../common/loaders/textureloader.h"
+#include <vendored/cJSON.h>
+#include <cr_string.h>
+#include <base64.h>
+#include <vector.h>
+#include <logging.h>
+#include <fileio.h>
+#include <texture.h>
+#include <loaders/textureloader.h>
 
 enum accessor_type {
 	UNKNOWN,
