@@ -1,7 +1,15 @@
 CC_cosmo=cosmocc
 BIN_cosmo=c-ray.com
 OBJDIR_cosmo=bin/obj_cosmo
-OBJS_cosmo=$(patsubst %.c, $(OBJDIR_cosmo)/%.o, $(SRCS))
+
+OBJS_LIB_cosmo=$(SRCS_LIB:%.c=$(OBJDIR_cosmo)/%.o)
+$(OBJS_LIB_cosmo): CFLAGS += -I./src/lib/
+OBJS_DRIVER_cosmo=$(SRCS_DRIVER:%.c=$(OBJDIR_cosmo)/%.o)
+$(OBJS_DRIVER_cosmo): CFLAGS += -I./src/driver/
+OBJS_COMMON_cosmo=$(SRCS_COMMON:%.c=$(OBJDIR_cosmo)/%.o)
+$(OBJS_COMMON_cosmo): CFLAGS += -I./src/common/
+
+OBJS_cosmo := $(OBJS_LIB_cosmo) $(OBJS_DRIVER_cosmo) $(OBJS_COMMON_cosmo)
 
 cosmo: $(BINDIR)/$(BIN_cosmo)
 
