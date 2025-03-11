@@ -64,9 +64,9 @@ $(LIB): $(OBJS_LIB) ${OBJS_COMMON}
 $(BIN_lib): $(LIB) $(OBJS_DRIVER) $(OBJDIR_DRIVER) $(OBJS_COMMON)
 	@echo "LD $@"
 	@$(CC) $(LDFLAGS) $(OBJS_DRIVER) $(OBJS_COMMON) $(LIB) -o $@ $(LDLIBS)
-bindings/python/lib/cray_wrap.so: $(OBJS_LIB) bindings/python/cray_wrap.c bindings/python/py_types.c
+bindings/python/lib/cray_wrap.so: $(OBJS_LIB) $(OBJS_COMMON) bindings/python/cray_wrap.c bindings/python/py_types.c
 	@echo "Building CPython module"
-	@$(CC) -shared $(CFLAGS) -fPIC `pkg-config --cflags python3` bindings/python/cray_wrap.c bindings/python/py_types.c $(OBJS_LIB) -o bindings/python/lib/cray_wrap.so $(LDLIBS)
+	@$(CC) -shared $(CFLAGS) -fPIC `pkg-config --cflags python3` bindings/python/cray_wrap.c bindings/python/py_types.c $(OBJS_LIB) $(OBJS_COMMON) -o bindings/python/lib/cray_wrap.so $(LDLIBS)
 
 clean_lib:
 	rm -rf lib/*
