@@ -163,7 +163,17 @@ void renderer_render(struct renderer *r) {
 		r->scene->background = newBackground(&r->scene->storage, NULL, NULL, NULL, r->scene->use_blender_coordinates);
 	}
 	
-	struct tile_set set = tile_quantize(camera->width, camera->height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
+	struct tile_set set = {
+		.tile_mutex = mutex_create(),
+		.tiles = tile_quantize(
+			camera->width,
+			camera->height,
+			r->prefs.tileWidth,
+			r->prefs.tileHeight,
+			r->prefs.tileOrder
+		),
+	};
+
 	r->state.current_set = &set;
 
 	for (size_t i = 0; i < r->scene->shader_buffers.count; ++i) {
@@ -366,7 +376,10 @@ void *render_thread_interactive(void *arg) {
 			threadState->in_pause_loop = true;
 			timer_sleep_ms(100);
 		}
-		threadState->in_pause_loop = false;
+		if (threadState->in_pause_loop) {
+			tile = tile_next_interactive(r, threadState->tiles);
+			threadState->in_pause_loop = false;
+		}
 		// In case we got NULL back because we were paused:
 		if (!tile) tile = tile_next_interactive(r, threadState->tiles);
 		threadState->currentTile = tile;

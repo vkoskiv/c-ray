@@ -862,16 +862,34 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 	struct camera *cam = &r->scene->cameras.items[r->prefs.selected_camera];
 	if (r->state.result_buf->width != (size_t)cam->width || r->state.result_buf->height != (size_t)cam->height) {
 		// Resize result buffer. First, pause render threads and wait for them to ack
+		cam_recompute_optics(cam);
 		logr(info, "Resizing result_buf (%zu,%zu) -> (%d,%d)\n", r->state.result_buf->width, r->state.result_buf->height, cam->width, cam->height);
+		/*
+			FIXME: Horrible, horrible hacks. Use proper pthreads primitives for this
+			instead of hacky signal flags and busy loops.
+		*/
 		cr_renderer_toggle_pause((struct cr_renderer *)r);
 		for (size_t i = 0; i < r->state.workers.count; ++i) {
 			while (!r->state.workers.items[i].in_pause_loop) {
 				timer_sleep_ms(1);
+				if (r->state.s != r_rendering) {
+					// Renderer stopped, bail out.
+					cr_renderer_toggle_pause((struct cr_renderer *)r);
+					return;
+				}
 			}
 		}
 		// Okay, threads are now paused, swap the buffer
 		tex_destroy(r->state.result_buf);
 		r->state.result_buf = tex_new(float_p, cam->width, cam->height, 4);
+
+		// And patch in a new set of tiles.
+		struct render_tile_arr new = tile_quantize(cam->width, cam->height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
+		mutex_lock(r->state.current_set->tile_mutex);
+		render_tile_arr_free(&r->state.current_set->tiles);
+		r->state.current_set->tiles = new;
+		r->state.current_set->finished = 0;
+		mutex_release(r->state.current_set->tile_mutex);
 
 		cr_renderer_toggle_pause((struct cr_renderer *)r);
 	}
@@ -886,6 +904,7 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 		r->state.workers.items[i].totalSamples = 0;
 	}
 	update_toplevel_bvh(r->scene);
+	// Why are we waiting for bg_worker? update_toplevel_bvh() is synchronous.
 	thread_pool_wait(r->scene->bg_worker);
 	mutex_release(r->state.current_set->tile_mutex);
 }

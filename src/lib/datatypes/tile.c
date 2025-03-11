@@ -76,12 +76,9 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 	return tile;
 }
 
-struct tile_set tile_quantize(unsigned width, unsigned height, unsigned tile_w, unsigned tile_h, enum render_order order) {
+struct render_tile_arr tile_quantize(unsigned width, unsigned height, unsigned tile_w, unsigned tile_h, enum render_order order) {
 
-	logr(info, "Quantizing render plane\n");
-
-	struct tile_set set = { 0 };
-	set.tile_mutex = mutex_create();
+	struct render_tile_arr tiles = { 0 };
 
 	//Sanity check on tilesizes
 	if (tile_w >= width) tile_w = width;
@@ -117,14 +114,14 @@ struct tile_set tile_quantize(unsigned width, unsigned height, unsigned tile_w, 
 			tile.state = ready_to_render;
 
 			tile.index = tileCount++;
-			render_tile_arr_add(&set.tiles, tile);
+			render_tile_arr_add(&tiles, tile);
 		}
 	}
-	logr(info, "Quantized image into %i tiles. (%ix%i)\n", (tiles_x * tiles_y), tiles_x, tiles_y);
+	logr(debug, "Quantized image into %i tiles. (%ix%i)\n", (tiles_x * tiles_y), tiles_x, tiles_y);
 
-	tiles_reorder(&set.tiles, order);
+	tiles_reorder(&tiles, order);
 
-	return set;
+	return tiles;
 }
 
 void tile_set_free(struct tile_set *set) {

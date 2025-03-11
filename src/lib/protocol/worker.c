@@ -228,7 +228,17 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 		KNRM,
 		PLURAL(r->prefs.threads));
 	//Quantize image into renderTiles
-	struct tile_set set = tile_quantize(selected_cam.width, selected_cam.height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
+	struct tile_set set = {
+		.tile_mutex = mutex_create(),
+		.tiles = tile_quantize(
+			selected_cam.width,
+			selected_cam.height,
+			r->prefs.tileWidth,
+			r->prefs.tileHeight,
+			r->prefs.tileOrder
+		),
+	};
+	r->state.current_set = &set;
 
 	logr(info, "%u x %u tiles\n", r->prefs.tileWidth, r->prefs.tileHeight);
 	// Ensure BVHs are up to date

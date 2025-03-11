@@ -51,7 +51,7 @@ struct tile_set {
 	struct cr_mutex *tile_mutex;
 };
 
-struct tile_set tile_quantize(unsigned width, unsigned height, unsigned tile_w, unsigned tile_h, enum render_order order);
+struct render_tile_arr tile_quantize(unsigned width, unsigned height, unsigned tile_w, unsigned tile_h, enum render_order order);
 void tile_set_free(struct tile_set *set);
 
 struct render_tile *tile_next(struct tile_set *set);
