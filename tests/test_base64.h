@@ -7,7 +7,7 @@
 //
 
 #include "../src/common/base64.h"
-#include "../src/common/string.h"
+#include "../src/common/cr_string.h"
 #include "../src/common/fileio.h"
 
 bool base64_basic(void) {

@@ -17,7 +17,7 @@
 #include "../src/common/fileio.h"
 #include "../src/common/vendored/cJSON.h"
 #include "../src/common/json_loader.h"
-#include "../src/common/string.h"
+#include "../src/common/cr_string.h"
 
 void silence_stdout(int *bak, int *new) {
 	fflush(stdout);

@@ -11,7 +11,7 @@
 #include "../src/common/timer.h"
 #include "../src/driver/args.h"
 
-#include "../src/common/assert.h"
+#include "../src/common/cr_assert.h"
 #include "testrunner.h"
 
 int firstTestIdx(char *suite);

@@ -7,7 +7,7 @@
 //
 
 #include "../../src/common/fileio.h"
-#include "../../src/common/assert.h"
+#include "../../src/common/cr_assert.h"
 #include "../../src/common/base64.h"
 
 time_t base64_bigfile_encode(void) {

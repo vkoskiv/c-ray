@@ -8,7 +8,7 @@
 
 #include <string.h>
 #include "../src/common/textbuffer.h"
-#include "../src/common/string.h"
+#include "../src/common/cr_string.h"
 
 #define MULTILINE "This is a\nMultiline\nstring!\n"
 
