@@ -1,5 +1,5 @@
 BINDIR_test=tests
-BIN_test=testrunner
+BIN_test=$(BINDIR_test)/testrunner
 OBJDIR_test=tests/obj
 SRCS_test=$(shell find tests/ -name '*.c')
 
@@ -15,10 +15,10 @@ CFLAGS_TESTING=-O0 -fsanitize=address,undefined -DCRAY_TESTING
 $(OBJS_test): CFLAGS += -I./src/lib/ -I./src/driver/ -I./src/common/ $(CFLAGS_TESTING)
 DEPS_test=$(OBJS_test:%.o=%.d)
 
-test: $(BINDIR_test)/$(BIN_test)
+test: $(BIN_test)
 	tests/runner.sh $(suite)
 
-$(BINDIR_test)/$(BIN_test): $(OBJS_test)
+$(BIN_test): $(OBJS_test)
 	@mkdir -p $(@D)
 	@echo "LD $@"
 	@$(CC) $(LDFLAGS) -fsanitize=address,undefined $(OBJS_test) -o $@ $(LDLIBS)
@@ -26,11 +26,9 @@ $(BINDIR_test)/$(BIN_test): $(OBJS_test)
 -include $(DEPS_test)
 
 $(OBJDIR_test)/%.o: %.c
-	@mkdir -p $(@D)
+	@mkdir -p '$(@D)'
 	@echo "CC $(CFLAGS_TESTING) $<"
 	@$(CC) $(CFLAGS) -MMD -c $< -o $@
-$(OBJDIR_test):
-	mkdir -p $@
 
 clean_test:
-	rm -rf tests/obj tests/testrunner
+	rm -rf $(BIN_test) $(OBJDIR_test)
