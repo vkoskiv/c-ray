@@ -415,24 +415,27 @@ class material_set:
 
 	def add(self, material, name):
 		if material is None:
-			_lib.material_set_add(self.scene_ptr, self.cr_idx, None)
+			idx = _lib.material_set_add(self.scene_ptr, self.cr_idx, None)
+			self.materials[name] = idx
 			return
 		ct.pythonapi.PyCapsule_New.argtypes = [ct.c_void_p, ct.c_char_p, ct.c_void_p]
 		ct.pythonapi.PyCapsule_New.restype = ct.py_object
-		name = b'cray.shader_node'
-		capsule = ct.pythonapi.PyCapsule_New(ct.byref(material.cr_struct), name, None)
+		capsule_name = b'cray.shader_node'
+		capsule = ct.pythonapi.PyCapsule_New(ct.byref(material.cr_struct), capsule_name, None)
 		idx = _lib.material_set_add(self.scene_ptr, self.cr_idx, capsule)
-		# print("matset {} idx {}".format(self.cr_idx, idx))
+		if name in self.materials:
+			print("ADD DUPLICATE matset {} idx {} ({})".format(self.cr_idx, self.materials[name], name))
 		self.materials[name] = idx
+
 	def update(self, matname, new):
 		if new is None:
 			return
 		ct.pythonapi.PyCapsule_New.argtypes = [ct.c_void_p, ct.c_char_p, ct.c_void_p]
 		ct.pythonapi.PyCapsule_New.restype = ct.py_object
-		name = b'cray.shader_node'
-		capsule = ct.pythonapi.PyCapsule_New(ct.byref(new.cr_struct), name, None)
-		_lib.material_update(self.scene_ptr, self.cr_idx, self.materials[name], capsule)
-		print("matset {} material {} ({}) updated".format(self.cr_idx, matname, self.materials[name]))
+		capsule_name = b'cray.shader_node'
+		capsule = ct.pythonapi.PyCapsule_New(ct.byref(new.cr_struct), capsule_name, None)
+		_lib.material_update(self.scene_ptr, self.cr_idx, self.materials[matname], capsule)
+		print("matset {} material {} ({}) updated".format(self.cr_idx, matname, self.materials[matname]))
 
 class scene:
 	def __init__(self, cr_renderer):

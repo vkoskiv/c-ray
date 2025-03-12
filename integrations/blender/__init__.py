@@ -239,7 +239,7 @@ class CrayRender(bpy.types.RenderEngine):
 					new_inst = cr_mesh.instance_new()
 					new_inst.set_transform(dup.matrix_world.copy())
 		if len(me.materials) < 1:
-			cr_mat_set.add(None, bl_mat.name)
+			cr_mat_set.add(None, "MissingMaterial")
 		for bl_mat in me.materials:
 			if not bl_mat:
 				print("Huh, array contains NoneType?")
@@ -391,8 +391,11 @@ class CrayRender(bpy.types.RenderEngine):
 		# dumping them at runtime. It's a really slow way to explore an API.
 		# Surely there is a better way?
 		if update.is_updated_shading:
-			print("Mesh {} material {} updated".format(mesh.name, mat.name))
-			self.cr_scene.material_sets[mesh.name].update(mat.name, convert_node_tree(depsgraph, mat.name, mat.node_tree))
+			if mat:
+				mat_set = self.cr_scene.material_sets[mesh.name]
+				key = mat.name
+				mat_set.update(key, convert_node_tree(depsgraph, key, mat.node_tree))
+				print("Mesh {} material {} updated".format(mesh.name, key))
 		if update.is_updated_transform:
 			# FIXME: How do I get the actual instance index from Blender?
 			# Just grabbing the first one for now.
