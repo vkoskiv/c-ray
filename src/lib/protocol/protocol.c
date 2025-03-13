@@ -773,11 +773,6 @@ struct world *deserialize_scene(const cJSON *in) {
 		out->asset_path = stringCopy(asset_path->valuestring);
 	}
 
-	const cJSON *background = cJSON_GetObjectItem(in, "background");
-	if (cJSON_IsObject(background)) {
-		out->bg_desc = deserialize_shader_node(background);
-		out->background = build_bsdf_node((struct cr_scene *)out, out->bg_desc);
-	}
 	const cJSON *textures = cJSON_GetObjectItem(in, "textures");
 	if (cJSON_IsArray(textures)) {
 		cJSON *texture = NULL;
@@ -787,6 +782,12 @@ struct world *deserialize_scene(const cJSON *in) {
 				.t = deserialize_texture(cJSON_GetObjectItem(texture, "t"))
 			});
 		}
+	}
+
+	const cJSON *background = cJSON_GetObjectItem(in, "background");
+	if (cJSON_IsObject(background)) {
+		out->bg_desc = deserialize_shader_node(background);
+		out->background = build_bsdf_node((struct cr_scene *)out, out->bg_desc);
 	}
 
 	const cJSON *shader_buffers = cJSON_GetObjectItem(in, "shader_buffers");
