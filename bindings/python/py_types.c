@@ -17,7 +17,7 @@ static PyMemberDef py_vector_members[] = {
 };
 
 /*
-	WTF. If I mark this specific function as static, Python throws a bizarre UnicodeDecodeError when trying to import the .so:
+	WTF. If I mark these functions as static, Python randomly throws bizarre UnicodeDecodeErrors when trying to import the .so:
 	Traceback (most recent call last):
 	  File "<python-input-0>", line 1, in <module>
 	    from bindings.python.lib import c_ray
@@ -30,7 +30,7 @@ Py_ssize_t py_vector_length(PyObject *o) {
 	return 3;
 }
 
-static PyObject *py_vector_subscript(PyObject *o, PyObject *key) {
+PyObject *py_vector_subscript(PyObject *o, PyObject *key) {
 	py_vector *self = (py_vector *)o;
 	if (PyLong_Check(key)) {
 		long index = PyLong_AsLong(key);
@@ -63,7 +63,7 @@ static PyObject *py_vector_subscript(PyObject *o, PyObject *key) {
 	return NULL;
 }
 
-static int py_vector_ass_subscript(PyObject *o, PyObject *key, PyObject *value) {
+int py_vector_ass_subscript(PyObject *o, PyObject *key, PyObject *value) {
 	py_vector *self = (py_vector *)o;
 	if (PyLong_Check(key)) {
 		long index = PyLong_AsLong(key);
@@ -84,7 +84,7 @@ static int py_vector_ass_subscript(PyObject *o, PyObject *key, PyObject *value) 
 	return -1;
 }
 
-static PyMappingMethods py_vector_mapping_methods = {
+PyMappingMethods py_vector_mapping_methods = {
 	.mp_length = py_vector_length,
 	.mp_subscript = py_vector_subscript,
 	.mp_ass_subscript = py_vector_ass_subscript,
@@ -102,17 +102,17 @@ PyTypeObject type_py_vector = {
 	.tp_as_mapping = &py_vector_mapping_methods,
 };
 
-static PyMemberDef py_coord_members[] = {
+PyMemberDef py_coord_members[] = {
 	{ "u", T_FLOAT, offsetof(py_coord, val.u), 0, "u" },
 	{ "v", T_FLOAT, offsetof(py_coord, val.v), 0, "v" },
 };
 
-static Py_ssize_t py_coord_length(PyObject *o) {
+Py_ssize_t py_coord_length(PyObject *o) {
 	(void)o;
 	return 2;
 }
 
-static PyObject *py_coord_subscript(PyObject *o, PyObject *key) {
+PyObject *py_coord_subscript(PyObject *o, PyObject *key) {
 	py_coord *self = (py_coord *)o;
 	if (PyLong_Check(key)) {
 		long index = PyLong_AsLong(key);
@@ -145,7 +145,7 @@ static PyObject *py_coord_subscript(PyObject *o, PyObject *key) {
 	return NULL;
 }
 
-static int py_coord_ass_subscript(PyObject *o, PyObject *key, PyObject *value) {
+int py_coord_ass_subscript(PyObject *o, PyObject *key, PyObject *value) {
 	py_coord *self = (py_coord *)o;
 	if (PyLong_Check(key)) {
 		long index = PyLong_AsLong(key);
@@ -166,7 +166,7 @@ static int py_coord_ass_subscript(PyObject *o, PyObject *key, PyObject *value) {
 	return -1;
 }
 
-static PyMappingMethods py_coord_mapping_methods = {
+PyMappingMethods py_coord_mapping_methods = {
 	.mp_length = py_coord_length,
 	.mp_subscript = py_coord_subscript,
 	.mp_ass_subscript = py_coord_ass_subscript,
@@ -184,7 +184,7 @@ PyTypeObject type_py_coord = {
 	.tp_as_mapping = &py_coord_mapping_methods,
 };
 
-static void py_bitmap_dealloc(py_bitmap *self) {
+void py_bitmap_dealloc(py_bitmap *self) {
 	Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
