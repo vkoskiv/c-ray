@@ -135,6 +135,12 @@ void update_toplevel_bvh(struct world *s) {
 	thread_rwlock_unlock(&s->bvh_lock);
 	//!//!//!//!//!//!//!//!//!//!//!//!
 	destroy_bvh(old);
+	// Bind shader buffers to instances
+	// dyn_array may realloc(), so we refresh these last
+	for (size_t i = 0; i < s->instances.count; ++i) {
+		struct instance *inst = &s->instances.items[i];
+		inst->bbuf = &s->shader_buffers.items[inst->bbuf_idx];
+	}
 	s->top_level_dirty = false;
 }
 
@@ -181,11 +187,6 @@ void renderer_render(struct renderer *r) {
 			logr(warning, "bsdf buffer %zu is empty, patching in placeholder\n", i);
 			bsdf_node_ptr_arr_add(&r->scene->shader_buffers.items[i].bsdfs, build_bsdf_node((struct cr_scene *)r->scene, NULL));
 		}
-	}
-	// Bind object buffers to instances
-	for (size_t i = 0; i < r->scene->instances.count; ++i) {
-		struct instance *inst = &r->scene->instances.items[i];
-		inst->bbuf = &r->scene->shader_buffers.items[inst->bbuf_idx];
 	}
 	
 	// Ensure BVHs are up to date

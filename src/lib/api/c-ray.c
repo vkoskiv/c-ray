@@ -266,18 +266,23 @@ void bvh_build_task(void *arg) {
 	block_signals();
 	// Mesh array may get realloc'd at any time, so we use a copy of mesh while working
 	struct bvh_build_task_arg *bt = (struct bvh_build_task_arg *)arg;
-	if (bt->mesh.bvh) destroy_bvh(bt->mesh.bvh);
 	struct timeval timer = { 0 };
 	timer_start(&timer);
 	struct bvh *bvh = build_mesh_bvh(&bt->mesh);
-	if (bvh) {
-		logr(debug, "Built BVH for %s, took %lums\n", bt->mesh.name, timer_get_ms(timer));
-	} else {
+	long ms = timer_get_ms(timer);
+	if (!bvh) {
 		logr(debug, "BVH build FAILED for %s\n", bt->mesh.name);
+		free(bt);
+		return;
 	}
+	//!//!//!//!//!//!//!//!//!//!//!//!
 	thread_rwlock_wrlock(&bt->scene->bvh_lock);
+	struct bvh *old_bvh = bt->scene->meshes.items[bt->mesh_idx].bvh;
 	bt->scene->meshes.items[bt->mesh_idx].bvh = bvh;
 	thread_rwlock_unlock(&bt->scene->bvh_lock);
+	//!//!//!//!//!//!//!//!//!//!//!//!
+	logr(debug, "BVH %s for %s (%lums)\n", old_bvh ? "updated" : "built", bt->mesh.name, ms);
+	destroy_bvh(old_bvh);
 	free(bt);
 }
 

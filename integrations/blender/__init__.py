@@ -386,11 +386,10 @@ class CrayRender(bpy.types.RenderEngine):
 
 	def partial_update_mesh(self, depsgraph, update):
 		mesh = update.id
-		mat = update.id.active_material
-		# I find it frustrating that the only way to inspect these types is by
-		# dumping them at runtime. It's a really slow way to explore an API.
-		# Surely there is a better way?
+		if update.is_updated_geometry:
+			self.sync_mesh(depsgraph, mesh)
 		if update.is_updated_shading:
+			mat = update.id.active_material
 			if mat:
 				mat_set = self.cr_scene.material_sets[mesh.name]
 				key = mat.name

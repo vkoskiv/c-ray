@@ -220,6 +220,8 @@ class mesh:
 		self.instances = []
 		self.cr_idx = _lib.scene_mesh_new(self.scene_ptr, self.name)
 
+	# FIXME: me is a blender-specific object here, we shouldn't have Blender
+	# stuff in our generic Python API!
 	def bind_vertex_buf(self, me):
 		num_verts = len(me.vertices)
 		if num_verts < 1:
