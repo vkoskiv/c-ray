@@ -390,10 +390,8 @@ static inline struct bvh *build_bvh_generic(
 	void (*get_bbox_and_center)(const void *, unsigned, struct boundingBox *, struct vector *),
 	size_t count)
 {
-	if (count < 1) {
-		logr(debug, "bvh count < 1\n");
-		return NULL;
-	}
+	if (count < 1)
+		return calloc(1, sizeof(struct bvh));
 
 	struct vector *centers = malloc(sizeof(struct vector) * count);
 	struct boundingBox *bboxes = malloc(sizeof(struct boundingBox) * count);
@@ -621,6 +619,8 @@ struct boundingBox get_transformed_root_bbox(const struct bvh *bvh, const struct
 	// bounding box of the node is used as a proxy for the bounding box of the elements contained
 	// in the subtree. Thus, the smaller the threshold, the more precise the algorithm is, at the
 	// cost of more iterations.
+	if (bvh->node_count < 1)
+		return (struct boundingBox){ 0 };
 	const float area_threshold = 0.1f * bboxHalfArea((struct boundingBox[]) { get_root_bbox(bvh) });
 
 	index_t stack[MAX_BVH_DEPTH + 1];

@@ -156,7 +156,6 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 	struct lightRay copy = *ray;
 	tform_ray(&copy, instance->composite.Ainv);
 	struct mesh *mesh = &((struct mesh_arr *)instance->object_arr)->items[instance->object_idx];
-	if (!mesh->bvh) return false;
 	copy.start = vec_add(copy.start, vec_scale(copy.direction, mesh->rayOffset));
 	if (traverse_bottom_level_bvh(mesh, &copy, isect, sampler)) {
 		// Repopulate uv with actual texture mapping
@@ -210,12 +209,6 @@ enum cr_instance_type instance_type(const struct instance *i) {
 
 static void getMeshBBoxAndCenter(const struct instance *instance, struct boundingBox *bbox, struct vector *center) {
 	struct mesh *mesh = &((struct mesh_arr *)instance->object_arr)->items[instance->object_idx];
-	if (!mesh->bvh) {
-		*bbox = (struct boundingBox){ 0 };
-		*center = vec_zero();
-		mesh->rayOffset = 0.0f;
-		return;
-	}
 	*bbox = get_transformed_root_bbox(mesh->bvh, &instance->composite.A);
 	*center = bboxCenter(bbox);
 	mesh->rayOffset = rayOffset(*bbox);
