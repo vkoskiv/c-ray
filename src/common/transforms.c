@@ -184,7 +184,7 @@ struct transform tform_new_scale(float scale) {
 	return transform;
 }
 
-static void getCofactor(const float A[4][4], float cofactors[4][4], int p, int q, int n) {
+static void getCofactor(/*const*/ float A[4][4], float cofactors[4][4], int p, int q, int n) {
 	int i = 0;
 	int j = 0;
 	
@@ -203,7 +203,7 @@ static void getCofactor(const float A[4][4], float cofactors[4][4], int p, int q
 
 //I really, really hope this is faster than the generic one
 //I wrote this by hand...
-float findDeterminant4x4(const float A[4][4]) {
+float findDeterminant4x4(/*const*/ float A[4][4]) {
 	float topLeft = A[0][0] * ((A[1][1] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) + (A[1][3] * ((A[2][1]*A[3][2])-(A[2][2]*A[3][1]))));
 	float topRigh = A[0][1] * ((A[1][0] * ((A[2][2]*A[3][3])-(A[2][3]*A[3][2]))) - (A[1][2] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][2])-(A[2][2]*A[3][0]))));
 	float botLeft = A[0][2] * ((A[1][0] * ((A[2][1]*A[3][3])-(A[2][3]*A[3][1]))) - (A[1][1] * ((A[2][0]*A[3][3])-(A[2][3]*A[3][0]))) + (A[1][3] * ((A[2][0]*A[3][1])-(A[2][1]*A[3][0]))));
@@ -212,7 +212,7 @@ float findDeterminant4x4(const float A[4][4]) {
 }
 
 //Find det of a given 4x4 matrix A
-float findDeterminant(const float A[4][4], int n) {
+float findDeterminant(/*const*/ float A[4][4], int n) {
 	float det = 0.0f;
 	
 	if (n == 1)
@@ -230,7 +230,7 @@ float findDeterminant(const float A[4][4], int n) {
 	return det;
 }
 
-static void findAdjoint(const float A[4][4], float adjoint[4][4]) {
+static void findAdjoint(/*const*/ float A[4][4], float adjoint[4][4]) {
 	int sign = 1;
 	float temp[4][4];
 	

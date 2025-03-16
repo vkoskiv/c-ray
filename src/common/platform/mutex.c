@@ -9,7 +9,7 @@
 #include "mutex.h"
 #include <stdlib.h>
 
-struct cr_mutex *mutex_create() {
+struct cr_mutex *mutex_create(void) {
 	struct cr_mutex *new = calloc(1, sizeof(*new));
 #ifdef WINDOWS
 	InitializeCriticalSection(&new->lock);

@@ -75,6 +75,12 @@ static struct sdl_syms *try_get_sdl2_syms(void) {
 	void *sdl2 = try_find_sdl2_lib();
 	if (!sdl2) return NULL;
 	struct sdl_syms *syms = calloc(1, sizeof(*syms));
+	/*
+		warning: ISO C forbids initialization between function pointer and ‘void *’ [-Wpedantic]
+			=> We don't care about this in $CURRENT_YEAR :]
+	*/
+	#pragma GCC diagnostic ignored "-Wpedantic"
+	#pragma GCC diagnostic push
 	*syms = (struct sdl_syms){
 		.lib = sdl2,
 		.SDL_VideoInit              = dyn_sym(sdl2, "SDL_VideoInit"),
@@ -99,6 +105,7 @@ static struct sdl_syms *try_get_sdl2_syms(void) {
 		.SDL_UpdateTexture          = dyn_sym(sdl2, "SDL_UpdateTexture"),
 		.SDL_RenderCopy             = dyn_sym(sdl2, "SDL_RenderCopy")
 	};
+	#pragma GCC diagnostic pop
 	for (size_t i = 0; i < (sizeof(struct sdl_syms) / sizeof(void *)); ++i) {
 		if (!((void **)syms)[i]) {
 			logr(warning, "sdl_syms[%zu] is NULL\n", i);

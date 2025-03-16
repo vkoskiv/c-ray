@@ -355,7 +355,7 @@ static cJSON *processCommand(int connectionSocket, cJSON *json, size_t thread_li
 	ASSERT_NOT_REACHED();
 }
 
-static void workerCleanup() {
+static void workerCleanup(void) {
 	if (!g_worker_renderer) return;
 	renderer_destroy(g_worker_renderer);
 	g_worker_renderer = NULL;

@@ -64,7 +64,7 @@ static void printPrefix(enum logType type) {
 	}
 }
 
-static void printDate() {
+static void printDate(void) {
 	const time_t curTime = time(NULL);
 	struct tm *time = localtime(&curTime);
 	printf("[%d-%02d-%02d %02d:%02d:%02d] ",

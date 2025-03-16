@@ -20,7 +20,7 @@ typedef unsigned short u_short;
 #include <unistd.h>
 #endif
 
-int sys_get_cores() {
+int sys_get_cores(void) {
 #ifdef __APPLE__
 	int nm[2];
 	size_t len = 4;

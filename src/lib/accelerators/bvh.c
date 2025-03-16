@@ -150,7 +150,7 @@ static inline struct bvh_index make_inner_index(size_t first_child) {
 	};
 }
 
-static inline struct split make_invalid_split() {
+static inline struct split make_invalid_split(void) {
 	return (struct split) {
 		.axis = -1,
 		.pos = 0,
@@ -162,7 +162,7 @@ static inline bool is_valid_split(const struct split *split) {
 	return split->axis <= 2;
 }
 
-static inline struct bin make_empty_bin() {
+static inline struct bin make_empty_bin(void) {
 	return (struct bin) {
 		.bbox = emptyBBox,
 		.count = 0

@@ -23,7 +23,7 @@ struct sampler {
 	} sampler;
 };
 
-struct sampler *newSampler() {
+struct sampler *newSampler(void) {
 	return calloc(1, sizeof(struct sampler));
 }
 

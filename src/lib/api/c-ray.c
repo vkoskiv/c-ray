@@ -39,11 +39,11 @@
 
 #define VERSION "0.6.3"DEBUG
 
-char *cr_get_version() {
+char *cr_get_version(void) {
 	return VERSION;
 }
 
-char *cr_get_git_hash() {
+char *cr_get_git_hash(void) {
 	return gitHash();
 }
 
@@ -53,7 +53,7 @@ struct cr_shader_node *shader_deepcopy(const struct cr_shader_node *in);
 
 struct cr_renderer;
 
-struct cr_renderer *cr_new_renderer() {
+struct cr_renderer *cr_new_renderer(void) {
 	return (struct cr_renderer *)renderer_new();
 }
 

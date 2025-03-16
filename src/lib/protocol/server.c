@@ -47,7 +47,7 @@ void client_drop(struct render_client *client) {
 	client->status = Disconnected;
 }
 
-static cJSON *make_handshake() {
+static cJSON *make_handshake(void) {
 	cJSON *handshake = cJSON_CreateObject();
 	cJSON_AddStringToObject(handshake, "action", "handshake");
 	cJSON_AddStringToObject(handshake, "version", PROTO_VERSION);
