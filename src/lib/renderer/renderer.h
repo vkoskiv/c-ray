@@ -76,9 +76,6 @@ struct prefs {
 	unsigned override_width;
 	unsigned override_height;
 	size_t selected_camera;
-	char *imgFilePath;
-	char *imgFileName;
-	size_t imgCount;
 	char *node_list;
 	bool iterative;
 	bool blender_mode;

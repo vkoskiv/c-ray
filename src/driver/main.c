@@ -200,6 +200,22 @@ int main(int argc, char *argv[]) {
 	cr_renderer_set_callback(renderer, cr_cb_status_update, status, &usrdata);
 
 	const cJSON *r = cJSON_GetObjectItem(input_json, "renderer");
+	const cJSON *count = cJSON_GetObjectItem(r, "count");
+	char *output_path = NULL;
+	char *output_name = NULL;
+	const cJSON *path = cJSON_GetObjectItem(r, "outputFilePath");
+	const cJSON *name = cJSON_GetObjectItem(r, "outputFileName");
+	char *arg_path = NULL;
+	if (args_is_set(opts, "output_path")) {
+		char *arg_path = args_string(opts, "output_path");
+		logr(info, "Overriding output path to %s\n", arg_path);
+	}
+	char *temp_path = get_file_path(arg_path);
+	char *temp_name = get_file_name(arg_path);
+	output_path = temp_path ? stringCopy(temp_path) : cJSON_IsString(path) ? stringCopy(path->valuestring) : NULL;
+	output_name = temp_name ? stringCopy(temp_name) : cJSON_IsString(name) ? stringCopy(name->valuestring) : NULL;
+
+	uint64_t out_num = cJSON_IsNumber(count) ? count->valueint : 0;
 	const cJSON *file_type = cJSON_GetObjectItem(r, "fileType");
 	enum fileType output_type = match_file_type(cJSON_GetStringValue(file_type));
 
@@ -207,7 +223,6 @@ int main(int argc, char *argv[]) {
 	cJSON_Delete(input_json);
 	logr(debug, "Deleting done\n");
 
-	uint64_t out_num = cr_renderer_get_num_pref(renderer, cr_renderer_output_num);
 	uint64_t threads = cr_renderer_get_num_pref(renderer, cr_renderer_threads);
 	uint64_t width   = cr_renderer_get_num_pref(renderer, cr_renderer_override_width);
 	uint64_t height  = cr_renderer_get_num_pref(renderer, cr_renderer_override_height);
@@ -233,26 +248,11 @@ int main(int argc, char *argv[]) {
 	logr(plain, "\n");
 	logr(info, "Finished render in %s\n", ms_to_readable(ms, buf));
 
-	// FIXME: What the fuck
-	const char *output_path = NULL;
-	const char *output_name = NULL;
-	if (args_is_set(opts, "output_path")) {
-		char *path = args_string(opts, "output_path");
-		logr(info, "Overriding output path to %s\n", path);
-		char *temp_path = get_file_path(path);
-		char *temp_name = get_file_name(path);
-		output_path = temp_path ? temp_path : cr_renderer_get_str_pref(renderer, cr_renderer_output_path);
-		output_name = temp_name ? temp_name : cr_renderer_get_str_pref(renderer, cr_renderer_output_name);
-	} else {
-		output_path = cr_renderer_get_str_pref(renderer, cr_renderer_output_path);
-		output_name = cr_renderer_get_str_pref(renderer, cr_renderer_output_name);
-	}
-
 	if (usrdata.should_save) {
 		struct imageFile file = (struct imageFile){
 			.filePath = output_path,
 			.fileName = output_name,
-			.count =  cr_renderer_get_num_pref(renderer, cr_renderer_output_num),
+			.count = out_num,
 			.type = output_type,
 			.info = {
 				.bounces = cr_renderer_get_num_pref(renderer, cr_renderer_bounces),
@@ -270,6 +270,9 @@ int main(int argc, char *argv[]) {
 		logr(info, "Abort pressed, image won't be saved.\n");
 	}
 	
+	if (output_path) free(output_path);
+	if (output_name) free(output_name);
+
 done:
 	cr_destroy_renderer(renderer);
 	args_destroy(opts);

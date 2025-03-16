@@ -236,6 +236,7 @@ char *get_file_name(const char *input) {
 #define CRAY_PATH_MAX 4096
 
 char *get_file_path(const char *input) {
+	if (!input) return NULL;
 	char *dir = NULL;
 #ifdef WINDOWS
 	dir = calloc(_MAX_DIR, sizeof(*dir));

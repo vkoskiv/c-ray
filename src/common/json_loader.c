@@ -106,21 +106,6 @@ void parse_prefs(struct cr_renderer *ext, const cJSON *data) {
 		cr_renderer_set_str_pref(ext, cr_renderer_tile_order, tile_order->valuestring);
 	}
 
-	const cJSON *file_path = cJSON_GetObjectItem(data, "outputFilePath");
-	if (cJSON_IsString(file_path)) {
-		cr_renderer_set_str_pref(ext, cr_renderer_output_path, file_path->valuestring);
-	}
-
-	const cJSON *file_name = cJSON_GetObjectItem(data, "outputFileName");
-	if (cJSON_IsString(file_name)) {
-		cr_renderer_set_str_pref(ext, cr_renderer_output_name, file_name->valuestring);
-	}
-
-	const cJSON *count = cJSON_GetObjectItem(data, "count");
-	if (cJSON_IsNumber(count)) {
-		cr_renderer_set_num_pref(ext, cr_renderer_output_num, count->valueint);
-	}
-
 	const cJSON *width = cJSON_GetObjectItem(data, "width");
 	if (cJSON_IsNumber(width)) {
 		cr_renderer_set_num_pref(ext, cr_renderer_override_width, width->valueint);
@@ -130,12 +115,6 @@ void parse_prefs(struct cr_renderer *ext, const cJSON *data) {
 	if (cJSON_IsNumber(height)) {
 		cr_renderer_set_num_pref(ext, cr_renderer_override_height, height->valueint);
 	}
-
-	const cJSON *fileType = cJSON_GetObjectItem(data, "fileType");
-	if (cJSON_IsString(fileType)) {
-		cr_renderer_set_str_pref(ext, cr_renderer_output_filetype, fileType->valuestring);
-	}
-
 }
 
 float getRadians(const cJSON *object) {

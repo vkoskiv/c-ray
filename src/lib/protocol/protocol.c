@@ -861,9 +861,6 @@ static cJSON *serialize_prefs(const struct prefs in) {
 	cJSON_AddItemToObject(out, "tileWidth", cJSON_CreateNumber(in.tileWidth));
 	cJSON_AddItemToObject(out, "tileHeight", cJSON_CreateNumber(in.tileHeight));
 	cJSON_AddItemToObject(out, "tileOrder", cJSON_CreateNumber(in.tileOrder));
-	cJSON_AddItemToObject(out, "outputFilePath", cJSON_CreateString(in.imgFilePath));
-	cJSON_AddItemToObject(out, "outputFileName", cJSON_CreateString(in.imgFileName));
-	cJSON_AddItemToObject(out, "count", cJSON_CreateNumber(in.imgCount));
 	cJSON_AddItemToObject(out, "width", cJSON_CreateNumber(in.override_width));
 	cJSON_AddItemToObject(out, "height", cJSON_CreateNumber(in.override_height));
 	cJSON_AddItemToObject(out, "selected_camera", cJSON_CreateNumber(in.selected_camera));
@@ -878,11 +875,6 @@ struct prefs deserialize_prefs(const cJSON *in) {
 	p.tileWidth = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "tileWidth"));
 	p.tileHeight = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "tileHeight"));
 	p.tileOrder = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "tileOrder"));
-	free(p.imgFilePath);
-	free(p.imgFileName);
-	p.imgFilePath = stringCopy(cJSON_GetStringValue(cJSON_GetObjectItem(in, "outputFilePath")));
-	p.imgFileName = stringCopy(cJSON_GetStringValue(cJSON_GetObjectItem(in, "outputFileName")));
-	p.imgCount = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "count"));
 	p.override_width = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "width"));
 	p.override_height = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "height"));
 	p.selected_camera = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "selected_camera"));

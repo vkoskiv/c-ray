@@ -94,10 +94,6 @@ bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			r->prefs.tileHeight = num;
 			return true;
 		}
-		case cr_renderer_output_num: {
-			r->prefs.imgCount = num;
-			return true;
-		}
 		case cr_renderer_override_width: {
 			r->prefs.override_width = num;
 			return true;
@@ -143,20 +139,10 @@ bool cr_renderer_set_str_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			}
 			return true;
 		}
-		case cr_renderer_output_path: {
-			if (r->prefs.imgFilePath) free(r->prefs.imgFilePath);
-			r->prefs.imgFilePath = stringCopy(str);
-			return true;
-		}
 		case cr_renderer_asset_path: {
 			// TODO: we shouldn't really be touching anything but prefs in here.
 			if (r->scene->asset_path) free(r->scene->asset_path);
 			r->scene->asset_path = stringCopy(str);
-			return true;
-		}
-		case cr_renderer_output_name: {
-			if (r->prefs.imgFileName) free(r->prefs.imgFileName);
-			r->prefs.imgFileName = stringCopy(str);
 			return true;
 		}
 		case cr_renderer_node_list: {
@@ -193,8 +179,6 @@ const char *cr_renderer_get_str_pref(struct cr_renderer *ext, enum cr_renderer_p
 	if (!ext) return NULL;
 	struct renderer *r = (struct renderer *)ext;
 	switch (p) {
-		case cr_renderer_output_path: return r->prefs.imgFilePath;
-		case cr_renderer_output_name: return r->prefs.imgFileName;
 		case cr_renderer_asset_path: return r->scene->asset_path;
 		default: return NULL;
 	}
@@ -210,7 +194,6 @@ uint64_t cr_renderer_get_num_pref(struct cr_renderer *ext, enum cr_renderer_para
 		case cr_renderer_bounces: return r->prefs.bounces;
 		case cr_renderer_tile_width: return r->prefs.tileWidth;
 		case cr_renderer_tile_height: return r->prefs.tileHeight;
-		case cr_renderer_output_num: return r->prefs.imgCount;
 		case cr_renderer_override_width: return r->prefs.override_width;
 		case cr_renderer_override_height: return r->prefs.override_height;
 		default: return 0; // TODO

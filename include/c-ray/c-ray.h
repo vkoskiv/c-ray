@@ -51,16 +51,12 @@ enum cr_renderer_param {
 	cr_renderer_tile_width,
 	cr_renderer_tile_height,
 	cr_renderer_tile_order,
-	cr_renderer_output_num,
 	cr_renderer_override_width,
 	cr_renderer_override_height,
 	cr_renderer_override_cam,
 	cr_renderer_is_iterative,
 	// String
-	cr_renderer_output_path,
 	cr_renderer_asset_path,
-	cr_renderer_output_name,
-	cr_renderer_output_filetype,
 	cr_renderer_node_list,
 	cr_renderer_blender_mode,
 };

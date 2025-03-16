@@ -478,9 +478,6 @@ struct prefs default_prefs(void) {
 			.bounces = 20,
 			.tileWidth = 32,
 			.tileHeight = 32,
-			.imgFilePath = stringCopy("./"),
-			.imgFileName = stringCopy("rendered"),
-			.imgCount = 0,
 	};
 }
 
@@ -505,8 +502,6 @@ void renderer_destroy(struct renderer *r) {
 	scene_destroy(r->scene);
 	worker_arr_free(&r->state.workers);
 	render_client_arr_free(&r->state.clients);
-	free(r->prefs.imgFileName);
-	free(r->prefs.imgFilePath);
 	if (r->prefs.node_list) free(r->prefs.node_list);
 	if (r->state.result_buf) tex_destroy(r->state.result_buf);
 	free(r);
