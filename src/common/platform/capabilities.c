@@ -9,6 +9,9 @@
 #include "capabilities.h"
 
 #ifdef __APPLE__
+typedef unsigned int u_int;
+typedef unsigned char u_char;
+typedef unsigned short u_short;
 #include <sys/param.h>
 #include <sys/sysctl.h>
 #elif _WIN32
