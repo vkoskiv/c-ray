@@ -135,14 +135,15 @@ static struct euler_angles parseRotations(const cJSON *transforms) {
 	struct euler_angles angles = { 0 };
 	const cJSON *transform = NULL;
 	cJSON_ArrayForEach(transform, transforms) {
-		cJSON *type = cJSON_GetObjectItem(transform, "type");
-		if (stringEquals(type->valuestring, "rotateX")) {
+		const char *type = cJSON_GetStringValue(cJSON_GetObjectItem(transform, "type"));
+		if (!type) return angles;
+		if (stringEquals(type, "rotateX")) {
 			angles.roll = getRadians(transform);
 		}
-		if (stringEquals(type->valuestring, "rotateY")) {
+		if (stringEquals(type, "rotateY")) {
 			angles.pitch = getRadians(transform);
 		}
-		if (stringEquals(type->valuestring, "rotateZ")) {
+		if (stringEquals(type, "rotateZ")) {
 			angles.yaw = getRadians(transform);
 		}
 	}
@@ -156,12 +157,16 @@ static struct vector parse_location(const cJSON *transforms) {
 	const cJSON *transform = NULL;
 	cJSON_ArrayForEach(transform, transforms) {
 		cJSON *type = cJSON_GetObjectItem(transform, "type");
-		if (stringEquals(type->valuestring, "translate")) {
+		if (type && stringEquals(type->valuestring, "translate")) {
 			const cJSON *x = cJSON_GetObjectItem(transform, "x");
 			const cJSON *y = cJSON_GetObjectItem(transform, "y");
 			const cJSON *z = cJSON_GetObjectItem(transform, "z");
 			
-			return (struct vector){x->valuedouble, y->valuedouble, z->valuedouble};
+			return (struct vector){
+				x ? x->valuedouble : 0.0,
+				y ? y->valuedouble : 0.0,
+				z ? z->valuedouble : 0.0,
+			};
 		}
 	}
 	return (struct vector){ 0 };
@@ -458,12 +463,11 @@ static void parse_sphere(struct cr_renderer *r, const cJSON *data) {
 }
 
 static void parse_primitive(struct cr_renderer *r, const cJSON *data, int idx) {
-	const cJSON *type = NULL;
-	type = cJSON_GetObjectItem(data, "type");
-	if (stringEquals(type->valuestring, "sphere")) {
+	const char *type = cJSON_GetStringValue(cJSON_GetObjectItem(data, "type"));
+	if (type && stringEquals(type, "sphere")) {
 		parse_sphere(r, data);
-	} else {
-		logr(warning, "Unknown primitive type \"%s\" at index %i\n", type->valuestring, idx);
+	} else if (type) {
+		logr(warning, "Unknown primitive type \"%s\" at index %i\n", type, idx);
 	}
 }
 
