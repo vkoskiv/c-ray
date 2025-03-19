@@ -63,11 +63,10 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 		case cr_cn_image: {
 			// FIXME: Hack, figure out a consistent way to deal with relative paths everywhere
 			char *full = NULL;
-			if (!stringStartsWith(scene->asset_path, desc->arg.image.full_path)) {
+			if (!stringStartsWith(scene->asset_path, desc->arg.image.full_path))
 				full = stringConcat(scene->asset_path, desc->arg.image.full_path);
-				windowsFixPath(full);
-			}
-			const char *path = full ? full : desc->arg.image.full_path;
+			char *path = full ? full : desc->arg.image.full_path;
+			windowsFixPath(path);
 			struct texture *tex = NULL;
 			// Note: We also deduplicate texture loads here, which ideally shouldn't be necessary.
 			for (size_t i = 0; i < scene->textures.count; ++i) {

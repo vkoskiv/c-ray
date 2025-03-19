@@ -240,7 +240,7 @@ static struct color parse_color(lineBuffer *line) {
 
 void material_free(struct material *mat) {
 	if (mat) {
-		free(mat->name);
+		if (mat->name) free(mat->name);
 		if (mat->texture_path) free(mat->texture_path);
 		if (mat->normal_path) free(mat->normal_path);
 		if (mat->specular_path) free(mat->specular_path);
@@ -266,58 +266,45 @@ struct mesh_material_arr parse_mtllib(const char *filePath) {
 	while (head) {
 		fillLineBuffer(&line, head, ' ');
 		char *first = firstToken(&line);
-		if (first[0] == '#') {
-			head = nextLine(file);
-			continue;
-		} else if (head[0] == '\0') {
+		if (first[0] == '#' || head[0] == '\0') {
 			head = nextLine(file);
 			continue;
 		} else if (stringEquals(first, "newmtl")) {
 			size_t idx = material_arr_add(&materials, (struct material){ 0 });
 			current = &materials.items[idx];
-			if (!peekNextToken(&line)) {
-				logr(warning, "newmtl without a name on line %zu\n", line.current.line);
-				material_arr_free(&materials);
-				return (struct mesh_material_arr){ 0 };
-			}
 			current->name = stringCopy(peekNextToken(&line));
+			if (!current->name)
+				logr(warning, "newmtl has no name in %s:%zu\n", filePath, line.current.line);
 		} else if (stringEquals(first, "Ka")) {
 			// Ignore
-		} else if (stringEquals(first, "Kd")) {
+		} else if (current && stringEquals(first, "Kd")) {
 			current->diffuse = parse_color(&line);
-		} else if (stringEquals(first, "Ks")) {
+		} else if (current && stringEquals(first, "Ks")) {
 			current->specular = parse_color(&line);
-		} else if (stringEquals(first, "Ke")) {
+		} else if (current && stringEquals(first, "Ke")) {
 			current->emission = parse_color(&line);
-		} else if (stringEquals(first, "illum")) {
+		} else if (current && stringEquals(first, "illum")) {
 			current->illum = atoi(nextToken(&line));
-		} else if (stringEquals(first, "Ns")) {
+		} else if (current && stringEquals(first, "Ns")) {
 			current->shinyness = atof(nextToken(&line));
-		} else if (stringEquals(first, "d")) {
+		} else if (current && stringEquals(first, "d")) {
 			current->transparency = atof(nextToken(&line));
-		} else if (stringEquals(first, "r")) {
+		} else if (current && stringEquals(first, "r")) {
 			current->reflectivity = atof(nextToken(&line));
-		} else if (stringEquals(first, "sharpness")) {
+		} else if (current && stringEquals(first, "sharpness")) {
 			current->glossiness = atof(nextToken(&line));
-		} else if (stringEquals(first, "Ni")) {
+		} else if (current && stringEquals(first, "Ni")) {
 			current->IOR = atof(nextToken(&line));
-		} else if (stringEquals(first, "map_Kd") || stringEquals(first, "map_Ka")) {
-			char *path = stringConcat(asset_path, peekNextToken(&line));
-			windowsFixPath(path);
-			current->texture_path = path;
-		} else if (stringEquals(first, "norm") || stringEquals(first, "bump") || stringEquals(first, "map_bump")) {
-			char *path = stringConcat(asset_path, peekNextToken(&line));
-			windowsFixPath(path);
-			current->normal_path = path;
-		} else if (stringEquals(first, "map_Ns")) {
-			char *path = stringConcat(asset_path, peekNextToken(&line));
-			windowsFixPath(path);
-			current->specular_path = path;
-		} else {
-			char *fileName = get_file_name(filePath);
-			logr(debug, "Unknown statement \"%s\" in MTL \"%s\" on line %zu\n",
-				first, fileName, file->current.line);
-			free(fileName);
+		} else if (current && (stringEquals(first, "map_Kd") || stringEquals(first, "map_Ka"))) {
+			current->texture_path = stringConcat(asset_path, peekNextToken(&line));
+		} else if (current && (stringEquals(first, "norm") ||
+		                       stringEquals(first, "bump") ||
+		                       stringEquals(first, "map_bump"))) {
+			current->normal_path = stringConcat(asset_path, peekNextToken(&line));
+		} else if (current && stringEquals(first, "map_Ns")) {
+			current->specular_path = stringConcat(asset_path, peekNextToken(&line));
+		} else if (current) {
+			logr(debug, "Unknown statement \"%s\" in %s:%zu\n", first, filePath, file->current.line);
 		}
 		head = nextLine(file);
 	}
@@ -325,7 +312,7 @@ struct mesh_material_arr parse_mtllib(const char *filePath) {
 	if (asset_path) free(asset_path);
 	
 	destroyTextBuffer(file);
-	logr(debug, "Found %zu materials\n", materials.count);
+	logr(materials.count ? debug : warning, "Found %zu material%s\n", materials.count, PLURAL(materials.count));
 	struct mesh_material_arr out = { 0 };
 	for (size_t i = 0; i < materials.count; ++i) {
 		mesh_material_arr_add(&out, (struct mesh_material){
