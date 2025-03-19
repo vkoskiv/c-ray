@@ -68,8 +68,8 @@ static inline float triangleDistribution(float v) {
 struct lightRay cam_get_ray(const struct camera *cam, int x, int y, struct sampler *sampler) {
 	struct lightRay new_ray = { .type = rt_camera };
 	
-	const float jitter_x = triangleDistribution(getDimension(sampler));
-	const float jitter_y = triangleDistribution(getDimension(sampler));
+	const float jitter_x = triangleDistribution(sampler_dimension(sampler));
+	const float jitter_y = triangleDistribution(sampler_dimension(sampler));
 	
 	const struct vector pix_x = vec_scale(cam->is_blender ? cam->right : vec_negate(cam->right), (cam->sensor_size.x / cam->width));
 	const struct vector pix_y = vec_scale(cam->up, (cam->sensor_size.y / cam->height));

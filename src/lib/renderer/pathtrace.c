@@ -52,7 +52,7 @@ struct color path_trace(struct lightRay incident, const struct world *scene, int
 		float rr_continue_probability = 1.0f;
 		if (bounce >= 4) {
 			rr_continue_probability = max(attenuation.red, max(attenuation.green, attenuation.blue));
-			if (getDimension(sampler) > rr_continue_probability)
+			if (sampler_dimension(sampler) > rr_continue_probability)
 				break;
 		}
 		

@@ -53,7 +53,7 @@ static struct color eval(const struct colorNode *node, sampler *sampler, const s
 
 	const float lerp = this->f->eval(this->f, sampler, record);
 
-	if (getDimension(sampler) > lerp) {
+	if (sampler_dimension(sampler) > lerp) {
 		return this->A->eval(this->A, sampler, record);
 	} else {
 		return this->B->eval(this->B, sampler, record);

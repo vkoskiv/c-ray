@@ -151,15 +151,15 @@ bool vector_baseWithVec(void) {
 	vec_roughly_equals(dots, vec_zero());
 	
 	// Run random iterations to verify orthogonality
-	sampler *sampler = newSampler();
+	sampler *sampler = sampler_new();
 	for (size_t i = 0; i < ATTEMPTS; ++i) {
-		initSampler(sampler, Random, (int)i, ATTEMPTS, (int)i * 2);
+		sampler_init(sampler, Random, (int)i, ATTEMPTS, (int)i * 2);
 		struct vector randomDirection = vec_on_unit_sphere(sampler);
 		struct base randomBase = baseWithVec(randomDirection);
 		dots = (struct vector){vec_dot(randomBase.i, randomBase.j), vec_dot(randomBase.i, randomBase.k), vec_dot(randomBase.j, randomBase.k)};
 		vec_roughly_equals(dots, vec_zero());
 	}
-	destroySampler(sampler);
+	sampler_destroy(sampler);
 	
 	return true;
 }
@@ -173,14 +173,14 @@ bool vector_vecequals(void) {
 }
 
 bool vector_random_on_sphere(void) {
-	sampler *sampler = newSampler();
+	sampler *sampler = sampler_new();
 	for (size_t i = 0; i < ATTEMPTS; ++i) {
-		initSampler(sampler, Random, (int)i, ATTEMPTS, (int)i * 2);
+		sampler_init(sampler, Random, (int)i, ATTEMPTS, (int)i * 2);
 		const struct vector random = vec_on_unit_sphere(sampler);
 		const float length = vec_length(random);
 		roughly_equals(length, 1.0f);
 	}
-	destroySampler(sampler);
+	sampler_destroy(sampler);
 	return true;
 }
 

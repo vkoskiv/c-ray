@@ -72,7 +72,7 @@ static bool intersectSphereVolume(const struct instance *instance, const struct 
 			if (record1.distance < 0.0f)
 				record1.distance = 0.0f;
 			float distanceInsideVolume = record2.distance;
-			float hitDistance = -(1.0f / volume->density) * logf(getDimension(sampler));
+			float hitDistance = -(1.0f / volume->density) * logf(sampler_dimension(sampler));
 			if (hitDistance < distanceInsideVolume) {
 				isect->distance = record1.distance + hitDistance;
 				isect->hitPoint = alongRay(ray, isect->distance);
@@ -185,7 +185,7 @@ static bool intersectMeshVolume(const struct instance *instance, const struct li
 			if (record1.distance < 0.0f)
 				record1.distance = 0.0f;
 			float distanceInsideVolume = record2.distance;
-			float hitDistance = -(1.0f / mesh->density) * logf(getDimension(sampler));
+			float hitDistance = -(1.0f / mesh->density) * logf(sampler_dimension(sampler));
 			if (hitDistance < distanceInsideVolume) {
 				isect->distance = record1.distance + hitDistance;
 				isect->hitPoint = alongRay(ray, isect->distance);

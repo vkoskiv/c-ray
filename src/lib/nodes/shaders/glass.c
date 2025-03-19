@@ -85,7 +85,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 	}
 	
 	struct lightRay out = { .start = record->hitPoint };
-	if (getDimension(sampler) < reflectionProbability) {
+	if (sampler_dimension(sampler) < reflectionProbability) {
 		out.direction = reflected;
 		out.type = rt_reflection | (roughness == 0.0f ? rt_singular : rt_glossy);
 	} else {

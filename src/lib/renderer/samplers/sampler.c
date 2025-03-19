@@ -23,11 +23,11 @@ struct sampler {
 	} sampler;
 };
 
-struct sampler *newSampler(void) {
+struct sampler *sampler_new(void) {
 	return calloc(1, sizeof(struct sampler));
 }
 
-void initSampler(sampler *sampler, enum samplerType type, int pass, int maxPasses, uint32_t pixelIndex) {
+void sampler_init(sampler *sampler, enum samplerType type, int pass, int maxPasses, uint32_t pixelIndex) {
 	switch (type) {
 		case Halton:
 			initHalton(&sampler->sampler.halton, pass, hash(pixelIndex));
@@ -44,7 +44,7 @@ void initSampler(sampler *sampler, enum samplerType type, int pass, int maxPasse
 	}
 }
 
-float getDimension(struct sampler *sampler) {
+float sampler_dimension(struct sampler *sampler) {
 	switch (sampler->type) {
 		case Hammersley:
 			return getHammersley(&sampler->sampler.hammersley);
@@ -56,6 +56,6 @@ float getDimension(struct sampler *sampler) {
 	return 0;
 }
 
-void destroySampler(struct sampler *sampler) {
+void sampler_destroy(struct sampler *sampler) {
 	free(sampler);
 }

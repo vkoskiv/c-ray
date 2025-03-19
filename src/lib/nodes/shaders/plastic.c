@@ -98,7 +98,7 @@ static struct bsdfSample sample(const struct bsdfNode *bsdf, sampler *sampler, c
 		reflectionProbability = 1.0f;
 	}
 	
-	if (getDimension(sampler) < reflectionProbability) {
+	if (sampler_dimension(sampler) < reflectionProbability) {
 		return sampleShiny(bsdf, sampler, record);
 	} else {
 		return this->diffuse->sample(this->diffuse, sampler, record);

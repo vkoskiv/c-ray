@@ -323,7 +323,7 @@ void *render_thread_interactive(void *arg) {
 	threadState->in_pause_loop = false;
 	struct renderer *r = threadState->renderer;
 	struct texture **buf = threadState->buf;
-	sampler *sampler = newSampler();
+	sampler *sampler = sampler_new();
 
 	struct camera *cam = threadState->cam;
 	
@@ -344,7 +344,7 @@ void *render_thread_interactive(void *arg) {
 				//FIXME: This does not converge to the same result as with regular renderThread.
 				//I assume that's because we'd have to init the sampler differently when we render all
 				//the tiles in one go per sample, instead of the other way around.
-				initSampler(sampler, SAMPLING_STRATEGY, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
+				sampler_init(sampler, SAMPLING_STRATEGY, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
 				struct color output = tex_get_px(*buf, x, y, false);
 				thread_rwlock_rdlock(&r->scene->bvh_lock);
@@ -386,7 +386,7 @@ void *render_thread_interactive(void *arg) {
 		threadState->currentTile = tile;
 	}
 exit:
-	destroySampler(sampler);
+	sampler_destroy(sampler);
 	//No more tiles to render, exit thread. (render done)
 	threadState->thread_complete = true;
 	threadState->currentTile = NULL;
@@ -404,7 +404,7 @@ void *render_thread(void *arg) {
 	struct worker *threadState = arg;
 	struct renderer *r = threadState->renderer;
 	struct texture **buf = threadState->buf;
-	sampler *sampler = newSampler();
+	sampler *sampler = sampler_new();
 
 	struct camera *cam = threadState->cam;
 
@@ -424,7 +424,7 @@ void *render_thread(void *arg) {
 				for (int x = tile->begin.x; x < tile->end.x; ++x) {
 					if (r->state.s != r_rendering) goto exit;
 					uint32_t pixIdx = (uint32_t)(y * (*buf)->width + x);
-					initSampler(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
+					sampler_init(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = tex_get_px(*buf, x, y, false);
 					thread_rwlock_rdlock(&r->scene->bvh_lock);
@@ -463,7 +463,7 @@ void *render_thread(void *arg) {
 		threadState->currentTile = tile;
 	}
 exit:
-	destroySampler(sampler);
+	sampler_destroy(sampler);
 	//No more tiles to render, exit thread. (render done)
 	threadState->thread_complete = true;
 	threadState->currentTile = NULL;

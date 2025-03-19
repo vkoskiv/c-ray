@@ -128,7 +128,7 @@ static void *workerThread(void *arg) {
 	mutex_lock(sockMutex);
 	thread->current = getWork(sock, thread->tiles);
 	mutex_release(sockMutex);
-	sampler *sampler = newSampler();
+	sampler *sampler = sampler_new();
 
 	struct camera *cam = thread->cam;
 	
@@ -150,7 +150,7 @@ static void *workerThread(void *arg) {
 				for (int x = thread->current->begin.x; x < thread->current->end.x; ++x) {
 					if (r->state.s != r_rendering || !g_running) goto bail;
 					uint32_t pixIdx = (uint32_t)(y * cam->width + x);
-					initSampler(sampler, SAMPLING_STRATEGY, thread->completedSamples - 1, r->prefs.sampleCount, pixIdx);
+					sampler_init(sampler, SAMPLING_STRATEGY, thread->completedSamples - 1, r->prefs.sampleCount, pixIdx);
 					
 					int local_x = x - thread->current->begin.x;
 					int local_y = y - thread->current->begin.y;
@@ -197,7 +197,7 @@ static void *workerThread(void *arg) {
 		tex_clear(tileBuffer);
 	}
 bail:
-	destroySampler(sampler);
+	sampler_destroy(sampler);
 	tex_destroy(tileBuffer);
 	
 	thread->threadComplete = true;

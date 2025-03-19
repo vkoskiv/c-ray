@@ -53,7 +53,7 @@ static union vector_value eval(const struct vectorNode *node, sampler *sampler, 
 	
 	const float lerp = this->f->eval(this->f, sampler, record);
 
-	if (getDimension(sampler) > lerp) {
+	if (sampler_dimension(sampler) > lerp) {
 		return (union vector_value){ .v = this->A->eval(this->A, sampler, record).v };
 	} else {
 		return (union vector_value){ .v = this->B->eval(this->B, sampler, record).v };

@@ -19,10 +19,10 @@ enum samplerType {
 	Random
 };
 
-struct sampler *newSampler(void);
+struct sampler *sampler_new(void);
 
-void initSampler(struct sampler *sampler, enum samplerType type, int pass, int maxPasses, uint32_t pixelIndex);
+void sampler_init(struct sampler *sampler, enum samplerType type, int pass, int maxPasses, uint32_t pixelIndex);
 
-float getDimension(struct sampler *sampler);
+float sampler_dimension(struct sampler *sampler);
 
-void destroySampler(struct sampler *sampler);
+void sampler_destroy(struct sampler *sampler);
