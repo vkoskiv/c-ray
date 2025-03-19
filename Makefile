@@ -39,14 +39,14 @@ $(OBJDIR)/%.o: %.c
 	@echo "CC $<"
 	@$(CC) $(CFLAGS) -MMD -c $< -o $@
 
-generated/gitsha1.c: src/common/gitsha1.c.in
+generated/gitsha1.c: generated/gitsha1.c.in
 	@echo "Generating gitsha1.c"
-	$(shell sed "s/@GIT_SHA1@/`git rev-parse --verify HEAD || echo "NoHash" | cut -c 1-8`/g" src/common/gitsha1.c.in > generated/gitsha1.c)
+	$(shell sed "s/@GIT_SHA1@/`git rev-parse --verify HEAD || echo "NoHash" | cut -c 1-8`/g" generated/gitsha1.c.in > generated/gitsha1.c)
 
 cleanall: clean clean_test clean_lib clean_cosmo
 
 clean:
-	rm -rf $(BIN) $(OBJDIR)
+	rm -rf $(BIN) $(OBJDIR) generated/gitsha1.c
 
 enable-git-hooks:
 	git config --local include.path ../.gitconfig
