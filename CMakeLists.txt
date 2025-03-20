@@ -73,7 +73,7 @@ include(set_up_ccache)
 
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-configure_file("${c-ray_SOURCE_DIR}/src/common/gitsha1.c.in" "${c-ray_BINARY_DIR}/generated/gitsha1.c" @ONLY)
+configure_file("${c-ray_SOURCE_DIR}/generated/gitsha1.c.in" "${c-ray_BINARY_DIR}/generated/gitsha1.c" @ONLY)
 list(APPEND SOURCES_COMMON "${c-ray_BINARY_DIR}/generated/gitsha1.c")
 
 add_library(lib OBJECT ${SOURCES_LIB})
