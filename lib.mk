@@ -24,9 +24,11 @@ BLENDER_VERSION=$(shell blender --version | head -n1 | cut -d ' ' -f 2 | cut -c 
 BLENDER_ROOT=$(HOME)/.config/blender/$(BLENDER_VERSION)
 
 # Only copy .py files, which Blender seems to handle okay.
+.PHONY: blsync
 blsync: $(SRCS_PYLIB)
 	mkdir -p $(BLENDER_ROOT)/scripts/addons/c_ray
-	cp $(SRCS_PYLIB) $(BLENDER_ROOT)/scripts/addons/c_ray/
+	cp -r bindings/python/lib/nodes $(BLENDER_ROOT)/scripts/addons/c_ray/
+	cp -r bindings/python/lib/c_ray.py $(BLENDER_ROOT)/scripts/addons/c_ray/
 	cp -r integrations/blender/* $(BLENDER_ROOT)/scripts/addons/c_ray/
 
 # Blender crashes if I swap out the .so, no idea why, so updating the library
