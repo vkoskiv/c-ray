@@ -188,7 +188,8 @@ class CrayRender(bpy.types.RenderEngine):
 	bl_use_preview = True
 	bl_use_shading_nodes_custom = False
 
-	def __init__(self):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		self.cr_renderer = c_ray.renderer()
 		self.cr_renderer.prefs.asset_path = ""
 		self.cr_renderer.prefs.blender_mode = True
