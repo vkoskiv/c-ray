@@ -16,18 +16,14 @@ class _cr_rparam(IntEnum):
 	tile_width = 3
 	tile_height = 4
 	tile_order = 5
-	output_num = 6
-	override_width = 7
-	override_height = 8
-	override_cam = 9
-	is_iterative = 10
+	override_width = 6
+	override_height = 7
+	override_cam = 8
+	is_iterative = 9
 	# str
-	output_path = 11
-	asset_path = 12
-	output_name = 13
-	output_filetype = 14
-	node_list = 15
-	blender_mode = 16
+	asset_path = 10
+	node_list = 11
+	blender_mode = 12
 
 def _r_set_num(ptr, param, value):
 	return _lib.renderer_set_num_pref(ptr, param, value)
