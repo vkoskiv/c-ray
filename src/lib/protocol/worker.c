@@ -245,12 +245,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	thread_pool_wait(r->scene->bg_worker);
 
 	// And then compute a single top-level BVH that contains all the objects
-	logr(info, "Computing top-level BVH: ");
-	struct timeval timer = {0};
-	timer_start(&timer);
-	r->scene->topLevel = build_top_level_bvh(r->scene->instances);
-	printSmartTime(timer_get_ms(timer));
-	logr(plain, "\n");
+	update_toplevel_bvh(r->scene);
 
 	for (size_t i = 0; i < set.tiles.count; ++i)
 		set.tiles.items[i].total_samples = r->prefs.sampleCount;

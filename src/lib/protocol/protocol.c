@@ -26,6 +26,8 @@
 #include <common/base64.h>
 #include <common/timer.h>
 #include <common/node_parse.h>
+#include <common/platform/thread_pool.h>
+#include <common/platform/capabilities.h>
 #include <renderer/renderer.h>
 #include <renderer/instance.h>
 #include <datatypes/tile.h>
@@ -766,6 +768,8 @@ struct world *deserialize_scene(const cJSON *in) {
 	out->asset_path = stringCopy("./");
 	out->storage.node_pool = newBlock(NULL, 1024);
 	out->storage.node_table = newHashtable(compareNodes, &out->storage.node_pool);
+	thread_rwlock_init(&out->bvh_lock);
+	out->bg_worker = thread_pool_create(sys_get_cores());
 
 	cJSON *asset_path = cJSON_GetObjectItem(in, "asset_path");
 	if (cJSON_IsString(asset_path)) {
@@ -812,7 +816,8 @@ struct world *deserialize_scene(const cJSON *in) {
 		cJSON *mesh = NULL;
 		cJSON_ArrayForEach(mesh, meshes) {
 			thread_rwlock_wrlock(&out->bvh_lock);
-			mesh_arr_add(&out->meshes, deserialize_mesh(mesh));
+			cr_mesh idx = mesh_arr_add(&out->meshes, deserialize_mesh(mesh));
+			cr_mesh_finalize((struct cr_scene *)out, idx);
 			thread_rwlock_unlock(&out->bvh_lock);
 		}
 	}

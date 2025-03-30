@@ -822,6 +822,8 @@ void cr_renderer_render(struct cr_renderer *ext) {
 	if (!ext) return;
 	struct renderer *r = (struct renderer *)ext;
 	if (r->prefs.node_list) {
+		// Wait for textures to finish decoding before syncing
+		thread_pool_wait(r->scene->bg_worker);
 		r->state.clients = clients_sync(r);
 	}
 	if (!r->state.clients.count && !r->prefs.threads) {
