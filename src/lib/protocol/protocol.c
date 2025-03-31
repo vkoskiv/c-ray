@@ -421,6 +421,7 @@ static cJSON *serialize_camera(const struct camera in) {
 	cJSON_AddNumberToObject(out, "time", in.time);
 	cJSON_AddNumberToObject(out, "width", in.width);
 	cJSON_AddNumberToObject(out, "height", in.height);
+	cJSON_AddNumberToObject(out, "is_blender", in.is_blender ? 1 : 0);
 	return out;
 }
 
@@ -445,6 +446,7 @@ static struct camera deserialize_camera(const cJSON *in) {
 	out.time = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "time"));
 	out.width = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "width"));
 	out.height = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "height"));
+	out.is_blender = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "is_blender"));
 
 	return out;
 }
