@@ -52,11 +52,7 @@ static void *win_init_task(void *arg) {
 	if (!w) return NULL;
 	struct usr_data *d = w->driver;
 	struct cr_renderer_cb_info *cb_info = w->cb_info;
-	struct timeval tmr;
-	timer_start(&tmr);
-	logr(info, "win_try_init()");
 	struct sdl_window *win = win_try_init(&d->p, (*cb_info->fb)->width, (*cb_info->fb)->height);
-	logr(info, "Window init took %lu ms\n", timer_get_ms(tmr));
 	mutex_lock(d->win_mutex);
 	if (d->p.enabled && *cb_info->fb) d->w = win;
 	mutex_release(d->win_mutex);
