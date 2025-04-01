@@ -18,20 +18,63 @@
 #include <common/vendored/cJSON.h>
 #include <common/json_loader.h>
 #include <common/platform/capabilities.h>
+#include <common/platform/mutex.h>
+#include <common/platform/thread.h>
 #include <encoders/encoder.h>
 #include <args.h>
 #include <sdl.h>
 
 struct usr_data {
 	struct cr_renderer *r;
+	struct cr_mutex *win_mutex;
 	struct sdl_window *w;
 	struct sdl_prefs p;
 	bool should_save;
 };
 
-static void on_start(struct cr_renderer_cb_info *info, void *user_data) {
+/*
+	This hack exists to deal with the niche issue that SDL_CreateWindow() in
+	win_try_init() blocks if c-ray is started from a full-screen terminal on i3.
+	We delegate window initialization to a background thread so we don't needlessly
+	wait around if that happens, and SDL init is fairly slow anyhow, so this speeds
+	up init by up to ~250ms.
+	To clarify, on_start() is a callback we register in main() that the renderer calls
+	when it has allocated a render buffer and is ready to render. We then pass a a ref
+	to that buffer and some context to this async win_init_task().
+*/
+struct win_init_data {
+	struct usr_data *driver;
+	struct cr_renderer_cb_info *cb_info;
+};
+
+static void *win_init_task(void *arg) {
+	struct win_init_data *w = arg;
+	if (!w) return NULL;
+	struct usr_data *d = w->driver;
+	struct cr_renderer_cb_info *cb_info = w->cb_info;
+	struct timeval tmr;
+	timer_start(&tmr);
+	logr(info, "win_try_init()");
+	struct sdl_window *win = win_try_init(&d->p, (*cb_info->fb)->width, (*cb_info->fb)->height);
+	logr(info, "Window init took %lu ms\n", timer_get_ms(tmr));
+	mutex_lock(d->win_mutex);
+	if (d->p.enabled && *cb_info->fb) d->w = win;
+	mutex_release(d->win_mutex);
+	free(w);
+	return NULL;
+}
+
+static void on_start(struct cr_renderer_cb_info *cb_info, void *user_data) {
 	struct usr_data *d = user_data;
-	if (d->p.enabled && *info->fb) d->w = win_try_init(&d->p, (*info->fb)->width, (*info->fb)->height);
+	struct win_init_data *ctx = malloc(sizeof(*ctx));
+	*ctx = (struct win_init_data){
+		.cb_info = cb_info,
+		.driver = d,
+	};
+	thread_start(&(struct cr_thread){
+	    .thread_fn = win_init_task,
+	    .user_data = ctx,
+	});
 }
 
 static void on_stop(struct cr_renderer_cb_info *info, void *user_data) {
@@ -46,7 +89,9 @@ static void status(struct cr_renderer_cb_info *state, void *user_data) {
 	static int pauser = 0;
 	struct usr_data *d = user_data;
 	if (!d) return;
+	mutex_lock(d->win_mutex);
 	struct input_state in = win_update(d->w, state->tiles, state->tiles_count, *((struct texture **)state->fb));
+	mutex_release(d->win_mutex);
 	d->should_save = in.should_save;
 	if (in.stop_render) cr_renderer_stop(d->r);
 	if (in.pause_render) cr_renderer_toggle_pause(d->r);
@@ -194,6 +239,7 @@ int main(int argc, char *argv[]) {
 		.p = sdl_parse(cJSON_GetObjectItem(input_json, "display")),
 		.r = renderer,
 		.should_save = true,
+		.win_mutex = mutex_create(),
 	};
 	cr_renderer_set_callback(renderer, cr_cb_on_start, on_start, &usrdata);
 	cr_renderer_set_callback(renderer, cr_cb_on_stop, on_stop, &usrdata);
