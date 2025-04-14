@@ -22,19 +22,19 @@
 
 extern PyTypeObject type_py_vector;
 typedef struct {
-	PyObject_HEAD;
+	PyObject_HEAD
 	struct cr_vector val;
 } py_vector;
 
 extern PyTypeObject type_py_coord;
 typedef struct {
-	PyObject_HEAD;
+	PyObject_HEAD
 	struct cr_coord val;
 } py_coord;
 
 extern PyTypeObject type_py_bitmap;
 typedef struct {
-	PyObject_HEAD;
+	PyObject_HEAD
 	struct cr_bitmap *ref;
 } py_bitmap;
 PyObject *py_bitmap_wrap(struct cr_bitmap *ref);
