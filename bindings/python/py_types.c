@@ -105,6 +105,7 @@ PyTypeObject type_py_vector = {
 PyMemberDef py_coord_members[] = {
 	{ "u", T_FLOAT, offsetof(py_coord, val.u), 0, "u" },
 	{ "v", T_FLOAT, offsetof(py_coord, val.v), 0, "v" },
+	{ NULL },
 };
 
 Py_ssize_t py_coord_length(PyObject *o) {
