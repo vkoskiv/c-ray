@@ -55,14 +55,15 @@ static void *try_find_sdl2_lib(void) {
 	char *candidates[] = {
 		"libSDL2-2.0.so",
 		"libSDL2-2.0.0.dylib",
-		"SDL2.dll"
+		"/usr/local/lib/libSDL2.dylib",
+		"SDL2.dll",
 	};
 	void *lib = NULL;
 	for (size_t i = 0; i < (sizeof(candidates) / sizeof(*candidates)); ++i) {
 		if ((lib = dyn_load(candidates[i]))) return lib;
 	}
 
-	logr(info, "Couldn't find SDL library (%s), tried the following names: ", dyn_error());
+	logr(debug, "Couldn't find SDL library (%s), tried the following names: ", dyn_error());
 	for (size_t i = 0; i < (sizeof(candidates) / sizeof(*candidates)); ++i) {
 		logr(plain, "\"%s\" ", candidates[i]);
 	}

@@ -56,12 +56,19 @@ static void *win_init_task(void *arg) {
 	mutex_lock(d->win_mutex);
 	if (d->p.enabled && *cb_info->fb) d->w = win;
 	mutex_release(d->win_mutex);
+#if !defined(__APPLE__)
 	free(w);
+#endif
 	return NULL;
 }
 
 static void on_start(struct cr_renderer_cb_info *cb_info, void *user_data) {
 	struct usr_data *d = user_data;
+#if defined(__APPLE__)
+	// The SDL2 Cocoa backend on macOS will crash the program if it's invoked from a background thread.
+	// Solution is to init SDL2 synchronously on macOS.
+	win_init_task((void *)&(struct win_init_data){ .cb_info = cb_info, .driver = d });
+#else
 	struct win_init_data *ctx = malloc(sizeof(*ctx));
 	*ctx = (struct win_init_data){
 		.cb_info = cb_info,
@@ -71,6 +78,7 @@ static void on_start(struct cr_renderer_cb_info *cb_info, void *user_data) {
 	    .thread_fn = win_init_task,
 	    .user_data = ctx,
 	});
+#endif
 }
 
 static void on_stop(struct cr_renderer_cb_info *info, void *user_data) {
