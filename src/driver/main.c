@@ -245,7 +245,8 @@ int main(int argc, char *argv[]) {
 		.should_save = true,
 		.win_mutex = mutex_create(),
 	};
-	cr_renderer_set_callback(renderer, cr_cb_on_start, on_start, &usrdata);
+	if (!args_is_set(opts, "no_sdl"))
+		cr_renderer_set_callback(renderer, cr_cb_on_start, on_start, &usrdata);
 	cr_renderer_set_callback(renderer, cr_cb_on_stop, on_stop, &usrdata);
 	cr_renderer_set_callback(renderer, cr_cb_status_update, status, &usrdata);
 

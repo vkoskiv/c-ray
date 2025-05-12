@@ -24,6 +24,8 @@
 #include <common/textbuffer.h>
 #include <common/cr_string.h>
 
+// FIXME: Replace this whole thing with getopt
+
 static void printUsage(const char *progname) {
 	printf("Usage: %s [-hjsdtocv] [input_json...]\n", progname);
 	printf("  Available options are:\n");
@@ -41,6 +43,7 @@ static void printUsage(const char *progname) {
 	printf("    [--nodes <list>] -> Use worker nodes in comma-separated ip:port list for a faster render (Experimental)\n");
 	printf("    [--shutdown]     -> Use in conjunction with a node list to send a shutdown command to a list of clients\n");
 	printf("    [--asset-path]   -> Specify an asset path to load assets from, useful in scripts\n");
+	printf("    [--no-sdl]       -> Disable render preview window\n");
 	// printf("    [--test]         -> Run the test suite\n"); // FIXME
 	term_restore();
 	exit(0);
@@ -228,6 +231,10 @@ struct driver_args *args_parse(int argc, char **argv) {
 				port = port > 65535 ? 65535 : port;
 				setDatabaseInt(args, "worker_port", port);
 			}
+		}
+
+		if (stringEquals(argv[i], "--no-sdl")) {
+			setDatabaseTag(args, "no_sdl");
 		}
 		
 		if (strncmp(argv[i], "-", 1) == 0) {
