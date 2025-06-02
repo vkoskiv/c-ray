@@ -64,7 +64,7 @@ _m_prefetch(void *__P)
 #define SDL_BYTEORDER  BYTE_ORDER
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
 #include <sys/endian.h>
-#define SDL_BYTEORDER  BYTE_ORDER
+#define SDL_BYTEORDER  _BYTE_ORDER
 /* predefs from newer gcc and clang versions: */
 #elif defined(__ORDER_LITTLE_ENDIAN__) && defined(__ORDER_BIG_ENDIAN__) && defined(__BYTE_ORDER__)
 #if (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
