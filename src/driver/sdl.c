@@ -220,7 +220,7 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 	w->sym->SDL_RenderSetScale(w->renderer, w->windowScale, w->windowScale);
 	//Init pixel texture
 	uint32_t format = SDL_PIXELFORMAT_ABGR8888;
-#if SDL_BYTEORDER == BIG_ENDIAN
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	format = SDL_PIXELFORMAT_RGBA8888;
 #endif
 	w->texture = w->sym->SDL_CreateTexture(w->renderer, format, SDL_TEXTUREACCESS_STREAMING, w->width, w->height);
