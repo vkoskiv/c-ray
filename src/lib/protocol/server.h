@@ -11,6 +11,7 @@
 #include <common/dyn_array.h>
 
 #ifndef WINDOWS
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
 
