@@ -53,7 +53,7 @@ struct sdl_syms {
 
 static void *try_find_sdl2_lib(void) {
 	char *candidates[] = {
-		"libSDL2-2.0.so",
+		"libSDL2-2.0.so.0",
 		"libSDL2-2.0.0.dylib",
 		"/usr/local/lib/libSDL2.dylib",
 		"SDL2.dll",
