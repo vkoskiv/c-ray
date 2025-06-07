@@ -21,7 +21,7 @@
 #endif
 
 void encodePNGFromArray(const char *filename, const unsigned char *imgData, size_t width, size_t height, struct renderInfo imginfo) {
-	LodePNGInfo info;
+	LodePNGInfo info = { 0 };
 	lodepng_info_init(&info);
 	info.time_defined = 1;
 	
