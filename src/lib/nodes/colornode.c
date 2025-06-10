@@ -38,12 +38,19 @@ void tex_decode_task(void *arg) {
 	timer_start(&timer);
 	file_data data = file_load(dt->path);
 	load_texture(dt->path, data, dt->out);
+	long ms_decode = timer_get_ms(timer);
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	if (dt->options & SRGB_TRANSFORM) tex_from_srgb(dt->out);
+	long ms_total = timer_get_ms(timer);
 	file_free(&data);
+	char buf[3][64];
+	logr(debug, "Async decode of '%s' took %s (%s dec, %s sRGB)\n",
+		dt->path,
+		ms_to_readable(ms_total, buf[0]),
+		ms_to_readable(ms_decode, buf[1]),
+		ms_to_readable(ms_total - ms_decode, buf[2]));
 	free(dt->path);
 	free(dt);
-	logr(debug, "Async decode task took %lums\n", timer_get_ms(timer));
 }
 
 const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr_color_node *desc) {
