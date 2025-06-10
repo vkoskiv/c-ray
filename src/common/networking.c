@@ -124,7 +124,8 @@ ssize_t chunkedReceive(int socket, char **data, size_t *length) {
 bail:
 	ASSERT(leftToReceive == 0);
 	size_t finalLength = strlen(recvBuf) + 1; // +1 for null byte
-	if (finalLength < msgLen) logr(error, "Chunked transfer failed. Header size of %lu != %lu. This shouldn't happen.\n", msgLen, finalLength);
+	if (finalLength < msgLen)
+		logr(error, "Chunked transfer failed. Header size of %zu != %zu. This shouldn't happen.\n", msgLen, finalLength);
 	*data = recvBuf;
 	free(currentChunk);
 	free(scratchBuf);

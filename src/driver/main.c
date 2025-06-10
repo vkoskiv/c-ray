@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
 			goto done;
 		}
 	}
-	logr(info, "JSON parse took %lums\n", json_ms);
+	logr(info, "JSON parse took %zums\n", json_ms);
 
 	file_free(&input_bytes);
 
@@ -280,11 +280,11 @@ int main(int argc, char *argv[]) {
 	uint64_t samples = cr_renderer_get_num_pref(renderer, cr_renderer_samples);
 	uint64_t bounces = cr_renderer_get_num_pref(renderer, cr_renderer_bounces);
 
-	logr(info, "Starting c-ray renderer for frame %zu\n", out_num);
+	logr(info, "Starting c-ray renderer for frame %"PRIu64"\n", out_num);
 	bool sys_thread = threads == (size_t)sys_get_cores() + 2;
-	logr(info, "Rendering at %s%lu%s x %s%lu%s\n", KWHT, width, KNRM, KWHT, height, KNRM);
-	logr(info, "Rendering %s%zu%s samples with %s%zu%s bounces.\n", KBLU, samples, KNRM, KGRN, bounces, KNRM);
-	logr(info, "Rendering with %s%zu%s%s local thread%s.\n",
+	logr(info, "Rendering at %s%"PRIu64"%s x %s%"PRIu64"%s\n", KWHT, width, KNRM, KWHT, height, KNRM);
+	logr(info, "Rendering %s%"PRIu64"%s samples with %s%"PRIu64"%s bounces.\n", KBLU, samples, KNRM, KGRN, bounces, KNRM);
+	logr(info, "Rendering with %s%"PRIu64"%s%s local thread%s.\n",
 		KRED,
 		sys_thread ? threads - 2 : threads,
 		sys_thread ? "+2" : "",

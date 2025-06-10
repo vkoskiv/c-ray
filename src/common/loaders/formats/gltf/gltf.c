@@ -63,7 +63,7 @@ unsigned char *parse_buffer(const cJSON *data) {
 		size_t decoded_length = 0;
 		buffer = b64decode(base64data, encoded_length, &decoded_length);
 		if (decoded_length != expected_bytes) {
-			logr(warning, "Invalid buffer while parsing glTF. base64 decoded length of %lu, expected %lu\n", decoded_length, expected_bytes);
+			logr(warning, "Invalid buffer while parsing glTF. base64 decoded length of %zu, expected %zu\n", decoded_length, expected_bytes);
 			free(buffer);
 			return NULL;
 		}
@@ -76,7 +76,7 @@ unsigned char *parse_buffer(const cJSON *data) {
 		}
 		file_data data = file_load(uri_string);
 		if (data.count != expected_bytes) {
-			logr(warning, "Invalid buffer while parsing glTF. Loaded file %s length %lu, expected %lu", uri_string, data.count, expected_bytes);
+			logr(warning, "Invalid buffer while parsing glTF. Loaded file %s length %zu, expected %zu", uri_string, data.count, expected_bytes);
 		}
 		return data.items;
 	}

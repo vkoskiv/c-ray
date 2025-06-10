@@ -56,6 +56,6 @@ void destroyBlocks(struct block *head) {
 		head = prev;
 	}
 	char *size = human_file_size(bytesfreed, NULL);
-	logr(debug, "Destroyed %lu blocks, %s\n", numDestroyed, size);
+	logr(debug, "Destroyed %zu blocks, %s\n", numDestroyed, size);
 	free(size);
 }

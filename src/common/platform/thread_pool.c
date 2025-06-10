@@ -93,7 +93,7 @@ static void *cr_worker(void *arg) {
 struct cr_thread_pool *thread_pool_create(size_t threads) {
 	if (!threads) threads = 2;
 	struct cr_thread_pool *pool = calloc(1, sizeof(*pool));
-	logr(debug, "Spawning thread pool (%lut, %p)\n", threads, (void *)pool);
+	logr(debug, "Spawning thread pool (%zut, %p)\n", threads, (void *)pool);
 	pool->alive_threads = threads;
 	pool->threads = calloc(pool->alive_threads, sizeof(*pool->threads));
 
@@ -113,7 +113,7 @@ struct cr_thread_pool *thread_pool_create(size_t threads) {
 
 void thread_pool_destroy(struct cr_thread_pool *pool) {
 	if (!pool) return;
-	logr(debug, "Closing thread pool (%lut, %p)\n", pool->alive_threads, (void *)pool);
+	logr(debug, "Closing thread pool (%zut, %p)\n", pool->alive_threads, (void *)pool);
 	mutex_lock(pool->mutex);
 	// Clear work queue
 	struct cr_task *head = pool->first;
