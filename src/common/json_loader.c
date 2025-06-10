@@ -298,7 +298,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	long us = timer_get_us(timer);
 	free(full_path);
 	long ms = us / 1000;
-	logr(debug, "Parsing file %-35s took %zu %s\n", file_name, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");
+	logr(debug, "Parsing file %-35s took %li %s\n", file_name, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");
 
 	if (!result.meshes.count) return;
 

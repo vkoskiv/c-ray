@@ -385,7 +385,7 @@ struct render_client_arr clients_sync(const struct renderer *r) {
 	char *serialized = serialize_renderer(r);
 	size_t transfer_bytes = strlen(serialized);
 	char buf[64];
-	logr(info, "Sending %s to %lu client%s...\n", human_file_size(transfer_bytes, buf), clients.count, PLURAL(clients.count));
+	logr(info, "Sending %s to %zu client%s...\n", human_file_size(transfer_bytes, buf), clients.count, PLURAL(clients.count));
 	
 	struct sync_thread *params = calloc(clients.count, sizeof(*params));
 	logr(debug, "Client list:\n");

@@ -67,7 +67,7 @@ static void dump(const void *node, char *dumpbuf, int len) {
 		snprintf(dumpbuf, len, "imageTexture { tex: pending }");
 		return;
 	}
-	snprintf(dumpbuf, len, "imageTexture { tex: { %lux%lu, %lu channels, %s, %s }, options: %s %s }",
+	snprintf(dumpbuf, len, "imageTexture { tex: { %zux%zu, %zu channels, %s, %s }, options: %s %s }",
 		self->tex->width,
 		self->tex->height,
 		self->tex->channels,

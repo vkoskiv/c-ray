@@ -57,7 +57,7 @@ static void print_stats(const struct world *scene) {
 			normals += mesh->vbuf.normals.count;
 		}
 	}
-	logr(info, "Totals: %liV, %liN, %zuI, %liP, %zuS, %zuM\n",
+	logr(info, "Totals: %"PRIu64"V, %"PRIu64"N, %zuI, %"PRIu64"P, %zuS, %zuM\n",
 		   vertices,
 		   normals,
 		   scene->instances.count,
@@ -241,7 +241,8 @@ void renderer_render(struct renderer *r) {
 	
 	r->state.s = r_rendering;
 	
-	if (r->state.clients.count) logr(info, "Using %lu render worker%s totaling %lu thread%s.\n", r->state.clients.count, PLURAL(r->state.clients.count), r->state.clients.count, PLURAL(r->state.clients.count));
+	if (r->state.clients.count)
+		logr(info, "Using %zu render worker%s totaling %zu thread%s.\n", r->state.clients.count, PLURAL(r->state.clients.count), r->state.clients.count, PLURAL(r->state.clients.count));
 	
 	// Select the appropriate renderer type for local use
 	void *(*local_render_thread)(void *) = render_thread;

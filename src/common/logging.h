@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <inttypes.h>
 #include <c-ray/c-ray.h>
 
 struct renderer;
