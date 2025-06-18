@@ -893,9 +893,10 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 		// FIXME: What about network renderers?
 		r->state.workers.items[i].totalSamples = 0;
 	}
-	update_toplevel_bvh(r->scene);
-	// Why are we waiting for bg_worker? update_toplevel_bvh() is synchronous.
+	// Wait for potential mesh BVH updates
 	thread_pool_wait(r->scene->bg_worker);
+	// Then update top-level BVH
+	update_toplevel_bvh(r->scene);
 	mutex_release(r->state.current_set->tile_mutex);
 }
 
