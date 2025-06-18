@@ -112,13 +112,16 @@ def to_cr_matrix(matrix):
 			cr_mtx.mtx[i * 4 + j] = matrix[i][j]
 	return cr_mtx
 
-# TODO: Normals & tex coords
 def to_cr_face(me, poly):
-	indices = []
+	v_i = []
+	l_i = []
 	for loop_idx in range(poly.loop_start, poly.loop_start + poly.loop_total):
-		indices.append(me.loops[loop_idx].vertex_index)
+		v_i.append(me.loops[loop_idx].vertex_index)
+		l_i.append(loop_idx)
 	cr_face = c_ray.cr_face()
-	cr_face.vertex_idx[:] = indices
+	cr_face.vertex_idx[:] = v_i
+	cr_face.texture_idx[:] = l_i
+	cr_face.normal_idx[:] = l_i
 	cr_face.mat_idx = poly.material_index
 	cr_face.has_normals = 0
 	return cr_face
@@ -260,8 +263,6 @@ class CrayRender(bpy.types.RenderEngine):
 		faces = []
 		for poly in me.polygons:
 			faces.append(to_cr_face(me, poly))
-		# TODO: normals
-		# TODO: tex coords
 		facebuf = (c_ray.cr_face * len(faces))(*faces)
 		cr_mesh.bind_faces(bytearray(facebuf), len(faces))
 		cr_mesh.bind_vertex_buf(me)
