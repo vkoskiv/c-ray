@@ -34,10 +34,10 @@ bool compareNodes(const void *A, const void *B);
 		const uint32_t h = hash(&candidate); \
 		const T *existing = findInHashtable(hashtable, &candidate, h); \
 		if (existing) {\
-			logr(spam, "Reusing existing %s%s %s%s%s\n", KGRN, &#T[7], KBLU, dumpbuf, KNRM);\
+			logr(spam, "%s%s%s\n", KGRN, dumpbuf, KNRM);\
 			return (void *)existing; \
 		} \
-		logr(spam, "Inserting new %s%s %s%s%s\n", KRED, &#T[7], KBLU, dumpbuf, KNRM); \
+		logr(spam, "%s%s%s\n", KRED, dumpbuf, KNRM); \
 		insertInHashtable(hashtable, &candidate, sizeof(T), h); \
 		return findInHashtable(hashtable, &candidate, h); \
 	}
