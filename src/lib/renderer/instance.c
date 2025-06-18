@@ -133,23 +133,24 @@ struct instance new_sphere_instance(struct sphere_arr *spheres, size_t idx, floa
 	}
 }
 
-static struct coord getTexMapMesh(const struct mesh *mesh, const struct hitRecord *isect) {
-	if (mesh->vbuf.texture_coords.count == 0) return (struct coord){-1.0f, -1.0f};
+static void mesh_uv(const struct mesh *mesh, struct hitRecord *isect) {
+	if (!mesh->vbuf.texture_coords.count)
+		return;
 	struct poly *p = isect->polygon;
-	if (p->textureIndex[0] == -1) return (struct coord){-1.0f, -1.0f};
+	if (p->textureIndex[0] == -1)
+		return;
 	
-	//barycentric coordinates for this polygon
-	const float u = isect->uv.x;
-	const float v = isect->uv.y;
-	const float w = 1.0f - u - v;
+	// Barycentric coordinates for this polygon
+	const float b_u = isect->uv.x;
+	const float b_v = isect->uv.y;
+	const float b_w = 1.0f - b_u - b_v;
 	
-	//Weighted texture coordinates
-	const struct coord ucomponent = coord_scale(u, mesh->vbuf.texture_coords.items[p->textureIndex[1]]);
-	const struct coord vcomponent = coord_scale(v, mesh->vbuf.texture_coords.items[p->textureIndex[2]]);
-	const struct coord wcomponent = coord_scale(w, mesh->vbuf.texture_coords.items[p->textureIndex[0]]);
+	// Weighted texture coordinates
+	const struct coord u = coord_scale(b_u, mesh->vbuf.texture_coords.items[p->textureIndex[1]]);
+	const struct coord v = coord_scale(b_v, mesh->vbuf.texture_coords.items[p->textureIndex[2]]);
+	const struct coord w = coord_scale(b_w, mesh->vbuf.texture_coords.items[p->textureIndex[0]]);
 	
-	// textureXY = u * v1tex + v * v2tex + w * v3tex
-	return coord_add(coord_add(ucomponent, vcomponent), wcomponent);
+	isect->uv = coord_add(coord_add(u, v), w);
 }
 
 static bool intersectMesh(const struct instance *instance, const struct lightRay *ray, struct hitRecord *isect, sampler *sampler) {
@@ -158,12 +159,12 @@ static bool intersectMesh(const struct instance *instance, const struct lightRay
 	struct mesh *mesh = &((struct mesh_arr *)instance->object_arr)->items[instance->object_idx];
 	copy.start = vec_add(copy.start, vec_scale(copy.direction, mesh->rayOffset));
 	if (traverse_bottom_level_bvh(mesh, &copy, isect, sampler)) {
-		// Repopulate uv with actual texture mapping
-		isect->uv = getTexMapMesh(mesh, isect);
 		isect->bsdf = instance->bbuf->bsdfs.items[isect->polygon->materialIndex];
 		tform_point(&isect->hitPoint, instance->composite.A);
 		tform_vector_transpose(&isect->surfaceNormal, instance->composite.Ainv);
 		isect->surfaceNormal = vec_normalize(isect->surfaceNormal);
+		// Repopulate uv with actual texture mapping
+		mesh_uv(mesh, isect);
 		return true;
 	}
 	return false;
