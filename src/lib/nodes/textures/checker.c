@@ -82,7 +82,9 @@ static void dump(const void *node, char *dumpbuf, int len) {
 	if (self->A->base.dump) self->A->base.dump(self->A, &A[0], 64);
 	char B[64] = "";
 	if (self->B->base.dump) self->B->base.dump(self->B, &B[0], 64);
-	snprintf(dumpbuf, len, "checkerTexture { A: %s, B: %s }", A, B);
+	char scale[64] = "";
+	if (self->scale->base.dump) self->scale->base.dump(self->scale, &scale[0], 64);
+	snprintf(dumpbuf, len, "checkerTexture { A: %s, B: %s, scale: %s }", A, B, scale);
 }
 
 static struct color eval(const struct colorNode *node, sampler *sampler, const struct hitRecord *record) {
