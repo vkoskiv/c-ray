@@ -52,6 +52,15 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 		a->items[a->count] = value; \
 		return a->count++; \
 	} \
+	static inline size_t CR_UNUSED T##_arr_add_n(struct T##_arr *a, const T *values, size_t n) { \
+		if ((a->count + n) >= a->capacity) { \
+			size_t new_capacity = a->capacity + (a->capacity - a->count) + n; \
+			a->items = realloc(a->items, sizeof(*a->items) * new_capacity); \
+			a->capacity = new_capacity; \
+		} \
+		memcpy(a->items + a->count, values, n * sizeof(*a->items)); \
+		return a->count += n; \
+	} \
 	static inline void CR_UNUSED T##_arr_trim(struct T##_arr *a) { \
 		if (!a || a->count >= a->capacity) return; \
 		T *new = malloc(a->count * sizeof(*a)); \
@@ -80,8 +89,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 	} \
 	static inline void CR_UNUSED T##_arr_join(struct T##_arr *a, struct T##_arr *b) { \
 		if (!a || !b) return; \
-		for (size_t i = 0; i < b->count; ++i) \
-			T##_arr_add(a, b->items[i]); \
+		T##_arr_add_n(a, b->items, b->count); \
 		T##_arr_free(b); \
 	}
 

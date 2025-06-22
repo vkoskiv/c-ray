@@ -275,21 +275,14 @@ void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, struct cr_ver
 	if ((size_t)mesh > scene->meshes.count - 1) return;
 	struct mesh *m = &scene->meshes.items[mesh];
 	struct vertex_buffer new = { 0 };
-	// TODO: T_arr_add_n()
 	if (buf.vertices && buf.vertex_count) {
-		for (size_t i = 0; i < buf.vertex_count; ++i) {
-			vector_arr_add(&new.vertices, *(struct vector *)&buf.vertices[i]);
-		}
+		vector_arr_add_n(&new.vertices, (struct vector *)buf.vertices, buf.vertex_count);
 	}
 	if (buf.normals && buf.normal_count) {
-		for (size_t i = 0; i < buf.normal_count; ++i) {
-			vector_arr_add(&new.normals, *(struct vector *)&buf.normals[i]);
-		}
+		vector_arr_add_n(&new.normals, (struct vector *)buf.normals, buf.normal_count);
 	}
 	if (buf.tex_coords && buf.tex_coord_count) {
-		for (size_t i = 0; i < buf.tex_coord_count; ++i) {
-			coord_arr_add(&new.texture_coords, *(struct coord *)&buf.tex_coords[i]);
-		}
+		coord_arr_add_n(&new.texture_coords, (struct coord *)buf.tex_coords, buf.tex_coord_count);
 	}
 	m->vbuf = new;
 }
@@ -299,10 +292,7 @@ void cr_mesh_bind_faces(struct cr_scene *s_ext, cr_mesh mesh, struct cr_face *fa
 	struct world *scene = (struct world *)s_ext;
 	if ((size_t)mesh > scene->meshes.count - 1) return;
 	struct mesh *m = &scene->meshes.items[mesh];
-	// FIXME: memcpy
-	for (size_t i = 0; i < face_count; ++i) {
-		poly_arr_add(&m->polygons, *(struct poly *)&faces[i]);
-	}
+	poly_arr_add_n(&m->polygons, (struct poly *)faces, face_count);
 }
 
 void cr_mesh_finalize(struct cr_scene *s_ext, cr_mesh mesh) {
