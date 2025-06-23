@@ -178,9 +178,9 @@ def draw_direct(bitmap):
 		draw_texture_2d(texture, (0, 0), texture.width, texture.height)
 
 def status_update_interactive(cb_info, args):
-	tag_redraw, update_stats, total_samples = args;
+	tag_redraw, update_stats, prefs = args;
 	tag_redraw()
-	if cb_info.finished_passes == total_samples:
+	if cb_info.finished_passes == prefs.samples:
 		update_stats("Rendering done", "")
 	else:
 		update_stats("Sample {}".format(cb_info.finished_passes), "")
@@ -472,7 +472,7 @@ class CrayRender(bpy.types.RenderEngine):
 			sync_end = time.time()
 			print("Sync took {}s".format(sync_end - sync_start))
 			print("Kicking off background renderer")
-			self.cr_renderer.callbacks.on_interactive_pass_finished = (status_update_interactive, (self.tag_redraw, self.update_stats, self.cr_renderer.prefs.samples))
+			self.cr_renderer.callbacks.on_interactive_pass_finished = (status_update_interactive, (self.tag_redraw, self.update_stats, self.cr_renderer.prefs))
 			self.cr_renderer.start_interactive()
 
 	def display_bitmap(self, bm):
