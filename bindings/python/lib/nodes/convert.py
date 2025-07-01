@@ -161,102 +161,74 @@ def parse_color(input, group_inputs):
 			print("Unknown color node of type {}, maybe fix.".format(input.bl_idname))
 			return warning_color
 
+math_ops = {
+	'ADD': _math_op.Add,
+	'SUBTRACT': _math_op.Subtract,
+	'MULTIPLY': _math_op.Multiply,
+	'DIVIDE': _math_op.Divide,
+	# 'MULTIPLY_ADD'
+	'POWER': _math_op.Power,
+	'LOGARITHM': _math_op.Log,
+	'SQRT': _math_op.SquareRoot,
+	'INVERSE_SQRT': _math_op.InvSquareRoot,
+	'ABSOLUTE': _math_op.Absolute,
+	# 'EXPONENT'
+	'MINIMUM': _math_op.Min,
+	'MAXIMUM': _math_op.Max,
+	'LESS_THAN': _math_op.LessThan,
+	'GREATER_THAN': _math_op.GreaterThan,
+	'SIGN': _math_op.Sign,
+	'COMPARE': _math_op.Compare, # FIXME: Ignoring c, using hard-coded epsilon
+	# 'SMOOTH_MIN'
+	# 'SMOOTH_MAX'
+	'ROUND': _math_op.Round,
+	'FLOOR': _math_op.Floor,
+	'CEIL': _math_op.Ceil,
+	'TRUNC': _math_op.Truncate,
+	'FRACT': _math_op.Fraction,
+	'MODULO': _math_op.Modulo,
+	# 'FLOORED_MODULO'
+	# 'WRAP'
+	# 'SNAP'
+	# 'PINGPONG'
+	'SINE': _math_op.Sine,
+	'COSINE': _math_op.Cosine,
+	'TANGENT': _math_op.Tangent,
+	# 'ARCSINE'
+	# 'ARCCOSINE'
+	# 'ARCTANGENT'
+	# 'ARCTAN2'
+	# 'SINH'
+	# 'COSH'
+	# 'TANH'
+	'RADIANS': _math_op.ToRadians,
+	'DEGREES': _math_op.ToDegrees,
+}
+
 def map_math_op(bl_op):
-	m = _math_op
-	match bl_op:
-		case 'ADD':
-			return m.Add
-		case 'SUBTRACT':
-			return m.Subtract
-		case 'MULTIPLY':
-			return m.Multiply
-		case 'DIVIDE':
-			return m.Divide
-		# case 'MULTIPLY_ADD':
-		case 'POWER':
-			return m.Power
-		case 'LOGARITHM':
-			return m.Log
-		case 'SQRT':
-			return m.SquareRoot
-		case 'INVERSE_SQRT':
-			return m.InvSquareRoot
-		case 'ABSOLUTE':
-			return m.Absolute
-		# case 'EXPONENT':
-		case 'MINIMUM':
-			return m.Min
-		case 'MAXIMUM':
-			return m.Max
-		case 'LESS_THAN':
-			return m.LessThan
-		case 'GREATER_THAN':
-			return m.GreaterThan
-		case 'SIGN':
-			return m.Sign
-		case 'COMPARE':
-			# FIXME: Ignoring c, using hard-coded epsilon
-			return m.Compare
-		# case 'SMOOTH_MIN':
-		# case 'SMOOTH_MAX':
-		case 'ROUND':
-			return m.Round
-		case 'FLOOR':
-			return m.Floor
-		case 'CEIL':
-			return m.Ceil
-		case 'TRUNC':
-			return m.Truncate
-		case 'FRACT':
-			return m.Fraction
-		case 'MODULO':
-			return m.Modulo
-		# case 'FLOORED_MODULO':
-		# case 'WRAP':
-		# case 'SNAP':
-		# case 'PINGPONG':
-		case 'SINE':
-			return m.Sine
-		case 'COSINE':
-			return m.Cosine
-		case 'TANGENT':
-			return m.Tangent
-		# case 'ARCSINE':
-		# case 'ARCCOSINE':
-		# case 'ARCTANGENT':
-		# case 'ARCTAN2':
-		# case 'SINH':
-		# case 'COSH':
-		# case 'TANH':
-		case 'RADIANS':
-			return m.ToRadians
-		case 'DEGREES':
-			return m.ToDegrees
-		case _:
-			print("Unknown math op {}, defaulting to ADD".format(bl_op))
-			return m.Add
+	if bl_op in math_ops:
+		return math_ops[bl_op]
+	else:
+		print("Unknown math op {}, defaulting to ADD".format(bl_op))
+		return _math_op.Add
+
+ray_queries = {
+	'Is Camera Ray': light_path_query.is_camera_ray,
+	'Is Shadow Ray': light_path_query.is_shadow_ray,
+	'Is Diffuse Ray': light_path_query.is_diffuse_ray,
+	'Is Glossy Ray': light_path_query.is_glossy_ray,
+	'Is Singular Ray': light_path_query.is_singular_ray,
+	'Is Reflection Ray': light_path_query.is_reflection_ray,
+	'Is Transmission Ray': light_path_query.is_transmission_ray,
+	'Ray Length': light_path_query.ray_length,
+}
 
 def match_query(name):
-	match name:
-		case 'Is Camera Ray':
-			return light_path_query.is_camera_ray
-		case 'Is Shadow Ray':
-			return light_path_query.is_shadow_ray
-		case 'Is Diffuse Ray':
-			return light_path_query.is_diffuse_ray
-		case 'Is Glossy Ray':
-			return light_path_query.is_glossy_ray
-		case 'Is Singular Ray':
-			return light_path_query.is_singular_ray
-		case 'Is Reflection Ray':
-			return light_path_query.is_reflection_ray
-		case 'Is Transmission Ray':
-			return light_path_query.is_transmission_ray
-		case 'Ray Length':
-			return light_path_query.ray_length
-		case _:
-			print("Unknown light path query {}, defaulting to Ray Length".format(name))
-			return light_path_query.ray_length
+	if name in ray_queries:
+		return ray_queries[name]
+	else:
+		print(f"Unknown light path query '{name}', defaulting to 'Ray Length'")
+		return light_path_query.ray_length
 
 def parse_value(input, group_inputs):
 	match input.bl_idname:
@@ -332,61 +304,42 @@ def parse_value(input, group_inputs):
 
 # From here: https://docs.blender.org/api/current/bpy_types_enum_items/node_vec_math_items.html#rna-enum-node-vec-math-items
 # Commented ones aren't implemented yet, and will emit a notice to stdout
+vec_ops = {
+	'ADD': _vector_op.Add,
+	'SUBTRACT': _vector_op.Subtract,
+	'MULTIPLY': _vector_op.Multiply,
+	'DIVIDE': _vector_op.Divide,
+	# 'MULTIPLY_ADD'
+	'CROSS_PRODUCT': _vector_op.Cross,
+	# 'PROJECT'
+	'REFLECT': _vector_op.Reflect,
+	'REFRACT': _vector_op.Refract,
+	# 'FACEFORWARD'
+	'DOT_PRODUCT': _vector_op.Dot,
+	'DISTANCE': _vector_op.Distance,
+	'LENGTH': _vector_op.Length,
+	'SCALE': _vector_op.Scale,
+	'NORMALIZE': _vector_op.Normalize,
+	'ABSOLUTE': _vector_op.Abs,
+	'MINIMUM': _vector_op.Min,
+	'MAXIMUM': _vector_op.Max,
+	'FLOOR': _vector_op.Floor,
+	'CEIL': _vector_op.Ceil,
+	# 'FRACTION'
+	'MODULO': _vector_op.Modulo,
+	'WRAP': _vector_op.Wrap,
+	# 'SNAP'
+	'SINE': _vector_op.Sin,
+	'COSINE': _vector_op.Cos,
+	'TANGENT': _vector_op.Tan,
+}
+
 def map_vec_op(bl_op):
-	v = _vector_op
-	match bl_op:
-		case 'ADD':
-			return v.Add
-		case 'SUBTRACT':
-			return v.Subtract
-		case 'MULTIPLY':
-			return v.Multiply
-		case 'DIVIDE':
-			return v.Divide
-		# case 'MULTIPLY_ADD':
-		case 'CROSS_PRODUCT':
-			return v.Cross
-		# case 'PROJECT':
-		case 'REFLECT':
-			return v.Reflect
-		case 'REFRACT':
-			return v.Refract
-		# case 'FACEFORWARD':
-		case 'DOT_PRODUCT':
-			return v.Dot
-		case 'DISTANCE':
-			return v.Distance
-		case 'LENGTH':
-			return v.Length
-		case 'SCALE':
-			return v.Scale
-		case 'NORMALIZE':
-			return v.Normalize
-		case 'ABSOLUTE':
-			return v.Abs
-		case 'MINIMUM':
-			return v.Min
-		case 'MAXIMUM':
-			return v.Max
-		case 'FLOOR':
-			return v.Floor
-		case 'CEIL':
-			return v.Ceil
-		# case 'FRACTION':
-		case 'MODULO':
-			return v.Modulo
-		case 'WRAP':
-			return v.Wrap
-		# case 'SNAP':
-		case 'SINE':
-			return v.Sin
-		case 'COSINE':
-			return v.Cos
-		case 'TANGENT':
-			return v.Tan
-		case _:
-			print("Unknown vector op {}, defaulting to ADD".format(bl_op))
-			return v.Add
+	if bl_op in vec_ops:
+		return vec_ops[bl_op]
+	else:
+		print(f"Unknown vector op {bl_op}, defaulting to ADD")
+		return _vector_op.Add
 
 zero_vec = NodeVectorConstant(cr_vector(0.0, 0.0, 0.0))
 
