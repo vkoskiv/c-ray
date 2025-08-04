@@ -50,7 +50,8 @@ static void printUsage(const char *progname) {
 }
 
 bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
-	if (!dimStr) return false;
+	if (!dimStr)
+		return false;
 	lineBuffer buf;
 	char container[LINEBUFFER_MAXSIZE];
 	buf.buf = container;
@@ -61,12 +62,12 @@ bool parseDims(const char *dimStr, int *widthOut, int *heightOut) {
 		return false;
 	}
 	int width = atoi(widthStr);
-	int height = atoi(heightStr);
+	int height = heightStr ? atoi(heightStr) : width;
 	width = width > 65536 ? 65536 : width;
 	height = height > 65536 ? 65536 : height;
 	width = width < 1 ? 1 : width;
 	height = height < 1 ? 1 : height;
-	
+
 	if (widthOut) *widthOut = width;
 	if (heightOut) *heightOut = height;
 	return true;
@@ -87,13 +88,13 @@ struct driver_args *args_parse(int argc, char **argv) {
 			}
 			continue;
 		}
-		
+
 		if (alternatePath) {
 			free(alternatePath);
 			alternatePath = NULL;
 		}
 		alternatePath = stringConcat(argv[i], ".json");
-		
+
 		if (is_valid_file(argv[i]) && !inputFileSet) {
 			setDatabaseString(args, "inputFile", argv[i]);
 			inputFileSet = true;
@@ -101,11 +102,11 @@ struct driver_args *args_parse(int argc, char **argv) {
 			setDatabaseString(args, "inputFile", alternatePath);
 			inputFileSet = true;
 		}
-		
+
 		if (stringEquals(argv[i], "-h")) {
 			printUsage(argv[0]);
 		}
-		
+
 		if (stringEquals(argv[i], "-j")) {
 			char *threadstr = argv[i + 1];
 			if (threadstr) {
@@ -117,7 +118,7 @@ struct driver_args *args_parse(int argc, char **argv) {
 				logr(warning, "Invalid -j parameter given!\n");
 			}
 		}
-		
+
 		if (stringEquals(argv[i], "-s")) {
 			char *sampleStr = argv[i + 1];
 			if (sampleStr) {
@@ -128,7 +129,7 @@ struct driver_args *args_parse(int argc, char **argv) {
 				logr(warning, "Invalid -s parameter given!\n");
 			}
 		}
-		
+
 		if (stringEquals(argv[i], "-d")) {
 			char *dimstr = argv[i + 1];
 			int width = 0;
@@ -141,7 +142,7 @@ struct driver_args *args_parse(int argc, char **argv) {
 				logr(warning, "Invalid -d parameter given!\n");
 			}
 		}
-		
+
 		if (stringEquals(argv[i], "-t")) {
 			char *dimstr = argv[i + 1];
 			int width = 0;
@@ -176,7 +177,7 @@ struct driver_args *args_parse(int argc, char **argv) {
 				setDatabaseString(args, "test_suite", argv[i + 1]);
 			}
 		}
-		
+
 		if (stringEquals(argv[i], "--test")) {
 			setDatabaseTag(args, "runTests");
 			char *testIdxStr = argv[i + 1];
@@ -186,7 +187,7 @@ struct driver_args *args_parse(int argc, char **argv) {
 				setDatabaseInt(args, "test_idx", n);
 			}
 		}
-		
+
 		if (stringEquals(argv[i], "--test-perf")) {
 			setDatabaseTag(args, "runPerfTests");
 			char *testIdxStr = argv[i + 1];
@@ -196,31 +197,31 @@ struct driver_args *args_parse(int argc, char **argv) {
 				setDatabaseInt(args, "test_idx", n);
 			}
 		}
-		
+
 		if (stringEquals(argv[i], "--tcount")) {
 			setDatabaseTag(args, "runTests");
 			setDatabaseInt(args, "test_idx", -2);
 		}
-		
+
 		if (stringEquals(argv[i], "--ptcount")) {
 			setDatabaseTag(args, "runTests");
 			setDatabaseInt(args, "test_idx", -3);
 		}
-		
+
 		if (stringEquals(argv[i], "--iterative")) {
 			setDatabaseTag(args, "interactive");
 		}
-		
+
 		if (stringEquals(argv[i], "--shutdown")) {
 			setDatabaseTag(args, "shutdown");
 		}
-		
+
 		if (stringEquals(argv[i], "--nodes")) {
 			ASSERT(i + 1 <= argc);
 			char *nodes = argv[i + 1];
 			if (nodes) setDatabaseString(args, "nodes_list", nodes);
 		}
-		
+
 		if (stringEquals(argv[i], "--worker")) {
 			setDatabaseTag(args, "is_worker");
 			char *portStr = argv[i + 1];
@@ -236,7 +237,7 @@ struct driver_args *args_parse(int argc, char **argv) {
 		if (stringEquals(argv[i], "--no-sdl")) {
 			setDatabaseTag(args, "no_sdl");
 		}
-		
+
 		if (strncmp(argv[i], "-", 1) == 0) {
 			int vees = 0;
 			char c = 0;
@@ -250,18 +251,18 @@ struct driver_args *args_parse(int argc, char **argv) {
 			}
 		}
 	}
-	
+
 	if (args_is_set(args, "shutdown") && args_is_set(args, "nodes_list")) {
 		cr_send_shutdown_to_workers(args_string(args, "nodes_list"));
 		term_restore();
 		exit(0);
 	}
-	
+
 	if (alternatePath) {
 		free(alternatePath);
 		alternatePath = NULL;
 	}
-	
+
 	return args;
 }
 
