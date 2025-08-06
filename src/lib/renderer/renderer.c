@@ -241,8 +241,11 @@ void renderer_render(struct renderer *r) {
 	
 	r->state.s = r_rendering;
 	
+	size_t client_threads = 0;
+	for (size_t c = 0; c < r->state.clients.count; ++c)
+		client_threads += r->state.clients.items[c].available_threads;
 	if (r->state.clients.count)
-		logr(info, "Using %zu render worker%s totaling %zu thread%s.\n", r->state.clients.count, PLURAL(r->state.clients.count), r->state.clients.count, PLURAL(r->state.clients.count));
+		logr(info, "Using %zu render worker%s totaling %zu thread%s.\n", r->state.clients.count, PLURAL(r->state.clients.count), client_threads, PLURAL(client_threads));
 	
 	// Select the appropriate renderer type for local use
 	void *(*local_render_thread)(void *) = render_thread;
