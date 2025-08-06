@@ -21,6 +21,7 @@
 #include <common/hashtable.h>
 #include <common/json_loader.h>
 #include <common/node_parse.h>
+#include <common/platform/capabilities.h>
 #include <common/platform/thread_pool.h>
 #include <common/platform/signal.h>
 #include <accelerators/bvh.h>
@@ -817,7 +818,8 @@ void cr_renderer_render(struct cr_renderer *ext) {
 		r->state.clients = clients_sync(r);
 	}
 	if (!r->state.clients.count && !r->prefs.threads) {
-		return;
+		r->prefs.threads = sys_get_cores();
+		logr(warning, "No worker nodes and -j 0 specified, bumping threads 0 -> %zu\n", r->prefs.threads);
 	}
 	renderer_render(r);
 }
