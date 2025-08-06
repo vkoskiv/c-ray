@@ -277,17 +277,12 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 		if (pauser == 256 / active_msec) {
 			cJSON *stats = newAction("stats");
 			cJSON *array = cJSON_AddArrayToObject(stats, "tiles");
-			logr(plain, "\33[2K\r");
-			logr(plain, "( ");
 			for (size_t t = 0; t < threadCount; ++t) {
 				struct render_tile *tile = workerThreadStates[t].current;
 				if (tile) {
-					float completion = (float)tile->completed_samples / g_worker_renderer->prefs.sampleCount;
 					cJSON_AddItemToArray(array, encodeTile(tile));
-					logr(plain, "%i: %.1f%s", tile->index, completion, t < threadCount - 1 ? ", " : " ");
 				}
 			}
-			logr(plain, ")");
 
 			mutex_lock(g_worker_socket_mutex);
 			if (!sendJSON(connectionSocket, stats, NULL)) {
