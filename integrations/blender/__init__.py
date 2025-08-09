@@ -64,7 +64,7 @@ class CrayRenderSettings(bpy.types.PropertyGroup):
 	threads: IntProperty(
 		name="Threads",
 		description="Number of threads to use for rendering",
-		min=1, max=256,
+		min=0, max=256,
 		default=4,
 	)
 	tile_size: IntProperty(
