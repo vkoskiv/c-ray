@@ -74,10 +74,13 @@ static void on_start(struct cr_renderer_cb_info *cb_info, void *user_data) {
 		.cb_info = cb_info,
 		.driver = d,
 	};
-	thread_start(&(struct cr_thread){
+	int rc = thread_start(&(struct cr_thread){
 	    .thread_fn = win_init_task,
 	    .user_data = ctx,
 	});
+	if (rc) { // Try synchronously, then.
+		win_init_task(ctx);
+	}
 #endif
 }
 

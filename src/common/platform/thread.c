@@ -43,6 +43,9 @@ void thread_wait(struct cr_thread *t) {
 // allocation here to extend the lifetime.
 
 int thread_create_detach(struct cr_thread *t) {
+#ifdef CR_SIMULATE_NOTHREADS
+	return -1;
+#endif
 	if (!t) return -1;
 	struct cr_thread *temp = calloc(1, sizeof(*temp));
 	*temp = *t;
@@ -51,13 +54,18 @@ int thread_create_detach(struct cr_thread *t) {
 	CloseHandle(t->thread_handle);
 	return 0;
 #else
-	pthread_create(&t->thread_id, NULL, thread_stub, temp);
+	int rc = pthread_create(&t->thread_id, NULL, thread_stub, temp);
+	if (rc)
+		return rc;
 	pthread_detach(t->thread_id);
 	return 0;
 #endif
 }
 
 int thread_start(struct cr_thread *t) {
+#ifdef CR_SIMULATE_NOTHREADS
+	return -1;
+#endif
 	if (!t) return -1;
 	struct cr_thread *temp = calloc(1, sizeof(*temp));
 	*temp = *t;
@@ -69,9 +77,9 @@ int thread_start(struct cr_thread *t) {
 	pthread_attr_t attribs;
 	pthread_attr_init(&attribs);
 	pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
-	int ret = pthread_create(&t->thread_id, &attribs, thread_stub, temp);
+	int rc = pthread_create(&t->thread_id, &attribs, thread_stub, temp);
 	pthread_attr_destroy(&attribs);
-	return ret;
+	return rc;
 #endif
 }
 

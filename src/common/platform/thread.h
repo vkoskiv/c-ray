@@ -20,6 +20,8 @@
 
 // small thread/sync abstraction for POSIX and Windows
 
+// #define CR_SIMULATE_NOTHREADS
+
 /**
  Thread information struct to communicate with main thread
  */

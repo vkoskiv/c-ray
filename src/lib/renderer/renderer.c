@@ -275,35 +275,56 @@ void renderer_render(struct renderer *r) {
 			}
 		});
 	}
+	bool threads_not_supported = false;
 	for (size_t w = 0; w < r->state.workers.count; ++w) {
 		r->state.workers.items[w].thread.user_data = &r->state.workers.items[w];
 		r->state.workers.items[w].tiles = &set;
-		if (thread_start(&r->state.workers.items[w].thread))
-			logr(error, "Failed to start worker %zu\n", w);
+		if (thread_start(&r->state.workers.items[w].thread)) {
+			threads_not_supported = true;
+			break;
+		}
 	}
 
-	//Start main thread loop to handle renderer feedback and state management
-	while (r->state.s == r_rendering) {
-		size_t inactive = 0;
-		for (size_t w = 0; w < r->state.workers.count; ++w) {
-			if (r->state.workers.items[w].thread_complete) inactive++;
-		}
-		if (g_aborted || inactive == r->state.workers.count) break;
-		
-		struct callback status = r->state.callbacks[cr_cb_status_update];
-		if (status.fn) {
-			update_cb_info(r, &set, &cb_info);
-			status.fn(&cb_info, status.user_data);
+	if (threads_not_supported) {
+		struct worker *w = &r->state.workers.items[0];
+		w->thread.thread_fn = render_single_iteration;
+		while (r->state.s == r_rendering) {
+			w->thread.thread_fn(w->thread.user_data);
+			if (g_aborted || w->thread_complete)
+				break;
+			struct callback status = r->state.callbacks[cr_cb_status_update];
+			if (status.fn) {
+				update_cb_info(r, &set, &cb_info);
+				status.fn(&cb_info, status.user_data);
+			}
 		}
 
-		timer_sleep_ms(r->state.workers.items[0].paused ? paused_msec : active_msec);
+	} else {
+		//Start main thread loop to handle renderer feedback and state management
+		while (r->state.s == r_rendering) {
+			size_t inactive = 0;
+			for (size_t w = 0; w < r->state.workers.count; ++w) {
+				if (r->state.workers.items[w].thread_complete) inactive++;
+			}
+			if (g_aborted || inactive == r->state.workers.count)
+				break;
+
+			struct callback status = r->state.callbacks[cr_cb_status_update];
+			if (status.fn) {
+				update_cb_info(r, &set, &cb_info);
+				status.fn(&cb_info, status.user_data);
+			}
+
+			timer_sleep_ms(r->state.workers.items[0].paused ? paused_msec : active_msec);
+		}
 	}
+
 
 	r->state.s = r_exiting;
 	r->state.current_set = NULL;
-	
+
 	//Make sure render threads are terminated before continuing (This blocks)
-	for (size_t w = 0; w < r->state.workers.count; ++w)
+	for (size_t w = 0; !threads_not_supported && w < r->state.workers.count; ++w)
 		thread_wait(&r->state.workers.items[w].thread);
 
 	struct callback stop = r->state.callbacks[cr_cb_on_stop];

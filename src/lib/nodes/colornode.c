@@ -16,7 +16,6 @@
 #include <datatypes/scene.h>
 #include "bsdfnode.h"
 #include "../../common/platform/thread_pool.h"
-#include "../../common/platform/signal.h"
 #include "../../common/timer.h"
 
 #include "colornode.h"
@@ -32,7 +31,6 @@ struct decode_task_arg {
 };
 
 void tex_decode_task(void *arg) {
-	block_signals();
 	struct decode_task_arg *dt = (struct decode_task_arg *)arg;
 	struct timeval timer = { 0 };
 	timer_start(&timer);

@@ -9,6 +9,7 @@
 #include "thread_pool.h"
 #include "mutex.h"
 #include "thread.h"
+#include "signal.h"
 #include "../logging.h"
 
 // Mostly based on John Schember's excellent blog post:
@@ -63,6 +64,7 @@ static struct cr_task *thread_pool_get_task(struct cr_thread_pool *pool) {
 }
 
 static void *cr_worker(void *arg) {
+	block_signals();
 	struct cr_thread_pool *pool = arg;
 	while (true) {
 		mutex_lock(pool->mutex);
@@ -91,7 +93,8 @@ static void *cr_worker(void *arg) {
 }
 
 struct cr_thread_pool *thread_pool_create(size_t threads) {
-	if (!threads) threads = 2;
+	if (!threads)
+		threads = 2;
 	struct cr_thread_pool *pool = calloc(1, sizeof(*pool));
 	logr(debug, "Spawning thread pool (%zut, %p)\n", threads, (void *)pool);
 	pool->alive_threads = threads;
@@ -106,13 +109,22 @@ struct cr_thread_pool *thread_pool_create(size_t threads) {
 			.thread_fn = cr_worker,
 			.user_data = pool
 		};
-		thread_create_detach(&pool->threads[i]);
+		if (thread_create_detach(&pool->threads[i]))
+			goto fail;
 	}
 	return pool;
+fail:
+	free(pool->threads);
+	mutex_destroy(pool->mutex);
+	thread_cond_destroy(&pool->work_available);
+	thread_cond_destroy(&pool->work_ongoing);
+	free(pool);
+	return NULL;
 }
 
 void thread_pool_destroy(struct cr_thread_pool *pool) {
-	if (!pool) return;
+	if (!pool)
+		return;
 	logr(debug, "Closing thread pool (%zut, %p)\n", pool->alive_threads, (void *)pool);
 	mutex_lock(pool->mutex);
 	// Clear work queue
@@ -139,7 +151,11 @@ void thread_pool_destroy(struct cr_thread_pool *pool) {
 }
 
 bool thread_pool_enqueue(struct cr_thread_pool *pool, void (*fn)(void *arg), void *arg) {
-	if (!pool) return false;
+	if (!pool) { // Fall back to running synchronously
+		if (fn)
+			fn(arg);
+		return false;
+	}
 	struct cr_task *task = task_create(fn, arg);
 	if (!task) return false;
 	mutex_lock(pool->mutex);
@@ -156,7 +172,8 @@ bool thread_pool_enqueue(struct cr_thread_pool *pool, void (*fn)(void *arg), voi
 }
 
 void thread_pool_wait(struct cr_thread_pool *pool) {
-	if (!pool) return;
+	if (!pool)
+		return;
 	mutex_lock(pool->mutex);
 	while (true) {
 		if (pool->first || (!pool->stop_flag && pool->active_threads != 0) || (pool->stop_flag && pool->alive_threads != 0)) {

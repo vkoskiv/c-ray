@@ -247,7 +247,6 @@ struct bvh_build_task_arg {
 };
 
 void bvh_build_task(void *arg) {
-	block_signals();
 	// Mesh array may get realloc'd at any time, so we use a copy of mesh while working
 	struct bvh_build_task_arg *bt = (struct bvh_build_task_arg *)arg;
 	struct timeval timer = { 0 };
