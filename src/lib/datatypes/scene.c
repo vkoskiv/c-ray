@@ -10,10 +10,13 @@
 #include "scene.h"
 
 #include <accelerators/bvh.h>
+#include <common/cr_string.h>
 #include <common/hashtable.h>
 #include <common/textbuffer.h>
 #include <common/dyn_array.h>
 #include <common/node_parse.h>
+#include <common/platform/capabilities.h>
+#include <common/platform/thread_pool.h>
 #include <common/texture.h>
 #include "camera.h"
 #include "tile.h"
@@ -25,6 +28,16 @@ void tex_asset_free(struct texture_asset *a) {
 	if (a->t) tex_destroy(a->t);
 }
 
+struct world *scene_new(void) {
+	struct world *s = calloc(1, sizeof(*s));
+	s->asset_path = stringCopy("./");
+	s->storage.node_pool = newBlock(NULL, 1024);
+	s->storage.node_table = newHashtable(compareNodes, &s->storage.node_pool);
+	s->bvh_lock = thread_rwlock_init();
+	s->bg_worker = thread_pool_create(sys_get_cores());
+	return s;
+}
+
 void scene_destroy(struct world *scene) {
 	if (scene) {
 		scene->textures.elem_free = tex_asset_free;
@@ -33,9 +46,12 @@ void scene_destroy(struct world *scene) {
 		scene->meshes.elem_free = mesh_free;
 		mesh_arr_free(&scene->meshes);
 
-		thread_rwlock_wrlock(&scene->bvh_lock);
+		thread_rwlock_wrlock(scene->bvh_lock);
 		destroy_bvh(scene->topLevel);
-		thread_rwlock_unlock(&scene->bvh_lock);
+		thread_rwlock_unlock(scene->bvh_lock);
+
+		thread_pool_destroy(scene->bg_worker);
+		thread_rwlock_destroy(scene->bvh_lock);
 
 		destroyHashtable(scene->storage.node_table);
 		destroyBlocks(scene->storage.node_pool);

@@ -44,15 +44,6 @@ struct cr_cond {
 #endif
 };
 
-struct cr_rwlock {
-#ifdef WINDOWS
-	SRWLOCK lock;
-	bool exclusive;
-#else
-	pthread_rwlock_t lock;
-#endif
-};
-
 typedef struct cr_thread cr_thread;
 dyn_array_def(cr_thread)
 
@@ -80,7 +71,9 @@ int thread_cond_signal(struct cr_cond *cond);
 
 int thread_cond_broadcast(struct cr_cond *cond);
 
-int thread_rwlock_init(struct cr_rwlock *lock);
+struct cr_rwlock;
+
+struct cr_rwlock *thread_rwlock_init(void);
 int thread_rwlock_destroy(struct cr_rwlock *lock);
 int thread_rwlock_rdlock(struct cr_rwlock *lock);
 int thread_rwlock_wrlock(struct cr_rwlock *lock);

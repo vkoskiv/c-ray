@@ -155,50 +155,73 @@ int thread_cond_broadcast(struct cr_cond *cond) {
 #endif
 }
 
-int thread_rwlock_init(struct cr_rwlock *lock) {
-	if (!lock) return -1;
 #ifdef WINDOWS
+/*
+	Windows will presumably still suffer from false sharing, but
+	their API is what it is :/
+*/
+struct cr_rwlock {
+	SRWLOCK lock;
+	bool exclusive;
+}
+#endif
+
+struct cr_rwlock *thread_rwlock_init(void) {
+#ifdef WINDOWS
+	struct cr_rwlock *lock = malloc(sizeof(*lock));
 	InitializeSRWLock(&lock->lock);
 	lock->exclusive = false;
-	return 0;
+	return lock;
 #else
-	return pthread_rwlock_init(&lock->lock, NULL);
+	pthread_rwlock_t *lock = malloc(sizeof(*lock));
+	int ret = pthread_rwlock_init(lock, NULL);
+	if (ret) {
+		free(lock);
+		return NULL;
+	}
+	return (struct cr_rwlock *)lock;
 #endif
 }
 
 int thread_rwlock_destroy(struct cr_rwlock *lock) {
-	if (!lock) return -1;
+	if (!lock)
+		return -1;
 #ifdef WINDOWS
-	(void)lock;
+	free(lock);
 	return 0;
 #else
-	return pthread_rwlock_destroy(&lock->lock);
+	pthread_rwlock_destroy((pthread_rwlock_t *)lock);
+	free(lock);
+	return 0;
 #endif
 }
 
 int thread_rwlock_rdlock(struct cr_rwlock *lock) {
-	if (!lock) return -1;
+	if (!lock)
+		return -1;
 #ifdef WINDOWS
 	AcquireSRWLockShared(&lock->lock);
 	return 0;
 #else
-	return pthread_rwlock_rdlock(&lock->lock);
+	return pthread_rwlock_rdlock((pthread_rwlock_t *)lock);
 #endif
 }
 
 int thread_rwlock_wrlock(struct cr_rwlock *lock) {
-	if (!lock) return -1;
+	if (!lock)
+		return -1;
 #ifdef WINDOWS
 	AcquireSRWLockExclusive(&lock->lock);
 	lock->exclusive = true;
 	return 0;
 #else
-	return pthread_rwlock_wrlock(&lock->lock);
+	return pthread_rwlock_wrlock((pthread_rwlock_t *)lock);
 #endif
 }
 
 int thread_rwlock_unlock(struct cr_rwlock *lock) {
-	if (!lock) return -1;
+	if (!lock)
+		return -1;
 #ifdef WINDOWS
 	if (lock->exclusive) {
 		lock->exclusive = false;
@@ -208,7 +231,7 @@ int thread_rwlock_unlock(struct cr_rwlock *lock) {
 	}
 	return 0;
 #else
-	return pthread_rwlock_unlock(&lock->lock);
+	return pthread_rwlock_unlock((pthread_rwlock_t *)lock);
 #endif
 }
 

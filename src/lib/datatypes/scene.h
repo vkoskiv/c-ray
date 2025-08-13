@@ -37,7 +37,7 @@ struct world {
 	bool instances_dirty; // Recompute top-level BVH?
 	// Top-level bounding volume hierarchy,
 	// contains all 3D assets in the scene.
-	struct cr_rwlock bvh_lock;
+	struct cr_rwlock *bvh_lock;
 	struct bvh *topLevel; // FIXME: Move to state?
 	bool top_level_dirty;
 	struct cr_thread_pool *bg_worker;
@@ -53,4 +53,5 @@ struct world {
 	char *asset_path;
 };
 
+struct world *scene_new(void);
 void scene_destroy(struct world *scene);

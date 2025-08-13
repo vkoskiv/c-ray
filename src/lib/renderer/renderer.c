@@ -130,10 +130,10 @@ void update_toplevel_bvh(struct world *s) {
 	if (!s->top_level_dirty && s->topLevel) return;
 	struct bvh *new = build_top_level_bvh(s->instances);
 	//!//!//!//!//!//!//!//!//!//!//!//!
-	thread_rwlock_wrlock(&s->bvh_lock);
+	thread_rwlock_wrlock(s->bvh_lock);
 	struct bvh *old = s->topLevel;
 	s->topLevel = new;
-	thread_rwlock_unlock(&s->bvh_lock);
+	thread_rwlock_unlock(s->bvh_lock);
 	//!//!//!//!//!//!//!//!//!//!//!//!
 	destroy_bvh(old);
 	// Bind shader buffers to instances
@@ -373,9 +373,9 @@ void *render_thread_interactive(void *arg) {
 				sampler_init(sampler, SAMPLING_STRATEGY, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
 				struct color output = tex_get_px(*buf, x, y, false);
-				thread_rwlock_rdlock(&r->scene->bvh_lock);
+				thread_rwlock_rdlock(r->scene->bvh_lock);
 				struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
-				thread_rwlock_unlock(&r->scene->bvh_lock);
+				thread_rwlock_unlock(r->scene->bvh_lock);
 
 				nan_clamp(&sample, &output);
 				
@@ -453,9 +453,9 @@ void *render_thread(void *arg) {
 					sampler_init(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = tex_get_px(*buf, x, y, false);
-					thread_rwlock_rdlock(&r->scene->bvh_lock);
+					thread_rwlock_rdlock(r->scene->bvh_lock);
 					struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
-					thread_rwlock_unlock(&r->scene->bvh_lock);
+					thread_rwlock_unlock(r->scene->bvh_lock);
 					
 					// Clamp out fireflies - This is probably not a good way to do that.
 					nan_clamp(&sample, &output);
@@ -527,9 +527,9 @@ void *render_single_iteration(void *arg) {
 				sampler_init(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
 
 				struct color output = tex_get_px(*buf, x, y, false);
-				thread_rwlock_rdlock(&r->scene->bvh_lock);
+				thread_rwlock_rdlock(r->scene->bvh_lock);
 				struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
-				thread_rwlock_unlock(&r->scene->bvh_lock);
+				thread_rwlock_unlock(r->scene->bvh_lock);
 
 				// Clamp out fireflies - This is probably not a good way to do that.
 				nan_clamp(&sample, &output);
@@ -578,20 +578,13 @@ struct renderer *renderer_new(void) {
 	struct renderer *r = calloc(1, sizeof(*r));
 	r->prefs = default_prefs();
 	r->state.finishedPasses = 1;
-	
-	// Move these elsewhere
-	r->scene = calloc(1, sizeof(*r->scene));
-	r->scene->asset_path = stringCopy("./");
-	r->scene->storage.node_pool = newBlock(NULL, 1024);
-	r->scene->storage.node_table = newHashtable(compareNodes, &r->scene->storage.node_pool);
-	thread_rwlock_init(&r->scene->bvh_lock);
-	r->scene->bg_worker = thread_pool_create(sys_get_cores());
+	r->scene = scene_new();
 	return r;
 }
 
 void renderer_destroy(struct renderer *r) {
-	if (!r) return;
-	thread_pool_destroy(r->scene->bg_worker);
+	if (!r)
+		return;
 	scene_destroy(r->scene);
 	worker_arr_free(&r->state.workers);
 	render_client_arr_free(&r->state.clients);
