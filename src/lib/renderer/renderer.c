@@ -68,6 +68,7 @@ static void print_stats(const struct world *scene) {
 
 void *render_thread(void *arg);
 void *render_thread_interactive(void *arg);
+void *render_single_iteration(void *arg);
 
 //FIXME: Statistics computation is a gigantic mess. It will also break in the case
 //where a worker node disconnects during a render, so maybe fix that next.
@@ -491,6 +492,73 @@ exit:
 	sampler_destroy(sampler);
 	//No more tiles to render, exit thread. (render done)
 	threadState->thread_complete = true;
+	threadState->currentTile = NULL;
+	return 0;
+}
+
+void *render_single_iteration(void *arg) {
+	struct worker *threadState = arg;
+	struct renderer *r = threadState->renderer;
+	struct texture **buf = threadState->buf;
+	// FIXME: persist this
+	sampler *sampler = sampler_new();
+
+	struct camera *cam = threadState->cam;
+
+	//First time setup for each thread
+	struct render_tile *tile = tile_next(threadState->tiles);
+	if (!tile) {
+		threadState->thread_complete = true;
+		return NULL;
+	}
+	threadState->currentTile = tile;
+
+	struct timeval timer = { 0 };
+	size_t samples = 1;
+
+	long total_us = 0;
+
+	while (samples < r->prefs.sampleCount + 1 && r->state.s == r_rendering) {
+		timer_start(&timer);
+		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
+			for (int x = tile->begin.x; x < tile->end.x; ++x) {
+				if (r->state.s != r_rendering) goto exit;
+				uint32_t pixIdx = (uint32_t)(y * (*buf)->width + x);
+				sampler_init(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
+
+				struct color output = tex_get_px(*buf, x, y, false);
+				thread_rwlock_rdlock(&r->scene->bvh_lock);
+				struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
+				thread_rwlock_unlock(&r->scene->bvh_lock);
+
+				// Clamp out fireflies - This is probably not a good way to do that.
+				nan_clamp(&sample, &output);
+
+				//And process the running average
+				output = colorCoef((float)(samples - 1), output);
+				output = colorAdd(output, sample);
+				float t = 1.0f / samples;
+				output = colorCoef(t, output);
+
+				//Store internal render buffer (float precision)
+				tex_set_px(*buf, output, x, y);
+			}
+		}
+		//For performance metrics
+		total_us += timer_get_us(timer);
+		threadState->totalSamples++;
+		samples++;
+		tile->completed_samples++;
+		//Pause rendering when bool is set
+		// while (threadState->paused && r->state.s == r_rendering) {
+		// 	timer_sleep_ms(100);
+		// }
+		threadState->avg_per_sample_us = total_us / samples;
+	}
+	tile->state = finished;
+	threadState->currentTile = NULL;
+exit:
+	sampler_destroy(sampler);
 	threadState->currentTile = NULL;
 	return 0;
 }
