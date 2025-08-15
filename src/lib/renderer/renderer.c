@@ -366,7 +366,10 @@ void *render_thread_interactive(void *arg) {
 		thread_rwlock_rdlock(r->scene->bvh_lock);
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
-				if (r->state.s != r_rendering) goto exit;
+				if (r->state.s != r_rendering) {
+					thread_rwlock_unlock(r->scene->bvh_lock);
+					goto exit;
+				}
 				uint32_t pixIdx = (uint32_t)(y * (*buf)->width + x);
 				//FIXME: This does not converge to the same result as with regular renderThread.
 				//I assume that's because we'd have to init the sampler differently when we render all
