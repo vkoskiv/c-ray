@@ -363,6 +363,7 @@ void *render_thread_interactive(void *arg) {
 		long total_us = 0;
 
 		timer_start(&timer);
+		thread_rwlock_rdlock(r->scene->bvh_lock);
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
 				if (r->state.s != r_rendering) goto exit;
@@ -373,9 +374,7 @@ void *render_thread_interactive(void *arg) {
 				sampler_init(sampler, SAMPLING_STRATEGY, r->state.finishedPasses, r->prefs.sampleCount, pixIdx);
 				
 				struct color output = tex_get_px(*buf, x, y, false);
-				thread_rwlock_rdlock(r->scene->bvh_lock);
 				struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
-				thread_rwlock_unlock(r->scene->bvh_lock);
 
 				nan_clamp(&sample, &output);
 				
@@ -389,6 +388,7 @@ void *render_thread_interactive(void *arg) {
 				tex_set_px(*buf, output, x, y);
 			}
 		}
+		thread_rwlock_unlock(r->scene->bvh_lock);
 		//For performance metrics
 		total_us += timer_get_us(timer);
 		threadState->totalSamples++;
