@@ -453,9 +453,7 @@ void *render_thread(void *arg) {
 					sampler_init(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
 					
 					struct color output = tex_get_px(*buf, x, y, false);
-					thread_rwlock_rdlock(r->scene->bvh_lock);
 					struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
-					thread_rwlock_unlock(r->scene->bvh_lock);
 					
 					// Clamp out fireflies - This is probably not a good way to do that.
 					nan_clamp(&sample, &output);
@@ -527,9 +525,7 @@ void *render_single_iteration(void *arg) {
 				sampler_init(sampler, SAMPLING_STRATEGY, samples - 1, r->prefs.sampleCount, pixIdx);
 
 				struct color output = tex_get_px(*buf, x, y, false);
-				thread_rwlock_rdlock(r->scene->bvh_lock);
 				struct color sample = path_trace(cam_get_ray(cam, x, y, sampler), r->scene, r->prefs.bounces, sampler);
-				thread_rwlock_unlock(r->scene->bvh_lock);
 
 				// Clamp out fireflies - This is probably not a good way to do that.
 				nan_clamp(&sample, &output);
