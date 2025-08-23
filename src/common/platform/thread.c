@@ -163,7 +163,7 @@ int thread_cond_broadcast(struct cr_cond *cond) {
 struct cr_rwlock {
 	SRWLOCK lock;
 	bool exclusive;
-}
+};
 #endif
 
 struct cr_rwlock *thread_rwlock_init(void) {
