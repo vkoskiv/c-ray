@@ -13,7 +13,6 @@
 #include <common/vector.h>
 #include <common/cr_assert.h>
 
-static const unsigned int primes[] = {2, 3, 5, 7, 11, 13};
 static const unsigned int primes_count = 6;
 
 void initHammersley(hammersleySampler *s, int pass, int maxPasses, uint32_t seed) {
@@ -28,7 +27,7 @@ float getHammersley(hammersleySampler *s) {
 	// Wrapping around trick by Thomas Ludwig (@lycium)
 	float u;
 	if (s->currPass > 0) {
-		u = radicalInverse(s->currPass, primes[s->currPrime++ % primes_count]);
+		u = radical_inverse(s->currPrime++ % primes_count, s->currPass);
 	} else {
 		u = s->currPass / s->maxPasses;
 	}
