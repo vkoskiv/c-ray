@@ -67,6 +67,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${c-ray_SOURCE_DIR}/cmake")
 
 file(GLOB_RECURSE SOURCES_LIB src/lib/*.c)
 file(GLOB_RECURSE SOURCES_DRIVER src/driver/*.c)
+list(REMOVE_ITEM SOURCES_DRIVER "${CMAKE_SOURCE_DIR}/src/driver/main.c")
 file(GLOB_RECURSE SOURCES_COMMON src/common/*.c)
 
 include(set_up_ccache)
@@ -85,17 +86,20 @@ target_include_directories(driver PRIVATE ${CMAKE_SOURCE_DIR}/src/driver)
 add_library(common OBJECT ${SOURCES_COMMON})
 target_include_directories(common PRIVATE ${CMAKE_SOURCE_DIR}/src/common)
 
-foreach(x IN ITEMS lib driver common)
+add_executable(c-ray
+	$<TARGET_OBJECTS:lib>
+	$<TARGET_OBJECTS:driver>
+	$<TARGET_OBJECTS:common>
+	src/driver/main.c
+)
+
+foreach(x IN ITEMS lib driver common c-ray)
 	target_include_directories(${x} PRIVATE ${CMAKE_SOURCE_DIR}/include)
 	target_include_directories(${x} PRIVATE ${CMAKE_SOURCE_DIR}/src)
 	target_include_directories(${x} PRIVATE ${CMAKE_SOURCE_DIR}/tests)
 endforeach()
 
-add_executable(c-ray
-	$<TARGET_OBJECTS:lib>
-	$<TARGET_OBJECTS:driver>
-	$<TARGET_OBJECTS:common>
-)
+target_include_directories(c-ray PRIVATE ${CMAKE_SOURCE_DIR}/src/driver)
 
 if (NOT MSVC)
 	target_link_libraries(c-ray PRIVATE -lpthread -lm -ldl)
