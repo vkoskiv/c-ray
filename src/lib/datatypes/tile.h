@@ -11,7 +11,6 @@
 #include <v.h>
 
 #include "../../includes.h"
-#include <common/platform/mutex.h>
 
 #include <common/vector.h>
 
@@ -49,7 +48,7 @@ v_arr_def(render_tile)
 struct tile_set {
 	struct render_tile_arr tiles;
 	size_t finished;
-	struct cr_mutex *tile_mutex;
+	struct v_mutex *tile_mutex;
 };
 
 struct render_tile_arr tile_quantize(unsigned width, unsigned height, unsigned tile_w, unsigned tile_h, enum render_order order);

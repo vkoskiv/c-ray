@@ -15,6 +15,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <v.h>
 
 #include "worker.h"
 #include "protocol.h"
@@ -25,7 +26,6 @@
 #include <datatypes/scene.h>
 #include <datatypes/camera.h>
 #include <common/texture.h>
-#include <common/platform/mutex.h>
 #include <common/platform/thread.h>
 #include <common/networking.h>
 #include <common/cr_string.h>
@@ -37,7 +37,7 @@
 #include <inttypes.h>
 
 struct renderer *g_worker_renderer = NULL;
-struct cr_mutex *g_worker_socket_mutex = NULL;
+struct v_mutex *g_worker_socket_mutex = NULL;
 static bool g_running = false;
 
 struct command workerCommands[] = {
@@ -49,7 +49,7 @@ struct command workerCommands[] = {
 struct workerThreadState {
 	int thread_num;
 	int connectionSocket;
-	struct cr_mutex *socketMutex;
+	struct v_mutex *socketMutex;
 	struct camera *cam;
 	struct renderer *renderer;
 	bool threadComplete;
@@ -68,13 +68,13 @@ static cJSON *validateHandshake(cJSON *in) {
 }
 
 static cJSON *receiveScene(const cJSON *json) {
-	
+
 	// And then the scene
 	logr(info, "Received scene description\n");
 	g_worker_renderer = deserialize_renderer(cJSON_GetStringValue(cJSON_GetObjectItem(json, "data")));
-	g_worker_socket_mutex = mutex_create();
+	g_worker_socket_mutex = v_mutex_create();
 	cJSON *resp = newAction("ready");
-	
+
 	// Stash in our capabilities here
 	//TODO: Maybe some performance value in here, so the master knows how much work to assign?
 	// For now just report back how many threads we've got available.
@@ -121,12 +121,12 @@ static void *workerThread(void *arg) {
 	struct workerThreadState *thread = arg;
 	struct renderer *r = thread->renderer;
 	int sock = thread->connectionSocket;
-	struct cr_mutex *sockMutex = thread->socketMutex;
+	struct v_mutex *sockMutex = thread->socketMutex;
 	
 	//Fetch initial task
-	mutex_lock(sockMutex);
+	v_mutex_lock(sockMutex);
 	thread->current = getWork(sock, thread->tiles);
-	mutex_release(sockMutex);
+	v_mutex_release(sockMutex);
 	sampler *sampler = sampler_new();
 
 	struct camera *cam = thread->cam;
@@ -176,23 +176,23 @@ static void *workerThread(void *arg) {
 		}
 		
 		thread->current->state = finished;
-		mutex_lock(sockMutex);
+		v_mutex_lock(sockMutex);
 		if (!submitWork(sock, tileBuffer, thread->current)) {
-			mutex_release(sockMutex);
+			v_mutex_release(sockMutex);
 			break;
 		}
 		cJSON *resp = readJSON(sock);
 		if (!resp || !stringEquals(cJSON_GetObjectItem(resp, "action")->valuestring, "ok")) {
-			mutex_release(sockMutex);
+			v_mutex_release(sockMutex);
 			cJSON_Delete(resp);
 			break;
 		}
 		cJSON_Delete(resp);
-		mutex_release(sockMutex);
+		v_mutex_release(sockMutex);
 		thread->completedSamples = 1;
-		mutex_lock(sockMutex);
+		v_mutex_lock(sockMutex);
 		thread->current = getWork(sock, thread->tiles);
-		mutex_release(sockMutex);
+		v_mutex_release(sockMutex);
 		tex_clear(tileBuffer);
 	}
 bail:
@@ -228,7 +228,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 		PLURAL(r->prefs.threads));
 	//Quantize image into renderTiles
 	struct tile_set set = {
-		.tile_mutex = mutex_create(),
+		.tile_mutex = v_mutex_create(),
 		.tiles = tile_quantize(
 			selected_cam.width,
 			selected_cam.height,
@@ -283,13 +283,13 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 				}
 			}
 
-			mutex_lock(g_worker_socket_mutex);
+			v_mutex_lock(g_worker_socket_mutex);
 			if (!sendJSON(connectionSocket, stats, NULL)) {
 				logr(debug, "Connection lost, bailing out.\n");
 				// Setting this flag also kills the threads.
 				g_worker_renderer->state.s = r_exiting;
 			}
-			mutex_release(g_worker_socket_mutex);
+			v_mutex_release(g_worker_socket_mutex);
 			pauser = 0;
 		}
 		pauser++;
@@ -312,7 +312,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	tile_set_free(&set);
 	free(worker_threads);
 	free(workerThreadStates);
-	mutex_destroy(g_worker_socket_mutex);
+	v_mutex_destroy(g_worker_socket_mutex);
 	return NULL;
 }
 

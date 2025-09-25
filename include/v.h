@@ -162,6 +162,27 @@ extern void free (void *__ptr) __THROW;
 		T##_arr_free(b); \
 	}
 
+// --- decl v_mutex (Mutexes, pthreads & win32)
+#if defined(WINDOWS)
+	#include <Windows.h>
+#else
+	#include <pthread.h>
+#endif
+
+// FIXME: The struct is exposed here because thread.c guts access lock when passing to pthread_cond_wait.
+struct v_mutex {
+#if defined(WINDOWS)
+	LPCRITICAL_SECTION lock;
+#else
+	pthread_mutex_t lock;
+#endif
+};
+
+struct v_mutex *v_mutex_create(void);
+void v_mutex_destroy(struct v_mutex *);
+void v_mutex_lock(struct v_mutex *);
+void v_mutex_release(struct v_mutex *);
+
 #ifdef __cplusplus
 }
 #endif
@@ -340,6 +361,44 @@ v_arr_def(size_t)
 
 // --- impl v_mem (Arena allocator) (TODO)
 // --- impl v_sync (Sync primitives (mutex, rwlock))(c-ray)
+
+// --- impl v_mutex (Mutexes, pthreads & win32)
+struct v_mutex *v_mutex_create(void) {
+	struct v_mutex *m = calloc(1, sizeof(*m));
+#if defined(WINDOWS)
+	InitializeCriticalSection(&m->lock);
+#else
+	m->lock = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+#endif
+	return m;
+}
+
+void v_mutex_destroy(struct v_mutex *m) {
+	if (!m)
+		return;
+#if defined(WINDOWS)
+	DeleteCriticalSection(m->lock);
+#else
+	pthread_mutex_destroy(&m->lock);
+#endif
+	free(m);
+}
+
+void v_mutex_lock(struct v_mutex *m) {
+#if defined(WINDOWS)
+	EnterCriticalSection(&m->lock);
+#else
+	pthread_mutex_lock(&m->lock);
+#endif
+}
+
+void v_mutex_release(struct v_mutex *m) {
+#if defined(WINDOWS)
+	LeaveCriticalSection(&m->lock);
+#else
+	pthread_mutex_unlock(&m->lock);
+#endif
+}
 // --- impl v_thread (Thread )
 // --- impl job_queue
 

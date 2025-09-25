@@ -7,11 +7,12 @@
 //
 
 #include "../../includes.h"
+#include <v.h>
+
 #include <renderer/renderer.h>
 #include "tile.h"
 
 #include <common/logging.h>
-#include <common/platform/mutex.h>
 #include <vendored/pcg_basic.h>
 #include <string.h>
 
@@ -19,7 +20,7 @@ static void tiles_reorder(struct render_tile_arr *tiles, enum render_order tileO
 
 struct render_tile *tile_next(struct tile_set *set) {
 	struct render_tile *tile = NULL;
-	mutex_lock(set->tile_mutex);
+	v_mutex_lock(set->tile_mutex);
 	if (set->finished < set->tiles.count) {
 		tile = &set->tiles.items[set->finished];
 		tile->state = rendering;
@@ -36,13 +37,13 @@ struct render_tile *tile_next(struct tile_set *set) {
 			}
 		}
 	}
-	mutex_release(set->tile_mutex);
+	v_mutex_release(set->tile_mutex);
 	return tile;
 }
 
 struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *set) {
 	struct render_tile *tile = NULL;
-	mutex_lock(set->tile_mutex);
+	v_mutex_lock(set->tile_mutex);
 	again:
 	if (r->state.finishedPasses < r->prefs.sampleCount + 1) {
 		if (set->finished < set->tiles.count) {
@@ -64,14 +65,14 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 	if (!tile) {
 		// FIXME: shared state to indicate pause instead of accessing worker state
 		if (r->state.s != r_rendering || r->state.workers.items[0].paused) {
-			mutex_release(set->tile_mutex);
+			v_mutex_release(set->tile_mutex);
 			return NULL;
 		}
 		// FIXME: Use an atomic conditional for this, instead of polling here
 		v_timer_sleep_ms(32);
 		goto again;
 	}
-	mutex_release(set->tile_mutex);
+	v_mutex_release(set->tile_mutex);
 	return tile;
 }
 
@@ -125,7 +126,7 @@ struct render_tile_arr tile_quantize(unsigned width, unsigned height, unsigned t
 
 void tile_set_free(struct tile_set *set) {
 	render_tile_arr_free(&set->tiles);
-	mutex_destroy(set->tile_mutex);
+	v_mutex_destroy(set->tile_mutex);
 	set->tile_mutex = NULL;
 }
 

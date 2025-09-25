@@ -7,8 +7,9 @@
 //
 
 #include <stdlib.h>
+#include <v.h>
+
 #include "thread_pool.h"
-#include "mutex.h"
 #include "thread.h"
 #include "signal.h"
 #include "../logging.h"
@@ -31,7 +32,7 @@ struct cr_task {
 struct cr_thread_pool {
 	struct cr_task *first;
 	struct cr_task *last;
-	struct cr_mutex *mutex;
+	struct v_mutex *mutex;
 	struct cr_cond work_available;
 	struct cr_cond work_ongoing;
 	size_t active_threads;
@@ -68,28 +69,28 @@ static void *cr_worker(void *arg) {
 	block_signals();
 	struct cr_thread_pool *pool = arg;
 	while (true) {
-		mutex_lock(pool->mutex);
+		v_mutex_lock(pool->mutex);
 		while (!pool->first && !pool->stop_flag)
 			thread_cond_wait(&pool->work_available, pool->mutex);
 		if (pool->stop_flag) break;
 		struct cr_task *task = thread_pool_get_task(pool);
 		pool->active_threads++;
 		logr(spam, "++threadpool => %zu\n", pool->active_threads);
-		mutex_release(pool->mutex);
+		v_mutex_release(pool->mutex);
 		if (task) {
 			task->fn(task->arg);
 			free(task);
 		}
-		mutex_lock(pool->mutex);
+		v_mutex_lock(pool->mutex);
 		pool->active_threads--;
 		logr(spam, "--threadpool => %zu\n", pool->active_threads);
 		if (!pool->stop_flag && pool->active_threads == 0 && !pool->first)
 			thread_cond_signal(&pool->work_ongoing);
-		mutex_release(pool->mutex);
+		v_mutex_release(pool->mutex);
 	}
 	pool->alive_threads--;
 	thread_cond_signal(&pool->work_ongoing);
-	mutex_release(pool->mutex);
+	v_mutex_release(pool->mutex);
 	return NULL;
 }
 
@@ -101,7 +102,7 @@ struct cr_thread_pool *thread_pool_create(size_t threads) {
 	pool->alive_threads = threads;
 	pool->threads = calloc(pool->alive_threads, sizeof(*pool->threads));
 
-	pool->mutex = mutex_create();
+	pool->mutex = v_mutex_create();
 	thread_cond_init(&pool->work_available);
 	thread_cond_init(&pool->work_ongoing);
 
@@ -116,7 +117,7 @@ struct cr_thread_pool *thread_pool_create(size_t threads) {
 	return pool;
 fail:
 	free(pool->threads);
-	mutex_destroy(pool->mutex);
+	v_mutex_destroy(pool->mutex);
 	thread_cond_destroy(&pool->work_available);
 	thread_cond_destroy(&pool->work_ongoing);
 	free(pool);
@@ -127,7 +128,7 @@ void thread_pool_destroy(struct cr_thread_pool *pool) {
 	if (!pool)
 		return;
 	logr(debug, "Closing thread pool (%zut, %p)\n", pool->alive_threads, (void *)pool);
-	mutex_lock(pool->mutex);
+	v_mutex_lock(pool->mutex);
 	// Clear work queue
 	struct cr_task *head = pool->first;
 	struct cr_task *next = NULL;
@@ -139,12 +140,12 @@ void thread_pool_destroy(struct cr_thread_pool *pool) {
 	// Tell the workers to stop
 	pool->stop_flag = true;
 	thread_cond_broadcast(&pool->work_available);
-	mutex_release(pool->mutex);
+	v_mutex_release(pool->mutex);
 
 	// Wait for them to actually stop
 	thread_pool_wait(pool);
 
-	mutex_destroy(pool->mutex);
+	v_mutex_destroy(pool->mutex);
 	thread_cond_destroy(&pool->work_available);
 	thread_cond_destroy(&pool->work_ongoing);
 	free(pool->threads);
@@ -159,7 +160,7 @@ bool thread_pool_enqueue(struct cr_thread_pool *pool, void (*fn)(void *arg), voi
 	}
 	struct cr_task *task = task_create(fn, arg);
 	if (!task) return false;
-	mutex_lock(pool->mutex);
+	v_mutex_lock(pool->mutex);
 	if (!pool->first) {
 		pool->first = task;
 		pool->last = pool->first;
@@ -168,14 +169,14 @@ bool thread_pool_enqueue(struct cr_thread_pool *pool, void (*fn)(void *arg), voi
 		pool->last = task;
 	}
 	thread_cond_broadcast(&pool->work_available);
-	mutex_release(pool->mutex);
+	v_mutex_release(pool->mutex);
 	return true;
 }
 
 void thread_pool_wait(struct cr_thread_pool *pool) {
 	if (!pool)
 		return;
-	mutex_lock(pool->mutex);
+	v_mutex_lock(pool->mutex);
 	while (true) {
 		if (pool->first || (!pool->stop_flag && pool->active_threads != 0) || (pool->stop_flag && pool->alive_threads != 0)) {
 			thread_cond_wait(&pool->work_ongoing, pool->mutex);
@@ -183,5 +184,5 @@ void thread_pool_wait(struct cr_thread_pool *pool) {
 			break;
 		}
 	}
-	mutex_release(pool->mutex);
+	v_mutex_release(pool->mutex);
 }

@@ -17,8 +17,6 @@
 
 #include <v.h>
 
-#include "mutex.h"
-
 // small thread/sync abstraction for POSIX and Windows
 
 // #define CR_SIMULATE_NOTHREADS
@@ -62,11 +60,11 @@ int thread_cond_init(struct cr_cond *cond);
 
 int thread_cond_destroy(struct cr_cond *cond);
 
-int thread_cond_wait(struct cr_cond *cond, struct cr_mutex *mutex);
+int thread_cond_wait(struct cr_cond *cond, struct v_mutex *mutex);
 
 void ms_to_timespec(struct timespec *ts, unsigned int ms);
 
-int thread_cond_timed_wait(struct cr_cond *cond, struct cr_mutex *mutex, const struct timespec *absolute_time);
+int thread_cond_timed_wait(struct cr_cond *cond, struct v_mutex *mutex, const struct timespec *absolute_time);
 
 int thread_cond_signal(struct cr_cond *cond);
 

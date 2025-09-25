@@ -869,17 +869,17 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 
 		// And patch in a new set of tiles.
 		struct render_tile_arr new = tile_quantize(cam->width, cam->height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
-		mutex_lock(r->state.current_set->tile_mutex);
+		v_mutex_lock(r->state.current_set->tile_mutex);
 		render_tile_arr_free(&r->state.current_set->tiles);
 		r->state.current_set->tiles = new;
 		r->state.current_set->finished = 0;
-		mutex_release(r->state.current_set->tile_mutex);
+		v_mutex_release(r->state.current_set->tile_mutex);
 
 		cr_renderer_toggle_pause((struct cr_renderer *)r);
 	}
 	// sus
 	r->state.finishedPasses = 1;
-	mutex_lock(r->state.current_set->tile_mutex);
+	v_mutex_lock(r->state.current_set->tile_mutex);
 	tex_clear(r->state.result_buf);
 	r->state.current_set->finished = 0;
 	for (size_t i = 0; i < r->prefs.threads; ++i) {
@@ -891,7 +891,7 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 	thread_pool_wait(r->scene->bg_worker);
 	// Then update top-level BVH
 	update_toplevel_bvh(r->scene);
-	mutex_release(r->state.current_set->tile_mutex);
+	v_mutex_release(r->state.current_set->tile_mutex);
 }
 
 struct cr_bitmap *cr_renderer_get_result(struct cr_renderer *ext) {

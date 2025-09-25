@@ -14,7 +14,6 @@
 #include <common/logging.h>
 #include <common/texture.h>
 #include <common/platform/thread.h>
-#include <common/platform/mutex.h>
 #include <common/platform/capabilities.h>
 #include <common/platform/signal.h>
 #include <common/platform/thread_pool.h>
@@ -170,7 +169,7 @@ void renderer_render(struct renderer *r) {
 	}
 	
 	struct tile_set set = {
-		.tile_mutex = mutex_create(),
+		.tile_mutex = v_mutex_create(),
 		.tiles = tile_quantize(
 			camera->width,
 			camera->height,

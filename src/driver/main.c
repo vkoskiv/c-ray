@@ -18,7 +18,6 @@
 #include <common/vendored/cJSON.h>
 #include <common/json_loader.h>
 #include <common/platform/capabilities.h>
-#include <common/platform/mutex.h>
 #include <common/platform/thread.h>
 #include <encoders/encoder.h>
 #include <args.h>
@@ -26,7 +25,7 @@
 
 struct usr_data {
 	struct cr_renderer *r;
-	struct cr_mutex *win_mutex;
+	struct v_mutex *win_mutex;
 	struct sdl_window *w;
 	struct sdl_prefs p;
 	bool should_save;
@@ -53,9 +52,9 @@ static void *win_init_task(void *arg) {
 	struct usr_data *d = w->driver;
 	struct cr_renderer_cb_info *cb_info = w->cb_info;
 	struct sdl_window *win = win_try_init(&d->p, (*cb_info->fb)->width, (*cb_info->fb)->height);
-	mutex_lock(d->win_mutex);
+	v_mutex_lock(d->win_mutex);
 	if (d->p.enabled && *cb_info->fb) d->w = win;
-	mutex_release(d->win_mutex);
+	v_mutex_release(d->win_mutex);
 #if !defined(__APPLE__)
 	free(w);
 #endif
@@ -96,9 +95,9 @@ static void status(struct cr_renderer_cb_info *state, void *user_data) {
 	static int pauser = 0;
 	struct usr_data *d = user_data;
 	if (!d) return;
-	mutex_lock(d->win_mutex);
+	v_mutex_lock(d->win_mutex);
 	struct input_state in = win_update(d->w, state->tiles, state->tiles_count, *((struct texture **)state->fb));
-	mutex_release(d->win_mutex);
+	v_mutex_release(d->win_mutex);
 	d->should_save = in.should_save;
 	if (in.stop_render) cr_renderer_stop(d->r);
 	if (in.pause_render) cr_renderer_toggle_pause(d->r);
@@ -246,7 +245,7 @@ int main(int argc, char *argv[]) {
 		.p = sdl_parse(cJSON_GetObjectItem(input_json, "display")),
 		.r = renderer,
 		.should_save = true,
-		.win_mutex = mutex_create(),
+		.win_mutex = v_mutex_create(),
 	};
 	if (!args_is_set(opts, "no_sdl"))
 		cr_renderer_set_callback(renderer, cr_cb_on_start, on_start, &usrdata);

@@ -102,7 +102,7 @@ int thread_cond_destroy(struct cr_cond *cond) {
 	return 0;
 }
 
-int thread_cond_wait(struct cr_cond *cond, struct cr_mutex *mutex) {
+int thread_cond_wait(struct cr_cond *cond, struct v_mutex *mutex) {
 	if (!cond || !mutex) return -1;
 #ifdef WINDOWS
 	return thread_cond_timed_wait(cond, mutex, NULL);
@@ -125,7 +125,7 @@ void ms_to_timespec(struct timespec *ts, unsigned int ms) {
 	ts->tv_nsec = (ms % 1000) * 1000000;
 }
 
-int thread_cond_timed_wait(struct cr_cond *cond, struct cr_mutex *mutex, const struct timespec *absolute_time) {
+int thread_cond_timed_wait(struct cr_cond *cond, struct v_mutex *mutex, const struct timespec *absolute_time) {
 	if (!cond || !mutex) return -1;
 #ifdef WINDOWS
 	if (!SleepConditionVariableCS(&cond->cond, &mutex->lock, timespec_to_ms(absolute_time)))
