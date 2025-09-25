@@ -29,7 +29,6 @@
 
 #include <renderer/renderer.h>
 #include <common/texture.h>
-#include <common/timer.h>
 #include <common/platform/thread.h>
 #include <common/networking.h>
 #include <common/textbuffer.h>
@@ -416,7 +415,7 @@ struct render_client_arr clients_sync(const struct renderer *r) {
 			if (!params[i].done) all_stopped = false;
 		}
 		if (all_stopped) break;
-		timer_sleep_ms(10);
+		v_timer_sleep_ms(10);
 		if (++loops == 10) {
 			loops = 0;
 			print_progbars(params, clients.count);

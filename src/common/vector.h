@@ -9,7 +9,7 @@
 #pragma once
 
 #include <math.h>
-#include "dyn_array.h"
+#include <v.h>
 #include "cr_assert.h"
 #include "../includes.h"
 
@@ -18,7 +18,7 @@ struct vector {
 };
 
 typedef struct vector vector;
-dyn_array_def(vector)
+v_arr_def(vector)
 
 struct base {
 	struct vector i, j, k;
@@ -29,7 +29,7 @@ struct coord {
 };
 
 typedef struct coord coord;
-dyn_array_def(coord)
+v_arr_def(coord)
 
 struct intCoord {
 	int x, y;
@@ -53,7 +53,7 @@ struct vertex_buffer {
 };
 
 typedef struct vertex_buffer vertex_buffer;
-dyn_array_def(vertex_buffer)
+v_arr_def(vertex_buffer)
 
 
 static inline void vertex_buf_free(struct vertex_buffer *buf) {

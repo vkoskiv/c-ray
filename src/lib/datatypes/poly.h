@@ -9,7 +9,7 @@
 #pragma once
 
 #include "../../includes.h"
-#include <common/dyn_array.h>
+#include <v.h>
 #include <c-ray/c-ray.h>
 
 struct poly {
@@ -21,7 +21,7 @@ struct poly {
 };
 
 typedef struct poly poly;
-dyn_array_def(poly)
+v_arr_def(poly)
 
 struct lightRay;
 struct hitRecord;

@@ -12,7 +12,6 @@
 #include "pathtrace.h"
 #include <common/hashtable.h>
 #include <common/logging.h>
-#include <common/timer.h>
 #include <common/texture.h>
 #include <common/platform/thread.h>
 #include <common/platform/mutex.h>
@@ -316,7 +315,7 @@ void renderer_render(struct renderer *r) {
 				status.fn(&cb_info, status.user_data);
 			}
 
-			timer_sleep_ms(r->state.workers.items[0].paused ? paused_msec : active_msec);
+			v_timer_sleep_ms(r->state.workers.items[0].paused ? paused_msec : active_msec);
 		}
 	}
 
@@ -357,12 +356,12 @@ void *render_thread_interactive(void *arg) {
 	struct render_tile *tile = tile_next_interactive(r, threadState->tiles);
 	threadState->currentTile = tile;
 	
-	struct timeval timer = {0};
+	v_timer timer = { 0 };
 	
 	while (tile && r->state.s == r_rendering) {
 		long total_us = 0;
 
-		timer_start(&timer);
+		v_timer_start(&timer);
 		thread_rwlock_rdlock(r->scene->bvh_lock);
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
@@ -393,7 +392,7 @@ void *render_thread_interactive(void *arg) {
 		}
 		thread_rwlock_unlock(r->scene->bvh_lock);
 		//For performance metrics
-		total_us += timer_get_us(timer);
+		total_us += v_timer_get_us(timer);
 		threadState->totalSamples++;
 		threadState->avg_per_sample_us = total_us / r->state.finishedPasses;
 		
@@ -404,7 +403,7 @@ void *render_thread_interactive(void *arg) {
 		//Pause rendering when bool is set
 		while (threadState->paused && r->state.s == r_rendering) {
 			threadState->in_pause_loop = true;
-			timer_sleep_ms(100);
+			v_timer_sleep_ms(100);
 		}
 		if (threadState->in_pause_loop) {
 			tile = tile_next_interactive(r, threadState->tiles);
@@ -448,7 +447,7 @@ void *render_thread(void *arg) {
 		long total_us = 0;
 		
 		while (samples < r->prefs.sampleCount + 1 && r->state.s == r_rendering) {
-			timer_start(&timer);
+			v_timer_start(&timer);
 			for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 				for (int x = tile->begin.x; x < tile->end.x; ++x) {
 					if (r->state.s != r_rendering) goto exit;
@@ -472,13 +471,13 @@ void *render_thread(void *arg) {
 				}
 			}
 			//For performance metrics
-			total_us += timer_get_us(timer);
+			total_us += v_timer_get_us(timer);
 			threadState->totalSamples++;
 			samples++;
 			tile->completed_samples++;
 			//Pause rendering when bool is set
 			while (threadState->paused && r->state.s == r_rendering) {
-				timer_sleep_ms(100);
+				v_timer_sleep_ms(100);
 			}
 			threadState->avg_per_sample_us = total_us / samples;
 		}
@@ -514,13 +513,13 @@ void *render_single_iteration(void *arg) {
 	}
 	threadState->currentTile = tile;
 
-	struct timeval timer = { 0 };
+	v_timer timer = { 0 };
 	size_t samples = 1;
 
 	long total_us = 0;
 
 	while (samples < r->prefs.sampleCount + 1 && r->state.s == r_rendering) {
-		timer_start(&timer);
+		v_timer_start(&timer);
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
 				if (r->state.s != r_rendering) goto exit;
@@ -544,7 +543,7 @@ void *render_single_iteration(void *arg) {
 			}
 		}
 		//For performance metrics
-		total_us += timer_get_us(timer);
+		total_us += v_timer_get_us(timer);
 		threadState->totalSamples++;
 		samples++;
 		tile->completed_samples++;

@@ -10,9 +10,10 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <v.h>
+
 #include <common/transforms.h>
 #include <common/mempool.h>
-#include <common/dyn_array.h>
 #include "samplers/sampler.h"
 #include <nodes/bsdfnode.h>
 #include <datatypes/mesh.h>
@@ -33,7 +34,7 @@ struct instance {
 };
 
 typedef struct instance instance;
-dyn_array_def(instance)
+v_arr_def(instance)
 
 struct instance new_sphere_instance(struct sphere_arr *spheres, size_t idx, float *density, struct block **pool);
 struct instance new_mesh_instance(struct mesh_arr *meshes, size_t idx, float *density, struct block **pool);

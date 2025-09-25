@@ -30,7 +30,6 @@
 #include <common/networking.h>
 #include <common/cr_string.h>
 #include <common/gitsha1.h>
-#include <common/timer.h>
 #include <common/platform/signal.h>
 #include <common/platform/thread_pool.h>
 #include <accelerators/bvh.h>
@@ -132,7 +131,7 @@ static void *workerThread(void *arg) {
 
 	struct camera *cam = thread->cam;
 	
-	struct timeval timer = { 0 };
+	v_timer timer = { 0 };
 	thread->completedSamples = 1;
 	
 	struct texture *tileBuffer = NULL;
@@ -145,7 +144,7 @@ static void *workerThread(void *arg) {
 		long samples = 0;
 		
 		while (thread->completedSamples < r->prefs.sampleCount+1 && r->state.s == r_rendering) {
-			timer_start(&timer);
+			v_timer_start(&timer);
 			for (int y = thread->current->end.y - 1; y > thread->current->begin.y - 1; --y) {
 				for (int x = thread->current->begin.x; x < thread->current->end.x; ++x) {
 					if (r->state.s != r_rendering || !g_running) goto bail;
@@ -170,7 +169,7 @@ static void *workerThread(void *arg) {
 			}
 			//For performance metrics
 			samples++;
-			totalUsec += timer_get_us(timer);
+			totalUsec += v_timer_get_us(timer);
 			thread->completedSamples++;
 			thread->current->completed_samples++;
 			thread->avgSampleTime = totalUsec / samples;
@@ -301,7 +300,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 		}
 		if (inactive == threadCount) break;
 
-		timer_sleep_ms(active_msec);
+		v_timer_sleep_ms(active_msec);
 	}
 
 	g_worker_renderer->state.s = r_exiting;
@@ -421,8 +420,8 @@ int worker_start(int port, size_t thread_limit) {
 		for (;;) {
 			buf = NULL;
 			size_t length = 0;
-			struct timeval timer;
-			timer_start(&timer);
+			v_timer timer;
+			v_timer_start(&timer);
 			ssize_t read = chunkedReceive(connectionSocket, &buf, &length);
 			if (read == 0) break;
 			if (read < 0) {

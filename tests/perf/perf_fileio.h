@@ -6,18 +6,19 @@
 //  Copyright © 2020-2023 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <v.h>
+
 #include "../../src/common/fileio.h"
-#include "../../src/common/timer.h"
 #include "../../src/common/cr_assert.h"
 
 time_t fileio_load(void) {
-	struct timeval test;
-	timer_start(&test);
+	v_timer test = { 0 };
+	v_timer_start(&test);
 	
 	file_data bigfile = file_load("input/venusscaled.obj");
 	ASSERT(bigfile.items);
 	
-	time_t us = timer_get_us(test);
+	time_t us = v_timer_get_us(test);
 	file_free(&bigfile);
 	return us;
 }

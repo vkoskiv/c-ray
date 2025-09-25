@@ -10,8 +10,8 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <v.h>
 #include "color.h"
-#include "dyn_array.h"
 
 enum colorspace {
 	linear,
@@ -42,7 +42,7 @@ struct texture_asset {
 };
 
 typedef struct texture_asset texture_asset;
-dyn_array_def(texture_asset)
+v_arr_def(texture_asset)
 
 //FIXME: These are opposite states, which is kinda confusing.
 #define SRGB_TRANSFORM 0x01

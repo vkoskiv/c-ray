@@ -11,6 +11,7 @@
 #include "../../../../includes.h"
 #include "mtlloader.h"
 
+#include <v.h>
 #include <logging.h>
 #include <cr_string.h>
 #include <textbuffer.h>
@@ -87,7 +88,7 @@ struct material {
 };
 
 typedef struct material material;
-dyn_array_def(material)
+v_arr_def(material)
 
 // FIXME: Delete these and use ones in node.c instead
 static struct cr_shader_node *alloc(struct cr_shader_node d) {

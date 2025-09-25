@@ -15,7 +15,8 @@
 	#include <pthread.h>
 #endif
 
-#include "../dyn_array.h"
+#include <v.h>
+
 #include "mutex.h"
 
 // small thread/sync abstraction for POSIX and Windows
@@ -45,7 +46,7 @@ struct cr_cond {
 };
 
 typedef struct cr_thread cr_thread;
-dyn_array_def(cr_thread)
+v_arr_def(cr_thread)
 
 // Create & detach a thread. Used by thread pool.
 int thread_create_detach(struct cr_thread *t);

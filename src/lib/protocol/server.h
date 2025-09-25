@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <common/dyn_array.h>
+#include <v.h>
 
 #ifndef WINDOWS
 #include <netinet/in.h>
@@ -39,7 +39,7 @@ struct render_client {
 };
 
 typedef struct render_client render_client;
-dyn_array_def(render_client)
+v_arr_def(render_client)
 
 void clients_shutdown(const char *node_list);
 

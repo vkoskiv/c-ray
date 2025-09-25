@@ -6,6 +6,7 @@
 //  Copyright © 2024 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <stdlib.h>
 #include "thread_pool.h"
 #include "mutex.h"
 #include "thread.h"

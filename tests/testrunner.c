@@ -6,9 +6,10 @@
 //  Copyright © 2020-2024 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <v.h>
+
 #include "../src/includes.h"
 #include "../src/common/logging.h"
-#include "../src/common/timer.h"
 #include "../src/driver/args.h"
 
 #include "../src/common/cr_assert.h"
@@ -30,13 +31,13 @@ int runTests(char *suite) {
 	logr(info, "Running tests in a single process. Consider using run-tests.sh instead.\n");
 	
 	logr(info, "Running %u test%s.\n", test_count, PLURAL(test_count));
-	struct timeval t;
-	timer_start(&t);
+	v_timer t = { 0 };
+	v_timer_start(&t);
 	for (unsigned t = 0; t < test_count; ++t) {
 		runTest(t, suite);
 	}
 	logr(info, "Ran %u test%s in ", test_count, test_count > /* DISABLES CODE */ (1) ? "s" : "");
-	printSmartTime(timer_get_ms(t));
+	printSmartTime(v_timer_get_ms(t));
 	printf("\n");
 	return 0;
 }
@@ -50,13 +51,13 @@ int runPerfTests(char *suite) {
 	
 	logr(info, "Running %u test%s.\n", test_count, PLURAL(test_count));
 	logr(info, "Averaging runtime from %i runs for each test.\n", PERF_AVG_COUNT);
-	struct timeval t;
-	timer_start(&t);
+	v_timer t = { 0 };
+	v_timer_start(&t);
 	for (unsigned t = 0; t < test_count; ++t) {
 		runPerfTest(t, suite);
 	}
 	logr(info, "Ran %u performance test%s in ", test_count, test_count > /* DISABLES CODE */ (1) ? "s" : "");
-	printSmartTime(timer_get_ms(t));
+	printSmartTime(v_timer_get_ms(t));
 	printf("\n");
 	return 0;
 }
@@ -71,10 +72,10 @@ int runTest(unsigned t, char *suite) {
 		 t + 1, test_count,
 		 tests[first_idx + t].test_name);
 	
-	struct timeval test;
-	timer_start(&test);
+	v_timer test = { 0 };
+	v_timer_start(&test);
 	bool pass = tests[first_idx + t].func();
-	time_t usecs = timer_get_us(test);
+	time_t usecs = v_timer_get_us(test);
 	
 	printf(
 		 "[%s%s%s] "

@@ -8,9 +8,9 @@
 
 #pragma once
 
+#include <v.h>
 #include <datatypes/lightray.h>
 #include <datatypes/hitrecord.h>
-#include <common/dyn_array.h>
 
 struct sphere {
 	float radius;
@@ -18,6 +18,6 @@ struct sphere {
 };
 
 typedef struct sphere sphere;
-dyn_array_def(sphere)
+v_arr_def(sphere)
 
 bool rayIntersectsWithSphere(const struct lightRay *ray, const struct sphere *sphere, struct hitRecord *isect);

@@ -9,7 +9,6 @@
 #pragma once
 
 #include <common/color.h>
-#include <common/dyn_array.h>
 #include "../valuenode.h"
 
 const struct colorNode *new_color_ramp(const struct node_storage *s,

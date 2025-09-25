@@ -6,6 +6,7 @@
 //  Copyright © 2020-2025 Valtteri Koskivuori. All rights reserved.
 //
 
+#include <v.h>
 #include <renderer/samplers/sampler.h>
 #include <renderer/renderer.h>
 #include <common/color.h>
@@ -15,8 +16,7 @@
 #include <datatypes/poly.h>
 #include <datatypes/scene.h>
 #include "bsdfnode.h"
-#include "../../common/platform/thread_pool.h"
-#include "../../common/timer.h"
+#include <common/platform/thread_pool.h>
 
 #include "colornode.h"
 
@@ -32,14 +32,14 @@ struct decode_task_arg {
 
 void tex_decode_task(void *arg) {
 	struct decode_task_arg *dt = (struct decode_task_arg *)arg;
-	struct timeval timer = { 0 };
-	timer_start(&timer);
+	v_timer timer = { 0 };
+	v_timer_start(&timer);
 	file_data data = file_load(dt->path);
 	load_texture(dt->path, data, dt->out);
-	long ms_decode = timer_get_ms(timer);
+	long ms_decode = v_timer_get_ms(timer);
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	if (dt->options & SRGB_TRANSFORM) tex_from_srgb(dt->out);
-	long ms_total = timer_get_ms(timer);
+	long ms_total = v_timer_get_ms(timer);
 	file_free(&data);
 	char buf[3][64];
 	logr(debug, "Async decode of '%s' took %s (%s dec, %s sRGB)\n",

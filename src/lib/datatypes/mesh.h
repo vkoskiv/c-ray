@@ -8,13 +8,13 @@
 
 #pragma once
 
+#include <v.h>
 #include <c-ray/c-ray.h>
 #include <datatypes/poly.h>
-#include <common/dyn_array.h>
 #include <common/vector.h>
 
 typedef struct cr_face cr_face;
-dyn_array_def(cr_face)
+v_arr_def(cr_face)
 
 struct mesh {
 	struct vertex_buffer vbuf;
@@ -26,6 +26,6 @@ struct mesh {
 };
 
 typedef struct mesh mesh;
-dyn_array_def(mesh)
+v_arr_def(mesh)
 
 void mesh_free(struct mesh *mesh);

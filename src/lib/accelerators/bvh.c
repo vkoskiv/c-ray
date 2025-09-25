@@ -20,7 +20,6 @@
 #include <common/platform/thread_pool.h>
 #include <common/platform/capabilities.h>
 #include <common/platform/signal.h>
-#include <common/timer.h>
 
 #include <limits.h>
 #include <assert.h>

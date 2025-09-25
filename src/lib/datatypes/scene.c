@@ -9,11 +9,11 @@
 #include "../../includes.h"
 #include "scene.h"
 
+#include <v.h>
 #include <accelerators/bvh.h>
 #include <common/cr_string.h>
 #include <common/hashtable.h>
 #include <common/textbuffer.h>
-#include <common/dyn_array.h>
 #include <common/node_parse.h>
 #include <common/platform/capabilities.h>
 #include <common/platform/thread_pool.h>

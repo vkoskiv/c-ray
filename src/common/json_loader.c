@@ -8,12 +8,12 @@
 
 #include "../includes.h"
 
+#include <v.h>
+#include <c-ray/c-ray.h>
+
 #include "json_loader.h"
 #include "vendored/cJSON.h"
 #include "loaders/meshloader.h"
-
-#include <c-ray/c-ray.h>
-
 #include "node_parse.h"
 #include "loaders/textureloader.h"
 #include "quaternion.h"
@@ -23,7 +23,6 @@
 #include "platform/capabilities.h"
 #include "logging.h"
 #include "fileio.h"
-#include "timer.h"
 
 static struct transform parse_tform(const cJSON *data) {
 	const cJSON *type = cJSON_GetObjectItem(data, "type");
@@ -292,10 +291,10 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 
 	logr(plain, "\r");
 	logr(info, "Loading mesh file %i/%i%s", idx + 1, mesh_file_count, (idx + 1) == mesh_file_count ? "\n" : "\r");
-	struct timeval timer;
-	timer_start(&timer);
+	v_timer timer = { 0 };
+	v_timer_start(&timer);
 	struct mesh_parse_result result = load_meshes_from_file(full_path);
-	long us = timer_get_us(timer);
+	long us = v_timer_get_us(timer);
 	free(full_path);
 	long ms = us / 1000;
 	logr(debug, "Parsing file %-35s took %li %s\n", file_name, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");

@@ -17,9 +17,9 @@
 #include <common/logo.h>
 #include <common/loaders/textureloader.h>
 #include <common/platform/thread.h>
-#include <common/platform/dyn.h>
 #include <common/vendored/cJSON.h>
 #include <c-ray/c-ray.h>
+#include <v.h>
 
 #include "vendored/SDL2/SDL_render.h"
 #include "vendored/SDL2/SDL_events.h"
@@ -60,10 +60,11 @@ static void *try_find_sdl2_lib(void) {
 	};
 	void *lib = NULL;
 	for (size_t i = 0; i < (sizeof(candidates) / sizeof(*candidates)); ++i) {
-		if ((lib = dyn_load(candidates[i]))) return lib;
+		if ((lib = v_mod_load(candidates[i])))
+			return lib;
 	}
 
-	logr(debug, "Couldn't find SDL library (%s), tried the following names: ", dyn_error());
+	logr(debug, "Couldn't find SDL library (%s), tried the following names: ", v_mod_error());
 	for (size_t i = 0; i < (sizeof(candidates) / sizeof(*candidates)); ++i) {
 		logr(plain, "\"%s\" ", candidates[i]);
 	}
@@ -84,27 +85,27 @@ static struct sdl_syms *try_get_sdl2_syms(void) {
 	#pragma GCC diagnostic push
 	*syms = (struct sdl_syms){
 		.lib = sdl2,
-		.SDL_VideoInit              = dyn_sym(sdl2, "SDL_VideoInit"),
-		.SDL_VideoQuit              = dyn_sym(sdl2, "SDL_VideoQuit"),
-		.SDL_Quit                   = dyn_sym(sdl2, "SDL_Quit"),
-		.SDL_GetError               = dyn_sym(sdl2, "SDL_GetError"),
-		.SDL_SetWindowIcon          = dyn_sym(sdl2, "SDL_SetWindowIcon"),
-		.SDL_FreeSurface            = dyn_sym(sdl2, "SDL_FreeSurface"),
-		.SDL_CreateRGBSurfaceFrom   = dyn_sym(sdl2, "SDL_CreateRGBSurfaceFrom"),
-		.SDL_CreateWindow           = dyn_sym(sdl2, "SDL_CreateWindow"),
-		.SDL_CreateRenderer         = dyn_sym(sdl2, "SDL_CreateRenderer"),
-		.SDL_CreateTexture          = dyn_sym(sdl2, "SDL_CreateTexture"),
-		.SDL_DestroyTexture         = dyn_sym(sdl2, "SDL_DestroyTexture"),
-		.SDL_DestroyRenderer        = dyn_sym(sdl2, "SDL_DestroyRenderer"),
-		.SDL_DestroyWindow          = dyn_sym(sdl2, "SDL_DestroyWindow"),
-		.SDL_RenderPresent          = dyn_sym(sdl2, "SDL_RenderPresent"),
-		.SDL_RenderSetLogicalSize   = dyn_sym(sdl2, "SDL_RenderSetLogicalSize"),
-		.SDL_SetRenderDrawBlendMode = dyn_sym(sdl2, "SDL_SetRenderDrawBlendMode"),
-		.SDL_SetTextureBlendMode    = dyn_sym(sdl2, "SDL_SetTextureBlendMode"),
-		.SDL_RenderSetScale         = dyn_sym(sdl2, "SDL_RenderSetScale"),
-		.SDL_PollEvent              = dyn_sym(sdl2, "SDL_PollEvent"),
-		.SDL_UpdateTexture          = dyn_sym(sdl2, "SDL_UpdateTexture"),
-		.SDL_RenderCopy             = dyn_sym(sdl2, "SDL_RenderCopy")
+		.SDL_VideoInit              = v_mod_sym(sdl2, "SDL_VideoInit"),
+		.SDL_VideoQuit              = v_mod_sym(sdl2, "SDL_VideoQuit"),
+		.SDL_Quit                   = v_mod_sym(sdl2, "SDL_Quit"),
+		.SDL_GetError               = v_mod_sym(sdl2, "SDL_GetError"),
+		.SDL_SetWindowIcon          = v_mod_sym(sdl2, "SDL_SetWindowIcon"),
+		.SDL_FreeSurface            = v_mod_sym(sdl2, "SDL_FreeSurface"),
+		.SDL_CreateRGBSurfaceFrom   = v_mod_sym(sdl2, "SDL_CreateRGBSurfaceFrom"),
+		.SDL_CreateWindow           = v_mod_sym(sdl2, "SDL_CreateWindow"),
+		.SDL_CreateRenderer         = v_mod_sym(sdl2, "SDL_CreateRenderer"),
+		.SDL_CreateTexture          = v_mod_sym(sdl2, "SDL_CreateTexture"),
+		.SDL_DestroyTexture         = v_mod_sym(sdl2, "SDL_DestroyTexture"),
+		.SDL_DestroyRenderer        = v_mod_sym(sdl2, "SDL_DestroyRenderer"),
+		.SDL_DestroyWindow          = v_mod_sym(sdl2, "SDL_DestroyWindow"),
+		.SDL_RenderPresent          = v_mod_sym(sdl2, "SDL_RenderPresent"),
+		.SDL_RenderSetLogicalSize   = v_mod_sym(sdl2, "SDL_RenderSetLogicalSize"),
+		.SDL_SetRenderDrawBlendMode = v_mod_sym(sdl2, "SDL_SetRenderDrawBlendMode"),
+		.SDL_SetTextureBlendMode    = v_mod_sym(sdl2, "SDL_SetTextureBlendMode"),
+		.SDL_RenderSetScale         = v_mod_sym(sdl2, "SDL_RenderSetScale"),
+		.SDL_PollEvent              = v_mod_sym(sdl2, "SDL_PollEvent"),
+		.SDL_UpdateTexture          = v_mod_sym(sdl2, "SDL_UpdateTexture"),
+		.SDL_RenderCopy             = v_mod_sym(sdl2, "SDL_RenderCopy")
 	};
 	#pragma GCC diagnostic pop
 	for (size_t i = 0; i < (sizeof(struct sdl_syms) / sizeof(void *)); ++i) {
@@ -272,7 +273,7 @@ void win_destroy(struct sdl_window *w) {
 		}
 		w->sym->SDL_VideoQuit();
 		w->sym->SDL_Quit();
-		dyn_close(w->sym->lib);
+		v_mod_close(w->sym->lib);
 		free(w->sym);
 	}
 	free(w);

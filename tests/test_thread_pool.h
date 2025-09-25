@@ -7,16 +7,16 @@
 //
 
 #include "../src/common/platform/thread_pool.h"
-#include "../src/common/timer.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <v.h>
 
 void test_task(void *arg) {
 	int *input = arg;
 	*input += 1000;
 	if (*input % 2) {
-		timer_sleep_ms(10);
+		v_timer_sleep_ms(10);
 	}
 }
 

@@ -33,7 +33,7 @@ struct worker {
 	struct render_client *client; // Optional
 };
 typedef struct worker worker;
-dyn_array_def(worker)
+v_arr_def(worker)
 
 struct callback {
 	void (*fn)(struct cr_renderer_cb_info *, void *);

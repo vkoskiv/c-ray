@@ -11,8 +11,11 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
-#include <common/timer.h>
+#define V_IMPLEMENTATION
+#include <v.h>
+
 #include <common/gitsha1.h>
 #include <common/fileio.h>
 #include <common/cr_assert.h>
@@ -162,7 +165,7 @@ void cr_renderer_stop(struct cr_renderer *ext) {
 	r->state.s = r_exiting;
 	// TODO: use pthread_cond instead of silly busy-waiting loops like this
 	do {
-		timer_sleep_ms(10);
+		v_timer_sleep_ms(10);
 	} while (r->prefs.iterative && r->state.s == r_exiting);
 }
 
@@ -249,10 +252,10 @@ struct bvh_build_task_arg {
 void bvh_build_task(void *arg) {
 	// Mesh array may get realloc'd at any time, so we use a copy of mesh while working
 	struct bvh_build_task_arg *bt = (struct bvh_build_task_arg *)arg;
-	struct timeval timer = { 0 };
-	timer_start(&timer);
+	v_timer timer = { 0 };
+	v_timer_start(&timer);
 	struct bvh *bvh = build_mesh_bvh(&bt->mesh);
-	long ms = timer_get_ms(timer);
+	long ms = v_timer_get_ms(timer);
 	if (!bvh) {
 		logr(debug, "BVH build FAILED for %s\n", bt->mesh.name);
 		free(bt);
@@ -852,7 +855,7 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 		cr_renderer_toggle_pause((struct cr_renderer *)r);
 		for (size_t i = 0; i < r->state.workers.count; ++i) {
 			while (!r->state.workers.items[i].in_pause_loop) {
-				timer_sleep_ms(1);
+				v_timer_sleep_ms(1);
 				if (r->state.s != r_rendering) {
 					// Renderer stopped, bail out.
 					cr_renderer_toggle_pause((struct cr_renderer *)r);

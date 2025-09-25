@@ -48,7 +48,6 @@ static char *failed_expression;
 #include "test_nodes.h"
 #include "test_linked_list.h"
 #include "test_parser.h"
-#include "test_dyn_array.h"
 #include "test_serializer.h"
 #include "test_thread_pool.h"
 
@@ -178,13 +177,6 @@ static test tests[] = {
 	{"parser::parser_color_array", parser_color_array},
 	{"parser::parser_color_blackbody", parser_color_blackbody},
 	{"parser::parser_color_hsl", parser_color_hsl},
-	{"dyn_array::basic", dyn_array_basic},
-	{"dyn_array::linear_grow", dyn_array_linear_grow},
-	{"dyn_array::custom", dyn_array_custom},
-	{"dyn_array::trim", dyn_array_trim},
-	{"dyn_array::trim_expand", dyn_array_trim_expand},
-	{"dyn_array::copy", dyn_array_copy},
-	{"dyn_array::join", dyn_array_join},
 
 	{"serializer::serialize", serializer_serialize},
 

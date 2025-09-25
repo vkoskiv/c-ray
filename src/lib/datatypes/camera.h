@@ -8,10 +8,10 @@
 
 #pragma once
 
+#include <v.h>
 #include <common/vector.h>
 #include <common/quaternion.h>
 #include <common/transforms.h>
-#include <common/dyn_array.h>
 #include "lightray.h"
 #include "spline.h"
 
@@ -44,7 +44,7 @@ struct camera {
 };
 
 typedef struct camera camera;
-dyn_array_def(camera)
+v_arr_def(camera)
 
 struct sampler;
 

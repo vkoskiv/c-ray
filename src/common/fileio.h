@@ -11,7 +11,7 @@
 #include "../includes.h"
 #include <stdbool.h>
 #include <stddef.h>
-#include "dyn_array.h"
+#include <v.h>
 
 struct file_cache;
 
@@ -30,7 +30,7 @@ enum fileType {
 };
 
 typedef byte file_bytes;
-dyn_array_def(file_bytes)
+v_arr_def(file_bytes)
 typedef struct file_bytes_arr file_data;
 
 enum fileType match_file_type(const char *ext);

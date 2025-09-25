@@ -7,13 +7,13 @@
 //
 
 #include <c-ray/c-ray.h>
+#include <v.h>
 
 #include <imagefile.h>
 #include <common/logging.h>
 #include <common/cr_string.h>
 #include <common/fileio.h>
 #include <common/platform/terminal.h>
-#include <common/timer.h>
 #include <common/hashtable.h>
 #include <common/vendored/cJSON.h>
 #include <common/json_loader.h>
@@ -159,10 +159,10 @@ int main(int argc, char *argv[]) {
 	}
 	char size_buf[64];
 	logr(info, "%s of input JSON loaded from %s, parsing.\n", human_file_size(input_bytes.count, size_buf), args_is_set(opts, "inputFile") ? "file" : "stdin");
-	struct timeval json_timer;
-	timer_start(&json_timer);
+	v_timer json_timer = { 0 };
+	v_timer_start(&json_timer);
 	cJSON *input_json = cJSON_ParseWithLength((const char *)input_bytes.items, input_bytes.count);
-	size_t json_ms = timer_get_ms(json_timer);
+	size_t json_ms = v_timer_get_ms(json_timer);
 	if (!input_json) {
 		const char *errptr = cJSON_GetErrorPtr();
 		if (errptr) {
@@ -294,10 +294,10 @@ int main(int argc, char *argv[]) {
 		KNRM,
 		PLURAL(threads));
 
-	struct timeval timer;
-	timer_start(&timer);
+	v_timer timer = { 0 };
+	v_timer_start(&timer);
 	cr_renderer_render(renderer);
-	long ms = timer_get_ms(timer);
+	long ms = v_timer_get_ms(timer);
 	char buf[64] = { 0 };
 	logr(plain, "\n");
 	logr(info, "Finished render in %s\n", ms_to_readable(ms, buf));

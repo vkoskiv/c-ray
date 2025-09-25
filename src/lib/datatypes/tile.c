@@ -11,7 +11,6 @@
 #include "tile.h"
 
 #include <common/logging.h>
-#include <common/timer.h>
 #include <common/platform/mutex.h>
 #include <vendored/pcg_basic.h>
 #include <string.h>
@@ -69,7 +68,7 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 			return NULL;
 		}
 		// FIXME: Use an atomic conditional for this, instead of polling here
-		timer_sleep_ms(32);
+		v_timer_sleep_ms(32);
 		goto again;
 	}
 	mutex_release(set->tile_mutex);

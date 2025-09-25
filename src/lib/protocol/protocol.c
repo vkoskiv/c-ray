@@ -13,6 +13,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <v.h>
 
 #include <common/logging.h>
 #include <common/vector.h>
@@ -24,7 +25,6 @@
 #include <common/gitsha1.h>
 #include <common/networking.h>
 #include <common/base64.h>
-#include <common/timer.h>
 #include <common/node_parse.h>
 #include <common/platform/thread_pool.h>
 #include <common/platform/capabilities.h>
@@ -47,8 +47,8 @@ bool sendJSON(int socket, cJSON *json, size_t *progress) {
 cJSON *readJSON(int socket) {
 	char *recvBuf = NULL;
 	size_t length = 0;
-	struct timeval timer;
-	timer_start(&timer);
+	v_timer timer;
+	v_timer_start(&timer);
 	if (chunkedReceive(socket, &recvBuf, &length) == 0) {
 		return NULL;
 	}
