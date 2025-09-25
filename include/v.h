@@ -96,16 +96,8 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 	return capacity * 2;
 }
 
-// TODO: How do I want to deal with system headers? I'd rather not #include string.h here.
-// string.h
-extern void *memcpy (void *__restrict __dest, const void *__restrict __src,
-		     size_t __n) __THROW __nonnull ((1, 2));
-// stdlib.h
-extern void *malloc (size_t __size) __THROW __attribute_malloc__
-     __attribute_alloc_size__ ((1)) __wur;
-extern void *realloc (void *__ptr, size_t __size)
-     __THROW __attribute_warn_unused_result__ __attribute_alloc_size__ ((2));
-extern void free (void *__ptr) __THROW;
+#include <string.h>
+#include <stdlib.h>
 
 #define v_arr_def(T) \
 	struct T##_arr { \
