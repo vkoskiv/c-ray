@@ -33,7 +33,7 @@ struct world *scene_new(void) {
 	s->asset_path = stringCopy("./");
 	s->storage.node_pool = newBlock(NULL, 1024);
 	s->storage.node_table = newHashtable(compareNodes, &s->storage.node_pool);
-	s->bvh_lock = thread_rwlock_init();
+	s->bvh_lock = v_rwlock_create();
 	s->bg_worker = thread_pool_create(sys_get_cores());
 	return s;
 }
@@ -46,12 +46,12 @@ void scene_destroy(struct world *scene) {
 		scene->meshes.elem_free = mesh_free;
 		mesh_arr_free(&scene->meshes);
 
-		thread_rwlock_wrlock(scene->bvh_lock);
+		v_rwlock_write_lock(scene->bvh_lock);
 		destroy_bvh(scene->topLevel);
-		thread_rwlock_unlock(scene->bvh_lock);
+		v_rwlock_unlock(scene->bvh_lock);
 
 		thread_pool_destroy(scene->bg_worker);
-		thread_rwlock_destroy(scene->bvh_lock);
+		v_rwlock_destroy(scene->bvh_lock);
 
 		destroyHashtable(scene->storage.node_table);
 		destroyBlocks(scene->storage.node_pool);

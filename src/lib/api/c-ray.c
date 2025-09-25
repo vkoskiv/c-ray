@@ -262,10 +262,10 @@ void bvh_build_task(void *arg) {
 		return;
 	}
 	//!//!//!//!//!//!//!//!//!//!//!//!
-	thread_rwlock_wrlock(bt->scene->bvh_lock);
+	v_rwlock_write_lock(bt->scene->bvh_lock);
 	struct bvh *old_bvh = bt->scene->meshes.items[bt->mesh_idx].bvh;
 	bt->scene->meshes.items[bt->mesh_idx].bvh = bvh;
-	thread_rwlock_unlock(bt->scene->bvh_lock);
+	v_rwlock_unlock(bt->scene->bvh_lock);
 	//!//!//!//!//!//!//!//!//!//!//!//!
 	logr(debug, "BVH %s for %s (%lums)\n", old_bvh ? "updated" : "built", bt->mesh.name, ms);
 	destroy_bvh(old_bvh);
@@ -315,9 +315,9 @@ cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name) {
 	struct world *scene = (struct world *)s_ext;
 	struct mesh new = { 0 };
 	if (name) new.name = stringCopy(name);
-	thread_rwlock_wrlock(scene->bvh_lock);
+	v_rwlock_write_lock(scene->bvh_lock);
 	cr_mesh idx = mesh_arr_add(&scene->meshes, new);
-	thread_rwlock_unlock(scene->bvh_lock);
+	v_rwlock_unlock(scene->bvh_lock);
 	return idx;
 }
 

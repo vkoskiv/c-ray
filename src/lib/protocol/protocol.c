@@ -771,7 +771,7 @@ struct world *deserialize_scene(const cJSON *in) {
 	out->asset_path = stringCopy("./");
 	out->storage.node_pool = newBlock(NULL, 1024);
 	out->storage.node_table = newHashtable(compareNodes, &out->storage.node_pool);
-	out->bvh_lock = thread_rwlock_init();
+	out->bvh_lock = v_rwlock_create();
 	out->bg_worker = thread_pool_create(sys_get_cores());
 
 	cJSON *asset_path = cJSON_GetObjectItem(in, "asset_path");
@@ -818,10 +818,10 @@ struct world *deserialize_scene(const cJSON *in) {
 	if (cJSON_IsArray(meshes)) {
 		cJSON *mesh = NULL;
 		cJSON_ArrayForEach(mesh, meshes) {
-			thread_rwlock_wrlock(out->bvh_lock);
+			v_rwlock_write_lock(out->bvh_lock);
 			cr_mesh idx = mesh_arr_add(&out->meshes, deserialize_mesh(mesh));
 			cr_mesh_finalize((struct cr_scene *)out, idx);
-			thread_rwlock_unlock(out->bvh_lock);
+			v_rwlock_unlock(out->bvh_lock);
 		}
 	}
 

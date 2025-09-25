@@ -162,26 +162,69 @@ extern void free (void *__ptr) __THROW;
 		T##_arr_free(b); \
 	}
 
-// --- decl v_mutex (Mutexes, pthreads & win32)
+// --- decl v_mem (Arena allocator) (TODO)
+
+// --- decl v_sync (Sync primitives (mutex, rwlock, condition variables), pthreads & win32)
 #if defined(WINDOWS)
 	#include <Windows.h>
 #else
 	#include <pthread.h>
 #endif
 
-// FIXME: The struct is exposed here because thread.c guts access lock when passing to pthread_cond_wait.
-struct v_mutex {
+struct v_mutex;
+typedef struct v_mutex v_mutex;
+v_mutex *v_mutex_create(void);
+void v_mutex_destroy(v_mutex *);
+void v_mutex_lock(v_mutex *);
+void v_mutex_release(v_mutex *);
+
+struct v_cond;
+typedef struct v_cond v_cond;
+v_cond *v_cond_create(void);
+void v_cond_destroy(v_cond *);
+int v_cond_wait(v_cond *, v_mutex *);
+int v_cond_timedwait(v_cond *, v_mutex *, const struct timespec *);
+int v_cond_signal(v_cond *);    // Wake one thread waiting on v_cond
+int v_cond_broadcast(v_cond *); // Wake all threads waiting on v_cond
+
+struct v_rwlock;
+typedef struct v_rwlock v_rwlock;
+v_rwlock *v_rwlock_create(void);
+void v_rwlock_destroy(v_rwlock *);
+int v_rwlock_read_lock(v_rwlock *);
+int v_rwlock_write_lock(v_rwlock *);
+int v_rwlock_unlock(v_rwlock *);
+
+// --- decl v_thread (Threading abstraction, pthreads & win32)
 #if defined(WINDOWS)
-	LPCRITICAL_SECTION lock;
+	#include <stdbool.h>
+	#include <Windows.h>
 #else
-	pthread_mutex_t lock;
+	#include <pthread.h>
 #endif
+
+// TODO: Maybe wrap the platform-specific data in an opaque struct?
+struct v_thread {
+#if defined(WINDOWS)
+	HANDLE thread_handle;
+	DWORD thread_id;
+#else
+	pthread_t thread_id;
+#endif
+	void *ctx;                  // Thread context, this gets passed to thread_fn
+	void *(*thread_fn)(void *); // The function to run in this thread
+};
+typedef struct v_thread v_thread;
+
+enum v_thread_type {
+	v_thread_type_joinable = 0,
+	v_thread_type_detached,
 };
 
-struct v_mutex *v_mutex_create(void);
-void v_mutex_destroy(struct v_mutex *);
-void v_mutex_lock(struct v_mutex *);
-void v_mutex_release(struct v_mutex *);
+int v_thread_start(v_thread *, enum v_thread_type);
+void v_thread_exit(void *);
+void *v_thread_wait(v_thread *);
+
 
 #ifdef __cplusplus
 }
@@ -360,11 +403,21 @@ v_arr_def(size_t)
 
 
 // --- impl v_mem (Arena allocator) (TODO)
-// --- impl v_sync (Sync primitives (mutex, rwlock))(c-ray)
 
-// --- impl v_mutex (Mutexes, pthreads & win32)
-struct v_mutex *v_mutex_create(void) {
-	struct v_mutex *m = calloc(1, sizeof(*m));
+// --- impl v_sync (Sync primitives (mutex, rwlock, condition variables), pthreads & win32)
+
+struct v_mutex {
+#if defined(WINDOWS)
+	LPCRITICAL_SECTION lock;
+#else
+	pthread_mutex_t lock;
+#endif
+};
+
+v_mutex *v_mutex_create(void) {
+	v_mutex *m = calloc(1, sizeof(*m));
+	if (!m)
+		return NULL;
 #if defined(WINDOWS)
 	InitializeCriticalSection(&m->lock);
 #else
@@ -373,7 +426,7 @@ struct v_mutex *v_mutex_create(void) {
 	return m;
 }
 
-void v_mutex_destroy(struct v_mutex *m) {
+void v_mutex_destroy(v_mutex *m) {
 	if (!m)
 		return;
 #if defined(WINDOWS)
@@ -384,7 +437,7 @@ void v_mutex_destroy(struct v_mutex *m) {
 	free(m);
 }
 
-void v_mutex_lock(struct v_mutex *m) {
+void v_mutex_lock(v_mutex *m) {
 #if defined(WINDOWS)
 	EnterCriticalSection(&m->lock);
 #else
@@ -392,14 +445,242 @@ void v_mutex_lock(struct v_mutex *m) {
 #endif
 }
 
-void v_mutex_release(struct v_mutex *m) {
+void v_mutex_release(v_mutex *m) {
 #if defined(WINDOWS)
 	LeaveCriticalSection(&m->lock);
 #else
 	pthread_mutex_unlock(&m->lock);
 #endif
 }
-// --- impl v_thread (Thread )
+
+struct v_cond {
+#if defined(WINDOWS)
+	PCONDITION_VARIABLE cond;
+#else
+	pthread_cond_t cond;
+#endif
+};
+
+v_cond *v_cond_create(void) {
+	struct v_cond *c = calloc(1, sizeof(*c));
+	if (!c)
+		return NULL;
+#if defined(WINDOWS)
+	InitializeConditionVariable(&c->cond);
+#else
+	// TODO: What's that second param?
+	pthread_cond_init(&c->cond, NULL);
+#endif
+	return c;
+}
+
+void v_cond_destroy(v_cond *c) {
+	if (!c)
+		return;
+#if defined(WINDOWS)
+	// TODO: Check if we need to do anything
+#else
+	pthread_cond_destroy(&c->cond);
+	free(c);
+#endif
+}
+
+int v_cond_wait(v_cond *c, v_mutex *m) {
+	if (!c || !m)
+		return -1;
+#if defined(WINDOWS)
+	return v_cond_timed_wait(c, m, NULL);
+#else
+	return pthread_cond_wait(&c->cond, &m->lock);
+#endif
+}
+
+#if defined(WINDOWS)
+static DWORD timespec_to_ms(const struct timespec *absolute_time) {
+	if (!absolute_time)
+		return INFINITE;
+	DWORD t = ((absolute_time->tv_sec - time(NULL)) * 1000) + (absolute_time->tv_nsec / 1000000);
+	return t < 0 ? 1 : t;
+}
+#endif
+
+int v_cond_timedwait(v_cond *c, v_mutex *m, const struct timespec *ts) {
+	if (!c || !m)
+		return -1;
+#if defined(WINDOWS)
+	if (!SleepConditionVariableCS(&c->cond, &m->lock, timespec_to_ms(ts)))
+		return -1;
+#else
+	return pthread_cond_timedwait(&c->cond, &m->lock, ts);
+#endif
+}
+
+int v_cond_signal(v_cond *c) {
+	if (!c)
+		return -1;
+#if defined(WINDOWS)
+	// TODO: Check return val?
+	WakeConditionVariable(&c->cond);
+	return 0;
+#else
+	return pthread_cond_signal(&c->cond);
+#endif
+}
+
+int v_cond_broadcast(v_cond *c) {
+	if (!c)
+		return -1;
+#if defined(WINDOWS)
+	WakeAllConditionVariable(&c->cond);
+	return 0;
+#else
+	return pthread_cond_broadcast(&c->cond);
+#endif
+}
+
+#if defined(WINDOWS)
+struct v_rwlock {
+	SRWLOCK lock;
+	bool exclusive;
+};
+#endif
+
+v_rwlock *v_rwlock_create(void) {
+#if defined(WINDOWS)
+	v_rwlock *l = malloc(sizeof(*l));
+	InitializeSRWLock(&l->lock);
+	l->exclusive = false;
+	return l;
+#else
+	pthread_rwlock_t *l = malloc(sizeof(*l));
+	int ret = pthread_rwlock_init(l, NULL);
+	if (ret) {
+		free(l);
+		return NULL;
+	}
+	return (v_rwlock *)l;
+#endif
+}
+
+void v_rwlock_destroy(v_rwlock *l) {
+	if (!l)
+		return;
+#if defined(WINDOWS)
+	free(l);
+#else
+	pthread_rwlock_destroy((pthread_rwlock_t *)l);
+	free(l);
+#endif
+}
+
+int v_rwlock_read_lock(v_rwlock *l) {
+	if (!l)
+		return -1;
+#if defined(WINDOWS)
+	AcquireSRWLockShared(&l->lock);
+	return 0;
+#else
+	return pthread_rwlock_rdlock((pthread_rwlock_t *)l);
+#endif
+}
+
+int v_rwlock_write_lock(v_rwlock *l) {
+	if (!l)
+		return -1;
+#if defined(WINDOWS)
+	AcquireSRWLockExclusive(&l->lock);
+	l->exclusive = true;
+	return 0;
+#else
+	return pthread_rwlock_wrlock((pthread_rwlock_t *)l);
+#endif
+}
+
+int v_rwlock_unlock(v_rwlock *l) {
+	if (!l)
+		return -1;
+#if defined(WINDOWS)
+	if (l->exclusive) {
+		l->exclusive = false;
+		ReleaseSRWLockExclusive(&l->lock);
+	} else {
+		ReleaseSRWLockShared(&l->lock);
+	}
+	return 0;
+#else
+	return pthread_rwlock_unlock((pthread_rwlock_t *)l);
+#endif
+}
+
+// --- impl v_thread (Threading abstraction, pthreads & win32)
+
+#if defined(WINDOWS)
+static DWORD WINAPI thread_stub(LPVOID arg) {
+#else
+static void *thread_stub(void *arg) {
+#endif
+	v_thread copy = *((struct v_thread *)arg);
+	free(arg);
+	return copy.thread_fn(copy.ctx);
+}
+
+int v_thread_start(v_thread *t, enum v_thread_type type) {
+	if (!t)
+		return -1;
+	// NOTE: We extend the lifetime with this allocation, so users can pass in
+	// references to locals like a designated initializer like this:
+	// int rc = v_thread_start(&(struct v_thread){ .thread_fn = foobar_fn, ctx = foobar_ctx });
+	// The allocation is freed automatically by thread_stub.
+	// TODO: Look into a solution that obviates a heap alloc
+	v_thread *temp = calloc(1, sizeof(*temp));
+	*temp = *t;
+#if defined(WINDOWS)
+	t->thread_handle = CreateThread(NULL, 0, thread_stub, temp, 0, &t->thread_id);
+	if (t->thread_handle == NULL)
+		return -1;
+	if (type == v_thread_type_detached)
+		CloseHandle(t->thread_handle);
+	return 0;
+#else
+	pthread_attr_t attribs;
+	pthread_attr_init(&attribs);
+	switch (type) {
+	case v_thread_type_joinable:
+		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
+		break;
+	case v_thread_type_detached:
+		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_DETACHED);
+		break;
+	}
+	int rc = pthread_create(&t->thread_id, &attribs, thread_stub, temp);
+	pthread_attr_destroy(&attribs);
+	return rc;
+#endif
+}
+
+void v_thread_exit(void *arg) {
+#if defined(WINDOWS)
+	return; // FIXME
+#else
+	pthread_exit(arg);
+#endif
+}
+
+void *v_thread_wait(v_thread *t) {
+#if defined(WINDOWS)
+	WaitForSingleObjectEx(t->thread_handle, INFINITE, FALSE);
+	CloseHandle(t->thread_handle);
+	return NULL;
+#else
+	int ret = 0;
+	void *thread_ret = NULL;
+	ret = pthread_join(t->thread_id, &thread_ret);
+	if (!ret && thread_ret)
+		return thread_ret;
+	return NULL;
+#endif
+}
+
 // --- impl job_queue
 
 #ifdef __cplusplus

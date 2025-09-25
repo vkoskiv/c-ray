@@ -26,7 +26,6 @@
 #include <datatypes/scene.h>
 #include <datatypes/camera.h>
 #include <common/texture.h>
-#include <common/platform/thread.h>
 #include <common/networking.h>
 #include <common/cr_string.h>
 #include <common/gitsha1.h>
@@ -37,7 +36,7 @@
 #include <inttypes.h>
 
 struct renderer *g_worker_renderer = NULL;
-struct v_mutex *g_worker_socket_mutex = NULL;
+v_mutex *g_worker_socket_mutex = NULL;
 static bool g_running = false;
 
 struct command workerCommands[] = {
@@ -121,7 +120,7 @@ static void *workerThread(void *arg) {
 	struct workerThreadState *thread = arg;
 	struct renderer *r = thread->renderer;
 	int sock = thread->connectionSocket;
-	struct v_mutex *sockMutex = thread->socketMutex;
+	v_mutex *sockMutex = thread->socketMutex;
 	
 	//Fetch initial task
 	v_mutex_lock(sockMutex);
@@ -210,7 +209,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	logr(info, "Starting network render job\n");
 	
 	size_t threadCount = thread_limit ? thread_limit : g_worker_renderer->prefs.threads;
-	struct cr_thread *worker_threads = calloc(threadCount, sizeof(*worker_threads));
+	v_thread *worker_threads = calloc(threadCount, sizeof(*worker_threads));
 	struct workerThreadState *workerThreadStates = calloc(threadCount, sizeof(*workerThreadStates));
 	
 	struct camera selected_cam = g_worker_renderer->scene->cameras.items[g_worker_renderer->prefs.selected_camera];
@@ -265,8 +264,8 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 				.renderer = g_worker_renderer,
 				.tiles = &set,
 				.cam = &selected_cam};
-		worker_threads[t] = (struct cr_thread){.thread_fn = workerThread, .user_data = &workerThreadStates[t]};
-		if (thread_start(&worker_threads[t]))
+		worker_threads[t] = (v_thread){.thread_fn = workerThread, .ctx = &workerThreadStates[t]};
+		if (v_thread_start(&worker_threads[t], v_thread_type_joinable))
 			logr(error, "Failed to create a crThread.\n");
 	}
 	
@@ -307,7 +306,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 
 	//Make sure workder threads are terminated before continuing (This blocks)
 	for (size_t t = 0; t < threadCount; ++t) {
-		thread_wait(&worker_threads[t]);
+		v_thread_wait(&worker_threads[t]);
 	}
 	tile_set_free(&set);
 	free(worker_threads);

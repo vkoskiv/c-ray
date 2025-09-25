@@ -23,13 +23,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <v.h>
 
 #include "server.h"
 #include "protocol.h"
 
 #include <renderer/renderer.h>
 #include <common/texture.h>
-#include <common/platform/thread.h>
 #include <common/networking.h>
 #include <common/textbuffer.h>
 #include <common/gitsha1.h>
@@ -394,16 +394,16 @@ struct render_client_arr clients_sync(const struct renderer *r) {
 		params[i].serialized_renderer = serialized;
 	}
 	
-	struct cr_thread *sync_threads = calloc(clients.count, sizeof(*sync_threads));
+	v_thread *sync_threads = calloc(clients.count, sizeof(*sync_threads));
 	for (size_t i = 0; i < clients.count; ++i) {
-		sync_threads[i] = (struct cr_thread){
+		sync_threads[i] = (v_thread){
 			.thread_fn = client_sync_thread,
-			.user_data = &params[i]
+			.ctx = &params[i]
 		};
 	}
 	
 	for (size_t i = 0; i < clients.count; ++i) {
-		if (thread_start(&sync_threads[i])) {
+		if (v_thread_start(&sync_threads[i], v_thread_type_joinable)) {
 			logr(warning, "Something went wrong while starting the sync thread for client %i. May want to look into that.\n", (int)i);
 		}
 	}
@@ -425,7 +425,7 @@ struct render_client_arr clients_sync(const struct renderer *r) {
 	
 	// Block here and verify threads are done before continuing.
 	for (size_t i = 0; i < clients.count; ++i) {
-		thread_wait(&sync_threads[i]);
+		v_thread_wait(&sync_threads[i]);
 	}
 	
 	for (size_t i = 0; i < clients.count; ++i) printf("\n");

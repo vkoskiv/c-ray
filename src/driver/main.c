@@ -18,7 +18,6 @@
 #include <common/vendored/cJSON.h>
 #include <common/json_loader.h>
 #include <common/platform/capabilities.h>
-#include <common/platform/thread.h>
 #include <encoders/encoder.h>
 #include <args.h>
 #include <sdl.h>
@@ -73,10 +72,10 @@ static void on_start(struct cr_renderer_cb_info *cb_info, void *user_data) {
 		.cb_info = cb_info,
 		.driver = d,
 	};
-	int rc = thread_start(&(struct cr_thread){
+	int rc = v_thread_start(&(v_thread){
 	    .thread_fn = win_init_task,
-	    .user_data = ctx,
-	});
+	    .ctx = ctx,
+	}, v_thread_type_joinable);
 	if (rc) { // Try synchronously, then.
 		win_init_task(ctx);
 	}

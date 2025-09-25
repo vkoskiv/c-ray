@@ -8,8 +8,8 @@
 
 #pragma once
 
+#include <v.h>
 #include <datatypes/mesh.h>
-#include <common/platform/thread.h>
 #include <common/texture.h>
 #include <renderer/instance.h>
 #include "camera.h"
@@ -37,7 +37,7 @@ struct world {
 	bool instances_dirty; // Recompute top-level BVH?
 	// Top-level bounding volume hierarchy,
 	// contains all 3D assets in the scene.
-	struct cr_rwlock *bvh_lock;
+	v_rwlock *bvh_lock;
 	struct bvh *topLevel; // FIXME: Move to state?
 	bool top_level_dirty;
 	struct cr_thread_pool *bg_worker;

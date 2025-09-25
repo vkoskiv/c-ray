@@ -8,13 +8,13 @@
 
 #pragma once
 
+#include <v.h>
 #include <c-ray/c-ray.h>
 #include <datatypes/tile.h>
-#include <common/platform/thread.h>
 #include <protocol/server.h>
 
 struct worker {
-	struct cr_thread thread;
+	v_thread thread;
 	bool thread_complete;
 	
 	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.

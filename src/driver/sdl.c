@@ -16,7 +16,6 @@
 #include <common/cr_assert.h>
 #include <common/logo.h>
 #include <common/loaders/textureloader.h>
-#include <common/platform/thread.h>
 #include <common/vendored/cJSON.h>
 #include <c-ray/c-ray.h>
 #include <v.h>

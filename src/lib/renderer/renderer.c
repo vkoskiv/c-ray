@@ -8,12 +8,12 @@
 
 #include "../../includes.h"
 
+#include <v.h>
 #include "renderer.h"
 #include "pathtrace.h"
 #include <common/hashtable.h>
 #include <common/logging.h>
 #include <common/texture.h>
-#include <common/platform/thread.h>
 #include <common/platform/capabilities.h>
 #include <common/platform/signal.h>
 #include <common/platform/thread_pool.h>
@@ -118,20 +118,20 @@ static void *thread_stub(void *arg) {
 // Nonblocking function to make python happy, just shove the normal loop in a
 // background thread.
 void renderer_start_interactive(struct renderer *r) {
-	thread_start(&(struct cr_thread){
+	v_thread_start(&(v_thread){
 		.thread_fn = thread_stub,
-		.user_data = r
-	});
+		.ctx = r
+	}, v_thread_type_joinable);
 }
 
 void update_toplevel_bvh(struct world *s) {
 	if (!s->top_level_dirty && s->topLevel) return;
 	struct bvh *new = build_top_level_bvh(s->instances);
 	//!//!//!//!//!//!//!//!//!//!//!//!
-	thread_rwlock_wrlock(s->bvh_lock);
+	v_rwlock_write_lock(s->bvh_lock);
 	struct bvh *old = s->topLevel;
 	s->topLevel = new;
-	thread_rwlock_unlock(s->bvh_lock);
+	v_rwlock_unlock(s->bvh_lock);
 	//!//!//!//!//!//!//!//!//!//!//!//!
 	destroy_bvh(old);
 	// Bind shader buffers to instances
@@ -258,7 +258,7 @@ void renderer_render(struct renderer *r) {
 			.renderer = r,
 			.buf = result,
 			.cam = camera,
-			.thread = (struct cr_thread){
+			.thread = (v_thread){
 				.thread_fn = local_render_thread,
 			}
 		});
@@ -269,16 +269,16 @@ void renderer_render(struct renderer *r) {
 			.renderer = r,
 			.buf = result,
 			.cam = camera,
-			.thread = (struct cr_thread){
+			.thread = (v_thread){
 				.thread_fn = client_connection_thread
 			}
 		});
 	}
 	bool threads_not_supported = false;
 	for (size_t w = 0; w < r->state.workers.count; ++w) {
-		r->state.workers.items[w].thread.user_data = &r->state.workers.items[w];
+		r->state.workers.items[w].thread.ctx = &r->state.workers.items[w];
 		r->state.workers.items[w].tiles = &set;
-		if (thread_start(&r->state.workers.items[w].thread)) {
+		if (v_thread_start(&r->state.workers.items[w].thread, v_thread_type_joinable)) {
 			threads_not_supported = true;
 			break;
 		}
@@ -288,7 +288,7 @@ void renderer_render(struct renderer *r) {
 		struct worker *w = &r->state.workers.items[0];
 		w->thread.thread_fn = render_single_iteration;
 		while (r->state.s == r_rendering) {
-			w->thread.thread_fn(w->thread.user_data);
+			w->thread.thread_fn(w->thread.ctx);
 			if (g_aborted || w->thread_complete)
 				break;
 			struct callback status = r->state.callbacks[cr_cb_status_update];
@@ -324,7 +324,7 @@ void renderer_render(struct renderer *r) {
 
 	//Make sure render threads are terminated before continuing (This blocks)
 	for (size_t w = 0; !threads_not_supported && w < r->state.workers.count; ++w)
-		thread_wait(&r->state.workers.items[w].thread);
+		v_thread_wait(&r->state.workers.items[w].thread);
 
 	struct callback stop = r->state.callbacks[cr_cb_on_stop];
 	if (stop.fn) {
@@ -361,11 +361,11 @@ void *render_thread_interactive(void *arg) {
 		long total_us = 0;
 
 		v_timer_start(&timer);
-		thread_rwlock_rdlock(r->scene->bvh_lock);
+		v_rwlock_read_lock(r->scene->bvh_lock);
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
 				if (r->state.s != r_rendering) {
-					thread_rwlock_unlock(r->scene->bvh_lock);
+					v_rwlock_unlock(r->scene->bvh_lock);
 					goto exit;
 				}
 				uint32_t pixIdx = (uint32_t)(y * (*buf)->width + x);
@@ -389,7 +389,7 @@ void *render_thread_interactive(void *arg) {
 				tex_set_px(*buf, output, x, y);
 			}
 		}
-		thread_rwlock_unlock(r->scene->bvh_lock);
+		v_rwlock_unlock(r->scene->bvh_lock);
 		//For performance metrics
 		total_us += v_timer_get_us(timer);
 		threadState->totalSamples++;
