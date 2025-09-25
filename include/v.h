@@ -529,7 +529,7 @@ int v_cond_wait(v_cond *c, v_mutex *m) {
 	if (!c || !m)
 		return -1;
 #if defined(WINDOWS)
-	return v_cond_timed_wait(c, m, NULL);
+	return v_cond_timedwait(c, m, NULL);
 #else
 	return pthread_cond_wait(&c->cond, &m->lock);
 #endif
