@@ -17,7 +17,6 @@
 #include <common/hashtable.h>
 #include <common/vendored/cJSON.h>
 #include <common/json_loader.h>
-#include <common/platform/capabilities.h>
 #include <encoders/encoder.h>
 #include <args.h>
 #include <sdl.h>
@@ -282,7 +281,7 @@ int main(int argc, char *argv[]) {
 	uint64_t bounces = cr_renderer_get_num_pref(renderer, cr_renderer_bounces);
 
 	logr(info, "Starting c-ray renderer for frame %"PRIu64"\n", out_num);
-	bool sys_thread = threads == (size_t)sys_get_cores() + 2;
+	bool sys_thread = threads == (size_t)v_sys_get_cores() + 2;
 	logr(info, "Rendering at %s%"PRIu64"%s x %s%"PRIu64"%s\n", KWHT, width, KNRM, KWHT, height, KNRM);
 	logr(info, "Rendering %s%"PRIu64"%s samples with %s%"PRIu64"%s bounces.\n", KBLU, samples, KNRM, KGRN, bounces, KNRM);
 	logr(info, "Rendering with %s%"PRIu64"%s%s local thread%s.\n",

@@ -26,8 +26,6 @@
 #include <common/networking.h>
 #include <common/base64.h>
 #include <common/node_parse.h>
-#include <common/platform/thread_pool.h>
-#include <common/platform/capabilities.h>
 #include <renderer/renderer.h>
 #include <renderer/instance.h>
 #include <datatypes/tile.h>

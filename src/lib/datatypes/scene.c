@@ -15,7 +15,6 @@
 #include <common/hashtable.h>
 #include <common/textbuffer.h>
 #include <common/node_parse.h>
-#include <common/platform/capabilities.h>
 #include <common/platform/thread_pool.h>
 #include <common/texture.h>
 #include "camera.h"
@@ -34,7 +33,7 @@ struct world *scene_new(void) {
 	s->storage.node_pool = newBlock(NULL, 1024);
 	s->storage.node_table = newHashtable(compareNodes, &s->storage.node_pool);
 	s->bvh_lock = v_rwlock_create();
-	s->bg_worker = thread_pool_create(sys_get_cores());
+	s->bg_worker = thread_pool_create(v_sys_get_cores());
 	return s;
 }
 

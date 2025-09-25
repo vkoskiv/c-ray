@@ -14,7 +14,6 @@
 #include <common/hashtable.h>
 #include <common/logging.h>
 #include <common/texture.h>
-#include <common/platform/capabilities.h>
 #include <common/platform/signal.h>
 #include <common/platform/thread_pool.h>
 #include <common/cr_string.h>
@@ -563,7 +562,7 @@ exit:
 struct prefs default_prefs(void) {
 	return (struct prefs){
 			.tileOrder = ro_from_middle,
-			.threads = sys_get_cores() + 2,
+			.threads = v_sys_get_cores() + 2,
 			.sampleCount = 25,
 			.bounces = 20,
 			.tileWidth = 32,

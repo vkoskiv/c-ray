@@ -16,7 +16,6 @@
 #include "args.h"
 
 #include <common/platform/terminal.h>
-#include <common/platform/capabilities.h>
 #include <common/hashtable.h>
 #include <common/logging.h>
 #include <common/fileio.h>
@@ -110,9 +109,10 @@ struct driver_args *args_parse(int argc, char **argv) {
 		if (stringEquals(argv[i], "-j")) {
 			char *threadstr = argv[i + 1];
 			if (threadstr) {
+				int n_cores = v_sys_get_cores();
 				int n = atoi(threadstr);
 				n = n < 0 ? 0 : n;
-				n = n > sys_get_cores() * 2 ? sys_get_cores() * 2 : n;
+				n = n > n_cores * 2 ? n_cores * 2 : n;
 				setDatabaseInt(args, "thread_override", n);
 			} else {
 				logr(warning, "Invalid -j parameter given!\n");

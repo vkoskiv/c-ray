@@ -16,9 +16,6 @@
 #include <datatypes/poly.h>
 #include <renderer/instance.h>
 #include <common/vector.h>
-#include <common/platform/thread_pool.h>
-#include <common/platform/capabilities.h>
-#include <common/platform/signal.h>
 
 #include <limits.h>
 #include <assert.h>

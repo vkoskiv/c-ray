@@ -30,6 +30,10 @@
 extern "C" {
 #endif
 
+// --- decl v_sys (System capabilities)
+
+int v_sys_get_cores(void);
+
 // --- decl v_mod (Runtime module loading)
 typedef void * v_mod_t;
 v_mod_t v_mod_load(const char *filename);
@@ -238,6 +242,49 @@ void *v_thread_wait(v_thread *);
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// --- impl v_sys (System capabilities)
+
+#ifdef __APPLE__
+typedef unsigned int u_int;
+typedef unsigned char u_char;
+typedef unsigned short u_short;
+#include <sys/param.h>
+#include <sys/sysctl.h>
+#elif _WIN32
+#include <windows.h>
+#elif __linux__ || __COSMOPOLITAN__
+#include <unistd.h>
+#endif
+
+int v_sys_get_cores(void) {
+#if defined(__APPLE__)
+	int nm[2];
+	size_t len = 4;
+	uint32_t count;
+
+	nm[0] = CTL_HW; nm[1] = HW_AVAILCPU;
+	sysctl(nm, 2, &count, &len, NULL, 0);
+
+	if (count < 1) {
+		nm[1] = HW_NCPU;
+		sysctl(nm, 2, &count, &len, NULL, 0);
+		if (count < 1) {
+			count = 1;
+		}
+	}
+	return (int)count;
+#elif defined(_WIN32)
+	SYSTEM_INFO sysInfo;
+	GetSystemInfo(&sysInfo);
+	return sysInfo.dwNumberOfProcessors;
+#elif defined(__linux__) || defined(__COSMOPOLITAN__)
+	return (int)sysconf(_SC_NPROCESSORS_ONLN);
+#else
+#warning "Unknown platform, v_sys_get_cores() will return 1. Let vkoskiv know about this, please."
+	return 1;
+#endif
+}
 
 // --- impl v_mod (Runtime library loading) (c-ray) ---
 #if defined(WINDOWS)

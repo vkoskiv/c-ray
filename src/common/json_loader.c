@@ -20,7 +20,6 @@
 #include "transforms.h"
 #include "vector.h"
 #include "cr_string.h"
-#include "platform/capabilities.h"
 #include "logging.h"
 #include "fileio.h"
 
@@ -79,7 +78,7 @@ void parse_prefs(struct cr_renderer *ext, const cJSON *data) {
 			cr_renderer_set_num_pref(ext, cr_renderer_threads, threads->valueint);
 			// prefs->fromSystem = false;
 		} else {
-			cr_renderer_set_num_pref(ext, cr_renderer_threads, sys_get_cores() + 2);
+			cr_renderer_set_num_pref(ext, cr_renderer_threads, v_sys_get_cores() + 2);
 			// prefs->fromSystem = true;
 		}
 	}
