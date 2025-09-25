@@ -163,6 +163,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 // --- decl v_sync (Sync primitives (mutex, rwlock, condition variables), pthreads & win32)
 #if defined(WINDOWS)
 	#include <Windows.h>
+	#include <time.h>
 #else
 	#include <pthread.h>
 #endif
