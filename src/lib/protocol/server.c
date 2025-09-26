@@ -394,16 +394,15 @@ struct render_client_arr clients_sync(const struct renderer *r) {
 		params[i].serialized_renderer = serialized;
 	}
 	
-	v_thread *sync_threads = calloc(clients.count, sizeof(*sync_threads));
+	v_thread **sync_threads = calloc(clients.count, sizeof(*sync_threads));
+
 	for (size_t i = 0; i < clients.count; ++i) {
-		sync_threads[i] = (v_thread){
+		v_thread_ctx ctx = {
 			.thread_fn = client_sync_thread,
-			.ctx = &params[i]
+			.ctx = &params[i],
 		};
-	}
-	
-	for (size_t i = 0; i < clients.count; ++i) {
-		if (v_thread_start(&sync_threads[i], v_thread_type_joinable)) {
+		sync_threads[i] = v_thread_create(ctx, v_thread_type_joinable);
+		if (!sync_threads[i]) {
 			logr(warning, "Something went wrong while starting the sync thread for client %i. May want to look into that.\n", (int)i);
 		}
 	}
@@ -424,11 +423,11 @@ struct render_client_arr clients_sync(const struct renderer *r) {
 	}
 	
 	// Block here and verify threads are done before continuing.
-	for (size_t i = 0; i < clients.count; ++i) {
-		v_thread_wait(&sync_threads[i]);
-	}
-	
-	for (size_t i = 0; i < clients.count; ++i) printf("\n");
+	for (size_t i = 0; i < clients.count; ++i)
+		v_thread_wait_and_destroy(sync_threads[i]);
+
+	for (size_t i = 0; i < clients.count; ++i)
+		printf("\n");
 	logr(info, "Client sync finished.\n");
 
 	free(serialized);

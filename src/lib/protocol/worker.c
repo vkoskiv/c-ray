@@ -209,7 +209,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	logr(info, "Starting network render job\n");
 	
 	size_t threadCount = thread_limit ? thread_limit : g_worker_renderer->prefs.threads;
-	v_thread *worker_threads = calloc(threadCount, sizeof(*worker_threads));
+	v_thread **worker_threads = calloc(threadCount, sizeof(*worker_threads));
 	struct workerThreadState *workerThreadStates = calloc(threadCount, sizeof(*workerThreadStates));
 	
 	struct camera selected_cam = g_worker_renderer->scene->cameras.items[g_worker_renderer->prefs.selected_camera];
@@ -264,9 +264,13 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 				.renderer = g_worker_renderer,
 				.tiles = &set,
 				.cam = &selected_cam};
-		worker_threads[t] = (v_thread){.thread_fn = workerThread, .ctx = &workerThreadStates[t]};
-		if (v_thread_start(&worker_threads[t], v_thread_type_joinable))
-			logr(error, "Failed to create a crThread.\n");
+		v_thread_ctx ctx = {
+			.thread_fn = workerThread,
+			.ctx = &workerThreadStates[t],
+		};
+		worker_threads[t] = v_thread_create(ctx, v_thread_type_joinable);
+		if (!worker_threads[t])
+			logr(error, "Failed to create a v_thread.\n");
 	}
 	
 	int pauser = 0;
@@ -306,7 +310,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 
 	//Make sure workder threads are terminated before continuing (This blocks)
 	for (size_t t = 0; t < threadCount; ++t) {
-		v_thread_wait(&worker_threads[t]);
+		v_thread_wait_and_destroy(worker_threads[t]);
 	}
 	tile_set_free(&set);
 	free(worker_threads);

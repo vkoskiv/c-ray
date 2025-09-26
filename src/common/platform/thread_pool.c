@@ -35,7 +35,6 @@ struct cr_thread_pool {
 	v_cond *work_available;
 	v_cond *work_ongoing;
 	size_t active_threads;
-	v_thread *threads;
 	size_t alive_threads;
 	bool stop_flag;
 };
@@ -99,23 +98,22 @@ struct cr_thread_pool *thread_pool_create(size_t threads) {
 	struct cr_thread_pool *pool = calloc(1, sizeof(*pool));
 	logr(debug, "Spawning thread pool (%zut, %p)\n", threads, (void *)pool);
 	pool->alive_threads = threads;
-	pool->threads = calloc(pool->alive_threads, sizeof(*pool->threads));
 
 	pool->mutex = v_mutex_create();
 	pool->work_available = v_cond_create();
 	pool->work_ongoing = v_cond_create();
 
+	v_thread_ctx ctx = {
+		.thread_fn = cr_worker,
+		.ctx = pool,
+	};
 	for (size_t i = 0; i < pool->alive_threads; ++i) {
-		pool->threads[i] = (v_thread){
-			.thread_fn = cr_worker,
-			.ctx = pool
-		};
-		if (v_thread_start(&pool->threads[i], v_thread_type_detached))
+		v_thread *ret = v_thread_create(ctx, v_thread_type_detached);
+		if (!ret)
 			goto fail;
 	}
 	return pool;
 fail:
-	free(pool->threads);
 	v_mutex_destroy(pool->mutex);
 	v_cond_destroy(pool->work_available);
 	v_cond_destroy(pool->work_ongoing);
@@ -147,7 +145,6 @@ void thread_pool_destroy(struct cr_thread_pool *pool) {
 	v_mutex_destroy(pool->mutex);
 	v_cond_destroy(pool->work_available);
 	v_cond_destroy(pool->work_ongoing);
-	free(pool->threads);
 	free(pool);
 }
 

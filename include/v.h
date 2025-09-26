@@ -200,28 +200,30 @@ int v_rwlock_unlock(v_rwlock *);
 	#include <pthread.h>
 #endif
 
-// TODO: Maybe wrap the platform-specific data in an opaque struct?
-struct v_thread {
-#if defined(WINDOWS)
-	HANDLE thread_handle;
-	DWORD thread_id;
-#else
-	pthread_t thread_id;
-#endif
+struct v_thread;
+typedef struct v_thread v_thread;
+
+struct v_thread_ctx {
 	void *ctx;                  // Thread context, this gets passed to thread_fn
 	void *(*thread_fn)(void *); // The function to run in this thread
 };
-typedef struct v_thread v_thread;
+typedef struct v_thread_ctx v_thread_ctx;
 
 enum v_thread_type {
 	v_thread_type_joinable = 0,
 	v_thread_type_detached,
 };
 
-int v_thread_start(v_thread *, enum v_thread_type);
-void v_thread_exit(void *);
-void *v_thread_wait(v_thread *);
-
+/*
+	NOTE: Return value of v_thread_start() is freed automatically when
+	type == v_thread_type_detached, and should only be used to check
+	for errors (NULL), and not stored. Passing it to v_thread_wait() is
+	considered undefined.
+	In the case type == v_thread_type_joinable, the required call to
+	v_thread_wait() calls free() on v_thread *.
+*/
+v_thread *v_thread_create(v_thread_ctx c, enum v_thread_type type);
+void *v_thread_wait_and_destroy(v_thread *);
 
 #ifdef __cplusplus
 }
@@ -654,71 +656,84 @@ int v_rwlock_unlock(v_rwlock *l) {
 
 // --- impl v_thread (Threading abstraction, pthreads & win32)
 
+struct v_thread {
+#if defined(WINDOWS)
+	HANDLE thread_handle;
+	DWORD thread_id;
+#else
+	pthread_t thread_id;
+#endif
+	enum v_thread_type type;
+	struct v_thread_ctx thread_data;
+	void *ret;
+};
+
 #if defined(WINDOWS)
 static DWORD WINAPI thread_stub(LPVOID arg) {
 #else
 static void *thread_stub(void *arg) {
 #endif
-	v_thread copy = *((struct v_thread *)arg);
-	free(arg);
-	return copy.thread_fn(copy.ctx);
+	v_thread *t = (struct v_thread *)arg;
+	t->ret = t->thread_data.thread_fn(t->thread_data.ctx);
+	if (t->type == v_thread_type_detached)
+		free(t);
+	return NULL;
 }
 
-int v_thread_start(v_thread *t, enum v_thread_type type) {
-	if (!t)
-		return -1;
-	// NOTE: We extend the lifetime with this allocation, so users can pass in
-	// references to locals like a designated initializer like this:
-	// int rc = v_thread_start(&(struct v_thread){ .thread_fn = foobar_fn, ctx = foobar_ctx });
-	// The allocation is freed automatically by thread_stub.
-	// TODO: Look into a solution that obviates a heap alloc
-	v_thread *temp = calloc(1, sizeof(*temp));
-	*temp = *t;
+v_thread *v_thread_create(v_thread_ctx c, enum v_thread_type type) {
+	if (!c.thread_fn)
+		return NULL;
+	v_thread *t = calloc(1, sizeof(*t));
+	t->thread_data = c;
+	t->type = type;
 #if defined(WINDOWS)
-	t->thread_handle = CreateThread(NULL, 0, thread_stub, temp, 0, &t->thread_id);
-	if (t->thread_handle == NULL)
-		return -1;
-	if (type == v_thread_type_detached)
+	t->thread_handle = CreateThread(NULL, 0, thread_stub, t, 0, &t->thread_id);
+	if (!t->thread_handle) {
+		free(t);
+		return NULL;
+	}
+	if (t->type == v_thread_type_detached)
 		CloseHandle(t->thread_handle);
-	return 0;
+	return t;
 #else
 	pthread_attr_t attribs;
 	pthread_attr_init(&attribs);
-	switch (type) {
+	int detach_state = 0;
+	switch (t->type) {
 	case v_thread_type_joinable:
-		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
+		detach_state = PTHREAD_CREATE_JOINABLE;
 		break;
 	case v_thread_type_detached:
-		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_DETACHED);
+		detach_state = PTHREAD_CREATE_DETACHED;
 		break;
 	}
-	int rc = pthread_create(&t->thread_id, &attribs, thread_stub, temp);
+	pthread_attr_setdetachstate(&attribs, detach_state);
+	int rc = pthread_create(&t->thread_id, &attribs, thread_stub, t);
 	pthread_attr_destroy(&attribs);
-	return rc;
+	if (rc) {
+		free(t);
+		return NULL;
+	}
+	return t;
 #endif
 }
 
-void v_thread_exit(void *arg) {
-#if defined(WINDOWS)
-	return; // FIXME
-#else
-	pthread_exit(arg);
-#endif
-}
-
-void *v_thread_wait(v_thread *t) {
+void *v_thread_wait_and_destroy(v_thread *t) {
+	if (t->type == v_thread_type_detached)
+		return NULL; // TODO: assert, since this is already a risky move (uaf)
 #if defined(WINDOWS)
 	WaitForSingleObjectEx(t->thread_handle, INFINITE, FALSE);
 	CloseHandle(t->thread_handle);
-	return NULL;
 #else
-	int ret = 0;
-	void *thread_ret = NULL;
-	ret = pthread_join(t->thread_id, &thread_ret);
-	if (!ret && thread_ret)
-		return thread_ret;
-	return NULL;
+	int ret = pthread_join(t->thread_id, NULL);
+	if (ret) {
+		free(t);
+		return NULL;
+	}
 #endif
+	void *thread_ret = t->ret;
+	free(t);
+	return thread_ret;
 }
 
 // --- impl job_queue

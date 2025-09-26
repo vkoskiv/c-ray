@@ -14,7 +14,8 @@
 #include <protocol/server.h>
 
 struct worker {
-	v_thread thread;
+	v_thread_ctx thread_ctx;
+	v_thread *thread;
 	bool thread_complete;
 	
 	bool paused; //SDL listens for P key pressed, which sets these, one for each thread.
