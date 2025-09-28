@@ -789,21 +789,6 @@ struct v_threadpool {
 	#include <signal.h>
 #endif
 
-static struct v_threadpool_task *s_threadpool_get(v_threadpool *pool) {
-	if (!pool)
-		return NULL;
-	struct v_threadpool_task *task = pool->first;
-	if (!task)
-		return NULL;
-	if (!task->next) {
-		pool->first = NULL;
-		pool->last = NULL;
-	} else {
-		pool->first = task->next;
-	}
-	return task;
-}
-
 static void *v_threadpool_worker(void *arg) {
 #if !defined(WINDOWS) && !defined(__APPLE__)
 	/* Block all signals, we linux may deliver them to any thread randomly.
@@ -813,13 +798,21 @@ static void *v_threadpool_worker(void *arg) {
 	sigprocmask(SIG_SETMASK, &mask, 0);
 #endif
 	v_threadpool *pool = arg;
+	if (!pool)
+		return NULL;
 	while (1) {
 		v_mutex_lock(pool->mutex);
 		while (!pool->first && !pool->stop_flag)
 			v_cond_wait(pool->work_available, pool->mutex);
 		if (pool->stop_flag)
 			break;
-		struct v_threadpool_task *task = s_threadpool_get(pool);
+		struct v_threadpool_task *task = pool->first;
+		if (!task->next) {
+			pool->first = NULL;
+			pool->last = NULL;
+		} else {
+			pool->first = task->next;
+		}
 		pool->active_threads++;
 		v_mutex_release(pool->mutex);
 		if (task) {
@@ -841,33 +834,42 @@ static void *v_threadpool_worker(void *arg) {
 v_threadpool *v_threadpool_create(size_t n_threads) {
 	if (!n_threads)
 		n_threads = v_sys_get_cores() + 1;
-	struct v_threadpool *pool = calloc(1, sizeof(*pool));
-	pool->alive_threads = n_threads;
-	pool->mutex = v_mutex_create();
-	pool->work_available = v_cond_create();
-	pool->work_ongoing = v_cond_create();
+	v_threadpool *pool = calloc(1, sizeof(*pool));
+	if (!pool)
+		goto fail;
+	if (!(pool->mutex = v_mutex_create()))
+		goto fail;
+	if (!(pool->work_available = v_cond_create()))
+		goto fail;
+	if (!(pool->work_ongoing = v_cond_create()))
+		goto fail;
 
 	v_thread_ctx ctx = {
 		.thread_fn = v_threadpool_worker,
 		.ctx = pool,
 	};
-	for (size_t i = 0; i < pool->alive_threads; ++i) {
-		v_thread *ret = v_thread_create(ctx, v_thread_type_detached);
-		if (!ret)
+	for (size_t i = 0; i < n_threads; ++i) {
+		v_thread *success = v_thread_create(ctx, v_thread_type_detached);
+		if (!success)
 			goto fail;
+		pool->alive_threads++;
 	}
 	return pool;
 fail:
-	v_mutex_destroy(pool->mutex);
-	v_cond_destroy(pool->work_available);
-	v_cond_destroy(pool->work_ongoing);
-	free(pool);
+	v_threadpool_destroy(pool);
 	return NULL;
 }
 
 void v_threadpool_destroy(v_threadpool *pool) {
 	if (!pool)
 		return;
+	if (!pool->mutex)
+		goto no_mutex;
+	if (!pool->work_available)
+		goto no_work_available;
+	if (!pool->work_ongoing)
+		goto no_work_ongoing;
+
 	v_mutex_lock(pool->mutex);
 	/* Clear queued tasks */
 	struct v_threadpool_task *head = pool->first;
@@ -886,32 +888,30 @@ void v_threadpool_destroy(v_threadpool *pool) {
 	v_threadpool_wait(pool);
 
 	/* Finish up */
-	v_mutex_destroy(pool->mutex);
-	v_cond_destroy(pool->work_available);
 	v_cond_destroy(pool->work_ongoing);
+no_work_ongoing:
+	v_cond_destroy(pool->work_available);
+no_work_available:
+	v_mutex_destroy(pool->mutex);
+no_mutex:
 	free(pool);
 }
 
-static struct v_threadpool_task *s_threadpool_task_create(void (*fn)(void *arg), void *arg) {
+int v_threadpool_enqueue(v_threadpool *pool, void (*fn)(void *arg), void *arg) {
 	if (!fn)
-		return NULL;
+		return 1;
+	if (!pool) {
+		fn(arg);
+		return 0;
+	}
 	struct v_threadpool_task *task = malloc(sizeof(*task));
+	if (!task)
+		return 1;
 	*task = (struct v_threadpool_task){
 		.fn = fn,
 		.arg = arg,
 		.next = NULL,
 	};
-	return task;
-}
-
-int v_threadpool_enqueue(v_threadpool *pool, void (*fn)(void *arg), void *arg) {
-	if (!pool && fn) {
-		fn(arg);
-		return 0;
-	}
-	struct v_threadpool_task *task = s_threadpool_task_create(fn, arg);
-	if (!task)
-		return 1;
 	v_mutex_lock(pool->mutex);
 	if (!pool->first) {
 		pool->first = task;
