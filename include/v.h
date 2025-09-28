@@ -228,6 +228,7 @@ void *v_thread_wait_and_destroy(v_thread *);
 struct v_threadpool;
 typedef struct v_threadpool v_threadpool;
 
+/* NOTE: n_threads == 0 will default to system ncpu + 1 */
 v_threadpool *v_threadpool_create(size_t n_threads);
 void v_threadpool_destroy(v_threadpool *);
 
@@ -839,7 +840,7 @@ static void *v_threadpool_worker(void *arg) {
 
 v_threadpool *v_threadpool_create(size_t n_threads) {
 	if (!n_threads)
-		n_threads = 2;
+		n_threads = v_sys_get_cores() + 1;
 	struct v_threadpool *pool = calloc(1, sizeof(*pool));
 	pool->alive_threads = n_threads;
 	pool->mutex = v_mutex_create();
