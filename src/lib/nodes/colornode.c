@@ -16,7 +16,6 @@
 #include <datatypes/poly.h>
 #include <datatypes/scene.h>
 #include "bsdfnode.h"
-#include <common/platform/thread_pool.h>
 
 #include "colornode.h"
 
@@ -91,7 +90,7 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 					.out = tex,
 					.options = desc->arg.image.options
 				};
-				thread_pool_enqueue(scene->bg_worker, tex_decode_task, arg);
+				v_threadpool_enqueue(scene->bg_worker, tex_decode_task, arg);
 			}
 			const struct colorNode *new = newImageTexture(&s, tex, desc->arg.image.options);
 			if (full) free(full);

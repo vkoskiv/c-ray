@@ -225,6 +225,19 @@ enum v_thread_type {
 v_thread *v_thread_create(v_thread_ctx c, enum v_thread_type type);
 void *v_thread_wait_and_destroy(v_thread *);
 
+struct v_threadpool;
+typedef struct v_threadpool v_threadpool;
+
+v_threadpool *v_threadpool_create(size_t n_threads);
+void v_threadpool_destroy(v_threadpool *);
+
+/* NOTE: If p == NULL, enqueue will run fn synchronously. */
+int v_threadpool_enqueue(v_threadpool *p, void (*fn)(void *arg), void *arg);
+
+/* Block until all currently queued jobs are complete. Calls to _enqueue() will
+   block until this wait is finished. */
+void v_threadpool_wait(v_threadpool *);
+
 #ifdef __cplusplus
 }
 #endif
@@ -734,6 +747,194 @@ void *v_thread_wait_and_destroy(v_thread *t) {
 	void *thread_ret = t->ret;
 	free(t);
 	return thread_ret;
+}
+
+/*
+	v_threadpool is mostly based on Jon Schember's excellent blog post:
+	https://nachtimwald.com/2019/04/12/thread-pool-in-c/
+	That code is under the MIT licese:
+	Copyright (c) 2019 John Schember <john@nachtimwald.com>
+
+	When I implemented it for c-ray (238f0751f0), my testing revealed a
+	race condition in thread_pool_wait(). This is the note I added then:
+
+	"I just added an extra pool->first check to thread_pool_wait()
+	since I discovered a race condition in my torture tests for this
+	implementation. Basically, sometimes we could blow through a
+	call to thread_pool_wait() if we enqueue a small amount of work
+	and call thread_pool_wait before threads had a chance to fetch work."
+
+	I also changed some field names to be a bit clearer. I kept mixing them up.
+*/
+
+struct v_threadpool_task {
+	void (*fn)(void *arg);
+	void *arg;
+	struct v_threadpool_task *next;
+};
+
+struct v_threadpool {
+	struct v_threadpool_task *first;
+	struct v_threadpool_task *last;
+	v_mutex *mutex;
+	v_cond *work_available;
+	v_cond *work_ongoing;
+	size_t active_threads;
+	size_t alive_threads;
+	char stop_flag;
+};
+
+#if !defined(WINDOWS) && !defined(__APPLE__)
+	#include <signal.h>
+#endif
+
+static struct v_threadpool_task *s_threadpool_get(v_threadpool *pool) {
+	if (!pool)
+		return NULL;
+	struct v_threadpool_task *task = pool->first;
+	if (!task)
+		return NULL;
+	if (!task->next) {
+		pool->first = NULL;
+		pool->last = NULL;
+	} else {
+		pool->first = task->next;
+	}
+	return task;
+}
+
+static void *v_threadpool_worker(void *arg) {
+#if !defined(WINDOWS) && !defined(__APPLE__)
+	/* Block all signals, we linux may deliver them to any thread randomly.
+	   TODO: Check what macOS, Windows & possibly BSDs do here. */
+	sigset_t mask;
+	sigfillset(&mask);
+	sigprocmask(SIG_SETMASK, &mask, 0);
+#endif
+	v_threadpool *pool = arg;
+	while (1) {
+		v_mutex_lock(pool->mutex);
+		while (!pool->first && !pool->stop_flag)
+			v_cond_wait(pool->work_available, pool->mutex);
+		if (pool->stop_flag)
+			break;
+		struct v_threadpool_task *task = s_threadpool_get(pool);
+		pool->active_threads++;
+		v_mutex_release(pool->mutex);
+		if (task) {
+			task->fn(task->arg);
+			free(task);
+		}
+		v_mutex_lock(pool->mutex);
+		pool->active_threads--;
+		if (!pool->stop_flag && pool->active_threads == 0 && !pool->first)
+			v_cond_signal(pool->work_ongoing);
+		v_mutex_release(pool->mutex);
+	}
+	pool->alive_threads--;
+	v_cond_signal(pool->work_ongoing);
+	v_mutex_release(pool->mutex);
+	return NULL;
+}
+
+v_threadpool *v_threadpool_create(size_t n_threads) {
+	if (!n_threads)
+		n_threads = 2;
+	struct v_threadpool *pool = calloc(1, sizeof(*pool));
+	pool->alive_threads = n_threads;
+	pool->mutex = v_mutex_create();
+	pool->work_available = v_cond_create();
+	pool->work_ongoing = v_cond_create();
+
+	v_thread_ctx ctx = {
+		.thread_fn = v_threadpool_worker,
+		.ctx = pool,
+	};
+	for (size_t i = 0; i < pool->alive_threads; ++i) {
+		v_thread *ret = v_thread_create(ctx, v_thread_type_detached);
+		if (!ret)
+			goto fail;
+	}
+	return pool;
+fail:
+	v_mutex_destroy(pool->mutex);
+	v_cond_destroy(pool->work_available);
+	v_cond_destroy(pool->work_ongoing);
+	free(pool);
+	return NULL;
+}
+
+void v_threadpool_destroy(v_threadpool *pool) {
+	if (!pool)
+		return;
+	v_mutex_lock(pool->mutex);
+	/* Clear queued tasks */
+	struct v_threadpool_task *head = pool->first;
+	struct v_threadpool_task *next = NULL;
+	while (head) {
+		next = head->next;
+		free(head);
+		head = next;
+	}
+	/* Signal worker threads to stop */
+	pool->stop_flag = true;
+	v_cond_broadcast(pool->work_available);
+	v_mutex_release(pool->mutex);
+
+	/* Wait for workers to actually stop */
+	v_threadpool_wait(pool);
+
+	/* Finish up */
+	v_mutex_destroy(pool->mutex);
+	v_cond_destroy(pool->work_available);
+	v_cond_destroy(pool->work_ongoing);
+	free(pool);
+}
+
+static struct v_threadpool_task *s_threadpool_task_create(void (*fn)(void *arg), void *arg) {
+	if (!fn)
+		return NULL;
+	struct v_threadpool_task *task = malloc(sizeof(*task));
+	*task = (struct v_threadpool_task){
+		.fn = fn,
+		.arg = arg,
+		.next = NULL,
+	};
+	return task;
+}
+
+int v_threadpool_enqueue(v_threadpool *pool, void (*fn)(void *arg), void *arg) {
+	if (!pool && fn) {
+		fn(arg);
+		return 0;
+	}
+	struct v_threadpool_task *task = s_threadpool_task_create(fn, arg);
+	if (!task)
+		return 1;
+	v_mutex_lock(pool->mutex);
+	if (!pool->first) {
+		pool->first = task;
+		pool->last = pool->first;
+	} else {
+		pool->last->next = task;
+		pool->last = task;
+	}
+	v_cond_broadcast(pool->work_available);
+	v_mutex_release(pool->mutex);
+	return 0;
+}
+
+void v_threadpool_wait(v_threadpool *pool) {
+	if (!pool)
+		return;
+	v_mutex_lock(pool->mutex);
+	while (1) {
+		if (pool->first || (!pool->stop_flag && pool->active_threads != 0) || (pool->stop_flag && pool->alive_threads != 0))
+			v_cond_wait(pool->work_ongoing, pool->mutex);
+		else
+			break;
+	}
+	v_mutex_release(pool->mutex);
 }
 
 // --- impl job_queue

@@ -30,7 +30,6 @@
 #include <common/cr_string.h>
 #include <common/gitsha1.h>
 #include <common/platform/signal.h>
-#include <common/platform/thread_pool.h>
 #include <accelerators/bvh.h>
 #include <stdio.h>
 #include <inttypes.h>
@@ -240,7 +239,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 
 	logr(info, "%u x %u tiles\n", r->prefs.tileWidth, r->prefs.tileHeight);
 	// Ensure BVHs are up to date
-	thread_pool_wait(r->scene->bg_worker);
+	v_threadpool_wait(r->scene->bg_worker);
 
 	// And then compute a single top-level BVH that contains all the objects
 	update_toplevel_bvh(r->scene);

@@ -40,7 +40,7 @@ struct world {
 	v_rwlock *bvh_lock;
 	struct bvh *topLevel; // FIXME: Move to state?
 	bool top_level_dirty;
-	struct cr_thread_pool *bg_worker;
+	v_threadpool *bg_worker;
 
 	struct sphere_arr spheres;
 	struct camera_arr cameras;

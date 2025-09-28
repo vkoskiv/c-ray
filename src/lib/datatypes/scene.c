@@ -15,7 +15,6 @@
 #include <common/hashtable.h>
 #include <common/textbuffer.h>
 #include <common/node_parse.h>
-#include <common/platform/thread_pool.h>
 #include <common/texture.h>
 #include "camera.h"
 #include "tile.h"
@@ -33,7 +32,7 @@ struct world *scene_new(void) {
 	s->storage.node_pool = newBlock(NULL, 1024);
 	s->storage.node_table = newHashtable(compareNodes, &s->storage.node_pool);
 	s->bvh_lock = v_rwlock_create();
-	s->bg_worker = thread_pool_create(v_sys_get_cores());
+	s->bg_worker = v_threadpool_create(v_sys_get_cores());
 	return s;
 }
 
@@ -49,7 +48,7 @@ void scene_destroy(struct world *scene) {
 		destroy_bvh(scene->topLevel);
 		v_rwlock_unlock(scene->bvh_lock);
 
-		thread_pool_destroy(scene->bg_worker);
+		v_threadpool_destroy(scene->bg_worker);
 		v_rwlock_destroy(scene->bvh_lock);
 
 		destroyHashtable(scene->storage.node_table);

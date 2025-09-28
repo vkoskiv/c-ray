@@ -15,7 +15,6 @@
 #include <common/logging.h>
 #include <common/texture.h>
 #include <common/platform/signal.h>
-#include <common/platform/thread_pool.h>
 #include <common/cr_string.h>
 #include <datatypes/mesh.h>
 #include <datatypes/camera.h>
@@ -189,7 +188,7 @@ void renderer_render(struct renderer *r) {
 	
 	// Ensure BVHs are up to date
 	logr(debug, "Waiting for thread pool\n");
-	thread_pool_wait(r->scene->bg_worker);
+	v_threadpool_wait(r->scene->bg_worker);
 	logr(debug, "Continuing\n");
 
 	// And compute an initial top-level BVH.

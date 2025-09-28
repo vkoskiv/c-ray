@@ -24,7 +24,6 @@
 #include <common/hashtable.h>
 #include <common/json_loader.h>
 #include <common/node_parse.h>
-#include <common/platform/thread_pool.h>
 #include <common/platform/signal.h>
 #include <accelerators/bvh.h>
 #include <renderer/renderer.h>
@@ -306,7 +305,7 @@ void cr_mesh_finalize(struct cr_scene *s_ext, cr_mesh mesh) {
 	arg->mesh = *m;
 	arg->scene = scene;
 	arg->mesh_idx = mesh;
-	thread_pool_enqueue(scene->bg_worker, bvh_build_task, arg);
+	v_threadpool_enqueue(scene->bg_worker, bvh_build_task, arg);
 }
 
 cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name) {
@@ -815,7 +814,7 @@ void cr_renderer_render(struct cr_renderer *ext) {
 	struct renderer *r = (struct renderer *)ext;
 	if (r->prefs.node_list) {
 		// Wait for textures to finish decoding before syncing
-		thread_pool_wait(r->scene->bg_worker);
+		v_threadpool_wait(r->scene->bg_worker);
 		r->state.clients = clients_sync(r);
 	}
 	if (!r->state.clients.count && !r->prefs.threads) {
@@ -887,7 +886,7 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 		r->state.workers.items[i].totalSamples = 0;
 	}
 	// Wait for potential mesh BVH updates
-	thread_pool_wait(r->scene->bg_worker);
+	v_threadpool_wait(r->scene->bg_worker);
 	// Then update top-level BVH
 	update_toplevel_bvh(r->scene);
 	v_mutex_release(r->state.current_set->tile_mutex);
