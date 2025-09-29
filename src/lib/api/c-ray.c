@@ -250,8 +250,7 @@ struct bvh_build_task_arg {
 void bvh_build_task(void *arg) {
 	// Mesh array may get realloc'd at any time, so we use a copy of mesh while working
 	struct bvh_build_task_arg *bt = (struct bvh_build_task_arg *)arg;
-	v_timer timer = { 0 };
-	v_timer_start(&timer);
+	v_timer timer = v_timer_start();
 	struct bvh *bvh = build_mesh_bvh(&bt->mesh);
 	long ms = v_timer_get_ms(timer);
 	if (!bvh) {

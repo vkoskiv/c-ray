@@ -355,12 +355,10 @@ void *render_thread_interactive(void *arg) {
 	struct render_tile *tile = tile_next_interactive(r, threadState->tiles);
 	threadState->currentTile = tile;
 	
-	v_timer timer = { 0 };
-	
 	while (tile && r->state.s == r_rendering) {
 		long total_us = 0;
 
-		v_timer_start(&timer);
+		v_timer timer = v_timer_start();
 		v_rwlock_read_lock(r->scene->bvh_lock);
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
@@ -439,14 +437,13 @@ void *render_thread(void *arg) {
 	struct render_tile *tile = tile_next(threadState->tiles);
 	threadState->currentTile = tile;
 	
-	struct timeval timer = { 0 };
 	size_t samples = 1;
 	
 	while (tile && r->state.s == r_rendering) {
 		long total_us = 0;
 		
 		while (samples < r->prefs.sampleCount + 1 && r->state.s == r_rendering) {
-			v_timer_start(&timer);
+			v_timer timer = v_timer_start();
 			for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 				for (int x = tile->begin.x; x < tile->end.x; ++x) {
 					if (r->state.s != r_rendering) goto exit;
@@ -512,13 +509,12 @@ void *render_single_iteration(void *arg) {
 	}
 	threadState->currentTile = tile;
 
-	v_timer timer = { 0 };
 	size_t samples = 1;
 
 	long total_us = 0;
 
 	while (samples < r->prefs.sampleCount + 1 && r->state.s == r_rendering) {
-		v_timer_start(&timer);
+		v_timer timer = v_timer_start();
 		for (int y = tile->end.y - 1; y > tile->begin.y - 1; --y) {
 			for (int x = tile->begin.x; x < tile->end.x; ++x) {
 				if (r->state.s != r_rendering) goto exit;

@@ -157,8 +157,7 @@ int main(int argc, char *argv[]) {
 	}
 	char size_buf[64];
 	logr(info, "%s of input JSON loaded from %s, parsing.\n", human_file_size(input_bytes.count, size_buf), args_is_set(opts, "inputFile") ? "file" : "stdin");
-	v_timer json_timer = { 0 };
-	v_timer_start(&json_timer);
+	v_timer json_timer = v_timer_start();
 	cJSON *input_json = cJSON_ParseWithLength((const char *)input_bytes.items, input_bytes.count);
 	size_t json_ms = v_timer_get_ms(json_timer);
 	if (!input_json) {
@@ -292,8 +291,7 @@ int main(int argc, char *argv[]) {
 		KNRM,
 		PLURAL(threads));
 
-	v_timer timer = { 0 };
-	v_timer_start(&timer);
+	v_timer timer = v_timer_start();
 	cr_renderer_render(renderer);
 	long ms = v_timer_get_ms(timer);
 	char buf[64] = { 0 };

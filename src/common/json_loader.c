@@ -290,8 +290,7 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 
 	logr(plain, "\r");
 	logr(info, "Loading mesh file %i/%i%s", idx + 1, mesh_file_count, (idx + 1) == mesh_file_count ? "\n" : "\r");
-	v_timer timer = { 0 };
-	v_timer_start(&timer);
+	v_timer timer = v_timer_start();
 	struct mesh_parse_result result = load_meshes_from_file(full_path);
 	long us = v_timer_get_us(timer);
 	free(full_path);

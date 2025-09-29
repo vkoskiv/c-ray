@@ -31,8 +31,7 @@ struct decode_task_arg {
 
 void tex_decode_task(void *arg) {
 	struct decode_task_arg *dt = (struct decode_task_arg *)arg;
-	v_timer timer = { 0 };
-	v_timer_start(&timer);
+	v_timer timer = v_timer_start();
 	file_data data = file_load(dt->path);
 	load_texture(dt->path, data, dt->out);
 	long ms_decode = v_timer_get_ms(timer);

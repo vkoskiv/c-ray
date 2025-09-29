@@ -45,8 +45,6 @@ bool sendJSON(int socket, cJSON *json, size_t *progress) {
 cJSON *readJSON(int socket) {
 	char *recvBuf = NULL;
 	size_t length = 0;
-	v_timer timer;
-	v_timer_start(&timer);
 	if (chunkedReceive(socket, &recvBuf, &length) == 0) {
 		return NULL;
 	}

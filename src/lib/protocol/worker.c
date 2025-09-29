@@ -129,7 +129,6 @@ static void *workerThread(void *arg) {
 
 	struct camera *cam = thread->cam;
 	
-	v_timer timer = { 0 };
 	thread->completedSamples = 1;
 	
 	struct texture *tileBuffer = NULL;
@@ -142,7 +141,7 @@ static void *workerThread(void *arg) {
 		long samples = 0;
 		
 		while (thread->completedSamples < r->prefs.sampleCount+1 && r->state.s == r_rendering) {
-			v_timer_start(&timer);
+			v_timer timer = v_timer_start();
 			for (int y = thread->current->end.y - 1; y > thread->current->begin.y - 1; --y) {
 				for (int x = thread->current->begin.x; x < thread->current->end.x; ++x) {
 					if (r->state.s != r_rendering || !g_running) goto bail;
@@ -422,8 +421,6 @@ int worker_start(int port, size_t thread_limit) {
 		for (;;) {
 			buf = NULL;
 			size_t length = 0;
-			v_timer timer;
-			v_timer_start(&timer);
 			ssize_t read = chunkedReceive(connectionSocket, &buf, &length);
 			if (read == 0) break;
 			if (read < 0) {

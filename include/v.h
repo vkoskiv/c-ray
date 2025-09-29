@@ -69,7 +69,7 @@ void v_ilist_remove(v_ilist *node);
 
 typedef struct timeval v_timer;
 
-void v_timer_start(v_timer *t);
+v_timer v_timer_start(void);
 long v_timer_get_ms(v_timer t);
 long v_timer_get_us(v_timer t);
 void v_timer_sleep_ms(int ms);
@@ -408,9 +408,10 @@ static int gettimeofday(struct timeval * tp, struct timezone * tzp) {
 }
 #endif
 
-void v_timer_start(v_timer *t) {
-	// FIXME: Re-entrant?
-	gettimeofday(t, NULL);
+v_timer v_timer_start(void) {
+	v_timer timer = { 0 };
+	gettimeofday(&timer, NULL);
+	return timer;
 }
 
 long v_timer_get_ms(v_timer t) {
