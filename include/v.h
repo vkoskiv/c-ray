@@ -194,7 +194,6 @@ int v_rwlock_unlock(v_rwlock *);
 
 // --- decl v_thread (Threading abstraction, pthreads & win32)
 #if defined(WINDOWS)
-	#include <stdbool.h>
 	#include <Windows.h>
 #else
 	#include <pthread.h>
@@ -598,7 +597,7 @@ int v_cond_broadcast(v_cond *c) {
 #if defined(WINDOWS)
 struct v_rwlock {
 	SRWLOCK lock;
-	bool exclusive;
+	char exclusive;
 };
 #endif
 
@@ -606,7 +605,7 @@ v_rwlock *v_rwlock_create(void) {
 #if defined(WINDOWS)
 	v_rwlock *l = malloc(sizeof(*l));
 	InitializeSRWLock(&l->lock);
-	l->exclusive = false;
+	l->exclusive = 0;
 	return l;
 #else
 	pthread_rwlock_t *l = malloc(sizeof(*l));
@@ -646,7 +645,7 @@ int v_rwlock_write_lock(v_rwlock *l) {
 		return -1;
 #if defined(WINDOWS)
 	AcquireSRWLockExclusive(&l->lock);
-	l->exclusive = true;
+	l->exclusive = 1;
 	return 0;
 #else
 	return pthread_rwlock_wrlock((pthread_rwlock_t *)l);
@@ -658,7 +657,7 @@ int v_rwlock_unlock(v_rwlock *l) {
 		return -1;
 #if defined(WINDOWS)
 	if (l->exclusive) {
-		l->exclusive = false;
+		l->exclusive = 0;
 		ReleaseSRWLockExclusive(&l->lock);
 	} else {
 		ReleaseSRWLockShared(&l->lock);
@@ -881,7 +880,7 @@ void v_threadpool_destroy(v_threadpool *pool) {
 		head = next;
 	}
 	/* Signal worker threads to stop */
-	pool->stop_flag = true;
+	pool->stop_flag = 1;
 	v_cond_broadcast(pool->work_available);
 	v_mutex_release(pool->mutex);
 
