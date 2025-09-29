@@ -78,11 +78,14 @@ static bool client_try_connect(struct render_client *client) {
 	bool success = false;
 	fcntl(client->socket, F_SETFL, O_NONBLOCK);
 	fd_set fdset;
-	struct timeval tv;
-	errno = 0;
-	(void)connect(client->socket, (struct sockaddr *)&client->address, sizeof(client->address));
+	int ret = connect(client->socket, (struct sockaddr *)&client->address, sizeof(client->address));
+	if (ret) {
+		logr(warning, "Failed to connect to %s (%s)\n", inet_ntoa(client->address.sin_addr), strerror(errno));
+		return success;
+	}
 	FD_ZERO(&fdset);
 	FD_SET(client->socket, &fdset);
+	struct timeval tv;
 	tv.tv_sec = 2; // 2 second timeout.
 	tv.tv_usec = 0;
 	
