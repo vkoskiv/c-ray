@@ -72,6 +72,8 @@ typedef struct timeval v_timer;
 v_timer v_timer_start(void);
 long v_timer_get_ms(v_timer t);
 long v_timer_get_us(v_timer t);
+/*  Note: On Linux, this sleep will resume clock_nanosleep() to finish
+	up the sleep if we happened to get a signal, such as SIGINT during sleep. */
 void v_timer_sleep_ms(int ms);
 
 // --- decl v_arr (Dynamic arrays)
@@ -425,19 +427,28 @@ long v_timer_get_us(v_timer t) {
 	return ((now.tv_sec - t.tv_sec) * 1000000) + (now.tv_usec - t.tv_usec);
 }
 
-#ifdef __linux__
-#define _BSD_SOURCE
-#include <unistd.h>
+#if defined(__linux__)
+	#define _BSD_SOURCE
+	#include <unistd.h>
+	#include <errno.h>
 #endif
 
 void v_timer_sleep_ms(int ms) {
-#ifdef WINDOWS
+#if defined(WINDOWS)
 	Sleep(ms);
-#elif __APPLE__
+#elif defined(__APPLE__)
 	struct timespec ts;
 	ts.tv_sec = ms / 1000;
 	ts.tv_nsec = (ms % 1000) * 1000000;
 	nanosleep(&ts, NULL);
+#elif defined (__linux__)
+	struct timespec ts = { .tv_sec = ms / 1000, .tv_nsec = (ms % 1000) * 1000 * 1000 };
+	struct timespec rem;
+	while (clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, &rem) == EINTR) {
+		// We received SIGINT which interrupts this sleep. Continue sleeping.
+		ts = rem;
+		rem = (struct timespec){ 0 };
+	}
 #else
 	struct timeval tv = { 0 };
 	tv.tv_sec = ms / 1000;
