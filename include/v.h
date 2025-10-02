@@ -155,8 +155,7 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 	} \
 	static inline void V_UNUSED T##_arr_join(struct T##_arr *a, struct T##_arr *b) { \
 		if (!a || !b) return; \
-		for (size_t i = 0; i < b->count; ++i) \
-			T##_arr_add(a, b->items[i]); \
+		T##_arr_add_n(a, b->items, b->count); \
 		T##_arr_free(b); \
 	}
 
