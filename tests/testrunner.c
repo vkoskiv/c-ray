@@ -31,8 +31,7 @@ int runTests(char *suite) {
 	logr(info, "Running tests in a single process. Consider using run-tests.sh instead.\n");
 	
 	logr(info, "Running %u test%s.\n", test_count, PLURAL(test_count));
-	v_timer t = { 0 };
-	v_timer_start(&t);
+	v_timer t = v_timer_start();
 	for (unsigned t = 0; t < test_count; ++t) {
 		runTest(t, suite);
 	}
@@ -51,8 +50,7 @@ int runPerfTests(char *suite) {
 	
 	logr(info, "Running %u test%s.\n", test_count, PLURAL(test_count));
 	logr(info, "Averaging runtime from %i runs for each test.\n", PERF_AVG_COUNT);
-	v_timer t = { 0 };
-	v_timer_start(&t);
+	v_timer t = v_timer_start();
 	for (unsigned t = 0; t < test_count; ++t) {
 		runPerfTest(t, suite);
 	}
@@ -72,8 +70,7 @@ int runTest(unsigned t, char *suite) {
 		 t + 1, test_count,
 		 tests[first_idx + t].test_name);
 	
-	v_timer test = { 0 };
-	v_timer_start(&test);
+	v_timer test = v_timer_start();
 	bool pass = tests[first_idx + t].func();
 	time_t usecs = v_timer_get_us(test);
 	

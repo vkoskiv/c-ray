@@ -12,8 +12,7 @@
 #include "../../src/common/cr_assert.h"
 
 time_t fileio_load(void) {
-	v_timer test = { 0 };
-	v_timer_start(&test);
+	v_timer test = v_timer_start();
 	
 	file_data bigfile = file_load("input/venusscaled.obj");
 	ASSERT(bigfile.items);

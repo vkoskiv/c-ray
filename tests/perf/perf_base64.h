@@ -16,8 +16,7 @@ time_t base64_bigfile_encode(void) {
 	file_data bigfile = file_load("input/venusscaled.obj");
 	ASSERT(bigfile.items);
 	
-	v_timer test = { 0 };
-	v_timer_start(&test);
+	v_timer test = v_timer_start();
 	
 	char *encoded = b64encode(bigfile.items, bigfile.count);
 	(void)encoded;
@@ -35,8 +34,7 @@ time_t base64_bigfile_decode(void) {
 	char *encoded = b64encode(bigfile.items, bigfile.count);
 	size_t encodedLength = strlen(encoded);
 	
-	v_timer test = { 0 };
-	v_timer_start(&test);
+	v_timer test = v_timer_start();
 	
 	char *decoded = b64decode(encoded, encodedLength, NULL);
 	(void)decoded;
