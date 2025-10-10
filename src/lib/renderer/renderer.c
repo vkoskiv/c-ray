@@ -8,6 +8,7 @@
 
 #include "../../includes.h"
 
+#include <stdio.h>
 #include <v.h>
 #include "renderer.h"
 #include "pathtrace.h"
@@ -318,6 +319,9 @@ void renderer_render(struct renderer *r) {
 		}
 	}
 
+	// keep the SDL window open when rendering has finished
+	logr(info, "\nPress any key to continue\n\n");
+	getchar();
 
 	r->state.s = r_exiting;
 	r->state.current_set = NULL;
