@@ -188,7 +188,11 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 		return NULL;
 	}
 	//Init window
+#if defined(__sgi)
+	SDL_WindowFlags flags = SDL_WINDOW_SHOWN;
+#else
 	SDL_WindowFlags flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
+#endif
 	if (prefs->fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	if (prefs->borderless) flags |= SDL_WINDOW_BORDERLESS;
 	flags |= SDL_WINDOW_RESIZABLE;
@@ -205,8 +209,13 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 		return NULL;
 	}
 	//Init renderer
+#if defined(__sgi) // IRIX SDL2 isn't happy with HW accel.
+	w->renderer = w->sym->SDL_CreateRenderer(w->window, -1, SDL_RENDERER_SOFTWARE);
+#else
 	w->renderer = w->sym->SDL_CreateRenderer(w->window, -1, SDL_RENDERER_ACCELERATED);
 	if (!w->renderer) w->renderer = w->sym->SDL_CreateRenderer(w->window, -1, SDL_RENDERER_SOFTWARE);
+#endif
+	
 	if (!w->renderer) {
 		logr(warning, "Renderer couldn't be created, error: \"%s\"\n", w->sym->SDL_GetError());
 		win_destroy(w);
@@ -244,7 +253,9 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 	w->sym->SDL_SetTextureBlendMode(w->texture, SDL_BLENDMODE_BLEND);
 	w->sym->SDL_SetTextureBlendMode(w->overlay_sdl, SDL_BLENDMODE_BLEND);
 	
+#if !defined(__sgi) // setWindowIcon crashes on IRIX 4Dwm
 	setWindowIcon(w);
+#endif
 	
 	return w;
 }
