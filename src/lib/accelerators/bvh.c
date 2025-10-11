@@ -39,7 +39,10 @@
 #define ROBUST_TRAVERSAL 0    // Set to 1 in order to use a fully robust algo. (from T. Ize's "Robust BVH Ray Traversal")
 #define MAX_LEAF_SIZE    ((1 << PRIM_COUNT_BITS) - 1)
 
+#if !defined(__sgi)
 typedef size_t index_t;
+#endif
+
 typedef bool (*intersect_leaf_fn_t)(
 	const void *,
 	const struct bvh *,

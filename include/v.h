@@ -16,6 +16,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
+
+#if defined(__sgi)
+#include <sys/sysmp.h>
+#endif
+
 // --- decl common
 
 #ifdef __GNUC__
@@ -58,7 +63,7 @@ void v_ilist_remove(v_ilist *node);
 
 // --- decl v_timer (Simple timers)
 
-#ifdef WINDOWS
+#if defined(WINDOWS) || defined(__sgi)
 	typedef struct timeval {
 		long tv_sec;
 		long tv_usec;
@@ -290,6 +295,8 @@ int v_sys_get_cores(void) {
 	return sysInfo.dwNumberOfProcessors;
 #elif defined(__linux__) || defined(__COSMOPOLITAN__)
 	return (int)sysconf(_SC_NPROCESSORS_ONLN);
+#elif defined(__sgi)
+	return (int)sysmp(MP_NPROCS);
 #else
 #warning "Unknown platform, v_sys_get_cores() will return 1. Let vkoskiv know about this, please."
 	return 1;

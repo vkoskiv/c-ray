@@ -18,6 +18,9 @@ generated/*
 .cache/*
 tests/testrunner
 
+# IRIX core crash dump file
+core
+
 # Heavy HDR files, just include a small one for demo
 input/HDRs/*
 !input/HDRs/rooitou_park_1k.hdr

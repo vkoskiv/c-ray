@@ -5,6 +5,12 @@ OPT?=-O2
 CFLAGS=-I./include/ -I./src/ -Wall -Wextra -Wpedantic -Wno-missing-field-initializers -std=c99 -D_POSIX_C_SOURCE=200112L $(OPT) -g -ftree-vectorize
 LDLIBS=-lpthread -lm -ldl
 
+UNAME_S := $(shell uname -s)
+
+ifneq (,$(filter $(UNAME_S),IRIX IRIX64))
+LDLIBS+= -lgen
+endif
+
 BINDIR=bin
 OBJDIR=$(BINDIR)/obj
 BIN=$(BINDIR)/c-ray
