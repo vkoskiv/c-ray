@@ -14,10 +14,7 @@
 		"width": 1280,
 		"height": 800
 	},
-	"display": {
-		"isFullscreen": false,
-		"windowScale": 1.0
-	},
+	"display": {},
 	"camera": [
 		{
 			"FOV": 30.0,

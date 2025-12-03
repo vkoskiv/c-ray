@@ -63,26 +63,29 @@ static void *try_find_sdl2_lib(void) {
 			return lib;
 	}
 
-	logr(debug, "Couldn't find SDL library (%s), tried the following names: ", v_mod_error());
-	for (size_t i = 0; i < (sizeof(candidates) / sizeof(*candidates)); ++i) {
-		logr(plain, "\"%s\" ", candidates[i]);
+	logr(debug, "Couldn't find SDL library: %s\n", v_mod_error());
+	logr(debug, "Tried the following names: ");
+	if (cr_log_level_get() == Debug) {
+		for (size_t i = 0; i < (sizeof(candidates) / sizeof(*candidates)); ++i)
+			logr(plain, "\"%s\" ", candidates[i]);
+		logr(plain, "\n");
 	}
-	logr(plain, "\n");
 
 	return NULL;
 }
 
-static struct sdl_syms *try_get_sdl2_syms(void) {
+static struct sdl_syms try_get_sdl2_syms(void) {
+	struct sdl_syms syms = { 0 };
 	void *sdl2 = try_find_sdl2_lib();
-	if (!sdl2) return NULL;
-	struct sdl_syms *syms = calloc(1, sizeof(*syms));
+	if (!sdl2)
+		return syms;
 	/*
 		warning: ISO C forbids initialization between function pointer and ‘void *’ [-Wpedantic]
 			=> We don't care about this in $CURRENT_YEAR :]
 	*/
 	#pragma GCC diagnostic ignored "-Wpedantic"
 	#pragma GCC diagnostic push
-	*syms = (struct sdl_syms){
+	syms = (struct sdl_syms){
 		.lib = sdl2,
 		.SDL_VideoInit              = v_mod_sym(sdl2, "SDL_VideoInit"),
 		.SDL_VideoQuit              = v_mod_sym(sdl2, "SDL_VideoQuit"),
@@ -108,32 +111,29 @@ static struct sdl_syms *try_get_sdl2_syms(void) {
 	};
 	#pragma GCC diagnostic pop
 	for (size_t i = 0; i < (sizeof(struct sdl_syms) / sizeof(void *)); ++i) {
-		if (!((void **)syms)[i]) {
+		if (!((void **)&syms)[i]) {
 			logr(warning, "sdl_syms[%zu] is NULL\n", i);
-			free(syms);
-			return NULL;
+			v_mod_close(sdl2);
+			return (struct sdl_syms){ 0 };
 		}
 	}
 	return syms;
 }
 
 struct sdl_window {
-	struct sdl_syms *sym;
+	struct sdl_syms sdl2;
 	SDL_Window *window;
 	SDL_Renderer *renderer;
-	SDL_Texture *texture;
-	SDL_Texture *overlay_sdl;
-	struct texture *internal;
+
+	const struct cr_bitmap **rbuf;
+	struct texture *texture;
+	SDL_Texture *texture_sdl;
 	struct texture *overlay;
-	bool isFullScreen;
-	float windowScale;
-	
-	unsigned width;
-	unsigned height;
+	SDL_Texture *overlay_sdl;
 };
 
 
-static void setWindowIcon(struct sdl_window *w) {
+static void set_window_icon(struct sdl_window *w) {
 #ifndef NO_LOGO
 	struct texture *icon = tex_new(none, 0, 0, 0);
 	int ret = load_texture("logo.h", (file_data){ .items = logo_png_data, .count = logo_png_data_len }, icon);
@@ -154,157 +154,161 @@ static void setWindowIcon(struct sdl_window *w) {
 	bmask = 0x00ff0000;
 	amask = (icon->channels == 3) ? 0 : 0xff000000;
 #endif
-	SDL_Surface *iconSurface = w->sym->SDL_CreateRGBSurfaceFrom(icon->data.byte_p,
+	SDL_Surface *iconSurface = w->sdl2.SDL_CreateRGBSurfaceFrom(icon->data.byte_p,
 														(int)icon->width,
 														(int)icon->height,
 														(int)icon->channels * 8,
 														(int)(icon->channels * icon->width),
 														rmask, gmask, bmask, amask);
-	w->sym->SDL_SetWindowIcon(w->window, iconSurface);
-	w->sym->SDL_FreeSurface(iconSurface);
+	w->sdl2.SDL_SetWindowIcon(w->window, iconSurface);
+	w->sdl2.SDL_FreeSurface(iconSurface);
 	tex_destroy(icon);
 #endif
 }
 
-struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) {
-	if (!prefs->enabled) return NULL;
-	struct sdl_syms *syms = try_get_sdl2_syms();
-	if (!syms) return NULL;
-
-	struct sdl_window *w = calloc(1, sizeof(*w));
-	w->sym = syms;
-
-	w->isFullScreen = prefs->fullscreen;
-	w->windowScale = prefs->scale;
-	w->width = width;
-	w->height = height;
+int finalize(struct sdl_window *w) {
+	// TODO: rbuf *may* actually need to be guarded with a mutex.
+	// In the driver, all access to it happens synchronously from the main
+	// thread, at least for now. But theoretically calls to e.g. cr_renderer_restart_interactive()
+	// could be coming from an application thread, and that may resize the cr_bitmap rbuf points to.
+	int width = (*w->rbuf)->width;
+	int height = (*w->rbuf)->height;
 	
-	//Initialize SDL
-	if (w->sym->SDL_VideoInit(NULL) < 0) {
-		logr(warning, "SDL couldn't initialize, error: \"%s\"\n", w->sym->SDL_GetError());
-		win_destroy(w);
-		return NULL;
+	w->window = w->sdl2.SDL_CreateWindow("c-ray", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+										width, height,
+										SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+	if (!w->window) {
+		logr(warning, "sdl2 failed to create window: %s\n", w->sdl2.SDL_GetError());
+		goto fail_window;
 	}
-	//Init window
-	SDL_WindowFlags flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
-	if (prefs->fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	flags |= SDL_WINDOW_RESIZABLE;
 
-	w->window = w->sym->SDL_CreateWindow("c-ray © vkoskiv 2015-2023",
-										 SDL_WINDOWPOS_UNDEFINED,
-										 SDL_WINDOWPOS_UNDEFINED,
-								 width * prefs->scale,
-								 height * prefs->scale,
-								 flags);
-	if (w->window == NULL) {
-		logr(warning, "Window couldn't be created, error: \"%s\"\n", w->sym->SDL_GetError());
-		win_destroy(w);
-		return NULL;
-	}
-	//Init renderer
-	w->renderer = w->sym->SDL_CreateRenderer(w->window, -1, SDL_RENDERER_ACCELERATED);
-	if (!w->renderer) w->renderer = w->sym->SDL_CreateRenderer(w->window, -1, SDL_RENDERER_SOFTWARE);
+	w->renderer = w->sdl2.SDL_CreateRenderer(w->window, -1, SDL_RENDERER_ACCELERATED);
+	if (!w->renderer)
+		w->renderer = w->sdl2.SDL_CreateRenderer(w->window, -1, SDL_RENDERER_SOFTWARE);
 	if (!w->renderer) {
-		logr(warning, "Renderer couldn't be created, error: \"%s\"\n", w->sym->SDL_GetError());
-		win_destroy(w);
-		return NULL;
+		logr(warning, "sdl2 failed to create renderer: %s\n", w->sdl2.SDL_GetError());
+		goto fail_renderer;
 	}
-	
-	w->sym->SDL_RenderSetLogicalSize(w->renderer, w->width, w->height);
-	//And set blend modes
-	w->sym->SDL_SetRenderDrawBlendMode(w->renderer, SDL_BLENDMODE_BLEND);
-	
-	w->sym->SDL_RenderSetScale(w->renderer, w->windowScale, w->windowScale);
-	//Init pixel texture
+
+	w->sdl2.SDL_RenderSetLogicalSize(w->renderer, width, height);
+	w->sdl2.SDL_SetRenderDrawBlendMode(w->renderer, SDL_BLENDMODE_BLEND);
+	// Init pixel texture
 	uint32_t format = SDL_PIXELFORMAT_ABGR8888;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	format = SDL_PIXELFORMAT_RGBA8888;
 #endif
-	w->texture = w->sym->SDL_CreateTexture(w->renderer, format, SDL_TEXTUREACCESS_STREAMING, w->width, w->height);
-	if (w->texture == NULL) {
-		logr(warning, "Texture couldn't be created, error: \"%s\"\n", w->sym->SDL_GetError());
-		win_destroy(w);
-		return NULL;
+	w->texture_sdl = w->sdl2.SDL_CreateTexture(w->renderer, format, SDL_TEXTUREACCESS_STREAMING, width, height);
+	if (!w->texture_sdl) {
+		logr(warning, "sdl2 failed to create texture: %s\n", w->sdl2.SDL_GetError());
+		goto fail_texture_sdl;
 	}
-	//Init overlay texture (for UI info)
 
-	w->overlay_sdl = w->sym->SDL_CreateTexture(w->renderer, format, SDL_TEXTUREACCESS_STREAMING, w->width, w->height);
-	if (w->overlay_sdl == NULL) {
-		logr(warning, "Overlay texture couldn't be created, error: \"%s\"\n", w->sym->SDL_GetError());
-		win_destroy(w);
-		return NULL;
+	w->overlay_sdl = w->sdl2.SDL_CreateTexture(w->renderer, format, SDL_TEXTUREACCESS_STREAMING, width, height);
+	if (!w->overlay_sdl) {
+		logr(warning, "sdl2 failed to create overlay texture: %s\n", w->sdl2.SDL_GetError());
+		goto fail_overlay_sdl;
 	}
+	// TODO: Is there really no way to use the actual render buffer instead of
+	// doing expensive pixel-per-pixel copies in win_update()?
 	w->overlay = tex_new(char_p, width, height, 4);
-	w->internal = tex_new(char_p, width, height, 4);
-	
+	if (!w->overlay) {
+		logr(warning, "sdl2 failed to allocate overlay texture\n");
+		goto fail_overlay;
+	}
+	w->texture = tex_new(char_p, width, height, 4);
+	if (!w->texture) {
+		logr(warning, "sdl2 failed to allocate texture\n");
+		goto fail_texture;
+	}
+
 	//And set blend modes for textures too
-	w->sym->SDL_SetTextureBlendMode(w->texture, SDL_BLENDMODE_BLEND);
-	w->sym->SDL_SetTextureBlendMode(w->overlay_sdl, SDL_BLENDMODE_BLEND);
-	
-	setWindowIcon(w);
-	
+	w->sdl2.SDL_SetTextureBlendMode(w->texture_sdl, SDL_BLENDMODE_BLEND);
+	w->sdl2.SDL_SetTextureBlendMode(w->overlay_sdl, SDL_BLENDMODE_BLEND);
+
+	set_window_icon(w);
+
+	return 0;
+fail_texture:
+	tex_destroy(w->overlay);
+fail_overlay:
+	w->sdl2.SDL_DestroyTexture(w->overlay_sdl);
+fail_overlay_sdl:
+	w->sdl2.SDL_DestroyTexture(w->texture_sdl);
+fail_texture_sdl:
+	w->sdl2.SDL_DestroyRenderer(w->renderer);
+fail_renderer:
+	w->sdl2.SDL_DestroyWindow(w->window);
+fail_window:
+	return 1;
+}
+// Experimenting with single return + goto pattern in this function
+// for no particular reason other than to see if I like it.
+struct sdl_window *win_try_init(const struct cr_bitmap **buf) {
+	struct sdl_syms syms = try_get_sdl2_syms();
+	if (!syms.lib)
+		goto fail_syms;
+
+	if (syms.SDL_VideoInit(NULL) < 0) {
+		logr(warning, "SDL couldn't initialize: %s\n", syms.SDL_GetError());
+		goto fail_sdl_video_init;
+	}
+
+	struct sdl_window *w = calloc(1, sizeof(*w));
+	if (!w)
+		goto fail_calloc;
+	w->sdl2 = syms;
+	w->rbuf = buf;
+
+	finalize(w);
+
 	return w;
+fail_calloc:
+	syms.SDL_VideoQuit();
+fail_sdl_video_init:
+	v_mod_close(syms.lib);
+fail_syms:
+	return NULL;
 }
 
 void win_destroy(struct sdl_window *w) {
-	if (!w) return;
-	if (w->sym) {
-		if (w->texture) {
-			w->sym->SDL_DestroyTexture(w->texture);
-			w->texture = NULL;
-		}
-		if (w->overlay_sdl) {
-			w->sym->SDL_DestroyTexture(w->overlay_sdl);
-			w->texture = NULL;
-		}
-		tex_destroy(w->internal);
-		tex_destroy(w->overlay);
-		if (w->renderer) {
-			w->sym->SDL_DestroyRenderer(w->renderer);
-			w->renderer = NULL;
-		}
-		if (w->window) {
-			w->sym->SDL_DestroyWindow(w->window);
-			w->window = NULL;
-		}
-		w->sym->SDL_VideoQuit();
-		w->sym->SDL_Quit();
-		v_mod_close(w->sym->lib);
-		free(w->sym);
-	}
+	w->sdl2.SDL_DestroyTexture(w->texture_sdl);
+	w->sdl2.SDL_DestroyTexture(w->overlay_sdl);
+	tex_destroy(w->texture);
+	tex_destroy(w->overlay);
+	w->sdl2.SDL_DestroyRenderer(w->renderer);
+	w->sdl2.SDL_DestroyWindow(w->window);
+	w->sdl2.SDL_VideoQuit();
+	w->sdl2.SDL_Quit();
+	v_mod_close(w->sdl2.lib);
 	free(w);
-	w = NULL;
 }
 
-static struct input_state win_check_keyboard(struct sdl_window *sdl) {
-	struct input_state cmd = { .should_save = true };
-	if (!sdl) return cmd;
+static enum input_event check_input(struct sdl_syms *sdl) {
+	enum input_event e = ev_none;
 	SDL_Event event;
-	while (sdl->sym->SDL_PollEvent(&event)) {
-		if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
+	while (sdl->SDL_PollEvent(&event)) {
+		if (e == ev_none && event.type == SDL_KEYDOWN && event.key.repeat == 0) {
 			if (event.key.keysym.sym == SDLK_s) {
 				printf("\n");
 				logr(info, "Aborting render, saving\n");
-				cmd.stop_render = true;
+				e = ev_stop;
 			}
 			if (event.key.keysym.sym == SDLK_x) {
 				printf("\n");
 				logr(info, "Aborting render without saving\n");
-				cmd.stop_render = true;
-				cmd.should_save = false;
+				e = ev_stop_nosave;
 			}
 			if (event.key.keysym.sym == SDLK_p) {
-				cmd.pause_render = true;
+				e = ev_pause;
 			}
 		}
 		if (event.type == SDL_QUIT) {
 			printf("\n");
 			logr(info, "Aborting render without saving\n");
-			cmd.stop_render = true;
-			cmd.should_save = false;
+			return ev_stop_nosave;
 		}
 	}
-	return cmd;
+	return e;
 }
 
 static void draw_bar(struct texture *overlay, const struct cr_tile *t) {
@@ -358,18 +362,21 @@ static void draw_frames(struct texture *overlay, const struct cr_tile *tiles, si
 }
 
 
-struct input_state win_update(struct sdl_window *w, const struct cr_tile *tiles, size_t tile_count, const struct texture *t) {
-	if (!w) return (struct input_state){ .should_save = true };
-	// Copy regions
+enum input_event win_update(struct sdl_window *w, const struct cr_tile *tiles, size_t tile_count) {
+	if (!w || (!w->window && finalize(w)))
+		return ev_none;
+
 	ASSERT(w->internal->precision == char_p);
 	ASSERT(t->precision == float_p);
 	ASSERT(w->internal->width == t->width);
 	ASSERT(w->internal->height == t->height);
 
-	unsigned char *restrict dst = w->internal->data.byte_p;
+	struct texture *t = *((struct texture **)w->rbuf);
+
+	unsigned char *restrict dst = w->texture->data.byte_p;
 	float *restrict src = t->data.float_p;
-	
-	const int width = w->internal->width;
+
+	const int width = w->texture->width;
 	for (size_t i = 0; i < tile_count; ++i) {
 		for (int y = 0; y < tiles[i].h; ++y) {
 			for (int x = 0; x < tiles[i].w; ++x) {
@@ -382,35 +389,16 @@ struct input_state win_update(struct sdl_window *w, const struct cr_tile *tiles,
 			}
 		}
 	}
-	//Render frames
+	// Render frames
 	// TODO: if (r->prefs.iterative || r->state.clients) {
 	draw_frames(w->overlay, tiles, tile_count);
 	draw_prog_bars(w->overlay, tiles, tile_count);
 	//Update image data
-	if (t) w->sym->SDL_UpdateTexture(w->texture, NULL, w->internal->data.byte_p, (int)w->width * 4);
-	w->sym->SDL_UpdateTexture(w->overlay_sdl, NULL, w->overlay->data.byte_p, (int)w->width * 4);
-	w->sym->SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
-	w->sym->SDL_RenderCopy(w->renderer, w->overlay_sdl, NULL, NULL);
-	w->sym->SDL_RenderPresent(w->renderer);
-	return win_check_keyboard(w);
-}
-
-struct sdl_prefs sdl_parse(const cJSON *data) {
-	struct sdl_prefs prefs = { 0 };
-	prefs.scale = 1.0f;
-	prefs.enabled = true;
-	if (!data) return prefs;
-
-	const cJSON *enabled = cJSON_GetObjectItem(data, "enabled");
-	if (cJSON_IsBool(enabled))
-		prefs.enabled = cJSON_IsTrue(enabled);
-
-	const cJSON *isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
-	if (cJSON_IsBool(isFullscreen))
-		prefs.fullscreen = cJSON_IsTrue(isFullscreen);
-
-	const cJSON *windowScale = cJSON_GetObjectItem(data, "windowScale");
-	if (cJSON_IsNumber(windowScale) && windowScale->valuedouble >= 0)
-		prefs.scale = windowScale->valuedouble;
-	return prefs;
+	if (t)
+		w->sdl2.SDL_UpdateTexture(w->texture_sdl, NULL, w->texture->data.byte_p, (int)w->texture->width * 4);
+	w->sdl2.SDL_UpdateTexture(w->overlay_sdl, NULL, w->overlay->data.byte_p, (int)w->overlay->width * 4);
+	w->sdl2.SDL_RenderCopy(w->renderer, w->texture_sdl, NULL, NULL);
+	w->sdl2.SDL_RenderCopy(w->renderer, w->overlay_sdl, NULL, NULL);
+	w->sdl2.SDL_RenderPresent(w->renderer);
+	return check_input(&w->sdl2);
 }

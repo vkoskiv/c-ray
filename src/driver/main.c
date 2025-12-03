@@ -21,12 +21,12 @@
 #include <args.h>
 #include <sdl.h>
 
-struct usr_data {
+struct cb_context {
 	struct cr_renderer *r;
-	struct v_mutex *win_mutex;
 	struct sdl_window *w;
-	struct sdl_prefs p;
-	bool should_save;
+	bool skip_save;
+
+	const struct cr_bitmap **temp_rbuf;
 };
 
 /*
@@ -39,67 +39,61 @@ struct usr_data {
 	when it has allocated a render buffer and is ready to render. We then pass a a ref
 	to that buffer and some context to this async win_init_task().
 */
-struct win_init_data {
-	struct usr_data *driver;
-	struct cr_renderer_cb_info *cb_info;
-};
-
 static void *win_init_task(void *arg) {
-	struct win_init_data *w = arg;
-	if (!w) return NULL;
-	struct usr_data *d = w->driver;
-	struct cr_renderer_cb_info *cb_info = w->cb_info;
-	struct sdl_window *win = win_try_init(&d->p, (*cb_info->fb)->width, (*cb_info->fb)->height);
-	v_mutex_lock(d->win_mutex);
-	if (d->p.enabled && *cb_info->fb) d->w = win;
-	v_mutex_release(d->win_mutex);
-#if !defined(__APPLE__)
-	free(w);
-#endif
+	struct cb_context *d = arg;
+	d->w = win_try_init(d->temp_rbuf);
+	d->temp_rbuf = NULL;
 	return NULL;
 }
 
 static void on_start(struct cr_renderer_cb_info *cb_info, void *user_data) {
-	struct usr_data *d = user_data;
+	struct cb_context *d = user_data;
+	d->temp_rbuf = cb_info->fb;
 #if defined(__APPLE__)
 	// The SDL2 Cocoa backend on macOS will crash the program if it's invoked from a background thread.
 	// Solution is to init SDL2 synchronously on macOS.
-	win_init_task((void *)&(struct win_init_data){ .cb_info = cb_info, .driver = d });
+	win_init_task(d);;
 #else
-	struct win_init_data *data = malloc(sizeof(*data));
-	*data = (struct win_init_data){
-		.cb_info = cb_info,
-		.driver = d,
-	};
 	v_thread_ctx ctx = {
 		.thread_fn = win_init_task,
-		.ctx = data,
+		.ctx = d,
 	};
 	v_thread *ret = v_thread_create(ctx, v_thread_type_detached);
-	if (!ret) { // Try synchronously, then.
-		win_init_task(data);
-	}
+	if (!ret) // Fall back to running synchronously.
+		win_init_task(d);
 #endif
 }
 
 static void on_stop(struct cr_renderer_cb_info *info, void *user_data) {
 	(void)info;
-	struct usr_data *d = user_data;
-	if (d->w) win_destroy(d->w);
+	struct cb_context *d = user_data;
+	if (d->w)
+		win_destroy(d->w);
 	if (info->aborted)
-		d->should_save = false;
+		d->skip_save = true;
 }
 
 static void status(struct cr_renderer_cb_info *state, void *user_data) {
 	static int pauser = 0;
-	struct usr_data *d = user_data;
-	if (!d) return;
-	v_mutex_lock(d->win_mutex);
-	struct input_state in = win_update(d->w, state->tiles, state->tiles_count, *((struct texture **)state->fb));
-	v_mutex_release(d->win_mutex);
-	d->should_save = in.should_save;
-	if (in.stop_render) cr_renderer_stop(d->r);
-	if (in.pause_render) cr_renderer_toggle_pause(d->r);
+	struct cb_context *d = user_data;
+	if (!d)
+		return;
+	if (d->w) {
+		enum input_event e = win_update(d->w, state->tiles, state->tiles_count);
+		switch (e) {
+		case ev_stop_nosave:
+			d->skip_save = true;
+			cr_renderer_stop(d->r);
+			break;
+		case ev_stop:
+			cr_renderer_stop(d->r);
+			break;
+		case ev_pause:
+			cr_renderer_toggle_pause(d->r);
+		default:
+			break;
+		}
+	}
 
 	//Run the status printing about 4x/s
 	if (++pauser >= 16) {
@@ -239,14 +233,14 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	
-	struct usr_data usrdata = (struct usr_data){
-		.p = sdl_parse(cJSON_GetObjectItem(input_json, "display")),
+	struct cb_context usrdata = {
 		.r = renderer,
-		.should_save = true,
-		.win_mutex = v_mutex_create(),
 	};
-	if (!args_is_set(opts, "no_sdl"))
+
+	const cJSON *display = cJSON_GetObjectItem(input_json, "display");
+	if (!args_is_set(opts, "no_sdl") && display && !cJSON_IsFalse(cJSON_GetObjectItem(display, "enabled")))
 		cr_renderer_set_callback(renderer, cr_cb_on_start, on_start, &usrdata);
+
 	cr_renderer_set_callback(renderer, cr_cb_on_stop, on_stop, &usrdata);
 	cr_renderer_set_callback(renderer, cr_cb_status_update, status, &usrdata);
 
@@ -298,7 +292,9 @@ int main(int argc, char *argv[]) {
 	logr(plain, "\n");
 	logr(info, "Finished render in %s\n", ms_to_readable(ms, buf));
 
-	if (usrdata.should_save) {
+	if (usrdata.skip_save) {
+		logr(info, "Abort pressed, image won't be saved.\n");
+	} else {
 		struct imageFile file = (struct imageFile){
 			.filePath = output_path,
 			.fileName = output_name,
@@ -316,8 +312,6 @@ int main(int argc, char *argv[]) {
 		};
 		writeImage(&file);
 		logr(info, "Render finished, exiting.\n");
-	} else {
-		logr(info, "Abort pressed, image won't be saved.\n");
 	}
 	
 	if (output_path) free(output_path);

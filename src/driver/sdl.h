@@ -11,24 +11,19 @@
 #include <stddef.h>
 
 struct texture;
+struct cr_bitmap;
 struct cr_tile;
 struct cJSON;
 
-struct sdl_prefs {
-	bool enabled;
-	bool fullscreen;
-	float scale;
-};
-
 // Returns NULL if we couldn't load the SDL2 lib and/or needed SDL symbols.
-struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height);
-struct sdl_prefs sdl_parse(const struct cJSON *data);
+struct sdl_window *win_try_init(const struct cr_bitmap **buf);
 
-struct input_state {
-	bool pause_render;
-	bool stop_render;
-	bool should_save;
+enum input_event {
+	ev_none = 0,
+	ev_pause,
+	ev_stop,
+	ev_stop_nosave,
 };
-struct input_state win_update(struct sdl_window *w, const struct cr_tile *tiles, size_t tile_count, const struct texture *t);
+enum input_event win_update(struct sdl_window *w, const struct cr_tile *tiles, size_t tile_count);
 
 void win_destroy(struct sdl_window *);
