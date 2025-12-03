@@ -125,7 +125,6 @@ struct sdl_window {
 	SDL_Texture *overlay_sdl;
 	struct texture *internal;
 	struct texture *overlay;
-	bool isBorderless;
 	bool isFullScreen;
 	float windowScale;
 	
@@ -176,7 +175,6 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 	w->sym = syms;
 
 	w->isFullScreen = prefs->fullscreen;
-	w->isBorderless = prefs->borderless;
 	w->windowScale = prefs->scale;
 	w->width = width;
 	w->height = height;
@@ -190,7 +188,6 @@ struct sdl_window *win_try_init(struct sdl_prefs *prefs, int width, int height) 
 	//Init window
 	SDL_WindowFlags flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
 	if (prefs->fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	if (prefs->borderless) flags |= SDL_WINDOW_BORDERLESS;
 	flags |= SDL_WINDOW_RESIZABLE;
 
 	w->window = w->sym->SDL_CreateWindow("c-ray © vkoskiv 2015-2023",
@@ -411,10 +408,6 @@ struct sdl_prefs sdl_parse(const cJSON *data) {
 	const cJSON *isFullscreen = cJSON_GetObjectItem(data, "isFullscreen");
 	if (cJSON_IsBool(isFullscreen))
 		prefs.fullscreen = cJSON_IsTrue(isFullscreen);
-
-	const cJSON *isBorderless = cJSON_GetObjectItem(data, "isBorderless");
-	if (cJSON_IsBool(isBorderless))
-		prefs.borderless = cJSON_IsTrue(isBorderless);
 
 	const cJSON *windowScale = cJSON_GetObjectItem(data, "windowScale");
 	if (cJSON_IsNumber(windowScale) && windowScale->valuedouble >= 0)

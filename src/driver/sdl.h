@@ -17,7 +17,6 @@ struct cJSON;
 struct sdl_prefs {
 	bool enabled;
 	bool fullscreen;
-	bool borderless;
 	float scale;
 };
 

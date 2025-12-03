@@ -16,7 +16,6 @@
 	},
 	"display": {
 		"isFullscreen": false,
-		"isBorderless": false,
 		"windowScale": 1.0
 	},
 	"camera": [
