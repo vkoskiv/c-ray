@@ -78,7 +78,7 @@ struct prefs {
 	unsigned override_height;
 	size_t selected_camera;
 	char *node_list;
-	bool iterative;
+	bool interactive;
 	bool blender_mode;
 };
 

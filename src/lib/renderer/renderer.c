@@ -101,7 +101,7 @@ void update_cb_info(struct renderer *r, struct tile_set *set, struct cr_renderer
 	i->avg_per_ray_us = avg_per_ray_us;
 	i->samples_per_sec = sps;
 	i->eta_ms = eta_ms_till_done;
-	i->completion = r->prefs.iterative ?
+	i->completion = r->prefs.interactive ?
 		((double)r->state.finishedPasses / (double)r->prefs.sampleCount) :
 		((double)set->finished / (double)set->tiles.count);
 
@@ -234,7 +234,7 @@ void renderer_render(struct renderer *r) {
 		start.fn(&cb_info, start.user_data);
 	}
 
-	logr(info, "Pathtracing%s...\n", r->prefs.iterative ? " iteratively" : "");
+	logr(info, "Pathtracing%s...\n", r->prefs.interactive ? " iteratively" : "");
 	
 	r->state.s = r_rendering;
 	
@@ -247,7 +247,7 @@ void renderer_render(struct renderer *r) {
 	// Select the appropriate renderer type for local use
 	void *(*local_render_thread)(void *) = render_thread;
 	// Iterative mode is incompatible with network rendering at the moment
-	if (r->prefs.iterative && !r->state.clients.count) local_render_thread = render_thread_interactive;
+	if (r->prefs.interactive && !r->state.clients.count) local_render_thread = render_thread_interactive;
 	
 	// Create & boot workers (Nonblocking)
 	// Local render threads + one thread for every client

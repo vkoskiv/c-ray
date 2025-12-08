@@ -437,7 +437,7 @@ class CrayRender(bpy.types.RenderEngine):
 		self.cr_renderer.prefs.tile_y = depsgraph.scene.c_ray.tile_size
 		self.cr_renderer.prefs.bounces = depsgraph.scene.c_ray.bounces
 		self.cr_renderer.prefs.node_list = depsgraph.scene.c_ray.node_list
-		self.cr_renderer.prefs.is_iterative = 1
+		self.cr_renderer.prefs.is_interactive = 1
 
 		# For reasons I can't fathom, depsgraph.updates doesn't let us know if the
 		# viewport camera changed, so we'll just assume that it did and fetch the whole

@@ -390,7 +390,7 @@ enum input_event win_update(struct sdl_window *w, const struct cr_tile *tiles, s
 		}
 	}
 	// Render frames
-	// TODO: if (r->prefs.iterative || r->state.clients) {
+	// TODO: if (r->prefs.interactive|| r->state.clients) {
 	draw_frames(w->overlay, tiles, tile_count);
 	draw_prog_bars(w->overlay, tiles, tile_count);
 	//Update image data

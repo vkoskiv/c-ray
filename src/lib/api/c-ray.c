@@ -110,8 +110,8 @@ bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			r->prefs.selected_camera = num;
 			return true;
 		}
-		case cr_renderer_is_iterative: {
-			r->prefs.iterative = true;
+		case cr_renderer_is_interactive: {
+			r->prefs.interactive = true;
 			return true;
 		}
 		case cr_renderer_blender_mode: {
@@ -164,7 +164,7 @@ void cr_renderer_stop(struct cr_renderer *ext) {
 	// TODO: use pthread_cond instead of silly busy-waiting loops like this
 	do {
 		v_timer_sleep_ms(10);
-	} while (r->prefs.iterative && r->state.s == r_exiting);
+	} while (r->prefs.interactive && r->state.s == r_exiting);
 }
 
 void cr_renderer_toggle_pause(struct cr_renderer *ext) {
@@ -826,7 +826,7 @@ void cr_renderer_render(struct cr_renderer *ext) {
 void cr_renderer_start_interactive(struct cr_renderer *ext) {
 	if (!ext) return;
 	struct renderer *r = (struct renderer *)ext;
-	r->prefs.iterative = true;
+	r->prefs.interactive = true;
 	if (!r->prefs.threads) {
 		return;
 	}
@@ -836,7 +836,7 @@ void cr_renderer_start_interactive(struct cr_renderer *ext) {
 void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 	if (!ext) return;
 	struct renderer *r = (struct renderer *)ext;
-	if (!r->prefs.iterative) return;
+	if (!r->prefs.interactive) return;
 	if (!r->state.workers.count) return;
 	if (!r->state.result_buf) return;
 	if (!r->state.current_set) return;

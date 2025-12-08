@@ -54,7 +54,7 @@ enum cr_renderer_param {
 	cr_renderer_override_width,
 	cr_renderer_override_height,
 	cr_renderer_override_cam,
-	cr_renderer_is_iterative,
+	cr_renderer_is_interactive,
 	// String
 	cr_renderer_asset_path,
 	cr_renderer_node_list,

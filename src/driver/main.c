@@ -227,9 +227,9 @@ int main(int argc, char *argv[]) {
 
 	if (args_is_set(opts, "interactive")) {
 		if (args_is_set(opts, "nodes_list")) {
-			logr(warning, "Can't use iterative mode with network rendering yet, sorry.\n");
+			logr(warning, "Can't use interactive mode with network rendering yet, sorry.\n");
 		} else {
-			cr_renderer_set_num_pref(renderer, cr_renderer_is_iterative, 1);
+			cr_renderer_set_num_pref(renderer, cr_renderer_is_interactive, 1);
 		}
 	}
 	

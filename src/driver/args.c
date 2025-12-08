@@ -37,7 +37,7 @@ static void printUsage(const char *progname) {
 	printf("    [-c <cam_index>] -> Select camera. Defaults to 0\n");
 	printf("    [-v]             -> Enable verbose mode\n");
 	printf("    [-vv]            -> Enable very verbose mode\n");
-	printf("    [--iterative]    -> Start in iterative mode (Experimental)\n");
+	printf("    [--interactive]  -> Start in interactive mode (Experimental)\n");
 	printf("    [--worker]       -> Start up as a network render worker (Experimental)\n");
 	printf("    [--nodes <list>] -> Use worker nodes in comma-separated ip:port list for a faster render (Experimental)\n");
 	printf("    [--shutdown]     -> Use in conjunction with a node list to send a shutdown command to a list of clients\n");
@@ -208,7 +208,7 @@ struct driver_args *args_parse(int argc, char **argv) {
 			setDatabaseInt(args, "test_idx", -3);
 		}
 
-		if (stringEquals(argv[i], "--iterative")) {
+		if (stringEquals(argv[i], "--interactive")) {
 			setDatabaseTag(args, "interactive");
 		}
 

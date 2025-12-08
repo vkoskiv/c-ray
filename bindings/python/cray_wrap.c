@@ -201,7 +201,7 @@ static PyObject *py_cr_renderer_get_num_pref(PyObject *self, PyObject *args) {
 	if (!PyArg_ParseTuple(args, "OI", &r_ext, &p)) {
 		return NULL;
 	}
-	if (p > cr_renderer_is_iterative) {
+	if (p > cr_renderer_is_interactive) {
 		PyErr_SetString(PyExc_ValueError, "cr_renderer_param not a number type");
 		return NULL;
 	}

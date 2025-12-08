@@ -19,7 +19,7 @@ class _cr_rparam(IntEnum):
 	override_width = 6
 	override_height = 7
 	override_cam = 8
-	is_iterative = 9
+	is_interactive = 9
 	# str
 	asset_path = 10
 	node_list = 11
@@ -146,11 +146,11 @@ class _pref:
 		_r_set_num(self.r_ptr, _cr_rparam.override_cam, value)
 	cam_idx = property(_get_cam_idx, _set_cam_idx, None, "Select camera")
 
-	def _get_is_iterative(self):
-		return _r_get_num(self.r_ptr, _cr_rparam.is_iterative)
-	def _set_is_iterative(self, value):
-		_r_set_num(self.r_ptr, _cr_rparam.is_iterative, value)
-	is_iterative = property(_get_is_iterative, _set_is_iterative, None, "")
+	def _get_is_interactive(self):
+		return _r_get_num(self.r_ptr, _cr_rparam.is_interactive)
+	def _set_is_interactive(self, value):
+		_r_set_num(self.r_ptr, _cr_rparam.is_interactive, value)
+	is_interactive = property(_get_is_interactive, _set_is_interactive, None, "")
 
 	def _get_output_path(self):
 		return _r_get_str(self.r_ptr, _cr_rparam.output_path)
