@@ -33,8 +33,6 @@ struct worker {
 	struct texture **buf;
 	struct render_client *client; // Optional
 };
-typedef struct worker worker;
-v_arr_def(worker)
 
 struct callback {
 	void (*fn)(struct cr_renderer_cb_info *, void *);
@@ -52,8 +50,8 @@ enum renderer_state {
 struct state {
 	size_t finishedPasses; // For interactive mode
 	enum renderer_state s;
-	struct worker_arr workers;
-	struct render_client_arr clients;
+	struct worker *workers;
+	struct render_client *clients;
 	// TODO: Single callback that has event type as first arg
 	// instead of this awkward set of several different callbacks
 	// for different events

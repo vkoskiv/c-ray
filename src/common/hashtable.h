@@ -33,8 +33,8 @@ struct hashtable {
 
 // Hash functions (using FNV)
 uint32_t hashInit(void);
-uint32_t hashCombine(uint32_t, uint8_t);
 uint32_t hashBytes(uint32_t, const void *, size_t);
+#define hash_item(hash, item) hashBytes(hash, &(item), sizeof((uintptr_t)(item)))
 uint32_t hashString(uint32_t, const char *);
 
 struct hashtable *newHashtable(bool (*compare)(const void *, const void *), struct block **pool);

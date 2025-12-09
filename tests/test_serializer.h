@@ -9,6 +9,7 @@
 #pragma once
 
 #include <c-ray/c-ray.h>
+#include <v.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -37,11 +38,11 @@ void resume_stdout(int *bak, int *new) {
 bool serializer_serialize(void) {
 
 	file_data scene = file_load("input/hdr.json");
-	test_assert(scene.items);
+	test_assert(scene);
 
-	cJSON *scene_json = cJSON_ParseWithLength((const char *)scene.items, scene.count);
+	cJSON *scene_json = cJSON_ParseWithLength((const char *)scene, v_arr_len(scene));
 	test_assert(scene_json);
-	file_free(&scene);
+	v_arr_free(scene);
 
 	struct cr_renderer *ext = cr_new_renderer();
 	test_assert(ext);

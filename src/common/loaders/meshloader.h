@@ -17,33 +17,24 @@ struct mesh_material {
 	struct cr_shader_node *mat;
 };
 
-typedef struct mesh_material mesh_material;
-v_arr_def(mesh_material)
-
-typedef struct cr_face cr_face;
-v_arr_def(cr_face)
-
 struct ext_mesh {
 	struct vertex_buffer *vbuf;
-	struct cr_face_arr faces;
+	struct cr_face *faces;
 	size_t vbuf_idx;
 	float surface_area;
 	float ray_offset;
 	char *name;
 };
 
-typedef struct ext_mesh ext_mesh;
-v_arr_def(ext_mesh)
-
 static inline void ext_mesh_free(struct ext_mesh *m) {
 	if (m->vbuf) vertex_buf_free(m->vbuf);
-	cr_face_arr_free(&m->faces);
+	v_arr_free(m->faces);
 	if (m->name) free(m->name);
 }
 
 struct mesh_parse_result {
-	struct ext_mesh_arr meshes;
-	struct mesh_material_arr materials;
+	struct ext_mesh *meshes;
+	struct mesh_material *materials;
 	struct vertex_buffer geometry;
 };
 

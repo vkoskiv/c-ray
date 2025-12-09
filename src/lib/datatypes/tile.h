@@ -42,16 +42,13 @@ struct render_tile {
 	size_t completed_samples;
 };
 
-typedef struct render_tile render_tile;
-v_arr_def(render_tile)
-
 struct tile_set {
-	struct render_tile_arr tiles;
+	struct render_tile *tiles;
 	size_t finished;
 	struct v_mutex *tile_mutex;
 };
 
-struct render_tile_arr tile_quantize(unsigned width, unsigned height, unsigned tile_w, unsigned tile_h, enum render_order order);
+struct render_tile *tile_quantize(unsigned width, unsigned height, unsigned tile_w, unsigned tile_h, enum render_order order);
 void tile_set_free(struct tile_set *set);
 
 struct render_tile *tile_next(struct tile_set *set);

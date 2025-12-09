@@ -245,23 +245,23 @@ static struct euler_angles deserialize_euler_angles(const cJSON *in) {
 static cJSON *serialize_vertex_buffer(const struct vertex_buffer in) {
 	cJSON *out = cJSON_CreateObject();
 
-	cJSON_AddNumberToObject(out, "vertex_count", in.vertices.count);
-	if (in.vertices.count) {
-		char *data = b64encode(in.vertices.items, in.vertices.count * sizeof(*in.vertices.items));
+	cJSON_AddNumberToObject(out, "vertex_count", v_arr_len(in.vertices));
+	if (v_arr_len(in.vertices)) {
+		char *data = b64encode(in.vertices, v_arr_len(in.vertices) * sizeof(*in.vertices));
 		cJSON_AddStringToObject(out, "vertices", data);
 		free(data);
 	}
 
-	cJSON_AddNumberToObject(out, "normal_count", in.normals.count);
-	if (in.normals.count) {
-		char *data = b64encode(in.normals.items, in.normals.count * sizeof(*in.normals.items));
+	cJSON_AddNumberToObject(out, "normal_count", v_arr_len(in.normals));
+	if (v_arr_len(in.normals)) {
+		char *data = b64encode(in.normals, v_arr_len(in.normals) * sizeof(*in.normals));
 		cJSON_AddStringToObject(out, "normals", data);
 		free(data);
 	}
 
-	cJSON_AddNumberToObject(out, "texture_coord_count", in.texture_coords.count);
-	if (in.texture_coords.count) {
-		char *data = b64encode(in.texture_coords.items, in.texture_coords.count * sizeof(*in.texture_coords.items));
+	cJSON_AddNumberToObject(out, "texture_coord_count", v_arr_len(in.texture_coords));
+	if (v_arr_len(in.texture_coords)) {
+		char *data = b64encode(in.texture_coords, v_arr_len(in.texture_coords) * sizeof(*in.texture_coords));
 		cJSON_AddStringToObject(out, "texture_coords", data);
 		free(data);
 	}
@@ -279,7 +279,7 @@ static struct vertex_buffer deserialize_vertex_buffer(const cJSON *in) {
 		struct vector *vertices = b64decode(v_b64, strlen(v_b64), &out_bytes);
 		ASSERT(out_bytes == vertex_count * sizeof(struct vector));
 		for (size_t i = 0; i < vertex_count; ++i) {
-			vector_arr_add(&out.vertices, vertices[i]);
+			v_arr_add(out.vertices, vertices[i]);
 		}
 		free(vertices);
 	}
@@ -290,7 +290,7 @@ static struct vertex_buffer deserialize_vertex_buffer(const cJSON *in) {
 		struct vector *normals = b64decode(n_b64, strlen(n_b64), &out_bytes);
 		ASSERT(out_bytes == normal_count * sizeof(struct vector));
 		for (size_t i = 0; i < normal_count; ++i) {
-			vector_arr_add(&out.normals, normals[i]);
+			v_arr_add(out.normals, normals[i]);
 		}
 		free(normals);
 	}
@@ -301,7 +301,7 @@ static struct vertex_buffer deserialize_vertex_buffer(const cJSON *in) {
 		struct coord *texture_coords = b64decode(t_b64, strlen(t_b64), &out_bytes);
 		ASSERT(out_bytes == texture_coord_count * sizeof(struct coord));
 		for (size_t i = 0; i < texture_coord_count; ++i) {
-			coord_arr_add(&out.texture_coords, texture_coords[i]);
+			v_arr_add(out.texture_coords, texture_coords[i]);
 		}
 		free(texture_coords);
 	}
@@ -309,29 +309,29 @@ static struct vertex_buffer deserialize_vertex_buffer(const cJSON *in) {
 	return out;
 }
 
-static cJSON *serialize_faces(const struct poly_arr in) {
-	if (!in.count) return NULL;
+static cJSON *serialize_faces(const struct poly *in) {
+	if (!v_arr_len(in))
+		return NULL;
 	cJSON *out = cJSON_CreateObject();
-	size_t bytes = in.count * sizeof(*in.items);
-	char *encoded = b64encode(in.items, bytes);
+	size_t bytes = v_arr_len(in) * sizeof(*in);
+	char *encoded = b64encode(in, bytes);
 	cJSON_AddStringToObject(out, "data", encoded);
 	free(encoded);
-	cJSON_AddNumberToObject(out, "poly_count", in.count);
+	cJSON_AddNumberToObject(out, "poly_count", v_arr_len(in));
 	return out;
 }
 
-struct poly_arr deserialize_faces(const cJSON *in) {
-	struct poly_arr out = { 0 };
-	if (!in) return out;
+struct poly *deserialize_faces(const cJSON *in) {
+	struct poly *out = { 0 };
+	if (!in)
+		return out;
 	size_t poly_count = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "poly_count"));
 	char *p_b64 = cJSON_GetStringValue(cJSON_GetObjectItem(in, "data"));
 	if (p_b64 && poly_count) {
 		size_t out_len = 0;
 		struct poly *polys = b64decode(p_b64, strlen(p_b64), &out_len);
 		ASSERT(out_len == poly_count * sizeof(struct poly));
-		for (size_t i = 0; i < poly_count; ++i) {
-			poly_arr_add(&out, polys[i]);
-		}
+		v_arr_add_n(out, polys, poly_count);
 		free(polys);
 	}
 	return out;
@@ -363,9 +363,10 @@ static cJSON *serialize_sphere(const struct sphere in) {
 	return out;
 }
 
-static sphere deserialize_sphere(const cJSON *in) {
+static struct sphere deserialize_sphere(const cJSON *in) {
 	struct sphere out = { 0 };
-	if (!in) return out;
+	if (!in)
+		return out;
 	out.radius = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "radius"));
 	out.rayOffset = cJSON_GetNumberValue(cJSON_GetObjectItem(in, "rayOffset"));
 	return out;
@@ -714,46 +715,46 @@ static cJSON *serialize_scene(const struct world *in) {
 	cJSON_AddItemToObject(out, "background", serialize_shader_node(in->bg_desc));
 
 	cJSON *textures = cJSON_CreateArray();
-	for (size_t i = 0; i < in->textures.count; ++i) {
+	for (size_t i = 0; i < v_arr_len(in->textures); ++i) {
 		cJSON *asset = cJSON_CreateObject();
-		cJSON_AddItemToObject(asset, "p", cJSON_CreateString(in->textures.items[i].path));
-		cJSON_AddItemToObject(asset, "t", serialize_texture(in->textures.items[i].t));
+		cJSON_AddItemToObject(asset, "p", cJSON_CreateString(in->textures[i].path));
+		cJSON_AddItemToObject(asset, "t", serialize_texture(in->textures[i].t));
 		cJSON_AddItemToArray(textures, asset);
 	}
 	cJSON_AddItemToObject(out, "textures", textures);
 
 	// Note: We only really need the descriptions, since we can't serialize the actual shaders anyway
 	cJSON *shader_buffers = cJSON_CreateArray();
-	for (size_t i = 0; i < in->shader_buffers.count; ++i) {
+	for (size_t i = 0; i < v_arr_len(in->shader_buffers); ++i) {
 		cJSON *descriptions = cJSON_CreateArray();
-		for (size_t j = 0; j < in->shader_buffers.items[i].descriptions.count; ++j) {
-			cJSON_AddItemToArray(descriptions, serialize_shader_node(in->shader_buffers.items[i].descriptions.items[j]));
+		for (size_t j = 0; j < v_arr_len(in->shader_buffers[i].descriptions); ++j) {
+			cJSON_AddItemToArray(descriptions, serialize_shader_node(in->shader_buffers[i].descriptions[j]));
 		}
 		cJSON_AddItemToArray(shader_buffers, descriptions);
 	}
 	cJSON_AddItemToObject(out, "shader_buffers", shader_buffers);
 
 	cJSON *meshes = cJSON_CreateArray();
-	for (size_t i = 0; i < in->meshes.count; ++i) {
-		cJSON_AddItemToArray(meshes, serialize_mesh(in->meshes.items[i]));
+	for (size_t i = 0; i < v_arr_len(in->meshes); ++i) {
+		cJSON_AddItemToArray(meshes, serialize_mesh(in->meshes[i]));
 	}
 	cJSON_AddItemToObject(out, "meshes", meshes);
 
 	cJSON *spheres = cJSON_CreateArray();
-	for (size_t i = 0; i < in->spheres.count; ++i) {
-		cJSON_AddItemToArray(spheres, serialize_sphere(in->spheres.items[i]));
+	for (size_t i = 0; i < v_arr_len(in->spheres); ++i) {
+		cJSON_AddItemToArray(spheres, serialize_sphere(in->spheres[i]));
 	}
 	cJSON_AddItemToObject(out, "spheres", spheres);
 
 	cJSON *instances = cJSON_CreateArray();
-	for (size_t i = 0; i < in->instances.count; ++i) {
-		cJSON_AddItemToArray(instances, serialize_instance(in->instances.items[i]));
+	for (size_t i = 0; i < v_arr_len(in->instances); ++i) {
+		cJSON_AddItemToArray(instances, serialize_instance(in->instances[i]));
 	}
 	cJSON_AddItemToObject(out, "instances", instances);
 
 	cJSON *cameras = cJSON_CreateArray();
-	for (size_t i = 0; i < in->cameras.count; ++i) {
-		cJSON_AddItemToArray(cameras, serialize_camera(in->cameras.items[i]));
+	for (size_t i = 0; i < v_arr_len(in->cameras); ++i) {
+		cJSON_AddItemToArray(cameras, serialize_camera(in->cameras[i]));
 	}
 	cJSON_AddItemToObject(out, "cameras", cameras);
 
@@ -774,7 +775,7 @@ struct world *deserialize_scene(const cJSON *in) {
 	if (cJSON_IsArray(textures)) {
 		cJSON *texture = NULL;
 		cJSON_ArrayForEach(texture, textures) {
-			texture_asset_arr_add(&out->textures, (struct texture_asset){
+			v_arr_add(out->textures, (struct texture_asset){
 				.path = stringCopy(cJSON_GetStringValue(cJSON_GetObjectItem(texture, "p"))),
 				.t = deserialize_texture(cJSON_GetObjectItem(texture, "t"))
 			});
@@ -791,14 +792,14 @@ struct world *deserialize_scene(const cJSON *in) {
 	if (cJSON_IsArray(shader_buffers)) {
 		cJSON *s_buffer = NULL;
 		cJSON_ArrayForEach(s_buffer, shader_buffers) {
-			size_t idx = bsdf_buffer_arr_add(&out->shader_buffers, (struct bsdf_buffer){ 0 });
-			struct bsdf_buffer *buf = &out->shader_buffers.items[idx];
+			size_t idx = v_arr_add(out->shader_buffers, (struct bsdf_buffer){ 0 });
+			struct bsdf_buffer *buf = &out->shader_buffers[idx];
 			if (cJSON_IsArray(s_buffer)) {
 				cJSON *description = NULL;
 				cJSON_ArrayForEach(description, s_buffer) {
 					struct cr_shader_node *desc = deserialize_shader_node(description);
-					cr_shader_node_ptr_arr_add(&buf->descriptions, desc);
-					bsdf_node_ptr_arr_add(&buf->bsdfs, build_bsdf_node((struct cr_scene *)out, desc));
+					v_arr_add(buf->descriptions, desc);
+					v_arr_add(buf->bsdfs, build_bsdf_node((struct cr_scene *)out, desc));
 				}
 			}
 		}
@@ -809,7 +810,7 @@ struct world *deserialize_scene(const cJSON *in) {
 		cJSON *mesh = NULL;
 		cJSON_ArrayForEach(mesh, meshes) {
 			v_rwlock_write_lock(out->bvh_lock);
-			cr_mesh idx = mesh_arr_add(&out->meshes, deserialize_mesh(mesh));
+			cr_mesh idx = v_arr_add(out->meshes, deserialize_mesh(mesh));
 			cr_mesh_finalize((struct cr_scene *)out, idx);
 			v_rwlock_unlock(out->bvh_lock);
 		}
@@ -819,21 +820,21 @@ struct world *deserialize_scene(const cJSON *in) {
 	if (cJSON_IsArray(spheres)) {
 		cJSON *sphere = NULL;
 		cJSON_ArrayForEach(sphere, spheres) {
-			sphere_arr_add(&out->spheres, deserialize_sphere(sphere));
+			v_arr_add(out->spheres, deserialize_sphere(sphere));
 		}
 	}
 	cJSON *instances = cJSON_GetObjectItem(in, "instances");
 	if (cJSON_IsArray(instances)) {
 		cJSON *instance = NULL;
 		cJSON_ArrayForEach(instance, instances) {
-			instance_arr_add(&out->instances, deserialize_instance(instance));
+			v_arr_add(out->instances, deserialize_instance(instance));
 		}
 	}
 
 	// Hook up shader buffers and object arrays to instances
-	for (size_t i = 0; i < out->instances.count; ++i) {
-		struct instance *inst = &out->instances.items[i];
-		inst->bbuf = &out->shader_buffers.items[inst->bbuf_idx];
+	for (size_t i = 0; i < v_arr_len(out->instances); ++i) {
+		struct instance *inst = &out->instances[i];
+		inst->bbuf = &out->shader_buffers[inst->bbuf_idx];
 		if (instance_type(inst) == CR_I_MESH) {
 			inst->object_arr = &out->meshes;
 		} else {
@@ -845,7 +846,7 @@ struct world *deserialize_scene(const cJSON *in) {
 	if (cJSON_IsArray(cameras)) {
 		cJSON *camera = NULL;
 		cJSON_ArrayForEach(camera, cameras) {
-			camera_arr_add(&out->cameras, deserialize_camera(camera));
+			v_arr_add(out->cameras, deserialize_camera(camera));
 		}
 	}
 

@@ -9,20 +9,69 @@
  * Copyright (c) 2025, Valtteri Koskivuori
  * SPDX-License-Identifier: MIT
  */
+ // TODO: Prettify comments (e.g. cosmopolitan. there was a tool for this, I forget the name!)
+
+ /*
+	Feature list, search for:
+	- '--- decl <name>' to get to the API
+	- '--- impl <name>' to get to the implementation
+
+	- v_sys: Query system information       (*nix, win32)
+	- v_mod: Dynamic module support         (*nix, win32)
+	- v_ilist: Intrusive doubly-linked list
+	- v_timer: Simple timer gadget
+	- v_dir: TODO: Directory utilities (port from refmon)
+	- v_ht: TODO: Hash-table (port from c-ray)
+	- v_cbuf: TODO: Circular buffer (port from refmon)
+	- v_arr: Dynamic arrays
+	- v_str: TODO UTF-8 String library
+	- v_arena: Arena allocator
+	- v_sync: Sync primitives (mutex, rwlock, condition variables), (pthreads, win32)
+	- v_thread: Threading abstraction & thread pool (pthreads, win32)
+	- v_threadpool: Thread pool + job queue
+ */
 
 #ifndef _V_H_INCLUDED
 #define _V_H_INCLUDED 1
+
+/* Platform-specific tweaks */
+#if defined(__NetBSD__) && !defined(_NETBSD_SOURCE) /* stack_t */
+	#define _NETBSD_SOURCE
+#endif
+
+/* v.h depends on C99 */
+#if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L
+	#error "The v.h library requires C99 or later."
+#endif
+
+/* v.h depends on pthread_rwlock_t and other POSIX goodies */
+#ifndef _POSIX_C_SOURCE
+	#define _POSIX_C_SOURCE 200112L
+#endif
 
 #include <stddef.h>
 #include <stdint.h>
 
 // --- decl common
 
-#ifdef __GNUC__
+#if defined(__GNUC__)
 	#define V_UNUSED __attribute__((unused))
 #else
 	#define V_UNUSED
 #endif
+
+#define v_offsetof(T, m) ((size_t)((char *)&((T *)1)->m - (char *)1))
+#define v_alignof(T) v_offsetof(struct { char _; T x; }, x)
+#define v_container_of(ptr, type, member) \
+	((type *)((char *)(ptr) - v_offsetof(type, member)))
+
+union v_max_align_t {
+	char *p;
+	double d;
+	long double ld;
+	long int i;
+};
+typedef union v_max_align_t v_max_align_t;
 
 // Header
 
@@ -35,11 +84,11 @@ extern "C" {
 int v_sys_get_cores(void);
 
 // --- decl v_mod (Runtime module loading)
-typedef void * v_mod_t;
-v_mod_t v_mod_load(const char *filename);
-void *v_mod_sym(v_mod_t handle, const char *name);
+typedef void * v_mod;
+v_mod v_mod_load(const char *filename);
+void *v_mod_sym(v_mod handle, const char *name);
 char *v_mod_error(void);
-int v_mod_close(v_mod_t handle);
+int v_mod_close(v_mod handle);
 
 // --- decl v_ilist (Intrusive doubly-linked list)
 #define v_ilist_get(ptr, type, field) ((type *)((void *)(ptr) - offsetof(type, field)))
@@ -51,10 +100,17 @@ struct v_ilist {
 typedef struct v_ilist v_ilist;
 
 void v_ilist_init(v_ilist *root);
-void v_ilist_prepend(v_ilist *next, v_ilist *node);
-void v_ilist_append(v_ilist *prev, v_ilist *node);
+v_ilist *v_ilist_prepend(v_ilist *next, v_ilist *node);
+v_ilist *v_ilist_append(v_ilist *prev, v_ilist *node);
 void v_ilist_foreach(v_ilist *head, int (*cb)(v_ilist *elem, void *ctx), void *ctx);
 void v_ilist_remove(v_ilist *node);
+void v_ilist_destroy(v_ilist *head, void (*dtor)(void *elem));
+size_t v_ilist_elems(v_ilist *head);
+
+#define v_ilist_for_each(list_head, T, elem) \
+	for (T *elem = (T *)list_head, *end = NULL;\
+	elem != end;\
+	end = (end ? end : elem), elem = (T *)((v_ilist *)elem)->next)
 
 // --- decl v_timer (Simple timers)
 
@@ -76,13 +132,26 @@ long v_timer_get_us(v_timer t);
 	up the sleep if we happened to get a signal, such as SIGINT during sleep. */
 void v_timer_sleep_ms(int ms);
 
+// --- decl v_dir (Directory iteration goodies) (refmon)
+// --- decl v_ht (Hash table w/ FNV)(c-ray)
+// --- decl v_cbuf (Circular buffers for running averages) (refmon)
 // --- decl v_arr (Dynamic arrays)
+
+struct v_arr {
+	size_t n;
+	size_t cap;
+	size_t elem_size;
+	size_t (*grow_fn)(size_t cap, size_t elem_size);
+	// v_mem *allocator; <- Used if not NULL, and this type casts to e.g. v_arena, v_stdalloc, v_mempool, etc.
+	void (*elem_free)(void *elem);
+};
 
 #ifndef V_ARR_START_SIZE
 #define V_ARR_START_SIZE 16
 #endif
 
-static inline size_t grow_x_1_5(size_t capacity, size_t elem_size) {
+// TODO: Maybe have these out of line in impl?
+static inline size_t v_arr_grow_linear(size_t capacity, size_t elem_size) {
 	if (capacity == 0)
 		return V_ARR_START_SIZE;
 	if (capacity > SIZE_MAX / (size_t)(1.5 * elem_size))
@@ -90,7 +159,7 @@ static inline size_t grow_x_1_5(size_t capacity, size_t elem_size) {
 	return capacity + (capacity / 2);
 }
 
-static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
+static inline size_t v_arr_grow_exponential(size_t capacity, size_t elem_size) {
 	if (capacity == 0)
 		return V_ARR_START_SIZE;
 	if (capacity > SIZE_MAX / (2 * elem_size))
@@ -98,68 +167,158 @@ static inline size_t grow_x_2(size_t capacity, size_t elem_size) {
 	return capacity * 2;
 }
 
-#include <string.h>
-#include <stdlib.h>
+void *v__arr_do_grow(void *a, size_t elem_size, size_t n);
+void v__arr_add_n(void *a, void *elems, size_t elem_size, size_t n);
+void *v__arr_trim(void *a);
+void *v__arr_copy(const void *const a);
+void v__arr_free(void *a);
+#define v__arr_head(A) ((struct v_arr *)(A) - 1)
+#define v__arr_grow(A, N) ((A) = v__arr_do_grow((A), sizeof(*A), (N)))
+#define v__arr_ensure(A, N) \
+	(((!A) || v__arr_head(A)->n + N > v__arr_head(A)->cap) ? (v__arr_grow(A, N), 0) : 0)
 
-#define v_arr_def(T) \
-	struct T##_arr { \
-		T *items; \
-		size_t count; \
-		size_t capacity; \
-		size_t (*grow_fn)(size_t capacity, size_t item_size); \
-		void   (*elem_free)(T *item); \
-	}; \
-	static inline size_t V_UNUSED T##_arr_add(struct T##_arr *a, const T value) { \
-		if (a->count >= a->capacity) { \
-			size_t new_capacity = a->grow_fn ? a->grow_fn(a->capacity, sizeof(*a->items)) : grow_x_2(a->capacity, sizeof(*a->items)); \
-			a->items = realloc(a->items, sizeof(*a->items) * new_capacity); \
-			a->capacity = new_capacity; \
-		} \
-		a->items[a->count] = value; \
-		return a->count++; \
-	} \
-	static inline size_t V_UNUSED T##_arr_add_n(struct T##_arr *a, const T *values, size_t n) { \
-		if ((a->count + n) >= a->capacity) { \
-			size_t new_capacity = a->capacity + (a->capacity - a->count) + n; \
-			a->items = realloc(a->items, sizeof(*a->items) * new_capacity); \
-			a->capacity = new_capacity; \
-		} \
-		memcpy(a->items + a->count, values, n * sizeof(*a->items)); \
-		return a->count += n; \
-	} \
-	static inline void V_UNUSED T##_arr_trim(struct T##_arr *a) { \
-		if (!a || a->count >= a->capacity) return; \
-		T *new = malloc(a->count * sizeof(*a)); \
-		memcpy(new, a->items, a->count * sizeof(*new)); \
-		free(a->items); \
-		a->items = new; \
-		a->capacity = a->count; \
-	} \
-	static inline struct T##_arr V_UNUSED T##_arr_copy(const struct T##_arr a) { \
-		if (!a.items) return (struct T##_arr){ 0 }; \
-		struct T##_arr c = a; \
-		c.items = malloc(a.count * sizeof(*a.items)); \
-		memcpy(c.items, a.items, a.count * sizeof(*a.items)); \
-		return c; \
-	} \
-	static inline void V_UNUSED T##_arr_free(struct T##_arr *a) { \
-		if (!a) return; \
-		if (a->elem_free) { \
-			for (size_t i = 0; i < a->count; ++i) \
-				a->elem_free(&a->items[i]);\
-		}\
-		if (a->items) free(a->items); \
-		a->items = NULL; \
-		a->capacity = 0; \
-		a->count = 0; \
-	} \
-	static inline void V_UNUSED T##_arr_join(struct T##_arr *a, struct T##_arr *b) { \
-		if (!a || !b) return; \
-		T##_arr_add_n(a, b->items, b->count); \
-		T##_arr_free(b); \
-	}
 
-// --- decl v_mem (Arena allocator) (TODO)
+#define v_arr_cap(A) ((A) ? v__arr_head(A)->cap : 0)
+#define v_arr_len(A) ((A) ? v__arr_head(A)->n : 0)
+#define v_arr_add(A, ...) \
+	(v__arr_ensure((A), 1), (A)[v__arr_head(A)->n] = (__VA_ARGS__), v__arr_head(A)->n++)
+#define v_arr_add_n(A, elems, N) \
+	(v__arr_ensure((A), N), v__arr_add_n((A), elems, sizeof(elems[0]), (N)))
+// TODO: It's quite easy to forget & when using v_arr_trim().
+// Use the v_arr_free() pattern and directly assign result of v__arr_trim() to A
+#define v_arr_trim(A) \
+	((A) ? ((A) = v__arr_trim((A)), 0) : 0)
+#define v_arr_copy(A) \
+	((A) ? v__arr_copy((A)) : NULL)
+#define v_arr_free(A) \
+	(((A) ? (v__arr_free((A)), 0) : 0), (A) = NULL)
+#define v_arr_join(A, B) \
+	((A) && (B) ? (v_arr_add_n((A), (B), v_arr_len((B))), v_arr_free((B)), (A)) : NULL)
+#define v_arr_set_grow_fn(A, fn) \
+	(v__arr_ensure((A), 0), v__arr_head(A)->grow_fn = fn)
+
+// --- decl v_str (UTF-8 checked strings)
+
+struct v_str {
+	const char *s;
+	size_t bytes;
+};
+typedef struct v_str v_str;
+
+v_str v_s(const char *);
+
+struct v_hstr {
+	char *s;
+	size_t bytes;
+};
+typedef struct v_hstr v_hstr;
+
+v_hstr v_h(const char *);
+v_hstr v_sfmt(const char *fmt, ...);
+void v_str_free(v_hstr s);
+
+// --- decl v_arena (Arena allocator)
+
+/*
+	Largely inspired by:
+	https://nullprogram.com/blog/2023/09/27/
+
+	Usage example:
+
+		struct foo {
+			int a;
+			char b;
+		};
+
+		void complex_nested_operation(v_arena a) {
+			// ...
+			struct foo *too_big = v_new(&a, struct foo, 1000 * 1000); // -> longjmp back to do_things() OOM handler
+		}
+
+		int do_things(v_arena a) {
+			// Allocate single object
+			struct foo *foo = v_new(&a, struct foo);
+			// Allocate 128 objects
+			struct foo *foo_list = v_new(&a, struct foo, 128);
+			// Request NULL on OOM for individual allocation, so we can check and
+			// handle the case manually. This could also be set in v_arena.flags and
+			// it'll apply to all subsequent allocations from that arena.
+			struct foo *sensitive_foo = v_new(&a, struct foo, 1, V_ARENA_SOFTFAIL);
+			if (!sensitive_foo) {
+				// <release locks/other resources>
+				return 1;
+			}
+			// Another alternative, set an OOM handler for easy error handling
+			// from comples/deeply nested operations that may OOM:
+			v_arena_on_oom(a) {
+				// OOMs from downstream will jump back here
+				// Since we're passing v_arena by value, these can be nested, too.
+				fprintf(stderr, "do_things: OOM in complex_nexted_operation(), bailing.\n");
+				return 1;
+			}
+			complex_nested_operation(a);
+			return 0;
+		}
+
+		int main(void) {
+			// Allocate 1MiB arena from heap
+			v_arena arena = v_arena_from_heap(1 * V_MiB);
+			do_things(arena);
+			v_arena_destroy(&arena);
+		}
+
+	We could also use a stack buffer, and set SOFTFAIL OOM strategy, so v_new()/v_put() return NULL on OOM:
+		uint8_t arr[4 * V_KiB];
+		v_arena arena = v_arena_from_arr(arr);
+		arena.flags |= V_ARENA_SOFTFAIL;
+		struct foo *foo_list = v_new(&arena, struct foo, 100);
+		if (!foo_list) {
+			// Setting V_ARENA_SOFTFAIL means we have to check each allocation the old-fashioned way
+			return 1;
+		}
+		// use foo_list
+*/
+
+struct v_arena {
+	uint8_t *alloc;
+	uint8_t *beg;
+	uint8_t *end;
+	void *jmp_buf[5]; // x86_64: rbp, rip, rsp, 0, 0
+	int flags;
+};
+typedef struct v_arena v_arena;
+
+// v!v!v!v INTERNAL GUNK v!v!v!v
+void *_v_arena_alloc(v_arena *a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count, int flags, void *data);
+#define _v_newx(a, b, c, d, e, ...) e
+#define _v_new2(arena, type)               (type *)_v_arena_alloc(arena, sizeof(type), v_alignof(type),     1,     0, NULL)
+#define _v_new3(arena, type, count)        (type *)_v_arena_alloc(arena, sizeof(type), v_alignof(type), count,     0, NULL)
+#define _v_new4(arena, type, count, flags) (type *)_v_arena_alloc(arena, sizeof(type), v_alignof(type), count, flags, NULL)
+// ^!^!^!^ INTERNAL GUNK ^!^!^!^
+
+	#define V_ARENA_NOZERO (1 << 0)
+	#define V_ARENA_SOFTFAIL (1 << 1)
+	#define V_ARENA_DO_LONGJMP (1 << 2)
+
+	#define V_KiB 1024ull
+	#define V_MiB (V_KiB * V_KiB)
+	#define V_GiB (V_KiB * V_MiB)
+	#define V_TiB (V_KiB * V_GiB)
+
+	v_arena v_arena_from_buf(uint8_t *buf, ptrdiff_t capacity);
+	#define v_arena_from_arr(array) v_arena_from_buf(array, sizeof(array))
+	v_arena v_arena_from_heap(ptrdiff_t capacity);
+	void v_arena_destroy(v_arena *a);
+
+	// Very useful, but do not use if you received a pointer to v_arena
+	// e.g. v_arena_on_oom((*arena_arg)) { ... } is a *bad* idea, and *will* blow up your stack.
+	#define v_arena_on_oom(arena) if (arena.flags |= V_ARENA_DO_LONGJMP, __builtin_setjmp(arena.jmp_buf))
+
+	// TODO: Maybe have these act on a generic allocator interface that uses e.g. v_arena/etc behind the scenes?
+	#define v_new(...) _v_newx(__VA_ARGS__, _v_new4, _v_new3, _v_new2)(__VA_ARGS__)
+	#define v_put(arena, type, ...) _v_arena_alloc(arena, sizeof(type), v_alignof(type), 1, 0, &__VA_ARGS__)
+
+// --- decl v_mem (Composable memory allocators)
 
 // --- decl v_sync (Sync primitives (mutex, rwlock, condition variables), pthreads & win32)
 #if defined(WINDOWS)
@@ -225,6 +384,8 @@ enum v_thread_type {
 v_thread *v_thread_create(v_thread_ctx c, enum v_thread_type type);
 void *v_thread_wait_and_destroy(v_thread *);
 
+// --- decl v_threadpool (Thread pool + job queue)
+
 struct v_threadpool;
 typedef struct v_threadpool v_threadpool;
 
@@ -254,16 +415,16 @@ extern "C" {
 
 // --- impl v_sys (System capabilities)
 
-#ifdef __APPLE__
-typedef unsigned int u_int;
-typedef unsigned char u_char;
-typedef unsigned short u_short;
-#include <sys/param.h>
-#include <sys/sysctl.h>
-#elif _WIN32
-#include <windows.h>
-#elif __linux__ || __COSMOPOLITAN__
-#include <unistd.h>
+#if defined(__APPLE__)
+	typedef unsigned int u_int;
+	typedef unsigned char u_char;
+	typedef unsigned short u_short;
+	#include <sys/param.h>
+	#include <sys/sysctl.h>
+#elif defined(_WIN32)
+	#include <windows.h>
+#elif defined(__linux__) || defined(__COSMOPOLITAN__) || defined(__NetBSD__)
+	#include <unistd.h>
 #endif
 
 int v_sys_get_cores(void) {
@@ -287,7 +448,7 @@ int v_sys_get_cores(void) {
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
 	return sysInfo.dwNumberOfProcessors;
-#elif defined(__linux__) || defined(__COSMOPOLITAN__)
+#elif defined(__linux__) || defined(__COSMOPOLITAN__) || defined(__NetBSD__)
 	return (int)sysconf(_SC_NPROCESSORS_ONLN);
 #else
 #warning "Unknown platform, v_sys_get_cores() will return 1. Let vkoskiv know about this, please."
@@ -306,7 +467,7 @@ int v_sys_get_cores(void) {
 	#include <dlfcn.h>
 #endif
 
-v_mod_t v_mod_load(const char *filename) {
+v_mod v_mod_load(const char *filename) {
 #if defined(WINDOWS)
 	return (void *)LoadLibraryA(filename);
 #elif defined(__COSMOPOLITAN__)
@@ -316,7 +477,7 @@ v_mod_t v_mod_load(const char *filename) {
 #endif
 }
 
-void *v_mod_sym(v_mod_t handle, const char *name) {
+void *v_mod_sym(v_mod handle, const char *name) {
 #if defined(WINDOWS)
 	return (void *)GetProcAddress((HMODULE)handle, name);
 #elif defined(__COSMOPOLITAN__)
@@ -336,7 +497,7 @@ char *v_mod_error(void) {
 #endif
 }
 
-int v_mod_close(v_mod_t handle) {
+int v_mod_close(v_mod handle) {
 #if defined(WINDOWS)
 	return (int)FreeLibrary((HMODULE)handle);
 #elif defined(__COSMOPOLITAN__)
@@ -359,29 +520,56 @@ void v_ilist_init(v_ilist *root) {
 	next->prev = node; \
 	node->next = next;
 
-void v_ilist_prepend(v_ilist *next, v_ilist *node) {
+v_ilist *v_ilist_prepend(v_ilist *next, v_ilist *node) {
 	v_ilist *prev = next->prev;
 	_v_ilist_LINK
+	return node;
 }
 
-void v_ilist_append(v_ilist *prev, v_ilist *node) {
+v_ilist *v_ilist_append(v_ilist *prev, v_ilist *node) {
 	v_ilist *next = prev->next;
 	_v_ilist_LINK
+	return node;
 }
 
 void v_ilist_foreach(v_ilist *head, int (*cb)(v_ilist *elem, void *ctx), void *ctx) {
 	v_ilist *n = head;
-	while (n != head) {
+	do {
 		cb(n, ctx);
 		n = n->next;
-	}
+	} while (n != head);
 }
 
 void v_ilist_remove(v_ilist *node) {
+	if (!node)
+		return;
 	v_ilist *prev = node->prev;
 	v_ilist *next = node->next;
 	prev->next = next;
 	next->prev = prev;
+}
+
+void v_ilist_destroy(v_ilist *head, void (*dtor)(void *elem)) {
+	if (!head)
+		return;
+	if (head->next == head) {
+		if (dtor)
+			dtor(head);
+		return;
+	}
+	v_ilist *tmp = head->next;
+	head->next = head->next->next;
+	if (dtor)
+		dtor(tmp);
+	v_ilist_destroy(head, dtor);
+}
+
+size_t v_ilist_elems(v_ilist *head) {
+	size_t elems = 0;
+	v_ilist_for_each(head, v_ilist, l) {
+		elems++;
+	}
+	return elems;
 }
 
 // --- impl v_timer (Simple timers)
@@ -458,19 +646,149 @@ void v_timer_sleep_ms(int ms) {
 
 // --- impl v_ht (Hash table w/ FNV)(c-ray)
 // --- impl v_cbuf (Circular buffers for running averages) (refmon)
-// --- impl v_arr (Dynamic arrays) (c-ray?)
+// --- impl v_arr (Dynamic arrays)
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
-v_arr_def(int)
-v_arr_def(float)
-v_arr_def(size_t)
+void *v__arr_do_grow(void *a, size_t elem_size, size_t n) {
+	if (!a) {
+		n = n < V_ARR_START_SIZE ? V_ARR_START_SIZE : n;
+		size_t initial = sizeof(struct v_arr) + n * elem_size;
+		struct v_arr *arr = calloc(1, initial);
+		arr->cap = n;
+		arr->elem_size = elem_size;
+		return &arr[1];
+	}
+	struct v_arr *arr = v__arr_head(a);
+	if (arr->n + n > arr->cap) {
+		size_t new_capacity = arr->grow_fn ? arr->grow_fn(arr->cap, arr->elem_size) : v_arr_grow_exponential(arr->cap, arr->elem_size);
+		arr = realloc(arr, arr->elem_size * new_capacity + sizeof(*arr));
+		arr->cap = new_capacity;
+	}
+	return &arr[1];
+}
 
+#define v_arr_add_n___(A, items, N) \
+	(v__arr_ensure((A), N), memcpy(A + v__arr_head(A)->n, items, N * sizeof(items[0])), v__arr_head(A)->n += N)
 
-// --- impl v_mem (Arena allocator) (TODO)
+void v__arr_add_n(void *a, void *elems, size_t elem_size, size_t n) {
+	v__arr_ensure(a, n);
+	memcpy(a + v__arr_head(a)->n * elem_size, elems, n * elem_size);
+	v__arr_head(a)->n += n;
+}
+
+void *v__arr_trim(void *a) {
+	struct v_arr *arr = v__arr_head(a);
+	if (arr->n == arr->cap)
+		return a;
+	arr->cap = arr->n;
+	arr = realloc(arr, arr->elem_size * arr->cap + sizeof(*arr));
+	return &arr[1];
+}
+
+void *v__arr_copy(const void *const a) {
+	void *copy = v__arr_do_grow(NULL, v__arr_head(a)->elem_size, v_arr_cap(a));
+	v__arr_head(copy)->n = v__arr_head(a)->n;
+	memcpy(copy, a, v_arr_len(a) * v__arr_head(a)->elem_size);
+	return copy;
+}
+
+void v__arr_free(void *a) {
+	struct v_arr *arr = v__arr_head(a);
+	// TODO: if (arr->allocator) ...
+	free(arr);
+}
+
+// --- impl v_str (UTF-8 checked strings)
+
+// static int s_is_utf8_cont(char c) {
+// 	return (c & 0xC0) == 0x80;
+// }
+
+static size_t s_utf8_bytes(const char *s) {
+	(void)s;
+	return 0;
+}
+
+v_str v_s(const char *s) {
+	return (v_str){ .s = s, .bytes = s_utf8_bytes(s) };
+}
+
+// --- impl v_arena (Arena allocator)
+
+void *_v_arena_alloc(v_arena *a, ptrdiff_t size, ptrdiff_t align, ptrdiff_t count, int flags, void *data) {
+	ptrdiff_t padding = -(uintptr_t)a->beg & (align - 1);
+	ptrdiff_t available = a->end - a->beg - padding;
+	// TODO: Original nullprogram impl had this first check
+	// as available < 0, which seems wrong. Maybe look into that?
+	if (available <= 0 || count > available / size) {
+		if (a->flags & V_ARENA_DO_LONGJMP)
+			__builtin_longjmp(a->jmp_buf, 1);
+		else if ((flags & V_ARENA_SOFTFAIL) || (a->flags & V_ARENA_SOFTFAIL))
+			return NULL;
+		else
+			abort();
+	}
+	void *p = a->beg + padding;
+	ptrdiff_t bytes = count * size;
+	a->beg += bytes + padding;
+	if (data)
+		return memcpy(p, data, size);
+	return ((flags & V_ARENA_NOZERO) || (a->flags & V_ARENA_NOZERO)) ? p : memset(p, 0, bytes);
+}
+
+v_arena v_arena_from_buf(uint8_t *buf, ptrdiff_t capacity) {
+	v_arena a = { 0 };
+	a.beg = buf;
+	a.end = a.beg ? a.beg + capacity : 0;
+	return a;
+}
+
+// TODO: have internal logic to e.g. use mmap()/VirtualAlloc()
+v_arena v_arena_from_heap(ptrdiff_t capacity) {
+	uint8_t *buf = malloc(capacity);
+	v_arena mem = v_arena_from_buf(buf, capacity);
+	mem.alloc = buf;
+	return mem;
+}
+
+void v_arena_destroy(v_arena *a) {
+	if (!a)
+		return;
+	if (a->alloc) {
+		free(a->alloc);
+		a->alloc = NULL;
+	}
+	a->beg = a->end = 0;
+}
 
 // --- impl v_sync (Sync primitives (mutex, rwlock, condition variables), pthreads & win32)
+
+// TODO: IDEA, simple allocator API like
+struct v_alloc {
+	void *(*malloc)(size_t);
+	void *(*zalloc)(size_t, size_t);
+	void (*free)(void *);
+	// etc
+};
+// static struct v_alloc v_alloc_stdlib = {
+// 	.malloc = malloc,
+// 	.zalloc = calloc,
+// 	.free = free,
+// };
+// And we could provide custom allocators:
+// static v_alloc v_alloc_arena = {
+// 	.ctx = v_arena,
+// 	.alloc = v_arena_alloc,
+// 	.cfree = NULL,
+// };
+// And then that could get passed into things, and defaults to NULL if no allocator
+// struct v_mutex *v_mutex_create(struct v_alloc *a) {
+// 	struct v_mutex *m = a ? a->zalloc(1, sizeof(*m)) : v_alloc_stdlib.zalloc(1, sizeof(*m));
+// 	// etc, etc
+// }
 
 struct v_mutex {
 #if defined(WINDOWS)
@@ -760,6 +1078,8 @@ void *v_thread_wait_and_destroy(v_thread *t) {
 	return thread_ret;
 }
 
+// --- impl v_threadpool (Thread pool + job queue)
+
 /*
 	v_threadpool is mostly based on Jon Schember's excellent blog post:
 	https://nachtimwald.com/2019/04/12/thread-pool-in-c/
@@ -795,6 +1115,9 @@ struct v_threadpool {
 	char stop_flag;
 };
 
+#if defined(__NetBSD__)
+	#include <sys/sigtypes.h>
+#endif
 #if !defined(WINDOWS) && !defined(__APPLE__)
 	#include <signal.h>
 #endif
@@ -948,7 +1271,37 @@ void v_threadpool_wait(v_threadpool *pool) {
 	v_mutex_release(pool->mutex);
 }
 
-// --- impl job_queue
+/*
+	This declares a function async_<name>(struct cr_thread_pool *, ...)
+	Example:
+
+*/
+/*
+#define V_ASYNC_JOB(T, v_job_name, v_job_args, ...) \
+struct async_##v_job_name##_args v_job_args;\
+T do_##v_job_name(struct async_##v_job_name##_args args) __VA_ARGS__ \
+void __do_##v_job_name(void *arg) { \
+	v_future(T) future = arg; \
+	struct async_##v_job_name##_args user_args = *((struct async_##v_job_name##_args *)future->arg); \
+	T ret = do_##v_job_name(user_args); \
+	mutex_lock(future->mutex); \
+	future->result = ret; \
+	future->done = 1; \
+	free(future->arg); \
+	thread_cond_broadcast(&future->sig); \
+	mutex_release(future->mutex); \
+} \
+v_future(T) __async_##v_job_name(struct v_async_ctx *a, struct async_##v_job_name##_args args) { \
+	if (!a) return NULL; \
+	v_future(T) future = calloc(1, sizeof(*future)); \
+	future->arg = calloc(1, sizeof(args));\
+	*((struct async_##v_job_name##_args *)future->arg) = args;\
+	future->mutex = mutex_create(); \
+	thread_cond_init(&future->sig); \
+	thread_pool_enqueue(a->pool, __do_##v_job_name, future); \
+	return (void *)future; \
+}
+*/
 
 #ifdef __cplusplus
 }

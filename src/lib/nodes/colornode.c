@@ -38,7 +38,7 @@ void tex_decode_task(void *arg) {
 	//Since the texture is probably srgb, transform it back to linear colorspace for rendering
 	if (dt->options & SRGB_TRANSFORM) tex_from_srgb(dt->out);
 	long ms_total = v_timer_get_ms(timer);
-	file_free(&data);
+	v_arr_free(data);
 	char buf[3][64];
 	logr(debug, "Async decode of '%s' took %s (%s dec, %s sRGB)\n",
 		dt->path,
@@ -72,14 +72,14 @@ const struct colorNode *build_color_node(struct cr_scene *s_ext, const struct cr
 			windowsFixPath(path);
 			struct texture *tex = NULL;
 			// Note: We also deduplicate texture loads here, which ideally shouldn't be necessary.
-			for (size_t i = 0; i < scene->textures.count; ++i) {
-				if (stringEquals(scene->textures.items[i].path, path)) {
-					tex = scene->textures.items[i].t;
+			for (size_t i = 0; i < v_arr_len(scene->textures); ++i) {
+				if (stringEquals(scene->textures[i].path, path)) {
+					tex = scene->textures[i].t;
 				}
 			}
 			if (!tex) {
 				tex = tex_new(none, 0, 0, 0);
-				texture_asset_arr_add(&scene->textures, (struct texture_asset){
+				v_arr_add(scene->textures, (struct texture_asset){
 					.path = stringCopy(path),
 					.t = tex,
 				});

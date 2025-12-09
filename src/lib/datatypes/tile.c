@@ -16,21 +16,21 @@
 #include <vendored/pcg_basic.h>
 #include <string.h>
 
-static void tiles_reorder(struct render_tile_arr *tiles, enum render_order tileOrder);
+static void tiles_reorder(struct render_tile **tiles, enum render_order tileOrder);
 
 struct render_tile *tile_next(struct tile_set *set) {
 	struct render_tile *tile = NULL;
 	v_mutex_lock(set->tile_mutex);
-	if (set->finished < set->tiles.count) {
-		tile = &set->tiles.items[set->finished];
+	if (set->finished < v_arr_len(set->tiles)) {
+		tile = &set->tiles[set->finished];
 		tile->state = rendering;
 		tile->index = set->finished++;
 	} else {
 		// If a network worker disappeared during render, finish those tiles locally here at the end
-		for (size_t t = 0; t < set->tiles.count; ++t) {
-			if (set->tiles.items[t].state == rendering && set->tiles.items[t].network_renderer) {
-				set->tiles.items[t].network_renderer = false;
-				tile = &set->tiles.items[t];
+		for (size_t t = 0; t < v_arr_len(set->tiles); ++t) {
+			if (set->tiles[t].state == rendering && set->tiles[t].network_renderer) {
+				set->tiles[t].network_renderer = false;
+				tile = &set->tiles[t];
 				tile->state = rendering;
 				tile->index = t;
 				break;
@@ -46,8 +46,8 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 	v_mutex_lock(set->tile_mutex);
 	again:
 	if (r->state.finishedPasses < r->prefs.sampleCount + 1) {
-		if (set->finished < set->tiles.count) {
-			tile = &set->tiles.items[set->finished];
+		if (set->finished < v_arr_len(set->tiles)) {
+			tile = &set->tiles[set->finished];
 			tile->state = rendering;
 			tile->index = set->finished++;
 		} else {
@@ -64,7 +64,7 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 	}
 	if (!tile) {
 		// FIXME: shared state to indicate pause instead of accessing worker state
-		if (r->state.s != r_rendering || r->state.workers.items[0].paused) {
+		if (r->state.s != r_rendering || r->state.workers[0].paused) {
 			v_mutex_release(set->tile_mutex);
 			return NULL;
 		}
@@ -76,11 +76,11 @@ struct render_tile *tile_next_interactive(struct renderer *r, struct tile_set *s
 	return tile;
 }
 
-struct render_tile_arr tile_quantize(unsigned width, unsigned height, unsigned tile_w, unsigned tile_h, enum render_order order) {
+struct render_tile *tile_quantize(unsigned width, unsigned height, unsigned tile_w, unsigned tile_h, enum render_order order) {
 
-	struct render_tile_arr tiles = { 0 };
+	struct render_tile *tiles = { 0 };
 
-	//Sanity check on tilesizes
+	// Sanity check on tilesizes
 	if (tile_w >= width) tile_w = width;
 	if (tile_h >= height) tile_h = height;
 	if (tile_w <= 0) tile_w = 1;
@@ -114,7 +114,7 @@ struct render_tile_arr tile_quantize(unsigned width, unsigned height, unsigned t
 			tile.state = ready_to_render;
 
 			tile.index = tileCount++;
-			render_tile_arr_add(&tiles, tile);
+			v_arr_add(tiles, tile);
 		}
 	}
 	logr(debug, "Quantized image into %i tiles. (%ix%i)\n", (tiles_x * tiles_y), tiles_x, tiles_y);
@@ -125,19 +125,18 @@ struct render_tile_arr tile_quantize(unsigned width, unsigned height, unsigned t
 }
 
 void tile_set_free(struct tile_set *set) {
-	render_tile_arr_free(&set->tiles);
+	v_arr_free(set->tiles);
 	v_mutex_destroy(set->tile_mutex);
 	set->tile_mutex = NULL;
 }
 
-static void reorder_top_to_bottom(struct render_tile_arr *tiles) {
-	struct render_tile_arr temp = { 0 };
+static void reorder_top_to_bottom(struct render_tile **tiles) {
+	struct render_tile *temp = { 0 };
 	
-	for (unsigned i = 0; i < tiles->count; ++i) {
-		render_tile_arr_add(&temp, tiles->items[tiles->count - i - 1]);
-	}
+	for (unsigned i = 0; i < v_arr_len(*tiles); ++i)
+		v_arr_add(temp, *tiles[v_arr_len(*tiles) - i - 1]);
 	
-	render_tile_arr_free(tiles);
+	v_arr_free((*tiles));
 	*tiles = temp;
 }
 
@@ -157,66 +156,66 @@ static unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_rand
 	return min + (r / buckets);
 }
 
-static void reorder_random(struct render_tile_arr *tiles) {
+static void reorder_random(struct render_tile **tiles) {
 	pcg32_random_t rng;
 	pcg32_srandom_r(&rng, 3141592, 0);
-	for (unsigned i = 0; i < tiles->count; ++i) {
-		unsigned random = rand_interval(0, tiles->count - 1, &rng);
+	for (unsigned i = 0; i < v_arr_len(*tiles); ++i) {
+		unsigned random = rand_interval(0, v_arr_len(tiles) - 1, &rng);
 		
-		struct render_tile temp = tiles->items[i];
-		tiles->items[i] = tiles->items[random];
-		tiles->items[random] = temp;
+		struct render_tile temp = (*tiles)[i];
+		(*tiles)[i] = (*tiles)[random];
+		(*tiles)[random] = temp;
 	}
 }
 
-static void reorder_from_middle(struct render_tile_arr *tiles) {
+static void reorder_from_middle(struct render_tile **tiles) {
 	int mid_left = 0;
 	int mid_right = 0;
 	bool is_right = true;
 	
-	mid_right = ceil(tiles->count / 2);
+	mid_right = ceil(v_arr_len(*tiles) / 2);
 	mid_left = mid_right - 1;
 	
-	struct render_tile_arr temp = { 0 };
+	struct render_tile *temp = { 0 };
 	
-	for (unsigned i = 0; i < tiles->count; ++i) {
+	for (unsigned i = 0; i < v_arr_len(*tiles); ++i) {
 		if (is_right) {
-			render_tile_arr_add(&temp, tiles->items[mid_right++]);
+			v_arr_add(temp, (*tiles)[mid_right++]);
 			is_right = false;
 		} else {
-			render_tile_arr_add(&temp, tiles->items[mid_left--]);
+			v_arr_add(temp, (*tiles)[mid_left--]);
 			is_right = true;
 		}
 	}
 	
-	render_tile_arr_free(tiles);
+	v_arr_free((*tiles));
 	*tiles = temp;
 }
 
-static void reorder_to_middle(struct render_tile_arr *tiles) {
+static void reorder_to_middle(struct render_tile **tiles) {
 	unsigned left = 0;
 	unsigned right = 0;
 	bool isRight = true;
 	
-	right = tiles->count - 1;
+	right = v_arr_len(*tiles) - 1;
 	
-	struct render_tile_arr temp = { 0 };
+	struct render_tile *temp = { 0 };
 	
-	for (unsigned i = 0; i < tiles->count; ++i) {
+	for (unsigned i = 0; i < v_arr_len(*tiles); ++i) {
 		if (isRight) {
-			render_tile_arr_add(&temp, tiles->items[right--]);
+			v_arr_add(temp, (*tiles)[right--]);
 			isRight = false;
 		} else {
-			render_tile_arr_add(&temp, tiles->items[left++]);
+			v_arr_add(temp, (*tiles)[left++]);
 			isRight = true;
 		}
 	}
 	
-	render_tile_arr_free(tiles);
+	v_arr_free((*tiles));
 	*tiles = temp;
 }
 
-static void tiles_reorder(struct render_tile_arr *tiles, enum render_order tileOrder) {
+static void tiles_reorder(struct render_tile **tiles, enum render_order tileOrder) {
 	switch (tileOrder) {
 		case ro_from_middle:
 			reorder_from_middle(tiles);

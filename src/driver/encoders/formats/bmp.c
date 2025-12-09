@@ -60,6 +60,10 @@ void encodeBMPFromArray(const char *file_name, const unsigned char *imgData, siz
 		offset += padding_bytes_to_write;
 	}
 	free(bgr_data);
-	write_file((file_data){ .items = file_contents, .count = file_size }, file_name);
+	// FIXME: static v_arr?
+	file_data copy = { 0 };
+	v_arr_add_n(copy, file_contents, file_size);
+	write_file(copy, file_name);
+	v_arr_free(copy);
 	free(file_contents);
 }

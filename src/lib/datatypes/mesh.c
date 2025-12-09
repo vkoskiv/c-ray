@@ -15,7 +15,7 @@
 void mesh_free(struct mesh *mesh) {
 	if (mesh) {
 		free(mesh->name);
-		poly_arr_free(&mesh->polygons);
+		v_arr_free(mesh->polygons);
 		destroy_bvh(mesh->bvh);
 		vertex_buf_free(&mesh->vbuf);
 	}

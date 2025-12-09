@@ -100,9 +100,9 @@ static struct render_tile *getWork(int connectionSocket, struct tile_set *tiles)
 	// we can just keep track of indices, and compute the tile dims
 	cJSON *tileJson = cJSON_GetObjectItem(response, "tile");
 	struct render_tile tile = decodeTile(tileJson);
-	tiles->tiles.items[tile.index] = tile;
+	tiles->tiles[tile.index] = tile;
 	cJSON_Delete(response);
-	return &tiles->tiles.items[tile.index];
+	return &tiles->tiles[tile.index];
 }
 
 static bool submitWork(int sock, struct texture *work, struct render_tile *forTile) {
@@ -210,7 +210,7 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	v_thread **worker_threads = calloc(threadCount, sizeof(*worker_threads));
 	struct workerThreadState *workerThreadStates = calloc(threadCount, sizeof(*workerThreadStates));
 	
-	struct camera selected_cam = g_worker_renderer->scene->cameras.items[g_worker_renderer->prefs.selected_camera];
+	struct camera selected_cam = g_worker_renderer->scene->cameras[g_worker_renderer->prefs.selected_camera];
 	if (g_worker_renderer->prefs.override_width && g_worker_renderer->prefs.override_height) {
 		selected_cam.width = g_worker_renderer->prefs.override_width ? (int)g_worker_renderer->prefs.override_width : selected_cam.width;
 		selected_cam.height = g_worker_renderer->prefs.override_height ? (int)g_worker_renderer->prefs.override_height : selected_cam.height;
@@ -243,14 +243,14 @@ static cJSON *startRender(int connectionSocket, size_t thread_limit) {
 	// And then compute a single top-level BVH that contains all the objects
 	update_toplevel_bvh(r->scene);
 
-	for (size_t i = 0; i < set.tiles.count; ++i)
-		set.tiles.items[i].total_samples = r->prefs.sampleCount;
+	for (size_t i = 0; i < v_arr_len(set.tiles); ++i)
+		set.tiles[i].total_samples = r->prefs.sampleCount;
 
 	//Print a useful warning to user if the defined tile size results in less renderThreads
-	if (set.tiles.count < r->prefs.threads) {
+	if (v_arr_len(set.tiles) < r->prefs.threads) {
 		logr(warning, "WARNING: Rendering with a less than optimal thread count due to large tile size!\n");
-		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, set.tiles.count);
-		r->prefs.threads = set.tiles.count;
+		logr(warning, "Reducing thread count from %zu to %zu\n", r->prefs.threads, v_arr_len(set.tiles));
+		r->prefs.threads = v_arr_len(set.tiles);
 	}
 
 	//Create render threads (Nonblocking)

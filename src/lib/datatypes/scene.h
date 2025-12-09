@@ -30,10 +30,10 @@ struct world {
 	//Optional environment map / ambient color
 	const struct bsdfNode *background;
 	struct cr_shader_node *bg_desc;
-	struct texture_asset_arr textures;
-	struct bsdf_buffer_arr shader_buffers;
-	struct mesh_arr meshes;
-	struct instance_arr instances;
+	struct texture_asset *textures;
+	struct bsdf_buffer *shader_buffers;
+	struct mesh *meshes;
+	struct instance *instances;
 	bool instances_dirty; // Recompute top-level BVH?
 	// Top-level bounding volume hierarchy,
 	// contains all 3D assets in the scene.
@@ -42,8 +42,8 @@ struct world {
 	bool top_level_dirty;
 	v_threadpool *bg_worker;
 
-	struct sphere_arr spheres;
-	struct camera_arr cameras;
+	struct sphere *spheres;
+	struct camera *cameras;
 	struct node_storage storage; // FIXME: Move to state?
 
 	// c-ray is Y up, blender is Z up. This flag toggles

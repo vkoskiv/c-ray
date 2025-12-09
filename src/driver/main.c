@@ -144,15 +144,15 @@ int main(int argc, char *argv[]) {
 
 	int ret = 0;
 	file_data input_bytes = args_is_set(opts, "inputFile") ? file_load(args_path(opts)) : read_stdin();
-	if (!input_bytes.count) {
+	if (!v_arr_len(input_bytes)) {
 		logr(info, "No input provided, exiting.\n");
 		ret = -1;
 		goto done;
 	}
 	char size_buf[64];
-	logr(info, "%s of input JSON loaded from %s, parsing.\n", human_file_size(input_bytes.count, size_buf), args_is_set(opts, "inputFile") ? "file" : "stdin");
+	logr(info, "%s of input JSON loaded from %s, parsing.\n", human_file_size(v_arr_len(input_bytes), size_buf), args_is_set(opts, "inputFile") ? "file" : "stdin");
 	v_timer json_timer = v_timer_start();
-	cJSON *input_json = cJSON_ParseWithLength((const char *)input_bytes.items, input_bytes.count);
+	cJSON *input_json = cJSON_ParseWithLength((const char *)input_bytes, v_arr_len(input_bytes));
 	size_t json_ms = v_timer_get_ms(json_timer);
 	if (!input_json) {
 		const char *errptr = cJSON_GetErrorPtr();
@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
 	}
 	logr(info, "JSON parse took %zums\n", json_ms);
 
-	file_free(&input_bytes);
+	v_arr_free(input_bytes);
 
 	if (args_is_set(opts, "nodes_list")) {
 		cr_renderer_set_str_pref(renderer, cr_renderer_node_list, args_string(opts, "nodes_list"));

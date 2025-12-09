@@ -30,7 +30,7 @@ struct _textBuffer {
 typedef struct _textBuffer textBuffer;
 typedef struct _textBuffer lineBuffer;
 
-textBuffer *newTextBuffer(const char *contents);
+textBuffer *newTextBuffer(const char *contents, size_t size);
 
 // A subset of a textBuffer
 textBuffer *newTextView(textBuffer *original, const size_t start, const size_t lines);

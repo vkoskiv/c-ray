@@ -9,6 +9,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
 
 /// Check if two strings are equal
 /// @param s1 Left string
@@ -28,6 +29,7 @@ bool stringEndsWith(const char *postfix, const char *string);
 /// @param source String to be copied
 /// @return New heap-allocated string
 char *stringCopy(const char *source);
+char *stringCopyN(const char *source, size_t len);
 
 /// Concatenate given strings
 /// @param str1 Original string

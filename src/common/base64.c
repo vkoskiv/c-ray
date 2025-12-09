@@ -75,7 +75,7 @@ static const int B64index[256] = {
 };
 
 void *b64decode(const char *data, const size_t inputLength, size_t *outLength) {
-	if (!inputLength) return "";
+	if (!inputLength) return ""; // FIXME: NULL
 	unsigned char *p = (unsigned char *)data;
 	const size_t pad1 = inputLength % 4 || p[inputLength - 1] == '=';
 	const size_t pad2 = pad1 && (inputLength % 4 > 2 || p[inputLength - 2] != '=');

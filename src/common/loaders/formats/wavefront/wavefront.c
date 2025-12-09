@@ -97,11 +97,14 @@ float get_poly_area(struct cr_face *p, struct vector *vertices) {
 	return vec_length(cross) / 2.0f;
 }
 
+#include <stdio.h>
 struct mesh_parse_result parse_wavefront(const char *file_path) {
 	file_data input = file_load(file_path);
-	if (!input.items) return (struct mesh_parse_result){ 0 };
+	if (!input)
+		return (struct mesh_parse_result){ 0 };
 	logr(debug, "Loading OBJ %s\n", file_path);
-	textBuffer *file = newTextBuffer((char *)input.items);
+	fprintf(stderr, "\n\nlen is %zu\n\n", v_arr_len(input));
+	textBuffer *file = newTextBuffer((char *)input, v_arr_len(input));
 	char *assetPath = get_file_path(file_path);
 	
 	char buf[LINEBUFFER_MAXSIZE];
@@ -127,15 +130,15 @@ struct mesh_parse_result parse_wavefront(const char *file_path) {
 			head = nextLine(file);
 			continue;
 		} else if (first[0] == 'o'/* || first[0] == 'g'*/) { //FIXME: o and g probably have a distinction for a reason?
-			size_t idx = ext_mesh_arr_add(&result.meshes, (struct ext_mesh){ 0 });
-			current = &result.meshes.items[idx];
+			size_t idx = v_arr_add(result.meshes, (struct ext_mesh){ 0 });
+			current = &result.meshes[idx];
 			current->name = stringCopy(peekNextToken(&line));
 		} else if (stringEquals(first, "v")) {
-			vector_arr_add(&result.geometry.vertices, parseVertex(&line));
+			v_arr_add(result.geometry.vertices, parseVertex(&line));
 		} else if (stringEquals(first, "vt")) {
-			coord_arr_add(&result.geometry.texture_coords, parseCoord(&line));
+			v_arr_add(result.geometry.texture_coords, parseCoord(&line));
 		} else if (stringEquals(first, "vn")) {
-			vector_arr_add(&result.geometry.normals, parseVertex(&line));
+			v_arr_add(result.geometry.normals, parseVertex(&line));
 		} else if (stringEquals(first, "s")) {
 			// Smoothing groups. We don't care about these, we always smooth.
 		} else if (stringEquals(first, "f")) {
@@ -144,16 +147,16 @@ struct mesh_parse_result parse_wavefront(const char *file_path) {
 				struct cr_face p = polybuf[i];
 				fixIndices(&p);
 				//FIXME
-				// current->surface_area += get_poly_area(&p, current->vertices.items);
+				// current->surface_area += get_poly_area(&p, current->vertices);
 				p.mat_idx = current_material_idx;
 				p.has_normals= p.normal_idx[0] != -1;
-				cr_face_arr_add(&current->faces, p);
+				v_arr_add(current->faces, p);
 			}
 		} else if (stringEquals(first, "usemtl")) {
 			char *name = peekNextToken(&line);
 			current_material_idx = 0;
-			for (size_t i = 0; i < result.materials.count; ++i) {
-				if (stringEquals(result.materials.items[i].name, name)) {
+			for (size_t i = 0; i < v_arr_len(result.materials); ++i) {
+				if (stringEquals(result.materials[i].name, name)) {
 					current_material_idx = i;
 				}
 			}
@@ -161,7 +164,7 @@ struct mesh_parse_result parse_wavefront(const char *file_path) {
 			char *mtlFilePath = stringConcat(assetPath, peekNextToken(&line));
 			windowsFixPath(mtlFilePath);
 			//FIXME: Handle multiple mtllibs
-			ASSERT(!result.materials.count);
+			ASSERT(!v_arr_len(result.materials));
 			result.materials = parse_mtllib(mtlFilePath);
 			free(mtlFilePath);
 		} else {
@@ -174,11 +177,11 @@ struct mesh_parse_result parse_wavefront(const char *file_path) {
 	}
 	
 	destroyTextBuffer(file);
-	file_free(&input);
+	v_arr_free(input);
 	free(assetPath);
 
-	if (!result.materials.count) {
-		mesh_material_arr_add(&result.materials, (struct mesh_material){
+	if (!v_arr_len(result.materials)) {
+		v_arr_add(result.materials, (struct mesh_material){
 			.mat = NULL,
 			.name = stringCopy("Unknown")
 		});

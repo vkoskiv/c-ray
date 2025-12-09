@@ -75,10 +75,10 @@ unsigned char *parse_buffer(const cJSON *data) {
 			return NULL;
 		}
 		file_data data = file_load(uri_string);
-		if (data.count != expected_bytes) {
-			logr(warning, "Invalid buffer while parsing glTF. Loaded file %s length %zu, expected %zu", uri_string, data.count, expected_bytes);
+		if (v_arr_len(data) != expected_bytes) {
+			logr(warning, "Invalid buffer while parsing glTF. Loaded file %s length %zu, expected %zu", uri_string, v_arr_len(data), expected_bytes);
 		}
-		return data.items;
+		return data;
 	}
 	
 	return NULL;
@@ -192,8 +192,8 @@ struct mesh *parse_glb_meshes(const char *data, size_t *meshCount) {
 
 struct mesh *parse_glTF_meshes(const char *filePath, size_t *meshCount) {
 	file_data contents = file_load(filePath);
-	if (stringStartsWith("glTF", (char *)contents.items)) return parse_glb_meshes((char *)contents.items, meshCount);
-	const cJSON *data = cJSON_Parse((char *)contents.items);
+	if (stringStartsWith("glTF", (char *)contents)) return parse_glb_meshes((char *)contents, meshCount);
+	const cJSON *data = cJSON_Parse((char *)contents);
 	
 	const cJSON *asset = cJSON_GetObjectItem(data, "asset");
 	if (asset) {

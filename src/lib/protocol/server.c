@@ -111,11 +111,11 @@ static bool client_try_connect(struct render_client *client) {
 
 // Fetches list of nodes from node string, verifies that they are reachable, and
 // returns them in a nice list.
-static struct render_client_arr build_client_list(const char *node_list) {
+static struct render_client *build_client_list(const char *node_list) {
 	ASSERT(node_list);
-	struct render_client_arr clients = { 0 };
-	if (!node_list) return clients;
-	if (strlen(node_list) == 0) return clients;
+	struct render_client *clients = { 0 };
+	if (!node_list || strlen(node_list) == 0)
+		return clients;
 	// Really barebones parsing for IP addresses and ports in a comma-separated list
 	// Expected to break easily. Don't break it.
 	char buf[LINEBUFFER_MAXSIZE];
@@ -127,13 +127,13 @@ static struct render_client_arr build_client_list(const char *node_list) {
 		struct render_client client = { 0 };
 		client.address = parse_address(current);
 		client.status = client_try_connect(&client) ? Connected : ConnectionFailed;
-		if (client.status == Connected) render_client_arr_add(&clients, client);
+		if (client.status == Connected)
+			v_arr_add(clients, client);
 		current = nextToken(&line);
 	}
 	
-	for (size_t i = 0; i < clients.count; ++i) {
-		clients.items[i].id = (int)i;
-	}
+	for (size_t i = 0; i < v_arr_len(clients); ++i)
+		clients[i].id = (int)i;
 	
 	return clients;
 }
@@ -154,8 +154,8 @@ static cJSON *handle_submit_work(struct worker *state, const cJSON *json) {
 	struct texture *texture = deserialize_texture(result);
 	cJSON *tile_json = cJSON_GetObjectItem(json, "tile");
 	struct render_tile tile = decodeTile(tile_json);
-	state->tiles->tiles.items[tile.index] = tile;
-	state->tiles->tiles.items[tile.index].state = finished; // FIXME: Remove
+	state->tiles->tiles[tile.index] = tile;
+	state->tiles->tiles[tile.index].state = finished; // FIXME: Remove
 	for (int y = tile.end.y - 1; y > tile.begin.y - 1; --y) {
 		for (int x = tile.begin.x; x < tile.end.x; ++x) {
 			struct color value = tex_get_px(texture, x - tile.begin.x, y - tile.begin.y, false);
@@ -236,7 +236,7 @@ void *client_connection_thread(void *arg) {
 				cJSON *tile = NULL;
 				cJSON_ArrayForEach(tile, array) {
 					struct render_tile t = decodeTile(tile);
-					state->tiles->tiles.items[t.index] = t;
+					state->tiles->tiles[t.index] = t;
 					//r->state.renderTiles[t.tileNum].completed_samples = t.completed_samples;
 				}
 			}
@@ -337,18 +337,18 @@ static void *client_sync_thread(void *arg) {
 }
 
 void clients_shutdown(const char *node_list) {
-	struct render_client_arr clients = build_client_list(node_list);
-	logr(info, "Sending shutdown command to %zu client%s.\n", clients.count, PLURAL(clients.count));
-	if (clients.count < 1) {
+	struct render_client *clients = build_client_list(node_list);
+	logr(info, "Sending shutdown command to %zu client%s.\n", v_arr_len(clients), PLURAL(v_arr_len(clients)));
+	if (v_arr_len(clients) < 1) {
 		logr(warning, "No clients found, exiting\n");
 		return;
 	}
-	for (size_t i = 0; i < clients.count; ++i) {
-		sendJSON(clients.items[i].socket, newAction("shutdown"), NULL);
-		client_drop(&clients.items[i]);
+	for (size_t i = 0; i < v_arr_len(clients); ++i) {
+		sendJSON(clients[i].socket, newAction("shutdown"), NULL);
+		client_drop(&clients[i]);
 	}
 	logr(info, "Done, exiting.\n");
-	render_client_arr_free(&clients);
+	v_arr_free(clients);
 }
 
 #define BAR_LENGTH 32
@@ -368,38 +368,40 @@ static void print_bar(struct sync_thread *param) {
 	}
 }
 
-static void print_progbars(struct sync_thread *params, size_t clientCount) {
-	if (!isTeleType()) return;
-	
-	for (size_t i = 0; i < clientCount; ++i) {
+static void print_progbars(struct sync_thread *params) {
+	if (!isTeleType())
+		return;
+	for (size_t i = 0; i < v_arr_len(params); ++i)
 		print_bar(&params[i]);
-	}
 }
 
-struct render_client_arr clients_sync(const struct renderer *r) {
+struct render_client *clients_sync(const struct renderer *r) {
 	signal(SIGPIPE, SIG_IGN);
-	struct render_client_arr clients = build_client_list(r->prefs.node_list);
-	if (clients.count < 1) {
+	struct render_client *clients = build_client_list(r->prefs.node_list);
+	if (v_arr_len(clients) < 1) {
 		logr(warning, "No clients found, rendering solo.\n");
-		return (struct render_client_arr){ 0 };
+		return NULL;
 	}
 	
 	char *serialized = serialize_renderer(r);
 	size_t transfer_bytes = strlen(serialized);
 	char buf[64];
-	logr(info, "Sending %s to %zu client%s...\n", human_file_size(transfer_bytes, buf), clients.count, PLURAL(clients.count));
+	logr(info, "Sending %s to %zu client%s...\n", human_file_size(transfer_bytes, buf), v_arr_len(clients), PLURAL(v_arr_len(clients)));
 	
-	struct sync_thread *params = calloc(clients.count, sizeof(*params));
+	struct sync_thread *params = { 0 };
 	logr(debug, "Client list:\n");
-	for (size_t i = 0; i < clients.count; ++i) {
-		logr(debug, "\tclient %zu: %s:%i\n", i, inet_ntoa(clients.items[i].address.sin_addr), htons(clients.items[i].address.sin_port));
-		params[i].client = &clients.items[i];
-		params[i].serialized_renderer = serialized;
+	for (size_t i = 0; i < v_arr_len(clients); ++i) {
+		logr(debug, "\tclient %zu: %s:%i\n", i, inet_ntoa(clients[i].address.sin_addr), htons(clients[i].address.sin_port));
+		v_arr_add(params, (struct sync_thread){
+			.client = &clients[i],
+			.serialized_renderer = serialized
+		});
 	}
-	
-	v_thread **sync_threads = calloc(clients.count, sizeof(*sync_threads));
 
-	for (size_t i = 0; i < clients.count; ++i) {
+	// TODO: v_arr
+	v_thread **sync_threads = calloc(v_arr_len(clients), sizeof(*sync_threads));
+
+	for (size_t i = 0; i < v_arr_len(clients); ++i) {
 		v_thread_ctx ctx = {
 			.thread_fn = client_sync_thread,
 			.ctx = &params[i],
@@ -413,29 +415,30 @@ struct render_client_arr clients_sync(const struct renderer *r) {
 	size_t loops = 0;
 	while (true) {
 		bool all_stopped = true;
-		for (size_t i = 0; i < clients.count; ++i) {
-			if (!params[i].done) all_stopped = false;
+		for (size_t i = 0; i < v_arr_len(clients); ++i) {
+			if (!params[i].done)
+				all_stopped = false;
 		}
 		if (all_stopped) break;
 		v_timer_sleep_ms(10);
 		if (++loops == 10) {
 			loops = 0;
-			print_progbars(params, clients.count);
-			printf("\033[%zuF", clients.count);
+			print_progbars(params);
+			printf("\033[%zuF", v_arr_len(params));
 		}
 	}
 	
 	// Block here and verify threads are done before continuing.
-	for (size_t i = 0; i < clients.count; ++i)
+	for (size_t i = 0; i < v_arr_len(clients); ++i)
 		v_thread_wait_and_destroy(sync_threads[i]);
 
-	for (size_t i = 0; i < clients.count; ++i)
+	for (size_t i = 0; i < v_arr_len(clients); ++i)
 		printf("\n");
 	logr(info, "Client sync finished.\n");
 
 	free(serialized);
 	free(sync_threads);
-	free(params);
+	v_arr_free(params);
 	return clients;
 }
 

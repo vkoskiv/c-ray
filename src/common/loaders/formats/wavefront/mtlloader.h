@@ -8,4 +8,6 @@
 
 #pragma once
 
-struct mesh_material_arr parse_mtllib(const char *filePath);
+#include <common/loaders/meshloader.h>
+
+struct mesh_material *parse_mtllib(const char *filePath);

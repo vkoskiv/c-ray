@@ -105,8 +105,10 @@ bool cr_renderer_set_num_pref(struct cr_renderer *ext, enum cr_renderer_param p,
 			return true;
 		}
 		case cr_renderer_override_cam: {
-			if (!r->scene->cameras.count) return false;
-			if (num >= r->scene->cameras.count) return false;
+			if (!v_arr_len(r->scene->cameras))
+				return false;
+			if (num >= v_arr_len(r->scene->cameras))
+				return false;
 			r->prefs.selected_camera = num;
 			return true;
 		}
@@ -173,7 +175,7 @@ void cr_renderer_toggle_pause(struct cr_renderer *ext) {
 	for (size_t i = 0; i < r->prefs.threads; ++i) {
 		// FIXME: Use array for workers
 		// FIXME: What about network renderers?
-		r->state.workers.items[i].paused = !r->state.workers.items[i].paused;
+		r->state.workers[i].paused = !r->state.workers[i].paused;
 	}
 }
 
@@ -228,17 +230,17 @@ struct cr_scene_totals cr_scene_totals(struct cr_scene *s_ext) {
 	if (!s_ext) return (struct cr_scene_totals){ 0 };
 	struct world *s = (struct world *)s_ext;
 	return (struct cr_scene_totals){
-		.meshes = s->meshes.count,
-		.spheres = s->spheres.count,
-		.instances = s->instances.count,
-		.cameras = s->cameras.count
+		.meshes = v_arr_len(s->meshes),
+		.spheres = v_arr_len(s->spheres),
+		.instances = v_arr_len(s->instances),
+		.cameras = v_arr_len(s->cameras),
 	};
 }
 
 cr_sphere cr_scene_add_sphere(struct cr_scene *s_ext, float radius) {
 	if (!s_ext) return -1;
 	struct world *scene = (struct world *)s_ext;
-	return sphere_arr_add(&scene->spheres, (struct sphere){ .radius = radius });
+	return v_arr_add(scene->spheres, (struct sphere){ .radius = radius });
 }
 
 struct bvh_build_task_arg {
@@ -260,8 +262,8 @@ void bvh_build_task(void *arg) {
 	}
 	//!//!//!//!//!//!//!//!//!//!//!//!
 	v_rwlock_write_lock(bt->scene->bvh_lock);
-	struct bvh *old_bvh = bt->scene->meshes.items[bt->mesh_idx].bvh;
-	bt->scene->meshes.items[bt->mesh_idx].bvh = bvh;
+	struct bvh *old_bvh = bt->scene->meshes[bt->mesh_idx].bvh;
+	bt->scene->meshes[bt->mesh_idx].bvh = bvh;
 	v_rwlock_unlock(bt->scene->bvh_lock);
 	//!//!//!//!//!//!//!//!//!//!//!//!
 	logr(debug, "BVH %s for %s (%lums)\n", old_bvh ? "updated" : "built", bt->mesh.name, ms);
@@ -272,34 +274,31 @@ void bvh_build_task(void *arg) {
 void cr_mesh_bind_vertex_buf(struct cr_scene *s_ext, cr_mesh mesh, struct cr_vertex_buf_param buf) {
 	if (!s_ext) return;
 	struct world *scene = (struct world *)s_ext;
-	if ((size_t)mesh > scene->meshes.count - 1) return;
-	struct mesh *m = &scene->meshes.items[mesh];
+	if ((size_t)mesh > v_arr_len(scene->meshes) - 1) return;
+	struct mesh *m = &scene->meshes[mesh];
 	struct vertex_buffer new = { 0 };
-	if (buf.vertices && buf.vertex_count) {
-		vector_arr_add_n(&new.vertices, (struct vector *)buf.vertices, buf.vertex_count);
-	}
-	if (buf.normals && buf.normal_count) {
-		vector_arr_add_n(&new.normals, (struct vector *)buf.normals, buf.normal_count);
-	}
-	if (buf.tex_coords && buf.tex_coord_count) {
-		coord_arr_add_n(&new.texture_coords, (struct coord *)buf.tex_coords, buf.tex_coord_count);
-	}
+	if (buf.vertices && buf.vertex_count)
+		v_arr_add_n(new.vertices, buf.vertices, buf.vertex_count);
+	if (buf.normals && buf.normal_count)
+		v_arr_add_n(new.normals, buf.normals, buf.normal_count);
+	if (buf.tex_coords && buf.tex_coord_count)
+		v_arr_add_n(new.texture_coords, buf.tex_coords, buf.tex_coord_count);
 	m->vbuf = new;
 }
 
 void cr_mesh_bind_faces(struct cr_scene *s_ext, cr_mesh mesh, struct cr_face *faces, size_t face_count) {
 	if (!s_ext || !faces) return;
 	struct world *scene = (struct world *)s_ext;
-	if ((size_t)mesh > scene->meshes.count - 1) return;
-	struct mesh *m = &scene->meshes.items[mesh];
-	poly_arr_add_n(&m->polygons, (struct poly *)faces, face_count);
+	if ((size_t)mesh > v_arr_len(scene->meshes) - 1) return;
+	struct mesh *m = &scene->meshes[mesh];
+	v_arr_add_n(m->polygons, faces, face_count);
 }
 
 void cr_mesh_finalize(struct cr_scene *s_ext, cr_mesh mesh) {
 	if (!s_ext) return;
 	struct world *scene = (struct world *)s_ext;
-	if ((size_t)mesh > scene->meshes.count - 1) return;
-	struct mesh *m = &scene->meshes.items[mesh];
+	if ((size_t)mesh > v_arr_len(scene->meshes) - 1) return;
+	struct mesh *m = &scene->meshes[mesh];
 	struct bvh_build_task_arg *arg = calloc(1, sizeof(*arg));
 	arg->mesh = *m;
 	arg->scene = scene;
@@ -313,7 +312,7 @@ cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name) {
 	struct mesh new = { 0 };
 	if (name) new.name = stringCopy(name);
 	v_rwlock_write_lock(scene->bvh_lock);
-	cr_mesh idx = mesh_arr_add(&scene->meshes, new);
+	cr_mesh idx = v_arr_add(scene->meshes, new);
 	v_rwlock_unlock(scene->bvh_lock);
 	return idx;
 }
@@ -321,8 +320,8 @@ cr_mesh cr_scene_mesh_new(struct cr_scene *s_ext, const char *name) {
 cr_mesh cr_scene_get_mesh(struct cr_scene *s_ext, const char *name) {
 	if (!s_ext || !name) return -1;
 	struct world *scene = (struct world *)s_ext;
-	for (size_t i = 0; i < scene->meshes.count; ++i) {
-		if (stringEquals(scene->meshes.items[i].name, name)) {
+	for (size_t i = 0; i < v_arr_len(scene->meshes); ++i) {
+		if (stringEquals(scene->meshes[i].name, name)) {
 			return i;
 		}
 	}
@@ -344,7 +343,7 @@ cr_instance cr_instance_new(struct cr_scene *s_ext, cr_object object, enum cr_ob
 			return -1;
 	}
 	scene->top_level_dirty = true;
-	return instance_arr_add(&scene->instances, new);
+	return v_arr_add(scene->instances, new);
 }
 
 static inline struct matrix4x4 mtx_convert(float row_major[4][4]) {
@@ -361,8 +360,8 @@ static inline struct matrix4x4 mtx_convert(float row_major[4][4]) {
 void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]) {
 	if (!s_ext) return;
 	struct world *scene = (struct world *)s_ext;
-	if ((size_t)instance > scene->instances.count - 1) return;
-	struct instance *i = &scene->instances.items[instance];
+	if ((size_t)instance > v_arr_len(scene->instances) - 1) return;
+	struct instance *i = &scene->instances[instance];
 	struct matrix4x4 mtx = mtx_convert(row_major);
 	if (memcmp(&i->composite, &mtx, sizeof(mtx)) == 0) return;
 	i->composite = (struct transform){
@@ -375,8 +374,8 @@ void cr_instance_set_transform(struct cr_scene *s_ext, cr_instance instance, flo
 void cr_instance_transform(struct cr_scene *s_ext, cr_instance instance, float row_major[4][4]) {
 	if (!s_ext) return;
 	struct world *scene = (struct world *)s_ext;
-	if ((size_t)instance > scene->instances.count - 1) return;
-	struct instance *i = &scene->instances.items[instance];
+	if ((size_t)instance > v_arr_len(scene->instances) - 1) return;
+	struct instance *i = &scene->instances[instance];
 	struct matrix4x4 mtx = mtx_convert(row_major);
 	i->composite.A = mat_mul(i->composite.A, mtx);
 	i->composite.Ainv = mat_invert(i->composite.A);
@@ -386,9 +385,9 @@ void cr_instance_transform(struct cr_scene *s_ext, cr_instance instance, float r
 bool cr_instance_bind_material_set(struct cr_scene *s_ext, cr_instance instance, cr_material_set set) {
 	if (!s_ext) return false;
 	struct world *scene = (struct world *)s_ext;
-	if ((size_t)instance > scene->instances.count - 1) return false;
-	if ((size_t)set > scene->shader_buffers.count - 1) return false;
-	struct instance *i = &scene->instances.items[instance];
+	if ((size_t)instance > v_arr_len(scene->instances) - 1) return false;
+	if ((size_t)set > v_arr_len(scene->shader_buffers) - 1) return false;
+	struct instance *i = &scene->instances[instance];
 	i->bbuf_idx = set;
 	return true;
 }
@@ -417,14 +416,14 @@ struct camera default_camera = {
 cr_camera cr_camera_new(struct cr_scene *ext) {
 	if (!ext) return -1;
 	struct world *scene = (struct world *)ext;
-	return camera_arr_add(&scene->cameras, default_camera);
+	return v_arr_add(scene->cameras, default_camera);
 }
 
 bool cr_camera_set_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_param p, double num) {
 	if (c < 0 || !ext) return false;
 	struct world *scene = (struct world *)ext;
-	if ((size_t)c > scene->cameras.count - 1) return false;
-	struct camera *cam = &scene->cameras.items[c];
+	if ((size_t)c > v_arr_len(scene->cameras) - 1) return false;
+	struct camera *cam = &scene->cameras[c];
 	switch (p) {
 		case cr_camera_fov: {
 			cam->FOV = num;
@@ -491,8 +490,8 @@ bool cr_camera_set_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_pa
 double cr_camera_get_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_param p) {
 	if (c < 0 || !ext) return 0.0;
 	struct world *scene = (struct world *)ext;
-	if ((size_t)c > scene->cameras.count - 1) return 0.0;
-	struct camera *cam = &scene->cameras.items[c];
+	if ((size_t)c > v_arr_len(scene->cameras) - 1) return 0.0;
+	struct camera *cam = &scene->cameras[c];
 	switch (p) {
 		case cr_camera_fov: {
 			return cam->FOV;
@@ -540,8 +539,8 @@ double cr_camera_get_num_pref(struct cr_scene *ext, cr_camera c, enum cr_camera_
 bool cr_camera_update(struct cr_scene *ext, cr_camera c) {
 	if (c < 0 || !ext) return false;
 	struct world *scene = (struct world *)ext;
-	if ((size_t)c > scene->cameras.count - 1) return false;
-	struct camera *cam = &scene->cameras.items[c];
+	if ((size_t)c > v_arr_len(scene->cameras) - 1) return false;
+	struct camera *cam = &scene->cameras[c];
 	cam_update_pose(cam, &cam->orientation, &cam->position);
 	cam_recompute_optics(cam);
 	return true;
@@ -559,7 +558,7 @@ bool cr_camera_remove(struct cr_scene *s, cr_camera c) {
 cr_material_set cr_scene_new_material_set(struct cr_scene *s_ext) {
 	if (!s_ext) return -1;
 	struct world *scene = (struct world *)s_ext;
-	return bsdf_buffer_arr_add(&scene->shader_buffers, (struct bsdf_buffer){ 0 });
+	return v_arr_add(scene->shader_buffers, (struct bsdf_buffer){ 0 });
 }
 
 struct cr_vector_node *vector_deepcopy(const struct cr_vector_node *in);
@@ -787,25 +786,25 @@ static void debug_dump_node_tree(const struct cr_shader_node *desc) {
 cr_material cr_material_set_add(struct cr_scene *s_ext, cr_material_set set, struct cr_shader_node *desc) {
 	if (!s_ext) return -1;
 	struct world *s = (struct world *)s_ext;
-	if ((size_t)set > s->shader_buffers.count - 1) return -1;
+	if ((size_t)set > v_arr_len(s->shader_buffers) - 1) return -1;
 	debug_dump_node_tree(desc);
-	struct bsdf_buffer *buf = &s->shader_buffers.items[set];
+	struct bsdf_buffer *buf = &s->shader_buffers[set];
 	const struct bsdfNode *node = build_bsdf_node(s_ext, desc);
-	cr_shader_node_ptr_arr_add(&buf->descriptions, shader_deepcopy(desc));
-	return bsdf_node_ptr_arr_add(&buf->bsdfs, node);
+	v_arr_add(buf->descriptions, shader_deepcopy(desc));
+	return v_arr_add(buf->bsdfs, node);
 }
 
 void cr_material_update(struct cr_scene *s_ext, cr_material_set set, cr_material mat, struct cr_shader_node *desc) {
 	if (!s_ext) return;
 	struct world *s = (struct world *)s_ext;
-	if ((size_t)set > s->shader_buffers.count - 1) return;
-	struct bsdf_buffer *buf = &s->shader_buffers.items[set];
-	if ((size_t)mat > buf->descriptions.count - 1) return;
-	// struct bsdfNode *old_node = buf->bsdfs.items[mat];
-	buf->bsdfs.items[mat] = build_bsdf_node(s_ext, desc);
-	struct cr_shader_node *old_desc = buf->descriptions.items[mat];
+	if ((size_t)set > v_arr_len(s->shader_buffers) - 1) return;
+	struct bsdf_buffer *buf = &s->shader_buffers[set];
+	if ((size_t)mat > v_arr_len(buf->descriptions) - 1) return;
+	// struct bsdfNode *old_node = buf->bsdfs[mat];
+	buf->bsdfs[mat] = build_bsdf_node(s_ext, desc);
+	struct cr_shader_node *old_desc = buf->descriptions[mat];
 	cr_shader_node_free(old_desc);
-	buf->descriptions.items[mat] = shader_deepcopy(desc);
+	buf->descriptions[mat] = shader_deepcopy(desc);
 }
 
 void cr_renderer_render(struct cr_renderer *ext) {
@@ -816,7 +815,7 @@ void cr_renderer_render(struct cr_renderer *ext) {
 		v_threadpool_wait(r->scene->bg_worker);
 		r->state.clients = clients_sync(r);
 	}
-	if (!r->state.clients.count && !r->prefs.threads) {
+	if (!v_arr_len(r->state.clients) && !r->prefs.threads) {
 		r->prefs.threads = v_sys_get_cores();
 		logr(warning, "No worker nodes and -j 0 specified, bumping threads 0 -> %zu\n", r->prefs.threads);
 	}
@@ -837,10 +836,10 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 	if (!ext) return;
 	struct renderer *r = (struct renderer *)ext;
 	if (!r->prefs.interactive) return;
-	if (!r->state.workers.count) return;
+	if (!v_arr_len(r->state.workers)) return;
 	if (!r->state.result_buf) return;
 	if (!r->state.current_set) return;
-	struct camera *cam = &r->scene->cameras.items[r->prefs.selected_camera];
+	struct camera *cam = &r->scene->cameras[r->prefs.selected_camera];
 	if (r->state.result_buf->width != (size_t)cam->width || r->state.result_buf->height != (size_t)cam->height) {
 		// Resize result buffer. First, pause render threads and wait for them to ack
 		cam_recompute_optics(cam);
@@ -850,8 +849,8 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 			instead of hacky signal flags and busy loops.
 		*/
 		cr_renderer_toggle_pause((struct cr_renderer *)r);
-		for (size_t i = 0; i < r->state.workers.count; ++i) {
-			while (!r->state.workers.items[i].in_pause_loop) {
+		for (size_t i = 0; i < v_arr_len(r->state.workers); ++i) {
+			while (!r->state.workers[i].in_pause_loop) {
 				v_timer_sleep_ms(1);
 				if (r->state.s != r_rendering) {
 					// Renderer stopped, bail out.
@@ -865,9 +864,9 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 		r->state.result_buf = tex_new(float_p, cam->width, cam->height, 4);
 
 		// And patch in a new set of tiles.
-		struct render_tile_arr new = tile_quantize(cam->width, cam->height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
+		struct render_tile *new = tile_quantize(cam->width, cam->height, r->prefs.tileWidth, r->prefs.tileHeight, r->prefs.tileOrder);
 		v_mutex_lock(r->state.current_set->tile_mutex);
-		render_tile_arr_free(&r->state.current_set->tiles);
+		v_arr_free(r->state.current_set->tiles);
 		r->state.current_set->tiles = new;
 		r->state.current_set->finished = 0;
 		v_mutex_release(r->state.current_set->tile_mutex);
@@ -882,7 +881,7 @@ void cr_renderer_restart_interactive(struct cr_renderer *ext) {
 	for (size_t i = 0; i < r->prefs.threads; ++i) {
 		// FIXME: Use array for workers
 		// FIXME: What about network renderers?
-		r->state.workers.items[i].totalSamples = 0;
+		r->state.workers[i].totalSamples = 0;
 	}
 	// Wait for potential mesh BVH updates
 	v_threadpool_wait(r->scene->bg_worker);
@@ -908,11 +907,11 @@ void cr_send_shutdown_to_workers(const char *node_list) {
 bool cr_load_json(struct cr_renderer *r_ext, const char *file_path) {
 	if (!r_ext || !file_path) return false;
 	file_data input_bytes = file_load(file_path);
-	if (!input_bytes.count) return false;
+	if (!v_arr_len(input_bytes)) return false;
 	char *asset_path = get_file_path(file_path);
 	cr_renderer_set_str_pref(r_ext, cr_renderer_asset_path, asset_path);
 	free(asset_path);
-	cJSON *input = cJSON_ParseWithLength((const char *)input_bytes.items, input_bytes.count);
+	cJSON *input = cJSON_ParseWithLength((const char *)input_bytes, v_arr_len(input_bytes));
 	if (parse_json(r_ext, input) < 0) {
 		return false;
 	}

@@ -20,9 +20,6 @@ struct poly {
 	bool hasNormals;
 };
 
-typedef struct poly poly;
-v_arr_def(poly)
-
 struct lightRay;
 struct hitRecord;
 struct mesh;

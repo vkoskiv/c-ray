@@ -33,11 +33,8 @@ struct instance {
 	size_t object_idx;
 };
 
-typedef struct instance instance;
-v_arr_def(instance)
-
-struct instance new_sphere_instance(struct sphere_arr *spheres, size_t idx, float *density, struct block **pool);
-struct instance new_mesh_instance(struct mesh_arr *meshes, size_t idx, float *density, struct block **pool);
+struct instance new_sphere_instance(struct sphere **spheres, size_t idx, float *density, struct block **pool);
+struct instance new_mesh_instance(struct mesh **meshes, size_t idx, float *density, struct block **pool);
 
 enum cr_instance_type {
 	CR_I_UNKNOWN = 0,

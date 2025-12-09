@@ -37,7 +37,7 @@ struct bvh *build_mesh_bvh(const struct mesh *mesh);
 /// Builds a top-level BVH for a given set of instances
 /// @param instances Instances to build a top-level BVH for
 /// @param instanceCount Amount of instances
-struct bvh *build_top_level_bvh(const struct instance_arr instances);
+struct bvh *build_top_level_bvh(const struct instance *instances);
 
 /// Intersect a ray with a scene top-level BVH
 bool traverse_top_level_bvh(

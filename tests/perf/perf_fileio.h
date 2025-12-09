@@ -18,6 +18,6 @@ time_t fileio_load(void) {
 	ASSERT(bigfile.items);
 	
 	time_t us = v_timer_get_us(test);
-	file_free(&bigfile);
+	v_arr_free(bigfile);
 	return us;
 }

@@ -43,9 +43,6 @@ struct camera {
 	bool is_blender;
 };
 
-typedef struct camera camera;
-v_arr_def(camera)
-
 struct sampler;
 
 void cam_recompute_optics(struct camera *cam);

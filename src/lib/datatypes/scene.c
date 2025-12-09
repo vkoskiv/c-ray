@@ -17,9 +17,7 @@
 #include <common/node_parse.h>
 #include <common/texture.h>
 #include "camera.h"
-#include "tile.h"
 #include "mesh.h"
-#include "poly.h"
 
 void tex_asset_free(struct texture_asset *a) {
 	if (a->path) free(a->path);
@@ -38,11 +36,17 @@ struct world *scene_new(void) {
 
 void scene_destroy(struct world *scene) {
 	if (scene) {
-		scene->textures.elem_free = tex_asset_free;
-		texture_asset_arr_free(&scene->textures);
-		camera_arr_free(&scene->cameras);
-		scene->meshes.elem_free = mesh_free;
-		mesh_arr_free(&scene->meshes);
+		// FIXME: elem_free
+		// scene->textures.elem_free = tex_asset_free;
+		for (size_t i = 0; i < v_arr_len(scene->textures); ++i)
+			tex_asset_free(&scene->textures[i]);
+		v_arr_free(scene->textures);
+		v_arr_free(scene->cameras);
+		// FIXME: elem_free
+		// scene->meshes.elem_free = mesh_free;
+		for (size_t i = 0; i < v_arr_len(scene->meshes); ++i)
+			mesh_free(&scene->meshes[i]);
+		v_arr_free(scene->meshes);
 
 		v_rwlock_write_lock(scene->bvh_lock);
 		destroy_bvh(scene->topLevel);
@@ -55,13 +59,16 @@ void scene_destroy(struct world *scene) {
 		destroyBlocks(scene->storage.node_pool);
 
 		// TODO: find out a nicer way to bind elem_free to the array init
-		scene->shader_buffers.elem_free = bsdf_buffer_free;
-		bsdf_buffer_arr_free(&scene->shader_buffers);
+		// FIXME: elem_free
+		// scene->shader_buffers.elem_free = bsdf_buffer_free;
+		for (size_t i = 0; i < v_arr_len(scene->shader_buffers); ++i)
+			bsdf_buffer_free(&scene->shader_buffers[i]);
+		v_arr_free(scene->shader_buffers);
 
 		cr_shader_node_free(scene->bg_desc);
 
-		instance_arr_free(&scene->instances);
-		sphere_arr_free(&scene->spheres);
+		v_arr_free(scene->instances);
+		v_arr_free(scene->spheres);
 		if (scene->asset_path) free(scene->asset_path);
 		free(scene);
 	}

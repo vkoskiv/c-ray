@@ -17,7 +17,4 @@ struct sphere {
 	float rayOffset;
 };
 
-typedef struct sphere sphere;
-v_arr_def(sphere)
-
 bool rayIntersectsWithSphere(const struct lightRay *ray, const struct sphere *sphere, struct hitRecord *isect);

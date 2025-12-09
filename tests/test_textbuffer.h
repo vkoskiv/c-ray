@@ -15,14 +15,14 @@
 bool textbuffer_new(void) {
 	char *string = MULTILINE;
 	
-	test_assert(!newTextBuffer(NULL));
+	test_assert(!newTextBuffer(NULL, 0));
 	
-	textBuffer *empty = newTextBuffer("");
+	textBuffer *empty = newTextBuffer("", 0);
 	test_assert(empty->amountOf.lines == 0);
 	test_assert(empty->buflen == 0);
 	destroyTextBuffer(empty);
 	
-	textBuffer *original = newTextBuffer(string);
+	textBuffer *original = newTextBuffer(string, 0);
 	test_assert(original->amountOf.lines == 3);
 	test_assert(original->buflen == strlen(string));
 	destroyTextBuffer(original);
@@ -32,7 +32,7 @@ bool textbuffer_new(void) {
 
 bool textbuffer_gotoline(void) {
 	char *string = MULTILINE;
-	textBuffer *original = newTextBuffer(string);
+	textBuffer *original = newTextBuffer(string, 0);
 	
 	test_assert(stringEquals(goToLine(original, 0), "This is a"));
 	
@@ -61,7 +61,7 @@ bool textbuffer_gotoline(void) {
 
 bool textbuffer_peekline(void) {
 	char *string = MULTILINE;
-	textBuffer *original = newTextBuffer(string);
+	textBuffer *original = newTextBuffer(string, 0);
 	
 	test_assert(stringEquals(peekLine(original, 0), "This is a"));
 	
@@ -86,7 +86,7 @@ bool textbuffer_peekline(void) {
 
 bool textbuffer_nextline(void) {
 	char *string = MULTILINE;
-	textBuffer *original = newTextBuffer(string);
+	textBuffer *original = newTextBuffer(string, 0);
 	
 	test_assert(stringEquals(nextLine(original), "Multiline"));
 	
@@ -101,7 +101,7 @@ bool textbuffer_nextline(void) {
 
 bool textbuffer_previousline(void) {
 	char *string = MULTILINE;
-	textBuffer *original = newTextBuffer(string);
+	textBuffer *original = newTextBuffer(string, 0);
 	
 	lastLine(original);
 	
@@ -122,7 +122,7 @@ bool textbuffer_previousline(void) {
 
 bool textbuffer_peeknextline(void) {
 	char *string = MULTILINE;
-	textBuffer *original = newTextBuffer(string);
+	textBuffer *original = newTextBuffer(string, 0);
 	
 	test_assert(stringEquals(peekNextLine(original), "Multiline"));
 	
@@ -137,7 +137,7 @@ bool textbuffer_peeknextline(void) {
 
 bool textbuffer_firstline(void) {
 	char *string = MULTILINE;
-	textBuffer *original = newTextBuffer(string);
+	textBuffer *original = newTextBuffer(string, 0);
 	
 	lastLine(original);
 	
@@ -150,7 +150,7 @@ bool textbuffer_firstline(void) {
 
 bool textbuffer_currentline(void) {
 	char *string = MULTILINE;
-	textBuffer *original = newTextBuffer(string);
+	textBuffer *original = newTextBuffer(string, 0);
 	
 	test_assert(stringEquals(currentLine(original), "This is a"));
 	
@@ -174,7 +174,7 @@ bool textbuffer_currentline(void) {
 bool textbuffer_lastline(void) {
 	char *string = MULTILINE;
 	
-	textBuffer *original = newTextBuffer(string);
+	textBuffer *original = newTextBuffer(string, 0);
 	test_assert(stringEquals(lastLine(original), "string!"));
 	destroyTextBuffer(original);
 	
@@ -184,7 +184,7 @@ bool textbuffer_lastline(void) {
 bool textbuffer_textview(void) {
 	char *string = MULTILINE;
 	
-	textBuffer *original = newTextBuffer(string);
+	textBuffer *original = newTextBuffer(string, 0);
 	
 	test_assert(original->amountOf.lines == 3);
 	
@@ -210,7 +210,7 @@ bool textbuffer_textview(void) {
 
 bool textbuffer_tokenizer(void) {
 	char *rawText = MULTILINE;
-	textBuffer *file = newTextBuffer(rawText);
+	textBuffer *file = newTextBuffer(rawText, 0);
 	
 	char container[LINEBUFFER_MAXSIZE];
 	lineBuffer line = { .buf = container };

@@ -44,6 +44,14 @@ char *stringCopy(const char *source) {
 	return copy;
 }
 
+char *stringCopyN(const char *source, size_t len) {
+	if (!source || !len)
+		return NULL;
+	char *copy = malloc(len + 1);
+	strncpy(copy, source, len);
+	return copy;
+}
+
 char *stringConcat(const char *str1, const char *str2) {
 	ASSERT(str1); ASSERT(str2);
 	char *new = malloc(strlen(str1) + strlen(str2) + 1);

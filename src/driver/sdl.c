@@ -136,7 +136,11 @@ struct sdl_window {
 static void set_window_icon(struct sdl_window *w) {
 #ifndef NO_LOGO
 	struct texture *icon = tex_new(none, 0, 0, 0);
-	int ret = load_texture("logo.h", (file_data){ .items = logo_png_data, .count = logo_png_data_len }, icon);
+	// FIXME: static v_arr?
+	file_data logo_data = { 0 };
+	v_arr_add_n(logo_data, logo_png_data, logo_png_data_len);
+	int ret = load_texture("logo.h", logo_data, icon);
+	v_arr_free(logo_data);
 	if (ret) return;
 	uint32_t rmask;
 	uint32_t gmask;

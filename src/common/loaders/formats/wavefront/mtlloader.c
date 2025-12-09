@@ -10,8 +10,8 @@
 
 #include "../../../../includes.h"
 #include "mtlloader.h"
+#include <string.h>
 
-#include <v.h>
 #include <logging.h>
 #include <cr_string.h>
 #include <textbuffer.h>
@@ -86,9 +86,6 @@ struct material {
 	
 	enum bsdfType type; // FIXME: Temporary
 };
-
-typedef struct material material;
-v_arr_def(material)
 
 // FIXME: Delete these and use ones in node.c instead
 static struct cr_shader_node *alloc(struct cr_shader_node d) {
@@ -248,16 +245,17 @@ void material_free(struct material *mat) {
 	}
 }
 
-struct mesh_material_arr parse_mtllib(const char *filePath) {
+struct mesh_material *parse_mtllib(const char *filePath) {
 	file_data mtllib_text = file_load(filePath);
-	if (!mtllib_text.count) return (struct mesh_material_arr){ 0 };
+	if (!v_arr_len(mtllib_text))
+		return NULL;
 	logr(debug, "Loading MTL at %s\n", filePath);
-	textBuffer *file = newTextBuffer((char *)mtllib_text.items);
-	file_free(&mtllib_text);
+	textBuffer *file = newTextBuffer((char *)mtllib_text, v_arr_len(mtllib_text));
+	v_arr_free(mtllib_text);
 
 	char *asset_path = get_file_path(filePath);
 	
-	struct material_arr materials = { .elem_free = material_free };
+	struct material *materials = { 0 };
 
 	struct material *current = NULL;
 	
@@ -271,8 +269,8 @@ struct mesh_material_arr parse_mtllib(const char *filePath) {
 			head = nextLine(file);
 			continue;
 		} else if (stringEquals(first, "newmtl")) {
-			size_t idx = material_arr_add(&materials, (struct material){ 0 });
-			current = &materials.items[idx];
+			size_t idx = v_arr_add(materials, (struct material){ 0 });
+			current = &materials[idx];
 			current->name = stringCopy(peekNextToken(&line));
 			if (!current->name)
 				logr(warning, "newmtl has no name in %s:%zu\n", filePath, line.current.line);
@@ -313,14 +311,17 @@ struct mesh_material_arr parse_mtllib(const char *filePath) {
 	if (asset_path) free(asset_path);
 	
 	destroyTextBuffer(file);
-	logr(materials.count ? debug : warning, "Found %zu material%s\n", materials.count, PLURAL(materials.count));
-	struct mesh_material_arr out = { 0 };
-	for (size_t i = 0; i < materials.count; ++i) {
-		mesh_material_arr_add(&out, (struct mesh_material){
-			.mat = try_to_guess_bsdf(&materials.items[i]),
-			.name = stringCopy(materials.items[i].name)
+	logr(v_arr_len(materials) ? debug : warning, "Found %zu material%s\n", v_arr_len(materials), PLURAL(v_arr_len(materials)));
+	struct mesh_material *out = { 0 };
+	for (size_t i = 0; i < v_arr_len(materials); ++i) {
+		v_arr_add(out, (struct mesh_material){
+			.mat = try_to_guess_bsdf(&materials[i]),
+			.name = stringCopy(materials[i].name)
 		});
 	}
-	material_arr_free(&materials);
+	// FIXME: elem_free
+	for (size_t i = 0; i < v_arr_len(materials); ++i)
+		material_free(&materials[i]);
+	v_arr_free(materials);
 	return out;
 }

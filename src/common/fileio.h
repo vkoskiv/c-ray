@@ -29,15 +29,12 @@ enum fileType {
 	glb,
 };
 
-typedef byte file_bytes;
-v_arr_def(file_bytes)
-typedef struct file_bytes_arr file_data;
+typedef byte * file_data;
 
 enum fileType match_file_type(const char *ext);
 enum fileType guess_file_type(const char *path);
 char *human_file_size(unsigned long bytes, char *stat_buf);
 file_data file_load(const char *filePath);
-void file_free(file_data *file);
 // This is a more robust file writing function, that will seek alternate directories
 // if the specified one wasn't writeable.
 void write_file(file_data file, const char *path);

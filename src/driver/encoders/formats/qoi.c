@@ -20,5 +20,9 @@ void encode_qoi_from_array(const char *filename, const unsigned char *imgData, s
 		.colorspace = QOI_SRGB
 	};
 	unsigned char *encoded_data = qoi_encode(imgData, &desc, &encoded_bytes);
-	write_file((file_data){ .items = encoded_data, .count = encoded_bytes }, filename);
+	// FIXME: static v_arr?
+	file_data copy = { 0 };
+	v_arr_add_n(copy, encoded_data, encoded_bytes);
+	write_file(copy, filename);
+	v_arr_free(copy);
 }

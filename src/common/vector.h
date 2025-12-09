@@ -17,9 +17,6 @@ struct vector {
 	float x, y, z;
 };
 
-typedef struct vector vector;
-v_arr_def(vector)
-
 struct base {
 	struct vector i, j, k;
 };
@@ -27,9 +24,6 @@ struct base {
 struct coord {
 	float x, y;
 };
-
-typedef struct coord coord;
-v_arr_def(coord)
 
 struct intCoord {
 	int x, y;
@@ -47,19 +41,15 @@ static inline struct coord coord_zero(void) {
 }
 
 struct vertex_buffer {
-	struct vector_arr vertices;
-	struct vector_arr normals;
-	struct coord_arr texture_coords;
+	struct vector *vertices;
+	struct vector *normals;
+	struct coord *texture_coords;
 };
 
-typedef struct vertex_buffer vertex_buffer;
-v_arr_def(vertex_buffer)
-
-
 static inline void vertex_buf_free(struct vertex_buffer *buf) {
-	vector_arr_free(&buf->vertices);
-	vector_arr_free(&buf->normals);
-	coord_arr_free(&buf->texture_coords);
+	v_arr_free(buf->vertices);
+	v_arr_free(buf->normals);
+	v_arr_free(buf->texture_coords);
 }
 
 static inline float clamp(float value, float min, float max) {

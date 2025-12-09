@@ -29,9 +29,12 @@ void description_free(struct cr_shader_node **s) {
 
 void bsdf_buffer_free(struct bsdf_buffer *b) {
 	if (!b) return;
-	bsdf_node_ptr_arr_free(&b->bsdfs);
-	b->descriptions.elem_free = description_free;
-	cr_shader_node_ptr_arr_free(&b->descriptions);
+	v_arr_free(b->bsdfs);
+	// FIXME: elem_free
+	// b->descriptions.elem_free = description_free;
+	for (size_t i = 0; i < v_arr_len(b->descriptions); ++i)
+		description_free(&b->descriptions[i]);
+	v_arr_free(b->descriptions);
 }
 
 const struct bsdfNode *build_bsdf_node(struct cr_scene *s_ext, const struct cr_shader_node *desc) {

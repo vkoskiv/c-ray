@@ -259,13 +259,13 @@ struct transform parse_composite_transform(const cJSON *transforms) {
 	return composite;
 }
 
-struct cr_shader_node *check_overrides(struct mesh_material_arr file_mats, size_t mat_idx, const cJSON *overrides) {
-	if (mat_idx >= file_mats.count) return NULL;
+struct cr_shader_node *check_overrides(struct mesh_material *file_mats, size_t mat_idx, const cJSON *overrides) {
+	if (mat_idx >= v_arr_len(file_mats)) return NULL;
 	const cJSON *override = NULL;
 	if (!cJSON_IsArray(overrides)) return NULL;
 	cJSON_ArrayForEach(override, overrides) {
 		const cJSON *name = cJSON_GetObjectItem(override, "replace");
-		if (cJSON_IsString(name) && stringEquals(name->valuestring, file_mats.items[mat_idx].name)) {
+		if (cJSON_IsString(name) && stringEquals(name->valuestring, file_mats[mat_idx].name)) {
 			return cr_shader_node_build(override);
 		}
 	}
@@ -297,24 +297,24 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	long ms = us / 1000;
 	logr(debug, "Parsing file %-35s took %li %s\n", file_name, ms > 0 ? ms : us, ms > 0 ? "ms" : "μs");
 
-	if (!result.meshes.count) return;
+	if (!v_arr_len(result.meshes)) return;
 
 	struct cr_vertex_buf_param vbuf = {
-		.vertices = (struct cr_vector *)result.geometry.vertices.items,
-		.vertex_count = result.geometry.vertices.count,
-		.normals = (struct cr_vector *)result.geometry.normals.items,
-		.normal_count = result.geometry.normals.count,
-		.tex_coords = (struct cr_coord *)result.geometry.texture_coords.items,
-		.tex_coord_count = result.geometry.texture_coords.count,
+		.vertices = (struct cr_vector *)result.geometry.vertices,
+		.vertex_count = v_arr_len(result.geometry.vertices),
+		.normals = (struct cr_vector *)result.geometry.normals,
+		.normal_count = v_arr_len(result.geometry.normals),
+		.tex_coords = (struct cr_coord *)result.geometry.texture_coords,
+		.tex_coord_count = v_arr_len(result.geometry.texture_coords),
 	};
 	// Per JSON 'meshes' array element, these apply to materials before we assign them to instances
 	const struct cJSON *global_overrides = cJSON_GetObjectItem(data, "materials");
 
 	// Copy mesh materials to set
 	cr_material_set file_set = cr_scene_new_material_set(scene);
-	for (size_t i = 0; i < result.materials.count; ++i) {
+	for (size_t i = 0; i < v_arr_len(result.materials); ++i) {
 		struct cr_shader_node *maybe_override = check_overrides(result.materials, i, global_overrides);
-		cr_material_set_add(scene, file_set, maybe_override ? maybe_override : result.materials.items[i].mat);
+		cr_material_set_add(scene, file_set, maybe_override ? maybe_override : result.materials[i].mat);
 		if (maybe_override) cr_shader_node_free(maybe_override);
 	}
 
@@ -336,11 +336,11 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	const cJSON *instances = pick_instances ? pick_instances : add_instances;
 	if (!cJSON_IsArray(pick_instances)) {
 		// Generate one instance for every mesh, identity transform.
-		for (size_t i = 0; i < result.meshes.count; ++i) {
-			cr_mesh mesh = cr_scene_mesh_new(scene, result.meshes.items[i].name);
+		for (size_t i = 0; i < v_arr_len(result.meshes); ++i) {
+			cr_mesh mesh = cr_scene_mesh_new(scene, result.meshes[i].name);
 			cr_mesh_bind_vertex_buf(scene, mesh, vbuf);
 
-			cr_mesh_bind_faces(scene, mesh, result.meshes.items[i].faces.items, result.meshes.items[i].faces.count);
+			cr_mesh_bind_faces(scene, mesh, result.meshes[i].faces, v_arr_len(result.meshes[i].faces));
 			cr_instance m_instance = cr_instance_new(scene, mesh, cr_object_mesh);
 			cr_instance_bind_material_set(scene, m_instance, file_set);
 			cr_instance_set_transform(scene, m_instance, parse_composite_transform(cJSON_GetObjectItem(data, "transforms")).A.mtx);
@@ -355,13 +355,13 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 		if (!mesh_name) continue;
 		// Find this mesh in parse result, and add it to the scene if it isn't there yet.
 		cr_mesh mesh = -1;
-		for (size_t i = 0; i < result.meshes.count; ++i) {
-			if (stringEquals(result.meshes.items[i].name, mesh_name)) {
-				mesh = cr_scene_get_mesh(scene, result.meshes.items[i].name);
+		for (size_t i = 0; i < v_arr_len(result.meshes); ++i) {
+			if (stringEquals(result.meshes[i].name, mesh_name)) {
+				mesh = cr_scene_get_mesh(scene, result.meshes[i].name);
 				if (mesh < 0) {
-					mesh = cr_scene_mesh_new(scene, result.meshes.items[i].name);
+					mesh = cr_scene_mesh_new(scene, result.meshes[i].name);
 					cr_mesh_bind_vertex_buf(scene, mesh, vbuf);
-					cr_mesh_bind_faces(scene, mesh, result.meshes.items[i].faces.items, result.meshes.items[i].faces.count);
+					cr_mesh_bind_faces(scene, mesh, result.meshes[i].faces, v_arr_len(result.meshes[i].faces));
 					cr_mesh_finalize(scene, mesh);
 				}
 			}
@@ -373,12 +373,12 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 		// For the instance materials, we iterate the mesh materials, check if a "replace" exists with that name,
 		// if one does, use that, otherwise grab the mesh material.
 		const cJSON *instance_overrides = cJSON_GetObjectItem(instance, "materials");
-		for (size_t i = 0; i < result.materials.count; ++i) {
+		for (size_t i = 0; i < v_arr_len(result.materials); ++i) {
 			struct cr_shader_node *material = NULL;
 			// Find the material we want to use. Check if instance overrides it, otherwise use mesh global one
 			material = check_overrides(result.materials, i, instance_overrides);
 			// If material is NULL here, it gets set to an obnoxious material internally.
-			cr_material_set_add(scene, instance_set, material ? material : result.materials.items[i].mat);
+			cr_material_set_add(scene, instance_set, material ? material : result.materials[i].mat);
 			cr_shader_node_free(material);
 		}
 		cr_instance_set_transform(scene, new, parse_composite_transform(cJSON_GetObjectItem(instance, "transforms")).A.mtx);
@@ -387,13 +387,18 @@ static void parse_mesh(struct cr_renderer *r, const cJSON *data, int idx, int me
 	
 done:
 
-	result.meshes.elem_free = ext_mesh_free;
-	ext_mesh_arr_free(&result.meshes);
-	result.materials.elem_free = mesh_material_free;
-	mesh_material_arr_free(&result.materials);
-	vector_arr_free(&result.geometry.vertices);
-	vector_arr_free(&result.geometry.normals);
-	coord_arr_free(&result.geometry.texture_coords);
+	// FIXME: impl elem_free
+	for (size_t i = 0; i < v_arr_len(result.meshes); ++i)
+		ext_mesh_free(&result.meshes[i]);
+	// result.meshes.elem_free = ext_mesh_free;
+	v_arr_free(result.meshes);
+	for (size_t i = 0; i < v_arr_len(result.materials); ++i)
+		mesh_material_free(&result.materials[i]);
+	// result.materials.elem_free = mesh_material_free;
+	v_arr_free(result.materials);
+	v_arr_free(result.geometry.vertices);
+	v_arr_free(result.geometry.normals);
+	v_arr_free(result.geometry.texture_coords);
 }
 
 static void parse_meshes(struct cr_renderer *r, const cJSON *data) {

@@ -38,13 +38,10 @@ struct render_client {
 	int id;
 };
 
-typedef struct render_client render_client;
-v_arr_def(render_client)
-
 void clients_shutdown(const char *node_list);
 
 // Synchronise renderer state with clients, and return a list of clients
 // ready to do some rendering
-struct render_client_arr clients_sync(const struct renderer *r);
+struct render_client *clients_sync(const struct renderer *r);
 
 void *client_connection_thread(void *arg);

@@ -32,21 +32,12 @@ struct bsdfNode {
 	struct bsdfSample (*sample)(const struct bsdfNode *bsdf, sampler *sampler, const struct hitRecord *record);
 };
 
-typedef const struct bsdfNode * bsdf_node_ptr;
-v_arr_def(bsdf_node_ptr)
-
-typedef struct cr_shader_node * cr_shader_node_ptr;
-v_arr_def(cr_shader_node_ptr)
-
 struct bsdf_buffer {
-	struct bsdf_node_ptr_arr bsdfs;
-	struct cr_shader_node_ptr_arr descriptions;
+	const struct bsdfNode **bsdfs;
+	struct cr_shader_node **descriptions;
 };
 
 void bsdf_buffer_free(struct bsdf_buffer *b);
-
-typedef struct bsdf_buffer bsdf_buffer;
-v_arr_def(bsdf_buffer)
 
 #include "shaders/diffuse.h"
 #include "shaders/glass.h"

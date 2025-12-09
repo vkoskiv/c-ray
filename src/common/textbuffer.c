@@ -42,12 +42,12 @@ textBuffer *newTextView(textBuffer *original, const size_t start, const size_t l
 	return new;
 }
 
-//TODO: Optional size
-textBuffer *newTextBuffer(const char *contents) {
+// TODO: Nuke all of textbuffer.c and cr_string.c from orbit. Crummy code!
+textBuffer *newTextBuffer(const char *contents, size_t size) {
 	if (!contents) return NULL;
 	textBuffer *new = calloc(1, sizeof(*new));
-	new->buf = stringCopy(contents);
-	new->buflen = strlen(contents);
+	new->buf = size ? stringCopyN(contents, size) : stringCopy(contents);
+	new->buflen = size ? size : strlen(contents);
 	
 	//Figure out the line count and convert newlines
 	size_t lines = 0;

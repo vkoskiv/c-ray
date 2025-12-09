@@ -13,19 +13,13 @@
 #include <datatypes/poly.h>
 #include <common/vector.h>
 
-typedef struct cr_face cr_face;
-v_arr_def(cr_face)
-
 struct mesh {
 	struct vertex_buffer vbuf;
-	struct poly_arr polygons;
+	struct poly *polygons;
 	struct bvh *bvh;
 	float surface_area;
 	char *name;
 	float rayOffset;
 };
-
-typedef struct mesh mesh;
-v_arr_def(mesh)
 
 void mesh_free(struct mesh *mesh);

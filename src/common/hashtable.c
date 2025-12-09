@@ -29,7 +29,7 @@ uint32_t hashInit(void) {
 	return FNV_OFFSET;
 }
 
-uint32_t hashCombine(uint32_t h, uint8_t u) {
+static uint32_t hashCombine(uint32_t h, uint8_t u) {
 	return (h ^ u) * FNV_PRIME;
 }
 
