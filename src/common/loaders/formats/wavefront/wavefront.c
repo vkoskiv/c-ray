@@ -97,13 +97,11 @@ float get_poly_area(struct cr_face *p, struct vector *vertices) {
 	return vec_length(cross) / 2.0f;
 }
 
-#include <stdio.h>
 struct mesh_parse_result parse_wavefront(const char *file_path) {
 	file_data input = file_load(file_path);
 	if (!input)
 		return (struct mesh_parse_result){ 0 };
 	logr(debug, "Loading OBJ %s\n", file_path);
-	fprintf(stderr, "\n\nlen is %zu\n\n", v_arr_len(input));
 	textBuffer *file = newTextBuffer((char *)input, v_arr_len(input));
 	char *assetPath = get_file_path(file_path);
 	

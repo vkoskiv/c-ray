@@ -158,9 +158,12 @@ static unsigned int rand_interval(unsigned int min, unsigned int max, pcg32_rand
 
 static void reorder_random(struct render_tile **tiles) {
 	pcg32_random_t rng;
+	size_t len = v_arr_len(*tiles);
+	if (!len)
+		return;
 	pcg32_srandom_r(&rng, 3141592, 0);
-	for (unsigned i = 0; i < v_arr_len(*tiles); ++i) {
-		unsigned random = rand_interval(0, v_arr_len(tiles) - 1, &rng);
+	for (size_t i = 0; i < len; ++i) {
+		unsigned random = rand_interval(0, len - 1, &rng);
 		
 		struct render_tile temp = (*tiles)[i];
 		(*tiles)[i] = (*tiles)[random];
