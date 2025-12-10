@@ -51,6 +51,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h> // for memcpy() in v_arr_add_n()
+#include <stdlib.h> // We depend on stdlib malloc/free/realloc for now
 
 // --- decl common
 
@@ -168,7 +170,6 @@ static inline size_t v_arr_grow_exponential(size_t capacity, size_t elem_size) {
 }
 
 void *v__arr_do_grow(void *a, size_t elem_size, size_t n);
-void v__arr_add_n(void *a, void *elems, size_t elem_size, size_t n);
 void *v__arr_trim(void *a);
 void *v__arr_copy(const void *const a);
 void v__arr_free(void *a);
@@ -182,8 +183,9 @@ void v__arr_free(void *a);
 #define v_arr_len(A) ((A) ? v__arr_head(A)->n : 0)
 #define v_arr_add(A, ...) \
 	(v__arr_ensure((A), 1), (A)[v__arr_head(A)->n] = (__VA_ARGS__), v__arr_head(A)->n++)
-#define v_arr_add_n(A, elems, N) \
-	(v__arr_ensure((A), N), v__arr_add_n((A), elems, sizeof(elems[0]), (N)))
+#define v_arr_add_n(A, items, N) \
+	(v__arr_ensure((A), N), memcpy((A) + v__arr_head((A))->n, items, N * sizeof(items[0])), v__arr_head((A))->n += N)
+
 // TODO: It's quite easy to forget & when using v_arr_trim().
 // Use the v_arr_free() pattern and directly assign result of v__arr_trim() to A
 #define v_arr_trim(A) \
@@ -648,10 +650,6 @@ void v_timer_sleep_ms(int ms) {
 // --- impl v_cbuf (Circular buffers for running averages) (refmon)
 // --- impl v_arr (Dynamic arrays)
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-
 void *v__arr_do_grow(void *a, size_t elem_size, size_t n) {
 	if (!a) {
 		n = n < V_ARR_START_SIZE ? V_ARR_START_SIZE : n;
@@ -668,15 +666,6 @@ void *v__arr_do_grow(void *a, size_t elem_size, size_t n) {
 		arr->cap = new_capacity;
 	}
 	return &arr[1];
-}
-
-#define v_arr_add_n___(A, items, N) \
-	(v__arr_ensure((A), N), memcpy(A + v__arr_head(A)->n, items, N * sizeof(items[0])), v__arr_head(A)->n += N)
-
-void v__arr_add_n(void *a, void *elems, size_t elem_size, size_t n) {
-	v__arr_ensure(a, n);
-	memcpy(a + v__arr_head(a)->n * elem_size, elems, n * elem_size);
-	v__arr_head(a)->n += n;
 }
 
 void *v__arr_trim(void *a) {
