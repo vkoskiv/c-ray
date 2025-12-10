@@ -7,6 +7,8 @@
 //
 
 #include <c-ray/c-ray.h>
+#include <errno.h>
+#include <signal.h>
 #include <v.h>
 
 #include <imagefile.h>
@@ -21,8 +23,30 @@
 #include <args.h>
 #include <sdl.h>
 
+// Before render, just exit without cleaning up
+// FIXME: Consider performing cleanup here too
+static void s_sigint_init(int sig) {
+	if (sig != SIGINT)
+		return;
+	logr(plain, "\n");
+	logr(info, "Aborting initialization.\n");
+	term_restore();
+	exit(0);
+}
+
+static int g_sigint_flag = 0;
+
+// Set flag to allow renderer to exit gracefully
+static void s_sigint_flag(int sig) {
+	if (sig == SIGINT && !g_sigint_flag) {
+		logr(plain, "\n");
+		logr(info, "Received ^C, aborting render without saving\n");
+		g_sigint_flag = 1;
+	}
+}
+
 struct cb_context {
-	struct cr_renderer *r;
+	struct cr_renderer *r; // TODO: Pass in cr_renderer_cb_info directly
 	struct sdl_window *w;
 	bool skip_save;
 
@@ -69,8 +93,6 @@ static void on_stop(struct cr_renderer_cb_info *info, void *user_data) {
 	struct cb_context *d = user_data;
 	if (d->w)
 		win_destroy(d->w);
-	if (info->aborted)
-		d->skip_save = true;
 }
 
 static void status(struct cr_renderer_cb_info *state, void *user_data) {
@@ -78,6 +100,11 @@ static void status(struct cr_renderer_cb_info *state, void *user_data) {
 	struct cb_context *d = user_data;
 	if (!d)
 		return;
+	if (g_sigint_flag) {
+		d->skip_save = true;
+		cr_renderer_stop(d->r);
+		g_sigint_flag = 0;
+	}
 	if (d->w) {
 		enum input_event e = win_update(d->w, state->tiles, state->tiles_count);
 		switch (e) {
@@ -114,6 +141,8 @@ static void status(struct cr_renderer_cb_info *state, void *user_data) {
 int main(int argc, char *argv[]) {
 	term_init();
 	atexit(term_restore);
+	if (signal(SIGINT, s_sigint_init) == SIG_ERR)
+		logr(error, "signal(SIGINT, s_sigint_init) == SIG_ERR: %s", strerror(errno));
 	logr(info, "c-ray v%s [%.8s], © 2015-2025 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash());
 
 	struct driver_args *opts = args_parse(argc, argv);
@@ -285,6 +314,10 @@ int main(int argc, char *argv[]) {
 		KNRM,
 		PLURAL(threads));
 
+	// FIXME: There is a gap between this call and when the renderer will
+	// actually respond to a renderer_stop() call, maybe do something about that.
+	if (signal(SIGINT, s_sigint_flag) == SIG_ERR)
+		logr(error, "signal(SIGINT, s_sigint_flag) == SIG_ERR: %s", strerror(errno));
 	v_timer timer = v_timer_start();
 	cr_renderer_render(renderer);
 	long ms = v_timer_get_ms(timer);

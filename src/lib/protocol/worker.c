@@ -375,7 +375,7 @@ void exitHandler(int sig) {
 
 int worker_start(int port, size_t thread_limit) {
 	signal(SIGPIPE, SIG_IGN);
-	if (registerHandler(sigint, exitHandler) < 0) {
+	if (signal(SIGINT, exitHandler) == SIG_ERR) {
 		logr(error, "registerHandler failed\n");
 	}
 	int receivingSocket, connectionSocket;

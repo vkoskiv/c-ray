@@ -18,9 +18,6 @@
 #include <unistd.h>
 #endif
 
-#include "signal.h"
-#include "../logging.h"
-
 bool isTeleType(void) {
 #ifdef WINDOWS
 	return _isatty(_fileno(stdout));
@@ -36,20 +33,7 @@ static void show_cursor(bool show) {
 #endif
 }
 
-//FIXME: This doesn't perform cleanup
-static void handler(int sig) {
-	if (sig == 2) { //SIGINT
-		printf("\n");
-		logr(info, "Aborting initialization.\n");
-		term_restore();
-		exit(0);
-	}
-}
-
 void term_init(void) {
-	if (registerHandler(sigint, handler)) {
-		logr(warning, "Unable to catch SIGINT\n");
-	}
 	//If we're on a reasonable (non-windows) terminal, hide the cursor.
 #ifndef WINDOWS
 	//Disable output buffering

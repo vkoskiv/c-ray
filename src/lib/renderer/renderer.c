@@ -30,18 +30,6 @@
 #define paused_msec 100
 #define active_msec  16
 
-static bool g_aborted = false;
-
-// FIXME: c-ray is a library now, so just setting upa global handler like this
-//        is a bit ugly.
-void sigHandler(int sig) {
-	if (sig == 2) { //SIGINT
-		logr(plain, "\n");
-		logr(info, "Received ^C, aborting render without saving\n");
-		g_aborted = true;
-	}
-}
-
 static void print_stats(const struct world *scene) {
 	uint64_t polys = 0;
 	uint64_t vertices = 0;
@@ -145,12 +133,6 @@ void update_toplevel_bvh(struct world *s) {
 
 // TODO: Clean this up, it's ugly.
 void renderer_render(struct renderer *r) {
-	//Check for CTRL-C
-	// TODO: Move signal to driver
-	if (registerHandler(sigint, sigHandler)) {
-		logr(warning, "Unable to catch SIGINT\n");
-	}
-
 	struct camera *camera = &r->scene->cameras[r->prefs.selected_camera];
 	if (r->prefs.override_width && r->prefs.override_height) {
 		camera->width = r->prefs.override_width ? (int)r->prefs.override_width : camera->width;
@@ -292,7 +274,7 @@ void renderer_render(struct renderer *r) {
 		w->thread_ctx.thread_fn = render_single_iteration;
 		while (r->state.s == r_rendering) {
 			w->thread_ctx.thread_fn(w->thread_ctx.ctx);
-			if (g_aborted || w->thread_complete)
+			if (w->thread_complete)
 				break;
 			struct callback status = r->state.callbacks[cr_cb_status_update];
 			if (status.fn) {
@@ -306,9 +288,10 @@ void renderer_render(struct renderer *r) {
 		while (r->state.s == r_rendering) {
 			size_t inactive = 0;
 			for (size_t w = 0; w < v_arr_len(r->state.workers); ++w) {
-				if (r->state.workers[w].thread_complete) inactive++;
+				if (r->state.workers[w].thread_complete)
+					inactive++;
 			}
-			if (g_aborted || inactive == v_arr_len(r->state.workers))
+			if (inactive == v_arr_len(r->state.workers))
 				break;
 
 			struct callback status = r->state.callbacks[cr_cb_status_update];
@@ -332,11 +315,10 @@ void renderer_render(struct renderer *r) {
 	struct callback stop = r->state.callbacks[cr_cb_on_stop];
 	if (stop.fn) {
 		update_cb_info(r, &set, &cb_info);
-		if (g_aborted)
-			cb_info.aborted = true;
 		stop.fn(&cb_info, stop.user_data);
 	}
-	if (info_tiles) free(info_tiles);
+	if (info_tiles)
+		free(info_tiles);
 	tile_set_free(&set);
 	logr(info, "Renderer exiting\n");
 	r->state.s = r_idle;
