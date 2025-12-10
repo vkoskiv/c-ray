@@ -54,6 +54,9 @@ from bpy.props import (
 	StringProperty,
 )
 
+# Breaking changes are quite common in Blender's Python API, unfortunately.
+major, minor, patch = bpy.app.version
+
 class CrayRenderSettings(bpy.types.PropertyGroup):
 	samples: IntProperty(
 		name="Samples",
@@ -477,6 +480,10 @@ class CrayRender(bpy.types.RenderEngine):
 
 	def display_bitmap(self, bm):
 		floats = np.frombuffer(bm.data, np.float32)
+		if (major, minor) < (4, 1):
+			# convert [r,g,b,a,r,g,b,a,...] to [(r,g,b,a),(r,g,b,a),...]
+			# For context, see f1516d46a570, 8a4ce9b3fd07c66, and https://developer.blender.org/docs/release_notes/4.1/python_api/#foreach
+			floats = floats.reshape(-1, 4)
 		result = self.begin_result(0, 0, bm.width, bm.height)
 		r_pass = result.layers[0].passes["Combined"]
 		r_pass.rect.foreach_set(floats)
