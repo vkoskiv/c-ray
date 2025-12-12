@@ -13,7 +13,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define V_IMPLEMENTATION
 #include <v.h>
 
 #include <common/gitsha1.h>
