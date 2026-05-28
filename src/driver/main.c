@@ -139,6 +139,8 @@ int main(int argc, char *argv[]) {
 	if (signal(SIGINT, s_sigint_init) == SIG_ERR)
 		logr(error, "signal(SIGINT, s_sigint_init) == SIG_ERR: %s", strerror(errno));
 	logr(info, "c-ray v%s [%.8s]%s, © 2015-2026 Valtteri Koskivuori\n", cr_get_version(), cr_get_git_hash(), STATICALLY_LINKED ? " (static)" : "");
+	v_ma *a = NULL;
+	uint8_t *buftest = v_new(a, uint8_t, 123);
 
 	struct driver_args *opts = args_parse(argc, argv);
 	char *log_level = args_string(opts, "log_level");

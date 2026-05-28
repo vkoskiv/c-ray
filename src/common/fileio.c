@@ -121,23 +121,21 @@ file_data file_load(const char *file_path) {
 	// file_data file = (file_data){ .items = data, .count = size, .capacity = size };
 	return file;
 #else
-	FILE *file = fopen(file_path, "rb");
-	file_bytes *buf = malloc(size + 1 * sizeof(char));
-	size_t readBytes = fread(buf, sizeof(char), size, file);
+	FILE *fp = fopen(file_path, "rb");
+	unsigned char *buf = malloc(size + 1 * sizeof(char));
+	size_t readBytes = fread(buf, sizeof(unsigned char), size, fp);
 	ASSERT(readBytes == size);
-	if (ferror(file) != 0) {
+	if (ferror(fp) != 0) {
 		logr(warning, "Error reading file\n");
 	} else {
 		buf[size] = '\0';
 	}
-	fclose(file);
+	fclose(fp);
 	// FIXME: static v_arr?
 	file_data file = { 0 };
 	v_arr_add_n(file, buf, readBytes);
 	free(buf);
 	return file;
-	// file_data filedata = (file_data){ .items = buf, .count = readBytes, .capacity = readBytes };
-	// return filedata;
 #endif
 }
 

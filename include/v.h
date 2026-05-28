@@ -75,7 +75,8 @@
 #endif
 
 /* v.h depends on C99 */
-#if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L
+#if !defined(_MSC_VER) && \
+    (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L)
 	#error "The v.h library requires C99 or later."
 #endif
 
@@ -147,10 +148,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#if defined(_WIN32)
+	#include <windows.h>
+#endif
+
 #if defined(V_HAVE_STDLIB)
 #include <string.h> // for memcpy() in v_arr_add_n()
 #include <stdlib.h> // We depend on stdlib malloc/free/realloc for now
-#include <sys/time.h> // gettimeofday(), FIXME: Check bsd/macOS/etc.
+#if !defined(_MSC_VER)
+	#include <sys/time.h> // gettimeofday(), FIXME: Check bsd/macOS/etc.
+#endif
 #endif
 
 // --- begin declarations ---
@@ -164,7 +171,11 @@
 #endif
 
 	#define v_offsetof(T, m) ((size_t)((char *)&((T *)1)->m - (char *)1))
-	#define v_alignof(T) v_offsetof(struct { char _; T x; }, x)
+	#if defined(_MSC_VER)
+		#define v_alignof(T) __alignof(T)
+	#else
+		#define v_alignof(T) v_offsetof(struct { char _; T x; }, x)
+	#endif
 	#define v_container_of(ptr, type, member) \
 		((type *)((char *)(ptr) - v_offsetof(type, member)))
 
@@ -925,7 +936,8 @@ v_ma v_ma_from_buf(uint8_t *buf, ptrdiff_t capacity) {
 }
 
 v_ma v_ma_from_ma(v_ma *a, ptrdiff_t capacity) {
-	uint8_t *buf = v_new(a, uint8_t, capacity);
+	// uint8_t *buf = v_new(a, uint8_t, capacity);
+	uint8_t *buf = NULL;
 	v_ma new = v_ma_from_buf(buf, capacity);
 	new.flags = a->flags;
 	return new;
@@ -1059,8 +1071,6 @@ void v__arr_free(void *a) {
 	typedef unsigned short u_short;
 	#include <sys/param.h>
 	#include <sys/sysctl.h>
-#elif defined(_WIN32)
-	#include <windows.h>
 #elif defined(__linux__) || defined(__COSMOPOLITAN__) || defined(__NetBSD__)
 	#include <unistd.h>
 #endif
