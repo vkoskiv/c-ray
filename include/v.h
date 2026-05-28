@@ -855,6 +855,10 @@ long v_timer_get_lap_us(v_timer *t) {
 	#include <time.h>
 #endif
 
+#if defined(V_HAVE_STDLIB) && defined(__APPLE__)
+	#include <time.h>
+#endif
+
 #if defined(V_HAVE_STDLIB) || defined(v__sleep_ms)
 void v_timer_sleep_ms(int ms) {
 #if !defined(V_HAVE_STDLIB)
