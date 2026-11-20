@@ -150,8 +150,23 @@
 #if defined(V_HAVE_STDLIB)
 #include <string.h> // for memcpy() in v_arr_add_n()
 #include <stdlib.h> // We depend on stdlib malloc/free/realloc for now
-#include <sys/time.h> // gettimeofday(), FIXME: Check bsd/macOS/etc.
+
+// v_timer requires a bit of Windows gunk.
+#if defined(WINDOWS)
+	typedef struct timeval {
+		long tv_sec;
+		long tv_usec;
+	} TIMEVAL, *PTIMEVAL, *LPTIMEVAL;
+	static int gettimeofday(struct timeval * tp, struct timezone * tzp);
+#else
+/*
+	gettimeofday()
+	TODO: Check BSDs/solaris/IRIX/etc.
+*/
+#include <sys/time.h>
 #endif
+
+#endif /* defined(V_HAVE_STDLIB) */
 
 // --- begin declarations ---
 
@@ -364,13 +379,6 @@ extern "C" {
 // --- decl v_timer (Simple timers)
 
 #ifdef HAVE_V_TIMER
-// TODO: Consider moving up to feature test & enable?
-#if defined(WINDOWS)
-	typedef struct timeval {
-		long tv_sec;
-		long tv_usec;
-	} TIMEVAL, *PTIMEVAL, *LPTIMEVAL;
-#endif
 
 	typedef struct timeval v_timer;
 
@@ -786,8 +794,8 @@ v_tok *v_tok_to_arr(v_tok t) {
 
 // --- impl v_timer (Simple timers)
 
-#ifdef HAVE_V_TIMER
-#ifdef WINDOWS
+#if defined(HAVE_V_TIMER)
+#if defined(WINDOWS)
 static int gettimeofday(struct timeval * tp, struct timezone * tzp) {
 	// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
 	// This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
@@ -807,7 +815,7 @@ static int gettimeofday(struct timeval * tp, struct timezone * tzp) {
 	tp->tv_usec = (long) (system_time.wMilliseconds * 1000);
 	return 0;
 }
-#endif
+#endif /* defined(WINDOWS) */
 
 #if defined(v__gettimeofday)
 
@@ -887,7 +895,7 @@ void v_timer_sleep_ms(int ms) {
 }
 #endif /* #if defined(V_HAVE_STDLIB) || defined(v__sleep_ms) */
 
-#endif /* HAVE_V_TIMER */
+#endif /* defined(HAVE_V_TIMER) */
 
 // --- impl v_ma (Arena allocator)
 
