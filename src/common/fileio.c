@@ -128,7 +128,7 @@ file_data file_load(const char *file_path) {
 	}
 	file_data fdata = NULL;
 	v_arr_alloc(fdata, size + 1);
-	ssize_t readBytes = fread(fdata, sizeof(unsigned char), size, file);
+	size_t readBytes = fread(fdata, sizeof(unsigned char), size, file);
 	if ((readBytes != size) || ferror(file) != 0) {
 		logr(warning, "Error reading file\n");
 		fclose(file);
