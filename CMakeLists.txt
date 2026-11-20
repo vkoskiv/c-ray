@@ -25,7 +25,7 @@ if (MSVC)
 	# Avoid windows.h from including some usually unused libs like winsocks.h, since this might cause some redefinition errors.
 	add_definitions(/DWIN32_LEAN_AND_MEAN)
 
-	set(CMAKE_C_FLAGS   "/W3 /MP /Zi /Zo /permissive-" CACHE STRING "" FORCE)
+	set(CMAKE_C_FLAGS   "/std:c17 /W3 /MP /Zi /Zo /permissive-" CACHE STRING "" FORCE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} /EHsc /std:c++latest /Zc:throwingNew,inline" CACHE STRING "" FORCE)
 	set(CMAKE_C_FLAGS_DEBUG   "/Od /MDd" CACHE STRING "" FORCE)
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "" FORCE)
