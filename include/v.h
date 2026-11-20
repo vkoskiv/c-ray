@@ -151,18 +151,19 @@
 #include <string.h> // for memcpy() in v_arr_add_n()
 #include <stdlib.h> // We depend on stdlib malloc/free/realloc for now
 
-// v_timer requires a bit of Windows gunk.
+/*
+	gettimeofday()
+	TODO: Check BSDs/solaris/IRIX/etc.
+*/
 #if defined(WINDOWS)
+#include <Windows.h>
+#include <time.h>
 	typedef struct timeval {
 		long tv_sec;
 		long tv_usec;
 	} TIMEVAL, *PTIMEVAL, *LPTIMEVAL;
 	static int gettimeofday(struct timeval * tp, struct timezone * tzp);
 #else
-/*
-	gettimeofday()
-	TODO: Check BSDs/solaris/IRIX/etc.
-*/
 #include <sys/time.h>
 #endif
 
