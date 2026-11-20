@@ -26,8 +26,8 @@ jobs:
       runs-on: windows-latest
       steps:
       - uses: actions/checkout@v1
-      - uses: microsoft/setup-msbuild@v1.0.2
+      - uses: ilammy/msvc-dev-cmd@v1
       - name: cmake
-        run: cmake -G "Visual Studio 17 2022" -A x64 .
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
       - name: build
-        run: msbuild c-ray.sln /p:Configuration=Release /p:WarningLevel=0
+        run: cmake --build build
