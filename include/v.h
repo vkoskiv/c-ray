@@ -514,6 +514,7 @@ void v__arr_free(void *a);
 	#define v_arr_add(A, ...)        (v__arr_ensure((A), 1), (A)[v__arr_head(A)->n] = (__VA_ARGS__), v__arr_head(A)->n++)
 	#define v_arr_append(A)          (v__arr_ensure((A), 1), &(A)[v__arr_head(A)->n++])
 	#define v_arr_add_n(A, items, N) (v__arr_ensure((A), N), memcpy((A) + v__arr_head((A))->n, items, N * sizeof(items[0])), v__arr_head((A))->n += N)
+	#define v_arr_alloc(A, N) (v__arr_ensure((A), N), v__arr_head((A))->n += N)
 	#define v_arr_trim(A)            ((A) ? ((A) = v__arr_trim((A)), 0) : 0)
 	#define v_arr_copy(A)            ((A) ? v__arr_copy((A)) : NULL)
 	#define v_arr_free(A)            (((A) ? (v__arr_free((A)), 0) : 0), (A) = NULL)
@@ -1018,6 +1019,7 @@ void *v__arr_do_grow(void *a, size_t elem_size, size_t n) {
 		n = n < V_ARR_START_SIZE ? V_ARR_START_SIZE : n;
 		size_t initial = sizeof(struct v_arr) + n * elem_size;
 		struct v_arr *arr = calloc(1, initial);
+		// FIXME: if (!arr) ...
 		arr->cap = n;
 		arr->elem_size = elem_size;
 		return &arr[1];
@@ -1026,6 +1028,7 @@ void *v__arr_do_grow(void *a, size_t elem_size, size_t n) {
 	if (arr->n + n > arr->cap) {
 		size_t new_capacity = arr->grow_fn ? arr->grow_fn(arr->cap, arr->elem_size) : v_arr_grow_exponential(arr->cap, arr->elem_size);
 		arr = realloc(arr, arr->elem_size * new_capacity + sizeof(*arr));
+		// FIXME: if (!arr) ...
 		arr->cap = new_capacity;
 	}
 	return &arr[1];

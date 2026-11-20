@@ -122,22 +122,23 @@ file_data file_load(const char *file_path) {
 	return file;
 #else
 	FILE *file = fopen(file_path, "rb");
-	file_bytes *buf = malloc(size + 1 * sizeof(char));
-	size_t readBytes = fread(buf, sizeof(char), size, file);
-	ASSERT(readBytes == size);
-	if (ferror(file) != 0) {
+	if (!file) {
+		logr(warning, "Couldn't open '%.*s': %s\n", (int)strlen(file_path), file_path, strerror(errno));
+		return (file_data){ 0 };
+	}
+	file_data fdata = NULL;
+	v_arr_alloc(fdata, size + 1);
+	ssize_t readBytes = fread(fdata, sizeof(unsigned char), size, file);
+	if ((readBytes != size) || ferror(file) != 0) {
 		logr(warning, "Error reading file\n");
+		fclose(file);
+		v_arr_free(fdata);
+		return (file_data){ 0 };
 	} else {
-		buf[size] = '\0';
+		fdata[size] = '\0';
 	}
 	fclose(file);
-	// FIXME: static v_arr?
-	file_data file = { 0 };
-	v_arr_add_n(file, buf, readBytes);
-	free(buf);
-	return file;
-	// file_data filedata = (file_data){ .items = buf, .count = readBytes, .capacity = readBytes };
-	// return filedata;
+	return fdata;
 #endif
 }
 
